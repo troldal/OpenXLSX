@@ -43,7 +43,6 @@ The ambition is that OpenXLSX should be able to read, write, create and modify E
   
   ## Usage
   ```cpp
-  // Create new sheet and 
   
   #include <iostream>
   #include <OpenXLSX/OpenXLSX.h>
