@@ -76,8 +76,4 @@ The ambition is that OpenXLSX should be able to read, write, create and modify E
   return 0;
   }
   
-  ```
-  
-  ## License
-  Use of OpenXLSX and the included third party libraries are granted under the following licenses:
-  
+  ```  
