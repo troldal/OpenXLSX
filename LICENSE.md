@@ -1,4 +1,6 @@
-  ### RapidXML (The MIT License)
+  # LICENSES
+
+  ## RapidXML (The MIT License)
   Copyright (c) 2006, 2007 Marcin Kalicinski
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -19,7 +21,7 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
   IN THE SOFTWARE.
 
-  ### LibZip++ (BSD License 2.0)
+  ## LibZip++ (BSD License 2.0)
   Copyright (C) 2013 Cédric Tabin
 
   The author can be contacted on http://www.astorm.ch/blog/index.php?contact
@@ -47,7 +49,7 @@
   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-  ### OpenXLSX (BSD License 2.0)
+  ## OpenXLSX (BSD License 2.0)
   Copyright (c) 2018, Kenneth Troldal Balslev
 
   All rights reserved.
