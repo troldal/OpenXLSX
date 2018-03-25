@@ -77,3 +77,4 @@ The ambition is that OpenXLSX should be able to read, write, create and modify E
   }
   
   ```  
+  Note that it is (currently) required to link the program to Boost system Boost filesystem and LibZip libraries, in order to run.
