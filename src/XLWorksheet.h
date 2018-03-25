@@ -49,7 +49,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLAbstractSheet.h"
 #include "XLCellReference.h"
 
-namespace RapidXLSX
+namespace OpenXLSX
 {
     class XLCell;
     class XLCellRange;

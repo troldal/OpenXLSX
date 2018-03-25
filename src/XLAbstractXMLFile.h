@@ -50,7 +50,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <string>
 #include "XML/XMLDocument.h"
 
-namespace RapidXLSX
+namespace OpenXLSX
 {
     class XLDocument;
 
@@ -88,7 +88,7 @@ namespace RapidXLSX
         /**
          * @brief Copy constructor. Default (shallow) implementation used.
          */
-        XLAbstractXMLFile(const RapidXLSX::XLAbstractXMLFile &) = delete;
+        XLAbstractXMLFile(const OpenXLSX::XLAbstractXMLFile &) = delete;
 
         /**
          * @brief Destructor. Default implementation used.
@@ -99,7 +99,7 @@ namespace RapidXLSX
          * @brief The assignment operator. The default implementation has been used.
          * @return A reference to the new object.
          */
-        XLAbstractXMLFile &operator=(const RapidXLSX::XLAbstractXMLFile &) = delete;
+        XLAbstractXMLFile &operator=(const OpenXLSX::XLAbstractXMLFile &) = delete;
 
         /**
          * @brief Provide the XML data represented by the object.

@@ -39,6 +39,46 @@ The ambition is that OpenXLSX should be able to read, write, create and modify E
   
   Features related to formatting, plots and figures have not yet been implemented
   
+  It should be noted, that creating const XLDocument objects, is currently not working!
+  
+  ## Usage
+  ```cpp
+  // Create new sheet and 
+  
+  #include <iostream>
+  #include <OpenXLSX/OpenXLSX.h>
+  
+  using namespace std;
+  using namespace OpenXLSX;
+  
+  int main() {
+  
+      XLDocument doc;
+  
+      doc.CreateDocument("Spreadsheet.xlsx");
+      doc.Workbook().AddWorksheet("MyWorksheet");
+      auto &wks = doc.Workbook().Worksheet("MyWorksheet");
+  
+      auto arange = wks.Range(XLCellReference(1,1), XLCellReference(10,10));
+      for (auto &iter : arange) {
+          iter.Value().Set("Hello OpenXLSX!");
+      }
+  
+      doc.SaveDocument();
+      doc.CloseDocument();
+  
+      XLDocument rdoc;
+      rdoc.OpenDocument("Spreadsheet.xlsx");
+  
+      cout << "Content of cell B2: " << rdoc.Workbook().Worksheet("MyWorksheet").Cell("B2").Value().AsString();
+  
+      rdoc.CloseDocument();
+  
+  return 0;
+  }
+  
+  ```
+  
   ## License
   Use of OpenXLSX and the included third party libraries are granted under the following licenses:
   

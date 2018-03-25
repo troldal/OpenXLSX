@@ -4,7 +4,7 @@
 
 #include "XLValueError.h"
 
-using namespace RapidXLSX;
+using namespace OpenXLSX;
 using namespace std;
 
 /**

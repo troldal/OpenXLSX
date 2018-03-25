@@ -6,7 +6,7 @@
 #include "XLDocument.h"
 
 using namespace std;
-using namespace RapidXLSX;
+using namespace OpenXLSX;
 
 /**
  * @details Constructs a new XLSharedStrings object. Only one (common) object is allowed per XLDocument instance.

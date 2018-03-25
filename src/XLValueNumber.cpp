@@ -8,7 +8,7 @@
 #include "XLWorksheet.h"
 #include "XLException.h"
 
-using namespace RapidXLSX;
+using namespace OpenXLSX;
 using namespace std;
 using namespace boost;
 

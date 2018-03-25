@@ -51,7 +51,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 #include <string>
 
-namespace RapidXLSX
+namespace OpenXLSX
 {
     class XLWorksheet;
 

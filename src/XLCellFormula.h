@@ -46,9 +46,9 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLEXE_XLCELLFORMULA_H
 #define OPENXLEXE_XLCELLFORMULA_H
 
-#include <XML/XMLNode.h>
+#include "XML/XMLNode.h"
 
-namespace RapidXLSX
+namespace OpenXLSX
 {
 
     class XLCellFormula

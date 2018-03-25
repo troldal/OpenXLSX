@@ -53,7 +53,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLDocument.h"
 #include "XLCellType.h"
 
-namespace RapidXLSX
+namespace OpenXLSX
 {
     class XLCellRange;
     class XLCellValue;

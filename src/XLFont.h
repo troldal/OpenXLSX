@@ -50,7 +50,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <map>
 #include "XLColor.h"
 
-namespace RapidXLSX
+namespace OpenXLSX
 {
 
     class XMLNode;

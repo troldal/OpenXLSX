@@ -48,7 +48,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 #include <stdexcept>
 
-namespace RapidXLSX
+namespace OpenXLSX
 {
 
     class XLException: std::runtime_error

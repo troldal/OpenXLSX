@@ -10,7 +10,7 @@
 #include "XLException.h"
 
 using namespace std;
-using namespace RapidXLSX;
+using namespace OpenXLSX;
 using namespace boost::algorithm;
 
 

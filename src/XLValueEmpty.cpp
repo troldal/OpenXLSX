@@ -4,7 +4,7 @@
 
 #include "XLValueEmpty.h"
 
-using namespace RapidXLSX;
+using namespace OpenXLSX;
 using namespace std;
 
 /**
@@ -19,7 +19,7 @@ XLValueEmpty::XLValueEmpty(XLCellValue &parent)
 /**
  * @details
  */
-std::unique_ptr<RapidXLSX::XLValue> XLValueEmpty::Clone(RapidXLSX::XLCell &parent)
+std::unique_ptr<OpenXLSX::XLValue> XLValueEmpty::Clone(OpenXLSX::XLCell &parent)
 {
     unique_ptr<XLValue> result(new XLValueEmpty(ParentCellValue()));
     *result = *this;

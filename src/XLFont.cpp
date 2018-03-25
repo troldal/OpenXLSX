@@ -7,7 +7,7 @@
 #include <sstream>
 
 using namespace std;
-using namespace RapidXLSX;
+using namespace OpenXLSX;
 
 std::map<string, XLFont> XLFont::s_fonts = {};
 
@@ -16,7 +16,7 @@ std::map<string, XLFont> XLFont::s_fonts = {};
  */
 XLFont::XLFont(const string &name,
                unsigned int size,
-               const RapidXLSX::XLColor &color,
+               const OpenXLSX::XLColor &color,
                bool bold,
                bool italics,
                bool underline)
@@ -37,7 +37,7 @@ XLFont::XLFont(const string &name,
 /**
  * @details
  */
-std::string RapidXLSX::XLFont::UniqueId() const
+std::string OpenXLSX::XLFont::UniqueId() const
 {
     stringstream str;
 

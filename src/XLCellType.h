@@ -46,6 +46,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLEXE_XLCELLTYPE_H
 #define OPENXLEXE_XLCELLTYPE_H
 
+namespace OpenXLSX
+{
 
 //======================================================================================================================
 //========== XLCellType Enum ===========================================================================================
@@ -54,10 +56,10 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 /**
  * @brief The XLCellType class is an enumeration of the possible cell types, as recognized by Excel.
  */
-enum class XLCellType
-{
-    Empty, Boolean, Number, Error, String
-};
+    enum class XLCellType
+    {
+        Empty, Boolean, Number, Error, String
+    };
 
 //======================================================================================================================
 //========== XLValue Enum ==========================================================================================
@@ -66,10 +68,10 @@ enum class XLCellType
 /**
  * @brief The XLValueType class is an enumeration of the possible cell value types.
  */
-enum class XLValueType
-{
-    Empty, Boolean, Integer, Float, String, Error
-};
+    enum class XLValueType
+    {
+        Empty, Boolean, Integer, Float, String, Error
+    };
 
 //======================================================================================================================
 //========== XLStringType Enum =========================================================================================
@@ -78,10 +80,10 @@ enum class XLValueType
 /**
  * @brief The XLStringType class is an enumeration of the possible string types, as recognized by Excel.
  */
-enum class XLStringType
-{
-    String, SharedString, InlineString
-};
+    enum class XLStringType
+    {
+        String, SharedString, InlineString
+    };
 
 //======================================================================================================================
 //========== XLBool Enum ===============================================================================================
@@ -91,10 +93,10 @@ enum class XLStringType
  * @brief The XLBool enum has two values: True and False. The reason for using this instead of \c bool is for
  * clarity and to avoid implicit \c bool <-> \c int conversions.
  */
-enum class XLBool
-{
-    True, False
-};
+    enum class XLBool
+    {
+        True, False
+    };
 
 //======================================================================================================================
 //========== XLNumberType Enum =========================================================================================
@@ -103,10 +105,11 @@ enum class XLBool
 /**
  * @brief
  */
-enum class XLNumberType
-{
-    Integer, Float
-};
+    enum class XLNumberType
+    {
+        Integer, Float
+    };
 
+}
 
 #endif //OPENXLEXE_XLCELLTYPE_H

@@ -51,7 +51,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <boost/bimap.hpp>
 #include <unordered_map>
 
-namespace RapidXLSX
+namespace OpenXLSX
 {
 
 //======================================================================================================================

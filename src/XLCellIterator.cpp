@@ -7,7 +7,7 @@
 
 #include "XLCellRange.h"
 
-using namespace RapidXLSX;
+using namespace OpenXLSX;
 
 /*
  * =============================================================================================================

@@ -6,7 +6,7 @@
 #include "XLCell.h"
 #include "XLCellValue.h"
 
-using namespace RapidXLSX;
+using namespace OpenXLSX;
 using namespace std;
 
 /**

@@ -13,7 +13,7 @@
 #include <boost/algorithm/string.hpp>
 
 using namespace std;
-using namespace RapidXLSX;
+using namespace OpenXLSX;
 using namespace boost::algorithm;
 
 

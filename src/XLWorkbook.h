@@ -51,7 +51,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLSharedStrings.h"
 #include "XLSpreadsheetElement.h"
 
-namespace RapidXLSX
+namespace OpenXLSX
 {
     class XLSharedStrings;
     class XLAbstractSheet;

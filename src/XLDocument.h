@@ -62,7 +62,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLRelationships.h"
 #include "XLArchive.h"
 
-namespace RapidXLSX
+namespace OpenXLSX
 {
 
     class XLSharedStrings;

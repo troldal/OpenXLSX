@@ -55,7 +55,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <vector>
 #include <map>
 
-namespace RapidXLSX
+namespace OpenXLSX
 {
 
 //======================================================================================================================
@@ -89,7 +89,7 @@ namespace RapidXLSX
          * @brief
          * @param other
          */
-        XLDocAppProperties(const RapidXLSX::XLDocAppProperties &other) = default;
+        XLDocAppProperties(const OpenXLSX::XLDocAppProperties &other) = default;
 
         /**
          * @brief

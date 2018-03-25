@@ -52,7 +52,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <map>
 #include <string>
 
-namespace RapidXLSX
+namespace OpenXLSX
 {
 
 
@@ -77,7 +77,7 @@ namespace RapidXLSX
          * @brief
          * @param other
          */
-        XLStyles(const RapidXLSX::XLStyles &other) = delete;
+        XLStyles(const OpenXLSX::XLStyles &other) = delete;
 
         /**
          * @brief
@@ -88,7 +88,7 @@ namespace RapidXLSX
          * @brief
          * @return
          */
-        XLStyles &operator=(const RapidXLSX::XLStyles &) = delete;
+        XLStyles &operator=(const OpenXLSX::XLStyles &) = delete;
 
         /**
          * @brief

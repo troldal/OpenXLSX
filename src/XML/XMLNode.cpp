@@ -4,7 +4,7 @@
 
 #include "XMLNode.h"
 
-using namespace RapidXLSX;
+using namespace OpenXLSX;
 using namespace rapidxml;
 using namespace std;
 

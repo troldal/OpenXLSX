@@ -10,7 +10,7 @@
 #include "XLWorksheet.h"
 
 using namespace std;
-using namespace RapidXLSX;
+using namespace OpenXLSX;
 
 
 /**

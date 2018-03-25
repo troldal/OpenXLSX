@@ -6,7 +6,7 @@
 #include "XLDocument.h"
 
 using namespace std;
-using namespace RapidXLSX;
+using namespace OpenXLSX;
 
 /**
  * @details

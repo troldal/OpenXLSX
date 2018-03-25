@@ -47,7 +47,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #define OPENXLEXE_XLERROR_H
 
 #include "XLValue.h"
-namespace RapidXLSX
+namespace OpenXLSX
 {
 
 //======================================================================================================================

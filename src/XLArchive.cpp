@@ -8,7 +8,7 @@
 
 using namespace std;
 using namespace libzippp;
-using namespace RapidXLSX;
+using namespace OpenXLSX;
 
 /**
  * @details The constructor opens the zip file with given path, using the libzippp:ZipArchive class.

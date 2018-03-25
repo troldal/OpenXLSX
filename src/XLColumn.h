@@ -49,7 +49,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XML/XMLNode.h"
 #include "XLDocument.h"
 
-namespace RapidXLSX
+namespace OpenXLSX
 {
 
 //======================================================================================================================

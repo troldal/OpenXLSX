@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(RapidXLSX)
+project(OpenXLSX)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/CMake/Modules/")
 
@@ -13,7 +13,7 @@ set(Boost_USE_STATIC_LIBS ON)
 link_libraries(${LIBZIP_LIBRARY} ${Boost_LIBRARIES})
 
 set(SOURCE_FILES
-        src/libzip++.h src/libzip++.cpp
+        src/Zip/libzip++.h src/Zip/libzip++.cpp
         src/XML/rapidxml_iterators.hpp
         src/XML/rapidxml_print.hpp
         src/XML/rapidxml_utils.hpp
@@ -54,6 +54,58 @@ set(SOURCE_FILES
         src/XLValue.cpp src/XLValue.h
         src/XLValueBoolean.cpp src/XLValueBoolean.h
         src/XLValueEmpty.cpp src/XLValueEmpty.h
-        src/XLValueError.cpp src/XLValueError.h)
+        src/XLValueError.cpp src/XLValueError.h src/OpenXLSX.h)
 
-add_library(RapidXLSX ${SOURCE_FILES})
+add_library(OpenXLSX ${SOURCE_FILES})
+
+install (TARGETS OpenXLSX DESTINATION lib)
+install (FILES
+        src/OpenXLSX.h
+        src/XLDocument.h
+        src/XLRelationships.h
+        src/XLAbstractXMLFile.h
+        src/XLContentTypes.h
+        src/XLDocumentAppProperties.h
+        src/XLDocumentCoreProperties.h
+        src/XLSharedStrings.h
+        src/XLStyles.h
+        src/XLWorkbook.h
+        src/XLAbstractSheet.h
+        src/XLCell.h
+        src/XLWorksheet.h
+        src/XLCellReference.h
+        src/XLCellRange.h
+        src/XLArchive.h
+        src/XLCellIterator.h
+        src/XLChartsheet.h
+        src/XLTemplate.h
+        src/XLRow.h
+        src/XLColumn.h
+        src/XLColor.h
+        src/XLFont.h
+        src/XLCellFormats.h
+        src/XLException.h
+        src/XLCellValue.h
+        src/XLValueString.h
+        src/XLSpreadsheetElement.h
+        src/XLCellFormula.h
+        src/XLCellType.h
+        src/XLValueNumber.h
+        src/XLValue.h
+        src/XLValueBoolean.h
+        src/XLValueEmpty.h
+        src/XLValueError.h
+        DESTINATION include/OpenXLSX)
+install (FILES
+        src/XML/rapidxml_iterators.hpp
+        src/XML/rapidxml_print.hpp
+        src/XML/rapidxml_utils.hpp
+        src/XML/rapidxml.hpp
+        src/XML/XMLNode.h
+        src/XML/XMLAttribute.h
+        src/XML/XMLDocument.h
+        DESTINATION include/OpenXLSX/XML)
+install (FILES
+        src/Zip/libzip++.h
+        DESTINATION include/OpenXLSX/Zip)
+

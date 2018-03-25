@@ -5,7 +5,7 @@
 #include "XLSpreadsheetElement.h"
 #include "XLDocument.h"
 
-namespace RapidXLSX
+namespace OpenXLSX
 {
     XLSpreadsheetElement::XLSpreadsheetElement(XLDocument &parent)
         : m_document(parent),

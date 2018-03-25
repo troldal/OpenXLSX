@@ -7,7 +7,7 @@
 #include <iostream>
 
 using namespace std;
-using namespace RapidXLSX;
+using namespace OpenXLSX;
 using boost::bimap;
 
 const map<int, string> XLCellReference::s_alphabet = {{0, "A"},
