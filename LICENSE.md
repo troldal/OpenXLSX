@@ -1,6 +1,6 @@
-  # LICENSES
+# LICENSES
 
-  ## RapidXML (The MIT License)
+## RapidXML (The MIT License)
   Copyright (c) 2006, 2007 Marcin Kalicinski
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
