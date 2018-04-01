@@ -66,7 +66,7 @@ namespace OpenXLSX
      * @brief This class is a specialization of the XLAbstractXMLFile, with the purpose of the representing the
      * document app properties in the app.xml file (docProps folder) in the .xlsx package.
      */
-    class XLDocAppProperties: public XLAbstractXMLFile,
+    class XLAppProperties: public XLAbstractXMLFile,
                               public XLSpreadsheetElement
     {
         friend class XLDocument;
@@ -82,26 +82,26 @@ namespace OpenXLSX
          * @param parent
          * @param filePath
          */
-        explicit XLDocAppProperties(XLDocument &parent,
+        explicit XLAppProperties(XLDocument &parent,
                                     const std::string &filePath);
 
         /**
          * @brief
          * @param other
          */
-        XLDocAppProperties(const OpenXLSX::XLDocAppProperties &other) = default;
+        XLAppProperties(const OpenXLSX::XLAppProperties &other) = default;
 
         /**
          * @brief
          */
-        virtual ~XLDocAppProperties();
+        virtual ~XLAppProperties();
 
         /**
          * @brief
          * @param other
          * @return
          */
-        XLDocAppProperties &operator=(const XLDocAppProperties &other) = default;
+        XLAppProperties &operator=(const XLAppProperties &other) = default;
 
         /**
          * @brief

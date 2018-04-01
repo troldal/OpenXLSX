@@ -53,26 +53,26 @@ The ambition is that OpenXLSX should be able to read, write, create and modify E
   
   int main() {
   
-      XLDocument doc;
-  
-      doc.CreateDocument("Spreadsheet.xlsx");
-      doc.Workbook().AddWorksheet("MyWorksheet");
-      auto &wks = doc.Workbook().Worksheet("MyWorksheet");
-  
-      auto arange = wks.Range(XLCellReference(1,1), XLCellReference(10,10));
-      for (auto &iter : arange) {
-          iter.Value().Set("Hello OpenXLSX!");
-      }
-  
-      doc.SaveDocument();
-      doc.CloseDocument();
-  
-      XLDocument rdoc;
-      rdoc.OpenDocument("Spreadsheet.xlsx");
-  
-      cout << "Content of cell B2: " << rdoc.Workbook().Worksheet("MyWorksheet").Cell("B2").Value().AsString();
-  
-      rdoc.CloseDocument();
+    XLDocument doc;
+
+    doc.CreateDocument("Spreadsheet.xlsx");
+    doc.Workbook()->AddWorksheet("MyWorksheet");
+    auto wks = doc.Workbook()->Worksheet("MyWorksheet");
+
+    auto arange = wks->Range(XLCellReference(1,1), XLCellReference(10,10));
+    for (auto &iter : arange) {
+        iter.Value().Set("Hello OpenXLSX!");
+    }
+
+    doc.SaveDocument();
+    doc.CloseDocument();
+
+    XLDocument rdoc;
+    rdoc.OpenDocument("Spreadsheet.xlsx");
+
+    cout << "Content of cell B2: " << rdoc.Workbook()->Worksheet("MyWorksheet")->Cell("B2").Value().AsString();
+
+    rdoc.CloseDocument();
   
   return 0;
   }

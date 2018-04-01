@@ -155,14 +155,14 @@ namespace OpenXLSX
          * @param sheetName
          * @return
          */
-        XLWorksheet &Worksheet(const std::string &sheetName);
+        XLWorksheet *Worksheet(const std::string &sheetName);
 
         /**
          * @brief
          * @param sheetName
          * @return
          */
-        const XLWorksheet &Worksheet(const std::string &sheetName) const;
+        const XLWorksheet *Worksheet(const std::string &sheetName) const;
 
         /**
          * @brief

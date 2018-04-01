@@ -98,7 +98,7 @@ bool XLWorkbook::ParseXMLData()
  * @details
  * @todo Currently, an XLWorksheet object cannot be created from the const method. This should be fixed.
  */
-XLWorksheet &XLWorkbook::Worksheet(const std::string &sheetName)
+XLWorksheet * XLWorkbook::Worksheet(const std::string &sheetName)
 {
     // Calling the const function from the non-const overload.
     //return const_cast<XLWorksheet &>(static_cast<const XLWorkbook *>(this)->Worksheet(sheetName));
@@ -112,7 +112,7 @@ XLWorksheet &XLWorkbook::Worksheet(const std::string &sheetName)
 
     XLAbstractSheet *sheet = m_sheets.at(sheetName).get();
     if (sheet->Type() == XLSheetType::WorkSheet)
-        return *dynamic_cast<XLWorksheet *>(sheet);
+        return dynamic_cast<XLWorksheet *>(sheet);
     else
         throw std::range_error("Sheet does not exist");
 }
@@ -120,7 +120,7 @@ XLWorksheet &XLWorkbook::Worksheet(const std::string &sheetName)
 /**
  * @details
  */
-const XLWorksheet &XLWorkbook::Worksheet(const std::string &sheetName) const
+const XLWorksheet * XLWorkbook::Worksheet(const std::string &sheetName) const
 {
 
     if (m_sheets.find(sheetName) == m_sheets.end()) throw std::range_error("Sheet does not exist");
@@ -130,7 +130,7 @@ const XLWorksheet &XLWorkbook::Worksheet(const std::string &sheetName) const
 
     XLAbstractSheet *sheet = m_sheets.at(sheetName).get();
     if (sheet->Type() == XLSheetType::WorkSheet)
-        return *dynamic_cast<XLWorksheet *>(sheet);
+        return dynamic_cast<XLWorksheet *>(sheet);
     else
         throw std::range_error("Sheet does not exist");
 }
@@ -200,10 +200,10 @@ void XLWorkbook::DeleteSheet(const std::string &sheetName)
 {
 
     // Erase file Path from internal datastructure.
-    m_childXmlDocuments.erase(Worksheet(sheetName).FilePath());
+    m_childXmlDocuments.erase(Worksheet(sheetName)->FilePath());
 
     // Clear Worksheet and set to safe State
-    Worksheet(sheetName).Delete();
+    Worksheet(sheetName)->Delete();
 
     // Delete the pointer to the object
     m_sheets.erase(sheetName);
@@ -252,7 +252,7 @@ void XLWorkbook::CloneWorksheet(const std::string &extName,
                                 unsigned int index)
 {
 
-    string content = Worksheet(extName).GetXmlData();
+    string content = Worksheet(extName)->GetXmlData();
     auto &item = CreateWorksheetFile(newName, index, content);
     CreateWorksheet(item);
 }

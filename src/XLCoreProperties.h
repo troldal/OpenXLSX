@@ -58,13 +58,13 @@ namespace OpenXLSX
 {
 
 //======================================================================================================================
-//========== XLDocCoreProperties Class =================================================================================
+//========== XLCoreProperties Class =================================================================================
 //======================================================================================================================
 
     /**
      * @brief
      */
-    class XLDocCoreProperties: public XLAbstractXMLFile,
+    class XLCoreProperties: public XLAbstractXMLFile,
                                public XLSpreadsheetElement
     {
 
@@ -81,13 +81,13 @@ namespace OpenXLSX
          * @param filePath
          * @return
          */
-        explicit XLDocCoreProperties(XLDocument &parent,
+        explicit XLCoreProperties(XLDocument &parent,
                                      const std::string &filePath);
 
         /**
          * @brief
          */
-        virtual ~XLDocCoreProperties();
+        virtual ~XLCoreProperties();
 
         /**
          * @brief

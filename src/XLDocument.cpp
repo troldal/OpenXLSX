@@ -191,17 +191,17 @@ std::string XLDocument::DocumentPath() const
 /**
  * @details Returns a pointer to the underlying m_workbook object.
  */
-XLWorkbook &XLDocument::Workbook()
+XLWorkbook *XLDocument::Workbook()
 {
-    return *m_workbook;
+    return m_workbook.get();
 }
 
 /**
  * @details
  */
-const XLWorkbook &XLDocument::Workbook() const
+const XLWorkbook *XLDocument::Workbook() const
 {
-    return *m_workbook;
+    return m_workbook.get();
 }
 
 /**
@@ -414,14 +414,14 @@ void XLDocument::LoadAllFiles()
     // Iterate through the document relationship items.
     for (const auto &iter : m_documentRelationships->Relationships()) {
         if (iter.second->Type() == XLRelationshipType::CoreProperties) {
-            m_docCoreProperties = make_unique<XLDocCoreProperties>(*this, iter.second->Target());
+            m_docCoreProperties = make_unique<XLCoreProperties>(*this, iter.second->Target());
             m_xmlFiles[m_docCoreProperties->FilePath()] = m_docCoreProperties.get();
         }
     }
 
     for (const auto &iter : m_documentRelationships->Relationships()) {
         if (iter.second->Type() == XLRelationshipType::ExtendedProperties) {
-            m_docAppProperties = make_unique<XLDocAppProperties>(*this, iter.second->Target());
+            m_docAppProperties = make_unique<XLAppProperties>(*this, iter.second->Target());
             m_xmlFiles[m_docAppProperties->FilePath()] = m_docAppProperties.get();
         }
     }
@@ -451,7 +451,7 @@ void XLDocument::AddFile(const std::string &path,
 /**
  * @details
  */
-XLDocAppProperties &XLDocument::AppProperties()
+XLAppProperties &XLDocument::AppProperties()
 {
     return *m_docAppProperties;
 }
@@ -459,7 +459,7 @@ XLDocAppProperties &XLDocument::AppProperties()
 /**
  * @details
  */
-const XLDocAppProperties &XLDocument::AppProperties() const
+const XLAppProperties &XLDocument::AppProperties() const
 {
     return *m_docAppProperties;
 }
@@ -467,7 +467,7 @@ const XLDocAppProperties &XLDocument::AppProperties() const
 /**
  * @details
  */
-XLDocCoreProperties &XLDocument::CoreProperties()
+XLCoreProperties &XLDocument::CoreProperties()
 {
     return *m_docCoreProperties;
 }
@@ -475,7 +475,7 @@ XLDocCoreProperties &XLDocument::CoreProperties()
 /**
  * @details
  */
-const XLDocCoreProperties &XLDocument::CoreProperties() const
+const XLCoreProperties &XLDocument::CoreProperties() const
 {
     return *m_docCoreProperties;
 }

@@ -131,7 +131,7 @@ void XLAbstractSheet::Delete()
     m_nodeInContentTypes = nullptr;
 
     // Delete the item in Workbook.xml.rels
-    ParentDocument().Workbook().Relationships().DeleteRelationship(m_nodeInWorkbookRels->Id());
+    ParentDocument().Workbook()->Relationships().DeleteRelationship(m_nodeInWorkbookRels->Id());
     m_nodeInWorkbookRels = nullptr;
 
     // Delete the underlying XML file.

@@ -27,8 +27,8 @@ set(SOURCE_FILES
         src/XLRelationships.cpp src/XLRelationships.h
         src/XLAbstractXMLFile.cpp src/XLAbstractXMLFile.h
         src/XLContentTypes.cpp src/XLContentTypes.h
-        src/XLDocumentAppProperties.cpp src/XLDocumentAppProperties.h
-        src/XLDocumentCoreProperties.cpp src/XLDocumentCoreProperties.h
+        src/XLAppProperties.cpp src/XLAppProperties.h
+        src/XLCoreProperties.cpp src/XLCoreProperties.h
         src/XLSharedStrings.cpp src/XLSharedStrings.h
         src/XLStyles.cpp src/XLStyles.h
         src/XLWorkbook.cpp src/XLWorkbook.h
@@ -68,8 +68,8 @@ install (FILES
         src/XLRelationships.h
         src/XLAbstractXMLFile.h
         src/XLContentTypes.h
-        src/XLDocumentAppProperties.h
-        src/XLDocumentCoreProperties.h
+        src/XLAppProperties.h
+        src/XLCoreProperties.h
         src/XLSharedStrings.h
         src/XLStyles.h
         src/XLWorkbook.h

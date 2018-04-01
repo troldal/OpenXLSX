@@ -48,30 +48,94 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 namespace OpenXLSX
 {
-
     class XLWorkbook;
     class XLDocument;
 
+//======================================================================================================================
+//========== XLSpreadsheetElement Class ================================================================================
+//======================================================================================================================
+
+    /**
+     * @brief The XLSpreadsheetElement class implements the core functionality that many other classes require, such
+     * as accessing the parent workbook and parent document.
+     */
     class XLSpreadsheetElement
     {
+
+//----------------------------------------------------------------------------------------------------------------------
+//           Public Member Functions
+//----------------------------------------------------------------------------------------------------------------------
+
     public:
+
+        /**
+         * @brief
+         * @param parent
+         */
         explicit XLSpreadsheetElement(XLDocument &parent);
+
+        /**
+         * @brief
+         * @param other
+         */
         XLSpreadsheetElement(const XLSpreadsheetElement &other) = default;
+
+        /**
+         * @brief
+         * @param other
+         */
         XLSpreadsheetElement(XLSpreadsheetElement &&other) = default;
+
+        /**
+         * @brief
+         */
         virtual ~XLSpreadsheetElement() = default;
 
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
         XLSpreadsheetElement &operator=(const XLSpreadsheetElement &other) = delete;
+
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
         XLSpreadsheetElement &operator=(XLSpreadsheetElement &&other) = delete;
 
+        /**
+         * @brief
+         * @return
+         */
         virtual XLWorkbook &ParentWorkbook();
+
+        /**
+         * @brief
+         * @return
+         */
         virtual const XLWorkbook &ParentWorkbook() const;
 
+        /**
+         * @brief
+         * @return
+         */
         virtual XLDocument &ParentDocument();
+
+        /**
+         * @brief
+         * @return
+         */
         virtual const XLDocument &ParentDocument() const;
 
+//----------------------------------------------------------------------------------------------------------------------
+//           Private Member Variables
+//----------------------------------------------------------------------------------------------------------------------
+
     private:
-        XLDocument &m_document;
-        XLWorkbook &m_workbook;
+        XLDocument &m_document; /**< */
+        XLWorkbook &m_workbook; /**< */
 
     };
 

@@ -2,7 +2,7 @@
 // Created by Troldal on 18/08/16.
 //
 
-#include "XLDocumentCoreProperties.h"
+#include "XLCoreProperties.h"
 #include "XLDocument.h"
 
 using namespace std;
@@ -11,8 +11,8 @@ using namespace OpenXLSX;
 /**
  * @details
  */
-XLDocCoreProperties::XLDocCoreProperties(XLDocument &parent,
-                                         const std::string &filePath)
+XLCoreProperties::XLCoreProperties(XLDocument &parent,
+                                   const std::string &filePath)
     : XLAbstractXMLFile(parent.RootDirectory().string(), filePath),
       XLSpreadsheetElement(parent),
       m_properties()
@@ -23,7 +23,7 @@ XLDocCoreProperties::XLDocCoreProperties(XLDocument &parent,
 /**
  * @details
  */
-XLDocCoreProperties::~XLDocCoreProperties()
+XLCoreProperties::~XLCoreProperties()
 {
 
 }
@@ -31,7 +31,7 @@ XLDocCoreProperties::~XLDocCoreProperties()
 /**
  * @details
  */
-bool XLDocCoreProperties::ParseXMLData()
+bool XLCoreProperties::ParseXMLData()
 {
     m_properties.clear();
 
@@ -48,7 +48,7 @@ bool XLDocCoreProperties::ParseXMLData()
 /**
  * @details
  */
-bool XLDocCoreProperties::SetProperty(const std::string &name,
+bool XLCoreProperties::SetProperty(const std::string &name,
                                       const std::string &value)
 {
     m_properties.at(name)->setValue(value);
@@ -59,7 +59,7 @@ bool XLDocCoreProperties::SetProperty(const std::string &name,
 /**
  * @details
  */
-bool XLDocCoreProperties::SetProperty(const std::string &name,
+bool XLCoreProperties::SetProperty(const std::string &name,
                                       int value)
 {
     return SetProperty(name, to_string(value));
@@ -68,7 +68,7 @@ bool XLDocCoreProperties::SetProperty(const std::string &name,
 /**
  * @details
  */
-bool XLDocCoreProperties::SetProperty(const std::string &name,
+bool XLCoreProperties::SetProperty(const std::string &name,
                                       double value)
 {
     return SetProperty(name, to_string(value));
@@ -77,7 +77,7 @@ bool XLDocCoreProperties::SetProperty(const std::string &name,
 /**
  * @details
  */
-XMLNode &XLDocCoreProperties::Property(const std::string &name) const
+XMLNode &XLCoreProperties::Property(const std::string &name) const
 {
     return *m_properties.at(name);
 }
@@ -85,7 +85,7 @@ XMLNode &XLDocCoreProperties::Property(const std::string &name) const
 /**
  * @details
  */
-void XLDocCoreProperties::DeleteProperty(const std::string &name)
+void XLCoreProperties::DeleteProperty(const std::string &name)
 {
     auto element = m_properties.at(name);
     element->deleteNode();

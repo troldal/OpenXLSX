@@ -53,8 +53,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <fstream>
 #include <boost/filesystem.hpp>
 #include "XLContentTypes.h"
-#include "XLDocumentAppProperties.h"
-#include "XLDocumentCoreProperties.h"
+#include "XLAppProperties.h"
+#include "XLCoreProperties.h"
 #include "XLSharedStrings.h"
 #include "XLStyles.h"
 #include "XLWorkbook.h"
@@ -193,13 +193,13 @@ namespace OpenXLSX
          * @brief Get the underlying workbook object.
          * @return A pointer to the XLWorkbook object
          */
-        XLWorkbook &Workbook();
+        XLWorkbook *Workbook();
 
         /**
-         * @brief
-         * @return
+         * @brief Get the underlying workbook object, as a const object.
+         * @return A const pointer to the XLWorkbook object.
          */
-        const XLWorkbook &Workbook() const;
+        const XLWorkbook *Workbook() const;
 
         /**
          * @brief Get the requested document property.
@@ -276,25 +276,25 @@ namespace OpenXLSX
          * @brief Getter method for the App Properties object.
          * @return A pointer to the XLDocAppProperties object.
          */
-        XLDocAppProperties &AppProperties();
+        XLAppProperties &AppProperties();
 
         /**
          * @brief Getter method for the App Properties object.
          * @return A pointer to the const XLDocAppProperties object.
          */
-        const XLDocAppProperties &AppProperties() const;
+        const XLAppProperties &AppProperties() const;
 
         /**
          * @brief Getter method for the Core Properties object.
          * @return A pointer to the XLDocCoreProperties object.
          */
-        XLDocCoreProperties &CoreProperties();
+        XLCoreProperties &CoreProperties();
 
         /**
          * @brief Getter method for the Core Properties object.
          * @return A pointer to the const XLDocCoreProperties object.
          */
-        const XLDocCoreProperties &CoreProperties() const;
+        const XLCoreProperties &CoreProperties() const;
 
 //----------------------------------------------------------------------------------------------------------------------
 //           Private Member Variables
@@ -307,8 +307,8 @@ namespace OpenXLSX
 
         std::unique_ptr<XLRelationships> m_documentRelationships; /**< A pointer to the document relationships object*/
         std::unique_ptr<XLContentTypes> m_contentTypes; /**< A pointer to the content types object*/
-        std::unique_ptr<XLDocAppProperties> m_docAppProperties; /**< A pointer to the App properties object */
-        std::unique_ptr<XLDocCoreProperties> m_docCoreProperties; /**< A pointer to the Core properties object*/
+        std::unique_ptr<XLAppProperties> m_docAppProperties; /**< A pointer to the App properties object */
+        std::unique_ptr<XLCoreProperties> m_docCoreProperties; /**< A pointer to the Core properties object*/
         std::unique_ptr<XLWorkbook> m_workbook; /**< A pointer to the workbook object */
 
         std::map<std::string, XLAbstractXMLFile *> m_xmlFiles; /**< A std::map with all the associated XML files*/
