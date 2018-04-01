@@ -4,6 +4,7 @@
 
 #include "XLColor.h"
 #include <sstream>
+#include <algorithm>
 
 using namespace std;
 using namespace OpenXLSX;
@@ -14,9 +15,9 @@ using namespace OpenXLSX;
 XLColor::XLColor(unsigned int red,
                  unsigned int green,
                  unsigned int blue)
-    : m_red(std::min(red, 255U)),
-      m_green(std::min(green, 255U)),
-      m_blue(std::min(blue, 255U))
+    : m_red(min(red, 255U)),
+      m_green(min(green, 255U)),
+      m_blue(min(blue, 255U))
 {
 
 }
@@ -39,9 +40,9 @@ void XLColor::SetColor(unsigned int red,
                        unsigned int green,
                        unsigned int blue)
 {
-    m_red = std::min(red, 255U);
-    m_green = std::min(green, 255U);
-    m_blue = std::min(blue, 255U);
+    m_red = min(red, 255U);
+    m_green = min(green, 255U);
+    m_blue = min(blue, 255U);
 }
 
 /**
