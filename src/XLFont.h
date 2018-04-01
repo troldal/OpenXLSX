@@ -55,11 +55,23 @@ namespace OpenXLSX
 
     class XMLNode;
 
+    /**
+     * @brief
+     */
     class XLFont
     {
     public:
         friend class XLStyles;
 
+        /**
+         * @brief
+         * @param name
+         * @param size
+         * @param color
+         * @param bold
+         * @param italics
+         * @param underline
+         */
         explicit XLFont(const std::string &name = "Cambria",
                         unsigned int size = 11,
                         const XLColor &color = XLColor(),
@@ -78,9 +90,17 @@ namespace OpenXLSX
          */
         ~XLFont() = default;
 
-
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
         XLFont &operator=(const XLFont &other) = delete;
 
+        /**
+         * @brief
+         * @return
+         */
         std::string UniqueId() const;
 
     private:

@@ -16,7 +16,7 @@ std::map<string, XLFont> XLFont::s_fonts = {};
  */
 XLFont::XLFont(const string &name,
                unsigned int size,
-               const OpenXLSX::XLColor &color,
+               const XLColor &color,
                bool bold,
                bool italics,
                bool underline)

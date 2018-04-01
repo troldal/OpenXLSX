@@ -42,6 +42,7 @@ The ambition is that OpenXLSX should be able to read, write, create and modify E
   It should be noted, that creating const XLDocument objects, is currently not working!
   
   ## Usage
+  
   ```cpp
   
   #include <iostream>
