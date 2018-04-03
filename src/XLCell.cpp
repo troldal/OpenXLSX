@@ -30,9 +30,9 @@ using namespace OpenXLSX;
  */
 XLCell::XLCell(XLWorksheet &parent,
                XMLNode &cellNode)
-    : XLSpreadsheetElement(parent.ParentDocument()),
-      m_parentDocument(&parent.ParentDocument()),
-      m_parentWorkbook(&parent.ParentWorkbook()),
+    : XLSpreadsheetElement(*parent.ParentDocument()),
+      m_parentDocument(parent.ParentDocument()),
+      m_parentWorkbook(parent.ParentWorkbook()),
       m_parentWorksheet(&parent),
       m_cellReference(XLCellReference(cellNode.attribute("r")->value())),
       m_rowNode(cellNode.parent()),

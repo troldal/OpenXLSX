@@ -14,7 +14,7 @@ using namespace OpenXLSX;
 XLColumn::XLColumn(XLWorksheet &parent,
                    XMLNode &columnNode)
     : m_parentWorksheet(&parent),
-      m_parentDocument(&parent.ParentDocument()),
+      m_parentDocument(parent.ParentDocument()),
       m_columnNode(&columnNode),
       m_width(10),
       m_hidden(false),

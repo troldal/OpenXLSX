@@ -20,32 +20,32 @@ namespace OpenXLSX
     /**
      * @details
      */
-    XLWorkbook &XLSpreadsheetElement::ParentWorkbook()
+    XLWorkbook *XLSpreadsheetElement::ParentWorkbook()
     {
-        return const_cast<XLWorkbook &>(static_cast<const XLSpreadsheetElement *>(this)->ParentWorkbook());
+        return const_cast<XLWorkbook *>(static_cast<const XLSpreadsheetElement *>(this)->ParentWorkbook());
     }
 
     /**
      * @details
      */
-    const XLWorkbook &XLSpreadsheetElement::ParentWorkbook() const
+    const XLWorkbook * XLSpreadsheetElement::ParentWorkbook() const
     {
-        return m_workbook;
+        return &m_workbook;
     }
 
     /**
      * @details
      */
-    XLDocument &XLSpreadsheetElement::ParentDocument()
+    XLDocument * XLSpreadsheetElement::ParentDocument()
     {
-        return const_cast<XLDocument &>(static_cast<const XLSpreadsheetElement *>(this)->ParentDocument());
+        return const_cast<XLDocument *>(static_cast<const XLSpreadsheetElement *>(this)->ParentDocument());
     }
 
     /**
      * @details
      */
-    const XLDocument &XLSpreadsheetElement::ParentDocument() const
+    const XLDocument * XLSpreadsheetElement::ParentDocument() const
     {
-        return m_document;
+        return &m_document;
     }
 }

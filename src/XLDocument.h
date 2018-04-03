@@ -110,7 +110,8 @@ namespace OpenXLSX
     /**
      * @brief This class encapsulates the concept of an excel file. It is different from the XLWorkbook, in that an
      * XLDocument holds an XLWorkbook together with its metadata, as well as methods for opening,
-     * closing and saving the document.\n<b><em>The XLDocument is the entrypoint for clients using the RapidXLSX library.</em></b>
+     * closing and saving the document.\n<b><em>The XLDocument is the entrypoint for clients
+     * using the RapidXLSX library.</em></b>
      */
     class XLDocument
     {

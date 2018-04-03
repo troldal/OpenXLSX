@@ -109,25 +109,25 @@ namespace OpenXLSX
          * @brief
          * @return
          */
-        virtual XLWorkbook &ParentWorkbook();
+        virtual XLWorkbook *ParentWorkbook();
 
         /**
          * @brief
          * @return
          */
-        virtual const XLWorkbook &ParentWorkbook() const;
+        virtual const XLWorkbook *ParentWorkbook() const;
 
         /**
          * @brief
          * @return
          */
-        virtual XLDocument &ParentDocument();
+        virtual XLDocument *ParentDocument();
 
         /**
          * @brief
          * @return
          */
-        virtual const XLDocument &ParentDocument() const;
+        virtual const XLDocument *ParentDocument() const;
 
 //----------------------------------------------------------------------------------------------------------------------
 //           Private Member Variables

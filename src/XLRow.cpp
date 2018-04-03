@@ -21,7 +21,7 @@ using namespace boost::algorithm;
 XLRow::XLRow(XLWorksheet &parent,
              XMLNode &rowNode)
     : m_parentWorksheet(parent),
-      m_parentDocument(parent.ParentDocument()),
+      m_parentDocument(*parent.ParentDocument()),
       m_rowNode(rowNode),
       m_height(15),
       m_descent(0.25),

@@ -123,8 +123,8 @@ bool XLWorksheet::ParseXMLData()
  */
 XLWorksheet &XLWorksheet::Clone(const std::string &newName)
 {
-    ParentWorkbook().CloneWorksheet(SheetName(), newName);
-    return *ParentWorkbook().Worksheet(newName);
+    ParentWorkbook()->CloneWorksheet(SheetName(), newName);
+    return *ParentWorkbook()->Worksheet(newName);
 }
 
 /**

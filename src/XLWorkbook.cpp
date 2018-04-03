@@ -43,7 +43,7 @@ bool XLWorkbook::ParseXMLData()
 {
 
     // Set up the Workbook Relationships.
-    m_relationships.reset(new XLRelationships(ParentDocument(), "xl/_rels/workbook.xml.rels"));
+    m_relationships.reset(new XLRelationships(*ParentDocument(), "xl/_rels/workbook.xml.rels"));
 
     // Find the "sheets" section in the Workbook.xml file
     auto node = XmlDocument().firstNode();
@@ -266,10 +266,10 @@ XLRelationshipItem &XLWorkbook::CreateWorksheetFile(const std::string &sheetName
 {
 
     // Create file
-    ParentDocument().AddFile("xl/worksheets/sheet" + to_string(m_sheetId + 1) + ".xml", content);
+    ParentDocument()->AddFile("xl/worksheets/sheet" + to_string(m_sheetId + 1) + ".xml", content);
 
     // Add content item to document
-    ParentDocument().AddContentItem("/xl/worksheets/sheet" + to_string(m_sheetId + 1) + ".xml",
+    ParentDocument()->AddContentItem("/xl/worksheets/sheet" + to_string(m_sheetId + 1) + ".xml",
                                     XLContentType::Worksheet);
 
     // Add relationship item
@@ -306,10 +306,10 @@ XLRelationshipItem &XLWorkbook::CreateWorksheetFile(const std::string &sheetName
     }
 
     // Add entry to the App Properties
-    if (index == 0) ParentDocument().AppProperties()->InsertSheetName(sheetName, WorksheetCount() + 1);
-    else ParentDocument().AppProperties()->InsertSheetName(sheetName, index);
+    if (index == 0) ParentDocument()->AppProperties()->InsertSheetName(sheetName, WorksheetCount() + 1);
+    else ParentDocument()->AppProperties()->InsertSheetName(sheetName, index);
 
-    ParentDocument().AppProperties()->SetHeadingPair("Worksheets", WorksheetCount() + 1);
+    ParentDocument()->AppProperties()->SetHeadingPair("Worksheets", WorksheetCount() + 1);
 
     return item;
 }
@@ -474,7 +474,7 @@ XMLNode &XLWorkbook::SheetNode(const string &sheetName)
  */
 void XLWorkbook::CreateSharedStrings(const XLRelationshipItem &item)
 {
-    m_sharedStrings.reset(new XLSharedStrings(ParentDocument(), "xl/" + item.Target()));
+    m_sharedStrings.reset(new XLSharedStrings(*ParentDocument(), "xl/" + item.Target()));
     m_childXmlDocuments[m_sharedStrings->FilePath()] = m_sharedStrings.get();
 }
 
@@ -483,7 +483,7 @@ void XLWorkbook::CreateSharedStrings(const XLRelationshipItem &item)
  */
 void XLWorkbook::CreateStyles(const XLRelationshipItem &item)
 {
-    m_styles.reset(new XLStyles(ParentDocument(), "xl/" + item.Target()));
+    m_styles.reset(new XLStyles(*ParentDocument(), "xl/" + item.Target()));
     m_childXmlDocuments[m_styles->FilePath()] = m_styles.get();
 }
 
