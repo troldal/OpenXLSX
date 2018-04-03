@@ -179,9 +179,9 @@ bool XLWorkbook::HasSharedStrings() const
 /**
  * @details
  */
-XLSharedStrings &XLWorkbook::SharedStrings() const
+XLSharedStrings *XLWorkbook::SharedStrings() const
 {
-    return *m_sharedStrings;
+    return m_sharedStrings.get();
 }
 
 /**
@@ -238,8 +238,8 @@ void XLWorkbook::AddWorksheet(const std::string &sheetName,
         "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/>"
         "</worksheet>";
 
-    auto &item = CreateWorksheetFile(sheetName, index, content);
-    CreateWorksheet(item);
+    auto item = CreateWorksheetFile(sheetName, index, content);
+    CreateWorksheet(*item);
 
 }
 
@@ -253,14 +253,14 @@ void XLWorkbook::CloneWorksheet(const std::string &extName,
 {
 
     string content = Worksheet(extName)->GetXmlData();
-    auto &item = CreateWorksheetFile(newName, index, content);
-    CreateWorksheet(item);
+    auto item = CreateWorksheetFile(newName, index, content);
+    CreateWorksheet(*item);
 }
 
 /**
  * @details
  */
-XLRelationshipItem &XLWorkbook::CreateWorksheetFile(const std::string &sheetName,
+XLRelationshipItem *XLWorkbook::CreateWorksheetFile(const std::string &sheetName,
                                                     unsigned int index,
                                                     const std::string &content)
 {
@@ -311,7 +311,7 @@ XLRelationshipItem &XLWorkbook::CreateWorksheetFile(const std::string &sheetName
 
     ParentDocument()->AppProperties()->SetHeadingPair("Worksheets", WorksheetCount() + 1);
 
-    return item;
+    return &item;
 }
 
 /**
@@ -389,9 +389,9 @@ unsigned int XLWorkbook::ChartsheetCount() const
 /**
  * @details
  */
-XLStyles &XLWorkbook::Styles()
+XLStyles *XLWorkbook::Styles()
 {
-    return *m_styles;
+    return m_styles.get();
 }
 
 /**
@@ -448,25 +448,25 @@ bool XLWorkbook::ChartsheetExists(const std::string &sheetName) const
 /**
  * @details
  */
-XLRelationships &XLWorkbook::Relationships()
+XLRelationships *XLWorkbook::Relationships()
 {
-    return *m_relationships.get();
+    return m_relationships.get();
 }
 
 /**
  * @details
  */
-const XLRelationships &XLWorkbook::Relationships() const
+const XLRelationships *XLWorkbook::Relationships() const
 {
-    return *m_relationships.get();
+    return m_relationships.get();
 }
 
 /**
  * @details
  */
-XMLNode &XLWorkbook::SheetNode(const string &sheetName)
+XMLNode *XLWorkbook::SheetNode(const string &sheetName)
 {
-    return *m_sheetNodes.at(sheetName);
+    return m_sheetNodes.at(sheetName);
 }
 
 /**

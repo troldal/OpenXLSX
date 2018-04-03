@@ -274,7 +274,7 @@ namespace OpenXLSX
          * @brief
          * @return
          */
-        XLSharedStrings &SharedStrings() const;
+        XLSharedStrings *SharedStrings() const;
 
         /**
          * @brief
@@ -290,7 +290,7 @@ namespace OpenXLSX
         /**
          * @brief
          */
-        XLStyles &Styles();
+        XLStyles *Styles();
 
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -309,20 +309,20 @@ namespace OpenXLSX
          * @brief
          * @return
          */
-        XLRelationships &Relationships();
+        XLRelationships *Relationships();
 
         /**
          * @brief
          * @return
          */
-        const XLRelationships &Relationships() const;
+        const XLRelationships *Relationships() const;
 
         /**
          * @brief
          * @param sheetName
          * @return
          */
-        XMLNode &SheetNode(const std::string &sheetName);
+        XMLNode *SheetNode(const std::string &sheetName);
 
 //----------------------------------------------------------------------------------------------------------------------
 //           Private Member Functions
@@ -363,7 +363,7 @@ namespace OpenXLSX
          * @todo Provide a default content for the file.
          * @todo Consider having this as a static function in the XLWorksheet class.
          */
-        XLRelationshipItem &CreateWorksheetFile(const std::string &sheetName,
+        XLRelationshipItem *CreateWorksheetFile(const std::string &sheetName,
                                                 unsigned int index,
                                                 const std::string &content);
 

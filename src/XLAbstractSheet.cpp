@@ -24,10 +24,10 @@ XLAbstractSheet::XLAbstractSheet(XLWorkbook &parent,
       m_sheetName(name),
       m_sheetType(XLSheetType::WorkSheet),
       m_sheetState(XLSheetState::Visible),
-      m_nodeInWorkbook(&parent.SheetNode(name)),
+      m_nodeInWorkbook(parent.SheetNode(name)),
       m_nodeInApp(&parent.ParentDocument()->m_docAppProperties->SheetNameNode(name)),
       m_nodeInContentTypes(parent.ParentDocument()->ContentItem("/" + filepath)),
-      m_nodeInWorkbookRels(&parent.Relationships().RelationshipByTarget(filepath.substr(3)))
+      m_nodeInWorkbookRels(&parent.Relationships()->RelationshipByTarget(filepath.substr(3)))
 {
 
 }
@@ -131,7 +131,7 @@ void XLAbstractSheet::Delete()
     m_nodeInContentTypes = nullptr;
 
     // Delete the item in Workbook.xml.rels
-    ParentDocument()->Workbook()->Relationships().DeleteRelationship(m_nodeInWorkbookRels->Id());
+    ParentDocument()->Workbook()->Relationships()->DeleteRelationship(m_nodeInWorkbookRels->Id());
     m_nodeInWorkbookRels = nullptr;
 
     // Delete the underlying XML file.
