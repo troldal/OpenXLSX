@@ -69,6 +69,8 @@ namespace OpenXLSX
     class XLWorkbook;
     class XLWorksheet;
 
+    using XLPath = boost::filesystem::path;
+
 //======================================================================================================================
 //========== XLDocumentProperties Enum =================================================================================
 //======================================================================================================================
@@ -138,6 +140,8 @@ namespace OpenXLSX
          * @brief Copy constructor
          * @param other The object to copy
          * @note Copy constructor explicitly deleted.
+         * @todo Consider implementing this, as it may make sense to copy the entire document, although it may not make
+         * sense to copy individual elements (e.g. the XLWorkbook object). Alternatively, implement a 'Clone' function.
          */
         XLDocument(const XLDocument &other) = delete;
 
@@ -149,7 +153,7 @@ namespace OpenXLSX
         /**
          * @brief Open the .xlsx file with the given path
          * @param fileName The path of the .xlsx file to open
-         * @todo Consider opening the zipped files as streams, instead of unpacking to a temporaty folder
+         * @todo Consider opening the zipped files as streams, instead of unpacking to a temporary folder
          */
         void OpenDocument(const std::string &fileName);
 
@@ -227,7 +231,7 @@ namespace OpenXLSX
          * @return A path object with the root directory.
          * @todo Consider making this a protected member.
          */
-        const boost::filesystem::path &RootDirectory() const;
+        const XLPath &RootDirectory() const;
 
 //----------------------------------------------------------------------------------------------------------------------
 //           Protected Member Functions
@@ -302,8 +306,8 @@ namespace OpenXLSX
 
     private:
 
-        boost::filesystem::path m_filePath; /**< The path to the original file*/
-        boost::filesystem::path m_tempPath; /**< The path to the temporary folder with the package contents*/
+        XLPath m_filePath; /**< The path to the original file*/
+        XLPath m_tempPath; /**< The path to the temporary folder with the package contents*/
 
         std::unique_ptr<XLRelationships> m_documentRelationships; /**< A pointer to the document relationships object*/
         std::unique_ptr<XLContentTypes> m_contentTypes; /**< A pointer to the content types object*/

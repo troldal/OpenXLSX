@@ -400,7 +400,7 @@ XLContentItem &XLDocument::AddContentItem(const std::string &contentPath,
 /**
  * @details Get a path object with the path to the root directory of the temporary folder.
  */
-const path &XLDocument::RootDirectory() const
+const XLPath &XLDocument::RootDirectory() const
 {
     return m_tempPath;
 }
