@@ -231,11 +231,10 @@ namespace OpenXLSX
          * @return A path object with the root directory.
          * @todo Consider making this a protected member.
          */
-        const XLPath &RootDirectory() const;
+        const XLPath *RootDirectory() const;
 
 //----------------------------------------------------------------------------------------------------------------------
 //           Protected Member Functions
-
 //----------------------------------------------------------------------------------------------------------------------
 
     protected:
@@ -253,14 +252,14 @@ namespace OpenXLSX
          * @param sheetName A std::string with the name of the sheet.
          * @return A pointer to the XMLNode object.
          */
-        XMLNode &SheetNameNode(const std::string &sheetName);
+        XMLNode *SheetNameNode(const std::string &sheetName);
 
         /**
          * @brief Get the content item element in the contenttypes.xml file.
          * @param path A std::string with the relative path to the file in question.
          * @return A pointer to the XLContentItem.
          */
-        XLContentItem &ContentItem(const std::string &path);
+        XLContentItem *ContentItem(const std::string &path);
 
         /**
          * @brief
@@ -268,7 +267,7 @@ namespace OpenXLSX
          * @param contentType
          * @return
          */
-        XLContentItem &AddContentItem(const std::string &contentPath, XLContentType contentType);
+        XLContentItem *AddContentItem(const std::string &contentPath, XLContentType contentType);
 
         /**
          * @brief Load all the associated files (app.xml, core.xml and workbook.xml)
@@ -280,25 +279,25 @@ namespace OpenXLSX
          * @brief Getter method for the App Properties object.
          * @return A pointer to the XLDocAppProperties object.
          */
-        XLAppProperties &AppProperties();
+        XLAppProperties *AppProperties();
 
         /**
          * @brief Getter method for the App Properties object.
          * @return A pointer to the const XLDocAppProperties object.
          */
-        const XLAppProperties &AppProperties() const;
+        const XLAppProperties *AppProperties() const;
 
         /**
          * @brief Getter method for the Core Properties object.
          * @return A pointer to the XLDocCoreProperties object.
          */
-        XLCoreProperties &CoreProperties();
+        XLCoreProperties *CoreProperties();
 
         /**
          * @brief Getter method for the Core Properties object.
          * @return A pointer to the const XLDocCoreProperties object.
          */
-        const XLCoreProperties &CoreProperties() const;
+        const XLCoreProperties *CoreProperties() const;
 
 //----------------------------------------------------------------------------------------------------------------------
 //           Private Member Variables

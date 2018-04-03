@@ -6,6 +6,7 @@
 #include "XLWorksheet.h"
 #include "XLTemplate.h"
 
+
 using namespace std;
 using namespace boost::filesystem;
 using namespace libzippp;
@@ -189,7 +190,7 @@ std::string XLDocument::DocumentPath() const
 }
 
 /**
- * @details Returns a pointer to the underlying m_workbook object.
+ * @details Get a pointer to the underlying XLWorkbook object.
  */
 XLWorkbook *XLDocument::Workbook()
 {
@@ -197,7 +198,7 @@ XLWorkbook *XLDocument::Workbook()
 }
 
 /**
- * @details
+ * @details Get a const pointer to the underlying XLWorkbook object.
  */
 const XLWorkbook *XLDocument::Workbook() const
 {
@@ -361,7 +362,6 @@ void XLDocument::SetProperty(XLDocumentProperties theProperty,
         case XLDocumentProperties::Title :
             m_docCoreProperties->SetProperty("dc:title", value);
             break;
-
     }
 }
 
@@ -376,33 +376,36 @@ void XLDocument::DeleteProperty(const string &propertyName)
 /**
  * @details Get a pointer to the sheet node in the app.xml file.
  */
-XMLNode &XLDocument::SheetNameNode(const std::string &sheetName)
+XMLNode *XLDocument::SheetNameNode(const std::string &sheetName)
 {
-    return m_docAppProperties->SheetNameNode(sheetName);
+    return &m_docAppProperties->SheetNameNode(sheetName);
 }
 
 /**
  * @details Get a pointer to the content item in the [Content_Types].xml file.
  */
-XLContentItem &XLDocument::ContentItem(const std::string &path)
+XLContentItem *XLDocument::ContentItem(const std::string &path)
 {
-    return m_contentTypes->ContentItem(path);
+    return &m_contentTypes->ContentItem(path);
 }
 
-XLContentItem &XLDocument::AddContentItem(const std::string &contentPath,
-                                          XLContentType contentType)
+/**
+ * @details Ad a new ContentItem and return the resulting object.
+ */
+XLContentItem *XLDocument::AddContentItem(const std::string &contentPath,
+                                           XLContentType contentType)
 {
 
     m_contentTypes->addOverride(contentPath, contentType);
-    return m_contentTypes->ContentItem(contentPath);
+    return &m_contentTypes->ContentItem(contentPath);
 }
 
 /**
  * @details Get a path object with the path to the root directory of the temporary folder.
  */
-const XLPath &XLDocument::RootDirectory() const
+const XLPath *XLDocument::RootDirectory() const
 {
-    return m_tempPath;
+    return &m_tempPath;
 }
 
 /**
@@ -449,34 +452,34 @@ void XLDocument::AddFile(const std::string &path,
 }
 
 /**
- * @details
+ * @details Get a pointer to the XLAppProperties object
  */
-XLAppProperties &XLDocument::AppProperties()
+XLAppProperties *XLDocument::AppProperties()
 {
-    return *m_docAppProperties;
+    return m_docAppProperties.get();
 }
 
 /**
- * @details
+ * @details Get a pointer to the (const) XLAppProperties object
  */
-const XLAppProperties &XLDocument::AppProperties() const
+const XLAppProperties *XLDocument::AppProperties() const
 {
-    return *m_docAppProperties;
+    return m_docAppProperties.get();
 }
 
 /**
- * @details
+ * @details Get a pointer to the XLCoreProperties object
  */
-XLCoreProperties &XLDocument::CoreProperties()
+XLCoreProperties *XLDocument::CoreProperties()
 {
-    return *m_docCoreProperties;
+    return m_docCoreProperties.get();
 }
 
 /**
- * @details
+ * @details Get a pointer to the (const) XLCoreProperties object
  */
-const XLCoreProperties &XLDocument::CoreProperties() const
+const XLCoreProperties * XLDocument::CoreProperties() const
 {
-    return *m_docCoreProperties;
+    return m_docCoreProperties.get();
 }
 

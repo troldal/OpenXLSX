@@ -17,7 +17,7 @@ using namespace OpenXLSX;
 XLWorkbook::XLWorkbook(XLDocument &parent,
                        const std::string &filePath)
 
-    : XLAbstractXMLFile(parent.RootDirectory().string(), filePath),
+    : XLAbstractXMLFile(parent.RootDirectory()->string(), filePath),
       XLSpreadsheetElement(parent),
       m_sheetsNode(nullptr),
       m_sheetNodes(),
@@ -306,10 +306,10 @@ XLRelationshipItem &XLWorkbook::CreateWorksheetFile(const std::string &sheetName
     }
 
     // Add entry to the App Properties
-    if (index == 0) ParentDocument().AppProperties().InsertSheetName(sheetName, WorksheetCount() + 1);
-    else ParentDocument().AppProperties().InsertSheetName(sheetName, index);
+    if (index == 0) ParentDocument().AppProperties()->InsertSheetName(sheetName, WorksheetCount() + 1);
+    else ParentDocument().AppProperties()->InsertSheetName(sheetName, index);
 
-    ParentDocument().AppProperties().SetHeadingPair("Worksheets", WorksheetCount() + 1);
+    ParentDocument().AppProperties()->SetHeadingPair("Worksheets", WorksheetCount() + 1);
 
     return item;
 }

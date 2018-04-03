@@ -71,7 +71,7 @@ void XLRelationshipItem::Delete()
  */
 XLRelationships::XLRelationships(XLDocument &parent,
                                  const std::string &filePath)
-    : XLAbstractXMLFile(parent.RootDirectory().string(), filePath),
+    : XLAbstractXMLFile(parent.RootDirectory()->string(), filePath),
       XLSpreadsheetElement(parent),
       m_relationships(),
       m_relationshipCount(0)
