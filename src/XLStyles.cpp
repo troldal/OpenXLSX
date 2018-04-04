@@ -49,12 +49,12 @@ XLStyles::~XLStyles()
  */
 bool XLStyles::ParseXMLData()
 {
-    m_numberFormatsNode = XmlDocument().rootNode()->childNode("numFmts");
-    m_fontsNode = XmlDocument().rootNode()->childNode("fonts");
-    m_fillsNode = XmlDocument().rootNode()->childNode("fills");
-    m_bordersNode = XmlDocument().rootNode()->childNode("borders");
-    m_cellFormatNode = XmlDocument().rootNode()->childNode("cellXfs");
-    m_cellStyleNode = XmlDocument().rootNode()->childNode("cellStyles");
+    m_numberFormatsNode = XmlDocument()->rootNode()->childNode("numFmts");
+    m_fontsNode = XmlDocument()->rootNode()->childNode("fonts");
+    m_fillsNode = XmlDocument()->rootNode()->childNode("fills");
+    m_bordersNode = XmlDocument()->rootNode()->childNode("borders");
+    m_cellFormatNode = XmlDocument()->rootNode()->childNode("cellXfs");
+    m_cellStyleNode = XmlDocument()->rootNode()->childNode("cellStyles");
 
     // Read fonts
     auto currentFont = m_fontsNode->childNode();
@@ -96,40 +96,40 @@ void XLStyles::AddFont(const XLFont &font)
                                           font.m_italics,
                                           font.m_underline));
 
-    auto newFont = XmlDocument().createNode("font");
+    auto newFont = XmlDocument()->createNode("font");
 
     if (font.m_bold) {
-        auto boldNode = XmlDocument().createNode("b");
+        auto boldNode = XmlDocument()->createNode("b");
         newFont->appendNode(boldNode);
     }
 
     if (font.m_italics) {
-        auto italicsNode = XmlDocument().createNode("i");
+        auto italicsNode = XmlDocument()->createNode("i");
         newFont->appendNode(italicsNode);
     }
 
     if (font.m_underline) {
-        auto underlineNode = XmlDocument().createNode("u");
+        auto underlineNode = XmlDocument()->createNode("u");
         newFont->appendNode(underlineNode);
     }
 
-    auto sizeNode = XmlDocument().createNode("sz");
-    auto sizeAttr = XmlDocument().createAttribute("val", to_string(font.m_size));
+    auto sizeNode = XmlDocument()->createNode("sz");
+    auto sizeAttr = XmlDocument()->createAttribute("val", to_string(font.m_size));
     sizeNode->appendAttribute(sizeAttr);
     newFont->appendNode(sizeNode);
 
-    auto colorNode = XmlDocument().createNode("color");
-    auto colorAttr = XmlDocument().createAttribute("rgb", font.m_color.Hex());
+    auto colorNode = XmlDocument()->createNode("color");
+    auto colorAttr = XmlDocument()->createAttribute("rgb", font.m_color.Hex());
     colorNode->appendAttribute(colorAttr);
     newFont->appendNode(colorNode);
 
-    auto nameNode = XmlDocument().createNode("name");
-    auto nameAttr = XmlDocument().createAttribute("val", font.m_name);
+    auto nameNode = XmlDocument()->createNode("name");
+    auto nameAttr = XmlDocument()->createAttribute("val", font.m_name);
     nameNode->appendAttribute(nameAttr);
     newFont->appendNode(nameNode);
 
-    auto familyNode = XmlDocument().createNode("family");
-    auto familyAttr = XmlDocument().createAttribute("val", "2");
+    auto familyNode = XmlDocument()->createNode("family");
+    auto familyAttr = XmlDocument()->createAttribute("val", "2");
     familyNode->appendAttribute(familyAttr);
     newFont->appendNode(familyNode);
 

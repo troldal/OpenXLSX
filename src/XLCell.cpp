@@ -72,8 +72,8 @@ XLCell &XLCell::operator=(const XLCellRange &range)
 {
 
     auto first = this->CellReference();
-    XLCellReference last(first.Row() + range.NumRows() - 1, first.Column() + range.NumColumns() - 1);
-    XLCellRange rng(ParentWorksheet(), first, last);
+    XLCellReference last(first->Row() + range.NumRows() - 1, first->Column() + range.NumColumns() - 1);
+    XLCellRange rng(*ParentWorksheet(), *first, last);
     rng = range;
 
     return *this;
@@ -87,19 +87,19 @@ XLValueType XLCell::ValueType() const
 /**
  * @details
  */
-const XLCellValue &XLCell::Value() const
+const XLCellValue *XLCell::Value() const
 {
     if (m_value == nullptr) throw XLException("Cell " + m_cellReference.Address() + " has no value.");
-    return *m_value;
+    return m_value.get();
 }
 
 /**
  * @details
  */
-XLCellValue &XLCell::Value()
+XLCellValue * XLCell::Value()
 {
     if (m_value == nullptr) m_value = std::make_unique<XLCellValue>(*this);
-    return *m_value;
+    return m_value.get();
 }
 
 /**
@@ -107,15 +107,15 @@ XLCellValue &XLCell::Value()
  */
 void XLCell::SetModified()
 {
-    ParentWorksheet().SetModified();
+    ParentWorksheet()->SetModified();
 }
 
 /**
  * @details This function returns a const reference to the cellReference property.
  */
-const XLCellReference &XLCell::CellReference() const
+const XLCellReference *XLCell::CellReference() const
 {
-    return m_cellReference;
+    return &m_cellReference;
 }
 
 /**
@@ -141,49 +141,10 @@ void XLCell::SetTypeAttribute(const std::string &typeString)
     }
     else {
         if (m_cellNode->attribute("t") == nullptr)
-            m_cellNode->appendAttribute(XmlDocument().createAttribute("t", typeString));
+            m_cellNode->appendAttribute(XmlDocument()->createAttribute("t", typeString));
         else
             m_cellNode->attribute("t")->setValue(typeString);
     }
-
-    /*
-    std::string typeString;
-
-    switch (type) {
-        case XLCellType::Empty:
-            DeleteTypeAttribute();
-            break;
-
-        case XLCellType::Number :
-            DeleteTypeAttribute();
-            break;
-
-        case XLCellType::String :
-            typeString = "str";
-            break;
-
-        case XLCellType::InlineString :
-        case XLCellType::SharedString :
-            typeString = "s";
-            break;
-
-        case XLCellType::Boolean :
-            typeString = "b";
-            break;
-
-        case XLCellType::Error :
-            typeString = "e";
-            break;
-    }
-
-    if (typeString.empty()) return;
-
-    if (m_cellNode->attribute("t") == nullptr) {
-        m_cellNode->appendAttribute(XmlDocument().createAttribute("t", typeString));
-    }
-    else {
-        m_cellNode->attribute("t")->setValue(typeString);
-    }*/
 }
 
 /**
@@ -199,33 +160,33 @@ void XLCell::DeleteTypeAttribute()
 /**
  * @details
  */
-XLWorksheet &XLCell::ParentWorksheet()
+XLWorksheet *XLCell::ParentWorksheet()
 {
-    return *m_parentWorksheet;
+    return m_parentWorksheet;
 }
 
 /**
  * @details
  */
-const XLWorksheet &XLCell::ParentWorksheet() const
+const XLWorksheet *XLCell::ParentWorksheet() const
 {
-    return *m_parentWorksheet;
+    return m_parentWorksheet;
 }
 
 /**
  * @details
  */
-XMLDocument &XLCell::XmlDocument()
+XMLDocument *XLCell::XmlDocument()
 {
-    return ParentWorksheet().XmlDocument();
+    return ParentWorksheet()->XmlDocument();
 }
 
 /**
  * @details
  */
-const XMLDocument &XLCell::XmlDocument() const
+const XMLDocument *XLCell::XmlDocument() const
 {
-    return ParentWorksheet().XmlDocument();
+    return ParentWorksheet()->XmlDocument();
 }
 
 /**
@@ -246,7 +207,7 @@ const XMLNode *XLCell::CellNode() const
 
 XMLNode *XLCell::CreateValueNode()
 {
-    if (m_cellNode->childNode("v") == nullptr) m_cellNode->appendNode(XmlDocument().createNode("v"));
+    if (m_cellNode->childNode("v") == nullptr) m_cellNode->appendNode(XmlDocument()->createNode("v"));
     return m_cellNode->childNode("v");
 }
 

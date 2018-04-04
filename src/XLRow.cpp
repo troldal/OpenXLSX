@@ -90,7 +90,7 @@ void XLRow::SetHeight(float height)
     // Set the 'ht' attribute for the Cell. If it does not exist, create it.
     auto heightAtt = m_rowNode.attribute("ht");
     if (heightAtt == nullptr) {
-        heightAtt = m_parentWorksheet.XmlDocument().createAttribute("ht", to_string(m_height));
+        heightAtt = m_parentWorksheet.XmlDocument()->createAttribute("ht", to_string(m_height));
         m_rowNode.appendAttribute(heightAtt);
     }
     else {
@@ -100,7 +100,7 @@ void XLRow::SetHeight(float height)
     // Set the 'customHeight' attribute. If it does not exist, create it.
     auto customAtt = m_rowNode.attribute("customHeight");
     if (customAtt == nullptr) {
-        customAtt = m_parentWorksheet.XmlDocument().createAttribute("customHeight", "1");
+        customAtt = m_parentWorksheet.XmlDocument()->createAttribute("customHeight", "1");
         m_rowNode.appendAttribute(customAtt);
     }
     else {
@@ -126,7 +126,7 @@ void XLRow::SetDescent(float descent)
     // Set the 'x14ac:dyDescent' attribute. If it does not exist, create it.
     auto descentAtt = m_rowNode.attribute("x14ac:dyDescent");
     if (descentAtt == nullptr) {
-        descentAtt = m_parentWorksheet.XmlDocument().createAttribute("x14ac:dyDescent", to_string(m_descent));
+        descentAtt = m_parentWorksheet.XmlDocument()->createAttribute("x14ac:dyDescent", to_string(m_descent));
         m_rowNode.appendAttribute(descentAtt);
     }
     else {
@@ -156,7 +156,7 @@ void XLRow::SetHidden(bool state)
     // Set the 'hidden' attribute. If it does not exist, create it.
     auto hiddenAtt = m_rowNode.attribute("hidden");
     if (hiddenAtt == nullptr) {
-        hiddenAtt = m_parentWorksheet.XmlDocument().createAttribute("hidden", hiddenstate);
+        hiddenAtt = m_parentWorksheet.XmlDocument()->createAttribute("hidden", hiddenstate);
         m_rowNode.appendAttribute(hiddenAtt);
     }
     else {
@@ -167,16 +167,16 @@ void XLRow::SetHidden(bool state)
 /**
  * @details Get the pointer to the row node in the underlying XML file but returning the m_rowNode member.
  */
-XMLNode &XLRow::RowNode()
+XMLNode *XLRow::RowNode()
 {
-    return m_rowNode;
+    return &m_rowNode;
 }
 
 /**
  * @details Return a pointer to the XLCell object at the given column number. If the cell does not exist, it will be
  * created.
  */
-XLCell &XLRow::Cell(unsigned int column)
+XLCell *XLRow::Cell(unsigned int column)
 {
 
     XLCell *result = nullptr;
@@ -186,8 +186,8 @@ XLCell &XLRow::Cell(unsigned int column)
     if (column > CellCount()) {
 
         // Create the new Cell node
-        auto cellNode = m_parentWorksheet.XmlDocument().createNode("c");
-        auto cellAttr = m_parentWorksheet.XmlDocument().createAttribute("r", XLCellReference(m_rowNumber,
+        auto cellNode = m_parentWorksheet.XmlDocument()->createNode("c");
+        auto cellAttr = m_parentWorksheet.XmlDocument()->createAttribute("r", XLCellReference(m_rowNumber,
                                                                                              column).Address());
         cellNode->appendAttribute(cellAttr);
 
@@ -204,8 +204,8 @@ XLCell &XLRow::Cell(unsigned int column)
     else if (m_cells.at(column - 1).get() == nullptr) {
 
         // Create the new Cell node.
-        auto cellNode = m_parentWorksheet.XmlDocument().createNode("c");
-        auto cellAttr = m_parentWorksheet.XmlDocument().createAttribute("r", XLCellReference(m_rowNumber,
+        auto cellNode = m_parentWorksheet.XmlDocument()->createNode("c");
+        auto cellAttr = m_parentWorksheet.XmlDocument()->createAttribute("r", XLCellReference(m_rowNumber,
                                                                                              column).Address());
         cellNode->appendAttribute(cellAttr);
 
@@ -225,20 +225,20 @@ XLCell &XLRow::Cell(unsigned int column)
         result = m_cells.at(column - 1).get();
     }
 
-    return *result;
+    return result;
 }
 
 /**
  * @details
  */
-const XLCell &XLRow::Cell(unsigned int column) const
+const XLCell *XLRow::Cell(unsigned int column) const
 {
 
     if (column > CellCount()) {
         throw XLException("Cell does not exist!");
     }
     else {
-        return *m_cells.at(column - 1);
+        return m_cells.at(column - 1).get();
     }
 }
 
@@ -260,17 +260,17 @@ unique_ptr<XLRow> XLRow::CreateRow(XLWorksheet &worksheet,
 {
 
     // Create the node
-    auto nodeRow = worksheet.XmlDocument().createNode("row");
-    auto attrRowNum = worksheet.XmlDocument().createAttribute("r", to_string(rowNumber));
-    auto attrDescent = worksheet.XmlDocument().createAttribute("x14ac:dyDescent", "0.2");
-    auto attrSpans = worksheet.XmlDocument().createAttribute("spans", "1:1");
+    auto nodeRow = worksheet.XmlDocument()->createNode("row");
+    auto attrRowNum = worksheet.XmlDocument()->createAttribute("r", to_string(rowNumber));
+    auto attrDescent = worksheet.XmlDocument()->createAttribute("x14ac:dyDescent", "0.2");
+    auto attrSpans = worksheet.XmlDocument()->createAttribute("spans", "1:1");
     nodeRow->appendAttribute(attrRowNum);
     nodeRow->appendAttribute(attrSpans);
     nodeRow->appendAttribute(attrDescent);
 
     // Create the first Cell (at least one Cell must exist in each Row).
-    auto cellNode = worksheet.XmlDocument().createNode("c");
-    auto cellAttr = worksheet.XmlDocument().createAttribute("r", XLCellReference(rowNumber, 1).Address());
+    auto cellNode = worksheet.XmlDocument()->createNode("c");
+    auto cellAttr = worksheet.XmlDocument()->createAttribute("r", XLCellReference(rowNumber, 1).Address());
     cellNode->appendAttribute(cellAttr);
     nodeRow->appendNode(cellNode);
 
@@ -285,7 +285,7 @@ unique_ptr<XLRow> XLRow::CreateRow(XLWorksheet &worksheet,
         auto index = rowNumber - 1; // vector is 0-based, Excel is 1-based; therefore rowNumber-1.
         XLRow *node = worksheet.Rows()->at(index).get();
         while (node == nullptr) node = worksheet.Rows()->at(index++).get();
-        worksheet.SheetDataNode()->insertNode(&node->RowNode(), nodeRow);
+        worksheet.SheetDataNode()->insertNode(node->RowNode(), nodeRow);
     }
 
     return make_unique<XLRow>(worksheet, *nodeRow);

@@ -102,23 +102,23 @@ void XLAbstractXMLFile::SetFilePath(const string &filePath)
  */
 void XLAbstractXMLFile::Print() const
 {
-    XmlDocument().print();
+    XmlDocument()->print();
 }
 
 /**
  * @details This method returns a pointer to the underlying XMLDocument resource.
  */
-XMLDocument &XLAbstractXMLFile::XmlDocument()
+XMLDocument * XLAbstractXMLFile::XmlDocument()
 {
-    return const_cast<XMLDocument &>(static_cast<const XLAbstractXMLFile *>(this)->XmlDocument());
+    return const_cast<XMLDocument *>(static_cast<const XLAbstractXMLFile *>(this)->XmlDocument());
 }
 
 /**
  * @details
  */
-const XMLDocument &XLAbstractXMLFile::XmlDocument() const
+const XMLDocument *XLAbstractXMLFile::XmlDocument() const
 {
-    return *m_xmlDocument;
+    return m_xmlDocument.get();
 }
 
 /**

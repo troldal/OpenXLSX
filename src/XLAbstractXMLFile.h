@@ -168,13 +168,13 @@ namespace OpenXLSX
          * @return A pointer to the XMLDocument object.
          * @note This method is final, i.e. it cannot be overridden.
          */
-        virtual XMLDocument &XmlDocument() final;
+        virtual XMLDocument *XmlDocument() final;
 
         /**
          * @brief
          * @return
          */
-        virtual const XMLDocument &XmlDocument() const final;
+        virtual const XMLDocument *XmlDocument() const final;
 
         /**
          * @brief Set the 'isModified' flag, meaning that the underlying XML file needs saving.

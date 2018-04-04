@@ -54,7 +54,7 @@ void XLColumn::SetWidth(float width)
     // Set the 'Width' attribute for the Cell. If it does not exist, create it.
     auto widthAtt = m_columnNode->attribute("width");
     if (widthAtt == nullptr) {
-        widthAtt = m_parentWorksheet->XmlDocument().createAttribute("width", to_string(m_width));
+        widthAtt = m_parentWorksheet->XmlDocument()->createAttribute("width", to_string(m_width));
         m_columnNode->appendAttribute(widthAtt);
     }
     else {
@@ -64,7 +64,7 @@ void XLColumn::SetWidth(float width)
     // Set the 'customWidth' attribute for the Cell. If it does not exist, create it.
     auto customAtt = m_columnNode->attribute("customWidth");
     if (customAtt == nullptr) {
-        customAtt = m_parentWorksheet->XmlDocument().createAttribute("customWidth", "1");
+        customAtt = m_parentWorksheet->XmlDocument()->createAttribute("customWidth", "1");
         m_columnNode->appendAttribute(customAtt);
     }
     else {
@@ -94,7 +94,7 @@ void XLColumn::SetHidden(bool state)
     // Set the 'hidden' attribute for the Cell. If it does not exist, create it.
     auto hiddenAtt = m_columnNode->attribute("hidden");
     if (hiddenAtt == nullptr) {
-        hiddenAtt = m_parentWorksheet->XmlDocument().createAttribute("hidden", hiddenstate);
+        hiddenAtt = m_parentWorksheet->XmlDocument()->createAttribute("hidden", hiddenstate);
         m_columnNode->appendAttribute(hiddenAtt);
     }
     else {
@@ -105,7 +105,7 @@ void XLColumn::SetHidden(bool state)
 /**
  * @details
  */
-XMLNode &XLColumn::ColumnNode()
+XMLNode *XLColumn::ColumnNode()
 {
-    return *m_columnNode;
+    return m_columnNode;
 }

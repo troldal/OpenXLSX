@@ -46,7 +46,7 @@ bool XLWorkbook::ParseXMLData()
     m_relationships.reset(new XLRelationships(*ParentDocument(), "xl/_rels/workbook.xml.rels"));
 
     // Find the "sheets" section in the Workbook.xml file
-    auto node = XmlDocument().firstNode();
+    auto node = XmlDocument()->firstNode();
     while (node) {
         if (node->name() == "sheets") m_sheetsNode = node;
         if (node->name() == "definedNames") m_definedNames = node;

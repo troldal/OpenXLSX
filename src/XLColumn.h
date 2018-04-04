@@ -119,7 +119,7 @@ namespace OpenXLSX
          * @brief Get the XMLNode object for the column.
          * @return The XMLNode for the column
          */
-        XMLNode &ColumnNode();
+        XMLNode *ColumnNode();
 
 //----------------------------------------------------------------------------------------------------------------------
 //           Private Member Variables

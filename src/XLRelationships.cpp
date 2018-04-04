@@ -205,22 +205,22 @@ XLRelationshipItem &XLRelationships::AddRelationship(XLRelationshipType type, co
     m_relationshipCount++;
 
     // Create new node in the .rels file
-    auto node = XmlDocument().createNode("Relationship");
-    auto Id = XmlDocument().createAttribute("Id", "rId" + to_string(m_relationshipCount));
-    auto Type = XmlDocument().createAttribute("Type", typeString);
-    auto Target = XmlDocument().createAttribute("Target", target);
+    auto node = XmlDocument()->createNode("Relationship");
+    auto Id = XmlDocument()->createAttribute("Id", "rId" + to_string(m_relationshipCount));
+    auto Type = XmlDocument()->createAttribute("Type", typeString);
+    auto Target = XmlDocument()->createAttribute("Target", target);
 
     node->appendAttribute(Id);
     node->appendAttribute(Type);
     node->appendAttribute(Target);
 
     if (type == XLRelationshipType::ExternalLinkPath) {
-        auto TargetMode = XmlDocument().createAttribute("TargetMode", "External");
+        auto TargetMode = XmlDocument()->createAttribute("TargetMode", "External");
         node->appendAttribute(TargetMode);
     }
 
     // Append the new node to the XML file
-    XmlDocument().rootNode()->appendNode(node);
+    XmlDocument()->rootNode()->appendNode(node);
 
     // Create new XLRelationshipItem object and add to internal datastructure.
     unique_ptr<XLRelationshipItem> rShip(new XLRelationshipItem(*node, type, target, Id->value()));
@@ -239,7 +239,7 @@ XLRelationshipItem &XLRelationships::AddRelationship(XLRelationshipType type, co
  */
 bool XLRelationships::ParseXMLData()
 {
-    auto theNode = XmlDocument().firstNode();
+    auto theNode = XmlDocument()->firstNode();
 
     while (theNode) {
 

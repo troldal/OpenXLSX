@@ -81,10 +81,10 @@ bool XLWorksheet::ParseXMLData()
             if (min != max) {
                 currentNode->attribute("min")->setValue(max);
                 for (int i = min; i < max; i++) {
-                    auto newnode = XmlDocument().createNode("col");
+                    auto newnode = XmlDocument()->createNode("col");
                     auto attr = currentNode->attribute();
                     while (attr != nullptr) {
-                        auto newatt = XmlDocument().createAttribute(attr->name(), attr->value());
+                        auto newatt = XmlDocument()->createAttribute(attr->name(), attr->value());
                         newnode->appendAttribute(newatt);
                         attr = attr->nextAttribute();
                     }
@@ -178,7 +178,7 @@ XLCell *XLWorksheet::Cell(unsigned long rowNumber,
     }
 
     // Return a pointer to the requested XLCell object.
-    return &Row(rowNumber)->Cell(columnNumber);
+    return Row(rowNumber)->Cell(columnNumber);
 }
 
 /**
@@ -189,7 +189,7 @@ const XLCell *XLWorksheet::Cell(unsigned long rowNumber,
                                  unsigned int columnNumber) const
 {
     if (rowNumber > RowCount()) throw XLException("Row " + to_string(rowNumber) + " does not exist!");
-    else return &Row(rowNumber)->Cell(columnNumber);
+    else return Row(rowNumber)->Cell(columnNumber);
 }
 
 /**
@@ -218,7 +218,7 @@ XLCellRange XLWorksheet::Range(const XLCellReference &topLeft,
                                const XLCellReference &bottomRight)
 {
     // Set the last Cell to some ValueAsString, in order to create all objects in Range.
-    if (Cell(bottomRight)->ValueType() == XLValueType::Empty) Cell(bottomRight)->Value().SetEmpty();
+    if (Cell(bottomRight)->ValueType() == XLValueType::Empty) Cell(bottomRight)->Value()->SetEmpty();
 
     return XLCellRange(*this, topLeft, bottomRight);
 }
@@ -278,8 +278,8 @@ XLColumn *XLWorksheet::Column(unsigned int columnNumber)
 
     // If no columns exists, create the <cols> node in the XML document.
     if (m_columnsNode == nullptr) {
-        XmlDocument().rootNode()->insertNode(SheetDataNode(), XmlDocument().createNode("cols"));
-        m_columnsNode = XmlDocument().rootNode()->childNode("cols");
+        XmlDocument()->rootNode()->insertNode(SheetDataNode(), XmlDocument()->createNode("cols"));
+        m_columnsNode = XmlDocument()->rootNode()->childNode("cols");
     }
 
     // Create result object and initialize to nullptr.
@@ -291,11 +291,11 @@ XLColumn *XLWorksheet::Column(unsigned int columnNumber)
     // If the node does not exist, create and insert it.
     if (colNode == nullptr) {
         // Create the node.
-        auto nodeColumn = XmlDocument().createNode("col");
-        auto attrMin = XmlDocument().createAttribute("min", to_string(columnNumber));
-        auto attrMax = XmlDocument().createAttribute("max", to_string(columnNumber));
-        auto attrWidth = XmlDocument().createAttribute("width", "10");
-        auto attrCustomWidth = XmlDocument().createAttribute("customWidth", "1");
+        auto nodeColumn = XmlDocument()->createNode("col");
+        auto attrMin = XmlDocument()->createAttribute("min", to_string(columnNumber));
+        auto attrMax = XmlDocument()->createAttribute("max", to_string(columnNumber));
+        auto attrWidth = XmlDocument()->createAttribute("width", "10");
+        auto attrCustomWidth = XmlDocument()->createAttribute("customWidth", "1");
 
         // Create the 'min', 'max', 'Width' and 'customWidth' attributes.
         nodeColumn->appendAttribute(attrMin);
@@ -314,7 +314,7 @@ XLColumn *XLWorksheet::Column(unsigned int columnNumber)
             auto index = columnNumber - 1; // vector is 0-based, Excel is 1-based; therefore columnNumber-1.
             XLColumn *col = m_columns.at(index).get();
             while (col == nullptr) col = m_columns.at(index++).get();
-            ColumnsNode()->insertNode(&col->ColumnNode(), nodeColumn);
+            ColumnsNode()->insertNode(col->ColumnNode(), nodeColumn);
         }
 
         // Insert the new Row node in the Row nodes vector.
@@ -397,7 +397,7 @@ const XMLNode *XLWorksheet::DimensionNode() const
  */
 void XLWorksheet::InitDimensionNode()
 {
-    m_dimensionNode = XmlDocument().rootNode()->childNode("dimension");
+    m_dimensionNode = XmlDocument()->rootNode()->childNode("dimension");
 }
 
 /**
@@ -422,7 +422,7 @@ const XMLNode *XLWorksheet::SheetDataNode() const
  */
 void XLWorksheet::InitSheetDataNode()
 {
-    m_sheetDataNode = XmlDocument().rootNode()->childNode("sheetData");
+    m_sheetDataNode = XmlDocument()->rootNode()->childNode("sheetData");
 }
 
 /**
@@ -454,7 +454,7 @@ const XMLNode *XLWorksheet::ColumnsNode() const
  */
 void XLWorksheet::InitColumnsNode()
 {
-    m_columnsNode = XmlDocument().rootNode()->childNode("cols");
+    m_columnsNode = XmlDocument()->rootNode()->childNode("cols");
 }
 
 /**
@@ -492,7 +492,7 @@ const XMLNode *XLWorksheet::SheetViewsNode() const
 void XLWorksheet::InitSheetViewsNode()
 {
     // Only set the variable if it is null.
-    if (m_sheetViewsNode == nullptr) m_sheetViewsNode = XmlDocument().rootNode()->childNode("sheetViews");
+    if (m_sheetViewsNode == nullptr) m_sheetViewsNode = XmlDocument()->rootNode()->childNode("sheetViews");
 }
 
 /**

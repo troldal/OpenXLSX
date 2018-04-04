@@ -47,7 +47,7 @@ bool XLAppProperties::ParseXMLData()
     m_headingPairs.clear();
     m_properties.clear();
 
-    auto node = XmlDocument().firstNode();
+    auto node = XmlDocument()->firstNode();
 
     while (node) {
         if (node->name() == "HeadingPairs") {
@@ -96,7 +96,7 @@ bool XLAppProperties::ParseXMLData()
  */
 XMLNode &XLAppProperties::AddSheetName(const string &title)
 {
-    XMLNode *theNode = XmlDocument().createNode("vt:lpstr");
+    XMLNode *theNode = XmlDocument()->createNode("vt:lpstr");
     m_sheetNamesParent->appendNode(theNode);
     theNode->setValue(title);
 
@@ -153,11 +153,11 @@ XMLNode &XLAppProperties::SheetNameNode(const string &title)
 void XLAppProperties::AddHeadingPair(const string &name,
                                         int value)
 {
-    XMLNode *pairCategory = XmlDocument().createNode("vt:lpstr");
+    XMLNode *pairCategory = XmlDocument()->createNode("vt:lpstr");
     m_headingPairsCategoryParent->appendNode(pairCategory);
     pairCategory->setValue(name);
 
-    XMLNode *pairCount = XmlDocument().createNode("vt:i4");
+    XMLNode *pairCount = XmlDocument()->createNode("vt:i4");
     m_headingPairsCountParent->appendNode(pairCount);
     pairCount->setValue(value);
 
@@ -255,7 +255,7 @@ void XLAppProperties::DeleteProperty(const string &name)
  */
 XMLNode &XLAppProperties::AppendSheetName(const std::string &sheetName)
 {
-    XMLNode *theNode = XmlDocument().createNode("vt:lpstr");
+    XMLNode *theNode = XmlDocument()->createNode("vt:lpstr");
     theNode->setValue(sheetName);
 
     m_sheetNamesParent->appendNode(theNode);
@@ -272,7 +272,7 @@ XMLNode &XLAppProperties::AppendSheetName(const std::string &sheetName)
  */
 XMLNode &XLAppProperties::PrependSheetName(const std::string &sheetName)
 {
-    XMLNode *theNode = XmlDocument().createNode("vt:lpstr");
+    XMLNode *theNode = XmlDocument()->createNode("vt:lpstr");
     theNode->setValue(sheetName);
 
     m_sheetNamesParent->prependNode(theNode);
@@ -292,7 +292,7 @@ XMLNode &XLAppProperties::InsertSheetName(const std::string &sheetName,
 {
     if (index <= 1) return PrependSheetName(sheetName);
 
-    XMLNode *theNode = XmlDocument().createNode("vt:lpstr");
+    XMLNode *theNode = XmlDocument()->createNode("vt:lpstr");
     theNode->setValue(sheetName);
 
     XMLNode *curNode = m_sheetNamesParent->childNode();

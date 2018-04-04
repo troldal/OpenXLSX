@@ -35,7 +35,7 @@ bool XLCoreProperties::ParseXMLData()
 {
     m_properties.clear();
 
-    auto node = XmlDocument().firstNode();
+    auto node = XmlDocument()->firstNode();
 
     while (node) {
         m_properties.insert_or_assign(node->name(), node);

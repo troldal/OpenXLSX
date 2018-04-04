@@ -122,7 +122,7 @@ bool XLContentTypes::ParseXMLData()
     std::string strOverride = "Override";
     std::string strDefault = "Default";
 
-    auto node = XmlDocument().firstNode();
+    auto node = XmlDocument()->firstNode();
 
     while (node) {
         if (node->name() == "Default") {
@@ -256,14 +256,14 @@ void XLContentTypes::addOverride(const string &path,
     else
         return;
 
-    XMLNode *node = XmlDocument().createNode("Override");
-    XMLAttribute *partName = XmlDocument().createAttribute("PartName", path);
-    XMLAttribute *contentType = XmlDocument().createAttribute("ContentType", typeString);
+    XMLNode *node = XmlDocument()->createNode("Override");
+    XMLAttribute *partName = XmlDocument()->createAttribute("PartName", path);
+    XMLAttribute *contentType = XmlDocument()->createAttribute("ContentType", typeString);
 
     node->appendAttribute(partName);
     node->appendAttribute(contentType);
 
-    XmlDocument().rootNode()->appendNode(node);
+    XmlDocument()->rootNode()->appendNode(node);
 
     unique_ptr<XLContentItem> item(new XLContentItem(*node, path, type));
     m_overrides.insert_or_assign(path, move(item));

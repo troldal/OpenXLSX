@@ -417,7 +417,7 @@ void XLCellValue::DeleteTypeAttribute()
 XMLAttribute *XLCellValue::CreateTypeAttribute()
 {
     if (!HasTypeAttribute())
-        ParentCell().CellNode()->appendAttribute(ParentCell().XmlDocument().createAttribute("t", ""));
+        ParentCell().CellNode()->appendAttribute(ParentCell().XmlDocument()->createAttribute("t", ""));
 
     return ParentCell().CellNode()->attribute("t");
 }

@@ -152,21 +152,21 @@ namespace OpenXLSX
          * @brief Get the XMLNode object for the row.
          * @return The XMLNode for the object.
          */
-        XMLNode &RowNode();
+        XMLNode *RowNode();
 
         /**
          * @brief Get the XLCell object at a specified column for this row.
          * @param column The column with the XLCell
          * @return A reference to the XLCell object.
          */
-        XLCell &Cell(unsigned int column);
+        XLCell *Cell(unsigned int column);
 
         /**
          * @brief Get the XLCell object at a specified column for this row.
          * @param column The column with the XLCell
          * @return A const reference to the XLCell object.
          */
-        const XLCell &Cell(unsigned int column) const;
+        const XLCell *Cell(unsigned int column) const;
 
         /**
          * @brief Get the number of cells in the row.

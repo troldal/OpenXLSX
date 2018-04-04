@@ -132,13 +132,13 @@ namespace OpenXLSX
          * @brief Get a reference to the XLCellValue object for the cell.
          * @return A reference to an XLCellValue object.
          */
-        XLCellValue &Value();
+        XLCellValue *Value();
 
         /**
          * @brief Get a const reference to the XLCellValue object for the cell.
          * @return A const reference to an XLCellValue object.
          */
-        const XLCellValue &Value() const;
+        const XLCellValue *Value() const;
 
         /**
          * @brief Set the cell to a 'dirty' state, i.e. the worksheet needs to be saved.
@@ -155,7 +155,7 @@ namespace OpenXLSX
          * @brief get the XLCellReference object for the cell.
          * @return A reference to the cells' XLCellReference object.
          */
-        const XLCellReference &CellReference() const;
+        const XLCellReference *CellReference() const;
 
 //----------------------------------------------------------------------------------------------------------------------
 //           Protected Member Functions
@@ -190,25 +190,25 @@ namespace OpenXLSX
          * @brief
          * @return
          */
-        XLWorksheet &ParentWorksheet();
+        XLWorksheet *ParentWorksheet();
 
         /**
          * @brief
          * @return
          */
-        const XLWorksheet &ParentWorksheet() const;
+        const XLWorksheet *ParentWorksheet() const;
 
         /**
          * @brief
          * @return
          */
-        XMLDocument &XmlDocument();
+        XMLDocument *XmlDocument();
 
         /**
          * @brief
          * @return
          */
-        const XMLDocument &XmlDocument() const;
+        const XMLDocument *XmlDocument() const;
 
         /**
          * @brief

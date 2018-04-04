@@ -78,7 +78,7 @@ void XLAbstractSheet::SetState(XLSheetState state)
         case XLSheetState::Hidden : {
             auto att = m_nodeInWorkbook->attribute("state");
             if (!att) {
-                att = XmlDocument().createAttribute("state", "hidden");
+                att = XmlDocument()->createAttribute("state", "hidden");
                 m_nodeInWorkbook->appendAttribute(att);
             }
             else {
@@ -90,7 +90,7 @@ void XLAbstractSheet::SetState(XLSheetState state)
         case XLSheetState::VeryHidden : {
             auto att = m_nodeInWorkbook->attribute("state");
             if (!att) {
-                att = XmlDocument().createAttribute("state", "veryhidden");
+                att = XmlDocument()->createAttribute("state", "veryhidden");
                 m_nodeInWorkbook->appendAttribute(att);
             }
             else {
