@@ -44,7 +44,7 @@ PROJECT_NUMBER         =
 # for a project that appears at the top of each page and should give viewer a
 # quick idea about the purpose of the project. Keep the description short.
 
-PROJECT_BRIEF          = "A library for reading, writing and modifying Microsoft Excel (xlsx) files."
+PROJECT_BRIEF          = "A library for reading, writing and modifying Microsoft Excel (.xlsx) files."
 
 # With the PROJECT_LOGO tag one can specify a logo or an icon that is included
 # in the documentation. The maximum Height of the logo should not exceed 55
@@ -1004,7 +1004,7 @@ SOURCE_BROWSER         = YES
 # classes and enums directly into the documentation.
 # The default value is: NO.
 
-INLINE_SOURCES         = NO
+INLINE_SOURCES         = YES
 
 # Setting the STRIP_CODE_COMMENTS tag to YES will instruct doxygen to hide any
 # special comment blocks from generated source code fragments. Normal C, C++ and
@@ -1849,7 +1849,7 @@ COMPACT_RTF            = NO
 # The default value is: NO.
 # This tag requires that the tag GENERATE_RTF is set to YES.
 
-RTF_HYPERLINKS         = NO
+RTF_HYPERLINKS         = YES
 
 # Load stylesheet definitions from file. Syntax is similar to doxygen's config
 # file, i.e. a series of assignments. You only have to provide replacements,
@@ -2183,7 +2183,7 @@ MSCGEN_PATH            =
 # DIA_PATH tag allows you to specify the directory where the dia binary resides.
 # If left empty dia is assumed to be found in the default search path.
 
-DIA_PATH               =
+DIA_PATH               = 
 
 # If set to YES the inheritance and collaboration graphs will hide inheritance
 # and usage relations if the Target is undocumented or is not a class.
@@ -2240,7 +2240,7 @@ DOT_FONTPATH           =
 # The default value is: YES.
 # This tag requires that the tag HAVE_DOT is set to YES.
 
-CLASS_GRAPH            = NO
+CLASS_GRAPH            = YES
 
 # If the COLLABORATION_GRAPH tag is set to YES then doxygen will generate a
 # graph for each documented class showing the direct and indirect implementation
@@ -2294,7 +2294,7 @@ TEMPLATE_RELATIONS     = NO
 # The default value is: YES.
 # This tag requires that the tag HAVE_DOT is set to YES.
 
-INCLUDE_GRAPH          = NO
+INCLUDE_GRAPH          = YES
 
 # If the INCLUDED_BY_GRAPH, ENABLE_PREPROCESSING and SEARCH_INCLUDES tags are
 # set to YES then doxygen will generate a graph for each documented file showing
@@ -2303,7 +2303,7 @@ INCLUDE_GRAPH          = NO
 # The default value is: YES.
 # This tag requires that the tag HAVE_DOT is set to YES.
 
-INCLUDED_BY_GRAPH      = NO
+INCLUDED_BY_GRAPH      = YES
 
 # If the CALL_GRAPH tag is set to YES then doxygen will generate a call
 # dependency graph for every global function or class method.
@@ -2437,7 +2437,7 @@ DOT_GRAPH_MAX_NODES    = 50
 # Minimum value: 0, maximum value: 1000, default value: 0.
 # This tag requires that the tag HAVE_DOT is set to YES.
 
-MAX_DOT_GRAPH_DEPTH    = 3
+MAX_DOT_GRAPH_DEPTH    = 2
 
 # Set the DOT_TRANSPARENT tag to YES to generate images with a transparent
 # background. This is disabled by default, because dot on Windows does not seem
