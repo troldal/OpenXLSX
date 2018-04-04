@@ -112,7 +112,7 @@ const XLCell *XLCellRange::Cell(unsigned long row,
     else
         cellReference.SetRowAndColumn(column + m_rowOffset, row + m_columnOffset);
 
-    result = &m_parentWorksheet->Cell(cellReference);
+    result = m_parentWorksheet->Cell(cellReference);
 
     return result;
 }

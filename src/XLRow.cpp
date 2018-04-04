@@ -275,17 +275,17 @@ unique_ptr<XLRow> XLRow::CreateRow(XLWorksheet &worksheet,
     nodeRow->appendNode(cellNode);
 
     // Insert the newly created Row and Cell in the right place in the XML structure.
-    if (worksheet.SheetDataNode().childNode() == nullptr || rowNumber >= worksheet.RowCount()) {
+    if (worksheet.SheetDataNode()->childNode() == nullptr || rowNumber >= worksheet.RowCount()) {
         // If there are no Row nodes, or the requested Row number exceed the current maximum, append the the node
         // after the existing rownodes.
-        worksheet.SheetDataNode().appendNode(nodeRow);
+        worksheet.SheetDataNode()->appendNode(nodeRow);
     }
     else {
         //Otherwise, search the Row nodes vector for the next node and insert there.
         auto index = rowNumber - 1; // vector is 0-based, Excel is 1-based; therefore rowNumber-1.
-        XLRow *node = worksheet.Rows().at(index).get();
-        while (node == nullptr) node = worksheet.Rows().at(index++).get();
-        worksheet.SheetDataNode().insertNode(&node->RowNode(), nodeRow);
+        XLRow *node = worksheet.Rows()->at(index).get();
+        while (node == nullptr) node = worksheet.Rows()->at(index++).get();
+        worksheet.SheetDataNode()->insertNode(&node->RowNode(), nodeRow);
     }
 
     return make_unique<XLRow>(worksheet, *nodeRow);

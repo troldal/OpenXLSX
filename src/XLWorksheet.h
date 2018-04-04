@@ -139,28 +139,28 @@ namespace OpenXLSX
          * @param ref An XLCellReference object with the address of the cell to get.
          * @return A reference to the requested XLCell object.
          */
-        XLCell &Cell(const XLCellReference &ref);
+        XLCell *Cell(const XLCellReference &ref);
 
         /**
          * @brief Get a pointer to the XLCell object for the given cell reference.
          * @param ref An XLCellReference object with the address of the cell to get.
          * @return A const reference to the requested XLCell object.
          */
-        const XLCell &Cell(const XLCellReference &ref) const;
+        const XLCell *Cell(const XLCellReference &ref) const;
 
         /**
          * @brief Get the cell with the given address
          * @param address The address of the cell to get, e.g. 'A1'
          * @return A reference to the XLCell object at the given address
          */
-        XLCell &Cell(const std::string &address);
+        XLCell *Cell(const std::string &address);
 
         /**
          * @brief Get the cell with the given address
          * @param address The address of the cell to get, e.g. 'A1'
          * @return A const reference to the XLCell object at the given address
          */
-        const XLCell &Cell(const std::string &address) const;
+        const XLCell *Cell(const std::string &address) const;
 
         /**
          * @brief Get the cell at the given coordinates.
@@ -168,8 +168,8 @@ namespace OpenXLSX
          * @param columnNumber The column number (index base 1).
          * @return A reference to the XLCell object at the given coordinates.
          */
-        XLCell &Cell(unsigned long rowNumber,
-                     unsigned int columnNumber);
+        XLCell *Cell(unsigned long rowNumber,
+                      unsigned int columnNumber);
 
         /**
          * @brief Get the cell at the given coordinates.
@@ -177,8 +177,8 @@ namespace OpenXLSX
          * @param columnNumber The column number (index base 1).
          * @return A const reference to the XLCell object at the given coordinates.
          */
-        const XLCell &Cell(unsigned long rowNumber,
-                           unsigned int columnNumber) const;
+        const XLCell *Cell(unsigned long rowNumber,
+                            unsigned int columnNumber) const;
 
         /**
          * @brief Get a range for the area currently in use (i.e. from cell A1 to the last cell being in use).
@@ -215,28 +215,28 @@ namespace OpenXLSX
          * @param rowNumber The number of the row to retrieve.
          * @return A pointer to the XLRow object.
          */
-        XLRow &Row(unsigned long rowNumber);
+        XLRow *Row(unsigned long rowNumber);
 
         /**
          * @brief Get the row with the given row number.
          * @param rowNumber The number of the row to retrieve.
          * @return A const pointer to the XLRow object.
          */
-        const XLRow &Row(unsigned long rowNumber) const;
+        const XLRow *Row(unsigned long rowNumber) const;
 
         /**
          * @brief Get the column with the given column number.
          * @param columnNumber The number of the column to retrieve.
          * @return A pointer to the XLColumn object.
          */
-        XLColumn &Column(unsigned int columnNumber);
+        XLColumn *Column(unsigned int columnNumber);
 
         /**
          * @brief Get the column with the given column number.
          * @param columnNumber The number of the column to retrieve.
          * @return A const pointer to the XLColumn object.
          */
-        const XLColumn &Column(unsigned int columnNumber) const;
+        const XLColumn *Column(unsigned int columnNumber) const;
 
         /**
          * @brief Get an XLCellReference to the first (top left) cell in the worksheet.
@@ -283,7 +283,7 @@ namespace OpenXLSX
          * @return A pointer to the newly created clone.
          * @todo Not yet implemented.
          */
-        XLWorksheet &Clone(const std::string &newName) override;
+        XLWorksheet *Clone(const std::string &newName) override;
 
         /**
          * @brief Get access to the parent XLWorkbook object.
@@ -301,25 +301,25 @@ namespace OpenXLSX
          * @brief Get the data structure holding all rows in the worksheet.
          * @return A reference to the std::vector with the row data.
          */
-        XLRowVector &Rows();
+        XLRowVector *Rows();
 
         /**
          * @brief Get the data structure holding all rows in the worksheet.
          * @return A const reference to the std::vector with the row data.
          */
-        const XLRowVector &Rows() const;
+        const XLRowVector *Rows() const;
 
         /**
          * @brief Get the data structure all columns in the worksheet.
          * @return A reference to the std::vector with the column data.
          */
-        XLColumnVector &Columns();
+        XLColumnVector *Columns();
 
         /**
          * @brief Get the data structure all columns in the worksheet.
          * @return A const reference to the std::vector with the column data.
          */
-        const XLColumnVector &Columns() const;
+        const XLColumnVector *Columns() const;
 
 //----------------------------------------------------------------------------------------------------------------------
 //           Private Member Functions
@@ -331,13 +331,13 @@ namespace OpenXLSX
          * @brief Get access to the dimension node in the underlying XML file.
          * @return A pointer to the XMLNode object.
          */
-        XMLNode &DimensionNode();
+        XMLNode *DimensionNode();
 
         /**
          * @brief Get read-only access to the dimension node in the underlying XML file.
          * @return A const pointer to the XMLNode object. Returned as pointer-to-const.
          */
-        const XMLNode &DimensionNode() const;
+        const XMLNode *DimensionNode() const;
 
         /**
          * @brief Initialize the dimension node in the underlying XML file.
@@ -348,13 +348,13 @@ namespace OpenXLSX
          * @brief Get access to the sheet data node in the underlying XML file.
          * @return A pointer to the corresponding XMLNode object.
          */
-        XMLNode &SheetDataNode();
+        XMLNode *SheetDataNode();
 
         /**
          * @brief Get access to the sheet data node in the underlying XML file.
          * @return A const pointer to the corresponding XMLNode object.
          */
-        const XMLNode &SheetDataNode() const;
+        const XMLNode *SheetDataNode() const;
 
         /**
          * @brief Initialize the sheet data node in the underlying XML file.
@@ -365,13 +365,13 @@ namespace OpenXLSX
          * @brief Get a reference to the XMLNode object corresponding to the columns (cols) node in the XML file.
          * @return A XMLNode reference.
          */
-        XMLNode &ColumnsNode();
+        XMLNode *ColumnsNode();
 
         /**
          * @brief Get a const reference to the XMLNode object corresponding to the columns (cols) node in the XML file.
          * @return A const XMLNode reference.
          */
-        const XMLNode &ColumnsNode() const;
+        const XMLNode *ColumnsNode() const;
 
         /**
          * @brief Initialize the columns (cols) node in the underlying XML file.
@@ -382,13 +382,13 @@ namespace OpenXLSX
          * @brief Get a reference to the XMLNode object corresponding to the sheet views node in the XML file.
          * @return An XMLNode reference.
          */
-        XMLNode &SheetViewsNode();
+        XMLNode *SheetViewsNode();
 
         /**
          * @brief Get a const reference to the XMLNode object corresponding to the sheet views node in the XML file.
          * @return A const XMLNode reference.
          */
-        const XMLNode &SheetViewsNode() const;
+        const XMLNode *SheetViewsNode() const;
 
         /**
          * @brief Initialize the sheet views node in the underlying XML file.

@@ -67,13 +67,13 @@ bool XLWorksheet::ParseXMLData()
 
     // Read the dimensions of the Sheet and set data members accordingly.
     vector<string> dimensions;
-    boost::algorithm::split(dimensions, DimensionNode().attribute("ref")->value(), is_any_of(":"), token_compress_on);
+    boost::algorithm::split(dimensions, DimensionNode()->attribute("ref")->value(), is_any_of(":"), token_compress_on);
     SetFirstCell(XLCellReference("A1"));
     SetLastCell(XLCellReference(dimensions[dimensions.size() - 1]));
 
     // If Column properties are grouped, divide them into properties for individual Columns.
     if (m_columnsNode != nullptr) {
-        auto currentNode = ColumnsNode().childNode();
+        auto currentNode = ColumnsNode()->childNode();
         while (currentNode != nullptr) {
             int min = stoi(currentNode->attribute("min")->value());
             int max = stoi(currentNode->attribute("max")->value());
@@ -90,7 +90,7 @@ bool XLWorksheet::ParseXMLData()
                     }
                     newnode->attribute("min")->setValue(i);
                     newnode->attribute("max")->setValue(i);
-                    ColumnsNode().insertNode(currentNode, newnode);
+                    ColumnsNode()->insertNode(currentNode, newnode);
                 }
             }
             currentNode = currentNode->nextSibling();
@@ -99,7 +99,7 @@ bool XLWorksheet::ParseXMLData()
 
     // Store all Column nodes in the m_columns vector.
     if (m_columnsNode != nullptr) {
-        XMLNode *currentColumn = ColumnsNode().childNode();
+        XMLNode *currentColumn = ColumnsNode()->childNode();
         while (currentColumn != nullptr) {
             m_columns.at(stoul(currentColumn->attribute("min")->value()) - 1) = make_unique<XLColumn>(*this,
                                                                                                       *currentColumn);
@@ -108,7 +108,7 @@ bool XLWorksheet::ParseXMLData()
     }
 
     // Store all Row nodes in the m_rows vector. The XLRow constructor will initialize the cells objects
-    XMLNode *currentRow = SheetDataNode().childNode();
+    XMLNode *currentRow = SheetDataNode()->childNode();
     while (currentRow != nullptr) {
         m_rows.at(stoul(currentRow->attribute("r")->value()) - 1) = make_unique<XLRow>(*this, *currentRow);
         currentRow = currentRow->nextSibling();
@@ -121,17 +121,17 @@ bool XLWorksheet::ParseXMLData()
  * @details Creates an identical clone of the worksheet. All references internally in the spreadsheet are
  * handled automatically by the clone function.
  */
-XLWorksheet &XLWorksheet::Clone(const std::string &newName)
+XLWorksheet *XLWorksheet::Clone(const std::string &newName)
 {
     ParentWorkbook()->CloneWorksheet(SheetName(), newName);
-    return *ParentWorkbook()->Worksheet(newName);
+    return ParentWorkbook()->Worksheet(newName);
 }
 
 /**
  * @details Get te cell with the given cell reference. This is a convenience function, which calls the
  * cell(rowNumber, columnNumber) function.
  */
-XLCell &XLWorksheet::Cell(const XLCellReference &ref)
+XLCell *XLWorksheet::Cell(const XLCellReference &ref)
 {
     return Cell(ref.Row(), ref.Column());
 }
@@ -139,7 +139,7 @@ XLCell &XLWorksheet::Cell(const XLCellReference &ref)
 /**
  * @details
  */
-const XLCell &XLWorksheet::Cell(const XLCellReference &ref) const
+const XLCell *XLWorksheet::Cell(const XLCellReference &ref) const
 {
     return Cell(ref.Row(), ref.Column());
 }
@@ -148,7 +148,7 @@ const XLCell &XLWorksheet::Cell(const XLCellReference &ref) const
  * @details Get the cell with the given cell address. This is a convenience function, which calls the
  * cell(rowNumber, columnNumber) function.
  */
-XLCell &XLWorksheet::Cell(const std::string &address)
+XLCell *XLWorksheet::Cell(const std::string &address)
 {
     return Cell(XLCellReference(address));
 }
@@ -156,7 +156,7 @@ XLCell &XLWorksheet::Cell(const std::string &address)
 /**
  * @details
  */
-const XLCell &XLWorksheet::Cell(const std::string &address) const
+const XLCell *XLWorksheet::Cell(const std::string &address) const
 {
     return Cell(XLCellReference(address));
 }
@@ -165,8 +165,8 @@ const XLCell &XLWorksheet::Cell(const std::string &address) const
  * @details This function returns a pointer to an XLCell object in the worksheet. This particular overload
  * also serves as the main function, called by the other overloads.
  */
-XLCell &XLWorksheet::Cell(unsigned long rowNumber,
-                          unsigned int columnNumber)
+XLCell *XLWorksheet::Cell(unsigned long rowNumber,
+                           unsigned int columnNumber)
 {
     // If the requested Cell is outside the current Sheet Range, reset the m_lastCell Property accordingly.
     if (columnNumber > ColumnCount() || rowNumber > RowCount()) {
@@ -174,22 +174,22 @@ XLCell &XLWorksheet::Cell(unsigned long rowNumber,
         if (rowNumber > RowCount()) m_lastCell.SetRow(rowNumber);
 
         // Reset the dimension node to reflect the full Range of the current Sheet.
-        DimensionNode().attribute("ref")->setValue(FirstCell().Address() + ":" + LastCell().Address());
+        DimensionNode()->attribute("ref")->setValue(FirstCell().Address() + ":" + LastCell().Address());
     }
 
     // Return a pointer to the requested XLCell object.
-    return Row(rowNumber).Cell(columnNumber);
+    return &Row(rowNumber)->Cell(columnNumber);
 }
 
 /**
  * @details
  * @throw XLException if rowNumber exceeds rowCount
  */
-const XLCell &XLWorksheet::Cell(unsigned long rowNumber,
-                                unsigned int columnNumber) const
+const XLCell *XLWorksheet::Cell(unsigned long rowNumber,
+                                 unsigned int columnNumber) const
 {
     if (rowNumber > RowCount()) throw XLException("Row " + to_string(rowNumber) + " does not exist!");
-    else return Row(rowNumber).Cell(columnNumber);
+    else return &Row(rowNumber)->Cell(columnNumber);
 }
 
 /**
@@ -218,7 +218,7 @@ XLCellRange XLWorksheet::Range(const XLCellReference &topLeft,
                                const XLCellReference &bottomRight)
 {
     // Set the last Cell to some ValueAsString, in order to create all objects in Range.
-    if (Cell(bottomRight).ValueType() == XLValueType::Empty) Cell(bottomRight).Value().SetEmpty();
+    if (Cell(bottomRight)->ValueType() == XLValueType::Empty) Cell(bottomRight)->Value().SetEmpty();
 
     return XLCellRange(*this, topLeft, bottomRight);
 }
@@ -241,44 +241,44 @@ const XLCellRange XLWorksheet::Range(const XLCellReference &topLeft,
  * node for that row. In RapidXLSX,the vector with all rows are initialized to a fixed size (the maximum size),
  * but most elements will be nullptr.
  */
-XLRow &XLWorksheet::Row(unsigned long rowNumber)
+XLRow *XLWorksheet::Row(unsigned long rowNumber)
 {
 
     // Create result object and initialize to nullptr.
     XLRow *result = nullptr;
 
     // Retrieve the Row node in the m_rows vector. If it doesn't exist, nullptr will be returned.
-    XLRow *rowNode = Rows().at(rowNumber - 1).get(); // vector is 0-based, Excel is 1-based; therefore rowNumber-1.
+    XLRow *rowNode = Rows()->at(rowNumber - 1).get(); // vector is 0-based, Excel is 1-based; therefore rowNumber-1.
 
     // If the node does not exist, create and insert it. Otherwise return the existing object.
     if (rowNode == nullptr) {
-        Rows().at(rowNumber - 1) = XLRow::CreateRow(*this, rowNumber);
-        result = Rows().at(rowNumber - 1).get();
+        Rows()->at(rowNumber - 1) = XLRow::CreateRow(*this, rowNumber);
+        result = Rows()->at(rowNumber - 1).get();
     }
     else result = rowNode;
 
-    return *result;
+    return result;
 }
 
 /**
  * @details
  */
-const XLRow &XLWorksheet::Row(unsigned long rowNumber) const
+const XLRow *XLWorksheet::Row(unsigned long rowNumber) const
 {
     if (rowNumber >= m_rows.size()) throw XLException("Row number " + to_string(rowNumber) + " does not exist");
-    return *Rows().at(rowNumber - 1); // vector is 0-based, Excel is 1-based; therefore rowNumber-1.
+    return Rows()->at(rowNumber - 1).get(); // vector is 0-based, Excel is 1-based; therefore rowNumber-1.
 }
 
 /**
  * @details Get the XLColumn object corresponding to the given column number. In the underlying XML data structure,
  * column nodes do not hold any cell data. Columns are used solely to hold data regarding column formatting.
  */
-XLColumn &XLWorksheet::Column(unsigned int columnNumber)
+XLColumn *XLWorksheet::Column(unsigned int columnNumber)
 {
 
     // If no columns exists, create the <cols> node in the XML document.
     if (m_columnsNode == nullptr) {
-        XmlDocument().rootNode()->insertNode(&SheetDataNode(), XmlDocument().createNode("cols"));
+        XmlDocument().rootNode()->insertNode(SheetDataNode(), XmlDocument().createNode("cols"));
         m_columnsNode = XmlDocument().rootNode()->childNode("cols");
     }
 
@@ -304,17 +304,17 @@ XLColumn &XLWorksheet::Column(unsigned int columnNumber)
         nodeColumn->appendAttribute(attrCustomWidth);
 
         // Insert the newly created Column node in the right place in the XML structure.
-        if (ColumnsNode().childNode() == nullptr || columnNumber >= m_maxColumn) {
+        if (ColumnsNode()->childNode() == nullptr || columnNumber >= m_maxColumn) {
             // If there are no Column nodes, or the requested Column number exceed the current maximum, append the the node
             // after the existing Column nodes.
-            ColumnsNode().appendNode(nodeColumn);
+            ColumnsNode()->appendNode(nodeColumn);
         }
         else {
             //Otherwise, search the Column nodes vector for the next node and insert there.
             auto index = columnNumber - 1; // vector is 0-based, Excel is 1-based; therefore columnNumber-1.
             XLColumn *col = m_columns.at(index).get();
             while (col == nullptr) col = m_columns.at(index++).get();
-            ColumnsNode().insertNode(&col->ColumnNode(), nodeColumn);
+            ColumnsNode()->insertNode(&col->ColumnNode(), nodeColumn);
         }
 
         // Insert the new Row node in the Row nodes vector.
@@ -327,86 +327,69 @@ XLColumn &XLWorksheet::Column(unsigned int columnNumber)
 
     if (columnNumber > m_maxColumn) m_maxColumn = columnNumber;
 
-    return *result;
+    return result;
 }
 
 /**
  * @details
  */
-const XLColumn &XLWorksheet::Column(unsigned int columnNumber) const
+const XLColumn *XLWorksheet::Column(unsigned int columnNumber) const
 {
     if (columnNumber >= m_columns.size())
         throw XLException("Column number " + to_string(columnNumber) + " does not exist");
-    return *m_columns.at(columnNumber - 1);
+    return m_columns.at(columnNumber - 1).get();
 }
 
 /**
  * @details
- */ /*
-const XLWorkbook &XLWorksheet::ParentWorkbook() const
-{
-    return m_parentWorkbook;
-} */
-
-/**
- * @brief
- * @return
- */ /*
-XLWorkbook &XLWorksheet::ParentWorkbook()
-{
-    return const_cast<XLWorkbook &>(static_cast<const XLWorksheet *>(this)->ParentWorkbook());
-} */
-
-/**
- * @details
  */
-XLRowVector &XLWorksheet::Rows()
+XLRowVector *XLWorksheet::Rows()
 {
-    return m_rows;
+    return &m_rows;
 }
 
 /**
  * @brief
  * @return
  */
-const XLRowVector &XLWorksheet::Rows() const
+const XLRowVector *XLWorksheet::Rows() const
 {
-    return m_rows;
+    return &m_rows;
 }
 
 /**
  * @details
  */
-XLColumnVector &XLWorksheet::Columns()
+XLColumnVector *XLWorksheet::Columns()
 {
-    return m_columns;
+    return &m_columns;
 }
 
 /**
  * @brief
  * @return
  */
-const XLColumnVector &XLWorksheet::Columns() const
+const XLColumnVector *XLWorksheet::Columns() const
 {
-    return m_columns;
+    return &m_columns;
 }
 
 /**
  * @details
  */
-XMLNode &XLWorksheet::DimensionNode()
+XMLNode *XLWorksheet::DimensionNode()
 {
-    return const_cast<XMLNode &>(static_cast<const XLWorksheet *>(this)->DimensionNode());
+    return const_cast<XMLNode *>(static_cast<const XLWorksheet *>(this)->DimensionNode());
 }
 
 /**
  * @details
  * @todo Instead of throwing an exception, consider creating a dimension node.
  */
-const XMLNode &XLWorksheet::DimensionNode() const
+const XMLNode *XLWorksheet::DimensionNode() const
 {
     if (m_dimensionNode == nullptr) throw XLException("The <dimension> node does not exist in " + FilePath());
-    return *m_dimensionNode;
+    return m_dimensionNode;
 }
 
 /**
@@ -420,18 +403,18 @@ void XLWorksheet::InitDimensionNode()
 /**
  * @details
  */
-XMLNode &XLWorksheet::SheetDataNode()
+XMLNode *XLWorksheet::SheetDataNode()
 {
-    return const_cast<XMLNode &>(static_cast<const XLWorksheet *>(this)->SheetDataNode());
+    return const_cast<XMLNode *>(static_cast<const XLWorksheet *>(this)->SheetDataNode());
 }
 
 /**
  * @details
  */
-const XMLNode &XLWorksheet::SheetDataNode() const
+const XMLNode *XLWorksheet::SheetDataNode() const
 {
     if (m_sheetDataNode == nullptr) throw XLException("The <sheetData> node does not exist in " + FilePath());
-    return *m_sheetDataNode;
+    return m_sheetDataNode;
 }
 
 /**
@@ -448,9 +431,9 @@ void XLWorksheet::InitSheetDataNode()
  * or the initialization of the object.
  * @throw An XLException object with a description of the error.
  */
-XMLNode &XLWorksheet::ColumnsNode()
+XMLNode *XLWorksheet::ColumnsNode()
 {
-    return const_cast<XMLNode &>(static_cast<const XLWorksheet *>(this)->ColumnsNode());
+    return const_cast<XMLNode *>(static_cast<const XLWorksheet *>(this)->ColumnsNode());
 }
 
 /**
@@ -459,10 +442,10 @@ XMLNode &XLWorksheet::ColumnsNode()
  * or the initialization of the object.
  * @throw An XLException object with a description of the error.
  */
-const XMLNode &XLWorksheet::ColumnsNode() const
+const XMLNode *XLWorksheet::ColumnsNode() const
 {
     if (m_columnsNode == nullptr) throw XLException("The <cols> node does not exist in " + FilePath());
-    return *m_columnsNode;
+    return m_columnsNode;
 }
 
 /**
@@ -480,9 +463,9 @@ void XLWorksheet::InitColumnsNode()
  * or the initialization of the object.
  * @exception Throws an XLException if the sheetViews node does not exist in underlying XML file.
  */
-XMLNode &XLWorksheet::SheetViewsNode()
+XMLNode *XLWorksheet::SheetViewsNode()
 {
-    return const_cast<XMLNode &>(static_cast<const XLWorksheet *>(this)->SheetViewsNode());
+    return const_cast<XMLNode *>(static_cast<const XLWorksheet *>(this)->SheetViewsNode());
 }
 
 /**
@@ -492,10 +475,10 @@ XMLNode &XLWorksheet::SheetViewsNode()
  * @exception Throws an XLException if the sheetViews node does not exist in underlying XML file.
  * @todo Instead of throwing an exception, consider creating a sheetViews node.
  */
-const XMLNode &XLWorksheet::SheetViewsNode() const
+const XMLNode *XLWorksheet::SheetViewsNode() const
 {
     if (m_sheetViewsNode == nullptr) throw XLException("The <sheetViews> node does not exist in " + FilePath());
-    return *m_sheetViewsNode;
+    return m_sheetViewsNode;
 }
 
 /**
