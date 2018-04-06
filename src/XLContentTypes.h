@@ -237,14 +237,14 @@ namespace OpenXLSX
          * @brief
          * @return
          */
-        const XLContentItemMap &contentItems() const;
+        const XLContentItemMap *contentItems() const;
 
         /**
          * @brief
          * @param path
          * @return
          */
-        XLContentItem &ContentItem(const std::string &path);
+        XLContentItem *ContentItem(const std::string &path);
 
 //----------------------------------------------------------------------------------------------------------------------
 //           Protected Member Functions

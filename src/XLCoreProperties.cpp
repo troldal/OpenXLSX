@@ -77,9 +77,9 @@ bool XLCoreProperties::SetProperty(const std::string &name,
 /**
  * @details
  */
-XMLNode &XLCoreProperties::Property(const std::string &name) const
+XMLNode *XLCoreProperties::Property(const std::string &name) const
 {
-    return *m_properties.at(name);
+    return m_properties.at(name);
 }
 
 /**

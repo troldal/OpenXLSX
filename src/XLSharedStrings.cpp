@@ -98,12 +98,12 @@ const std::string &XLSharedStrings::GetString(const std::string &str)
  * The resulting string is returned as pointer-to-const, as the client is not supposed to modify the shared strings
  * directly.
  */
-const XMLNode &XLSharedStrings::GetStringNode(unsigned long index) const
+const XMLNode *XLSharedStrings::GetStringNode(unsigned long index) const
 {
     if (index > m_sharedStrings.size() - 1)
         throw std::range_error("Node does not exist");
     else
-        return *m_sharedStrings.at(index);
+        return m_sharedStrings.at(index);
 }
 
 /**
@@ -112,7 +112,7 @@ const XMLNode &XLSharedStrings::GetStringNode(unsigned long index) const
  * The resulting string is returned as pointer-to-const, as the client is not supposed to modify the shared strings
  * directly.
  */
-const XMLNode &XLSharedStrings::GetStringNode(const std::string &str) const
+const XMLNode *XLSharedStrings::GetStringNode(const std::string &str) const
 {
     XMLNode *node = nullptr;
     for (const auto &s : m_sharedStrings) {
@@ -121,7 +121,7 @@ const XMLNode &XLSharedStrings::GetStringNode(const std::string &str) const
 
     if (node == nullptr) throw std::range_error("Node does not exist");
 
-    return *node;
+    return node;
 }
 
 /**

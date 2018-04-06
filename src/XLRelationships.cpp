@@ -82,27 +82,27 @@ XLRelationships::XLRelationships(XLDocument &parent,
 /**
  * @details Returns the XLRelationshipItem with the given ID, by looking it up in the m_relationships map.
  */
-const XLRelationshipItem &XLRelationships::RelationshipByID(const std::string &id) const
+const XLRelationshipItem *XLRelationships::RelationshipByID(const std::string &id) const
 {
-    return *Relationships().at(id).get();
+    return Relationships()->at(id).get();
 }
 
 /**
  * @details Returns the XLRelationshipItem with the given ID, by looking it up in the m_relationships map.
  */
-XLRelationshipItem &XLRelationships::RelationshipByID(const std::string &id)
+XLRelationshipItem * XLRelationships::RelationshipByID(const std::string &id)
 {
-    return *Relationships().at(id).get();
+    return Relationships()->at(id).get();
 }
 
 /**
  * @details Returns the XLRelationshipItem with the requested target, by iterating through the items.
  */
-const XLRelationshipItem &XLRelationships::RelationshipByTarget(const std::string &target) const
+const XLRelationshipItem * XLRelationships::RelationshipByTarget(const std::string &target) const
 {
 
-    for (auto const &item : Relationships()) {
-        if (item.second->Target() == target) return *item.second.get();
+    for (auto const &item : *Relationships()) {
+        if (item.second->Target() == target) return item.second.get();
     }
 
     throw std::range_error("Relationship with Target does not exist");
@@ -111,11 +111,11 @@ const XLRelationshipItem &XLRelationships::RelationshipByTarget(const std::strin
 /**
  * @details Returns the XLRelationshipItem with the requested target, by iterating through the items.
  */
-XLRelationshipItem &XLRelationships::RelationshipByTarget(const std::string &target)
+XLRelationshipItem *XLRelationships::RelationshipByTarget(const std::string &target)
 {
 
-    for (auto &item : Relationships()) {
-        if (item.second->Target() == target) return *item.second.get();
+    for (auto &item : *Relationships()) {
+        if (item.second->Target() == target) return item.second.get();
     }
 
     throw std::range_error("Relationship with Target does not exist");
@@ -124,18 +124,18 @@ XLRelationshipItem &XLRelationships::RelationshipByTarget(const std::string &tar
 /**
  * @details Returns a const reference to the internal datastructure (std::map)
  */
-const std::map<std::string, unique_ptr<XLRelationshipItem>> &XLRelationships::Relationships() const
+const XLRelationshipMap *XLRelationships::Relationships() const
 {
-    return m_relationships;
+    return &m_relationships;
 }
 
 /**
  * @details Returns a mutable reference to the internal datastructure (std::map)
  * @todo Consider if there is a more elegant way of doing this.
  */
-std::map<std::string, unique_ptr<XLRelationshipItem>> &XLRelationships::relationshipsMutable()
+XLRelationshipMap *XLRelationships::relationshipsMutable()
 {
-    return m_relationships;
+    return &m_relationships;
 }
 
 /**
@@ -144,8 +144,8 @@ std::map<std::string, unique_ptr<XLRelationshipItem>> &XLRelationships::relation
 void XLRelationships::DeleteRelationship(const std::string &id)
 {
 
-    Relationships().at(id)->Delete();
-    relationshipsMutable().erase(id); // Delete item from the Relationships map
+    Relationships()->at(id)->Delete();
+    relationshipsMutable()->erase(id); // Delete item from the Relationships map
     SaveXMLData();
     SetModified();
 }
@@ -154,7 +154,7 @@ void XLRelationships::DeleteRelationship(const std::string &id)
  * @details Adds a new relationship by creating new XML node in the .rels file and creating a new XLRelationshipItem
  * based on the newly created node.
  */
-XLRelationshipItem &XLRelationships::AddRelationship(XLRelationshipType type, const std::string &target)
+XLRelationshipItem * XLRelationships::AddRelationship(XLRelationshipType type, const std::string &target)
 {
     string typeString;
 
@@ -225,12 +225,12 @@ XLRelationshipItem &XLRelationships::AddRelationship(XLRelationshipType type, co
     // Create new XLRelationshipItem object and add to internal datastructure.
     unique_ptr<XLRelationshipItem> rShip(new XLRelationshipItem(*node, type, target, Id->value()));
     XLRelationshipItem *result = rShip.get();
-    relationshipsMutable().insert_or_assign(Id->value(), move(rShip));
+    relationshipsMutable()->insert_or_assign(Id->value(), move(rShip));
     SetModified();
 
     SaveXMLData();
 
-    return *result;
+    return result;
 }
 
 /**
@@ -296,7 +296,7 @@ bool XLRelationships::ParseXMLData()
                                                                     theNode->attribute("Target")->value(),
                                                                     theNode->attribute("Id")->value()));
 
-        relationshipsMutable().insert_or_assign(theNode->attribute("Id")->value(), move(rShip));
+        relationshipsMutable()->insert_or_assign(theNode->attribute("Id")->value(), move(rShip));
 
         theNode = theNode->nextSibling();
     }

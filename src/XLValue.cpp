@@ -46,9 +46,9 @@ XLValue &XLValue::operator=(XLValue &&other) noexcept
  * @pre The object has been properly initialized with a valid parent XLCellValue object.
  * @post The object and any associated objects are left unchanged.
  */
-XLCellValue &XLValue::ParentCellValue()
+XLCellValue *XLValue::ParentCellValue()
 {
-    return m_parentCellValue;
+    return &m_parentCellValue;
 }
 
 /**
@@ -56,7 +56,7 @@ XLCellValue &XLValue::ParentCellValue()
  * @pre The object has been properly initialized with a valid parent XLCellValue object.
  * @post The object and any associated objects are left unchanged.
  */
-const XLCellValue &XLValue::ParentCellValue() const
+const XLCellValue *XLValue::ParentCellValue() const
 {
-    return m_parentCellValue;
+    return &m_parentCellValue;
 }

@@ -274,13 +274,13 @@ namespace OpenXLSX
          * @brief Get a reference to the parent cell of the XLCellValue object.
          * @return A reference to the parent XLCell object.
          */
-        XLCell &ParentCell();
+        XLCell *ParentCell();
 
         /**
          * @brief Get a const reference to the parent cell of the XLCellValue object.
          * @return A const reference to the parent XLCell object.
          */
-        const XLCell &ParentCell() const;
+        const XLCell *ParentCell() const;
 
         /**
          * @brief Get a pointer to the value node in the underlying XML file.
@@ -421,7 +421,7 @@ namespace OpenXLSX
 
         static_cast<XLValueNumber &>(*m_value).Set(static_cast<long long int>(numberValue));
 
-        ParentCell().SetModified();
+        ParentCell()->SetModified();
 
     }
 
@@ -440,7 +440,7 @@ namespace OpenXLSX
 
         static_cast<XLValueNumber &>(*m_value).Set(static_cast<long double>(numberValue));
 
-        ParentCell().SetModified();
+        ParentCell()->SetModified();
     }
 }
 

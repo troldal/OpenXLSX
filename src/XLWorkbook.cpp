@@ -60,7 +60,7 @@ bool XLWorkbook::ParseXMLData()
         sheetNode = sheetNode->nextSibling();
     }
 
-    for (auto const &item : m_relationships->Relationships()) {
+    for (auto const &item : *m_relationships->Relationships()) {
         string path = item.second->Target();
 
 
@@ -273,7 +273,7 @@ XLRelationshipItem *XLWorkbook::CreateWorksheetFile(const std::string &sheetName
                                     XLContentType::Worksheet);
 
     // Add relationship item
-    XLRelationshipItem &item = m_relationships->AddRelationship(XLRelationshipType::Worksheet,
+    XLRelationshipItem &item = *m_relationships->AddRelationship(XLRelationshipType::Worksheet,
                                                                 "worksheets/sheet" + to_string(m_sheetId + 1) + ".xml");
 
     // Add a Sheet node to the Workbook.xml file

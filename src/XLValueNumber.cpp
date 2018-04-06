@@ -20,18 +20,18 @@ XLValueNumber::XLValueNumber(XLCellValue &parent)
       m_number(0LL),
       m_numberType(XLNumberType::Integer)
 {
-    ParentCellValue().SetValueNode("0");
-    ParentCellValue().SetTypeAttribute(TypeString());
+    ParentCellValue()->SetValueNode("0");
+    ParentCellValue()->SetTypeAttribute(TypeString());
 
-    m_numberType = DetermineNumberType(ParentCellValue().ValueNode()->value());
+    m_numberType = DetermineNumberType(ParentCellValue()->ValueNode()->value());
 
     switch (m_numberType) {
         case XLNumberType::Integer:
-            m_number = stoll(ParentCellValue().ValueNode()->value());
+            m_number = stoll(ParentCellValue()->ValueNode()->value());
             break;
 
         case XLNumberType::Float:
-            m_number = stold(ParentCellValue().ValueNode()->value());
+            m_number = stold(ParentCellValue()->ValueNode()->value());
             break;
     }
 }
@@ -65,9 +65,9 @@ XLValueNumber &XLValueNumber::operator=(const XLValueNumber &other)
 {
     m_number = other.m_number;
     m_numberType = other.m_numberType;
-    ParentCellValue().SetValueNode(AsString());
-    ParentCellValue().ParentCell().SetTypeAttribute(TypeString());
-    ParentCellValue().ParentCell().SetModified();
+    ParentCellValue()->SetValueNode(AsString());
+    ParentCellValue()->ParentCell()->SetTypeAttribute(TypeString());
+    ParentCellValue()->ParentCell()->SetModified();
     return *this;
 }
 
@@ -78,9 +78,9 @@ XLValueNumber &XLValueNumber::operator=(XLValueNumber &&other) noexcept
 {
     m_number = std::move(other.m_number);
     m_numberType = other.m_numberType;
-    ParentCellValue().ValueNode()->setValue(AsString());
-    ParentCellValue().ParentCell().SetTypeAttribute(TypeString());
-    ParentCellValue().ParentCell().SetModified();
+    ParentCellValue()->ValueNode()->setValue(AsString());
+    ParentCellValue()->ParentCell()->SetTypeAttribute(TypeString());
+    ParentCellValue()->ParentCell()->SetModified();
     return *this;
 }
 
@@ -109,9 +109,9 @@ void XLValueNumber::Set(long long int numberValue)
 {
     m_number = numberValue;
     m_numberType = XLNumberType::Integer;
-    ParentCellValue().SetValueNode(AsString());
-    ParentCellValue().SetTypeAttribute(TypeString());
-    ParentCellValue().ParentCell().SetModified();
+    ParentCellValue()->SetValueNode(AsString());
+    ParentCellValue()->SetTypeAttribute(TypeString());
+    ParentCellValue()->ParentCell()->SetModified();
 
 }
 
@@ -122,9 +122,9 @@ void XLValueNumber::Set(long double numberValue)
 {
     m_number = numberValue;
     m_numberType = XLNumberType::Float;
-    ParentCellValue().SetValueNode(AsString());
-    ParentCellValue().SetTypeAttribute(TypeString());
-    ParentCellValue().ParentCell().SetModified();
+    ParentCellValue()->SetValueNode(AsString());
+    ParentCellValue()->SetTypeAttribute(TypeString());
+    ParentCellValue()->ParentCell()->SetModified();
 }
 
 /**
@@ -236,7 +236,7 @@ string XLValueNumber::AsString() const
 }
 unique_ptr<XLValue> XLValueNumber::Clone(XLCell &parent)
 {
-    unique_ptr<XLValue> result(new XLValueNumber(ParentCellValue()));
+    unique_ptr<XLValue> result(new XLValueNumber(*ParentCellValue()));
     *result = *this;
 
     return result;

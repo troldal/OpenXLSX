@@ -282,15 +282,15 @@ void XLContentTypes::ClearOverrides()
 /**
  * @details
  */
-const std::map<std::string, std::unique_ptr<XLContentItem>> &XLContentTypes::contentItems() const
+const XLContentItemMap *XLContentTypes::contentItems() const
 {
-    return m_overrides;
+    return &m_overrides;
 }
 
 /**
  * @details
  */
-XLContentItem &XLContentTypes::ContentItem(const std::string &path)
+XLContentItem *XLContentTypes::ContentItem(const std::string &path)
 {
-    return *m_overrides.at(path).get();
+    return m_overrides.at(path).get();
 }

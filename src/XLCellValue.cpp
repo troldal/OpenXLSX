@@ -67,7 +67,7 @@ XLCellValue &XLCellValue::operator=(const XLCellValue &other)
     SetTypeAttribute(other.TypeString());
 
     Initialize();
-    ParentCell().SetModified();
+    ParentCell()->SetModified();
     return *this;
 }
 
@@ -85,7 +85,7 @@ XLCellValue &XLCellValue::operator=(XLCellValue &&other) noexcept
     SetTypeAttribute(other.TypeString());
 
     Initialize();
-    ParentCell().SetModified();
+    ParentCell()->SetModified();
     return *this;
 }
 
@@ -138,7 +138,7 @@ void XLCellValue::Set(XLBool boolValue)
     else
         m_value = make_unique<XLValueBoolean>(boolValue, *this);
 
-    ParentCell().SetModified();
+    ParentCell()->SetModified();
 }
 
 /**
@@ -154,7 +154,7 @@ void XLCellValue::Set(const std::string &stringValue)
     else
         m_value = make_unique<XLValueString>(stringValue, *this);
 
-    ParentCell().SetModified();
+    ParentCell()->SetModified();
 }
 
 /**
@@ -177,7 +177,7 @@ void XLCellValue::SetEmpty()
     m_value = make_unique<XLValueEmpty>(*this);
     DeleteValueNode();
     DeleteTypeAttribute();
-    ParentCell().SetModified();
+    ParentCell()->SetModified();
 }
 
 /**
@@ -326,9 +326,9 @@ std::string XLCellValue::TypeString() const
  * @pre The parent XLCell object is valid.
  * @post The current object, and any associated objects, are unchanged.
  */
-XLCell &XLCellValue::ParentCell()
+XLCell *XLCellValue::ParentCell()
 {
-    return m_parentCell;
+    return &m_parentCell;
 }
 
 /**
@@ -336,9 +336,9 @@ XLCell &XLCellValue::ParentCell()
  * @pre The parent XLCell object is valid.
  * @post The current object, and any associated objects, are unchanged.
  */
-const XLCell &XLCellValue::ParentCell() const
+const XLCell *XLCellValue::ParentCell() const
 {
-    return m_parentCell;
+    return &m_parentCell;
 }
 
 /**
@@ -377,7 +377,7 @@ void XLCellValue::DeleteValueNode()
  */
 XMLNode *XLCellValue::CreateValueNode()
 {
-    if (!HasValueNode()) ParentCell().CreateValueNode();
+    if (!HasValueNode()) ParentCell()->CreateValueNode();
     return ValueNode();
 }
 
@@ -393,7 +393,7 @@ void XLCellValue::SetTypeAttribute(const std::string &typeString)
         DeleteTypeAttribute();
     else {
         CreateTypeAttribute();
-        ParentCell().CellNode()->attribute("t")->setValue(typeString);
+        ParentCell()->CellNode()->attribute("t")->setValue(typeString);
     }
 }
 
@@ -417,9 +417,9 @@ void XLCellValue::DeleteTypeAttribute()
 XMLAttribute *XLCellValue::CreateTypeAttribute()
 {
     if (!HasTypeAttribute())
-        ParentCell().CellNode()->appendAttribute(ParentCell().XmlDocument()->createAttribute("t", ""));
+        ParentCell()->CellNode()->appendAttribute(ParentCell()->XmlDocument()->createAttribute("t", ""));
 
-    return ParentCell().CellNode()->attribute("t");
+    return ParentCell()->CellNode()->attribute("t");
 }
 
 /**
@@ -430,7 +430,7 @@ XMLAttribute *XLCellValue::CreateTypeAttribute()
  */
 XMLNode *XLCellValue::ValueNode()
 {
-    return ParentCell().CellNode()->childNode("v");
+    return ParentCell()->CellNode()->childNode("v");
 }
 
 /**
@@ -441,7 +441,7 @@ XMLNode *XLCellValue::ValueNode()
  */
 const XMLNode *XLCellValue::ValueNode() const
 {
-    return ParentCell().CellNode()->childNode("v");
+    return ParentCell()->CellNode()->childNode("v");
 }
 
 /**
@@ -451,7 +451,7 @@ const XMLNode *XLCellValue::ValueNode() const
  */
 bool XLCellValue::HasValueNode() const
 {
-    if (ParentCell().CellNode()->childNode("v") == nullptr)
+    if (ParentCell()->CellNode()->childNode("v") == nullptr)
         return false;
     else
         return true;
@@ -465,7 +465,7 @@ bool XLCellValue::HasValueNode() const
  */
 XMLAttribute *XLCellValue::TypeAttribute()
 {
-    return ParentCell().CellNode()->attribute("t");
+    return ParentCell()->CellNode()->attribute("t");
 }
 
 /**
@@ -476,7 +476,7 @@ XMLAttribute *XLCellValue::TypeAttribute()
  */
 const XMLAttribute *XLCellValue::TypeAttribute() const
 {
-    return ParentCell().CellNode()->attribute("t");
+    return ParentCell()->CellNode()->attribute("t");
 }
 
 /**
@@ -486,7 +486,7 @@ const XMLAttribute *XLCellValue::TypeAttribute() const
  */
 bool XLCellValue::HasTypeAttribute() const
 {
-    if (ParentCell().CellNode()->attribute("t") == nullptr)
+    if (ParentCell()->CellNode()->attribute("t") == nullptr)
         return false;
     else
         return true;

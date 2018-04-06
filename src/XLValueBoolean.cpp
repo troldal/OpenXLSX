@@ -58,19 +58,19 @@ XLValueBoolean::XLValueBoolean(bool boolValue, XLCellValue &parent)
  */
 void XLValueBoolean::Set(XLBool boolValue)
 {
-    if (!ParentCellValue().HasValueNode()) ParentCellValue().CreateValueNode();
-    if (!ParentCellValue().HasTypeAttribute()) ParentCellValue().CreateTypeAttribute();
+    if (!ParentCellValue()->HasValueNode()) ParentCellValue()->CreateValueNode();
+    if (!ParentCellValue()->HasTypeAttribute()) ParentCellValue()->CreateTypeAttribute();
 
-    ParentCellValue().SetTypeAttribute(TypeString());
-    ParentCellValue().ParentCell().SetModified();
+    ParentCellValue()->SetTypeAttribute(TypeString());
+    ParentCellValue()->ParentCell()->SetModified();
 
     switch (boolValue) {
         case XLBool::True:
-            ParentCellValue().ValueNode()->setValue("1");
+            ParentCellValue()->ValueNode()->setValue("1");
             break;
 
         case XLBool::False:
-            ParentCellValue().ValueNode()->setValue("0");
+            ParentCellValue()->ValueNode()->setValue("0");
             break;
     }
 }
@@ -80,7 +80,7 @@ void XLValueBoolean::Set(XLBool boolValue)
  */
 XLBool XLValueBoolean::Boolean() const
 {
-    if (ParentCellValue().ValueNode()->value() == "1")
+    if (ParentCellValue()->ValueNode()->value() == "1")
         return XLBool::True;
     else
         return XLBool::False;
@@ -128,7 +128,7 @@ std::string XLValueBoolean::AsString() const
  */
 std::unique_ptr<XLValue> XLValueBoolean::Clone(XLCell &parent)
 {
-    unique_ptr<XLValue> result(new XLValueBoolean(ParentCellValue()));
+    unique_ptr<XLValue> result(new XLValueBoolean(*ParentCellValue()));
     *result = *this;
 
     return result;

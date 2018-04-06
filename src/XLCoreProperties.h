@@ -121,7 +121,7 @@ namespace OpenXLSX
          * @param name
          * @return
          */
-        XMLNode &Property(const std::string &name) const;
+        XMLNode *Property(const std::string &name) const;
 
         /**
          * @brief

@@ -245,34 +245,34 @@ namespace OpenXLSX
          * @param id The ID string of the relationship item to retrieve.
          * @return A pointer-to-const XLRelationshipItem object.
          */
-        const XLRelationshipItem &RelationshipByID(const std::string &id) const;
+        const XLRelationshipItem *RelationshipByID(const std::string &id) const;
 
         /**
          * @brief Look up a relationship item by ID.
          * @param id The ID string of the relationship item to retrieve.
          * @return A pointer to the XLRelationshipItem object.
          */
-        XLRelationshipItem &RelationshipByID(const std::string &id);
+        XLRelationshipItem *RelationshipByID(const std::string &id);
 
         /**
          * @brief
          * @param target
          * @return
          */
-        const XLRelationshipItem &RelationshipByTarget(const std::string &target) const;
+        const XLRelationshipItem *RelationshipByTarget(const std::string &target) const;
 
         /**
          * @brief
          * @param target
          * @return
          */
-        XLRelationshipItem &RelationshipByTarget(const std::string &target);
+        XLRelationshipItem *RelationshipByTarget(const std::string &target);
 
         /**
          * @brief Get the std::map with the relationship items, ordered by ID.
          * @return A const reference to the std::map with relationship items.
          */
-        const XLRelationshipMap &Relationships() const;
+        const XLRelationshipMap *Relationships() const;
 
         /**
          * @brief Delete a relationship item with the given ID.
@@ -285,8 +285,8 @@ namespace OpenXLSX
          * @param type The type of the new relationship item.
          * @param target The target (or path) of the XML file for the relationship item.
          */
-        XLRelationshipItem &AddRelationship(XLRelationshipType type,
-                                            const std::string &target);
+        XLRelationshipItem *AddRelationship(XLRelationshipType type,
+                                             const std::string &target);
 
 //----------------------------------------------------------------------------------------------------------------------
 //           Protected Member Functions
@@ -305,7 +305,7 @@ namespace OpenXLSX
          * @return A reference to the std::map with relationship items.
          * @todo Is there a more elegant way? Using an ordinary overload doesn't work.
          */
-        XLRelationshipMap &relationshipsMutable();
+        XLRelationshipMap *relationshipsMutable();
 
 //----------------------------------------------------------------------------------------------------------------------
 //           Private Member Variables

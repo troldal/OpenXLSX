@@ -21,7 +21,7 @@ XLValueError::XLValueError(XLCellValue &parent)
  */
 std::unique_ptr<XLValue> XLValueError::Clone(XLCell &parent)
 {
-    unique_ptr<XLValue> result(new XLValueError(ParentCellValue()));
+    unique_ptr<XLValue> result(new XLValueError(*ParentCellValue()));
     *result = *this;
 
     return result;

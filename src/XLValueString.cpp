@@ -17,7 +17,7 @@ using namespace std;
  */
 XLValueString::XLValueString(XLCellValue &parent)
     : XLValue(parent),
-      m_type(parent.ParentCell().ParentWorkbook()->HasSharedStrings() ? XLStringType::SharedString
+      m_type(parent.ParentCell()->ParentWorkbook()->HasSharedStrings() ? XLStringType::SharedString
                                                                      : XLStringType::String)
 {
     //Initialize("");
@@ -29,7 +29,7 @@ XLValueString::XLValueString(XLCellValue &parent)
  */
 XLValueString::XLValueString(const std::string &stringValue, XLCellValue &parent)
     : XLValue(parent),
-      m_type(parent.ParentCell().ParentWorkbook()->HasSharedStrings() ? XLStringType::SharedString
+      m_type(parent.ParentCell()->ParentWorkbook()->HasSharedStrings() ? XLStringType::SharedString
                                                                      : XLStringType::String)
 {
     Initialize(stringValue);
@@ -43,7 +43,7 @@ XLValueString::XLValueString(unsigned long stringIndex, XLCellValue &parent)
     : XLValue(parent),
       m_type(XLStringType::SharedString)
 {
-    Initialize(ParentCellValue().ParentCell().ParentWorkbook()->SharedStrings()->GetString(stringIndex));
+    Initialize(ParentCellValue()->ParentCell()->ParentWorkbook()->SharedStrings()->GetString(stringIndex));
 }
 
 /**
@@ -74,25 +74,25 @@ XLValueString &XLValueString::operator=(XLValueString &&other) noexcept
  */
 void XLValueString::Initialize(const std::string &stringValue)
 {
-    if (!ParentCellValue().HasValueNode()) ParentCellValue().CreateValueNode();
-    if (!ParentCellValue().HasTypeAttribute()) ParentCellValue().CreateTypeAttribute();
+    if (!ParentCellValue()->HasValueNode()) ParentCellValue()->CreateValueNode();
+    if (!ParentCellValue()->HasTypeAttribute()) ParentCellValue()->CreateTypeAttribute();
 
-    ParentCellValue().ParentCell().SetModified();
+    ParentCellValue()->ParentCell()->SetModified();
 
     switch (m_type) {
         case XLStringType::InlineString:
             // Fall through
         case XLStringType::SharedString:
-            if (!ParentCellValue().ParentCell().ParentWorkbook()->SharedStrings()->StringExists(stringValue)) {
-                ParentCellValue().ParentCell().ParentWorkbook()->SharedStrings()->AppendString(stringValue);
+            if (!ParentCellValue()->ParentCell()->ParentWorkbook()->SharedStrings()->StringExists(stringValue)) {
+                ParentCellValue()->ParentCell()->ParentWorkbook()->SharedStrings()->AppendString(stringValue);
             }
-            ParentCellValue().SetValueNode(to_string(ParentCellValue().ParentCell().ParentWorkbook()->SharedStrings()->GetStringIndex(stringValue)));
-            ParentCellValue().SetTypeAttribute(TypeString());
+            ParentCellValue()->SetValueNode(to_string(ParentCellValue()->ParentCell()->ParentWorkbook()->SharedStrings()->GetStringIndex(stringValue)));
+            ParentCellValue()->SetTypeAttribute(TypeString());
             break;
 
         case XLStringType::String:
-            ParentCellValue().SetValueNode(stringValue);
-            ParentCellValue().SetTypeAttribute(TypeString());
+            ParentCellValue()->SetValueNode(stringValue);
+            ParentCellValue()->SetTypeAttribute(TypeString());
             break;
     }
 }
@@ -104,9 +104,9 @@ void XLValueString::Initialize(const std::string &stringValue)
 XLValueString &XLValueString::operator=(const std::string &str)
 {
     m_type = XLStringType::String;
-    ParentCellValue().SetValueNode(str);
-    ParentCellValue().SetTypeAttribute(TypeString());
-    ParentCellValue().ParentCell().SetModified();
+    ParentCellValue()->SetValueNode(str);
+    ParentCellValue()->SetTypeAttribute(TypeString());
+    ParentCellValue()->ParentCell()->SetModified();
     return *this;
 }
 
@@ -128,16 +128,16 @@ const std::string &XLValueString::String() const
 {
     switch (m_type) {
         case XLStringType::String:
-            return ParentCellValue().ValueNode()->value();
+            return ParentCellValue()->ValueNode()->value();
 
         case XLStringType::SharedString:
-            return ParentCellValue().ParentCell().ParentWorkbook()->SharedStrings()->GetString(stoul(ParentCellValue().ValueNode()->value()));
+            return ParentCellValue()->ParentCell()->ParentWorkbook()->SharedStrings()->GetString(stoul(ParentCellValue()->ValueNode()->value()));
 
         case XLStringType::InlineString:
             throw XLException("Inline String not implemented");
     }
 
-    return ParentCellValue().ValueNode()->value(); // Included to silence compiler warning.
+    return ParentCellValue()->ValueNode()->value(); // Included to silence compiler warning.
 }
 
 /**
@@ -188,7 +188,7 @@ std::string XLValueString::TypeString() const
 long XLValueString::SharedStringIndex() const
 {
     if (m_type == XLStringType::SharedString)
-        return ParentCellValue().ParentCell().ParentWorkbook()->SharedStrings()->GetStringIndex(String());
+        return ParentCellValue()->ParentCell()->ParentWorkbook()->SharedStrings()->GetStringIndex(String());
     else
         throw XLException("String is not of type SharedString");
 }
@@ -208,7 +208,7 @@ string XLValueString::AsString() const
  */
 unique_ptr<XLValue> XLValueString::Clone(XLCell &parent)
 {
-    unique_ptr<XLValue> result(new XLValueString(ParentCellValue()));
+    unique_ptr<XLValue> result(new XLValueString(*ParentCellValue()));
     *result = *this;
 
     return result;

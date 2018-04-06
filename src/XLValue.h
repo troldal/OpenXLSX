@@ -157,13 +157,13 @@ namespace OpenXLSX
          * @brief Get the parent XLCellValue object.
          * @return A reference to the parent XLCellValue object.
          */
-        XLCellValue &ParentCellValue();
+        XLCellValue *ParentCellValue();
 
         /**
          * @brief Get the parent XLCellValue object.
          * @return A const reference to the parent XLCellValue object.
          */
-        const XLCellValue &ParentCellValue() const;
+        const XLCellValue *ParentCellValue() const;
 
 //----------------------------------------------------------------------------------------------------------------------
 //           Private Member Variables
