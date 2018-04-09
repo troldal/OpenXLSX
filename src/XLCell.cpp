@@ -220,7 +220,8 @@ bool XLCell::HasTypeAttribute() const
 }
 
 /**
- * @details
+ * @details Return the cell type attribute, by querying the attribute named "t" in the XML node for the cell. 
+ * If the cell has no attribute (i.e. is empty or holds a number), a nullptr will be returned.
  */
 const XMLAttribute *XLCell::TypeAttribute() const
 {
