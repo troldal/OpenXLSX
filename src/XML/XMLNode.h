@@ -54,7 +54,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 namespace OpenXLSX
 {
     class XMLDocument;
-
     class XMLAttribute;
 
 /**
@@ -63,11 +62,6 @@ namespace OpenXLSX
     class XMLNode
     {
     public:
-        /*
-         * =============================================================================================================
-         * XMLNode::XMLNode
-         * =============================================================================================================
-         */
 
         /**
          * @brief Constructor.
@@ -78,12 +72,6 @@ namespace OpenXLSX
         explicit XMLNode(XMLDocument *parentDocument,
                          rapidxml::xml_node<> *node);
 
-        /*
-         * =============================================================================================================
-         * XMLNode::XMLNode
-         * =============================================================================================================
-         */
-
         /**
          * @brief Copy constructor
          * @param other A const reference to the original XMLNode object.
@@ -91,22 +79,10 @@ namespace OpenXLSX
          */
         XMLNode(const XMLNode &other);
 
-        /*
-         * =============================================================================================================
-         * XMLNode::~XMLNode
-         * =============================================================================================================
-         */
-
         /**
          * @brief Destructor
          */
         virtual ~XMLNode() = default;
-
-        /*
-         * =============================================================================================================
-         * XMLNode::operator=
-         * =============================================================================================================
-         */
 
         /**
          * @brief Assignment operator
@@ -115,23 +91,11 @@ namespace OpenXLSX
          */
         virtual XMLNode &operator=(const XMLNode &other);
 
-        /*
-         * =============================================================================================================
-         * XMLNode::isValid
-         * =============================================================================================================
-         */
-
         /**
          * @brief Indicates if the object is valid, i.e. if the underlying xml_node is valid.
          * @return true if the object is valid, otherwise false.
          */
         virtual bool isValid() const;
-
-        /*
-         * =============================================================================================================
-         * XMLNode::SetName
-         * =============================================================================================================
-         */
 
         /**
          * @brief Sets the name of the XMLNode.
@@ -139,23 +103,11 @@ namespace OpenXLSX
          */
         virtual void setName(const std::string &name);
 
-        /*
-         * =============================================================================================================
-         * XMLNode::Name
-         * =============================================================================================================
-         */
-
         /**
          * @brief Get the name of the XMLNode
          * @return A const reference to the XMLNode name.
          */
         virtual const std::string &name() const;
-
-        /*
-         * =============================================================================================================
-         * XMLNode::SetValue
-         * =============================================================================================================
-         */
 
         /**
          * @brief Sets the value of the XMLNode.
@@ -163,23 +115,11 @@ namespace OpenXLSX
          */
         virtual void setValue(const std::string &value);
 
-        /*
-         * =============================================================================================================
-         * XMLNode::SetValue
-         * =============================================================================================================
-         */
-
         /**
          * @brief Sets the value of the XMLNode.
          * @param value The new value of the XMLNode.
          */
         virtual void setValue(int value);
-
-        /*
-         * =============================================================================================================
-         * XMLNode::SetValue
-         * =============================================================================================================
-         */
 
         /**
          * @brief Sets the value of the XMLNode.
@@ -187,23 +127,11 @@ namespace OpenXLSX
          */
         virtual void setValue(double value);
 
-        /*
-         * =============================================================================================================
-         * XMLNode::ValueAsString
-         * =============================================================================================================
-         */
-
         /**
          * @brief Get the value of the XMLNode
          * @return A const reference to the XMLNode value.
          */
         virtual const std::string &value() const;
-
-        /*
-         * =============================================================================================================
-         * XMLNode::childNode
-         * =============================================================================================================
-         */
 
         /**
          * @brief Get the child node by name.
@@ -212,12 +140,6 @@ namespace OpenXLSX
          */
         virtual XMLNode *childNode(const std::string &name = "");
 
-        /*
-         * =============================================================================================================
-         * XMLNode::childNode
-         * =============================================================================================================
-         */
-
         /**
          * @brief Get the child node by name.
          * @param name the name of the XMLNode. If no name is provided, the first child node will be returned.
@@ -225,23 +147,11 @@ namespace OpenXLSX
          */
         virtual const XMLNode *childNode(const std::string &name = "") const;
 
-        /*
-         * =============================================================================================================
-         * XMLNode::parent
-         * =============================================================================================================
-         */
-
         /**
          * @brief Get a pointer to the parent XMLNode for the current object.
          * @return A pointer to an XMLNode. The returned pointer is not const, as the parent is not owned by the object.
          */
         virtual XMLNode *parent() const;
-
-        /*
-         * =============================================================================================================
-         * XMLNode::previousSibling
-         * =============================================================================================================
-         */
 
         /**
          * @brief Get a pointer to the previous sibling of the current object.
@@ -249,23 +159,11 @@ namespace OpenXLSX
          */
         virtual XMLNode *previousSibling() const;
 
-        /*
-         * =============================================================================================================
-         * XMLNode::nextSibling
-         * =============================================================================================================
-         */
-
         /**
          * @brief Get a pointer to the next sibling of the current object.
          * @return A pointer to an XMLNode. The returned pointer is not const, as the sibling is not owned by the object.
          */
         virtual XMLNode *nextSibling() const;
-
-        /*
-         * =============================================================================================================
-         * XMLNode::prependNode
-         * =============================================================================================================
-         */
 
         /**
          * @brief Prepend a XMLNode to the list of child nodes (if any).
@@ -273,44 +171,37 @@ namespace OpenXLSX
          */
         virtual void prependNode(XMLNode *node);
 
-        /*
-         * =============================================================================================================
-         * XMLNode::appendNode
-         * =============================================================================================================
-         */
-
         /**
          * @brief Append an XMLNode to the list of child nodes (if any).
          * @param node A pointer to the XMLNode to add.
          */
         virtual void appendNode(XMLNode *node);
 
-        /*
-         * =============================================================================================================
-         * XMLNode::insertnode
-         * =============================================================================================================
-         */
-
         /**
          * @brief Insert an XMLNode at (before) the given location.
          * @param location The location to insert node.
          * @param node The node to insert.
          */
-        virtual void insertNode(XMLNode *location,
-                                XMLNode *node);
+        virtual void insertNode(XMLNode *location, XMLNode *node);
 
+        /**
+         * @brief
+         * @param node
+         */
         virtual void moveNodeUp(XMLNode *node);
 
+        /**
+         * @brief
+         * @param node
+         */
         virtual void moveNodeDown(XMLNode *node);
 
-        virtual void moveNodeTo(XMLNode *node,
-                                unsigned int index);
-
-        /*
-         * =============================================================================================================
-         * XMLNode::deleteNode
-         * =============================================================================================================
+        /**
+         * @brief
+         * @param node
+         * @param index
          */
+        virtual void moveNodeTo(XMLNode *node, unsigned int index);
 
         /**
          * @brief Delete the current node. This will delete the node from the XMLDocument and free the underlying resource.
@@ -319,12 +210,10 @@ namespace OpenXLSX
          */
         virtual void deleteNode();
 
-        virtual void deleteChildNodes();
-        /*
-         * =============================================================================================================
-         * XMLNode::firstAttribute
-         * =============================================================================================================
+        /**
+         * @brief
          */
+        virtual void deleteChildNodes();
 
         /**
          * @brief Get the XMLAttribute with the given name.
@@ -333,12 +222,6 @@ namespace OpenXLSX
          */
         virtual XMLAttribute *attribute(const std::string &name = "");
 
-        /*
-         * =============================================================================================================
-         * XMLNode::firstAttribute
-         * =============================================================================================================
-         */
-
         /**
          * @brief Get the XMLAttribute with the given name.
          * @param name The name of the XMLAttribute (optional).
@@ -346,27 +229,15 @@ namespace OpenXLSX
          */
         virtual const XMLAttribute *attribute(const std::string &name = "") const;
 
-        /*
-         * =============================================================================================================
-         * XMLNode::prependAttribute
-         * =============================================================================================================
-         */
-
         /**
          * @brief Prepend the XMLAttribute to the list of attributes of the XMLNode (if any).
          * @param attribute A pointer to the XMLAttribute to add.
          */
         virtual void prependAttribute(XMLAttribute *attribute);
 
-        /*
-         * =============================================================================================================
-         * XMLNode::appendAttribute
-         * =============================================================================================================
-         */
-
         /**
          * @brief Append the XMLAttribute to the list of attributes of the XMLNode (if any).
-     * @param attribute A pointer to the XMLAttribute to add.
+         * @param attribute A pointer to the XMLAttribute to add.
          */
         virtual void appendAttribute(XMLAttribute *attribute);
 
@@ -374,11 +245,11 @@ namespace OpenXLSX
         rapidxml::xml_node<> *m_node; /**< A pointer to the underlying xml_node resource. */
         XMLDocument *m_parentXMLDocument; /**< A pointer to the parent XMLDocument. */
 
-        mutable std::string m_valueCache;
-        mutable bool m_valueLoaded;
+        mutable std::string m_valueCache; /**< */
+        mutable bool m_valueLoaded; /**< */
 
-        mutable std::string m_nameCache;
-        mutable bool m_nameLoaded;
+        mutable std::string m_nameCache; /**< */
+        mutable bool m_nameLoaded; /**< */
     };
 
 }

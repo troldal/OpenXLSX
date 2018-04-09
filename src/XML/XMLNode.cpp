@@ -8,10 +8,8 @@ using namespace OpenXLSX;
 using namespace rapidxml;
 using namespace std;
 
-/*
- * =============================================================================================================
- * XMLNode::XMLNode
- * =============================================================================================================
+/**
+ * @details
  */
 XMLNode::XMLNode(XMLDocument *parentDocument,
                  rapidxml::xml_node<> *node)
@@ -24,10 +22,8 @@ XMLNode::XMLNode(XMLDocument *parentDocument,
 {
 }
 
-/*
- * =============================================================================================================
- * XMLNode::XMLNode
- * =============================================================================================================
+/**
+ * @details
  */
 XMLNode::XMLNode(const XMLNode &other)
     : m_node(other.m_node),
@@ -39,10 +35,8 @@ XMLNode::XMLNode(const XMLNode &other)
 {
 }
 
-/*
- * =============================================================================================================
- * XMLNode::operator=
- * =============================================================================================================
+/**
+ * @details
  */
 XMLNode &XMLNode::operator=(const XMLNode &other)
 {
@@ -55,10 +49,8 @@ XMLNode &XMLNode::operator=(const XMLNode &other)
     return *this;
 }
 
-/*
- * =============================================================================================================
- * XMLNode::isValid
- * =============================================================================================================
+/**
+ * @details
  */
 bool XMLNode::isValid() const
 {
@@ -70,10 +62,8 @@ bool XMLNode::isValid() const
     }
 }
 
-/*
- * =============================================================================================================
- * XMLNode::SetName
- * =============================================================================================================
+/**
+ * @details
  */
 void XMLNode::setName(const std::string &name)
 {
@@ -83,10 +73,8 @@ void XMLNode::setName(const std::string &name)
     m_nameLoaded = true;
 }
 
-/*
- * =============================================================================================================
- * XMLNode::Name
- * =============================================================================================================
+/**
+ * @details
  */
 const string &XMLNode::name() const
 {
@@ -97,10 +85,8 @@ const string &XMLNode::name() const
     return m_nameCache;
 }
 
-/*
- * =============================================================================================================
- * XMLNode::SetValue
- * =============================================================================================================
+/**
+ * @details
  */
 void XMLNode::setValue(const std::string &value)
 {
@@ -110,30 +96,24 @@ void XMLNode::setValue(const std::string &value)
     m_valueLoaded = true;
 }
 
-/*
- * =============================================================================================================
- * XMLNode::SetValue
- * =============================================================================================================
+/**
+ * @details
  */
 void XMLNode::setValue(int value)
 {
     setValue(to_string(value));
 }
 
-/*
- * =============================================================================================================
- * XMLNode::SetValue
- * =============================================================================================================
+/**
+ * @details
  */
 void XMLNode::setValue(double value)
 {
     setValue(to_string(value));
 }
 
-/*
- * =============================================================================================================
- * XMLNode::ValueAsString
- * =============================================================================================================
+/**
+ * @details
  */
 const string &XMLNode::value() const
 {
@@ -144,10 +124,8 @@ const string &XMLNode::value() const
     return m_valueCache;
 }
 
-/*
- * =============================================================================================================
- * XMLNode::childNode
- * =============================================================================================================
+/**
+ * @details
  */
 XMLNode *XMLNode::childNode(const std::string &name)
 {
@@ -166,10 +144,8 @@ XMLNode *XMLNode::childNode(const std::string &name)
         return nullptr;
 }
 
-/*
- * =============================================================================================================
- * XMLNode::childNode
- * =============================================================================================================
+/**
+ * @details
  */
 const XMLNode *XMLNode::childNode(const std::string &name) const
 {
@@ -188,10 +164,8 @@ const XMLNode *XMLNode::childNode(const std::string &name) const
         return nullptr;
 }
 
-/*
- * =============================================================================================================
- * XMLNode::parent
- * =============================================================================================================
+/**
+ * @details
  */
 XMLNode *XMLNode::parent() const
 {
@@ -202,10 +176,9 @@ XMLNode *XMLNode::parent() const
         return nullptr;
 }
 
-/*
- * =============================================================================================================
- * XMLNode::previousSibling
- * =============================================================================================================
+
+/**
+ * @details
  */
 XMLNode *XMLNode::previousSibling() const
 {
@@ -217,10 +190,8 @@ XMLNode *XMLNode::previousSibling() const
         return nullptr;
 }
 
-/*
- * =============================================================================================================
- * XMLNode::nextSibling
- * =============================================================================================================
+/**
+ * @details
  */
 XMLNode *XMLNode::nextSibling() const
 {
@@ -232,57 +203,56 @@ XMLNode *XMLNode::nextSibling() const
         return nullptr;
 }
 
-/*
- * =============================================================================================================
- * XMLNode::prependNode
- * =============================================================================================================
+/**
+ * @details
  */
 void XMLNode::prependNode(XMLNode *node)
 {
     m_node->prepend_node(node->m_node);
 }
 
-/*
- * =============================================================================================================
- * XMLNode::appendNode
- * =============================================================================================================
+/**
+ * @details
  */
 void XMLNode::appendNode(XMLNode *node)
 {
     m_node->append_node(node->m_node);
 }
 
-/*
- * =============================================================================================================
- * XMLNode::insertNode
- * =============================================================================================================
+/**
+ * @details
  */
-void XMLNode::insertNode(XMLNode *location,
-                         XMLNode *node)
+void XMLNode::insertNode(XMLNode *location, XMLNode *node)
 {
     m_node->insert_node(location->m_node, node->m_node);
 }
 
+/**
+ * @details
+ */
 void XMLNode::moveNodeUp(XMLNode *node)
 {
 
 }
 
+/**
+ * @details
+ */
 void XMLNode::moveNodeDown(XMLNode *node)
 {
 
 }
 
-void XMLNode::moveNodeTo(XMLNode *node,
-                         unsigned int index)
+/**
+ * @details
+ */
+void XMLNode::moveNodeTo(XMLNode *node, unsigned int index)
 {
 
 }
 
-/*
- * =============================================================================================================
- * XMLNode::deleteNode
- * =============================================================================================================
+/**
+ * @details
  */
 void XMLNode::deleteNode()
 {
@@ -290,22 +260,23 @@ void XMLNode::deleteNode()
     m_parentXMLDocument->m_xmlNodes.erase(m_node);
 }
 
+/**
+ * @details
+ */
 void XMLNode::deleteChildNodes()
 {
     m_node->remove_all_nodes();
     // TODO: What about the pointers in the XmlDocument?
 }
 
-/*
- * =============================================================================================================
- * XMLNode::firstAttribute
- * =============================================================================================================
+/**
+ * @details
  */
 XMLAttribute *XMLNode::attribute(const std::string &name)
 {
     xml_attribute<> *attribute = nullptr;
 
-    if (name == "") {
+    if (name.empty()) {
         attribute = m_node->first_attribute();
     }
     else {
@@ -318,10 +289,8 @@ XMLAttribute *XMLNode::attribute(const std::string &name)
         return nullptr;
 }
 
-/*
- * =============================================================================================================
- * XMLNode::firstAttribute
- * =============================================================================================================
+/**
+ * @details
  */
 const XMLAttribute *XMLNode::attribute(const std::string &name) const
 {
@@ -340,20 +309,16 @@ const XMLAttribute *XMLNode::attribute(const std::string &name) const
         return nullptr;
 }
 
-/*
- * =============================================================================================================
- * XMLNode::prependAttribute
- * =============================================================================================================
+/**
+ * @details
  */
 void XMLNode::prependAttribute(XMLAttribute *attribute)
 {
     m_node->prepend_attribute(attribute->m_attribute);
 }
 
-/*
- * =============================================================================================================
- * XMLNode::appendAttribute
- * =============================================================================================================
+/**
+ * @details
  */
 void XMLNode::appendAttribute(XMLAttribute *attribute)
 {

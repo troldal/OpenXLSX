@@ -79,6 +79,9 @@ XLCell &XLCell::operator=(const XLCellRange &range)
     return *this;
 }
 
+/**
+ * @details
+ */
 XLValueType XLCell::ValueType() const
 {
     return (*m_value).ValueType();
@@ -205,12 +208,18 @@ const XMLNode *XLCell::CellNode() const
     return m_cellNode;
 }
 
+/**
+ * @details
+ */
 XMLNode *XLCell::CreateValueNode()
 {
     if (m_cellNode->childNode("v") == nullptr) m_cellNode->appendNode(XmlDocument()->createNode("v"));
     return m_cellNode->childNode("v");
 }
 
+/**
+ * @details
+ */
 bool XLCell::HasTypeAttribute() const
 {
     if (m_cellNode->attribute("t") == nullptr)
