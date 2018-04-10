@@ -9,10 +9,8 @@ using namespace rapidxml;
 using namespace OpenXLSX;
 using namespace std;
 
-/*
- * =============================================================================================================
- * XMLDocument::XMLDocument
- * =============================================================================================================
+/**
+ * @details
  */
 XMLDocument::XMLDocument()
     : m_document(new rapidxml::xml_document<>),
@@ -23,20 +21,16 @@ XMLDocument::XMLDocument()
 {
 }
 
-/*
- * =============================================================================================================
- * XMLDocument::readData
- * =============================================================================================================
+/**
+ * @details
  */
 void XMLDocument::readData(const std::string &xmlData)
 {
     m_document->parse<parse_no_data_nodes>(m_document->allocate_string(xmlData.c_str()));
 }
 
-/*
- * =============================================================================================================
- * XMLDocument::getData
- * =============================================================================================================
+/**
+ * @details
  */
 std::string XMLDocument::getData() const
 {
@@ -47,10 +41,8 @@ std::string XMLDocument::getData() const
     return s;
 }
 
-/*
- * =============================================================================================================
- * XMLDocument::loadFile
- * =============================================================================================================
+/**
+ * @details
  */
 void XMLDocument::loadFile(const std::string &filePath)
 {
@@ -59,10 +51,8 @@ void XMLDocument::loadFile(const std::string &filePath)
     m_document->parse<parse_no_data_nodes>(m_file->data());
 }
 
-/*
- * =============================================================================================================
- * XMLDocument::saveFile
- * =============================================================================================================
+/**
+ * @details
  */
 void XMLDocument::saveFile(const std::string &filePath) const
 {
@@ -71,20 +61,16 @@ void XMLDocument::saveFile(const std::string &filePath) const
     outputFile.close();
 }
 
-/*
- * =============================================================================================================
- * XMLDocument::Print
- * =============================================================================================================
+/**
+ * @details
  */
 void XMLDocument::print() const
 {
     cout << *m_document;
 }
 
-/*
- * =============================================================================================================
- * XMLDocument::rootNode
- * =============================================================================================================
+/**
+ * @details
  */
 XMLNode *XMLDocument::rootNode()
 {
@@ -96,10 +82,8 @@ XMLNode *XMLDocument::rootNode()
         return nullptr;
 }
 
-/*
- * =============================================================================================================
- * XMLDocument::rootNode
- * =============================================================================================================
+/**
+ * @details
  */
 const XMLNode *XMLDocument::rootNode() const
 {
@@ -111,10 +95,8 @@ const XMLNode *XMLDocument::rootNode() const
         return nullptr;
 }
 
-/*
- * =============================================================================================================
- * XMLDocument::firstNode
- * =============================================================================================================
+/**
+ * @details
  */
 XMLNode *XMLDocument::firstNode()
 {
@@ -132,10 +114,8 @@ XMLNode *XMLDocument::firstNode()
         return nullptr;
 }
 
-/*
- * =============================================================================================================
- * XMLDocument::firstNode
- * =============================================================================================================
+/**
+ * @details
  */
 const XMLNode *XMLDocument::firstNode() const
 {
@@ -153,10 +133,8 @@ const XMLNode *XMLDocument::firstNode() const
         return nullptr;
 }
 
-/*
- * =============================================================================================================
- * XMLDocument::createNode
- * =============================================================================================================
+/**
+ * @details
  */
 XMLNode *XMLDocument::createNode(const std::string &nodeName,
                                  const std::string &nodeValue)
@@ -172,10 +150,8 @@ XMLNode *XMLDocument::createNode(const std::string &nodeName,
     return m_xmlNodes.at(result).get();
 }
 
-/*
- * =============================================================================================================
- * XMLDocument::createAttribute
- * =============================================================================================================
+/**
+ * @details
  */
 XMLAttribute *XMLDocument::createAttribute(const std::string &attributeName,
                                            const std::string &attributeValue)
@@ -191,10 +167,8 @@ XMLAttribute *XMLDocument::createAttribute(const std::string &attributeName,
     return m_xmlAttributes.at(result).get();
 }
 
-/*
- * =============================================================================================================
- * XMLDocument::getNode
- * =============================================================================================================
+/**
+ * @details
  */
 XMLNode *XMLDocument::getNode(rapidxml::xml_node<> *theNode)
 {
@@ -209,10 +183,8 @@ XMLNode *XMLDocument::getNode(rapidxml::xml_node<> *theNode)
     return m_xmlNodes.at(theNode).get();
 }
 
-/*
- * =============================================================================================================
- * XMLDocument::getNode
- * =============================================================================================================
+/**
+ * @details
  */
 const XMLNode *XMLDocument::getNode(const rapidxml::xml_node<> *theNode) const
 {
@@ -228,10 +200,8 @@ const XMLNode *XMLDocument::getNode(const rapidxml::xml_node<> *theNode) const
     return nullptr;
 }
 
-/*
- * =============================================================================================================
- * XMLDocument::getAttribute
- * =============================================================================================================
+/**
+ * @details
  */
 XMLAttribute *XMLDocument::getAttribute(rapidxml::xml_attribute<> *theAttribute)
 {
@@ -247,10 +217,8 @@ XMLAttribute *XMLDocument::getAttribute(rapidxml::xml_attribute<> *theAttribute)
     return m_xmlAttributes.at(theAttribute).get();
 }
 
-/*
- * =============================================================================================================
- * XMLDocument::getAttribute
- * =============================================================================================================
+/**
+ * @details
  */
 const XMLAttribute *XMLDocument::getAttribute(const rapidxml::xml_attribute<> *theAttribute) const
 {
