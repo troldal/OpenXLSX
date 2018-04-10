@@ -3,6 +3,7 @@
 //
 
 #include <iostream>
+#include <memory>
 #include "XMLDocument.h"
 
 using namespace rapidxml;
@@ -141,7 +142,8 @@ XMLNode *XMLDocument::createNode(const std::string &nodeName,
 {
     auto str = m_document->allocate_string(nodeName.c_str());
     auto result = m_document->allocate_node(node_element, str);
-    m_xmlNodes.insert_or_assign(result, make_unique<XMLNode>(this, result));
+    //m_xmlNodes.insert_or_assign(result, make_unique<XMLNode>(this, result));
+    m_xmlNodes.insert_or_assign(result, unique_ptr<XMLNode>(new XMLNode(this, result))); // Warning: Not exception safe.
 
     if (nodeValue != "") {
         m_xmlNodes.at(result)->setValue(nodeValue);
@@ -179,7 +181,8 @@ XMLNode *XMLDocument::getNode(rapidxml::xml_node<> *theNode)
     if (result != m_xmlNodes.end()) return result->second.get();
 
     // Otherwise, create a new XMLNode, add it to the dictionary and return the pointer.
-    m_xmlNodes.insert_or_assign(theNode, make_unique<XMLNode>(this, theNode));
+    //m_xmlNodes.insert_or_assign(theNode, make_unique<XMLNode>(this, theNode));
+    m_xmlNodes.insert_or_assign(theNode, unique_ptr<XMLNode>(new XMLNode(this, theNode))); //Warning: Not exception safe.
     return m_xmlNodes.at(theNode).get();
 }
 

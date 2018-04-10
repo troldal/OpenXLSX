@@ -25,33 +25,6 @@ XMLNode::XMLNode(XMLDocument *parentDocument,
 /**
  * @details
  */
-XMLNode::XMLNode(const XMLNode &other)
-    : m_node(other.m_node),
-      m_parentXMLDocument(other.m_parentXMLDocument),
-      m_valueCache(other.m_valueCache),
-      m_valueLoaded(other.m_valueLoaded),
-      m_nameCache(other.m_nameCache),
-      m_nameLoaded(other.m_nameLoaded)
-{
-}
-
-/**
- * @details
- */
-XMLNode &XMLNode::operator=(const XMLNode &other)
-{
-    m_node = other.m_node;
-    m_parentXMLDocument = other.m_parentXMLDocument;
-    m_valueCache = other.m_valueCache;
-    m_valueLoaded = other.m_valueLoaded;
-    m_nameCache = other.m_nameCache;
-    m_nameLoaded = other.m_nameLoaded;
-    return *this;
-}
-
-/**
- * @details
- */
 bool XMLNode::isValid() const
 {
     if (m_node == nullptr) {

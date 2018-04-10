@@ -12,7 +12,6 @@ ENDIF(CMAKE_BUILD_TYPE STREQUAL "Debug")
 find_package(libzip REQUIRED)
 find_package(Boost COMPONENTS system filesystem REQUIRED)
 set(Boost_USE_STATIC_LIBS ON)
-link_libraries(${LIBZIP_LIBRARY} ${Boost_LIBRARIES})
 
 set(SOURCE_FILES
         src/Zip/libzip++.h src/Zip/libzip++.cpp
@@ -60,6 +59,7 @@ set(SOURCE_FILES
 
 add_library(OpenXLSX ${SOURCE_FILES})
 target_include_directories(OpenXLSX PUBLIC "${LIBZIP_INCLUDE_DIR}")
+target_link_libraries(OpenXLSX PUBLIC ${LIBZIP_LIBRARY} ${Boost_LIBRARIES})
 
 install (TARGETS OpenXLSX DESTINATION lib)
 install (FILES
