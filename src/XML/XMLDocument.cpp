@@ -108,11 +108,11 @@ void XMLDocument::SaveFile(const std::string &filePath) const
 {
     if (m_filePath.empty() && filePath.empty()) throw invalid_argument("The file path for xml file must not be blank");
 
-    ofstream outputFile;
+    std::string fp;
+    if (filePath.empty()) fp = m_filePath;
+    else fp = filePath;
 
-    if (filePath.empty()) outputFile.open(m_filePath);
-    else outputFile.open(filePath);
-
+    ofstream outputFile(fp);
     outputFile << *m_document;
     outputFile.close();
 }
