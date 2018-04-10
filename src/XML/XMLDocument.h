@@ -67,7 +67,7 @@ namespace OpenXLSX
     /**
      * @brief Encapsulates the concept of an XML document.
      */
-    class XMLDocument
+    class XMLDocument final
     {
         friend class XMLNode;
         friend class XMLAttribute;
@@ -82,65 +82,67 @@ namespace OpenXLSX
          * @brief Default constructor.
          * @todo Consider constructors for filePath and xmlData. This will require defining classes for XMLData and/or XMLFile.
          */
-        XMLDocument();//const std::string& FilePath = "");
+        XMLDocument();
 
         /**
          * @brief Destructor
          */
-        virtual ~XMLDocument() = default;
+        ~XMLDocument() = default;
 
         /**
          * @brief Loads the XML data as a std::string, and parses the contents.
          * @param xmlData A std::string with the XML data.
          */
-        virtual void readData(const std::string &xmlData);
+        void ReadData(const std::string &xmlData);
 
         /**
          * @brief Get the XML data as a std::string.
          * @return A std::string with the XML data.
          */
-        std::string getData() const;
+        std::string GetData() const;
 
         /**
          * @brief Opens an XML file and parses the document. If a document is already open, it will be closed without saving.
          * @param filePath The path of the XML file with the document.
          */
-        virtual void loadFile(const std::string &filePath);
+        void LoadFile(const std::string &filePath);
 
         /**
          * @brief Saves the current XML file. If the file exists, it will be overwritten.
          * @param filePath The path of the XML file to be saved
+         * @exception std::invalid_argument is thrown if no argument is given (using the default value) and the
+         * m_filePath member variable is not set.
          */
-        virtual void saveFile(const std::string &filePath) const;
+        void SaveFile(const std::string &filePath = "") const;
 
         /**
          * @brief Prints the entire document to the standard output.
          */
-        virtual void print() const;
+        void Print() const;
 
         /**
          * @brief Get a pointer to the root of the XML document.
          * @return A pointer to the XMLNode object. The object must not be explicitly deleted by the caller.
          */
-        virtual XMLNode *rootNode();
+        XMLNode *RootNode();
 
         /**
          * @brief Get a pointer to the root of the XML document not including the declaration node).
          * @return A const pointer to the XMLNode object. The object must not be explicitly deleted by the caller.
          */
-        virtual const XMLNode *rootNode() const;
+        const XMLNode *RootNode() const;
 
         /**
          * @brief Get a pointer to the first node of the XML document (first child node of the root).
          * @return A pointer to the XMLNode object. he object must not be explicitly deleted by the caller.
          */
-        virtual XMLNode *firstNode();
+        XMLNode *FirstNode();
 
         /**
          * @brief Get a pointer to the first node of the XML document (first child node of the root).
          * @return A pointer to the XMLNode object. he object must not be explicitly deleted by the caller.
          */
-        virtual const XMLNode *firstNode() const;
+        const XMLNode *FirstNode() const;
 
         /**
          * @brief Create a new node to the document. The node has to be explicitly added as child to an existing node.
@@ -148,8 +150,8 @@ namespace OpenXLSX
          * @param nodeValue The value of the node to create.
          * @return A pointer to the newly created node.
          */
-        virtual XMLNode *createNode(const std::string &nodeName,
-                                    const std::string &nodeValue = "");
+        XMLNode *CreateNode(const std::string &nodeName,
+                            const std::string &nodeValue = "");
 
         /**
          * @brief Create a new node attribute to the document. The node has to be explicitly added to an existing node.
@@ -157,8 +159,8 @@ namespace OpenXLSX
          * @param attributeValue the value of the attribute to create.
          * @return A pointer to the newly created attribute.
          */
-        virtual XMLAttribute *createAttribute(const std::string &attributeName,
-                                              const std::string &attributeValue);
+        XMLAttribute *CreateAttribute(const std::string &attributeName,
+                                      const std::string &attributeValue);
 
 //----------------------------------------------------------------------------------------------------------------------
 //           Protected Member Functions
@@ -171,28 +173,28 @@ namespace OpenXLSX
          * @param theNode A const pointer to the xml_node to look up.
          * @return The XMLNode associated with the provided xml_node resource.
          */
-        virtual XMLNode *getNode(rapidxml::xml_node<> *theNode);
+        XMLNode *GetNode(rapidxml::xml_node<> *theNode);
 
         /**
          * @brief Get the XMLNode associated with the underlying xml_node resource.
          * @param theNode A const pointer to the xml_node to look up.
          * @return The const XMLNode associated with the provided xml_node resource.
          */
-        virtual const XMLNode *getNode(const rapidxml::xml_node<> *theNode) const;
+        const XMLNode *GetNode(const rapidxml::xml_node<> *theNode) const;
 
         /**
          * @brief Get the XMLAttribute associated with the underlying xml_attribute resource.
          * @param theAttribute A const pointer to the xml_node to look up.
          * @return The XMLNode associated with the provided xml_node resource.
          */
-        virtual XMLAttribute *getAttribute(rapidxml::xml_attribute<> *theAttribute);
+        XMLAttribute *GetAttribute(rapidxml::xml_attribute<> *theAttribute);
 
         /**
          * @brief Get the XMLAttribute associated with the underlying xml_attribute resource.
          * @param theAttribute A const pointer to the xml_node to look up.
          * @return The const XMLNode associated with the provided xml_node resource.
          */
-        virtual const XMLAttribute *getAttribute(const rapidxml::xml_attribute<> *theAttribute) const;
+        const XMLAttribute *GetAttribute(const rapidxml::xml_attribute<> *theAttribute) const;
 
 //----------------------------------------------------------------------------------------------------------------------
 //           Private Member Variables

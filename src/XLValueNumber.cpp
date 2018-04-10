@@ -23,15 +23,15 @@ XLValueNumber::XLValueNumber(XLCellValue &parent)
     ParentCellValue()->SetValueNode("0");
     ParentCellValue()->SetTypeAttribute(TypeString());
 
-    m_numberType = DetermineNumberType(ParentCellValue()->ValueNode()->value());
+    m_numberType = DetermineNumberType(ParentCellValue()->ValueNode()->Value());
 
     switch (m_numberType) {
         case XLNumberType::Integer:
-            m_number = stoll(ParentCellValue()->ValueNode()->value());
+            m_number = stoll(ParentCellValue()->ValueNode()->Value());
             break;
 
         case XLNumberType::Float:
-            m_number = stold(ParentCellValue()->ValueNode()->value());
+            m_number = stold(ParentCellValue()->ValueNode()->Value());
             break;
     }
 }
@@ -78,7 +78,7 @@ XLValueNumber &XLValueNumber::operator=(XLValueNumber &&other) noexcept
 {
     m_number = std::move(other.m_number);
     m_numberType = other.m_numberType;
-    ParentCellValue()->ValueNode()->setValue(AsString());
+    ParentCellValue()->ValueNode()->SetValue(AsString());
     ParentCellValue()->ParentCell()->SetTypeAttribute(TypeString());
     ParentCellValue()->ParentCell()->SetModified();
     return *this;

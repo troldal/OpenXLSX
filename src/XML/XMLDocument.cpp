@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <memory>
+#include <stdexcept>
 #include "XMLDocument.h"
 
 using namespace rapidxml;
@@ -11,7 +12,7 @@ using namespace OpenXLSX;
 using namespace std;
 
 /**
- * @details
+ * @details The default constructor creates a new object, with the member variables set to sensible initial values.
  */
 XMLDocument::XMLDocument()
     : m_document(new rapidxml::xml_document<>),
@@ -23,31 +24,39 @@ XMLDocument::XMLDocument()
 }
 
 /**
- * @details
+ * @details The ReadData function parses the content of the input .xml string, using the RapidXML parse function.
+ * The input string is copied to the string pool of the xml document object. If the m_file and m_filePath
+ * member variables are set, those will be erased or set to null.
  */
-void XMLDocument::readData(const std::string &xmlData)
+void XMLDocument::ReadData(const std::string &xmlData)
 {
+    m_filePath.erase();
+    m_file.reset(nullptr);
     m_document->parse<parse_no_data_nodes>(m_document->allocate_string(xmlData.c_str()));
 }
 
 /**
- * @details
+ * @details The GetData function creates a new std::string and populates it with the contents of the xml document
+ * object. The resulting string is returned to the caller.
+ * @todo Use the print_no_indenting for production code.
  */
-std::string XMLDocument::getData() const
+std::string XMLDocument::GetData() const
 {
     string s;
     rapidxml::print(back_inserter(s), *m_document, 0);
-    // TODO: Use the print_no_indenting for production code.
-    //rapidxml_ns::Print(back_inserter(s),*m_document, print_no_indenting);
     return s;
 }
 
 /**
- * @details
+ * @details LoadFile sets the m_filePath to the input string and loads the file with the given path by creating a new
+ * RapidXML file object. The contents of the file is parsed by the document object.
+ * If no argument is provided, the value of the m_filePath member variable will be used. However, in case it is empty
+ * and no path is provided as input, an exception will be thrown.
  */
-void XMLDocument::loadFile(const std::string &filePath)
+void XMLDocument::LoadFile(const std::string &filePath)
 {
-    m_filePath = filePath;
+    if (!filePath.empty()) m_filePath = filePath;
+    if (m_filePath.empty()) throw invalid_argument("The file path for xml file must not be blank");
     m_file.reset(new file<>(m_filePath.c_str()));
     m_document->parse<parse_no_data_nodes>(m_file->data());
 }
@@ -55,7 +64,7 @@ void XMLDocument::loadFile(const std::string &filePath)
 /**
  * @details
  */
-void XMLDocument::saveFile(const std::string &filePath) const
+void XMLDocument::SaveFile(const std::string &filePath) const
 {
     ofstream outputFile(filePath);
     outputFile << *m_document;
@@ -65,7 +74,7 @@ void XMLDocument::saveFile(const std::string &filePath) const
 /**
  * @details
  */
-void XMLDocument::print() const
+void XMLDocument::Print() const
 {
     cout << *m_document;
 }
@@ -73,80 +82,69 @@ void XMLDocument::print() const
 /**
  * @details
  */
-XMLNode *XMLDocument::rootNode()
+XMLNode *XMLDocument::RootNode()
 {
     xml_node<> *node = m_document->first_node();
 
-    if (node)
-        return getNode(node);
-    else
-        return nullptr;
+    if (node) return GetNode(node);
+    else return nullptr;
 }
 
 /**
  * @details
  */
-const XMLNode *XMLDocument::rootNode() const
+const XMLNode *XMLDocument::RootNode() const
 {
     xml_node<> *node = m_document->first_node();
 
-    if (node)
-        return getNode(node);
-    else
-        return nullptr;
+    if (node) return GetNode(node);
+    else return nullptr;
 }
 
 /**
  * @details
  */
-XMLNode *XMLDocument::firstNode()
+XMLNode *XMLDocument::FirstNode()
 {
     xml_node<> *root = m_document->first_node();
 
     if (root) {
         xml_node<> *node = root->first_node();
 
-        if (node)
-            return getNode(node);
-        else
-            return nullptr;
+        if (node) return GetNode(node);
+        else return nullptr;
     }
-    else
-        return nullptr;
+    else return nullptr;
 }
 
 /**
  * @details
  */
-const XMLNode *XMLDocument::firstNode() const
+const XMLNode *XMLDocument::FirstNode() const
 {
     xml_node<> *root = m_document->first_node();
 
     if (root) {
         xml_node<> *node = root->first_node();
 
-        if (node)
-            return getNode(node);
-        else
-            return nullptr;
+        if (node) return GetNode(node);
+        else return nullptr;
     }
-    else
-        return nullptr;
+    else return nullptr;
 }
 
 /**
  * @details
  */
-XMLNode *XMLDocument::createNode(const std::string &nodeName,
+XMLNode *XMLDocument::CreateNode(const std::string &nodeName,
                                  const std::string &nodeValue)
 {
     auto str = m_document->allocate_string(nodeName.c_str());
     auto result = m_document->allocate_node(node_element, str);
-    //m_xmlNodes.insert_or_assign(result, make_unique<XMLNode>(this, result));
-    m_xmlNodes.insert_or_assign(result, unique_ptr<XMLNode>(new XMLNode(this, result))); // Warning: Not exception safe.
+    m_xmlNodes.insert_or_assign(result, unique_ptr<XMLNode>(new XMLNode(this, result)));
 
     if (nodeValue != "") {
-        m_xmlNodes.at(result)->setValue(nodeValue);
+        m_xmlNodes.at(result)->SetValue(nodeValue);
     }
 
     return m_xmlNodes.at(result).get();
@@ -155,15 +153,15 @@ XMLNode *XMLDocument::createNode(const std::string &nodeName,
 /**
  * @details
  */
-XMLAttribute *XMLDocument::createAttribute(const std::string &attributeName,
+XMLAttribute *XMLDocument::CreateAttribute(const std::string &attributeName,
                                            const std::string &attributeValue)
 {
     auto str = m_document->allocate_string(attributeName.c_str());
     auto result = m_document->allocate_attribute(str);
-    m_xmlAttributes.insert_or_assign(result, make_unique<XMLAttribute>(this, result));
+    m_xmlAttributes.insert_or_assign(result, unique_ptr<XMLAttribute>(new XMLAttribute(this, result)));
 
     if (attributeValue != "") {
-        m_xmlAttributes.at(result)->setValue(attributeValue);
+        m_xmlAttributes.at(result)->SetValue(attributeValue);
     }
 
     return m_xmlAttributes.at(result).get();
@@ -172,7 +170,7 @@ XMLAttribute *XMLDocument::createAttribute(const std::string &attributeName,
 /**
  * @details
  */
-XMLNode *XMLDocument::getNode(rapidxml::xml_node<> *theNode)
+XMLNode *XMLDocument::GetNode(rapidxml::xml_node<> *theNode)
 {
     if (theNode == nullptr) return nullptr;
 
@@ -181,15 +179,14 @@ XMLNode *XMLDocument::getNode(rapidxml::xml_node<> *theNode)
     if (result != m_xmlNodes.end()) return result->second.get();
 
     // Otherwise, create a new XMLNode, add it to the dictionary and return the pointer.
-    //m_xmlNodes.insert_or_assign(theNode, make_unique<XMLNode>(this, theNode));
-    m_xmlNodes.insert_or_assign(theNode, unique_ptr<XMLNode>(new XMLNode(this, theNode))); //Warning: Not exception safe.
+    m_xmlNodes.insert_or_assign(theNode, unique_ptr<XMLNode>(new XMLNode(this, theNode)));
     return m_xmlNodes.at(theNode).get();
 }
 
 /**
  * @details
  */
-const XMLNode *XMLDocument::getNode(const rapidxml::xml_node<> *theNode) const
+const XMLNode *XMLDocument::GetNode(const rapidxml::xml_node<> *theNode) const
 {
     if (theNode == nullptr) return nullptr;
 
@@ -206,7 +203,7 @@ const XMLNode *XMLDocument::getNode(const rapidxml::xml_node<> *theNode) const
 /**
  * @details
  */
-XMLAttribute *XMLDocument::getAttribute(rapidxml::xml_attribute<> *theAttribute)
+XMLAttribute *XMLDocument::GetAttribute(rapidxml::xml_attribute<> *theAttribute)
 {
     if (theAttribute == nullptr) return nullptr;
 
@@ -216,14 +213,14 @@ XMLAttribute *XMLDocument::getAttribute(rapidxml::xml_attribute<> *theAttribute)
     if (result != m_xmlAttributes.end()) return result->second.get();
 
     // Otherwise, create a new XMLNode, add it to the dictionary and return the pointer.
-    m_xmlAttributes.insert_or_assign(theAttribute, make_unique<XMLAttribute>(this, theAttribute));
+    m_xmlAttributes.insert_or_assign(theAttribute, unique_ptr<XMLAttribute>(new XMLAttribute(this, theAttribute)));
     return m_xmlAttributes.at(theAttribute).get();
 }
 
 /**
  * @details
  */
-const XMLAttribute *XMLDocument::getAttribute(const rapidxml::xml_attribute<> *theAttribute) const
+const XMLAttribute *XMLDocument::GetAttribute(const rapidxml::xml_attribute<> *theAttribute) const
 {
     if (theAttribute == nullptr) return nullptr;
 

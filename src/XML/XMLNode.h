@@ -84,7 +84,7 @@ namespace OpenXLSX
         /**
          * @brief Destructor
          */
-        virtual ~XMLNode() = default;
+        ~XMLNode() = default;
 
         /**
          * @brief Assignment operator
@@ -97,151 +97,151 @@ namespace OpenXLSX
          * @brief Indicates if the object is valid, i.e. if the underlying xml_node is valid.
          * @return true if the object is valid, otherwise false.
          */
-        bool isValid() const;
+        bool IsValid() const;
 
         /**
          * @brief Sets the name of the XMLNode.
          * @param name The new name of the XMLNode.
          */
-        void setName(const std::string &name);
+        void SetName(const std::string &name);
 
         /**
          * @brief Get the name of the XMLNode
          * @return A const reference to the XMLNode name.
          */
-        const std::string &name() const;
+        const std::string &Name() const;
 
         /**
          * @brief Sets the value of the XMLNode.
          * @param value The new value of the XMLNode.
          */
-        void setValue(const std::string &value);
+        void SetValue(const std::string &value);
 
         /**
          * @brief Sets the value of the XMLNode.
          * @param value The new value of the XMLNode.
          */
-        void setValue(int value);
+        void SetValue(int value);
 
         /**
          * @brief Sets the value of the XMLNode.
          * @param value The new value of the XMLNode.
          */
-        void setValue(double value);
+        void SetValue(double value);
 
         /**
          * @brief Get the value of the XMLNode
          * @return A const reference to the XMLNode value.
          */
-        const std::string &value() const;
+        const std::string &Value() const;
 
         /**
          * @brief Get the child node by name.
          * @param name the name of the XMLNode. If no name is provided, the first child node will be returned.
          * @return A pointer to the XMLNode with the given name.
          */
-        XMLNode *childNode(const std::string &name = "");
+        XMLNode *ChildNode(const std::string &name = "");
 
         /**
          * @brief Get the child node by name.
          * @param name the name of the XMLNode. If no name is provided, the first child node will be returned.
          * @return A pointer to the XMLNode with the given name.
          */
-        const XMLNode *childNode(const std::string &name = "") const;
+        const XMLNode *ChildNode(const std::string &name = "") const;
 
         /**
          * @brief Get a pointer to the parent XMLNode for the current object.
          * @return A pointer to an XMLNode. The returned pointer is not const, as the parent is not owned by the object.
          */
-        XMLNode *parent() const;
+        XMLNode *Parent() const;
 
         /**
          * @brief Get a pointer to the previous sibling of the current object.
          * @return A pointer to an XMLNode. The returned pointer is not const, as the sibling is not owned by the object.
          */
-        XMLNode *previousSibling() const;
+        XMLNode *PreviousSibling() const;
 
         /**
          * @brief Get a pointer to the next sibling of the current object.
          * @return A pointer to an XMLNode. The returned pointer is not const, as the sibling is not owned by the object.
          */
-        XMLNode *nextSibling() const;
+        XMLNode *NextSibling() const;
 
         /**
          * @brief Prepend a XMLNode to the list of child nodes (if any).
          * @param node A pointer to the XMLNode to add.
          */
-        void prependNode(XMLNode *node);
+        void PrependNode(XMLNode *node);
 
         /**
          * @brief Append an XMLNode to the list of child nodes (if any).
          * @param node A pointer to the XMLNode to add.
          */
-        void appendNode(XMLNode *node);
+        void AppendNode(XMLNode *node);
 
         /**
          * @brief Insert an XMLNode at (before) the given location.
          * @param location The location to insert node.
          * @param node The node to insert.
          */
-        void insertNode(XMLNode *location, XMLNode *node);
+        void InsertNode(XMLNode *location, XMLNode *node);
 
         /**
          * @brief
          * @param node
          */
-        void moveNodeUp(XMLNode *node);
+        void MoveNodeUp(XMLNode *node);
 
         /**
          * @brief
          * @param node
          */
-        void moveNodeDown(XMLNode *node);
+        void MoveNodeDown(XMLNode *node);
 
         /**
          * @brief
          * @param node
          * @param index
          */
-        void moveNodeTo(XMLNode *node, unsigned int index);
+        void MoveNodeTo(XMLNode *node, unsigned int index);
 
         /**
          * @brief Delete the current node. This will delete the node from the XMLDocument and free the underlying resource.
          * Remember to set the variable to = nullptr after the call to deleteNode().
          * @todo Consider a better way to do this.
          */
-        void deleteNode();
+        void DeleteNode();
 
         /**
          * @brief
          */
-        void deleteChildNodes();
+        void DeleteChildNodes();
 
         /**
          * @brief Get the XMLAttribute with the given name.
          * @param name The name of the XMLAttribute (optional).
          * @return The XMLAttribute with the given name, or the first attribute if no name is provided.
          */
-        XMLAttribute *attribute(const std::string &name = "");
+        XMLAttribute *Attribute(const std::string &name = "");
 
         /**
          * @brief Get the XMLAttribute with the given name.
          * @param name The name of the XMLAttribute (optional).
          * @return The XMLAttribute with the given name, or the first attribute if no name is provided.
          */
-        const XMLAttribute *attribute(const std::string &name = "") const;
+        const XMLAttribute *Attribute(const std::string &name = "") const;
 
         /**
          * @brief Prepend the XMLAttribute to the list of attributes of the XMLNode (if any).
          * @param attribute A pointer to the XMLAttribute to add.
          */
-        void prependAttribute(XMLAttribute *attribute);
+        void PrependAttribute(XMLAttribute *attribute);
 
         /**
          * @brief Append the XMLAttribute to the list of attributes of the XMLNode (if any).
          * @param attribute A pointer to the XMLAttribute to add.
          */
-        void appendAttribute(XMLAttribute *attribute);
+        void AppendAttribute(XMLAttribute *attribute);
 
 //----------------------------------------------------------------------------------------------------------------------
 //           Protected Member Functions

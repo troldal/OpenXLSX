@@ -49,35 +49,35 @@ XLStyles::~XLStyles()
  */
 bool XLStyles::ParseXMLData()
 {
-    m_numberFormatsNode = XmlDocument()->rootNode()->childNode("numFmts");
-    m_fontsNode = XmlDocument()->rootNode()->childNode("fonts");
-    m_fillsNode = XmlDocument()->rootNode()->childNode("fills");
-    m_bordersNode = XmlDocument()->rootNode()->childNode("borders");
-    m_cellFormatNode = XmlDocument()->rootNode()->childNode("cellXfs");
-    m_cellStyleNode = XmlDocument()->rootNode()->childNode("cellStyles");
+    m_numberFormatsNode = XmlDocument()->RootNode()->ChildNode("numFmts");
+    m_fontsNode = XmlDocument()->RootNode()->ChildNode("fonts");
+    m_fillsNode = XmlDocument()->RootNode()->ChildNode("fills");
+    m_bordersNode = XmlDocument()->RootNode()->ChildNode("borders");
+    m_cellFormatNode = XmlDocument()->RootNode()->ChildNode("cellXfs");
+    m_cellStyleNode = XmlDocument()->RootNode()->ChildNode("cellStyles");
 
     // Read fonts
-    auto currentFont = m_fontsNode->childNode();
+    auto currentFont = m_fontsNode->ChildNode();
     while (currentFont != nullptr) {
-        std::string name = currentFont->childNode("name")->attribute("val")->value();
-        unsigned int size = stoi(currentFont->childNode("sz")->attribute("val")->value());
+        std::string name = currentFont->ChildNode("name")->Attribute("val")->Name();
+        unsigned int size = stoi(currentFont->ChildNode("sz")->Attribute("val")->Value());
 
         std::string color = "FF000000";
-        auto colorAttr = currentFont->childNode("color")->attribute("rgb");
-        if (colorAttr != nullptr) color = colorAttr->value();
+        auto colorAttr = currentFont->ChildNode("color")->Attribute("rgb");
+        if (colorAttr != nullptr) color = colorAttr->Value();
 
         bool bold = false;
-        if (currentFont->childNode("b") != nullptr) bold = true;
+        if (currentFont->ChildNode("b") != nullptr) bold = true;
 
         bool italics = false;
-        if (currentFont->childNode("i") != nullptr) italics = true;
+        if (currentFont->ChildNode("i") != nullptr) italics = true;
 
         bool underline = false;
-        if (currentFont->childNode("u") != nullptr) underline = true;
+        if (currentFont->ChildNode("u") != nullptr) underline = true;
 
         m_fonts.push_back(make_unique<XLFont>(name, size, XLColor(color), bold, italics, underline));
 
-        currentFont = currentFont->nextSibling();
+        currentFont = currentFont->NextSibling();
     }
 
 
@@ -96,44 +96,44 @@ void XLStyles::AddFont(const XLFont &font)
                                           font.m_italics,
                                           font.m_underline));
 
-    auto newFont = XmlDocument()->createNode("font");
+    auto newFont = XmlDocument()->CreateNode("font");
 
     if (font.m_bold) {
-        auto boldNode = XmlDocument()->createNode("b");
-        newFont->appendNode(boldNode);
+        auto boldNode = XmlDocument()->CreateNode("b");
+        newFont->AppendNode(boldNode);
     }
 
     if (font.m_italics) {
-        auto italicsNode = XmlDocument()->createNode("i");
-        newFont->appendNode(italicsNode);
+        auto italicsNode = XmlDocument()->CreateNode("i");
+        newFont->AppendNode(italicsNode);
     }
 
     if (font.m_underline) {
-        auto underlineNode = XmlDocument()->createNode("u");
-        newFont->appendNode(underlineNode);
+        auto underlineNode = XmlDocument()->CreateNode("u");
+        newFont->AppendNode(underlineNode);
     }
 
-    auto sizeNode = XmlDocument()->createNode("sz");
-    auto sizeAttr = XmlDocument()->createAttribute("val", to_string(font.m_size));
-    sizeNode->appendAttribute(sizeAttr);
-    newFont->appendNode(sizeNode);
+    auto sizeNode = XmlDocument()->CreateNode("sz");
+    auto sizeAttr = XmlDocument()->CreateAttribute("val", to_string(font.m_size));
+    sizeNode->AppendAttribute(sizeAttr);
+    newFont->AppendNode(sizeNode);
 
-    auto colorNode = XmlDocument()->createNode("color");
-    auto colorAttr = XmlDocument()->createAttribute("rgb", font.m_color.Hex());
-    colorNode->appendAttribute(colorAttr);
-    newFont->appendNode(colorNode);
+    auto colorNode = XmlDocument()->CreateNode("color");
+    auto colorAttr = XmlDocument()->CreateAttribute("rgb", font.m_color.Hex());
+    colorNode->AppendAttribute(colorAttr);
+    newFont->AppendNode(colorNode);
 
-    auto nameNode = XmlDocument()->createNode("name");
-    auto nameAttr = XmlDocument()->createAttribute("val", font.m_name);
-    nameNode->appendAttribute(nameAttr);
-    newFont->appendNode(nameNode);
+    auto nameNode = XmlDocument()->CreateNode("name");
+    auto nameAttr = XmlDocument()->CreateAttribute("val", font.m_name);
+    nameNode->AppendAttribute(nameAttr);
+    newFont->AppendNode(nameNode);
 
-    auto familyNode = XmlDocument()->createNode("family");
-    auto familyAttr = XmlDocument()->createAttribute("val", "2");
-    familyNode->appendAttribute(familyAttr);
-    newFont->appendNode(familyNode);
+    auto familyNode = XmlDocument()->CreateNode("family");
+    auto familyAttr = XmlDocument()->CreateAttribute("val", "2");
+    familyNode->AppendAttribute(familyAttr);
+    newFont->AppendNode(familyNode);
 
-    m_fontsNode->appendNode(newFont);
+    m_fontsNode->AppendNode(newFont);
 }
 
 /**

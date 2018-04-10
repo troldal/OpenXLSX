@@ -89,7 +89,7 @@ const string &XLContentItem::Path() const
 void XLContentItem::DeleteItem()
 {
     if (m_contentNode) {
-        m_contentNode->deleteNode();
+        m_contentNode->DeleteNode();
     }
 
     m_contentNode = nullptr;
@@ -122,21 +122,21 @@ bool XLContentTypes::ParseXMLData()
     std::string strOverride = "Override";
     std::string strDefault = "Default";
 
-    auto node = XmlDocument()->firstNode();
+    auto node = XmlDocument()->FirstNode();
 
     while (node) {
-        if (node->name() == "Default") {
+        if (node->Name() == "Default") {
             std::string extension = "";
             std::string contentType = "";
 
-            if (node->attribute("Extension")) extension = node->attribute("Extension")->value();
-            if (node->attribute("ContentType")) contentType = node->attribute("ContentType")->value();
+            if (node->Attribute("Extension")) extension = node->Attribute("Extension")->Value();
+            if (node->Attribute("ContentType")) contentType = node->Attribute("ContentType")->Value();
             m_defaults.insert_or_assign(extension, node);
         }
-        else if (node->name() == "Override") {
-            string path = node->attribute("PartName")->value();
+        else if (node->Name() == "Override") {
+            string path = node->Attribute("PartName")->Value();
             XLContentType type;
-            string typeString = node->attribute("ContentType")->value();
+            string typeString = node->Attribute("ContentType")->Value();
 
             if (typeString == "application/vnd.ms-excel.Sheet.macroEnabled.main+xml")
                 type = XLContentType::WorkbookMacroEnabled;
@@ -187,7 +187,7 @@ bool XLContentTypes::ParseXMLData()
             m_overrides.insert_or_assign(path, move(item));
         }
 
-        node = node->nextSibling();
+        node = node->NextSibling();
     }
 
     return true;
@@ -256,14 +256,14 @@ void XLContentTypes::addOverride(const string &path,
     else
         return;
 
-    XMLNode *node = XmlDocument()->createNode("Override");
-    XMLAttribute *partName = XmlDocument()->createAttribute("PartName", path);
-    XMLAttribute *contentType = XmlDocument()->createAttribute("ContentType", typeString);
+    XMLNode *node = XmlDocument()->CreateNode("Override");
+    XMLAttribute *partName = XmlDocument()->CreateAttribute("PartName", path);
+    XMLAttribute *contentType = XmlDocument()->CreateAttribute("ContentType", typeString);
 
-    node->appendAttribute(partName);
-    node->appendAttribute(contentType);
+    node->AppendAttribute(partName);
+    node->AppendAttribute(contentType);
 
-    XmlDocument()->rootNode()->appendNode(node);
+    XmlDocument()->RootNode()->AppendNode(node);
 
     unique_ptr<XLContentItem> item(new XLContentItem(*node, path, type));
     m_overrides.insert_or_assign(path, move(item));

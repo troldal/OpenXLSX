@@ -67,7 +67,7 @@ XMLAttribute::operator bool() const
 /**
  * @details
  */
-bool XMLAttribute::isValid() const
+bool XMLAttribute::IsValid() const
 {
     if (m_attribute == nullptr) {
         return false;
@@ -80,7 +80,7 @@ bool XMLAttribute::isValid() const
 /**
  * @details
  */
-void XMLAttribute::setName(const std::string &name)
+void XMLAttribute::SetName(const std::string &name)
 {
     auto theName = m_parentXMLDocument->m_document->allocate_string(name.c_str());
     m_attribute->name(theName);
@@ -91,7 +91,7 @@ void XMLAttribute::setName(const std::string &name)
 /**
  * @details
  */
-const string &XMLAttribute::name() const
+const string &XMLAttribute::Name() const
 {
     if (!m_nameLoaded) {
         m_nameCache = string(m_attribute->name());
@@ -103,7 +103,7 @@ const string &XMLAttribute::name() const
 /**
  * @details
  */
-void XMLAttribute::setValue(const std::string &value)
+void XMLAttribute::SetValue(const std::string &value)
 {
     auto theValue = m_parentXMLDocument->m_document->allocate_string(value.c_str());
     m_attribute->value(theValue);
@@ -114,23 +114,23 @@ void XMLAttribute::setValue(const std::string &value)
 /**
  * @details
  */
-void XMLAttribute::setValue(int value)
+void XMLAttribute::SetValue(int value)
 {
-    setValue(to_string(value));
+    SetValue(to_string(value));
 }
 
 /**
  * @details
  */
-void XMLAttribute::setValue(double value)
+void XMLAttribute::SetValue(double value)
 {
-    setValue(to_string(value));
+    SetValue(to_string(value));
 }
 
 /**
  * @details
  */
-const string &XMLAttribute::value() const
+const string &XMLAttribute::Value() const
 {
     if (!m_valueLoaded) {
         m_valueCache = string(m_attribute->value());
@@ -142,12 +142,12 @@ const string &XMLAttribute::value() const
 /**
  * @details
  */
-XMLNode *XMLAttribute::parent() const
+XMLNode *XMLAttribute::Parent() const
 {
     xml_node<> *node = m_attribute->parent();
 
     if (node)
-        return m_parentXMLDocument->getNode(node);
+        return m_parentXMLDocument->GetNode(node);
     else
         return nullptr;
 }
@@ -155,12 +155,12 @@ XMLNode *XMLAttribute::parent() const
 /**
  * @details
  */
-XMLAttribute *XMLAttribute::previousAttribute() const
+XMLAttribute *XMLAttribute::PreviousAttribute() const
 {
     xml_attribute<> *attribute = m_attribute->previous_attribute();
 
     if (attribute)
-        return m_parentXMLDocument->getAttribute(attribute);
+        return m_parentXMLDocument->GetAttribute(attribute);
     else
         return nullptr;
 }
@@ -168,12 +168,12 @@ XMLAttribute *XMLAttribute::previousAttribute() const
 /**
  * @details
  */
-XMLAttribute *XMLAttribute::nextAttribute() const
+XMLAttribute *XMLAttribute::NextAttribute() const
 {
     xml_attribute<> *attribute = m_attribute->next_attribute();
 
     if (attribute)
-        return m_parentXMLDocument->getAttribute(attribute);
+        return m_parentXMLDocument->GetAttribute(attribute);
     else
         return nullptr;
 }
@@ -181,7 +181,7 @@ XMLAttribute *XMLAttribute::nextAttribute() const
 /**
  * @details
  */
-void XMLAttribute::deleteAttribute()
+void XMLAttribute::DeleteAttribute()
 {
     m_attribute->parent()->remove_attribute(m_attribute);
     m_parentXMLDocument->m_xmlAttributes.erase(m_attribute);

@@ -35,7 +35,7 @@ XLAbstractXMLFile::XLAbstractXMLFile(const std::string &root,
  */
 void XLAbstractXMLFile::SetXmlData(const std::string &xmlData)
 {
-    m_xmlDocument->readData(xmlData);
+    m_xmlDocument->ReadData(xmlData);
 }
 
 /**
@@ -43,7 +43,7 @@ void XLAbstractXMLFile::SetXmlData(const std::string &xmlData)
  */
 std::string XLAbstractXMLFile::GetXmlData() const
 {
-    return m_xmlDocument->getData();
+    return m_xmlDocument->GetData();
 }
 
 /**
@@ -57,7 +57,7 @@ bool XLAbstractXMLFile::LoadXMLData()
     path thePath = m_root;
     thePath /= m_filePath;
 
-    m_xmlDocument->loadFile(thePath.string());
+    m_xmlDocument->LoadFile(thePath.string());
 
     return ParseXMLData();
 }
@@ -73,7 +73,7 @@ void XLAbstractXMLFile::SaveXMLData() const
     thePath /= m_filePath;
 
     if (m_isModified && m_xmlDocument)
-        (*m_xmlDocument).saveFile(thePath.string());
+        (*m_xmlDocument).SaveFile(thePath.string());
 
     m_isModified = false;
 
@@ -102,7 +102,7 @@ void XLAbstractXMLFile::SetFilePath(const string &filePath)
  */
 void XLAbstractXMLFile::Print() const
 {
-    XmlDocument()->print();
+    XmlDocument()->Print();
 }
 
 /**

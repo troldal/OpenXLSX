@@ -25,7 +25,7 @@ XMLNode::XMLNode(XMLDocument *parentDocument,
 /**
  * @details
  */
-bool XMLNode::isValid() const
+bool XMLNode::IsValid() const
 {
     if (m_node == nullptr) {
         return false;
@@ -38,7 +38,7 @@ bool XMLNode::isValid() const
 /**
  * @details
  */
-void XMLNode::setName(const std::string &name)
+void XMLNode::SetName(const std::string &name)
 {
     auto theName = m_parentXMLDocument->m_document->allocate_string(name.c_str());
     m_node->name(theName);
@@ -49,7 +49,7 @@ void XMLNode::setName(const std::string &name)
 /**
  * @details
  */
-const string &XMLNode::name() const
+const string &XMLNode::Name() const
 {
     if (!m_nameLoaded) {
         m_nameCache = string(m_node->name());
@@ -61,7 +61,7 @@ const string &XMLNode::name() const
 /**
  * @details
  */
-void XMLNode::setValue(const std::string &value)
+void XMLNode::SetValue(const std::string &value)
 {
     auto theValue = m_parentXMLDocument->m_document->allocate_string(value.c_str());
     m_node->value(theValue);
@@ -72,23 +72,23 @@ void XMLNode::setValue(const std::string &value)
 /**
  * @details
  */
-void XMLNode::setValue(int value)
+void XMLNode::SetValue(int value)
 {
-    setValue(to_string(value));
+    SetValue(to_string(value));
 }
 
 /**
  * @details
  */
-void XMLNode::setValue(double value)
+void XMLNode::SetValue(double value)
 {
-    setValue(to_string(value));
+    SetValue(to_string(value));
 }
 
 /**
  * @details
  */
-const string &XMLNode::value() const
+const string &XMLNode::Value() const
 {
     if (!m_valueLoaded) {
         m_valueCache = string(m_node->value());
@@ -100,7 +100,7 @@ const string &XMLNode::value() const
 /**
  * @details
  */
-XMLNode *XMLNode::childNode(const std::string &name)
+XMLNode *XMLNode::ChildNode(const std::string &name)
 {
     xml_node<> *node = nullptr;
 
@@ -112,7 +112,7 @@ XMLNode *XMLNode::childNode(const std::string &name)
     }
 
     if (node)
-        return m_parentXMLDocument->getNode(node);
+        return m_parentXMLDocument->GetNode(node);
     else
         return nullptr;
 }
@@ -120,7 +120,7 @@ XMLNode *XMLNode::childNode(const std::string &name)
 /**
  * @details
  */
-const XMLNode *XMLNode::childNode(const std::string &name) const
+const XMLNode *XMLNode::ChildNode(const std::string &name) const
 {
     xml_node<> *node = nullptr;
 
@@ -132,7 +132,7 @@ const XMLNode *XMLNode::childNode(const std::string &name) const
     }
 
     if (node)
-        return m_parentXMLDocument->getNode(node);
+        return m_parentXMLDocument->GetNode(node);
     else
         return nullptr;
 }
@@ -140,11 +140,11 @@ const XMLNode *XMLNode::childNode(const std::string &name) const
 /**
  * @details
  */
-XMLNode *XMLNode::parent() const
+XMLNode *XMLNode::Parent() const
 {
     xml_node<> *node = m_node->parent();
     if (node)
-        return m_parentXMLDocument->getNode(node);
+        return m_parentXMLDocument->GetNode(node);
     else
         return nullptr;
 }
@@ -153,12 +153,12 @@ XMLNode *XMLNode::parent() const
 /**
  * @details
  */
-XMLNode *XMLNode::previousSibling() const
+XMLNode *XMLNode::PreviousSibling() const
 {
     xml_node<> *node = m_node->previous_sibling();
 
     if (node)
-        return m_parentXMLDocument->getNode(node);
+        return m_parentXMLDocument->GetNode(node);
     else
         return nullptr;
 }
@@ -166,12 +166,12 @@ XMLNode *XMLNode::previousSibling() const
 /**
  * @details
  */
-XMLNode *XMLNode::nextSibling() const
+XMLNode *XMLNode::NextSibling() const
 {
     xml_node<> *node = m_node->next_sibling();
 
     if (node)
-        return m_parentXMLDocument->getNode(node);
+        return m_parentXMLDocument->GetNode(node);
     else
         return nullptr;
 }
@@ -179,7 +179,7 @@ XMLNode *XMLNode::nextSibling() const
 /**
  * @details
  */
-void XMLNode::prependNode(XMLNode *node)
+void XMLNode::PrependNode(XMLNode *node)
 {
     m_node->prepend_node(node->m_node);
 }
@@ -187,7 +187,7 @@ void XMLNode::prependNode(XMLNode *node)
 /**
  * @details
  */
-void XMLNode::appendNode(XMLNode *node)
+void XMLNode::AppendNode(XMLNode *node)
 {
     m_node->append_node(node->m_node);
 }
@@ -195,7 +195,7 @@ void XMLNode::appendNode(XMLNode *node)
 /**
  * @details
  */
-void XMLNode::insertNode(XMLNode *location, XMLNode *node)
+void XMLNode::InsertNode(XMLNode *location, XMLNode *node)
 {
     m_node->insert_node(location->m_node, node->m_node);
 }
@@ -203,7 +203,7 @@ void XMLNode::insertNode(XMLNode *location, XMLNode *node)
 /**
  * @details
  */
-void XMLNode::moveNodeUp(XMLNode *node)
+void XMLNode::MoveNodeUp(XMLNode *node)
 {
 
 }
@@ -211,7 +211,7 @@ void XMLNode::moveNodeUp(XMLNode *node)
 /**
  * @details
  */
-void XMLNode::moveNodeDown(XMLNode *node)
+void XMLNode::MoveNodeDown(XMLNode *node)
 {
 
 }
@@ -219,7 +219,7 @@ void XMLNode::moveNodeDown(XMLNode *node)
 /**
  * @details
  */
-void XMLNode::moveNodeTo(XMLNode *node, unsigned int index)
+void XMLNode::MoveNodeTo(XMLNode *node, unsigned int index)
 {
 
 }
@@ -227,7 +227,7 @@ void XMLNode::moveNodeTo(XMLNode *node, unsigned int index)
 /**
  * @details
  */
-void XMLNode::deleteNode()
+void XMLNode::DeleteNode()
 {
     m_node->parent()->remove_node(m_node);
     m_parentXMLDocument->m_xmlNodes.erase(m_node);
@@ -236,7 +236,7 @@ void XMLNode::deleteNode()
 /**
  * @details
  */
-void XMLNode::deleteChildNodes()
+void XMLNode::DeleteChildNodes()
 {
     m_node->remove_all_nodes();
     // TODO: What about the pointers in the XmlDocument?
@@ -245,7 +245,7 @@ void XMLNode::deleteChildNodes()
 /**
  * @details
  */
-XMLAttribute *XMLNode::attribute(const std::string &name)
+XMLAttribute *XMLNode::Attribute(const std::string &name)
 {
     xml_attribute<> *attribute = nullptr;
 
@@ -257,7 +257,7 @@ XMLAttribute *XMLNode::attribute(const std::string &name)
     }
 
     if (attribute)
-        return m_parentXMLDocument->getAttribute(attribute);
+        return m_parentXMLDocument->GetAttribute(attribute);
     else
         return nullptr;
 }
@@ -265,7 +265,7 @@ XMLAttribute *XMLNode::attribute(const std::string &name)
 /**
  * @details
  */
-const XMLAttribute *XMLNode::attribute(const std::string &name) const
+const XMLAttribute *XMLNode::Attribute(const std::string &name) const
 {
     xml_attribute<> *attribute = nullptr;
 
@@ -277,7 +277,7 @@ const XMLAttribute *XMLNode::attribute(const std::string &name) const
     }
 
     if (attribute)
-        return m_parentXMLDocument->getAttribute(attribute);
+        return m_parentXMLDocument->GetAttribute(attribute);
     else
         return nullptr;
 }
@@ -285,7 +285,7 @@ const XMLAttribute *XMLNode::attribute(const std::string &name) const
 /**
  * @details
  */
-void XMLNode::prependAttribute(XMLAttribute *attribute)
+void XMLNode::PrependAttribute(XMLAttribute *attribute)
 {
     m_node->prepend_attribute(attribute->m_attribute);
 }
@@ -293,7 +293,7 @@ void XMLNode::prependAttribute(XMLAttribute *attribute)
 /**
  * @details
  */
-void XMLNode::appendAttribute(XMLAttribute *attribute)
+void XMLNode::AppendAttribute(XMLAttribute *attribute)
 {
     m_node->append_attribute(attribute->m_attribute);
 }

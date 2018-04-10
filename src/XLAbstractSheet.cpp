@@ -50,8 +50,8 @@ const std::string &XLAbstractSheet::Name() const
 void XLAbstractSheet::SetName(const std::string &name)
 {
     m_sheetName = name;
-    m_nodeInWorkbook->attribute("name")->setValue(name);
-    m_nodeInApp->setValue(name);
+    m_nodeInWorkbook->Attribute("name")->SetValue(name);
+    m_nodeInApp->SetValue(name);
     SetModified();
 }
 
@@ -76,33 +76,33 @@ void XLAbstractSheet::SetState(XLSheetState state)
 
     switch (m_sheetState) {
         case XLSheetState::Hidden : {
-            auto att = m_nodeInWorkbook->attribute("state");
+            auto att = m_nodeInWorkbook->Attribute("state");
             if (!att) {
-                att = XmlDocument()->createAttribute("state", "hidden");
-                m_nodeInWorkbook->appendAttribute(att);
+                att = XmlDocument()->CreateAttribute("state", "hidden");
+                m_nodeInWorkbook->AppendAttribute(att);
             }
             else {
-                att->setValue("hidden");
+                att->SetValue("hidden");
             }
             break;
         }
 
         case XLSheetState::VeryHidden : {
-            auto att = m_nodeInWorkbook->attribute("state");
+            auto att = m_nodeInWorkbook->Attribute("state");
             if (!att) {
-                att = XmlDocument()->createAttribute("state", "veryhidden");
-                m_nodeInWorkbook->appendAttribute(att);
+                att = XmlDocument()->CreateAttribute("state", "veryhidden");
+                m_nodeInWorkbook->AppendAttribute(att);
             }
             else {
-                att->setValue("veryhidden"); // todo: Check that this actually works
+                att->SetValue("veryhidden"); // todo: Check that this actually works
             }
             break;
         }
 
         case XLSheetState::Visible : {
-            auto att = m_nodeInWorkbook->attribute("state");
+            auto att = m_nodeInWorkbook->Attribute("state");
             if (att) {
-                att->deleteAttribute();
+                att->DeleteAttribute();
             }
         }
     }

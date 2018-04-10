@@ -66,11 +66,11 @@ void XLValueBoolean::Set(XLBool boolValue)
 
     switch (boolValue) {
         case XLBool::True:
-            ParentCellValue()->ValueNode()->setValue("1");
+            ParentCellValue()->ValueNode()->SetValue("1");
             break;
 
         case XLBool::False:
-            ParentCellValue()->ValueNode()->setValue("0");
+            ParentCellValue()->ValueNode()->SetValue("0");
             break;
     }
 }
@@ -80,7 +80,7 @@ void XLValueBoolean::Set(XLBool boolValue)
  */
 XLBool XLValueBoolean::Boolean() const
 {
-    if (ParentCellValue()->ValueNode()->value() == "1")
+    if (ParentCellValue()->ValueNode()->Value() == "1")
         return XLBool::True;
     else
         return XLBool::False;

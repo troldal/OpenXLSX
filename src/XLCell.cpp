@@ -34,10 +34,10 @@ XLCell::XLCell(XLWorksheet &parent,
       m_parentDocument(parent.ParentDocument()),
       m_parentWorkbook(parent.ParentWorkbook()),
       m_parentWorksheet(&parent),
-      m_cellReference(XLCellReference(cellNode.attribute("r")->value())),
-      m_rowNode(cellNode.parent()),
+      m_cellReference(XLCellReference(cellNode.Attribute("r")->Value())),
+      m_rowNode(cellNode.Parent()),
       m_cellNode(&cellNode),
-      m_formulaNode(cellNode.childNode("f")),
+      m_formulaNode(cellNode.ChildNode("f")),
       m_value(std::make_unique<XLCellValue>(*this))
 {
 }
@@ -139,14 +139,14 @@ void XLCell::SetTypeAttribute(const std::string &typeString)
 {
 
     if (typeString.empty()) {
-        if (m_cellNode->attribute("t"))
-            m_cellNode->attribute("t")->deleteAttribute();
+        if (m_cellNode->Attribute("t"))
+            m_cellNode->Attribute("t")->DeleteAttribute();
     }
     else {
-        if (m_cellNode->attribute("t") == nullptr)
-            m_cellNode->appendAttribute(XmlDocument()->createAttribute("t", typeString));
+        if (m_cellNode->Attribute("t") == nullptr)
+            m_cellNode->AppendAttribute(XmlDocument()->CreateAttribute("t", typeString));
         else
-            m_cellNode->attribute("t")->setValue(typeString);
+            m_cellNode->Attribute("t")->SetValue(typeString);
     }
 }
 
@@ -155,8 +155,8 @@ void XLCell::SetTypeAttribute(const std::string &typeString)
  */
 void XLCell::DeleteTypeAttribute()
 {
-    if (m_cellNode->attribute("t") != nullptr) {
-        m_cellNode->attribute("t")->deleteAttribute();
+    if (m_cellNode->Attribute("t") != nullptr) {
+        m_cellNode->Attribute("t")->DeleteAttribute();
     }
 }
 
@@ -213,8 +213,8 @@ const XMLNode *XLCell::CellNode() const
  */
 XMLNode *XLCell::CreateValueNode()
 {
-    if (m_cellNode->childNode("v") == nullptr) m_cellNode->appendNode(XmlDocument()->createNode("v"));
-    return m_cellNode->childNode("v");
+    if (m_cellNode->ChildNode("v") == nullptr) m_cellNode->AppendNode(XmlDocument()->CreateNode("v"));
+    return m_cellNode->ChildNode("v");
 }
 
 /**
@@ -222,7 +222,7 @@ XMLNode *XLCell::CreateValueNode()
  */
 bool XLCell::HasTypeAttribute() const
 {
-    if (m_cellNode->attribute("t") == nullptr)
+    if (m_cellNode->Attribute("t") == nullptr)
         return false;
     else
         return true;
@@ -234,7 +234,7 @@ bool XLCell::HasTypeAttribute() const
  */
 const XMLAttribute *XLCell::TypeAttribute() const
 {
-    return m_cellNode->attribute("t");
+    return m_cellNode->Attribute("t");
 }
 
 
