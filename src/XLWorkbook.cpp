@@ -55,7 +55,7 @@ bool XLWorkbook::ParseXMLData()
 
     auto sheetNode = m_sheetsNode->ChildNode();
     while (sheetNode) {
-        m_sheetNodes[sheetNode->Attribute("name")->Name()] = sheetNode;
+        m_sheetNodes[sheetNode->Attribute("name")->Value()] = sheetNode;
 
         sheetNode = sheetNode->NextSibling();
     }
@@ -344,7 +344,7 @@ unsigned int XLWorkbook::IndexOfSheet(const std::string &sheetName)
 
     unsigned int index = 1;
     while (node) {
-        if (node->Attribute("name")->Name() == sheetName) break;
+        if (node->Attribute("name")->Value() == sheetName) break;
         node = node->NextSibling();
         if (!node) throw runtime_error("Sheet does not exist.");
         ++index;
@@ -497,7 +497,7 @@ void XLWorkbook::CreateWorksheet(const XLRelationshipItem &item)
     auto node = m_sheetsNode->ChildNode();
     while (node) {
         if (node->Attribute("r:id")->Value() == item.Id()) {
-            name = node->Attribute("name")->Name();
+            name = node->Attribute("name")->Value();
             break;
         }
         node = node->NextSibling();
@@ -524,7 +524,7 @@ void XLWorkbook::CreateChartsheet(const XLRelationshipItem &item)
     auto node = m_sheetsNode->ChildNode();
     while (node) {
         if (node->Attribute("r:id")->Value() == item.Id()) {
-            name = node->Attribute("name")->Name();
+            name = node->Attribute("name")->Value();
             break;
         }
         node = node->NextSibling();

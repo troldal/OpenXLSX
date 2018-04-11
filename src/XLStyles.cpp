@@ -59,7 +59,7 @@ bool XLStyles::ParseXMLData()
     // Read fonts
     auto currentFont = m_fontsNode->ChildNode();
     while (currentFont != nullptr) {
-        std::string name = currentFont->ChildNode("name")->Attribute("val")->Name();
+        std::string name = currentFont->ChildNode("name")->Attribute("val")->Value();
         unsigned int size = stoi(currentFont->ChildNode("sz")->Attribute("val")->Value());
 
         std::string color = "FF000000";
