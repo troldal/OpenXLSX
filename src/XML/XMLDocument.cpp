@@ -106,19 +106,20 @@ void XMLDocument::LoadFile(const std::string &filePath)
  */
 void XMLDocument::SaveFile(const std::string &filePath) const
 {
+    // If no argument is provided and the m_filePath is blank, throw an exception.
     if (m_filePath.empty() && filePath.empty()) throw invalid_argument("The file path for xml file must not be blank");
 
-    std::string fp;
-    if (filePath.empty()) fp = m_filePath;
-    else fp = filePath;
+    ofstream outputFile;
 
-    ofstream outputFile(fp);
+    if (filePath.empty()) outputFile.open(m_filePath);
+    else outputFile.open(filePath);
+
     outputFile << *m_document;
     outputFile.close();
 }
 
 /**
- * @details
+ * @details The Print function flushes the content of the xml document to the standard output.
  */
 void XMLDocument::Print() const
 {
@@ -262,7 +263,7 @@ const XMLAttribute *XMLDocument::GetAttribute(const rapidxml::xml_attribute<> *t
 {
     if (theAttribute == nullptr) return nullptr;
 
-    // For some reason the std::map functions can't take a const pointer as key, although they are specified as const. Hence the use of const_cast.
+    // For some reason the std::map functions can't take a const pointer as key. Hence the use of const_cast.
     // Check if the XMLNode exists. If yes, return a the pointer.
     auto result = m_xmlAttributes.find(const_cast<xml_attribute<> *>(theAttribute));
     if (result != m_xmlAttributes.end()) return result->second.get();
