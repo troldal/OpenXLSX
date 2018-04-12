@@ -185,13 +185,10 @@ const XMLNode *XMLDocument::FirstNode() const
 XMLNode *XMLDocument::CreateNode(const std::string &nodeName,
                                  const std::string &nodeValue)
 {
-    auto str = m_document->allocate_string(nodeName.c_str());
-    auto result = m_document->allocate_node(node_element, str);
+    auto result = m_document->allocate_node(node_element, m_document->allocate_string(nodeName.c_str()));
     m_xmlNodes.insert_or_assign(result, unique_ptr<XMLNode>(new XMLNode(this, result)));
 
-    if (nodeValue != "") {
-        m_xmlNodes.at(result)->SetValue(nodeValue);
-    }
+    if (!nodeValue.empty()) m_xmlNodes.at(result)->SetValue(nodeValue);
 
     return m_xmlNodes.at(result).get();
 }
@@ -202,13 +199,10 @@ XMLNode *XMLDocument::CreateNode(const std::string &nodeName,
 XMLAttribute *XMLDocument::CreateAttribute(const std::string &attributeName,
                                            const std::string &attributeValue)
 {
-    auto str = m_document->allocate_string(attributeName.c_str());
-    auto result = m_document->allocate_attribute(str);
+    auto result = m_document->allocate_attribute(m_document->allocate_string(attributeName.c_str()));
     m_xmlAttributes.insert_or_assign(result, unique_ptr<XMLAttribute>(new XMLAttribute(this, result)));
 
-    if (attributeValue != "") {
-        m_xmlAttributes.at(result)->SetValue(attributeValue);
-    }
+    if (!attributeValue.empty()) m_xmlAttributes.at(result)->SetValue(attributeValue);
 
     return m_xmlAttributes.at(result).get();
 }

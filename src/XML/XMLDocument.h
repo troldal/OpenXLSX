@@ -49,6 +49,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <string>
 #include <memory>
 #include <map>
+#include <unordered_map>
 #include "rapidxml.hpp"
 #include "rapidxml_utils.hpp"
 #include "rapidxml_print.hpp"
@@ -206,9 +207,9 @@ namespace OpenXLSX
         std::unique_ptr<rapidxml::file<>> m_file; /**< A pointer to the underlying file resource. */
         std::string m_filePath; /**< The path of the XML file. */
 
-        std::map<rapidxml::xml_node<> *, std::unique_ptr<XMLNode>>
+        std::unordered_map<rapidxml::xml_node<> *, std::unique_ptr<XMLNode>>
             m_xmlNodes; /**< A std::map with the XMLNodes for the document, using the xml_nodes as key. */
-        std::map<rapidxml::xml_attribute<> *, std::unique_ptr<XMLAttribute>>
+        std::unordered_map<rapidxml::xml_attribute<> *, std::unique_ptr<XMLAttribute>>
             m_xmlAttributes; /**< A std::map with the XMLAttributes for the document, using the xml_attributes as key. */
     };
 
