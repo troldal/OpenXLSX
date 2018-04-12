@@ -231,7 +231,6 @@ const XMLNode *XMLDocument::GetNode(const rapidxml::xml_node<> *theNode) const
     if (theNode == nullptr) return nullptr;
 
     // For some reason the std::map functions can't take a const pointer as key, although they are specified as const. Hence the use of const_cast.
-
     // Check if the XMLNode exists. If yes, return a the pointer.
     auto result = m_xmlNodes.find(const_cast<xml_node<> *>(theNode));
     if (result != m_xmlNodes.end()) return result->second.get();
@@ -247,12 +246,11 @@ XMLAttribute *XMLDocument::GetAttribute(rapidxml::xml_attribute<> *theAttribute)
 {
     if (theAttribute == nullptr) return nullptr;
 
-    if (!theAttribute) return nullptr;
     // Check if the XMLNode exists. If yes, return a the pointer.
     auto result = m_xmlAttributes.find(theAttribute);
     if (result != m_xmlAttributes.end()) return result->second.get();
 
-    // Otherwise, create a new XMLNode, add it to the dictionary and return the pointer.
+    // Otherwise, create a new XMLAttribute, add it to the dictionary and return the pointer.
     m_xmlAttributes.insert_or_assign(theAttribute, unique_ptr<XMLAttribute>(new XMLAttribute(this, theAttribute)));
     return m_xmlAttributes.at(theAttribute).get();
 }
@@ -265,7 +263,6 @@ const XMLAttribute *XMLDocument::GetAttribute(const rapidxml::xml_attribute<> *t
     if (theAttribute == nullptr) return nullptr;
 
     // For some reason the std::map functions can't take a const pointer as key, although they are specified as const. Hence the use of const_cast.
-
     // Check if the XMLNode exists. If yes, return a the pointer.
     auto result = m_xmlAttributes.find(const_cast<xml_attribute<> *>(theAttribute));
     if (result != m_xmlAttributes.end()) return result->second.get();
