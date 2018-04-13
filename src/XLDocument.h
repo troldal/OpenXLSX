@@ -316,7 +316,7 @@ namespace OpenXLSX
         std::unique_ptr<XLWorkbook> m_workbook; /**< A pointer to the workbook object */
 
         std::map<std::string, XLAbstractXMLFile *> m_xmlFiles; /**< A std::map with all the associated XML files*/
-        std::unique_ptr<XLArchive> m_archive; /**<A pointer the archive with the files.*/
+        std::unique_ptr<XLArchive> m_archive; /**<A pointer to the zip archive.*/
 
     };
 }

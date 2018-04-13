@@ -123,7 +123,7 @@ namespace OpenXLSX
 
         /**
          * @brief Save a copy of the archive with a new name and opens the copy.
-         * All subsequent file modificantions will be applied to the new copy.
+         * All subsequent file modifications will be applied to the new copy.
          * @param copyName The name of the copy.
          */
         void CopyArchive(const std::string &copyName);

@@ -40,7 +40,7 @@ XLDocument::XLDocument(const std::string &docPath)
       m_docCoreProperties(nullptr),
       m_workbook(nullptr),
       m_xmlFiles(),
-      m_archive(make_unique<XLArchive>(docPath))
+      m_archive(nullptr)
 {
     OpenDocument(docPath);
 }
@@ -64,8 +64,9 @@ void XLDocument::OpenDocument(const string &fileName)
 {
     // If the tempPath Property has a ValueAsString (i.e. a file is currently open), close the current file and delete the temporary folder.
     if (!m_tempPath.empty()) CloseDocument();
-
     m_filePath = fileName;
+
+    m_archive = make_unique<XLArchive>(m_filePath.string());
 
     // If the temporary folder exists, append a $ to the prefix.
     string prefix = ".~$";
