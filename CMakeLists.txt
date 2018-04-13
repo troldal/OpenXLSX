@@ -39,7 +39,7 @@ set(SOURCE_FILES
         src/XLWorksheet.cpp src/XLWorksheet.h
         src/XLCellReference.cpp src/XLCellReference.h
         src/XLCellRange.cpp src/XLCellRange.h
-        src/XLArchive.cpp src/XLArchive.h
+        src/Zip/XLArchive.cpp src/Zip/XLArchive.h
         src/XLCellIterator.cpp src/XLCellIterator.h
         src/XLChartsheet.cpp src/XLChartsheet.h
         src/XLTemplate.h
@@ -81,7 +81,7 @@ install (FILES
         src/XLWorksheet.h
         src/XLCellReference.h
         src/XLCellRange.h
-        src/XLArchive.h
+        src/Zip/XLArchive.h
         src/XLCellIterator.h
         src/XLChartsheet.h
         src/XLTemplate.h

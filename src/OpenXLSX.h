@@ -19,7 +19,7 @@
 #include "XLWorksheet.h"
 #include "XLCellReference.h"
 #include "XLCellRange.h"
-#include "XLArchive.h"
+#include "Zip/XLArchive.h"
 #include "XLCellIterator.h"
 #include "XLChartsheet.h"
 #include "XLTemplate.h"

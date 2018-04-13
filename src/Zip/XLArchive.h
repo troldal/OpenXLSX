@@ -49,7 +49,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <string>
 #include <memory>
 
-#include "Zip/libzip++.h"
+#include "libzip++.h"
 
 namespace OpenXLSX
 {
