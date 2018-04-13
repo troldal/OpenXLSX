@@ -220,7 +220,7 @@ XMLNode *XMLDocument::GetNode(rapidxml::xml_node<> *theNode)
     if (result != m_xmlNodes.end()) return result->second.get();
 
     // Otherwise, create a new XMLNode, add it to the dictionary and return the pointer.
-    m_xmlNodes.insert_or_assign(theNode, unique_ptr<XMLNode>(new XMLNode(this, theNode)));
+    m_xmlNodes[theNode] = unique_ptr<XMLNode>(new XMLNode(this, theNode));
     return m_xmlNodes.at(theNode).get();
 }
 
@@ -252,7 +252,7 @@ XMLAttribute *XMLDocument::GetAttribute(rapidxml::xml_attribute<> *theAttribute)
     if (result != m_xmlAttributes.end()) return result->second.get();
 
     // Otherwise, create a new XMLAttribute, add it to the dictionary and return the pointer.
-    m_xmlAttributes.insert_or_assign(theAttribute, unique_ptr<XMLAttribute>(new XMLAttribute(this, theAttribute)));
+    m_xmlAttributes[theAttribute] = unique_ptr<XMLAttribute>(new XMLAttribute(this, theAttribute));
     return m_xmlAttributes.at(theAttribute).get();
 }
 
