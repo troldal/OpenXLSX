@@ -413,7 +413,7 @@ void XLDocument::LoadAllFiles()
 void XLDocument::AddXMLFile(const std::string &path,
                             const std::string &content)
 {
-    m_archive->addData(path, content.c_str(), content.size());
+    m_archive->addData(path, content.data(), content.size());
 }
 
 /**
