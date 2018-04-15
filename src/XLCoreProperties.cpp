@@ -13,7 +13,7 @@ using namespace OpenXLSX;
  */
 XLCoreProperties::XLCoreProperties(XLDocument &parent,
                                    const std::string &filePath)
-    : XLAbstractXMLFile(parent.RootDirectory()->string(), filePath),
+    : XLAbstractXMLFile(parent, filePath),
       XLSpreadsheetElement(parent),
       m_properties()
 {

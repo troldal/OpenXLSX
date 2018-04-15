@@ -30,7 +30,7 @@ XMLNode *XLStyles::m_colors = nullptr;
  */
 XLStyles::XLStyles(XLDocument &parent,
                    const std::string &filePath)
-    : XLAbstractXMLFile(parent.RootDirectory()->string(), "xl/styles.xml"),
+    : XLAbstractXMLFile(parent, filePath),
       XLSpreadsheetElement(parent)
 {
     LoadXMLData();
@@ -41,7 +41,7 @@ XLStyles::XLStyles(XLDocument &parent,
  */
 XLStyles::~XLStyles()
 {
-    SaveXMLData();
+    CommitXMLData();
 }
 
 /**

@@ -17,7 +17,7 @@ using namespace OpenXLSX;
 XLWorkbook::XLWorkbook(XLDocument &parent,
                        const std::string &filePath)
 
-    : XLAbstractXMLFile(parent.RootDirectory()->string(), filePath),
+    : XLAbstractXMLFile(parent, filePath),
       XLSpreadsheetElement(parent),
       m_sheetsNode(nullptr),
       m_sheetNodes(),
@@ -266,7 +266,7 @@ XLRelationshipItem *XLWorkbook::CreateWorksheetFile(const std::string &sheetName
 {
 
     // Create file
-    ParentDocument()->AddFile("xl/worksheets/sheet" + to_string(m_sheetId + 1) + ".xml", content);
+    ParentDocument()->AddXMLFile("xl/worksheets/sheet" + to_string(m_sheetId + 1) + ".xml", content);
 
     // Add content item to document
     ParentDocument()->AddContentItem("/xl/worksheets/sheet" + to_string(m_sheetId + 1) + ".xml",

@@ -14,7 +14,7 @@ using namespace OpenXLSX;
  */
 XLSharedStrings::XLSharedStrings(XLDocument &parent,
                                  const std::string &filePath)
-    : XLAbstractXMLFile(parent.RootDirectory()->string(), filePath),
+    : XLAbstractXMLFile(parent, filePath),
       XLSpreadsheetElement(parent),
       m_sharedStrings(),
       m_emptyString("")
@@ -27,7 +27,7 @@ XLSharedStrings::XLSharedStrings(XLDocument &parent,
  */
 XLSharedStrings::~XLSharedStrings()
 {
-    SaveXMLData();
+    CommitXMLData();
 }
 
 /**

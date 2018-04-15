@@ -81,9 +81,8 @@ namespace OpenXLSX
          * @param filePath The path of the XML file, relative to the root.
          * @param data An std::string object with the XML data to be represented by the object.
          */
-        explicit XLAbstractXMLFile(const std::string &root,
-                                   const std::string &filePath,
-                                   const std::string &data = "");
+        explicit XLAbstractXMLFile(XLDocument &parent,
+                                   const std::string &filePath);
 
         /**
          * @brief Copy constructor. Default (shallow) implementation used.
@@ -114,6 +113,16 @@ namespace OpenXLSX
         virtual std::string GetXmlData() const;
 
         /**
+         * @brief Commit the XML data to the zipped .xlsx package.
+         */
+        virtual void CommitXMLData();
+
+        /**
+         * @brief Delete the XML file from the zipped .xlsx package.
+         */
+        virtual void DeleteXMLData();
+
+        /**
          * @brief Get the path of the current file.
          * @return A string with the path of the file.
          * @note This method is final, i.e. it cannot be overridden.
@@ -126,7 +135,7 @@ namespace OpenXLSX
          * @note This method is final, i.e. it cannot be overridden.
          * @todo Consider saving the file to the new path when setting.
          */
-        virtual void SetFilePath(const std::string &filePath) final;
+        //virtual void SetFilePath(const std::string &filePath) final;
 
         /**
          * @brief Read the XML data using the XML library.
@@ -140,7 +149,7 @@ namespace OpenXLSX
          * @brief Saves the XML data to the file, using the m_filePath as the path. If the file exists, it will be overwritten.
          * @todo check that an existing file will indeed be overwritten.
         */
-        virtual void SaveXMLData() const final;
+        //virtual void SaveXMLData() const final;
 
         /**
          * @brief Prints the XML document to the standard output
@@ -192,7 +201,7 @@ namespace OpenXLSX
          * @return true if successful, otherwise false.
          * @todo Currently the method always returns true.
          */
-        virtual bool DeleteFile();
+        //virtual bool DeleteFile();
 
         /**
          * @brief The parseXMLData method is used to map or copy the XML data to the internal data structures.
@@ -207,15 +216,16 @@ namespace OpenXLSX
 
     private:
 
+        XLDocument &m_parentDocument; /**< */
+        std::string m_path; /**< */
         std::unique_ptr<XMLDocument> m_xmlDocument; /**< A pointer to the underlying XMLDocument resource*/
-        std::string m_filePath; /**< A std::string with the full path to the XML file.*/
-        std::string m_root;
+
+        //std::string m_filePath; /**< A std::string with the full path to the XML file.*/
+        //std::string m_root;
         //XLDocument &m_parentDocument; /**< A reference to the parent XLDocument object*/
 
-        mutable std::map<std::string, XLAbstractXMLFile *>
-            m_childXmlDocuments; /**< A std::map with the child XML documents. */
-        mutable bool
-            m_isModified; /**< A bool indicating if the document has been modified and needs saving. It is mutable, and can therefore be modified in const methods. */
+        mutable std::map<std::string, XLAbstractXMLFile *> m_childXmlDocuments; /**< A std::map with the child XML documents. */
+        mutable bool m_isModified; /**< A bool indicating if the document has been modified and needs saving. It is mutable, and can therefore be modified in const methods. */
 
     };
 }

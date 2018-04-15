@@ -48,7 +48,7 @@ XLWorksheet::XLWorksheet(XLWorkbook &parent,
 XLWorksheet::~XLWorksheet()
 {
     // Call the 'SaveXMLData' method in the XLAbstractXMLFile base class
-    SaveXMLData();
+    CommitXMLData();
 }
 
 /**

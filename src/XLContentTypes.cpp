@@ -103,7 +103,7 @@ void XLContentItem::DeleteItem()
  */
 XLContentTypes::XLContentTypes(XLDocument &parent,
                                const string &filePath)
-    : XLAbstractXMLFile(parent.RootDirectory()->string(), filePath),
+    : XLAbstractXMLFile(parent, filePath),
       XLSpreadsheetElement(parent),
       m_defaults(),
       m_overrides()

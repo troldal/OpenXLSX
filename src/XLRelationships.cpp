@@ -71,7 +71,7 @@ void XLRelationshipItem::Delete()
  */
 XLRelationships::XLRelationships(XLDocument &parent,
                                  const std::string &filePath)
-    : XLAbstractXMLFile(parent.RootDirectory()->string(), filePath),
+    : XLAbstractXMLFile(parent, filePath),
       XLSpreadsheetElement(parent),
       m_relationships(),
       m_relationshipCount(0)
@@ -146,7 +146,7 @@ void XLRelationships::DeleteRelationship(const std::string &id)
 
     Relationships()->at(id)->Delete();
     relationshipsMutable()->erase(id); // Delete item from the Relationships map
-    SaveXMLData();
+    CommitXMLData(); //TODO: is this really required?
     SetModified();
 }
 
@@ -228,7 +228,7 @@ XLRelationshipItem * XLRelationships::AddRelationship(XLRelationshipType type, c
     relationshipsMutable()->insert_or_assign(Id->Value(), move(rShip));
     SetModified();
 
-    SaveXMLData();
+    CommitXMLData(); //TODO: Is this really required?
 
     return result;
 }

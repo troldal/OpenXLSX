@@ -3,6 +3,7 @@
 //
 
 #include <boost/filesystem.hpp>
+#include "XLDocument.h"
 #include "XLWorkbook.h"
 #include "XLWorksheet.h"
 
@@ -17,16 +18,15 @@ using namespace boost::filesystem;
  * once created; any existing files will be overwritten.
  * @todo Consider if the file needs to be saved immediately if XML data is provided as a string.
  */
-XLAbstractXMLFile::XLAbstractXMLFile(const std::string &root,
-                                     const std::string &filePath,
-                                     const std::string &data)
-    : m_xmlDocument(make_unique<XMLDocument>()),
-      m_filePath(filePath),
-      m_root(root),
-      m_childXmlDocuments(),
-      m_isModified(false)
+XLAbstractXMLFile::XLAbstractXMLFile(XLDocument &parent,
+                                     const std::string &filePath)
+    :   m_parentDocument(parent),
+        m_path(filePath),
+        m_xmlDocument(make_unique<XMLDocument>()),
+        m_childXmlDocuments(),
+        m_isModified(false)
 {
-    if (data != "") SetXmlData(data);
+    SetXmlData(m_parentDocument.GetXMLFile(m_path));
 }
 
 /**
@@ -47,18 +47,24 @@ std::string XLAbstractXMLFile::GetXmlData() const
 }
 
 /**
+ * @details
+ */
+void XLAbstractXMLFile::CommitXMLData()
+{
+    m_parentDocument.AddXMLFile(m_path, GetXmlData());
+}
+
+void XLAbstractXMLFile::DeleteXMLData()
+{
+    m_parentDocument.DeleteXMLFile(m_path);
+}
+
+/**
  * @details This method loads the XML data from the file and fills the object data structure by a call to the
  * parseXMLData method. If the file does not exist, false is returned; otherwise, true.
  */
 bool XLAbstractXMLFile::LoadXMLData()
 {
-    if (m_filePath.empty()) return false;
-
-    path thePath = m_root;
-    thePath /= m_filePath;
-
-    m_xmlDocument->LoadFile(thePath.string());
-
     return ParseXMLData();
 }
 
@@ -66,7 +72,7 @@ bool XLAbstractXMLFile::LoadXMLData()
  * @details This method saves the XML data to file, but only if the XMLDocument object exists (which may not be the
  * case if it has been explicitly deleted by the user) and is in a modified state.
  * After the file has been saved, all child XML files are saved to disk as well.
- */
+ */ /*
 void XLAbstractXMLFile::SaveXMLData() const
 {
     path thePath = m_root;
@@ -79,23 +85,23 @@ void XLAbstractXMLFile::SaveXMLData() const
 
     for (auto file : m_childXmlDocuments)
         if (file.second) file.second->SaveXMLData();
-}
+} */
 
 /**
  * @details This method returns the path of the XML file as a std::string.
  */
 const string &XLAbstractXMLFile::FilePath() const
 {
-    return m_filePath;
+    return m_path;
 }
 
 /**
  * @details This method sets the file path given as a std::string, by modifying the m_filePath property.
- */
+ */ /*
 void XLAbstractXMLFile::SetFilePath(const string &filePath)
 {
     m_filePath = filePath;
-}
+} */
 
 /**
  * @details This method is mainly meant for debugging, by enabling printing of the xml file to cout.
@@ -127,14 +133,14 @@ const XMLDocument *XLAbstractXMLFile::XmlDocument() const
  * - Delete the XML file with the raw data.
  * The XLAbstractXMLFile object itself is not deleted.
  * @todo Consider if there is a more elegant way to do this.
- */
+ */ /*
 bool XLAbstractXMLFile::DeleteFile()
 {
     m_xmlDocument.reset(nullptr);
     path p(m_filePath);
     remove(p);
     return true;
-}
+} */
 
 /**
  * @details This method returns a pointer to the parent XLDocument object.

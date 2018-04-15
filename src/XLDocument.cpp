@@ -2,9 +2,13 @@
 // Created by Troldal on 24/07/16.
 //
 
+#include "Zip/libzip++.h"
+#include "XLAbstractXMLFile.h"
 #include "XLDocument.h"
 #include "XLWorksheet.h"
 #include "XLTemplate.h"
+#include <fstream>
+#include <iostream>
 
 
 using namespace std;
@@ -17,7 +21,7 @@ using namespace OpenXLSX;
  */
 XLDocument::XLDocument()
     : m_filePath(""),
-      m_tempPath(""),
+      //m_tempPath(""),
       m_documentRelationships(nullptr),
       m_contentTypes(nullptr),
       m_docAppProperties(nullptr),
@@ -33,7 +37,7 @@ XLDocument::XLDocument()
  */
 XLDocument::XLDocument(const std::string &docPath)
     : m_filePath(""),
-      m_tempPath(""),
+      //m_tempPath(""),
       m_documentRelationships(nullptr),
       m_contentTypes(nullptr),
       m_docAppProperties(nullptr),
@@ -62,48 +66,17 @@ XLDocument::~XLDocument()
  */
 void XLDocument::OpenDocument(const string &fileName)
 {
-    // If the tempPath Property has a ValueAsString (i.e. a file is currently open), close the current file and delete the temporary folder.
-    if (!m_tempPath.empty()) CloseDocument();
+    if(m_archive && m_archive->isOpen()) CloseDocument();
+
     m_filePath = fileName;
+    m_archive = make_unique<ZipArchive>(m_filePath);
+    m_archive->open(ZipArchive::WRITE);
 
-    m_archive = make_unique<XLArchive>(m_filePath.string());
-
-    // If the temporary folder exists, append a $ to the prefix.
-    string prefix = ".~$";
-    while (true) {
-        m_tempPath = m_filePath.parent_path() /= prefix + m_filePath.stem().string();
-        if (!exists(m_tempPath)) break;
-        prefix = prefix + "$";
+    cout << "Printing list of files in .xlsx package " << m_filePath << ":" << endl;
+    for (auto entry : m_archive->getEntries()) {
+        cout << entry.getName() << endl;
     }
-
-    // Create the root directory of the package contents
-    create_directory(m_tempPath);
-
-    ZipArchive archive(m_filePath.string());
-    archive.open(ZipArchive::READ_ONLY);
-
-    // Create all package sub-directories in the root
-    for (auto it : archive.getEntries()) {
-        path temp = m_tempPath;
-        temp /= it.getName();
-        temp = temp.parent_path();
-
-        create_directories(temp);
-    }
-
-    // Unzip all package contents
-    for (auto it : archive.getEntries()) {
-        if (it.getName() == "xl/calcChain.xml") continue;
-        path temp = m_tempPath;
-        temp /= it.getName();
-
-        // Read the zip entry as binary and SaveDocument to file
-        std::ofstream file(temp.string(), std::ios::out | std::ios::binary | std::ios::app);
-        file.write(reinterpret_cast<const char *>(it.readAsBinary()), it.getSize());
-        file.close();
-    }
-
-    archive.close();
+    cout << "Done." << endl;
 
     // Open the Relationships file for the document level.
     m_documentRelationships = make_unique<XLRelationships>(*this, "_rels/.rels");
@@ -132,7 +105,7 @@ void XLDocument::CreateDocument(const std::string &fileName)
  */
 void XLDocument::CloseDocument() const
 {
-    remove_all(m_tempPath);
+    m_archive->discard();
 }
 
 /**
@@ -140,7 +113,7 @@ void XLDocument::CloseDocument() const
  */
 bool XLDocument::SaveDocument()
 {
-    return SaveDocumentAs(m_filePath.string());
+    return SaveDocumentAs(m_filePath);
 }
 
 /**
@@ -150,36 +123,40 @@ bool XLDocument::SaveDocument()
  */
 bool XLDocument::SaveDocumentAs(const string &fileName)
 {
-    (*m_documentRelationships).SaveXMLData();
-    (*m_contentTypes).SaveXMLData();
+    // If the filename is different than the name of the current file, copy the current file to new destination,
+    // close the current zip file and open the new one.
+    if (fileName != m_filePath) {
+        m_archive->discard();
+        std::ifstream  src(m_filePath, std::ios::binary);
+        std::ofstream  dst(fileName, std::ios::binary);
+        dst << src.rdbuf();
+
+        m_filePath = fileName;
+        m_archive = make_unique<ZipArchive>(m_filePath);
+        m_archive->open(ZipArchive::WRITE);
+    }
+
+    // Commit all XML files, i.e. save to the zip file.
+    m_documentRelationships->CommitXMLData();
+    m_contentTypes->CommitXMLData();
     for (auto file : m_xmlFiles) {
-        file.second->SaveXMLData();
+        file.second->CommitXMLData();
     }
 
-    // Create a new archive
-    ZipArchive archive(fileName);
-    archive.open(ZipArchive::NEW);
-
-    // Iterate through the files in the temporary folder and SaveDocument to the archive
-    recursive_directory_iterator iter{m_tempPath};
-    while (iter != recursive_directory_iterator{}) {
-        if (!is_directory(iter->path()) && iter->path().filename() != "calcChain.xml") {
-            archive.addFile(relative(iter->path(), m_tempPath).string(), iter->path().string());
-        }
-        ++iter;
-    }
-
-    archive.close();
+    // Close and re-open the zip file, in order to save changes.
+    m_archive->close();
+    m_archive->open(ZipArchive::WRITE);
 
     return true;
 }
 
 /**
  * @details
+ * @todo Currently, this method returns the full path, which is not the intention.
  */
 std::string XLDocument::DocumentName() const
 {
-    return m_filePath.filename().string();
+    return m_filePath;
 }
 
 /**
@@ -187,7 +164,7 @@ std::string XLDocument::DocumentName() const
  */
 std::string XLDocument::DocumentPath() const
 {
-    return m_filePath.string();
+    return m_filePath;
 }
 
 /**
@@ -402,14 +379,6 @@ XLContentItem *XLDocument::AddContentItem(const std::string &contentPath,
 }
 
 /**
- * @details Get a path object with the path to the root directory of the temporary folder.
- */
-const XLPath *XLDocument::RootDirectory() const
-{
-    return &m_tempPath;
-}
-
-/**
  * @details Loads all the XML files in the package. For the workbook.xml file, child files will be loaded
  * automatically.
  */
@@ -441,15 +410,26 @@ void XLDocument::LoadAllFiles()
 /**
  * @details Add a xml file to the package.
  */
-void XLDocument::AddFile(const std::string &path,
-                         const std::string &content)
+void XLDocument::AddXMLFile(const std::string &path,
+                            const std::string &content)
 {
-    auto fullPath = m_tempPath;
-    fullPath /= path;
+    m_archive->addData(path, content.c_str(), content.size());
+}
 
-    std::ofstream file(fullPath.string());
-    file << content;
-    file.close();
+/**
+ * @details
+ */
+std::string XLDocument::GetXMLFile(const std::string &path)
+{
+    return m_archive->getEntry(path).readAsText();
+}
+
+/**
+ * @details
+ */
+void XLDocument::DeleteXMLFile(const std::string &path)
+{
+    m_archive->deleteEntry(path);
 }
 
 /**

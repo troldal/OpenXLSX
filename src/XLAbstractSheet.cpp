@@ -19,7 +19,7 @@ using namespace OpenXLSX;
 XLAbstractSheet::XLAbstractSheet(XLWorkbook &parent,
                                  const std::string &name,
                                  const std::string &filepath)
-    : XLAbstractXMLFile(parent.ParentDocument()->RootDirectory()->string(), filepath),
+    : XLAbstractXMLFile(*parent.ParentDocument(), filepath),
       XLSpreadsheetElement(*parent.ParentDocument()),
       m_sheetName(name),
       m_sheetType(XLSheetType::WorkSheet),
@@ -135,8 +135,7 @@ void XLAbstractSheet::Delete()
     m_nodeInWorkbookRels = nullptr;
 
     // Delete the underlying XML file.
-    //TODO: Doesn't seem to work; However, Excel can still open the file.
-    DeleteFile();
+    DeleteXMLData();
 }
 
 /**

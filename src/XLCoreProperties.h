@@ -65,7 +65,7 @@ namespace OpenXLSX
      * @brief
      */
     class XLCoreProperties: public XLAbstractXMLFile,
-                               public XLSpreadsheetElement
+                            public XLSpreadsheetElement
     {
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -82,7 +82,7 @@ namespace OpenXLSX
          * @return
          */
         explicit XLCoreProperties(XLDocument &parent,
-                                     const std::string &filePath);
+                                  const std::string &filePath);
 
         /**
          * @brief

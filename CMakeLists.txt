@@ -81,7 +81,6 @@ install (FILES
         src/XLWorksheet.h
         src/XLCellReference.h
         src/XLCellRange.h
-        src/Zip/XLArchive.h
         src/XLCellIterator.h
         src/XLChartsheet.h
         src/XLTemplate.h
@@ -113,5 +112,6 @@ install (FILES
         DESTINATION include/OpenXLSX/XML)
 install (FILES
         src/Zip/libzip++.h
+        src/Zip/XLArchive.h
         DESTINATION include/OpenXLSX/Zip)
 

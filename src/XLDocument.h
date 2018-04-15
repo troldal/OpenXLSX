@@ -227,26 +227,32 @@ namespace OpenXLSX
          */
         void DeleteProperty(const std::string &propertyName);
 
-        /**
-         * @brief Get the root directory path of the temporary file structure created for the file.
-         * @return A path object with the root directory.
-         * @todo Consider making this a protected member.
-         */
-        const XLPath *RootDirectory() const;
-
-//----------------------------------------------------------------------------------------------------------------------
+        //----------------------------------------------------------------------------------------------------------------------
 //           Protected Member Functions
 //----------------------------------------------------------------------------------------------------------------------
 
     protected:
 
         /**
-         * @brief Method for adding a ew (XML) file to the .xlsx package.
+         * @brief Method for adding a new (XML) file to the .xlsx package.
          * @param path The relative path of the new file.
          * @param content The contents (XML data) of the new file.
          */
-        void AddFile(const std::string &path,
-                     const std::string &content);
+        void AddXMLFile(const std::string &path,
+                        const std::string &content);
+
+        /**
+         * @brief Get an XML file from the .xlsx archive.
+         * @param path The relative path of the file.
+         * @return A std::string with the content of the file
+         */
+        std::string GetXMLFile(const std::string &path);
+
+        /**
+         * @brief Delete a file from the .xlsx archive.
+         * @param path The path of the file to delete.
+         */
+        void DeleteXMLFile(const std::string &path);
 
         /**
          * @brief Get the xml node in the app.xml file, for the sheet name.
@@ -306,8 +312,8 @@ namespace OpenXLSX
 
     private:
 
-        XLPath m_filePath; /**< The path to the original file*/
-        XLPath m_tempPath; /**< The path to the temporary folder with the package contents*/
+        std::string m_filePath; /**< The path to the original file*/
+        //XLPath m_tempPath; /**< The path to the temporary folder with the package contents*/
 
         std::unique_ptr<XLRelationships> m_documentRelationships; /**< A pointer to the document relationships object*/
         std::unique_ptr<XLContentTypes> m_contentTypes; /**< A pointer to the content types object*/
@@ -316,8 +322,8 @@ namespace OpenXLSX
         std::unique_ptr<XLWorkbook> m_workbook; /**< A pointer to the workbook object */
 
         std::map<std::string, XLAbstractXMLFile *> m_xmlFiles; /**< A std::map with all the associated XML files*/
-        std::unique_ptr<XLArchive> m_archive; /**<A pointer to the zip archive.*/
-
+        //std::unique_ptr<XLArchive> m_archive; /**<A pointer to the zip archive.*/
+        std::unique_ptr<libzippp::ZipArchive> m_archive;
     };
 }
 
