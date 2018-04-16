@@ -12,8 +12,9 @@ using namespace OpenXLSX;
  */
 XLChartsheet::XLChartsheet(XLWorkbook &parent,
                            const std::string &name,
-                           const std::string &filePath)
-    : XLAbstractSheet(parent, name, filePath)
+                           const std::string &filePath,
+                           const std::string &xmlData)
+    : XLAbstractSheet(parent, name, filePath, xmlData)
 {
 
 }

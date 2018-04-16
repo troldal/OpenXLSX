@@ -18,8 +18,9 @@ using namespace OpenXLSX;
  */
 XLAbstractSheet::XLAbstractSheet(XLWorkbook &parent,
                                  const std::string &name,
-                                 const std::string &filepath)
-    : XLAbstractXMLFile(*parent.ParentDocument(), filepath),
+                                 const std::string &filepath,
+                                 const std::string &xmlData)
+    : XLAbstractXMLFile(*parent.ParentDocument(), filepath, xmlData),
       XLSpreadsheetElement(*parent.ParentDocument()),
       m_sheetName(name),
       m_sheetType(XLSheetType::WorkSheet),

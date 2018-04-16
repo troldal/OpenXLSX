@@ -115,7 +115,8 @@ namespace OpenXLSX
          */
         explicit XLAbstractSheet(XLWorkbook &parent,
                                  const std::string &name,
-                                 const std::string &filepath);
+                                 const std::string &filepath,
+                                 const std::string &xmlData = "");
 
         /**
          * @brief The copy constructor.

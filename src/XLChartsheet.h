@@ -76,7 +76,8 @@ namespace OpenXLSX
          */
         explicit XLChartsheet(XLWorkbook &parent,
                               const std::string &name,
-                              const std::string &filePath);
+                              const std::string &filePath,
+                              const std::string &xmlData = "");
 
         /**
          * @brief

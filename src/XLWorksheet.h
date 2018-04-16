@@ -103,7 +103,8 @@ namespace OpenXLSX
          */
         explicit XLWorksheet(XLWorkbook &parent,
                              const std::string &name,
-                             const std::string &filePath);
+                             const std::string &filePath,
+                             const std::string &xmlData = "");
 
         /**
          * @brief Copy Constructor.
