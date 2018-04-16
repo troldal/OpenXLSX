@@ -24,7 +24,6 @@ using namespace OpenXLSX;
  * TODO: Conditional formatting
  * TODO: Fix the ConstIterator (currently it's not const)
  * TODO: Import/Export of .csv files
- * TODO: revert to returning objects by pointer
  */
 
 void simpleTest();
@@ -65,6 +64,7 @@ void simpleTest() {
 
     doc.CreateDocument("Spreadsheet.xlsx");
     doc.Workbook()->AddWorksheet("MyWorksheet");
+    doc.SaveDocument();
     auto wks = doc.Workbook()->Worksheet("MyWorksheet");
 
     auto arange = wks->Range(XLCellReference(1,1), XLCellReference(10,10));

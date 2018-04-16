@@ -265,12 +265,13 @@ XLRelationshipItem *XLWorkbook::CreateWorksheetFile(const std::string &sheetName
                                                     const std::string &content)
 {
 
+    std::string worksheetPath = "xl/worksheets/sheet" + to_string(m_sheetId + 1) + ".xml";
+
     // Create file
-    ParentDocument()->AddXMLFile("xl/worksheets/sheet" + to_string(m_sheetId + 1) + ".xml", content);
+    ParentDocument()->AddXMLFile(worksheetPath, content);
 
     // Add content item to document
-    ParentDocument()->AddContentItem("/xl/worksheets/sheet" + to_string(m_sheetId + 1) + ".xml",
-                                    XLContentType::Worksheet);
+    ParentDocument()->AddContentItem(worksheetPath, XLContentType::Worksheet);
 
     // Add relationship item
     XLRelationshipItem &item = *m_relationships->AddRelationship(XLRelationshipType::Worksheet,

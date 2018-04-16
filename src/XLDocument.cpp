@@ -72,12 +72,6 @@ void XLDocument::OpenDocument(const string &fileName)
     m_archive = make_unique<ZipArchive>(m_filePath);
     m_archive->open(ZipArchive::WRITE);
 
-    cout << "Printing list of files in .xlsx package " << m_filePath << ":" << endl;
-    for (auto entry : m_archive->getEntries()) {
-        cout << entry.getName() << endl;
-    }
-    cout << "Done." << endl;
-
     // Open the Relationships file for the document level.
     m_documentRelationships = make_unique<XLRelationships>(*this, "_rels/.rels");
 
@@ -415,9 +409,11 @@ void XLDocument::AddXMLFile(const std::string &path,
 {
     cout << "Path: " << path << endl;
     cout << "Data: " << content.c_str() << endl;
-    cout << "Size: " << content.size() << endl;
+    cout << "Size: " << content.size() << endl << endl;
 
     m_archive->addData(path, content.data(), content.size());
+    m_archive->close(); //TODO: The XML data is invalidated before the zip file is saved, therefore this open/close is required
+    m_archive->open();
 }
 
 /**
