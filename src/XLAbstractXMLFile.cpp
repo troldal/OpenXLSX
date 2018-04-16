@@ -19,14 +19,16 @@ using namespace boost::filesystem;
  * @todo Consider if the file needs to be saved immediately if XML data is provided as a string.
  */
 XLAbstractXMLFile::XLAbstractXMLFile(XLDocument &parent,
-                                     const std::string &filePath)
+                                     const std::string &filePath,
+                                     const std::string &xmlData)
     :   m_parentDocument(parent),
         m_path(filePath),
         m_xmlDocument(make_unique<XMLDocument>()),
         m_childXmlDocuments(),
         m_isModified(false)
 {
-    SetXmlData(m_parentDocument.GetXMLFile(m_path));
+    if (xmlData.empty()) SetXmlData(m_parentDocument.GetXMLFile(m_path));
+    else SetXmlData(xmlData);
 }
 
 /**
@@ -51,7 +53,7 @@ std::string XLAbstractXMLFile::GetXmlData() const
  */
 void XLAbstractXMLFile::CommitXMLData()
 {
-    m_parentDocument.AddXMLFile(m_path, GetXmlData());
+    m_parentDocument.AddOrReplaceXMLFile(m_path, GetXmlData());
 }
 
 void XLAbstractXMLFile::DeleteXMLData()

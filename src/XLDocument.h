@@ -238,8 +238,8 @@ namespace OpenXLSX
          * @param path The relative path of the new file.
          * @param content The contents (XML data) of the new file.
          */
-        void AddXMLFile(const std::string &path,
-                        const std::string &content);
+        void AddOrReplaceXMLFile(const std::string &path,
+                                 const std::string &content);
 
         /**
          * @brief Get an XML file from the .xlsx archive.

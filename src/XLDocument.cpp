@@ -404,8 +404,8 @@ void XLDocument::LoadAllFiles()
 /**
  * @details Add a xml file to the package.
  */
-void XLDocument::AddXMLFile(const std::string &path,
-                            const std::string &content)
+void XLDocument::AddOrReplaceXMLFile(const std::string &path,
+                                     const std::string &content)
 {
     cout << "Path: " << path << endl;
     cout << "Data: " << content.c_str() << endl;

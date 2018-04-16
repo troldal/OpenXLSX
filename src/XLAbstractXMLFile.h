@@ -79,10 +79,11 @@ namespace OpenXLSX
          * and a data object as input.
          * @param root A string with the root path
          * @param filePath The path of the XML file, relative to the root.
-         * @param data An std::string object with the XML data to be represented by the object.
+         * @param xmlData An std::string object with the XML data to be represented by the object.
          */
         explicit XLAbstractXMLFile(XLDocument &parent,
-                                   const std::string &filePath);
+                                   const std::string &filePath,
+                                   const std::string &xmlData = "");
 
         /**
          * @brief Copy constructor. Default (shallow) implementation used.

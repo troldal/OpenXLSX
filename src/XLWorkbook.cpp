@@ -262,13 +262,13 @@ void XLWorkbook::CloneWorksheet(const std::string &extName,
  */
 XLRelationshipItem *XLWorkbook::CreateWorksheetFile(const std::string &sheetName,
                                                     unsigned int index,
-                                                    const std::string &content)
+                                                    const std::string &xmlData)
 {
 
     std::string worksheetPath = "xl/worksheets/sheet" + to_string(m_sheetId + 1) + ".xml";
 
     // Create file
-    ParentDocument()->AddXMLFile(worksheetPath, content);
+    ParentDocument()->AddOrReplaceXMLFile(worksheetPath, xmlData);
 
     // Add content item to document
     ParentDocument()->AddContentItem(worksheetPath, XLContentType::Worksheet);
