@@ -60,15 +60,34 @@ int main()
 
 void simpleTest() {
     XLDocument doc;
-
     doc.CreateDocument("Spreadsheet.xlsx");
-    doc.Workbook()->AddWorksheet("MyWorksheet");
-    doc.SaveDocument();
-    auto wks = doc.Workbook()->Worksheet("MyWorksheet");
 
-    auto arange = wks->Range(XLCellReference(1,1), XLCellReference(100,100));
-    for (auto &iter : arange) {
+    doc.Workbook()->AddWorksheet("Floats");
+    auto wks1 = doc.Workbook()->Worksheet("Floats");
+    auto arange1 = wks1->Range(XLCellReference(1,1), XLCellReference(100,100));
+    for (auto &iter : arange1) {
         iter.Value()->Set(3.14159);
+    }
+
+    doc.Workbook()->AddWorksheet("Integers");
+    auto wks2 = doc.Workbook()->Worksheet("Integers");
+    auto arange2 = wks2->Range(XLCellReference(1,1), XLCellReference(100,100));
+    for (auto &iter : arange2) {
+        iter.Value()->Set(42);
+    }
+
+    doc.Workbook()->AddWorksheet("Text");
+    auto wks3 = doc.Workbook()->Worksheet("Text");
+    auto arange3 = wks3->Range(XLCellReference(1,1), XLCellReference(100,100));
+    for (auto &iter : arange3) {
+        iter.Value()->Set("Hello OpenXLSX!");
+    }
+
+    doc.Workbook()->AddWorksheet("Booleans");
+    auto wks4 = doc.Workbook()->Worksheet("Booleans");
+    auto arange4 = wks4->Range(XLCellReference(1,1), XLCellReference(100,100));
+    for (auto &iter : arange4) {
+        iter.Value()->Set(XLBool::True);
     }
 
     doc.SaveDocument();
@@ -77,11 +96,12 @@ void simpleTest() {
     XLDocument rdoc;
     rdoc.OpenDocument("Spreadsheet.xlsx");
 
-    cout << "Content of cell B2: " << rdoc.Workbook()->Worksheet("MyWorksheet")->Cell("B2")->Value()->AsString();
+    cout << "Content of worksheet 'Floats', cell B2: " << rdoc.Workbook()->Worksheet("Floats")->Cell("B2")->Value()->AsString() << endl;
+    cout << "Content of worksheet 'Integers', cell B2: " << rdoc.Workbook()->Worksheet("Integers")->Cell("B2")->Value()->AsString() << endl;
+    cout << "Content of worksheet 'Text', cell B2: " << rdoc.Workbook()->Worksheet("Text")->Cell("B2")->Value()->AsString() << endl;
+    cout << "Content of worksheet 'Booleans', cell B2: " << rdoc.Workbook()->Worksheet("Booleans")->Cell("B2")->Value()->AsString() << endl;
 
     rdoc.CloseDocument();
-
-
 }
 
 void openLarge() {
