@@ -239,7 +239,7 @@ void XLWorkbook::AddWorksheet(const std::string &sheetName,
         "</worksheet>";
 
     auto item = CreateWorksheetFile(sheetName, index, content);
-    CreateWorksheet(*item);
+    CreateWorksheet(*item, content);
 
 }
 
@@ -265,10 +265,10 @@ XLRelationshipItem *XLWorkbook::CreateWorksheetFile(const std::string &sheetName
                                                     const std::string &xmlData)
 {
 
-    std::string worksheetPath = "xl/worksheets/sheet" + to_string(m_sheetId + 1) + ".xml";
+    std::string worksheetPath = "/xl/worksheets/sheet" + to_string(m_sheetId + 1) + ".xml";
 
     // Create file
-    ParentDocument()->AddOrReplaceXMLFile(worksheetPath, xmlData);
+    //ParentDocument()->AddOrReplaceXMLFile(worksheetPath, xmlData);
 
     // Add content item to document
     ParentDocument()->AddContentItem(worksheetPath, XLContentType::Worksheet);
@@ -491,7 +491,7 @@ void XLWorkbook::CreateStyles(const XLRelationshipItem &item)
 /**
  * @details
  */
-void XLWorkbook::CreateWorksheet(const XLRelationshipItem &item)
+void XLWorkbook::CreateWorksheet(const XLRelationshipItem &item, const std::string& xmlData)
 {
 
     string name;
@@ -504,11 +504,15 @@ void XLWorkbook::CreateWorksheet(const XLRelationshipItem &item)
         node = node->NextSibling();
     }
 
-    m_sheets[name] = nullptr; //make_unique<XLWorksheet>(*this, name, "xl/" + item.Target());
-    m_sheetPaths[name] = "xl/" + item.Target();
-
-    //m_childXmlDocuments["xl/" + item.Target()] = m_sheets.at(name).get();
-    m_childXmlDocuments["xl/" + item.Target()] = nullptr;
+    if (xmlData.empty()) {
+        m_sheets[name] = nullptr;
+        m_sheetPaths[name] = "/xl/" + item.Target();
+        m_childXmlDocuments["/xl/" + item.Target()] = nullptr;
+    } else {
+        m_sheets[name] = make_unique<XLWorksheet>(*this, name, "/xl/" + item.Target(), xmlData);
+        m_sheetPaths[name] = "/xl/" + item.Target();
+        m_childXmlDocuments["/xl/" + item.Target()] = m_sheets.at(name).get();
+    }
 
     m_sheetCount++;
     m_worksheetCount++;

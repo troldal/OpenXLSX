@@ -27,7 +27,8 @@ XLDocument::XLDocument()
       m_docCoreProperties(nullptr),
       m_workbook(nullptr),
       m_xmlFiles(),
-      m_archive(nullptr)
+      m_archive(nullptr),
+      m_xmlData()
 {
 }
 
@@ -43,7 +44,8 @@ XLDocument::XLDocument(const std::string &docPath)
       m_docCoreProperties(nullptr),
       m_workbook(nullptr),
       m_xmlFiles(),
-      m_archive(nullptr)
+      m_archive(nullptr),
+      m_xmlData()
 {
     OpenDocument(docPath);
 }
@@ -129,6 +131,7 @@ bool XLDocument::SaveDocumentAs(const string &fileName)
         m_archive->open(ZipArchive::WRITE);
     }
 
+
     // Commit all XML files, i.e. save to the zip file.
     m_documentRelationships->CommitXMLData();
     m_contentTypes->CommitXMLData();
@@ -136,9 +139,11 @@ bool XLDocument::SaveDocumentAs(const string &fileName)
         file.second->CommitXMLData();
     }
 
+
     // Close and re-open the zip file, in order to save changes.
     m_archive->close();
     m_archive->open(ZipArchive::WRITE);
+    m_xmlData.clear();
 
     return true;
 }
@@ -410,9 +415,8 @@ void XLDocument::AddOrReplaceXMLFile(const std::string &path,
     cout << "Data: " << content.c_str() << endl;
     cout << "Size: " << content.size() << endl << endl;
 
-    m_archive->addData(path, content.data(), content.size());
-    m_archive->close(); //TODO: The XML data is invalidated before the zip file is saved, therefore this open/close is required
-    m_archive->open();
+    m_xmlData.push_back(content);
+    m_archive->addData(path, m_xmlData.back().data(), m_xmlData.back().size());
 }
 
 /**

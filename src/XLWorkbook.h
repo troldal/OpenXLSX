@@ -346,7 +346,7 @@ namespace OpenXLSX
          * @brief
          * @param item
          */
-        void CreateWorksheet(const XLRelationshipItem &item);
+        void CreateWorksheet(const XLRelationshipItem &item, const std::string&xmlData = "");
 
         /**
          * @brief
