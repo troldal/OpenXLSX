@@ -12,7 +12,6 @@ using namespace OpenXLSX;
 /*
  * TODO: Sheet iterator
  * TODO: Asyncronous loading/saving of files
- * TODO: streaming directly to/from .zip file
  * TODO: Handling of named ranges
  * TODO: Column/Row iterators
  * TODO: correct copy/move operations for all classes
@@ -85,22 +84,22 @@ void simpleTest() {
 
 }
 
-void openLarge() {/*
+void openLarge() {
     OpenXLSX::XLDocument doc;
-    doc.OpenDocument("../Large.xlsx");
+    doc.OpenDocument("Large.xlsx");
     auto wks = doc.Workbook()->Worksheet("Sheet1");
 
     auto rows = wks->RowCount();
 
     for (int i = 1; i <= 1000; ++i) {
         cout << setw(8) << i << ": ";
-        cout << setw(10) << wks->Cell(i, 1).Value().AsString() << " ";
-        cout << setw(38) << wks->Cell(i, 2).Value().AsString() << " ";
-        cout << setw(38) << wks->Cell(i, 3).Value().AsString() << " ";
-        cout << setw(38) << wks->Cell(i, 4).Value().AsString() << " ";
-        cout << setw(38) << wks->Cell(i, 5).Value().AsString() << endl;
+        cout << setw(10) << wks->Cell(i, 1)->Value()->AsString() << " ";
+        cout << setw(38) << wks->Cell(i, 2)->Value()->AsString() << " ";
+        cout << setw(38) << wks->Cell(i, 3)->Value()->AsString() << " ";
+        cout << setw(38) << wks->Cell(i, 4)->Value()->AsString() << " ";
+        cout << setw(38) << wks->Cell(i, 5)->Value()->AsString() << endl;
 
-    }*/
+    }
 }
 
 void speedTest() {

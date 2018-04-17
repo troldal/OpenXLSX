@@ -165,10 +165,3 @@ void XLAbstractSheet::SetIndex()
 
 }
 
-/**
- * @details
- */
-const std::string &XLAbstractSheet::SheetName()
-{
-    return m_sheetName;
-}

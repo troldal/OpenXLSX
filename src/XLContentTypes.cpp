@@ -108,7 +108,7 @@ XLContentTypes::XLContentTypes(XLDocument &parent,
       m_defaults(),
       m_overrides()
 {
-    LoadXMLData();
+    ParseXMLData();
 }
 
 /**

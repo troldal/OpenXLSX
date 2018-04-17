@@ -11,10 +11,9 @@ using namespace OpenXLSX;
 
 /**
  * @details The constructor creates a new object with the parent XLDocument and the file path as input, with
- * an optional input being a std::string with the XML data. I
- * @warning If the XML data is provided by a string, the file path will be the path of the new file,
- * once created; any existing files will be overwritten.
- * @todo Consider if the file needs to be saved immediately if XML data is provided as a string.
+ * an optional input being a std::string with the XML data. If the XML data is provided by a string, any file with
+ * the same path in the .zip file will be overwritten upon saving of the document. If no xmlData is provided,
+ * the data will be read from the .zip file, using the given path.
  */
 XLAbstractXMLFile::XLAbstractXMLFile(XLDocument &parent,
                                      const std::string &filePath,
@@ -31,7 +30,6 @@ XLAbstractXMLFile::XLAbstractXMLFile(XLDocument &parent,
 
 /**
  * @details This method sets the XML data with a std::string as input. The underlying XMLDocument reads the data.
- * @todo Consider if the file needs to be saved immediately. Also, call parseXMLData.
  */
 void XLAbstractXMLFile::SetXmlData(const std::string &xmlData)
 {
@@ -47,7 +45,8 @@ std::string XLAbstractXMLFile::GetXmlData() const
 }
 
 /**
- * @details
+ * @details The CommitXMLData method calls the AddOrReplaceXMLFile method for the current object and all child objects.
+ * This, in turn, will add or replace the XML data files in the zipped .xlsx package.
  */
 void XLAbstractXMLFile::CommitXMLData()
 {
@@ -57,54 +56,25 @@ void XLAbstractXMLFile::CommitXMLData()
     }
 }
 
+/**
+ * @details The DeleteXMLData method calls the DeleteXMLFile method for the current object and all child objects.
+ * This, in turn, delete the XML data files in the zipped .xlsx package.
+ */
 void XLAbstractXMLFile::DeleteXMLData()
 {
     m_parentDocument.DeleteXMLFile(m_path);
+    for (auto file : m_childXmlDocuments) {
+        if(file.second) file.second->DeleteXMLData();
+    }
 }
 
 /**
- * @details This method loads the XML data from the file and fills the object data structure by a call to the
- * parseXMLData method. If the file does not exist, false is returned; otherwise, true.
- */
-bool XLAbstractXMLFile::LoadXMLData()
-{
-    return ParseXMLData();
-}
-
-/**
- * @details This method saves the XML data to file, but only if the XMLDocument object exists (which may not be the
- * case if it has been explicitly deleted by the user) and is in a modified state.
- * After the file has been saved, all child XML files are saved to disk as well.
- */ /*
-void XLAbstractXMLFile::SaveXMLData() const
-{
-    path thePath = m_root;
-    thePath /= m_filePath;
-
-    if (m_isModified && m_xmlDocument)
-        (*m_xmlDocument).SaveFile(thePath.string());
-
-    m_isModified = false;
-
-    for (auto file : m_childXmlDocuments)
-        if (file.second) file.second->SaveXMLData();
-} */
-
-/**
- * @details This method returns the path of the XML file as a std::string.
+ * @details This method returns the path in the .zip file of the XML file as a std::string.
  */
 const string &XLAbstractXMLFile::FilePath() const
 {
     return m_path;
 }
-
-/**
- * @details This method sets the file path given as a std::string, by modifying the m_filePath property.
- */ /*
-void XLAbstractXMLFile::SetFilePath(const string &filePath)
-{
-    m_filePath = filePath;
-} */
 
 /**
  * @details This method is mainly meant for debugging, by enabling printing of the xml file to cout.
@@ -123,35 +93,12 @@ XMLDocument * XLAbstractXMLFile::XmlDocument()
 }
 
 /**
- * @details
+ * @details This method returns a pointer to the underlying XMLDocument resource as const.
  */
 const XMLDocument *XLAbstractXMLFile::XmlDocument() const
 {
     return m_xmlDocument.get();
 }
-
-/**
- * @details This method "deletes" the object in the following manner:
- * - Delete the underlying XMLDocument resource.
- * - Delete the XML file with the raw data.
- * The XLAbstractXMLFile object itself is not deleted.
- * @todo Consider if there is a more elegant way to do this.
- */ /*
-bool XLAbstractXMLFile::DeleteFile()
-{
-    m_xmlDocument.reset(nullptr);
-    path p(m_filePath);
-    remove(p);
-    return true;
-} */
-
-/**
- * @details This method returns a pointer to the parent XLDocument object.
- */ /*
-XLDocument &XLAbstractXMLFile::ParentDocument() const
-{
-    return m_parentDocument;
-} */
 
 /**
  * @details Set the XLWorksheet object to 'modified'. This is done by setting the m_is Modified member to true.
@@ -162,7 +109,7 @@ void XLAbstractXMLFile::SetModified()
 }
 
 /**
- * @details
+ * @details Returns the value of the m_isModified member variable.
  */
 bool XLAbstractXMLFile::IsModified()
 {

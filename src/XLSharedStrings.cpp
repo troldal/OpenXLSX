@@ -19,7 +19,7 @@ XLSharedStrings::XLSharedStrings(XLDocument &parent,
       m_sharedStrings(),
       m_emptyString("")
 {
-    LoadXMLData();
+    ParseXMLData();
 }
 
 /**

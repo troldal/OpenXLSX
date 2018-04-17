@@ -17,7 +17,7 @@ XLCoreProperties::XLCoreProperties(XLDocument &parent,
       XLSpreadsheetElement(parent),
       m_properties()
 {
-    LoadXMLData();
+    ParseXMLData();
 }
 
 /**

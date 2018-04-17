@@ -33,7 +33,7 @@ XLStyles::XLStyles(XLDocument &parent,
     : XLAbstractXMLFile(parent, filePath),
       XLSpreadsheetElement(parent)
 {
-    LoadXMLData();
+    ParseXMLData();
 }
 
 /**

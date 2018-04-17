@@ -76,7 +76,7 @@ XLRelationships::XLRelationships(XLDocument &parent,
       m_relationships(),
       m_relationshipCount(0)
 {
-    LoadXMLData(); // This will call the ParseXMLData method.
+    ParseXMLData(); // This will call the ParseXMLData method.
 }
 
 /**

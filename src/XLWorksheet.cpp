@@ -40,7 +40,7 @@ XLWorksheet::XLWorksheet(XLWorkbook &parent,
 {
 
     // Call the 'LoadXMLData' method in the XLAbstractXMLFile base class
-    LoadXMLData();
+    ParseXMLData();
 }
 
 /**
@@ -124,7 +124,7 @@ bool XLWorksheet::ParseXMLData()
  */
 XLWorksheet *XLWorksheet::Clone(const std::string &newName)
 {
-    ParentWorkbook()->CloneWorksheet(SheetName(), newName);
+    ParentWorkbook()->CloneWorksheet(Name(), newName);
     return ParentWorkbook()->Worksheet(newName);
 }
 

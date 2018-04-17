@@ -124,7 +124,7 @@ namespace OpenXLSX
          * @note The default copy constructor is used, i.e. only shallow copying of pointer data members.
          * @todo Can this method be deleted?
          */
-        XLAbstractSheet(const XLAbstractSheet &other) = default;
+        XLAbstractSheet(const XLAbstractSheet &other) = delete;
 
         /**
          * @brief The destructor
@@ -138,7 +138,7 @@ namespace OpenXLSX
          * @note The default assignment operator is used, i.e. only shallow copying of pointer data members.
          * @todo Can this method be deleted?
          */
-        XLAbstractSheet &operator=(const XLAbstractSheet &) = default;
+        XLAbstractSheet &operator=(const XLAbstractSheet &) = delete;
 
         /**
          * @brief Method to retrieve the name of the sheet.
@@ -201,12 +201,6 @@ namespace OpenXLSX
          */
         virtual void Delete();
 
-        /**
-         * @brief
-         * @return
-         */
-        virtual const std::string &SheetName();
-
 
 //----------------------------------------------------------------------------------------------------------------------
 //           Private Member Variables
@@ -221,7 +215,6 @@ namespace OpenXLSX
         XMLNode *m_nodeInApp; /**< A pointer to the relevant TitleOfParts node in app.xml */
         XLContentItem *m_nodeInContentTypes; /**< A pointer to the relevant content type item in [Content_Types].xml */
         XLRelationshipItem *m_nodeInWorkbookRels; /**< A pointer to the relationship item in workbook.xml.rels */
-
     };
 }
 

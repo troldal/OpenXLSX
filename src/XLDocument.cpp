@@ -20,7 +20,6 @@ using namespace OpenXLSX;
  */
 XLDocument::XLDocument()
     : m_filePath(""),
-      //m_tempPath(""),
       m_documentRelationships(nullptr),
       m_contentTypes(nullptr),
       m_docAppProperties(nullptr),
@@ -37,7 +36,6 @@ XLDocument::XLDocument()
  */
 XLDocument::XLDocument(const std::string &docPath)
     : m_filePath(""),
-      //m_tempPath(""),
       m_documentRelationships(nullptr),
       m_contentTypes(nullptr),
       m_docAppProperties(nullptr),
@@ -122,8 +120,8 @@ bool XLDocument::SaveDocumentAs(const string &fileName)
     // close the current zip file and open the new one.
     if (fileName != m_filePath) {
         m_archive->discard();
-        std::ifstream  src(m_filePath, std::ios::binary);
-        std::ofstream  dst(fileName, std::ios::binary);
+        std::ifstream src(m_filePath, std::ios::binary);
+        std::ofstream dst(fileName, std::ios::binary);
         dst << src.rdbuf();
 
         m_filePath = fileName;
@@ -131,14 +129,12 @@ bool XLDocument::SaveDocumentAs(const string &fileName)
         m_archive->open(ZipArchive::WRITE);
     }
 
-
     // Commit all XML files, i.e. save to the zip file.
     m_documentRelationships->CommitXMLData();
     m_contentTypes->CommitXMLData();
     for (auto file : m_xmlFiles) {
         file.second->CommitXMLData();
     }
-
 
     // Close and re-open the zip file, in order to save changes.
     m_archive->close();

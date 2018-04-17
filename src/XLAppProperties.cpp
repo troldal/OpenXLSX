@@ -26,7 +26,7 @@ XLAppProperties::XLAppProperties(XLDocument &parent,
       m_worksheetCount(0),
       m_chartsheetCount(0)
 {
-    LoadXMLData();
+    ParseXMLData();
     SetModified();
 }
 

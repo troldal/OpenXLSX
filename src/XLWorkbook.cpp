@@ -33,7 +33,7 @@ XLWorkbook::XLWorkbook(XLDocument &parent,
       m_styles(nullptr)
 {
     SetModified();
-    LoadXMLData(); // This calls the ParseXMLData method!
+    ParseXMLData();
 }
 
 /**
