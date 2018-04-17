@@ -24,7 +24,6 @@ Because there are no open source library that fully fitted my needs, I decided t
 ## Ambition
 The ambition is that OpenXLSX should be able to read, write, create and modify Excel files (data as well as formatting), and do so with as few dependencies as possible. Currently, OpenXLSX depends on the following 3rd party libraries:
 
- - Boost
  - RapidXML (included)
  - LibZip (and, in turn, zlib)
  - LibZip++ (included)
