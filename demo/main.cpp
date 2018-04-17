@@ -1,17 +1,13 @@
 #include <iostream>
 #include <chrono>
 #include <iomanip>
-
-//#include <OpenXLSX/OpenXLSX.h>
 #include "../src/OpenXLSX.h"
-
 
 using namespace std;
 using namespace OpenXLSX;
 
 /*
  * TODO: Sheet iterator
- * TODO: Asyncronous loading/saving of files
  * TODO: Handling of named ranges
  * TODO: Column/Row iterators
  * TODO: correct copy/move operations for all classes
@@ -36,9 +32,9 @@ void printRange();
 
 int main()
 {
-    simpleTest();
+    //simpleTest();
     //openLarge();
-    //speedTest();
+    speedTest();
     //writeTest();
     //cloneTest();
     //copyRangeTest();

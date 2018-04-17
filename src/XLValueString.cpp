@@ -181,6 +181,8 @@ std::string XLValueString::TypeString() const
         case XLStringType::InlineString:
             return "inlineStr";
     }
+
+    return ""; // To silence compiler warning
 }
 
 /**

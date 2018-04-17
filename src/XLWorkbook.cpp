@@ -56,13 +56,11 @@ bool XLWorkbook::ParseXMLData()
     auto sheetNode = m_sheetsNode->ChildNode();
     while (sheetNode) {
         m_sheetNodes[sheetNode->Attribute("name")->Value()] = sheetNode;
-
         sheetNode = sheetNode->NextSibling();
     }
 
     for (auto const &item : *m_relationships->Relationships()) {
         string path = item.second->Target();
-
 
         switch (item.second->Type()) {
 
@@ -100,9 +98,6 @@ bool XLWorkbook::ParseXMLData()
  */
 XLWorksheet * XLWorkbook::Worksheet(const std::string &sheetName)
 {
-    // Calling the const function from the non-const overload.
-    //return const_cast<XLWorksheet &>(static_cast<const XLWorkbook *>(this)->Worksheet(sheetName));
-
     if (m_sheets.find(sheetName) == m_sheets.end()) throw std::range_error("Sheet does not exist");
 
     if (m_sheets.at(sheetName) == nullptr) {
@@ -122,11 +117,7 @@ XLWorksheet * XLWorkbook::Worksheet(const std::string &sheetName)
  */
 const XLWorksheet * XLWorkbook::Worksheet(const std::string &sheetName) const
 {
-
     if (m_sheets.find(sheetName) == m_sheets.end()) throw std::range_error("Sheet does not exist");
-
-    // if (m_sheets.at(sheetName) == nullptr)
-    //     m_sheets.at(sheetName) = make_unique<XLWorksheet>(*this, sheetName, m_sheetPaths.at(sheetName));
 
     XLAbstractSheet *sheet = m_sheets.at(sheetName).get();
     if (sheet->Type() == XLSheetType::WorkSheet)
@@ -251,7 +242,6 @@ void XLWorkbook::CloneWorksheet(const std::string &extName,
                                 const std::string &newName,
                                 unsigned int index)
 {
-
     string content = Worksheet(extName)->GetXmlData();
     auto item = CreateWorksheetFile(newName, index, content);
     CreateWorksheet(*item);
@@ -264,7 +254,6 @@ XLRelationshipItem *XLWorkbook::CreateWorksheetFile(const std::string &sheetName
                                                     unsigned int index,
                                                     const std::string &xmlData)
 {
-
     std::string worksheetPath = "/xl/worksheets/sheet" + to_string(m_sheetId + 1) + ".xml";
 
     // Create file
