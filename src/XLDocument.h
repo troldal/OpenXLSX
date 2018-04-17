@@ -51,7 +51,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <vector>
 #include <iostream>
 #include <fstream>
-#include <boost/filesystem.hpp>
 #include "XLContentTypes.h"
 #include "XLAppProperties.h"
 #include "XLCoreProperties.h"
@@ -68,8 +67,6 @@ namespace OpenXLSX
     class XLSharedStrings;
     class XLWorkbook;
     class XLWorksheet;
-
-    using XLPath = boost::filesystem::path;
 
 //======================================================================================================================
 //========== XLDocumentProperties Enum =================================================================================
@@ -313,7 +310,6 @@ namespace OpenXLSX
     private:
 
         std::string m_filePath; /**< The path to the original file*/
-        //XLPath m_tempPath; /**< The path to the temporary folder with the package contents*/
 
         std::unique_ptr<XLRelationships> m_documentRelationships; /**< A pointer to the document relationships object*/
         std::unique_ptr<XLContentTypes> m_contentTypes; /**< A pointer to the content types object*/
@@ -322,7 +318,6 @@ namespace OpenXLSX
         std::unique_ptr<XLWorkbook> m_workbook; /**< A pointer to the workbook object */
 
         std::map<std::string, XLAbstractXMLFile *> m_xmlFiles; /**< A std::map with all the associated XML files*/
-        //std::unique_ptr<XLArchive> m_archive; /**<A pointer to the zip archive.*/
         std::unique_ptr<libzippp::ZipArchive> m_archive;
     };
 }

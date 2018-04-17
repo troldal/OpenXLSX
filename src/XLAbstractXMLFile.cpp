@@ -2,14 +2,12 @@
 // Created by Troldal on 05/08/16.
 //
 
-#include <boost/filesystem.hpp>
 #include "XLDocument.h"
 #include "XLWorkbook.h"
 #include "XLWorksheet.h"
 
 using namespace std;
 using namespace OpenXLSX;
-using namespace boost::filesystem;
 
 /**
  * @details The constructor creates a new object with the parent XLDocument and the file path as input, with

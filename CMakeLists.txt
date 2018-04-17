@@ -13,8 +13,6 @@ ENDIF(CMAKE_BUILD_TYPE STREQUAL "Debug")
 #SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -pg")
 
 find_package(libzip REQUIRED)
-find_package(Boost COMPONENTS system filesystem REQUIRED)
-set(Boost_USE_STATIC_LIBS ON)
 
 add_subdirectory(src)
 add_subdirectory(demo)

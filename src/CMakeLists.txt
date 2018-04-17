@@ -44,7 +44,8 @@ set(SOURCE_FILES
 
 add_library(OpenXLSX ${SOURCE_FILES})
 target_include_directories(OpenXLSX PUBLIC "${LIBZIP_INCLUDE_DIR}")
-target_link_libraries(OpenXLSX PUBLIC ${LIBZIP_LIBRARY} ${Boost_LIBRARIES})
+target_link_libraries(OpenXLSX PUBLIC ${LIBZIP_LIBRARY})
+#${Boost_LIBRARIES})
 
 install (TARGETS OpenXLSX DESTINATION lib)
 install (FILES
