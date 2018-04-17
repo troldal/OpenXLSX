@@ -164,7 +164,7 @@ const XLCell *XLWorksheet::Cell(const std::string &address) const
  * also serves as the main function, called by the other overloads.
  */
 XLCell *XLWorksheet::Cell(unsigned long rowNumber,
-                           unsigned int columnNumber)
+                          unsigned int columnNumber)
 {
     // If the requested Cell is outside the current Sheet Range, reset the m_lastCell Property accordingly.
     if (columnNumber > ColumnCount() || rowNumber > RowCount()) {

@@ -36,8 +36,8 @@ void printRange();
 
 int main()
 {
-    //simpleTest();
-    openLarge();
+    simpleTest();
+    //openLarge();
     //speedTest();
     //writeTest();
     //cloneTest();
@@ -66,9 +66,9 @@ void simpleTest() {
     doc.SaveDocument();
     auto wks = doc.Workbook()->Worksheet("MyWorksheet");
 
-    auto arange = wks->Range(XLCellReference(1,1), XLCellReference(10,10));
+    auto arange = wks->Range(XLCellReference(1,1), XLCellReference(100,100));
     for (auto &iter : arange) {
-        iter.Value()->Set("Hello OpenXLSX!");
+        iter.Value()->Set(3.14159);
     }
 
     doc.SaveDocument();

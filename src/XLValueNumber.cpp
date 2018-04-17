@@ -20,8 +20,10 @@ XLValueNumber::XLValueNumber(XLCellValue &parent)
       m_integer(0LL),
       m_float(0.0)
 {
-    ParentCellValue()->SetValueNode("0");
-    ParentCellValue()->SetTypeAttribute(TypeString());
+    if (!ParentCellValue()->ValueNode()) {
+        ParentCellValue()->SetValueNode("0");
+        ParentCellValue()->SetTypeAttribute(TypeString());
+    }
 
     m_numberType = DetermineNumberType(ParentCellValue()->ValueNode()->Value());
 
