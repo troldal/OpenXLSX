@@ -52,6 +52,9 @@ std::string XLAbstractXMLFile::GetXmlData() const
 void XLAbstractXMLFile::CommitXMLData()
 {
     m_parentDocument.AddOrReplaceXMLFile(m_path, GetXmlData());
+    for (auto file : m_childXmlDocuments) {
+        if(file.second) file.second->CommitXMLData();
+    }
 }
 
 void XLAbstractXMLFile::DeleteXMLData()

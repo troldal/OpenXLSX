@@ -110,7 +110,7 @@ void speedTest() {
     for (int i = 1; i <= numIter; i++) {
 
         OpenXLSX::XLDocument doc;
-        doc.CreateDocument("../SpeedTest.xlsx");
+        doc.CreateDocument("SpeedTest.xlsx");
 
         auto wks = doc.Workbook()->Worksheet("Sheet1");
         wks->Cell(1000, 1000)->Value()->Set(1);

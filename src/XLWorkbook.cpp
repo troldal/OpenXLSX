@@ -506,12 +506,12 @@ void XLWorkbook::CreateWorksheet(const XLRelationshipItem &item, const std::stri
 
     if (xmlData.empty()) {
         m_sheets[name] = nullptr;
-        m_sheetPaths[name] = "/xl/" + item.Target();
-        m_childXmlDocuments["/xl/" + item.Target()] = nullptr;
+        m_sheetPaths[name] = "xl/" + item.Target();
+        m_childXmlDocuments["xl/" + item.Target()] = nullptr;
     } else {
-        m_sheets[name] = make_unique<XLWorksheet>(*this, name, "/xl/" + item.Target(), xmlData);
-        m_sheetPaths[name] = "/xl/" + item.Target();
-        m_childXmlDocuments["/xl/" + item.Target()] = m_sheets.at(name).get();
+        m_sheets[name] = make_unique<XLWorksheet>(*this, name, "xl/" + item.Target(), xmlData);
+        m_sheetPaths[name] = "xl/" + item.Target();
+        m_childXmlDocuments["xl/" + item.Target()] = m_sheets.at(name).get();
     }
 
     m_sheetCount++;

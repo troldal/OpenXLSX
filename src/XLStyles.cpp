@@ -41,7 +41,7 @@ XLStyles::XLStyles(XLDocument &parent,
  */
 XLStyles::~XLStyles()
 {
-    CommitXMLData();
+    //CommitXMLData();
 }
 
 /**
