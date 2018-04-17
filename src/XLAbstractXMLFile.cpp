@@ -3,8 +3,6 @@
 //
 
 #include "XLDocument.h"
-#include "XLWorkbook.h"
-#include "XLWorksheet.h"
 
 using namespace std;
 using namespace OpenXLSX;

@@ -10,15 +10,15 @@
 
 using namespace OpenXLSX;
 using namespace std;
-using namespace boost;
 
 /**
  * @details
  */
 XLValueNumber::XLValueNumber(XLCellValue &parent)
     : XLValue(parent),
-      m_number(0LL),
-      m_numberType(XLNumberType::Integer)
+      m_numberType(XLNumberType::Integer),
+      m_integer(0LL),
+      m_float(0.0)
 {
     ParentCellValue()->SetValueNode("0");
     ParentCellValue()->SetTypeAttribute(TypeString());
@@ -27,11 +27,11 @@ XLValueNumber::XLValueNumber(XLCellValue &parent)
 
     switch (m_numberType) {
         case XLNumberType::Integer:
-            m_number = stoll(ParentCellValue()->ValueNode()->Value());
+            m_integer = stoll(ParentCellValue()->ValueNode()->Value());
             break;
 
         case XLNumberType::Float:
-            m_number = stold(ParentCellValue()->ValueNode()->Value());
+            m_float = stold(ParentCellValue()->ValueNode()->Value());
             break;
     }
 }
@@ -41,8 +41,9 @@ XLValueNumber::XLValueNumber(XLCellValue &parent)
  */
 XLValueNumber::XLValueNumber(long long int numberValue, XLCellValue &parent)
     : XLValue(parent),
-      m_number(numberValue),
-      m_numberType(XLNumberType::Integer)
+      m_numberType(XLNumberType::Integer),
+      m_integer(0LL),
+      m_float(0.0)
 {
     Set(numberValue);
 }
@@ -52,8 +53,9 @@ XLValueNumber::XLValueNumber(long long int numberValue, XLCellValue &parent)
  */
 XLValueNumber::XLValueNumber(long double numberValue, XLCellValue &parent)
     : XLValue(parent),
-      m_number(numberValue),
-      m_numberType(XLNumberType::Float)
+      m_numberType(XLNumberType::Float),
+      m_integer(0LL),
+      m_float(0.0)
 {
     Set(numberValue);
 }
@@ -63,8 +65,9 @@ XLValueNumber::XLValueNumber(long double numberValue, XLCellValue &parent)
  */
 XLValueNumber &XLValueNumber::operator=(const XLValueNumber &other)
 {
-    m_number = other.m_number;
     m_numberType = other.m_numberType;
+    m_integer = other.m_integer;
+    m_float = other.m_float;
     ParentCellValue()->SetValueNode(AsString());
     ParentCellValue()->ParentCell()->SetTypeAttribute(TypeString());
     ParentCellValue()->ParentCell()->SetModified();
@@ -76,8 +79,9 @@ XLValueNumber &XLValueNumber::operator=(const XLValueNumber &other)
  */
 XLValueNumber &XLValueNumber::operator=(XLValueNumber &&other) noexcept
 {
-    m_number = std::move(other.m_number);
     m_numberType = other.m_numberType;
+    m_integer = other.m_integer;
+    m_float = other.m_float;
     ParentCellValue()->ValueNode()->SetValue(AsString());
     ParentCellValue()->ParentCell()->SetTypeAttribute(TypeString());
     ParentCellValue()->ParentCell()->SetModified();
@@ -107,8 +111,9 @@ XLValueNumber &XLValueNumber::operator=(long double numberValue)
  */
 void XLValueNumber::Set(long long int numberValue)
 {
-    m_number = numberValue;
     m_numberType = XLNumberType::Integer;
+    m_integer = numberValue;
+    m_float = 0.0;
     ParentCellValue()->SetValueNode(AsString());
     ParentCellValue()->SetTypeAttribute(TypeString());
     ParentCellValue()->ParentCell()->SetModified();
@@ -120,8 +125,9 @@ void XLValueNumber::Set(long long int numberValue)
  */
 void XLValueNumber::Set(long double numberValue)
 {
-    m_number = numberValue;
     m_numberType = XLNumberType::Float;
+    m_integer = 0;
+    m_float = numberValue;
     ParentCellValue()->SetValueNode(AsString());
     ParentCellValue()->SetTypeAttribute(TypeString());
     ParentCellValue()->ParentCell()->SetModified();
@@ -133,7 +139,7 @@ void XLValueNumber::Set(long double numberValue)
 long long int XLValueNumber::Integer() const
 {
     if (m_numberType != XLNumberType::Integer) throw XLException("Cell value is not Integer");
-    return get<long long int>(m_number);
+    return m_integer;
 }
 
 /**
@@ -142,7 +148,7 @@ long long int XLValueNumber::Integer() const
 long double XLValueNumber::Float() const
 {
     if (m_numberType != XLNumberType::Float) throw XLException("Cell value is not Float");
-    return get<long double>(m_number);
+    return m_float;
 }
 
 /**
@@ -152,10 +158,10 @@ long long int XLValueNumber::AsInteger() const
 {
     switch (m_numberType) {
         case XLNumberType::Float:
-            return static_cast<long long int>(get<long double>(m_number));
+            return static_cast<long long int>(m_float);
 
         case XLNumberType::Integer:
-            return get<long long int>(m_number);
+            return m_integer;
     }
 
     return 0; // Non-reachable code; included only to silence compiler warning.
@@ -168,10 +174,10 @@ long double XLValueNumber::AsFloat() const
 {
     switch (m_numberType) {
         case XLNumberType::Float:
-            return get<long double>(m_number);
+            return m_float;
 
         case XLNumberType::Integer:
-            return static_cast<long double>(get<long long int>(m_number));
+            return static_cast<long double>(m_integer);
     }
 
     return 0.0; // Non-reachable code; included only to silence compiler warning.
@@ -226,10 +232,10 @@ string XLValueNumber::AsString() const
 {
     switch (NumberType()) {
         case XLNumberType::Integer:
-            return to_string(get<long long int>(m_number));
+            return to_string(m_integer);
 
         case XLNumberType::Float:
-            return to_string(get<long double>(m_number));
+            return to_string(m_float);
     }
 
     return ""; // Non-reachable code; included only to silence compiler warning.

@@ -7,8 +7,6 @@
 #include "XLDocument.h"
 #include "XLWorksheet.h"
 #include "XLTemplate.h"
-#include <fstream>
-#include <iostream>
 
 
 using namespace std;
@@ -77,7 +75,23 @@ void XLDocument::OpenDocument(const string &fileName)
     // Open the content types XML file for the document
     m_contentTypes = make_unique<XLContentTypes>(*this, "[Content_Types].xml");
 
-    LoadAllFiles();
+    auto corePropertiesItem = m_documentRelationships->RelationshipByTarget("docProps/core.xml");
+    if(corePropertiesItem) {
+        m_docCoreProperties = make_unique<XLCoreProperties>(*this, corePropertiesItem->Target());
+        m_xmlFiles[m_docCoreProperties->FilePath()] = m_docCoreProperties.get();
+    }
+
+    auto appPropertiesItem = m_documentRelationships->RelationshipByTarget("docProps/app.xml");
+    if(appPropertiesItem) {
+        m_docAppProperties = make_unique<XLAppProperties>(*this, appPropertiesItem->Target());
+        m_xmlFiles[m_docAppProperties->FilePath()] = m_docAppProperties.get();
+    }
+
+    auto workbookItem = m_documentRelationships->RelationshipByTarget("xl/workbook.xml");
+    if(workbookItem) {
+        m_workbook = make_unique<XLWorkbook>(*this, workbookItem->Target());
+        m_xmlFiles[m_workbook->FilePath()] = m_workbook.get();
+    }
 }
 
 /**
@@ -370,35 +384,6 @@ XLContentItem *XLDocument::AddContentItem(const std::string &contentPath,
 
     m_contentTypes->addOverride(contentPath, contentType);
     return m_contentTypes->ContentItem(contentPath);
-}
-
-/**
- * @details Loads all the XML files in the package. For the workbook.xml file, child files will be loaded
- * automatically.
- */
-void XLDocument::LoadAllFiles()
-{
-    // Iterate through the document relationship items.
-    for (const auto &iter : *m_documentRelationships->Relationships()) {
-        if (iter.second->Type() == XLRelationshipType::CoreProperties) {
-            m_docCoreProperties = make_unique<XLCoreProperties>(*this, iter.second->Target());
-            m_xmlFiles[m_docCoreProperties->FilePath()] = m_docCoreProperties.get();
-        }
-    }
-
-    for (const auto &iter : *m_documentRelationships->Relationships()) {
-        if (iter.second->Type() == XLRelationshipType::ExtendedProperties) {
-            m_docAppProperties = make_unique<XLAppProperties>(*this, iter.second->Target());
-            m_xmlFiles[m_docAppProperties->FilePath()] = m_docAppProperties.get();
-        }
-    }
-
-    for (const auto &iter : *m_documentRelationships->Relationships()) {
-        if (iter.second->Type() == XLRelationshipType::Workbook) {
-            m_workbook = make_unique<XLWorkbook>(*this, iter.second->Target());
-            m_xmlFiles[m_workbook->FilePath()] = m_workbook.get();
-        }
-    }
 }
 
 /**

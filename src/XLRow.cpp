@@ -3,7 +3,6 @@
 //
 
 #include "XLRow.h"
-#include <boost/algorithm/string.hpp>
 #include "XLWorksheet.h"
 #include "XLCell.h"
 #include "XLCellValue.h"
@@ -11,7 +10,6 @@
 
 using namespace std;
 using namespace OpenXLSX;
-using namespace boost::algorithm;
 
 
 /**

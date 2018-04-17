@@ -33,9 +33,7 @@
 */
 
 #include <zip.h>
-#include <errno.h>
 #include <fstream>
-#include <memory>
 
 #include "libzip++.h"
 

@@ -27,7 +27,7 @@ XLSharedStrings::XLSharedStrings(XLDocument &parent,
  */
 XLSharedStrings::~XLSharedStrings()
 {
-    CommitXMLData();
+    //CommitXMLData();
 }
 
 /**

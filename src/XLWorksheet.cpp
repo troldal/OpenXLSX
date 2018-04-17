@@ -10,12 +10,9 @@
 #include "XLRow.h"
 #include "XLColumn.h"
 #include "XLException.h"
-#include <boost/algorithm/string.hpp>
 
 using namespace std;
 using namespace OpenXLSX;
-using namespace boost::algorithm;
-
 
 /**
  * @details The constructor initializes the member variables and calls the loadXMLData from the
@@ -67,10 +64,10 @@ bool XLWorksheet::ParseXMLData()
     InitColumnsNode();
 
     // Read the dimensions of the Sheet and set data members accordingly.
-    vector<string> dimensions;
-    boost::algorithm::split(dimensions, DimensionNode()->Attribute("ref")->Value(), is_any_of(":"), token_compress_on);
+    string dimensions = DimensionNode()->Attribute("ref")->Value();
     SetFirstCell(XLCellReference("A1"));
-    SetLastCell(XLCellReference(dimensions[dimensions.size() - 1]));
+    if (dimensions.find(":") == string::npos) SetLastCell(XLCellReference("A1"));
+    else SetLastCell(XLCellReference(dimensions.substr(dimensions.find(":") + 1)));
 
     // If Column properties are grouped, divide them into properties for individual Columns.
     if (m_columnsNode != nullptr) {

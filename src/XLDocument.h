@@ -59,7 +59,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLWorkbook.h"
 #include "XLAbstractSheet.h"
 #include "XLRelationships.h"
-#include "Zip/XLArchive.h"
+#include "Zip/libzip++.h"
 
 namespace OpenXLSX
 {
@@ -272,12 +272,6 @@ namespace OpenXLSX
          * @return
          */
         XLContentItem *AddContentItem(const std::string &contentPath, XLContentType contentType);
-
-        /**
-         * @brief Load all the associated files (app.xml, core.xml and workbook.xml)
-         * @todo Include a CustomProperties object.
-         */
-        void LoadAllFiles();
 
         /**
          * @brief Getter method for the App Properties object.

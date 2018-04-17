@@ -8,7 +8,6 @@
 
 using namespace std;
 using namespace OpenXLSX;
-using boost::bimap;
 
 const map<int, string> XLCellReference::s_alphabet = {{0, "A"},
                                                       {1, "B"},
@@ -38,11 +37,8 @@ const map<int, string> XLCellReference::s_alphabet = {{0, "A"},
                                                       {25, "Z"}};
 
 unordered_map<string, unsigned int> XLCellReference::s_columnNumbers = {};
-
 unordered_map<unsigned int, string> XLCellReference::s_columnNames = {};
-
 unordered_map<unsigned long, std::string> XLCellReference::s_rowNames = {};
-
 unordered_map<std::string, unsigned long> XLCellReference::s_rowNumbers = {};
 
 /**

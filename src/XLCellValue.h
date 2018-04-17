@@ -55,10 +55,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLCellType.h"
 #include "XLCell.h"
 
-//#include <variant>
 #include <string>
-
-using namespace boost;
 
 namespace OpenXLSX
 {

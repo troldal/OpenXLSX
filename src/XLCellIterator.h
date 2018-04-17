@@ -58,9 +58,8 @@ namespace OpenXLSX
 //======================================================================================================================
 
     /**
-     * @brief Encapsulates an iterator for traversing all cells in a given range, based on Boost.Iterator
+     * @brief Encapsulates an iterator for traversing all cells in a given range
      * @todo Unless this is used in range-based for loops, the IDE highlights errors (but compiles OK).
-     * Consider to creater the iterator class independent of Boost.Iterator.
      */
     class XLCellIterator
     {

@@ -44,8 +44,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
  */
 
 #include <iostream>
-#include <memory>
-#include <stdexcept>
 #include "XMLDocument.h"
 
 using namespace rapidxml;

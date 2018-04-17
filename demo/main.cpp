@@ -36,8 +36,8 @@ void printRange();
 
 int main()
 {
-    simpleTest();
-    //openLarge();
+    //simpleTest();
+    openLarge();
     //speedTest();
     //writeTest();
     //cloneTest();

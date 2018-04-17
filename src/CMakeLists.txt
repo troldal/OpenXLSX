@@ -21,7 +21,6 @@ set(SOURCE_FILES
         XLWorksheet.cpp XLWorksheet.h
         XLCellReference.cpp XLCellReference.h
         XLCellRange.cpp XLCellRange.h
-        Zip/XLArchive.cpp Zip/XLArchive.h
         XLCellIterator.cpp XLCellIterator.h
         XLChartsheet.cpp XLChartsheet.h
         XLTemplate.h
@@ -94,6 +93,5 @@ install (FILES
         DESTINATION include/OpenXLSX/XML)
 install (FILES
         Zip/libzip++.h
-        Zip/XLArchive.h
         DESTINATION include/OpenXLSX/Zip)
 

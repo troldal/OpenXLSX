@@ -46,7 +46,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLEXE_XLNUMBER_H
 #define OPENXLEXE_XLNUMBER_H
 
-#include <boost/variant.hpp>
 #include <string>
 #include "XLCellType.h"
 #include "XLValue.h"
@@ -233,8 +232,9 @@ namespace OpenXLSX
 //----------------------------------------------------------------------------------------------------------------------
 
     private:
-        boost::variant<long long int, long double> m_number; /**<  */
         XLNumberType m_numberType; /**<  */
+        long long int m_integer;
+        long double m_float;
     };
 
 }

@@ -105,7 +105,7 @@ const XLRelationshipItem * XLRelationships::RelationshipByTarget(const std::stri
         if (item.second->Target() == target) return item.second.get();
     }
 
-    throw std::range_error("Relationship with Target does not exist");
+    return nullptr;
 }
 
 /**
@@ -118,7 +118,7 @@ XLRelationshipItem *XLRelationships::RelationshipByTarget(const std::string &tar
         if (item.second->Target() == target) return item.second.get();
     }
 
-    throw std::range_error("Relationship with Target does not exist");
+    return nullptr;
 }
 
 /**
