@@ -52,7 +52,9 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 namespace OpenXLSX
 {
 
-    const std::string DEFAULT_DELIMITER = " \t\v\n\r\f";
+//======================================================================================================================
+//========== XLTokenizer Class =========================================================================================
+//======================================================================================================================
 
     /**
      * @brief The XLTokenizer class is a convenience class for tokenizing a string, i.e. splitting it up in tokens,
@@ -61,74 +63,89 @@ namespace OpenXLSX
      */
     class XLTokenizer
     {
+
+//----------------------------------------------------------------------------------------------------------------------
+//           Public Member Functions
+//----------------------------------------------------------------------------------------------------------------------
+
     public:
 
         /**
-         * @brief
+         * @brief Default constructor
          */
         XLTokenizer();
 
         /**
-         * @brief
-         * @param str
-         * @param delimiter
+         * @brief Constructor taking the string to be tokenized as an argument.
+         * @param str The string to be tokenized.
+         * @param delimiter A string with the delimiting characters. If none is provided, default delimiters will be used.
          */
-        explicit XLTokenizer(const std::string& str, const std::string& delimiter=DEFAULT_DELIMITER);
+        explicit XLTokenizer(const std::string& str, const std::string& delimiter=" \t\v\n\r\f");
 
         /**
-         * @brief
+         * @brief Destructor
          */
         ~XLTokenizer() = default;
 
         /**
-         * @brief
-         * @param str
-         * @param delimiter
+         * @brief Set the string to be tokenized as well as the delimiting characters.
+         * @param str The string to be tokenized.
+         * @param delimiter A string with the delimiting characters. If none is provided, default delimiters will be used.
          */
-        void set(const std::string& str, const std::string& delimiter=DEFAULT_DELIMITER);
+        void Set(const std::string &str, const std::string &delimiter = " \t\v\n\r\f");
 
         /**
          * @brief
          * @param str
          */
-        void setString(const std::string& str);
+        void SetString(const std::string &str);
 
         /**
          * @brief
          * @param delimiter
          */
-        void setDelimiter(const std::string& delimiter);
+        void SetDelimiter(const std::string &delimiter);
 
         /**
          * @brief
          * @return
          */
-        std::string next();
+        std::string Next();
 
         /**
          * @brief
          * @return
          */
-        std::vector<std::string> split();
+        std::vector<std::string> Split();
+
+//----------------------------------------------------------------------------------------------------------------------
+//           Private Member Functions
+//----------------------------------------------------------------------------------------------------------------------
 
     private:
 
         /**
          * @brief
          */
-        void skipDelimiter();
+        void SkipDelimiter();
 
         /**
          * @brief
          * @param c
          * @return
          */
-        bool isDelimiter(char c);
+        bool IsDelimiter(char c);
 
-        std::string buffer; /**< input string */
-        std::string token; /**< output string */
-        std::string delimiter; /**< delimiter string */
-        std::string::const_iterator currPos; /**< string iterator pointing the current position */
+//----------------------------------------------------------------------------------------------------------------------
+//           Private Member Variables
+//----------------------------------------------------------------------------------------------------------------------
+
+    private:
+
+        std::string m_buffer; /**< input string */
+        std::string m_token; /**< output string */
+        std::string m_delimiter; /**< delimiter string */
+        std::string::const_iterator m_currPos; /**< string iterator pointing the current position */
     };
 }
 

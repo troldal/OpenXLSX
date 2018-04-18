@@ -15,7 +15,13 @@ using namespace std;
 XLValueBoolean::XLValueBoolean(XLCellValue &parent)
     : XLValue(parent)
 {
-    Set(XLBool::False);
+    if (!ParentCellValue()->ValueNode()) {
+        ParentCellValue()->SetValueNode("0");
+        ParentCellValue()->SetTypeAttribute(TypeString());
+    }
+
+    if (ParentCellValue()->ValueNode()->Value() == "0") Set(XLBool::False);
+    else Set(XLBool::True);
 }
 
 /**

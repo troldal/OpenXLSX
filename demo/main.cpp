@@ -99,6 +99,8 @@ void simpleTest() {
     cout << "Content of worksheet 'Text', cell B2: " << rdoc.Workbook()->Worksheet("Text")->Cell("B2")->Value()->AsString() << endl;
     cout << "Content of worksheet 'Booleans', cell B2: " << rdoc.Workbook()->Worksheet("Booleans")->Cell("B2")->Value()->AsString() << endl;
 
+    rdoc.Workbook()->Worksheet("Booleans")->Export("Booleans.csv");
+
     rdoc.CloseDocument();
 }
 

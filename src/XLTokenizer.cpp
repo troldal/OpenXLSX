@@ -9,92 +9,96 @@ using namespace OpenXLSX;
 /**
  * @details
  */
-XLTokenizer::XLTokenizer() : buffer(""), token(""), delimiter(DEFAULT_DELIMITER)
+XLTokenizer::XLTokenizer()
+    : m_buffer(""),
+      m_token(""),
+      m_delimiter(" \t\v\n\r\f")
 {
-    currPos = buffer.begin();
+    m_currPos = m_buffer.begin();
 }
 
 /**
  * @details
  */
-XLTokenizer::XLTokenizer(const std::string& str, const std::string& delimiter) : buffer(str), token(""), delimiter(delimiter)
+XLTokenizer::XLTokenizer(const std::string& str, const std::string& delimiter)
+    : m_buffer(str),
+      m_token(""),
+      m_delimiter(delimiter)
 {
-    currPos = buffer.begin();
+    m_currPos = m_buffer.begin();
 }
 
 /**
  * @details
  */
-void XLTokenizer::set(const std::string& str, const std::string& delimiter)
+void XLTokenizer::Set(const std::string &str, const std::string &delimiter)
 {
-    this->buffer = str;
-    this->delimiter = delimiter;
-    this->currPos = buffer.begin();
+    m_buffer = str;
+    m_delimiter = delimiter;
+    m_currPos = m_buffer.begin();
 }
 
 /**
  * @details
  */
-void XLTokenizer::setString(const std::string& str)
+void XLTokenizer::SetString(const std::string &str)
 {
-    this->buffer = str;
-    this->currPos = buffer.begin();
+    m_buffer = str;
+    m_currPos = m_buffer.begin();
 }
 
 /**
  * @details
  */
-void XLTokenizer::setDelimiter(const std::string& delimiter)
+void XLTokenizer::SetDelimiter(const std::string &delimiter)
 {
-    this->delimiter = delimiter;
-    this->currPos = buffer.begin();
+    m_delimiter = delimiter;
+    m_currPos = m_buffer.begin();
 }
 
 /**
  * @details
  */
-std::string XLTokenizer::next()
+std::string XLTokenizer::Next()
 {
-    if(buffer.empty()) return "";           // skip if buffer is empty
-
-    token.clear();                              // reset token string
-
-    this->skipDelimiter();                      // skip leading delimiters
+    if(m_buffer.empty()) return "";           // skip if buffer is empty
+    m_token.clear();                              // reset token string
+    SkipDelimiter();                      // skip leading delimiters
 
     // append each char to token string until it meets delimiter
-    while(currPos != buffer.end() && !isDelimiter(*currPos))
+    while(m_currPos != m_buffer.end() && !IsDelimiter(*m_currPos))
     {
-        token += *currPos;
-        ++currPos;
+        m_token += *m_currPos;
+        ++m_currPos;
     }
-    return token;
+    return m_token;
 }
 
 /**
  * @details
  */
-void XLTokenizer::skipDelimiter()
+void XLTokenizer::SkipDelimiter()
 {
-    while(currPos != buffer.end() && isDelimiter(*currPos))
-        ++currPos;
+    while(m_currPos != m_buffer.end() && IsDelimiter(*m_currPos))
+        ++m_currPos;
 }
 
 /**
  * @details
  */
-bool XLTokenizer::isDelimiter(char c)
+bool XLTokenizer::IsDelimiter(char c)
 {
-    return (delimiter.find(c) != std::string::npos);
+    return (m_delimiter.find(c) != std::string::npos);
 }
 
 /**
  * @details
  */
-std::vector<std::string> XLTokenizer::split()
+std::vector<std::string> XLTokenizer::Split()
 {
     std::vector<std::string> tokens;
     std::string token;
-    while((token = this->next()) != "")
+    while(!(token = Next()).empty())
     {
         tokens.push_back(token);
     }

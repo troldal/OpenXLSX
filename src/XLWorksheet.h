@@ -264,6 +264,13 @@ namespace OpenXLSX
          */
         unsigned long RowCount() const noexcept;
 
+        /**
+         * @brief
+         * @param fileName
+         * @param delimiter
+         */
+        void Export(const std::string &fileName, char decimal = ',', char delimiter = ';');
+
 
 
 //----------------------------------------------------------------------------------------------------------------------

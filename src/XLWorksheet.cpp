@@ -10,6 +10,9 @@
 #include "XLRow.h"
 #include "XLColumn.h"
 #include "XLException.h"
+#include <iostream>
+#include <fstream>
+#include <algorithm>
 
 using namespace std;
 using namespace OpenXLSX;
@@ -556,6 +559,9 @@ unsigned long XLWorksheet::RowCount() const noexcept
     return LastCell().Row();
 }
 
+/**
+ * @details
+ */
 std::string XLWorksheet::NewSheetXmlData()
 {
     return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
@@ -571,4 +577,29 @@ std::string XLWorksheet::NewSheetXmlData()
            "<sheetData/>"
            "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/>"
            "</worksheet>";
+}
+
+/**
+ * @details
+ */
+void XLWorksheet::Export(const std::string &fileName, char decimal, char delimiter)
+{
+    ofstream file;
+    file.open(fileName);
+    string token;
+    char oldDecimal;
+
+    if (decimal == ',') oldDecimal = '.';
+    else oldDecimal = ',';
+
+    for (unsigned long row = 1; row <= RowCount(); ++row) {
+        for (unsigned int column = 1; column <= ColumnCount(); ++column) {
+            token = Cell(row, column)->Value()->AsString();
+            replace(token.begin(), token.end(), oldDecimal, decimal);
+            file << token << delimiter;
+        }
+        file << "\n";
+    }
+
+    file.close();
 }
