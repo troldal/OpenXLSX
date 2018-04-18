@@ -87,6 +87,7 @@ namespace OpenXLSX
     {
         friend class XLCell;
         friend class XLRow;
+        friend class XLWorkbook;
 
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -321,6 +322,12 @@ namespace OpenXLSX
          * @return A const reference to the std::vector with the column data.
          */
         const XLColumnVector *Columns() const;
+
+        /**
+         * @brief
+         * @return
+         */
+        static std::string NewSheetXmlData();
 
 //----------------------------------------------------------------------------------------------------------------------
 //           Private Member Functions

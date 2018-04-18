@@ -213,25 +213,7 @@ void XLWorkbook::DeleteSheet(const std::string &sheetName)
 void XLWorkbook::AddWorksheet(const std::string &sheetName,
                               unsigned int index)
 {
-
-    // Standard XML header for Worksheet files.
-    string content = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
-        "<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\""
-        " xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\""
-        " xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac\""
-        " xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\">"
-        "<dimension ref=\"A1\"/>"
-        "<sheetViews>"
-        "<sheetView workbookViewId=\"0\"/>"
-        "</sheetViews>"
-        "<sheetFormatPr baseColWidth=\"10\" defaultRowHeight=\"16\" x14ac:dyDescent=\"0.2\"/>"
-        "<sheetData/>"
-        "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/>"
-        "</worksheet>";
-
-    auto item = CreateWorksheetFile(sheetName, index, content);
-    CreateWorksheet(*item, content);
-
+    CreateWorksheet(*InitiateWorksheet(sheetName, index, XLWorksheet::NewSheetXmlData()), XLWorksheet::NewSheetXmlData());
 }
 
 /**
@@ -242,22 +224,17 @@ void XLWorkbook::CloneWorksheet(const std::string &extName,
                                 const std::string &newName,
                                 unsigned int index)
 {
-    string content = Worksheet(extName)->GetXmlData();
-    auto item = CreateWorksheetFile(newName, index, content);
-    CreateWorksheet(*item);
+    CreateWorksheet(*InitiateWorksheet(newName, index, Worksheet(extName)->GetXmlData()));
 }
 
 /**
  * @details
  */
-XLRelationshipItem *XLWorkbook::CreateWorksheetFile(const std::string &sheetName,
-                                                    unsigned int index,
-                                                    const std::string &xmlData)
+XLRelationshipItem *XLWorkbook::InitiateWorksheet(const std::string &sheetName,
+                                                  unsigned int index,
+                                                  const std::string &xmlData)
 {
     std::string worksheetPath = "/xl/worksheets/sheet" + to_string(m_sheetId + 1) + ".xml";
-
-    // Create file
-    //ParentDocument()->AddOrReplaceXMLFile(worksheetPath, xmlData);
 
     // Add content item to document
     ParentDocument()->AddContentItem(worksheetPath, XLContentType::Worksheet);
@@ -483,6 +460,7 @@ void XLWorkbook::CreateStyles(const XLRelationshipItem &item)
 void XLWorkbook::CreateWorksheet(const XLRelationshipItem &item, const std::string& xmlData)
 {
 
+    // Find the appropriate sheet node in the Workbook .xml file; get the name and id of the worksheet.
     string name;
     auto node = m_sheetsNode->ChildNode();
     while (node) {
@@ -493,16 +471,19 @@ void XLWorkbook::CreateWorksheet(const XLRelationshipItem &item, const std::stri
         node = node->NextSibling();
     }
 
+    // If xmlData is empty, set the m_sheets and m_childXmlDocuments elements to nullptr. The worksheet will then be
+    // lazy-instantiated when the worksheet is requested using the 'Worksheet" function.
+    // If xmlData is provided (i.e. a new sheet is created or an existing is cloned), create the new worksheets accordingly.
+    m_sheetPaths[name] = "xl/" + item.Target();
     if (xmlData.empty()) {
         m_sheets[name] = nullptr;
-        m_sheetPaths[name] = "xl/" + item.Target();
         m_childXmlDocuments["xl/" + item.Target()] = nullptr;
     } else {
         m_sheets[name] = make_unique<XLWorksheet>(*this, name, "xl/" + item.Target(), xmlData);
-        m_sheetPaths[name] = "xl/" + item.Target();
         m_childXmlDocuments["xl/" + item.Target()] = m_sheets.at(name).get();
     }
 
+    // Update internal counters.
     m_sheetCount++;
     m_worksheetCount++;
     m_sheetId++;

@@ -221,9 +221,7 @@ string XLValueNumber::TypeString() const
  */
 XLNumberType XLValueNumber::DetermineNumberType(const std::string &numberString) const
 {
-    bool hasDecimalPoint = (numberString.find('.') != 0);
-
-    if (hasDecimalPoint) return XLNumberType::Float;
+    if (numberString.find('.') != string::npos) return XLNumberType::Float;
     else return XLNumberType::Integer;
 }
 

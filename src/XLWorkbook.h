@@ -363,9 +363,9 @@ namespace OpenXLSX
          * @todo Provide a default content for the file.
          * @todo Consider having this as a static function in the XLWorksheet class.
          */
-        XLRelationshipItem *CreateWorksheetFile(const std::string &sheetName,
-                                                unsigned int index,
-                                                const std::string &xmlData);
+        XLRelationshipItem *InitiateWorksheet(const std::string &sheetName,
+                                              unsigned int index,
+                                              const std::string &xmlData);
 
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -378,7 +378,7 @@ namespace OpenXLSX
 
         std::map<std::string, XMLNode *> m_sheetNodes; /**< Data structure for alle the sheetnodes in workbook.xml  */
         mutable XLSheetMap m_sheets; /**< Data structure for all sheets. */
-        std::map<std::string, std::string> m_sheetPaths;
+        std::map<std::string, std::string> m_sheetPaths; /**<  */
 
         int m_sheetId; /**< Counter to use to create ID for new sheet */
 

@@ -32,9 +32,9 @@ void printRange();
 
 int main()
 {
-    //simpleTest();
+    simpleTest();
     //openLarge();
-    speedTest();
+    //speedTest();
     //writeTest();
     //cloneTest();
     //copyRangeTest();
