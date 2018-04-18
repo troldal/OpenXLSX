@@ -3,8 +3,119 @@
 //
 
 #include "XLTokenizer.h"
+#include <algorithm>
+#include <cstring>
 
 using namespace OpenXLSX;
+using namespace std;
+
+/**
+ * @details
+ */
+XLToken::XLToken(const std::string &token) : m_token(token)
+{
+}
+
+/**
+ * @details
+ */
+const std::string &XLToken::AsString() const
+{
+    return m_token;
+}
+
+/**
+ * @details
+ */
+long long int XLToken::AsInteger() const
+{
+    return stoll(m_token);
+}
+
+/**
+ * @details
+ */
+long double XLToken::AsFloat() const
+{
+    string temp = m_token;
+    replace(temp.begin(), temp.end(), ',', '.');
+    return stold(temp);
+}
+
+/**
+ * @details
+ */
+bool XLToken::AsBoolean() const
+{
+    if (m_token == "FALSE") return false;
+    else return true;
+}
+
+/**
+ * @details
+ */
+bool XLToken::IsString() const
+{
+    if (IsBoolean() || IsFloat() || IsInteger()) return false;
+    return true;
+}
+
+/**
+ * @details
+ */
+bool XLToken::IsInteger() const
+{
+    for (auto &iter : m_token) {
+        if (iter == *m_token.begin() && iter == '-') continue;
+        if (!isdigit(iter)) return false;
+    }
+
+    return true;
+}
+
+/**
+ * @details
+ */
+bool XLToken::IsFloat() const
+{
+    int numDigit = 0;
+    int numDecimal = 0;
+    int numOther = 0;
+
+    for (auto &iter : m_token) {
+        if (iter == *m_token.begin() && iter == '-') continue;
+        if (isdigit(iter)) {
+            numDigit++;
+            continue;
+        }
+
+        if (iter == '.' || iter == ',') {
+            numDecimal++;
+            continue;
+        }
+
+        numOther++;
+    }
+
+    if (numDecimal == 1 && numOther == 0 && numDigit > 0) return true;
+
+    return false;
+}
+
+/**
+ * @details
+ */
+bool XLToken::IsBoolean() const
+{
+    string strTrue = "TRUE";
+    string strFalse = "FALSE";
+
+    bool isTrue = equal(m_token.begin(), m_token.end(), strTrue.begin(), [](int c1, int c2){return toupper(c1) == toupper(c2);});
+    bool isFalse = equal(m_token.begin(), m_token.end(), strFalse.begin(), [](int c1, int c2){return toupper(c1) == toupper(c2);});
+
+    if (isTrue || isFalse) return true;
+    else return false;
+}
 
 /**
  * @details
@@ -59,9 +170,9 @@ void XLTokenizer::SetDelimiter(const std::string &delimiter)
 /**
  * @details
  */
-std::string XLTokenizer::Next()
+XLToken XLTokenizer::Next()
 {
-    if(m_buffer.empty()) return "";           // skip if buffer is empty
+    if(m_buffer.empty()) return XLToken("");           // skip if buffer is empty
     m_token.clear();                              // reset token string
     SkipDelimiter();                      // skip leading delimiters
 
@@ -71,7 +182,7 @@ std::string XLTokenizer::Next()
         m_token += *m_currPos;
         ++m_currPos;
     }
-    return m_token;
+    return XLToken(m_token);
 }
 
 /**
@@ -94,13 +205,13 @@ bool XLTokenizer::IsDelimiter(char c)
 /**
  * @details
  */
-std::vector<std::string> XLTokenizer::Split()
+vector<XLToken> XLTokenizer::Split()
 {
-    std::vector<std::string> tokens;
+    std::vector<XLToken> tokens;
     std::string token;
-    while(!(token = Next()).empty())
+    while(!(token = Next().AsString()).empty())
     {
-        tokens.push_back(token);
+        tokens.push_back(XLToken(token));
     }
 
     return tokens;

@@ -271,6 +271,13 @@ namespace OpenXLSX
          */
         void Export(const std::string &fileName, char decimal = ',', char delimiter = ';');
 
+        /**
+         * @brief
+         * @param fileName
+         * @param delimiter
+         */
+        void Import(const std::string &fileName, const std::string &delimiter = ";");
+
 
 
 //----------------------------------------------------------------------------------------------------------------------

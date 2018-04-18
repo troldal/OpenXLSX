@@ -10,6 +10,7 @@
 #include "XLRow.h"
 #include "XLColumn.h"
 #include "XLException.h"
+#include "XLTokenizer.h"
 #include <iostream>
 #include <fstream>
 #include <algorithm>
@@ -584,8 +585,7 @@ std::string XLWorksheet::NewSheetXmlData()
  */
 void XLWorksheet::Export(const std::string &fileName, char decimal, char delimiter)
 {
-    ofstream file;
-    file.open(fileName);
+    ofstream file(fileName);
     string token;
     char oldDecimal;
 
@@ -599,6 +599,34 @@ void XLWorksheet::Export(const std::string &fileName, char decimal, char delimit
             file << token << delimiter;
         }
         file << "\n";
+    }
+
+    file.close();
+}
+
+/**
+ * @details
+ */
+void XLWorksheet::Import(const std::string &fileName, const string &delimiter)
+{
+    ifstream file (fileName);
+    string line;
+    unsigned long row = 1;
+    XLTokenizer tokenizer("", delimiter);
+    while (getline(file, line)) {
+        tokenizer.SetString(line);
+        unsigned int column = 1;
+        for (auto &iter : tokenizer.Split()) {
+            if (iter.IsInteger()) Cell(row, column)->Value()->Set(iter.AsInteger());
+            if (iter.IsFloat()) Cell(row, column)->Value()->Set(iter.AsFloat());
+            if (iter.IsString()) Cell(row, column)->Value()->Set(iter.AsString());
+            if (iter.IsBoolean()) {
+                if (iter.AsBoolean() == true) Cell(row, column)->Value()->Set(XLBool::True);
+                else Cell(row, column)->Value()->Set(XLBool::False);
+            }
+            column++;
+        }
+        row++;
     }
 
     file.close();

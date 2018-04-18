@@ -18,7 +18,6 @@ using namespace OpenXLSX;
  * TODO: Get vector for a Row or Column.
  * TODO: Conditional formatting
  * TODO: Fix the ConstIterator (currently it's not const)
- * TODO: Import/Export of .csv files
  */
 
 void simpleTest();
@@ -32,8 +31,8 @@ void printRange();
 
 int main()
 {
-    //simpleTest();
-    openLarge();
+    simpleTest();
+    //openLarge();
     //speedTest();
     //writeTest();
     //cloneTest();
@@ -99,9 +98,32 @@ void simpleTest() {
     cout << "Content of worksheet 'Text', cell B2: " << rdoc.Workbook()->Worksheet("Text")->Cell("B2")->Value()->AsString() << endl;
     cout << "Content of worksheet 'Booleans', cell B2: " << rdoc.Workbook()->Worksheet("Booleans")->Cell("B2")->Value()->AsString() << endl;
 
+    rdoc.Workbook()->Worksheet("Integers")->Export("Integers.csv");
+    rdoc.Workbook()->Worksheet("Floats")->Export("Floats.csv");
+    rdoc.Workbook()->Worksheet("Text")->Export("Text.csv");
     rdoc.Workbook()->Worksheet("Booleans")->Export("Booleans.csv");
 
     rdoc.CloseDocument();
+
+    XLDocument ndoc;
+    ndoc.CreateDocument("NewSpreadsheet.xlsx");
+
+    ndoc.Workbook()->AddWorksheet("Integers");
+    ndoc.Workbook()->Worksheet("Integers")->Import("Integers.csv");
+
+    ndoc.Workbook()->AddWorksheet("Floats");
+    ndoc.Workbook()->Worksheet("Floats")->Import("Floats.csv");
+
+    ndoc.Workbook()->AddWorksheet("Text");
+    ndoc.Workbook()->Worksheet("Text")->Import("Text.csv");
+
+    ndoc.Workbook()->AddWorksheet("Booleans");
+    ndoc.Workbook()->Worksheet("Booleans")->Import("Booleans.csv");
+
+    ndoc.SaveDocument();
+    ndoc.CloseDocument();
+
+
 }
 
 void openLarge() {
