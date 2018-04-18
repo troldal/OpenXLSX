@@ -7,6 +7,7 @@ set(SOURCE_FILES
         XML/XMLNode.cpp XML/XMLNode.h
         XML/XMLAttribute.cpp XML/XMLAttribute.h
         XML/XMLDocument.cpp XML/XMLDocument.h
+        OpenXLSX.h
         XLDocument.cpp XLDocument.h
         XLRelationships.cpp XLRelationships.h
         XLAbstractXMLFile.cpp XLAbstractXMLFile.h
@@ -39,7 +40,8 @@ set(SOURCE_FILES
         XLValue.cpp XLValue.h
         XLValueBoolean.cpp XLValueBoolean.h
         XLValueEmpty.cpp XLValueEmpty.h
-        XLValueError.cpp XLValueError.h OpenXLSX.h XLTokenizer.cpp XLTokenizer.h)
+        XLValueError.cpp XLValueError.h
+        XLTokenizer.cpp XLTokenizer.h)
 
 add_library(OpenXLSX STATIC ${SOURCE_FILES})
 target_include_directories(OpenXLSX PUBLIC "${LIBZIP_INCLUDE_DIR}")

@@ -61,14 +61,14 @@ void simpleTest() {
     auto wks1 = doc.Workbook()->Worksheet("Floats");
     auto arange1 = wks1->Range(XLCellReference(1,1), XLCellReference(100,100));
     for (auto &iter : arange1) {
-        iter.Value()->Set(3.14159);
+        iter.Value()->Set(-3.14159);
     }
 
     doc.Workbook()->AddWorksheet("Integers");
     auto wks2 = doc.Workbook()->Worksheet("Integers");
     auto arange2 = wks2->Range(XLCellReference(1,1), XLCellReference(100,100));
     for (auto &iter : arange2) {
-        iter.Value()->Set(42);
+        iter.Value()->Set(-42);
     }
 
     doc.Workbook()->AddWorksheet("Text");
@@ -113,12 +113,6 @@ void simpleTest() {
 
     ndoc.Workbook()->AddWorksheet("Floats");
     ndoc.Workbook()->Worksheet("Floats")->Import("Floats.csv");
-
-    ndoc.Workbook()->AddWorksheet("Text");
-    ndoc.Workbook()->Worksheet("Text")->Import("Text.csv");
-
-    ndoc.Workbook()->AddWorksheet("Booleans");
-    ndoc.Workbook()->Worksheet("Booleans")->Import("Booleans.csv");
 
     ndoc.SaveDocument();
     ndoc.CloseDocument();
