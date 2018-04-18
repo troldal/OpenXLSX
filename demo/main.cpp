@@ -32,8 +32,8 @@ void printRange();
 
 int main()
 {
-    simpleTest();
-    //openLarge();
+    //simpleTest();
+    openLarge();
     //speedTest();
     //writeTest();
     //cloneTest();
@@ -108,9 +108,9 @@ void openLarge() {
     OpenXLSX::XLDocument doc;
     doc.OpenDocument("Large.xlsx");
     auto wks = doc.Workbook()->Worksheet("Sheet1");
+    wks->Export("Profiles.csv");
 
-    auto rows = wks->RowCount();
-
+    /*
     for (int i = 1; i <= 1000; ++i) {
         cout << setw(8) << i << ": ";
         cout << setw(10) << wks->Cell(i, 1)->Value()->AsString() << " ";
@@ -118,8 +118,9 @@ void openLarge() {
         cout << setw(38) << wks->Cell(i, 3)->Value()->AsString() << " ";
         cout << setw(38) << wks->Cell(i, 4)->Value()->AsString() << " ";
         cout << setw(38) << wks->Cell(i, 5)->Value()->AsString() << endl;
+    } */
 
-    }
+    doc.CloseDocument();
 }
 
 void speedTest() {
