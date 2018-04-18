@@ -55,7 +55,7 @@ int main()
 
 void simpleTest() {
     XLDocument doc;
-    doc.CreateDocument("Spreadsheet.xlsx");
+    doc.CreateDocument("./Spreadsheet.xlsx");
 
     doc.Workbook()->AddWorksheet("Floats");
     auto wks1 = doc.Workbook()->Worksheet("Floats");
@@ -91,28 +91,28 @@ void simpleTest() {
     doc.CloseDocument();
 
     XLDocument rdoc;
-    rdoc.OpenDocument("Spreadsheet.xlsx");
+    rdoc.OpenDocument("./Spreadsheet.xlsx");
 
     cout << "Content of worksheet 'Floats', cell B2: " << rdoc.Workbook()->Worksheet("Floats")->Cell("B2")->Value()->AsString() << endl;
     cout << "Content of worksheet 'Integers', cell B2: " << rdoc.Workbook()->Worksheet("Integers")->Cell("B2")->Value()->AsString() << endl;
     cout << "Content of worksheet 'Text', cell B2: " << rdoc.Workbook()->Worksheet("Text")->Cell("B2")->Value()->AsString() << endl;
     cout << "Content of worksheet 'Booleans', cell B2: " << rdoc.Workbook()->Worksheet("Booleans")->Cell("B2")->Value()->AsString() << endl;
 
-    rdoc.Workbook()->Worksheet("Integers")->Export("Integers.csv");
-    rdoc.Workbook()->Worksheet("Floats")->Export("Floats.csv");
-    rdoc.Workbook()->Worksheet("Text")->Export("Text.csv");
-    rdoc.Workbook()->Worksheet("Booleans")->Export("Booleans.csv");
+    rdoc.Workbook()->Worksheet("Integers")->Export("./Integers.csv");
+    rdoc.Workbook()->Worksheet("Floats")->Export("./Floats.csv");
+    rdoc.Workbook()->Worksheet("Text")->Export("./Text.csv");
+    rdoc.Workbook()->Worksheet("Booleans")->Export("./Booleans.csv");
 
     rdoc.CloseDocument();
 
     XLDocument ndoc;
-    ndoc.CreateDocument("NewSpreadsheet.xlsx");
+    ndoc.CreateDocument("./NewSpreadsheet.xlsx");
 
     ndoc.Workbook()->AddWorksheet("Integers");
-    ndoc.Workbook()->Worksheet("Integers")->Import("Integers.csv");
+    ndoc.Workbook()->Worksheet("Integers")->Import("./Integers.csv");
 
     ndoc.Workbook()->AddWorksheet("Floats");
-    ndoc.Workbook()->Worksheet("Floats")->Import("Floats.csv");
+    ndoc.Workbook()->Worksheet("Floats")->Import("./Floats.csv");
 
     ndoc.SaveDocument();
     ndoc.CloseDocument();
@@ -122,9 +122,9 @@ void simpleTest() {
 
 void openLarge() {
     OpenXLSX::XLDocument doc;
-    doc.OpenDocument("Large.xlsx");
+    doc.OpenDocument("./Large.xlsx");
     auto wks = doc.Workbook()->Worksheet("Sheet1");
-    wks->Export("Profiles.csv");
+    wks->Export("./Profiles.csv");
 
     /*
     for (int i = 1; i <= 1000; ++i) {
