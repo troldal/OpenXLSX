@@ -213,7 +213,7 @@ void XLWorkbook::DeleteSheet(const std::string &sheetName)
 void XLWorkbook::AddWorksheet(const std::string &sheetName,
                               unsigned int index)
 {
-    CreateWorksheet(*InitiateWorksheet(sheetName, index, XLWorksheet::NewSheetXmlData()), XLWorksheet::NewSheetXmlData());
+    CreateWorksheet(*InitiateWorksheet(sheetName, index), XLWorksheet::NewSheetXmlData());
 }
 
 /**
@@ -224,15 +224,13 @@ void XLWorkbook::CloneWorksheet(const std::string &extName,
                                 const std::string &newName,
                                 unsigned int index)
 {
-    CreateWorksheet(*InitiateWorksheet(newName, index, Worksheet(extName)->GetXmlData()));
+    CreateWorksheet(*InitiateWorksheet(newName, index), Worksheet(extName)->GetXmlData());
 }
 
 /**
  * @details
  */
-XLRelationshipItem *XLWorkbook::InitiateWorksheet(const std::string &sheetName,
-                                                  unsigned int index,
-                                                  const std::string &xmlData)
+XLRelationshipItem *XLWorkbook::InitiateWorksheet(const std::string &sheetName, unsigned int index)
 {
     std::string worksheetPath = "/xl/worksheets/sheet" + to_string(m_sheetId + 1) + ".xml";
 

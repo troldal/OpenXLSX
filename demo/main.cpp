@@ -86,6 +86,8 @@ void simpleTest() {
         iter.Value()->Set(XLBool::True);
     }
 
+    doc.Workbook()->CloneWorksheet("Text", "TextClone");
+
     doc.SaveDocument();
     doc.CloseDocument();
 

@@ -39,7 +39,7 @@ set(SOURCE_FILES
         XLValue.cpp XLValue.h
         XLValueBoolean.cpp XLValueBoolean.h
         XLValueEmpty.cpp XLValueEmpty.h
-        XLValueError.cpp XLValueError.h OpenXLSX.h)
+        XLValueError.cpp XLValueError.h OpenXLSX.h XLTokenizer.cpp XLTokenizer.h)
 
 add_library(OpenXLSX STATIC ${SOURCE_FILES})
 target_include_directories(OpenXLSX PUBLIC "${LIBZIP_INCLUDE_DIR}")

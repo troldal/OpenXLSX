@@ -358,14 +358,10 @@ namespace OpenXLSX
          * @brief Helper function to create a new XML file to hold the data for a new worksheet.
          * @param sheetName The name of the new worksheet.
          * @param index The index at which to insert the new worksheet.
-         * @param xmlData The XML content of the file
          * @return A reference to the XLRelationshipItem corresponding to the worksheet file
-         * @todo Provide a default content for the file.
          * @todo Consider having this as a static function in the XLWorksheet class.
          */
-        XLRelationshipItem *InitiateWorksheet(const std::string &sheetName,
-                                              unsigned int index,
-                                              const std::string &xmlData);
+        XLRelationshipItem *InitiateWorksheet(const std::string &sheetName, unsigned int index);
 
 
 //----------------------------------------------------------------------------------------------------------------------
