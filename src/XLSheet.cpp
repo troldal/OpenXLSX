@@ -2,7 +2,7 @@
 // Created by Troldal on 02/09/16.
 //
 
-#include "XLAbstractSheet.h"
+#include "XLSheet.h"
 #include "XLContentTypes.h"
 #include "XLRelationships.h"
 #include "XLDocument.h"
@@ -16,10 +16,10 @@ using namespace OpenXLSX;
  * sheet type is WorkSheet and the default sheet state is Visible.
  * @todo Consider to let the sheet type be determined by the subclasses.
  */
-XLAbstractSheet::XLAbstractSheet(XLWorkbook &parent,
-                                 const std::string &name,
-                                 const std::string &filepath,
-                                 const std::string &xmlData)
+XLSheet::XLSheet(XLWorkbook &parent,
+                 const std::string &name,
+                 const std::string &filepath,
+                 const std::string &xmlData)
     : XLAbstractXMLFile(*parent.ParentDocument(), filepath, xmlData),
       XLSpreadsheetElement(*parent.ParentDocument()),
       m_sheetName(name),
@@ -36,7 +36,7 @@ XLAbstractSheet::XLAbstractSheet(XLWorkbook &parent,
 /**
  * @details This method returns the m_sheetName property.
  */
-const std::string &XLAbstractSheet::Name() const
+const std::string &XLSheet::Name() const
 {
     return m_sheetName;
 }
@@ -48,7 +48,7 @@ const std::string &XLAbstractSheet::Name() const
  * - Set the value of the title node in the app.xml file to the new name
  * - Set the m_isModified property to true.
  */
-void XLAbstractSheet::SetName(const std::string &name)
+void XLSheet::SetName(const std::string &name)
 {
     m_sheetName = name;
     m_nodeInWorkbook->Attribute("name")->SetValue(name);
@@ -59,7 +59,7 @@ void XLAbstractSheet::SetName(const std::string &name)
 /**
  * @details This method returns the m_sheetState property.
  */
-const XLSheetState &XLAbstractSheet::State() const
+const XLSheetState &XLSheet::State() const
 {
     return m_sheetState;
 }
@@ -71,7 +71,7 @@ const XLSheetState &XLAbstractSheet::State() const
  * (if it doesn't exist already) and set the value to the new state.
  * - If the state is set to Visible, delete the state attribute from the sheet node in the workbook.xml file, if it exists.
  */
-void XLAbstractSheet::SetState(XLSheetState state)
+void XLSheet::SetState(XLSheetState state)
 {
     m_sheetState = state;
 
@@ -120,7 +120,7 @@ void XLAbstractSheet::SetState(XLSheetState state)
  * @todo Consider if this can be moved to the destructor.
  * @todo Delete the associated xml file for the sheet.
  */
-void XLAbstractSheet::Delete()
+void XLSheet::Delete()
 {
 
     // Delete the node in AppProperties.
@@ -142,7 +142,7 @@ void XLAbstractSheet::Delete()
 /**
  * @details This method simply returns the m_sheetType property.
  */
-const XLSheetType &XLAbstractSheet::Type() const
+const XLSheetType &XLSheet::Type() const
 {
     return m_sheetType;
 }
@@ -151,7 +151,7 @@ const XLSheetType &XLAbstractSheet::Type() const
  * @details
  * @todo This method is currently unimplemented.
  */
-unsigned int XLAbstractSheet::Index() const
+unsigned int XLSheet::Index() const
 {
     return 0;
 }
@@ -160,7 +160,7 @@ unsigned int XLAbstractSheet::Index() const
  * @details
  * @todo This method is currently unimplemented.
  */
-void XLAbstractSheet::SetIndex()
+void XLSheet::SetIndex()
 {
 
 }

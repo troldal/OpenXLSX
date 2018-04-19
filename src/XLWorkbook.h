@@ -54,7 +54,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 namespace OpenXLSX
 {
     class XLSharedStrings;
-    class XLAbstractSheet;
+    class XLSheet;
     class XLWorksheet;
     class XLChartsheet;
     class XLStyles;
@@ -66,7 +66,7 @@ namespace OpenXLSX
     /**
      * @brief
      */
-    using XLSheetMap = std::map<std::string, std::unique_ptr<XLAbstractSheet>>;
+    using XLSheetMap = std::map<std::string, std::unique_ptr<XLSheet>>;
 
 //======================================================================================================================
 //========== XLWorkbook Class ==========================================================================================
@@ -79,7 +79,7 @@ namespace OpenXLSX
     class XLWorkbook: public XLAbstractXMLFile,
                       public XLSpreadsheetElement
     {
-        friend class XLAbstractSheet;
+        friend class XLSheet;
 
 //----------------------------------------------------------------------------------------------------------------------
 //           Public Member Functions
@@ -139,7 +139,7 @@ namespace OpenXLSX
          * @todo This method is currently unimplemented.
          * @todo What should happen if the index is invalid?
          */
-        XLAbstractSheet *Sheet(unsigned int index);
+        XLSheet *Sheet(unsigned int index);
 
         /**
          * @brief Get the sheet (worksheet or chartsheet) with the given name.
@@ -148,7 +148,7 @@ namespace OpenXLSX
          * @todo This method is currently unimplemented.
          * @todo What should happen if the name is invalid?
          */
-        XLAbstractSheet *Sheet(const std::string &sheetName);
+        XLSheet *Sheet(const std::string &sheetName);
 
         /**
          * @brief

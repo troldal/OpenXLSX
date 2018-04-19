@@ -46,7 +46,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXL_XLWORKSHEET_H
 #define OPENXL_XLWORKSHEET_H
 
-#include "XLAbstractSheet.h"
+#include "XLSheet.h"
 #include "XLCellReference.h"
 
 namespace OpenXLSX
@@ -83,7 +83,7 @@ namespace OpenXLSX
     /**
      * @brief A class encapsulating an Excel worksheet. Access to XLWorksheet objects should be via the workbook object.
      */
-    class XLWorksheet: public XLAbstractSheet
+    class XLWorksheet: public XLSheet
     {
         friend class XLCell;
         friend class XLRow;

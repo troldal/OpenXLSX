@@ -14,7 +14,7 @@ XLChartsheet::XLChartsheet(XLWorkbook &parent,
                            const std::string &name,
                            const std::string &filePath,
                            const std::string &xmlData)
-    : XLAbstractSheet(parent, name, filePath, xmlData)
+    : XLSheet(parent, name, filePath, xmlData)
 {
 
 }

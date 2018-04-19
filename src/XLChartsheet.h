@@ -46,7 +46,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXL_XLCHARTSHEET_H
 #define OPENXL_XLCHARTSHEET_H
 
-#include "XLAbstractSheet.h"
+#include "XLSheet.h"
 
 namespace OpenXLSX
 {
@@ -59,7 +59,7 @@ namespace OpenXLSX
      * @brief Class representing the an Excel chartsheet.
      * @todo This class is largely unimplemented and works just as a placeholder.
      */
-    class XLChartsheet: public XLAbstractSheet
+    class XLChartsheet: public XLSheet
     {
 
 //----------------------------------------------------------------------------------------------------------------------

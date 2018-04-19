@@ -14,7 +14,7 @@
 #include "XLSharedStrings.h"
 #include "XLStyles.h"
 #include "XLWorkbook.h"
-#include "XLAbstractSheet.h"
+#include "XLSheet.h"
 #include "XLCell.h"
 #include "XLWorksheet.h"
 #include "XLCellReference.h"

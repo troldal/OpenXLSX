@@ -17,7 +17,7 @@ set(SOURCE_FILES
         XLSharedStrings.cpp XLSharedStrings.h
         XLStyles.cpp XLStyles.h
         XLWorkbook.cpp XLWorkbook.h
-        XLAbstractSheet.cpp XLAbstractSheet.h
+        XLSheet.cpp XLSheet.h
         XLCell.cpp XLCell.h
         XLWorksheet.cpp XLWorksheet.h
         XLCellReference.cpp XLCellReference.h
@@ -59,7 +59,7 @@ install (FILES
         XLSharedStrings.h
         XLStyles.h
         XLWorkbook.h
-        XLAbstractSheet.h
+        XLSheet.h
         XLCell.h
         XLWorksheet.h
         XLCellReference.h

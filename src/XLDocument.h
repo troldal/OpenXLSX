@@ -57,7 +57,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLSharedStrings.h"
 #include "XLStyles.h"
 #include "XLWorkbook.h"
-#include "XLAbstractSheet.h"
+#include "XLSheet.h"
 #include "XLRelationships.h"
 #include "Zip/libzip++.h"
 
@@ -114,7 +114,7 @@ namespace OpenXLSX
     {
         friend class XLAbstractXMLFile;
         friend class XLWorkbook;
-        friend class XLAbstractSheet;
+        friend class XLSheet;
         friend class XLSpreadsheetElement;
 
 //----------------------------------------------------------------------------------------------------------------------

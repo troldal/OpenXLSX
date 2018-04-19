@@ -105,7 +105,7 @@ XLWorksheet * XLWorkbook::Worksheet(const std::string &sheetName)
         m_childXmlDocuments.at(m_sheetPaths.at(sheetName)) = m_sheets.at(sheetName).get();
     }
 
-    XLAbstractSheet *sheet = m_sheets.at(sheetName).get();
+    XLSheet *sheet = m_sheets.at(sheetName).get();
     if (sheet->Type() == XLSheetType::WorkSheet)
         return dynamic_cast<XLWorksheet *>(sheet);
     else
@@ -119,7 +119,7 @@ const XLWorksheet * XLWorkbook::Worksheet(const std::string &sheetName) const
 {
     if (m_sheets.find(sheetName) == m_sheets.end()) throw std::range_error("Sheet does not exist");
 
-    XLAbstractSheet *sheet = m_sheets.at(sheetName).get();
+    XLSheet *sheet = m_sheets.at(sheetName).get();
     if (sheet->Type() == XLSheetType::WorkSheet)
         return dynamic_cast<XLWorksheet *>(sheet);
     else
@@ -129,7 +129,7 @@ const XLWorksheet * XLWorkbook::Worksheet(const std::string &sheetName) const
 /**
  * @details
  */
-XLAbstractSheet *XLWorkbook::Sheet(unsigned int index)
+XLSheet *XLWorkbook::Sheet(unsigned int index)
 {
     return nullptr;
 }
@@ -137,7 +137,7 @@ XLAbstractSheet *XLWorkbook::Sheet(unsigned int index)
 /**
  * @details
  */
-XLAbstractSheet *XLWorkbook::Sheet(const std::string &sheetName)
+XLSheet *XLWorkbook::Sheet(const std::string &sheetName)
 {
     return nullptr;
 }

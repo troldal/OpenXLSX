@@ -84,7 +84,7 @@ namespace OpenXLSX
 
 
 //======================================================================================================================
-//========== XLAbstractSheet Class =====================================================================================
+//========== XLSheet Class =====================================================================================
 //======================================================================================================================
 
     /**
@@ -92,7 +92,7 @@ namespace OpenXLSX
      * such as XLWorksheet. It implements functionality common to all sheet types. This is a pure abstract class,
      * so it cannot be instantiated.
      */
-    class XLAbstractSheet: public XLAbstractXMLFile,
+    class XLSheet: public XLAbstractXMLFile,
                            public XLSpreadsheetElement
     {
         friend class XLWorkbook;
@@ -113,7 +113,7 @@ namespace OpenXLSX
          * @param parent A pointer to the parent XLDocument object.
          * @param filepath A std::string with the relative path to the sheet file in the .xlsx package.
          */
-        explicit XLAbstractSheet(XLWorkbook &parent,
+        explicit XLSheet(XLWorkbook &parent,
                                  const std::string &name,
                                  const std::string &filepath,
                                  const std::string &xmlData = "");
@@ -124,13 +124,13 @@ namespace OpenXLSX
          * @note The default copy constructor is used, i.e. only shallow copying of pointer data members.
          * @todo Can this method be deleted?
          */
-        XLAbstractSheet(const XLAbstractSheet &other) = delete;
+        XLSheet(const XLSheet &other) = delete;
 
         /**
          * @brief The destructor
          * @note The default destructor is used, since cleanup of pointer data members is not required.
          */
-        ~XLAbstractSheet() override = default;
+        ~XLSheet() override = default;
 
         /**
          * @brief Assignment operator
@@ -138,7 +138,7 @@ namespace OpenXLSX
          * @note The default assignment operator is used, i.e. only shallow copying of pointer data members.
          * @todo Can this method be deleted?
          */
-        XLAbstractSheet &operator=(const XLAbstractSheet &) = delete;
+        XLSheet &operator=(const XLSheet &) = delete;
 
         /**
          * @brief Method to retrieve the name of the sheet.
@@ -176,7 +176,7 @@ namespace OpenXLSX
          * @return A pointer to the cloned object.
          * @note This is a pure abstract method. I.e. it is implemented in subclasses.
          */
-        virtual XLAbstractSheet *Clone(const std::string &newName) = 0;
+        virtual XLSheet *Clone(const std::string &newName) = 0;
 
         /**
          * @brief Method for getting the index of the sheet.
