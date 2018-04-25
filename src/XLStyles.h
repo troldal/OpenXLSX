@@ -49,12 +49,15 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLAbstractXMLFile.h"
 #include "XLFont.h"
 #include "XLSpreadsheetElement.h"
+
 #include <map>
 #include <string>
+#include <vector>
+
+using XMLNode = pugi::xml_node;
 
 namespace OpenXLSX
 {
-
 
 /**
  * @brief
@@ -125,13 +128,13 @@ namespace OpenXLSX
 
         static std::map<std::string, XLStyles> s_styles;
 
-        static XMLNode *m_numberFormatsNode; /**<  */
-        static XMLNode *m_fontsNode; /**<  */
-        static XMLNode *m_fillsNode; /**<  */
-        static XMLNode *m_bordersNode; /**<  */
-        static XMLNode *m_cellFormatNode; /**<  */
-        static XMLNode *m_cellStyleNode; /**<  */
-        static XMLNode *m_colors; /**<  */
+        static std::unique_ptr<XMLNode> s_numberFormatsNode; /**<  */
+        static std::unique_ptr<XMLNode> s_fontsNode; /**<  */
+        static std::unique_ptr<XMLNode> s_fillsNode; /**<  */
+        static std::unique_ptr<XMLNode> s_bordersNode; /**<  */
+        static std::unique_ptr<XMLNode> s_cellFormatNode; /**<  */
+        static std::unique_ptr<XMLNode> s_cellStyleNode; /**<  */
+        static std::unique_ptr<XMLNode> s_colors; /**<  */
 
         std::vector<std::unique_ptr<XLFont>> m_fonts; /**<  */
 

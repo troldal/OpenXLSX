@@ -3,6 +3,7 @@
 //
 
 #include "XLDocument.h"
+#include <sstream>
 
 using namespace std;
 using namespace OpenXLSX;
@@ -31,7 +32,7 @@ XLAbstractXMLFile::XLAbstractXMLFile(XLDocument &parent,
  */
 void XLAbstractXMLFile::SetXmlData(const std::string &xmlData)
 {
-    m_xmlDocument->ReadData(xmlData);
+    m_xmlDocument->load_string(xmlData.c_str());
 }
 
 /**
@@ -39,7 +40,9 @@ void XLAbstractXMLFile::SetXmlData(const std::string &xmlData)
  */
 std::string XLAbstractXMLFile::GetXmlData() const
 {
-    return m_xmlDocument->GetData();
+    ostringstream ostr;
+    m_xmlDocument->save(ostr);
+    return ostr.str();
 }
 
 /**
@@ -79,7 +82,7 @@ const string &XLAbstractXMLFile::FilePath() const
  */
 void XLAbstractXMLFile::Print() const
 {
-    XmlDocument()->Print();
+    XmlDocument()->save(cout);
 }
 
 /**

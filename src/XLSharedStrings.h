@@ -49,6 +49,10 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLAbstractXMLFile.h"
 #include "XLSpreadsheetElement.h"
 
+#include <vector>
+
+using XMLNode = pugi::xml_node;
+
 namespace OpenXLSX
 {
 
@@ -150,7 +154,7 @@ namespace OpenXLSX
          * @brief Clear the string at the given index.
          * @param index The index to clear.
          * @note There is no 'deleteString' member function, as deleting a shared string node will invalidate the
-         * shared string indeces for the cells in the spreadsheet. Instead use this member functions, which clears
+         * shared string indices for the cells in the spreadsheet. Instead use this member functions, which clears
          * the contents of the string, but keeps the XMLNode holding the string.
          */
         void ClearString(int index);
@@ -163,7 +167,7 @@ namespace OpenXLSX
 
 
         /**
-         * @brief Parse the contnts of the underlying XML file and fills the datastructure with the data from the XML file.
+         * @brief Parse the contents of the underlying XML file and fills the datastructure with the data from the XML file.
          * @return true if successful; otherwise false.
          */
         bool ParseXMLData() override;
@@ -174,7 +178,7 @@ namespace OpenXLSX
 
     private:
 
-        std::vector<XMLNode *> m_sharedStrings; /**< A std::vector with the XMLNodes holding the shared strings. */
+        std::vector<XMLNode> m_sharedStrings; /**< A std::vector with the XMLNodes holding the shared strings. */
         std::string m_emptyString; /**< A dummy member used for returning an empty string. */
 
     };

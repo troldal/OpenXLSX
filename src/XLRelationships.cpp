@@ -15,7 +15,7 @@ XLRelationshipItem::XLRelationshipItem(XMLNode &node,
                                        XLRelationshipType type,
                                        const std::string &target,
                                        const std::string &id)
-    : m_relationshipNode(&node),
+    : m_relationshipNode(make_unique<XMLNode>(node)),
       m_relationshipType(type),
       m_relationshipTarget(target),
       m_relationshipId(id)
@@ -54,9 +54,7 @@ const std::string &XLRelationshipItem::Id() const
 void XLRelationshipItem::Delete()
 {
     // Delete the XML node
-    if (m_relationshipNode) {
-        m_relationshipNode->DeleteNode();
-    }
+    if (m_relationshipNode) m_relationshipNode->parent().remove_child(*m_relationshipNode);
 
     // Set the object to a safe State
     m_relationshipNode = nullptr;
@@ -204,28 +202,22 @@ XLRelationshipItem * XLRelationships::AddRelationship(XLRelationshipType type, c
 
     m_relationshipCount++;
 
-    // Create new node in the .rels file
-    auto node = XmlDocument()->CreateNode("Relationship");
-    auto Id = XmlDocument()->CreateAttribute("Id", "rId" + to_string(m_relationshipCount));
-    auto Type = XmlDocument()->CreateAttribute("Type", typeString);
-    auto Target = XmlDocument()->CreateAttribute("Target", target);
+    string id = "rId" + to_string(m_relationshipCount);
 
-    node->AppendAttribute(Id);
-    node->AppendAttribute(Type);
-    node->AppendAttribute(Target);
+    // Create new node in the .rels file
+    auto node = XmlDocument()->append_child("Relationship");
+    node.append_attribute("Id").set_value(id.c_str());
+    node.append_attribute("Type").set_value(typeString.c_str());
+    node.append_attribute("Target").set_value(target.c_str());
 
     if (type == XLRelationshipType::ExternalLinkPath) {
-        auto TargetMode = XmlDocument()->CreateAttribute("TargetMode", "External");
-        node->AppendAttribute(TargetMode);
+        node.append_attribute("TargetMode").set_value("External");
     }
 
-    // Append the new node to the XML file
-    XmlDocument()->RootNode()->AppendNode(node);
-
     // Create new XLRelationshipItem object and add to internal datastructure.
-    unique_ptr<XLRelationshipItem> rShip(new XLRelationshipItem(*node, type, target, Id->Value()));
+    unique_ptr<XLRelationshipItem> rShip(new XLRelationshipItem(node, type, target, id));
     XLRelationshipItem *result = rShip.get();
-    relationshipsMutable()->insert_or_assign(Id->Value(), move(rShip));
+    relationshipsMutable()->insert_or_assign(id, move(rShip));
     SetModified();
 
     CommitXMLData(); //TODO: Is this really required?
@@ -239,12 +231,11 @@ XLRelationshipItem * XLRelationships::AddRelationship(XLRelationshipType type, c
  */
 bool XLRelationships::ParseXMLData()
 {
-    auto theNode = XmlDocument()->FirstNode();
-
+    auto theNode = XmlDocument()->first_child();
     while (theNode) {
 
         XLRelationshipType type;
-        string typeString = theNode->Attribute("Type")->Value();
+        string typeString = theNode.attribute("Type").value();
 
         if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties")
             type = XLRelationshipType::ExtendedProperties;
@@ -291,14 +282,14 @@ bool XLRelationships::ParseXMLData()
         else
             type = XLRelationshipType::Unknown;
 
-        unique_ptr<XLRelationshipItem> rShip(new XLRelationshipItem(*theNode,
+        unique_ptr<XLRelationshipItem> rShip(new XLRelationshipItem(theNode,
                                                                     type,
-                                                                    theNode->Attribute("Target")->Value(),
-                                                                    theNode->Attribute("Id")->Value()));
+                                                                    theNode.attribute("Target").value(),
+                                                                    theNode.attribute("Id").value()));
 
-        relationshipsMutable()->insert_or_assign(theNode->Attribute("Id")->Value(), move(rShip));
+        relationshipsMutable()->insert_or_assign(theNode.attribute("Id").value(), move(rShip));
 
-        theNode = theNode->NextSibling();
+        theNode = theNode.next_sibling();
     }
 
     m_relationshipCount = m_relationships.size();

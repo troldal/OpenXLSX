@@ -35,11 +35,11 @@ bool XLCoreProperties::ParseXMLData()
 {
     m_properties.clear();
 
-    auto node = XmlDocument()->FirstNode();
+    auto node = XmlDocument()->first_child();
 
     while (node) {
-        m_properties.insert_or_assign(node->Name(), node);
-        node = node->NextSibling();
+        m_properties.insert_or_assign(node.name(), node);
+        node = node.next_sibling();
     }
 
     return true;
@@ -49,9 +49,9 @@ bool XLCoreProperties::ParseXMLData()
  * @details
  */
 bool XLCoreProperties::SetProperty(const std::string &name,
-                                      const std::string &value)
+                                   const std::string &value)
 {
-    m_properties.at(name)->SetValue(value);
+    m_properties.at(name).set_value(value.c_str());
     SetModified();
     return true;
 }
@@ -60,7 +60,7 @@ bool XLCoreProperties::SetProperty(const std::string &name,
  * @details
  */
 bool XLCoreProperties::SetProperty(const std::string &name,
-                                      int value)
+                                   int value)
 {
     return SetProperty(name, to_string(value));
 }
@@ -77,9 +77,9 @@ bool XLCoreProperties::SetProperty(const std::string &name,
 /**
  * @details
  */
-XMLNode *XLCoreProperties::Property(const std::string &name) const
+const XMLNode *XLCoreProperties::Property(const std::string &name) const
 {
-    return m_properties.at(name);
+    return &m_properties.at(name);
 }
 
 /**
@@ -88,7 +88,7 @@ XMLNode *XLCoreProperties::Property(const std::string &name) const
 void XLCoreProperties::DeleteProperty(const std::string &name)
 {
     auto element = m_properties.at(name);
-    element->DeleteNode();
+    element.parent().remove_child(element);
     m_properties.erase(name);
     SetModified();
 }

@@ -41,10 +41,10 @@ bool XLSharedStrings::ParseXMLData()
     m_sharedStrings.clear();
 
     // Find the first node and iterate through the XML file, storing all string nodes in the internal datastructure
-    auto node = XmlDocument()->FirstNode();
+    auto node = XmlDocument()->first_child();
     while (node) {
-        m_sharedStrings.push_back(node->ChildNode());
-        node = node->NextSibling();
+        m_sharedStrings.push_back(node.first_child());
+        node = node.next_sibling();
     }
 
     return true;
@@ -62,7 +62,7 @@ const string &XLSharedStrings::GetString(unsigned long index) const
     if (index > m_sharedStrings.size() - 1)
         return m_emptyString;
     else
-        return m_sharedStrings.at(index)->Value();
+        return m_sharedStrings.at(index).value();
 }
 
 /**
@@ -79,7 +79,7 @@ const std::string &XLSharedStrings::GetString(const std::string &str) const
     if (index < 0)
         return m_emptyString;
     else
-        return m_sharedStrings.at(index)->Value();
+        return m_sharedStrings.at(index).value();
 
 }
 
@@ -89,7 +89,7 @@ const std::string &XLSharedStrings::GetString(const std::string &str)
 
     if (index < 0) index = AppendString(str);
 
-    return m_sharedStrings.at(index)->Value();
+    return m_sharedStrings.at(index).value();
 }
 
 /**
@@ -103,7 +103,7 @@ const XMLNode *XLSharedStrings::GetStringNode(unsigned long index) const
     if (index > m_sharedStrings.size() - 1)
         throw std::range_error("Node does not exist");
     else
-        return m_sharedStrings.at(index);
+        return &m_sharedStrings.at(index);
 }
 
 /**
@@ -114,14 +114,11 @@ const XMLNode *XLSharedStrings::GetStringNode(unsigned long index) const
  */
 const XMLNode *XLSharedStrings::GetStringNode(const std::string &str) const
 {
-    XMLNode *node = nullptr;
     for (const auto &s : m_sharedStrings) {
-        if (s->Value() == str) node = s;
+        if (s.value() == str) return &s;
     }
 
-    if (node == nullptr) throw std::range_error("Node does not exist");
-
-    return node;
+    throw std::range_error("Node does not exist");
 }
 
 /**
@@ -133,7 +130,7 @@ long XLSharedStrings::GetStringIndex(const std::string &str) const
     long result = -1;
     long counter = 0;
     for (const auto &s : m_sharedStrings) {
-        if (s->Value() == str) {
+        if (s.value() == str) {
             result = counter;
             break;
         }
@@ -174,13 +171,9 @@ long XLSharedStrings::AppendString(const std::string &str)
 {
 
     // Create the required nodes
-    auto node = XmlDocument()->CreateNode("si");
-    auto value = XmlDocument()->CreateNode("t");
-
-    // Insert add the string and add the nodes to the XML tree.
-    value->SetValue(str);
-    node->AppendNode(value);
-    XmlDocument()->RootNode()->AppendNode(node);
+    auto node = XmlDocument()->append_child("si");
+    auto value = node.append_child("t");
+    value.set_value(str.c_str());
 
     // Add the node pointer to the internal datastructure.
     m_sharedStrings.push_back(value);
@@ -196,6 +189,6 @@ long XLSharedStrings::AppendString(const std::string &str)
  */
 void XLSharedStrings::ClearString(int index)
 {
-    m_sharedStrings.at(index)->SetValue("");
+    m_sharedStrings.at(index).set_value("");
     SetModified();
 }

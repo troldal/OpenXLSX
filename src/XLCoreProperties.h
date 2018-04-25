@@ -47,12 +47,13 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #define OPENXL_XLDOCCOREPROPERTIES_H
 
 #include "XLAbstractXMLFile.h"
-#include "XML/XMLNode.h"
 #include "XLSpreadsheetElement.h"
 
 #include <string>
 #include <vector>
 #include <map>
+
+using XMLNode = pugi::xml_node;
 
 namespace OpenXLSX
 {
@@ -121,7 +122,7 @@ namespace OpenXLSX
          * @param name
          * @return
          */
-        XMLNode *Property(const std::string &name) const;
+        const XMLNode *Property(const std::string &name) const;
 
         /**
          * @brief
@@ -146,7 +147,7 @@ namespace OpenXLSX
 //----------------------------------------------------------------------------------------------------------------------
 
     private:
-        std::map<std::string, XMLNode *> m_properties; /**< */
+        std::map<std::string, XMLNode> m_properties; /**< */
     };
 
 }

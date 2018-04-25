@@ -48,7 +48,11 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 #include <iostream>
 #include <string>
-#include "XML/XMLDocument.h"
+#include <map>
+
+#include "XML/pugixml.hpp"
+
+using XMLDocument = pugi::xml_document;
 
 namespace OpenXLSX
 {

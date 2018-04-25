@@ -50,9 +50,12 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <vector>
 #include <map>
 
-#include "XML/XMLNode.h"
+//#include "XML/XMLNode.h"
 #include "XLAbstractXMLFile.h"
 #include "XLSpreadsheetElement.h"
+#include "XML/pugixml.hpp"
+
+using XMLNode = pugi::xml_node;
 
 namespace OpenXLSX
 {
@@ -202,7 +205,7 @@ namespace OpenXLSX
 
     private:
 
-        XMLNode *m_relationshipNode; /**< A pointer to the XML node with the relationship item */
+        std::unique_ptr<XMLNode> m_relationshipNode; /**< A pointer to the XML node with the relationship item */
         XLRelationshipType m_relationshipType; /**< The type of the relationship item */
         std::string m_relationshipTarget; /**< The target of the relationship item */
         std::string m_relationshipId; /**< The ID of the relationship item */
@@ -314,7 +317,7 @@ namespace OpenXLSX
     private:
 
         XLRelationshipMap m_relationships; /**< A std::map with the relationship items, ordered by ID */
-        int m_relationshipCount; /**< The number of relationship items in the XLRelationship object */
+        unsigned long m_relationshipCount; /**< The number of relationship items in the XLRelationship object */
     };
 }
 
