@@ -33,58 +33,49 @@ XLAppProperties::XLAppProperties(XLDocument &parent,
 /**
  * @details
  */
-XLAppProperties::~XLAppProperties()
-{
-
-}
-
-/**
- * @details
- */
 bool XLAppProperties::ParseXMLData()
 {
     m_sheetNameNodes.clear();
     m_headingPairs.clear();
     m_properties.clear();
 
-    auto node = XmlDocument()->FirstNode();
+    auto node = XmlDocument()->first_child();
 
     while (node) {
-        if (node->Name() == "HeadingPairs") {
-            m_headingPairsSize = node->ChildNode()->Attribute("size");
-            m_headingPairsCategoryParent = node->ChildNode()->ChildNode();
-            m_headingPairsCountParent = m_headingPairsCategoryParent->NextSibling();
+        if (node.name() == "HeadingPairs") {
+            m_headingPairsSize = make_unique<XMLAttribute>(node.first_child().attribute("size"));
+            m_headingPairsCategoryParent = make_unique<XMLNode>(node.first_child().first_child());
+            m_headingPairsCountParent = make_unique<XMLNode>(m_headingPairsCategoryParent->next_sibling());
 
-            for (int i = 0; i < stoi(m_headingPairsSize->Value()) / 2; ++i) {
-                auto categoryNode = m_headingPairsCategoryParent->ChildNode();
-                auto countNode = m_headingPairsCountParent->ChildNode();
+            for (int i = 0; i < stoi(m_headingPairsSize->value()) / 2; ++i) {
+                auto categoryNode = m_headingPairsCategoryParent->first_child();
+                auto countNode = m_headingPairsCountParent->first_child();
 
-                auto element = std::make_pair(categoryNode, countNode);
+                auto element = std::make_pair(make_unique<XMLNode>(categoryNode), make_unique<XMLNode>(countNode));
 
-                m_headingPairs.push_back(element);
+                m_headingPairs.push_back(std::move(element));
 
-                if (i < stoi(m_headingPairsSize->Value()) / 2 - 1) {
-                    m_headingPairsCategoryParent = m_headingPairsCountParent->NextSibling();
-                    m_headingPairsCountParent = m_headingPairsCategoryParent->NextSibling();
+                if (i < stoi(m_headingPairsSize->value()) / 2 - 1) {
+                    m_headingPairsCategoryParent = make_unique<XMLNode>(m_headingPairsCountParent->next_sibling());
+                    m_headingPairsCountParent = make_unique<XMLNode>(m_headingPairsCategoryParent->next_sibling());
                 }
             }
         }
-        else if (node->Name() == "TitlesOfParts") {
-            m_sheetCountAttribute = node->ChildNode()->Attribute("size");
-            m_sheetNamesParent = node->ChildNode();
+        else if (node.name() == "TitlesOfParts") {
+            m_sheetCountAttribute = make_unique<XMLAttribute>(node.first_child().attribute("size"));
+            m_sheetNamesParent = make_unique<XMLNode>(node.first_child());
 
-            auto currentNode = m_sheetNamesParent->ChildNode();
-            for (int i = 0; i < stoi(m_sheetCountAttribute->Value()); ++i) {
-                string temp = currentNode->Value();
-                m_sheetNameNodes[currentNode->Value()] = currentNode;
-                currentNode = currentNode->NextSibling();
+            auto currentNode = m_sheetNamesParent->first_child();
+            for (int i = 0; i < stoi(m_sheetCountAttribute->value()); ++i) {
+                m_sheetNameNodes[currentNode.value()] = make_unique<XMLNode>(currentNode);
+                currentNode = currentNode.next_sibling();
             }
         }
         else {
-            m_properties.insert_or_assign(node->Name(), node);
+            m_properties.insert_or_assign(node.name(), make_unique<XMLNode>(node));
         }
 
-        node = node->NextSibling();
+        node = node.next_sibling();
     }
 
 

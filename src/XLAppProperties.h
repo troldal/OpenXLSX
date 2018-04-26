@@ -47,13 +47,15 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #define OPENXL_XLDOCAPPPROPERTIES_H
 
 #include "XLAbstractXMLFile.h"
-#include "XML/XMLNode.h"
-#include "XML/XMLAttribute.h"
 #include "XLSpreadsheetElement.h"
 
 #include <string>
 #include <vector>
+#include <memory>
 #include <map>
+
+using XMLNode = pugi::xml_node;
+using XMLAttribute = pugi::xml_attribute;
 
 namespace OpenXLSX
 {
@@ -66,8 +68,9 @@ namespace OpenXLSX
      * @brief This class is a specialization of the XLAbstractXMLFile, with the purpose of the representing the
      * document app properties in the app.xml file (docProps folder) in the .xlsx package.
      */
-    class XLAppProperties: public XLAbstractXMLFile,
-                              public XLSpreadsheetElement
+    class XLAppProperties:
+        public XLAbstractXMLFile,
+        public XLSpreadsheetElement
     {
         friend class XLDocument;
 
@@ -83,7 +86,7 @@ namespace OpenXLSX
          * @param filePath
          */
         explicit XLAppProperties(XLDocument &parent,
-                                    const std::string &filePath);
+                                 const std::string &filePath);
 
         /**
          * @brief
@@ -94,7 +97,7 @@ namespace OpenXLSX
         /**
          * @brief
          */
-        virtual ~XLAppProperties();
+        ~XLAppProperties() override = default;
 
         /**
          * @brief
@@ -261,7 +264,7 @@ namespace OpenXLSX
          * @brief
          * @return
          */
-        virtual bool ParseXMLData() override;
+        bool ParseXMLData() override;
 
         /**
          * @brief
@@ -301,16 +304,16 @@ namespace OpenXLSX
 
     private:
 
-        XMLAttribute *m_sheetCountAttribute; /**< */
-        XMLNode *m_sheetNamesParent; /**< */
-        std::map<std::string, XMLNode *> m_sheetNameNodes; /**< */
+        std::unique_ptr<XMLAttribute> m_sheetCountAttribute; /**< */
+        std::unique_ptr<XMLNode> m_sheetNamesParent; /**< */
+        std::map<std::string, std::unique_ptr<XMLNode>> m_sheetNameNodes; /**< */
 
-        XMLAttribute *m_headingPairsSize; /**< */
-        XMLNode *m_headingPairsCategoryParent; /**< */
-        XMLNode *m_headingPairsCountParent; /**< */
-        std::vector<std::pair<XMLNode *, XMLNode *>> m_headingPairs; /**< */
+        std::unique_ptr<XMLAttribute> m_headingPairsSize; /**< */
+        std::unique_ptr<XMLNode> m_headingPairsCategoryParent; /**< */
+        std::unique_ptr<XMLNode> m_headingPairsCountParent; /**< */
+        std::vector<std::pair<std::unique_ptr<XMLNode>, std::unique_ptr<XMLNode>>> m_headingPairs; /**< */
 
-        std::map<std::string, XMLNode *> m_properties; /**< */
+        std::map<std::string, std::unique_ptr<XMLNode>> m_properties; /**< */
 
         unsigned int m_worksheetCount; /**< */
         unsigned int m_chartsheetCount; /**< */
