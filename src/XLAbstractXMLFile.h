@@ -47,6 +47,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #define OPENXL_XLABSTRACTFILE_H
 
 #include <iostream>
+#include <memory>
 #include <string>
 #include <map>
 

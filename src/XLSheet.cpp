@@ -51,8 +51,8 @@ const std::string &XLSheet::Name() const
 void XLSheet::SetName(const std::string &name)
 {
     m_sheetName = name;
-    m_nodeInWorkbook->Attribute("name")->SetValue(name);
-    m_nodeInApp->SetValue(name);
+    m_nodeInWorkbook->attribute("name").set_value(name.c_str());
+    m_nodeInApp->set_value(name.c_str());
     SetModified();
 }
 
@@ -77,34 +77,22 @@ void XLSheet::SetState(XLSheetState state)
 
     switch (m_sheetState) {
         case XLSheetState::Hidden : {
-            auto att = m_nodeInWorkbook->Attribute("state");
-            if (!att) {
-                att = XmlDocument()->CreateAttribute("state", "hidden");
-                m_nodeInWorkbook->AppendAttribute(att);
-            }
-            else {
-                att->SetValue("hidden");
-            }
+            auto att = m_nodeInWorkbook->attribute("state");
+            if (!m_nodeInWorkbook->attribute("state")) m_nodeInWorkbook->append_attribute("state") = "hidden";
+            else att.set_value("hidden");
             break;
         }
 
         case XLSheetState::VeryHidden : {
-            auto att = m_nodeInWorkbook->Attribute("state");
-            if (!att) {
-                att = XmlDocument()->CreateAttribute("state", "veryhidden");
-                m_nodeInWorkbook->AppendAttribute(att);
-            }
-            else {
-                att->SetValue("veryhidden"); // todo: Check that this actually works
-            }
+            auto att = m_nodeInWorkbook->attribute("state");
+            if (!att) m_nodeInWorkbook->append_attribute("state") = "veryhidden";
+            else att.set_value("veryhidden"); // todo: Check that this actually works
             break;
         }
 
         case XLSheetState::Visible : {
-            auto att = m_nodeInWorkbook->Attribute("state");
-            if (att) {
-                att->DeleteAttribute();
-            }
+            auto att = m_nodeInWorkbook->attribute("state");
+            if (att) m_nodeInWorkbook->remove_attribute("state");
         }
     }
     SetModified();

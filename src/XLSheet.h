@@ -49,6 +49,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLAbstractXMLFile.h"
 #include "XLSpreadsheetElement.h"
 
+using XMLNode = pugi::xml_node;
+
 namespace OpenXLSX
 {
     class XLContentItem;
@@ -113,10 +115,10 @@ namespace OpenXLSX
          * @param parent A pointer to the parent XLDocument object.
          * @param filepath A std::string with the relative path to the sheet file in the .xlsx package.
          */
-        explicit XLSheet(XLWorkbook &parent,
-                                 const std::string &name,
-                                 const std::string &filepath,
-                                 const std::string &xmlData = "");
+        XLSheet(XLWorkbook &parent,
+                const std::string &name,
+                const std::string &filepath,
+                const std::string &xmlData = "");
 
         /**
          * @brief The copy constructor.
@@ -211,8 +213,8 @@ namespace OpenXLSX
         XLSheetType m_sheetType; /**< The sheet type, i.e. WorkSheet, ChartSheet, etc. */
         XLSheetState m_sheetState; /**< The state of the sheet, i.e. Visible, Hidden or VeryHidden */
 
-        XMLNode *m_nodeInWorkbook; /**< A pointer to the relevant sheet node in workbook.xml */
-        XMLNode *m_nodeInApp; /**< A pointer to the relevant TitleOfParts node in app.xml */
+        std::unique_ptr<XMLNode> m_nodeInWorkbook; /**< A pointer to the relevant sheet node in workbook.xml */
+        std::unique_ptr<XMLNode> m_nodeInApp; /**< A pointer to the relevant TitleOfParts node in app.xml */
         XLContentItem *m_nodeInContentTypes; /**< A pointer to the relevant content type item in [Content_Types].xml */
         XLRelationshipItem *m_nodeInWorkbookRels; /**< A pointer to the relationship item in workbook.xml.rels */
     };

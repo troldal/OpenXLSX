@@ -10,13 +10,13 @@ using namespace OpenXLSX;
 
 std::map<std::string, XLStyles> XLStyles::s_styles = {};
 
-XMLNode *XLStyles::s_numberFormatsNode = nullptr;
-XMLNode *XLStyles::s_fontsNode = nullptr;
-XMLNode *XLStyles::s_fillsNode = nullptr;
-XMLNode *XLStyles::s_bordersNode = nullptr;
-XMLNode *XLStyles::s_cellFormatNode = nullptr;
-XMLNode *XLStyles::s_cellStyleNode = nullptr;
-XMLNode *XLStyles::s_colors = nullptr;
+std::unique_ptr<XMLNode> XLStyles::s_numberFormatsNode = nullptr;
+std::unique_ptr<XMLNode> XLStyles::s_fontsNode = nullptr;
+std::unique_ptr<XMLNode> XLStyles::s_fillsNode = nullptr;
+std::unique_ptr<XMLNode> XLStyles::s_bordersNode = nullptr;
+std::unique_ptr<XMLNode> XLStyles::s_cellFormatNode = nullptr;
+std::unique_ptr<XMLNode> XLStyles::s_cellStyleNode = nullptr;
+std::unique_ptr<XMLNode> XLStyles::s_colors = nullptr;
 
 /**
  * @details

@@ -50,7 +50,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <vector>
 #include <map>
 
-//#include "XML/XMLNode.h"
 #include "XLAbstractXMLFile.h"
 #include "XLSpreadsheetElement.h"
 #include "XML/pugixml.hpp"
@@ -194,10 +193,10 @@ namespace OpenXLSX
          * @param target The target of the relationship item
          * @param id The id of the relationship item
          */
-        explicit XLRelationshipItem(XMLNode &node,
-                                    XLRelationshipType type,
-                                    const std::string &target,
-                                    const std::string &id);
+        XLRelationshipItem(XMLNode &node,
+                           XLRelationshipType type,
+                           const std::string &target,
+                           const std::string &id);
 
 //----------------------------------------------------------------------------------------------------------------------
 //           Private Member Variables

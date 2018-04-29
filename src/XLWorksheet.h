@@ -46,6 +46,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXL_XLWORKSHEET_H
 #define OPENXL_XLWORKSHEET_H
 
+#include <vector>
+
 #include "XLSheet.h"
 #include "XLCellReference.h"
 

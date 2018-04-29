@@ -14,7 +14,7 @@ using namespace OpenXLSX;
 XLContentItem::XLContentItem(XMLNode &node,
                              const std::string &path,
                              XLContentType type)
-    : m_contentNode(&node),
+    : m_contentNode(make_unique<XMLNode>(node)),
       m_contentPath(path),
       m_contentType(type)
 {
@@ -25,7 +25,7 @@ XLContentItem::XLContentItem(XMLNode &node,
  * @details
  */
 XLContentItem::XLContentItem(const XLContentItem &other)
-    : m_contentNode(other.m_contentNode),
+    : m_contentNode(make_unique<XMLNode>(other.m_contentNode)),
       m_contentPath(other.m_contentPath),
       m_contentType(other.m_contentType)
 {
@@ -48,7 +48,7 @@ XLContentItem::XLContentItem(XLContentItem &&other)
  */
 XLContentItem &XLContentItem::operator=(const XLContentItem &other)
 {
-    m_contentNode = other.m_contentNode;
+    m_contentNode = make_unique<XMLNode>(other.m_contentNode);
     m_contentPath = other.m_contentPath;
     m_contentType = other.m_contentType;
 
@@ -88,9 +88,7 @@ const string &XLContentItem::Path() const
  */
 void XLContentItem::DeleteItem()
 {
-    if (m_contentNode) {
-        m_contentNode->DeleteNode();
-    }
+    if (m_contentNode) m_contentNode->parent().remove_child(*m_contentNode);
 
     m_contentNode = nullptr;
     m_contentPath = "";
@@ -122,21 +120,21 @@ bool XLContentTypes::ParseXMLData()
     std::string strOverride = "Override";
     std::string strDefault = "Default";
 
-    auto node = XmlDocument()->FirstNode();
+    auto node = XmlDocument()->first_child();
 
     while (node) {
-        if (node->Name() == "Default") {
+        if (node.name() == "Default") {
             std::string extension = "";
             std::string contentType = "";
 
-            if (node->Attribute("Extension")) extension = node->Attribute("Extension")->Value();
-            if (node->Attribute("ContentType")) contentType = node->Attribute("ContentType")->Value();
+            if (node.attribute("Extension")) extension = node.attribute("Extension").value();
+            if (node.attribute("ContentType")) contentType = node.attribute("ContentType").value();
             m_defaults.insert_or_assign(extension, node);
         }
-        else if (node->Name() == "Override") {
-            string path = node->Attribute("PartName")->Value();
+        else if (node.name() == "Override") {
+            string path = node.attribute("PartName").value();
             XLContentType type;
-            string typeString = node->Attribute("ContentType")->Value();
+            string typeString = node.attribute("ContentType").value();
 
             if (typeString == "application/vnd.ms-excel.Sheet.macroEnabled.main+xml")
                 type = XLContentType::WorkbookMacroEnabled;
@@ -183,11 +181,11 @@ bool XLContentTypes::ParseXMLData()
             else
                 type = XLContentType::Unknown;
 
-            unique_ptr<XLContentItem> item(new XLContentItem(*node, path, type));
+            unique_ptr<XLContentItem> item(new XLContentItem(node, path, type));
             m_overrides.insert_or_assign(path, move(item));
         }
 
-        node = node->NextSibling();
+        node = node.next_sibling();
     }
 
     return true;
@@ -256,16 +254,11 @@ void XLContentTypes::addOverride(const string &path,
     else
         return;
 
-    XMLNode *node = XmlDocument()->CreateNode("Override");
-    XMLAttribute *partName = XmlDocument()->CreateAttribute("PartName", path);
-    XMLAttribute *contentType = XmlDocument()->CreateAttribute("ContentType", typeString);
+    auto node = XmlDocument()->root().append_child("override");
+    node.append_attribute("PartName").set_value(path.c_str());
+    node.append_attribute("ContentType").set_value(typeString.c_str());
 
-    node->AppendAttribute(partName);
-    node->AppendAttribute(contentType);
-
-    XmlDocument()->RootNode()->AppendNode(node);
-
-    unique_ptr<XLContentItem> item(new XLContentItem(*node, path, type));
+    unique_ptr<XLContentItem> item(new XLContentItem(node, path, type));
     m_overrides.insert_or_assign(path, move(item));
     SetModified();
 }

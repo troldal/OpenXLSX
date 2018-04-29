@@ -47,13 +47,15 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #define OPENXLEXE_XLFONT_H
 
 #include <string>
+#include <memory>
 #include <map>
 #include "XLColor.h"
+#include "XML/pugixml.hpp"
+
+using XMLNode = pugi::xml_node;
 
 namespace OpenXLSX
 {
-
-    class XMLNode;
 
     /**
      * @brief
@@ -107,7 +109,7 @@ namespace OpenXLSX
 
         static std::map<std::string, XLFont> s_fonts;
 
-        XMLNode *m_fontNode;
+        std::unique_ptr<XMLNode> m_fontNode;
 
         std::string m_name;
         unsigned int m_size;

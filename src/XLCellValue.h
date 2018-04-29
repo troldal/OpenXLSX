@@ -46,7 +46,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLEXE_XLCELLVALUE_H
 #define OPENXLEXE_XLCELLVALUE_H
 
-#include "XML/XMLNode.h"
 #include "XLValueString.h"
 #include "XLValueNumber.h"
 #include "XLValueBoolean.h"

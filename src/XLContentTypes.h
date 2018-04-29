@@ -52,6 +52,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <map>
 #include <string>
 
+using XMLNode = pugi::xml_node;
+
 namespace OpenXLSX
 {
     class XLContentItem;
@@ -176,7 +178,7 @@ namespace OpenXLSX
 
     private:
 
-        XMLNode *m_contentNode; /**< */
+        std::unique_ptr<XMLNode> m_contentNode; /**< */
         std::string m_contentPath; /**< */
         XLContentType m_contentType; /**< */
     };

@@ -104,8 +104,8 @@ XMLNode *XLAppProperties::AddSheetName(const string &title)
 void XLAppProperties::DeleteSheetName(const string &title)
 {
     for (auto &iter : m_sheetNameNodes) {
-        if (iter.second.value() == title) {
-            iter.second.parent().remove_child(iter.second);
+        if (iter.second->value() == title) {
+            iter.second->parent().remove_child(iter.second);
             m_sheetNameNodes.erase(iter.first);
             m_sheetCountAttribute->set_value(m_sheetNameNodes.size());
             SetModified();
@@ -121,8 +121,8 @@ void XLAppProperties::SetSheetName(const string &oldTitle,
                                       const string &newTitle)
 {
     for (auto &iter : m_sheetNameNodes) {
-        if (iter.second.value() == oldTitle) {
-            iter.second.set_value(newTitle.c_str());
+        if (iter.second->value() == oldTitle) {
+            iter.second->set_value(newTitle.c_str());
             SetModified();
             return;
         }

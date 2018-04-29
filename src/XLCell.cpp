@@ -34,10 +34,10 @@ XLCell::XLCell(XLWorksheet &parent,
       m_parentDocument(parent.ParentDocument()),
       m_parentWorkbook(parent.ParentWorkbook()),
       m_parentWorksheet(&parent),
-      m_cellReference(XLCellReference(cellNode.Attribute("r")->Value())),
-      m_rowNode(cellNode.Parent()),
+      m_cellReference(XLCellReference(cellNode.attribute("r").value())),
+      m_rowNode(make_unique<XMLNode>(cellNode.parent())),
       m_cellNode(&cellNode),
-      m_formulaNode(cellNode.ChildNode("f")),
+      m_formulaNode(make_unique<XMLNode>(cellNode.child("f"))),
       m_value(std::make_unique<XLCellValue>(*this))
 {
 }
@@ -139,14 +139,13 @@ void XLCell::SetTypeAttribute(const std::string &typeString)
 {
 
     if (typeString.empty()) {
-        if (m_cellNode->Attribute("t"))
-            m_cellNode->Attribute("t")->DeleteAttribute();
+        if (m_cellNode->attribute("t")) m_cellNode->remove_attribute("t");
     }
     else {
-        if (m_cellNode->Attribute("t") == nullptr)
-            m_cellNode->AppendAttribute(XmlDocument()->CreateAttribute("t", typeString));
+        if (m_cellNode->attribute("t") == nullptr)
+            m_cellNode->append_attribute("t") = typeString.c_str();
         else
-            m_cellNode->Attribute("t")->SetValue(typeString);
+            m_cellNode->attribute("t") = typeString.c_str();
     }
 }
 
@@ -155,8 +154,8 @@ void XLCell::SetTypeAttribute(const std::string &typeString)
  */
 void XLCell::DeleteTypeAttribute()
 {
-    if (m_cellNode->Attribute("t") != nullptr) {
-        m_cellNode->Attribute("t")->DeleteAttribute();
+    if (m_cellNode->attribute("t").as_bool()) {
+        m_cellNode->remove_attribute("t");
     }
 }
 
@@ -197,7 +196,7 @@ const XMLDocument *XLCell::XmlDocument() const
  */
 XMLNode *XLCell::CellNode()
 {
-    return m_cellNode;
+    return m_cellNode.get();
 }
 
 /**
@@ -205,7 +204,7 @@ XMLNode *XLCell::CellNode()
  */
 const XMLNode *XLCell::CellNode() const
 {
-    return m_cellNode;
+    return m_cellNode.get();
 }
 
 /**
@@ -213,8 +212,8 @@ const XMLNode *XLCell::CellNode() const
  */
 XMLNode *XLCell::CreateValueNode()
 {
-    if (m_cellNode->ChildNode("v") == nullptr) m_cellNode->AppendNode(XmlDocument()->CreateNode("v"));
-    return m_cellNode->ChildNode("v");
+    if (m_cellNode->child("v") == pugi::node_null) m_cellNode->append_child("v");
+    return m_cellNode->child("v");
 }
 
 /**

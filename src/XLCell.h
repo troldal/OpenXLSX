@@ -48,10 +48,11 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 #include <string>
 #include <ostream>
-#include "XML/XMLNode.h"
 #include "XLCellReference.h"
 #include "XLDocument.h"
 #include "XLCellType.h"
+
+using XMLNode = pugi::xml_node;
 
 namespace OpenXLSX
 {
@@ -168,7 +169,7 @@ namespace OpenXLSX
          * @param parent A pointer to the parent XLWorksheet object. Must not be nullptr.
          * @param cellNode A pointer to the XMLNode with the cell data. Must not be nullptr.
          */
-        explicit XLCell(XLWorksheet &parent,
+        XLCell(XLWorksheet &parent,
                         XMLNode &cellNode);
 
         /**
@@ -263,9 +264,9 @@ namespace OpenXLSX
 
         XLCellReference m_cellReference; /**< The cell reference variable. */
 
-        XMLNode *m_rowNode; /**< A pointer to the row node to which the cell belongs. */
-        XMLNode *m_cellNode; /**< A pointer to the root XMLNode for the cell. */
-        XMLNode *m_formulaNode; /**< A pointer to the formula XMLNode, a child node of the m_cellNode. */
+        std::unique_ptr<XMLNode> m_rowNode; /**< A pointer to the row node to which the cell belongs. */
+        std::unique_ptr<XMLNode> m_cellNode; /**< A pointer to the root XMLNode for the cell. */
+        std::unique_ptr<XMLNode> m_formulaNode; /**< A pointer to the formula XMLNode, a child node of the m_cellNode. */
 
         std::unique_ptr<XLCellValue> m_value; /**<  */
 
