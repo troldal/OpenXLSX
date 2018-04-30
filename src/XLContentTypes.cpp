@@ -2,6 +2,8 @@
 // Created by Troldal on 13/08/16.
 //
 
+#include <cstring>
+
 #include "XLContentTypes.h"
 #include "XLDocument.h"
 
@@ -25,7 +27,7 @@ XLContentItem::XLContentItem(XMLNode &node,
  * @details
  */
 XLContentItem::XLContentItem(const XLContentItem &other)
-    : m_contentNode(make_unique<XMLNode>(other.m_contentNode)),
+    : m_contentNode(make_unique<XMLNode>(*other.m_contentNode)),
       m_contentPath(other.m_contentPath),
       m_contentType(other.m_contentType)
 {
@@ -48,7 +50,7 @@ XLContentItem::XLContentItem(XLContentItem &&other)
  */
 XLContentItem &XLContentItem::operator=(const XLContentItem &other)
 {
-    m_contentNode = make_unique<XMLNode>(other.m_contentNode);
+    m_contentNode = make_unique<XMLNode>(*other.m_contentNode);
     m_contentPath = other.m_contentPath;
     m_contentType = other.m_contentType;
 
@@ -123,15 +125,15 @@ bool XLContentTypes::ParseXMLData()
     auto node = XmlDocument()->first_child();
 
     while (node) {
-        if (node.name() == "Default") {
+        if (strcmp(node.name(), "Default") == 0) {
             std::string extension = "";
             std::string contentType = "";
 
             if (node.attribute("Extension")) extension = node.attribute("Extension").value();
             if (node.attribute("ContentType")) contentType = node.attribute("ContentType").value();
-            m_defaults.insert_or_assign(extension, node);
+            m_defaults.insert_or_assign(extension, make_unique<XMLNode>(node));
         }
-        else if (node.name() == "Override") {
+        else if (strcmp(node.name(), "Override") == 0) {
             string path = node.attribute("PartName").value();
             XLContentType type;
             string typeString = node.attribute("ContentType").value();
@@ -197,7 +199,7 @@ bool XLContentTypes::ParseXMLData()
 void XLContentTypes::AddDefault(const string &key,
                                 XMLNode &node)
 {
-    m_defaults.insert_or_assign(key, &node);
+    m_defaults.insert_or_assign(key, make_unique<XMLNode>(node));
     SetModified();
 }
 

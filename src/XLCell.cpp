@@ -28,8 +28,7 @@ using namespace OpenXLSX;
  *      -# If there is no type attribute but there is a value node, the cell has a number value.
  *      -# Otherwise, determine the celltype based on the type attribute.
  */
-XLCell::XLCell(XLWorksheet &parent,
-               XMLNode &cellNode)
+XLCell::XLCell(XLWorksheet &parent, XMLNode &cellNode)
     : XLSpreadsheetElement(*parent.ParentDocument()),
       m_parentDocument(parent.ParentDocument()),
       m_parentWorkbook(parent.ParentWorkbook()),

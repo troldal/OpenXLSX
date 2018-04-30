@@ -198,64 +198,64 @@ std::string XLDocument::GetProperty(XLDocumentProperties theProperty) const
 {
     switch (theProperty) {
         case XLDocumentProperties::Application :
-            return m_docAppProperties->Property("Application")->Value();
+            return m_docAppProperties->Property("Application")->value();
 
         case XLDocumentProperties::AppVersion :
-            return m_docAppProperties->Property("AppVersion")->Value();
+            return m_docAppProperties->Property("AppVersion")->value();
 
         case XLDocumentProperties::Category :
-            return m_docCoreProperties->Property("cp:category")->Value();
+            return m_docCoreProperties->Property("cp:category")->value();
 
         case XLDocumentProperties::Company :
-            return m_docAppProperties->Property("Company")->Value();
+            return m_docAppProperties->Property("Company")->value();
 
         case XLDocumentProperties::CreationDate :
-            return m_docCoreProperties->Property("dcterms:created")->Value();
+            return m_docCoreProperties->Property("dcterms:created")->value();
 
         case XLDocumentProperties::Creator :
-            return m_docCoreProperties->Property("dc:creator")->Value();
+            return m_docCoreProperties->Property("dc:creator")->value();
 
         case XLDocumentProperties::Description :
-            return m_docCoreProperties->Property("dc:description")->Value();
+            return m_docCoreProperties->Property("dc:description")->value();
 
         case XLDocumentProperties::DocSecurity :
-            return m_docAppProperties->Property("DocSecurity")->Value();
+            return m_docAppProperties->Property("DocSecurity")->value();
 
         case XLDocumentProperties::HyperlinkBase :
-            return m_docAppProperties->Property("HyperlinkBase")->Value();
+            return m_docAppProperties->Property("HyperlinkBase")->value();
 
         case XLDocumentProperties::HyperlinksChanged :
-            return m_docAppProperties->Property("HyperlinksChanged")->Value();
+            return m_docAppProperties->Property("HyperlinksChanged")->value();
 
         case XLDocumentProperties::Keywords :
-            return m_docCoreProperties->Property("cp:keywords")->Value();
+            return m_docCoreProperties->Property("cp:keywords")->value();
 
         case XLDocumentProperties::LastModifiedBy :
-            return m_docCoreProperties->Property("cp:lastModifiedBy")->Value();
+            return m_docCoreProperties->Property("cp:lastModifiedBy")->value();
 
         case XLDocumentProperties::LastPrinted :
-            return m_docCoreProperties->Property("cp:lastPrinted")->Value();
+            return m_docCoreProperties->Property("cp:lastPrinted")->value();
 
         case XLDocumentProperties::LinksUpToDate :
-            return m_docAppProperties->Property("LinksUpToDate")->Value();
+            return m_docAppProperties->Property("LinksUpToDate")->value();
 
         case XLDocumentProperties::Manager :
-            return m_docAppProperties->Property("Manager")->Value();
+            return m_docAppProperties->Property("Manager")->value();
 
         case XLDocumentProperties::ModificationDate :
-            return m_docCoreProperties->Property("dcterms:modified")->Value();
+            return m_docCoreProperties->Property("dcterms:modified")->value();
 
         case XLDocumentProperties::ScaleCrop :
-            return m_docAppProperties->Property("ScaleCrop")->Value();
+            return m_docAppProperties->Property("ScaleCrop")->value();
 
         case XLDocumentProperties::SharedDoc :
-            return m_docAppProperties->Property("SharedDoc")->Value();
+            return m_docAppProperties->Property("SharedDoc")->value();
 
         case XLDocumentProperties::Subject :
-            return m_docCoreProperties->Property("dc:subject")->Value();
+            return m_docCoreProperties->Property("dc:subject")->value();
 
         case XLDocumentProperties::Title :
-            return m_docCoreProperties->Property("dc:title")->Value();
+            return m_docCoreProperties->Property("dc:title")->value();
 
     }
 

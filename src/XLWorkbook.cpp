@@ -2,6 +2,8 @@
 // Created by Troldal on 02/09/16.
 //
 
+#include <cstring>
+
 #include "XLWorkbook.h"
 #include "XLWorksheet.h"
 #include "XLDocument.h"
@@ -46,17 +48,17 @@ bool XLWorkbook::ParseXMLData()
     m_relationships.reset(new XLRelationships(*ParentDocument(), "xl/_rels/workbook.xml.rels"));
 
     // Find the "sheets" section in the Workbook.xml file
-    auto node = XmlDocument()->FirstNode();
+    auto node = XmlDocument()->first_child();
     while (node) {
-        if (node->Name() == "sheets") m_sheetsNode = node;
-        if (node->Name() == "definedNames") m_definedNames = node;
-        node = node->NextSibling();
+        if (strcmp(node.name(), "sheets") == 0) m_sheetsNode = make_unique<XMLNode>(node);
+        if (strcmp(node.name(), "definedNames") == 0) m_definedNames = make_unique<XMLNode>(node);
+        node = node.next_sibling();
     }
 
-    auto sheetNode = m_sheetsNode->ChildNode();
+    auto sheetNode = m_sheetsNode->first_child();
     while (sheetNode) {
-        m_sheetNodes[sheetNode->Attribute("name")->Value()] = sheetNode;
-        sheetNode = sheetNode->NextSibling();
+        m_sheetNodes[sheetNode.attribute("name").value()] = make_unique<XMLNode>(sheetNode);
+        sheetNode = sheetNode.next_sibling();
     }
 
     for (auto const &item : *m_relationships->Relationships()) {
@@ -180,7 +182,7 @@ XLSharedStrings *XLWorkbook::SharedStrings() const
  */
 void XLWorkbook::DeleteNamedRanges()
 {
-    m_definedNames->DeleteChildNodes();
+    for (auto &child : m_definedNames->children()) child.parent().remove_child(child);
     m_isModified = true;
 }
 
@@ -200,7 +202,7 @@ void XLWorkbook::DeleteSheet(const std::string &sheetName)
     m_sheets.erase(sheetName);
 
     // Delete the node from Workbook.xml
-    m_sheetNodes.at(sheetName)->DeleteNode();
+    m_sheetNodes.at(sheetName)->parent().remove_child(*m_sheetNodes.at(sheetName));
     m_sheetNodes.erase(sheetName);
 
     m_sheetCount--;
@@ -241,32 +243,41 @@ XLRelationshipItem *XLWorkbook::InitiateWorksheet(const std::string &sheetName, 
     XLRelationshipItem &item = *m_relationships->AddRelationship(XLRelationshipType::Worksheet,
                                                                 "worksheets/sheet" + to_string(m_sheetId + 1) + ".xml");
 
-    // Add a Sheet node to the Workbook.xml file
-    auto node = m_xmlDocument->CreateNode("sheet");
-    auto name = m_xmlDocument->CreateAttribute("name", sheetName);
-    auto sheetId = m_xmlDocument->CreateAttribute("sheetId", to_string(m_sheetId + 1));
-    auto rId = m_xmlDocument->CreateAttribute("r:id", item.Id());
-
-    node->AppendAttribute(name);
-    node->AppendAttribute(sheetId);
-    node->AppendAttribute(rId);
-    m_sheetNodes[sheetName] = node;
-
     // insert Sheet node at the given Index
-    if (index == 0)
-        m_sheetsNode->AppendNode(node);
+    if (index == 0) {
+        auto node = m_sheetsNode->append_child("sheet");
+        node.append_attribute("name") = sheetName.c_str();
+        node.append_attribute("sheetId") = to_string(m_sheetId + 1).c_str();
+        node.append_attribute("r:id") = item.Id().c_str();
+        m_sheetNodes[sheetName] = make_unique<XMLNode>(node);
+    }
     else {
-        auto curNode = m_sheetsNode->ChildNode();
-        if (!curNode)
-            m_sheetsNode->AppendNode(node);
+        auto curNode = m_sheetsNode->first_child();
+        if (!curNode) {
+            auto node = m_sheetsNode->append_child("sheet");
+            node.append_attribute("name") = sheetName.c_str();
+            node.append_attribute("sheetId") = to_string(m_sheetId + 1).c_str();
+            node.append_attribute("r:id") = item.Id().c_str();
+            m_sheetNodes[sheetName] = make_unique<XMLNode>(node);
+        }
         else {
             unsigned int idx = 1;
             while (idx < index) {
-                curNode = curNode->NextSibling();
+                curNode = curNode.next_sibling();
                 ++idx;
-                if (!curNode) m_sheetsNode->AppendNode(node);
+                if (!curNode) {
+                    auto node = m_sheetsNode->append_child("sheet");
+                    node.append_attribute("name") = sheetName.c_str();
+                    node.append_attribute("sheetId") = to_string(m_sheetId + 1).c_str();
+                    node.append_attribute("r:id") = item.Id().c_str();
+                    m_sheetNodes[sheetName] = make_unique<XMLNode>(node);
+                }
             }
-            m_sheetsNode->InsertNode(curNode, node);
+            auto node = m_sheetsNode->insert_child_before("sheet", curNode);
+            node.append_attribute("name") = sheetName.c_str();
+            node.append_attribute("sheetId") = to_string(m_sheetId + 1).c_str();
+            node.append_attribute("r:id") = item.Id().c_str();
+            m_sheetNodes[sheetName] = make_unique<XMLNode>(node);
         }
     }
 
@@ -304,13 +315,13 @@ void XLWorkbook::MoveSheet(unsigned int index)
 unsigned int XLWorkbook::IndexOfSheet(const std::string &sheetName)
 {
 
-    auto node = m_sheetsNode->ChildNode();
-    if (!node) throw runtime_error("Sheet does not exist.");
+    auto node = m_sheetsNode->first_child();
+    if (node.type() == pugi::node_null) throw runtime_error("Sheet does not exist.");
 
     unsigned int index = 1;
     while (node) {
-        if (node->Attribute("name")->Value() == sheetName) break;
-        node = node->NextSibling();
+        if (strcmp(node.attribute("name").value(), sheetName.c_str()) == 0) break;
+        node = node.next_sibling();
         if (!node) throw runtime_error("Sheet does not exist.");
         ++index;
     }
@@ -431,7 +442,7 @@ const XLRelationships *XLWorkbook::Relationships() const
  */
 XMLNode *XLWorkbook::SheetNode(const string &sheetName)
 {
-    return m_sheetNodes.at(sheetName);
+    return m_sheetNodes.at(sheetName).get();
 }
 
 /**
@@ -460,13 +471,13 @@ void XLWorkbook::CreateWorksheet(const XLRelationshipItem &item, const std::stri
 
     // Find the appropriate sheet node in the Workbook .xml file; get the name and id of the worksheet.
     string name;
-    auto node = m_sheetsNode->ChildNode();
+    auto node = m_sheetsNode->first_child();
     while (node) {
-        if (node->Attribute("r:id")->Value() == item.Id()) {
-            name = node->Attribute("name")->Value();
+        if (strcmp(node.attribute("r:id").value(), item.Id().c_str()) == 0) {
+            name = node.attribute("name").value();
             break;
         }
-        node = node->NextSibling();
+        node = node.next_sibling();
     }
 
     // If xmlData is empty, set the m_sheets and m_childXmlDocuments elements to nullptr. The worksheet will then be
@@ -494,13 +505,13 @@ void XLWorkbook::CreateChartsheet(const XLRelationshipItem &item)
 {
 
     string name;
-    auto node = m_sheetsNode->ChildNode();
+    auto node = m_sheetsNode->first_child();
     while (node) {
-        if (node->Attribute("r:id")->Value() == item.Id()) {
-            name = node->Attribute("name")->Value();
+        if (strcmp(node.attribute("r:id").value(), item.Id().c_str()) == 0) {
+            name = node.attribute("name").value();
             break;
         }
-        node = node->NextSibling();
+        node = node.next_sibling();
     }
 
     //TODO: Create Chartsheet object here.

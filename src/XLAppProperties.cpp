@@ -2,6 +2,8 @@
 // Created by Troldal on 15/08/16.
 //
 
+#include <cstring>
+
 #include "XLAppProperties.h"
 #include "XLDocument.h"
 
@@ -42,7 +44,7 @@ bool XLAppProperties::ParseXMLData()
     auto node = XmlDocument()->first_child();
 
     while (node) {
-        if (node.name() == "HeadingPairs") {
+        if (strcmp(node.name(), "HeadingPairs") == 0) {
             m_headingPairsSize = make_unique<XMLAttribute>(node.first_child().attribute("size"));
             m_headingPairsCategoryParent = make_unique<XMLNode>(node.first_child().first_child());
             m_headingPairsCountParent = make_unique<XMLNode>(m_headingPairsCategoryParent->next_sibling());
@@ -61,7 +63,7 @@ bool XLAppProperties::ParseXMLData()
                 }
             }
         }
-        else if (node.name() == "TitlesOfParts") {
+        else if (strcmp(node.name(), "TitlesOfParts") == 0) {
             m_sheetCountAttribute = make_unique<XMLAttribute>(node.first_child().attribute("size"));
             m_sheetNamesParent = make_unique<XMLNode>(node.first_child());
 
@@ -105,7 +107,7 @@ void XLAppProperties::DeleteSheetName(const string &title)
 {
     for (auto &iter : m_sheetNameNodes) {
         if (iter.second->value() == title) {
-            iter.second->parent().remove_child(iter.second);
+            iter.second->parent().remove_child(*iter.second);
             m_sheetNameNodes.erase(iter.first);
             m_sheetCountAttribute->set_value(m_sheetNameNodes.size());
             SetModified();
@@ -160,10 +162,10 @@ void XLAppProperties::AddHeadingPair(const string &name,
  */
 void XLAppProperties::DeleteHeadingPair(const string &name)
 {
-    for (auto &iter : m_headingPairs) {
-        if (iter.first->value() == name) {
-            iter.first->parent().remove_child(*iter.first);
-            iter.second->parent().remove_child(*iter.second);
+    for (auto iter = m_headingPairs.begin(); iter != m_headingPairs.end(); iter++) {
+        if (iter->first->value() == name) {
+            iter->first->parent().remove_child(*iter->first);
+            iter->second->parent().remove_child(*iter->second);
             m_headingPairs.erase(iter);
             m_headingPairsSize->set_value(m_headingPairs.size());
             SetModified();
@@ -179,7 +181,7 @@ void XLAppProperties::SetHeadingPair(const string &name,
 {
     for (auto &iter : m_headingPairs) {
         if (iter.first->value() == name) {
-            iter.second->set_value(to_string(newValue));
+            iter.second->set_value(to_string(newValue).c_str());
             SetModified();
             return;
         }

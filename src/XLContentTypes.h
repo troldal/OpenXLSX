@@ -265,7 +265,7 @@ namespace OpenXLSX
 //----------------------------------------------------------------------------------------------------------------------
 
     private:
-        std::map<std::string, XMLNode *> m_defaults; /**< */
+        std::map<std::string, std::unique_ptr<XMLNode>> m_defaults; /**< */
         XLContentItemMap m_overrides; /**< */
     };
 }
