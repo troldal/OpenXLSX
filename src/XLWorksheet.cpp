@@ -89,20 +89,19 @@ bool XLWorksheet::ParseXMLData()
     }
 
     // Store all Column nodes in the m_columns vector.
-    if (m_columnsNode != nullptr) {
-        XMLNode *currentColumn = ColumnsNode()->ChildNode();
-        while (currentColumn != nullptr) {
-            m_columns.at(stoul(currentColumn->Attribute("min")->Value()) - 1) = make_unique<XLColumn>(*this,
-                                                                                                      *currentColumn);
-            currentColumn = currentColumn->NextSibling();
+    if (m_columnsNode) {
+        auto currentColumn = ColumnsNode()->first_child();
+        while (currentColumn) {
+            m_columns.at(stoul(currentColumn.attribute("min").value()) - 1) = make_unique<XLColumn>(*this, currentColumn);
+            currentColumn = currentColumn.next_sibling();
         }
     }
 
     // Store all Row nodes in the m_rows vector. The XLRow constructor will initialize the cells objects
-    XMLNode *currentRow = SheetDataNode()->ChildNode();
-    while (currentRow != nullptr) {
-        m_rows.at(stoul(currentRow->Attribute("r")->Value()) - 1) = make_unique<XLRow>(*this, *currentRow);
-        currentRow = currentRow->NextSibling();
+    auto currentRow = SheetDataNode()->first_child();
+    while (currentRow) {
+        m_rows.at(stoul(currentRow.attribute("r").value()) - 1) = make_unique<XLRow>(*this, currentRow);
+        currentRow = currentRow.next_sibling();
     }
 
     return true;
@@ -165,7 +164,7 @@ XLCell *XLWorksheet::Cell(unsigned long rowNumber,
         if (rowNumber > RowCount()) m_lastCell.SetRow(rowNumber);
 
         // Reset the dimension node to reflect the full Range of the current Sheet.
-        DimensionNode()->Attribute("ref")->SetValue(FirstCell().Address() + ":" + LastCell().Address());
+        DimensionNode()->attribute("ref").set_value(string(FirstCell().Address() + ":" + LastCell().Address()).c_str());
     }
 
     // Return a pointer to the requested XLCell object.
