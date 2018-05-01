@@ -36,6 +36,7 @@ XLCell::XLCell(XLWorksheet &parent, XMLNode &cellNode)
       m_cellReference(XLCellReference(cellNode.attribute("r").value())),
       m_rowNode(make_unique<XMLNode>(cellNode.parent())),
       m_cellNode(&cellNode),
+      m_valueNode(make_unique<XMLNode>(cellNode.child("v"))),
       m_formulaNode(make_unique<XMLNode>(cellNode.child("f"))),
       m_value(std::make_unique<XLCellValue>(*this))
 {
@@ -69,7 +70,6 @@ XLCell &XLCell::operator=(const XLCell &other)
  */
 XLCell &XLCell::operator=(const XLCellRange &range)
 {
-
     auto first = this->CellReference();
     XLCellReference last(first->Row() + range.NumRows() - 1, first->Column() + range.NumColumns() - 1);
     XLCellRange rng(*ParentWorksheet(), *first, last);
@@ -209,9 +209,9 @@ const XMLNode *XLCell::CellNode() const
 /**
  * @details
  */
-XMLNode *XLCell::CreateValueNode()
+XMLNode XLCell::CreateValueNode()
 {
-    if (m_cellNode->child("v") == pugi::node_null) m_cellNode->append_child("v");
+    if (!m_cellNode->child("v")) m_cellNode->append_child("v");
     return m_cellNode->child("v");
 }
 
@@ -220,7 +220,7 @@ XMLNode *XLCell::CreateValueNode()
  */
 bool XLCell::HasTypeAttribute() const
 {
-    if (m_cellNode->Attribute("t") == nullptr)
+    if (m_cellNode->attribute("t"))
         return false;
     else
         return true;
@@ -230,9 +230,9 @@ bool XLCell::HasTypeAttribute() const
  * @details Return the cell type attribute, by querying the attribute named "t" in the XML node for the cell. 
  * If the cell has no attribute (i.e. is empty or holds a number), a nullptr will be returned.
  */
-const XMLAttribute *XLCell::TypeAttribute() const
+const XMLAttribute XLCell::TypeAttribute() const
 {
-    return m_cellNode->Attribute("t");
+    return m_cellNode->attribute("t");
 }
 
 

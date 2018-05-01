@@ -50,10 +50,13 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <memory>
 #include "XLCellType.h"
 
+#include "XML/pugixml.hpp"
+
+using XMLNode = pugi::xml_node;
+
 namespace OpenXLSX
 {
 
-    class XMLNode;
     class XLCell;
     class XLCellValue;
 

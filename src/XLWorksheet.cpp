@@ -45,15 +45,6 @@ XLWorksheet::XLWorksheet(XLWorkbook &parent,
 }
 
 /**
- * @details The destructor calls the saveXMLData function from the XLAbstractXMLFile base class.
- */
-XLWorksheet::~XLWorksheet()
-{
-    // Call the 'SaveXMLData' method in the XLAbstractXMLFile base class
-    //CommitXMLData();
-}
-
-/**
  * @details This function reads the .xml file for the worksheet and populates the data into the internal
  * datastructure of the class. This function is not called directly, but is called via the loadXMLData
  * function in the base class.
@@ -68,34 +59,32 @@ bool XLWorksheet::ParseXMLData()
     InitColumnsNode();
 
     // Read the dimensions of the Sheet and set data members accordingly.
-    string dimensions = DimensionNode()->Attribute("ref")->Value();
+    string dimensions = DimensionNode()->attribute("ref").value();
     SetFirstCell(XLCellReference("A1"));
     if (dimensions.find(":") == string::npos) SetLastCell(XLCellReference("A1"));
     else SetLastCell(XLCellReference(dimensions.substr(dimensions.find(":") + 1)));
 
     // If Column properties are grouped, divide them into properties for individual Columns.
     if (m_columnsNode != nullptr) {
-        auto currentNode = ColumnsNode()->ChildNode();
+        auto currentNode = ColumnsNode()->first_child();
         while (currentNode != nullptr) {
-            int min = stoi(currentNode->Attribute("min")->Value());
-            int max = stoi(currentNode->Attribute("max")->Value());
+            int min = stoi(currentNode.attribute("min").value());
+            int max = stoi(currentNode.attribute("max").value());
             m_maxColumn = max;
             if (min != max) {
-                currentNode->Attribute("min")->SetValue(max);
+                currentNode.attribute("min").set_value(max);
                 for (int i = min; i < max; i++) {
-                    auto newnode = XmlDocument()->CreateNode("col");
-                    auto attr = currentNode->Attribute();
-                    while (attr != nullptr) {
-                        auto newatt = XmlDocument()->CreateAttribute(attr->Name(), attr->Value());
-                        newnode->AppendAttribute(newatt);
-                        attr = attr->NextAttribute();
+                    auto newnode = ColumnsNode()->insert_child_before("col", currentNode);
+                    auto attr = currentNode.first_attribute();
+                    while (attr) {
+                        newnode.append_attribute(attr.name()) = attr.value();
+                        attr = attr.next_attribute();
                     }
-                    newnode->Attribute("min")->SetValue(i);
-                    newnode->Attribute("max")->SetValue(i);
-                    ColumnsNode()->InsertNode(currentNode, newnode);
+                    newnode.attribute("min") = i;
+                    newnode.attribute("max") = i;
                 }
             }
-            currentNode = currentNode->NextSibling();
+            currentNode = currentNode.next_sibling();
         }
     }
 

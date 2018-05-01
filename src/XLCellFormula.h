@@ -46,7 +46,9 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLEXE_XLCELLFORMULA_H
 #define OPENXLEXE_XLCELLFORMULA_H
 
-#include "XML/XMLNode.h"
+#include "XML/pugixml.hpp"
+
+using XMLNode = pugi::xml_node;
 
 namespace OpenXLSX
 {
@@ -57,7 +59,7 @@ namespace OpenXLSX
 
 
     private:
-        XMLNode *m_formulaNode;
+        std::unique_ptr<XMLNode> m_formulaNode;
         std::string m_formula;
 
     };

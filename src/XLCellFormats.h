@@ -46,9 +46,12 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLEXE_XLCELLFORMATS_H
 #define OPENXLEXE_XLCELLFORMATS_H
 
+#include "XML/pugixml.hpp"
+
+using XMLNode = pugi::xml_node;
+
 namespace OpenXLSX
 {
-    class XMLNode;
 
 //======================================================================================================================
 //========== XLCellFormats Class =======================================================================================
@@ -77,7 +80,7 @@ namespace OpenXLSX
 
     private:
 
-        XMLNode *m_cellFormatNode; /**< */
+        std::unique_ptr<XMLNode> m_cellFormatNode; /**< */
 
         unsigned int m_numberFormatId; /**< */
         unsigned int m_fontId; /**< */

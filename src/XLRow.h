@@ -205,7 +205,7 @@ namespace OpenXLSX
         XLWorksheet &m_parentWorksheet; /**< A pointer to the parent XLWorksheet object. */
         XLDocument &m_parentDocument; /**< A pointer to the parent XLDocument object. */
 
-        XMLNode &m_rowNode; /**< The XMLNode object for the row. */
+        std::unique_ptr<XMLNode> m_rowNode; /**< The XMLNode object for the row. */
 
         float m_height; /**< The height of the row. */
         float m_descent; /**< The descent of the row. */
