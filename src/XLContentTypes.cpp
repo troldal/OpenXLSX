@@ -122,10 +122,8 @@ bool XLContentTypes::ParseXMLData()
     std::string strOverride = "Override";
     std::string strDefault = "Default";
 
-    auto node = XmlDocument()->first_child();
-
-    while (node) {
-        if (strcmp(node.name(), "Default") == 0) {
+    for (auto &node : XmlDocument()->first_child().children()) {
+        if (string(node.name()) == "Default") {
             std::string extension = "";
             std::string contentType = "";
 
@@ -133,7 +131,7 @@ bool XLContentTypes::ParseXMLData()
             if (node.attribute("ContentType")) contentType = node.attribute("ContentType").value();
             m_defaults.insert_or_assign(extension, make_unique<XMLNode>(node));
         }
-        else if (strcmp(node.name(), "Override") == 0) {
+        else if (string(node.name()) == "Override") {
             string path = node.attribute("PartName").value();
             XLContentType type;
             string typeString = node.attribute("ContentType").value();
@@ -186,8 +184,6 @@ bool XLContentTypes::ParseXMLData()
             unique_ptr<XLContentItem> item(new XLContentItem(node, path, type));
             m_overrides.insert_or_assign(path, move(item));
         }
-
-        node = node.next_sibling();
     }
 
     return true;

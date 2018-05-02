@@ -41,10 +41,10 @@ bool XLAppProperties::ParseXMLData()
     m_headingPairs.clear();
     m_properties.clear();
 
-    auto node = XmlDocument()->first_child();
+    auto node = XmlDocument()->first_child().first_child();
 
     while (node) {
-        if (strcmp(node.name(), "HeadingPairs") == 0) {
+        if (string(node.name()) == "HeadingPairs") {
             m_headingPairsSize = make_unique<XMLAttribute>(node.first_child().attribute("size"));
             m_headingPairsCategoryParent = make_unique<XMLNode>(node.first_child().first_child());
             m_headingPairsCountParent = make_unique<XMLNode>(m_headingPairsCategoryParent->next_sibling());
@@ -63,15 +63,12 @@ bool XLAppProperties::ParseXMLData()
                 }
             }
         }
-        else if (strcmp(node.name(), "TitlesOfParts") == 0) {
+        else if (string(node.name()) == "TitlesOfParts") {
             m_sheetCountAttribute = make_unique<XMLAttribute>(node.first_child().attribute("size"));
             m_sheetNamesParent = make_unique<XMLNode>(node.first_child());
 
-            auto currentNode = m_sheetNamesParent->first_child();
-            for (int i = 0; i < stoi(m_sheetCountAttribute->value()); ++i) {
-                m_sheetNameNodes[currentNode.value()] = make_unique<XMLNode>(currentNode);
-                currentNode = currentNode.next_sibling();
-            }
+            for (auto &currentNode : m_sheetNamesParent->children())
+                    m_sheetNameNodes[currentNode.text().get()] = make_unique<XMLNode>(currentNode);
         }
         else {
             m_properties.insert_or_assign(node.name(), make_unique<XMLNode>(node));
@@ -79,7 +76,6 @@ bool XLAppProperties::ParseXMLData()
 
         node = node.next_sibling();
     }
-
 
     return true;
 }

@@ -34,14 +34,7 @@ XLCoreProperties::~XLCoreProperties()
 bool XLCoreProperties::ParseXMLData()
 {
     m_properties.clear();
-
-    auto node = XmlDocument()->first_child();
-
-    while (node) {
-        m_properties.insert_or_assign(node.name(), node);
-        node = node.next_sibling();
-    }
-
+    for (auto &node : XmlDocument()->first_child().children()) m_properties.insert_or_assign(node.name(), node);
     return true;
 }
 

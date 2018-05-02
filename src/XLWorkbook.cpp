@@ -48,18 +48,13 @@ bool XLWorkbook::ParseXMLData()
     m_relationships.reset(new XLRelationships(*ParentDocument(), "xl/_rels/workbook.xml.rels"));
 
     // Find the "sheets" section in the Workbook.xml file
-    auto node = XmlDocument()->first_child();
-    while (node) {
-        if (strcmp(node.name(), "sheets") == 0) m_sheetsNode = make_unique<XMLNode>(node);
-        if (strcmp(node.name(), "definedNames") == 0) m_definedNames = make_unique<XMLNode>(node);
-        node = node.next_sibling();
+    for (auto &node : XmlDocument()->first_child().children()) {
+        if (string(node.name()) == "sheets") m_sheetsNode = make_unique<XMLNode>(node);
+        if (string(node.name()) == "definedNames") m_definedNames = make_unique<XMLNode>(node);
     }
 
-    auto sheetNode = m_sheetsNode->first_child();
-    while (sheetNode) {
+    for (auto &sheetNode : m_sheetsNode->children())
         m_sheetNodes[sheetNode.attribute("name").value()] = make_unique<XMLNode>(sheetNode);
-        sheetNode = sheetNode.next_sibling();
-    }
 
     for (auto const &item : *m_relationships->Relationships()) {
         string path = item.second->Target();

@@ -212,7 +212,7 @@ namespace OpenXLSX
         /**
          * @brief Destructor
          */
-        virtual ~XLContentTypes() = default;
+        ~XLContentTypes() override = default;
 
         /**
          * @brief Add a new default key/value pair to the data store.

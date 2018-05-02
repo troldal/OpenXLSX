@@ -231,9 +231,7 @@ XLRelationshipItem * XLRelationships::AddRelationship(XLRelationshipType type, c
  */
 bool XLRelationships::ParseXMLData()
 {
-    auto theNode = XmlDocument()->first_child();
-    while (theNode) {
-
+    for (auto &theNode : XmlDocument()->first_child().children()) {
         XLRelationshipType type;
         string typeString = theNode.attribute("Type").value();
 
@@ -288,8 +286,6 @@ bool XLRelationships::ParseXMLData()
                                                                     theNode.attribute("Id").value()));
 
         relationshipsMutable()->insert_or_assign(theNode.attribute("Id").value(), move(rShip));
-
-        theNode = theNode.next_sibling();
     }
 
     m_relationshipCount = m_relationships.size();
