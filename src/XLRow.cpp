@@ -20,42 +20,42 @@ XLRow::XLRow(XLWorksheet &parent,
              XMLNode &rowNode)
     : m_parentWorksheet(parent),
       m_parentDocument(*parent.ParentDocument()),
-      m_rowNode(rowNode),
+      m_rowNode(make_unique<XMLNode>(rowNode)),
       m_height(15),
       m_descent(0.25),
       m_hidden(false),
       m_rowNumber(0),
-      m_cells(0)
+      m_cells()
 {
     // Read the Row number attribute
-    auto rowAtt = m_rowNode.Attribute("r");
-    if (rowAtt != nullptr) m_rowNumber = stoul(rowAtt->Value());
+    auto rowAtt = m_rowNode->attribute("r");
+    if (rowAtt) m_rowNumber = stoul(rowAtt.value());
 
     // Read the Descent attribute
-    auto descentAtt = m_rowNode.Attribute("x14ac:dyDescent");
-    if (descentAtt != nullptr) SetDescent(stof(descentAtt->Value()));
+    auto descentAtt = m_rowNode->attribute("x14ac:dyDescent");
+    if (descentAtt) SetDescent(stof(descentAtt.value()));
 
     // Read the Row Height attribute
-    auto heightAtt = m_rowNode.Attribute("ht");
-    if (heightAtt != nullptr) SetHeight(stof(heightAtt->Value()));
+    auto heightAtt = m_rowNode->attribute("ht");
+    if (heightAtt) SetHeight(stof(heightAtt.value()));
 
     // Read the hidden attribute
-    auto hiddenAtt = m_rowNode.Attribute("hidden");
-    if (hiddenAtt != nullptr) {
-        if (hiddenAtt->Value() == "1") SetHidden(true);
+    auto hiddenAtt = m_rowNode->attribute("hidden");
+    if (hiddenAtt) {
+        if (string(hiddenAtt.value()) == "1") SetHidden(true);
         else SetHidden(false);
     }
 
     // Iterate throught the Cell nodes and add cells to the m_cells vector
-    auto spansAtt = m_rowNode.Attribute("spans");
+    auto spansAtt = m_rowNode->attribute("spans");
     if (spansAtt != nullptr) {
-        XMLNode *currentCell = rowNode.ChildNode();
+        auto currentCell = rowNode.first_child();
         while (currentCell != nullptr) {
-            XLCellReference cellRef(currentCell->Attribute("r")->Value());
+            XLCellReference cellRef(currentCell.attribute("r").value());
             Resize(cellRef.Column());
-            m_cells.at(cellRef.Column() - 1) = XLCell::CreateCell(m_parentWorksheet, *currentCell);
+            m_cells.at(cellRef.Column() - 1) = XLCell::CreateCell(m_parentWorksheet, currentCell);
 
-            currentCell = currentCell->NextSibling();
+            currentCell = currentCell.next_sibling();
         }
     }
 }
@@ -66,7 +66,7 @@ XLRow::XLRow(XLWorksheet &parent,
 void XLRow::Resize(unsigned int cellCount)
 {
     m_cells.resize(cellCount);
-    m_rowNode.Attribute("spans")->SetValue("1:" + to_string(cellCount));
+    m_rowNode->attribute("spans") = string("1:" + to_string(cellCount)).c_str();
 }
 
 /**
@@ -86,24 +86,14 @@ void XLRow::SetHeight(float height)
     m_height = height;
 
     // Set the 'ht' attribute for the Cell. If it does not exist, create it.
-    auto heightAtt = m_rowNode.Attribute("ht");
-    if (heightAtt == nullptr) {
-        heightAtt = m_parentWorksheet.XmlDocument()->CreateAttribute("ht", to_string(m_height));
-        m_rowNode.AppendAttribute(heightAtt);
-    }
-    else {
-        heightAtt->SetValue(height);
-    }
+    auto heightAtt = m_rowNode->attribute("ht");
+    if (!heightAtt) m_rowNode->append_attribute("ht") = m_height;
+    else heightAtt.set_value(height);
 
     // Set the 'customHeight' attribute. If it does not exist, create it.
-    auto customAtt = m_rowNode.Attribute("customHeight");
-    if (customAtt == nullptr) {
-        customAtt = m_parentWorksheet.XmlDocument()->CreateAttribute("customHeight", "1");
-        m_rowNode.AppendAttribute(customAtt);
-    }
-    else {
-        customAtt->SetValue("1");
-    }
+    auto customAtt = m_rowNode->attribute("customHeight");
+    if (!customAtt) m_rowNode->append_attribute("customHeight") = 1;
+    else customAtt.set_value(1);
 }
 
 /**
@@ -122,14 +112,9 @@ void XLRow::SetDescent(float descent)
     m_descent = descent;
 
     // Set the 'x14ac:dyDescent' attribute. If it does not exist, create it.
-    auto descentAtt = m_rowNode.Attribute("x14ac:dyDescent");
-    if (descentAtt == nullptr) {
-        descentAtt = m_parentWorksheet.XmlDocument()->CreateAttribute("x14ac:dyDescent", to_string(m_descent));
-        m_rowNode.AppendAttribute(descentAtt);
-    }
-    else {
-        descentAtt->SetValue(descent);
-    }
+    auto descentAtt = m_rowNode->attribute("x14ac:dyDescent");
+    if (!descentAtt) m_rowNode->append_attribute("x14ac:dyDescent") = m_descent;
+    else descentAtt = descent;
 }
 
 /**
@@ -152,14 +137,9 @@ void XLRow::SetHidden(bool state)
     else hiddenstate = "0";
 
     // Set the 'hidden' attribute. If it does not exist, create it.
-    auto hiddenAtt = m_rowNode.Attribute("hidden");
-    if (hiddenAtt == nullptr) {
-        hiddenAtt = m_parentWorksheet.XmlDocument()->CreateAttribute("hidden", hiddenstate);
-        m_rowNode.AppendAttribute(hiddenAtt);
-    }
-    else {
-        hiddenAtt->SetValue(hiddenstate);
-    }
+    auto hiddenAtt = m_rowNode->attribute("hidden");
+    if (!hiddenAtt) m_rowNode->append_attribute("hidden") = hiddenstate.c_str();
+    else hiddenAtt.set_value(hiddenstate.c_str());
 }
 
 /**
@@ -167,7 +147,7 @@ void XLRow::SetHidden(bool state)
  */
 XMLNode *XLRow::RowNode()
 {
-    return &m_rowNode;
+    return m_rowNode.get();
 }
 
 /**
@@ -184,15 +164,12 @@ XLCell *XLRow::Cell(unsigned int column)
     if (column > CellCount()) {
 
         // Create the new Cell node
-        auto cellNode = m_parentWorksheet.XmlDocument()->CreateNode("c");
-        auto cellAttr = m_parentWorksheet.XmlDocument()->CreateAttribute("r", XLCellReference(m_rowNumber,
-                                                                                              column).Address());
-        cellNode->AppendAttribute(cellAttr);
+        auto cellNode = m_rowNode->append_child("c");
+        cellNode.append_attribute("r").set_value(XLCellReference(m_rowNumber, column).Address().c_str());
 
         // Append the Cell node to the Row node, and create a new XLCell node and insert it in the m_cells vector.
-        m_rowNode.AppendNode(cellNode);
         Resize(column);
-        m_cells.at(column - 1) = XLCell::CreateCell(m_parentWorksheet, *cellNode);
+        m_cells.at(column - 1) = XLCell::CreateCell(m_parentWorksheet, cellNode);
 
         result = m_cells.at(column - 1).get();
 
@@ -201,19 +178,14 @@ XLCell *XLRow::Cell(unsigned int column)
     }
     else if (m_cells.at(column - 1).get() == nullptr) {
 
-        // Create the new Cell node.
-        auto cellNode = m_parentWorksheet.XmlDocument()->CreateNode("c");
-        auto cellAttr = m_parentWorksheet.XmlDocument()->CreateAttribute("r", XLCellReference(m_rowNumber,
-                                                                                              column).Address());
-        cellNode->AppendAttribute(cellAttr);
-
         // Find the next Cell node and insert the new node at that position.
         auto cell = m_cells.at(column - 1).get();
         auto index = column - 1;
         while (cell == nullptr && index < m_cells.size()) cell = m_cells.at(index++).get();
 
-        m_rowNode.InsertNode(cell->CellNode(), cellNode);
-        m_cells.at(column - 1) = XLCell::CreateCell(m_parentWorksheet, *cellNode);
+        auto cellNode = m_rowNode->insert_child_before("c", *cell->CellNode());
+        cellNode.append_attribute("r") = XLCellReference(m_rowNumber, column).Address().c_str();
+        m_cells.at(column - 1) = XLCell::CreateCell(m_parentWorksheet, cellNode);
 
         result = m_cells.at(column - 1).get();
 
@@ -258,33 +230,26 @@ unique_ptr<XLRow> XLRow::CreateRow(XLWorksheet &worksheet,
 {
 
     // Create the node
-    auto nodeRow = worksheet.XmlDocument()->CreateNode("row");
-    auto attrRowNum = worksheet.XmlDocument()->CreateAttribute("r", to_string(rowNumber));
-    auto attrDescent = worksheet.XmlDocument()->CreateAttribute("x14ac:dyDescent", "0.2");
-    auto attrSpans = worksheet.XmlDocument()->CreateAttribute("spans", "1:1");
-    nodeRow->AppendAttribute(attrRowNum);
-    nodeRow->AppendAttribute(attrSpans);
-    nodeRow->AppendAttribute(attrDescent);
-
-    // Create the first Cell (at least one Cell must exist in each Row).
-    auto cellNode = worksheet.XmlDocument()->CreateNode("c");
-    auto cellAttr = worksheet.XmlDocument()->CreateAttribute("r", XLCellReference(rowNumber, 1).Address());
-    cellNode->AppendAttribute(cellAttr);
-    nodeRow->AppendNode(cellNode);
+    XMLNode nodeRow;
 
     // Insert the newly created Row and Cell in the right place in the XML structure.
-    if (worksheet.SheetDataNode()->ChildNode() == nullptr || rowNumber >= worksheet.RowCount()) {
+    if (!worksheet.SheetDataNode()->first_child() || rowNumber >= worksheet.RowCount()) {
         // If there are no Row nodes, or the requested Row number exceed the current maximum, append the the node
         // after the existing rownodes.
-        worksheet.SheetDataNode()->AppendNode(nodeRow);
+        nodeRow = worksheet.SheetDataNode()->append_child("row");
     }
     else {
         //Otherwise, search the Row nodes vector for the next node and insert there.
         auto index = rowNumber - 1; // vector is 0-based, Excel is 1-based; therefore rowNumber-1.
         XLRow *node = worksheet.Rows()->at(index).get();
         while (node == nullptr) node = worksheet.Rows()->at(index++).get();
-        worksheet.SheetDataNode()->InsertNode(node->RowNode(), nodeRow);
+        nodeRow = worksheet.SheetDataNode()->insert_child_before("row", *node->RowNode());
     }
 
-    return make_unique<XLRow>(worksheet, *nodeRow);
+    nodeRow.append_attribute("r") = rowNumber;
+    nodeRow.append_attribute("x14ac:dyDescent") = 0.2;
+    nodeRow.append_attribute("spans") = "1:1";
+    nodeRow.append_child("c").append_attribute("r") = XLCellReference(rowNumber, 1).Address().c_str();
+
+    return make_unique<XLRow>(worksheet, nodeRow);
 }

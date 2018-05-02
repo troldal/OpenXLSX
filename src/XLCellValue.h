@@ -282,13 +282,13 @@ namespace OpenXLSX
          * @brief Get a pointer to the value node in the underlying XML file.
          * @return A pointer to an XMLNode object corresponding to the value node.
          */
-        XMLNode *ValueNode();
+        XMLNode ValueNode();
 
         /**
          * @brief Get a const pointer to the value node in the underlying XML file.
          * @return A const pointer to an XMLNode object corresponding to the value node.
          */
-        const XMLNode *ValueNode() const;
+        const XMLNode ValueNode() const;
 
         /**
          * @brief Confirm whether or not a value node exists.
@@ -311,21 +311,21 @@ namespace OpenXLSX
          * @brief Create a new value node.
          * @return A pointer to the XMLNode object for the value node.
          */
-        XMLNode *CreateValueNode();
+        XMLNode CreateValueNode();
 
         /**
          * @brief Get a pointer to the type attribute in the underlying XML file.
          * @return A pointer to an XMLAttribute object corresponding to the type attribute; nullptr if it
          * doesn't exist.
          */
-        XMLAttribute *TypeAttribute();
+        XMLAttribute TypeAttribute();
 
         /**
          * @brief Get a const pointer to the type attribute in the underlying XML file.
          * @return A const pointer to an XMLAttribute object corresponding to the type attribute; nullptr if it
          * doesn't exist.
          */
-        const XMLAttribute *TypeAttribute() const;
+        const XMLAttribute TypeAttribute() const;
 
         /**
          * @brief Confirm whether or not a type attribute exists.
@@ -348,7 +348,7 @@ namespace OpenXLSX
          * @brief Create a new type attribute.
          * @return A pointer to the XMLAttribute object for the type attribute.
          */
-        XMLAttribute *CreateTypeAttribute();
+        XMLAttribute CreateTypeAttribute();
 
 
 //----------------------------------------------------------------------------------------------------------------------

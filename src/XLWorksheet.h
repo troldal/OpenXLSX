@@ -49,14 +49,15 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <vector>
 
 #include "XLSheet.h"
+#include "XLRow.h"
+#include "XLColumn.h"
+#include "XLCell.h"
+#include "XLCellValue.h"
 #include "XLCellReference.h"
 
 namespace OpenXLSX
 {
-    class XLCell;
     class XLCellRange;
-    class XLRow;
-    class XLColumn;
 
 //======================================================================================================================
 //========== XLColumnVector Alias ======================================================================================

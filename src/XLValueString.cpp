@@ -128,18 +128,18 @@ const std::string &XLValueString::String() const
 {
     switch (m_type) {
         case XLStringType::String:
-            return ParentCellValue()->ValueNode()->Value();
+            return ParentCellValue()->ValueNode().value();
 
         case XLStringType::SharedString:
             return ParentCellValue()->ParentCell()->ParentWorkbook()->SharedStrings()->GetString(stoul(ParentCellValue()
                                                                                                            ->ValueNode()
-                                                                                                           ->Value()));
+                                                                                                           .value()));
 
         case XLStringType::InlineString:
             throw XLException("Inline String not implemented");
     }
 
-    return ParentCellValue()->ValueNode()->Value(); // Included to silence compiler warning.
+    return ParentCellValue()->ValueNode().value(); // Included to silence compiler warning.
 }
 
 /**

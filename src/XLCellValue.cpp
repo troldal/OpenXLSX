@@ -63,7 +63,7 @@ void XLCellValue::Initialize()
  */
 XLCellValue &XLCellValue::operator=(const XLCellValue &other)
 {
-    SetValueNode(other.ValueNode() == nullptr ? "" : other.ValueNode()->Value());
+    SetValueNode(!other.ValueNode() ? "" : other.ValueNode().value());
     SetTypeAttribute(other.TypeString());
 
     Initialize();
@@ -81,7 +81,7 @@ XLCellValue &XLCellValue::operator=(const XLCellValue &other)
  */
 XLCellValue &XLCellValue::operator=(XLCellValue &&other) noexcept
 {
-    SetValueNode(other.ValueNode() == nullptr ? "" : other.ValueNode()->Value());
+    SetValueNode(!other.ValueNode() ? "" : other.ValueNode().value());
     SetTypeAttribute(other.TypeString());
 
     Initialize();
@@ -287,22 +287,22 @@ XLCellType XLCellValue::CellType() const
     }
 
         // If the cell is of type "s", the cell contains a shared string.
-    else if (m_parentCell.HasTypeAttribute() && m_parentCell.TypeAttribute()->Value() == "s") {
+    else if (m_parentCell.HasTypeAttribute() && string(m_parentCell.TypeAttribute().value()) == "s") {
         return XLCellType::String;
     }
 
         // If the cell is of type "inlineStr", the cell contains an inline string.
-    else if (m_parentCell.HasTypeAttribute() && m_parentCell.TypeAttribute()->Value() == "inlineStr") {
+    else if (m_parentCell.HasTypeAttribute() && string(m_parentCell.TypeAttribute().value()) == "inlineStr") {
         return XLCellType::String;
     }
 
         // If the cell is of type "str", the cell contains an ordinary string.
-    else if (m_parentCell.HasTypeAttribute() && m_parentCell.TypeAttribute()->Value() == "str") {
+    else if (m_parentCell.HasTypeAttribute() && string(m_parentCell.TypeAttribute().value()) == "str") {
         return XLCellType::String;
     }
 
         // If the cell is of type "b", the cell contains a boolean.
-    else if (m_parentCell.HasTypeAttribute() && m_parentCell.TypeAttribute()->Value() == "b") {
+    else if (m_parentCell.HasTypeAttribute() && string(m_parentCell.TypeAttribute().value()) == "b") {
         return XLCellType::Boolean;
     }
 
@@ -355,7 +355,7 @@ void XLCellValue::SetValueNode(const std::string &value)
     }
     else {
         CreateValueNode();
-        ValueNode()->SetValue(value);
+        ValueNode().set_value(value.c_str());
     }
 }
 
@@ -366,7 +366,7 @@ void XLCellValue::SetValueNode(const std::string &value)
  */
 void XLCellValue::DeleteValueNode()
 {
-    if (HasValueNode()) ValueNode()->DeleteNode();
+    if (HasValueNode()) ValueNode().parent().remove_child(ValueNode());
 }
 
 /**
@@ -375,7 +375,7 @@ void XLCellValue::DeleteValueNode()
  * @pre The parent XLCell object is valid and has a corresponding node in the underlying XML file.
  * @post A value node exists for the cell in the underlying XML file.
  */
-XMLNode *XLCellValue::CreateValueNode()
+XMLNode XLCellValue::CreateValueNode()
 {
     if (!HasValueNode()) ParentCell()->CreateValueNode();
     return ValueNode();
@@ -393,7 +393,7 @@ void XLCellValue::SetTypeAttribute(const std::string &typeString)
         DeleteTypeAttribute();
     else {
         CreateTypeAttribute();
-        ParentCell()->CellNode()->Attribute("t")->SetValue(typeString);
+        ParentCell()->CellNode()->attribute("t").set_value(typeString.c_str());
     }
 }
 
@@ -404,7 +404,7 @@ void XLCellValue::SetTypeAttribute(const std::string &typeString)
  */
 void XLCellValue::DeleteTypeAttribute()
 {
-    if (HasTypeAttribute()) TypeAttribute()->DeleteAttribute();
+    if (HasTypeAttribute()) ParentCell()->CellNode()->remove_attribute("t");
 }
 
 /**
@@ -414,12 +414,12 @@ void XLCellValue::DeleteTypeAttribute()
  * @post An empty type attribute has been added to the XML file.
  * @note An empty type attribute may not be valid in Excel. Therefore, the value must be set immediately afterwards.
  */
-XMLAttribute *XLCellValue::CreateTypeAttribute()
+XMLAttribute XLCellValue::CreateTypeAttribute()
 {
     if (!HasTypeAttribute())
-        ParentCell()->CellNode()->AppendAttribute(ParentCell()->XmlDocument()->CreateAttribute("t", ""));
+        ParentCell()->CellNode()->append_attribute("t") = "";
 
-    return ParentCell()->CellNode()->Attribute("t");
+    return ParentCell()->CellNode()->attribute("t");
 }
 
 /**
@@ -428,9 +428,9 @@ XMLAttribute *XLCellValue::CreateTypeAttribute()
  * @pre The parent XLCell object is valid and has a corresponding node in the underlying XML file.
  * @post The current object, and any associated objects, are unchanged.
  */
-XMLNode *XLCellValue::ValueNode()
+XMLNode XLCellValue::ValueNode()
 {
-    return ParentCell()->CellNode()->ChildNode("v");
+    return ParentCell()->CellNode()->child("v");
 }
 
 /**
@@ -439,9 +439,9 @@ XMLNode *XLCellValue::ValueNode()
  * @pre The parent XLCell object is valid and has a corresponding node in the underlying XML file.
  * @post The current object, and any associated objects, are unchanged.
  */
-const XMLNode *XLCellValue::ValueNode() const
+const XMLNode XLCellValue::ValueNode() const
 {
-    return ParentCell()->CellNode()->ChildNode("v");
+    return ParentCell()->CellNode()->child("v");
 }
 
 /**
@@ -451,7 +451,7 @@ const XMLNode *XLCellValue::ValueNode() const
  */
 bool XLCellValue::HasValueNode() const
 {
-    if (ParentCell()->CellNode()->ChildNode("v") == nullptr)
+    if (!ParentCell()->CellNode()->child("v"))
         return false;
     else
         return true;
@@ -463,9 +463,9 @@ bool XLCellValue::HasValueNode() const
  * @pre The parent XLCell object is valid and has a corresponding node in the underlying XML file.
  * @post The current object, and any associated objects, are unchanged.
  */
-XMLAttribute *XLCellValue::TypeAttribute()
+XMLAttribute XLCellValue::TypeAttribute()
 {
-    return ParentCell()->CellNode()->Attribute("t");
+    return ParentCell()->CellNode()->attribute("t");
 }
 
 /**
@@ -474,9 +474,9 @@ XMLAttribute *XLCellValue::TypeAttribute()
  * @pre The parent XLCell object is valid and has a corresponding node in the underlying XML file.
  * @post The current object, and any associated objects, are unchanged.
  */
-const XMLAttribute *XLCellValue::TypeAttribute() const
+const XMLAttribute XLCellValue::TypeAttribute() const
 {
-    return ParentCell()->CellNode()->Attribute("t");
+    return ParentCell()->CellNode()->attribute("t");
 }
 
 /**
@@ -486,7 +486,7 @@ const XMLAttribute *XLCellValue::TypeAttribute() const
  */
 bool XLCellValue::HasTypeAttribute() const
 {
-    if (ParentCell()->CellNode()->Attribute("t") == nullptr)
+    if (!ParentCell()->CellNode()->attribute("t"))
         return false;
     else
         return true;

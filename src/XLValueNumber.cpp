@@ -25,15 +25,15 @@ XLValueNumber::XLValueNumber(XLCellValue &parent)
         ParentCellValue()->SetTypeAttribute(TypeString());
     }
 
-    m_numberType = DetermineNumberType(ParentCellValue()->ValueNode()->Value());
+    m_numberType = DetermineNumberType(ParentCellValue()->ValueNode().value());
 
     switch (m_numberType) {
         case XLNumberType::Integer:
-            m_integer = stoll(ParentCellValue()->ValueNode()->Value());
+            m_integer = stoll(ParentCellValue()->ValueNode().value());
             break;
 
         case XLNumberType::Float:
-            m_float = stold(ParentCellValue()->ValueNode()->Value());
+            m_float = stold(ParentCellValue()->ValueNode().value());
             break;
     }
 }
@@ -84,7 +84,7 @@ XLValueNumber &XLValueNumber::operator=(XLValueNumber &&other) noexcept
     m_numberType = other.m_numberType;
     m_integer = other.m_integer;
     m_float = other.m_float;
-    ParentCellValue()->ValueNode()->SetValue(AsString());
+    ParentCellValue()->ValueNode().set_value(AsString().c_str());
     ParentCellValue()->ParentCell()->SetTypeAttribute(TypeString());
     ParentCellValue()->ParentCell()->SetModified();
     return *this;

@@ -267,10 +267,7 @@ XLColumn *XLWorksheet::Column(unsigned int columnNumber)
 {
 
     // If no columns exists, create the <cols> node in the XML document.
-    if (m_columnsNode == nullptr) {
-        XmlDocument()->RootNode()->InsertNode(SheetDataNode(), XmlDocument()->CreateNode("cols"));
-        m_columnsNode = XmlDocument()->RootNode()->ChildNode("cols");
-    }
+    if (!m_columnsNode) m_columnsNode = make_unique<XMLNode>(XmlDocument()->root().insert_child_before("cols", *SheetDataNode()));
 
     // Create result object and initialize to nullptr.
     XLColumn *result = nullptr;
@@ -281,34 +278,29 @@ XLColumn *XLWorksheet::Column(unsigned int columnNumber)
     // If the node does not exist, create and insert it.
     if (colNode == nullptr) {
         // Create the node.
-        auto nodeColumn = XmlDocument()->CreateNode("col");
-        auto attrMin = XmlDocument()->CreateAttribute("min", to_string(columnNumber));
-        auto attrMax = XmlDocument()->CreateAttribute("max", to_string(columnNumber));
-        auto attrWidth = XmlDocument()->CreateAttribute("width", "10");
-        auto attrCustomWidth = XmlDocument()->CreateAttribute("customWidth", "1");
-
-        // Create the 'min', 'max', 'Width' and 'customWidth' attributes.
-        nodeColumn->AppendAttribute(attrMin);
-        nodeColumn->AppendAttribute(attrMax);
-        nodeColumn->AppendAttribute(attrWidth);
-        nodeColumn->AppendAttribute(attrCustomWidth);
+        XMLNode nodeColumn;
 
         // Insert the newly created Column node in the right place in the XML structure.
-        if (ColumnsNode()->ChildNode() == nullptr || columnNumber >= m_maxColumn) {
+        if (!ColumnsNode()->first_child() || columnNumber >= m_maxColumn) {
             // If there are no Column nodes, or the requested Column number exceed the current maximum, append the the node
             // after the existing Column nodes.
-            ColumnsNode()->AppendNode(nodeColumn);
+            nodeColumn = ColumnsNode()->append_child("col");
         }
         else {
             //Otherwise, search the Column nodes vector for the next node and insert there.
             auto index = columnNumber - 1; // vector is 0-based, Excel is 1-based; therefore columnNumber-1.
             XLColumn *col = m_columns.at(index).get();
             while (col == nullptr) col = m_columns.at(index++).get();
-            ColumnsNode()->InsertNode(col->ColumnNode(), nodeColumn);
+            nodeColumn = ColumnsNode()->insert_child_before("col", *col->ColumnNode());
         }
 
+        nodeColumn.append_attribute("min") = columnNumber;
+        nodeColumn.append_attribute("max") = columnNumber;
+        nodeColumn.append_attribute("width") = 10;
+        nodeColumn.append_attribute("customWidth") = 1;
+
         // Insert the new Row node in the Row nodes vector.
-        m_columns.at(columnNumber - 1) = make_unique<XLColumn>(*this, *nodeColumn);
+        m_columns.at(columnNumber - 1) = make_unique<XLColumn>(*this, nodeColumn);
         result = m_columns.at(columnNumber - 1).get();
     }
     else {
@@ -378,8 +370,8 @@ XMLNode *XLWorksheet::DimensionNode()
  */
 const XMLNode *XLWorksheet::DimensionNode() const
 {
-    if (m_dimensionNode == nullptr) throw XLException("The <dimension> node does not exist in " + FilePath());
-    return m_dimensionNode;
+    if (!m_dimensionNode) throw XLException("The <dimension> node does not exist in " + FilePath());
+    return m_dimensionNode.get();
 }
 
 /**
@@ -387,7 +379,7 @@ const XMLNode *XLWorksheet::DimensionNode() const
  */
 void XLWorksheet::InitDimensionNode()
 {
-    m_dimensionNode = XmlDocument()->RootNode()->ChildNode("dimension");
+    m_dimensionNode = make_unique<XMLNode>(XmlDocument()->root().child("dimension"));
 }
 
 /**
@@ -403,8 +395,8 @@ XMLNode *XLWorksheet::SheetDataNode()
  */
 const XMLNode *XLWorksheet::SheetDataNode() const
 {
-    if (m_sheetDataNode == nullptr) throw XLException("The <sheetData> node does not exist in " + FilePath());
-    return m_sheetDataNode;
+    if (!m_sheetDataNode) throw XLException("The <sheetData> node does not exist in " + FilePath());
+    return m_sheetDataNode.get();
 }
 
 /**
@@ -412,7 +404,7 @@ const XMLNode *XLWorksheet::SheetDataNode() const
  */
 void XLWorksheet::InitSheetDataNode()
 {
-    m_sheetDataNode = XmlDocument()->RootNode()->ChildNode("sheetData");
+    m_sheetDataNode = make_unique<XMLNode>(XmlDocument()->root().child("sheetData"));
 }
 
 /**
@@ -434,8 +426,8 @@ XMLNode *XLWorksheet::ColumnsNode()
  */
 const XMLNode *XLWorksheet::ColumnsNode() const
 {
-    if (m_columnsNode == nullptr) throw XLException("The <cols> node does not exist in " + FilePath());
-    return m_columnsNode;
+    if (!m_columnsNode) throw XLException("The <cols> node does not exist in " + FilePath());
+    return m_columnsNode.get();
 }
 
 /**
@@ -444,7 +436,7 @@ const XMLNode *XLWorksheet::ColumnsNode() const
  */
 void XLWorksheet::InitColumnsNode()
 {
-    m_columnsNode = XmlDocument()->RootNode()->ChildNode("cols");
+    m_columnsNode = make_unique<XMLNode>(XmlDocument()->root().child("cols"));
 }
 
 /**
@@ -467,8 +459,8 @@ XMLNode *XLWorksheet::SheetViewsNode()
  */
 const XMLNode *XLWorksheet::SheetViewsNode() const
 {
-    if (m_sheetViewsNode == nullptr) throw XLException("The <sheetViews> node does not exist in " + FilePath());
-    return m_sheetViewsNode;
+    if (!m_sheetViewsNode) throw XLException("The <sheetViews> node does not exist in " + FilePath());
+    return m_sheetViewsNode.get();
 }
 
 /**
@@ -482,7 +474,7 @@ const XMLNode *XLWorksheet::SheetViewsNode() const
 void XLWorksheet::InitSheetViewsNode()
 {
     // Only set the variable if it is null.
-    if (m_sheetViewsNode == nullptr) m_sheetViewsNode = XmlDocument()->RootNode()->ChildNode("sheetViews");
+    if (!m_sheetViewsNode) m_sheetViewsNode = make_unique<XMLNode>(XmlDocument()->root().child("sheetViews"));
 }
 
 /**
