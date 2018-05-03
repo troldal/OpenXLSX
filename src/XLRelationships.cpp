@@ -205,7 +205,7 @@ XLRelationshipItem * XLRelationships::AddRelationship(XLRelationshipType type, c
     string id = "rId" + to_string(m_relationshipCount);
 
     // Create new node in the .rels file
-    auto node = XmlDocument()->append_child("Relationship");
+    auto node = XmlDocument()->first_child().append_child("Relationship");
     node.append_attribute("Id").set_value(id.c_str());
     node.append_attribute("Type").set_value(typeString.c_str());
     node.append_attribute("Target").set_value(target.c_str());

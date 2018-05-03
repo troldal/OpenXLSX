@@ -41,7 +41,7 @@ void XLAbstractXMLFile::SetXmlData(const std::string &xmlData)
 std::string XLAbstractXMLFile::GetXmlData() const
 {
     ostringstream ostr;
-    m_xmlDocument->save(ostr);
+    m_xmlDocument->print(ostr);
     return ostr.str();
 }
 
@@ -82,7 +82,7 @@ const string &XLAbstractXMLFile::FilePath() const
  */
 void XLAbstractXMLFile::Print() const
 {
-    XmlDocument()->save(cout);
+    XmlDocument()->print(cout);
 }
 
 /**

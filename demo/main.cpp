@@ -59,10 +59,16 @@ void simpleTest() {
 
     doc.Workbook()->AddWorksheet("Floats");
     auto wks1 = doc.Workbook()->Worksheet("Floats");
+    auto cl = wks1->Cell("A1");
+    auto val = cl->Value();
+    val->Set(3.14159);
+    doc.SaveDocument();
     auto arange1 = wks1->Range(XLCellReference(1,1), XLCellReference(100,100));
     for (auto &iter : arange1) {
         iter.Value()->Set(-3.14159);
     }
+
+    doc.SaveDocument();
 
     doc.Workbook()->AddWorksheet("Integers");
     auto wks2 = doc.Workbook()->Worksheet("Integers");

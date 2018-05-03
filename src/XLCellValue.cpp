@@ -355,7 +355,7 @@ void XLCellValue::SetValueNode(const std::string &value)
     }
     else {
         CreateValueNode();
-        ValueNode().set_value(value.c_str());
+        ValueNode().text().set(value.c_str());
     }
 }
 

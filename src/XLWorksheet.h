@@ -281,7 +281,7 @@ namespace OpenXLSX
          */
         void Import(const std::string &fileName, const std::string &delimiter = ";");
 
-
+        std::string GetXmlData() const override;
 
 //----------------------------------------------------------------------------------------------------------------------
 //           Protected Member Functions

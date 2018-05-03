@@ -48,14 +48,11 @@ XLRow::XLRow(XLWorksheet &parent,
 
     // Iterate throught the Cell nodes and add cells to the m_cells vector
     auto spansAtt = m_rowNode->attribute("spans");
-    if (spansAtt != nullptr) {
-        auto currentCell = rowNode.first_child();
-        while (currentCell != nullptr) {
+    if (spansAtt) {
+        for (auto &currentCell : rowNode.children()) {
             XLCellReference cellRef(currentCell.attribute("r").value());
             Resize(cellRef.Column());
             m_cells.at(cellRef.Column() - 1) = XLCell::CreateCell(m_parentWorksheet, currentCell);
-
-            currentCell = currentCell.next_sibling();
         }
     }
 }

@@ -25,15 +25,15 @@ XLValueNumber::XLValueNumber(XLCellValue &parent)
         ParentCellValue()->SetTypeAttribute(TypeString());
     }
 
-    m_numberType = DetermineNumberType(ParentCellValue()->ValueNode().value());
+    m_numberType = DetermineNumberType(ParentCellValue()->ValueNode().text().get());
 
     switch (m_numberType) {
         case XLNumberType::Integer:
-            m_integer = stoll(ParentCellValue()->ValueNode().value());
+            m_integer = stoll(ParentCellValue()->ValueNode().text().get());
             break;
 
         case XLNumberType::Float:
-            m_float = stold(ParentCellValue()->ValueNode().value());
+            m_float = stold(ParentCellValue()->ValueNode().text().get());
             break;
     }
 }

@@ -184,11 +184,13 @@ namespace OpenXLSX
 //           Private Member Variables
 //----------------------------------------------------------------------------------------------------------------------
 
+    protected:
+        std::unique_ptr<XMLDocument> m_xmlDocument; /**< A pointer to the underlying XMLDocument resource*/
+
     private:
 
         XLDocument &m_parentDocument; /**< */
         std::string m_path; /**< */
-        std::unique_ptr<XMLDocument> m_xmlDocument; /**< A pointer to the underlying XMLDocument resource*/
 
         mutable std::map<std::string, XLAbstractXMLFile *> m_childXmlDocuments; /**< A std::map with the child XML documents. */
         mutable bool m_isModified; /**< A bool indicating if the document has been modified and needs saving. It is mutable, and can therefore be modified in const methods. */

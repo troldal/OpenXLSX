@@ -252,7 +252,7 @@ void XLContentTypes::addOverride(const string &path,
     else
         return;
 
-    auto node = XmlDocument()->root().append_child("override");
+    auto node = XmlDocument()->first_child().append_child("Override");
     node.append_attribute("PartName").set_value(path.c_str());
     node.append_attribute("ContentType").set_value(typeString.c_str());
 

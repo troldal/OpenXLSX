@@ -13,6 +13,7 @@
 #include "XLTokenizer.h"
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <algorithm>
 
 using namespace std;
@@ -65,7 +66,7 @@ bool XLWorksheet::ParseXMLData()
     else SetLastCell(XLCellReference(dimensions.substr(dimensions.find(":") + 1)));
 
     // If Column properties are grouped, divide them into properties for individual Columns.
-    if (m_columnsNode != nullptr) {
+    if (m_columnsNode->type() != pugi::node_null) {
         auto currentNode = ColumnsNode()->first_child();
         while (currentNode != nullptr) {
             int min = stoi(currentNode.attribute("min").value());
@@ -89,7 +90,7 @@ bool XLWorksheet::ParseXMLData()
     }
 
     // Store all Column nodes in the m_columns vector.
-    if (m_columnsNode) {
+    if (m_columnsNode->type() != pugi::node_null) {
         auto currentColumn = ColumnsNode()->first_child();
         while (currentColumn) {
             m_columns.at(stoul(currentColumn.attribute("min").value()) - 1) = make_unique<XLColumn>(*this, currentColumn);
@@ -98,11 +99,8 @@ bool XLWorksheet::ParseXMLData()
     }
 
     // Store all Row nodes in the m_rows vector. The XLRow constructor will initialize the cells objects
-    auto currentRow = SheetDataNode()->first_child();
-    while (currentRow) {
+    for (auto &currentRow : SheetDataNode()->children())
         m_rows.at(stoul(currentRow.attribute("r").value()) - 1) = make_unique<XLRow>(*this, currentRow);
-        currentRow = currentRow.next_sibling();
-    }
 
     return true;
 }
@@ -241,7 +239,7 @@ XLRow *XLWorksheet::Row(unsigned long rowNumber)
     XLRow *rowNode = Rows()->at(rowNumber - 1).get(); // vector is 0-based, Excel is 1-based; therefore rowNumber-1.
 
     // If the node does not exist, create and insert it. Otherwise return the existing object.
-    if (rowNode == nullptr) {
+    if (!rowNode) {
         Rows()->at(rowNumber - 1) = XLRow::CreateRow(*this, rowNumber);
         result = Rows()->at(rowNumber - 1).get();
     }
@@ -379,7 +377,7 @@ const XMLNode *XLWorksheet::DimensionNode() const
  */
 void XLWorksheet::InitDimensionNode()
 {
-    m_dimensionNode = make_unique<XMLNode>(XmlDocument()->root().child("dimension"));
+    m_dimensionNode = make_unique<XMLNode>(XmlDocument()->first_child().child("dimension"));
 }
 
 /**
@@ -404,7 +402,7 @@ const XMLNode *XLWorksheet::SheetDataNode() const
  */
 void XLWorksheet::InitSheetDataNode()
 {
-    m_sheetDataNode = make_unique<XMLNode>(XmlDocument()->root().child("sheetData"));
+    m_sheetDataNode = make_unique<XMLNode>(XmlDocument()->first_child().child("sheetData"));
 }
 
 /**
@@ -436,7 +434,7 @@ const XMLNode *XLWorksheet::ColumnsNode() const
  */
 void XLWorksheet::InitColumnsNode()
 {
-    m_columnsNode = make_unique<XMLNode>(XmlDocument()->root().child("cols"));
+    m_columnsNode = make_unique<XMLNode>(XmlDocument()->first_child().child("cols"));
 }
 
 /**
@@ -474,7 +472,7 @@ const XMLNode *XLWorksheet::SheetViewsNode() const
 void XLWorksheet::InitSheetViewsNode()
 {
     // Only set the variable if it is null.
-    if (!m_sheetViewsNode) m_sheetViewsNode = make_unique<XMLNode>(XmlDocument()->root().child("sheetViews"));
+    if (!m_sheetViewsNode) m_sheetViewsNode = make_unique<XMLNode>(XmlDocument()->first_child().child("sheetViews"));
 }
 
 /**
@@ -610,4 +608,11 @@ void XLWorksheet::Import(const std::string &fileName, const string &delimiter)
     }
 
     file.close();
+}
+
+string XLWorksheet::GetXmlData() const
+{
+    ostringstream ostr;
+    m_xmlDocument->save(ostr);
+    return ostr.str();
 }

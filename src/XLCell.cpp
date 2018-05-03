@@ -35,10 +35,10 @@ XLCell::XLCell(XLWorksheet &parent, XMLNode &cellNode)
       m_parentWorksheet(&parent),
       m_cellReference(XLCellReference(cellNode.attribute("r").value())),
       m_rowNode(make_unique<XMLNode>(cellNode.parent())),
-      m_cellNode(&cellNode),
+      m_cellNode(make_unique<XMLNode>(cellNode)),
       m_valueNode(make_unique<XMLNode>(cellNode.child("v"))),
       m_formulaNode(make_unique<XMLNode>(cellNode.child("f"))),
-      m_value(std::make_unique<XLCellValue>(*this))
+      m_value(make_unique<XLCellValue>(*this))
 {
 }
 

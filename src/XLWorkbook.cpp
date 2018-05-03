@@ -466,13 +466,11 @@ void XLWorkbook::CreateWorksheet(const XLRelationshipItem &item, const std::stri
 
     // Find the appropriate sheet node in the Workbook .xml file; get the name and id of the worksheet.
     string name;
-    auto node = m_sheetsNode->first_child();
-    while (node) {
-        if (strcmp(node.attribute("r:id").value(), item.Id().c_str()) == 0) {
+    for (auto &node : m_sheetsNode->children()) {
+        if (string(node.attribute("r:id").value()) == item.Id()) {
             name = node.attribute("name").value();
             break;
         }
-        node = node.next_sibling();
     }
 
     // If xmlData is empty, set the m_sheets and m_childXmlDocuments elements to nullptr. The worksheet will then be

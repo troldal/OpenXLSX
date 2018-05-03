@@ -41,12 +41,7 @@ bool XLSharedStrings::ParseXMLData()
     m_sharedStrings.clear();
 
     // Find the first node and iterate through the XML file, storing all string nodes in the internal datastructure
-    auto node = XmlDocument()->first_child();
-    while (node) {
-        m_sharedStrings.push_back(node.first_child());
-        node = node.next_sibling();
-    }
-
+    for (auto &node : XmlDocument()->children()) m_sharedStrings.push_back(node.first_child());
     return true;
 }
 
