@@ -72,11 +72,11 @@ void XLValueBoolean::Set(XLBool boolValue)
 
     switch (boolValue) {
         case XLBool::True:
-            ParentCellValue()->ValueNode().set_value("1");
+            ParentCellValue()->ValueNode().text().set("1");
             break;
 
         case XLBool::False:
-            ParentCellValue()->ValueNode().set_value("0");
+            ParentCellValue()->ValueNode().text().set("0");
             break;
     }
 }

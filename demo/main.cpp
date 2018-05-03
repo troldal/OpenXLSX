@@ -68,8 +68,6 @@ void simpleTest() {
         iter.Value()->Set(-3.14159);
     }
 
-    doc.SaveDocument();
-
     doc.Workbook()->AddWorksheet("Integers");
     auto wks2 = doc.Workbook()->Worksheet("Integers");
     auto arange2 = wks2->Range(XLCellReference(1,1), XLCellReference(100,100));
@@ -91,6 +89,8 @@ void simpleTest() {
         iter.Value()->Set(XLBool::True);
     }
 
+    doc.SaveDocument();
+    
     doc.Workbook()->CloneWorksheet("Text", "TextClone");
 
     doc.SaveDocument();
