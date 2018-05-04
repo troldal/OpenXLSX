@@ -221,9 +221,9 @@ XMLNode XLCell::CreateValueNode()
 bool XLCell::HasTypeAttribute() const
 {
     if (m_cellNode->attribute("t"))
-        return false;
-    else
         return true;
+    else
+        return false;
 }
 
 /**

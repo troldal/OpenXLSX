@@ -451,10 +451,10 @@ const XMLNode XLCellValue::ValueNode() const
  */
 bool XLCellValue::HasValueNode() const
 {
-    if (!ParentCell()->CellNode()->child("v"))
-        return false;
-    else
+    if (ParentCell()->CellNode()->child("v"))
         return true;
+    else
+        return false;
 }
 
 /**

@@ -31,9 +31,9 @@ void printRange();
 
 int main()
 {
-    simpleTest();
+    //simpleTest();
     //openLarge();
-    //speedTest();
+    speedTest();
     //writeTest();
     //cloneTest();
     //copyRangeTest();
@@ -149,13 +149,17 @@ void speedTest() {
     unsigned long time = 0;
     int numIter = 10;
 
+    OpenXLSX::XLDocument doc;
+    doc.CreateDocument("SpeedTest.xlsx");
+    auto wks = doc.Workbook()->Worksheet("Sheet1");
+    wks->Cell(500000, 10)->Value()->Set(1);
+
+
     for (int i = 1; i <= numIter; i++) {
 
-        OpenXLSX::XLDocument doc;
-        doc.CreateDocument("SpeedTest.xlsx");
 
-        auto wks = doc.Workbook()->Worksheet("Sheet1");
-        wks->Cell(1000, 1000)->Value()->Set(1);
+
+
 
         auto start = chrono::steady_clock::now();
 
@@ -168,12 +172,11 @@ void speedTest() {
 
         time += std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
         if (i >= numIter) doc.SaveDocument();
-        doc.CloseDocument();
+
         cout << "Run #" << i << ": " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << endl;
-
-        //wks->Print();
-
     }
+    doc.CloseDocument();
+
 
     time = time / numIter;
     cout << "Average time: " << time << " milliseconds" << endl;
