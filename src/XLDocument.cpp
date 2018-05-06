@@ -7,6 +7,7 @@
 #include "XLDocument.h"
 #include "XLWorksheet.h"
 #include "XLTemplate.h"
+#include "XLException.h"
 
 
 using namespace std;
@@ -63,35 +64,21 @@ XLDocument::~XLDocument()
  */
 void XLDocument::OpenDocument(const string &fileName)
 {
+    // Check if a document is already open. If yes, close it.
     if(m_archive && m_archive->isOpen()) CloseDocument();
 
     m_filePath = fileName;
     m_archive = make_unique<ZipArchive>(m_filePath);
     m_archive->open(ZipArchive::WRITE);
 
-    // Open the Relationships file for the document level.
+    // Open the Relationships and Content_Types files for the document level.
     m_documentRelationships = make_unique<XLRelationships>(*this, "_rels/.rels");
-
-    // Open the content types XML file for the document
     m_contentTypes = make_unique<XLContentTypes>(*this, "[Content_Types].xml");
 
-    auto corePropertiesItem = m_documentRelationships->RelationshipByTarget("docProps/core.xml");
-    if(corePropertiesItem) {
-        m_docCoreProperties = make_unique<XLCoreProperties>(*this, corePropertiesItem->Target());
-        m_xmlFiles[m_docCoreProperties->FilePath()] = m_docCoreProperties.get();
-    }
-
-    auto appPropertiesItem = m_documentRelationships->RelationshipByTarget("docProps/app.xml");
-    if(appPropertiesItem) {
-        m_docAppProperties = make_unique<XLAppProperties>(*this, appPropertiesItem->Target());
-        m_xmlFiles[m_docAppProperties->FilePath()] = m_docAppProperties.get();
-    }
-
-    auto workbookItem = m_documentRelationships->RelationshipByTarget("xl/workbook.xml");
-    if(workbookItem) {
-        m_workbook = make_unique<XLWorkbook>(*this, workbookItem->Target());
-        m_xmlFiles[m_workbook->FilePath()] = m_workbook.get();
-    }
+    // Create workbook and property items
+    m_docCoreProperties = CreateItem<XLCoreProperties>("docProps/core.xml");
+    m_docAppProperties = CreateItem<XLAppProperties>("docProps/app.xml");
+    m_workbook = CreateItem<XLWorkbook>("xl/workbook.xml");
 }
 
 /**
@@ -110,9 +97,18 @@ void XLDocument::CreateDocument(const std::string &fileName)
  * @details The document is closed by deleting the temporary folder structure.
  * @todo Consider deleting all the internal objects as well.
  */
-void XLDocument::CloseDocument() const
+void XLDocument::CloseDocument()
 {
-    m_archive->discard();
+    if(m_archive) m_archive->discard();
+    m_archive.reset(nullptr);
+    m_filePath.clear();
+    m_documentRelationships.reset(nullptr);
+    m_contentTypes.reset(nullptr);
+    m_docAppProperties.reset(nullptr);
+    m_docCoreProperties.reset(nullptr);
+    m_workbook.reset(nullptr);
+    m_xmlFiles.clear();
+    m_xmlData.clear();
 }
 
 /**
@@ -443,4 +439,5 @@ const XLCoreProperties * XLDocument::CoreProperties() const
 {
     return m_docCoreProperties.get();
 }
+
 

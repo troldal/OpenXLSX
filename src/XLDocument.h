@@ -59,6 +59,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLWorkbook.h"
 #include "XLSheet.h"
 #include "XLRelationships.h"
+#include "XLException.h"
 #include "Zip/libzip++.h"
 
 namespace OpenXLSX
@@ -164,7 +165,7 @@ namespace OpenXLSX
         /**
          * @brief Close the current document
          */
-        void CloseDocument() const;
+        void CloseDocument();
 
         /**
          * @brief Save the current document using the current filename, overwriting the existing file.
@@ -297,6 +298,13 @@ namespace OpenXLSX
          */
         const XLCoreProperties *CoreProperties() const;
 
+    private:
+
+        template<typename T>
+        typename std::enable_if_t<std::is_base_of_v<XLAbstractXMLFile, T>, std::unique_ptr<T>>
+        CreateItem(const std::string &target);
+
+
 //----------------------------------------------------------------------------------------------------------------------
 //           Private Member Variables
 //----------------------------------------------------------------------------------------------------------------------
@@ -316,6 +324,17 @@ namespace OpenXLSX
 
         std::vector<std::string> m_xmlData;
     };
+
+    template<typename T>
+    typename std::enable_if_t<std::is_base_of_v<XLAbstractXMLFile, T>, std::unique_ptr<T>>
+    XLDocument::CreateItem(const std::string &target)
+    {
+        if (!m_documentRelationships->TargetExists(target)) throw XLException("Target does not exist!");
+        auto result = std::make_unique<T>(*this, m_documentRelationships->RelationshipByTarget(target)->Target());
+        m_xmlFiles[result->FilePath()] = result.get();
+        return std::move(result);
+    }
+
 }
 
 #endif //OPENXL_XLDOCUMENT_H

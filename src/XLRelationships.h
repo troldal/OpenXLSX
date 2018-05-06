@@ -290,6 +290,20 @@ namespace OpenXLSX
         XLRelationshipItem *AddRelationship(XLRelationshipType type,
                                              const std::string &target);
 
+        /**
+         * @brief
+         * @param target
+         * @return
+         */
+        bool TargetExists(const std::string &target) const;
+
+        /**
+         * @brief
+         * @param id
+         * @return
+         */
+        bool IdExists(const std::string &id) const;
+
 //----------------------------------------------------------------------------------------------------------------------
 //           Protected Member Functions
 //----------------------------------------------------------------------------------------------------------------------

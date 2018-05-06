@@ -96,7 +96,7 @@ XLRelationshipItem * XLRelationships::RelationshipByID(const std::string &id)
 /**
  * @details Returns the XLRelationshipItem with the requested target, by iterating through the items.
  */
-const XLRelationshipItem * XLRelationships::RelationshipByTarget(const std::string &target) const
+const XLRelationshipItem *XLRelationships::RelationshipByTarget(const std::string &target) const
 {
 
     for (auto const &item : *Relationships()) {
@@ -291,4 +291,20 @@ bool XLRelationships::ParseXMLData()
     m_relationshipCount = m_relationships.size();
 
     return true;
+}
+
+bool XLRelationships::TargetExists(const std::string &target) const
+{
+    if (RelationshipByTarget(target))
+        return true;
+    else
+        return false;
+}
+
+bool XLRelationships::IdExists(const std::string &id) const
+{
+    if (RelationshipByID(id))
+        return true;
+    else
+        return false;
 }
