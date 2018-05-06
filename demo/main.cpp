@@ -31,7 +31,7 @@ void printRange();
 
 int main()
 {
-    simpleTest();
+    //simpleTest();
     //openLarge();
     speedTest();
     //writeTest();
@@ -170,8 +170,6 @@ void speedTest() {
         doc.CloseDocument();
         cout << "Run #" << i << ": " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << endl;
     }
-
-
 
     time = time / numIter;
     cout << "Average time: " << time << " milliseconds" << endl;

@@ -25,8 +25,8 @@ XLSheet::XLSheet(XLWorkbook &parent,
       m_sheetName(name),
       m_sheetType(XLSheetType::WorkSheet),
       m_sheetState(XLSheetState::Visible),
-      m_nodeInWorkbook(parent.SheetNode(name)),
-      m_nodeInApp(parent.ParentDocument()->m_docAppProperties->SheetNameNode(name)),
+      m_nodeInWorkbook(make_unique<XMLNode>(*parent.SheetNode(name))),
+      m_nodeInApp(make_unique<XMLNode>(*parent.ParentDocument()->m_docAppProperties->SheetNameNode(name))),
       m_nodeInContentTypes(parent.ParentDocument()->ContentItem("/" + filepath)),
       m_nodeInWorkbookRels(parent.Relationships()->RelationshipByTarget(filepath.substr(3)))
 {
