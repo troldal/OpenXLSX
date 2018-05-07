@@ -112,7 +112,7 @@ namespace OpenXLSX
          * @param index The index to look up.
          * @return A pointer to the XMLNode holding the shared string.
          */
-        const XMLNode *GetStringNode(unsigned long index) const;
+        const XMLNode GetStringNode(unsigned long index) const;
 
         /**
          * @brief Get a pointer to the XMLNode with the given string. If more than one XMLNode exists with the lookup
@@ -120,7 +120,7 @@ namespace OpenXLSX
          * @param str The string to look up.
          * @return A pointer to the XMLNode holding the shared string.
          */
-        const XMLNode *GetStringNode(const std::string &str) const;
+        const XMLNode GetStringNode(const std::string &str) const;
 
         /**
          * @brief

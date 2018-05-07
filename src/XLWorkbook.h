@@ -324,7 +324,7 @@ namespace OpenXLSX
          * @param sheetName
          * @return
          */
-        XMLNode *SheetNode(const std::string &sheetName);
+        XMLNode SheetNode(const std::string &sheetName);
 
 //----------------------------------------------------------------------------------------------------------------------
 //           Private Member Functions

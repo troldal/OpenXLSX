@@ -168,7 +168,7 @@ namespace OpenXLSX
          * @param type
          * @return
          */
-        explicit XLContentItem(XMLNode &node,
+        explicit XLContentItem(XMLNode node,
                                const std::string &path,
                                XLContentType type);
 
@@ -220,7 +220,7 @@ namespace OpenXLSX
          * @param node The value
          */
         void AddDefault(const std::string &key,
-                        XMLNode &node);
+                        XMLNode node);
 
         /**
          * @brief Add a new override key/value pair to the data store.

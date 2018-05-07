@@ -13,7 +13,7 @@ using namespace OpenXLSX;
 /**
  * @details
  */
-XLContentItem::XLContentItem(XMLNode &node,
+XLContentItem::XLContentItem(XMLNode node,
                              const std::string &path,
                              XLContentType type)
     : m_contentNode(make_unique<XMLNode>(node)),
@@ -193,7 +193,7 @@ bool XLContentTypes::ParseXMLData()
  * @details
  */
 void XLContentTypes::AddDefault(const string &key,
-                                XMLNode &node)
+                                XMLNode node)
 {
     m_defaults.insert_or_assign(key, make_unique<XMLNode>(node));
     SetModified();

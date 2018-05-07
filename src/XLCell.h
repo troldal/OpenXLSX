@@ -169,7 +169,7 @@ namespace OpenXLSX
          * @param parent A pointer to the parent XLWorksheet object. Must not be nullptr.
          * @param cellNode A pointer to the XMLNode with the cell data. Must not be nullptr.
          */
-        XLCell(XLWorksheet &parent, XMLNode &cellNode);
+        XLCell(XLWorksheet &parent, XMLNode cellNode);
 
         /**
          * @brief Factory method for creating a new cell
@@ -178,7 +178,7 @@ namespace OpenXLSX
          * @return A std::unique_ptr to the newly created object
          */
         static std::unique_ptr<XLCell> CreateCell(XLWorksheet &parent,
-                                                  XMLNode &cellNode);
+                                                  XMLNode cellNode);
 
 //----------------------------------------------------------------------------------------------------------------------
 //           Private Member Functions
@@ -214,13 +214,13 @@ namespace OpenXLSX
          * @brief
          * @return
          */
-        XMLNode *CellNode();
+        XMLNode CellNode();
 
         /**
          * @brief
          * @return
          */
-        const XMLNode *CellNode() const;
+        const XMLNode CellNode() const;
 
         /**
          * @brief 

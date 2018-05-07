@@ -17,7 +17,7 @@ using namespace OpenXLSX;
  * node in the underlying XML file must be provided.
  */
 XLRow::XLRow(XLWorksheet &parent,
-             XMLNode &rowNode)
+             XMLNode rowNode)
     : m_parentWorksheet(parent),
       m_parentDocument(*parent.ParentDocument()),
       m_rowNode(make_unique<XMLNode>(rowNode)),
@@ -142,9 +142,9 @@ void XLRow::SetHidden(bool state)
 /**
  * @details Get the pointer to the row node in the underlying XML file but returning the m_rowNode member.
  */
-XMLNode *XLRow::RowNode()
+XMLNode XLRow::RowNode()
 {
-    return m_rowNode.get();
+    return *m_rowNode;
 }
 
 /**
@@ -180,7 +180,7 @@ XLCell *XLRow::Cell(unsigned int column)
         auto index = column - 1;
         while (cell == nullptr && index < m_cells.size()) cell = m_cells.at(index++).get();
 
-        auto cellNode = m_rowNode->insert_child_before("c", *cell->CellNode());
+        auto cellNode = m_rowNode->insert_child_before("c", cell->CellNode());
         cellNode.append_attribute("r") = XLCellReference(m_rowNumber, column).Address().c_str();
         m_cells.at(column - 1) = XLCell::CreateCell(m_parentWorksheet, cellNode);
 
@@ -230,17 +230,17 @@ unique_ptr<XLRow> XLRow::CreateRow(XLWorksheet &worksheet,
     XMLNode nodeRow;
 
     // Insert the newly created Row and Cell in the right place in the XML structure.
-    if (!worksheet.SheetDataNode()->first_child() || rowNumber >= worksheet.RowCount()) {
+    if (!worksheet.SheetDataNode().first_child() || rowNumber >= worksheet.RowCount()) {
         // If there are no Row nodes, or the requested Row number exceed the current maximum, append the the node
         // after the existing rownodes.
-        nodeRow = worksheet.SheetDataNode()->append_child("row");
+        nodeRow = worksheet.SheetDataNode().append_child("row");
     }
     else {
         //Otherwise, search the Row nodes vector for the next node and insert there.
         auto index = rowNumber - 1; // vector is 0-based, Excel is 1-based; therefore rowNumber-1.
         XLRow *node = worksheet.Rows()->at(index).get();
         while (node == nullptr) node = worksheet.Rows()->at(index++).get();
-        nodeRow = worksheet.SheetDataNode()->insert_child_before("row", *node->RowNode());
+        nodeRow = worksheet.SheetDataNode().insert_child_before("row", node->RowNode());
     }
 
     nodeRow.append_attribute("r") = rowNumber;

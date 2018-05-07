@@ -257,7 +257,7 @@ namespace OpenXLSX
          * @param sheetName A std::string with the name of the sheet.
          * @return A pointer to the XMLNode object.
          */
-        XMLNode *SheetNameNode(const std::string &sheetName);
+        XMLNode SheetNameNode(const std::string &sheetName);
 
         /**
          * @brief Get the content item element in the contenttypes.xml file.

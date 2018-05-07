@@ -111,7 +111,7 @@ namespace OpenXLSX
          * @param title
          * @return
          */
-        XMLNode *AddSheetName(const std::string &title);
+        XMLNode AddSheetName(const std::string &title);
 
         /**
          * @brief
@@ -132,7 +132,7 @@ namespace OpenXLSX
          * @param title
          * @return
          */
-        XMLNode *SheetNameNode(const std::string &title);
+        XMLNode SheetNameNode(const std::string &title);
 
         /**
          * @brief
@@ -188,7 +188,7 @@ namespace OpenXLSX
          * @param name
          * @return
          */
-        XMLNode *Property(const std::string &name) const;
+        XMLNode Property(const std::string &name) const;
 
         /**
          * @brief
@@ -201,14 +201,14 @@ namespace OpenXLSX
          * @param sheetName
          * @return
          */
-        XMLNode *AppendWorksheetName(const std::string &sheetName);
+        XMLNode AppendWorksheetName(const std::string &sheetName);
 
         /**
          * @brief
          * @param sheetName
          * @return
          */
-        XMLNode *PrependWorksheetName(const std::string &sheetName);
+        XMLNode PrependWorksheetName(const std::string &sheetName);
 
         /**
          * @brief
@@ -216,7 +216,39 @@ namespace OpenXLSX
          * @param index
          * @return
          */
-        XMLNode *InsertWorksheetName(const std::string &sheetName,
+        XMLNode InsertWorksheetName(const std::string &sheetName,
+                                    unsigned int index);
+
+        /**
+         * @brief
+         * @param sheetName
+         * @param index
+         * @return
+         */
+        XMLNode MoveWorksheetName(const std::string &sheetName,
+                                  unsigned int index);
+
+        /**
+         * @brief
+         * @param sheetName
+         * @return
+         */
+        XMLNode AppendChartsheetName(const std::string &sheetName);
+
+        /**
+         * @brief
+         * @param sheetName
+         * @return
+         */
+        XMLNode PrependChartsheetName(const std::string &sheetName);
+
+        /**
+         * @brief
+         * @param sheetName
+         * @param index
+         * @return
+         */
+        XMLNode InsertChartsheetName(const std::string &sheetName,
                                      unsigned int index);
 
         /**
@@ -225,40 +257,8 @@ namespace OpenXLSX
          * @param index
          * @return
          */
-        XMLNode *MoveWorksheetName(const std::string &sheetName,
+        XMLNode MoveChartsheetName(const std::string &sheetName,
                                    unsigned int index);
-
-        /**
-         * @brief
-         * @param sheetName
-         * @return
-         */
-        XMLNode *AppendChartsheetName(const std::string &sheetName);
-
-        /**
-         * @brief
-         * @param sheetName
-         * @return
-         */
-        XMLNode *PrependChartsheetName(const std::string &sheetName);
-
-        /**
-         * @brief
-         * @param sheetName
-         * @param index
-         * @return
-         */
-        XMLNode *InsertChartsheetName(const std::string &sheetName,
-                                      unsigned int index);
-
-        /**
-         * @brief
-         * @param sheetName
-         * @param index
-         * @return
-         */
-        XMLNode *MoveChartsheetName(const std::string &sheetName,
-                                    unsigned int index);
 
         /**
          * @brief
@@ -271,23 +271,14 @@ namespace OpenXLSX
          * @param sheetName
          * @return
          */
-        XMLNode *AppendSheetName(const std::string &sheetName);
+        XMLNode AppendSheetName(const std::string &sheetName);
 
         /**
          * @brief
          * @param sheetName
          * @return
          */
-        XMLNode *PrependSheetName(const std::string &sheetName);
-
-        /**
-         * @brief
-         * @param sheetName
-         * @param index
-         * @return
-         */
-        XMLNode *InsertSheetName(const std::string &sheetName,
-                                  unsigned int index);
+        XMLNode PrependSheetName(const std::string &sheetName);
 
         /**
          * @brief
@@ -295,8 +286,17 @@ namespace OpenXLSX
          * @param index
          * @return
          */
-        XMLNode *MoveSheetName(const std::string &sheetName,
-                               unsigned int index);
+        XMLNode InsertSheetName(const std::string &sheetName,
+                                unsigned int index);
+
+        /**
+         * @brief
+         * @param sheetName
+         * @param index
+         * @return
+         */
+        XMLNode MoveSheetName(const std::string &sheetName,
+                              unsigned int index);
 
 //----------------------------------------------------------------------------------------------------------------------
 //           Private Member Functions

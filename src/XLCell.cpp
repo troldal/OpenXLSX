@@ -28,7 +28,7 @@ using namespace OpenXLSX;
  *      -# If there is no type attribute but there is a value node, the cell has a number value.
  *      -# Otherwise, determine the celltype based on the type attribute.
  */
-XLCell::XLCell(XLWorksheet &parent, XMLNode &cellNode)
+XLCell::XLCell(XLWorksheet &parent, XMLNode cellNode)
     : XLSpreadsheetElement(*parent.ParentDocument()),
       m_parentDocument(parent.ParentDocument()),
       m_parentWorkbook(parent.ParentWorkbook()),
@@ -126,7 +126,7 @@ const XLCellReference *XLCell::CellReference() const
  * a new unique_ptr is created manually, which is unfortunate, as it requires a call to operator new which is unsafe.
  */
 std::unique_ptr<XLCell> XLCell::CreateCell(XLWorksheet &parent,
-                                           XMLNode &cellNode)
+                                           XMLNode cellNode)
 {
     return unique_ptr<XLCell>(new XLCell(parent, cellNode));
 }
@@ -193,17 +193,17 @@ const XMLDocument *XLCell::XmlDocument() const
 /**
  * @details
  */
-XMLNode *XLCell::CellNode()
+XMLNode XLCell::CellNode()
 {
-    return m_cellNode.get();
+    return *m_cellNode;
 }
 
 /**
  * @details
  */
-const XMLNode *XLCell::CellNode() const
+const XMLNode XLCell::CellNode() const
 {
-    return m_cellNode.get();
+    return *m_cellNode;
 }
 
 /**

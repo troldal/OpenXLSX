@@ -77,7 +77,7 @@ namespace OpenXLSX
          * @param rowNode A pointer to the XMLNode object for the row.
          */
         explicit XLRow(XLWorksheet &parent,
-                       XMLNode &rowNode);
+                       XMLNode rowNode);
 
         /**
          * @brief Copy Constructor
@@ -151,7 +151,7 @@ namespace OpenXLSX
          * @brief Get the XMLNode object for the row.
          * @return The XMLNode for the object.
          */
-        XMLNode *RowNode();
+        XMLNode RowNode();
 
         /**
          * @brief Get the XLCell object at a specified column for this row.

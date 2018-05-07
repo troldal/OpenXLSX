@@ -12,7 +12,7 @@ using namespace OpenXLSX;
  * @details Assumes each node only has data for one column.
  */
 XLColumn::XLColumn(XLWorksheet &parent,
-                   XMLNode &columnNode)
+                   XMLNode columnNode)
     : m_parentWorksheet(&parent),
       m_parentDocument(parent.ParentDocument()),
       m_columnNode(&columnNode),
@@ -90,7 +90,7 @@ void XLColumn::SetHidden(bool state)
 /**
  * @details
  */
-XMLNode *XLColumn::ColumnNode()
+XMLNode XLColumn::ColumnNode()
 {
-    return m_columnNode;
+    return *m_columnNode;
 }

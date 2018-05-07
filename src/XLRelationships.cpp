@@ -11,7 +11,7 @@ using namespace OpenXLSX;
 /**
  * @details Constructor. Initializes the member variables for the new XLRelationshipItem object.
  */
-XLRelationshipItem::XLRelationshipItem(XMLNode &node,
+XLRelationshipItem::XLRelationshipItem(XMLNode node,
                                        XLRelationshipType type,
                                        const std::string &target,
                                        const std::string &id)

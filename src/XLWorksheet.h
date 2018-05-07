@@ -356,13 +356,13 @@ namespace OpenXLSX
          * @brief Get access to the dimension node in the underlying XML file.
          * @return A pointer to the XMLNode object.
          */
-        XMLNode *DimensionNode();
+        XMLNode DimensionNode();
 
         /**
          * @brief Get read-only access to the dimension node in the underlying XML file.
          * @return A const pointer to the XMLNode object. Returned as pointer-to-const.
          */
-        const XMLNode *DimensionNode() const;
+        const XMLNode DimensionNode() const;
 
         /**
          * @brief Initialize the dimension node in the underlying XML file.
@@ -373,13 +373,13 @@ namespace OpenXLSX
          * @brief Get access to the sheet data node in the underlying XML file.
          * @return A pointer to the corresponding XMLNode object.
          */
-        XMLNode *SheetDataNode();
+        XMLNode SheetDataNode();
 
         /**
          * @brief Get access to the sheet data node in the underlying XML file.
          * @return A const pointer to the corresponding XMLNode object.
          */
-        const XMLNode *SheetDataNode() const;
+        const XMLNode SheetDataNode() const;
 
         /**
          * @brief Initialize the sheet data node in the underlying XML file.
@@ -390,13 +390,13 @@ namespace OpenXLSX
          * @brief Get a reference to the XMLNode object corresponding to the columns (cols) node in the XML file.
          * @return A XMLNode reference.
          */
-        XMLNode *ColumnsNode();
+        XMLNode ColumnsNode();
 
         /**
          * @brief Get a const reference to the XMLNode object corresponding to the columns (cols) node in the XML file.
          * @return A const XMLNode reference.
          */
-        const XMLNode *ColumnsNode() const;
+        const XMLNode ColumnsNode() const;
 
         /**
          * @brief Initialize the columns (cols) node in the underlying XML file.
@@ -407,13 +407,13 @@ namespace OpenXLSX
          * @brief Get a reference to the XMLNode object corresponding to the sheet views node in the XML file.
          * @return An XMLNode reference.
          */
-        XMLNode *SheetViewsNode();
+        XMLNode SheetViewsNode();
 
         /**
          * @brief Get a const reference to the XMLNode object corresponding to the sheet views node in the XML file.
          * @return A const XMLNode reference.
          */
-        const XMLNode *SheetViewsNode() const;
+        const XMLNode SheetViewsNode() const;
 
         /**
          * @brief Initialize the sheet views node in the underlying XML file.

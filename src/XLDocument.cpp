@@ -194,64 +194,64 @@ std::string XLDocument::GetProperty(XLDocumentProperties theProperty) const
 {
     switch (theProperty) {
         case XLDocumentProperties::Application :
-            return m_docAppProperties->Property("Application")->value();
+            return m_docAppProperties->Property("Application").value();
 
         case XLDocumentProperties::AppVersion :
-            return m_docAppProperties->Property("AppVersion")->value();
+            return m_docAppProperties->Property("AppVersion").value();
 
         case XLDocumentProperties::Category :
-            return m_docCoreProperties->Property("cp:category")->value();
+            return m_docCoreProperties->Property("cp:category").value();
 
         case XLDocumentProperties::Company :
-            return m_docAppProperties->Property("Company")->value();
+            return m_docAppProperties->Property("Company").value();
 
         case XLDocumentProperties::CreationDate :
-            return m_docCoreProperties->Property("dcterms:created")->value();
+            return m_docCoreProperties->Property("dcterms:created").value();
 
         case XLDocumentProperties::Creator :
-            return m_docCoreProperties->Property("dc:creator")->value();
+            return m_docCoreProperties->Property("dc:creator").value();
 
         case XLDocumentProperties::Description :
-            return m_docCoreProperties->Property("dc:description")->value();
+            return m_docCoreProperties->Property("dc:description").value();
 
         case XLDocumentProperties::DocSecurity :
-            return m_docAppProperties->Property("DocSecurity")->value();
+            return m_docAppProperties->Property("DocSecurity").value();
 
         case XLDocumentProperties::HyperlinkBase :
-            return m_docAppProperties->Property("HyperlinkBase")->value();
+            return m_docAppProperties->Property("HyperlinkBase").value();
 
         case XLDocumentProperties::HyperlinksChanged :
-            return m_docAppProperties->Property("HyperlinksChanged")->value();
+            return m_docAppProperties->Property("HyperlinksChanged").value();
 
         case XLDocumentProperties::Keywords :
-            return m_docCoreProperties->Property("cp:keywords")->value();
+            return m_docCoreProperties->Property("cp:keywords").value();
 
         case XLDocumentProperties::LastModifiedBy :
-            return m_docCoreProperties->Property("cp:lastModifiedBy")->value();
+            return m_docCoreProperties->Property("cp:lastModifiedBy").value();
 
         case XLDocumentProperties::LastPrinted :
-            return m_docCoreProperties->Property("cp:lastPrinted")->value();
+            return m_docCoreProperties->Property("cp:lastPrinted").value();
 
         case XLDocumentProperties::LinksUpToDate :
-            return m_docAppProperties->Property("LinksUpToDate")->value();
+            return m_docAppProperties->Property("LinksUpToDate").value();
 
         case XLDocumentProperties::Manager :
-            return m_docAppProperties->Property("Manager")->value();
+            return m_docAppProperties->Property("Manager").value();
 
         case XLDocumentProperties::ModificationDate :
-            return m_docCoreProperties->Property("dcterms:modified")->value();
+            return m_docCoreProperties->Property("dcterms:modified").value();
 
         case XLDocumentProperties::ScaleCrop :
-            return m_docAppProperties->Property("ScaleCrop")->value();
+            return m_docAppProperties->Property("ScaleCrop").value();
 
         case XLDocumentProperties::SharedDoc :
-            return m_docAppProperties->Property("SharedDoc")->value();
+            return m_docAppProperties->Property("SharedDoc").value();
 
         case XLDocumentProperties::Subject :
-            return m_docCoreProperties->Property("dc:subject")->value();
+            return m_docCoreProperties->Property("dc:subject").value();
 
         case XLDocumentProperties::Title :
-            return m_docCoreProperties->Property("dc:title")->value();
+            return m_docCoreProperties->Property("dc:title").value();
 
     }
 
@@ -358,7 +358,7 @@ void XLDocument::DeleteProperty(const string &propertyName)
 /**
  * @details Get a pointer to the sheet node in the app.xml file.
  */
-XMLNode *XLDocument::SheetNameNode(const std::string &sheetName)
+XMLNode XLDocument::SheetNameNode(const std::string &sheetName)
 {
     return m_docAppProperties->SheetNameNode(sheetName);
 }

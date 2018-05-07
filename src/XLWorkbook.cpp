@@ -435,9 +435,9 @@ const XLRelationships *XLWorkbook::Relationships() const
 /**
  * @details
  */
-XMLNode *XLWorkbook::SheetNode(const string &sheetName)
+XMLNode XLWorkbook::SheetNode(const string &sheetName)
 {
-    return m_sheetNodes.at(sheetName).get();
+    return *m_sheetNodes.at(sheetName);
 }
 
 /**
