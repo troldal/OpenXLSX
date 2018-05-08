@@ -1,12 +1,5 @@
 set(SOURCE_FILES
         Zip/libzip++.h Zip/libzip++.cpp
-        #XML/rapidxml_iterators.hpp
-        #XML/rapidxml_print.hpp
-        #XML/rapidxml_utils.hpp
-        #XML/rapidxml.hpp
-        #XML/XMLNode.cpp XML/XMLNode.h
-        #XML/XMLAttribute.cpp XML/XMLAttribute.h
-        #XML/XMLDocument.cpp XML/XMLDocument.h
         OpenXLSX.h
         XLDocument.cpp XLDocument.h
         XLRelationships.cpp XLRelationships.h
@@ -85,15 +78,7 @@ install (FILES
         XLValueEmpty.h
         XLValueError.h
         DESTINATION include/OpenXLSX)
-#install (FILES
-        #XML/rapidxml_iterators.hpp
-        #XML/rapidxml_print.hpp
-        #XML/rapidxml_utils.hpp
-        #XML/rapidxml.hpp
-        #XML/XMLNode.h
-        #XML/XMLAttribute.h
-        #XML/XMLDocument.h
-        #DESTINATION include/OpenXLSX/XML)
+
 install (FILES
         Zip/libzip++.h
         DESTINATION include/OpenXLSX/Zip)

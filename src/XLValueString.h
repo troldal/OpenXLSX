@@ -215,6 +215,7 @@ namespace OpenXLSX
 
     private:
         XLStringType m_type; /**< The type of the string, i.e. String (ordinary), SharedString or InlineString */
+        mutable std::string m_cache;
 
     };
 

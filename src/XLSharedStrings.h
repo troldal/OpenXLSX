@@ -92,22 +92,6 @@ namespace OpenXLSX
         virtual ~XLSharedStrings();
 
         /**
-         * @brief Get the string at a given index.
-         * @param index The index to look up
-         * @return A std::string with the contents of the shared string
-         */
-        const std::string &GetString(unsigned long index) const;
-
-        /**
-         * @details Get a reference to a shared string with the given value.
-         * @param str The string to look up.
-         * @return A reference to the shared string.
-         */
-        const std::string &GetString(const std::string &str) const;
-
-        const std::string &GetString(const std::string &str);
-
-        /**
          * @brief Get a pointer to the XMLNode holding the shared string at a given index.
          * @param index The index to look up.
          * @return A pointer to the XMLNode holding the shared string.
@@ -178,7 +162,7 @@ namespace OpenXLSX
 
     private:
 
-        std::vector<XMLNode> m_sharedStrings; /**< A std::vector with the XMLNodes holding the shared strings. */
+        std::vector<XMLNode> m_sharedStringNodes; /**< A std::vector with the XMLNodes holding the shared strings. */
         std::string m_emptyString; /**< A dummy member used for returning an empty string. */
 
     };

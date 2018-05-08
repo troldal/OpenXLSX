@@ -18,7 +18,8 @@ using namespace std;
 XLValueString::XLValueString(XLCellValue &parent)
     : XLValue(parent),
       m_type(parent.ParentCell()->ParentWorkbook()->HasSharedStrings() ? XLStringType::SharedString
-                                                                     : XLStringType::String)
+                                                                     : XLStringType::String),
+      m_cache("")
 {
     //Initialize("");
 }
@@ -30,7 +31,8 @@ XLValueString::XLValueString(XLCellValue &parent)
 XLValueString::XLValueString(const std::string &stringValue, XLCellValue &parent)
     : XLValue(parent),
       m_type(parent.ParentCell()->ParentWorkbook()->HasSharedStrings() ? XLStringType::SharedString
-                                                                     : XLStringType::String)
+                                                                     : XLStringType::String),
+      m_cache("")
 {
     Initialize(stringValue);
 }
@@ -43,7 +45,7 @@ XLValueString::XLValueString(unsigned long stringIndex, XLCellValue &parent)
     : XLValue(parent),
       m_type(XLStringType::SharedString)
 {
-    Initialize(ParentCellValue()->ParentCell()->ParentWorkbook()->SharedStrings()->GetString(stringIndex));
+    Initialize(ParentCellValue()->ParentCell()->ParentWorkbook()->SharedStrings()->GetStringNode(stringIndex).text().get());
 }
 
 /**
@@ -128,18 +130,18 @@ const std::string &XLValueString::String() const
 {
     switch (m_type) {
         case XLStringType::String:
-            return ParentCellValue()->ValueNode().value();
+            m_cache = ParentCellValue()->ValueNode().text().get();
+            return m_cache;
 
         case XLStringType::SharedString:
-            return ParentCellValue()->ParentCell()->ParentWorkbook()->SharedStrings()->GetString(stoul(ParentCellValue()
-                                                                                                           ->ValueNode()
-                                                                                                           .value()));
+            m_cache = ParentCellValue()->ParentCell()->ParentWorkbook()->SharedStrings()->GetStringNode(stoul(ParentCellValue()->ValueNode().value())).text().get();
+            return m_cache;
 
         case XLStringType::InlineString:
             throw XLException("Inline String not implemented");
     }
 
-    return ParentCellValue()->ValueNode().value(); // Included to silence compiler warning.
+    return m_cache; // Included to silence compiler warning.
 }
 
 /**

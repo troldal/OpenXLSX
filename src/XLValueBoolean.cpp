@@ -20,7 +20,7 @@ XLValueBoolean::XLValueBoolean(XLCellValue &parent)
         ParentCellValue()->SetTypeAttribute(TypeString());
     }
 
-    if (ParentCellValue()->ValueNode().value() == "0") Set(XLBool::False);
+    if (string(ParentCellValue()->ValueNode().text().get()) == "0") Set(XLBool::False);
     else Set(XLBool::True);
 }
 
@@ -86,7 +86,7 @@ void XLValueBoolean::Set(XLBool boolValue)
  */
 XLBool XLValueBoolean::Boolean() const
 {
-    if (ParentCellValue()->ValueNode().value() == "1")
+    if (string(ParentCellValue()->ValueNode().text().get()) == "1")
         return XLBool::True;
     else
         return XLBool::False;

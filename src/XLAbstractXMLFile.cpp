@@ -17,9 +17,9 @@ using namespace OpenXLSX;
 XLAbstractXMLFile::XLAbstractXMLFile(XLDocument &parent,
                                      const std::string &filePath,
                                      const std::string &xmlData)
-    :   m_parentDocument(parent),
+    :   m_xmlDocument(make_unique<XMLDocument>()),
+        m_parentDocument(parent),
         m_path(filePath),
-        m_xmlDocument(make_unique<XMLDocument>()),
         m_childXmlDocuments(),
         m_isModified(false)
 {

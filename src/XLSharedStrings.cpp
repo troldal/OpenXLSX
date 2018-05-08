@@ -16,7 +16,7 @@ XLSharedStrings::XLSharedStrings(XLDocument &parent,
                                  const std::string &filePath)
     : XLAbstractXMLFile(parent, filePath),
       XLSpreadsheetElement(parent),
-      m_sharedStrings(),
+      m_sharedStringNodes(),
       m_emptyString("")
 {
     ParseXMLData();
@@ -38,53 +38,11 @@ XLSharedStrings::~XLSharedStrings()
 bool XLSharedStrings::ParseXMLData()
 {
     // Clear the datastructure
-    m_sharedStrings.clear();
+    m_sharedStringNodes.clear();
 
     // Find the first node and iterate through the XML file, storing all string nodes in the internal datastructure
-    for (auto &node : XmlDocument()->children()) m_sharedStrings.push_back(node.first_child());
+    for (auto &node : XmlDocument()->children()) m_sharedStringNodes.push_back(node.first_child());
     return true;
-}
-
-/**
- * @details Look up and return a shared string by index. If the index is larger than the number of shared strings,
- * an empty string will be returned.
- * The resulting string is returned as reference-to-const, as the client is not supposed to modify the shared strings
- * directly.
- * @todo consider creating the shared string, if it does not exist. This will require a non-const function.
- */
-const string &XLSharedStrings::GetString(unsigned long index) const
-{
-    if (index > m_sharedStrings.size() - 1)
-        return m_emptyString;
-    else
-        return m_sharedStrings.at(index).value();
-}
-
-/**
- * @details Look up and return a shared string by reference. If the requested string does not exist,
- * an empty string will be returned.
- * The resulting string is returned as reference-to-const, as the client is not supposed to modify the shared strings
- * directly.
- * @todo consider creating the shared string, if it does not exist. This will require a non-const function.
- */
-const std::string &XLSharedStrings::GetString(const std::string &str) const
-{
-    long index = GetStringIndex(str);
-
-    if (index < 0)
-        return m_emptyString;
-    else
-        return m_sharedStrings.at(index).value();
-
-}
-
-const std::string &XLSharedStrings::GetString(const std::string &str)
-{
-    long index = GetStringIndex(str);
-
-    if (index < 0) index = AppendString(str);
-
-    return m_sharedStrings.at(index).value();
 }
 
 /**
@@ -95,10 +53,10 @@ const std::string &XLSharedStrings::GetString(const std::string &str)
  */
 const XMLNode XLSharedStrings::GetStringNode(unsigned long index) const
 {
-    if (index > m_sharedStrings.size() - 1)
+    if (index > m_sharedStringNodes.size() - 1)
         throw std::range_error("Node does not exist");
     else
-        return m_sharedStrings.at(index);
+        return m_sharedStringNodes.at(index);
 }
 
 /**
@@ -109,7 +67,7 @@ const XMLNode XLSharedStrings::GetStringNode(unsigned long index) const
  */
 const XMLNode XLSharedStrings::GetStringNode(const std::string &str) const
 {
-    for (const auto &s : m_sharedStrings) {
+    for (const auto &s : m_sharedStringNodes) {
         if (s.value() == str) return s;
     }
 
@@ -124,7 +82,7 @@ long XLSharedStrings::GetStringIndex(const std::string &str) const
 
     long result = -1;
     long counter = 0;
-    for (const auto &s : m_sharedStrings) {
+    for (const auto &s : m_sharedStringNodes) {
         if (s.value() == str) {
             result = counter;
             break;
@@ -152,7 +110,7 @@ bool XLSharedStrings::StringExists(const std::string &str) const
  */
 bool XLSharedStrings::StringExists(unsigned long index) const
 {
-    if (index > m_sharedStrings.size() - 1)
+    if (index > m_sharedStringNodes.size() - 1)
         throw false;
     else
         return true;
@@ -171,11 +129,11 @@ long XLSharedStrings::AppendString(const std::string &str)
     value.set_value(str.c_str());
 
     // Add the node pointer to the internal datastructure.
-    m_sharedStrings.push_back(value);
+    m_sharedStringNodes.push_back(value);
     SetModified();
 
     // Return the Index of the new string.
-    return m_sharedStrings.size() - 1;
+    return m_sharedStringNodes.size() - 1;
 }
 
 /**
@@ -184,6 +142,6 @@ long XLSharedStrings::AppendString(const std::string &str)
  */
 void XLSharedStrings::ClearString(int index)
 {
-    m_sharedStrings.at(index).set_value("");
+    m_sharedStringNodes.at(index).set_value("");
     SetModified();
 }
