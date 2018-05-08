@@ -52,9 +52,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 #include "XLAbstractXMLFile.h"
 #include "XLSpreadsheetElement.h"
-#include "XML/pugixml.hpp"
-
-using XMLNode = pugi::xml_node;
+#include "Utilities/XML/XML.h"
 
 namespace OpenXLSX
 {

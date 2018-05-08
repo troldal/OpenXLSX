@@ -54,8 +54,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <string>
 #include <vector>
 
-using XMLNode = pugi::xml_node;
-
 namespace OpenXLSX
 {
 

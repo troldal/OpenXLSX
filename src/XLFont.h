@@ -50,9 +50,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <memory>
 #include <map>
 #include "XLColor.h"
-#include "XML/pugixml.hpp"
-
-using XMLNode = pugi::xml_node;
+#include "Utilities/XML/XML.h"
 
 namespace OpenXLSX
 {

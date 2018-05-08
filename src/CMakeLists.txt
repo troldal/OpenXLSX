@@ -1,5 +1,5 @@
 set(SOURCE_FILES
-        Zip/libzip++.h Zip/libzip++.cpp
+        Utilities/Zip/libzip++.h Utilities/Zip/libzip++.cpp
         OpenXLSX.h
         XLDocument.cpp XLDocument.h
         XLRelationships.cpp XLRelationships.h
@@ -35,7 +35,7 @@ set(SOURCE_FILES
         XLValueEmpty.cpp XLValueEmpty.h
         XLValueError.cpp XLValueError.h
         XLTokenizer.cpp XLTokenizer.h
-        XML/pugiconfig.hpp XML/pugixml.hpp XML/pugixml.cpp)
+        Utilities/XML/pugiconfig.hpp Utilities/XML/pugixml.hpp Utilities/XML/pugixml.cpp Utilities/XML/XML.h)
 
 add_library(OpenXLSX STATIC ${SOURCE_FILES})
 target_include_directories(OpenXLSX PUBLIC "${LIBZIP_INCLUDE_DIR}")
@@ -80,6 +80,6 @@ install (FILES
         DESTINATION include/OpenXLSX)
 
 install (FILES
-        Zip/libzip++.h
+        Utilities/Zip/libzip++.h
         DESTINATION include/OpenXLSX/Zip)
 

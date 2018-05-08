@@ -46,9 +46,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLEXE_XLCELLFORMATS_H
 #define OPENXLEXE_XLCELLFORMATS_H
 
-#include "XML/pugixml.hpp"
-
-using XMLNode = pugi::xml_node;
+#include "Utilities/XML/XML.h"
 
 namespace OpenXLSX
 {

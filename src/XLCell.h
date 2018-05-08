@@ -51,8 +51,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLCellReference.h"
 #include "XLDocument.h"
 #include "XLCellType.h"
-
-using XMLNode = pugi::xml_node;
+#include "Utilities/XML/XML.h"
 
 namespace OpenXLSX
 {
