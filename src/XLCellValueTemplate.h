@@ -56,6 +56,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "Utilities/XML/XML.h"
 
 #include <string>
+#include <type_traits>
 
 namespace OpenXLSX
 {
@@ -89,7 +90,7 @@ namespace OpenXLSX
          * @brief Constructor
          * @param parent A reference to the parent XLCell object.
          */
-        explicit XLCellValueTemplate(XLCell &parent, T value = 0.0ll);
+        explicit XLCellValueTemplate(XLCell &parent, T value = 0.0);
 
         /**
          * @brief Copy constructor.
@@ -369,7 +370,7 @@ namespace OpenXLSX
      * @post A valid XLCellValueTemplate object has been constructed.
      */
     template<typename T>
-    XLCellValueTemplate::XLCellValueTemplate(XLCell &parent, T value)
+    XLCellValueTemplate<T>::XLCellValueTemplate(XLCell &parent, T value)
         : m_value(value),
           m_parentCell(parent)
     {
@@ -382,7 +383,8 @@ namespace OpenXLSX
      * @pre The parent XLCell object is valid and has a corresponding node in the underlying XML file.
      * @post The object has been initialized with the correct value type.
      */
-    void XLCellValueTemplate::Initialize()
+    template<typename T>
+    void XLCellValueTemplate<T>::Initialize()
     { /*
     switch (CellType()) {
         case XLCellType::Empty:
@@ -674,6 +676,8 @@ namespace OpenXLSX
     template<typename T>
     std::string XLCellValueTemplate<T>::TypeString() const
     {
+        if (std::is_same<T, bool>) return "b";
+        else if (std::is_arithmetic<T>) return "";
         return (*m_value).TypeString();
     }
 
