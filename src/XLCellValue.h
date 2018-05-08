@@ -404,7 +404,7 @@ namespace OpenXLSX
 
     /**
      * @details This is a template function for all integer-type parameters. If the current cell value is not already
-     * of integer ot floating point type (i.e. number type), set the m_value variable accordingly. Call the Set
+     * of integer or floating point type (i.e. number type), set the m_value variable accordingly. Call the Set
      * method of the m_value member variable.
      * @pre
      * @post

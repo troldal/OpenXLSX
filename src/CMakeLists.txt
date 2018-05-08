@@ -35,7 +35,8 @@ set(SOURCE_FILES
         XLValueEmpty.cpp XLValueEmpty.h
         XLValueError.cpp XLValueError.h
         XLTokenizer.cpp XLTokenizer.h
-        Utilities/XML/pugiconfig.hpp Utilities/XML/pugixml.hpp Utilities/XML/pugixml.cpp Utilities/XML/XML.h)
+        Utilities/XML/pugiconfig.hpp Utilities/XML/pugixml.hpp Utilities/XML/pugixml.cpp Utilities/XML/XML.h
+        XLCellValueTemplate.h)
 
 add_library(OpenXLSX STATIC ${SOURCE_FILES})
 target_include_directories(OpenXLSX PUBLIC "${LIBZIP_INCLUDE_DIR}")
