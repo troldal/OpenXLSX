@@ -1,42 +1,48 @@
 set(SOURCE_FILES
-        Utilities/Zip/libzip++.h Utilities/Zip/libzip++.cpp
         OpenXLSX.h
-        XLDocument.cpp XLDocument.h
-        XLRelationships.cpp XLRelationships.h
-        XLAbstractXMLFile.cpp XLAbstractXMLFile.h
-        XLContentTypes.cpp XLContentTypes.h
-        XLAppProperties.cpp XLAppProperties.h
-        XLCoreProperties.cpp XLCoreProperties.h
-        XLSharedStrings.cpp XLSharedStrings.h
-        XLStyles.cpp XLStyles.h
-        XLWorkbook.cpp XLWorkbook.h
-        XLSheet.cpp XLSheet.h
-        XLCell.cpp XLCell.h
-        XLWorksheet.cpp XLWorksheet.h
-        XLCellReference.cpp XLCellReference.h
-        XLCellRange.cpp XLCellRange.h
-        XLCellIterator.cpp XLCellIterator.h
-        XLChartsheet.cpp XLChartsheet.h
-        XLTemplate.h
-        XLRow.cpp XLRow.h
-        XLColumn.cpp XLColumn.h
-        XLColor.cpp XLColor.h
-        XLFont.cpp XLFont.h
-        XLCellFormats.cpp XLCellFormats.h
-        XLException.h
-        XLCellValue.cpp XLCellValue.h
-        XLValueString.cpp XLValueString.h
-        XLSpreadsheetElement.cpp XLSpreadsheetElement.h
-        XLCellFormula.cpp XLCellFormula.h
-        XLCellType.h
-        XLValueNumber.cpp XLValueNumber.h
-        XLValue.cpp XLValue.h
-        XLValueBoolean.cpp XLValueBoolean.h
-        XLValueEmpty.cpp XLValueEmpty.h
-        XLValueError.cpp XLValueError.h
-        XLTokenizer.cpp XLTokenizer.h
-        Utilities/XML/pugiconfig.hpp Utilities/XML/pugixml.hpp Utilities/XML/pugixml.cpp Utilities/XML/XML.h
-        XLCellValueTemplate.h)
+
+        XLWorkbook/XLDocument.cpp XLWorkbook/XLDocument.h
+        XLWorkbook/XLRelationships.cpp XLWorkbook/XLRelationships.h
+        XLWorkbook/XLAbstractXMLFile.cpp XLWorkbook/XLAbstractXMLFile.h
+        XLWorkbook/XLContentTypes.cpp XLWorkbook/XLContentTypes.h
+        XLWorkbook/XLAppProperties.cpp XLWorkbook/XLAppProperties.h
+        XLWorkbook/XLCoreProperties.cpp XLWorkbook/XLCoreProperties.h
+        XLWorkbook/XLSharedStrings.cpp XLWorkbook/XLSharedStrings.h
+        XLWorkbook/XLStyles.cpp XLWorkbook/XLStyles.h
+        XLWorkbook/XLWorkbook.cpp XLWorkbook/XLWorkbook.h
+        XLWorkbook/XLColor.cpp XLWorkbook/XLColor.h
+        XLWorkbook/XLFont.cpp XLWorkbook/XLFont.h
+        XLWorkbook/XLSpreadsheetElement.cpp XLWorkbook/XLSpreadsheetElement.h
+        XLWorkbook/XLTokenizer.cpp XLWorkbook/XLTokenizer.h
+        XLWorkbook/XLException.h
+
+        XLSheet/XLSheet.cpp XLSheet/XLSheet.h
+        XLSheet/XLWorksheet.cpp XLSheet/XLWorksheet.h
+        XLSheet/XLChartsheet.cpp XLSheet/XLChartsheet.h
+        XLSheet/XLTemplate.h
+        XLSheet/XLRow.cpp XLSheet/XLRow.h
+        XLSheet/XLColumn.cpp XLSheet/XLColumn.h
+
+        XLCell/XLCell.cpp XLCell/XLCell.h
+        XLCell/XLCellReference.cpp XLCell/XLCellReference.h
+        XLCell/XLCellRange.cpp XLCell/XLCellRange.h
+        XLCell/XLCellIterator.cpp XLCell/XLCellIterator.h
+        XLCell/XLCellFormats.cpp XLCell/XLCellFormats.h
+        XLCell/XLCellValue.cpp XLCell/XLCellValue.h
+        XLCell/XLValueString.cpp XLCell/XLValueString.h
+        XLCell/XLCellFormula.cpp XLCell/XLCellFormula.h
+        XLCell/XLCellType.h
+        XLCell/XLValueNumber.cpp XLCell/XLValueNumber.h
+        XLCell/XLValue.cpp XLCell/XLValue.h
+        XLCell/XLValueBoolean.cpp XLCell/XLValueBoolean.h
+        XLCell/XLValueEmpty.cpp XLCell/XLValueEmpty.h
+        XLCell/XLValueError.cpp XLCell/XLValueError.h
+        XLCell/Template/XLCellValueTemplate.h
+
+        Utilities/Zip/libzip++.h Utilities/Zip/libzip++.cpp
+        Utilities/XML/pugiconfig.hpp Utilities/XML/pugixml.hpp Utilities/XML/pugixml.cpp
+        Utilities/XML/XML.h XLCell/Template/XLValue.h)
+
 
 add_library(OpenXLSX STATIC ${SOURCE_FILES})
 target_include_directories(OpenXLSX PUBLIC "${LIBZIP_INCLUDE_DIR}")
@@ -45,39 +51,41 @@ target_link_libraries(OpenXLSX PUBLIC ${LIBZIP_LIBRARY})
 install (TARGETS OpenXLSX DESTINATION lib)
 install (FILES
         OpenXLSX.h
-        XLDocument.h
-        XLRelationships.h
-        XLAbstractXMLFile.h
-        XLContentTypes.h
-        XLAppProperties.h
-        XLCoreProperties.h
-        XLSharedStrings.h
-        XLStyles.h
-        XLWorkbook.h
-        XLSheet.h
-        XLCell.h
-        XLWorksheet.h
-        XLCellReference.h
-        XLCellRange.h
-        XLCellIterator.h
-        XLChartsheet.h
-        XLTemplate.h
-        XLRow.h
-        XLColumn.h
-        XLColor.h
-        XLFont.h
-        XLCellFormats.h
-        XLException.h
-        XLCellValue.h
-        XLValueString.h
-        XLSpreadsheetElement.h
-        XLCellFormula.h
-        XLCellType.h
-        XLValueNumber.h
-        XLValue.h
-        XLValueBoolean.h
-        XLValueEmpty.h
-        XLValueError.h
+        XLWorkbook/XLDocument.h
+        XLWorkbook/XLRelationships.h
+        XLWorkbook/XLAbstractXMLFile.h
+        XLWorkbook/XLContentTypes.h
+        XLWorkbook/XLAppProperties.h
+        XLWorkbook/XLCoreProperties.h
+        XLWorkbook/XLSharedStrings.h
+        XLWorkbook/XLStyles.h
+        XLWorkbook/XLWorkbook.h
+        XLWorkbook/XLColor.h
+        XLWorkbook/XLFont.h
+        XLWorkbook/XLSpreadsheetElement.h
+        XLWorkbook/XLException.h
+
+        XLSheet/XLSheet.h
+        XLSheet/XLWorksheet.h
+        XLSheet/XLChartsheet.h
+        XLSheet/XLTemplate.h
+        XLSheet/XLRow.h
+        XLSheet/XLColumn.h
+        XLCell/XLCell.h
+        XLCell/XLCellReference.h
+        XLCell/XLCellRange.h
+        XLCell/XLCellIterator.h
+        XLCell/XLCellFormats.h
+        XLCell/XLCellValue.h
+        XLCell/XLValueString.h
+        XLCell/XLCellFormula.h
+        XLCell/XLCellType.h
+        XLCell/XLValueNumber.h
+        XLCell/XLValue.h
+        XLCell/XLValueBoolean.h
+        XLCell/XLValueEmpty.h
+        XLCell/XLValueError.h
+
         DESTINATION include/OpenXLSX)
 
 install (FILES
