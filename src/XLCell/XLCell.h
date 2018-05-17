@@ -48,7 +48,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 #include <string>
 #include <ostream>
-#include <variant>
+//#include <variant>
 #include "XLCellReference.h"
 #include "../XLWorkbook/XLDocument.h"
 #include "XLCellType.h"
