@@ -83,7 +83,7 @@ namespace OpenXLSX
         XLValue(const XLValue &other) = default;
 
         /**
-         * @brief Move construcor
+         * @brief Move constructor
          * @param other The object to be move constructed.
          * @note This has been explicitly deleted.
          */
