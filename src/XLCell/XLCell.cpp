@@ -34,10 +34,7 @@ XLCell::XLCell(XLWorksheet &parent, XMLNode cellNode)
       m_parentWorkbook(parent.ParentWorkbook()),
       m_parentWorksheet(&parent),
       m_cellReference(XLCellReference(cellNode.attribute("r").value())),
-      m_rowNode(make_unique<XMLNode>(cellNode.parent())),
-      m_cellNode(make_unique<XMLNode>(cellNode)),
-      m_valueNode(make_unique<XMLNode>(cellNode.child("v"))),
-      m_formulaNode(make_unique<XMLNode>(cellNode.child("f"))),
+      m_cellNode(cellNode),
       m_value(make_unique<XLCellValue>(*this))
 {
 }
@@ -138,13 +135,13 @@ void XLCell::SetTypeAttribute(const std::string &typeString)
 {
 
     if (typeString.empty()) {
-        if (m_cellNode->attribute("t")) m_cellNode->remove_attribute("t");
+        if (m_cellNode.attribute("t")) m_cellNode.remove_attribute("t");
     }
     else {
-        if (m_cellNode->attribute("t") == nullptr)
-            m_cellNode->append_attribute("t") = typeString.c_str();
+        if (m_cellNode.attribute("t") == nullptr)
+            m_cellNode.append_attribute("t") = typeString.c_str();
         else
-            m_cellNode->attribute("t") = typeString.c_str();
+            m_cellNode.attribute("t") = typeString.c_str();
     }
 }
 
@@ -153,8 +150,8 @@ void XLCell::SetTypeAttribute(const std::string &typeString)
  */
 void XLCell::DeleteTypeAttribute()
 {
-    if (m_cellNode->attribute("t").as_bool()) {
-        m_cellNode->remove_attribute("t");
+    if (m_cellNode.attribute("t").as_bool()) {
+        m_cellNode.remove_attribute("t");
     }
 }
 
@@ -195,7 +192,7 @@ const XMLDocument *XLCell::XmlDocument() const
  */
 XMLNode XLCell::CellNode()
 {
-    return *m_cellNode;
+    return m_cellNode;
 }
 
 /**
@@ -203,7 +200,7 @@ XMLNode XLCell::CellNode()
  */
 const XMLNode XLCell::CellNode() const
 {
-    return *m_cellNode;
+    return m_cellNode;
 }
 
 /**
@@ -211,8 +208,8 @@ const XMLNode XLCell::CellNode() const
  */
 XMLNode XLCell::CreateValueNode()
 {
-    if (!m_cellNode->child("v")) m_cellNode->append_child("v");
-    return m_cellNode->child("v");
+    if (!m_cellNode.child("v")) m_cellNode.append_child("v");
+    return m_cellNode.child("v");
 }
 
 /**
@@ -220,7 +217,7 @@ XMLNode XLCell::CreateValueNode()
  */
 bool XLCell::HasTypeAttribute() const
 {
-    if (m_cellNode->attribute("t"))
+    if (m_cellNode.attribute("t"))
         return true;
     else
         return false;
@@ -232,7 +229,7 @@ bool XLCell::HasTypeAttribute() const
  */
 const XMLAttribute XLCell::TypeAttribute() const
 {
-    return m_cellNode->attribute("t");
+    return m_cellNode.attribute("t");
 }
 
 

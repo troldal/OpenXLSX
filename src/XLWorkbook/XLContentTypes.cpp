@@ -16,7 +16,7 @@ using namespace OpenXLSX;
 XLContentItem::XLContentItem(XMLNode node,
                              const std::string &path,
                              XLContentType type)
-    : m_contentNode(make_unique<XMLNode>(node)),
+    : m_contentNode(node),
       m_contentPath(path),
       m_contentType(type)
 {
@@ -27,7 +27,7 @@ XLContentItem::XLContentItem(XMLNode node,
  * @details
  */
 XLContentItem::XLContentItem(const XLContentItem &other)
-    : m_contentNode(make_unique<XMLNode>(*other.m_contentNode)),
+    : m_contentNode(other.m_contentNode),
       m_contentPath(other.m_contentPath),
       m_contentType(other.m_contentType)
 {
@@ -50,7 +50,7 @@ XLContentItem::XLContentItem(XLContentItem &&other)
  */
 XLContentItem &XLContentItem::operator=(const XLContentItem &other)
 {
-    m_contentNode = make_unique<XMLNode>(*other.m_contentNode);
+    m_contentNode = other.m_contentNode;
     m_contentPath = other.m_contentPath;
     m_contentType = other.m_contentType;
 
@@ -90,9 +90,9 @@ const string &XLContentItem::Path() const
  */
 void XLContentItem::DeleteItem()
 {
-    if (m_contentNode) m_contentNode->parent().remove_child(*m_contentNode);
+    if (m_contentNode) m_contentNode.parent().remove_child(m_contentNode);
 
-    m_contentNode = nullptr;
+    m_contentNode = XMLNode();
     m_contentPath = "";
     m_contentType = XLContentType::Unknown;
 
@@ -129,7 +129,7 @@ bool XLContentTypes::ParseXMLData()
 
             if (node.attribute("Extension")) extension = node.attribute("Extension").value();
             if (node.attribute("ContentType")) contentType = node.attribute("ContentType").value();
-            m_defaults.insert_or_assign(extension, make_unique<XMLNode>(node));
+            m_defaults.insert_or_assign(extension, node);
         }
         else if (string(node.name()) == "Override") {
             string path = node.attribute("PartName").value();
@@ -195,7 +195,7 @@ bool XLContentTypes::ParseXMLData()
 void XLContentTypes::AddDefault(const string &key,
                                 XMLNode node)
 {
-    m_defaults.insert_or_assign(key, make_unique<XMLNode>(node));
+    m_defaults.insert_or_assign(key, node);
     SetModified();
 }
 

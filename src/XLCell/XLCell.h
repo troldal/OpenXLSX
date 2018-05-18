@@ -48,6 +48,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 #include <string>
 #include <ostream>
+#include <optional>
 //#include <variant>
 #include "XLCellReference.h"
 #include "../XLWorkbook/XLDocument.h"
@@ -265,12 +266,7 @@ namespace OpenXLSX
         XLWorksheet *m_parentWorksheet; /**< A pointer to the parent XLWorksheet object. */
 
         XLCellReference m_cellReference; /**< The cell reference variable. */
-
-        std::unique_ptr<XMLNode> m_rowNode; /**< A pointer to the row node to which the cell belongs. */
-        std::unique_ptr<XMLNode> m_cellNode; /**< A pointer to the root XMLNode for the cell. */
-        std::unique_ptr<XMLNode> m_valueNode; /**< A pointer to the value XMLNode, a child node of the m_cellNode. */
-        std::unique_ptr<XMLNode> m_formulaNode; /**< A pointer to the formula XMLNode, a child node of the m_cellNode. */
-
+        XMLNode m_cellNode; /**< A pointer to the root XMLNode for the cell. */
         std::unique_ptr<XLCellValue> m_value; /**<  */
 
     };

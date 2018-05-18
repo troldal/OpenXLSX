@@ -440,10 +440,10 @@ namespace OpenXLSX
 
     private:
 
-        std::unique_ptr<XMLNode> m_dimensionNode; /**< The node specifying the dimensions of the sheet, e.g. "A1:AZ100"*/
-        std::unique_ptr<XMLNode> m_sheetDataNode; /**< The node where the sheet data (i.e. rows and cells) begin. */
-        std::unique_ptr<XMLNode> m_columnsNode; /**< The head node for sheet column data */
-        std::unique_ptr<XMLNode> m_sheetViewsNode; /**< The head node for sheet views */
+        XMLNode m_dimensionNode; /**< The node specifying the dimensions of the sheet, e.g. "A1:AZ100"*/
+        XMLNode m_sheetDataNode; /**< The node where the sheet data (i.e. rows and cells) begin. */
+        XMLNode m_columnsNode; /**< The head node for sheet column data */
+        XMLNode m_sheetViewsNode; /**< The head node for sheet views */
 
         XLWorkbook &m_parentWorkbook; /**< A pointer to the parent XLWorkbook object (const) */
 

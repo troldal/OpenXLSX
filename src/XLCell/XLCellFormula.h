@@ -57,7 +57,7 @@ namespace OpenXLSX
 
 
     private:
-        std::unique_ptr<XMLNode> m_formulaNode;
+        XMLNode m_formulaNode;
         std::string m_formula;
 
     };

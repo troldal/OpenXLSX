@@ -17,12 +17,12 @@ XLAppProperties::XLAppProperties(XLDocument &parent,
                                  const std::string &filePath)
     : XLAbstractXMLFile(parent, filePath),
       XLSpreadsheetElement(parent),
-      m_sheetCountAttribute(nullptr),
-      m_sheetNamesParent(nullptr),
+      m_sheetCountAttribute(XMLAttribute()),
+      m_sheetNamesParent(XMLNode()),
       m_sheetNameNodes(),
-      m_headingPairsSize(nullptr),
-      m_headingPairsCategoryParent(nullptr),
-      m_headingPairsCountParent(nullptr),
+      m_headingPairsSize(XMLAttribute()),
+      m_headingPairsCategoryParent(XMLNode()),
+      m_headingPairsCountParent(XMLNode()),
       m_headingPairs(),
       m_properties(),
       m_worksheetCount(0),
@@ -45,33 +45,33 @@ bool XLAppProperties::ParseXMLData()
 
     while (node) {
         if (string(node.name()) == "HeadingPairs") {
-            m_headingPairsSize = make_unique<XMLAttribute>(node.first_child().attribute("size"));
-            m_headingPairsCategoryParent = make_unique<XMLNode>(node.first_child().first_child());
-            m_headingPairsCountParent = make_unique<XMLNode>(m_headingPairsCategoryParent->next_sibling());
+            m_headingPairsSize = node.first_child().attribute("size");
+            m_headingPairsCategoryParent = node.first_child().first_child();
+            m_headingPairsCountParent = m_headingPairsCategoryParent.next_sibling();
 
-            for (int i = 0; i < stoi(m_headingPairsSize->value()) / 2; ++i) {
-                auto categoryNode = m_headingPairsCategoryParent->first_child();
-                auto countNode = m_headingPairsCountParent->first_child();
+            for (int i = 0; i < stoi(m_headingPairsSize.value()) / 2; ++i) {
+                auto categoryNode = m_headingPairsCategoryParent.first_child();
+                auto countNode = m_headingPairsCountParent.first_child();
 
-                auto element = std::make_pair(make_unique<XMLNode>(categoryNode), make_unique<XMLNode>(countNode));
+                auto element = std::make_pair(categoryNode, countNode);
 
                 m_headingPairs.push_back(std::move(element));
 
-                if (i < stoi(m_headingPairsSize->value()) / 2 - 1) {
-                    m_headingPairsCategoryParent = make_unique<XMLNode>(m_headingPairsCountParent->next_sibling());
-                    m_headingPairsCountParent = make_unique<XMLNode>(m_headingPairsCategoryParent->next_sibling());
+                if (i < stoi(m_headingPairsSize.value()) / 2 - 1) {
+                    m_headingPairsCategoryParent = m_headingPairsCountParent.next_sibling();
+                    m_headingPairsCountParent = m_headingPairsCategoryParent.next_sibling();
                 }
             }
         }
         else if (string(node.name()) == "TitlesOfParts") {
-            m_sheetCountAttribute = make_unique<XMLAttribute>(node.first_child().attribute("size"));
-            m_sheetNamesParent = make_unique<XMLNode>(node.first_child());
+            m_sheetCountAttribute = node.first_child().attribute("size");
+            m_sheetNamesParent = node.first_child();
 
-            for (auto &currentNode : m_sheetNamesParent->children())
-                    m_sheetNameNodes[currentNode.text().get()] = make_unique<XMLNode>(currentNode);
+            for (auto &currentNode : m_sheetNamesParent.children())
+                    m_sheetNameNodes[currentNode.text().get()] = currentNode;
         }
         else {
-            m_properties.insert_or_assign(node.name(), make_unique<XMLNode>(node));
+            m_properties.insert_or_assign(node.name(), node);
         }
 
         node = node.next_sibling();
@@ -85,15 +85,15 @@ bool XLAppProperties::ParseXMLData()
  */
 XMLNode XLAppProperties::AddSheetName(const string &title)
 {
-    auto theNode = m_sheetNamesParent->append_child("vt:lpstr");
+    auto theNode = m_sheetNamesParent.append_child("vt:lpstr");
     theNode.set_value(title.c_str());
 
-    m_sheetNameNodes[theNode.value()] = make_unique<XMLNode>(theNode);
-    m_sheetCountAttribute->set_value(m_sheetNameNodes.size());
+    m_sheetNameNodes[theNode.value()] = theNode;
+    m_sheetCountAttribute.set_value(m_sheetNameNodes.size());
 
     SetModified();
 
-    return *m_sheetNameNodes.at(theNode.value());
+    return m_sheetNameNodes.at(theNode.value());
 }
 
 /**
@@ -102,10 +102,10 @@ XMLNode XLAppProperties::AddSheetName(const string &title)
 void XLAppProperties::DeleteSheetName(const string &title)
 {
     for (auto &iter : m_sheetNameNodes) {
-        if (iter.second->value() == title) {
-            iter.second->parent().remove_child(*iter.second);
+        if (iter.second.value() == title) {
+            iter.second.parent().remove_child(iter.second);
             m_sheetNameNodes.erase(iter.first);
-            m_sheetCountAttribute->set_value(m_sheetNameNodes.size());
+            m_sheetCountAttribute.set_value(m_sheetNameNodes.size());
             SetModified();
             return;
         }
@@ -119,8 +119,8 @@ void XLAppProperties::SetSheetName(const string &oldTitle,
                                       const string &newTitle)
 {
     for (auto &iter : m_sheetNameNodes) {
-        if (iter.second->value() == oldTitle) {
-            iter.second->set_value(newTitle.c_str());
+        if (iter.second.value() == oldTitle) {
+            iter.second.set_value(newTitle.c_str());
             SetModified();
             return;
         }
@@ -132,7 +132,7 @@ void XLAppProperties::SetSheetName(const string &oldTitle,
  */
 XMLNode XLAppProperties::SheetNameNode(const string &title)
 {
-    return *m_sheetNameNodes.at(title);
+    return m_sheetNameNodes.at(title);
 }
 
 /**
@@ -141,15 +141,15 @@ XMLNode XLAppProperties::SheetNameNode(const string &title)
 void XLAppProperties::AddHeadingPair(const string &name,
                                         int value)
 {
-    auto pairCategory = m_headingPairsCategoryParent->append_child("vt:lpstr");
+    auto pairCategory = m_headingPairsCategoryParent.append_child("vt:lpstr");
     pairCategory.set_value(name.c_str());
 
-    auto pairCount = m_headingPairsCountParent->append_child("vt:i4");
+    auto pairCount = m_headingPairsCountParent.append_child("vt:i4");
     pairCount.set_value(to_string(value).c_str());
 
-    m_headingPairs.push_back(std::make_pair(make_unique<XMLNode>(pairCategory), make_unique<XMLNode>(pairCount)));
+    m_headingPairs.push_back(std::make_pair(pairCategory, pairCount));
 
-    m_headingPairsSize->set_value(m_headingPairs.size());
+    m_headingPairsSize.set_value(m_headingPairs.size());
     SetModified();
 }
 
@@ -159,11 +159,11 @@ void XLAppProperties::AddHeadingPair(const string &name,
 void XLAppProperties::DeleteHeadingPair(const string &name)
 {
     for (auto iter = m_headingPairs.begin(); iter != m_headingPairs.end(); iter++) {
-        if (iter->first->value() == name) {
-            iter->first->parent().remove_child(*iter->first);
-            iter->second->parent().remove_child(*iter->second);
+        if (iter->first.value() == name) {
+            iter->first.parent().remove_child(iter->first);
+            iter->second.parent().remove_child(iter->second);
             m_headingPairs.erase(iter);
-            m_headingPairsSize->set_value(m_headingPairs.size());
+            m_headingPairsSize.set_value(m_headingPairs.size());
             SetModified();
         }
     }
@@ -176,8 +176,8 @@ void XLAppProperties::SetHeadingPair(const string &name,
                                         int newValue)
 {
     for (auto &iter : m_headingPairs) {
-        if (string(iter.first->text().get()) == name) {
-            iter.second->text().set(to_string(newValue).c_str());
+        if (string(iter.first.text().get()) == name) {
+            iter.second.text().set(to_string(newValue).c_str());
             SetModified();
             return;
         }
@@ -190,7 +190,7 @@ void XLAppProperties::SetHeadingPair(const string &name,
 bool XLAppProperties::SetProperty(const std::string &name,
                                      const std::string &value)
 {
-    m_properties.at(name)->set_value(value.c_str());
+    m_properties.at(name).set_value(value.c_str());
     SetModified();
     return true;
 }
@@ -201,7 +201,7 @@ bool XLAppProperties::SetProperty(const std::string &name,
 bool XLAppProperties::SetProperty(const std::string &name,
                                      int value)
 {
-    m_properties.at(name)->set_value(to_string(value).c_str());
+    m_properties.at(name).set_value(to_string(value).c_str());
     SetModified();
     return true;
 }
@@ -212,7 +212,7 @@ bool XLAppProperties::SetProperty(const std::string &name,
 bool XLAppProperties::SetProperty(const std::string &name,
                                      double value)
 {
-    m_properties.at(name)->set_value(to_string(value).c_str());
+    m_properties.at(name).set_value(to_string(value).c_str());
     SetModified();
     return true;
 }
@@ -222,7 +222,7 @@ bool XLAppProperties::SetProperty(const std::string &name,
  */
 XMLNode XLAppProperties::Property(const string &name) const
 {
-    return *m_properties.at(name);
+    return m_properties.at(name);
 }
 
 /**
@@ -230,7 +230,7 @@ XMLNode XLAppProperties::Property(const string &name) const
  */
 void XLAppProperties::DeleteProperty(const string &name)
 {
-    m_properties.at(name)->parent().remove_child(*m_properties.at(name));
+    m_properties.at(name).parent().remove_child(m_properties.at(name));
     m_properties.erase(name);
     SetModified();
 }
@@ -240,15 +240,15 @@ void XLAppProperties::DeleteProperty(const string &name)
  */
 XMLNode XLAppProperties::AppendSheetName(const std::string &sheetName)
 {
-    auto theNode = m_sheetNamesParent->append_child("vt:lpstr");
+    auto theNode = m_sheetNamesParent.append_child("vt:lpstr");
     theNode.text().set(sheetName.c_str());
 
-    m_sheetNameNodes[sheetName] = make_unique<XMLNode>(theNode);
-    m_sheetCountAttribute->set_value(m_sheetNameNodes.size());
+    m_sheetNameNodes[sheetName] = theNode;
+    m_sheetCountAttribute.set_value(m_sheetNameNodes.size());
 
     SetModified();
 
-    return *m_sheetNameNodes.at(sheetName);
+    return m_sheetNameNodes.at(sheetName);
 }
 
 /**
@@ -256,15 +256,15 @@ XMLNode XLAppProperties::AppendSheetName(const std::string &sheetName)
  */
 XMLNode XLAppProperties::PrependSheetName(const std::string &sheetName)
 {
-    auto theNode = m_sheetNamesParent->prepend_child("vt:lpstr");
+    auto theNode = m_sheetNamesParent.prepend_child("vt:lpstr");
     theNode.text().set(sheetName.c_str());
 
-    m_sheetNameNodes[sheetName] = make_unique<XMLNode>(theNode);
-    m_sheetCountAttribute->set_value(m_sheetNameNodes.size());
+    m_sheetNameNodes[sheetName] = theNode;
+    m_sheetCountAttribute.set_value(m_sheetNameNodes.size());
 
     SetModified();
 
-    return *m_sheetNameNodes.at(sheetName);
+    return m_sheetNameNodes.at(sheetName);
 }
 
 /**
@@ -276,7 +276,7 @@ XMLNode XLAppProperties::InsertSheetName(const std::string &sheetName,
     if (index <= 1) return PrependSheetName(sheetName);
     if (index > m_sheetNameNodes.size()) return AppendSheetName(sheetName);
 
-    auto curNode = m_sheetNamesParent->first_child();
+    auto curNode = m_sheetNamesParent.first_child();
     unsigned idx = 1;
     while (curNode) {
         if (idx == index) break;
@@ -286,15 +286,15 @@ XMLNode XLAppProperties::InsertSheetName(const std::string &sheetName,
 
     if (!curNode) return AppendSheetName(sheetName);
 
-    auto theNode = m_sheetNamesParent->insert_child_before("vt:lpstr", curNode);
+    auto theNode = m_sheetNamesParent.insert_child_before("vt:lpstr", curNode);
     theNode.text().set(sheetName.c_str());
 
-    m_sheetNameNodes[sheetName] = make_unique<XMLNode>(theNode);
-    m_sheetCountAttribute->set_value(m_sheetNameNodes.size());
+    m_sheetNameNodes[sheetName] = theNode;
+    m_sheetCountAttribute.set_value(m_sheetNameNodes.size());
 
     SetModified();
 
-    return *m_sheetNameNodes.at(sheetName);
+    return m_sheetNameNodes.at(sheetName);
 }
 
 /**
@@ -304,7 +304,7 @@ XMLNode XLAppProperties::InsertSheetName(const std::string &sheetName,
 XMLNode XLAppProperties::MoveSheetName(const std::string &sheetName,
                                        unsigned int index)
 {
-    return *m_sheetNameNodes.at(sheetName); //TODO: Dummy implementation.
+    return XMLNode(); //TODO: Dummy implementation.
 }
 
 /**
@@ -313,7 +313,7 @@ XMLNode XLAppProperties::MoveSheetName(const std::string &sheetName,
  */
 XMLNode XLAppProperties::AppendWorksheetName(const std::string &sheetName)
 {
-    return *m_sheetNameNodes.at(sheetName); //TODO: Dummy implementation.
+    return XMLNode(); //TODO: Dummy implementation.
 }
 
 /**
@@ -322,7 +322,7 @@ XMLNode XLAppProperties::AppendWorksheetName(const std::string &sheetName)
  */
 XMLNode XLAppProperties::PrependWorksheetName(const std::string &sheetName)
 {
-    return *m_sheetNameNodes.at(sheetName); //TODO: Dummy implementation.
+    return XMLNode(); //TODO: Dummy implementation.
 }
 
 /**
@@ -332,7 +332,7 @@ XMLNode XLAppProperties::PrependWorksheetName(const std::string &sheetName)
 XMLNode XLAppProperties::InsertWorksheetName(const std::string &sheetName,
                                              unsigned int index)
 {
-    return *m_sheetNameNodes.at(sheetName); //TODO: Dummy implementation.
+    return XMLNode(); //TODO: Dummy implementation.
 }
 
 /**
@@ -342,7 +342,7 @@ XMLNode XLAppProperties::InsertWorksheetName(const std::string &sheetName,
 XMLNode XLAppProperties::MoveWorksheetName(const std::string &sheetName,
                                            unsigned int index)
 {
-    return *m_sheetNameNodes.at(sheetName); //TODO: Dummy implementation.
+    return XMLNode(); //TODO: Dummy implementation.
 }
 
 /**
@@ -351,7 +351,7 @@ XMLNode XLAppProperties::MoveWorksheetName(const std::string &sheetName,
  */
 XMLNode XLAppProperties::AppendChartsheetName(const std::string &sheetName)
 {
-    return *m_sheetNameNodes.at(sheetName); //TODO: Dummy implementation.
+    return XMLNode(); //TODO: Dummy implementation.
 }
 
 /**
@@ -360,7 +360,7 @@ XMLNode XLAppProperties::AppendChartsheetName(const std::string &sheetName)
  */
 XMLNode XLAppProperties::PrependChartsheetName(const std::string &sheetName)
 {
-    return *m_sheetNameNodes.at(sheetName); //TODO: Dummy implementation.
+    return XMLNode(); //TODO: Dummy implementation.
 }
 
 /**
@@ -370,7 +370,7 @@ XMLNode XLAppProperties::PrependChartsheetName(const std::string &sheetName)
 XMLNode XLAppProperties::InsertChartsheetName(const std::string &sheetName,
                                               unsigned int index)
 {
-    return *m_sheetNameNodes.at(sheetName); //TODO: Dummy implementation.
+    return XMLNode(); //TODO: Dummy implementation.
 }
 
 /**
@@ -380,5 +380,5 @@ XMLNode XLAppProperties::InsertChartsheetName(const std::string &sheetName,
 XMLNode XLAppProperties::MoveChartsheetName(const std::string &sheetName,
                                             unsigned int index)
 {
-    return *m_sheetNameNodes.at(sheetName); //TODO: Dummy implementation.
+    return XMLNode(); //TODO: Dummy implementation.
 }

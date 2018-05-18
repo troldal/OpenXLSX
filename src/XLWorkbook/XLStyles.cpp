@@ -10,13 +10,13 @@ using namespace OpenXLSX;
 
 std::map<std::string, XLStyles> XLStyles::s_styles = {};
 
-std::unique_ptr<XMLNode> XLStyles::s_numberFormatsNode = nullptr;
-std::unique_ptr<XMLNode> XLStyles::s_fontsNode = nullptr;
-std::unique_ptr<XMLNode> XLStyles::s_fillsNode = nullptr;
-std::unique_ptr<XMLNode> XLStyles::s_bordersNode = nullptr;
-std::unique_ptr<XMLNode> XLStyles::s_cellFormatNode = nullptr;
-std::unique_ptr<XMLNode> XLStyles::s_cellStyleNode = nullptr;
-std::unique_ptr<XMLNode> XLStyles::s_colors = nullptr;
+XMLNode XLStyles::s_numberFormatsNode = XMLNode();
+XMLNode XLStyles::s_fontsNode = XMLNode();
+XMLNode XLStyles::s_fillsNode = XMLNode();
+XMLNode XLStyles::s_bordersNode = XMLNode();
+XMLNode XLStyles::s_cellFormatNode = XMLNode();
+XMLNode XLStyles::s_cellStyleNode = XMLNode();
+XMLNode XLStyles::s_colors = XMLNode();
 
 /**
  * @details
@@ -42,15 +42,15 @@ XLStyles::~XLStyles()
  */
 bool XLStyles::ParseXMLData()
 {
-    s_numberFormatsNode = make_unique<XMLNode>(XmlDocument()->child("numFmts"));
-    s_fontsNode = make_unique<XMLNode>(XmlDocument()->child("fonts"));
-    s_fillsNode = make_unique<XMLNode>(XmlDocument()->child("fills"));
-    s_bordersNode = make_unique<XMLNode>(XmlDocument()->child("borders"));
-    s_cellFormatNode = make_unique<XMLNode>(XmlDocument()->child("cellXfs"));
-    s_cellStyleNode = make_unique<XMLNode>(XmlDocument()->child("cellStyles"));
+    s_numberFormatsNode = XmlDocument()->child("numFmts");
+    s_fontsNode = XmlDocument()->child("fonts");
+    s_fillsNode = XmlDocument()->child("fills");
+    s_bordersNode = XmlDocument()->child("borders");
+    s_cellFormatNode = XmlDocument()->child("cellXfs");
+    s_cellStyleNode = XmlDocument()->child("cellStyles");
 
     // Read fonts
-    auto currentFont = s_fontsNode->first_child();
+    auto currentFont = s_fontsNode.first_child();
     while (currentFont != nullptr) {
         std::string name = currentFont.child("name").attribute("val").value();
         unsigned int size = stoi(currentFont.child("sz").attribute("val").value());
@@ -88,7 +88,7 @@ void XLStyles::AddFont(const XLFont &font)
                                           font.m_italics,
                                           font.m_underline));
 
-    auto newFont = s_fontsNode->append_child("font");
+    auto newFont = s_fontsNode.append_child("font");
 
     if (font.m_bold) newFont.append_child("b");
     if (font.m_italics) newFont.append_child("i");

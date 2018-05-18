@@ -25,8 +25,8 @@ XLSheet::XLSheet(XLWorkbook &parent,
       m_sheetName(name),
       m_sheetType(XLSheetType::WorkSheet),
       m_sheetState(XLSheetState::Visible),
-      m_nodeInWorkbook(make_unique<XMLNode>(parent.SheetNode(name))),
-      m_nodeInApp(make_unique<XMLNode>(parent.ParentDocument()->m_docAppProperties->SheetNameNode(name))),
+      m_nodeInWorkbook(parent.SheetNode(name)),
+      m_nodeInApp(parent.ParentDocument()->m_docAppProperties->SheetNameNode(name)),
       m_nodeInContentTypes(parent.ParentDocument()->ContentItem("/" + filepath)),
       m_nodeInWorkbookRels(parent.Relationships()->RelationshipByTarget(filepath.substr(3)))
 {
@@ -51,8 +51,8 @@ const std::string &XLSheet::Name() const
 void XLSheet::SetName(const std::string &name)
 {
     m_sheetName = name;
-    m_nodeInWorkbook->attribute("name").set_value(name.c_str());
-    m_nodeInApp->set_value(name.c_str());
+    m_nodeInWorkbook.attribute("name").set_value(name.c_str());
+    m_nodeInApp.set_value(name.c_str());
     SetModified();
 }
 
@@ -77,22 +77,22 @@ void XLSheet::SetState(XLSheetState state)
 
     switch (m_sheetState) {
         case XLSheetState::Hidden : {
-            auto att = m_nodeInWorkbook->attribute("state");
-            if (!m_nodeInWorkbook->attribute("state")) m_nodeInWorkbook->append_attribute("state") = "hidden";
+            auto att = m_nodeInWorkbook.attribute("state");
+            if (!m_nodeInWorkbook.attribute("state")) m_nodeInWorkbook.append_attribute("state") = "hidden";
             else att.set_value("hidden");
             break;
         }
 
         case XLSheetState::VeryHidden : {
-            auto att = m_nodeInWorkbook->attribute("state");
-            if (!att) m_nodeInWorkbook->append_attribute("state") = "veryhidden";
+            auto att = m_nodeInWorkbook.attribute("state");
+            if (!att) m_nodeInWorkbook.append_attribute("state") = "veryhidden";
             else att.set_value("veryhidden"); // todo: Check that this actually works
             break;
         }
 
         case XLSheetState::Visible : {
-            auto att = m_nodeInWorkbook->attribute("state");
-            if (att) m_nodeInWorkbook->remove_attribute("state");
+            auto att = m_nodeInWorkbook.attribute("state");
+            if (att) m_nodeInWorkbook.remove_attribute("state");
         }
     }
     SetModified();
@@ -113,7 +113,7 @@ void XLSheet::Delete()
 
     // Delete the node in AppProperties.
     ParentDocument()->AppProperties()->DeleteSheetName(m_sheetName);
-    m_nodeInApp = nullptr;
+    m_nodeInApp = XMLNode();
 
     // Delete the item in content_types.xml
     m_nodeInContentTypes->DeleteItem();

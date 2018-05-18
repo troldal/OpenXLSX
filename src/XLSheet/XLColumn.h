@@ -128,7 +128,7 @@ namespace OpenXLSX
         XLWorksheet *m_parentWorksheet; /**< A pointer to the parent XLWorksheet object. */
         XLDocument *m_parentDocument; /**< A pointer to the parent XLDocument object. */
 
-        std::unique_ptr<XMLNode> m_columnNode; /**< A pointer to the XMLNode object for the column. */
+        XMLNode m_columnNode; /**< A pointer to the XMLNode object for the column. */
 
         float m_width; /**< The width of the column */
         bool m_hidden; /**< The hidden state of the column */

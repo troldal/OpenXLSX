@@ -126,13 +126,13 @@ namespace OpenXLSX
 
         static std::map<std::string, XLStyles> s_styles;
 
-        static std::unique_ptr<XMLNode> s_numberFormatsNode; /**<  */
-        static std::unique_ptr<XMLNode> s_fontsNode; /**<  */
-        static std::unique_ptr<XMLNode> s_fillsNode; /**<  */
-        static std::unique_ptr<XMLNode> s_bordersNode; /**<  */
-        static std::unique_ptr<XMLNode> s_cellFormatNode; /**<  */
-        static std::unique_ptr<XMLNode> s_cellStyleNode; /**<  */
-        static std::unique_ptr<XMLNode> s_colors; /**<  */
+        static XMLNode s_numberFormatsNode; /**<  */
+        static XMLNode s_fontsNode; /**<  */
+        static XMLNode s_fillsNode; /**<  */
+        static XMLNode s_bordersNode; /**<  */
+        static XMLNode s_cellFormatNode; /**<  */
+        static XMLNode s_cellStyleNode; /**<  */
+        static XMLNode s_colors; /**<  */
 
         std::vector<std::unique_ptr<XLFont>> m_fonts; /**<  */
 

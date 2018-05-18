@@ -78,7 +78,7 @@ namespace OpenXLSX
 
     private:
 
-        std::unique_ptr<XMLNode> m_cellFormatNode; /**< */
+        XMLNode m_cellFormatNode; /**< */
 
         unsigned int m_numberFormatId; /**< */
         unsigned int m_fontId; /**< */

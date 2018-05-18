@@ -302,16 +302,16 @@ namespace OpenXLSX
 
     private:
 
-        std::unique_ptr<XMLAttribute> m_sheetCountAttribute; /**< */
-        std::unique_ptr<XMLNode> m_sheetNamesParent; /**< */
-        std::map<std::string, std::unique_ptr<XMLNode>> m_sheetNameNodes; /**< */
+        XMLAttribute m_sheetCountAttribute; /**< */
+        XMLNode m_sheetNamesParent; /**< */
+        std::map<std::string, XMLNode> m_sheetNameNodes; /**< */
 
-        std::unique_ptr<XMLAttribute> m_headingPairsSize; /**< */
-        std::unique_ptr<XMLNode> m_headingPairsCategoryParent; /**< */
-        std::unique_ptr<XMLNode> m_headingPairsCountParent; /**< */
-        std::vector<std::pair<std::unique_ptr<XMLNode>, std::unique_ptr<XMLNode>>> m_headingPairs; /**< */
+        XMLAttribute m_headingPairsSize; /**< */
+        XMLNode m_headingPairsCategoryParent; /**< */
+        XMLNode m_headingPairsCountParent; /**< */
+        std::vector<std::pair<XMLNode, XMLNode>> m_headingPairs; /**< */
 
-        std::map<std::string, std::unique_ptr<XMLNode>> m_properties; /**< */
+        std::map<std::string, XMLNode> m_properties; /**< */
 
         unsigned int m_worksheetCount; /**< */
         unsigned int m_chartsheetCount; /**< */

@@ -202,7 +202,7 @@ namespace OpenXLSX
 
     private:
 
-        std::unique_ptr<XMLNode> m_relationshipNode; /**< A pointer to the XML node with the relationship item */
+        XMLNode m_relationshipNode; /**< A pointer to the XML node with the relationship item */
         XLRelationshipType m_relationshipType; /**< The type of the relationship item */
         std::string m_relationshipTarget; /**< The target of the relationship item */
         std::string m_relationshipId; /**< The ID of the relationship item */

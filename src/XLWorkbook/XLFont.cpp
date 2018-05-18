@@ -20,7 +20,7 @@ XLFont::XLFont(const string &name,
                bool bold,
                bool italics,
                bool underline)
-    : m_fontNode(nullptr),
+    : m_fontNode(XMLNode()),
       m_name(name),
       m_size(size),
       m_color(color),
