@@ -89,7 +89,7 @@ namespace OpenXLSX
         /**
          * @brief
          */
-        ~XLValueError() override = default;
+        ~XLValueError() noexcept override = default;
 
         /**
          * @brief

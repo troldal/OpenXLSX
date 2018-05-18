@@ -111,7 +111,7 @@ namespace OpenXLSX
         /**
          * @brief
          */
-        ~XLValueNumber() override = default;
+        ~XLValueNumber() noexcept override = default;
 
         /**
          * @brief

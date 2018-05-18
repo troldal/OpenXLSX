@@ -48,12 +48,9 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 #include <string>
 #include <ostream>
-#include <optional>
-//#include <variant>
 #include "XLCellReference.h"
 #include "../XLWorkbook/XLDocument.h"
 #include "XLCellType.h"
-//#include "XLCellValueTemplate.h"
 #include "../Utilities/XML/XML.h"
 
 namespace OpenXLSX
@@ -74,8 +71,6 @@ namespace OpenXLSX
     {
         friend class XLRow;
         friend class XLCellValue;
-        template<typename>
-        friend class XLCellValueTemplate;
         friend class XLValue;
         friend class XLValueNumber;
         friend class XLValueString;

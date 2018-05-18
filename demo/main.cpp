@@ -20,6 +20,7 @@ using namespace OpenXLSX;
  * TODO: Fix the ConstIterator (currently it's not const)
  */
 
+void myTest();
 void simpleTest();
 void openLarge();
 void speedTest();
@@ -31,9 +32,10 @@ void printRange();
 
 int main()
 {
+    myTest();
     //simpleTest();
     //openLarge();
-    speedTest();
+    //speedTest();
     //writeTest();
     //cloneTest();
     //copyRangeTest();
@@ -51,6 +53,30 @@ int main()
     //doc.Styles()->AddFont(Font);
 
     return 0;
+}
+
+void myTest()
+{
+    XLDocument doc;
+    doc.CreateDocument("./MyTest.xlsx");
+    auto wks = doc.Workbook()->Worksheet("Sheet1");
+
+    *wks->Cell("A1")->Value() = 3.14159;
+    *wks->Cell("B1")->Value() = 42;
+    *wks->Cell("C1")->Value() = "Hello OpenXLSX!";
+    *wks->Cell("D1")->Value() = true;
+
+    auto A1 = wks->Cell("A1")->Value()->Get<long double>();
+    auto B1 = wks->Cell("B1")->Value()->Get<unsigned int>();
+    auto C1 = wks->Cell("C1")->Value()->Get<std::string>();
+    auto D1 = wks->Cell("D1")->Value()->Get<bool>();
+
+    cout << "Cell A1: " << A1 << endl;
+    cout << "Cell B1: " << B1 << endl;
+    cout << "Cell C1: " << C1 << endl;
+    cout << "Cell D1: " << D1 << endl;
+
+    doc.SaveDocument();
 }
 
 void simpleTest() {
@@ -86,7 +112,7 @@ void simpleTest() {
     auto wks4 = doc.Workbook()->Worksheet("Booleans");
     auto arange4 = wks4->Range(XLCellReference(1,1), XLCellReference(100,100));
     for (auto &iter : arange4) {
-        iter.Value()->Set(XLBool::True);
+        iter.Value()->Set(true);
     }
 
     doc.SaveDocument();

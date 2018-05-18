@@ -206,7 +206,7 @@ XLCellRange XLWorksheet::Range(const XLCellReference &topLeft,
                                const XLCellReference &bottomRight)
 {
     // Set the last Cell to some ValueAsString, in order to create all objects in Range.
-    if (Cell(bottomRight)->ValueType() == XLValueType::Empty) Cell(bottomRight)->Value()->SetEmpty();
+    if (Cell(bottomRight)->ValueType() == XLValueType::Empty) Cell(bottomRight)->Value()->Clear();
 
     return XLCellRange(*this, topLeft, bottomRight);
 }
@@ -603,8 +603,8 @@ void XLWorksheet::Import(const std::string &fileName, const string &delimiter)
             if (iter.IsFloat()) Cell(row, column)->Value()->Set(iter.AsFloat());
             if (iter.IsString()) Cell(row, column)->Value()->Set(iter.AsString());
             if (iter.IsBoolean()) {
-                if (iter.AsBoolean() == true) Cell(row, column)->Value()->Set(XLBool::True);
-                else Cell(row, column)->Value()->Set(XLBool::False);
+                if (iter.AsBoolean() == true) Cell(row, column)->Value()->Set(true);
+                else Cell(row, column)->Value()->Set(false);
             }
             column++;
         }

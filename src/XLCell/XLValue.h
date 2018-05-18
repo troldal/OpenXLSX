@@ -100,7 +100,7 @@ namespace OpenXLSX
          * @brief Destructor
          * @note Default implementation has been used.
          */
-        virtual ~XLValue() = default;
+        virtual ~XLValue() noexcept = default;
 
         /**
          * @brief Copy assignment operator

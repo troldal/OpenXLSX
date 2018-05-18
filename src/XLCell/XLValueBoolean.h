@@ -115,7 +115,7 @@ namespace OpenXLSX
          * @brief Destructor
          * @note This uses the default implementation.
          */
-        ~XLValueBoolean() override = default;
+        ~XLValueBoolean() noexcept override = default;
 
         /**
          * @brief Copy assignment operator.

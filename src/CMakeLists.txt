@@ -37,11 +37,10 @@ set(SOURCE_FILES
         XLCell/XLValueBoolean.cpp XLCell/XLValueBoolean.h
         XLCell/XLValueEmpty.cpp XLCell/XLValueEmpty.h
         XLCell/XLValueError.cpp XLCell/XLValueError.h
-        XLCell/Template/XLCellValueTemplate.h
 
         Utilities/Zip/libzip++.h Utilities/Zip/libzip++.cpp
         Utilities/XML/pugiconfig.hpp Utilities/XML/pugixml.hpp Utilities/XML/pugixml.cpp
-        Utilities/XML/XML.h XLCell/Template/XLValue.h)
+        Utilities/XML/XML.h)
 
 
 add_library(OpenXLSX STATIC ${SOURCE_FILES})
@@ -71,6 +70,7 @@ install (FILES
         XLSheet/XLTemplate.h
         XLSheet/XLRow.h
         XLSheet/XLColumn.h
+
         XLCell/XLCell.h
         XLCell/XLCellReference.h
         XLCell/XLCellRange.h

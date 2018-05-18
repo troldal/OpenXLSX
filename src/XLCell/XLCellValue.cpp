@@ -18,7 +18,8 @@ using namespace std;
  */
 XLCellValue::XLCellValue(XLCell &parent)
     : m_value(nullptr),
-      m_parentCell(parent)
+      m_parentCell(parent),
+      m_valueVariant()
 {
     Initialize();
 }
@@ -34,22 +35,27 @@ void XLCellValue::Initialize()
     switch (CellType()) {
         case XLCellType::Empty:
             m_value = make_unique<XLValueEmpty>(*this);
+            m_valueVariant = XLValueEmpty(*this);
             break;
 
         case XLCellType::Number:
             m_value = make_unique<XLValueNumber>(*this);
+            m_valueVariant = XLValueNumber(*this);
             break;
 
         case XLCellType::String:
             m_value = make_unique<XLValueString>(*this);
+            m_valueVariant = XLValueString(*this);
             break;
 
         case XLCellType::Boolean:
             m_value = make_unique<XLValueBoolean>(*this);
+            m_valueVariant = XLValueBoolean(*this);
             break;
 
         case XLCellType::Error:
             m_value = make_unique<XLValueError>(*this);
+            m_valueVariant = XLValueError(*this);
             break;
     }
 }
@@ -90,18 +96,6 @@ XLCellValue &XLCellValue::operator=(XLCellValue &&other) noexcept
 }
 
 /**
- * @details The assignment operator taking a XLBool object as a parameter, calls the corresponding Set method
- * and returns the resulting object.
- * @pre
- * @post
- */
-XLCellValue &XLCellValue::operator=(XLBool boolValue)
-{
-    Set(boolValue);
-    return *this;
-}
-
-/**
  * @details The assignment operator taking a std::tring object as a parameter, calls the corresponding Set method
  * and returns the resulting object.
  * @pre
@@ -123,22 +117,6 @@ XLCellValue &XLCellValue::operator=(const char *stringValue)
 {
     Set(stringValue);
     return *this;
-}
-
-/**
- * @details If the value type is already a boolean, the value will be set to the new value. Otherwise, the m_value
- * member variable will be set to an XLBoolean object with the given value.
- * @pre
- * @post
- */
-void XLCellValue::Set(XLBool boolValue)
-{
-    if (ValueType() == XLValueType::Boolean)
-        static_cast<XLValueBoolean &>(*m_value).Set(boolValue);
-    else
-        m_value = make_unique<XLValueBoolean>(boolValue, *this);
-
-    ParentCell()->SetModified();
 }
 
 /**
@@ -172,60 +150,12 @@ void XLCellValue::Set(const char *stringValue)
  * @pre The parent XLCell object is valid and has a corresponding node in the underlying XML file.
  * @post The m_value holds an XLEmpty object and the value node and type attributes have been deleted.
  */
-void XLCellValue::SetEmpty()
+void XLCellValue::Clear()
 {
     m_value = make_unique<XLValueEmpty>(*this);
     DeleteValueNode();
     DeleteTypeAttribute();
     ParentCell()->SetModified();
-}
-
-/**
- * @details Returns the boolean value of the cell, provided the value type is 'Boolean'.
- * @exception XLException If the value type is not 'Boolean', an XLException will be thrown.
- * @pre The m_value member variable is valid and the value type is 'Boolean'
- * @post The current object, and any associated objects, are unchanged.
- */
-XLBool XLCellValue::Boolean() const
-{
-    if (ValueType() != XLValueType::Boolean) throw XLException("Cell value is not Boolean");
-    return static_cast<XLValueBoolean &>(*m_value).Boolean();
-}
-
-/**
- * @details Returns the float value of the cell, provided the value type is 'Float'.
- * @exception XLException If the value type is not 'Float', an XLException will be thrown.
- * @pre The m_value member variable is valid and the value type is 'Float'
- * @post The current object, and any associated objects, are unchanged.
- */
-long double XLCellValue::Float() const
-{
-    if (ValueType() != XLValueType::Float) throw XLException("Cell value is not Float");
-    return static_cast<XLValueNumber &>(*m_value).Float();
-}
-
-/**
- * @details Returns the integer value of the cell, provided the value type is 'Integer'.
- * @exception XLException If the value type is not 'Integer', an XLException will be thrown.
- * @pre The m_value member variable is valid and the value type is 'Integer'
- * @post The current object, and any associated objects, are unchanged.
- */
-long long int XLCellValue::Integer() const
-{
-    if (ValueType() != XLValueType::Integer) throw XLException("Cell value is not Integer");
-    return static_cast<XLValueNumber &>(*m_value).Integer();
-}
-
-/**
- * @details Returns the string value of the cell, provided the value type is 'String'.
- * @exception XLException If the value type is not 'String', an XLException will be thrown.
- * @pre The m_value member variable is valid and the value type is 'String'
- * @post The current object, and any associated objects, are unchanged.
- */
-const std::string &XLCellValue::String() const
-{
-    if (ValueType() != XLValueType::String) throw XLException("Cell value is not String");
-    return static_cast<XLValueString &>(*m_value).String();
 }
 
 /**
@@ -235,7 +165,11 @@ const std::string &XLCellValue::String() const
  */
 std::string XLCellValue::AsString() const
 {
-    return (*m_value).AsString();
+    //return (*m_value).AsString();
+    switch (m_valueVariant.index()) {
+
+    }
+
 }
 
 /**
@@ -351,7 +285,7 @@ const XLCell *XLCellValue::ParentCell() const
 void XLCellValue::SetValueNode(const std::string &value)
 {
     if (value.empty()) {
-        SetEmpty();
+        Clear();
     }
     else {
         CreateValueNode();

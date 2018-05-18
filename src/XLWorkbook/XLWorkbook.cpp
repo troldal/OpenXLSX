@@ -49,8 +49,8 @@ bool XLWorkbook::ParseXMLData()
 
     // Find the "sheets" section in the Workbook.xml file
     for (auto &node : XmlDocument()->first_child().children()) {
-        if (string(node.name()) == "sheets") node;
-        if (string(node.name()) == "definedNames") node;
+        if (string(node.name()) == "sheets") m_sheetsNode = node;
+        if (string(node.name()) == "definedNames") m_definedNames = node;
     }
 
     for (auto &sheetNode : m_sheetsNode.children())
@@ -95,7 +95,7 @@ bool XLWorkbook::ParseXMLData()
  */
 XLWorksheet * XLWorkbook::Worksheet(const std::string &sheetName)
 {
-    if (m_sheets.find(sheetName) == m_sheets.end()) throw std::range_error("Sheet does not exist");
+    if (m_sheets.find(sheetName) == m_sheets.end()) throw std::range_error("Sheet \"" + sheetName + "\" does not exist");
 
     if (m_sheets.at(sheetName) == nullptr) {
         m_sheets.at(sheetName) = make_unique<XLWorksheet>(*this, sheetName, m_sheetPaths.at(sheetName));

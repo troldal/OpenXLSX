@@ -112,7 +112,7 @@ namespace OpenXLSX
          * @brief Destructor
          * @note The default implementation has been used.
          */
-        ~XLValueString() override = default;
+        ~XLValueString() noexcept override = default;
 
         /**
          * @brief Copy assignment operator
