@@ -170,6 +170,8 @@ std::string XLCellValue::AsString() const
             return std::get<4>(m_value).AsString();
         case 5:
             return std::get<5>(m_value).AsString();
+        default:
+            return "";
     }
 }
 
@@ -264,6 +266,8 @@ std::string XLCellValue::TypeString() const
             return std::get<4>(m_value).TypeString();
         case 5:
             return std::get<5>(m_value).TypeString();
+        default:
+            return "";
     }
 }
 
