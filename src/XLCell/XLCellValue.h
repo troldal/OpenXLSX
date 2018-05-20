@@ -343,7 +343,7 @@ namespace OpenXLSX
 
     private:
         XLCell &m_parentCell; /**< A reference to the parent XLCell object. */
-        std::variant<std::monostate, XLValueEmpty, XLValueNumber, XLValueString, XLValueBoolean, XLValueError> m_valueVariant;
+        std::variant<std::monostate, XLValueEmpty, XLValueNumber, XLValueString, XLValueBoolean, XLValueError> m_value;
     };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -394,15 +394,15 @@ namespace OpenXLSX
                 val = XLBool::False;
 
             if (ValueType() == XLValueType::Boolean)
-                std::get<XLValueBoolean>(m_valueVariant).Set(val);
+                std::get<XLValueBoolean>(m_value).Set(val);
             else
-                m_valueVariant = XLValueBoolean(val, *this);
+                m_value = XLValueBoolean(val, *this);
 
         } else {
             if (ValueType() != XLValueType::Integer || ValueType() != XLValueType::Float)
-                m_valueVariant = XLValueNumber(*this);
+                m_value = XLValueNumber(*this);
 
-            std::get<XLValueNumber>(m_valueVariant).Set(static_cast<long long int>(numberValue));
+            std::get<XLValueNumber>(m_value).Set(static_cast<long long int>(numberValue));
         }
 
         ParentCell()->SetModified();
@@ -419,9 +419,9 @@ namespace OpenXLSX
     void XLCellValue::Set(T numberValue)
     {
         if (ValueType() != XLValueType::Integer || ValueType() != XLValueType::Float)
-            m_valueVariant = XLValueNumber(*this);
+            m_value = XLValueNumber(*this);
 
-        std::get<XLValueNumber>(m_valueVariant).Set(static_cast<long double>(numberValue));
+        std::get<XLValueNumber>(m_value).Set(static_cast<long double>(numberValue));
 
         ParentCell()->SetModified();
     }
@@ -438,13 +438,13 @@ namespace OpenXLSX
     {
         if constexpr (std::is_same<T, bool>::value) {
             if (ValueType() != XLValueType::Boolean) throw XLException("Cell value is not Boolean");
-            if (std::get<XLValueBoolean>(m_valueVariant).Boolean() == XLBool::True)
+            if (std::get<XLValueBoolean>(m_value).Boolean() == XLBool::True)
                 return true;
             else
                 return false;
         } else {
             if (ValueType() != XLValueType::Integer) throw XLException("Cell value is not Integer");
-            return std::get<XLValueNumber>(m_valueVariant).Integer();
+            return std::get<XLValueNumber>(m_value).Integer();
         }
     }
 
@@ -459,7 +459,7 @@ namespace OpenXLSX
     T XLCellValue::Get()
     {
         if (ValueType() != XLValueType::Float) throw XLException("Cell value is not Float");
-        return std::get<XLValueNumber>(m_valueVariant).Float();
+        return std::get<XLValueNumber>(m_value).Float();
     }
 
     /**
@@ -473,7 +473,7 @@ namespace OpenXLSX
     T XLCellValue::Get()
     {
         if (ValueType() != XLValueType::String) throw XLException("Cell value is not String");
-        return std::get<XLValueString>(m_valueVariant).String();
+        return std::get<XLValueString>(m_value).String();
     }
 
 }
