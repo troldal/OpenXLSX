@@ -106,7 +106,7 @@ namespace OpenXLSX
          * XLCell object. However, a copy constructor is required in order to use the std::variant data structure. A
          * solution should be found, that does not require a copy constructor.
          */
-        XLValueNumber(XLValueNumber &&other) = default;
+        XLValueNumber(XLValueNumber &&other) noexcept = default;
 
         /**
          * @brief
@@ -140,13 +140,6 @@ namespace OpenXLSX
          * @return
          */
         XLValueNumber &operator=(long double numberValue);
-
-        /**
-         * @brief
-         * @param parent
-         * @return
-         */
-        std::unique_ptr<XLValue> Clone(XLCell &parent) override;
 
         /**
          * @brief

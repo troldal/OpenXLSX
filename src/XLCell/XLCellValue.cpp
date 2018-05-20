@@ -17,8 +17,7 @@ using namespace std;
  * @post A valid XLCellValue object has been constructed.
  */
 XLCellValue::XLCellValue(XLCell &parent)
-    : m_value(nullptr),
-      m_parentCell(parent),
+    : m_parentCell(parent),
       m_valueVariant()
 {
     Initialize();
@@ -34,27 +33,22 @@ void XLCellValue::Initialize()
 {
     switch (CellType()) {
         case XLCellType::Empty:
-            m_value = make_unique<XLValueEmpty>(*this);
             m_valueVariant = XLValueEmpty(*this);
             break;
 
         case XLCellType::Number:
-            m_value = make_unique<XLValueNumber>(*this);
             m_valueVariant = XLValueNumber(*this);
             break;
 
         case XLCellType::String:
-            m_value = make_unique<XLValueString>(*this);
             m_valueVariant = XLValueString(*this);
             break;
 
         case XLCellType::Boolean:
-            m_value = make_unique<XLValueBoolean>(*this);
             m_valueVariant = XLValueBoolean(*this);
             break;
 
         case XLCellType::Error:
-            m_value = make_unique<XLValueError>(*this);
             m_valueVariant = XLValueError(*this);
             break;
     }
@@ -125,12 +119,12 @@ XLCellValue &XLCellValue::operator=(const char *stringValue)
  * @pre
  * @post
  */
-void XLCellValue::Set(const std::string &stringValue)
+void XLCellValue::Set(string_view stringValue)
 {
     if (ValueType() == XLValueType::String)
-        static_cast<XLValueString &>(*m_value).Set(stringValue);
+        std::get<XLValueString>(m_valueVariant).Set(stringValue);
     else
-        m_value = make_unique<XLValueString>(stringValue, *this);
+        m_valueVariant = XLValueString(stringValue, *this);
 
     ParentCell()->SetModified();
 }
@@ -142,7 +136,7 @@ void XLCellValue::Set(const std::string &stringValue)
  */
 void XLCellValue::Set(const char *stringValue)
 {
-    Set(std::string(stringValue));
+    Set(std::string_view(stringValue));
 }
 
 /**
@@ -152,7 +146,7 @@ void XLCellValue::Set(const char *stringValue)
  */
 void XLCellValue::Clear()
 {
-    m_value = make_unique<XLValueEmpty>(*this);
+    m_valueVariant = XLValueEmpty(*this);
     DeleteValueNode();
     DeleteTypeAttribute();
     ParentCell()->SetModified();
@@ -165,11 +159,18 @@ void XLCellValue::Clear()
  */
 std::string XLCellValue::AsString() const
 {
-    //return (*m_value).AsString();
     switch (m_valueVariant.index()) {
-
+        case 1:
+            return std::get<1>(m_valueVariant).AsString();
+        case 2:
+            return std::get<2>(m_valueVariant).AsString();
+        case 3:
+            return std::get<3>(m_valueVariant).AsString();
+        case 4:
+            return std::get<4>(m_valueVariant).AsString();
+        case 5:
+            return std::get<5>(m_valueVariant).AsString();
     }
-
 }
 
 /**
@@ -187,7 +188,7 @@ XLValueType XLCellValue::ValueType() const
             return XLValueType::Error;
 
         case XLCellType::Number: {
-            if (dynamic_cast<XLValueNumber &>(*m_value).NumberType() == XLNumberType::Integer)
+            if (std::get<XLValueNumber>(m_valueVariant).NumberType() == XLNumberType::Integer)
                 return XLValueType::Integer;
             else
                 return XLValueType::Float;
@@ -252,7 +253,18 @@ XLCellType XLCellValue::CellType() const
  */
 std::string XLCellValue::TypeString() const
 {
-    return (*m_value).TypeString();
+    switch (m_valueVariant.index()) {
+        case 1:
+            return std::get<1>(m_valueVariant).TypeString();
+        case 2:
+            return std::get<2>(m_valueVariant).TypeString();
+        case 3:
+            return std::get<3>(m_valueVariant).TypeString();
+        case 4:
+            return std::get<4>(m_valueVariant).TypeString();
+        case 5:
+            return std::get<5>(m_valueVariant).TypeString();
+    }
 }
 
 /**
@@ -282,14 +294,14 @@ const XLCell *XLCellValue::ParentCell() const
  * @post The cell is either set to empty, or a value node exists and has been set to the input value.
  * @note If the input string is empty, the cell type will be set to empty.
  */
-void XLCellValue::SetValueNode(const std::string &value)
+void XLCellValue::SetValueNode(string_view value)
 {
     if (value.empty()) {
         Clear();
     }
     else {
         CreateValueNode();
-        ValueNode().text().set(value.c_str());
+        ValueNode().text().set(string(value).c_str());
     }
 }
 

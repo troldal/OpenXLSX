@@ -240,10 +240,3 @@ string XLValueNumber::AsString() const
 
     return ""; // Non-reachable code; included only to silence compiler warning.
 }
-unique_ptr<XLValue> XLValueNumber::Clone(XLCell &parent)
-{
-    unique_ptr<XLValue> result(new XLValueNumber(*ParentCellValue()));
-    *result = *this;
-
-    return result;
-}

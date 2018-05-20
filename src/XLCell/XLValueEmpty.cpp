@@ -17,17 +17,6 @@ XLValueEmpty::XLValueEmpty(XLCellValue &parent)
 }
 
 /**
- * @details
- */
-std::unique_ptr<OpenXLSX::XLValue> XLValueEmpty::Clone(OpenXLSX::XLCell &parent)
-{
-    unique_ptr<XLValue> result(new XLValueEmpty(*ParentCellValue()));
-    *result = *this;
-
-    return result;
-}
-
-/**
  * @details Returns XLValueType::Empty
  */
 XLValueType XLValueEmpty::ValueType() const

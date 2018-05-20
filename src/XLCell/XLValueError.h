@@ -84,7 +84,7 @@ namespace OpenXLSX
          * @brief
          * @param other
          */
-        XLValueError(XLValueError &&other) = delete;
+        XLValueError(XLValueError &&other) noexcept = default;
 
         /**
          * @brief
@@ -104,13 +104,6 @@ namespace OpenXLSX
          * @return
          */
         XLValueError &operator=(XLValueError &&other) noexcept = default;
-
-        /**
-         * @brief
-         * @param parent
-         * @return
-         */
-        std::unique_ptr<XLValue> Clone(XLCell &parent) override;
 
         /**
          * @brief

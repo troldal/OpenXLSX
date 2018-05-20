@@ -189,7 +189,7 @@ namespace OpenXLSX
          * @brief Set the object to a string value.
          * @param stringValue A std::string to assign.
          */
-        void Set(const std::string &stringValue);
+        void Set(std::string_view stringValue);
 
         /**
          * @brief Get integer value.
@@ -274,7 +274,7 @@ namespace OpenXLSX
          * @brief Set the value of the value node.
          * @param value A std::string with the value.
          */
-        void SetValueNode(const std::string &value);
+        void SetValueNode(std::string_view value);
 
         /**
          * @brief Delete the value node in the underlying XML file.
@@ -342,7 +342,6 @@ namespace OpenXLSX
 //----------------------------------------------------------------------------------------------------------------------
 
     private:
-        std::unique_ptr<XLValue> m_value; /**< A pointer to the value object. */
         XLCell &m_parentCell; /**< A reference to the parent XLCell object. */
         std::variant<std::monostate, XLValueEmpty, XLValueNumber, XLValueString, XLValueBoolean, XLValueError> m_valueVariant;
     };
@@ -352,7 +351,7 @@ namespace OpenXLSX
 //----------------------------------------------------------------------------------------------------------------------
 
     /**
-     * @details This is a template assignment operator for all integer-type paremeters. The function calls the Set
+     * @details This is a template assignment operator for all integer-type parameters. The function calls the Set
      * template function and returns *this.
      * @pre
      * @post
@@ -395,15 +394,15 @@ namespace OpenXLSX
                 val = XLBool::False;
 
             if (ValueType() == XLValueType::Boolean)
-                static_cast<XLValueBoolean &>(*m_value).Set(val);
+                std::get<XLValueBoolean>(m_valueVariant).Set(val);
             else
-                m_value = std::make_unique<XLValueBoolean>(val, *this);
+                m_valueVariant = XLValueBoolean(val, *this);
 
         } else {
             if (ValueType() != XLValueType::Integer || ValueType() != XLValueType::Float)
-                m_value = std::make_unique<XLValueNumber>(*this);
+                m_valueVariant = XLValueNumber(*this);
 
-            static_cast<XLValueNumber &>(*m_value).Set(static_cast<long long int>(numberValue));
+            std::get<XLValueNumber>(m_valueVariant).Set(static_cast<long long int>(numberValue));
         }
 
         ParentCell()->SetModified();
@@ -420,9 +419,9 @@ namespace OpenXLSX
     void XLCellValue::Set(T numberValue)
     {
         if (ValueType() != XLValueType::Integer || ValueType() != XLValueType::Float)
-            m_value = std::make_unique<XLValueNumber>(*this);
+            m_valueVariant = XLValueNumber(*this);
 
-        static_cast<XLValueNumber &>(*m_value).Set(static_cast<long double>(numberValue));
+        std::get<XLValueNumber>(m_valueVariant).Set(static_cast<long double>(numberValue));
 
         ParentCell()->SetModified();
     }
@@ -439,13 +438,13 @@ namespace OpenXLSX
     {
         if constexpr (std::is_same<T, bool>::value) {
             if (ValueType() != XLValueType::Boolean) throw XLException("Cell value is not Boolean");
-            if (static_cast<XLValueBoolean &>(*m_value).Boolean() == XLBool::True)
+            if (std::get<XLValueBoolean>(m_valueVariant).Boolean() == XLBool::True)
                 return true;
             else
                 return false;
         } else {
             if (ValueType() != XLValueType::Integer) throw XLException("Cell value is not Integer");
-            return static_cast<XLValueNumber &>(*m_value).Integer();
+            return std::get<XLValueNumber>(m_valueVariant).Integer();
         }
     }
 
@@ -460,7 +459,7 @@ namespace OpenXLSX
     T XLCellValue::Get()
     {
         if (ValueType() != XLValueType::Float) throw XLException("Cell value is not Float");
-        return static_cast<XLValueNumber &>(*m_value).Float();
+        return std::get<XLValueNumber>(m_valueVariant).Float();
     }
 
     /**
@@ -470,11 +469,11 @@ namespace OpenXLSX
      * @pre
      * @post
      */
-    template<typename T, typename std::enable_if<std::is_same<T, std::string>::value, std::string>::type * = nullptr>
+    template<typename T, typename std::enable_if<std::is_same<T, std::string>::value, std::string>::type *>
     T XLCellValue::Get()
     {
         if (ValueType() != XLValueType::String) throw XLException("Cell value is not String");
-        return static_cast<XLValueString &>(*m_value).String();
+        return std::get<XLValueString>(m_valueVariant).String();
     }
 
 }

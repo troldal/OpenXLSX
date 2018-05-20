@@ -127,15 +127,3 @@ std::string XLValueBoolean::AsString() const
         return "False";
 }
 
-/**
- * @details A new unique_ptr with a 'default' constructed XLBoolean object is created. Subsequently, the value of the
- * current object (*this) is copy assigned to the new unique_ptr object. The result is returned.
- * @todo Is this the right way to do this? Is there a more elegant way?
- */
-std::unique_ptr<XLValue> XLValueBoolean::Clone(XLCell &parent)
-{
-    unique_ptr<XLValue> result(new XLValueBoolean(*ParentCellValue()));
-    *result = *this;
-
-    return result;
-}

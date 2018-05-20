@@ -65,10 +65,10 @@ const XMLNode XLSharedStrings::GetStringNode(unsigned long index) const
  * The resulting string is returned as pointer-to-const, as the client is not supposed to modify the shared strings
  * directly.
  */
-const XMLNode XLSharedStrings::GetStringNode(const std::string &str) const
+const XMLNode XLSharedStrings::GetStringNode(string_view str) const
 {
     for (const auto &s : m_sharedStringNodes) {
-        if (s.value() == str) return s;
+        if (string_view(s.text().get()) == str) return s;
     }
 
     throw std::range_error("Node does not exist");
@@ -77,13 +77,13 @@ const XMLNode XLSharedStrings::GetStringNode(const std::string &str) const
 /**
  * @details Look up a string index by the string content. If the string does not exist, the returned index is -1.
  */
-long XLSharedStrings::GetStringIndex(const std::string &str) const
+long XLSharedStrings::GetStringIndex(string_view str) const
 {
 
     long result = -1;
     long counter = 0;
     for (const auto &s : m_sharedStringNodes) {
-        if (s.value() == str) {
+        if (string_view(s.text().get()) == str) {
             result = counter;
             break;
         }
@@ -96,7 +96,7 @@ long XLSharedStrings::GetStringIndex(const std::string &str) const
 /**
  * @details
  */
-bool XLSharedStrings::StringExists(const std::string &str) const
+bool XLSharedStrings::StringExists(string_view str) const
 {
 
     if (GetStringIndex(str) < 0)
@@ -120,13 +120,13 @@ bool XLSharedStrings::StringExists(unsigned long index) const
  * @details Append a string by creating a new node in the XML file and adding the string to it. The index to the
  * shared string is returned
  */
-long XLSharedStrings::AppendString(const std::string &str)
+long XLSharedStrings::AppendString(string_view str)
 {
 
     // Create the required nodes
     auto node = XmlDocument()->append_child("si");
     auto value = node.append_child("t");
-    value.set_value(str.c_str());
+    value.text().set(string(str).c_str());
 
     // Add the node pointer to the internal datastructure.
     m_sharedStringNodes.push_back(value);

@@ -94,7 +94,7 @@ namespace OpenXLSX
          * @param other The object to be move constructed.
          * @note This has been explicitly deleted.
          */
-        XLValue(XLValue &&other) = delete;
+        XLValue(XLValue &&other) noexcept = default;
 
         /**
          * @brief Destructor
@@ -115,13 +115,6 @@ namespace OpenXLSX
          * @return A reference to the object after the move.
          */
         XLValue &operator=(XLValue &&other) noexcept;
-
-        /**
-         * @brief Creates a polymorphic clone of the object
-         * @param parent A reference to the parent XLCell object of the clone
-         * @return A unique_ptr holding the clone.
-         */
-        virtual std::unique_ptr<XLValue> Clone(XLCell &parent) = 0;
 
         /**
          * @brief Get the value type of the object.
@@ -170,11 +163,11 @@ namespace OpenXLSX
 //----------------------------------------------------------------------------------------------------------------------
 
     private:
-        XLCellValue &m_parentCellValue; /**<  */
+        XLCellValue *m_parentCellValue; /**<  */
+        XMLNode m_cellNode; /**<  */
 
     };
 
 }
-
 
 #endif //OPENXLEXE_XLCELLVALUETYPE_H

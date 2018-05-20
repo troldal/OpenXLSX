@@ -85,7 +85,7 @@ namespace OpenXLSX
          * @param other the XLEmpty object to move.
          * @note The move constructor has been explicitly deleted.
          */
-        XLValueEmpty(XLValueEmpty &&other) = delete;
+        XLValueEmpty(XLValueEmpty &&other) noexcept = default;
 
         /**
          * @brief Destructor
@@ -108,13 +108,6 @@ namespace OpenXLSX
          * @note The default implementation has been used.
          */
         XLValueEmpty &operator=(XLValueEmpty &&other) noexcept = default;
-
-        /**
-         * @brief Creates a polymorphic clone of the object.
-         * @param parent The parent XLCell object of the clone.
-         * @return A unique_ptr with the clone.
-         */
-        std::unique_ptr<XLValue> Clone(XLCell &parent) override;
 
         /**
          * @brief Get the value type of the object.

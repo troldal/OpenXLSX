@@ -83,7 +83,7 @@ namespace OpenXLSX
          * @param stringValue A std::string with the string value to initialize the object with.
          * @param parent A reference to the parent XLCellValue object.
          */
-        explicit XLValueString(const std::string &stringValue, XLCellValue &parent);
+        explicit XLValueString(std::string_view stringValue, XLCellValue &parent);
 
         /**
          * @brief Constructor
@@ -106,7 +106,7 @@ namespace OpenXLSX
          * @param other The object to be moved.
          * @note The move constructor has been explicitly deleted.
          */
-        XLValueString(XLValueString &&other) = delete;
+        XLValueString(XLValueString &&other) noexcept = default;
 
         /**
          * @brief Destructor
@@ -136,18 +136,11 @@ namespace OpenXLSX
         XLValueString &operator=(const std::string &str);
 
         /**
-         * @brief Creates a polymorphic clone of the object.
-         * @param parent The parent XLCell object of the clone.
-         * @return A unique_ptr with the clone.
-         */
-        std::unique_ptr<XLValue> Clone(XLCell &parent) override;
-
-        /**
          * @brief Set the string value
          * @param stringValue A std::string with the new value
          * @param type The type of the string; the default is an ordinary string.
          */
-        void Set(const std::string &stringValue, XLStringType type = XLStringType::String);
+        void Set(std::string_view stringValue, XLStringType type = XLStringType::String);
 
         /**
          * @brief Get the string value as a std::string.
@@ -203,7 +196,7 @@ namespace OpenXLSX
          * @brief Private function used to initialize a string object.
          * @param stringValue A std::string to initialize the object with.
          */
-        void Initialize(const std::string &stringValue);
+        void Initialize(std::string_view stringValue);
 
 
 

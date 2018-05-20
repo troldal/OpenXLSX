@@ -105,21 +105,21 @@ namespace OpenXLSX
          * @param str The string to look up.
          * @return A pointer to the XMLNode holding the shared string.
          */
-        const XMLNode GetStringNode(const std::string &str) const;
+        const XMLNode GetStringNode(std::string_view str) const;
 
         /**
          * @brief
          * @param str
          * @return
          */
-        long GetStringIndex(const std::string &str) const;
+        long GetStringIndex(std::string_view str) const;
 
         /**
          * @brief
          * @param str
          * @return
          */
-        bool StringExists(const std::string &str) const;
+        bool StringExists(std::string_view str) const;
 
         /**
          * @brief
@@ -133,7 +133,7 @@ namespace OpenXLSX
          * @param str The string to append.
          * @return A long int with the index of the appended string
          */
-        long AppendString(const std::string &str);
+        long AppendString(std::string_view str);
 
         /**
          * @brief Clear the string at the given index.

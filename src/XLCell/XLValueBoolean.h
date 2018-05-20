@@ -109,7 +109,7 @@ namespace OpenXLSX
          * @param other The object to be moved.
          * @note This uses the default implementation.
          */
-        XLValueBoolean(XLValueBoolean &&other) = delete;
+        XLValueBoolean(XLValueBoolean &&other) noexcept = default;
 
         /**
          * @brief Destructor
@@ -132,14 +132,7 @@ namespace OpenXLSX
          * @note This uses the default implementation.
          * @todo Is this the right way to do it?
          */
-        XLValueBoolean &operator=(XLValueBoolean &&other) = default;
-
-        /**
-         * @brief Creates a polymorphic clone of the object.
-         * @param parent The parent XLCell object of the clone.
-         * @return A unique_ptr with the clone.
-         */
-        std::unique_ptr<XLValue> Clone(XLCell &parent) override;
+        XLValueBoolean &operator=(XLValueBoolean &&other) noexcept = default;
 
         /**
          * @brief Set the bool value

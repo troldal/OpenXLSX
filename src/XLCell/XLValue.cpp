@@ -12,7 +12,7 @@ using namespace std;
  * @details The constructor initializes the m_parentCellValue member variable with the value of the parent parameter.
  */
 XLValue::XLValue(XLCellValue &parent)
-    : m_parentCellValue(parent)
+    : m_parentCellValue(&parent)
 {
 
 }
@@ -48,7 +48,7 @@ XLValue &XLValue::operator=(XLValue &&other) noexcept
  */
 XLCellValue *XLValue::ParentCellValue()
 {
-    return &m_parentCellValue;
+    return m_parentCellValue;
 }
 
 /**
@@ -58,5 +58,5 @@ XLCellValue *XLValue::ParentCellValue()
  */
 const XLCellValue *XLValue::ParentCellValue() const
 {
-    return &m_parentCellValue;
+    return m_parentCellValue;
 }

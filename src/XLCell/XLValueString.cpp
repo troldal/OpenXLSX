@@ -28,7 +28,7 @@ XLValueString::XLValueString(XLCellValue &parent)
  * @details This constructor initializes the m_type variable depending on whether shared strings are available or not.
  * Afterwards, the Initialize method is called, initializing the value to that of the input string.
  */
-XLValueString::XLValueString(const std::string &stringValue, XLCellValue &parent)
+XLValueString::XLValueString(string_view stringValue, XLCellValue &parent)
     : XLValue(parent),
       m_type(parent.ParentCell()->ParentWorkbook()->HasSharedStrings() ? XLStringType::SharedString
                                                                      : XLStringType::String),
@@ -74,7 +74,7 @@ XLValueString &XLValueString::operator=(XLValueString &&other) noexcept
  * Otherwise, an ordinary string will be created.
  * @todo InlineStrings are not implemented.
  */
-void XLValueString::Initialize(const std::string &stringValue)
+void XLValueString::Initialize(string_view stringValue)
 {
     if (!ParentCellValue()->HasValueNode()) ParentCellValue()->CreateValueNode();
     if (!ParentCellValue()->HasTypeAttribute()) ParentCellValue()->CreateTypeAttribute();
@@ -115,7 +115,7 @@ XLValueString &XLValueString::operator=(const std::string &str)
 /**
  * @details The Set method sets the object to the given type and with the given string value.
  */
-void XLValueString::Set(const std::string &stringValue, XLStringType type)
+void XLValueString::Set(string_view stringValue, XLStringType type)
 {
     m_type = type;
     Initialize(stringValue);
@@ -207,15 +207,3 @@ string XLValueString::AsString() const
     return String();
 }
 
-/**
- * @details A new unique_ptr with a 'default' constructed XLString object is created. Subsequently, the value of the
- * current object (*this) is copy assigned to the new unique_ptr object. The result is returned.
- * @todo Is this the right way to do this? Is there a more elegant way?
- */
-unique_ptr<XLValue> XLValueString::Clone(XLCell &parent)
-{
-    unique_ptr<XLValue> result(new XLValueString(*ParentCellValue()));
-    *result = *this;
-
-    return result;
-}
