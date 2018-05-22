@@ -35,7 +35,7 @@ int main()
     myTest();
     //simpleTest();
     //openLarge();
-    speedTest();
+    //speedTest();
     //writeTest();
     //cloneTest();
     //copyRangeTest();
