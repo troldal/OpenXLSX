@@ -60,8 +60,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "../XLSheet/XLSheet.h"
 #include "XLRelationships.h"
 #include "XLException.h"
-//#include "../Utilities/Zip/libzip++.h"
-#include "../Utilities/Zip/miniz-cpp.h"
+#include "../Utilities/Zip/libzip++.h"
 
 namespace OpenXLSX
 {
@@ -322,7 +321,7 @@ namespace OpenXLSX
 
         std::map<std::string, XLAbstractXMLFile *> m_xmlFiles; /**< A std::map with all the associated XML files*/
         //std::unique_ptr<libzippp::ZipArchive> m_archive;
-        std::unique_ptr<miniz_cpp::zip_file> m_archive;
+        std::unique_ptr<libzippp::ZipArchive> m_archive;
 
         std::vector<std::string> m_xmlData;
     };

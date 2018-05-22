@@ -23,17 +23,16 @@ file(GLOB CELL_SOURCES XLCell/*.cpp)
 file(GLOB XML_HEADERS Utilities/XML/*.h)
 file(GLOB XML_SOURCES Utilities/XML/*.cpp)
 file(GLOB ZIP_HEADERS Utilities/Zip/*.h)
-file(GLOB ZIP_SOURCES Utilities/Zip/*.c)
 file(GLOB ZIP_SOURCES Utilities/Zip/*.cpp)
 
-set(OPENXLSX_HEADERS OpenXLSX.h Utilities/Zip/miniz.h
+set(OPENXLSX_HEADERS OpenXLSX.h
         ${WORKBOOK_HEADERS}
         ${SHEET_HEADERS}
         ${CELL_HEADERS}
         ${XML_HEADERS}
-        ${ZIP_HEADERS} Utilities/Zip/miniz-cpp.h)
+        ${ZIP_HEADERS})
 
-set(OPENXLSX_SOURCES Utilities/Zip/miniz.c
+set(OPENXLSX_SOURCES
         ${WORKBOOK_SOURCES}
         ${SHEET_SOURCES}
         ${CELL_SOURCES}

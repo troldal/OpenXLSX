@@ -34,7 +34,7 @@ int main()
 {
     myTest();
     //simpleTest();
-    //openLarge();
+    openLarge();
     //speedTest();
     //writeTest();
     //cloneTest();
