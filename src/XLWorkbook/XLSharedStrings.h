@@ -51,8 +51,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "../Utilities/XML/XML.h"
 
 #include <vector>
-
-
+#include <string_view>
 
 namespace OpenXLSX
 {

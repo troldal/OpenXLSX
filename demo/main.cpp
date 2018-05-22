@@ -68,13 +68,13 @@ void myTest()
 
     auto A1 = wks->Cell("A1")->Value()->Get<long double>();
     auto B1 = wks->Cell("B1")->Value()->Get<unsigned int>();
-    auto C1 = wks->Cell("C1")->Value()->Get<std::string>();
-    auto D1 = wks->Cell("D1")->Value()->Get<bool>();
+    auto C1 = wks->Cell("C1")->Value()->Get<char*>();
+    //auto D1 = wks->Cell("D1")->Value()->Get<bool>();
 
     cout << "Cell A1: " << A1 << endl;
     cout << "Cell B1: " << B1 << endl;
     cout << "Cell C1: " << C1 << endl;
-    cout << "Cell D1: " << D1 << endl;
+    //cout << "Cell D1: " << D1 << endl;
 
     doc.SaveDocument();
 }

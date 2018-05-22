@@ -1,11 +1,9 @@
 cmake_minimum_required(VERSION 3.5)
-project (OpenXLSX)
+project (OpenXLSX.All)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/CMake/Modules/")
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -flto")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -flto")
 IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic -Wno-unused-value -Wno-unused-parameter")# -Weffc++")
 ENDIF(CMAKE_BUILD_TYPE STREQUAL "Debug")
