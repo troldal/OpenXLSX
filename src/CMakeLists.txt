@@ -46,14 +46,6 @@ target_link_libraries(OpenXLSX PUBLIC ${LIBZIP_LIBRARY})
 
 # Install directories
 install (TARGETS OpenXLSX DESTINATION lib)
-
-install (FILES
-            ${WORKBOOK_HEADERS}
-            ${SHEET_HEADERS}
-            ${ZIP_HEADERS}
-            DESTINATION include/OpenXLSX)
-
-install (FILES
-            ${CELL_SOURCES}
-            DESTINATION include/OpenXLSX/Zip)
+install (FILES ${WORKBOOK_HEADERS} ${SHEET_HEADERS} ${ZIP_HEADERS} DESTINATION include/OpenXLSX)
+install (FILES ${CELL_SOURCES} DESTINATION include/OpenXLSX/Zip)
 

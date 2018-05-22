@@ -209,8 +209,7 @@ namespace OpenXLSX
          * @brief Get string value.
          * @tparam T The string type to get.
          */
-        //template<typename T, typename std::enable_if<std::is_same<T, std::string>::value, std::string>::type * = nullptr>
-        template<typename T, typename std::enable_if<std::is_constructible<T, char*>::value, char*>::type * = nullptr>
+        template<typename T, typename std::enable_if<std::is_constructible<T, char*>::value && !std::is_same<T, bool>::value, char*>::type * = nullptr>
         T Get();
 
         /**
@@ -470,8 +469,7 @@ namespace OpenXLSX
      * @pre
      * @post
      */
-    //template<typename T, typename std::enable_if<std::is_same<T, std::string>::value, std::string>::type *>
-    template<typename T, typename std::enable_if<std::is_constructible<T, char*>::value, char*>::type *>
+    template<typename T, typename std::enable_if<std::is_constructible<T, char*>::value && !std::is_same<T, bool>::value, char*>::type *>
     T XLCellValue::Get()
     {
         if (ValueType() != XLValueType::String) throw XLException("Cell value is not String");
