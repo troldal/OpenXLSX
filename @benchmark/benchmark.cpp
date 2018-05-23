@@ -1,7 +1,8 @@
 #include <iostream>
 #include <chrono>
 #include <iomanip>
-#include "../src/OpenXLSX.h"
+#include <gperftools/profiler.h>
+#include "../@source/OpenXLSX.h"
 
 using namespace std;
 using namespace OpenXLSX;
@@ -11,14 +12,19 @@ unsigned long WriteTest(T value, unsigned long rows, unsigned long columns, int 
 
 int main()
 {
-    WriteTest("Hello, OpenXLSX!", 1000, 1000, 10);
+    WriteTest("Hello, OpenXLSX!", 1000000, 10, 1);
+    //WriteTest("Hello, OpenXLSX!", 100000, 100, 10);
+    //WriteTest("Hello, OpenXLSX!", 10000, 1000, 10);
+    //WriteTest("Hello, OpenXLSX!", 1000, 10000, 10);
+    //WriteTest("Hello, OpenXLSX!", 200, 10000, 10);
     return 0;
 }
 
 template<typename T>
 unsigned long WriteTest(T value, unsigned long rows, unsigned long columns, int repetitions)
 {
-    std::cout << "Populating \"" << value << "\" to " << rows << " x " << columns << " cells:" << endl;
+    cout << "Populating \"" << value << "\" to " << rows << " x " << columns << " cells " << repetitions << " times:";
+    cout.flush();
 
     unsigned long totTime = 0;
     unsigned long minTime = 0;
@@ -35,20 +41,25 @@ unsigned long WriteTest(T value, unsigned long rows, unsigned long columns, int 
             iter.Value()->Set(value);
         }
 
+
         auto end = chrono::steady_clock::now();
         totTime += std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
         if(minTime == 0 || minTime > std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count())
             minTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+
+        cout << ".." << i;
+        cout.flush();
+
         if (i >= repetitions) doc.SaveDocument();
         doc.CloseDocument();
-        cout << "Run #" << i << ": " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << endl;
     }
 
+    cout << endl;
     totTime = totTime / repetitions;
     cout << "Average time: " << totTime << " milliseconds" << endl;
-    cout << "Average cells per second: " << 1000000.0/totTime*1000 << endl;
+    cout << "Average cells per second: " << (rows*columns)/totTime*1000 << endl;
     cout << "Minimum time: " << minTime << " milliseconds" << endl;
-    cout << "Maximum cells per second: " << 1000000.0/minTime*1000 << endl << endl;
+    cout << "Maximum cells per second: " << (rows*columns)/minTime*1000 << endl << endl;
 
     return 0;
 }
@@ -105,35 +116,4 @@ void openLarge() {
 
 }
 
-void speedTest() {
-    unsigned long time = 0;
-    int numIter = 10;
-
-    for (int i = 1; i <= numIter; i++) {
-
-        OpenXLSX::XLDocument doc;
-        doc.CreateDocument("SpeedTest.xlsx");
-        auto wks = doc.Workbook()->Worksheet("Sheet1");
-        wks->Cell(1000, 1000)->Value()->Set(1);
-
-        auto start = chrono::steady_clock::now();
-
-        auto arange = wks->Range();
-        for (auto &iter : arange) {
-            iter.Value()->Set("Hello OpenXLSX!");
-        }
-
-        auto end = chrono::steady_clock::now();
-
-        time += std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-        if (i >= numIter) doc.SaveDocument();
-        doc.CloseDocument();
-        cout << "Run #" << i << ": " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << endl;
-    }
-
-    time = time / numIter;
-    cout << "Average time: " << time << " milliseconds" << endl;
-    cout << "Average cells per second: " << 1000000.0/time*1000 << endl;
-
-}
 

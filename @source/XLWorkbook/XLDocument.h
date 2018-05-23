@@ -301,7 +301,7 @@ namespace OpenXLSX
     private:
 
         template<typename T>
-        typename std::enable_if_t<std::is_base_of_v<XLAbstractXMLFile, T>, std::unique_ptr<T>>
+        typename std::enable_if_t<std::is_base_of<XLAbstractXMLFile, T>::value, std::unique_ptr<T>>
         CreateItem(const std::string &target);
 
 
@@ -327,7 +327,7 @@ namespace OpenXLSX
     };
 
     template<typename T>
-    typename std::enable_if_t<std::is_base_of_v<XLAbstractXMLFile, T>, std::unique_ptr<T>>
+    typename std::enable_if_t<std::is_base_of<XLAbstractXMLFile, T>::value, std::unique_ptr<T>>
     XLDocument::CreateItem(const std::string &target)
     {
         if (!m_documentRelationships->TargetExists(target)) throw XLException("Target does not exist!");

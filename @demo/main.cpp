@@ -1,7 +1,7 @@
 #include <iostream>
 #include <chrono>
 #include <iomanip>
-#include "../src/OpenXLSX.h"
+#include "../@source/OpenXLSX.h"
 
 using namespace std;
 using namespace OpenXLSX;

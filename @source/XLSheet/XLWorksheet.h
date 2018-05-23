@@ -76,7 +76,7 @@ namespace OpenXLSX
     /**
      * @brief A std::vector of std::unique_ptr's to XLRow objects.
      */
-    using XLRowVector = std::map<unsigned long, std::unique_ptr<XLRow>>;
+    using XLRows = std::map<unsigned long, std::unique_ptr<XLRow>>;
 
 
 //======================================================================================================================
@@ -320,13 +320,13 @@ namespace OpenXLSX
          * @brief Get the data structure holding all rows in the worksheet.
          * @return A reference to the std::vector with the row data.
          */
-        XLRowVector *Rows();
+        XLRows *Rows();
 
         /**
          * @brief Get the data structure holding all rows in the worksheet.
          * @return A const reference to the std::vector with the row data.
          */
-        const XLRowVector *Rows() const;
+        const XLRows *Rows() const;
 
         /**
          * @brief Get the data structure all columns in the worksheet.
@@ -447,7 +447,7 @@ namespace OpenXLSX
 
         XLWorkbook &m_parentWorkbook; /**< A pointer to the parent XLWorkbook object (const) */
 
-        XLRowVector m_rows; /**< A std::vector with pointers to all rows in the sheet. */
+        XLRows m_rows; /**< A std::vector with pointers to all rows in the sheet. */
         XLColumnVector m_columns; /**< A std::vector with pointers to all columns in sheet. */
 
         XLCellReference m_firstCell; /**< The first cell in the sheet (i.e. the top left cell).*/

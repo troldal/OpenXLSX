@@ -244,7 +244,7 @@ XLRow *XLWorksheet::Row(unsigned long rowNumber)
     }
     // If the node does not exist, create and insert it. Otherwise return the existing object.
     else {
-        Rows()->insert_or_assign(rowNumber - 1, XLRow::CreateRow(*this, rowNumber));
+        auto res = Rows()->insert(make_pair(rowNumber - 1, XLRow::CreateRow(*this, rowNumber))).first;
         result = Rows()->at(rowNumber - 1).get();
     }
 
@@ -326,7 +326,7 @@ const XLColumn *XLWorksheet::Column(unsigned int columnNumber) const
 /**
  * @details
  */
-XLRowVector *XLWorksheet::Rows()
+XLRows *XLWorksheet::Rows()
 {
     return &m_rows;
 }
@@ -335,7 +335,7 @@ XLRowVector *XLWorksheet::Rows()
  * @brief
  * @return
  */
-const XLRowVector *XLWorksheet::Rows() const
+const XLRows *XLWorksheet::Rows() const
 {
     return &m_rows;
 }

@@ -134,8 +134,8 @@ namespace OpenXLSX
 //----------------------------------------------------------------------------------------------------------------------
 
     private:
-        XLDocument &m_document; /**< */
-        XLWorkbook &m_workbook; /**< */
+        XLDocument *m_document; /**< */
+        XLWorkbook *m_workbook; /**< */
 
     };
 
