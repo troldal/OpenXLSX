@@ -250,11 +250,19 @@ unique_ptr<XLRow> XLRow::CreateRow(XLWorksheet &worksheet,
             }
         }*/
 
+        /*
         auto result = find_if(worksheet.Rows()->begin() + index, worksheet.Rows()->end(),
             [](const unique_ptr<XLRow>& p) -> bool {return p != nullptr;});
         if (result != worksheet.Rows()->end()) {
             nodeRow = worksheet.SheetDataNode().insert_child_before("row", (*result)->RowNode());
+        } */
+
+        if (worksheet.Rows()->find(index) == worksheet.Rows()->end()) {
+            worksheet.Rows()->insert_or_assign(index, nullptr);
+            auto iter = worksheet.Rows()->find(index);
+            nodeRow = worksheet.SheetDataNode().insert_child_before("row", (++iter)->second->RowNode());
         }
+
 
     }
 

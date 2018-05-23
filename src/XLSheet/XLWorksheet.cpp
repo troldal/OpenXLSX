@@ -34,8 +34,7 @@ XLWorksheet::XLWorksheet(XLWorkbook &parent,
       m_columnsNode(XMLNode()),
       m_sheetViewsNode(XMLNode()),
       m_parentWorkbook(parent),
-      m_rows(), // The maximum number of Rows
-      m_rowIndex(),
+      m_rows(),
       m_columns(16384), // The maximum number of Columns
       m_firstCell(1, 1),
       m_lastCell(1, 1),
@@ -100,10 +99,9 @@ bool XLWorksheet::ParseXMLData()
     }
 
     // Store all Row nodes in the m_rows vector. The XLRow constructor will initialize the cells objects
-    for (auto &currentRow : SheetDataNode().children()) {
-        m_rows.at(stoul(currentRow.attribute("r").value()) - 1) = make_unique<XLRow>(*this, currentRow);
-        m_rowIndex.insert(stoul(currentRow.attribute("r").value()) - 1);
-    }
+    for (auto &currentRow : SheetDataNode().children())
+        m_rows.insert_or_assign(stoul(currentRow.attribute("r").value()) - 1, make_unique<XLRow>(*this, currentRow));
+
 
     return true;
 }
@@ -238,15 +236,17 @@ XLRow *XLWorksheet::Row(unsigned long rowNumber)
     // Create result object and initialize to nullptr.
     XLRow *result = nullptr;
 
-    // Retrieve the Row node in the m_rows vector. If it doesn't exist, nullptr will be returned.
-    XLRow *rowNode = Rows()->at(rowNumber - 1).get(); // vector is 0-based, Excel is 1-based; therefore rowNumber-1.
+    auto iter = Rows()->find(rowNumber - 1);
 
+    // Retrieve the Row node in the m_rows vector. If it doesn't exist, nullptr will be returned.
+    if (iter != Rows()->end()) {
+        result = iter->second.get();
+    }
     // If the node does not exist, create and insert it. Otherwise return the existing object.
-    if (!rowNode) {
-        Rows()->at(rowNumber - 1) = XLRow::CreateRow(*this, rowNumber);
+    else {
+        Rows()->insert_or_assign(rowNumber - 1, XLRow::CreateRow(*this, rowNumber));
         result = Rows()->at(rowNumber - 1).get();
     }
-    else result = rowNode;
 
     return result;
 }

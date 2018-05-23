@@ -33,8 +33,8 @@ void printRange();
 int main()
 {
     myTest();
-    //simpleTest();
-    //openLarge();
+    simpleTest();
+    openLarge();
     speedTest();
     //writeTest();
     //cloneTest();
@@ -187,11 +187,11 @@ void speedTest() {
         OpenXLSX::XLDocument doc;
         doc.CreateDocument("SpeedTest.xlsx");
         auto wks = doc.Workbook()->Worksheet("Sheet1");
-        //wks->Cell(100000, 10)->Value()->Set(1);
+        wks->Cell(1000, 1000)->Value()->Set(1);
 
         auto start = chrono::steady_clock::now();
 
-        auto arange = wks->Range(XLCellReference(1,1), XLCellReference(100000, 10));
+        auto arange = wks->Range();
         for (auto &iter : arange) {
             iter.Value()->Set("Hello OpenXLSX!");
         }

@@ -47,7 +47,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #define OPENXL_XLWORKSHEET_H
 
 #include <vector>
-#include <set>
 
 #include "XLSheet.h"
 #include "XLRow.h"
@@ -77,7 +76,7 @@ namespace OpenXLSX
     /**
      * @brief A std::vector of std::unique_ptr's to XLRow objects.
      */
-    using XLRowVector = std::array<std::unique_ptr<XLRow>, 1048576>;
+    using XLRowVector = std::map<unsigned long, std::unique_ptr<XLRow>>;
 
 
 //======================================================================================================================
@@ -449,7 +448,6 @@ namespace OpenXLSX
         XLWorkbook &m_parentWorkbook; /**< A pointer to the parent XLWorkbook object (const) */
 
         XLRowVector m_rows; /**< A std::vector with pointers to all rows in the sheet. */
-        std::set<unsigned long> m_rowIndex;
         XLColumnVector m_columns; /**< A std::vector with pointers to all columns in sheet. */
 
         XLCellReference m_firstCell; /**< The first cell in the sheet (i.e. the top left cell).*/
