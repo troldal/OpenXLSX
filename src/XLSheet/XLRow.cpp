@@ -226,7 +226,6 @@ unsigned int XLRow::CellCount() const
 unique_ptr<XLRow> XLRow::CreateRow(XLWorksheet &worksheet,
                                    unsigned long rowNumber)
 {
-
     // Create the node
     XMLNode nodeRow;
 
@@ -239,31 +238,11 @@ unique_ptr<XLRow> XLRow::CreateRow(XLWorksheet &worksheet,
     else {
         //Otherwise, search the Row nodes vector for the next node and insert there.
         auto index = rowNumber - 1; // vector is 0-based, Excel is 1-based; therefore rowNumber-1.
-        //XLRow *node = worksheet.Rows()->at(index).get();
-        //while (node == nullptr) node = worksheet.Rows()->at(index++).get();
-        //nodeRow = worksheet.SheetDataNode().insert_child_before("row", node->RowNode());
-
-        /*for (auto iter = worksheet.Rows()->begin() + index; iter != worksheet.Rows()->end(); ++iter) {
-            if (*iter != nullptr) {
-                nodeRow = worksheet.SheetDataNode().insert_child_before("row", (*iter)->RowNode());
-                break;
-            }
-        }*/
-
-        /*
-        auto result = find_if(worksheet.Rows()->begin() + index, worksheet.Rows()->end(),
-            [](const unique_ptr<XLRow>& p) -> bool {return p != nullptr;});
-        if (result != worksheet.Rows()->end()) {
-            nodeRow = worksheet.SheetDataNode().insert_child_before("row", (*result)->RowNode());
-        } */
-
         if (worksheet.Rows()->find(index) == worksheet.Rows()->end()) {
             worksheet.Rows()->insert_or_assign(index, nullptr);
             auto iter = worksheet.Rows()->find(index);
             nodeRow = worksheet.SheetDataNode().insert_child_before("row", (++iter)->second->RowNode());
         }
-
-
     }
 
     nodeRow.append_attribute("r") = rowNumber;
