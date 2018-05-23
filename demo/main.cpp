@@ -34,8 +34,8 @@ int main()
 {
     myTest();
     //simpleTest();
-    openLarge();
-    //speedTest();
+    //openLarge();
+    speedTest();
     //writeTest();
     //cloneTest();
     //copyRangeTest();
@@ -153,6 +153,9 @@ void simpleTest() {
 }
 
 void openLarge() {
+
+    auto start = chrono::steady_clock::now();
+
     OpenXLSX::XLDocument doc;
     doc.OpenDocument("./Large.xlsx");
     auto wks = doc.Workbook()->Worksheet("Sheet1");
@@ -169,6 +172,10 @@ void openLarge() {
     } */
 
     doc.CloseDocument();
+
+    auto end = chrono::steady_clock::now();
+    cout << "Time to open file and export ~500k rows: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << endl;
+
 }
 
 void speedTest() {
@@ -180,11 +187,11 @@ void speedTest() {
         OpenXLSX::XLDocument doc;
         doc.CreateDocument("SpeedTest.xlsx");
         auto wks = doc.Workbook()->Worksheet("Sheet1");
-        wks->Cell(1000, 1000)->Value()->Set(1);
+        //wks->Cell(100000, 10)->Value()->Set(1);
 
         auto start = chrono::steady_clock::now();
 
-        auto arange = wks->Range();
+        auto arange = wks->Range(XLCellReference(1,1), XLCellReference(100000, 10));
         for (auto &iter : arange) {
             iter.Value()->Set("Hello OpenXLSX!");
         }

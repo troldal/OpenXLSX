@@ -134,7 +134,7 @@ const std::string &XLValueString::String() const
             return m_cache;
 
         case XLStringType::SharedString:
-            m_cache = ParentCellValue()->ParentCell()->ParentWorkbook()->SharedStrings()->GetStringNode(stoul(ParentCellValue()->ValueNode().value())).text().get();
+            m_cache = ParentCellValue()->ParentCell()->ParentWorkbook()->SharedStrings()->GetStringNode(stoul(ParentCellValue()->ValueNode().text().get())).text().get();
             return m_cache;
 
         case XLStringType::InlineString:

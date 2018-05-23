@@ -34,7 +34,8 @@ XLWorksheet::XLWorksheet(XLWorkbook &parent,
       m_columnsNode(XMLNode()),
       m_sheetViewsNode(XMLNode()),
       m_parentWorkbook(parent),
-      m_rows(1048576), // The maximum number of Rows
+      m_rows(), // The maximum number of Rows
+      m_rowIndex(),
       m_columns(16384), // The maximum number of Columns
       m_firstCell(1, 1),
       m_lastCell(1, 1),
@@ -99,8 +100,10 @@ bool XLWorksheet::ParseXMLData()
     }
 
     // Store all Row nodes in the m_rows vector. The XLRow constructor will initialize the cells objects
-    for (auto &currentRow : SheetDataNode().children())
+    for (auto &currentRow : SheetDataNode().children()) {
         m_rows.at(stoul(currentRow.attribute("r").value()) - 1) = make_unique<XLRow>(*this, currentRow);
+        m_rowIndex.insert(stoul(currentRow.attribute("r").value()) - 1);
+    }
 
     return true;
 }
@@ -205,7 +208,7 @@ const XLCellRange XLWorksheet::Range() const
 XLCellRange XLWorksheet::Range(const XLCellReference &topLeft,
                                const XLCellReference &bottomRight)
 {
-    // Set the last Cell to some ValueAsString, in order to create all objects in Range.
+    // Set the last Cell to some value, in order to create all objects in Range.
     if (Cell(bottomRight)->ValueType() == XLValueType::Empty) Cell(bottomRight)->Value()->Clear();
 
     return XLCellRange(*this, topLeft, bottomRight);

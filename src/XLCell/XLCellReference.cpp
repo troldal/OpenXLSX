@@ -117,8 +117,8 @@ void XLCellReference::SetRow(unsigned long row)
 
     if (row < 1)
         m_row = 1;
-    else if (row > 16384)
-        m_row = 16384;
+    else if (row > 1048576)
+        m_row = 1048576;
     else
         m_row = row;
 
@@ -142,8 +142,8 @@ void XLCellReference::SetColumn(unsigned int column)
 
     if (column < 1)
         m_column = 1;
-    else if (column > 1048576)
-        m_column = 1048576;
+    else if (column > 16384)
+        m_column = 16384;
     else
         m_column = column;
 
@@ -160,15 +160,15 @@ void XLCellReference::SetRowAndColumn(unsigned long row,
 
     if (row < 1)
         m_row = 1;
-    else if (row > 16384)
-        m_row = 16384;
+    else if (row > 1048576)
+        m_row = 1048576;
     else
         m_row = row;
 
     if (column < 1)
         m_column = 1;
-    else if (column > 1048576)
-        m_column = 1048576;
+    else if (column > 16384)
+        m_column = 16384;
     else
         m_column = column;
 
