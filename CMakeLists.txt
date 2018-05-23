@@ -14,4 +14,5 @@ ENDIF(CMAKE_BUILD_TYPE STREQUAL "Debug")
 find_package(libzip REQUIRED)
 
 add_subdirectory(src)
+add_subdirectory(benchmark)
 add_subdirectory(demo)
