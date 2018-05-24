@@ -239,9 +239,10 @@ unique_ptr<XLRow> XLRow::CreateRow(XLWorksheet &worksheet,
         //Otherwise, search the Row nodes vector for the next node and insert there.
         auto index = rowNumber - 1; // vector is 0-based, Excel is 1-based; therefore rowNumber-1.
         if (worksheet.Rows()->find(index) == worksheet.Rows()->end()) {
-            worksheet.Rows()->insert_or_assign(index, nullptr);
+            worksheet.Rows()->insert({index, nullptr});
             auto iter = worksheet.Rows()->find(index);
             nodeRow = worksheet.SheetDataNode().insert_child_before("row", (++iter)->second->RowNode());
+            worksheet.Rows()->erase(index);
         }
     }
 

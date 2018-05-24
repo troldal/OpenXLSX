@@ -1,7 +1,6 @@
 #include <iostream>
 #include <chrono>
 #include <iomanip>
-#include <gperftools/profiler.h>
 #include "../@source/OpenXLSX.h"
 
 using namespace std;
@@ -12,11 +11,11 @@ unsigned long WriteTest(T value, unsigned long rows, unsigned long columns, int 
 
 int main()
 {
-    WriteTest("Hello, OpenXLSX!", 1000000, 10, 1);
-    //WriteTest("Hello, OpenXLSX!", 100000, 100, 10);
-    //WriteTest("Hello, OpenXLSX!", 10000, 1000, 10);
-    //WriteTest("Hello, OpenXLSX!", 1000, 10000, 10);
-    //WriteTest("Hello, OpenXLSX!", 200, 10000, 10);
+    //WriteTest("Hello, OpenXLSX!", 1000000, 1, 1);
+    //WriteTest("Hello, OpenXLSX!", 100000, 10, 10);
+    //WriteTest("Hello, OpenXLSX!", 10000, 100, 10);
+    WriteTest("Hello, OpenXLSX!", 1000, 1000, 10);
+    //WriteTest("Hello, OpenXLSX!", 100, 10000, 10);
     return 0;
 }
 

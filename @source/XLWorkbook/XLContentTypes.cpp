@@ -129,7 +129,7 @@ bool XLContentTypes::ParseXMLData()
 
             if (node.attribute("Extension")) extension = node.attribute("Extension").value();
             if (node.attribute("ContentType")) contentType = node.attribute("ContentType").value();
-            m_defaults.insert_or_assign(extension, node);
+            m_defaults.insert({extension, node});
         }
         else if (string(node.name()) == "Override") {
             string path = node.attribute("PartName").value();
@@ -182,7 +182,7 @@ bool XLContentTypes::ParseXMLData()
                 type = XLContentType::Unknown;
 
             unique_ptr<XLContentItem> item(new XLContentItem(node, path, type));
-            m_overrides.insert_or_assign(path, move(item));
+            m_overrides.insert({path, move(item)});
         }
     }
 
@@ -195,7 +195,7 @@ bool XLContentTypes::ParseXMLData()
 void XLContentTypes::AddDefault(const string &key,
                                 XMLNode node)
 {
-    m_defaults.insert_or_assign(key, node);
+    m_defaults.insert({key, node});
     SetModified();
 }
 
@@ -257,7 +257,7 @@ void XLContentTypes::addOverride(const string &path,
     node.append_attribute("ContentType").set_value(typeString.c_str());
 
     unique_ptr<XLContentItem> item(new XLContentItem(node, path, type));
-    m_overrides.insert_or_assign(path, move(item));
+    m_overrides.insert({path, move(item)});
     SetModified();
 }
 

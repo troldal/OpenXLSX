@@ -217,7 +217,7 @@ XLRelationshipItem * XLRelationships::AddRelationship(XLRelationshipType type, c
     // Create new XLRelationshipItem object and add to internal datastructure.
     unique_ptr<XLRelationshipItem> rShip(new XLRelationshipItem(node, type, target, id));
     XLRelationshipItem *result = rShip.get();
-    relationshipsMutable()->insert_or_assign(id, move(rShip));
+    relationshipsMutable()->insert({id, move(rShip)});
     SetModified();
 
     CommitXMLData(); //TODO: Is this really required?
