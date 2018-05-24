@@ -2,6 +2,7 @@
 #include <chrono>
 #include <iomanip>
 #include <sstream>
+#include <fstream>
 #include "table_printer.h"
 #include "../@source/OpenXLSX.h"
 
@@ -9,12 +10,28 @@ using namespace std;
 using namespace OpenXLSX;
 using bprinter::TablePrinter;
 
+//----------------------------------------------------------------------------------------------------------------------
+// Function declarations
+//----------------------------------------------------------------------------------------------------------------------
 template<typename T>
-unsigned long WriteTest(T value, unsigned long rows, unsigned long columns, int repetitions, const std::string &fileName);
+unsigned long WriteTest(T value,
+                        unsigned long rows,
+                        unsigned long columns,
+                        int repetitions, const
+                        std::string &fileName,
+                        std::ostream &destination = std::cout);
+
+//----------------------------------------------------------------------------------------------------------------------
+// Main
+//----------------------------------------------------------------------------------------------------------------------
 
 int main()
 {
-    cout <<
+    //ofstream ostr("Benchmark.out");
+
+    auto &str = cout;
+
+    str <<
     "          ____                               ____      ___ ____       ____  ____      ___\n"
     "         6MMMMb                              `MM(      )M' `MM'      6MMMMb\\`MM(      )M'\n"
     "        8P    Y8                              `MM.     d'   MM      6M'    ` `MM.     d'\n"
@@ -30,41 +47,52 @@ int main()
     "                   MM\n"
     "                  _MM_" << endl << endl;
 
-    cout << "**************************************";
-    cout << " RUNNING BENCHMARKS ";
-    cout << "**************************************"<< endl << endl;
+    str << "**************************************";
+    str << " RUNNING BENCHMARKS ";
+    str << "**************************************"<< endl << endl;
 
     //WriteTest("Hello, OpenXLSX!", 1000000, 1, 5, "BenchmarkString.xlsx");
     //WriteTest("Hello, OpenXLSX!", 100000, 10, 5, "BenchmarkString.xlsx");
     //WriteTest("Hello, OpenXLSX!", 10000, 100, 5, "BenchmarkString.xlsx");
-    WriteTest("Hello, OpenXLSX!", 1000, 1000, 5, "BenchmarkString.xlsx");
+    WriteTest("Hello, OpenXLSX!", 1000, 1000, 5, "BenchmarkString.xlsx", str);
     //WriteTest("Hello, OpenXLSX!", 100, 10000, 5, "BenchmarkString.xlsx");
 
     //WriteTest(-42, 1000000, 1, 5, "BenchmarkInteger.xlsx");
     //WriteTest(-42, 100000, 10, 5, "BenchmarkInteger.xlsx");
     //WriteTest(-42, 10000, 100, 5, "BenchmarkInteger.xlsx");
-    WriteTest(-42, 1000, 1000, 5, "BenchmarkInteger.xlsx");
+    WriteTest(-42, 1000, 1000, 5, "BenchmarkInteger.xlsx", str);
     //WriteTest(-42, 100, 10000, 5, "BenchmarkInteger.xlsx");
 
     //WriteTest(3.14159, 1000000, 1, 5, "BenchmarkFloat.xlsx");
     //WriteTest(3.14159, 100000, 10, 5, "BenchmarkFloat.xlsx");
     //WriteTest(3.14159, 10000, 100, 5, "BenchmarkFloat.xlsx");
-    WriteTest(3.14159, 1000, 1000, 5, "BenchmarkFloat.xlsx");
+    WriteTest(3.14159, 1000, 1000, 5, "BenchmarkFloat.xlsx", str);
     //WriteTest(3.14159, 100, 10000, 5, "BenchmarkFloat.xlsx");
 
-    //WriteTest(true, 1000000, 1, 5, "BenchmarkBool.xlsx");
-    //WriteTest(true, 100000, 10, 5, "BenchmarkBool.xlsx");
-    //WriteTest(true, 10000, 100, 5, "BenchmarkBool.xlsx");
-    WriteTest(true, 1000, 1000, 5, "BenchmarkBool.xlsx");
-    //WriteTest(true, 100, 10000, 5, "BenchmarkBool.xlsx");
+    //WriteTest(true, 1000000, 1, 5, "BenchmarkBool.xlsx", str);
+    //WriteTest(true, 100000, 10, 5, "BenchmarkBool.xlsx", str);
+    //WriteTest(true, 10000, 100, 5, "BenchmarkBool.xlsx", str);
+    WriteTest(true, 1000, 1000, 5, "BenchmarkBool.xlsx", str);
+    //WriteTest(true, 100, 10000, 5, "BenchmarkBool.xlsx", str);
+
+    //ostr.close();
 
     return 0;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+// Function definitions
+//----------------------------------------------------------------------------------------------------------------------
+
 template<typename T>
-unsigned long WriteTest(T value, unsigned long rows, unsigned long columns, int repetitions, const std::string &fileName)
+unsigned long WriteTest(T value,
+                        unsigned long rows,
+                        unsigned long columns,
+                        int repetitions,
+                        const std::string &fileName,
+                        std::ostream &destination)
 {
-    TablePrinter tp(&std::cout);
+    TablePrinter tp(&destination);
     tp.AddColumn("Run #", 10);
     tp.AddColumn("Opening (ms)", 20);
     tp.AddColumn("Writing (ms)", 20);
@@ -91,8 +119,7 @@ unsigned long WriteTest(T value, unsigned long rows, unsigned long columns, int 
         // Add data to document
         auto startWrite = chrono::steady_clock::now();
         auto wks = doc.Workbook()->Worksheet("Sheet1");
-        wks->Cell(rows, columns)->Value()->Set(1);
-        auto arange = wks->Range();
+        auto arange = wks->Range(XLCellReference("A1"), XLCellReference(rows, columns));
         for (auto &iter : arange) {
             iter.Value()->Set(value);
         }
@@ -108,19 +135,26 @@ unsigned long WriteTest(T value, unsigned long rows, unsigned long columns, int 
         TotalWritingTime += std::chrono::duration_cast<std::chrono::milliseconds>(endWrite - startWrite).count();
         TotalSavingTime  += std::chrono::duration_cast<std::chrono::milliseconds>(endSave - startSave).count();
 
+        double dims = static_cast<double>(rows*columns);
+        double time = static_cast<double>(std::chrono::duration_cast<std::chrono::milliseconds>(endWrite - startWrite).count());
+
         tp << ("#" + to_string(i))
             << std::chrono::duration_cast<std::chrono::milliseconds>(endOpen - startOpen).count()
             << std::chrono::duration_cast<std::chrono::milliseconds>(endWrite - startWrite).count()
-            << static_cast<unsigned long>(static_cast<double>(rows*columns)/(std::chrono::duration_cast<std::chrono::milliseconds>(endWrite - startWrite).count())*1000)
+            << static_cast<unsigned long>(dims / (time / 1000))
             << std::chrono::duration_cast<std::chrono::milliseconds>(endSave - startSave).count();
 
     }
+
+    double dims = static_cast<double>(rows*columns*repetitions);
+    double time = static_cast<double>(TotalWritingTime);
+
 
     tp.PrintFooter();
     tp << "Average"
         << TotalOpeningTime/repetitions
         << TotalWritingTime/repetitions
-        << static_cast<unsigned long>(static_cast<double>(rows*columns*repetitions)/(TotalWritingTime/1000))
+        << static_cast<unsigned long>(dims / (time / 1000))
         << TotalSavingTime/repetitions;
     tp.PrintFooter();
 
