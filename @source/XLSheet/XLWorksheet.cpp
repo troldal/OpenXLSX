@@ -244,7 +244,7 @@ XLRow *XLWorksheet::Row(unsigned long rowNumber)
     }
     // If the node does not exist, create and insert it. Otherwise return the existing object.
     else {
-        auto res = Rows()->insert(make_pair(rowNumber - 1, XLRow::CreateRow(*this, rowNumber))).first;
+        Rows()->insert({rowNumber - 1, XLRow::CreateRow(*this, rowNumber)});
         result = Rows()->at(rowNumber - 1).get();
     }
 
