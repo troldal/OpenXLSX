@@ -1,64 +1,87 @@
 #include <iostream>
 #include <chrono>
 #include <iomanip>
+#include "table_printer.h"
 #include "../@source/OpenXLSX.h"
 
 using namespace std;
 using namespace OpenXLSX;
+using bprinter::TablePrinter;
 
 template<typename T>
 unsigned long WriteTest(T value, unsigned long rows, unsigned long columns, int repetitions);
 
 int main()
 {
-    //WriteTest("Hello, OpenXLSX!", 1000000, 1, 1);
-    //WriteTest("Hello, OpenXLSX!", 100000, 10, 10);
-    //WriteTest("Hello, OpenXLSX!", 10000, 100, 10);
+    WriteTest("Hello, OpenXLSX!", 1000000, 1, 10);
+    WriteTest("Hello, OpenXLSX!", 100000, 10, 10);
+    WriteTest("Hello, OpenXLSX!", 10000, 100, 10);
     WriteTest("Hello, OpenXLSX!", 1000, 1000, 10);
-    //WriteTest("Hello, OpenXLSX!", 100, 10000, 10);
+    WriteTest("Hello, OpenXLSX!", 100, 10000, 10);
     return 0;
 }
 
 template<typename T>
 unsigned long WriteTest(T value, unsigned long rows, unsigned long columns, int repetitions)
 {
-    cout << "Populating \"" << value << "\" to " << rows << " x " << columns << " cells " << repetitions << " times:";
-    cout.flush();
+    TablePrinter tp(&std::cout);
+    tp.AddColumn("Run #", 10);
+    tp.AddColumn("Opening (ms)", 20);
+    tp.AddColumn("Writing (ms)", 20);
+    tp.AddColumn("Writing (cells/s)", 20);
+    tp.AddColumn("Saving (ms)", 20);
 
-    unsigned long totTime = 0;
-    unsigned long minTime = 0;
+    tp.PrintTitle("Writing " + to_string(rows) + " x " + to_string(columns) + " cells");
+    tp.PrintHeader();
+
+    unsigned long TotalOpeningTime = 0;
+    unsigned long TotalWritingTime = 0;
+    unsigned long TotalSavingTime = 0;
     for (int i = 1; i <= repetitions; i++) {
 
+        // Create new document
+        auto startOpen = chrono::steady_clock::now();
         OpenXLSX::XLDocument doc;
         doc.CreateDocument("Benchmark.xlsx");
+        auto endOpen = chrono::steady_clock::now();
+
+        // Add data to document
+        auto startWrite = chrono::steady_clock::now();
         auto wks = doc.Workbook()->Worksheet("Sheet1");
         wks->Cell(rows, columns)->Value()->Set(1);
-
-        auto start = chrono::steady_clock::now();
         auto arange = wks->Range();
         for (auto &iter : arange) {
             iter.Value()->Set(value);
         }
+        auto endWrite = chrono::steady_clock::now();
 
-
-        auto end = chrono::steady_clock::now();
-        totTime += std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-        if(minTime == 0 || minTime > std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count())
-            minTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-
-        cout << ".." << i;
-        cout.flush();
-
-        if (i >= repetitions) doc.SaveDocument();
+        // Save document
+        auto startSave = chrono::steady_clock::now();
+        doc.SaveDocument();
         doc.CloseDocument();
+        auto endSave = chrono::steady_clock::now();
+
+        TotalOpeningTime += std::chrono::duration_cast<std::chrono::milliseconds>(endOpen - startOpen).count();
+        TotalWritingTime += std::chrono::duration_cast<std::chrono::milliseconds>(endWrite - startWrite).count();
+        TotalSavingTime  += std::chrono::duration_cast<std::chrono::milliseconds>(endSave - startSave).count();
+
+        tp << ("#" + to_string(i))
+            << std::chrono::duration_cast<std::chrono::milliseconds>(endOpen - startOpen).count()
+            << std::chrono::duration_cast<std::chrono::milliseconds>(endWrite - startWrite).count()
+            << static_cast<unsigned long>(static_cast<double>(rows*columns)/(std::chrono::duration_cast<std::chrono::milliseconds>(endWrite - startWrite).count())*1000)
+            << std::chrono::duration_cast<std::chrono::milliseconds>(endSave - startSave).count();
+
     }
 
+    tp.PrintFooter();
+    tp << "Average"
+        << TotalOpeningTime/repetitions
+        << TotalWritingTime/repetitions
+        << static_cast<unsigned long>(static_cast<double>(rows*columns*repetitions)/(TotalWritingTime/1000))
+        << TotalSavingTime/repetitions;
+    tp.PrintFooter();
+
     cout << endl;
-    totTime = totTime / repetitions;
-    cout << "Average time: " << totTime << " milliseconds" << endl;
-    cout << "Average cells per second: " << (rows*columns)/totTime*1000 << endl;
-    cout << "Minimum time: " << minTime << " milliseconds" << endl;
-    cout << "Maximum cells per second: " << (rows*columns)/minTime*1000 << endl << endl;
 
     return 0;
 }
