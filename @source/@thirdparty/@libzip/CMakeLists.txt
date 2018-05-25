@@ -14,7 +14,7 @@ INCLUDE(CheckStructHasMember)
 INCLUDE(TestBigEndian)
 INCLUDE(GNUInstallDirs)
 
-OPTION(BUILD_SHARED_LIBS "Build shared libraries" ON)
+OPTION(BUILD_SHARED_LIBS "Build shared libraries" OFF)
 
 SET(PACKAGE "libzip")
 SET(PACKAGE_NAME ${PACKAGE})
@@ -170,8 +170,8 @@ ENABLE_TESTING()
 
 # Targets
 ADD_SUBDIRECTORY(lib)
-ADD_SUBDIRECTORY(src)
-ADD_SUBDIRECTORY(examples)
+#ADD_SUBDIRECTORY(src)
+#ADD_SUBDIRECTORY(examples)
 
 # pkgconfig file
 SET(prefix ${CMAKE_INSTALL_PREFIX})

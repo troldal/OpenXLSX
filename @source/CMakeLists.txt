@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 project(OpenXLSX.Library VERSION 0.5)
 
 add_subdirectory(@thirdparty/@zlib)
+add_subdirectory(@thirdparty/@libzip)
 
 # C/C++ language version
 set(CMAKE_C_STANDARD 99)
