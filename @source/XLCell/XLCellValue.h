@@ -187,7 +187,7 @@ namespace OpenXLSX
 
         /**
          * @brief Set the object to a string value.
-         * @param stringValue A std::string to assign.
+         * @param stringValue A std::string_view to assign.
          */
         void Set(std::string_view stringValue);
 

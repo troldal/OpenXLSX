@@ -38,10 +38,10 @@ IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
 ELSEIF(CMAKE_BUILD_TYPE STREQUAL "Release")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -flto")
-    IF (IS_GCC)
+    IF (MINGW)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-use-linker-plugin")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fwhole-program")
-    ENDIF(IS_GCC)
+    ENDIF(MINGW)
 ENDIF(CMAKE_BUILD_TYPE STREQUAL "Debug")
 
 
@@ -53,7 +53,9 @@ set(PROJECT_CONTACT "kenneth.balslev@gmail.com")
 set(PROJECT_URL "https://github.com/troldal/OpenXLSX")
 set(PROJECT_DESCRIPTION "A library for reading, writing and modifying Excel spreadsheets for C++17")
 
-# Load source and header files
+#=======================================================================================================================
+# Find project files
+#=======================================================================================================================
 file(GLOB WORKBOOK_HEADERS XLWorkbook/*.h)
 file(GLOB WORKBOOK_SOURCES XLWorkbook/*.cpp)
 file(GLOB SHEET_HEADERS XLSheet/*.h)
@@ -71,11 +73,15 @@ set(OPENXLSX_SOURCES
         ${SHEET_SOURCES}
         ${CELL_SOURCES})
 
-# Build library
+#=======================================================================================================================
+# Build OpenXLSX library
+#=======================================================================================================================
 add_library(OpenXLSX STATIC ${OPENXLSX_HEADERS} ${OPENXLSX_SOURCES})
-target_link_libraries(OpenXLSX PUBLIC zip++ xml)
+target_link_libraries(OpenXLSX PRIVATE zip++ xml)
 
-# Install directories
+#=======================================================================================================================
+# Install OpenXLSX Library
+#=======================================================================================================================
 install (TARGETS OpenXLSX DESTINATION lib)
 install (FILES ${WORKBOOK_HEADERS} ${SHEET_HEADERS} DESTINATION include/OpenXLSX)
 
