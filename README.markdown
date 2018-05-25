@@ -52,7 +52,7 @@ The ambition is that OpenXLSX should be able to read, write, create and modify E
   int main() {
   
     XLDocument doc;
-    doc.CreateDocument("./MyTest.xlsx");
+    doc.CreateDocument("MyTest.xlsx");
     auto wks = doc.Workbook()->Worksheet("Sheet1");
 
     *wks->Cell("A1")->Value() = 3.14159;
