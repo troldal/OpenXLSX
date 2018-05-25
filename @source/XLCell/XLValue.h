@@ -49,7 +49,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <string>
 #include <memory>
 #include "XLCellType.h"
-#include "../@thirdparty/XML/XML.h"
+#include "../@xml/xml.h"
 
 namespace OpenXLSX
 {

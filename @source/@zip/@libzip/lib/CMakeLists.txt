@@ -2,7 +2,7 @@ INCLUDE(CheckFunctionExists)
 
 INSTALL(FILES zip.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
-SET(CMAKE_C_VISIBILITY_PRESET hidden)
+#SET(CMAKE_C_VISIBILITY_PRESET hidden)
 
 # from http://www.cmake.org/Wiki/CMakeMacroLibtoolFile
 MACRO(GET_TARGET_PROPERTY_WITH_DEFAULT _variable _target _property _default_value)
@@ -10,7 +10,6 @@ MACRO(GET_TARGET_PROPERTY_WITH_DEFAULT _variable _target _property _default_valu
   IF(${_variable} STREQUAL NOTFOUND)
     SET(${_variable} ${_default_value})
   ENDIF()
-  
 ENDMACRO()
   
 MACRO(CREATE_LIBTOOL_FILE _target _install_DIR)
@@ -165,51 +164,28 @@ IF(WIN32)
   SET(LIBZIP_OPSYS_FILES
     zip_source_win32handle.c
     zip_source_win32utf8.c
-    zip_source_win32w.c
-  )
+    zip_source_win32w.c)
   IF(CMAKE_SYSTEM_NAME MATCHES WindowsPhone OR CMAKE_SYSTEM_NAME MATCHES WindowsStore)
   ELSE()
     SET(LIBZIP_OPSYS_FILES "${LIBZIP_OPSYS_FILES}"
-      zip_source_win32a.c
-    )
+      zip_source_win32a.c)
   ENDIF()
 ELSE(WIN32)
   SET(LIBZIP_OPSYS_FILES
-    zip_source_file.c
-  )
+    zip_source_file.c)
 ENDIF(WIN32)
 
 INCLUDE_DIRECTORIES(BEFORE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}/..)
 
 ADD_CUSTOM_TARGET(update_zip_err_str
   COMMAND sh ${CMAKE_CURRENT_SOURCE_DIR}/make_zip_err_str.sh ${CMAKE_CURRENT_SOURCE_DIR}/zip.h ${CMAKE_CURRENT_SOURCE_DIR}/zip_err_str.c
-  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/zip.h ${CMAKE_CURRENT_SOURCE_DIR}/make_zip_err_str.sh
-)
+  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/zip.h ${CMAKE_CURRENT_SOURCE_DIR}/make_zip_err_str.sh)
+
 CHECK_FUNCTION_EXISTS(mkstemp HAVE_MKSTEMP)
 IF(NOT HAVE_MKSTEMP)
   SET(LIBZIP_EXTRA_FILES mkstemp.c)
 ENDIF(NOT HAVE_MKSTEMP)
-IF(HAVE_LIBBZ2)
-  SET(LIBZIP_OPTIONAL_FILES zip_algorithm_bzip2.c)
-ENDIF()
-
-IF(HAVE_COMMONCRYPTO)
-  SET(LIBZIP_OPTIONAL_FILES ${LIBZIP_OPTIONAL_FILES} zip_crypto_commoncrypto.c
-)
-ELSEIF(HAVE_GNUTLS)
-  SET(LIBZIP_OPTIONAL_FILES ${LIBZIP_OPTIONAL_FILES} zip_crypto_gnutls.c
-)
-ELSEIF(HAVE_OPENSSL)
-  SET(LIBZIP_OPTIONAL_FILES ${LIBZIP_OPTIONAL_FILES} zip_crypto_openssl.c
-)
-ENDIF()
-
-IF(HAVE_CRYPTO)
-  SET(LIBZIP_OPTIONAL_FILES ${LIBZIP_OPTIONAL_FILES} zip_winzip_aes.c zip_source_winzip_aes_decode.c zip_source_winzip_aes_encode.c
-)
-ENDIF()
 
 ADD_LIBRARY(zip STATIC ${LIBZIP_SOURCES} ${LIBZIP_EXTRA_FILES} ${LIBZIP_OPTIONAL_FILES} ${LIBZIP_OPSYS_FILES})
 SET_TARGET_PROPERTIES(zip PROPERTIES VERSION 5.0 SOVERSION 5)
-TARGET_LINK_LIBRARIES(zip ${ZLIB_LIBRARY} ${OPTIONAL_LIBRARY})
-
+TARGET_LINK_LIBRARIES(zip PUBLIC zlibstatic ${OPTIONAL_LIBRARY})

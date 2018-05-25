@@ -14,8 +14,8 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     set(IS_MSVC TRUE)
 endif()
 
-add_subdirectory(@thirdparty/@zlib)
-add_subdirectory(@thirdparty/@libzip)
+add_subdirectory(@zip)
+add_subdirectory(@xml)
 
 #=======================================================================================================================
 # Set C/C++ compiler version
@@ -60,32 +60,22 @@ file(GLOB SHEET_HEADERS XLSheet/*.h)
 file(GLOB SHEET_SOURCES XLSheet/*.cpp)
 file(GLOB CELL_HEADERS XLCell/*.h)
 file(GLOB CELL_SOURCES XLCell/*.cpp)
-file(GLOB XML_HEADERS @thirdparty/XML/*.h)
-file(GLOB XML_SOURCES @thirdparty/XML/*.cpp)
-file(GLOB ZIP_HEADERS @thirdparty/Zip/*.h)
-file(GLOB ZIP_SOURCES @thirdparty/Zip/*.cpp)
 
 set(OPENXLSX_HEADERS OpenXLSX.h
         ${WORKBOOK_HEADERS}
         ${SHEET_HEADERS}
-        ${CELL_HEADERS}
-        ${XML_HEADERS}
-        ${ZIP_HEADERS})
+        ${CELL_HEADERS})
 
 set(OPENXLSX_SOURCES
         ${WORKBOOK_SOURCES}
         ${SHEET_SOURCES}
-        ${CELL_SOURCES}
-        ${XML_SOURCES}
-        ${ZIP_SOURCES})
+        ${CELL_SOURCES})
 
 # Build library
 add_library(OpenXLSX STATIC ${OPENXLSX_HEADERS} ${OPENXLSX_SOURCES})
-target_include_directories(OpenXLSX PUBLIC "${LIBZIP_INCLUDE_DIR}")
-target_link_libraries(OpenXLSX PUBLIC ${LIBZIP_LIBRARY})
+target_link_libraries(OpenXLSX PUBLIC zip++ xml)
 
 # Install directories
 install (TARGETS OpenXLSX DESTINATION lib)
-install (FILES ${WORKBOOK_HEADERS} ${SHEET_HEADERS} ${ZIP_HEADERS} DESTINATION include/OpenXLSX)
-install (FILES ${CELL_SOURCES} DESTINATION include/OpenXLSX/Zip)
+install (FILES ${WORKBOOK_HEADERS} ${SHEET_HEADERS} DESTINATION include/OpenXLSX)
 

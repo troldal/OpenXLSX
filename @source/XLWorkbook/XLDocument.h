@@ -60,7 +60,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "../XLSheet/XLSheet.h"
 #include "XLRelationships.h"
 #include "XLException.h"
-#include "../@thirdparty/Zip/libzip++.h"
+#include "../@zip/libzip++.h"
 
 namespace OpenXLSX
 {

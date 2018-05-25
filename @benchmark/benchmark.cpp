@@ -54,7 +54,7 @@ int main()
     //WriteTest("Hello, OpenXLSX!", 1000000, 1, 5, "BenchmarkString.xlsx");
     //WriteTest("Hello, OpenXLSX!", 100000, 10, 5, "BenchmarkString.xlsx");
     //WriteTest("Hello, OpenXLSX!", 10000, 100, 5, "BenchmarkString.xlsx");
-    WriteTest("Hello, OpenXLSX!", 1000, 1000, 5, "BenchmarkString.xlsx", str);
+    WriteTest("Hello, OpenXLSX! \xF0\x9F\x98\x81", 1000, 1000, 5, "BenchmarkString.xlsx", str);
     //WriteTest("Hello, OpenXLSX!", 100, 10000, 5, "BenchmarkString.xlsx");
 
     //WriteTest(-42, 1000000, 1, 5, "BenchmarkInteger.xlsx");

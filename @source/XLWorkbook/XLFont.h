@@ -50,7 +50,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <memory>
 #include <map>
 #include "XLColor.h"
-#include "../@thirdparty/XML/XML.h"
+#include "../@xml/xml.h"
 
 namespace OpenXLSX
 {
