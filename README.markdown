@@ -52,48 +52,25 @@ The ambition is that OpenXLSX should be able to read, write, create and modify E
   int main() {
   
     XLDocument doc;
-    doc.CreateDocument("Spreadsheet.xlsx");
+    doc.CreateDocument("./MyTest.xlsx");
+    auto wks = doc.Workbook()->Worksheet("Sheet1");
 
-    doc.Workbook()->AddWorksheet("Floats");
-    auto wks1 = doc.Workbook()->Worksheet("Floats");
-    auto arange1 = wks1->Range(XLCellReference(1,1), XLCellReference(100,100));
-    for (auto &iter : arange1) {
-        iter.Value()->Set(3.14159);
-    }
+    *wks->Cell("A1")->Value() = 3.14159;
+    *wks->Cell("B1")->Value() = 42;
+    *wks->Cell("C1")->Value() = "Hello OpenXLSX!";
+    *wks->Cell("D1")->Value() = true;
 
-    doc.Workbook()->AddWorksheet("Integers");
-    auto wks2 = doc.Workbook()->Worksheet("Integers");
-    auto arange2 = wks2->Range(XLCellReference(1,1), XLCellReference(100,100));
-    for (auto &iter : arange2) {
-        iter.Value()->Set(42);
-    }
+    auto A1 = wks->Cell("A1")->Value()->Get<double>();
+    auto B1 = wks->Cell("B1")->Value()->Get<int>();
+    auto C1 = wks->Cell("C1")->Value()->Get<std::string>();
+    auto D1 = wks->Cell("D1")->Value()->Get<bool>();
 
-    doc.Workbook()->AddWorksheet("Text");
-    auto wks3 = doc.Workbook()->Worksheet("Text");
-    auto arange3 = wks3->Range(XLCellReference(1,1), XLCellReference(100,100));
-    for (auto &iter : arange3) {
-        iter.Value()->Set("Hello OpenXLSX!");
-    }
-
-    doc.Workbook()->AddWorksheet("Booleans");
-    auto wks4 = doc.Workbook()->Worksheet("Booleans");
-    auto arange4 = wks4->Range(XLCellReference(1,1), XLCellReference(100,100));
-    for (auto &iter : arange4) {
-        iter.Value()->Set(XLBool::True);
-    }
+    cout << "Cell A1: " << A1 << endl;
+    cout << "Cell B1: " << B1 << endl;
+    cout << "Cell C1: " << C1 << endl;
+    cout << "Cell D1: " << D1 << endl;
 
     doc.SaveDocument();
-    doc.CloseDocument();
-
-    XLDocument rdoc;
-    rdoc.OpenDocument("Spreadsheet.xlsx");
-
-    cout << "Content of worksheet 'Floats', cell B2: " << rdoc.Workbook()->Worksheet("Floats")->Cell("B2")->Value()->AsString() << endl;
-    cout << "Content of worksheet 'Integers', cell B2: " << rdoc.Workbook()->Worksheet("Integers")->Cell("B2")->Value()->AsString() << endl;
-    cout << "Content of worksheet 'Text', cell B2: " << rdoc.Workbook()->Worksheet("Text")->Cell("B2")->Value()->AsString() << endl;
-    cout << "Content of worksheet 'Booleans', cell B2: " << rdoc.Workbook()->Worksheet("Booleans")->Cell("B2")->Value()->AsString() << endl;
-
-    rdoc.CloseDocument();
   
   return 0;
   }
