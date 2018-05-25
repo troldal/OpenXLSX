@@ -20,10 +20,10 @@ file(GLOB SHEET_HEADERS XLSheet/*.h)
 file(GLOB SHEET_SOURCES XLSheet/*.cpp)
 file(GLOB CELL_HEADERS XLCell/*.h)
 file(GLOB CELL_SOURCES XLCell/*.cpp)
-file(GLOB XML_HEADERS Utilities/XML/*.h)
-file(GLOB XML_SOURCES Utilities/XML/*.cpp)
-file(GLOB ZIP_HEADERS Utilities/Zip/*.h)
-file(GLOB ZIP_SOURCES Utilities/Zip/*.cpp)
+file(GLOB XML_HEADERS @thirdparty/XML/*.h)
+file(GLOB XML_SOURCES @thirdparty/XML/*.cpp)
+file(GLOB ZIP_HEADERS @thirdparty/Zip/*.h)
+file(GLOB ZIP_SOURCES @thirdparty/Zip/*.cpp)
 
 set(OPENXLSX_HEADERS OpenXLSX.h
         ${WORKBOOK_HEADERS}

@@ -50,7 +50,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <memory>
 #include <string>
 #include <map>
-#include "../Utilities/XML/XML.h"
+#include "../@thirdparty/XML/XML.h"
 
 namespace OpenXLSX
 {

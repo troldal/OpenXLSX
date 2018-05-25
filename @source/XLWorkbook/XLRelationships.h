@@ -52,7 +52,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 #include "XLAbstractXMLFile.h"
 #include "XLSpreadsheetElement.h"
-#include "../Utilities/XML/XML.h"
+#include "../@thirdparty/XML/XML.h"
 
 namespace OpenXLSX
 {
