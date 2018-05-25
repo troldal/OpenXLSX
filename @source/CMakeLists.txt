@@ -1,11 +1,19 @@
 cmake_minimum_required(VERSION 3.5)
 project(OpenXLSX.Library VERSION 0.5)
 
+add_subdirectory(@thirdparty/@zlib)
+
 # C/C++ language version
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -flto")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-use-linker-plugin")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fwhole-program")
 
 # Project metadata
 set(PROJECT_VENDOR "Kenneth Troldal Balslev")
