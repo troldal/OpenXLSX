@@ -22,11 +22,11 @@ Of the open source libraries, the QtXlsx library (https://github.com/dbzhang800/
 Because there are no open source library that fully fitted my needs, I decided to develop the OpenXLSX library.
 
 ## Ambition
-The ambition is that OpenXLSX should be able to read, write, create and modify Excel files (data as well as formatting), and do so with as few dependencies as possible. Currently, OpenXLSX depends on the following 3rd party libraries:
+The ambition is that OpenXLSX should be able to read, write, create and modify Excel files (data as well as formatting), and do so with as few dependencies as possible. Currently, OpenXLSX depends on the following 3rd party libraries (all included in the repository):
 
- - RapidXML (included)
- - LibZip (and, in turn, zlib)
- - LibZip++ (included)
+ - PugiXML
+ - LibZip
+ - LibZip++
  
  ## Current Status
  OpenXLSX is still work i progress. The following is a list of features which have been implemented and should be working properly:
