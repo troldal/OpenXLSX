@@ -57,10 +57,13 @@ set(PROJECT_DESCRIPTION "A library for reading, writing and modifying Excel spre
 # Find project files
 #=======================================================================================================================
 file(GLOB WORKBOOK_HEADERS XLWorkbook/*.h)
+file(GLOB WORKBOOK_HEADERS XLWorkbook/*.hpp)
 file(GLOB WORKBOOK_SOURCES XLWorkbook/*.cpp)
 file(GLOB SHEET_HEADERS XLSheet/*.h)
+file(GLOB SHEET_HEADERS XLSheet/*.hpp)
 file(GLOB SHEET_SOURCES XLSheet/*.cpp)
 file(GLOB CELL_HEADERS XLCell/*.h)
+file(GLOB CELL_HEADERS XLCell/*.hpp)
 file(GLOB CELL_SOURCES XLCell/*.cpp)
 
 set(OPENXLSX_HEADERS OpenXLSX.h
