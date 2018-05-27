@@ -81,6 +81,12 @@ namespace OpenXLSX
         XLColumn(const XLColumn &other) = delete;
 
         /**
+         * @brief Move Constructor
+         * @note The move constructor has been explicitly deleted.
+         */
+        XLColumn(XLColumn &&other) = default;
+
+        /**
          * @brief Destructor
          */
         virtual ~XLColumn() = default;

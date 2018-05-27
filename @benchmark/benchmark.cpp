@@ -21,6 +21,10 @@ unsigned long WriteTest(T value,
                         std::string &fileName,
                         std::ostream &destination = std::cout);
 
+unsigned long ReadTest(int repetitions,
+                       const std::string &fileName,
+                       std::ostream &destination = std::cout);
+
 //----------------------------------------------------------------------------------------------------------------------
 // Main
 //----------------------------------------------------------------------------------------------------------------------
@@ -47,33 +51,32 @@ int main()
     "                   MM\n"
     "                  _MM_" << endl << endl;
 
-    str << "**************************************";
-    str << " RUNNING BENCHMARKS ";
-    str << "**************************************"<< endl << endl;
+    str << "***********************************";
+    str << " RUNNING WRITE BENCHMARKS ";
+    str << "***********************************"<< endl << endl;
+/*
+    unsigned long counter  = 1000;
+    while (true) {
+        WriteTest("Hello, OpenXLSX!", counter, 1, 5, "BenchmarkString.xlsx", str);
+        //WriteTest(-42, 1000, 1000, 5, "BenchmarkInteger.xlsx", str);
+        //WriteTest(3.14159, 1000, 1000, 5, "BenchmarkFloat.xlsx", str);
+        //WriteTest(true, 1000, 1000, 5, "BenchmarkBool.xlsx", str);
 
-    //WriteTest("Hello, OpenXLSX!", 1000000, 1, 5, "BenchmarkString.xlsx");
-    //WriteTest("Hello, OpenXLSX!", 100000, 10, 5, "BenchmarkString.xlsx");
-    //WriteTest("Hello, OpenXLSX!", 10000, 100, 5, "BenchmarkString.xlsx");
-    WriteTest("Hello, OpenXLSX! \xF0\x9F\x98\x81", 1000, 1000, 5, "BenchmarkString.xlsx", str);
-    //WriteTest("Hello, OpenXLSX!", 100, 10000, 5, "BenchmarkString.xlsx");
+        counter = counter * 2;
+        if (counter > 1048576) break;
+    } */
 
-    //WriteTest(-42, 1000000, 1, 5, "BenchmarkInteger.xlsx");
-    //WriteTest(-42, 100000, 10, 5, "BenchmarkInteger.xlsx");
-    //WriteTest(-42, 10000, 100, 5, "BenchmarkInteger.xlsx");
-    WriteTest(-42, 1000, 1000, 5, "BenchmarkInteger.xlsx", str);
-    //WriteTest(-42, 100, 10000, 5, "BenchmarkInteger.xlsx");
+    WriteTest("Hello, OpenXLSX!", 1000, 1000, 10, "BenchmarkString.xlsx", str);
 
-    //WriteTest(3.14159, 1000000, 1, 5, "BenchmarkFloat.xlsx");
-    //WriteTest(3.14159, 100000, 10, 5, "BenchmarkFloat.xlsx");
-    //WriteTest(3.14159, 10000, 100, 5, "BenchmarkFloat.xlsx");
-    WriteTest(3.14159, 1000, 1000, 5, "BenchmarkFloat.xlsx", str);
-    //WriteTest(3.14159, 100, 10000, 5, "BenchmarkFloat.xlsx");
+    //cout << endl << endl;
+    //str << "***********************************";
+    //str << " RUNNING READ BENCHMARKS ";
+    //str << "************************************"<< endl << endl;
 
-    //WriteTest(true, 1000000, 1, 5, "BenchmarkBool.xlsx", str);
-    //WriteTest(true, 100000, 10, 5, "BenchmarkBool.xlsx", str);
-    //WriteTest(true, 10000, 100, 5, "BenchmarkBool.xlsx", str);
-    WriteTest(true, 1000, 1000, 5, "BenchmarkBool.xlsx", str);
-    //WriteTest(true, 100, 10000, 5, "BenchmarkBool.xlsx", str);
+    //ReadTest(5, "BenchmarkString.xlsx", str);
+    //ReadTest(5, "BenchmarkInteger.xlsx", str);
+    //ReadTest(5, "BenchmarkFloat.xlsx", str);
+    //ReadTest(5, "BenchmarkBool.xlsx", str);
 
     //ostr.close();
 
@@ -163,31 +166,105 @@ unsigned long WriteTest(T value,
     return 0;
 }
 
-void myTest()
+unsigned long ReadTest(int repetitions, const std::string &fileName, ostream &destination)
 {
-    XLDocument doc;
-    doc.CreateDocument("./MyTest.xlsx");
-    auto wks = doc.Workbook()->Worksheet("Sheet1");
+    TablePrinter tp(&destination);
+    tp.AddColumn("Run #", 10);
+    tp.AddColumn("Opening (ms)", 27);
+    tp.AddColumn("Reading (ms)", 27);
+    tp.AddColumn("Reading (cells/s)", 27);
 
-    *wks->Cell("A1")->Value() = 3.14159;
-    *wks->Cell("B1")->Value() = 42;
-    *wks->Cell("C1")->Value() = "Hello OpenXLSX!";
-    *wks->Cell("D1")->Value() = true;
+    OpenXLSX::XLDocument doc;
+    doc.OpenDocument(fileName);
+    auto rows = doc.Workbook()->Worksheet("Sheet1")->RowCount();
+    auto cols = doc.Workbook()->Worksheet("Sheet1")->ColumnCount();
+    stringstream ss;
+    ss << "Reading \""
+        << doc.Workbook()->Worksheet("Sheet1")->Cell("A1")->Value()->AsString()
+        << "\" from "
+        << to_string(rows)
+        << " x "
+        << to_string(cols)
+        << " cells";
 
-    auto A1 = wks->Cell("A1")->Value()->Get<long double>();
-    auto B1 = wks->Cell("B1")->Value()->Get<unsigned int>();
-    auto C1 = wks->Cell("C1")->Value()->Get<std::string_view>();
-    auto D1 = wks->Cell("D1")->Value()->Get<bool>();
+    doc.CloseDocument();
+    tp.PrintTitle(ss.str());
+    tp.PrintHeader();
 
-    cout << "Cell A1: " << A1 << endl;
-    cout << "Cell B1: " << B1 << endl;
-    cout << "Cell C1: " << C1 << endl;
-    cout << "Cell D1: " << D1 << endl;
 
-    doc.SaveDocument();
+    unsigned long TotalOpeningTime = 0;
+    unsigned long TotalReadingTime = 0;
+    for (int i = 1; i <= repetitions; i++) {
+
+        // Create new document
+        auto startOpen = chrono::steady_clock::now();
+        OpenXLSX::XLDocument doc;
+        doc.OpenDocument(fileName);
+        auto endOpen = chrono::steady_clock::now();
+
+        // Add data to document
+        auto startRead = chrono::steady_clock::now();
+        auto wks = doc.Workbook()->Worksheet("Sheet1");
+        int intVal;
+        double doubleVal;
+        std::string stringVal;
+        bool boolVal;
+        auto arange = wks->Range(XLCellReference("A1"), XLCellReference(rows, cols));
+        for (auto &iter : arange) {
+            switch(iter.Value()->ValueType()) {
+                case XLValueType::Integer :
+                    intVal = iter.Value()->Get<int>();
+                    break;
+
+                case XLValueType::Float :
+                    doubleVal = iter.Value()->Get<double>();
+                    break;
+
+                case XLValueType::String :
+                    stringVal = iter.Value()->Get<std::string>();
+                    break;
+
+                case XLValueType::Boolean :
+                    boolVal = iter.Value()->Get<bool>();
+                    break;
+
+                default:
+                    break;
+
+            }
+        }
+        auto endRead = chrono::steady_clock::now();
+        doc.CloseDocument();
+
+        TotalOpeningTime += std::chrono::duration_cast<std::chrono::milliseconds>(endOpen - startOpen).count();
+        TotalReadingTime += std::chrono::duration_cast<std::chrono::milliseconds>(endRead - startRead).count();
+
+        double dims = static_cast<double>(rows*cols);
+        double time = static_cast<double>(std::chrono::duration_cast<std::chrono::milliseconds>(endRead - startRead).count());
+
+        tp << ("#" + to_string(i))
+           << std::chrono::duration_cast<std::chrono::milliseconds>(endOpen - startOpen).count()
+           << std::chrono::duration_cast<std::chrono::milliseconds>(endRead - startRead).count()
+           << static_cast<unsigned long>(dims / (time / 1000));
+
+    }
+
+    double dims = static_cast<double>(rows*cols*repetitions);
+    double time = static_cast<double>(TotalReadingTime);
+
+
+    tp.PrintFooter();
+    tp << "Average"
+       << TotalOpeningTime/repetitions
+       << TotalReadingTime/repetitions
+       << static_cast<unsigned long>(dims / (time / 1000));
+    tp.PrintFooter();
+
+    cout << endl;
+
+
+    return 0;
 }
-
-
 
 void openLarge() {
 

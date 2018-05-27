@@ -35,7 +35,7 @@ XLWorksheet::XLWorksheet(XLWorkbook &parent,
       m_sheetViewsNode(XMLNode()),
       m_parentWorkbook(parent),
       m_rows(),
-      m_columns(16384), // The maximum number of Columns
+      m_columns(),
       m_firstCell(1, 1),
       m_lastCell(1, 1),
       m_maxColumn(0)
@@ -93,15 +93,14 @@ bool XLWorksheet::ParseXMLData()
     if (m_columnsNode.type() != pugi::node_null) {
         auto currentColumn = ColumnsNode().first_child();
         while (currentColumn) {
-            m_columns.at(stoul(currentColumn.attribute("min").value()) - 1) = make_unique<XLColumn>(*this, currentColumn);
+            m_columns.emplace(currentColumn.attribute("min").as_ullong() - 1, XLColumn(*this, currentColumn));
             currentColumn = currentColumn.next_sibling();
         }
     }
 
     // Store all Row nodes in the m_rows vector. The XLRow constructor will initialize the cells objects
     for (auto &currentRow : SheetDataNode().children())
-        m_rows.insert_or_assign(stoul(currentRow.attribute("r").value()) - 1, make_unique<XLRow>(*this, currentRow));
-
+        m_rows.emplace(stoul(currentRow.attribute("r").value()) - 1, XLRow(*this, currentRow));
 
     return true;
 }
@@ -240,12 +239,13 @@ XLRow *XLWorksheet::Row(unsigned long rowNumber)
 
     // Retrieve the Row node in the m_rows vector. If it doesn't exist, nullptr will be returned.
     if (iter != Rows()->end()) {
-        result = iter->second.get();
+        result = &iter->second;
     }
     // If the node does not exist, create and insert it. Otherwise return the existing object.
     else {
-        Rows()->insert({rowNumber - 1, XLRow::CreateRow(*this, rowNumber)});
-        result = Rows()->at(rowNumber - 1).get();
+        //Rows()->insert({rowNumber - 1, XLRow::CreateRow(*this, rowNumber)});
+        XLRow::CreateRow(*this, rowNumber);
+        result = &Rows()->at(rowNumber - 1);
     }
 
     return result;
@@ -257,7 +257,7 @@ XLRow *XLWorksheet::Row(unsigned long rowNumber)
 const XLRow *XLWorksheet::Row(unsigned long rowNumber) const
 {
     if (rowNumber >= m_rows.size()) throw XLException("Row number " + to_string(rowNumber) + " does not exist");
-    return Rows()->at(rowNumber - 1).get(); // vector is 0-based, Excel is 1-based; therefore rowNumber-1.
+    return &Rows()->at(rowNumber - 1); // vector is 0-based, Excel is 1-based; therefore rowNumber-1.
 }
 
 /**
@@ -274,7 +274,7 @@ XLColumn *XLWorksheet::Column(unsigned int columnNumber)
     XLColumn *result = nullptr;
 
     // Retrieve the Column node in the m_columns vector. If it doesn't exist, nullptr will be returned.
-    XLColumn *colNode = m_columns.at(columnNumber - 1).get(); // vector is 0-based;
+    XLColumn *colNode = &m_columns.at(columnNumber - 1); // vector is 0-based;
 
     // If the node does not exist, create and insert it.
     if (colNode == nullptr) {
@@ -290,8 +290,8 @@ XLColumn *XLWorksheet::Column(unsigned int columnNumber)
         else {
             //Otherwise, search the Column nodes vector for the next node and insert there.
             auto index = columnNumber - 1; // vector is 0-based, Excel is 1-based; therefore columnNumber-1.
-            XLColumn *col = m_columns.at(index).get();
-            while (col == nullptr) col = m_columns.at(index++).get();
+            XLColumn *col = &m_columns.at(index);
+            while (col == nullptr) col = &m_columns.at(index++);
             nodeColumn = ColumnsNode().insert_child_before("col", col->ColumnNode());
         }
 
@@ -301,8 +301,8 @@ XLColumn *XLWorksheet::Column(unsigned int columnNumber)
         nodeColumn.append_attribute("customWidth") = 1;
 
         // Insert the new Row node in the Row nodes vector.
-        m_columns.at(columnNumber - 1) = make_unique<XLColumn>(*this, nodeColumn);
-        result = m_columns.at(columnNumber - 1).get();
+        m_columns.emplace(columnNumber - 1, XLColumn(*this, nodeColumn));
+        result = &m_columns.at(columnNumber - 1);
     }
     else {
         result = colNode;
@@ -320,7 +320,7 @@ const XLColumn *XLWorksheet::Column(unsigned int columnNumber) const
 {
     if (columnNumber >= m_columns.size())
         throw XLException("Column number " + to_string(columnNumber) + " does not exist");
-    return m_columns.at(columnNumber - 1).get();
+    return &m_columns.at(columnNumber - 1);
 }
 
 /**
@@ -343,7 +343,7 @@ const XLRows *XLWorksheet::Rows() const
 /**
  * @details
  */
-XLColumnVector *XLWorksheet::Columns()
+XLColumns *XLWorksheet::Columns()
 {
     return &m_columns;
 }
@@ -352,7 +352,7 @@ XLColumnVector *XLWorksheet::Columns()
  * @brief
  * @return
  */
-const XLColumnVector *XLWorksheet::Columns() const
+const XLColumns *XLWorksheet::Columns() const
 {
     return &m_columns;
 }

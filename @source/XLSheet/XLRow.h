@@ -89,7 +89,7 @@ namespace OpenXLSX
          * @brief Move Constructor
          * @note The move constructor has been explicitly deleted.
          */
-        XLRow(XLRow &&other) = delete;
+        XLRow(XLRow &&other) = default;
 
         /**
          * @brief Destructor
@@ -187,8 +187,8 @@ namespace OpenXLSX
          * @param rowNumber The row number to add
          * @return A pointer to the newly created XLRow object.
          */
-        static std::unique_ptr<XLRow> CreateRow(XLWorksheet &worksheet,
-                                                unsigned long rowNumber);
+        static void CreateRow(XLWorksheet &worksheet,
+                              unsigned long rowNumber);
 
         /**
          * @brief Resize the row, i.e. change the number of cells in the row.

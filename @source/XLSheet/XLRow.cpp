@@ -223,8 +223,8 @@ unsigned int XLRow::CellCount() const
  * in the row are created and inserted in the XML tree. A std::unique_ptr to the new XLRow object is returned
  * @todo What happens if the object is not caught and gets destroyed? The XML data still exists...
  */
-unique_ptr<XLRow> XLRow::CreateRow(XLWorksheet &worksheet,
-                                   unsigned long rowNumber)
+void XLRow::CreateRow(XLWorksheet &worksheet,
+                      unsigned long rowNumber)
 {
     // Create the node
     XMLNode nodeRow;
@@ -236,14 +236,11 @@ unique_ptr<XLRow> XLRow::CreateRow(XLWorksheet &worksheet,
         nodeRow = worksheet.SheetDataNode().append_child("row");
     }
     else {
-        //Otherwise, search the Row nodes vector for the next node and insert there.
-        auto index = rowNumber - 1; // vector is 0-based, Excel is 1-based; therefore rowNumber-1.
-        if (worksheet.Rows()->find(index) == worksheet.Rows()->end()) {
-            worksheet.Rows()->insert({index, nullptr});
-            auto iter = worksheet.Rows()->find(index);
-            nodeRow = worksheet.SheetDataNode().insert_child_before("row", (++iter)->second->RowNode());
-            worksheet.Rows()->erase(index);
-        }
+        // Otherwise, search the Row nodes vector for the next node and insert there.
+        // Vector is 0-based, Excel is 1-based; therefore rowNumber-1.
+        auto iter = worksheet.Rows()->lower_bound(rowNumber - 1);
+        if (iter != worksheet.Rows()->end() && iter->second.RowNode().attribute("r").as_ullong() != rowNumber)
+            nodeRow = worksheet.SheetDataNode().insert_child_before("row", iter->second.RowNode());
     }
 
     nodeRow.append_attribute("r") = rowNumber;
@@ -251,5 +248,5 @@ unique_ptr<XLRow> XLRow::CreateRow(XLWorksheet &worksheet,
     nodeRow.append_attribute("spans") = "1:1";
     nodeRow.append_child("c").append_attribute("r") = XLCellReference(rowNumber, 1).Address().c_str();
 
-    return make_unique<XLRow>(worksheet, nodeRow);
+    worksheet.Rows()->emplace(rowNumber - 1, XLRow(worksheet, nodeRow));
 }

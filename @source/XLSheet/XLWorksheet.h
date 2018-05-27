@@ -66,7 +66,7 @@ namespace OpenXLSX
     /**
      * @brief A std::vector of std::unique_ptr's to XLColumn objects.
      */
-    using XLColumnVector = std::vector<std::unique_ptr<XLColumn>>;
+    using XLColumns = std::map<unsigned int, XLColumn>;
 
 
 //======================================================================================================================
@@ -76,7 +76,7 @@ namespace OpenXLSX
     /**
      * @brief A std::vector of std::unique_ptr's to XLRow objects.
      */
-    using XLRows = std::map<unsigned long, std::unique_ptr<XLRow>>;
+    using XLRows = std::map<unsigned long, XLRow>;
 
 
 //======================================================================================================================
@@ -332,13 +332,13 @@ namespace OpenXLSX
          * @brief Get the data structure all columns in the worksheet.
          * @return A reference to the std::vector with the column data.
          */
-        XLColumnVector *Columns();
+        XLColumns *Columns();
 
         /**
          * @brief Get the data structure all columns in the worksheet.
          * @return A const reference to the std::vector with the column data.
          */
-        const XLColumnVector *Columns() const;
+        const XLColumns *Columns() const;
 
         /**
          * @brief
@@ -448,7 +448,7 @@ namespace OpenXLSX
         XLWorkbook &m_parentWorkbook; /**< A pointer to the parent XLWorkbook object (const) */
 
         XLRows m_rows; /**< A std::vector with pointers to all rows in the sheet. */
-        XLColumnVector m_columns; /**< A std::vector with pointers to all columns in sheet. */
+        XLColumns m_columns; /**< A std::vector with pointers to all columns in sheet. */
 
         XLCellReference m_firstCell; /**< The first cell in the sheet (i.e. the top left cell).*/
         mutable XLCellReference m_lastCell; /**<  The last cell in the sheet (i.e. the bottom right). */
