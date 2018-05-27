@@ -47,6 +47,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #define OPENXLEXE_XLROW_H
 
 #include "../XLWorkbook/XLDocument.h"
+#include "../@flat/flat_map.hpp"
 
 namespace OpenXLSX
 {
@@ -151,7 +152,7 @@ namespace OpenXLSX
          * @brief Get the XMLNode object for the row.
          * @return The XMLNode for the object.
          */
-        XMLNode RowNode();
+        XMLNode RowNode() const;
 
         /**
          * @brief Get the XLCell object at a specified column for this row.
@@ -213,7 +214,7 @@ namespace OpenXLSX
 
         unsigned long m_rowNumber; /**< The row number of the current row. */
 
-        std::map<unsigned int, std::unique_ptr<XLCell>> m_cells; /**< A vector with the XLCell objects. */
+        fc::vector_map<unsigned int, std::unique_ptr<XLCell>> m_cells; /**< A vector with the XLCell objects. */
     };
 
 }

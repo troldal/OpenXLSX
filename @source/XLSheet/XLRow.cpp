@@ -143,7 +143,7 @@ void XLRow::SetHidden(bool state)
 /**
  * @details Get the pointer to the row node in the underlying XML file but returning the m_rowNode member.
  */
-XMLNode XLRow::RowNode()
+XMLNode XLRow::RowNode() const
 {
     return m_rowNode;
 }
@@ -228,7 +228,7 @@ void XLRow::CreateRow(XLWorksheet &worksheet,
     else {
         // Otherwise, search the Row nodes vector for the next node and insert there.
         // Vector is 0-based, Excel is 1-based; therefore rowNumber-1.
-        auto iter = worksheet.Rows()->lower_bound(rowNumber - 1);
+        XLRows::iterator iter = worksheet.Rows()->lower_bound(rowNumber - 1);
         if (iter != worksheet.Rows()->end() && iter->second.RowNode().attribute("r").as_ullong() != rowNumber)
             nodeRow = worksheet.SheetDataNode().insert_child_before("row", iter->second.RowNode());
     }
