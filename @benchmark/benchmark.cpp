@@ -64,9 +64,9 @@ int main()
 
         counter = counter * 2;
         if (counter > 1048576) break;
-    } */
+    }*/
 
-    WriteTest("Hello, OpenXLSX!", 1000, 1000, 10, "BenchmarkString.xlsx", str);
+    WriteTest("Hello, OpenXLSX!", 100, 10000, 10, "BenchmarkString.xlsx", str);
 
     //cout << endl << endl;
     //str << "***********************************";

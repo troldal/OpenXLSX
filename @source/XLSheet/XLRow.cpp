@@ -53,7 +53,7 @@ XLRow::XLRow(XLWorksheet &parent,
         for (auto &currentCell : rowNode.children()) {
             XLCellReference cellRef(currentCell.attribute("r").value());
             Resize(cellRef.Column());
-            m_cells.at(cellRef.Column() - 1) = XLCell::CreateCell(m_parentWorksheet, currentCell);
+            m_cells.emplace(cellRef.Column() - 1, XLCell::CreateCell(m_parentWorksheet, currentCell));
         }
     }
 }
@@ -63,7 +63,7 @@ XLRow::XLRow(XLWorksheet &parent,
  */
 void XLRow::Resize(unsigned int cellCount)
 {
-    m_cells.resize(cellCount);
+    //m_cells.resize(cellCount);
     m_rowNode.attribute("spans") = string("1:" + to_string(cellCount)).c_str();
 }
 
@@ -155,45 +155,35 @@ XMLNode XLRow::RowNode()
 XLCell *XLRow::Cell(unsigned int column)
 {
 
-    XLCell *result = nullptr;
+    //XLCell *result = nullptr;
 
     // If the requested Column number is higher than the number of Columns in the current Row,
     // create a new Cell node, append it to the Row node, resize the m_cells vector, and insert the new node.
-    if (column > CellCount()) {
-
+    //if (column > CellCount()) {
+    if (auto result = m_cells.lower_bound(column - 1); result == m_cells.end()) {
         // Create the new Cell node
         auto cellNode = m_rowNode.append_child("c");
         cellNode.append_attribute("r").set_value(XLCellReference(m_rowNumber, column).Address().c_str());
 
         // Append the Cell node to the Row node, and create a new XLCell node and insert it in the m_cells vector.
-        Resize(column);
-        m_cells.at(column - 1) = XLCell::CreateCell(m_parentWorksheet, cellNode);
-
-        result = m_cells.at(column - 1).get();
+        m_rowNode.attribute("spans") = string("1:" + to_string(column)).c_str();
+        m_cells.emplace(column - 1, XLCell::CreateCell(m_parentWorksheet, cellNode));
 
         // If the requested Column number is lower than the number of Columns in the current Row,
         // but the Cell does not exist, create a new node and insert it at the rigth position.
-    }
-    else if (m_cells.at(column - 1).get() == nullptr) {
+    } else if ((*result).second->CellReference()->Column() != column){
 
         // Find the next Cell node and insert the new node at that position.
-        auto cell = m_cells.at(column - 1).get();
-        auto index = column - 1;
-        while (cell == nullptr && index < m_cells.size()) cell = m_cells.at(index++).get();
+        //auto cell = m_cells.upper_bound(column - 1)->second.get();
+        //auto index = column - 1;
+        //while (cell == nullptr && index < m_cells.size()) cell = m_cells.at(index++).get();
 
-        auto cellNode = m_rowNode.insert_child_before("c", cell->CellNode());
+        auto cellNode = m_rowNode.insert_child_before("c", (*result).second->CellNode());
         cellNode.append_attribute("r") = XLCellReference(m_rowNumber, column).Address().c_str();
-        m_cells.at(column - 1) = XLCell::CreateCell(m_parentWorksheet, cellNode);
-
-        result = m_cells.at(column - 1).get();
-
-        // If the Cell exists, look it up in the m_cells vector.
-    }
-    else {
-        result = m_cells.at(column - 1).get();
+        m_cells.emplace(column - 1, XLCell::CreateCell(m_parentWorksheet, cellNode));
     }
 
-    return result;
+    return m_cells.at(column - 1).get();
 }
 
 /**

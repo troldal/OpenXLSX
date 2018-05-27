@@ -213,7 +213,7 @@ namespace OpenXLSX
 
         unsigned long m_rowNumber; /**< The row number of the current row. */
 
-        std::vector<std::unique_ptr<XLCell>> m_cells; /**< A vector with the XLCell objects. */
+        std::map<unsigned int, std::unique_ptr<XLCell>> m_cells; /**< A vector with the XLCell objects. */
     };
 
 }
