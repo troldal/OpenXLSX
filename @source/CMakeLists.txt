@@ -147,7 +147,7 @@ set(OPENXLSX_SOURCES
 # Build OpenXLSX library
 #=======================================================================================================================
 add_library(OpenXLSX STATIC ${OPENXLSX_HEADERS} ${OPENXLSX_SOURCES})
-target_link_libraries(OpenXLSX PUBLIC zip++ xml)
+target_link_libraries(OpenXLSX PRIVATE zip++ xml)
 
 #=======================================================================================================================
 # Install OpenXLSX Library
