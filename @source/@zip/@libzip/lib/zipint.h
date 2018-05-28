@@ -40,7 +40,8 @@
 
 #include "compat.h"
 
-#include <zlib.h>
+//#include <zlib.h>
+#include "../../@zlib/zlib.h"
 
 #ifndef _ZIP_COMPILING_DEPRECATED
 #define ZIP_DISABLE_DEPRECATED

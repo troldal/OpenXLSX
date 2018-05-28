@@ -4,7 +4,11 @@
 #include <sstream>
 #include <fstream>
 #include "table_printer.h"
-#include "../@source/OpenXLSX.h"
+//#include "../@source/OpenXLSX.h"
+#include "../@source/XLWorkbook/XLDocument.h"
+#include "../@source/XLSheet/XLWorksheet.h"
+#include "../@source/XLCell/XLCellRange.h"
+#include "../@source/XLCell/XLCellReference.h"
 
 using namespace std;
 using namespace OpenXLSX;
