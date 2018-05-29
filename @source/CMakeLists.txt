@@ -37,11 +37,11 @@ IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
     #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Weffc++")
     #set(CMAKE_VERBOSE_MAKEFILE ON)
 ELSEIF(CMAKE_BUILD_TYPE STREQUAL "Release")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -flto")
+    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -flto")
     IF (MINGW)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-use-linker-plugin")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fwhole-program")
+        #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-use-linker-plugin")
+        #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fwhole-program")
     ENDIF(MINGW)
 ENDIF(CMAKE_BUILD_TYPE STREQUAL "Debug")
 
@@ -147,8 +147,8 @@ set(OPENXLSX_SOURCES
 #=======================================================================================================================
 # Build OpenXLSX library
 #=======================================================================================================================
-add_library(OpenXLSX STATIC ${OPENXLSX_HEADERS} ${OPENXLSX_SOURCES})
-target_link_libraries(OpenXLSX PRIVATE zip++ xml)
+add_library(OpenXLSX STATIC $<TARGET_OBJECTS:xml> $<TARGET_OBJECTS:zlibstatic> $<TARGET_OBJECTS:zip> $<TARGET_OBJECTS:zip++> ${OPENXLSX_SOURCES})
+#target_link_libraries(OpenXLSX PRIVATE zip++ xml)
 
 #=======================================================================================================================
 # Install OpenXLSX Library
