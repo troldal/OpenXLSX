@@ -119,7 +119,7 @@ set(CELL_HEADERS
         XLCell/XLValueNumber.h
         XLCell/XLValueString.h)
 
-set(CELL_Sources
+set(CELL_SOURCES
         XLCell/XLCell.cpp
         XLCell/XLCellFormats.cpp
         XLCell/XLCellFormula.cpp
