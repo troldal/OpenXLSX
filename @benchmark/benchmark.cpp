@@ -9,6 +9,8 @@
 #include "../@source/XLSheet/XLWorksheet.h"
 #include "../@source/XLCell/XLCellRange.h"
 #include "../@source/XLCell/XLCellReference.h"
+#include "../@source/XLCell/XLCell.h"
+#include "../@source/XLCell/XLCellValue.h"
 
 using namespace std;
 using namespace OpenXLSX;
