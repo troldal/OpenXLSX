@@ -35,7 +35,7 @@ XLCell::XLCell(XLWorksheet &parent, XMLNode cellNode)
       m_parentWorksheet(&parent),
       m_cellReference(XLCellReference(cellNode.attribute("r").value())),
       m_cellNode(cellNode),
-      m_value(make_unique<XLCellValue>(*this))
+      m_value(*this)
 {
 }
 

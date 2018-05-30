@@ -61,6 +61,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 namespace OpenXLSX
 {
 
+    class XLCell;
+
 //======================================================================================================================
 //========== XLCellValue Class =========================================================================================
 //======================================================================================================================
@@ -342,7 +344,7 @@ namespace OpenXLSX
 //----------------------------------------------------------------------------------------------------------------------
 
     private:
-        XLCell &m_parentCell; /**< A reference to the parent XLCell object. */
+        XLCell *m_parentCell; /**< A reference to the parent XLCell object. */
         std::variant<std::monostate, XLValueEmpty, XLValueNumber, XLValueString, XLValueBoolean, XLValueError> m_value;
     };
 
