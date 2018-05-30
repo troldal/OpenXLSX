@@ -147,8 +147,9 @@ set(OPENXLSX_SOURCES
 #=======================================================================================================================
 # Build OpenXLSX library
 #=======================================================================================================================
-add_library(OpenXLSX STATIC $<TARGET_OBJECTS:xml> $<TARGET_OBJECTS:zlibstatic> $<TARGET_OBJECTS:zip> $<TARGET_OBJECTS:zip++> ${OPENXLSX_HEADERS} ${OPENXLSX_SOURCES})
-#target_link_libraries(OpenXLSX PRIVATE zip++ xml)
+add_library(OpenXLSXDepend STATIC $<TARGET_OBJECTS:xml> $<TARGET_OBJECTS:zlibstatic> $<TARGET_OBJECTS:zip> $<TARGET_OBJECTS:zip++>)
+add_library(OpenXLSX STATIC ${OPENXLSX_HEADERS} ${OPENXLSX_SOURCES})
+target_link_libraries(OpenXLSX PRIVATE OpenXLSXDepend)
 
 #=======================================================================================================================
 # Install OpenXLSX Library
