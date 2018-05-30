@@ -152,7 +152,7 @@ namespace OpenXLSX
          * @brief Get the XMLNode object for the row.
          * @return The XMLNode for the object.
          */
-        XMLNode RowNode();
+        XMLNode RowNode() const;
 
         /**
          * @brief Get the XLCell object at a specified column for this row.

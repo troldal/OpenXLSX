@@ -48,7 +48,7 @@ XLCell::XLCell(XLWorksheet &parent, XMLNode cellNode)
  */
 XLCell &XLCell::operator=(const XLCell &other)
 {
-    *m_value = *other.m_value;
+    m_value = other.m_value;
     //SetTypeAttribute(other.TypeString());
     //SetValue(other.CellType(), other.ValueString());
     return *this;
@@ -80,7 +80,7 @@ XLCell &XLCell::operator=(const XLCellRange &range)
  */
 XLValueType XLCell::ValueType() const
 {
-    return (*m_value).ValueType();
+    return m_value.ValueType();
 }
 
 /**
@@ -88,8 +88,7 @@ XLValueType XLCell::ValueType() const
  */
 const XLCellValue *XLCell::Value() const
 {
-    if (m_value == nullptr) throw XLException("Cell " + m_cellReference.Address() + " has no value.");
-    return m_value.get();
+    return &m_value;
 }
 
 /**
@@ -97,8 +96,7 @@ const XLCellValue *XLCell::Value() const
  */
 XLCellValue * XLCell::Value()
 {
-    if (m_value == nullptr) m_value = std::make_unique<XLCellValue>(*this);
-    return m_value.get();
+    return &m_value;
 }
 
 /**

@@ -53,7 +53,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLValueEmpty.h"
 #include "XLValueError.h"
 #include "XLCellType.h"
-#include "XLCell.h"
+#include "../XLWorkbook/XLException.h"
 
 #include <string>
 #include <variant>
@@ -344,7 +344,7 @@ namespace OpenXLSX
 //----------------------------------------------------------------------------------------------------------------------
 
     private:
-        XLCell *m_parentCell; /**< A reference to the parent XLCell object. */
+        XLCell &m_parentCell; /**< A reference to the parent XLCell object. */
         std::variant<std::monostate, XLValueEmpty, XLValueNumber, XLValueString, XLValueBoolean, XLValueError> m_value;
     };
 
@@ -407,7 +407,7 @@ namespace OpenXLSX
             std::get<XLValueNumber>(m_value).Set(static_cast<long long int>(numberValue));
         }
 
-        ParentCell()->SetModified();
+        //ParentCell()->SetModified();
     }
 
     /**
@@ -425,7 +425,7 @@ namespace OpenXLSX
 
         std::get<XLValueNumber>(m_value).Set(static_cast<long double>(numberValue));
 
-        ParentCell()->SetModified();
+        //ParentCell()->SetModified();
     }
 
     /**

@@ -93,10 +93,10 @@ namespace OpenXLSX
      * so it cannot be instantiated.
      */
     class XLSheet: public XLAbstractXMLFile,
-                           public XLSpreadsheetElement
+                   public XLSpreadsheetElement
     {
         friend class XLWorkbook;
-        friend class XLCell;
+        //friend class XLCell;
 
 
 //----------------------------------------------------------------------------------------------------------------------
