@@ -17,7 +17,7 @@ using namespace std;
  * @post A valid XLCellValue object has been constructed.
  */
 XLCellValue::XLCellValue(XLCell &parent)
-    : m_parentCell(parent),
+    : m_parentCell(&parent),
       m_value()
 {
     Initialize();
@@ -278,7 +278,7 @@ std::string XLCellValue::TypeString() const
  */
 XLCell *XLCellValue::ParentCell()
 {
-    return &m_parentCell;
+    return m_parentCell;
 }
 
 /**
@@ -288,7 +288,7 @@ XLCell *XLCellValue::ParentCell()
  */
 const XLCell *XLCellValue::ParentCell() const
 {
-    return &m_parentCell;
+    return m_parentCell;
 }
 
 /**

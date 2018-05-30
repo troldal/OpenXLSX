@@ -48,7 +48,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 #include "../XLWorkbook/XLDocument.h"
 #include "../@flat/flat_map.hpp"
-#include "../@boost/container/flat_map.hpp"
 
 namespace OpenXLSX
 {
@@ -109,7 +108,7 @@ namespace OpenXLSX
          * @brief Move assignment operator.
          * @note The move assignment operator has been explicitly deleted.
          */
-        XLRow &operator=(XLRow &&other) = default;
+        XLRow &operator=(XLRow &&other) = delete;
 
         /**
          * @brief Get the height of the row.
@@ -153,7 +152,7 @@ namespace OpenXLSX
          * @brief Get the XMLNode object for the row.
          * @return The XMLNode for the object.
          */
-        XMLNode RowNode() const;
+        XMLNode RowNode();
 
         /**
          * @brief Get the XLCell object at a specified column for this row.
@@ -215,7 +214,7 @@ namespace OpenXLSX
 
         unsigned long m_rowNumber; /**< The row number of the current row. */
 
-        boost::container::flat_map<unsigned int, std::unique_ptr<XLCell>> m_cells; /**< A vector with the XLCell objects. */
+        fc::vector_map<unsigned int, std::unique_ptr<XLCell>> m_cells; /**< A vector with the XLCell objects. */
     };
 
 }

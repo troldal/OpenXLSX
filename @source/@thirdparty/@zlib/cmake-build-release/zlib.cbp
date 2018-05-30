@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="zlib"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="C:/KBA/GitHub/zlib/cmake-build-release"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="C:/KBA/MinGW/bin/mingw32-make.exe -f &quot;C:/KBA/GitHub/zlib/cmake-build-release/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="C:/KBA/MinGW/bin/mingw32-make.exe -f &quot;C:/KBA/GitHub/zlib/cmake-build-release/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="C:/KBA/MinGW/bin/mingw32-make.exe -f &quot;C:/KBA/GitHub/zlib/cmake-build-release/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="C:/KBA/MinGW/bin/mingw32-make.exe -f &quot;C:/KBA/GitHub/zlib/cmake-build-release/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="zlibstatic">
+				<Option output="C:/KBA/GitHub/zlib/cmake-build-release/libzlibstatic.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="C:/KBA/GitHub/zlib/cmake-build-release"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-D_LARGEFILE64_SOURCE=1"/>
+					<Add directory="C:/KBA/GitHub/zlib/cmake-build-release"/>
+					<Add directory="C:/KBA/GitHub/zlib"/>
+					<Add directory="c:\kba\mingw\bin\../lib/gcc/x86_64-w64-mingw32/7.3.0/include"/>
+					<Add directory="c:\kba\mingw\bin\../lib/gcc/x86_64-w64-mingw32/7.3.0/include-fixed"/>
+					<Add directory="c:\kba\mingw\bin\../lib/gcc/x86_64-w64-mingw32/7.3.0/../../../../x86_64-w64-mingw32/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="C:/KBA/MinGW/bin/mingw32-make.exe -f &quot;C:/KBA/GitHub/zlib/cmake-build-release/Makefile&quot;  VERBOSE=1 zlibstatic"/>
+					<CompileFile command="C:/KBA/MinGW/bin/mingw32-make.exe -f &quot;C:/KBA/GitHub/zlib/cmake-build-release/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="C:/KBA/MinGW/bin/mingw32-make.exe -f &quot;C:/KBA/GitHub/zlib/cmake-build-release/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="C:/KBA/MinGW/bin/mingw32-make.exe -f &quot;C:/KBA/GitHub/zlib/cmake-build-release/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="zlibstatic/fast">
+				<Option output="C:/KBA/GitHub/zlib/cmake-build-release/libzlibstatic.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="C:/KBA/GitHub/zlib/cmake-build-release"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-D_LARGEFILE64_SOURCE=1"/>
+					<Add directory="C:/KBA/GitHub/zlib/cmake-build-release"/>
+					<Add directory="C:/KBA/GitHub/zlib"/>
+					<Add directory="c:\kba\mingw\bin\../lib/gcc/x86_64-w64-mingw32/7.3.0/include"/>
+					<Add directory="c:\kba\mingw\bin\../lib/gcc/x86_64-w64-mingw32/7.3.0/include-fixed"/>
+					<Add directory="c:\kba\mingw\bin\../lib/gcc/x86_64-w64-mingw32/7.3.0/../../../../x86_64-w64-mingw32/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="C:/KBA/MinGW/bin/mingw32-make.exe -f &quot;C:/KBA/GitHub/zlib/cmake-build-release/Makefile&quot;  VERBOSE=1 zlibstatic/fast"/>
+					<CompileFile command="C:/KBA/MinGW/bin/mingw32-make.exe -f &quot;C:/KBA/GitHub/zlib/cmake-build-release/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="C:/KBA/MinGW/bin/mingw32-make.exe -f &quot;C:/KBA/GitHub/zlib/cmake-build-release/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="C:/KBA/MinGW/bin/mingw32-make.exe -f &quot;C:/KBA/GitHub/zlib/cmake-build-release/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="C:/KBA/GitHub/zlib/cmake-build-release"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="C:/KBA/MinGW/bin/mingw32-make.exe -f &quot;C:/KBA/GitHub/zlib/cmake-build-release/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="C:/KBA/MinGW/bin/mingw32-make.exe -f &quot;C:/KBA/GitHub/zlib/cmake-build-release/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="C:/KBA/MinGW/bin/mingw32-make.exe -f &quot;C:/KBA/GitHub/zlib/cmake-build-release/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="C:/KBA/MinGW/bin/mingw32-make.exe -f &quot;C:/KBA/GitHub/zlib/cmake-build-release/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="test">
+				<Option working_dir="C:/KBA/GitHub/zlib/cmake-build-release"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="C:/KBA/MinGW/bin/mingw32-make.exe -f &quot;C:/KBA/GitHub/zlib/cmake-build-release/Makefile&quot;  VERBOSE=1 test"/>
+					<CompileFile command="C:/KBA/MinGW/bin/mingw32-make.exe -f &quot;C:/KBA/GitHub/zlib/cmake-build-release/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="C:/KBA/MinGW/bin/mingw32-make.exe -f &quot;C:/KBA/GitHub/zlib/cmake-build-release/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="C:/KBA/MinGW/bin/mingw32-make.exe -f &quot;C:/KBA/GitHub/zlib/cmake-build-release/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="C:/KBA/GitHub/zlib/cmake-build-release"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="C:/KBA/MinGW/bin/mingw32-make.exe -f &quot;C:/KBA/GitHub/zlib/cmake-build-release/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="C:/KBA/MinGW/bin/mingw32-make.exe -f &quot;C:/KBA/GitHub/zlib/cmake-build-release/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="C:/KBA/MinGW/bin/mingw32-make.exe -f &quot;C:/KBA/GitHub/zlib/cmake-build-release/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="C:/KBA/MinGW/bin/mingw32-make.exe -f &quot;C:/KBA/GitHub/zlib/cmake-build-release/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="C:/KBA/GitHub/zlib/adler32.c">
+			<Option target="zlibstatic"/>
+		</Unit>
+		<Unit filename="C:/KBA/GitHub/zlib/cmake-build-release/zconf.h">
+			<Option target="zlibstatic"/>
+		</Unit>
+		<Unit filename="C:/KBA/GitHub/zlib/compress.c">
+			<Option target="zlibstatic"/>
+		</Unit>
+		<Unit filename="C:/KBA/GitHub/zlib/crc32.c">
+			<Option target="zlibstatic"/>
+		</Unit>
+		<Unit filename="C:/KBA/GitHub/zlib/crc32.h">
+			<Option target="zlibstatic"/>
+		</Unit>
+		<Unit filename="C:/KBA/GitHub/zlib/deflate.c">
+			<Option target="zlibstatic"/>
+		</Unit>
+		<Unit filename="C:/KBA/GitHub/zlib/deflate.h">
+			<Option target="zlibstatic"/>
+		</Unit>
+		<Unit filename="C:/KBA/GitHub/zlib/gzclose.c">
+			<Option target="zlibstatic"/>
+		</Unit>
+		<Unit filename="C:/KBA/GitHub/zlib/gzguts.h">
+			<Option target="zlibstatic"/>
+		</Unit>
+		<Unit filename="C:/KBA/GitHub/zlib/gzlib.c">
+			<Option target="zlibstatic"/>
+		</Unit>
+		<Unit filename="C:/KBA/GitHub/zlib/gzread.c">
+			<Option target="zlibstatic"/>
+		</Unit>
+		<Unit filename="C:/KBA/GitHub/zlib/gzwrite.c">
+			<Option target="zlibstatic"/>
+		</Unit>
+		<Unit filename="C:/KBA/GitHub/zlib/infback.c">
+			<Option target="zlibstatic"/>
+		</Unit>
+		<Unit filename="C:/KBA/GitHub/zlib/inffast.c">
+			<Option target="zlibstatic"/>
+		</Unit>
+		<Unit filename="C:/KBA/GitHub/zlib/inffast.h">
+			<Option target="zlibstatic"/>
+		</Unit>
+		<Unit filename="C:/KBA/GitHub/zlib/inffixed.h">
+			<Option target="zlibstatic"/>
+		</Unit>
+		<Unit filename="C:/KBA/GitHub/zlib/inflate.c">
+			<Option target="zlibstatic"/>
+		</Unit>
+		<Unit filename="C:/KBA/GitHub/zlib/inflate.h">
+			<Option target="zlibstatic"/>
+		</Unit>
+		<Unit filename="C:/KBA/GitHub/zlib/inftrees.c">
+			<Option target="zlibstatic"/>
+		</Unit>
+		<Unit filename="C:/KBA/GitHub/zlib/inftrees.h">
+			<Option target="zlibstatic"/>
+		</Unit>
+		<Unit filename="C:/KBA/GitHub/zlib/trees.c">
+			<Option target="zlibstatic"/>
+		</Unit>
+		<Unit filename="C:/KBA/GitHub/zlib/trees.h">
+			<Option target="zlibstatic"/>
+		</Unit>
+		<Unit filename="C:/KBA/GitHub/zlib/uncompr.c">
+			<Option target="zlibstatic"/>
+		</Unit>
+		<Unit filename="C:/KBA/GitHub/zlib/zlib.h">
+			<Option target="zlibstatic"/>
+		</Unit>
+		<Unit filename="C:/KBA/GitHub/zlib/zutil.c">
+			<Option target="zlibstatic"/>
+		</Unit>
+		<Unit filename="C:/KBA/GitHub/zlib/zutil.h">
+			<Option target="zlibstatic"/>
+		</Unit>
+		<Unit filename="C:/KBA/GitHub/zlib/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="C:/KBA/GitHub/zlib/zconf.h.cmakein">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="C:/KBA/GitHub/zlib/zlib.pc.cmakein">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

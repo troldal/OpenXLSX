@@ -29,18 +29,19 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Set compiler flags
 #=======================================================================================================================
 IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-value")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-parameter")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Weffc++")
+    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wextra")
+    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic")
+    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-value")
+    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-parameter")
+    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Weffc++")
+    #set(CMAKE_VERBOSE_MAKEFILE ON)
 ELSEIF(CMAKE_BUILD_TYPE STREQUAL "Release")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -flto")
+    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -flto")
     IF (MINGW)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-use-linker-plugin")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fwhole-program")
+        #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-use-linker-plugin")
+        #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fwhole-program")
     ENDIF(MINGW)
 ENDIF(CMAKE_BUILD_TYPE STREQUAL "Debug")
 
@@ -56,17 +57,84 @@ set(PROJECT_DESCRIPTION "A library for reading, writing and modifying Excel spre
 #=======================================================================================================================
 # Find project files
 #=======================================================================================================================
-file(GLOB WORKBOOK_HEADERS XLWorkbook/*.h)
-file(GLOB WORKBOOK_HEADERS XLWorkbook/*.hpp)
-file(GLOB WORKBOOK_SOURCES XLWorkbook/*.cpp)
-file(GLOB SHEET_HEADERS XLSheet/*.h)
-file(GLOB SHEET_HEADERS XLSheet/*.hpp)
-file(GLOB SHEET_SOURCES XLSheet/*.cpp)
-file(GLOB CELL_HEADERS XLCell/*.h)
-file(GLOB CELL_HEADERS XLCell/*.hpp)
-file(GLOB CELL_SOURCES XLCell/*.cpp)
+set(WORKBOOK_HEADERS
+        XLWorkbook/XLAbstractXMLFile.h
+        XLWorkbook/XLAppProperties.h
+        XLWorkbook/XLColor.h
+        XLWorkbook/XLContentTypes.h
+        XLWorkbook/XLCoreProperties.h
+        XLWorkbook/XLDocument.h
+        XLWorkbook/XLException.h
+        XLWorkbook/XLFont.h
+        XLWorkbook/XLRelationships.h
+        XLWorkbook/XLSharedStrings.h
+        XLWorkbook/XLSpreadsheetElement.h
+        XLWorkbook/XLStyles.h
+        XLWorkbook/XLTokenizer.h
+        XLWorkbook/XLWorkbook.h)
 
-set(OPENXLSX_HEADERS OpenXLSX.h
+set(WORKBOOK_SOURCES
+        XLWorkbook/XLAbstractXMLFile.cpp
+        XLWorkbook/XLAppProperties.cpp
+        XLWorkbook/XLColor.cpp
+        XLWorkbook/XLContentTypes.cpp
+        XLWorkbook/XLCoreProperties.cpp
+        XLWorkbook/XLDocument.cpp
+        XLWorkbook/XLFont.cpp
+        XLWorkbook/XLRelationships.cpp
+        XLWorkbook/XLSharedStrings.cpp
+        XLWorkbook/XLSpreadsheetElement.cpp
+        XLWorkbook/XLStyles.cpp
+        XLWorkbook/XLTokenizer.cpp
+        XLWorkbook/XLWorkbook.cpp)
+
+set(SHEET_HEADERS
+        XLSheet/XLChartsheet.h
+        XLSheet/XLColumn.h
+        XLSheet/XLRow.h
+        XLSheet/XLSheet.h
+        XLSheet/XLTemplate.h
+        XLSheet/XLWorksheet.h)
+
+set(SHEET_SOURCES
+        XLSheet/XLChartsheet.cpp
+        XLSheet/XLColumn.cpp
+        XLSheet/XLRow.cpp
+        XLSheet/XLSheet.cpp
+        XLSheet/XLWorksheet.cpp)
+
+set(CELL_HEADERS
+        XLCell/XLCell.h
+        XLCell/XLCellFormats.h
+        XLCell/XLCellFormula.h
+        XLCell/XLCellIterator.h
+        XLCell/XLCellRange.h
+        XLCell/XLCellReference.h
+        XLCell/XLCellType.h
+        XLCell/XLCellValue.h
+        XLCell/XLValue.h
+        XLCell/XLValueBoolean.h
+        XLCell/XLValueEmpty.h
+        XLCell/XLValueError.h
+        XLCell/XLValueNumber.h
+        XLCell/XLValueString.h)
+
+set(CELL_SOURCES
+        XLCell/XLCell.cpp
+        XLCell/XLCellFormats.cpp
+        XLCell/XLCellFormula.cpp
+        XLCell/XLCellIterator.cpp
+        XLCell/XLCellRange.cpp
+        XLCell/XLCellReference.cpp
+        XLCell/XLCellValue.cpp
+        XLCell/XLValue.cpp
+        XLCell/XLValueBoolean.cpp
+        XLCell/XLValueEmpty.cpp
+        XLCell/XLValueError.cpp
+        XLCell/XLValueNumber.cpp
+        XLCell/XLValueString.cpp)
+
+set(OPENXLSX_HEADERS
         ${WORKBOOK_HEADERS}
         ${SHEET_HEADERS}
         ${CELL_HEADERS})
@@ -79,8 +147,8 @@ set(OPENXLSX_SOURCES
 #=======================================================================================================================
 # Build OpenXLSX library
 #=======================================================================================================================
-add_library(OpenXLSX STATIC ${OPENXLSX_HEADERS} ${OPENXLSX_SOURCES})
-target_link_libraries(OpenXLSX PRIVATE zip++ xml)
+add_library(OpenXLSX STATIC $<TARGET_OBJECTS:xml> $<TARGET_OBJECTS:zlibstatic> $<TARGET_OBJECTS:zip> $<TARGET_OBJECTS:zip++> ${OPENXLSX_HEADERS} ${OPENXLSX_SOURCES})
+#target_link_libraries(OpenXLSX PRIVATE zip++ xml)
 
 #=======================================================================================================================
 # Install OpenXLSX Library

@@ -42,12 +42,12 @@ extern "C" {
 #endif
 #endif
 
-#include <zipconf.h>
+#include "../zipconf.h"
 
 #ifndef ZIP_EXTERN
 #ifndef ZIP_STATIC
 #ifdef _WIN32
-#define ZIP_EXTERN __declspec(dllimport)
+#define ZIP_EXTERN //__declspec(dllimport)
 #elif defined(__GNUC__) && __GNUC__ >= 4
 #define ZIP_EXTERN __attribute__((visibility("default")))
 #else

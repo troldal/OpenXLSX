@@ -51,6 +51,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLCellReference.h"
 #include "../XLWorkbook/XLDocument.h"
 #include "XLCellType.h"
+#include "XLCellValue.h"
 #include "../@xml/xml.h"
 
 namespace OpenXLSX
@@ -262,7 +263,7 @@ namespace OpenXLSX
 
         XLCellReference m_cellReference; /**< The cell reference variable. */
         XMLNode m_cellNode; /**< A pointer to the root XMLNode for the cell. */
-        std::unique_ptr<XLCellValue> m_value; /**<  */
+        XLCellValue m_value; /**<  */
 
     };
 }

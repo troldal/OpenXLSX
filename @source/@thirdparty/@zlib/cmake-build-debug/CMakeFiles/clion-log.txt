@@ -1,0 +1,23 @@
+C:\KBA\MinGW\bin\cmake.exe -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - MinGW Makefiles" C:\KBA\GitHub\zlib
+-- The C compiler identification is GNU 7.3.0
+-- Check for working C compiler: C:/KBA/MinGW/bin/gcc.exe
+-- Check for working C compiler: C:/KBA/MinGW/bin/gcc.exe -- works
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Looking for sys/types.h
+-- Looking for sys/types.h - found
+-- Looking for stdint.h
+-- Looking for stdint.h - found
+-- Looking for stddef.h
+-- Looking for stddef.h - found
+-- Check size of off64_t
+-- Check size of off64_t - done
+-- Looking for fseeko
+-- Looking for fseeko - found
+-- Looking for unistd.h
+-- Looking for unistd.h - found
+-- Configuring done
+-- Generating done
+-- Build files have been written to: C:/KBA/GitHub/zlib/cmake-build-debug

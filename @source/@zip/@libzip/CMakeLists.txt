@@ -100,6 +100,7 @@ if(WIN32)
   endif(CMAKE_SYSTEM_NAME MATCHES WindowsPhone OR CMAKE_SYSTEM_NAME MATCHES WindowsStore)
 endif(WIN32)
 
+ADD_DEFINITIONS("-DZIP_STATIC")
 ADD_DEFINITIONS("-DHAVE_CONFIG_H")
 
 # rpath handling: use rpath in installed binaries
@@ -207,7 +208,13 @@ ELSEIF(LONG_LONG_LIBZIP EQUAL 8)
 ENDIF()
 
 # write out config file
-CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/cmake-config.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h)
-CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/cmake-zipconf.h.in ${CMAKE_CURRENT_BINARY_DIR}/zipconf.h)
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/config.h)
+  file(REMOVE ${CMAKE_CURRENT_SOURCE_DIR}/config.h)
+endif()
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/zipconf.h)
+  file(REMOVE ${CMAKE_CURRENT_SOURCE_DIR}/zipconf.h)
+endif()
+CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/cmake-config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/config.h)
+CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/cmake-zipconf.h.in ${CMAKE_CURRENT_SOURCE_DIR}/zipconf.h)
 
 

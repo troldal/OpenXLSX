@@ -12,7 +12,6 @@
 using namespace std;
 using namespace OpenXLSX;
 
-
 /**
  * @details From the two XLCellReference objects, the constructor calculates the dimensions of the range.
  * If the range exceeds the current bounds of the spreadsheet, the spreadsheet is resized to fit.
@@ -168,7 +167,8 @@ XLCellIteratorConst XLCellRange::begin() const
 }
 
 /**
- * @details Returns a XLCellGridIterator object, pointing to the last cell (bottom right) in the range.
+ * @brief 
+ * @return 
  */
 XLCellIterator XLCellRange::end()
 {
@@ -176,6 +176,10 @@ XLCellIterator XLCellRange::end()
     return XLCellIterator(*this, nullptr);
 }
 
+/**
+ * @brief 
+ * @return 
+ */
 XLCellIteratorConst XLCellRange::end() const
 {
     return XLCellIteratorConst(*this, nullptr);
@@ -190,3 +194,4 @@ void XLCellRange::Clear()
         }
     }
 }
+
