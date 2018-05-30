@@ -46,7 +46,7 @@
 #ifdef _WIN32
 #ifndef ZIP_EXTERN
 #ifndef ZIP_STATIC
-#define ZIP_EXTERN __declspec(dllexport)
+#define ZIP_EXTERN //__declspec(dllexport)
 #endif
 #endif
 /* for dup(), close(), etc. */

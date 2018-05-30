@@ -100,6 +100,7 @@ if(WIN32)
   endif(CMAKE_SYSTEM_NAME MATCHES WindowsPhone OR CMAKE_SYSTEM_NAME MATCHES WindowsStore)
 endif(WIN32)
 
+ADD_DEFINITIONS("-DZIP_STATIC")
 ADD_DEFINITIONS("-DHAVE_CONFIG_H")
 
 # rpath handling: use rpath in installed binaries

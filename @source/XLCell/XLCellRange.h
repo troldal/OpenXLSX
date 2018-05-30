@@ -181,20 +181,13 @@ namespace OpenXLSX
          * @brief Get an iterator pointing to the end of the grid (nullptr)
          * @return The iterator pointing to the end of the range.
          */
-        inline XLCellIterator end()
-        {
-            //return XLCellIterator();
-            return XLCellIterator(*this, nullptr);
-        }
+        XLCellIterator end();
 
         /**
          * @brief
          * @return
          */
-        inline XLCellIteratorConst end() const
-        {
-            return XLCellIteratorConst(*this, nullptr);
-        }
+        XLCellIteratorConst end() const;
 
         /**
          * @brief

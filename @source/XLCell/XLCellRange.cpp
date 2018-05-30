@@ -166,6 +166,25 @@ XLCellIteratorConst XLCellRange::begin() const
     return XLCellIteratorConst(*this, Cell(1, 1));
 }
 
+/**
+ * @brief 
+ * @return 
+ */
+XLCellIterator XLCellRange::end()
+{
+    //return XLCellIterator();
+    return XLCellIterator(*this, nullptr);
+}
+
+/**
+ * @brief 
+ * @return 
+ */
+XLCellIteratorConst XLCellRange::end() const
+{
+    return XLCellIteratorConst(*this, nullptr);
+}
+
 void XLCellRange::Clear()
 {
 
