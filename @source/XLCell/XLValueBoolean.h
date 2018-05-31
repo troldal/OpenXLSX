@@ -74,28 +74,7 @@ namespace OpenXLSX
          * @brief Constructor
          * @param parent A reference to the parent XLCellValue object.
          */
-        explicit XLValueBoolean(XLCellValue &parent);
-
-        /**
-         * @brief Constructor
-         * @param boolValue An XLBool object with the value used to initialize the object.
-         * @param parent A reference to the parent XLCellValue object.
-         */
-        XLValueBoolean(XLBool boolValue, XLCellValue &parent);
-
-        /**
-         * @brief Constructor
-         * @param boolValue An int with the value used to initialize the object (0 for false; otherwise true).
-         * @param parent A reference to the parent XLCellValue object.
-         */
-        XLValueBoolean(unsigned int boolValue, XLCellValue &parent);
-
-        /**
-         * @brief Constructor
-         * @param boolValue A bool withe the value used to initialize the object.
-         * @param parent A reference to the parent XLCellValue object.
-         */
-        XLValueBoolean(bool boolValue, XLCellValue &parent);
+        explicit XLValueBoolean();
 
         /**
          * @brief Copy constructor
@@ -138,13 +117,13 @@ namespace OpenXLSX
          * @brief Set the bool value
          * @param boolValue The boolean value to the the object to.
          */
-        void Set(XLBool boolValue);
+        void Set(bool boolValue);
 
         /**
          * @brief Get the value of the boolean.
          * @return An XLBool object with the value.
          */
-        XLBool Boolean() const;
+        bool Boolean() const;
 
         /**
          * @brief Get the value as a string.

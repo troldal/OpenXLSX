@@ -45,7 +45,7 @@ void XLCellValue::Initialize()
             break;
 
         case XLCellType::Boolean:
-            m_value = XLValueBoolean(*this);
+            m_value = XLValueBoolean();
             break;
 
         case XLCellType::Error:

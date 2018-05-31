@@ -71,7 +71,11 @@ namespace OpenXLSX
          * @brief Constructor
          * @param parent A reference to the parent XLCellValue object.
          */
-        explicit XLValueEmpty(XLCellValue &parent);
+        explicit XLValueEmpty(XLCellValue &parent)
+            : XLValue(parent)
+        {
+
+        }
 
         /**
          * @brief Copy constructor
@@ -113,25 +117,38 @@ namespace OpenXLSX
          * @brief Get the value type of the object.
          * @return An XLValueType object with the correct value type for the object.
          */
-        XLValueType ValueType() const override;
+        XLValueType ValueType() const override
+        {
+            return XLValueType::Empty;
+        }
 
         /**
          * @brief Get the cell type of the object.
          * @return An XLCellType object with the correct cell type for the object.
          */
-        XLCellType CellType() const override;
+        XLCellType CellType() const override
+        {
+            return XLCellType::Empty;
+        }
 
         /**
          * @brief Get the type string for the object.
          * @return A std::string with a string corresponding to the type attribute for the object.
          */
-        std::string TypeString() const override;
+        std::string TypeString() const override
+        {
+            return "";
+        }
 
         /**
          * @brief Get the value as a std::string, regardless of the type.
          * @return A std::string with the string value.
          */
-        std::string AsString() const override;
+        std::string AsString() const override
+        {
+            return "";
+        }
+
 
     };
 

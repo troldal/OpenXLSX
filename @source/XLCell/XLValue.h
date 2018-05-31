@@ -78,7 +78,7 @@ namespace OpenXLSX
          * @brief Constructor
          * @param parent A reference to the parent XLCellValue object.
          */
-        explicit XLValue(XLCellValue &parent);
+        explicit XLValue();
 
         /**
          * @brief Copy constructor
@@ -107,14 +107,14 @@ namespace OpenXLSX
          * @param other The object to be assigned from.
          * @return A reference to the current object with the new value-
          */
-        XLValue &operator=(const XLValue &other);
+        XLValue &operator=(const XLValue &other) = default;
 
         /**
          * @brief Move assignment operator.
          * @param other The object to be moved.
          * @return A reference to the object after the move.
          */
-        XLValue &operator=(XLValue &&other) noexcept;
+        XLValue &operator=(XLValue &&other) noexcept = default;
 
         /**
          * @brief Get the value type of the object.
@@ -135,36 +135,23 @@ namespace OpenXLSX
         virtual std::string TypeString() const = 0;
 
         /**
+         * @brief
+         * @return
+         */
+        virtual std::string ValueString() const final;
+
+        /**
          * @brief Produce a string with the current value, regardless of value type.
          * @return A string with the value as a string.
          */
         virtual std::string AsString() const = 0;
 
 //----------------------------------------------------------------------------------------------------------------------
-//           Protected Member Functions
-//----------------------------------------------------------------------------------------------------------------------
-
-    protected:
-
-        /**
-         * @brief Get the parent XLCellValue object.
-         * @return A reference to the parent XLCellValue object.
-         */
-        XLCellValue *ParentCellValue();
-
-        /**
-         * @brief Get the parent XLCellValue object.
-         * @return A const reference to the parent XLCellValue object.
-         */
-        const XLCellValue *ParentCellValue() const;
-
-//----------------------------------------------------------------------------------------------------------------------
 //           Private Member Variables
 //----------------------------------------------------------------------------------------------------------------------
 
     private:
-        XLCellValue *m_parentCellValue; /**<  */
-        XMLNode m_cellNode; /**<  */
+        std::string m_valueString;
 
     };
 
