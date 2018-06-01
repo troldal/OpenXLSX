@@ -72,7 +72,7 @@ namespace OpenXLSX
          * @brief
          * @param parent
          */
-        explicit XLValueError(XLCellValue &parent);
+        explicit XLValueError() : XLValue() {}
 
         /**
          * @brief
@@ -109,25 +109,37 @@ namespace OpenXLSX
          * @brief
          * @return
          */
-        XLValueType ValueType() const override;
+        XLValueType ValueType() const override
+        {
+            return XLValueType::Error;
+        }
 
         /**
          * @brief
          * @return
          */
-        XLCellType CellType() const override;
+        XLCellType CellType() const override
+        {
+            return XLCellType::Error;
+        }
 
         /**
          * @brief
          * @return
          */
-        std::string TypeString() const override;
+        std::string TypeString() const override
+        {
+            return "e";
+        }
 
         /**
          * @brief
          * @return
          */
-        std::string AsString() const override;
+        std::string AsString() const override
+        {
+            return "Error";
+        }
 
     };
 

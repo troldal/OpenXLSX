@@ -17,8 +17,7 @@ using namespace std;
  * @post A valid XLCellValue object has been constructed.
  */
 XLCellValue::XLCellValue(XLCell &parent)
-    : m_parentCell(parent),
-      m_value()
+    : m_parentCell(parent)
 {
     Initialize();
 }

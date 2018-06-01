@@ -71,11 +71,7 @@ namespace OpenXLSX
          * @brief Constructor
          * @param parent A reference to the parent XLCellValue object.
          */
-        explicit XLValueEmpty(XLCellValue &parent)
-            : XLValue(parent)
-        {
-
-        }
+        explicit XLValueEmpty() : XLValue() {}
 
         /**
          * @brief Copy constructor

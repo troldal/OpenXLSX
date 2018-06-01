@@ -345,7 +345,7 @@ namespace OpenXLSX
 
     private:
         XLCell &m_parentCell; /**< A reference to the parent XLCell object. */
-        std::variant<std::monostate, XLValueEmpty, XLValueNumber, XLValueString, XLValueBoolean, XLValueError> m_value;
+        std::variant<XLValueEmpty, XLValueNumber, XLValueString, XLValueBoolean, XLValueError> m_value;
     };
 
 //----------------------------------------------------------------------------------------------------------------------
