@@ -60,32 +60,21 @@ int main()
     str << "***********************************";
     str << " RUNNING WRITE BENCHMARKS ";
     str << "***********************************"<< endl << endl;
-/*
-    unsigned long counter  = 1000;
-    while (true) {
-        WriteTest("Hello, OpenXLSX!", counter, 1, 5, "BenchmarkString.xlsx", str);
-        //WriteTest(-42, 1000, 1000, 5, "BenchmarkInteger.xlsx", str);
-        //WriteTest(3.14159, 1000, 1000, 5, "BenchmarkFloat.xlsx", str);
-        //WriteTest(true, 1000, 1000, 5, "BenchmarkBool.xlsx", str);
-
-        counter = counter * 2;
-        if (counter > 1048576) break;
-    }*/
 
     WriteTest("Hello, OpenXLSX!", 1000, 1000, 10, "BenchmarkString.xlsx", str);
     WriteTest(-42, 1000, 1000, 10, "BenchmarkInteger.xlsx", str);
     WriteTest(3.14159, 1000, 1000, 10, "BenchmarkFloat.xlsx", str);
     WriteTest(true, 1000, 1000, 10, "BenchmarkBool.xlsx", str);
 
-    //cout << endl << endl;
-    //str << "***********************************";
-    //str << " RUNNING READ BENCHMARKS ";
-    //str << "************************************"<< endl << endl;
+    cout << endl << endl;
+    str << "***********************************";
+    str << " RUNNING READ BENCHMARKS ";
+    str << "************************************"<< endl << endl;
 
-    //ReadTest(5, "BenchmarkString.xlsx", str);
-    //ReadTest(5, "BenchmarkInteger.xlsx", str);
-    //ReadTest(5, "BenchmarkFloat.xlsx", str);
-    //ReadTest(5, "BenchmarkBool.xlsx", str);
+    ReadTest(5, "BenchmarkString.xlsx", str);
+    ReadTest(5, "BenchmarkInteger.xlsx", str);
+    ReadTest(5, "BenchmarkFloat.xlsx", str);
+    ReadTest(5, "BenchmarkBool.xlsx", str);
 
     //ostr.close();
 

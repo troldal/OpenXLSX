@@ -329,6 +329,8 @@ namespace OpenXLSX
          */
         XLNumberType DetermineNumberType(const std::string &numberString) const;
 
+        XMLNode SharedStringNode(unsigned long index) const;
+
 
 //----------------------------------------------------------------------------------------------------------------------
 //           Private Member Variables
@@ -451,7 +453,7 @@ namespace OpenXLSX
         if (std::string_view(TypeAttribute().value()) == "str") // ordinary string
             return T(ValueNode().text().get());
         if (std::string_view(TypeAttribute().value()) == "s") // shared string
-            return T(ParentCell()->ParentWorkbook()->SharedStrings()->GetStringNode(ValueNode().text().as_ullong()).text().get());
+            return T(SharedStringNode(ValueNode().text().as_ullong()).text().get());
         else throw XLException("Unknown string type");
     }
 }

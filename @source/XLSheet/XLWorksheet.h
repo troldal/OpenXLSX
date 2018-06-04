@@ -54,6 +54,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "../XLCell/XLCell.h"
 #include "../XLCell/XLCellValue.h"
 #include "../XLCell/XLCellReference.h"
+#include "../@flat/flat_map.hpp"
 
 namespace OpenXLSX
 {

@@ -378,3 +378,8 @@ XLNumberType XLCellValue::DetermineNumberType(const string &numberString) const
     if (numberString.find('.') != string::npos) return XLNumberType::Float;
     else return XLNumberType::Integer;
 }
+
+XMLNode XLCellValue::SharedStringNode(unsigned long index) const
+{
+    return ParentCell()->ParentWorkbook()->SharedStrings()->GetStringNode(index);
+}

@@ -11,4 +11,4 @@ project (OpenXLSX.All)
 
 add_subdirectory(@source)
 add_subdirectory(@benchmark)
-#add_subdirectory(@demo)
+add_subdirectory(@demo)
