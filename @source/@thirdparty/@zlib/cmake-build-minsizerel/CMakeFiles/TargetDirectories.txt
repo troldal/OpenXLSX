@@ -1,4 +1,0 @@
-C:/KBA/GitHub/zlib/cmake-build-minsizerel/CMakeFiles/zlibstatic.dir
-C:/KBA/GitHub/zlib/cmake-build-minsizerel/CMakeFiles/rebuild_cache.dir
-C:/KBA/GitHub/zlib/cmake-build-minsizerel/CMakeFiles/test.dir
-C:/KBA/GitHub/zlib/cmake-build-minsizerel/CMakeFiles/edit_cache.dir

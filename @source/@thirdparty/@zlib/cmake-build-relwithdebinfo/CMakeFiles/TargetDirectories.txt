@@ -1,4 +1,0 @@
-C:/KBA/GitHub/zlib/cmake-build-relwithdebinfo/CMakeFiles/zlibstatic.dir
-C:/KBA/GitHub/zlib/cmake-build-relwithdebinfo/CMakeFiles/rebuild_cache.dir
-C:/KBA/GitHub/zlib/cmake-build-relwithdebinfo/CMakeFiles/test.dir
-C:/KBA/GitHub/zlib/cmake-build-relwithdebinfo/CMakeFiles/edit_cache.dir

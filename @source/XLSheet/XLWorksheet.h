@@ -455,7 +455,6 @@ namespace OpenXLSX
         mutable XLCellReference m_lastCell; /**<  The last cell in the sheet (i.e. the bottom right). */
         unsigned int m_maxColumn; /**< The last column with properties set */
     };
-
 }
 
 #endif //OPENXL_XLWORKSHEET_H
