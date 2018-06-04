@@ -388,31 +388,21 @@ namespace OpenXLSX
     template<typename T, typename std::enable_if<std::is_integral<T>::value, long long int>::type *>
     void XLCellValue::Set(T numberValue)
     {
-        if constexpr (std::is_same<T, bool>::value) {
-            XLBool val;
-            if (numberValue)
-                val = XLBool::True;
-            else
-                val = XLBool::False;
+        if constexpr (std::is_same<T, bool>::value) { // if bool
+            if (ValueType() != XLValueType::Boolean)
+                m_value = XLValueBoolean();
+            ValueNode().text().set(std::get<XLValueBoolean>(m_value).Set(numberValue).c_str());
 
-            if (ValueType() == XLValueType::Boolean)
-                std::get<XLValueBoolean>(m_value).Set(val);
-            else
-                m_value = XLValueBoolean(val, *this);
-
-        } else {
+        } else { // if not bool
             if (ValueType() != XLValueType::Integer || ValueType() != XLValueType::Float)
-                m_value = XLValueNumber(*this);
-
-            std::get<XLValueNumber>(m_value).Set(static_cast<long long int>(numberValue));
+                m_value = XLValueNumber();
+            ValueNode().text().set(std::get<XLValueNumber>(m_value).Set(static_cast<long long int>(numberValue)).c_str());
         }
-
-        //ParentCell()->SetModified();
     }
 
     /**
      * @details This is a template function for all floating point-type parameters. If the current cell value is not
-     * already of integer ot floating point type (i.e. number type), set the m_value variable accordingly. Call the Set
+     * already of integer or floating point type (i.e. number type), set the m_value variable accordingly. Call the Set
      * method of the m_value member variable.
      * @pre
      * @post
@@ -421,11 +411,8 @@ namespace OpenXLSX
     void XLCellValue::Set(T numberValue)
     {
         if (ValueType() != XLValueType::Integer || ValueType() != XLValueType::Float)
-            m_value = XLValueNumber(*this);
-
-        std::get<XLValueNumber>(m_value).Set(static_cast<long double>(numberValue));
-
-        //ParentCell()->SetModified();
+            m_value = XLValueNumber();
+        ValueNode().text().set(std::get<XLValueNumber>(m_value).Set(static_cast<long double>(numberValue)).c_str());
     }
 
     /**
@@ -440,10 +427,7 @@ namespace OpenXLSX
     {
         if constexpr (std::is_same<T, bool>::value) {
             if (ValueType() != XLValueType::Boolean) throw XLException("Cell value is not Boolean");
-            if (std::get<XLValueBoolean>(m_value).Boolean() == XLBool::True)
-                return true;
-            else
-                return false;
+            return std::get<XLValueBoolean>(m_value).Get();
         } else {
             if (ValueType() != XLValueType::Integer) throw XLException("Cell value is not Integer");
             return std::get<XLValueNumber>(m_value).Integer();
@@ -475,7 +459,7 @@ namespace OpenXLSX
     T XLCellValue::Get()
     {
         if (ValueType() != XLValueType::String) throw XLException("Cell value is not String");
-        return T(std::get<XLValueString>(m_value).String().c_str());
+        return T(std::get<XLValueString>(m_value).Get().c_str());
     }
 
 }

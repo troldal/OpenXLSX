@@ -19,3 +19,8 @@ std::string XLValue::ValueString() const
 {
     return m_valueString;
 }
+
+void XLValue::SetValueString(const std::string &value)
+{
+    m_valueString = value;
+}

@@ -140,6 +140,8 @@ namespace OpenXLSX
          */
         virtual std::string ValueString() const final;
 
+        virtual void SetValueString(const std::string& value) final;
+
         /**
          * @brief Produce a string with the current value, regardless of value type.
          * @return A string with the value as a string.

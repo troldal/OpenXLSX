@@ -32,15 +32,15 @@ void XLCellValue::Initialize()
 {
     switch (CellType()) {
         case XLCellType::Empty:
-            m_value = XLValueEmpty(*this);
+            m_value = XLValueEmpty();
             break;
 
         case XLCellType::Number:
-            m_value = XLValueNumber(*this);
+            m_value = XLValueNumber();
             break;
 
         case XLCellType::String:
-            m_value = XLValueString(*this);
+            m_value = XLValueString();
             break;
 
         case XLCellType::Boolean:
@@ -48,7 +48,7 @@ void XLCellValue::Initialize()
             break;
 
         case XLCellType::Error:
-            m_value = XLValueError(*this);
+            m_value = XLValueError();
             break;
     }
 }
@@ -120,12 +120,9 @@ XLCellValue &XLCellValue::operator=(const char *stringValue)
  */
 void XLCellValue::Set(string_view stringValue)
 {
-    if (ValueType() == XLValueType::String)
-        std::get<XLValueString>(m_value).Set(stringValue);
-    else
-        m_value = XLValueString(stringValue, *this);
-
-    ParentCell()->SetModified();
+    if (ValueType() != XLValueType::String)
+        m_value = XLValueString();
+    ValueNode().text().set(std::get<XLValueString>(m_value).Set(stringValue).c_str());
 }
 
 /**
@@ -145,7 +142,7 @@ void XLCellValue::Set(const char *stringValue)
  */
 void XLCellValue::Clear()
 {
-    m_value = XLValueEmpty(*this);
+    m_value = XLValueEmpty();
     DeleteValueNode();
     DeleteTypeAttribute();
     ParentCell()->SetModified();
@@ -160,15 +157,15 @@ std::string XLCellValue::AsString() const
 {
     switch (m_value.index()) {
         case 1:
-            return std::get<1>(m_value).AsString();
+            return std::get<0>(m_value).AsString();
         case 2:
-            return std::get<2>(m_value).AsString();
+            return std::get<1>(m_value).AsString();
         case 3:
-            return std::get<3>(m_value).AsString();
+            return std::get<2>(m_value).AsString();
         case 4:
-            return std::get<4>(m_value).AsString();
+            return std::get<3>(m_value).AsString();
         case 5:
-            return std::get<5>(m_value).AsString();
+            return std::get<4>(m_value).AsString();
         default:
             return "";
     }
@@ -256,15 +253,15 @@ std::string XLCellValue::TypeString() const
 {
     switch (m_value.index()) {
         case 1:
-            return std::get<1>(m_value).TypeString();
+            return std::get<0>(m_value).TypeString();
         case 2:
-            return std::get<2>(m_value).TypeString();
+            return std::get<1>(m_value).TypeString();
         case 3:
-            return std::get<3>(m_value).TypeString();
+            return std::get<2>(m_value).TypeString();
         case 4:
-            return std::get<4>(m_value).TypeString();
+            return std::get<3>(m_value).TypeString();
         case 5:
-            return std::get<5>(m_value).TypeString();
+            return std::get<4>(m_value).TypeString();
         default:
             return "";
     }
@@ -379,6 +376,7 @@ XMLAttribute XLCellValue::CreateTypeAttribute()
  */
 XMLNode XLCellValue::ValueNode()
 {
+    if (!HasValueNode()) CreateValueNode();
     return ParentCell()->CellNode().child("v");
 }
 

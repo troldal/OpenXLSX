@@ -76,21 +76,7 @@ namespace OpenXLSX
          * @brief Constructor
          * @param parent A reference to the parent XLCellValue object.
          */
-        explicit XLValueString(XLCellValue &parent);
-
-        /**
-         * @brief Constructor
-         * @param stringValue A std::string with the string value to initialize the object with.
-         * @param parent A reference to the parent XLCellValue object.
-         */
-        explicit XLValueString(std::string_view stringValue, XLCellValue &parent);
-
-        /**
-         * @brief Constructor
-         * @param stringIndex The index of the relevant shared string.
-         * @param parent A reference to the parent XLCellValue object.
-         */
-        explicit XLValueString(unsigned long stringIndex, XLCellValue &parent);
+        explicit XLValueString();
 
         /**
          * @brief Copy constructor
@@ -119,34 +105,27 @@ namespace OpenXLSX
          * @param other The object to be copied.
          * @return A reference to the object with the new value.
          */
-        XLValueString &operator=(const XLValueString &other);
+        XLValueString &operator=(const XLValueString &other) = default;
 
         /**
          * @brief Move assignment operator
          * @param other the object to be moved
          * @return A reference to the object with the new value.
          */
-        XLValueString &operator=(XLValueString &&other) noexcept;
-
-        /**
-         * @brief Assignment operator
-         * @param str A std::string to be assigned
-         * @return A reference to the object with the new value.
-         */
-        XLValueString &operator=(const std::string &str);
+        XLValueString &operator=(XLValueString &&other) noexcept = default;
 
         /**
          * @brief Set the string value
          * @param stringValue A std::string with the new value
          * @param type The type of the string; the default is an ordinary string.
          */
-        void Set(std::string_view stringValue, XLStringType type = XLStringType::String);
+        const std::string & Set(std::string_view stringValue, XLStringType type = XLStringType::String);
 
         /**
          * @brief Get the string value as a std::string.
          * @return A std::string with the string value.
          */
-        const std::string &String() const;
+        const std::string &Get() const;
 
         /**
          * @brief Get the value as a std::string, regardless of the type. For all string types, it is identical
@@ -185,19 +164,6 @@ namespace OpenXLSX
          * @exception Throws an XLException if the type is not SharedString.
          */
         long SharedStringIndex() const;
-
-//----------------------------------------------------------------------------------------------------------------------
-//           Private Member Functions
-//----------------------------------------------------------------------------------------------------------------------
-
-    private:
-
-        /**
-         * @brief Private function used to initialize a string object.
-         * @param stringValue A std::string to initialize the object with.
-         */
-        void Initialize(std::string_view stringValue);
-
 
 
 //----------------------------------------------------------------------------------------------------------------------

@@ -129,7 +129,6 @@ set(CELL_SOURCES
         XLCell/XLCellValue.cpp
         XLCell/XLValue.cpp
         XLCell/XLValueBoolean.cpp
-        XLCell/XLValueError.cpp
         XLCell/XLValueNumber.cpp
         XLCell/XLValueString.cpp)
 

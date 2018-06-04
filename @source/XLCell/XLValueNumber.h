@@ -74,21 +74,7 @@ namespace OpenXLSX
          * @brief
          * @param parent
          */
-        explicit XLValueNumber(XLCellValue &parent);
-
-        /**
-         * @brief
-         * @param numberValue
-         * @param parent
-         */
-        XLValueNumber(long long int numberValue, XLCellValue &parent);
-
-        /**
-         * @brief
-         * @param numberValue
-         * @param parent
-         */
-        XLValueNumber(long double numberValue, XLCellValue &parent);
+        explicit XLValueNumber();
 
         /**
          * @brief
@@ -118,40 +104,26 @@ namespace OpenXLSX
          * @param other
          * @return
          */
-        XLValueNumber &operator=(const XLValueNumber &other);
+        XLValueNumber &operator=(const XLValueNumber &other) = default;
 
         /**
          * @brief
          * @param other
          * @return
          */
-        XLValueNumber &operator=(XLValueNumber &&other) noexcept;
-
-        /**
-         * @brief
-         * @param numberValue
-         * @return
-         */
-        XLValueNumber &operator=(long long int numberValue);
-
-        /**
-         * @brief
-         * @param numberValue
-         * @return
-         */
-        XLValueNumber &operator=(long double numberValue);
+        XLValueNumber &operator=(XLValueNumber &&other) noexcept = default;
 
         /**
          * @brief
          * @param numberValue
          */
-        void Set(long long int numberValue);
+        const std::string& Set(long long int numberValue);
 
         /**
          * @brief
          * @param numberValue
          */
-        void Set(long double numberValue);
+        const std::string& Set(long double numberValue);
 
         /**
          * @brief
@@ -226,8 +198,6 @@ namespace OpenXLSX
 
     private:
         XLNumberType m_numberType; /**<  */
-        long long int m_integer;
-        long double m_float;
     };
 
 }

@@ -117,13 +117,13 @@ namespace OpenXLSX
          * @brief Set the bool value
          * @param boolValue The boolean value to the the object to.
          */
-        void Set(bool boolValue);
+        const std::string& Set(bool boolValue);
 
         /**
          * @brief Get the value of the boolean.
          * @return An XLBool object with the value.
          */
-        bool Boolean() const;
+        bool Get() const;
 
         /**
          * @brief Get the value as a string.
