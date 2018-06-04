@@ -37,8 +37,8 @@ IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
     #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Weffc++")
     #set(CMAKE_VERBOSE_MAKEFILE ON)
 ELSEIF(CMAKE_BUILD_TYPE STREQUAL "Release")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -flto")
+    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -flto")
     IF (MINGW)
         #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-use-linker-plugin")
         #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fwhole-program")
@@ -111,13 +111,7 @@ set(CELL_HEADERS
         XLCell/XLCellRange.h
         XLCell/XLCellReference.h
         XLCell/XLCellType.h
-        XLCell/XLCellValue.h
-        XLCell/XLValue.h
-        XLCell/XLValueBoolean.h
-        XLCell/XLValueEmpty.h
-        XLCell/XLValueError.h
-        XLCell/XLValueNumber.h
-        XLCell/XLValueString.h)
+        XLCell/XLCellValue.h)
 
 set(CELL_SOURCES
         XLCell/XLCell.cpp
@@ -126,11 +120,7 @@ set(CELL_SOURCES
         XLCell/XLCellIterator.cpp
         XLCell/XLCellRange.cpp
         XLCell/XLCellReference.cpp
-        XLCell/XLCellValue.cpp
-        XLCell/XLValue.cpp
-        XLCell/XLValueBoolean.cpp
-        XLCell/XLValueNumber.cpp
-        XLCell/XLValueString.cpp)
+        XLCell/XLCellValue.cpp)
 
 set(OPENXLSX_HEADERS
         ${WORKBOOK_HEADERS}

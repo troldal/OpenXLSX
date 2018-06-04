@@ -73,6 +73,9 @@ int main()
     }*/
 
     WriteTest("Hello, OpenXLSX!", 1000, 1000, 10, "BenchmarkString.xlsx", str);
+    WriteTest(-42, 1000, 1000, 10, "BenchmarkInteger.xlsx", str);
+    WriteTest(3.14159, 1000, 1000, 10, "BenchmarkFloat.xlsx", str);
+    WriteTest(true, 1000, 1000, 10, "BenchmarkBool.xlsx", str);
 
     //cout << endl << endl;
     //str << "***********************************";

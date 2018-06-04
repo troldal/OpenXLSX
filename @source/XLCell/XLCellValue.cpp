@@ -2,6 +2,7 @@
 // Created by KBA012 on 16-12-2017.
 //
 
+#include "XLCell.h"
 #include "XLCellValue.h"
 #include "../XLWorkbook/XLException.h"
 #include "../XLSheet/XLWorksheet.h"
@@ -19,38 +20,6 @@ using namespace std;
 XLCellValue::XLCellValue(XLCell &parent)
     : m_parentCell(parent)
 {
-    Initialize();
-}
-
-/**
- * @details Initializes the object, by creating the right value object, based on the cell type, which is ascertained
- * based on the content of the underlying XML file.
- * @pre The parent XLCell object is valid and has a corresponding node in the underlying XML file.
- * @post The object has been initialized with the correct value type.
- */
-void XLCellValue::Initialize()
-{
-    switch (CellType()) {
-        case XLCellType::Empty:
-            m_value = XLValueEmpty();
-            break;
-
-        case XLCellType::Number:
-            m_value = XLValueNumber();
-            break;
-
-        case XLCellType::String:
-            m_value = XLValueString();
-            break;
-
-        case XLCellType::Boolean:
-            m_value = XLValueBoolean();
-            break;
-
-        case XLCellType::Error:
-            m_value = XLValueError();
-            break;
-    }
 }
 
 /**
@@ -62,11 +31,9 @@ void XLCellValue::Initialize()
  */
 XLCellValue &XLCellValue::operator=(const XLCellValue &other)
 {
-    SetValueNode(!other.ValueNode() ? "" : other.ValueNode().value());
-    SetTypeAttribute(other.TypeString());
+    SetValueNode(!other.ValueNode() ? "" : other.ValueNode().text().get());
+    SetTypeAttribute(!other.TypeAttribute() ? "" : other.TypeAttribute().value());
 
-    Initialize();
-    ParentCell()->SetModified();
     return *this;
 }
 
@@ -80,16 +47,14 @@ XLCellValue &XLCellValue::operator=(const XLCellValue &other)
  */
 XLCellValue &XLCellValue::operator=(XLCellValue &&other) noexcept
 {
-    SetValueNode(!other.ValueNode() ? "" : other.ValueNode().value());
-    SetTypeAttribute(other.TypeString());
+    SetValueNode(!other.ValueNode() ? "" : other.ValueNode().text().get());
+    SetTypeAttribute(!other.TypeAttribute() ? "" : other.TypeAttribute().value());
 
-    Initialize();
-    ParentCell()->SetModified();
     return *this;
 }
 
 /**
- * @details The assignment operator taking a std::tring object as a parameter, calls the corresponding Set method
+ * @details The assignment operator taking a std::string object as a parameter, calls the corresponding Set method
  * and returns the resulting object.
  * @pre
  * @post
@@ -118,11 +83,10 @@ XLCellValue &XLCellValue::operator=(const char *stringValue)
  * @pre
  * @post
  */
-void XLCellValue::Set(string_view stringValue)
+void XLCellValue::Set(const string &stringValue)
 {
-    if (ValueType() != XLValueType::String)
-        m_value = XLValueString();
-    ValueNode().text().set(std::get<XLValueString>(m_value).Set(stringValue).c_str());
+    TypeAttribute().set_value("str");
+    ValueNode().text().set(stringValue.c_str());
 }
 
 /**
@@ -132,7 +96,7 @@ void XLCellValue::Set(string_view stringValue)
  */
 void XLCellValue::Set(const char *stringValue)
 {
-    Set(std::string_view(stringValue));
+    Set(std::string(stringValue));
 }
 
 /**
@@ -142,10 +106,8 @@ void XLCellValue::Set(const char *stringValue)
  */
 void XLCellValue::Clear()
 {
-    m_value = XLValueEmpty();
     DeleteValueNode();
     DeleteTypeAttribute();
-    ParentCell()->SetModified();
 }
 
 /**
@@ -155,20 +117,17 @@ void XLCellValue::Clear()
  */
 std::string XLCellValue::AsString() const
 {
-    switch (m_value.index()) {
-        case 1:
-            return std::get<0>(m_value).AsString();
-        case 2:
-            return std::get<1>(m_value).AsString();
-        case 3:
-            return std::get<2>(m_value).AsString();
-        case 4:
-            return std::get<3>(m_value).AsString();
-        case 5:
-            return std::get<4>(m_value).AsString();
-        default:
-            return "";
+    if (string_view(TypeAttribute().value()) == "b") {
+        if (string_view(ValueNode().text().get()) == "0")
+            return "FALSE";
+        else
+            return "TRUE";
     }
+    else if (string_view(TypeAttribute().value()) == "s")
+        return string(ParentCell()->ParentWorkbook()->SharedStrings()->GetStringNode(ValueNode().text().as_ullong()).text().get());
+
+    else
+        return ValueNode().text().get();
 }
 
 /**
@@ -186,7 +145,7 @@ XLValueType XLCellValue::ValueType() const
             return XLValueType::Error;
 
         case XLCellType::Number: {
-            if (std::get<XLValueNumber>(m_value).NumberType() == XLNumberType::Integer)
+            if (DetermineNumberType(ValueNode().text().get()) == XLNumberType::Integer)
                 return XLValueType::Integer;
             else
                 return XLValueType::Float;
@@ -245,29 +204,6 @@ XLCellType XLCellValue::CellType() const
 }
 
 /**
- * @details Returns the type string by calling the TypeString method of the m_value member variable.
- * @pre The m_value member variable is valid.
- * @post The current object, and any associated objects, are unchanged.
- */
-std::string XLCellValue::TypeString() const
-{
-    switch (m_value.index()) {
-        case 1:
-            return std::get<0>(m_value).TypeString();
-        case 2:
-            return std::get<1>(m_value).TypeString();
-        case 3:
-            return std::get<2>(m_value).TypeString();
-        case 4:
-            return std::get<3>(m_value).TypeString();
-        case 5:
-            return std::get<4>(m_value).TypeString();
-        default:
-            return "";
-    }
-}
-
-/**
  * @details Returns the value of the m_parentCell member variable.
  * @pre The parent XLCell object is valid.
  * @post The current object, and any associated objects, are unchanged.
@@ -296,13 +232,8 @@ const XLCell *XLCellValue::ParentCell() const
  */
 void XLCellValue::SetValueNode(string_view value)
 {
-    if (value.empty()) {
-        Clear();
-    }
-    else {
-        CreateValueNode();
-        ValueNode().text().set(string(value).c_str());
-    }
+    if (value.empty()) Clear();
+    else ValueNode().text().set(string(value).c_str());
 }
 
 /**
@@ -323,7 +254,8 @@ void XLCellValue::DeleteValueNode()
  */
 XMLNode XLCellValue::CreateValueNode()
 {
-    if (!HasValueNode()) ParentCell()->CreateValueNode();
+    if (!HasValueNode())
+        ParentCell()->CreateValueNode();
     return ValueNode();
 }
 
@@ -337,10 +269,8 @@ void XLCellValue::SetTypeAttribute(const std::string &typeString)
 {
     if (typeString.empty())
         DeleteTypeAttribute();
-    else {
-        CreateTypeAttribute();
-        ParentCell()->CellNode().attribute("t").set_value(typeString.c_str());
-    }
+    else
+        TypeAttribute().set_value(typeString.c_str());
 }
 
 /**
@@ -412,6 +342,7 @@ bool XLCellValue::HasValueNode() const
  */
 XMLAttribute XLCellValue::TypeAttribute()
 {
+    if (!HasTypeAttribute()) CreateTypeAttribute();
     return ParentCell()->CellNode().attribute("t");
 }
 
@@ -439,3 +370,11 @@ bool XLCellValue::HasTypeAttribute() const
         return true;
 }
 
+/**
+ * @details
+ */
+XLNumberType XLCellValue::DetermineNumberType(const string &numberString) const
+{
+    if (numberString.find('.') != string::npos) return XLNumberType::Float;
+    else return XLNumberType::Integer;
+}
