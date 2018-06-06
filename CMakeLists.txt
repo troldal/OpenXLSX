@@ -9,6 +9,6 @@ project (OpenXLSX.All)
 
 #find_package(libzip REQUIRED)
 
-add_subdirectory(@source)
+add_subdirectory(@library)
 add_subdirectory(@benchmark)
 add_subdirectory(@demo)
