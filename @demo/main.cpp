@@ -70,9 +70,9 @@ void myTest()
     *wks->Cell("C1")->Value() = "Hello OpenXLSX!";
     *wks->Cell("D1")->Value() = true;
 
-    auto A1 = wks->Cell("A1")->Value()->Get<long double>();
+    auto A1 = wks->Cell("A1")->Value()->Get<double>();
     auto B1 = wks->Cell("B1")->Value()->Get<unsigned int>();
-    auto C1 = wks->Cell("C1")->Value()->Get<std::string_view>();
+    auto C1 = wks->Cell("C1")->Value()->Get<std::string>();
     auto D1 = wks->Cell("D1")->Value()->Get<bool>();
 
     cout << "Cell A1: " << A1 << endl;

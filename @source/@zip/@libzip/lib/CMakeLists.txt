@@ -158,6 +158,8 @@ SET(LIBZIP_SOURCES
   zip_unchange_archive.c
   zip_unchange_data.c
   zip_utf-8.c
+        ../config.h
+        ../zipconf.h
 )
 
 IF(WIN32)

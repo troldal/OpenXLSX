@@ -94,7 +94,8 @@ set(ZLIB_PRIVATE_HDRS
     inflate.h
     inftrees.h
     trees.h
-    zutil.h)
+    zutil.h
+    zconf.h)
 
 set(ZLIB_SRCS
     adler32.c

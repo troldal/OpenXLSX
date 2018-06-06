@@ -51,7 +51,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 #include <string>
 #include <string_view>
-#include <variant>
 
 namespace OpenXLSX
 {
@@ -338,7 +337,6 @@ namespace OpenXLSX
 
     private:
         XLCell &m_parentCell; /**< A reference to the parent XLCell object. */
-        //std::variant<XLValueEmpty, XLValueNumber, XLValueString, XLValueBoolean, XLValueError> m_value;
     };
 
 //----------------------------------------------------------------------------------------------------------------------
