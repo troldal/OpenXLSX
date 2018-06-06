@@ -72,9 +72,6 @@ namespace OpenXLSX
     {
         friend class XLRow;
         friend class XLCellValue;
-        friend class XLValue;
-        friend class XLValueNumber;
-        friend class XLValueString;
 
 //----------------------------------------------------------------------------------------------------------------------
 //           Public Member Functions

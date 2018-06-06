@@ -154,12 +154,8 @@ XMLNode XLRow::RowNode() const
  */
 XLCell *XLRow::Cell(unsigned int column)
 {
-
-    //XLCell *result = nullptr;
-
     // If the requested Column number is higher than the number of Columns in the current Row,
     // create a new Cell node, append it to the Row node, resize the m_cells vector, and insert the new node.
-    //if (column > CellCount()) {
     if (auto result = m_cells.lower_bound(column - 1); result == m_cells.end()) {
         // Create the new Cell node
         auto cellNode = m_rowNode.append_child("c");
@@ -174,10 +170,6 @@ XLCell *XLRow::Cell(unsigned int column)
     } else if ((*result).second->CellReference()->Column() != column){
 
         // Find the next Cell node and insert the new node at that position.
-        //auto cell = m_cells.upper_bound(column - 1)->second.get();
-        //auto index = column - 1;
-        //while (cell == nullptr && index < m_cells.size()) cell = m_cells.at(index++).get();
-
         auto cellNode = m_rowNode.insert_child_before("c", (*result).second->CellNode());
         cellNode.append_attribute("r") = XLCellReference(m_rowNumber, column).Address().c_str();
         m_cells.emplace(column - 1, XLCell::CreateCell(m_parentWorksheet, cellNode));
