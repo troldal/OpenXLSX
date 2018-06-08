@@ -57,80 +57,62 @@ set(PROJECT_DESCRIPTION "A library for reading, writing and modifying Excel spre
 #=======================================================================================================================
 # Find project files
 #=======================================================================================================================
-set(WORKBOOK_HEADERS
-        XLWorkbook/XLAbstractXMLFile.h
-        XLWorkbook/XLAppProperties.h
-        XLWorkbook/XLColor.h
-        XLWorkbook/XLContentTypes.h
-        XLWorkbook/XLCoreProperties.h
-        XLWorkbook/XLDocument.h
-        XLWorkbook/XLException.h
-        XLWorkbook/XLFont.h
-        XLWorkbook/XLRelationships.h
-        XLWorkbook/XLSharedStrings.h
-        XLWorkbook/XLSpreadsheetElement.h
-        XLWorkbook/XLStyles.h
-        XLWorkbook/XLTokenizer.h
-        XLWorkbook/XLWorkbook.h)
-
-set(WORKBOOK_SOURCES
-        XLWorkbook/XLAbstractXMLFile.cpp
-        XLWorkbook/XLAppProperties.cpp
-        XLWorkbook/XLColor.cpp
-        XLWorkbook/XLContentTypes.cpp
-        XLWorkbook/XLCoreProperties.cpp
-        XLWorkbook/XLDocument.cpp
-        XLWorkbook/XLFont.cpp
-        XLWorkbook/XLRelationships.cpp
-        XLWorkbook/XLSharedStrings.cpp
-        XLWorkbook/XLSpreadsheetElement.cpp
-        XLWorkbook/XLStyles.cpp
-        XLWorkbook/XLTokenizer.cpp
-        XLWorkbook/XLWorkbook.cpp)
-
-set(SHEET_HEADERS
-        XLSheet/XLChartsheet.h
-        XLSheet/XLColumn.h
-        XLSheet/XLRow.h
-        XLSheet/XLSheet.h
-        XLSheet/XLTemplate.h
-        XLSheet/XLWorksheet.h)
-
-set(SHEET_SOURCES
-        XLSheet/XLChartsheet.cpp
-        XLSheet/XLColumn.cpp
-        XLSheet/XLRow.cpp
-        XLSheet/XLSheet.cpp
-        XLSheet/XLWorksheet.cpp)
-
-set(CELL_HEADERS
-        XLCell/XLCell.h
-        XLCell/XLCellFormats.h
-        XLCell/XLCellFormula.h
-        XLCell/XLCellIterator.h
-        XLCell/XLCellRange.h
-        XLCell/XLCellReference.h
-        XLCell/XLCellType.h
-        XLCell/XLCellValue.h)
-
-set(CELL_SOURCES
-        XLCell/XLCell.cpp
-        XLCell/XLCellFormats.cpp
-        XLCell/XLCellFormula.cpp
-        XLCell/XLCellIterator.cpp
-        XLCell/XLCellRange.cpp
-        XLCell/XLCellReference.cpp
-        XLCell/XLCellValue.cpp)
-
 set(OPENXLSX_HEADERS
-        ${WORKBOOK_HEADERS}
-        ${SHEET_HEADERS}
-        ${CELL_HEADERS})
+        headers/XLAbstractXMLFile.h
+        headers/XLAppProperties.h
+        headers/XLColor.h
+        headers/XLContentTypes.h
+        headers/XLCoreProperties.h
+        headers/XLDocument.h
+        headers/XLException.h
+        headers/XLFont.h
+        headers/XLRelationships.h
+        headers/XLSharedStrings.h
+        headers/XLSpreadsheetElement.h
+        headers/XLStyles.h
+        headers/XLTokenizer.h
+        headers/XLWorkbook.h
+        headers/XLChartsheet.h
+        headers/XLColumn.h
+        headers/XLRow.h
+        headers/XLSheet.h
+        headers/XLTemplate.h
+        headers/XLWorksheet.h
+        headers/XLCell.h
+        headers/XLCellFormats.h
+        headers/XLCellFormula.h
+        headers/XLCellIterator.h
+        headers/XLCellRange.h
+        headers/XLCellReference.h
+        headers/XLCellType.h
+        headers/XLCellValue.h)
 
 set(OPENXLSX_SOURCES
-        ${WORKBOOK_SOURCES}
-        ${SHEET_SOURCES}
-        ${CELL_SOURCES})
+        sources/XLAbstractXMLFile.cpp
+        sources/XLAppProperties.cpp
+        sources/XLColor.cpp
+        sources/XLContentTypes.cpp
+        sources/XLCoreProperties.cpp
+        sources/XLDocument.cpp
+        sources/XLFont.cpp
+        sources/XLRelationships.cpp
+        sources/XLSharedStrings.cpp
+        sources/XLSpreadsheetElement.cpp
+        sources/XLStyles.cpp
+        sources/XLTokenizer.cpp
+        sources/XLWorkbook.cpp
+        sources/XLChartsheet.cpp
+        sources/XLColumn.cpp
+        sources/XLRow.cpp
+        sources/XLSheet.cpp
+        sources/XLWorksheet.cpp
+        sources/XLCell.cpp
+        sources/XLCellFormats.cpp
+        sources/XLCellFormula.cpp
+        sources/XLCellIterator.cpp
+        sources/XLCellRange.cpp
+        sources/XLCellReference.cpp
+        sources/XLCellValue.cpp)
 
 #=======================================================================================================================
 # Build OpenXLSX library

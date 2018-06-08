@@ -2,10 +2,10 @@
 #include <chrono>
 #include <iomanip>
 //#include "../@library/OpenXLSX.h"
-#include "../@library/XLWorkbook/XLDocument.h"
-#include "../@library/XLSheet/XLWorksheet.h"
-#include "../@library/XLCell/XLCellRange.h"
-#include "../@library/XLCell/XLCellReference.h"
+#include "../@library/headers/XLDocument.h"
+#include "../@library/headers/XLWorksheet.h"
+#include "../@library/headers/XLCellRange.h"
+#include "../@library/headers/XLCellReference.h"
 
 using namespace std;
 using namespace OpenXLSX;
