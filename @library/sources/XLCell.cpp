@@ -39,6 +39,17 @@ XLCell::XLCell(XLWorksheet &parent, XMLNode cellNode)
 {
 }
 
+XLCell::XLCell(const XLCell &other) : XLSpreadsheetElement(other),
+                                      m_parentDocument(other.m_parentDocument),
+                                      m_parentWorkbook(other.m_parentWorkbook),
+                                      m_parentWorksheet(other.m_parentWorksheet),
+                                      m_cellReference(other.m_cellReference),
+                                      m_cellNode(other.m_cellNode),
+                                      m_value(*this)
+{
+
+}
+
 /**
  * @details This methods copies a range into a new location, with the top left cell being located in the target cell.
  * The copying is done in the following way:

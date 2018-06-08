@@ -53,7 +53,7 @@ XLRow::XLRow(XLWorksheet &parent,
         for (auto &currentCell : rowNode.children()) {
             XLCellReference cellRef(currentCell.attribute("r").value());
             Resize(cellRef.Column());
-            m_cells.insert_or_assign(cellRef.Column() - 1, XLCell(m_parentWorksheet, currentCell));
+            m_cells.emplace(cellRef.Column() - 1, XLCell::CreateCell(m_parentWorksheet, currentCell));
         }
     }
 }
@@ -163,19 +163,19 @@ XLCell *XLRow::Cell(unsigned int column)
 
         // Append the Cell node to the Row node, and create a new XLCell node and insert it in the m_cells vector.
         m_rowNode.attribute("spans") = string("1:" + to_string(column)).c_str();
-        m_cells.emplace(column - 1, XLCell(m_parentWorksheet, cellNode));
+        m_cells.emplace(column - 1, XLCell::CreateCell(m_parentWorksheet, cellNode));
 
         // If the requested Column number is lower than the number of Columns in the current Row,
         // but the Cell does not exist, create a new node and insert it at the rigth position.
-    } else if ((*result).second.CellReference()->Column() != column){
+    } else if ((*result).second->CellReference()->Column() != column){
 
         // Find the next Cell node and insert the new node at that position.
-        auto cellNode = m_rowNode.insert_child_before("c", (*result).second.CellNode());
+        auto cellNode = m_rowNode.insert_child_before("c", (*result).second->CellNode());
         cellNode.append_attribute("r") = XLCellReference(m_rowNumber, column).Address().c_str();
-        m_cells.emplace(column - 1, XLCell(m_parentWorksheet, cellNode));
+        m_cells.emplace(column - 1, XLCell::CreateCell(m_parentWorksheet, cellNode));
     }
 
-    return &m_cells.at(column - 1);
+    return m_cells.at(column - 1).get();
 }
 
 /**
@@ -188,7 +188,7 @@ const XLCell *XLRow::Cell(unsigned int column) const
         throw XLException("Cell does not exist!");
     }
     else {
-        return &m_cells.at(column - 1);
+        return m_cells.at(column - 1).get();
     }
 }
 

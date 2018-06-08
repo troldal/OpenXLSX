@@ -96,14 +96,14 @@ namespace OpenXLSX
          * @param other
          * @return
          */
-        XLSpreadsheetElement &operator=(const XLSpreadsheetElement &other) = delete;
+        XLSpreadsheetElement &operator=(const XLSpreadsheetElement &other) = default;
 
         /**
          * @brief
          * @param other
          * @return
          */
-        XLSpreadsheetElement &operator=(XLSpreadsheetElement &&other) = delete;
+        XLSpreadsheetElement &operator=(XLSpreadsheetElement &&other) = default;
 
         /**
          * @brief

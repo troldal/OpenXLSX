@@ -85,7 +85,7 @@ namespace OpenXLSX
          * @note The copy constructor has been deleted, as it makes no sense to copy a cell. If the objective is to
          * copy the value, create the the target object and then use the copy assignment operator.
          */
-        XLCell(const XLCell &other) = default;
+        XLCell(const XLCell &other);
 
         /**
          * @brief Move constructor
