@@ -122,7 +122,7 @@ unsigned long WriteTest(T value,
         auto wks = doc.Workbook()->Worksheet("Sheet1");
         auto arange = wks->Range(XLCellReference("A1"), XLCellReference(rows, columns));
         for (auto &iter : arange) {
-            iter.Value()->Set(value);
+            iter.Value().Set(value);
         }
         auto endWrite = chrono::steady_clock::now();
 
@@ -178,7 +178,7 @@ unsigned long ReadTest(int repetitions, const std::string &fileName, ostream &de
     auto cols = doc.Workbook()->Worksheet("Sheet1")->ColumnCount();
     stringstream ss;
     ss << "Reading \""
-        << doc.Workbook()->Worksheet("Sheet1")->Cell("A1")->Value()->AsString()
+        << doc.Workbook()->Worksheet("Sheet1")->Cell("A1")->Value().AsString()
         << "\" from "
         << to_string(rows)
         << " x "
@@ -209,21 +209,21 @@ unsigned long ReadTest(int repetitions, const std::string &fileName, ostream &de
         bool boolVal;
         auto arange = wks->Range(XLCellReference("A1"), XLCellReference(rows, cols));
         for (auto &iter : arange) {
-            switch(iter.Value()->ValueType()) {
+            switch(iter.Value().ValueType()) {
                 case XLValueType::Integer :
-                    intVal = iter.Value()->Get<int>();
+                    intVal = iter.Value().Get<int>();
                     break;
 
                 case XLValueType::Float :
-                    doubleVal = iter.Value()->Get<double>();
+                    doubleVal = iter.Value().Get<double>();
                     break;
 
                 case XLValueType::String :
-                    stringVal = iter.Value()->Get<std::string>();
+                    stringVal = iter.Value().Get<std::string>();
                     break;
 
                 case XLValueType::Boolean :
-                    boolVal = iter.Value()->Get<bool>();
+                    boolVal = iter.Value().Get<bool>();
                     break;
 
                 default:

@@ -2221,14 +2221,14 @@ could generate this report:
           "classname": "",
           "failures": [
             {
-              "message": "Value of: add(1, 1)\x0A  Actual: 3\x0AExpected: 2",
+              "message": VValue
               "type": ""
             },
             {
-              "message": "Value of: add(1, -1)\x0A  Actual: 1\x0AExpected: 0",
+              "message": Value,
               "type": ""
             }
-          ]
+ Value    ]
         },
         {
           "name": "Subtraction",

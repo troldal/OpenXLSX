@@ -85,14 +85,14 @@ namespace OpenXLSX
          * @note The copy constructor has been deleted, as it makes no sense to copy a cell. If the objective is to
          * copy the value, create the the target object and then use the copy assignment operator.
          */
-        XLCell(const XLCell &other);
+        XLCell(const XLCell &other) = delete;
 
         /**
          * @brief Move constructor
          * @param other The XLCell object to be moved
          * @note The move constructor has been deleted, as it makes no sense to move a cell.
          */
-        XLCell(XLCell &&other) = default;
+        XLCell(XLCell &&other) = delete;
 
         /**
          * @brief Destructor
@@ -130,13 +130,13 @@ namespace OpenXLSX
          * @brief Get a reference to the XLCellValue object for the cell.
          * @return A reference to an XLCellValue object.
          */
-        XLCellValue *Value();
+        XLCellValue &Value();
 
         /**
          * @brief Get a const reference to the XLCellValue object for the cell.
          * @return A const reference to an XLCellValue object.
          */
-        const XLCellValue *Value() const;
+        const XLCellValue &Value() const;
 
         /**
          * @brief Set the cell to a 'dirty' state, i.e. the worksheet needs to be saved.

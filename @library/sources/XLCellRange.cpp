@@ -71,10 +71,10 @@ XLCellRange &XLCellRange::operator=(const XLCellRange &other)
     for (unsigned long r = 1; r <= NumRows(); ++r) {
         for (unsigned int c = 1; c <= NumColumns(); ++c) {
             if (other.Cell(r, c) == nullptr) {
-                Cell(r, c)->Value()->Clear();
+                Cell(r, c)->Value().Clear();
             }
             else {
-                *Cell(r, c)->Value() = *other.Cell(r, c)->Value();
+                Cell(r, c)->Value() = other.Cell(r, c)->Value();
             }
         }
     }
@@ -190,7 +190,7 @@ void XLCellRange::Clear()
 
     for (unsigned long row = 1; row <= m_rows; row++) {
         for (unsigned int column = 1; column <= m_columns; column++) {
-            Cell(row, column)->Value()->Clear();
+            Cell(row, column)->Value().Clear();
         }
     }
 }

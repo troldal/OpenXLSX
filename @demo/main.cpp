@@ -65,15 +65,15 @@ void myTest()
     doc.CreateDocument("./MyTest.xlsx");
     auto wks = doc.Workbook()->Worksheet("Sheet1");
 
-    *wks->Cell("A1")->Value() = 3.14159;
-    *wks->Cell("B1")->Value() = 42;
-    *wks->Cell("C1")->Value() = "Hello OpenXLSX!";
-    *wks->Cell("D1")->Value() = true;
+    wks->Cell("A1")->Value() = 3.14159;
+    wks->Cell("B1")->Value() = 42;
+    wks->Cell("C1")->Value() = "Hello OpenXLSX!";
+    wks->Cell("D1")->Value() = true;
 
-    auto A1 = wks->Cell("A1")->Value()->Get<double>();
-    auto B1 = wks->Cell("B1")->Value()->Get<unsigned int>();
-    auto C1 = wks->Cell("C1")->Value()->Get<std::string>();
-    auto D1 = wks->Cell("D1")->Value()->Get<bool>();
+    auto A1 = wks->Cell("A1")->Value().Get<double>();
+    auto B1 = wks->Cell("B1")->Value().Get<unsigned int>();
+    auto C1 = wks->Cell("C1")->Value().Get<std::string>();
+    auto D1 = wks->Cell("D1")->Value().Get<bool>();
 
     cout << "Cell A1: " << A1 << endl;
     cout << "Cell B1: " << B1 << endl;
@@ -91,32 +91,32 @@ void simpleTest() {
     auto wks1 = doc.Workbook()->Worksheet("Floats");
     auto cl = wks1->Cell("A1");
     auto val = cl->Value();
-    val->Set(3.14159);
+    val.Set(3.14159);
     doc.SaveDocument();
     auto arange1 = wks1->Range(XLCellReference(1,1), XLCellReference(100,100));
     for (auto &iter : arange1) {
-        iter.Value()->Set(-3.14159);
+        iter.Value().Set(-3.14159);
     }
 
     doc.Workbook()->AddWorksheet("Integers");
     auto wks2 = doc.Workbook()->Worksheet("Integers");
     auto arange2 = wks2->Range(XLCellReference(1,1), XLCellReference(100,100));
     for (auto &iter : arange2) {
-        iter.Value()->Set(-42);
+        iter.Value().Set(-42);
     }
 
     doc.Workbook()->AddWorksheet("Text");
     auto wks3 = doc.Workbook()->Worksheet("Text");
     auto arange3 = wks3->Range(XLCellReference(1,1), XLCellReference(100,100));
     for (auto &iter : arange3) {
-        iter.Value()->Set("Hello OpenXLSX!");
+        iter.Value().Set("Hello OpenXLSX!");
     }
 
     doc.Workbook()->AddWorksheet("Booleans");
     auto wks4 = doc.Workbook()->Worksheet("Booleans");
     auto arange4 = wks4->Range(XLCellReference(1,1), XLCellReference(100,100));
     for (auto &iter : arange4) {
-        iter.Value()->Set(true);
+        iter.Value().Set(true);
     }
 
     doc.SaveDocument();
@@ -129,10 +129,10 @@ void simpleTest() {
     XLDocument rdoc;
     rdoc.OpenDocument("./Spreadsheet.xlsx");
 
-    cout << "Content of worksheet 'Floats', cell B2: " << rdoc.Workbook()->Worksheet("Floats")->Cell("B2")->Value()->AsString() << endl;
-    cout << "Content of worksheet 'Integers', cell B2: " << rdoc.Workbook()->Worksheet("Integers")->Cell("B2")->Value()->AsString() << endl;
-    cout << "Content of worksheet 'Text', cell B2: " << rdoc.Workbook()->Worksheet("Text")->Cell("B2")->Value()->AsString() << endl;
-    cout << "Content of worksheet 'Booleans', cell B2: " << rdoc.Workbook()->Worksheet("Booleans")->Cell("B2")->Value()->AsString() << endl;
+    cout << "Content of worksheet 'Floats', cell B2: " << rdoc.Workbook()->Worksheet("Floats")->Cell("B2")->Value().AsString() << endl;
+    cout << "Content of worksheet 'Integers', cell B2: " << rdoc.Workbook()->Worksheet("Integers")->Cell("B2")->Value().AsString() << endl;
+    cout << "Content of worksheet 'Text', cell B2: " << rdoc.Workbook()->Worksheet("Text")->Cell("B2")->Value().AsString() << endl;
+    cout << "Content of worksheet 'Booleans', cell B2: " << rdoc.Workbook()->Worksheet("Booleans")->Cell("B2")->Value().AsString() << endl;
 
     rdoc.Workbook()->Worksheet("Integers")->Export("./Integers.csv");
     rdoc.Workbook()->Worksheet("Floats")->Export("./Floats.csv");
@@ -191,13 +191,13 @@ void speedTest() {
         OpenXLSX::XLDocument doc;
         doc.CreateDocument("SpeedTest.xlsx");
         auto wks = doc.Workbook()->Worksheet("Sheet1");
-        wks->Cell(1000, 1000)->Value()->Set(1);
+        wks->Cell(1000, 1000)->Value().Set(1);
 
         auto start = chrono::steady_clock::now();
 
         auto arange = wks->Range();
         for (auto &iter : arange) {
-            iter.Value()->Set("Hello OpenXLSX!");
+            iter.Value().Set("Hello OpenXLSX!");
         }
 
         auto end = chrono::steady_clock::now();

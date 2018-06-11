@@ -206,7 +206,7 @@ XLCellRange XLWorksheet::Range(const XLCellReference &topLeft,
                                const XLCellReference &bottomRight)
 {
     // Set the last Cell to some value, in order to create all objects in Range.
-    if (Cell(bottomRight)->ValueType() == XLValueType::Empty) Cell(bottomRight)->Value()->Clear();
+    if (Cell(bottomRight)->ValueType() == XLValueType::Empty) Cell(bottomRight)->Value().Clear();
 
     return XLCellRange(*this, topLeft, bottomRight);
 }
@@ -579,7 +579,7 @@ void XLWorksheet::Export(const std::string &fileName, char decimal, char delimit
 
     for (unsigned long row = 1; row <= RowCount(); ++row) {
         for (unsigned int column = 1; column <= ColumnCount(); ++column) {
-            token = Cell(row, column)->Value()->AsString();
+            token = Cell(row, column)->Value().AsString();
             replace(token.begin(), token.end(), oldDecimal, decimal);
             file << token << delimiter;
         }
@@ -602,12 +602,12 @@ void XLWorksheet::Import(const std::string &fileName, const string &delimiter)
         tokenizer.SetString(line);
         unsigned int column = 1;
         for (auto &iter : tokenizer.Split()) {
-            if (iter.IsInteger()) Cell(row, column)->Value()->Set(iter.AsInteger());
-            if (iter.IsFloat()) Cell(row, column)->Value()->Set(iter.AsFloat());
-            if (iter.IsString()) Cell(row, column)->Value()->Set(iter.AsString());
+            if (iter.IsInteger()) Cell(row, column)->Value().Set(iter.AsInteger());
+            if (iter.IsFloat()) Cell(row, column)->Value().Set(iter.AsFloat());
+            if (iter.IsString()) Cell(row, column)->Value().Set(iter.AsString());
             if (iter.IsBoolean()) {
-                if (iter.AsBoolean() == true) Cell(row, column)->Value()->Set(true);
-                else Cell(row, column)->Value()->Set(false);
+                if (iter.AsBoolean() == true) Cell(row, column)->Value().Set(true);
+                else Cell(row, column)->Value().Set(false);
             }
             column++;
         }
