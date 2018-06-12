@@ -44,8 +44,9 @@ XLCellValue &XLCellValue::operator=(const XLCellValue &other)
 /**
  * @details The assignment operator taking a std::string object as a parameter, calls the corresponding Set method
  * and returns the resulting object.
- * @pre
- * @post
+ * @pre The XLCellValue object and the stringValue parameter are both valid.
+ * @post The underlying cell xml data has been set to the value of the input parameter and the type attribute has been
+ * set to 'str'
  */
 XLCellValue &XLCellValue::operator=(const std::string &stringValue)
 {
@@ -56,8 +57,9 @@ XLCellValue &XLCellValue::operator=(const std::string &stringValue)
 /**
  * @details The assignment operator taking a char* string as a parameter, calls the corresponding Set method
  * and returns the resulting object.
- * @pre
- * @post
+ * @pre The XLCellValue object and the stringValue parameter are both valid.
+ * @post The underlying cell xml data has been set to the value of the input parameter and the type attribute has been
+ * set to 'str'
  */
 XLCellValue &XLCellValue::operator=(const char *stringValue)
 {
@@ -68,8 +70,9 @@ XLCellValue &XLCellValue::operator=(const char *stringValue)
 /**
  * @details If the value type is already a String, the value will be set to the new value. Otherwise, the m_value
  * member variable will be set to an XLString object with the given value.
- * @pre
- * @post
+ * @pre The XLCellValue object and the stringValue parameter are both valid.
+ * @post The underlying cell xml data has been set to the value of the input parameter and the type attribute has been
+ * set to 'str'
  */
 void XLCellValue::Set(const string &stringValue)
 {
@@ -78,8 +81,9 @@ void XLCellValue::Set(const string &stringValue)
 
 /**
  * @details Converts the char* parameter to a std::string and calls the corresponding Set method.
- * @pre
- * @post
+ * @pre The XLCellValue object and the stringValue parameter are both valid.
+ * @post The underlying cell xml data has been set to the value of the input parameter and the type attribute has been
+ * set to 'str'
  */
 void XLCellValue::Set(const char *stringValue)
 {
@@ -88,9 +92,9 @@ void XLCellValue::Set(const char *stringValue)
 }
 
 /**
- * @details Sets the cell value and type to empty and deletes the value node and type attribute if they exists.
+ * @details Deletes the value node and type attribute if they exists.
  * @pre The parent XLCell object is valid and has a corresponding node in the underlying XML file.
- * @post The m_value holds an XLEmpty object and the value node and type attributes have been deleted.
+ * @post The value node and the type attribute in the underlying xml data has been deleted.
  */
 void XLCellValue::Clear()
 {
@@ -359,7 +363,8 @@ bool XLCellValue::HasTypeAttribute() const
 }
 
 /**
- * @details
+ * @details The number type (integer or floating point) is determined simply by identifying whether or not a decimal
+ * point is present in the input string. If present, the number type is floating point.
  */
 XLNumberType XLCellValue::DetermineNumberType(const string &numberString) const
 {
@@ -368,7 +373,7 @@ XLNumberType XLCellValue::DetermineNumberType(const string &numberString) const
 }
 
 /**
- * @details
+ * @details Returns the shared string node at the given index, by accessing the shared strings via the parent workbook.
  */
 XMLNode XLCellValue::SharedStringNode(unsigned long index) const
 {

@@ -101,6 +101,10 @@ namespace OpenXLSX
      * cout << "Cell C1: " << C1 << endl;
      * cout << "Cell D1: " << D1 << endl;
      * ```
+     *
+     * ## Developer Notes ##
+     * The only member variable is a reference to the parent XLCell object. All functionality works by manipulating
+     * the parent cell theough the reference.
      */
     class XLCellValue
     {
@@ -365,16 +369,16 @@ namespace OpenXLSX
     private:
 
         /**
-         * @brief
-         * @param numberString
-         * @return
+         * @brief Determine if the input string holds an integer or a floating point value.
+         * @param numberString The string holding a number.
+         * @return An XLNumberType::Integer or XLNumberType::Float
          */
         XLNumberType DetermineNumberType(const std::string &numberString) const;
 
         /**
-         * @brief
-         * @param index
-         * @return
+         * @brief Get the xml node with the requested shared string.
+         * @param index The index of the requested shared string.
+         * @return An xml node with the shared string.
          */
         XMLNode SharedStringNode(unsigned long index) const;
 

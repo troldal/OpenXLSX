@@ -60,15 +60,15 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="cpp" value="297" />
-          <entry key="h" value="134" />
+          <entry key="cpp" value="940" />
+          <entry key="h" value="612" />
           <entry key="mm" value="2" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Doxygen file" value="2" />
-          <entry key="ObjectiveC" value="431" />
+          <entry key="Doxygen file" value="12" />
+          <entry key="ObjectiveC" value="1542" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.cidr.testingFrameworks.usages" />
