@@ -73,8 +73,7 @@ XLCellValue &XLCellValue::operator=(const char *stringValue)
  */
 void XLCellValue::Set(const string &stringValue)
 {
-    TypeAttribute().set_value("str");
-    ValueNode().text().set(stringValue.c_str());
+    Set(stringValue.c_str());
 }
 
 /**
@@ -84,7 +83,8 @@ void XLCellValue::Set(const string &stringValue)
  */
 void XLCellValue::Set(const char *stringValue)
 {
-    Set(std::string(stringValue));
+    TypeAttribute().set_value("str");
+    ValueNode().text().set(stringValue);
 }
 
 /**

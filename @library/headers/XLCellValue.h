@@ -65,7 +65,8 @@ namespace OpenXLSX
      * @brief The XLCellValue class represents the concept of a cell value. This can be in the form of a number
      * (an integer or a float), a string, a boolean or no value (empty).
      * @details The XLCellValue class encapsulates the concept of a cell value, i.e. the string, number, boolean or
-     * empty value that a cell can contain. Other cell contents, such as formatting or formulas, are handled by separate classes.
+     * empty value that a cell can contain. Other cell contents, such as formatting or formulas, are handled by separate
+     * classes.
      *
      * ## Usage ##
      * An XLCellValue object is not created directly by the user, but rather accessed and/or modified through the XLCell
@@ -81,9 +82,10 @@ namespace OpenXLSX
      * AsString() member function.
      *
      * ## Example ##
-     * Here follows an example that sets the value and the prints it to cout:
+     * Here follows an example that sets the value and the prints it to std::cout:
      * ```cpp
      * // Code to create document/workbool/worksheet...
+     *
      * wks->Cell("A1")->Value() = 3.14159;
      * wks->Cell("B1")->Value() = 42;
      * wks->Cell("C1")->Value() = "Hello OpenXLSX!";
@@ -181,7 +183,7 @@ namespace OpenXLSX
         XLCellValue &operator=(T numberValue);
 
         /**
-         * @brief Assingment operator.
+         * @brief Assignment operator.
          * @param stringValue A char* string to assign to the XLCellValue object.
          * @return A reference to the current object, with the new value.
          */
@@ -451,7 +453,7 @@ namespace OpenXLSX
     void XLCellValue::Set(T numberValue)
     {
         ValueNode().remove_attribute("t");
-        ValueNode().text().set(static_cast<double>(numberValue));
+        ValueNode().text().set(std::to_string(numberValue).c_str());
     }
 
     /**
