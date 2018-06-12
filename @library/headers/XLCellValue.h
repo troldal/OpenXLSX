@@ -64,6 +64,41 @@ namespace OpenXLSX
     /**
      * @brief The XLCellValue class represents the concept of a cell value. This can be in the form of a number
      * (an integer or a float), a string, a boolean or no value (empty).
+     * @details The XLCellValue class encapsulates the concept of a cell value, i.e. the string, number, boolean or
+     * empty value that a cell can contain. Other cell contents, such as formatting or formulas, are handled by separate classes.
+     *
+     * ## Usage ##
+     * An XLCellValue object is not created directly by the user, but rather accessed and/or modified through the XLCell
+     * interface (the Value() member function).
+     * The value can be set either through the Set() member function or the operator=(). Both have been overloaded to take
+     * any integer or floating point value, bool value or string value (either std::string or char* string). In order to
+     * set the cell value to empty, use the Clear() member function.
+     *
+     * To get the current value of an XLCellValue object, use the Get<>() member function. The Get<>() member function is a
+     * template function, taking the value return type as template argument. It has been overloaded to take any integer
+     * or floating point type, bool type or string type that can be constructed from a char* string (e.g. std::string or
+     * std::string_view). It is also possible to get the value as a std::string, regardless of the valuetype, using the
+     * AsString() member function.
+     *
+     * ## Example ##
+     * Here follows an example that sets the value and the prints it to cout:
+     * ```cpp
+     * // Code to create document/workbool/worksheet...
+     * wks->Cell("A1")->Value() = 3.14159;
+     * wks->Cell("B1")->Value() = 42;
+     * wks->Cell("C1")->Value() = "Hello OpenXLSX!";
+     * wks->Cell("D1")->Value() = true;
+
+     * auto A1 = wks->Cell("A1")->Value().Get<double>();
+     * auto B1 = wks->Cell("B1")->Value().Get<int>();
+     * auto C1 = wks->Cell("C1")->Value().Get<std::string>();
+     * auto D1 = wks->Cell("D1")->Value().Get<bool>();
+
+     * cout << "Cell A1: " << A1 << endl;
+     * cout << "Cell B1: " << B1 << endl;
+     * cout << "Cell C1: " << C1 << endl;
+     * cout << "Cell D1: " << D1 << endl;
+     * ```
      */
     class XLCellValue
     {
@@ -85,25 +120,29 @@ namespace OpenXLSX
          * @brief Constructor
          * @param parent A reference to the parent XLCell object.
          */
-        explicit XLCellValue(XLCell &parent);
+        explicit XLCellValue(XLCell &parent) noexcept;
 
         /**
          * @brief Copy constructor.
+         * @details The copy constructor and copy assignment operator works differently for XLCellValue objects.
+         * The copy constructor creates an exact copy of the object, with the same parent XLCell object. The copy
+         * assignment operator only copies the underlying cell value and type attribute to the target object.
          * @param other object to be copied.
-         * @note The copy constructor has been explicitly deleted.
+         * @note The default copy constructor has been used.
          */
         XLCellValue(const XLCellValue &other) = default;
 
         /**
          * @brief Move constructor.
          * @param other the object to be moved.
-         * @note The move constructor has been explicitly deleted.
+         * @note The move constructor has been explicitly deleted. Move will not be allowed, as an XLCellValue must
+         * always remain valid. Moving will invalidate the source object.
          */
-        XLCellValue(XLCellValue &&other) noexcept = default;
+        XLCellValue(XLCellValue &&other) noexcept = delete;
 
         /**
          * @brief Destructor.
-         * @note The destructor uses the default implementation
+         * @note The destructor uses the default implementation, as no pointer data members exist.
          */
         virtual ~XLCellValue() = default;
 
@@ -118,8 +157,10 @@ namespace OpenXLSX
          * @brief Move assignment operator.
          * @param other The object to be moved.
          * @return A reference to the current object, with the new value.
+         * @note The move assignment operator has been explicitly deleted. Move will not be allowed, as an XLCellValue must
+         * always remain valid. Moving will invalidate the source object.
          */
-        XLCellValue &operator=(XLCellValue &&other) noexcept;
+        XLCellValue &operator=(XLCellValue &&other) noexcept = delete;
 
         /**
          * @brief Assignment operator
@@ -350,9 +391,11 @@ namespace OpenXLSX
 
     /**
      * @details This is a template assignment operator for all integer-type parameters. The function calls the Set
-     * template function and returns *this.
-     * @pre
-     * @post
+     * template function and returns *this. It has been implemented using the std::enable_if template function which
+     * wil SFINAE out any non-integer types.
+     * @pre The input parameter, the XLCellValue object and the underlying xml object are valid.
+     * @post The underlying xml object has been modified to hold the value of the input parameter and the type attribute
+     * has been set accordingly.
      */
     template<typename T, typename std::enable_if<std::is_integral<T>::value, long long int>::type *>
     XLCellValue &XLCellValue::operator=(T numberValue)
@@ -363,9 +406,11 @@ namespace OpenXLSX
 
     /**
      * @details This is a template assignment operator for all floating point-type paremeters. The function calls the
-     * Set template function and returns *this.
-     * @pre
-     * @post
+     * Set template function and returns *this. It has been implemented using the std::enable_if template function which
+     * wil SFINAE out any non-floating point types.
+     * @pre The input parameter, the XLCellValue object and the underlying xml object are valid.
+     * @post The underlying xml object has been modified to hold the value of the input parameter and the type attribute
+     * has been set accordingly.
      */
     template<typename T, typename std::enable_if<std::is_floating_point<T>::value, long double>::type *>
     XLCellValue &XLCellValue::operator=(T numberValue)

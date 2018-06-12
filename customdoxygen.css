@@ -724,7 +724,7 @@ table.fieldtable {
 	top: 0px;
 	left: 10px;
 	height: 36px;
-	background-image: url('tab_b.png');
+	background-image:none; /* url('tab_b.png'); */
 	z-index: 101;
 	overflow: hidden;
 	font-size: 13px;
@@ -732,7 +732,7 @@ table.fieldtable {
 .navpath ul
 {
 	font-size: 11px;
-	background-image:url('tab_b.png');
+	background-image:none; /*url('tab_b.png'); */
 	background-repeat:repeat-x;
 	background-position: 0 -5px;
 	height:30px;
@@ -749,7 +749,7 @@ table.fieldtable {
 	float:left;
 	padding-left:10px;
 	padding-right:15px;
-	background-image:url('bc_s.png');
+	background-image:none; /*url('bc_s.png'); */
 	background-repeat:no-repeat;
 	background-position:right;
 	color:#fff;

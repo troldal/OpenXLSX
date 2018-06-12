@@ -13,18 +13,20 @@ using namespace std;
 
 
 /**
- * @details The constructor sets the m_parentCell to the value of the input parameter.
+ * @details The constructor sets the m_parentCell to the value of the input parameter. The m_parentCell member variable
+ * is a reference to the parent XLCell object, in order to avoid null objects.
  * @pre The parent input parameter is a valid XLCell object.
  * @post A valid XLCellValue object has been constructed.
  */
-XLCellValue::XLCellValue(XLCell &parent)
+XLCellValue::XLCellValue(XLCell &parent) noexcept
     : m_parentCell(parent)
 {
 }
 
 /**
- * @details The copy assignment operator sets the value node and type attribute to the corresponding items in
- * the object being assigned from.
+ * @details The copy constructor and copy assignment operator works differently for XLCellValue objects.
+ * The copy constructor creates an exact copy of the object, with the same parent XLCell object. The copy
+ * assignment operator only copies the underlying cell value and type attribute to the target object.
  * @pre Both the lhs and rhs are valid objects.
  * @post Successful assignment to the target object.
  */
@@ -35,23 +37,6 @@ XLCellValue &XLCellValue::operator=(const XLCellValue &other)
         SetValueNode(!other.ValueNode() ? "" : other.ValueNode().text().get());
         SetTypeAttribute(!other.TypeAttribute() ? "" : other.TypeAttribute().value());
     }
-
-    return *this;
-}
-
-/**
- * @details The copy assignment operator sets the value node and type attribute to the corresponding items in
- * the object being assigned from. Subsequently, the Initialize method is called, which initializes the object
- * based on the underlying XML file. This is identical to the copy assignment operator.
- * @pre
- * @post
- * @todo Implement a real move assignment operator
- */
-XLCellValue &XLCellValue::operator=(XLCellValue &&other) noexcept
-{
-    assert(this != &other); // Check for self assignment. The lhs should NEVER be the same as the rhs when moving.
-    SetValueNode(!other.ValueNode() ? "" : other.ValueNode().text().get());
-    SetTypeAttribute(!other.TypeAttribute() ? "" : other.TypeAttribute().value());
 
     return *this;
 }
