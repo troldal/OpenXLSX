@@ -4,20 +4,30 @@
     <session id="-669180313">
       <usages-collector id="statistics.file.extensions.open">
         <counts>
+          <entry key="Doxyfile" value="3" />
           <entry key="cpp" value="5" />
+          <entry key="css" value="2" />
           <entry key="h" value="2" />
+          <entry key="html" value="1" />
           <entry key="txt" value="1" />
+          <entry key="xml" value="1" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
           <entry key="CMakeLists.txt" value="1" />
+          <entry key="CSS" value="2" />
+          <entry key="HTML" value="1" />
           <entry key="ObjectiveC" value="7" />
+          <entry key="PLAIN_TEXT" value="3" />
+          <entry key="XML" value="1" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="cpp" value="493" />
+          <entry key="Doxyfile" value="133" />
+          <entry key="cpp" value="505" />
+          <entry key="css" value="121" />
           <entry key="h" value="88" />
           <entry key="txt" value="26" />
         </counts>
@@ -25,10 +35,13 @@
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="CMakeLists.txt" value="26" />
+          <entry key="CSS" value="121" />
           <entry key="Doxygen file" value="3" />
-          <entry key="ObjectiveC" value="578" />
+          <entry key="ObjectiveC" value="590" />
+          <entry key="PLAIN_TEXT" value="133" />
         </counts>
       </usages-collector>
+      <usages-collector id="statistics.cidr.testingFrameworks.usages" />
     </session>
     <session id="-1893522141">
       <usages-collector id="statistics.file.extensions.open">
