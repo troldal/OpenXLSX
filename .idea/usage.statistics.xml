@@ -49,26 +49,39 @@
     <session id="-1893522141">
       <usages-collector id="statistics.file.extensions.open">
         <counts>
+          <entry key="Doxyfile" value="2" />
+          <entry key="backup" value="1" />
           <entry key="cpp" value="18" />
-          <entry key="h" value="8" />
+          <entry key="css" value="3" />
+          <entry key="h" value="9" />
+          <entry key="html" value="2" />
+          <entry key="xml" value="1" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="ObjectiveC" value="26" />
+          <entry key="CSS" value="3" />
+          <entry key="HTML" value="2" />
+          <entry key="ObjectiveC" value="27" />
+          <entry key="PLAIN_TEXT" value="3" />
+          <entry key="XML" value="1" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
+          <entry key="Doxyfile" value="32" />
           <entry key="cpp" value="940" />
+          <entry key="css" value="5" />
           <entry key="h" value="612" />
           <entry key="mm" value="2" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
+          <entry key="CSS" value="5" />
           <entry key="Doxygen file" value="12" />
           <entry key="ObjectiveC" value="1542" />
+          <entry key="PLAIN_TEXT" value="32" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.cidr.testingFrameworks.usages" />
