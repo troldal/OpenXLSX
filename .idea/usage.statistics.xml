@@ -31,7 +31,7 @@
           <entry key="Doxyfile" value="137" />
           <entry key="cpp" value="640" />
           <entry key="css" value="155" />
-          <entry key="h" value="3072" />
+          <entry key="h" value="3088" />
           <entry key="txt" value="26" />
         </counts>
       </usages-collector>
@@ -40,7 +40,7 @@
           <entry key="CMakeLists.txt" value="26" />
           <entry key="CSS" value="155" />
           <entry key="Doxygen file" value="43" />
-          <entry key="ObjectiveC" value="3669" />
+          <entry key="ObjectiveC" value="3685" />
           <entry key="PLAIN_TEXT" value="137" />
         </counts>
       </usages-collector>

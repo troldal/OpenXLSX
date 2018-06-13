@@ -65,7 +65,7 @@ namespace OpenXLSX
 //======================================================================================================================
 
     /**
-     * @brief A class encapsulating the properties and behaviours of a spreadsheet cell.
+     * @brief An implementation class encapsulating the properties and behaviours of a spreadsheet cell.
      */
     class XLCell: public XLSpreadsheetElement
     {
