@@ -66,7 +66,6 @@ namespace OpenXLSX
 
     /**
      * @brief A class encapsulating the properties and behaviours of a spreadsheet cell.
-     * @todo Consider using template functions for getting the value, e.g. 'value<Number>...'
      */
     class XLCell: public XLSpreadsheetElement
     {

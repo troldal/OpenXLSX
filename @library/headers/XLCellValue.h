@@ -412,7 +412,7 @@ namespace OpenXLSX
 
     /**
      * @details This is a template assignment operator for all floating point-type paremeters. The function calls the
-     * Set template function and returns *this. It has been implemented using the std::enable_if template function which
+     * Set() template function and returns *this. It has been implemented using the std::enable_if template function which
      * wil SFINAE out any non-floating point types.
      * @pre The input parameter, the XLCellValue object and the underlying xml object are valid.
      * @post The underlying xml object has been modified to hold the value of the input parameter and the type attribute
@@ -426,9 +426,9 @@ namespace OpenXLSX
     }
 
     /**
-     * @details This is a template function for all integer-type parameters. If the current cell value is not already
-     * of integer or floating point type (i.e. number type), set the m_value variable accordingly. Call the Set
-     * method of the m_value member variable.
+     * @details This is a template function for all integer-type parameters. It has been implemented using the
+     * std::enable_if template function which will SFINAE out any non-integer types. Bools are handled as a special
+     * case using the 'if constexpr' construct.
      * @pre
      * @post
      */
@@ -447,9 +447,8 @@ namespace OpenXLSX
     }
 
     /**
-     * @details This is a template function for all floating point-type parameters. If the current cell value is not
-     * already of integer or floating point type (i.e. number type), set the m_value variable accordingly. Call the Set
-     * method of the m_value member variable.
+     * @details This is a template function for all floating point-type parameters. It has been implemented using the
+     * std::enable_if template function which will SFINAE out any non-floating point types.
      * @pre
      * @post
      */
@@ -461,9 +460,9 @@ namespace OpenXLSX
     }
 
     /**
-     * @details This is a template function for all integer-type parameters. If the current cell value is not already
-     * of integer or floating point type (i.e. number type), set the m_value variable accordingly. Call the Set
-     * method of the m_value member variable.
+     * @details This is a template function for all integer-type parameters. It has been implemented using the
+     * std::enable_if template function which will SFINAE out any non-integer types. Bools are handled as a special
+     * case using the 'if constexpr' construct.
      * @pre
      * @post
      */
@@ -480,9 +479,8 @@ namespace OpenXLSX
     }
 
     /**
-     * @details This is a template function for all floating point-type parameters. If the current cell value is not
-     * already of integer ot floating point type (i.e. number type), set the m_value variable accordingly. Call the Set
-     * method of the m_value member variable.
+     * @details This is a template function for all floating point-type parameters. It has been implemented using the
+     * std::enable_if template function which will SFINAE out any non-floating point types.
      * @pre
      * @post
      */
@@ -490,13 +488,12 @@ namespace OpenXLSX
     T XLCellValue::Get()
     {
         if (ValueType() != XLValueType::Float) throw XLException("Cell value is not Float");
-        return ValueNode().text().as_double();
+        return std::stold(ValueNode().text().get());
     }
 
     /**
-     * @details This is a template function for all floating point-type parameters. If the current cell value is not
-     * already of integer ot floating point type (i.e. number type), set the m_value variable accordingly. Call the Set
-     * method of the m_value member variable.
+     * @details This is a template function for all types that can be constructed from a char* string, including
+     * std::string and std::string_view. All other types are SFINAE'd out using std::enable_if.
      * @pre
      * @post
      */

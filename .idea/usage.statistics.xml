@@ -8,7 +8,7 @@
           <entry key="c" value="1" />
           <entry key="cpp" value="6" />
           <entry key="css" value="3" />
-          <entry key="h" value="2" />
+          <entry key="h" value="3" />
           <entry key="html" value="1" />
           <entry key="markdown" value="1" />
           <entry key="txt" value="1" />
@@ -21,7 +21,7 @@
           <entry key="CSS" value="3" />
           <entry key="HTML" value="1" />
           <entry key="Markdown" value="1" />
-          <entry key="ObjectiveC" value="9" />
+          <entry key="ObjectiveC" value="10" />
           <entry key="PLAIN_TEXT" value="4" />
           <entry key="XML" value="1" />
         </counts>
@@ -31,7 +31,7 @@
           <entry key="Doxyfile" value="137" />
           <entry key="cpp" value="640" />
           <entry key="css" value="155" />
-          <entry key="h" value="2766" />
+          <entry key="h" value="3072" />
           <entry key="txt" value="26" />
         </counts>
       </usages-collector>
@@ -39,8 +39,8 @@
         <counts>
           <entry key="CMakeLists.txt" value="26" />
           <entry key="CSS" value="155" />
-          <entry key="Doxygen file" value="40" />
-          <entry key="ObjectiveC" value="3366" />
+          <entry key="Doxygen file" value="43" />
+          <entry key="ObjectiveC" value="3669" />
           <entry key="PLAIN_TEXT" value="137" />
         </counts>
       </usages-collector>
