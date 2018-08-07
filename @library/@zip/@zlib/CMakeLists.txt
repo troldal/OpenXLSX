@@ -4,11 +4,6 @@ set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS ON)
 
 project(zlib VERSION "1.2.11" LANGUAGES C)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -flto")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-use-linker-plugin")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fwhole-program")
-
 include(CheckTypeSize)
 include(CheckFunctionExists)
 include(CheckIncludeFile)
@@ -61,6 +56,9 @@ if(MSVC)
     include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 endif()
 
+#
+# If zconf.h exists in the source directory, remove it.
+#
 if(NOT CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_CURRENT_BINARY_DIR)
     # If we're doing an out of source build and the user has a zconf.h
     # in their source tree...
@@ -68,13 +66,14 @@ if(NOT CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_CURRENT_BINARY_DIR)
         message(STATUS "Removing")
         message(STATUS "    ${CMAKE_CURRENT_SOURCE_DIR}/zconf.h")
         message(STATUS "because this file is included with zlib")
-        message(STATUS "but CMake generates it automatically in the build directory.")
+        message(STATUS "but CMake generates it automatically.")
         file(REMOVE ${CMAKE_CURRENT_SOURCE_DIR}/zconf.h)
   endif()
 endif()
 
-set(ZLIB_PC ${CMAKE_CURRENT_BINARY_DIR}/zlib.pc)
-configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/zlib.pc.cmakein ${ZLIB_PC} @ONLY)
+#
+# Configure the zconf.h file
+#
 configure_file(	${CMAKE_CURRENT_SOURCE_DIR}/zconf.h.cmakein ${CMAKE_CURRENT_SOURCE_DIR}/zconf.h @ONLY)
 include_directories(${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR})
 
