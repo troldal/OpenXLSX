@@ -1,4 +1,3 @@
-cmake_minimum_required(VERSION 3.5)
 project(OpenXLSX.Library VERSION 0.5)
 
 #=======================================================================================================================
@@ -14,8 +13,24 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     set(IS_MSVC TRUE)
 endif()
 
+include(FetchContent)
+FetchContent_Declare(
+        pugi
+        GIT_REPOSITORY https://github.com/zeux/pugixml.git
+        GIT_TAG 8436f2a
+        GIT_PROGRESS ON)
+
+FetchContent_GetProperties(pugi)
+if(NOT pugi_POPULATED)
+    FetchContent_Populate(pugi)
+    add_subdirectory(
+            ${pugi_SOURCE_DIR}
+            ${pugi_BINARY_DIR})
+endif()
+
+#add_subdirectory(@external)
 add_subdirectory(@zip)
-add_subdirectory(@xml)
+#add_subdirectory(@xml)
 
 #=======================================================================================================================
 # Set C/C++ compiler version
@@ -85,7 +100,7 @@ set(OPENXLSX_HEADERS
         headers/XLCellRange.h
         headers/XLCellReference.h
         headers/XLCellType.h
-        headers/XLCellValue.h)
+        headers/XLCellValue.h headers/XLXml.h)
 
 set(OPENXLSX_SOURCES
         sources/XLAbstractXMLFile.cpp
@@ -117,9 +132,12 @@ set(OPENXLSX_SOURCES
 #=======================================================================================================================
 # Build OpenXLSX library
 #=======================================================================================================================
-add_library(OpenXLSXDepend STATIC $<TARGET_OBJECTS:xml> $<TARGET_OBJECTS:zlibstatic> $<TARGET_OBJECTS:zip> $<TARGET_OBJECTS:zip++>)
+add_library(OpenXLSXDepend STATIC $<TARGET_OBJECTS:zlibstatic> $<TARGET_OBJECTS:zip> $<TARGET_OBJECTS:zip++>)
 add_library(OpenXLSX STATIC ${OPENXLSX_HEADERS} ${OPENXLSX_SOURCES})
-target_link_libraries(OpenXLSX PRIVATE OpenXLSXDepend)
+target_include_directories(OpenXLSX PUBLIC ${pugi_SOURCE_DIR})
+target_link_libraries(OpenXLSX PRIVATE pugixml OpenXLSXDepend)
+
+message("Location of pugixml header file: " ${pugi_SOURCE_DIR})
 
 #=======================================================================================================================
 # Install OpenXLSX Library
