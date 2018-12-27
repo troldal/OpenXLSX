@@ -1,7 +1,0 @@
-.DS_Store
-/build*
-/xcode/libzip.xcodeproj/project.xcworkspace/xcuserdata/
-/xcode/libzip.xcodeproj/xcuserdata/
-*~
-*.tar.gz
-*.tar.xz

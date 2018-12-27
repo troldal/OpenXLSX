@@ -51,6 +51,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <vector>
 #include <iostream>
 #include <fstream>
+#include <libzip++.h>
 #include "XLContentTypes.h"
 #include "XLAppProperties.h"
 #include "XLCoreProperties.h"
@@ -60,7 +61,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLSheet.h"
 #include "XLRelationships.h"
 #include "XLException.h"
-#include "../@zip/libzip++.h"
 
 namespace OpenXLSX
 {

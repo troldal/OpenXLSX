@@ -32,7 +32,7 @@
   IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "@libzip/lib/zip.h"
+#include <zip.h>
 #include <fstream>
 
 #include "libzip++.h"
