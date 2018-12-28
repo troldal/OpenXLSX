@@ -2,10 +2,10 @@
 // Created by Troldal on 02/09/16.
 //
 
-#include "../headers/XLSheet.h"
-#include "../headers/XLContentTypes.h"
-#include "../headers/XLRelationships.h"
-#include "../headers/XLDocument.h"
+#include "XLSheet.h"
+#include "XLContentTypes.h"
+#include "XLRelationships.h"
+#include "XLDocument.h"
 
 using namespace std;
 using namespace OpenXLSX;

@@ -2,11 +2,11 @@
 // Created by Troldal on 02/09/16.
 //
 
-#include "../headers/XLCell.h"
-#include "../headers/XLCellValue.h"
-#include "../headers/XLWorksheet.h"
-#include "../headers/XLCellRange.h"
-#include "../headers/XLException.h"
+#include "XLCell.h"
+#include "XLCellValue.h"
+#include "XLWorksheet.h"
+#include "XLCellRange.h"
+#include "XLException.h"
 
 
 using namespace std;

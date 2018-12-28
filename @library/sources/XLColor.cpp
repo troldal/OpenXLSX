@@ -2,7 +2,7 @@
 // Created by Kenneth Balslev on 04/06/2017.
 //
 
-#include "../headers/XLColor.h"
+#include "XLColor.h"
 #include <sstream>
 
 using namespace std;

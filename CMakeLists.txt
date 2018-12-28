@@ -12,6 +12,9 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+#=======================================================================================================================
+# Add project subdirectories
+#=======================================================================================================================
 add_subdirectory(@library)
 add_subdirectory(@benchmark)
 add_subdirectory(@demo)

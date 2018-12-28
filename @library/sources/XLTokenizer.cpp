@@ -2,7 +2,7 @@
 // Created by KBA012 on 18-04-2018.
 //
 
-#include "../headers/XLTokenizer.h"
+#include "XLTokenizer.h"
 #include <algorithm>
 #include <cstring>
 

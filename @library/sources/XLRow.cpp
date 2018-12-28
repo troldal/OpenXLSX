@@ -3,11 +3,11 @@
 //
 
 #include <algorithm>
-#include "../headers/XLRow.h"
-#include "../headers/XLWorksheet.h"
-#include "../headers/XLCell.h"
-#include "../headers/XLCellValue.h"
-#include "../headers/XLException.h"
+#include "XLRow.h"
+#include "XLWorksheet.h"
+#include "XLCell.h"
+#include "XLCellValue.h"
+#include "XLException.h"
 
 using namespace std;
 using namespace OpenXLSX;

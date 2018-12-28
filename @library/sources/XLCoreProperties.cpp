@@ -2,8 +2,8 @@
 // Created by Troldal on 18/08/16.
 //
 
-#include "../headers/XLCoreProperties.h"
-#include "../headers/XLDocument.h"
+#include "XLCoreProperties.h"
+#include "XLDocument.h"
 
 using namespace std;
 using namespace OpenXLSX;

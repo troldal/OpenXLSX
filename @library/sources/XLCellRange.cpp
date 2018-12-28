@@ -4,10 +4,10 @@
 
 #include <stdexcept>
 
-#include "../headers/XLCell.h"
-#include "../headers/XLCellRange.h"
-#include "../headers/XLCellValue.h"
-#include "../headers/XLWorksheet.h"
+#include "XLCell.h"
+#include "XLCellRange.h"
+#include "XLCellValue.h"
+#include "XLWorksheet.h"
 
 using namespace std;
 using namespace OpenXLSX;

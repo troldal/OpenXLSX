@@ -2,11 +2,11 @@
 // Created by Troldal on 24/07/16.
 //
 
-#include "../headers/XLAbstractXMLFile.h"
-#include "../headers/XLDocument.h"
-#include "../headers/XLWorksheet.h"
-#include "../headers/XLTemplate.h"
-#include "../headers/XLException.h"
+#include "XLAbstractXMLFile.h"
+#include "XLDocument.h"
+#include "XLWorksheet.h"
+#include "XLTemplate.h"
+#include "XLException.h"
 
 
 using namespace std;

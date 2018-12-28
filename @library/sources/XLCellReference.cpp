@@ -2,7 +2,7 @@
 // Created by Troldal on 07/09/16.
 //
 
-#include "../headers/XLCellReference.h"
+#include "XLCellReference.h"
 
 #include <iostream>
 

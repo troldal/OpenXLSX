@@ -2,8 +2,8 @@
 // Created by Kenneth Balslev on 02/06/2017.
 //
 
-#include "../headers/XLColumn.h"
-#include "../headers/XLWorksheet.h"
+#include "XLColumn.h"
+#include "XLWorksheet.h"
 
 using namespace std;
 using namespace OpenXLSX;

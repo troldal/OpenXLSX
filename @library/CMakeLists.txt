@@ -110,7 +110,8 @@ set(OPENXLSX_SOURCES
 #=======================================================================================================================
 # Build OpenXLSX library
 #=======================================================================================================================
-target_sources(OpenXLSX PUBLIC ${OPENXLSX_HEADERS} ${OPENXLSX_SOURCES})
+target_sources(OpenXLSX PUBLIC ${OPENXLSX_SOURCES})
+target_include_directories(OpenXLSX PUBLIC ${CMAKE_CURRENT_LIST_DIR}/headers)
 target_link_libraries(OpenXLSX PRIVATE pugixml zip++)
 
 #=======================================================================================================================

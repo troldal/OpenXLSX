@@ -4,9 +4,9 @@
 
 #include <cstring>
 
-#include "../headers/XLWorkbook.h"
-#include "../headers/XLWorksheet.h"
-#include "../headers/XLDocument.h"
+#include "XLWorkbook.h"
+#include "XLWorksheet.h"
+#include "XLDocument.h"
 
 using namespace std;
 using namespace OpenXLSX;

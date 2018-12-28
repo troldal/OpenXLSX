@@ -2,8 +2,8 @@
 // Created by Troldal on 25/07/16.
 //
 
-#include "../headers/XLRelationships.h"
-#include "../headers/XLDocument.h"
+#include "XLRelationships.h"
+#include "XLDocument.h"
 
 using namespace std;
 using namespace OpenXLSX;

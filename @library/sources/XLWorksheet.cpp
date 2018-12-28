@@ -2,15 +2,15 @@
 // Created by Troldal on 03/09/16.
 //
 
-#include "../headers/XLWorksheet.h"
-#include "../headers/XLWorkbook.h"
-#include "../headers/XLCell.h"
-#include "../headers/XLCellValue.h"
-#include "../headers/XLCellRange.h"
-#include "../headers/XLRow.h"
-#include "../headers/XLColumn.h"
-#include "../headers/XLException.h"
-#include "../headers/XLTokenizer.h"
+#include "XLWorksheet.h"
+#include "XLWorkbook.h"
+#include "XLCell.h"
+#include "XLCellValue.h"
+#include "XLCellRange.h"
+#include "XLRow.h"
+#include "XLColumn.h"
+#include "XLException.h"
+#include "XLTokenizer.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>

@@ -3,9 +3,8 @@
 //
 
 
-#include "../headers/XLCellIterator.h"
-
-#include "../headers/XLCellRange.h"
+#include "XLCellIterator.h"
+#include "XLCellRange.h"
 
 using namespace OpenXLSX;
 

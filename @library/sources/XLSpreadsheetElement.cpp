@@ -2,8 +2,8 @@
 // Created by KBA012 on 18-12-2017.
 //
 
-#include "../headers/XLSpreadsheetElement.h"
-#include "../headers/XLDocument.h"
+#include "XLSpreadsheetElement.h"
+#include "XLDocument.h"
 
 namespace OpenXLSX
 {

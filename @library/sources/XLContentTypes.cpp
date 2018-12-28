@@ -4,8 +4,8 @@
 
 #include <cstring>
 
-#include "../headers/XLContentTypes.h"
-#include "../headers/XLDocument.h"
+#include "XLContentTypes.h"
+#include "XLDocument.h"
 
 using namespace std;
 using namespace OpenXLSX;

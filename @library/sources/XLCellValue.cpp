@@ -3,10 +3,10 @@
 //
 
 #include <cassert>
-#include "../headers/XLCell.h"
-#include "../headers/XLCellValue.h"
-#include "../headers/XLException.h"
-#include "../headers/XLWorksheet.h"
+#include "XLCell.h"
+#include "XLCellValue.h"
+#include "XLException.h"
+#include "XLWorksheet.h"
 
 using namespace OpenXLSX;
 using namespace std;

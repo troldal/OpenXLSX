@@ -2,7 +2,7 @@
 // Created by Troldal on 05/08/16.
 //
 
-#include "../headers/XLDocument.h"
+#include "XLDocument.h"
 #include <sstream>
 
 using namespace std;

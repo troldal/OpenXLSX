@@ -2,8 +2,8 @@
 // Created by Troldal on 04/10/16.
 //
 
-#include "../headers/XLChartsheet.h"
-#include "../headers/XLDocument.h"
+#include "XLChartsheet.h"
+#include "XLDocument.h"
 
 using namespace OpenXLSX;
 

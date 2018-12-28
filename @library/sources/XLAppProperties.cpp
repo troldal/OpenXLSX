@@ -4,8 +4,8 @@
 
 #include <cstring>
 
-#include "../headers/XLAppProperties.h"
-#include "../headers/XLDocument.h"
+#include "XLAppProperties.h"
+#include "XLDocument.h"
 
 using namespace std;
 using namespace OpenXLSX;

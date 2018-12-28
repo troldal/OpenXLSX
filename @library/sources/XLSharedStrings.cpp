@@ -2,8 +2,8 @@
 // Created by Troldal on 01/09/16.
 //
 
-#include "../headers/XLSharedStrings.h"
-#include "../headers/XLDocument.h"
+#include "XLSharedStrings.h"
+#include "XLDocument.h"
 
 using namespace std;
 using namespace OpenXLSX;

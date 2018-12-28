@@ -63,4 +63,4 @@ target_include_directories(zip++ PUBLIC ${libzip_SOURCE_DIR}/lib ${libzip_BINARY
 #=======================================================================================================================
 # Append include paths to target
 #=======================================================================================================================
-target_include_directories(OpenXLSX PUBLIC ${pugi_SOURCE_DIR} ${CMAKE_CURRENT_LIST_DIR})
+target_include_directories(OpenXLSX PUBLIC ${pugi_SOURCE_DIR} ${CMAKE_CURRENT_LIST_DIR} ${CMAKE_CURRENT_LIST_DIR}/@flat)
