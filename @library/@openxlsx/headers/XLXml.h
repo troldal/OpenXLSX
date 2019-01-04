@@ -5,7 +5,7 @@
 #ifndef OPENXLSX_ALL_XLXML_H
 #define OPENXLSX_ALL_XLXML_H
 
-#include <src/pugixml.hpp>
+#include <pugixml.hpp>
 
 using XMLNode = pugi::xml_node;
 using XMLAttribute = pugi::xml_attribute;

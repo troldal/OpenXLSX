@@ -46,7 +46,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLEXE_XLROW_H
 #define OPENXLEXE_XLROW_H
 
-#include <flat_map.hpp>
+#include <flat/flat_map.hpp>
 #include "XLDocument.h"
 #include "XLCell.h"
 

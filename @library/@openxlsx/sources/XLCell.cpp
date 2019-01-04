@@ -214,13 +214,3 @@ const XMLAttribute XLCell::TypeAttribute() const
 {
     return m_cellNode.attribute("t");
 }
-
-
-
-
-
-
-
-
-
-

@@ -2,11 +2,5 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cmake-build-clangdebug/_deps/libzip-src" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cmake-build-clangdebug/_deps/pugi-src" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cmake-build-clangdebug/_deps/zlib-src" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cmake-build-clangrelease/_deps/libzip-src" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cmake-build-clangrelease/_deps/pugi-src" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cmake-build-clangrelease/_deps/zlib-src" vcs="Git" />
   </component>
 </project>

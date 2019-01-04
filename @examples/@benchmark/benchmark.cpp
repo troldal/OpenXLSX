@@ -5,12 +5,12 @@
 #include <fstream>
 #include "table_printer.h"
 //#include "../@library/OpenXLSX.h"
-#include "../@library/headers/XLDocument.h"
-#include "../@library/headers/XLWorksheet.h"
-#include "../@library/headers/XLCellRange.h"
-#include "../@library/headers/XLCellReference.h"
-#include "../@library/headers/XLCell.h"
-#include "../@library/headers/XLCellValue.h"
+#include <OpenXLSX/XLDocument.h>
+#include <OpenXLSX/XLWorksheet.h>
+#include <OpenXLSX/XLCellRange.h>
+#include <OpenXLSX/XLCellReference.h>
+#include <OpenXLSX/XLCell.h>
+#include <OpenXLSX/XLCellValue.h>
 
 using namespace std;
 using namespace OpenXLSX;
