@@ -96,7 +96,8 @@ set(OPENXLSX_SOURCES
 # Build OpenXLSX library
 #=======================================================================================================================
 target_sources(OpenXLSX PUBLIC ${OPENXLSX_HEADERS} ${OPENXLSX_SOURCES})
-target_link_libraries(OpenXLSX PUBLIC -lz -lbz2 -lzip -lzip++ -lpugixml)
+#target_link_libraries(OpenXLSX PUBLIC -lz -lbz2 -lzip -lzip++ -lpugixml)
+target_link_libraries(OpenXLSX PUBLIC -lz -lzip -lzip++ -lpugixml)
 target_link_directories(OpenXLSX PUBLIC ${OPENXLSX_DEPENDENCIES}/lib)
 target_include_directories(OpenXLSX SYSTEM PUBLIC ${OPENXLSX_DEPENDENCIES}/include)
 target_include_directories(OpenXLSX PRIVATE ${CMAKE_CURRENT_LIST_DIR}/headers
@@ -104,20 +105,6 @@ target_include_directories(OpenXLSX PRIVATE ${CMAKE_CURRENT_LIST_DIR}/headers
 
 set_target_properties(OpenXLSX PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${OPENXLSX_INSTALLDIR}/lib)
 file(COPY ${CMAKE_CURRENT_LIST_DIR}/headers/ DESTINATION ${OPENXLSX_INSTALLDIR}/include/OpenXLSX)
-
-if("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
-    target_link_options(OpenXLSX PUBLIC -all_load)
-elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
-    target_link_options(OpenXLSX PUBLIC --whole-archive)
-elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
-    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-        target_link_options(OpenXLSX PUBLIC --whole-archive)
-    elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
-        #target_link_options(OpenXLSX PUBLIC /WHOLEARCHIVE)
-    elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-        target_link_options(OpenXLSX PUBLIC /WHOLEARCHIVE)
-    endif()
-endif()
 
 #=======================================================================================================================
 # Install OpenXLSX Library
