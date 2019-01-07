@@ -89,7 +89,7 @@ namespace OpenXLSX
         /**
          * @brief Destructor
          */
-        virtual ~XLSharedStrings();
+        virtual ~XLSharedStrings() override;
 
         /**
          * @brief Get a pointer to the XMLNode holding the shared string at a given index.

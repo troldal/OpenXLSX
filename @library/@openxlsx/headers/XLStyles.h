@@ -83,7 +83,7 @@ namespace OpenXLSX
         /**
          * @brief
          */
-        ~XLStyles();
+        virtual ~XLStyles() override;
 
         /**
          * @brief

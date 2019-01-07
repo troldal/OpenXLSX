@@ -46,7 +46,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLEXE_XLCELLFORMATS_H
 #define OPENXLEXE_XLCELLFORMATS_H
 
-#include "../@xml/xml.h"
+#include "XLXml.h"
 
 namespace OpenXLSX
 {

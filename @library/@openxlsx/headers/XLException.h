@@ -58,7 +58,7 @@ namespace OpenXLSX
             : runtime_error(err)
         {}
 
-        inline ~XLException() {};
+        inline ~XLException() {}
 
     };
 

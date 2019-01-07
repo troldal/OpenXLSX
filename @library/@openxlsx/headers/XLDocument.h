@@ -51,7 +51,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <vector>
 #include <iostream>
 #include <fstream>
-#include <libzip++.h>
+
 #include "XLContentTypes.h"
 #include "XLAppProperties.h"
 #include "XLCoreProperties.h"
@@ -61,6 +61,10 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLSheet.h"
 #include "XLRelationships.h"
 #include "XLException.h"
+
+namespace libzippp {
+    class ZipArchive;
+}
 
 namespace OpenXLSX
 {
@@ -320,7 +324,6 @@ namespace OpenXLSX
         std::unique_ptr<XLWorkbook> m_workbook; /**< A pointer to the workbook object */
 
         std::map<std::string, XLAbstractXMLFile *> m_xmlFiles; /**< A std::map with all the associated XML files*/
-        //std::unique_ptr<libzippp::ZipArchive> m_archive;
         std::unique_ptr<libzippp::ZipArchive> m_archive;
 
         std::vector<std::string> m_xmlData;

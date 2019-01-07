@@ -2,16 +2,14 @@
 // Created by Troldal on 24/07/16.
 //
 
-#include <XLDocument.h>
-
+#include "XLDocument.h"
 #include "XLAbstractXMLFile.h"
 #include "XLDocument.h"
 #include "XLWorksheet.h"
 #include "XLTemplate.h"
 #include "XLException.h"
 
-#include <zip.h>
-#include <zlib.h>
+#include <libzip++.h>
 
 using namespace std;
 using namespace libzippp;

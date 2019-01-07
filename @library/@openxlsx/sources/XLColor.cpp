@@ -61,9 +61,9 @@ void XLColor::SetColor(const std::string &hexCode)
     std::string green = temp.substr(2, 2);
     std::string blue = temp.substr(4, 2);
 
-    m_red = stoul(red, 0, 16);
-    m_green = stoul(green, 0, 16);
-    m_blue = stoul(blue, 0, 16);
+    m_red = static_cast<unsigned int>(stoul(red, nullptr, 16));
+    m_green = static_cast<unsigned int>(stoul(green, nullptr, 16));
+    m_blue = static_cast<unsigned int>(stoul(blue, nullptr, 16));
 }
 
 /**

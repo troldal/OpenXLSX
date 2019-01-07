@@ -87,7 +87,7 @@ namespace OpenXLSX
         /**
          * @brief
          */
-        virtual ~XLCoreProperties();
+        virtual ~XLCoreProperties() override;
 
         /**
          * @brief
