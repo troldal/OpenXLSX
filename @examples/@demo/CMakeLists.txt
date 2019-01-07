@@ -10,7 +10,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(SOURCE_FILES main.cpp)
 
 add_executable(Demo ${SOURCE_FILES})
-target_link_libraries(Demo PUBLIC -lOpenXLSX)
+target_link_libraries(Demo PUBLIC OpenXLSX)
 target_link_directories(Demo PUBLIC ${OPENXLSX_INSTALLDIR}/lib)
 target_link_directories(Demo PUBLIC ${OPENXLSX_INSTALLDIR}/bin)
 target_include_directories(Demo PUBLIC ${OPENXLSX_INSTALLDIR}/include)
