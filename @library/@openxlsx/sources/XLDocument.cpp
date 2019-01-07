@@ -442,28 +442,3 @@ const XLCoreProperties * XLDocument::CoreProperties() const
 {
     return m_docCoreProperties.get();
 }
-
-void XLDocument::Dummy() {
-    zip_fclose(NULL);
-    zip_discard(NULL);
-    zip_set_file_compression(NULL, 0, 0, 0);
-    zip_delete(NULL, 0);
-    zip_source_file(NULL, NULL, 0, 0);
-    zip_file_get_comment(NULL, 0, NULL, 0);
-    zip_get_archive_comment(NULL, NULL, 0);
-    zip_stat_index(NULL, 0, 0, NULL);
-    zip_file_rename(NULL, 0, NULL, 0);
-    zip_set_default_password(NULL, NULL);
-    zip_file_add(NULL, NULL, NULL, 0);
-    zip_set_archive_comment(NULL, NULL, 0);
-    zip_source_buffer(NULL, NULL, 0, 0);
-    zip_close(NULL);
-    zip_open(NULL, 0, NULL);
-    zip_fread(NULL, NULL, 0);
-    zip_get_num_entries(NULL, 0);
-    zip_dir_add(NULL, NULL, 0);
-    zip_fopen_index(NULL, 0, 0);
-    zip_file_set_comment(NULL, 0, NULL, 0, 0);
-
-    deflateInit2_(0, 0, 0, 0, 0, 0, NULL, 0);
-}

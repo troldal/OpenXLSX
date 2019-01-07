@@ -300,8 +300,6 @@ namespace OpenXLSX
 
     private:
 
-        void Dummy();
-
         template<typename T>
         typename std::enable_if_t<std::is_base_of<XLAbstractXMLFile, T>::value, std::unique_ptr<T>>
         CreateItem(const std::string &target);

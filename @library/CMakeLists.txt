@@ -45,19 +45,19 @@ ExternalProject_Add(zlib
             -DCMAKE_PREFIX_PATH:PATH=<INSTALL_DIR>
             -Wno-dev)
 
-#ExternalProject_Add(bzip
-#        GIT_REPOSITORY https://github.com/osrf/bzip2_cmake.git
-#        GIT_TAG 0496eaa
-#        INSTALL_DIR ${OPENXLSX_DEPENDENCIES}
-#        UPDATE_COMMAND ""
-#        CMAKE_ARGS
-#            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-#            -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-#            -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-#            -DCMAKE_POSITION_INDEPENDENT_CODE=ON
-#            -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
-#            -DCMAKE_PREFIX_PATH:PATH=<INSTALL_DIR>
-#            -Wno-dev)
+ExternalProject_Add(bzip
+        GIT_REPOSITORY https://github.com/osrf/bzip2_cmake.git
+        GIT_TAG 0496eaa
+        INSTALL_DIR ${OPENXLSX_DEPENDENCIES}
+        UPDATE_COMMAND ""
+        CMAKE_ARGS
+            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+            -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+            -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+            -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+            -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+            -DCMAKE_PREFIX_PATH:PATH=<INSTALL_DIR>
+            -Wno-dev)
 
 ExternalProject_Add(libzip
         GIT_REPOSITORY https://github.com/nih-at/libzip.git
@@ -95,6 +95,6 @@ add_subdirectory(@openxlsx)
 #=======================================================================================================================
 # Define Dependencies
 #=======================================================================================================================
-ExternalProject_Add_StepDependencies(libzip install zlib)# bzip)
+ExternalProject_Add_StepDependencies(libzip install zlib bzip)
 ExternalProject_Add_StepDependencies(libzip++ install libzip)
 add_dependencies(OpenXLSX flat pugi libzip++)
