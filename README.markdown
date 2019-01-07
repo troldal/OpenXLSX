@@ -7,7 +7,7 @@ Many programming languages have the ability to modify Excel files, either native
 ### libxls
 The libxls library (https://sourceforge.net/projects/libxls/) is a C library for reading files in the legacy Excel file format, .xls. It cannot be used for writing or modifying Excel files.
 
-### xlsib
+### xlslib
 The xlslib library (https://sourceforge.net/projects/xlslib/) is a C/C++ library for creating files in the legacy Excel file format, .xls. It cannot be used for reading or modifying Excel files.
 
 ### libxlsxwriter
@@ -39,6 +39,17 @@ The ambition is that OpenXLSX should be able to read, write, create and modify E
   Features related to formatting, plots and figures have not yet been implemented
   
   It should be noted, that creating const XLDocument objects, is currently not working!
+  
+  ## Compatibility
+  OpenXLSX can be built and run on the following platforms/compilers:
+  
+  - Linux (GCC)
+  - MacOS (GCC/LLVM/Xcode)
+  - Windows (MinGW)
+  
+  OpenXLSX can be compiled on Windows using MSVC, but there is an issue with the CMake script, which prevents MSVC finding the libraries.
+  Building on Windows using MSYS has not been tested
+  Building using the Intel compiler has not been tested.
   
   ## Usage
   
