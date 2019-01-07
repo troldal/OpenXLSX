@@ -1,5 +1,8 @@
 include(ExternalProject)
 
+#=======================================================================================================================
+# Download and build the PugiXML library
+#=======================================================================================================================
 ExternalProject_Add(pugi
         GIT_REPOSITORY https://github.com/zeux/pugixml.git
         GIT_TAG 8436f2a
@@ -14,6 +17,9 @@ ExternalProject_Add(pugi
             -DCMAKE_PREFIX_PATH:PATH=<INSTALL_DIR>
             -Wno-dev)
 
+#=======================================================================================================================
+# Download the header-only library 'Flat'
+#=======================================================================================================================
 ExternalProject_Add(flat
         GIT_REPOSITORY https://github.com/pubby/flat.git
         GIT_TAG bfa3b77
@@ -31,6 +37,9 @@ ExternalProject_Add(flat
             -DCMAKE_PREFIX_PATH:PATH=<INSTALL_DIR>
             -Wno-dev)
 
+#=======================================================================================================================
+# Download and build the zlib library
+#=======================================================================================================================
 ExternalProject_Add(zlib
         GIT_REPOSITORY https://github.com/madler/zlib.git
         GIT_TAG cacf7f1
@@ -45,6 +54,9 @@ ExternalProject_Add(zlib
             -DCMAKE_PREFIX_PATH:PATH=<INSTALL_DIR>
             -Wno-dev)
 
+#=======================================================================================================================
+# Download and build the bzip2 library
+#=======================================================================================================================
 ExternalProject_Add(bzip
         GIT_REPOSITORY https://github.com/osrf/bzip2_cmake.git
         GIT_TAG 0496eaa
@@ -59,6 +71,9 @@ ExternalProject_Add(bzip
             -DCMAKE_PREFIX_PATH:PATH=<INSTALL_DIR>
             -Wno-dev)
 
+#=======================================================================================================================
+# Download and build the libzip library
+#=======================================================================================================================
 ExternalProject_Add(libzip
         GIT_REPOSITORY https://github.com/nih-at/libzip.git
         GIT_TAG ff55682
@@ -75,6 +90,9 @@ ExternalProject_Add(libzip
             -DCMAKE_PREFIX_PATH:PATH=<INSTALL_DIR>
             -Wno-dev)
 
+#=======================================================================================================================
+# Build the libzip++ library
+#=======================================================================================================================
 ExternalProject_Add(libzip++
         SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/@libzip++
         INSTALL_DIR ${OPENXLSX_DEPENDENCIES}
@@ -91,6 +109,9 @@ ExternalProject_Add(libzip++
             -DCMAKE_PREFIX_PATH:PATH=<INSTALL_DIR>
             -Wno-dev)
 
+#=======================================================================================================================
+# Load the OpenXLSX library folder
+#=======================================================================================================================
 add_subdirectory(@openxlsx)
 
 #=======================================================================================================================

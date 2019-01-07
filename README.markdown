@@ -48,7 +48,7 @@ The ambition is that OpenXLSX should be able to read, write, create and modify E
   - Windows (MinGW)
   
   OpenXLSX can be compiled on Windows using MSVC, but there is an issue with the CMake script, which prevents MSVC finding the libraries.
-  Building on Windows using MSYS has not been tested
+  Building on Windows using MSYS has not been tested.
   Building using the Intel compiler has not been tested.
   
   ## Usage

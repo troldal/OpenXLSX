@@ -1,7 +1,7 @@
 #=======================================================================================================================
 # Preamble
 #=======================================================================================================================
-cmake_minimum_required(VERSION 3.11 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 project(libzip++ VERSION 0.5.0)
 
 #=======================================================================================================================
@@ -14,7 +14,6 @@ add_library(zip++ STATIC
 target_link_libraries(zip++ PUBLIC zip)
 target_link_directories(zip++ PUBLIC ${CMAKE_INSTALL_PREFIX}/lib)
 target_include_directories(zip++ PUBLIC ${CMAKE_INSTALL_PREFIX}/include)
-#target_include_directories(OpenXLSX PUBLIC ${CMAKE_CURRENT_LIST_DIR}/@libzip++)
 
 include(GNUInstallDirs)
 install(TARGETS zip++
