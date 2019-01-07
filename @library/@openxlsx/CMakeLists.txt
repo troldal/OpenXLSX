@@ -96,13 +96,14 @@ set(OPENXLSX_SOURCES
 # Build OpenXLSX library
 #=======================================================================================================================
 target_sources(OpenXLSX PUBLIC ${OPENXLSX_HEADERS} ${OPENXLSX_SOURCES})
-target_link_libraries(OpenXLSX PUBLIC -lpugixml -lzip++ -lzip -lz -lbz2)
+target_link_libraries(OpenXLSX PUBLIC pugixml zip++ zip z bz2)
 target_link_directories(OpenXLSX PUBLIC ${OPENXLSX_DEPENDENCIES}/lib)
 target_include_directories(OpenXLSX SYSTEM PUBLIC ${OPENXLSX_DEPENDENCIES}/include)
 target_include_directories(OpenXLSX PRIVATE ${CMAKE_CURRENT_LIST_DIR}/headers
                                     SYSTEM INTERFACE ${CMAKE_CURRENT_LIST_DIR}/headers)
 
 set_target_properties(OpenXLSX PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${OPENXLSX_INSTALLDIR}/lib)
+set_target_properties(OpenXLSX PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${OPENXLSX_INSTALLDIR}/bin)
 file(COPY ${CMAKE_CURRENT_LIST_DIR}/headers/ DESTINATION ${OPENXLSX_INSTALLDIR}/include/OpenXLSX)
 
 #=======================================================================================================================

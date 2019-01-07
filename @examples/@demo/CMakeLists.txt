@@ -12,5 +12,8 @@ set(SOURCE_FILES main.cpp)
 add_executable(Demo ${SOURCE_FILES})
 target_link_libraries(Demo PUBLIC -lOpenXLSX)
 target_link_directories(Demo PUBLIC ${OPENXLSX_INSTALLDIR}/lib)
+target_link_directories(Demo PUBLIC ${OPENXLSX_INSTALLDIR}/bin)
 target_include_directories(Demo PUBLIC ${OPENXLSX_INSTALLDIR}/include)
 target_include_directories(Demo PUBLIC ${OPENXLSX_DEPENDENCIES}/include)
+
+set_target_properties(Demo PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${OPENXLSX_INSTALLDIR}/bin)
