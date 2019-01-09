@@ -18,26 +18,6 @@ ExternalProject_Add(pugi
             -Wno-dev)
 
 #=======================================================================================================================
-# Download the header-only library 'Flat'
-#=======================================================================================================================
-ExternalProject_Add(flat
-        GIT_REPOSITORY https://github.com/pubby/flat.git
-        GIT_TAG bfa3b77
-        INSTALL_DIR ${OPENXLSX_DEPENDENCIES}
-        UPDATE_COMMAND ""
-        CONFIGURE_COMMAND ""
-        BUILD_COMMAND ""
-        INSTALL_COMMAND
-            ${CMAKE_COMMAND} -E copy_directory <SOURCE_DIR>/include ${OPENXLSX_DEPENDENCIES}/include/flat
-        CMAKE_ARGS
-            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-            -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-            -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-            -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
-            -DCMAKE_PREFIX_PATH:PATH=<INSTALL_DIR>
-            -Wno-dev)
-
-#=======================================================================================================================
 # Download and build the zlib library
 #=======================================================================================================================
 ExternalProject_Add(zlib
@@ -119,4 +99,4 @@ add_subdirectory(@openxlsx)
 #=======================================================================================================================
 ExternalProject_Add_StepDependencies(libzip install zlib bzip)
 ExternalProject_Add_StepDependencies(libzip++ install libzip)
-add_dependencies(OpenXLSX flat pugi libzip++)
+add_dependencies(OpenXLSX pugi libzip++)

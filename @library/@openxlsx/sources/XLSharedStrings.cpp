@@ -5,6 +5,8 @@
 #include "XLSharedStrings.h"
 #include "XLDocument.h"
 
+#include <pugixml.hpp>
+
 using namespace std;
 using namespace OpenXLSX;
 

@@ -4,6 +4,7 @@
 
 #include "XLDocument.h"
 #include <sstream>
+#include <pugixml.hpp>
 
 using namespace std;
 using namespace OpenXLSX;
@@ -25,6 +26,11 @@ XLAbstractXMLFile::XLAbstractXMLFile(XLDocument &parent,
 {
     if (xmlData.empty()) SetXmlData(m_parentDocument.GetXMLFile(m_path));
     else SetXmlData(xmlData);
+}
+
+XLAbstractXMLFile::~XLAbstractXMLFile()
+{
+
 }
 
 /**

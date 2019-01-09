@@ -107,7 +107,7 @@ namespace OpenXLSX
 
         static std::map<std::string, XLFont> s_fonts;
 
-        XMLNode m_fontNode;
+        std::unique_ptr<XMLNode> m_fontNode;
 
         std::string m_name;
         unsigned int m_size;

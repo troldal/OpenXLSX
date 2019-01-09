@@ -3,6 +3,9 @@
 //
 
 #include <cassert>
+#include <pugixml.hpp>
+#include <XLCellValue.h>
+
 #include "XLCell.h"
 #include "XLCellValue.h"
 #include "XLException.h"
@@ -378,4 +381,50 @@ XLNumberType XLCellValue::DetermineNumberType(const string &numberString) const
 XMLNode XLCellValue::SharedStringNode(unsigned long index) const
 {
     return ParentCell()->ParentWorkbook()->SharedStrings()->GetStringNode(index);
+}
+
+void XLCellValue::SetInteger(long long int numberValue)
+{
+    ValueNode().remove_attribute("t");
+    ValueNode().text().set(numberValue);
+}
+
+void XLCellValue::SetBoolean(bool numberValue)
+{
+    TypeAttribute().set_value("b");
+    ValueNode().text().set(numberValue ? 1 : 0);
+}
+
+void XLCellValue::SetFloat(long double numberValue)
+{
+    ValueNode().remove_attribute("t");
+    ValueNode().text().set(std::to_string(numberValue).c_str());
+}
+
+long long int XLCellValue::GetInteger() const
+{
+    if (ValueType() != XLValueType::Integer) throw XLException("Cell value is not Integer");
+    return ValueNode().text().as_llong();
+}
+
+bool XLCellValue::GetBoolean() const
+{
+    if (ValueType() != XLValueType::Boolean) throw XLException("Cell value is not Boolean");
+    return !(std::string_view(ValueNode().text().get()) == "0");
+}
+
+long double XLCellValue::GetFloat() const
+{
+    if (ValueType() != XLValueType::Float) throw XLException("Cell value is not Float");
+    return std::stold(ValueNode().text().get());
+}
+
+const char* XLCellValue::GetString() const
+{
+    if (ValueType() != XLValueType::String) throw XLException("Cell value is not String");
+    if (std::string_view(TypeAttribute().value()) == "str") // ordinary string
+        return ValueNode().text().get();
+    if (std::string_view(TypeAttribute().value()) == "s") // shared string
+        return SharedStringNode(ValueNode().text().as_ullong()).text().get();
+    else throw XLException("Unknown string type");
 }

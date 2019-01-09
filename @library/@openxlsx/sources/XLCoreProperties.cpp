@@ -2,6 +2,8 @@
 // Created by Troldal on 18/08/16.
 //
 
+#include <pugixml.hpp>
+
 #include "XLCoreProperties.h"
 #include "XLDocument.h"
 

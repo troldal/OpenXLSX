@@ -95,7 +95,7 @@ namespace OpenXLSX
         /**
          * @brief Destructor. Default implementation used.
          */
-        virtual ~XLAbstractXMLFile() = default;
+        virtual ~XLAbstractXMLFile();
 
         /**
          * @brief The assignment operator. The default implementation has been used.

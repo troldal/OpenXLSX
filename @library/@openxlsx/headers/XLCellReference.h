@@ -69,7 +69,7 @@ namespace OpenXLSX
     /**
      * @brief
      */
-    class XLCellReference
+    class XLCellReference final
     {
         friend bool operator==(const XLCellReference &lhs, const XLCellReference &rhs);
         friend bool operator!=(const XLCellReference &lhs, const XLCellReference &rhs);
@@ -115,7 +115,7 @@ namespace OpenXLSX
         /**
          * @brief Destructor. Default implementation used.
          */
-        virtual ~XLCellReference() = default;
+        ~XLCellReference() = default;
 
         /**
          * @brief Assignment operator.

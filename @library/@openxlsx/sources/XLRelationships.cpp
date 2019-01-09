@@ -5,6 +5,8 @@
 #include "XLRelationships.h"
 #include "XLDocument.h"
 
+#include <pugixml.hpp>
+
 using namespace std;
 using namespace OpenXLSX;
 
@@ -15,7 +17,7 @@ XLRelationshipItem::XLRelationshipItem(XMLNode node,
                                        XLRelationshipType type,
                                        const std::string &target,
                                        const std::string &id)
-    : m_relationshipNode(node),
+    : m_relationshipNode(std::make_unique<XMLNode>(node)),
       m_relationshipType(type),
       m_relationshipTarget(target),
       m_relationshipId(id)
@@ -54,10 +56,10 @@ const std::string &XLRelationshipItem::Id() const
 void XLRelationshipItem::Delete()
 {
     // Delete the XML node
-    if (m_relationshipNode) m_relationshipNode.parent().remove_child(m_relationshipNode);
+    if (m_relationshipNode) m_relationshipNode->parent().remove_child(*m_relationshipNode);
 
     // Set the object to a safe State
-    m_relationshipNode = XMLNode();
+    m_relationshipNode = std::make_unique<XMLNode>();
     m_relationshipType = XLRelationshipType::Unknown;
     m_relationshipTarget = "";
     m_relationshipId = "";

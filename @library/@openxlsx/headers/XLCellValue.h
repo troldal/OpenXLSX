@@ -43,11 +43,12 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXLEXE_XLCELLVALUE_H
-#define OPENXLEXE_XLCELLVALUE_H
+#ifndef OPENXLSX_XLCELLVALUE_H
+#define OPENXLSX_XLCELLVALUE_H
 
 #include "XLCellType.h"
 #include "XLException.h"
+#include "XLXml.h"
 
 #include <string>
 #include <string_view>
@@ -104,17 +105,10 @@ namespace OpenXLSX
      *
      * ## Developer Notes ##
      * The only member variable is a reference to the parent XLCell object. All functionality works by manipulating
-     * the parent cell theough the reference.
+     * the parent cell through the reference.
      */
     class XLCellValue
     {
-        friend class XLValue;
-        friend class XLValueString;
-        friend class XLValueNumber;
-        friend class XLValueBoolean;
-        friend class XLValueEmpty;
-        friend class XLValueError;
-
 
 //----------------------------------------------------------------------------------------------------------------------
 //           Public Member Functions
@@ -233,7 +227,7 @@ namespace OpenXLSX
          * @param stringValue A std::string_view to assign.
          */
         void Set(const std::string &stringValue);
-
+        
         /**
          * @brief Get integer value.
          * @tparam T The integer type to get.
@@ -382,6 +376,48 @@ namespace OpenXLSX
          */
         XMLNode SharedStringNode(unsigned long index) const;
 
+        /**
+         * @brief
+         * @param numberValue
+         */
+        void SetInteger(long long int numberValue);
+
+        /**
+         * @brief
+         * @param numberValue
+         */
+        void SetBoolean(bool numberValue);
+
+        /**
+         * @brief
+         * @param numberValue
+         */
+        void SetFloat(long double numberValue);
+
+        /**
+         * @brief
+         * @return
+         */
+        long long int GetInteger() const;
+
+        /**
+         * @brief
+         * @return
+         */
+        bool GetBoolean() const;
+
+        /**
+         * @brief
+         * @return
+         */
+        long double GetFloat() const;
+
+        /**
+         * @brief
+         * @return
+         */
+        const char* GetString() const;
+
 
 //----------------------------------------------------------------------------------------------------------------------
 //           Private Member Variables
@@ -436,13 +472,11 @@ namespace OpenXLSX
     void XLCellValue::Set(T numberValue)
     {
         if constexpr (std::is_same<T, bool>::value) { // if bool
-            TypeAttribute().set_value("b");
-            ValueNode().text().set(numberValue ? 1 : 0);
+            SetBoolean(numberValue);
         }
         else
         { // if not bool
-            ValueNode().remove_attribute("t");
-            ValueNode().text().set(numberValue);
+            SetInteger(numberValue);
         }
     }
 
@@ -455,8 +489,7 @@ namespace OpenXLSX
     template<typename T, typename std::enable_if<std::is_floating_point<T>::value, long double>::type *>
     void XLCellValue::Set(T numberValue)
     {
-        ValueNode().remove_attribute("t");
-        ValueNode().text().set(std::to_string(numberValue).c_str());
+        SetFloat(numberValue);
     }
 
     /**
@@ -470,11 +503,9 @@ namespace OpenXLSX
     T XLCellValue::Get()
     {
         if constexpr (std::is_same<T, bool>::value) {
-            if (ValueType() != XLValueType::Boolean) throw XLException("Cell value is not Boolean");
-            return !(std::string_view(ValueNode().text().get()) == "0");
+            return GetBoolean();
         } else {
-            if (ValueType() != XLValueType::Integer) throw XLException("Cell value is not Integer");
-            return ValueNode().text().as_llong();
+            return GetInteger();
         }
     }
 
@@ -487,8 +518,7 @@ namespace OpenXLSX
     template<typename T, typename std::enable_if<std::is_floating_point<T>::value, long double>::type *>
     T XLCellValue::Get()
     {
-        if (ValueType() != XLValueType::Float) throw XLException("Cell value is not Float");
-        return std::stold(ValueNode().text().get());
+        return GetFloat();
     }
 
     /**
@@ -500,13 +530,8 @@ namespace OpenXLSX
     template<typename T, typename std::enable_if<std::is_constructible<T, char*>::value && !std::is_same<T, bool>::value, char*>::type *>
     T XLCellValue::Get()
     {
-        if (ValueType() != XLValueType::String) throw XLException("Cell value is not String");
-        if (std::string_view(TypeAttribute().value()) == "str") // ordinary string
-            return T(ValueNode().text().get());
-        if (std::string_view(TypeAttribute().value()) == "s") // shared string
-            return T(SharedStringNode(ValueNode().text().as_ullong()).text().get());
-        else throw XLException("Unknown string type");
+        return T(GetString());
     }
 }
 
-#endif //OPENXLEXE_XLCELLVALUE_H
+#endif //OPENXLSX_XLCELLVALUE_H

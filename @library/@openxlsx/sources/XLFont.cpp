@@ -5,6 +5,7 @@
 #include "XLFont.h"
 
 #include <sstream>
+#include <pugixml.hpp>
 
 using namespace std;
 using namespace OpenXLSX;
@@ -20,7 +21,7 @@ XLFont::XLFont(const string &name,
                bool bold,
                bool italics,
                bool underline)
-    : m_fontNode(XMLNode()),
+    : m_fontNode(std::make_unique<XMLNode>()),
       m_name(name),
       m_size(size),
       m_color(color),

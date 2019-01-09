@@ -7,6 +7,5 @@ target_link_libraries(Benchmark PUBLIC -lOpenXLSX)
 target_link_directories(Benchmark PUBLIC ${OPENXLSX_INSTALLDIR}/lib)
 target_link_directories(Benchmark PUBLIC ${OPENXLSX_INSTALLDIR}/bin)
 target_include_directories(Benchmark PUBLIC ${OPENXLSX_INSTALLDIR}/include)
-target_include_directories(Benchmark PUBLIC ${OPENXLSX_DEPENDENCIES}/include)
 
 set_target_properties(Benchmark PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${OPENXLSX_INSTALLDIR}/bin)

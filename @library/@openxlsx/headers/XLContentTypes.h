@@ -57,7 +57,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 namespace OpenXLSX
 {
     class XLContentItem;
-
     using XLContentItemMap = std::map<std::string, std::unique_ptr<XLContentItem>>;
 
 //======================================================================================================================
@@ -178,7 +177,7 @@ namespace OpenXLSX
 
     private:
 
-        XMLNode m_contentNode; /**< */
+        std::unique_ptr<XMLNode> m_contentNode; /**< */
         std::string m_contentPath; /**< */
         XLContentType m_contentType; /**< */
     };

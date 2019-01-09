@@ -10,6 +10,7 @@
 #include "XLException.h"
 
 #include <libzip++.h>
+#include <pugixml.hpp>
 
 using namespace std;
 using namespace libzippp;

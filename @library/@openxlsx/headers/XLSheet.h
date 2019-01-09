@@ -130,7 +130,7 @@ namespace OpenXLSX
          * @brief The destructor
          * @note The default destructor is used, since cleanup of pointer data members is not required.
          */
-        ~XLSheet() override = default;
+        ~XLSheet() override;
 
         /**
          * @brief Assignment operator
@@ -211,8 +211,8 @@ namespace OpenXLSX
         XLSheetType m_sheetType; /**< The sheet type, i.e. WorkSheet, ChartSheet, etc. */
         XLSheetState m_sheetState; /**< The state of the sheet, i.e. Visible, Hidden or VeryHidden */
 
-        XMLNode m_nodeInWorkbook; /**< A pointer to the relevant sheet node in workbook.xml */
-        XMLNode m_nodeInApp; /**< A pointer to the relevant TitleOfParts node in app.xml */
+        std::unique_ptr<XMLNode> m_nodeInWorkbook; /**< A pointer to the relevant sheet node in workbook.xml */
+        std::unique_ptr<XMLNode> m_nodeInApp; /**< A pointer to the relevant TitleOfParts node in app.xml */
         XLContentItem *m_nodeInContentTypes; /**< A pointer to the relevant content type item in [Content_Types].xml */
         XLRelationshipItem *m_nodeInWorkbookRels; /**< A pointer to the relationship item in workbook.xml.rels */
     };

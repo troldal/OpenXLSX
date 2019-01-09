@@ -3,6 +3,7 @@
 //
 
 #include <cstring>
+#include <pugixml.hpp>
 
 #include "XLWorkbook.h"
 #include "XLWorksheet.h"
@@ -21,7 +22,7 @@ XLWorkbook::XLWorkbook(XLDocument &parent,
 
     : XLAbstractXMLFile(parent, filePath),
       XLSpreadsheetElement(parent),
-      m_sheetsNode(XMLNode()),
+      m_sheetsNode(std::make_unique<XMLNode>()),
       m_sheetNodes(),
       m_sheets(),
       m_sheetPaths(),
@@ -29,7 +30,7 @@ XLWorkbook::XLWorkbook(XLDocument &parent,
       m_sheetCount(0),
       m_worksheetCount(0),
       m_chartsheetCount(0),
-      m_definedNames(XMLNode()),
+      m_definedNames(std::make_unique<XMLNode>()),
       m_relationships(nullptr),
       m_sharedStrings(nullptr),
       m_styles(nullptr)
@@ -49,11 +50,11 @@ bool XLWorkbook::ParseXMLData()
 
     // Find the "sheets" section in the Workbook.xml file
     for (auto &node : XmlDocument()->first_child().children()) {
-        if (string(node.name()) == "sheets") m_sheetsNode = node;
-        if (string(node.name()) == "definedNames") m_definedNames = node;
+        if (string(node.name()) == "sheets") *m_sheetsNode = node;
+        if (string(node.name()) == "definedNames") *m_definedNames = node;
     }
 
-    for (auto &sheetNode : m_sheetsNode.children())
+    for (auto &sheetNode : m_sheetsNode->children())
         m_sheetNodes[sheetNode.attribute("name").value()] = sheetNode;
 
     for (auto const &item : *m_relationships->Relationships()) {
@@ -177,7 +178,7 @@ XLSharedStrings *XLWorkbook::SharedStrings() const
  */
 void XLWorkbook::DeleteNamedRanges()
 {
-    for (auto &child : m_definedNames.children()) child.parent().remove_child(child);
+    for (auto &child : m_definedNames->children()) child.parent().remove_child(child);
     m_isModified = true;
 }
 
@@ -240,16 +241,16 @@ XLRelationshipItem *XLWorkbook::InitiateWorksheet(const std::string &sheetName, 
 
     // insert Sheet node at the given Index
     if (index == 0) {
-        auto node = m_sheetsNode.append_child("sheet");
+        auto node = m_sheetsNode->append_child("sheet");
         node.append_attribute("name") = sheetName.c_str();
         node.append_attribute("sheetId") = to_string(m_sheetId + 1).c_str();
         node.append_attribute("r:id") = item.Id().c_str();
         m_sheetNodes[sheetName] = node;
     }
     else {
-        auto curNode = m_sheetsNode.first_child();
+        auto curNode = m_sheetsNode->first_child();
         if (!curNode) {
-            auto node = m_sheetsNode.append_child("sheet");
+            auto node = m_sheetsNode->append_child("sheet");
             node.append_attribute("name") = sheetName.c_str();
             node.append_attribute("sheetId") = to_string(m_sheetId + 1).c_str();
             node.append_attribute("r:id") = item.Id().c_str();
@@ -261,14 +262,14 @@ XLRelationshipItem *XLWorkbook::InitiateWorksheet(const std::string &sheetName, 
                 curNode = curNode.next_sibling();
                 ++idx;
                 if (!curNode) {
-                    auto node = m_sheetsNode.append_child("sheet");
+                    auto node = m_sheetsNode->append_child("sheet");
                     node.append_attribute("name") = sheetName.c_str();
                     node.append_attribute("sheetId") = to_string(m_sheetId + 1).c_str();
                     node.append_attribute("r:id") = item.Id().c_str();
                     m_sheetNodes[sheetName] = node;
                 }
             }
-            auto node = m_sheetsNode.insert_child_before("sheet", curNode);
+            auto node = m_sheetsNode->insert_child_before("sheet", curNode);
             node.append_attribute("name") = sheetName.c_str();
             node.append_attribute("sheetId") = to_string(m_sheetId + 1).c_str();
             node.append_attribute("r:id") = item.Id().c_str();
@@ -310,7 +311,7 @@ void XLWorkbook::MoveSheet(unsigned int index)
 unsigned int XLWorkbook::IndexOfSheet(const std::string &sheetName)
 {
 
-    auto node = m_sheetsNode.first_child();
+    auto node = m_sheetsNode->first_child();
     if (node.type() == pugi::node_null) throw runtime_error("Sheet does not exist.");
 
     unsigned int index = 1;
@@ -466,7 +467,7 @@ void XLWorkbook::CreateWorksheet(const XLRelationshipItem &item, const std::stri
 
     // Find the appropriate sheet node in the Workbook .xml file; get the name and id of the worksheet.
     string name;
-    for (auto &node : m_sheetsNode.children()) {
+    for (auto &node : m_sheetsNode->children()) {
         if (string(node.attribute("r:id").value()) == item.Id()) {
             name = node.attribute("name").value();
             break;
@@ -498,7 +499,7 @@ void XLWorkbook::CreateChartsheet(const XLRelationshipItem &item)
 {
 
     string name;
-    auto node = m_sheetsNode.first_child();
+    auto node = m_sheetsNode->first_child();
     while (node) {
         if (strcmp(node.attribute("r:id").value(), item.Id().c_str()) == 0) {
             name = node.attribute("name").value();

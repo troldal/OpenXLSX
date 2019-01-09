@@ -15,6 +15,7 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
+#include <pugixml.hpp>
 
 using namespace std;
 using namespace OpenXLSX;
@@ -29,10 +30,10 @@ XLWorksheet::XLWorksheet(XLWorkbook &parent,
                          const std::string &xmlData)
 
     : XLSheet(parent, name, filePath, xmlData),
-      m_dimensionNode(XMLNode()),
-      m_sheetDataNode(XMLNode()),
-      m_columnsNode(XMLNode()),
-      m_sheetViewsNode(XMLNode()),
+      m_dimensionNode(std::make_unique<XMLNode>()),
+      m_sheetDataNode(std::make_unique<XMLNode>()),
+      m_columnsNode(std::make_unique<XMLNode>()),
+      m_sheetViewsNode(std::make_unique<XMLNode>()),
       m_parentWorkbook(parent),
       m_rows(),
       m_columns(),
@@ -66,7 +67,7 @@ bool XLWorksheet::ParseXMLData()
     else SetLastCell(XLCellReference(dimensions.substr(dimensions.find(":") + 1)));
 
     // If Column properties are grouped, divide them into properties for individual Columns.
-    if (m_columnsNode.type() != pugi::node_null) {
+    if (m_columnsNode->type() != pugi::node_null) {
         auto currentNode = ColumnsNode().first_child();
         while (currentNode != nullptr) {
             int min = stoi(currentNode.attribute("min").value());
@@ -90,7 +91,7 @@ bool XLWorksheet::ParseXMLData()
     }
 
     // Store all Column nodes in the m_columns vector.
-    if (m_columnsNode.type() != pugi::node_null) {
+    if (m_columnsNode->type() != pugi::node_null) {
         auto currentColumn = ColumnsNode().first_child();
         while (currentColumn) {
             m_columns.emplace(currentColumn.attribute("min").as_ullong() - 1, XLColumn(*this, currentColumn));
@@ -268,7 +269,7 @@ XLColumn *XLWorksheet::Column(unsigned int columnNumber)
 {
 
     // If no columns exists, create the <cols> node in the XML document.
-    if (!m_columnsNode) m_columnsNode = XmlDocument()->root().insert_child_before("cols", SheetDataNode());
+    if (!m_columnsNode) *m_columnsNode = XmlDocument()->root().insert_child_before("cols", SheetDataNode());
 
     // Create result object and initialize to nullptr.
     XLColumn *result = nullptr;
@@ -363,7 +364,7 @@ const XLColumns *XLWorksheet::Columns() const
 XMLNode XLWorksheet::DimensionNode()
 {
     if (!m_dimensionNode) throw XLException("The <dimension> node does not exist in " + FilePath());
-    return m_dimensionNode;
+    return *m_dimensionNode;
 }
 
 /**
@@ -373,7 +374,7 @@ XMLNode XLWorksheet::DimensionNode()
 const XMLNode XLWorksheet::DimensionNode() const
 {
     if (!m_dimensionNode) throw XLException("The <dimension> node does not exist in " + FilePath());
-    return m_dimensionNode;
+    return *m_dimensionNode;
 }
 
 /**
@@ -381,7 +382,7 @@ const XMLNode XLWorksheet::DimensionNode() const
  */
 void XLWorksheet::InitDimensionNode()
 {
-    m_dimensionNode = XmlDocument()->first_child().child("dimension");
+    *m_dimensionNode = XmlDocument()->first_child().child("dimension");
 }
 
 /**
@@ -390,7 +391,7 @@ void XLWorksheet::InitDimensionNode()
 XMLNode XLWorksheet::SheetDataNode()
 {
     if (!m_sheetDataNode) throw XLException("The <sheetData> node does not exist in " + FilePath());
-    return m_sheetDataNode;
+    return *m_sheetDataNode;
 }
 
 /**
@@ -399,7 +400,7 @@ XMLNode XLWorksheet::SheetDataNode()
 const XMLNode XLWorksheet::SheetDataNode() const
 {
     if (!m_sheetDataNode) throw XLException("The <sheetData> node does not exist in " + FilePath());
-    return m_sheetDataNode;
+    return *m_sheetDataNode;
 }
 
 /**
@@ -407,7 +408,7 @@ const XMLNode XLWorksheet::SheetDataNode() const
  */
 void XLWorksheet::InitSheetDataNode()
 {
-    m_sheetDataNode = XmlDocument()->first_child().child("sheetData");
+    *m_sheetDataNode = XmlDocument()->first_child().child("sheetData");
 }
 
 /**
@@ -419,7 +420,7 @@ void XLWorksheet::InitSheetDataNode()
 XMLNode XLWorksheet::ColumnsNode()
 {
     if (!m_columnsNode) throw XLException("The <cols> node does not exist in " + FilePath());
-    return m_columnsNode;
+    return *m_columnsNode;
 }
 
 /**
@@ -431,7 +432,7 @@ XMLNode XLWorksheet::ColumnsNode()
 const XMLNode XLWorksheet::ColumnsNode() const
 {
     if (!m_columnsNode) throw XLException("The <cols> node does not exist in " + FilePath());
-    return m_columnsNode;
+    return *m_columnsNode;
 }
 
 /**
@@ -440,7 +441,7 @@ const XMLNode XLWorksheet::ColumnsNode() const
  */
 void XLWorksheet::InitColumnsNode()
 {
-    m_columnsNode = XmlDocument()->first_child().child("cols");
+    *m_columnsNode = XmlDocument()->first_child().child("cols");
 }
 
 /**
@@ -452,7 +453,7 @@ void XLWorksheet::InitColumnsNode()
 XMLNode XLWorksheet::SheetViewsNode()
 {
     if (!m_sheetViewsNode) throw XLException("The <sheetViews> node does not exist in " + FilePath());
-    return m_sheetViewsNode;
+    return *m_sheetViewsNode;
 }
 
 /**
@@ -465,7 +466,7 @@ XMLNode XLWorksheet::SheetViewsNode()
 const XMLNode XLWorksheet::SheetViewsNode() const
 {
     if (!m_sheetViewsNode) throw XLException("The <sheetViews> node does not exist in " + FilePath());
-    return m_sheetViewsNode;
+    return *m_sheetViewsNode;
 }
 
 /**
@@ -479,7 +480,7 @@ const XMLNode XLWorksheet::SheetViewsNode() const
 void XLWorksheet::InitSheetViewsNode()
 {
     // Only set the variable if it is null.
-    if (!m_sheetViewsNode) m_sheetViewsNode = XmlDocument()->first_child().child("sheetViews");
+    if (!m_sheetViewsNode) *m_sheetViewsNode = XmlDocument()->first_child().child("sheetViews");
 }
 
 /**

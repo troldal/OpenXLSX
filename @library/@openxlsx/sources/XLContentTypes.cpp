@@ -3,6 +3,7 @@
 //
 
 #include <cstring>
+#include <pugixml.hpp>
 
 #include "XLContentTypes.h"
 #include "XLDocument.h"
@@ -16,7 +17,7 @@ using namespace OpenXLSX;
 XLContentItem::XLContentItem(XMLNode node,
                              const std::string &path,
                              XLContentType type)
-    : m_contentNode(node),
+    : m_contentNode(std::make_unique<XMLNode>(node)),
       m_contentPath(path),
       m_contentType(type)
 {
@@ -27,7 +28,7 @@ XLContentItem::XLContentItem(XMLNode node,
  * @details
  */
 XLContentItem::XLContentItem(const XLContentItem &other)
-    : m_contentNode(other.m_contentNode),
+    : m_contentNode(std::make_unique<XMLNode>(*other.m_contentNode)),
       m_contentPath(other.m_contentPath),
       m_contentType(other.m_contentType)
 {
@@ -50,7 +51,7 @@ XLContentItem::XLContentItem(XLContentItem &&other)
  */
 XLContentItem &XLContentItem::operator=(const XLContentItem &other)
 {
-    m_contentNode = other.m_contentNode;
+    *m_contentNode = *other.m_contentNode;
     m_contentPath = other.m_contentPath;
     m_contentType = other.m_contentType;
 
@@ -90,9 +91,9 @@ const string &XLContentItem::Path() const
  */
 void XLContentItem::DeleteItem()
 {
-    if (m_contentNode) m_contentNode.parent().remove_child(m_contentNode);
+    if (m_contentNode) m_contentNode->parent().remove_child(*m_contentNode);
 
-    m_contentNode = XMLNode();
+    m_contentNode = std::make_unique<XMLNode>();
     m_contentPath = "";
     m_contentType = XLContentType::Unknown;
 

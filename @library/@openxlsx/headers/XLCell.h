@@ -258,7 +258,7 @@ namespace OpenXLSX
         XLWorksheet *m_parentWorksheet; /**< A pointer to the parent XLWorksheet object. */
 
         XLCellReference m_cellReference; /**< The cell reference variable. */
-        XMLNode m_cellNode; /**< A pointer to the root XMLNode for the cell. */
+        std::unique_ptr<XMLNode> m_cellNode; /**< A pointer to the root XMLNode for the cell. */
         XLCellValue m_value; /**<  */
 
     };
