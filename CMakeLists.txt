@@ -26,12 +26,13 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 #=======================================================================================================================
 add_subdirectory(@library)
 add_subdirectory(@examples)
-add_subdirectory(@doc)
+add_subdirectory(@doxy)
 
 #=======================================================================================================================
 # Define internal dependencies
 #=======================================================================================================================
 add_dependencies(Demo OpenXLSX)
 add_dependencies(Benchmark OpenXLSX)
+add_dependencies(Documentation OpenXLSX)
 
 

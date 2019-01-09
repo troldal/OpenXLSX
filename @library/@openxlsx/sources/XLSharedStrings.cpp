@@ -67,7 +67,7 @@ const XMLNode XLSharedStrings::GetStringNode(unsigned long index) const
  * The resulting string is returned as pointer-to-const, as the client is not supposed to modify the shared strings
  * directly.
  */
-const XMLNode XLSharedStrings::GetStringNode(string_view str) const
+const XMLNode XLSharedStrings::GetStringNode(std::string_view str) const
 {
     for (const auto &s : m_sharedStringNodes) {
         if (string_view(s.text().get()) == str) return s;
@@ -98,7 +98,7 @@ long XLSharedStrings::GetStringIndex(string_view str) const
 /**
  * @details
  */
-bool XLSharedStrings::StringExists(string_view str) const
+bool XLSharedStrings::StringExists(std::string_view str) const
 {
 
     if (GetStringIndex(str) < 0)

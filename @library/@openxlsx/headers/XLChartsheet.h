@@ -70,9 +70,10 @@ namespace OpenXLSX
 
         /**
          * @brief
-         * @param name
          * @param parent
+         * @param name
          * @param filePath
+         * @param xmlData
          */
         explicit XLChartsheet(XLWorkbook &parent,
                               const std::string &name,

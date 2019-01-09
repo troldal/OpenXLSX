@@ -104,6 +104,7 @@ namespace OpenXLSX
          * @param parent A reference to the parent workbook.
          * @param name The name of the worksheet.
          * @param filePath The path to the worksheet .xml file.
+         * @param xmlData
          */
         explicit XLWorksheet(XLWorkbook &parent,
                              const std::string &name,
@@ -270,6 +271,7 @@ namespace OpenXLSX
         /**
          * @brief
          * @param fileName
+         * @param decimal
          * @param delimiter
          */
         void Export(const std::string &fileName, char decimal = ',', char delimiter = ';');

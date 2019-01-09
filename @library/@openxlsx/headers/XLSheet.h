@@ -109,9 +109,10 @@ namespace OpenXLSX
          * @brief The constructor. There are no default constructor, so all parameters must be provided for
          * constructing an XLAbstractSheet object. Since this is a pure abstract class, instantiation is only
          * possible via one of the derived classes.
-         * @param name The name of the new sheet.
          * @param parent A pointer to the parent XLDocument object.
+         * @param name The name of the new sheet.
          * @param filepath A std::string with the relative path to the sheet file in the .xlsx package.
+         * @param xmlData
          */
         XLSheet(XLWorkbook &parent,
                 const std::string &name,

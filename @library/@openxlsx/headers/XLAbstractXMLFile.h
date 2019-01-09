@@ -79,7 +79,7 @@ namespace OpenXLSX
         /**
          * @brief Constructor. Creates an object using the parent XLDocument object, the relative file path
          * and a data object as input.
-         * @param root A string with the root path
+         * @param parent
          * @param filePath The path of the XML file, relative to the root.
          * @param xmlData An std::string object with the XML data to be represented by the object.
          */
