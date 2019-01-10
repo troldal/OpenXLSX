@@ -33,6 +33,5 @@ add_subdirectory(@doxy)
 #=======================================================================================================================
 add_dependencies(Demo OpenXLSX)
 add_dependencies(Benchmark OpenXLSX)
-add_dependencies(Documentation OpenXLSX)
 
 
