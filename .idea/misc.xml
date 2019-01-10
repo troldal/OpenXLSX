@@ -5,6 +5,10 @@
     <excludeRoots>
       <file path="$PROJECT_DIR$/cmake-build-clangdebug" />
       <file path="$PROJECT_DIR$/cmake-build-clangrelease" />
+      <file path="$PROJECT_DIR$/cmake-build-debug-gcc" />
+      <file path="$PROJECT_DIR$/cmake-build-debug-llvm-clang" />
+      <file path="$PROJECT_DIR$/cmake-build-release-gcc" />
+      <file path="$PROJECT_DIR$/cmake-build-release-llvm-clang" />
     </excludeRoots>
   </component>
   <component name="JavaScriptSettings">

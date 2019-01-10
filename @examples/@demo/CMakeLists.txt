@@ -2,7 +2,7 @@
 # Define Demo target
 #=======================================================================================================================
 
-add_executable(Demo main.cpp)
+add_executable(Demo Demo.cpp)
 target_link_libraries(Demo PUBLIC -lOpenXLSX)
 target_link_directories(Demo PUBLIC ${OPENXLSX_INSTALLDIR}/lib)
 target_link_directories(Demo PUBLIC ${OPENXLSX_INSTALLDIR}/bin)
