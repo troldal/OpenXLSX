@@ -53,7 +53,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <string>
 #include <string_view>
 
-namespace OpenXLSX
+namespace OpenXLSX::Impl
 {
 
     class XLCell;

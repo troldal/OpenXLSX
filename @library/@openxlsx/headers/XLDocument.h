@@ -66,7 +66,7 @@ namespace libzippp {
     class ZipArchive;
 }
 
-namespace OpenXLSX
+namespace OpenXLSX::Impl
 {
 
     class XLSharedStrings;

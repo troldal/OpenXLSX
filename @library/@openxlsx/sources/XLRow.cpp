@@ -12,7 +12,7 @@
 #include "XLException.h"
 
 using namespace std;
-using namespace OpenXLSX;
+using namespace OpenXLSX::Impl;
 
 
 /**

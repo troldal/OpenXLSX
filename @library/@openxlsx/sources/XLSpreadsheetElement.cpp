@@ -5,7 +5,7 @@
 #include "XLSpreadsheetElement.h"
 #include "XLDocument.h"
 
-namespace OpenXLSX
+namespace OpenXLSX::Impl
 {
     /**
      * @details

@@ -10,7 +10,7 @@
 #include "XLWorksheet.h"
 
 using namespace std;
-using namespace OpenXLSX;
+using namespace OpenXLSX::Impl;
 
 /**
  * @details From the two XLCellReference objects, the constructor calculates the dimensions of the range.

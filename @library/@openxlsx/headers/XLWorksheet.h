@@ -55,7 +55,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLCellValue.h"
 #include "XLCellReference.h"
 
-namespace OpenXLSX
+namespace OpenXLSX::Impl
 {
     class XLCellRange;
 

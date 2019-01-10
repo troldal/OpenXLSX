@@ -11,7 +11,7 @@
 #include "XLException.h"
 #include "XLWorksheet.h"
 
-using namespace OpenXLSX;
+using namespace OpenXLSX::Impl;
 using namespace std;
 
 

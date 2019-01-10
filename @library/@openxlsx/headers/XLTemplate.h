@@ -46,7 +46,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLEXE_XLTEMPLATE_H
 #define OPENXLEXE_XLTEMPLATE_H
 
-namespace OpenXLSX
+namespace OpenXLSX::Impl
 {
 
     const long int excelTemplateSize = 20930;

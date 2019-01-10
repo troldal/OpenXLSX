@@ -48,7 +48,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 #include "XLSheet.h"
 
-namespace OpenXLSX
+namespace OpenXLSX::Impl
 {
 
 //======================================================================================================================

@@ -18,7 +18,7 @@
 #include <pugixml.hpp>
 
 using namespace std;
-using namespace OpenXLSX;
+using namespace OpenXLSX::Impl;
 
 /**
  * @details The constructor initializes the member variables and calls the loadXMLData from the

@@ -6,7 +6,7 @@
 #include "XLCellIterator.h"
 #include "XLCellRange.h"
 
-using namespace OpenXLSX;
+using namespace OpenXLSX::Impl;
 
 /*
  * =============================================================================================================

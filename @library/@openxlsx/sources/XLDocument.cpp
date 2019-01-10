@@ -14,7 +14,7 @@
 
 using namespace std;
 using namespace libzippp;
-using namespace OpenXLSX;
+using namespace OpenXLSX::Impl;
 
 /**
  * @details The default constructor, with no arguments.

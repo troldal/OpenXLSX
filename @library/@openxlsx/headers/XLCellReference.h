@@ -50,7 +50,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <map>
 #include <unordered_map>
 
-namespace OpenXLSX
+namespace OpenXLSX::Impl
 {
 
 //======================================================================================================================

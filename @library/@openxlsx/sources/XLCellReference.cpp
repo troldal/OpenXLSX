@@ -7,7 +7,7 @@
 #include <iostream>
 
 using namespace std;
-using namespace OpenXLSX;
+using namespace OpenXLSX::Impl;
 
 const unordered_map<int, string> XLCellReference::s_alphabet = {{0, "A"},
                                                                 {1, "B"},

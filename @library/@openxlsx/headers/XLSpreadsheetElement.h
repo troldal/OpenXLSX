@@ -46,7 +46,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLEXE_XLWORKBOOKCHILD_H
 #define OPENXLEXE_XLWORKBOOKCHILD_H
 
-namespace OpenXLSX
+namespace OpenXLSX::Impl
 {
     class XLWorkbook;
     class XLDocument;

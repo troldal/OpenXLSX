@@ -5,7 +5,7 @@
 #include "XLChartsheet.h"
 #include "XLDocument.h"
 
-using namespace OpenXLSX;
+using namespace OpenXLSX::Impl;
 
 /**
  * @details

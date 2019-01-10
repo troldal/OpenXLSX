@@ -54,7 +54,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <string>
 
 
-namespace OpenXLSX
+namespace OpenXLSX::Impl
 {
     class XLContentItem;
     using XLContentItemMap = std::map<std::string, std::unique_ptr<XLContentItem>>;

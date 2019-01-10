@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <cstring>
 
-using namespace OpenXLSX;
+using namespace OpenXLSX::Impl;
 using namespace std;
 
 /**

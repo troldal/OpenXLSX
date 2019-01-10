@@ -1,14 +1,13 @@
 #include <iostream>
 #include <chrono>
 #include <iomanip>
-//#include "../@library/OpenXLSX.h"
 #include <OpenXLSX/XLDocument.h>
 #include <OpenXLSX/XLWorksheet.h>
 #include <OpenXLSX/XLCellRange.h>
 #include <OpenXLSX/XLCellReference.h>
 
 using namespace std;
-using namespace OpenXLSX;
+using namespace OpenXLSX::Impl;
 
 /*
  * TODO: Sheet iterator

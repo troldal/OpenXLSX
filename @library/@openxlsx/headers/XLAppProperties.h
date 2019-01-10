@@ -37,8 +37,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef OPENXL_XLDOCAPPPROPERTIES_H
-#define OPENXL_XLDOCAPPPROPERTIES_H
+#ifndef OPENXL_XLAPPPROPERTIES_H
+#define OPENXL_XLAPPPROPERTIES_H
 
 #include "XLAbstractXMLFile.h"
 #include "XLSpreadsheetElement.h"
@@ -49,7 +49,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <memory>
 #include <map>
 
-namespace OpenXLSX
+namespace OpenXLSX::Impl
 {
 
 //======================================================================================================================
@@ -84,7 +84,7 @@ namespace OpenXLSX
          * @brief
          * @param other
          */
-        XLAppProperties(const OpenXLSX::XLAppProperties &other) = default;
+        XLAppProperties(const XLAppProperties &other) = default;
 
         /**
          * @brief
@@ -313,4 +313,4 @@ namespace OpenXLSX
 
 }
 
-#endif //OPENXL_XLDOCAPPPROPERTIES_H
+#endif //OPENXL_XLAPPPROPERTIES_H

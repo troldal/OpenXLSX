@@ -10,7 +10,7 @@
 #include "XLDocument.h"
 
 using namespace std;
-using namespace OpenXLSX;
+using namespace OpenXLSX::Impl;
 
 /**
  * @details

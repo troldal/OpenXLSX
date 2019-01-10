@@ -7,7 +7,7 @@
 #include <pugixml.hpp>
 
 using namespace std;
-using namespace OpenXLSX;
+using namespace OpenXLSX::Impl;
 
 /**
  * @details The constructor creates a new object with the parent XLDocument and the file path as input, with
@@ -30,7 +30,6 @@ XLAbstractXMLFile::XLAbstractXMLFile(XLDocument &parent,
 
 XLAbstractXMLFile::~XLAbstractXMLFile()
 {
-
 }
 
 /**

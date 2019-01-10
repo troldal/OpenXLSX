@@ -54,7 +54,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLSpreadsheetElement.h"
 #include "XLXml.h"
 
-namespace OpenXLSX
+namespace OpenXLSX::Impl
 {
     class XLDocument;
     class XLRelationships;

@@ -8,7 +8,7 @@
 #include <pugixml.hpp>
 
 using namespace std;
-using namespace OpenXLSX;
+using namespace OpenXLSX::Impl;
 
 /**
  * @details Constructs a new XLSharedStrings object. Only one (common) object is allowed per XLDocument instance.
