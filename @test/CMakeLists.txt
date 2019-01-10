@@ -7,9 +7,7 @@ FetchContent_Declare(
 FetchContent_GetProperties(googletest)
 
 if(NOT googletest_POPULATED)
-    FetchContent_Populate(
-            googletest
-    )
+    FetchContent_Populate(googletest)
     # Prevent GoogleTest from overriding our compiler/linker options
     # when building with Visual Studio
     set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
