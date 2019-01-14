@@ -43,8 +43,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXL_XLCELLGRIDITERATOR_H
-#define OPENXL_XLCELLGRIDITERATOR_H
+#ifndef OPENXLSX_IMPL_XLCELLGRIDITERATOR_H
+#define OPENXLSX_IMPL_XLCELLGRIDITERATOR_H
 
 #include "XLCell_Impl.h"
 
@@ -173,4 +173,4 @@ namespace OpenXLSX::Impl
 }
 
 
-#endif //OPENXL_XLCELLGRIDITERATOR_H
+#endif //OPENXLSX_IMPL_XLCELLGRIDITERATOR_H

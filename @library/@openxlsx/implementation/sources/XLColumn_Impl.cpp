@@ -8,12 +8,12 @@
 #include "XLWorksheet_Impl.h"
 
 using namespace std;
-using namespace OpenXLSX::Impl;
+using namespace OpenXLSX;
 
 /**
  * @details Assumes each node only has data for one column.
  */
-XLColumn::XLColumn(XLWorksheet &parent,
+Impl::XLColumn::XLColumn(XLWorksheet &parent,
                    XMLNode columnNode)
     : m_parentWorksheet(&parent),
       m_parentDocument(parent.ParentDocument()),
@@ -41,7 +41,7 @@ XLColumn::XLColumn(XLWorksheet &parent,
 /**
  * @details
  */
-float XLColumn::Width() const
+float Impl::XLColumn::Width() const
 {
     return m_width;
 }
@@ -49,7 +49,7 @@ float XLColumn::Width() const
 /**
  * @details
  */
-void XLColumn::SetWidth(float width)
+void Impl::XLColumn::SetWidth(float width)
 {
     m_width = width;
 
@@ -67,7 +67,7 @@ void XLColumn::SetWidth(float width)
 /**
  * @details
  */
-bool XLColumn::Ishidden() const
+bool Impl::XLColumn::Ishidden() const
 {
     return m_hidden;
 }
@@ -75,7 +75,7 @@ bool XLColumn::Ishidden() const
 /**
  * @details
  */
-void XLColumn::SetHidden(bool state)
+void Impl::XLColumn::SetHidden(bool state)
 {
     m_hidden = state;
 
@@ -92,7 +92,7 @@ void XLColumn::SetHidden(bool state)
 /**
  * @details
  */
-XMLNode XLColumn::ColumnNode()
+XMLNode Impl::XLColumn::ColumnNode()
 {
     return *m_columnNode;
 }

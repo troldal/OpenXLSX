@@ -43,8 +43,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXLEXE_XLCOLUMN_H
-#define OPENXLEXE_XLCOLUMN_H
+#ifndef OPENXLSX_IMPL_XLCOLUMN_H
+#define OPENXLSX_IMPL_XLCOLUMN_H
 
 #include "XLDocument_Impl.h"
 
@@ -146,4 +146,4 @@ namespace OpenXLSX::Impl
 }
 
 
-#endif //OPENXLEXE_XLCOLUMN_H
+#endif //OPENXLSX_IMPL_XLCOLUMN_H

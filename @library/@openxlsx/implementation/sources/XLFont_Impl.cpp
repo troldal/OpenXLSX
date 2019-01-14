@@ -8,14 +8,14 @@
 #include <pugixml.hpp>
 
 using namespace std;
-using namespace OpenXLSX::Impl;
+using namespace OpenXLSX;
 
-std::map<string, XLFont> XLFont::s_fonts = {};
+std::map<string, Impl::XLFont> Impl::XLFont::s_fonts = {};
 
 /**
  * @details
  */
-XLFont::XLFont(const string &name,
+Impl::XLFont::XLFont(const string &name,
                unsigned int size,
                const XLColor &color,
                bool bold,
@@ -38,7 +38,7 @@ XLFont::XLFont(const string &name,
 /**
  * @details
  */
-std::string XLFont::UniqueId() const
+std::string Impl::XLFont::UniqueId() const
 {
     stringstream str;
 

@@ -10,13 +10,13 @@
 #include "XLWorksheet_Impl.h"
 
 using namespace std;
-using namespace OpenXLSX::Impl;
+using namespace OpenXLSX;
 
 /**
  * @details From the two XLCellReference objects, the constructor calculates the dimensions of the range.
  * If the range exceeds the current bounds of the spreadsheet, the spreadsheet is resized to fit.
  */
-XLCellRange::XLCellRange(XLWorksheet &sheet,
+Impl::XLCellRange::XLCellRange(XLWorksheet &sheet,
                          const XLCellReference &topLeft,
                          const XLCellReference &bottomRight)
     : m_parentWorksheet(&sheet),
@@ -50,7 +50,7 @@ XLCellRange::XLCellRange(XLWorksheet &sheet,
 /**
  * @todo This is not pretty, but it works
  */
-XLCellRange::XLCellRange(const XLWorksheet &sheet,
+Impl::XLCellRange::XLCellRange(const XLWorksheet &sheet,
                          const XLCellReference &topLeft,
                          const XLCellReference &bottomRight)
     : XLCellRange(const_cast<XLWorksheet &>(sheet), topLeft, bottomRight)
@@ -62,7 +62,7 @@ XLCellRange::XLCellRange(const XLWorksheet &sheet,
  * @details Assign (copy) the contents of one range to another.
  * @todo Currently copies only values. Consider copying styles etc. as well
  */
-XLCellRange &XLCellRange::operator=(const XLCellRange &other)
+Impl::XLCellRange &Impl::XLCellRange::operator=(const XLCellRange &other)
 {
 
     if (other.NumRows() != NumRows() || other.NumColumns() != NumColumns())
@@ -86,7 +86,7 @@ XLCellRange &XLCellRange::operator=(const XLCellRange &other)
  * @details Returns a pointer to the XLCell at the given coordinates.
  * @todo return a const_cast version of the const method.
  */
-XLCell *XLCellRange::Cell(unsigned long row,
+Impl::XLCell *Impl::XLCellRange::Cell(unsigned long row,
                           unsigned int column)
 {
 
@@ -96,7 +96,7 @@ XLCell *XLCellRange::Cell(unsigned long row,
 /**
  * @details Returns a const pointer to the XLCell at the given coordinates.
  */
-const XLCell *XLCellRange::Cell(unsigned long row,
+const Impl::XLCell *Impl::XLCellRange::Cell(unsigned long row,
                                 unsigned int column) const
 {
 
@@ -119,7 +119,7 @@ const XLCell *XLCellRange::Cell(unsigned long row,
 /**
  * @details Returns the m_rows property.
  */
-unsigned long XLCellRange::NumRows() const
+unsigned long Impl::XLCellRange::NumRows() const
 {
     if (!m_transpose)
         return m_rows;
@@ -130,7 +130,7 @@ unsigned long XLCellRange::NumRows() const
 /**
  * @details Returns the m_columns property.
  */
-unsigned int XLCellRange::NumColumns() const
+unsigned int Impl::XLCellRange::NumColumns() const
 {
     if (!m_transpose)
         return m_columns;
@@ -144,7 +144,7 @@ unsigned int XLCellRange::NumColumns() const
  * Copying one transposed range to another transposed range will cancel the transpose; i.e. it is equivalent to a
  * normal (non-transposed) copy operation.
  */
-void XLCellRange::Transpose(bool state) const
+void Impl::XLCellRange::Transpose(bool state) const
 {
     m_transpose = state;
 }
@@ -152,7 +152,7 @@ void XLCellRange::Transpose(bool state) const
 /**
  * @details Returns a XLCellGridIterator, pointing to the first cell (top left) in the range.
  */
-XLCellIterator XLCellRange::begin()
+Impl::XLCellIterator Impl::XLCellRange::begin()
 {
     //return XLCellIterator(this);
     return XLCellIterator(*this, Cell(1, 1));
@@ -161,7 +161,7 @@ XLCellIterator XLCellRange::begin()
 /**
  * @details
  */
-XLCellIteratorConst XLCellRange::begin() const
+Impl::XLCellIteratorConst Impl::XLCellRange::begin() const
 {
     return XLCellIteratorConst(*this, Cell(1, 1));
 }
@@ -170,7 +170,7 @@ XLCellIteratorConst XLCellRange::begin() const
  * @brief 
  * @return 
  */
-XLCellIterator XLCellRange::end()
+Impl::XLCellIterator Impl::XLCellRange::end()
 {
     //return XLCellIterator();
     return XLCellIterator(*this, nullptr);
@@ -180,12 +180,12 @@ XLCellIterator XLCellRange::end()
  * @brief 
  * @return 
  */
-XLCellIteratorConst XLCellRange::end() const
+Impl::XLCellIteratorConst Impl::XLCellRange::end() const
 {
     return XLCellIteratorConst(*this, nullptr);
 }
 
-void XLCellRange::Clear()
+void Impl::XLCellRange::Clear()
 {
 
     for (unsigned long row = 1; row <= m_rows; row++) {

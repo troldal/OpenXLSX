@@ -43,8 +43,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXL_XLSTYLES_H
-#define OPENXL_XLSTYLES_H
+#ifndef OPENXLSX_IMPL_XLSTYLES_H
+#define OPENXLSX_IMPL_XLSTYLES_H
 
 #include "XLAbstractXMLFile_Impl.h"
 #include "XLFont_Impl.h"
@@ -144,4 +144,4 @@ namespace OpenXLSX::Impl
 
 }
 
-#endif //OPENXL_XLSTYLES_H
+#endif //OPENXLSX_IMPL_XLSTYLES_H

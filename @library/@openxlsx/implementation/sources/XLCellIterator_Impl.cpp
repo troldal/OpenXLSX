@@ -6,7 +6,7 @@
 #include "XLCellIterator_Impl.h"
 #include "XLCellRange_Impl.h"
 
-using namespace OpenXLSX::Impl;
+using namespace OpenXLSX;
 
 /*
  * =============================================================================================================
@@ -17,7 +17,7 @@ using namespace OpenXLSX::Impl;
 /**
  * @details Construction of an iterator from a cell range. The iterator will point to the top left cell in the grid.
  */
-XLCellIterator::XLCellIterator(XLCellRange &range,
+Impl::XLCellIterator::XLCellIterator(XLCellRange &range,
                                XLCell *cell)
     : m_cell(cell),
       m_range(&range),
@@ -36,7 +36,7 @@ XLCellIterator::XLCellIterator(XLCellRange &range,
 /**
  * @details The increment method will increment the iterator, first through each columns in a row, then over each row.
  */
-const XLCellIterator &XLCellIterator::operator++()
+const Impl::XLCellIterator &Impl::XLCellIterator::operator++()
 {
 
     if (m_currentColumn < m_numColumns)
@@ -58,7 +58,7 @@ const XLCellIterator &XLCellIterator::operator++()
 /**
  * @details Checks whether two iterator objects are pointing to the same object.
  */
-bool XLCellIterator::operator!=(const XLCellIterator &other) const
+bool Impl::XLCellIterator::operator!=(const XLCellIterator &other) const
 {
     return (this->m_cell != other.m_cell);
 }
@@ -66,7 +66,7 @@ bool XLCellIterator::operator!=(const XLCellIterator &other) const
 /**
  * @details Dereferences the XLCell object to get the value.
  */
-XLCell &XLCellIterator::operator*() const
+Impl::XLCell &Impl::XLCellIterator::operator*() const
 {
     return *m_cell;
 }
@@ -74,7 +74,7 @@ XLCell &XLCellIterator::operator*() const
 /**
  * @details
  */
-XLCellIteratorConst::XLCellIteratorConst(const XLCellRange &range,
+Impl::XLCellIteratorConst::XLCellIteratorConst(const XLCellRange &range,
                                          const XLCell *cell)
     : m_cell(cell),
       m_range(&range),
@@ -93,7 +93,7 @@ XLCellIteratorConst::XLCellIteratorConst(const XLCellRange &range,
 /**
  * @details
  */
-const XLCellIteratorConst &XLCellIteratorConst::operator++()
+const Impl::XLCellIteratorConst &Impl::XLCellIteratorConst::operator++()
 {
 
     if (m_currentColumn < m_numColumns)
@@ -115,7 +115,7 @@ const XLCellIteratorConst &XLCellIteratorConst::operator++()
 /**
  * @details
  */
-bool XLCellIteratorConst::operator!=(const XLCellIteratorConst &other) const
+bool Impl::XLCellIteratorConst::operator!=(const XLCellIteratorConst &other) const
 {
     return (this->m_cell != other.m_cell);
 }
@@ -123,7 +123,7 @@ bool XLCellIteratorConst::operator!=(const XLCellIteratorConst &other) const
 /**
  * @details
  */
-const XLCell &XLCellIteratorConst::operator*() const
+const Impl::XLCell &Impl::XLCellIteratorConst::operator*() const
 {
     return *m_cell;
 }

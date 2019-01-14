@@ -14,8 +14,15 @@ if(NOT catch_POPULATED)
     )
 endif()
 
-add_executable(Test2 "")
-target_sources(Test2 PRIVATE Test2.cpp)
-target_link_libraries(Test2 INTERFACE Catch2)
-target_include_directories(Test2 PRIVATE ${catch_SOURCE_DIR}/single_include/catch2)
+add_executable(InterfaceTest "")
+target_sources(InterfaceTest PRIVATE
+        TestMain.cpp
+        DocumentCreation.cpp
+        DocumentProperties.cpp)
 
+target_link_libraries(InterfaceTest INTERFACE Catch2)
+target_link_libraries(InterfaceTest PUBLIC -lOpenXLSX)
+target_link_directories(InterfaceTest PUBLIC ${OPENXLSX_INSTALLDIR}/lib)
+target_link_directories(InterfaceTest PUBLIC ${OPENXLSX_INSTALLDIR}/bin)
+target_include_directories(InterfaceTest PRIVATE ${catch_SOURCE_DIR}/single_include/catch2)
+target_include_directories(InterfaceTest PUBLIC ${CMAKE_CURRENT_LIST_DIR}/../../@library/@openxlsx/interface/headers)

@@ -43,8 +43,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXLEXE_XLEXCEPTION_H
-#define OPENXLEXE_XLEXCEPTION_H
+#ifndef OPENXLSX_IMPL_XLEXCEPTION_H
+#define OPENXLSX_IMPL_XLEXCEPTION_H
 
 #include <stdexcept>
 
@@ -65,4 +65,4 @@ namespace OpenXLSX::Impl
 }
 
 
-#endif //OPENXLEXE_XLEXCEPTION_H
+#endif //OPENXLSX_IMPL_XLEXCEPTION_H

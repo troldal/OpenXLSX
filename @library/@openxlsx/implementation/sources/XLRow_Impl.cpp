@@ -12,14 +12,14 @@
 #include "XLException_Impl.h"
 
 using namespace std;
-using namespace OpenXLSX::Impl;
+using namespace OpenXLSX;
 
 
 /**
  * @details Constructs a new XLRow object from information in the underlying XML file. A pointer to the corresponding
  * node in the underlying XML file must be provided.
  */
-XLRow::XLRow(XLWorksheet &parent,
+Impl::XLRow::XLRow(XLWorksheet &parent,
              XMLNode rowNode)
     : m_parentWorksheet(parent),
       m_parentDocument(*parent.ParentDocument()),
@@ -63,7 +63,7 @@ XLRow::XLRow(XLWorksheet &parent,
 /**
  * @details Resizes the m_cells vector holding the cells and updates the 'spans' attribure in the row node.
  */
-void XLRow::Resize(unsigned int cellCount)
+void Impl::XLRow::Resize(unsigned int cellCount)
 {
     //m_cells.resize(cellCount);
     m_rowNode->attribute("spans") = string("1:" + to_string(cellCount)).c_str();
@@ -72,7 +72,7 @@ void XLRow::Resize(unsigned int cellCount)
 /**
  * @details Returns the m_height member by value.
  */
-float XLRow::Height() const
+float Impl::XLRow::Height() const
 {
     return m_height;
 }
@@ -81,7 +81,7 @@ float XLRow::Height() const
  * @details Set the height of the row. This is done by setting the value of the 'ht' attribute and setting the
  * 'customHeight' attribute to true.
  */
-void XLRow::SetHeight(float height)
+void Impl::XLRow::SetHeight(float height)
 {
     m_height = height;
 
@@ -99,7 +99,7 @@ void XLRow::SetHeight(float height)
 /**
  * @details Return the m_descent member by value.
  */
-float XLRow::Descent() const
+float Impl::XLRow::Descent() const
 {
     return m_descent;
 }
@@ -107,7 +107,7 @@ float XLRow::Descent() const
 /**
  * @details Set the descent by setting the 'x14ac:dyDescent' attribute in the XML file
  */
-void XLRow::SetDescent(float descent)
+void Impl::XLRow::SetDescent(float descent)
 {
     m_descent = descent;
 
@@ -120,7 +120,7 @@ void XLRow::SetDescent(float descent)
 /**
  * @details Determine if the row is hidden or not.
  */
-bool XLRow::Ishidden() const
+bool Impl::XLRow::Ishidden() const
 {
     return m_hidden;
 }
@@ -128,7 +128,7 @@ bool XLRow::Ishidden() const
 /**
  * @details Set the hidden state by setting the 'hidden' attribute to true or false.
  */
-void XLRow::SetHidden(bool state)
+void Impl::XLRow::SetHidden(bool state)
 {
     m_hidden = state;
 
@@ -145,7 +145,7 @@ void XLRow::SetHidden(bool state)
 /**
  * @details Get the pointer to the row node in the underlying XML file but returning the m_rowNode member.
  */
-XMLNode XLRow::RowNode() const
+XMLNode Impl::XLRow::RowNode() const
 {
     return *m_rowNode;
 }
@@ -154,7 +154,7 @@ XMLNode XLRow::RowNode() const
  * @details Return a pointer to the XLCell object at the given column number. If the cell does not exist, it will be
  * created.
  */
-XLCell *XLRow::Cell(unsigned int column)
+Impl::XLCell *Impl::XLRow::Cell(unsigned int column)
 {
     // If the requested Column number is higher than the number of Columns in the current Row,
     // create a new Cell node, append it to the Row node, resize the m_cells vector, and insert the new node.
@@ -183,7 +183,7 @@ XLCell *XLRow::Cell(unsigned int column)
 /**
  * @details
  */
-const XLCell *XLRow::Cell(unsigned int column) const
+const Impl::XLCell *Impl::XLRow::Cell(unsigned int column) const
 {
 
     if (column > CellCount()) {
@@ -197,7 +197,7 @@ const XLCell *XLRow::Cell(unsigned int column) const
 /**
  * @details Get the number of cells in the row, by returning the size of the m_cells vector.
  */
-unsigned int XLRow::CellCount() const
+unsigned int Impl::XLRow::CellCount() const
 {
     return static_cast<unsigned int>(m_cells.size());
 }
@@ -207,7 +207,7 @@ unsigned int XLRow::CellCount() const
  * in the row are created and inserted in the XML tree. A std::unique_ptr to the new XLRow object is returned
  * @todo What happens if the object is not caught and gets destroyed? The XML data still exists...
  */
-void XLRow::CreateRow(XLWorksheet &worksheet,
+void Impl::XLRow::CreateRow(XLWorksheet &worksheet,
                       unsigned long rowNumber)
 {
     // Create the node

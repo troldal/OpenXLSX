@@ -14,12 +14,12 @@
 
 using namespace std;
 using namespace libzippp;
-using namespace OpenXLSX::Impl;
+using namespace OpenXLSX;
 
 /**
  * @details The default constructor, with no arguments.
  */
-XLDocument::XLDocument()
+Impl::XLDocument::XLDocument()
     : m_filePath(""),
       m_documentRelationships(nullptr),
       m_contentTypes(nullptr),
@@ -35,7 +35,7 @@ XLDocument::XLDocument()
 /**
  * @details An alternative constructor, taking a std::string with the path to the .xlsx package as an argument.
  */
-XLDocument::XLDocument(const std::string &docPath)
+Impl::XLDocument::XLDocument(const std::string &docPath)
     : m_filePath(""),
       m_documentRelationships(nullptr),
       m_contentTypes(nullptr),
@@ -52,7 +52,7 @@ XLDocument::XLDocument(const std::string &docPath)
 /**
  * @details The destructor calls the closeDocument method before the object is destroyed.
  */
-XLDocument::~XLDocument()
+Impl::XLDocument::~XLDocument()
 {
     CloseDocument();
 }
@@ -64,7 +64,7 @@ XLDocument::~XLDocument()
  * - Unzip the contents of the package to the temporary folder.
  * - load the contents into the datastructure for manipulation.
  */
-void XLDocument::OpenDocument(const string &fileName)
+void Impl::XLDocument::OpenDocument(const string &fileName)
 {
     // Check if a document is already open. If yes, close it.
     if(m_archive && m_archive->isOpen()) CloseDocument();
@@ -86,7 +86,7 @@ void XLDocument::OpenDocument(const string &fileName)
 /**
  * @details Create a new document. This is done by saving the data in XLTemplate.h in binary format.
  */
-void XLDocument::CreateDocument(const std::string &fileName)
+void Impl::XLDocument::CreateDocument(const std::string &fileName)
 {
     std::ofstream outfile(fileName, std::ios::binary);
     outfile.write(reinterpret_cast<char const *>(excelTemplate), excelTemplateSize);
@@ -99,7 +99,7 @@ void XLDocument::CreateDocument(const std::string &fileName)
  * @details The document is closed by deleting the temporary folder structure.
  * @todo Consider deleting all the internal objects as well.
  */
-void XLDocument::CloseDocument()
+void Impl::XLDocument::CloseDocument()
 {
     if(m_archive) m_archive->discard();
     m_archive.reset(nullptr);
@@ -116,7 +116,7 @@ void XLDocument::CloseDocument()
 /**
  * @details Save the document with the same name. The existing file will be overwritten.
  */
-bool XLDocument::SaveDocument()
+bool Impl::XLDocument::SaveDocument()
 {
     return SaveDocumentAs(m_filePath);
 }
@@ -126,7 +126,7 @@ bool XLDocument::SaveDocument()
  * is that changes to the document may invalidate the calcChain.xml file. Deleting will force Excel to re-create the
  * file. This will happen automatically, without the user noticing.
  */
-bool XLDocument::SaveDocumentAs(const string &fileName)
+bool Impl::XLDocument::SaveDocumentAs(const string &fileName)
 {
     // If the filename is different than the name of the current file, copy the current file to new destination,
     // close the current zip file and open the new one.
@@ -160,7 +160,7 @@ bool XLDocument::SaveDocumentAs(const string &fileName)
  * @details
  * @todo Currently, this method returns the full path, which is not the intention.
  */
-std::string XLDocument::DocumentName() const
+std::string Impl::XLDocument::DocumentName() const
 {
     return m_filePath;
 }
@@ -168,7 +168,7 @@ std::string XLDocument::DocumentName() const
 /**
  * @details
  */
-std::string XLDocument::DocumentPath() const
+std::string Impl::XLDocument::DocumentPath() const
 {
     return m_filePath;
 }
@@ -176,7 +176,7 @@ std::string XLDocument::DocumentPath() const
 /**
  * @details Get a pointer to the underlying XLWorkbook object.
  */
-XLWorkbook *XLDocument::Workbook()
+Impl::XLWorkbook *Impl::XLDocument::Workbook()
 {
     return m_workbook.get();
 }
@@ -184,7 +184,7 @@ XLWorkbook *XLDocument::Workbook()
 /**
  * @details Get a const pointer to the underlying XLWorkbook object.
  */
-const XLWorkbook *XLDocument::Workbook() const
+const Impl::XLWorkbook *Impl::XLDocument::Workbook() const
 {
     return m_workbook.get();
 }
@@ -192,68 +192,68 @@ const XLWorkbook *XLDocument::Workbook() const
 /**
  * @details Get the value for a property.
  */
-std::string XLDocument::GetProperty(XLDocumentProperties theProperty) const
+std::string Impl::XLDocument::GetProperty(XLProperty theProperty) const
 {
     switch (theProperty) {
-        case XLDocumentProperties::Application :
-            return m_docAppProperties->Property("Application").value();
+        case XLProperty::Application :
+            return m_docAppProperties->Property("Application").text().get();
 
-        case XLDocumentProperties::AppVersion :
-            return m_docAppProperties->Property("AppVersion").value();
+        case XLProperty::AppVersion :
+            return m_docAppProperties->Property("AppVersion").text().get();
 
-        case XLDocumentProperties::Category :
-            return m_docCoreProperties->Property("cp:category").value();
+        case XLProperty::Category :
+            return m_docCoreProperties->Property("cp:category").text().get();
 
-        case XLDocumentProperties::Company :
-            return m_docAppProperties->Property("Company").value();
+        case XLProperty::Company :
+            return m_docAppProperties->Property("Company").text().get();
 
-        case XLDocumentProperties::CreationDate :
-            return m_docCoreProperties->Property("dcterms:created").value();
+        case XLProperty::CreationDate :
+            return m_docCoreProperties->Property("dcterms:created").text().get();
 
-        case XLDocumentProperties::Creator :
-            return m_docCoreProperties->Property("dc:creator").value();
+        case XLProperty::Creator :
+            return m_docCoreProperties->Property("dc:creator").text().get();
 
-        case XLDocumentProperties::Description :
-            return m_docCoreProperties->Property("dc:description").value();
+        case XLProperty::Description :
+            return m_docCoreProperties->Property("dc:description").text().get();
 
-        case XLDocumentProperties::DocSecurity :
-            return m_docAppProperties->Property("DocSecurity").value();
+        case XLProperty::DocSecurity :
+            return m_docAppProperties->Property("DocSecurity").text().get();
 
-        case XLDocumentProperties::HyperlinkBase :
-            return m_docAppProperties->Property("HyperlinkBase").value();
+        case XLProperty::HyperlinkBase :
+            return m_docAppProperties->Property("HyperlinkBase").text().get();
 
-        case XLDocumentProperties::HyperlinksChanged :
-            return m_docAppProperties->Property("HyperlinksChanged").value();
+        case XLProperty::HyperlinksChanged :
+            return m_docAppProperties->Property("HyperlinksChanged").text().get();
 
-        case XLDocumentProperties::Keywords :
-            return m_docCoreProperties->Property("cp:keywords").value();
+        case XLProperty::Keywords :
+            return m_docCoreProperties->Property("cp:keywords").text().get();
 
-        case XLDocumentProperties::LastModifiedBy :
-            return m_docCoreProperties->Property("cp:lastModifiedBy").value();
+        case XLProperty::LastModifiedBy :
+            return m_docCoreProperties->Property("cp:lastModifiedBy").text().get();
 
-        case XLDocumentProperties::LastPrinted :
-            return m_docCoreProperties->Property("cp:lastPrinted").value();
+        case XLProperty::LastPrinted :
+            return m_docCoreProperties->Property("cp:lastPrinted").text().get();
 
-        case XLDocumentProperties::LinksUpToDate :
-            return m_docAppProperties->Property("LinksUpToDate").value();
+        case XLProperty::LinksUpToDate :
+            return m_docAppProperties->Property("LinksUpToDate").text().get();
 
-        case XLDocumentProperties::Manager :
-            return m_docAppProperties->Property("Manager").value();
+        case XLProperty::Manager :
+            return m_docAppProperties->Property("Manager").text().get();
 
-        case XLDocumentProperties::ModificationDate :
-            return m_docCoreProperties->Property("dcterms:modified").value();
+        case XLProperty::ModificationDate :
+            return m_docCoreProperties->Property("dcterms:modified").text().get();
 
-        case XLDocumentProperties::ScaleCrop :
-            return m_docAppProperties->Property("ScaleCrop").value();
+        case XLProperty::ScaleCrop :
+            return m_docAppProperties->Property("ScaleCrop").text().get();
 
-        case XLDocumentProperties::SharedDoc :
-            return m_docAppProperties->Property("SharedDoc").value();
+        case XLProperty::SharedDoc :
+            return m_docAppProperties->Property("SharedDoc").text().get();
 
-        case XLDocumentProperties::Subject :
-            return m_docCoreProperties->Property("dc:subject").value();
+        case XLProperty::Subject :
+            return m_docCoreProperties->Property("dc:subject").text().get();
 
-        case XLDocumentProperties::Title :
-            return m_docCoreProperties->Property("dc:title").value();
+        case XLProperty::Title :
+            return m_docCoreProperties->Property("dc:title").text().get();
 
     }
 
@@ -263,87 +263,87 @@ std::string XLDocument::GetProperty(XLDocumentProperties theProperty) const
 /**
  * @details Set the value for a property.
  */
-void XLDocument::SetProperty(XLDocumentProperties theProperty,
+void Impl::XLDocument::SetProperty(XLProperty theProperty,
                              const string &value)
 {
     switch (theProperty) {
-        case XLDocumentProperties::Application :
+        case XLProperty::Application :
             m_docAppProperties->SetProperty("Application", value);
             break;
 
-        case XLDocumentProperties::AppVersion :
+        case XLProperty::AppVersion :
             m_docAppProperties->SetProperty("AppVersion", value);
             break;
 
-        case XLDocumentProperties::Category :
+        case XLProperty::Category :
             m_docCoreProperties->SetProperty("cp:category", value);
             break;
 
-        case XLDocumentProperties::Company :
+        case XLProperty::Company :
             m_docAppProperties->SetProperty("Company", value);
             break;
 
-        case XLDocumentProperties::CreationDate :
+        case XLProperty::CreationDate :
             m_docCoreProperties->SetProperty("dcterms:created", value);
             break;
 
-        case XLDocumentProperties::Creator :
+        case XLProperty::Creator :
             m_docCoreProperties->SetProperty("dc:creator", value);
             break;
 
-        case XLDocumentProperties::Description :
+        case XLProperty::Description :
             m_docCoreProperties->SetProperty("dc:description", value);
             break;
 
-        case XLDocumentProperties::DocSecurity :
+        case XLProperty::DocSecurity :
             m_docAppProperties->SetProperty("DocSecurity", value);
             break;
 
-        case XLDocumentProperties::HyperlinkBase :
+        case XLProperty::HyperlinkBase :
             m_docAppProperties->SetProperty("HyperlinkBase", value);
             break;
 
-        case XLDocumentProperties::HyperlinksChanged :
+        case XLProperty::HyperlinksChanged :
             m_docAppProperties->SetProperty("HyperlinksChanged", value);
             break;
 
-        case XLDocumentProperties::Keywords :
+        case XLProperty::Keywords :
             m_docCoreProperties->SetProperty("cp:keywords", value);
             break;
 
-        case XLDocumentProperties::LastModifiedBy :
+        case XLProperty::LastModifiedBy :
             m_docCoreProperties->SetProperty("cp:lastModifiedBy", value);
             break;
 
-        case XLDocumentProperties::LastPrinted :
+        case XLProperty::LastPrinted :
             m_docCoreProperties->SetProperty("cp:lastPrinted", value);
             break;
 
-        case XLDocumentProperties::LinksUpToDate :
+        case XLProperty::LinksUpToDate :
             m_docAppProperties->SetProperty("LinksUpToDate", value);
             break;
 
-        case XLDocumentProperties::Manager :
+        case XLProperty::Manager :
             m_docAppProperties->SetProperty("Manager", value);
             break;
 
-        case XLDocumentProperties::ModificationDate :
+        case XLProperty::ModificationDate :
             m_docCoreProperties->SetProperty("dcterms:modified", value);
             break;
 
-        case XLDocumentProperties::ScaleCrop :
+        case XLProperty::ScaleCrop :
             m_docAppProperties->SetProperty("ScaleCrop", value);
             break;
 
-        case XLDocumentProperties::SharedDoc :
+        case XLProperty::SharedDoc :
             m_docAppProperties->SetProperty("SharedDoc", value);
             break;
 
-        case XLDocumentProperties::Subject :
+        case XLProperty::Subject :
             m_docCoreProperties->SetProperty("dc:subject", value);
             break;
 
-        case XLDocumentProperties::Title :
+        case XLProperty::Title :
             m_docCoreProperties->SetProperty("dc:title", value);
             break;
     }
@@ -352,7 +352,7 @@ void XLDocument::SetProperty(XLDocumentProperties theProperty,
 /**
  * @details Delete a property
  */
-void XLDocument::DeleteProperty(const string &propertyName)
+void Impl::XLDocument::DeleteProperty(const string &propertyName)
 {
     m_docAppProperties->DeleteProperty(propertyName);
 }
@@ -360,7 +360,7 @@ void XLDocument::DeleteProperty(const string &propertyName)
 /**
  * @details Get a pointer to the sheet node in the app.xml file.
  */
-XMLNode XLDocument::SheetNameNode(const std::string &sheetName)
+XMLNode Impl::XLDocument::SheetNameNode(const std::string &sheetName)
 {
     return m_docAppProperties->SheetNameNode(sheetName);
 }
@@ -368,7 +368,7 @@ XMLNode XLDocument::SheetNameNode(const std::string &sheetName)
 /**
  * @details Get a pointer to the content item in the [Content_Types].xml file.
  */
-XLContentItem *XLDocument::ContentItem(const std::string &path)
+Impl::XLContentItem *Impl::XLDocument::ContentItem(const std::string &path)
 {
     return m_contentTypes->ContentItem(path);
 }
@@ -376,7 +376,7 @@ XLContentItem *XLDocument::ContentItem(const std::string &path)
 /**
  * @details Ad a new ContentItem and return the resulting object.
  */
-XLContentItem *XLDocument::AddContentItem(const std::string &contentPath,
+Impl::XLContentItem *Impl::XLDocument::AddContentItem(const std::string &contentPath,
                                            XLContentType contentType)
 {
 
@@ -387,7 +387,7 @@ XLContentItem *XLDocument::AddContentItem(const std::string &contentPath,
 /**
  * @details Add a xml file to the package.
  */
-void XLDocument::AddOrReplaceXMLFile(const std::string &path,
+void Impl::XLDocument::AddOrReplaceXMLFile(const std::string &path,
                                      const std::string &content)
 {
     m_xmlData.push_back(content);
@@ -397,7 +397,7 @@ void XLDocument::AddOrReplaceXMLFile(const std::string &path,
 /**
  * @details
  */
-std::string XLDocument::GetXMLFile(const std::string &path)
+std::string Impl::XLDocument::GetXMLFile(const std::string &path)
 {
     return m_archive->getEntry(path).readAsText();
 }
@@ -405,7 +405,7 @@ std::string XLDocument::GetXMLFile(const std::string &path)
 /**
  * @details
  */
-void XLDocument::DeleteXMLFile(const std::string &path)
+void Impl::XLDocument::DeleteXMLFile(const std::string &path)
 {
     m_archive->deleteEntry(path);
 }
@@ -413,7 +413,7 @@ void XLDocument::DeleteXMLFile(const std::string &path)
 /**
  * @details Get a pointer to the XLAppProperties object
  */
-XLAppProperties *XLDocument::AppProperties()
+Impl::XLAppProperties *Impl::XLDocument::AppProperties()
 {
     return m_docAppProperties.get();
 }
@@ -421,7 +421,7 @@ XLAppProperties *XLDocument::AppProperties()
 /**
  * @details Get a pointer to the (const) XLAppProperties object
  */
-const XLAppProperties *XLDocument::AppProperties() const
+const Impl::XLAppProperties *Impl::XLDocument::AppProperties() const
 {
     return m_docAppProperties.get();
 }
@@ -429,7 +429,7 @@ const XLAppProperties *XLDocument::AppProperties() const
 /**
  * @details Get a pointer to the XLCoreProperties object
  */
-XLCoreProperties *XLDocument::CoreProperties()
+Impl::XLCoreProperties *Impl::XLDocument::CoreProperties()
 {
     return m_docCoreProperties.get();
 }
@@ -437,7 +437,7 @@ XLCoreProperties *XLDocument::CoreProperties()
 /**
  * @details Get a pointer to the (const) XLCoreProperties object
  */
-const XLCoreProperties * XLDocument::CoreProperties() const
+const Impl::XLCoreProperties * Impl::XLDocument::CoreProperties() const
 {
     return m_docCoreProperties.get();
 }

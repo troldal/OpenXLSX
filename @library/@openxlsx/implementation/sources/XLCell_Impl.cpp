@@ -12,7 +12,7 @@
 
 
 using namespace std;
-using namespace OpenXLSX::Impl;
+using namespace OpenXLSX;
 
 
 /**
@@ -30,7 +30,7 @@ using namespace OpenXLSX::Impl;
  *      -# If there is no type attribute but there is a value node, the cell has a number value.
  *      -# Otherwise, determine the celltype based on the type attribute.
  */
-XLCell::XLCell(XLWorksheet &parent, XMLNode cellNode)
+Impl::XLCell::XLCell(XLWorksheet &parent, XMLNode cellNode)
     : XLSpreadsheetElement(*parent.ParentDocument()),
       m_parentDocument(parent.ParentDocument()),
       m_parentWorkbook(parent.ParentWorkbook()),
@@ -52,7 +52,7 @@ XLCell::XLCell(XLWorksheet &parent, XMLNode cellNode)
  * @post
  * @todo Consider what happens if the target range extends beyond the maximum spreadsheet limits
  */
-XLCell &XLCell::operator=(const XLCellRange &range)
+Impl::XLCell &Impl::XLCell::operator=(const XLCellRange &range)
 {
     auto first = this->CellReference();
     XLCellReference last(first->Row() + range.NumRows() - 1, first->Column() + range.NumColumns() - 1);
@@ -65,7 +65,7 @@ XLCell &XLCell::operator=(const XLCellRange &range)
 /**
  * @details
  */
-XLValueType XLCell::ValueType() const
+Impl::XLValueType Impl::XLCell::ValueType() const
 {
     return m_value.ValueType();
 }
@@ -73,7 +73,7 @@ XLValueType XLCell::ValueType() const
 /**
  * @details
  */
-const XLCellValue & XLCell::Value() const
+const Impl::XLCellValue & Impl::XLCell::Value() const
 {
     return m_value;
 }
@@ -81,7 +81,7 @@ const XLCellValue & XLCell::Value() const
 /**
  * @details
  */
-XLCellValue & XLCell::Value()
+Impl::XLCellValue & Impl::XLCell::Value()
 {
     return m_value;
 }
@@ -89,7 +89,7 @@ XLCellValue & XLCell::Value()
 /**
  * @details
  */
-void XLCell::SetModified()
+void Impl::XLCell::SetModified()
 {
     ParentWorksheet()->SetModified();
 }
@@ -97,7 +97,7 @@ void XLCell::SetModified()
 /**
  * @details This function returns a const reference to the cellReference property.
  */
-const XLCellReference *XLCell::CellReference() const
+const Impl::XLCellReference *Impl::XLCell::CellReference() const
 {
     return &m_cellReference;
 }
@@ -107,7 +107,7 @@ const XLCellReference *XLCell::CellReference() const
  * @warning The std::make_unique function doesn't work, because the constructor is protected. Therefore,
  * a new unique_ptr is created manually, which is unfortunate, as it requires a call to operator new which is unsafe.
  */
-std::unique_ptr<XLCell> XLCell::CreateCell(XLWorksheet &parent,
+std::unique_ptr<Impl::XLCell> Impl::XLCell::CreateCell(XLWorksheet &parent,
                                            XMLNode cellNode)
 {
     return unique_ptr<XLCell>(new XLCell(parent, cellNode));
@@ -116,7 +116,7 @@ std::unique_ptr<XLCell> XLCell::CreateCell(XLWorksheet &parent,
 /**
  * @details
  */
-void XLCell::SetTypeAttribute(const std::string &typeString)
+void Impl::XLCell::SetTypeAttribute(const std::string &typeString)
 {
 
     if (typeString.empty()) {
@@ -133,7 +133,7 @@ void XLCell::SetTypeAttribute(const std::string &typeString)
 /**
  * @details
  */
-void XLCell::DeleteTypeAttribute()
+void Impl::XLCell::DeleteTypeAttribute()
 {
     if (m_cellNode->attribute("t").as_bool()) {
         m_cellNode->remove_attribute("t");
@@ -143,7 +143,7 @@ void XLCell::DeleteTypeAttribute()
 /**
  * @details
  */
-XLWorksheet *XLCell::ParentWorksheet()
+Impl::XLWorksheet *Impl::XLCell::ParentWorksheet()
 {
     return m_parentWorksheet;
 }
@@ -151,7 +151,7 @@ XLWorksheet *XLCell::ParentWorksheet()
 /**
  * @details
  */
-const XLWorksheet *XLCell::ParentWorksheet() const
+const Impl::XLWorksheet *Impl::XLCell::ParentWorksheet() const
 {
     return m_parentWorksheet;
 }
@@ -159,7 +159,7 @@ const XLWorksheet *XLCell::ParentWorksheet() const
 /**
  * @details
  */
-XMLDocument *XLCell::XmlDocument()
+XMLDocument *Impl::XLCell::XmlDocument()
 {
     return ParentWorksheet()->XmlDocument();
 }
@@ -167,7 +167,7 @@ XMLDocument *XLCell::XmlDocument()
 /**
  * @details
  */
-const XMLDocument *XLCell::XmlDocument() const
+const XMLDocument *Impl::XLCell::XmlDocument() const
 {
     return ParentWorksheet()->XmlDocument();
 }
@@ -175,7 +175,7 @@ const XMLDocument *XLCell::XmlDocument() const
 /**
  * @details
  */
-XMLNode XLCell::CellNode()
+XMLNode Impl::XLCell::CellNode()
 {
     return *m_cellNode;
 }
@@ -183,7 +183,7 @@ XMLNode XLCell::CellNode()
 /**
  * @details
  */
-const XMLNode XLCell::CellNode() const
+const XMLNode Impl::XLCell::CellNode() const
 {
     return *m_cellNode;
 }
@@ -191,7 +191,7 @@ const XMLNode XLCell::CellNode() const
 /**
  * @details
  */
-XMLNode XLCell::CreateValueNode()
+XMLNode Impl::XLCell::CreateValueNode()
 {
     if (!m_cellNode->child("v")) m_cellNode->append_child("v");
     return m_cellNode->child("v");
@@ -200,7 +200,7 @@ XMLNode XLCell::CreateValueNode()
 /**
  * @details
  */
-bool XLCell::HasTypeAttribute() const
+bool Impl::XLCell::HasTypeAttribute() const
 {
     if (m_cellNode->attribute("t"))
         return true;
@@ -212,7 +212,7 @@ bool XLCell::HasTypeAttribute() const
  * @details Return the cell type attribute, by querying the attribute named "t" in the XML node for the cell. 
  * If the cell has no attribute (i.e. is empty or holds a number), a nullptr will be returned.
  */
-const XMLAttribute XLCell::TypeAttribute() const
+const XMLAttribute Impl::XLCell::TypeAttribute() const
 {
     return m_cellNode->attribute("t");
 }

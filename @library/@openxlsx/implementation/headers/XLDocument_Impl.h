@@ -43,8 +43,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXL_XLDOCUMENT_H
-#define OPENXL_XLDOCUMENT_H
+#ifndef OPENXLSX_IMPL_XLDOCUMENT_H
+#define OPENXLSX_IMPL_XLDOCUMENT_H
 
 #include <string>
 #include <map>
@@ -62,6 +62,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLRelationships_Impl.h"
 #include "XLException_Impl.h"
 
+#include "XLProperty.h"
+
 namespace libzippp {
     class ZipArchive;
 }
@@ -73,37 +75,7 @@ namespace OpenXLSX::Impl
     class XLWorkbook;
     class XLWorksheet;
 
-//======================================================================================================================
-//========== XLDocumentProperties Enum =================================================================================
-//======================================================================================================================
 
-    /**
-     * @brief The XLDocumentProperties class is an enumeration of the possible properties (metadata) that can be set
-     * for a XLDocument object (and .xlsx file)
-     */
-    enum class XLDocumentProperties
-    {
-        Title,
-        Subject,
-        Creator,
-        Keywords,
-        Description,
-        LastModifiedBy,
-        LastPrinted,
-        CreationDate,
-        ModificationDate,
-        Category,
-        Application,
-        DocSecurity,
-        ScaleCrop,
-        Manager,
-        Company,
-        LinksUpToDate,
-        SharedDoc,
-        HyperlinkBase,
-        HyperlinksChanged,
-        AppVersion
-    };
 
 //======================================================================================================================
 //========== XLDocument Class ==========================================================================================
@@ -213,14 +185,14 @@ namespace OpenXLSX::Impl
          * @param theProperty The name of the property to get.
          * @return The property as a string
          */
-        std::string GetProperty(XLDocumentProperties theProperty) const;
+        std::string GetProperty(XLProperty theProperty) const;
 
         /**
          * @brief Set a property
          * @param theProperty The property to set.
          * @param value The value of the property, as a string
          */
-        void SetProperty(XLDocumentProperties theProperty,
+        void SetProperty(XLProperty theProperty,
                          const std::string &value);
 
         /**
@@ -341,4 +313,4 @@ namespace OpenXLSX::Impl
 
 }
 
-#endif //OPENXL_XLDOCUMENT_H
+#endif //OPENXLSX_IMPL_XLDOCUMENT_H

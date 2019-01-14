@@ -7,12 +7,12 @@
 #include <algorithm>
 
 using namespace std;
-using namespace OpenXLSX::Impl;
+using namespace OpenXLSX;
 
 /**
  * @details
  */
-XLColor::XLColor(unsigned int red,
+Impl::XLColor::XLColor(unsigned int red,
                  unsigned int green,
                  unsigned int blue)
     : m_red(min(red, 255U)),
@@ -25,7 +25,7 @@ XLColor::XLColor(unsigned int red,
 /**
  * @details
  */
-XLColor::XLColor(const std::string &hexCode)
+Impl::XLColor::XLColor(const std::string &hexCode)
     : m_red(0),
       m_green(0),
       m_blue(0)
@@ -36,7 +36,7 @@ XLColor::XLColor(const std::string &hexCode)
 /**
  * @details
  */
-void XLColor::SetColor(unsigned int red,
+void Impl::XLColor::SetColor(unsigned int red,
                        unsigned int green,
                        unsigned int blue)
 {
@@ -48,7 +48,7 @@ void XLColor::SetColor(unsigned int red,
 /**
  * @details
  */
-void XLColor::SetColor(const std::string &hexCode)
+void Impl::XLColor::SetColor(const std::string &hexCode)
 {
 
     std::string temp = hexCode;
@@ -69,7 +69,7 @@ void XLColor::SetColor(const std::string &hexCode)
 /**
  * @details
  */
-unsigned int XLColor::Red() const
+unsigned int Impl::XLColor::Red() const
 {
     return m_red;
 }
@@ -77,7 +77,7 @@ unsigned int XLColor::Red() const
 /**
  * @details
  */
-unsigned int XLColor::Green() const
+unsigned int Impl::XLColor::Green() const
 {
     return m_green;
 }
@@ -85,7 +85,7 @@ unsigned int XLColor::Green() const
 /**
  * @details
  */
-unsigned int XLColor::Blue() const
+unsigned int Impl::XLColor::Blue() const
 {
     return m_blue;
 }
@@ -93,7 +93,7 @@ unsigned int XLColor::Blue() const
 /**
  * @details
  */
-std::string XLColor::Hex() const
+std::string Impl::XLColor::Hex() const
 {
 
     stringstream str;

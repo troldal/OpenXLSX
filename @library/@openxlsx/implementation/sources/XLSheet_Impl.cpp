@@ -10,7 +10,7 @@
 #include <pugixml.hpp>
 
 using namespace std;
-using namespace OpenXLSX::Impl;
+using namespace OpenXLSX;
 
 
 /**
@@ -18,7 +18,7 @@ using namespace OpenXLSX::Impl;
  * sheet type is WorkSheet and the default sheet state is Visible.
  * @todo Consider to let the sheet type be determined by the subclasses.
  */
-XLSheet::XLSheet(XLWorkbook &parent,
+Impl::XLSheet::XLSheet(XLWorkbook &parent,
                  const std::string &name,
                  const std::string &filepath,
                  const std::string &xmlData)
@@ -35,7 +35,7 @@ XLSheet::XLSheet(XLWorkbook &parent,
 
 }
 
-XLSheet::~XLSheet()
+Impl::XLSheet::~XLSheet()
 {
 
 }
@@ -43,7 +43,7 @@ XLSheet::~XLSheet()
 /**
  * @details This method returns the m_sheetName property.
  */
-const std::string &XLSheet::Name() const
+const std::string &Impl::XLSheet::Name() const
 {
     return m_sheetName;
 }
@@ -55,7 +55,7 @@ const std::string &XLSheet::Name() const
  * - Set the value of the title node in the app.xml file to the new name
  * - Set the m_isModified property to true.
  */
-void XLSheet::SetName(const std::string &name)
+void Impl::XLSheet::SetName(const std::string &name)
 {
     m_sheetName = name;
     m_nodeInWorkbook->attribute("name").set_value(name.c_str());
@@ -66,7 +66,7 @@ void XLSheet::SetName(const std::string &name)
 /**
  * @details This method returns the m_sheetState property.
  */
-const XLSheetState &XLSheet::State() const
+const Impl::XLSheetState &Impl::XLSheet::State() const
 {
     return m_sheetState;
 }
@@ -78,7 +78,7 @@ const XLSheetState &XLSheet::State() const
  * (if it doesn't exist already) and set the value to the new state.
  * - If the state is set to Visible, delete the state attribute from the sheet node in the workbook.xml file, if it exists.
  */
-void XLSheet::SetState(XLSheetState state)
+void Impl::XLSheet::SetState(XLSheetState state)
 {
     m_sheetState = state;
 
@@ -115,7 +115,7 @@ void XLSheet::SetState(XLSheetState state)
  * @todo Consider if this can be moved to the destructor.
  * @todo Delete the associated xml file for the sheet.
  */
-void XLSheet::Delete()
+void Impl::XLSheet::Delete()
 {
 
     // Delete the node in AppProperties.
@@ -137,7 +137,7 @@ void XLSheet::Delete()
 /**
  * @details This method simply returns the m_sheetType property.
  */
-const XLSheetType &XLSheet::Type() const
+const Impl::XLSheetType &Impl::XLSheet::Type() const
 {
     return m_sheetType;
 }
@@ -146,7 +146,7 @@ const XLSheetType &XLSheet::Type() const
  * @details
  * @todo This method is currently unimplemented.
  */
-unsigned int XLSheet::Index() const
+unsigned int Impl::XLSheet::Index() const
 {
     return 0;
 }
@@ -155,7 +155,7 @@ unsigned int XLSheet::Index() const
  * @details
  * @todo This method is currently unimplemented.
  */
-void XLSheet::SetIndex()
+void Impl::XLSheet::SetIndex()
 {
 
 }

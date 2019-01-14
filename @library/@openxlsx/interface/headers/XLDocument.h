@@ -48,10 +48,13 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 #include <memory>
 
+#include "XLProperty.h"
+
 namespace OpenXLSX {
     namespace Impl {
         class XLDocument;
     }
+
 
     /**
      * @brief
@@ -151,27 +154,20 @@ namespace OpenXLSX {
          * @param theProperty The name of the property to get.
          * @return The property as a string
          */
-//        std::string GetProperty(XLDocumentProperties theProperty) const {
-//            return m_document->GetProperty(theProperty);
-//        }
+        std::string GetProperty(XLProperty theProperty) const;
 
         /**
          * @brief Set a property
          * @param theProperty The property to set.
          * @param value The value of the property, as a string
          */
-//        void SetProperty(XLDocumentProperties theProperty,
-//                         const std::string &value) {
-//            m_document->SetProperty(theProperty, value);
-//        }
+        void SetProperty(XLProperty theProperty, const std::string &value);
 
         /**
          * @brief Delete the property from the document
          * @param propertyName The property to delete from the document
          */
-//        void DeleteProperty(const std::string &propertyName) {
-//            m_document->DeleteProperty(propertyName);
-//        }
+        void DeleteProperty(const std::string &propertyName);
 
     private:
 

@@ -43,8 +43,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXLEXE_XLFONT_H
-#define OPENXLEXE_XLFONT_H
+#ifndef OPENXLSX_IMPL_XLFONT_H
+#define OPENXLSX_IMPL_XLFONT_H
 
 #include <string>
 #include <memory>
@@ -124,4 +124,4 @@ namespace OpenXLSX::Impl
 
 }
 
-#endif //OPENXLEXE_XLFONT_H
+#endif //OPENXLSX_IMPL_XLFONT_H

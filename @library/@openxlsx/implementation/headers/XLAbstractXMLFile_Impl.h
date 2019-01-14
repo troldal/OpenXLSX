@@ -43,8 +43,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXL_XLABSTRACTXMLFILE_H
-#define OPENXL_XLABSTRACTXMLFILE_H
+#ifndef OPENXLSX_IMPL_XLABSTRACTXMLFILE_H
+#define OPENXLSX_IMPL_XLABSTRACTXMLFILE_H
 
 #include <iostream>
 #include <memory>
@@ -195,4 +195,4 @@ namespace OpenXLSX::Impl
     };
 }
 
-#endif //OPENXL_XLABSTRACTXMLFILE_H
+#endif //OPENXLSX_IMPL_XLABSTRACTXMLFILE_H

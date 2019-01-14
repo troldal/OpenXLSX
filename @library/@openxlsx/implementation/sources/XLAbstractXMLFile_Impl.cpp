@@ -7,7 +7,7 @@
 #include <pugixml.hpp>
 
 using namespace std;
-using namespace OpenXLSX::Impl;
+using namespace OpenXLSX;
 
 /**
  * @details The constructor creates a new object with the parent XLDocument and the file path as input, with
@@ -15,7 +15,7 @@ using namespace OpenXLSX::Impl;
  * the same path in the .zip file will be overwritten upon saving of the document. If no xmlData is provided,
  * the data will be read from the .zip file, using the given path.
  */
-XLAbstractXMLFile::XLAbstractXMLFile(XLDocument &parent,
+Impl::XLAbstractXMLFile::XLAbstractXMLFile(XLDocument &parent,
                                      const std::string &filePath,
                                      const std::string &xmlData)
     :   m_xmlDocument(make_unique<XMLDocument>()),
@@ -28,14 +28,14 @@ XLAbstractXMLFile::XLAbstractXMLFile(XLDocument &parent,
     else SetXmlData(xmlData);
 }
 
-XLAbstractXMLFile::~XLAbstractXMLFile()
+Impl::XLAbstractXMLFile::~XLAbstractXMLFile()
 {
 }
 
 /**
  * @details This method sets the XML data with a std::string as input. The underlying XMLDocument reads the data.
  */
-void XLAbstractXMLFile::SetXmlData(const std::string &xmlData)
+void Impl::XLAbstractXMLFile::SetXmlData(const std::string &xmlData)
 {
     m_xmlDocument->load_string(xmlData.c_str());
 }
@@ -43,7 +43,7 @@ void XLAbstractXMLFile::SetXmlData(const std::string &xmlData)
 /**
  * @details This method retrieves the underlying XML data as a std::string.
  */
-std::string XLAbstractXMLFile::GetXmlData() const
+std::string Impl::XLAbstractXMLFile::GetXmlData() const
 {
     ostringstream ostr;
     m_xmlDocument->print(ostr);
@@ -54,7 +54,7 @@ std::string XLAbstractXMLFile::GetXmlData() const
  * @details The CommitXMLData method calls the AddOrReplaceXMLFile method for the current object and all child objects.
  * This, in turn, will add or replace the XML data files in the zipped .xlsx package.
  */
-void XLAbstractXMLFile::CommitXMLData()
+void Impl::XLAbstractXMLFile::CommitXMLData()
 {
     m_parentDocument.AddOrReplaceXMLFile(m_path, GetXmlData());
     for (auto file : m_childXmlDocuments) {
@@ -66,7 +66,7 @@ void XLAbstractXMLFile::CommitXMLData()
  * @details The DeleteXMLData method calls the DeleteXMLFile method for the current object and all child objects.
  * This, in turn, delete the XML data files in the zipped .xlsx package.
  */
-void XLAbstractXMLFile::DeleteXMLData()
+void Impl::XLAbstractXMLFile::DeleteXMLData()
 {
     m_parentDocument.DeleteXMLFile(m_path);
     for (auto file : m_childXmlDocuments) {
@@ -77,7 +77,7 @@ void XLAbstractXMLFile::DeleteXMLData()
 /**
  * @details This method returns the path in the .zip file of the XML file as a std::string.
  */
-const string &XLAbstractXMLFile::FilePath() const
+const string &Impl::XLAbstractXMLFile::FilePath() const
 {
     return m_path;
 }
@@ -85,7 +85,7 @@ const string &XLAbstractXMLFile::FilePath() const
 /**
  * @details This method is mainly meant for debugging, by enabling printing of the xml file to cout.
  */
-void XLAbstractXMLFile::Print() const
+void Impl::XLAbstractXMLFile::Print() const
 {
     XmlDocument()->print(cout);
 }
@@ -93,7 +93,7 @@ void XLAbstractXMLFile::Print() const
 /**
  * @details This method returns a pointer to the underlying XMLDocument resource.
  */
-XMLDocument * XLAbstractXMLFile::XmlDocument()
+XMLDocument * Impl::XLAbstractXMLFile::XmlDocument()
 {
     return const_cast<XMLDocument *>(static_cast<const XLAbstractXMLFile *>(this)->XmlDocument());
 }
@@ -101,7 +101,7 @@ XMLDocument * XLAbstractXMLFile::XmlDocument()
 /**
  * @details This method returns a pointer to the underlying XMLDocument resource as const.
  */
-const XMLDocument *XLAbstractXMLFile::XmlDocument() const
+const XMLDocument *Impl::XLAbstractXMLFile::XmlDocument() const
 {
     return m_xmlDocument.get();
 }
@@ -109,7 +109,7 @@ const XMLDocument *XLAbstractXMLFile::XmlDocument() const
 /**
  * @details Set the XLWorksheet object to 'modified'. This is done by setting the m_is Modified member to true.
  */
-void XLAbstractXMLFile::SetModified()
+void Impl::XLAbstractXMLFile::SetModified()
 {
     m_isModified = true;
 }
@@ -117,7 +117,7 @@ void XLAbstractXMLFile::SetModified()
 /**
  * @details Returns the value of the m_isModified member variable.
  */
-bool XLAbstractXMLFile::IsModified()
+bool Impl::XLAbstractXMLFile::IsModified()
 {
     return m_isModified;
 }

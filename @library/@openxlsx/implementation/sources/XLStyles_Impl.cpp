@@ -8,22 +8,22 @@
 #include <pugixml.hpp>
 
 using namespace std;
-using namespace OpenXLSX::Impl;
+using namespace OpenXLSX;
 
-std::map<std::string, XLStyles> XLStyles::s_styles = {};
+std::map<std::string, Impl::XLStyles> Impl::XLStyles::s_styles = {};
 
-XMLNode XLStyles::s_numberFormatsNode = XMLNode();
-XMLNode XLStyles::s_fontsNode = XMLNode();
-XMLNode XLStyles::s_fillsNode = XMLNode();
-XMLNode XLStyles::s_bordersNode = XMLNode();
-XMLNode XLStyles::s_cellFormatNode = XMLNode();
-XMLNode XLStyles::s_cellStyleNode = XMLNode();
-XMLNode XLStyles::s_colors = XMLNode();
+XMLNode Impl::XLStyles::s_numberFormatsNode = XMLNode();
+XMLNode Impl::XLStyles::s_fontsNode = XMLNode();
+XMLNode Impl::XLStyles::s_fillsNode = XMLNode();
+XMLNode Impl::XLStyles::s_bordersNode = XMLNode();
+XMLNode Impl::XLStyles::s_cellFormatNode = XMLNode();
+XMLNode Impl::XLStyles::s_cellStyleNode = XMLNode();
+XMLNode Impl::XLStyles::s_colors = XMLNode();
 
 /**
  * @details
  */
-XLStyles::XLStyles(XLDocument &parent,
+Impl::XLStyles::XLStyles(XLDocument &parent,
                    const std::string &filePath)
     : XLAbstractXMLFile(parent, filePath),
       XLSpreadsheetElement(parent)
@@ -34,7 +34,7 @@ XLStyles::XLStyles(XLDocument &parent,
 /**
  * @details
  */
-XLStyles::~XLStyles()
+Impl::XLStyles::~XLStyles()
 {
     //CommitXMLData();
 }
@@ -42,7 +42,7 @@ XLStyles::~XLStyles()
 /**
  * @details
  */
-bool XLStyles::ParseXMLData()
+bool Impl::XLStyles::ParseXMLData()
 {
     s_numberFormatsNode = XmlDocument()->child("numFmts");
     s_fontsNode = XmlDocument()->child("fonts");
@@ -81,7 +81,7 @@ bool XLStyles::ParseXMLData()
 /**
  * @details
  */
-void XLStyles::AddFont(const XLFont &font)
+void Impl::XLStyles::AddFont(const XLFont &font)
 {
     m_fonts.push_back(make_unique<XLFont>(font.m_name,
                                           font.m_size,
@@ -106,7 +106,7 @@ void XLStyles::AddFont(const XLFont &font)
 /**
  * @details
  */
-XLFont &XLStyles::Font(unsigned int id)
+Impl::XLFont &Impl::XLStyles::Font(unsigned int id)
 {
     return *m_fonts.at(id);
 }
@@ -114,7 +114,7 @@ XLFont &XLStyles::Font(unsigned int id)
 /**
  * @details
  */
-unsigned int XLStyles::FontId(const std::string &font)
+unsigned int Impl::XLStyles::FontId(const std::string &font)
 {
 
     unsigned int index = 0;

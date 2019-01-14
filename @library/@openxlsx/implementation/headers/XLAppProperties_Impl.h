@@ -37,8 +37,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef OPENXL_XLAPPPROPERTIES_H
-#define OPENXL_XLAPPPROPERTIES_H
+#ifndef OPENXLSX_IMPL_XLAPPPROPERTIES_H
+#define OPENXLSX_IMPL_XLAPPPROPERTIES_H
 
 #include "XLAbstractXMLFile_Impl.h"
 #include "XLSpreadsheetElement_Impl.h"
@@ -313,4 +313,4 @@ namespace OpenXLSX::Impl
 
 }
 
-#endif //OPENXL_XLAPPPROPERTIES_H
+#endif //OPENXLSX_IMPL_XLAPPPROPERTIES_H

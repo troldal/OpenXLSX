@@ -43,8 +43,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXLEXE_XLCOLOR_H
-#define OPENXLEXE_XLCOLOR_H
+#ifndef OPENXLSX_IMPL_XLCOLOR_H
+#define OPENXLSX_IMPL_XLCOLOR_H
 
 #include <string>
 
@@ -156,4 +156,4 @@ namespace OpenXLSX::Impl
 }
 
 
-#endif //OPENXLEXE_XLCOLOR_H
+#endif //OPENXLSX_IMPL_XLCOLOR_H

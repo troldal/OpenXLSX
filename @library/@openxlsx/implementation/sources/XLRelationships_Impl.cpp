@@ -8,12 +8,12 @@
 #include <pugixml.hpp>
 
 using namespace std;
-using namespace OpenXLSX::Impl;
+using namespace OpenXLSX;
 
 /**
  * @details Constructor. Initializes the member variables for the new XLRelationshipItem object.
  */
-XLRelationshipItem::XLRelationshipItem(XMLNode node,
+Impl::XLRelationshipItem::XLRelationshipItem(XMLNode node,
                                        XLRelationshipType type,
                                        const std::string &target,
                                        const std::string &id)
@@ -28,7 +28,7 @@ XLRelationshipItem::XLRelationshipItem(XMLNode node,
 /**
  * @details Returns the m_relationshipType member variable by value.
  */
-XLRelationshipType XLRelationshipItem::Type() const
+Impl::XLRelationshipType Impl::XLRelationshipItem::Type() const
 {
     return m_relationshipType;
 }
@@ -36,7 +36,7 @@ XLRelationshipType XLRelationshipItem::Type() const
 /**
  * @details Returns the m_relationshipTarget member variable by value.
  */
-const std::string &XLRelationshipItem::Target() const
+const std::string &Impl::XLRelationshipItem::Target() const
 {
     return m_relationshipTarget;
 }
@@ -44,7 +44,7 @@ const std::string &XLRelationshipItem::Target() const
 /**
  * @details Returns the m_relationshipId member variable by value.
  */
-const std::string &XLRelationshipItem::Id() const
+const std::string &Impl::XLRelationshipItem::Id() const
 {
     return m_relationshipId;
 }
@@ -53,7 +53,7 @@ const std::string &XLRelationshipItem::Id() const
  * @details Deletes the underlying XML node and sets the object to a safe state. Deletion of the object can only be done
  * from the parent XLRelationships object.
  */
-void XLRelationshipItem::Delete()
+void Impl::XLRelationshipItem::Delete()
 {
     // Delete the XML node
     if (m_relationshipNode) m_relationshipNode->parent().remove_child(*m_relationshipNode);
@@ -69,7 +69,7 @@ void XLRelationshipItem::Delete()
 /**
  * @details Creates a XLRelationships object, which will read the XML file with the given path
  */
-XLRelationships::XLRelationships(XLDocument &parent,
+Impl::XLRelationships::XLRelationships(XLDocument &parent,
                                  const std::string &filePath)
     : XLAbstractXMLFile(parent, filePath),
       XLSpreadsheetElement(parent),
@@ -82,7 +82,7 @@ XLRelationships::XLRelationships(XLDocument &parent,
 /**
  * @details Returns the XLRelationshipItem with the given ID, by looking it up in the m_relationships map.
  */
-const XLRelationshipItem *XLRelationships::RelationshipByID(const std::string &id) const
+const Impl::XLRelationshipItem *Impl::XLRelationships::RelationshipByID(const std::string &id) const
 {
     return Relationships()->at(id).get();
 }
@@ -90,7 +90,7 @@ const XLRelationshipItem *XLRelationships::RelationshipByID(const std::string &i
 /**
  * @details Returns the XLRelationshipItem with the given ID, by looking it up in the m_relationships map.
  */
-XLRelationshipItem * XLRelationships::RelationshipByID(const std::string &id)
+Impl::XLRelationshipItem * Impl::XLRelationships::RelationshipByID(const std::string &id)
 {
     return Relationships()->at(id).get();
 }
@@ -98,7 +98,7 @@ XLRelationshipItem * XLRelationships::RelationshipByID(const std::string &id)
 /**
  * @details Returns the XLRelationshipItem with the requested target, by iterating through the items.
  */
-const XLRelationshipItem *XLRelationships::RelationshipByTarget(const std::string &target) const
+const Impl::XLRelationshipItem *Impl::XLRelationships::RelationshipByTarget(const std::string &target) const
 {
 
     for (auto const &item : *Relationships()) {
@@ -111,7 +111,7 @@ const XLRelationshipItem *XLRelationships::RelationshipByTarget(const std::strin
 /**
  * @details Returns the XLRelationshipItem with the requested target, by iterating through the items.
  */
-XLRelationshipItem *XLRelationships::RelationshipByTarget(const std::string &target)
+Impl::XLRelationshipItem *Impl::XLRelationships::RelationshipByTarget(const std::string &target)
 {
 
     for (auto &item : *Relationships()) {
@@ -124,7 +124,7 @@ XLRelationshipItem *XLRelationships::RelationshipByTarget(const std::string &tar
 /**
  * @details Returns a const reference to the internal datastructure (std::map)
  */
-const XLRelationshipMap *XLRelationships::Relationships() const
+const Impl::XLRelationshipMap *Impl::XLRelationships::Relationships() const
 {
     return &m_relationships;
 }
@@ -133,7 +133,7 @@ const XLRelationshipMap *XLRelationships::Relationships() const
  * @details Returns a mutable reference to the internal datastructure (std::map)
  * @todo Consider if there is a more elegant way of doing this.
  */
-XLRelationshipMap *XLRelationships::relationshipsMutable()
+Impl::XLRelationshipMap *Impl::XLRelationships::relationshipsMutable()
 {
     return &m_relationships;
 }
@@ -141,7 +141,7 @@ XLRelationshipMap *XLRelationships::relationshipsMutable()
 /**
  * @details
  */
-void XLRelationships::DeleteRelationship(const std::string &id)
+void Impl::XLRelationships::DeleteRelationship(const std::string &id)
 {
 
     Relationships()->at(id)->Delete();
@@ -154,7 +154,7 @@ void XLRelationships::DeleteRelationship(const std::string &id)
  * @details Adds a new relationship by creating new XML node in the .rels file and creating a new XLRelationshipItem
  * based on the newly created node.
  */
-XLRelationshipItem * XLRelationships::AddRelationship(XLRelationshipType type, const std::string &target)
+Impl::XLRelationshipItem * Impl::XLRelationships::AddRelationship(XLRelationshipType type, const std::string &target)
 {
     string typeString;
 
@@ -231,7 +231,7 @@ XLRelationshipItem * XLRelationships::AddRelationship(XLRelationshipType type, c
  * @details Each item in the XML file is read and a corresponding XLRelationshipItem object is created and added
  * to the current XLRelationship object.
  */
-bool XLRelationships::ParseXMLData()
+bool Impl::XLRelationships::ParseXMLData()
 {
     for (auto &theNode : XmlDocument()->first_child().children()) {
         XLRelationshipType type;
@@ -295,7 +295,7 @@ bool XLRelationships::ParseXMLData()
     return true;
 }
 
-bool XLRelationships::TargetExists(const std::string &target) const
+bool Impl::XLRelationships::TargetExists(const std::string &target) const
 {
     if (RelationshipByTarget(target))
         return true;
@@ -303,7 +303,7 @@ bool XLRelationships::TargetExists(const std::string &target) const
         return false;
 }
 
-bool XLRelationships::IdExists(const std::string &id) const
+bool Impl::XLRelationships::IdExists(const std::string &id) const
 {
     if (RelationshipByID(id))
         return true;

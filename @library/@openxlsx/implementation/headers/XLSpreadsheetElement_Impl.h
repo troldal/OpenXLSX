@@ -43,8 +43,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXLEXE_XLWORKBOOKCHILD_H
-#define OPENXLEXE_XLWORKBOOKCHILD_H
+#ifndef OPENXLSX_IMPL_XLWORKBOOKCHILD_H
+#define OPENXLSX_IMPL_XLWORKBOOKCHILD_H
 
 namespace OpenXLSX::Impl
 {
@@ -141,4 +141,4 @@ namespace OpenXLSX::Impl
 
 }
 
-#endif //OPENXLEXE_XLWORKBOOKCHILD_H
+#endif //OPENXLSX_IMPL_XLWORKBOOKCHILD_H

@@ -43,8 +43,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXLSX_XLTOKENIZER_H
-#define OPENXLSX_XLTOKENIZER_H
+#ifndef OPENXLSX_IMPL_XLTOKENIZER_H
+#define OPENXLSX_IMPL_XLTOKENIZER_H
 
 #include <string>
 #include <vector>
@@ -236,4 +236,4 @@ namespace OpenXLSX::Impl
     };
 }
 
-#endif //OPENXLSX_XLTOKENIZER_H
+#endif //OPENXLSX_IMPL_XLTOKENIZER_H

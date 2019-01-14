@@ -43,8 +43,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXL_XLRELATIONSHIPS_H
-#define OPENXL_XLRELATIONSHIPS_H
+#ifndef OPENXLSX_IMPL_XLRELATIONSHIPS_H
+#define OPENXLSX_IMPL_XLRELATIONSHIPS_H
 
 #include <string>
 #include <vector>
@@ -332,4 +332,4 @@ namespace OpenXLSX::Impl
     };
 }
 
-#endif //OPENXL_XLRELATIONSHIPS_H
+#endif //OPENXLSX_IMPL_XLRELATIONSHIPS_H

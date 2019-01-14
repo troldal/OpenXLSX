@@ -43,8 +43,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXLEXE_XLROW_H
-#define OPENXLEXE_XLROW_H
+#ifndef OPENXLSX_IMPL_XLROW_H
+#define OPENXLSX_IMPL_XLROW_H
 
 #include "XLDocument_Impl.h"
 #include "XLCell_Impl.h"
@@ -220,4 +220,4 @@ namespace OpenXLSX::Impl
 }
 
 
-#endif //OPENXLEXE_XLROW_H
+#endif //OPENXLSX_IMPL_XLROW_H

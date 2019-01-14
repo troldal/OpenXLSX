@@ -5,12 +5,12 @@
 #include "XLSpreadsheetElement_Impl.h"
 #include "XLDocument_Impl.h"
 
-namespace OpenXLSX::Impl
-{
+using namespace OpenXLSX;
+
     /**
      * @details
      */
-    XLSpreadsheetElement::XLSpreadsheetElement(XLDocument &parent)
+    Impl::XLSpreadsheetElement::XLSpreadsheetElement(XLDocument &parent)
         : m_document(&parent),
           m_workbook(parent.Workbook())
     {
@@ -20,7 +20,7 @@ namespace OpenXLSX::Impl
     /**
      * @details
      */
-    XLWorkbook *XLSpreadsheetElement::ParentWorkbook()
+    Impl::XLWorkbook *Impl::XLSpreadsheetElement::ParentWorkbook()
     {
         return const_cast<XLWorkbook *>(static_cast<const XLSpreadsheetElement *>(this)->ParentWorkbook());
     }
@@ -28,7 +28,7 @@ namespace OpenXLSX::Impl
     /**
      * @details
      */
-    const XLWorkbook * XLSpreadsheetElement::ParentWorkbook() const
+    const Impl::XLWorkbook * Impl::XLSpreadsheetElement::ParentWorkbook() const
     {
         return m_workbook;
     }
@@ -36,7 +36,7 @@ namespace OpenXLSX::Impl
     /**
      * @details
      */
-    XLDocument * XLSpreadsheetElement::ParentDocument()
+    Impl::XLDocument * Impl::XLSpreadsheetElement::ParentDocument()
     {
         return const_cast<XLDocument *>(static_cast<const XLSpreadsheetElement *>(this)->ParentDocument());
     }
@@ -44,8 +44,7 @@ namespace OpenXLSX::Impl
     /**
      * @details
      */
-    const XLDocument * XLSpreadsheetElement::ParentDocument() const
+    const Impl::XLDocument * Impl::XLSpreadsheetElement::ParentDocument() const
     {
         return m_document;
     }
-}

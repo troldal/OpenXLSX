@@ -92,7 +92,9 @@ set(OPENXLSX_IMPL_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellValue_Impl.cpp)
 
 set(OPENXLSX_INTERFACE_HEADERS
-        ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLDocument.h)
+        ${CMAKE_CURRENT_LIST_DIR}/interface/headers/OpenXLSX.h
+        ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLDocument.h
+        ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLProperty.h)
 
 set(OPENXLSX_INTERFACE_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/interface/sources/XLDocument.cpp)

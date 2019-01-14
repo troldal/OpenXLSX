@@ -43,8 +43,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXL_XLCELLRANGE_H
-#define OPENXL_XLCELLRANGE_H
+#ifndef OPENXLSX_IMPL_XLCELLRANGE_H
+#define OPENXLSX_IMPL_XLCELLRANGE_H
 
 #include "XLCellReference_Impl.h"
 #include "XLCellIterator_Impl.h"
@@ -215,4 +215,4 @@ namespace OpenXLSX::Impl
 
 }
 
-#endif //OPENXL_XLCELLRANGE_H
+#endif //OPENXLSX_IMPL_XLCELLRANGE_H

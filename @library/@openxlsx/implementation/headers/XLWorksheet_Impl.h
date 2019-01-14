@@ -43,8 +43,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXL_XLWORKSHEET_H
-#define OPENXL_XLWORKSHEET_H
+#ifndef OPENXLSX_IMPL_XLWORKSHEET_H
+#define OPENXLSX_IMPL_XLWORKSHEET_H
 
 #include <vector>
 
@@ -458,4 +458,4 @@ namespace OpenXLSX::Impl
     };
 }
 
-#endif //OPENXL_XLWORKSHEET_H
+#endif //OPENXLSX_IMPL_XLWORKSHEET_H

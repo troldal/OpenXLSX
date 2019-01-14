@@ -5,12 +5,12 @@
 #include "XLChartsheet_Impl.h"
 #include "XLDocument_Impl.h"
 
-using namespace OpenXLSX::Impl;
+using namespace OpenXLSX;
 
 /**
  * @details
  */
-XLChartsheet::XLChartsheet(XLWorkbook &parent,
+Impl::XLChartsheet::XLChartsheet(XLWorkbook &parent,
                            const std::string &name,
                            const std::string &filePath,
                            const std::string &xmlData)

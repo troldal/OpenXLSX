@@ -9,12 +9,12 @@
 #include "XLDocument_Impl.h"
 
 using namespace std;
-using namespace OpenXLSX::Impl;
+using namespace OpenXLSX;
 
 /**
  * @details
  */
-XLContentItem::XLContentItem(XMLNode node,
+Impl::XLContentItem::XLContentItem(XMLNode node,
                              const std::string &path,
                              XLContentType type)
     : m_contentNode(std::make_unique<XMLNode>(node)),
@@ -27,7 +27,7 @@ XLContentItem::XLContentItem(XMLNode node,
 /**
  * @details
  */
-XLContentItem::XLContentItem(const XLContentItem &other)
+Impl::XLContentItem::XLContentItem(const XLContentItem &other)
     : m_contentNode(std::make_unique<XMLNode>(*other.m_contentNode)),
       m_contentPath(other.m_contentPath),
       m_contentType(other.m_contentType)
@@ -38,7 +38,7 @@ XLContentItem::XLContentItem(const XLContentItem &other)
 /**
  * @details
  */
-XLContentItem::XLContentItem(XLContentItem &&other)
+Impl::XLContentItem::XLContentItem(XLContentItem &&other)
     : m_contentNode(move(other.m_contentNode)),
       m_contentPath(move(other.m_contentPath)),
       m_contentType(move(other.m_contentType))
@@ -49,7 +49,7 @@ XLContentItem::XLContentItem(XLContentItem &&other)
 /**
  * @details
  */
-XLContentItem &XLContentItem::operator=(const XLContentItem &other)
+Impl::XLContentItem &Impl::XLContentItem::operator=(const XLContentItem &other)
 {
     *m_contentNode = *other.m_contentNode;
     m_contentPath = other.m_contentPath;
@@ -61,7 +61,7 @@ XLContentItem &XLContentItem::operator=(const XLContentItem &other)
 /**
  * @details
  */
-XLContentItem &XLContentItem::operator=(XLContentItem &&other)
+Impl::XLContentItem &Impl::XLContentItem::operator=(XLContentItem &&other)
 {
     m_contentNode = move(other.m_contentNode);
     m_contentPath = move(other.m_contentPath);
@@ -73,7 +73,7 @@ XLContentItem &XLContentItem::operator=(XLContentItem &&other)
 /**
  * @details
  */
-XLContentType XLContentItem::Type() const
+Impl::XLContentType Impl::XLContentItem::Type() const
 {
     return m_contentType;
 }
@@ -81,7 +81,7 @@ XLContentType XLContentItem::Type() const
 /**
  * @details
  */
-const string &XLContentItem::Path() const
+const string &Impl::XLContentItem::Path() const
 {
     return m_contentPath;
 }
@@ -89,7 +89,7 @@ const string &XLContentItem::Path() const
 /**
  * @details
  */
-void XLContentItem::DeleteItem()
+void Impl::XLContentItem::DeleteItem()
 {
     if (m_contentNode) m_contentNode->parent().remove_child(*m_contentNode);
 
@@ -102,7 +102,7 @@ void XLContentItem::DeleteItem()
 /**
  * @details
  */
-XLContentTypes::XLContentTypes(XLDocument &parent,
+Impl::XLContentTypes::XLContentTypes(XLDocument &parent,
                                const string &filePath)
     : XLAbstractXMLFile(parent, filePath),
       XLSpreadsheetElement(parent),
@@ -115,7 +115,7 @@ XLContentTypes::XLContentTypes(XLDocument &parent,
 /**
  * @details
  */
-bool XLContentTypes::ParseXMLData()
+bool Impl::XLContentTypes::ParseXMLData()
 {
     m_defaults.clear();
     m_overrides.clear();
@@ -193,7 +193,7 @@ bool XLContentTypes::ParseXMLData()
 /**
  * @details
  */
-void XLContentTypes::AddDefault(const string &key,
+void Impl::XLContentTypes::AddDefault(const string &key,
                                 XMLNode node)
 {
     m_defaults.insert({key, node});
@@ -203,7 +203,7 @@ void XLContentTypes::AddDefault(const string &key,
 /**
  * @details
  */
-void XLContentTypes::addOverride(const string &path,
+void Impl::XLContentTypes::addOverride(const string &path,
                                  XLContentType type)
 {
     string typeString;
@@ -265,7 +265,7 @@ void XLContentTypes::addOverride(const string &path,
 /**
  * @details
  */
-void XLContentTypes::ClearOverrides()
+void Impl::XLContentTypes::ClearOverrides()
 {
     m_overrides.clear();
     SetModified();
@@ -274,7 +274,7 @@ void XLContentTypes::ClearOverrides()
 /**
  * @details
  */
-const XLContentItemMap *XLContentTypes::contentItems() const
+const Impl::XLContentItemMap *Impl::XLContentTypes::contentItems() const
 {
     return &m_overrides;
 }
@@ -282,7 +282,7 @@ const XLContentItemMap *XLContentTypes::contentItems() const
 /**
  * @details
  */
-XLContentItem *XLContentTypes::ContentItem(const std::string &path)
+Impl::XLContentItem *Impl::XLContentTypes::ContentItem(const std::string &path)
 {
     return m_overrides.at(path).get();
 }

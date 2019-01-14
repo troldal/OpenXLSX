@@ -1,7 +1,7 @@
 #include <iostream>
 #include <chrono>
 #include <iomanip>
-#include <OpenXLSX/XLDocument.h>
+#include <XLDocument.h>
 
 using namespace std;
 using namespace OpenXLSX;
@@ -24,6 +24,10 @@ int main()
 {
     XLDocument doc;
     doc.CreateDocument("./MyTest.xlsx");
+
+    doc.SetProperty(XLProperty::Title, "MySpreadsheet");
+    cout << doc.GetProperty(XLProperty::Title) << endl;
+
 /*
     auto wks = doc.Workbook()->Worksheet("Sheet1");
 

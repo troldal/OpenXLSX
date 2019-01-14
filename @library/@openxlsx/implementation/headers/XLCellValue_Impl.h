@@ -43,8 +43,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXLSX_XLCELLVALUE_H
-#define OPENXLSX_XLCELLVALUE_H
+#ifndef OPENXLSX_IMPL_XLCELLVALUE_H
+#define OPENXLSX_IMPL_XLCELLVALUE_H
 
 #include "XLCellType_Impl.h"
 #include "XLException_Impl.h"

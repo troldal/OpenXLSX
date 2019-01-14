@@ -10,12 +10,12 @@
 #include "XLDocument_Impl.h"
 
 using namespace std;
-using namespace OpenXLSX::Impl;
+using namespace OpenXLSX;
 
 /**
  * @details
  */
-XLAppProperties::XLAppProperties(XLDocument &parent,
+Impl::XLAppProperties::XLAppProperties(XLDocument &parent,
                                  const std::string &filePath)
     : XLAbstractXMLFile(parent, filePath),
       XLSpreadsheetElement(parent),
@@ -37,7 +37,7 @@ XLAppProperties::XLAppProperties(XLDocument &parent,
 /**
  * @details
  */
-bool XLAppProperties::ParseXMLData()
+bool Impl::XLAppProperties::ParseXMLData()
 {
     m_sheetNameNodes.clear();
     m_headingPairs.clear();
@@ -85,7 +85,7 @@ bool XLAppProperties::ParseXMLData()
 /**
  * @details
  */
-XMLNode XLAppProperties::AddSheetName(const string &title)
+XMLNode Impl::XLAppProperties::AddSheetName(const string &title)
 {
     auto theNode = m_sheetNamesParent->append_child("vt:lpstr");
     theNode.set_value(title.c_str());
@@ -101,7 +101,7 @@ XMLNode XLAppProperties::AddSheetName(const string &title)
 /**
  * @details
  */
-void XLAppProperties::DeleteSheetName(const string &title)
+void Impl::XLAppProperties::DeleteSheetName(const string &title)
 {
     for (auto &iter : m_sheetNameNodes) {
         if (iter.second.value() == title) {
@@ -117,7 +117,7 @@ void XLAppProperties::DeleteSheetName(const string &title)
 /**
  * @details
  */
-void XLAppProperties::SetSheetName(const string &oldTitle,
+void Impl::XLAppProperties::SetSheetName(const string &oldTitle,
                                       const string &newTitle)
 {
     for (auto &iter : m_sheetNameNodes) {
@@ -132,7 +132,7 @@ void XLAppProperties::SetSheetName(const string &oldTitle,
 /**
  * @details
  */
-XMLNode XLAppProperties::SheetNameNode(const string &title)
+XMLNode Impl::XLAppProperties::SheetNameNode(const string &title)
 {
     return m_sheetNameNodes.at(title);
 }
@@ -140,7 +140,7 @@ XMLNode XLAppProperties::SheetNameNode(const string &title)
 /**
  * @details
  */
-void XLAppProperties::AddHeadingPair(const string &name,
+void Impl::XLAppProperties::AddHeadingPair(const string &name,
                                         int value)
 {
     auto pairCategory = m_headingPairsCategoryParent->append_child("vt:lpstr");
@@ -158,7 +158,7 @@ void XLAppProperties::AddHeadingPair(const string &name,
 /**
  * @details
  */
-void XLAppProperties::DeleteHeadingPair(const string &name)
+void Impl::XLAppProperties::DeleteHeadingPair(const string &name)
 {
     for (auto iter = m_headingPairs.begin(); iter != m_headingPairs.end(); iter++) {
         if (iter->first.value() == name) {
@@ -174,7 +174,7 @@ void XLAppProperties::DeleteHeadingPair(const string &name)
 /**
  * @details
  */
-void XLAppProperties::SetHeadingPair(const string &name,
+void Impl::XLAppProperties::SetHeadingPair(const string &name,
                                         int newValue)
 {
     for (auto &iter : m_headingPairs) {
@@ -189,7 +189,7 @@ void XLAppProperties::SetHeadingPair(const string &name,
 /**
  * @details
  */
-bool XLAppProperties::SetProperty(const std::string &name,
+bool Impl::XLAppProperties::SetProperty(const std::string &name,
                                      const std::string &value)
 {
     m_properties.at(name).set_value(value.c_str());
@@ -200,7 +200,7 @@ bool XLAppProperties::SetProperty(const std::string &name,
 /**
  * @details
  */
-bool XLAppProperties::SetProperty(const std::string &name,
+bool Impl::XLAppProperties::SetProperty(const std::string &name,
                                      int value)
 {
     m_properties.at(name).set_value(to_string(value).c_str());
@@ -211,7 +211,7 @@ bool XLAppProperties::SetProperty(const std::string &name,
 /**
  * @details
  */
-bool XLAppProperties::SetProperty(const std::string &name,
+bool Impl::XLAppProperties::SetProperty(const std::string &name,
                                      double value)
 {
     m_properties.at(name).set_value(to_string(value).c_str());
@@ -222,7 +222,7 @@ bool XLAppProperties::SetProperty(const std::string &name,
 /**
  * @details
  */
-XMLNode XLAppProperties::Property(const string &name) const
+XMLNode Impl::XLAppProperties::Property(const string &name) const
 {
     return m_properties.at(name);
 }
@@ -230,7 +230,7 @@ XMLNode XLAppProperties::Property(const string &name) const
 /**
  * @details
  */
-void XLAppProperties::DeleteProperty(const string &name)
+void Impl::XLAppProperties::DeleteProperty(const string &name)
 {
     m_properties.at(name).parent().remove_child(m_properties.at(name));
     m_properties.erase(name);
@@ -240,7 +240,7 @@ void XLAppProperties::DeleteProperty(const string &name)
 /**
  * @details
  */
-XMLNode XLAppProperties::AppendSheetName(const std::string &sheetName)
+XMLNode Impl::XLAppProperties::AppendSheetName(const std::string &sheetName)
 {
     auto theNode = m_sheetNamesParent->append_child("vt:lpstr");
     theNode.text().set(sheetName.c_str());
@@ -256,7 +256,7 @@ XMLNode XLAppProperties::AppendSheetName(const std::string &sheetName)
 /**
  * @details
  */
-XMLNode XLAppProperties::PrependSheetName(const std::string &sheetName)
+XMLNode Impl::XLAppProperties::PrependSheetName(const std::string &sheetName)
 {
     auto theNode = m_sheetNamesParent->prepend_child("vt:lpstr");
     theNode.text().set(sheetName.c_str());
@@ -272,7 +272,7 @@ XMLNode XLAppProperties::PrependSheetName(const std::string &sheetName)
 /**
  * @details
  */
-XMLNode XLAppProperties::InsertSheetName(const std::string &sheetName,
+XMLNode Impl::XLAppProperties::InsertSheetName(const std::string &sheetName,
                                          unsigned int index)
 {
     if (index <= 1) return PrependSheetName(sheetName);
@@ -303,7 +303,7 @@ XMLNode XLAppProperties::InsertSheetName(const std::string &sheetName,
  * @details
  * @todo Not yet implemented
  */
-XMLNode XLAppProperties::MoveSheetName(const std::string &sheetName,
+XMLNode Impl::XLAppProperties::MoveSheetName(const std::string &sheetName,
                                        unsigned int index)
 {
     return XMLNode(); //TODO: Dummy implementation.
@@ -313,7 +313,7 @@ XMLNode XLAppProperties::MoveSheetName(const std::string &sheetName,
  * @details
  * @todo Not yet implemented
  */
-XMLNode XLAppProperties::AppendWorksheetName(const std::string &sheetName)
+XMLNode Impl::XLAppProperties::AppendWorksheetName(const std::string &sheetName)
 {
     return XMLNode(); //TODO: Dummy implementation.
 }
@@ -322,7 +322,7 @@ XMLNode XLAppProperties::AppendWorksheetName(const std::string &sheetName)
  * @details
  * @todo Not yet implemented
  */
-XMLNode XLAppProperties::PrependWorksheetName(const std::string &sheetName)
+XMLNode Impl::XLAppProperties::PrependWorksheetName(const std::string &sheetName)
 {
     return XMLNode(); //TODO: Dummy implementation.
 }
@@ -331,7 +331,7 @@ XMLNode XLAppProperties::PrependWorksheetName(const std::string &sheetName)
  * @details
  * @todo Not yet implemented
  */
-XMLNode XLAppProperties::InsertWorksheetName(const std::string &sheetName,
+XMLNode Impl::XLAppProperties::InsertWorksheetName(const std::string &sheetName,
                                              unsigned int index)
 {
     return XMLNode(); //TODO: Dummy implementation.
@@ -341,7 +341,7 @@ XMLNode XLAppProperties::InsertWorksheetName(const std::string &sheetName,
  * @details
  * @todo Not yet implemented
  */
-XMLNode XLAppProperties::MoveWorksheetName(const std::string &sheetName,
+XMLNode Impl::XLAppProperties::MoveWorksheetName(const std::string &sheetName,
                                            unsigned int index)
 {
     return XMLNode(); //TODO: Dummy implementation.
@@ -351,7 +351,7 @@ XMLNode XLAppProperties::MoveWorksheetName(const std::string &sheetName,
  * @details
  * @todo Not yet implemented
  */
-XMLNode XLAppProperties::AppendChartsheetName(const std::string &sheetName)
+XMLNode Impl::XLAppProperties::AppendChartsheetName(const std::string &sheetName)
 {
     return XMLNode(); //TODO: Dummy implementation.
 }
@@ -360,7 +360,7 @@ XMLNode XLAppProperties::AppendChartsheetName(const std::string &sheetName)
  * @details
  * @todo Not yet implemented
  */
-XMLNode XLAppProperties::PrependChartsheetName(const std::string &sheetName)
+XMLNode Impl::XLAppProperties::PrependChartsheetName(const std::string &sheetName)
 {
     return XMLNode(); //TODO: Dummy implementation.
 }
@@ -369,7 +369,7 @@ XMLNode XLAppProperties::PrependChartsheetName(const std::string &sheetName)
  * @details
  * @todo Not yet implemented
  */
-XMLNode XLAppProperties::InsertChartsheetName(const std::string &sheetName,
+XMLNode Impl::XLAppProperties::InsertChartsheetName(const std::string &sheetName,
                                               unsigned int index)
 {
     return XMLNode(); //TODO: Dummy implementation.
@@ -379,7 +379,7 @@ XMLNode XLAppProperties::InsertChartsheetName(const std::string &sheetName,
  * @details
  * @todo Not yet implemented
  */
-XMLNode XLAppProperties::MoveChartsheetName(const std::string &sheetName,
+XMLNode Impl::XLAppProperties::MoveChartsheetName(const std::string &sheetName,
                                             unsigned int index)
 {
     return XMLNode(); //TODO: Dummy implementation.

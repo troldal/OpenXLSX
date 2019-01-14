@@ -43,8 +43,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXLEXE_XLCELLFORMATS_H
-#define OPENXLEXE_XLCELLFORMATS_H
+#ifndef OPENXLSX_IMPL_XLCELLFORMATS_H
+#define OPENXLSX_IMPL_XLCELLFORMATS_H
 
 #include "XLXml_Impl.h"
 
@@ -94,4 +94,4 @@ namespace OpenXLSX::Impl
 
 }
 
-#endif //OPENXLEXE_XLCELLFORMATS_H
+#endif //OPENXLSX_IMPL_XLCELLFORMATS_H
