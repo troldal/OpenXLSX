@@ -8,6 +8,7 @@
 #include "XLWorksheet_Impl.h"
 #include "XLTemplate_Impl.h"
 #include "XLException_Impl.h"
+#include "XLXml_Impl.h"
 
 #include <libzip++.h>
 #include <pugixml.hpp>

@@ -82,8 +82,11 @@ bool Impl::XLCoreProperties::SetProperty(const std::string &name,
  */
 const XMLNode Impl::XLCoreProperties::Property(const std::string &name) const
 {
-
-    return m_properties.at(name);
+    auto result = m_properties.find(name);
+    if (result == m_properties.end())
+        return XMLNode();
+    else
+        return m_properties.at(name);
 }
 
 /**

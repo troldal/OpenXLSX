@@ -37,19 +37,19 @@ ExternalProject_Add(zlib
 #=======================================================================================================================
 # Download and build the bzip2 library
 #=======================================================================================================================
-ExternalProject_Add(bzip
-        GIT_REPOSITORY https://github.com/osrf/bzip2_cmake.git
-        GIT_TAG 0496eaa
-        INSTALL_DIR ${OPENXLSX_DEPENDENCIES}
-        UPDATE_COMMAND ""
-        CMAKE_ARGS
-            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-            -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-            -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-            -DCMAKE_POSITION_INDEPENDENT_CODE=ON
-            -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
-            -DCMAKE_PREFIX_PATH:PATH=<INSTALL_DIR>
-            -Wno-dev)
+#ExternalProject_Add(bzip
+#        GIT_REPOSITORY https://github.com/osrf/bzip2_cmake.git
+#        GIT_TAG 0496eaa
+#        INSTALL_DIR ${OPENXLSX_DEPENDENCIES}
+#        UPDATE_COMMAND ""
+#        CMAKE_ARGS
+#            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+#            -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+#            -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+#            -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+#            -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+#            -DCMAKE_PREFIX_PATH:PATH=<INSTALL_DIR>
+#            -Wno-dev)
 
 #=======================================================================================================================
 # Download and build the libzip library
@@ -63,6 +63,15 @@ ExternalProject_Add(libzip
             -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
             -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
             -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+            -DENABLE_COMMONCRYPTO=OFF
+            -DENABLE_GNUTLS=OFF
+            -DENABLE_MBEDTLS=OFF
+            -DENABLE_OPENSSL=OFF
+            -DENABLE_BZIP2=OFF
+            -DBUILD_TOOLS=OFF
+            -DBUILD_REGRESS=OFF
+            -DBUILD_EXAMPLES=OFF
+            -DBUILD_DOC=OFF
             -DENABLE_WINDOWS_CRYPTO=OFF
             -DCMAKE_POSITION_INDEPENDENT_CODE=ON
             -DBUILD_SHARED_LIBS=OFF
@@ -92,11 +101,12 @@ ExternalProject_Add(libzip++
 #=======================================================================================================================
 # Load the OpenXLSX library folder
 #=======================================================================================================================
+include_directories(SYSTEM ${OPENXLSX_DEPENDENCIES}/include)
 add_subdirectory(@openxlsx)
 
 #=======================================================================================================================
 # Define Dependencies
 #=======================================================================================================================
-ExternalProject_Add_StepDependencies(libzip install zlib bzip)
+ExternalProject_Add_StepDependencies(libzip install zlib)
 ExternalProject_Add_StepDependencies(libzip++ install libzip)
 add_dependencies(OpenXLSX pugi libzip++)

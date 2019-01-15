@@ -8,7 +8,7 @@
 
 using namespace OpenXLSX;
 
-TEST_CASE( "Setting of Document Properties", "[create]" ) {
+TEST_CASE( "Testing of Document Properties", "[create]" ) {
 
     XLDocument doc;
     std::ifstream f("./DocumentProperties.xlsx");
@@ -18,8 +18,8 @@ TEST_CASE( "Setting of Document Properties", "[create]" ) {
         doc.OpenDocument("./DocumentProperties.xlsx");
 
 
-    SECTION( "Empty property" ) {
-        REQUIRE(doc.GetProperty(XLProperty::Title) == "");
+    SECTION( "Check empty property" ) {
+        REQUIRE(doc.GetProperty(XLProperty::Title).empty());
     }
 
     SECTION( "Set 'Title' property" ) {
@@ -30,6 +30,15 @@ TEST_CASE( "Setting of Document Properties", "[create]" ) {
         REQUIRE(doc.GetProperty(XLProperty::Title) == "TitleTest");
     }
 
+    // Duplication of above to check that OpenXLSX can handle
+    // re-setting of already existing properties.
+    SECTION( "Re-Set 'Title' property" ) {
+        doc.SetProperty(XLProperty::Title, "TitleTest");
+        doc.SaveDocument();
+        doc.CloseDocument();
+        doc.OpenDocument("./DocumentProperties.xlsx");
+        REQUIRE(doc.GetProperty(XLProperty::Title) == "TitleTest");
+    }
 
     SECTION( "Set 'Subject' property" ) {
         doc.SetProperty(XLProperty::Subject, "SubjectTest");
@@ -38,6 +47,29 @@ TEST_CASE( "Setting of Document Properties", "[create]" ) {
         doc.OpenDocument("./DocumentProperties.xlsx");
         REQUIRE(doc.GetProperty(XLProperty::Subject) == "SubjectTest");
     }
+
+    SECTION( "Set 'Creator' property" ) {
+        doc.SetProperty(XLProperty::Creator, "Kenneth");
+        doc.SaveDocument();
+        doc.CloseDocument();
+        doc.OpenDocument("./DocumentProperties.xlsx");
+        REQUIRE(doc.GetProperty(XLProperty::Creator) == "Kenneth");
+    }
+
+    SECTION( "Set 'Keywords' property" ) {
+        doc.SetProperty(XLProperty::Keywords, "A, B, C");
+        doc.SaveDocument();
+        doc.CloseDocument();
+        doc.OpenDocument("./DocumentProperties.xlsx");
+        REQUIRE(doc.GetProperty(XLProperty::Keywords) == "A, B, C");
+    }
+
+    // Test other properties
+
+    //SECTION( "Set 'Keywords' property" ) {
+    //    doc.DeleteProperty("Keywords");
+    //    REQUIRE(doc.GetProperty(XLProperty::Keywords).empty());
+    //}
 
     doc.CloseDocument();
 

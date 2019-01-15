@@ -103,16 +103,19 @@ set(OPENXLSX_INTERFACE_SOURCES
 # Build OpenXLSX library
 #=======================================================================================================================
 target_sources(OpenXLSX PUBLIC
-        ${OPENXLSX_IMPL_HEADERS} ${OPENXLSX_IMPL_SOURCES} ${OPENXLSX_INTERFACE_HEADERS} ${OPENXLSX_INTERFACE_SOURCES})
-target_link_libraries(OpenXLSX PUBLIC pugixml zip++ zip z bz2)
+          ${OPENXLSX_INTERFACE_SOURCES} ${OPENXLSX_IMPL_SOURCES} ${OPENXLSX_INTERFACE_HEADERS} ${OPENXLSX_IMPL_HEADERS})
+target_link_libraries(OpenXLSX PUBLIC pugixml zip++ zip z)
 target_link_directories(OpenXLSX PUBLIC ${OPENXLSX_DEPENDENCIES}/lib)
-target_include_directories(OpenXLSX SYSTEM PUBLIC ${OPENXLSX_DEPENDENCIES}/include)
-target_include_directories(OpenXLSX PRIVATE
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers
-        ${CMAKE_CURRENT_LIST_DIR}/interface/headers
-                                    SYSTEM INTERFACE
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers
-        ${CMAKE_CURRENT_LIST_DIR}/interface/headers)
+target_include_directories(OpenXLSX
+        PUBLIC # Should this be PRIVATE?
+            ${CMAKE_CURRENT_LIST_DIR}/implementation/headers
+            ${CMAKE_CURRENT_LIST_DIR}/interface/headers
+        SYSTEM INTERFACE
+            ${CMAKE_CURRENT_LIST_DIR}/implementation/headers
+            ${CMAKE_CURRENT_LIST_DIR}/interface/headers)
+target_include_directories(OpenXLSX
+        PUBLIC
+            ${OPENXLSX_DEPENDENCIES}/include)
 
 set_target_properties(OpenXLSX PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${OPENXLSX_INSTALLDIR}/lib)
 set_target_properties(OpenXLSX PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${OPENXLSX_INSTALLDIR}/bin)
@@ -123,10 +126,10 @@ file(COPY ${CMAKE_CURRENT_LIST_DIR}/interface/headers/ DESTINATION ${OPENXLSX_IN
 #=======================================================================================================================
 # Install OpenXLSX Library
 #=======================================================================================================================
-include(GNUInstallDirs)
-install(TARGETS OpenXLSX
-        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}${INSTALL_SUFFIX}
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}${INSTALL_SUFFIX}
-        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-install(FILES ${OPENXLSX_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/OpenXLSX)
+#include(GNUInstallDirs)
+#install(TARGETS OpenXLSX
+#        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}${INSTALL_SUFFIX}
+#        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}${INSTALL_SUFFIX}
+#        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+#install(FILES ${OPENXLSX_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/OpenXLSX)
 
