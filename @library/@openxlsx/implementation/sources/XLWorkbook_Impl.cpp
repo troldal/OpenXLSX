@@ -318,7 +318,7 @@ void Impl::XLWorkbook::AddChartsheet(const std::string& sheetName,
  * @details
  * @todo To be implemented.
  */
-void Impl::XLWorkbook::MoveSheet(unsigned int index) {
+void Impl::XLWorkbook::MoveSheet(const std::string& sheetName, unsigned int index) {
 
 }
 
@@ -343,14 +343,6 @@ unsigned int Impl::XLWorkbook::IndexOfSheet(const std::string& sheetName) {
     }
 
     return index;
-}
-
-/**
- * @details
- */
-void Impl::XLWorkbook::SetIndexOfSheet(const std::string& sheetName,
-                                       unsigned int index) {
-
 }
 
 /**

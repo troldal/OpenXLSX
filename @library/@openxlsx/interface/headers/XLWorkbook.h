@@ -153,7 +153,7 @@ namespace OpenXLSX
          * @param sheetName The name of the worksheet.
          * @param index The index at which the worksheet should be inserted.
          */
-        //void AddWorksheet(const std::string &sheetName, unsigned int index = 0) { m_workbook->AddWorksheet(sheetName, index); }
+        void AddWorksheet(const std::string &sheetName, unsigned int index = 0);
 
         /**
          * @brief Clone an existing worksheet.
@@ -163,9 +163,9 @@ namespace OpenXLSX
          * @todo The function works, but Excel reports errors when opening.
          * @todo Is it possible to have a common CloneSheet function?
          */
-        //void CloneWorksheet(const std::string &extName,
-        //                    const std::string &newName,
-        //                    unsigned int index = 0) { m_workbook->CloneWorksheet(extName, newName, index); }
+        void CloneWorksheet(const std::string &extName,
+                            const std::string &newName,
+                            unsigned int index = 0);
 
         /**
          * @brief Add a new chartsheet to the workbook, with the given name and index.
@@ -173,13 +173,13 @@ namespace OpenXLSX
          * @param index The index at which the chartsheet should be inserted.
          * @todo This method is currently unimplemented.
          */
-        //void AddChartsheet(const std::string &sheetName, unsigned int index = 0) { m_workbook->AddChartsheet(sheetName, index); }
+        void AddChartsheet(const std::string &sheetName, unsigned int index = 0);
 
         /**
          * @brief
          * @param index
          */
-        //void MoveSheet(unsigned int index) { m_workbook->MoveSheet(index); }
+        void MoveSheet(const std::string& sheetName, unsigned int index);
 
         /**
          * @brief
@@ -187,13 +187,6 @@ namespace OpenXLSX
          * @return
          */
         unsigned int IndexOfSheet(const std::string& sheetName);
-
-        /**
-         * @brief
-         * @param sheetName
-         * @param index
-         */
-        //void SetIndexOfSheet(const std::string &sheetName, unsigned int index) {m_workbook->SetIndexOfSheet(sheetName, index); }
 
         /**
          * @brief

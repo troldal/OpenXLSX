@@ -10,11 +10,20 @@
 
 #define CATCH_CONFIG_RUNNER
 #include "catch.hpp"
+#include <OpenXLSX.h>
 #include <cstdio>
+
+using namespace OpenXLSX;
 
 int main( int argc, char* argv[] ) {
     // global setup...
     std::remove("./DocumentProperties.xlsx");
+    std::remove("./WorkbookTests.xlsx");
+
+    XLDocument doc;
+    doc.CreateDocument("./WorkbookTests.xlsx");
+    doc.SaveDocument();
+    doc.CloseDocument();
 
     int result = Catch::Session().run( argc, argv );
 

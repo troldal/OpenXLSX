@@ -218,7 +218,7 @@ namespace OpenXLSX::Impl
          * @brief
          * @param index
          */
-        void MoveSheet(unsigned int index);
+        void MoveSheet(const std::string& sheetName, unsigned int index);
 
         /**
          * @brief
@@ -226,14 +226,6 @@ namespace OpenXLSX::Impl
          * @return
          */
         unsigned int IndexOfSheet(const std::string& sheetName);
-
-        /**
-         * @brief
-         * @param sheetName
-         * @param index
-         */
-        void SetIndexOfSheet(const std::string& sheetName,
-                             unsigned int index);
 
         /**
          * @brief

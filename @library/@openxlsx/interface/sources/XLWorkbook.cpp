@@ -11,6 +11,30 @@ XLWorkbook::XLWorkbook(Impl::XLWorkbook& workbook)
         : m_workbook(&workbook) {
 }
 
+void XLWorkbook::AddWorksheet(const std::string& sheetName,
+                              unsigned int index)  {
+
+    m_workbook->AddWorksheet(sheetName, index);
+}
+
+void XLWorkbook::CloneWorksheet(const std::string& extName,
+                                const std::string& newName,
+                                unsigned int index) {
+
+    m_workbook->CloneWorksheet(extName, newName, index);
+}
+
+void XLWorkbook::AddChartsheet(const std::string& sheetName,
+                               unsigned int index) {
+
+    m_workbook->AddChartsheet(sheetName, index);
+}
+
+void XLWorkbook::MoveSheet(const std::string& sheetName, unsigned int index) {
+
+    m_workbook->MoveSheet(sheetName, index);
+}
+
 unsigned int XLWorkbook::IndexOfSheet(const std::string& sheetName) {
 
     return m_workbook->IndexOfSheet(sheetName);

@@ -10,7 +10,7 @@ using namespace OpenXLSX;
 
 TEST_CASE( "Testing of XLWorkbook objects") {
     XLDocument doc;
-    doc.CreateDocument("./WorkbookTests.xlsx");
+    doc.OpenDocument("./WorkbookTests.xlsx");
     auto wbk = doc.Workbook();
 
     SECTION( "SheetCount" ) {
@@ -39,6 +39,34 @@ TEST_CASE( "Testing of XLWorkbook objects") {
 
     SECTION( "ChartsheetExists" ) {
         REQUIRE(wbk.ChartsheetExists("Sheet1") == false);
+    }
+
+    SECTION( "AddWorksheet" ) {
+        REQUIRE(wbk.SheetExists("MySheet") == false);
+        wbk.AddWorksheet("MySheet");
+        doc.SaveDocument();
+        REQUIRE(wbk.SheetExists("MySheet") == true);
+    }
+
+    SECTION( "CloneWorksheet" ) {
+        REQUIRE(wbk.SheetExists("MyClonedSheet") == false);
+        wbk.CloneWorksheet("MySheet", "MyClonedSheet");
+        doc.SaveDocument();
+        REQUIRE(wbk.SheetExists("MyClonedSheet") == true);
+    }
+
+    SECTION( "AddChartsheet" ) {
+        REQUIRE(wbk.SheetExists("MyChartSheet") == false);
+        wbk.AddChartsheet("MyChartSheet");
+        doc.SaveDocument();
+        REQUIRE(wbk.SheetExists("MyChartSheet") == true);
+    }
+
+    SECTION( "MoveSheet" ) {
+        REQUIRE(wbk.IndexOfSheet("MyClonedSheet") == 3);
+        wbk.MoveSheet("MyClonedSheet", 1);
+        doc.SaveDocument();
+        REQUIRE(wbk.IndexOfSheet("MyClonedSheet") == 1);
     }
 
 }
