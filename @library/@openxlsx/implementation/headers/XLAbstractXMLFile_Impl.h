@@ -83,14 +83,14 @@ namespace OpenXLSX::Impl
          * @param filePath The path of the XML file, relative to the root.
          * @param xmlData An std::string object with the XML data to be represented by the object.
          */
-        explicit XLAbstractXMLFile(XLDocument &parent,
-                                   const std::string &filePath,
-                                   const std::string &xmlData = "");
+        explicit XLAbstractXMLFile(XLDocument& parent,
+                                   const std::string& filePath,
+                                   const std::string& xmlData = "");
 
         /**
          * @brief Copy constructor. Default (shallow) implementation used.
          */
-        XLAbstractXMLFile(const XLAbstractXMLFile &) = delete;
+        XLAbstractXMLFile(const XLAbstractXMLFile&) = delete;
 
         /**
          * @brief Destructor. Default implementation used.
@@ -101,13 +101,13 @@ namespace OpenXLSX::Impl
          * @brief The assignment operator. The default implementation has been used.
          * @return A reference to the new object.
          */
-        XLAbstractXMLFile &operator=(const XLAbstractXMLFile &) = delete;
+        XLAbstractXMLFile& operator=(const XLAbstractXMLFile&) = delete;
 
         /**
          * @brief Provide the XML data represented by the object.
          * @param xmlData A std::string with the XML data.
          */
-        virtual void SetXmlData(const std::string &xmlData);
+        virtual void SetXmlData(const std::string& xmlData);
 
         /**
          * @brief Method for getting the XML data represented by the object.
@@ -130,7 +130,7 @@ namespace OpenXLSX::Impl
          * @return A string with the path of the file.
          * @note This method is final, i.e. it cannot be overridden.
          */
-        virtual const std::string &FilePath() const final;
+        virtual const std::string& FilePath() const final;
 
         /**
          * @brief Prints the XML document to the standard output
@@ -150,14 +150,14 @@ namespace OpenXLSX::Impl
          * @return A pointer to the XMLDocument object.
          * @note This method is final, i.e. it cannot be overridden.
          */
-        virtual XMLDocument *XmlDocument() final;
+        virtual XMLDocument* XmlDocument() final;
 
         /**
          * @brief This method returns the underlying XMLDocument object.
          * @return A pointer to the const XMLDocument object.
          * @note This method is final, i.e. it cannot be overridden.
          */
-        virtual const XMLDocument *XmlDocument() const final;
+        virtual const XMLDocument* XmlDocument() const final;
 
         /**
          * @brief Set the 'm_isModified' flag, meaning that the underlying XML file needs saving.
@@ -186,11 +186,12 @@ namespace OpenXLSX::Impl
 
     private:
 
-        XLDocument &m_parentDocument; /**< */
+        XLDocument  & m_parentDocument; /**< */
         std::string m_path; /**< */
 
-        mutable std::map<std::string, XLAbstractXMLFile *> m_childXmlDocuments; /**< A std::map with the child XML documents. */
-        mutable bool m_isModified; /**< A bool indicating if the document has been modified and needs saving. It is mutable, and can therefore be modified in const methods. */
+        mutable std::map<std::string,
+                         XLAbstractXMLFile*> m_childXmlDocuments; /**< A std::map with the child XML documents. */
+        mutable bool                         m_isModified; /**< A bool indicating if the document has been modified and needs saving. It is mutable, and can therefore be modified in const methods. */
 
     };
 }

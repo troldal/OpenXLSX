@@ -67,8 +67,8 @@ namespace OpenXLSX::Impl
  * as repeated strings are referenced easily.
  * @todo Consider defining a static method for creating a new shared strings object + XML file.
  */
-    class XLSharedStrings: public XLAbstractXMLFile,
-                           public XLSpreadsheetElement
+    class XLSharedStrings : public XLAbstractXMLFile,
+                            public XLSpreadsheetElement
     {
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -77,14 +77,13 @@ namespace OpenXLSX::Impl
 
     public:
 
-
         /**
          * @brief Constructor
          * @param parent A pointer to the parent XLDocument
          * @param filePath The path to the sharedStrings.xml file
          */
-        explicit XLSharedStrings(XLDocument &parent,
-                                 const std::string &filePath);
+        explicit XLSharedStrings(XLDocument& parent,
+                                 const std::string& filePath);
 
         /**
          * @brief Destructor
@@ -149,7 +148,6 @@ namespace OpenXLSX::Impl
 
     protected:
 
-
         /**
          * @brief Parse the contents of the underlying XML file and fills the datastructure with the data from the XML file.
          * @return true if successful; otherwise false.
@@ -163,7 +161,7 @@ namespace OpenXLSX::Impl
     private:
 
         std::vector<XMLNode> m_sharedStringNodes; /**< A std::vector with the XMLNodes holding the shared strings. */
-        std::string m_emptyString; /**< A dummy member used for returning an empty string. */
+        std::string          m_emptyString; /**< A dummy member used for returning an empty string. */
 
     };
 

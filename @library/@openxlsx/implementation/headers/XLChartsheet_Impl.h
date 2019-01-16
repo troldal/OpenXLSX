@@ -59,7 +59,7 @@ namespace OpenXLSX::Impl
      * @brief Class representing the an Excel chartsheet.
      * @todo This class is largely unimplemented and works just as a placeholder.
      */
-    class XLChartsheet: public XLSheet
+    class XLChartsheet : public XLSheet
     {
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -75,16 +75,16 @@ namespace OpenXLSX::Impl
          * @param filePath
          * @param xmlData
          */
-        explicit XLChartsheet(XLWorkbook &parent,
-                              const std::string &name,
-                              const std::string &filePath,
-                              const std::string &xmlData = "");
+        explicit XLChartsheet(XLWorkbook& parent,
+                              const std::string& name,
+                              const std::string& filePath,
+                              const std::string& xmlData = "");
 
         /**
          * @brief
          * @param other
          */
-        XLChartsheet(const XLChartsheet &other) = default;
+        XLChartsheet(const XLChartsheet& other) = default;
 
         /**
          * @brief
@@ -95,7 +95,7 @@ namespace OpenXLSX::Impl
          * @brief
          * @return
          */
-        XLChartsheet &operator=(const XLChartsheet &) = default;
+        XLChartsheet& operator=(const XLChartsheet&) = default;
 
     };
 

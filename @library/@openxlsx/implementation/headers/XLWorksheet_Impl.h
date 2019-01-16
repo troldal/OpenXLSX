@@ -66,7 +66,8 @@ namespace OpenXLSX::Impl
     /**
      * @brief A std::vector of std::unique_ptr's to XLColumn objects.
      */
-    using XLColumns = std::map<unsigned int, XLColumn>;
+    using XLColumns = std::map<unsigned int,
+                               XLColumn>;
 
 
 //======================================================================================================================
@@ -76,7 +77,8 @@ namespace OpenXLSX::Impl
     /**
      * @brief A std::vector of std::unique_ptr's to XLRow objects.
      */
-    using XLRows = std::map<unsigned long, XLRow>;
+    using XLRows = std::map<unsigned long,
+                            XLRow>;
 
 
 //======================================================================================================================
@@ -86,7 +88,7 @@ namespace OpenXLSX::Impl
     /**
      * @brief A class encapsulating an Excel worksheet. Access to XLWorksheet objects should be via the workbook object.
      */
-    class XLWorksheet: public XLSheet
+    class XLWorksheet : public XLSheet
     {
         friend class XLCell;
         friend class XLRow;
@@ -106,22 +108,22 @@ namespace OpenXLSX::Impl
          * @param filePath The path to the worksheet .xml file.
          * @param xmlData
          */
-        explicit XLWorksheet(XLWorkbook &parent,
-                             const std::string &name,
-                             const std::string &filePath,
-                             const std::string &xmlData = "");
+        explicit XLWorksheet(XLWorkbook& parent,
+                             const std::string& name,
+                             const std::string& filePath,
+                             const std::string& xmlData = "");
 
         /**
          * @brief Copy Constructor.
          * @note The copy constructor has been explicitly deleted.
          */
-        XLWorksheet(const XLWorksheet &other) = delete;
+        XLWorksheet(const XLWorksheet& other) = delete;
 
         /**
          * @brief Move Constructor.
          * @note The move constructor has been explicitly deleted.
          */
-        XLWorksheet(XLWorksheet &&other) = delete;
+        XLWorksheet(XLWorksheet&& other) = delete;
 
         /**
          * @brief Destructor.
@@ -132,41 +134,41 @@ namespace OpenXLSX::Impl
          * @brief Copy assignment operator.
          * @note The copy assignment operator has been explicitly deleted.
          */
-        XLWorksheet &operator=(const XLWorksheet &other) = delete;
+        XLWorksheet& operator=(const XLWorksheet& other) = delete;
 
         /**
          * @brief Move assignment operator.
          * @note The move assignment operator has been explicitly deleted.
          */
-        XLWorksheet &operator=(XLWorksheet &&other) = delete;
+        XLWorksheet& operator=(XLWorksheet&& other) = delete;
 
         /**
          * @brief Get a pointer to the XLCell object for the given cell reference.
          * @param ref An XLCellReference object with the address of the cell to get.
          * @return A reference to the requested XLCell object.
          */
-        XLCell *Cell(const XLCellReference &ref);
+        XLCell* Cell(const XLCellReference& ref);
 
         /**
          * @brief Get a pointer to the XLCell object for the given cell reference.
          * @param ref An XLCellReference object with the address of the cell to get.
          * @return A const reference to the requested XLCell object.
          */
-        const XLCell *Cell(const XLCellReference &ref) const;
+        const XLCell* Cell(const XLCellReference& ref) const;
 
         /**
          * @brief Get the cell with the given address
          * @param address The address of the cell to get, e.g. 'A1'
          * @return A reference to the XLCell object at the given address
          */
-        XLCell *Cell(const std::string &address);
+        XLCell* Cell(const std::string& address);
 
         /**
          * @brief Get the cell with the given address
          * @param address The address of the cell to get, e.g. 'A1'
          * @return A const reference to the XLCell object at the given address
          */
-        const XLCell *Cell(const std::string &address) const;
+        const XLCell* Cell(const std::string& address) const;
 
         /**
          * @brief Get the cell at the given coordinates.
@@ -174,8 +176,8 @@ namespace OpenXLSX::Impl
          * @param columnNumber The column number (index base 1).
          * @return A reference to the XLCell object at the given coordinates.
          */
-        XLCell *Cell(unsigned long rowNumber,
-                      unsigned int columnNumber);
+        XLCell* Cell(unsigned long rowNumber,
+                     unsigned int columnNumber);
 
         /**
          * @brief Get the cell at the given coordinates.
@@ -183,8 +185,8 @@ namespace OpenXLSX::Impl
          * @param columnNumber The column number (index base 1).
          * @return A const reference to the XLCell object at the given coordinates.
          */
-        const XLCell *Cell(unsigned long rowNumber,
-                            unsigned int columnNumber) const;
+        const XLCell* Cell(unsigned long rowNumber,
+                           unsigned int columnNumber) const;
 
         /**
          * @brief Get a range for the area currently in use (i.e. from cell A1 to the last cell being in use).
@@ -204,8 +206,8 @@ namespace OpenXLSX::Impl
          * @param bottomRight An XLCellReference object with the coordinates to the bottom right cell.
          * @return An XLCellRange object with the requested range.
          */
-        XLCellRange Range(const XLCellReference &topLeft,
-                          const XLCellReference &bottomRight);
+        XLCellRange Range(const XLCellReference& topLeft,
+                          const XLCellReference& bottomRight);
 
         /**
          * @brief Get a range with the given coordinates.
@@ -213,36 +215,36 @@ namespace OpenXLSX::Impl
          * @param bottomRight An XLCellReference object with the coordinates to the bottom right cell.
          * @return A const XLCellRange object with the requested range.
          */
-        const XLCellRange Range(const XLCellReference &topLeft,
-                                const XLCellReference &bottomRight) const;
+        const XLCellRange Range(const XLCellReference& topLeft,
+                                const XLCellReference& bottomRight) const;
 
         /**
          * @brief Get the row with the given row number.
          * @param rowNumber The number of the row to retrieve.
          * @return A pointer to the XLRow object.
          */
-        XLRow *Row(unsigned long rowNumber);
+        XLRow* Row(unsigned long rowNumber);
 
         /**
          * @brief Get the row with the given row number.
          * @param rowNumber The number of the row to retrieve.
          * @return A const pointer to the XLRow object.
          */
-        const XLRow *Row(unsigned long rowNumber) const;
+        const XLRow* Row(unsigned long rowNumber) const;
 
         /**
          * @brief Get the column with the given column number.
          * @param columnNumber The number of the column to retrieve.
          * @return A pointer to the XLColumn object.
          */
-        XLColumn *Column(unsigned int columnNumber);
+        XLColumn* Column(unsigned int columnNumber);
 
         /**
          * @brief Get the column with the given column number.
          * @param columnNumber The number of the column to retrieve.
          * @return A const pointer to the XLColumn object.
          */
-        const XLColumn *Column(unsigned int columnNumber) const;
+        const XLColumn* Column(unsigned int columnNumber) const;
 
         /**
          * @brief Get an XLCellReference to the first (top left) cell in the worksheet.
@@ -274,14 +276,17 @@ namespace OpenXLSX::Impl
          * @param decimal
          * @param delimiter
          */
-        void Export(const std::string &fileName, char decimal = ',', char delimiter = ';');
+        void Export(const std::string& fileName,
+                    char decimal = ',',
+                    char delimiter = ';');
 
         /**
          * @brief
          * @param fileName
          * @param delimiter
          */
-        void Import(const std::string &fileName, const std::string &delimiter = ";");
+        void Import(const std::string& fileName,
+                    const std::string& delimiter = ";");
 
         std::string GetXmlData() const override;
 
@@ -290,7 +295,6 @@ namespace OpenXLSX::Impl
 //----------------------------------------------------------------------------------------------------------------------
 
     protected:
-
 
         /**
          * @brief The overridden parseXMLData method is used to map or copy the XML data to the internal data structures.
@@ -304,7 +308,7 @@ namespace OpenXLSX::Impl
          * @return A pointer to the newly created clone.
          * @todo Not yet implemented.
          */
-        XLWorksheet *Clone(const std::string &newName) override;
+        XLWorksheet* Clone(const std::string& newName) override;
 
         /**
          * @brief Get access to the parent XLWorkbook object.
@@ -322,25 +326,25 @@ namespace OpenXLSX::Impl
          * @brief Get the data structure holding all rows in the worksheet.
          * @return A reference to the std::vector with the row data.
          */
-        XLRows *Rows();
+        XLRows* Rows();
 
         /**
          * @brief Get the data structure holding all rows in the worksheet.
          * @return A const reference to the std::vector with the row data.
          */
-        const XLRows *Rows() const;
+        const XLRows* Rows() const;
 
         /**
          * @brief Get the data structure all columns in the worksheet.
          * @return A reference to the std::vector with the column data.
          */
-        XLColumns *Columns();
+        XLColumns* Columns();
 
         /**
          * @brief Get the data structure all columns in the worksheet.
          * @return A const reference to the std::vector with the column data.
          */
-        const XLColumns *Columns() const;
+        const XLColumns* Columns() const;
 
         /**
          * @brief
@@ -426,13 +430,13 @@ namespace OpenXLSX::Impl
          * @brief Specify the first cell (upper left) of the worksheet.
          * @param cellRef An XLCellReference object with a reference to the first cell in the sheet.
          */
-        void SetFirstCell(const XLCellReference &cellRef) noexcept;
+        void SetFirstCell(const XLCellReference& cellRef) noexcept;
 
         /**
          * @brief Specify the last cell (bottom right) of the spreadsheet.
          * @param cellRef An XLCellReference object with a reference to the last cell in the sheet.
          */
-        void SetLastCell(const XLCellReference &cellRef) noexcept;
+        void SetLastCell(const XLCellReference& cellRef) noexcept;
 
 
 
@@ -447,14 +451,14 @@ namespace OpenXLSX::Impl
         std::unique_ptr<XMLNode> m_columnsNode; /**< The head node for sheet column data */
         std::unique_ptr<XMLNode> m_sheetViewsNode; /**< The head node for sheet views */
 
-        XLWorkbook &m_parentWorkbook; /**< A pointer to the parent XLWorkbook object (const) */
+        XLWorkbook& m_parentWorkbook; /**< A pointer to the parent XLWorkbook object (const) */
 
-        XLRows m_rows; /**< A std::vector with pointers to all rows in the sheet. */
+        XLRows    m_rows; /**< A std::vector with pointers to all rows in the sheet. */
         XLColumns m_columns; /**< A std::vector with pointers to all columns in sheet. */
 
-        XLCellReference m_firstCell; /**< The first cell in the sheet (i.e. the top left cell).*/
+        XLCellReference         m_firstCell; /**< The first cell in the sheet (i.e. the top left cell).*/
         mutable XLCellReference m_lastCell; /**<  The last cell in the sheet (i.e. the bottom right). */
-        unsigned int m_maxColumn; /**< The last column with properties set */
+        unsigned int            m_maxColumn; /**< The last column with properties set */
     };
 }
 

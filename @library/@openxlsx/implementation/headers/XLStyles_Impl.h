@@ -60,8 +60,8 @@ namespace OpenXLSX::Impl
 /**
  * @brief
  */
-    class XLStyles: public XLAbstractXMLFile,
-                    public XLSpreadsheetElement
+    class XLStyles : public XLAbstractXMLFile,
+                     public XLSpreadsheetElement
     {
     public:
         friend class XLFont;
@@ -71,14 +71,14 @@ namespace OpenXLSX::Impl
          * @param parent
          * @param filePath
          */
-        explicit XLStyles(XLDocument &parent,
-                          const std::string &filePath);
+        explicit XLStyles(XLDocument& parent,
+                          const std::string& filePath);
 
         /**
          * @brief
          * @param other
          */
-        XLStyles(const XLStyles &other) = delete;
+        XLStyles(const XLStyles& other) = delete;
 
         /**
          * @brief
@@ -89,28 +89,27 @@ namespace OpenXLSX::Impl
          * @brief
          * @return
          */
-        XLStyles &operator=(const XLStyles &) = delete;
+        XLStyles& operator=(const XLStyles&) = delete;
 
         /**
          * @brief
          * @param font
          */
-        void AddFont(const XLFont &font);
+        void AddFont(const XLFont& font);
 
         /**
          * @brief
          * @param id
          * @return
          */
-        XLFont &Font(unsigned int id);
+        XLFont& Font(unsigned int id);
 
         /**
          * @brief
          * @param font
          * @return
          */
-        unsigned int FontId(const std::string &font);
-
+        unsigned int FontId(const std::string& font);
 
     protected:
 
@@ -124,7 +123,8 @@ namespace OpenXLSX::Impl
 
     private:
 
-        static std::map<std::string, XLStyles> s_styles;
+        static std::map<std::string,
+                        XLStyles> s_styles;
 
         static XMLNode s_numberFormatsNode; /**<  */
         static XMLNode s_fontsNode; /**<  */

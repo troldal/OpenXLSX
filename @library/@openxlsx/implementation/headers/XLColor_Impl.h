@@ -81,13 +81,13 @@ namespace OpenXLSX::Impl
          * @brief
          * @param hexCode
          */
-        explicit XLColor(const std::string &hexCode);
+        explicit XLColor(const std::string& hexCode);
 
         /**
          * @brief
          * @param other
          */
-        XLColor(const XLColor &other) = default;
+        XLColor(const XLColor& other) = default;
 
         /**
          * @brief
@@ -99,7 +99,7 @@ namespace OpenXLSX::Impl
          * @param other
          * @return
          */
-        XLColor &operator=(const XLColor &other) = default;
+        XLColor& operator=(const XLColor& other) = default;
 
         /**
          * @brief
@@ -115,7 +115,7 @@ namespace OpenXLSX::Impl
          * @brief
          * @param hexCode
          */
-        void SetColor(const std::string &hexCode);
+        void SetColor(const std::string& hexCode);
 
         /**
          * @brief
@@ -148,12 +148,13 @@ namespace OpenXLSX::Impl
     private:
 
         unsigned int m_red;
+
         unsigned int m_green;
+
         unsigned int m_blue;
 
     };
 
 }
-
 
 #endif //OPENXLSX_IMPL_XLCOLOR_H

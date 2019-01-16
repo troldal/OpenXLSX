@@ -72,19 +72,19 @@ namespace OpenXLSX::Impl
          * @param parent A pointer to the parent XLWorksheet object.
          * @param columnNode A pointer to the XMLNode for the column.
          */
-        explicit XLColumn(XLWorksheet &parent,
+        explicit XLColumn(XLWorksheet& parent,
                           XMLNode columnNode);
 
         /**
          * @brief Copy Constructor [deleted]
          */
-        XLColumn(const XLColumn &other) = delete;
+        XLColumn(const XLColumn& other) = delete;
 
         /**
          * @brief Move Constructor
          * @note The move constructor has been explicitly deleted.
          */
-        XLColumn(XLColumn &&other) = default;
+        XLColumn(XLColumn&& other) = default;
 
         /**
          * @brief Destructor
@@ -94,7 +94,7 @@ namespace OpenXLSX::Impl
         /**
          * @brief Copy assignment operator [deleted]
          */
-        XLColumn &operator=(const XLColumn &other) = delete;
+        XLColumn& operator=(const XLColumn& other) = delete;
 
         /**
          * @brief Get the width of the column.
@@ -131,19 +131,18 @@ namespace OpenXLSX::Impl
 //----------------------------------------------------------------------------------------------------------------------
 
     private:
-        XLWorksheet *m_parentWorksheet; /**< A pointer to the parent XLWorksheet object. */
-        XLDocument *m_parentDocument; /**< A pointer to the parent XLDocument object. */
+        XLWorksheet* m_parentWorksheet; /**< A pointer to the parent XLWorksheet object. */
+        XLDocument * m_parentDocument; /**< A pointer to the parent XLDocument object. */
 
         std::unique_ptr<XMLNode> m_columnNode; /**< A pointer to the XMLNode object for the column. */
 
         float m_width; /**< The width of the column */
-        bool m_hidden; /**< The hidden state of the column */
+        bool  m_hidden; /**< The hidden state of the column */
 
         unsigned long m_column; /**< The column number for the column */
 
     };
 
 }
-
 
 #endif //OPENXLSX_IMPL_XLCOLUMN_H

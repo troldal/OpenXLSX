@@ -35,5 +35,6 @@ add_subdirectory(@test)
 add_dependencies(Demo OpenXLSX)
 add_dependencies(PimplDemo OpenXLSX)
 add_dependencies(Benchmark OpenXLSX)
+add_dependencies(InterfaceTest OpenXLSX)
 
 

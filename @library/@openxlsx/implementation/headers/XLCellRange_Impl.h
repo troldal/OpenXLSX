@@ -79,9 +79,9 @@ namespace OpenXLSX::Impl
          * @param topLeft The first (top left) cell in the range.
          * @param bottomRight The last (bottom right) cell in the range.
          */
-        explicit XLCellRange(XLWorksheet &sheet,
-                             const XLCellReference &topLeft,
-                             const XLCellReference &bottomRight);
+        explicit XLCellRange(XLWorksheet& sheet,
+                             const XLCellReference& topLeft,
+                             const XLCellReference& bottomRight);
 
         /**
          * @brief
@@ -89,23 +89,23 @@ namespace OpenXLSX::Impl
          * @param topLeft
          * @param bottomRight
          */
-        explicit XLCellRange(const XLWorksheet &sheet,
-                             const XLCellReference &topLeft,
-                             const XLCellReference &bottomRight);
+        explicit XLCellRange(const XLWorksheet& sheet,
+                             const XLCellReference& topLeft,
+                             const XLCellReference& bottomRight);
 
         /**
          * @brief Copy constructor [default].
          * @param other The range object to be copied.
          * @note This implements the default copy constructor, i.e. memberwise copying.
          */
-        XLCellRange(const XLCellRange &other) = default;
+        XLCellRange(const XLCellRange& other) = default;
 
         /**
          * @brief Move constructor [default].
          * @param other The range object to be moved.
          * @note This implements the default move constructor, i.e. memberwise move.
          */
-        XLCellRange(XLCellRange &&other) = default;
+        XLCellRange(XLCellRange&& other) = default;
 
         /**
          * @brief Destructor [default]
@@ -120,7 +120,7 @@ namespace OpenXLSX::Impl
          * @throws A std::range_error if the source range and destination range are of different size and shape.
          * @note This implements the default copy assignment operator.
          */
-        XLCellRange &operator=(const XLCellRange &other);
+        XLCellRange& operator=(const XLCellRange& other);
 
         /**
          * @brief The move assignment operator [default].
@@ -128,7 +128,7 @@ namespace OpenXLSX::Impl
          * @return A reference to the new object.
          * @note This implements the default move assignment operator.
          */
-        XLCellRange &operator=(XLCellRange &&other) = default;
+        XLCellRange& operator=(XLCellRange&& other) = default;
 
         /**
          * @brief Get a pointer to the cell at the given coordinates.
@@ -136,7 +136,7 @@ namespace OpenXLSX::Impl
          * @param column The column number, relative to the first column of the range (index base 1).
          * @return A pointer to the cell at the given range coordinates.
          */
-        XLCell *Cell(unsigned long row,
+        XLCell* Cell(unsigned long row,
                      unsigned int column);
 
         /**
@@ -145,7 +145,7 @@ namespace OpenXLSX::Impl
          * @param column The column number, relative to the first column of the range (index base 1).
          * @return A const pointer to the cell at the given range coordinates.
          */
-        const XLCell *Cell(unsigned long row,
+        const XLCell* Cell(unsigned long row,
                            unsigned int column) const;
 
         /**
@@ -200,14 +200,14 @@ namespace OpenXLSX::Impl
 
     private:
 
-        XLWorksheet *m_parentWorksheet; /**< A pointer to the parent spreadsheet */
+        XLWorksheet* m_parentWorksheet; /**< A pointer to the parent spreadsheet */
 
         XLCellReference m_topLeft; /**< The cell reference of the first cell in the range */
         XLCellReference m_bottomRight; /**< The cell reference of the last cell in the range */
-        unsigned long m_rowOffset; /**< The row offset, relative to the parent spreadsheet */
-        unsigned int m_columnOffset; /**< The column offset, relative to the parent spreadsheet */
-        unsigned long m_rows; /**< The number of rows in the range */
-        unsigned int m_columns; /**< The number of columns in the range */
+        unsigned long   m_rowOffset; /**< The row offset, relative to the parent spreadsheet */
+        unsigned int    m_columnOffset; /**< The column offset, relative to the parent spreadsheet */
+        unsigned long   m_rows; /**< The number of rows in the range */
+        unsigned int    m_columns; /**< The number of columns in the range */
 
         mutable bool m_transpose; /**< */
 

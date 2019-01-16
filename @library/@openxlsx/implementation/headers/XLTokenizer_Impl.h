@@ -167,7 +167,8 @@ namespace OpenXLSX::Impl
          * @param str The string to be tokenized.
          * @param delimiter A string with the delimiting characters. If none is provided, default delimiters will be used.
          */
-        explicit XLTokenizer(const std::string& str, const std::string& delimiter=" \t\v\n\r\f");
+        explicit XLTokenizer(const std::string& str,
+                             const std::string& delimiter = " \t\v\n\r\f");
 
         /**
          * @brief Destructor
@@ -179,19 +180,20 @@ namespace OpenXLSX::Impl
          * @param str The string to be tokenized.
          * @param delimiter A string with the delimiting characters. If none is provided, default delimiters will be used.
          */
-        void Set(const std::string &str, const std::string &delimiter = " \t\v\n\r\f");
+        void Set(const std::string& str,
+                 const std::string& delimiter = " \t\v\n\r\f");
 
         /**
          * @brief
          * @param str
          */
-        void SetString(const std::string &str);
+        void SetString(const std::string& str);
 
         /**
          * @brief
          * @param delimiter
          */
-        void SetDelimiter(const std::string &delimiter);
+        void SetDelimiter(const std::string& delimiter);
 
         /**
          * @brief
@@ -229,9 +231,9 @@ namespace OpenXLSX::Impl
 
     private:
 
-        std::string m_buffer; /**< input string */
-        std::string m_token; /**< output string */
-        std::string m_delimiter; /**< delimiter string */
+        std::string                 m_buffer; /**< input string */
+        std::string                 m_token; /**< output string */
+        std::string                 m_delimiter; /**< delimiter string */
         std::string::const_iterator m_currPos; /**< string iterator pointing the current position */
     };
 }

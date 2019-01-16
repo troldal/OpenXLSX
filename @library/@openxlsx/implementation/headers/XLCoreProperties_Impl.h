@@ -64,8 +64,8 @@ namespace OpenXLSX::Impl
     /**
      * @brief
      */
-    class XLCoreProperties: public XLAbstractXMLFile,
-                            public XLSpreadsheetElement
+    class XLCoreProperties : public XLAbstractXMLFile,
+                             public XLSpreadsheetElement
     {
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -74,15 +74,14 @@ namespace OpenXLSX::Impl
 
     public:
 
-
         /**
          * @brief
          * @param parent
          * @param filePath
          * @return
          */
-        explicit XLCoreProperties(XLDocument &parent,
-                                  const std::string &filePath);
+        explicit XLCoreProperties(XLDocument& parent,
+                                  const std::string& filePath);
 
         /**
          * @brief
@@ -95,8 +94,8 @@ namespace OpenXLSX::Impl
          * @param value
          * @return
          */
-        bool SetProperty(const std::string &name,
-                         const std::string &value);
+        bool SetProperty(const std::string& name,
+                         const std::string& value);
 
         /**
          * @brief
@@ -104,7 +103,7 @@ namespace OpenXLSX::Impl
          * @param value
          * @return
          */
-        bool SetProperty(const std::string &name,
+        bool SetProperty(const std::string& name,
                          int value);
 
         /**
@@ -113,7 +112,7 @@ namespace OpenXLSX::Impl
          * @param value
          * @return
          */
-        bool SetProperty(const std::string &name,
+        bool SetProperty(const std::string& name,
                          double value);
 
         /**
@@ -121,13 +120,13 @@ namespace OpenXLSX::Impl
          * @param name
          * @return
          */
-        const XMLNode Property(const std::string &name) const;
+        const XMLNode Property(const std::string& name) const;
 
         /**
          * @brief
          * @param name
          */
-        void DeleteProperty(const std::string &name);
+        void DeleteProperty(const std::string& name);
 
 //----------------------------------------------------------------------------------------------------------------------
 //           Protected Member Functions
@@ -146,7 +145,8 @@ namespace OpenXLSX::Impl
 //----------------------------------------------------------------------------------------------------------------------
 
     private:
-        std::map<std::string, XMLNode> m_properties; /**< */
+        std::map<std::string,
+                 XMLNode> m_properties; /**< */
     };
 
 }

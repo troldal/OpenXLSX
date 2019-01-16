@@ -49,17 +49,20 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <memory>
 
 #include "XLProperty.h"
+#include "XLWorkbook.h"
 
-namespace OpenXLSX {
-    namespace Impl {
+namespace OpenXLSX
+{
+    namespace Impl
+    {
         class XLDocument;
     }
-
 
     /**
      * @brief
      */
-    class XLDocument {
+    class XLDocument
+    {
     public:
 
         /**
@@ -71,19 +74,19 @@ namespace OpenXLSX {
          * @brief
          * @param name
          */
-        explicit XLDocument(const std::string &name);
+        explicit XLDocument(const std::string& name);
 
         /**
          * @brief
          * @param other
          */
-        XLDocument(const XLDocument &other) = default;
+        XLDocument(const XLDocument& other) = default;
 
         /**
          * @brief
          * @param other
          */
-        XLDocument(XLDocument &&other) = default;
+        XLDocument(XLDocument&& other) = default;
 
         /**
          * @brief Destructor
@@ -95,13 +98,13 @@ namespace OpenXLSX {
          * @param fileName The path of the .xlsx file to open
          * @todo Consider opening the zipped files as streams, instead of unpacking to a temporary folder
          */
-        void OpenDocument(const std::string &fileName);
+        void OpenDocument(const std::string& fileName);
 
         /**
          * @brief Create a new .xlsx file with the given name.
          * @param fileName The path of the new .xlsx file.
          */
-        void CreateDocument(const std::string &fileName);
+        void CreateDocument(const std::string& fileName);
 
         /**
          * @brief Close the current document
@@ -119,7 +122,7 @@ namespace OpenXLSX {
          * @param fileName The path of the file
          * @return true if successful; otherwise false.
          */
-        bool SaveDocumentAs(const std::string &fileName);
+        bool SaveDocumentAs(const std::string& fileName);
 
         /**
          * @brief Get the filename of the current document, e.g. "spreadsheet.xlsx".
@@ -137,17 +140,13 @@ namespace OpenXLSX {
          * @brief Get the underlying workbook object.
          * @return A pointer to the XLWorkbook object
          */
-//        XLWorkbook Workbook() {
-//            return XLWorkbook(*m_document->Workbook());
-//        }
+        XLWorkbook Workbook();
 
         /**
          * @brief Get the underlying workbook object, as a const object.
          * @return A const pointer to the XLWorkbook object.
          */
-//        const XLWorkbook Workbook() const {
-//            return XLWorkbook(*m_document->Workbook());
-//        }
+        const XLWorkbook Workbook() const;
 
         /**
          * @brief Get the requested document property.
@@ -161,13 +160,15 @@ namespace OpenXLSX {
          * @param theProperty The property to set.
          * @param value The value of the property, as a string
          */
-        void SetProperty(XLProperty theProperty, const std::string &value);
+        void SetProperty(XLProperty theProperty,
+                         const std::string& value);
 
         /**
          * @brief Delete the property from the document
          * @param propertyName The property to delete from the document
          */
-        void DeleteProperty(const std::string &propertyName);
+        void
+        DeleteProperty(XLProperty theProperty);
 
     private:
 

@@ -54,15 +54,15 @@ namespace OpenXLSX::Impl
     class XLException : public std::runtime_error
     {
     public:
-        inline explicit XLException(const std::string &err)
-            : runtime_error(err)
-        {}
+        inline explicit XLException(const std::string& err)
+                : runtime_error(err) {
+        }
 
-        inline ~XLException() {}
+        inline ~XLException() {
+        }
 
     };
 
 }
-
 
 #endif //OPENXLSX_IMPL_XLEXCEPTION_H

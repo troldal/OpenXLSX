@@ -15,42 +15,38 @@ using namespace OpenXLSX;
  * @details
  */
 Impl::XLContentItem::XLContentItem(XMLNode node,
-                             const std::string &path,
-                             XLContentType type)
-    : m_contentNode(std::make_unique<XMLNode>(node)),
-      m_contentPath(path),
-      m_contentType(type)
-{
+                                   const std::string& path,
+                                   XLContentType type)
+        : m_contentNode(std::make_unique<XMLNode>(node)),
+          m_contentPath(path),
+          m_contentType(type) {
 
 }
 
 /**
  * @details
  */
-Impl::XLContentItem::XLContentItem(const XLContentItem &other)
-    : m_contentNode(std::make_unique<XMLNode>(*other.m_contentNode)),
-      m_contentPath(other.m_contentPath),
-      m_contentType(other.m_contentType)
-{
+Impl::XLContentItem::XLContentItem(const XLContentItem& other)
+        : m_contentNode(std::make_unique<XMLNode>(*other.m_contentNode)),
+          m_contentPath(other.m_contentPath),
+          m_contentType(other.m_contentType) {
     //todo: copying of base class members...?
 }
 
 /**
  * @details
  */
-Impl::XLContentItem::XLContentItem(XLContentItem &&other)
-    : m_contentNode(move(other.m_contentNode)),
-      m_contentPath(move(other.m_contentPath)),
-      m_contentType(move(other.m_contentType))
-{
+Impl::XLContentItem::XLContentItem(XLContentItem&& other)
+        : m_contentNode(move(other.m_contentNode)),
+          m_contentPath(move(other.m_contentPath)),
+          m_contentType(move(other.m_contentType)) {
 
 }
 
 /**
  * @details
  */
-Impl::XLContentItem &Impl::XLContentItem::operator=(const XLContentItem &other)
-{
+Impl::XLContentItem& Impl::XLContentItem::operator=(const XLContentItem& other) {
     *m_contentNode = *other.m_contentNode;
     m_contentPath = other.m_contentPath;
     m_contentType = other.m_contentType;
@@ -61,8 +57,7 @@ Impl::XLContentItem &Impl::XLContentItem::operator=(const XLContentItem &other)
 /**
  * @details
  */
-Impl::XLContentItem &Impl::XLContentItem::operator=(XLContentItem &&other)
-{
+Impl::XLContentItem& Impl::XLContentItem::operator=(XLContentItem&& other) {
     m_contentNode = move(other.m_contentNode);
     m_contentPath = move(other.m_contentPath);
     m_contentType = move(other.m_contentType);
@@ -73,25 +68,23 @@ Impl::XLContentItem &Impl::XLContentItem::operator=(XLContentItem &&other)
 /**
  * @details
  */
-Impl::XLContentType Impl::XLContentItem::Type() const
-{
+Impl::XLContentType Impl::XLContentItem::Type() const {
     return m_contentType;
 }
 
 /**
  * @details
  */
-const string &Impl::XLContentItem::Path() const
-{
+const string& Impl::XLContentItem::Path() const {
     return m_contentPath;
 }
 
 /**
  * @details
  */
-void Impl::XLContentItem::DeleteItem()
-{
-    if (m_contentNode) m_contentNode->parent().remove_child(*m_contentNode);
+void Impl::XLContentItem::DeleteItem() {
+    if (m_contentNode)
+        m_contentNode->parent().remove_child(*m_contentNode);
 
     m_contentNode = std::make_unique<XMLNode>();
     m_contentPath = "";
@@ -102,40 +95,42 @@ void Impl::XLContentItem::DeleteItem()
 /**
  * @details
  */
-Impl::XLContentTypes::XLContentTypes(XLDocument &parent,
-                               const string &filePath)
-    : XLAbstractXMLFile(parent, filePath),
-      XLSpreadsheetElement(parent),
-      m_defaults(),
-      m_overrides()
-{
+Impl::XLContentTypes::XLContentTypes(XLDocument& parent,
+                                     const string& filePath)
+        : XLAbstractXMLFile(parent,
+                            filePath),
+          XLSpreadsheetElement(parent),
+          m_defaults(),
+          m_overrides() {
     ParseXMLData();
 }
 
 /**
  * @details
  */
-bool Impl::XLContentTypes::ParseXMLData()
-{
+bool Impl::XLContentTypes::ParseXMLData() {
     m_defaults.clear();
     m_overrides.clear();
 
     std::string strOverride = "Override";
-    std::string strDefault = "Default";
+    std::string strDefault  = "Default";
 
-    for (auto &node : XmlDocument()->first_child().children()) {
+    for (auto& node : XmlDocument()->first_child().children()) {
         if (string(node.name()) == "Default") {
-            std::string extension = "";
+            std::string extension   = "";
             std::string contentType = "";
 
-            if (node.attribute("Extension")) extension = node.attribute("Extension").value();
-            if (node.attribute("ContentType")) contentType = node.attribute("ContentType").value();
-            m_defaults.insert({extension, node});
+            if (node.attribute("Extension"))
+                extension   = node.attribute("Extension").value();
+            if (node.attribute("ContentType"))
+                contentType = node.attribute("ContentType").value();
+            m_defaults.insert({extension,
+                               node});
         }
         else if (string(node.name()) == "Override") {
-            string path = node.attribute("PartName").value();
+            string        path       = node.attribute("PartName").value();
             XLContentType type;
-            string typeString = node.attribute("ContentType").value();
+            string        typeString = node.attribute("ContentType").value();
 
             if (typeString == "application/vnd.ms-excel.Sheet.macroEnabled.main+xml")
                 type = XLContentType::WorkbookMacroEnabled;
@@ -182,8 +177,11 @@ bool Impl::XLContentTypes::ParseXMLData()
             else
                 type = XLContentType::Unknown;
 
-            unique_ptr<XLContentItem> item(new XLContentItem(node, path, type));
-            m_overrides.insert({path, move(item)});
+            unique_ptr<XLContentItem> item(new XLContentItem(node,
+                                                             path,
+                                                             type));
+            m_overrides.insert({path,
+                                move(item)});
         }
     }
 
@@ -193,19 +191,18 @@ bool Impl::XLContentTypes::ParseXMLData()
 /**
  * @details
  */
-void Impl::XLContentTypes::AddDefault(const string &key,
-                                XMLNode node)
-{
-    m_defaults.insert({key, node});
+void Impl::XLContentTypes::AddDefault(const string& key,
+                                      XMLNode node) {
+    m_defaults.insert({key,
+                       node});
     SetModified();
 }
 
 /**
  * @details
  */
-void Impl::XLContentTypes::addOverride(const string &path,
-                                 XLContentType type)
-{
+void Impl::XLContentTypes::addOverride(const string& path,
+                                       XLContentType type) {
     string typeString;
 
     if (type == XLContentType::WorkbookMacroEnabled)
@@ -257,16 +254,18 @@ void Impl::XLContentTypes::addOverride(const string &path,
     node.append_attribute("PartName").set_value(path.c_str());
     node.append_attribute("ContentType").set_value(typeString.c_str());
 
-    unique_ptr<XLContentItem> item(new XLContentItem(node, path, type));
-    m_overrides.insert({path, move(item)});
+    unique_ptr<XLContentItem> item(new XLContentItem(node,
+                                                     path,
+                                                     type));
+    m_overrides.insert({path,
+                        move(item)});
     SetModified();
 }
 
 /**
  * @details
  */
-void Impl::XLContentTypes::ClearOverrides()
-{
+void Impl::XLContentTypes::ClearOverrides() {
     m_overrides.clear();
     SetModified();
 }
@@ -274,15 +273,13 @@ void Impl::XLContentTypes::ClearOverrides()
 /**
  * @details
  */
-const Impl::XLContentItemMap *Impl::XLContentTypes::contentItems() const
-{
+const Impl::XLContentItemMap* Impl::XLContentTypes::contentItems() const {
     return &m_overrides;
 }
 
 /**
  * @details
  */
-Impl::XLContentItem *Impl::XLContentTypes::ContentItem(const std::string &path)
-{
+Impl::XLContentItem* Impl::XLContentTypes::ContentItem(const std::string& path) {
     return m_overrides.at(path).get();
 }

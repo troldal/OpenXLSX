@@ -60,7 +60,8 @@ namespace OpenXLSX::Impl
     /**
      * @brief
      */
-    using XLCoordinates = std::pair<unsigned long, unsigned int>;
+    using XLCoordinates = std::pair<unsigned long,
+                                    unsigned int>;
 
 //======================================================================================================================
 //========== XLCellReference Class =====================================================================================
@@ -71,12 +72,18 @@ namespace OpenXLSX::Impl
      */
     class XLCellReference final
     {
-        friend bool operator==(const XLCellReference &lhs, const XLCellReference &rhs);
-        friend bool operator!=(const XLCellReference &lhs, const XLCellReference &rhs);
-        friend bool operator<(const XLCellReference &lhs, const XLCellReference &rhs);
-        friend bool operator>(const XLCellReference &lhs, const XLCellReference &rhs);
-        friend bool operator<=(const XLCellReference &lhs, const XLCellReference &rhs);
-        friend bool operator>=(const XLCellReference &lhs, const XLCellReference &rhs);
+        friend bool operator==(const XLCellReference& lhs,
+                               const XLCellReference& rhs);
+        friend bool operator!=(const XLCellReference& lhs,
+                               const XLCellReference& rhs);
+        friend bool operator<(const XLCellReference& lhs,
+                              const XLCellReference& rhs);
+        friend bool operator>(const XLCellReference& lhs,
+                              const XLCellReference& rhs);
+        friend bool operator<=(const XLCellReference& lhs,
+                               const XLCellReference& rhs);
+        friend bool operator>=(const XLCellReference& lhs,
+                               const XLCellReference& rhs);
 
 //----------------------------------------------------------------------------------------------------------------------
 //           Public Member Functions
@@ -88,7 +95,7 @@ namespace OpenXLSX::Impl
          * @brief Constructor taking a cell address as argument.
          * @param cellAddress The address of the cell, e.g. 'A1'.
          */
-        XLCellReference(const std::string &cellAddress = "");
+        XLCellReference(const std::string& cellAddress = "");
 
         /**
          * @brief Constructor taking the cell coordinates as arguments.
@@ -104,13 +111,13 @@ namespace OpenXLSX::Impl
          * @param column The column letter of the cell.
          */
         explicit XLCellReference(unsigned long row,
-                                 const std::string &column);
+                                 const std::string& column);
 
         /**
          * @brief Copy constructor
          * @param other The object to be copied.
          */
-        XLCellReference(const XLCellReference &other) = default;
+        XLCellReference(const XLCellReference& other) = default;
 
         /**
          * @brief Destructor. Default implementation used.
@@ -122,7 +129,7 @@ namespace OpenXLSX::Impl
          * @param other The object to be copied/assigned.
          * @return A reference to the new object.
          */
-        XLCellReference &operator=(const XLCellReference &other) = default;
+        XLCellReference& operator=(const XLCellReference& other) = default;
 
         /**
          * @brief Get the row number of the XLCellReference.
@@ -166,7 +173,7 @@ namespace OpenXLSX::Impl
          * @brief Set the address of the XLCellReference
          * @param address The address, e.g. 'A1'
          */
-        void SetAddress(const std::string &address);
+        void SetAddress(const std::string& address);
 
 //----------------------------------------------------------------------------------------------------------------------
 //           Private Member Functions
@@ -186,7 +193,7 @@ namespace OpenXLSX::Impl
          * @param row
          * @return
          */
-        static unsigned long RowAsNumber(const std::string &row);
+        static unsigned long RowAsNumber(const std::string& row);
 
         /**
          * @brief Static helper function to convert column number to column letter (e.g. column 1 becomes 'A')
@@ -202,7 +209,7 @@ namespace OpenXLSX::Impl
          * @return The column number.
          * @todo Include a cache of column names generated.
          */
-        static unsigned int ColumnAsNumber(const std::string &column);
+        static unsigned int ColumnAsNumber(const std::string& column);
 
         /**
          * @brief Static helper function to convert cell address to coordinates.
@@ -210,7 +217,7 @@ namespace OpenXLSX::Impl
          * @return A std::pair<row, column>
          * @todo Consider including a cache of the coordinates requested,
          */
-        static XLCoordinates CoordinatesFromAddress(const std::string &address);
+        static XLCoordinates CoordinatesFromAddress(const std::string& address);
 
 //----------------------------------------------------------------------------------------------------------------------
 //           Private Member Variables
@@ -218,16 +225,21 @@ namespace OpenXLSX::Impl
 
     private:
 
-        static const std::unordered_map<int, std::string> s_alphabet; /**< a std::map with the english alphabet */
-        static std::unordered_map<std::string, unsigned int> s_columnNumbers; /**<  */
-        static std::unordered_map<unsigned int, std::string> s_columnNames; /**<  */
-        static std::unordered_map<unsigned long, std::string> s_rowNames; /**<  */
-        static std::unordered_map<std::string, unsigned long> s_rowNumbers; /**<  */
+        static const std::unordered_map<int,
+                                        std::string> s_alphabet; /**< a std::map with the english alphabet */
+        static std::unordered_map<std::string,
+                                  unsigned int>      s_columnNumbers; /**<  */
+        static std::unordered_map<unsigned int,
+                                  std::string>       s_columnNames; /**<  */
+        static std::unordered_map<unsigned long,
+                                  std::string>       s_rowNames; /**<  */
+        static std::unordered_map<std::string,
+                                  unsigned long>     s_rowNumbers; /**<  */
 
         unsigned long m_row; /**< The row */
-        unsigned int m_column; /**< The column */
-        std::string m_cellAddress; /**< The address, e.g. 'A1' */
-        bool m_valid /**< Flag indicating if the reference is valid. */;
+        unsigned int  m_column; /**< The column */
+        std::string   m_cellAddress; /**< The address, e.g. 'A1' */
+        bool          m_valid /**< Flag indicating if the reference is valid. */;
 
     };
 
@@ -241,11 +253,11 @@ namespace OpenXLSX::Impl
      * @param rhs The second XLCellReference
      * @return true if equal; otherwise false.
      */
-    inline bool operator==(const XLCellReference &lhs,
-                           const XLCellReference &rhs)
-    {
+    inline bool operator==(const XLCellReference& lhs,
+                           const XLCellReference& rhs) {
         bool result = false;
-        if (lhs.Row() == rhs.Row() && lhs.Column() == rhs.Column()) result = true;
+        if (lhs.Row() == rhs.Row() && lhs.Column() == rhs.Column())
+            result = true;
         return result;
     }
 
@@ -255,9 +267,8 @@ namespace OpenXLSX::Impl
      * @param rhs The second XLCellReference
      * @return false if equal; otherwise true.
      */
-    inline bool operator!=(const XLCellReference &lhs,
-                           const XLCellReference &rhs)
-    {
+    inline bool operator!=(const XLCellReference& lhs,
+                           const XLCellReference& rhs) {
         return !(lhs == rhs);
     }
 
@@ -267,9 +278,8 @@ namespace OpenXLSX::Impl
      * @param rhs The second XLCellReference
      * @return true if lhs < rhs; otherwise false.
      */
-    inline bool operator<(const XLCellReference &lhs,
-                          const XLCellReference &rhs)
-    {
+    inline bool operator<(const XLCellReference& lhs,
+                          const XLCellReference& rhs) {
         bool result;
         if (lhs.Row() < rhs.Row())
             result = true;
@@ -290,9 +300,8 @@ namespace OpenXLSX::Impl
      * @param rhs The second XLCellReference
      * @return true if lhs > rhs; otherwise false.
      */
-    inline bool operator>(const XLCellReference &lhs,
-                          const XLCellReference &rhs)
-    {
+    inline bool operator>(const XLCellReference& lhs,
+                          const XLCellReference& rhs) {
         return (rhs < lhs);
     }
 
@@ -302,9 +311,8 @@ namespace OpenXLSX::Impl
      * @param rhs The second XLCellReference
      * @return true if lhs <= rhs; otherwise false
      */
-    inline bool operator<=(const XLCellReference &lhs,
-                           const XLCellReference &rhs)
-    {
+    inline bool operator<=(const XLCellReference& lhs,
+                           const XLCellReference& rhs) {
         return !(lhs > rhs);
     }
 
@@ -314,9 +322,8 @@ namespace OpenXLSX::Impl
      * @param rhs The second XLCellReference
      * @return true if lhs >= rhs; otherwise false.
      */
-    inline bool operator>=(const XLCellReference &lhs,
-                           const XLCellReference &rhs)
-    {
+    inline bool operator>=(const XLCellReference& lhs,
+                           const XLCellReference& rhs) {
         return !(lhs < rhs);
     }
 }

@@ -92,8 +92,8 @@ namespace OpenXLSX::Impl
      * such as XLWorksheet. It implements functionality common to all sheet types. This is a pure abstract class,
      * so it cannot be instantiated.
      */
-    class XLSheet: public XLAbstractXMLFile,
-                   public XLSpreadsheetElement
+    class XLSheet : public XLAbstractXMLFile,
+                    public XLSpreadsheetElement
     {
         friend class XLWorkbook;
         //friend class XLCell;
@@ -114,10 +114,10 @@ namespace OpenXLSX::Impl
          * @param filepath A std::string with the relative path to the sheet file in the .xlsx package.
          * @param xmlData
          */
-        XLSheet(XLWorkbook &parent,
-                const std::string &name,
-                const std::string &filepath,
-                const std::string &xmlData = "");
+        XLSheet(XLWorkbook& parent,
+                const std::string& name,
+                const std::string& filepath,
+                const std::string& xmlData = "");
 
         /**
          * @brief The copy constructor.
@@ -125,7 +125,7 @@ namespace OpenXLSX::Impl
          * @note The default copy constructor is used, i.e. only shallow copying of pointer data members.
          * @todo Can this method be deleted?
          */
-        XLSheet(const XLSheet &other) = delete;
+        XLSheet(const XLSheet& other) = delete;
 
         /**
          * @brief The destructor
@@ -139,25 +139,25 @@ namespace OpenXLSX::Impl
          * @note The default assignment operator is used, i.e. only shallow copying of pointer data members.
          * @todo Can this method be deleted?
          */
-        XLSheet &operator=(const XLSheet &) = delete;
+        XLSheet& operator=(const XLSheet&) = delete;
 
         /**
          * @brief Method to retrieve the name of the sheet.
          * @return A std::string with the sheet name.
          */
-        virtual const std::string &Name() const;
+        virtual const std::string& Name() const;
 
         /**
          * @brief Method for renaming the sheet.
          * @param name A std::string with the new name.
          */
-        virtual void SetName(const std::string &name);
+        virtual void SetName(const std::string& name);
 
         /**
          * @brief Method for getting the current visibility state of the sheet.
          * @return An XLSheetState enum object, with the current sheet state.
          */
-        virtual const XLSheetState &State() const;
+        virtual const XLSheetState& State() const;
 
         /**
          * @brief Method for setting the state of the sheet.
@@ -169,7 +169,7 @@ namespace OpenXLSX::Impl
          * @brief Method to get the type of the sheet.
          * @return An XLSheetType enum object with the sheet type.
          */
-        virtual const XLSheetType &Type() const;
+        virtual const XLSheetType& Type() const;
 
         /**
          * @brief Method for cloning the sheet.
@@ -177,7 +177,7 @@ namespace OpenXLSX::Impl
          * @return A pointer to the cloned object.
          * @note This is a pure abstract method. I.e. it is implemented in subclasses.
          */
-        virtual XLSheet *Clone(const std::string &newName) = 0;
+        virtual XLSheet* Clone(const std::string& newName) = 0;
 
         /**
          * @brief Method for getting the index of the sheet.
@@ -208,14 +208,14 @@ namespace OpenXLSX::Impl
 //----------------------------------------------------------------------------------------------------------------------
 
     private:
-        std::string m_sheetName; /**< The sheet name given by the user */
-        XLSheetType m_sheetType; /**< The sheet type, i.e. WorkSheet, ChartSheet, etc. */
+        std::string  m_sheetName; /**< The sheet name given by the user */
+        XLSheetType  m_sheetType; /**< The sheet type, i.e. WorkSheet, ChartSheet, etc. */
         XLSheetState m_sheetState; /**< The state of the sheet, i.e. Visible, Hidden or VeryHidden */
 
         std::unique_ptr<XMLNode> m_nodeInWorkbook; /**< A pointer to the relevant sheet node in workbook.xml */
         std::unique_ptr<XMLNode> m_nodeInApp; /**< A pointer to the relevant TitleOfParts node in app.xml */
-        XLContentItem *m_nodeInContentTypes; /**< A pointer to the relevant content type item in [Content_Types].xml */
-        XLRelationshipItem *m_nodeInWorkbookRels; /**< A pointer to the relationship item in workbook.xml.rels */
+        XLContentItem            * m_nodeInContentTypes; /**< A pointer to the relevant content type item in [Content_Types].xml */
+        XLRelationshipItem       * m_nodeInWorkbookRels; /**< A pointer to the relationship item in workbook.xml.rels */
     };
 }
 

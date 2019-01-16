@@ -18,7 +18,8 @@ add_executable(InterfaceTest "")
 target_sources(InterfaceTest PRIVATE
         TestMain.cpp
         DocumentCreation.cpp
-        DocumentProperties.cpp)
+        DocumentProperties.cpp
+        WorkbookTests.cpp)
 
 target_link_libraries(InterfaceTest INTERFACE Catch2)
 target_link_libraries(InterfaceTest PUBLIC -lOpenXLSX)

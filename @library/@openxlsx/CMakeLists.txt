@@ -8,7 +8,7 @@ add_library(OpenXLSX::OpenXLSX ALIAS OpenXLSX)
 # Set compiler flags
 #=======================================================================================================================
 include(CheckIPOSupported)
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_options(OpenXLSX PRIVATE -Wall)
     target_compile_options(OpenXLSX PRIVATE -Wextra)
     target_compile_options(OpenXLSX PRIVATE -pedantic)
@@ -22,13 +22,13 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         # using Intel C++
     elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
         # using Visual Studio C++
-    endif()
-elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
+    endif ()
+elseif (CMAKE_BUILD_TYPE STREQUAL "Release")
     check_ipo_supported(RESULT result OUTPUT output)
-    if(result)
+    if (result)
         set_property(TARGET OpenXLSX PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
-    endif()
-endif()
+    endif ()
+endif ()
 
 #=======================================================================================================================
 # Find project files
@@ -93,29 +93,31 @@ set(OPENXLSX_IMPL_SOURCES
 
 set(OPENXLSX_INTERFACE_HEADERS
         ${CMAKE_CURRENT_LIST_DIR}/interface/headers/OpenXLSX.h
+        ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLProperty.h
         ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLDocument.h
-        ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLProperty.h)
+        ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLWorkbook.h)
 
 set(OPENXLSX_INTERFACE_SOURCES
-        ${CMAKE_CURRENT_LIST_DIR}/interface/sources/XLDocument.cpp)
+        ${CMAKE_CURRENT_LIST_DIR}/interface/sources/XLDocument.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/interface/sources/XLWorkbook.cpp)
 
 #=======================================================================================================================
 # Build OpenXLSX library
 #=======================================================================================================================
 target_sources(OpenXLSX PUBLIC
-          ${OPENXLSX_INTERFACE_SOURCES} ${OPENXLSX_IMPL_SOURCES} ${OPENXLSX_INTERFACE_HEADERS} ${OPENXLSX_IMPL_HEADERS})
+        ${OPENXLSX_INTERFACE_SOURCES} ${OPENXLSX_IMPL_SOURCES} ${OPENXLSX_INTERFACE_HEADERS} ${OPENXLSX_IMPL_HEADERS})
 target_link_libraries(OpenXLSX PUBLIC pugixml zip++ zip z)
 target_link_directories(OpenXLSX PUBLIC ${OPENXLSX_DEPENDENCIES}/lib)
 target_include_directories(OpenXLSX
         PUBLIC # Should this be PRIVATE?
-            ${CMAKE_CURRENT_LIST_DIR}/implementation/headers
-            ${CMAKE_CURRENT_LIST_DIR}/interface/headers
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers
+        ${CMAKE_CURRENT_LIST_DIR}/interface/headers
         SYSTEM INTERFACE
-            ${CMAKE_CURRENT_LIST_DIR}/implementation/headers
-            ${CMAKE_CURRENT_LIST_DIR}/interface/headers)
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers
+        ${CMAKE_CURRENT_LIST_DIR}/interface/headers)
 target_include_directories(OpenXLSX
         PUBLIC
-            ${OPENXLSX_DEPENDENCIES}/include)
+        ${OPENXLSX_DEPENDENCIES}/include)
 
 set_target_properties(OpenXLSX PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${OPENXLSX_INSTALLDIR}/lib)
 set_target_properties(OpenXLSX PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${OPENXLSX_INSTALLDIR}/bin)

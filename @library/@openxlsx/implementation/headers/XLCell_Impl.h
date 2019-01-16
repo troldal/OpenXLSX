@@ -67,7 +67,7 @@ namespace OpenXLSX::Impl
     /**
      * @brief An implementation class encapsulating the properties and behaviours of a spreadsheet cell.
      */
-    class XLCell: public XLSpreadsheetElement
+    class XLCell : public XLSpreadsheetElement
     {
         friend class XLRow;
         friend class XLCellValue;
@@ -84,14 +84,14 @@ namespace OpenXLSX::Impl
          * @note The copy constructor has been deleted, as it makes no sense to copy a cell. If the objective is to
          * copy the value, create the the target object and then use the copy assignment operator.
          */
-        XLCell(const XLCell &other) = delete;
+        XLCell(const XLCell& other) = delete;
 
         /**
          * @brief Move constructor
          * @param other The XLCell object to be moved
          * @note The move constructor has been deleted, as it makes no sense to move a cell.
          */
-        XLCell(XLCell &&other) = delete;
+        XLCell(XLCell&& other) = delete;
 
         /**
          * @brief Destructor
@@ -105,7 +105,7 @@ namespace OpenXLSX::Impl
          * @return A reference to the new object
          * @note Copies only the cell contents, not the pointer to parent worksheet etc.
          */
-        XLCell &operator=(const XLCell &other) = default;
+        XLCell& operator=(const XLCell& other) = default;
 
         /**
          * @brief Move assignment operator [deleted]
@@ -113,7 +113,7 @@ namespace OpenXLSX::Impl
          * @return A reference to the new object
          * @note The move assignment constructor has been deleted, as it makes no sense to move a cell.
          */
-        XLCell &operator=(XLCell &&other) = default;
+        XLCell& operator=(XLCell&& other) = default;
 
         /**
          * @brief This copy assignment operators takes a range as the argument. The purpose is to copy the range to a
@@ -123,19 +123,19 @@ namespace OpenXLSX::Impl
          * @note Copies only the cell contents (values).
          * @todo Consider if this is better done as a free function. What should be the return value?
          */
-        XLCell &operator=(const XLCellRange &range);
+        XLCell& operator=(const XLCellRange& range);
 
         /**
          * @brief Get a reference to the XLCellValue object for the cell.
          * @return A reference to an XLCellValue object.
          */
-        XLCellValue &Value();
+        XLCellValue& Value();
 
         /**
          * @brief Get a const reference to the XLCellValue object for the cell.
          * @return A const reference to an XLCellValue object.
          */
-        const XLCellValue &Value() const;
+        const XLCellValue& Value() const;
 
         /**
          * @brief Set the cell to a 'dirty' state, i.e. the worksheet needs to be saved.
@@ -152,7 +152,7 @@ namespace OpenXLSX::Impl
          * @brief get the XLCellReference object for the cell.
          * @return A reference to the cells' XLCellReference object.
          */
-        const XLCellReference *CellReference() const;
+        const XLCellReference* CellReference() const;
 
 //----------------------------------------------------------------------------------------------------------------------
 //           Protected Member Functions
@@ -165,7 +165,8 @@ namespace OpenXLSX::Impl
          * @param parent A pointer to the parent XLWorksheet object. Must not be nullptr.
          * @param cellNode A pointer to the XMLNode with the cell data. Must not be nullptr.
          */
-        XLCell(XLWorksheet &parent, XMLNode cellNode);
+        XLCell(XLWorksheet& parent,
+               XMLNode cellNode);
 
         /**
          * @brief Factory method for creating a new cell
@@ -173,7 +174,7 @@ namespace OpenXLSX::Impl
          * @param cellNode A pointer to the XMLNode with the cell data. Must not be nullptr.
          * @return A std::unique_ptr to the newly created object
          */
-        static std::unique_ptr<XLCell> CreateCell(XLWorksheet &parent,
+        static std::unique_ptr<XLCell> CreateCell(XLWorksheet& parent,
                                                   XMLNode cellNode);
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -186,25 +187,25 @@ namespace OpenXLSX::Impl
          * @brief
          * @return
          */
-        XLWorksheet *ParentWorksheet();
+        XLWorksheet* ParentWorksheet();
 
         /**
          * @brief
          * @return
          */
-        const XLWorksheet *ParentWorksheet() const;
+        const XLWorksheet* ParentWorksheet() const;
 
         /**
          * @brief
          * @return
          */
-        XMLDocument *XmlDocument();
+        XMLDocument* XmlDocument();
 
         /**
          * @brief
          * @return
          */
-        const XMLDocument *XmlDocument() const;
+        const XMLDocument* XmlDocument() const;
 
         /**
          * @brief
@@ -223,7 +224,7 @@ namespace OpenXLSX::Impl
          * @return 
          */
         bool HasTypeAttribute() const;
-        
+
         /**
          * @brief
          * @return
@@ -234,7 +235,7 @@ namespace OpenXLSX::Impl
          * @brief
          * @param typeString
          */
-        void SetTypeAttribute(const std::string &typeString = "");
+        void SetTypeAttribute(const std::string& typeString = "");
 
         /**
          * @brief
@@ -253,13 +254,13 @@ namespace OpenXLSX::Impl
 
     private:
 
-        XLDocument *m_parentDocument; /**< A pointer to the parent XLDocument object. */
-        const XLWorkbook *m_parentWorkbook; /**< A pointer to the parent XLWorkbook object. */
-        XLWorksheet *m_parentWorksheet; /**< A pointer to the parent XLWorksheet object. */
+        XLDocument      * m_parentDocument; /**< A pointer to the parent XLDocument object. */
+        const XLWorkbook* m_parentWorkbook; /**< A pointer to the parent XLWorkbook object. */
+        XLWorksheet     * m_parentWorksheet; /**< A pointer to the parent XLWorksheet object. */
 
-        XLCellReference m_cellReference; /**< The cell reference variable. */
+        XLCellReference          m_cellReference; /**< The cell reference variable. */
         std::unique_ptr<XMLNode> m_cellNode; /**< A pointer to the root XMLNode for the cell. */
-        XLCellValue m_value; /**<  */
+        XLCellValue              m_value; /**<  */
 
     };
 }

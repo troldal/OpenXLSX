@@ -7,13 +7,10 @@
 
 #include "XLCellValue_Impl.h"
 #include "XLCell_Impl.h"
-#include "XLCellValue_Impl.h"
-#include "XLException_Impl.h"
 #include "XLWorksheet_Impl.h"
 
 using namespace OpenXLSX;
 using namespace std;
-
 
 /**
  * @details The constructor sets the m_parentCell to the value of the input parameter. The m_parentCell member variable
@@ -21,9 +18,8 @@ using namespace std;
  * @pre The parent input parameter is a valid XLCell object.
  * @post A valid XLCellValue object has been constructed.
  */
-Impl::XLCellValue::XLCellValue(XLCell &parent) noexcept
-    : m_parentCell(parent)
-{
+Impl::XLCellValue::XLCellValue(XLCell& parent) noexcept
+        : m_parentCell(parent) {
 }
 
 /**
@@ -33,10 +29,8 @@ Impl::XLCellValue::XLCellValue(XLCell &parent) noexcept
  * @pre Both the lhs and rhs are valid objects.
  * @post Successful assignment to the target object.
  */
-Impl::XLCellValue &Impl::XLCellValue::operator=(const Impl::XLCellValue &other)
-{
-    if (&other != this)
-    {
+Impl::XLCellValue& Impl::XLCellValue::operator=(const Impl::XLCellValue& other) {
+    if (&other != this) {
         SetValueNode(!other.ValueNode() ? "" : other.ValueNode().text().get());
         SetTypeAttribute(!other.TypeAttribute() ? "" : other.TypeAttribute().value());
     }
@@ -51,8 +45,7 @@ Impl::XLCellValue &Impl::XLCellValue::operator=(const Impl::XLCellValue &other)
  * @post The underlying cell xml data has been set to the value of the input parameter and the type attribute has been
  * set to 'str'
  */
-Impl::XLCellValue &Impl::XLCellValue::operator=(const std::string &stringValue)
-{
+Impl::XLCellValue& Impl::XLCellValue::operator=(const std::string& stringValue) {
     Set(stringValue);
     return *this;
 }
@@ -64,8 +57,7 @@ Impl::XLCellValue &Impl::XLCellValue::operator=(const std::string &stringValue)
  * @post The underlying cell xml data has been set to the value of the input parameter and the type attribute has been
  * set to 'str'
  */
-Impl::XLCellValue &Impl::XLCellValue::operator=(const char *stringValue)
-{
+Impl::XLCellValue& Impl::XLCellValue::operator=(const char* stringValue) {
     Set(stringValue);
     return *this;
 }
@@ -77,8 +69,7 @@ Impl::XLCellValue &Impl::XLCellValue::operator=(const char *stringValue)
  * @post The underlying cell xml data has been set to the value of the input parameter and the type attribute has been
  * set to 'str'
  */
-void Impl::XLCellValue::Set(const string &stringValue)
-{
+void Impl::XLCellValue::Set(const string& stringValue) {
     Set(stringValue.c_str());
 }
 
@@ -88,8 +79,7 @@ void Impl::XLCellValue::Set(const string &stringValue)
  * @post The underlying cell xml data has been set to the value of the input parameter and the type attribute has been
  * set to 'str'
  */
-void Impl::XLCellValue::Set(const char *stringValue)
-{
+void Impl::XLCellValue::Set(const char* stringValue) {
     TypeAttribute().set_value("str");
     ValueNode().text().set(stringValue);
 }
@@ -99,8 +89,7 @@ void Impl::XLCellValue::Set(const char *stringValue)
  * @pre The parent XLCell object is valid and has a corresponding node in the underlying XML file.
  * @post The value node and the type attribute in the underlying xml data has been deleted.
  */
-void Impl::XLCellValue::Clear()
-{
+void Impl::XLCellValue::Clear() {
     DeleteValueNode();
     DeleteTypeAttribute();
 }
@@ -110,8 +99,7 @@ void Impl::XLCellValue::Clear()
  * @pre The m_value member variable is valid.
  * @post The current object, and any associated objects, are unchanged.
  */
-std::string Impl::XLCellValue::AsString() const
-{
+std::string Impl::XLCellValue::AsString() const {
     if (string_view(TypeAttribute().value()) == "b") {
         if (string_view(ValueNode().text().get()) == "0")
             return "FALSE";
@@ -130,8 +118,7 @@ std::string Impl::XLCellValue::AsString() const
  * @pre The parent XLCell object is valid and has a corresponding node in the underlying XML file.
  * @post The current object, and any associated objects, are unchanged.
  */
-Impl::XLValueType Impl::XLCellValue::ValueType() const
-{
+Impl::XLValueType Impl::XLCellValue::ValueType() const {
     switch (CellType()) {
         case XLCellType::Empty:
             return XLValueType::Empty;
@@ -160,8 +147,7 @@ Impl::XLValueType Impl::XLCellValue::ValueType() const
  * @pre The parent XLCell object is valid and has a corresponding node in the underlying XML file.
  * @post The current object, and any associated objects, are unchanged.
  */
-Impl::XLCellType Impl::XLCellValue::CellType() const
-{
+Impl::XLCellType Impl::XLCellValue::CellType() const {
     // Determine the type of the Cell
     // If neither a Type attribute or a value node is present, the cell is empty.
     if (!m_parentCell.HasTypeAttribute() && !HasValueNode()) {
@@ -203,8 +189,7 @@ Impl::XLCellType Impl::XLCellValue::CellType() const
  * @pre The parent XLCell object is valid.
  * @post The current object, and any associated objects, are unchanged.
  */
-Impl::XLCell *Impl::XLCellValue::ParentCell()
-{
+Impl::XLCell* Impl::XLCellValue::ParentCell() {
     return &m_parentCell;
 }
 
@@ -213,8 +198,7 @@ Impl::XLCell *Impl::XLCellValue::ParentCell()
  * @pre The parent XLCell object is valid.
  * @post The current object, and any associated objects, are unchanged.
  */
-const Impl::XLCell *Impl::XLCellValue::ParentCell() const
-{
+const Impl::XLCell* Impl::XLCellValue::ParentCell() const {
     return &m_parentCell;
 }
 
@@ -225,10 +209,11 @@ const Impl::XLCell *Impl::XLCellValue::ParentCell() const
  * @post The cell is either set to empty, or a value node exists and has been set to the input value.
  * @note If the input string is empty, the cell type will be set to empty.
  */
-void Impl::XLCellValue::SetValueNode(string_view value)
-{
-    if (value.empty()) Clear();
-    else ValueNode().text().set(string(value).c_str());
+void Impl::XLCellValue::SetValueNode(string_view value) {
+    if (value.empty())
+        Clear();
+    else
+        ValueNode().text().set(string(value).c_str());
 }
 
 /**
@@ -236,9 +221,9 @@ void Impl::XLCellValue::SetValueNode(string_view value)
  * @pre The parent XLCell object is valid and has a corresponding node in the underlying XML file.
  * @post No value node exists for the cell, in the underlying XML file.
  */
-void Impl::XLCellValue::DeleteValueNode()
-{
-    if (HasValueNode()) ValueNode().parent().remove_child(ValueNode());
+void Impl::XLCellValue::DeleteValueNode() {
+    if (HasValueNode())
+        ValueNode().parent().remove_child(ValueNode());
 }
 
 /**
@@ -247,8 +232,7 @@ void Impl::XLCellValue::DeleteValueNode()
  * @pre The parent XLCell object is valid and has a corresponding node in the underlying XML file.
  * @post A value node exists for the cell in the underlying XML file.
  */
-XMLNode Impl::XLCellValue::CreateValueNode()
-{
+XMLNode Impl::XLCellValue::CreateValueNode() {
     if (!HasValueNode())
         ParentCell()->CreateValueNode();
     return ValueNode();
@@ -260,8 +244,7 @@ XMLNode Impl::XLCellValue::CreateValueNode()
  * @pre The parent XLCell object is valid and has a corresponding node in the underlying XML file.
  * @post The type attribute is either deleted or has been set to the value of the input type string.
  */
-void Impl::XLCellValue::SetTypeAttribute(const std::string &typeString)
-{
+void Impl::XLCellValue::SetTypeAttribute(const std::string& typeString) {
     if (typeString.empty())
         DeleteTypeAttribute();
     else
@@ -273,9 +256,9 @@ void Impl::XLCellValue::SetTypeAttribute(const std::string &typeString)
  * @pre The parent XLCell object is valid and has a corresponding node in the underlying XML file.
  * @post No type attribute for the cell exists in the XML file.
  */
-void Impl::XLCellValue::DeleteTypeAttribute()
-{
-    if (HasTypeAttribute()) ParentCell()->CellNode().remove_attribute("t");
+void Impl::XLCellValue::DeleteTypeAttribute() {
+    if (HasTypeAttribute())
+        ParentCell()->CellNode().remove_attribute("t");
 }
 
 /**
@@ -285,8 +268,7 @@ void Impl::XLCellValue::DeleteTypeAttribute()
  * @post An empty type attribute has been added to the XML file.
  * @note An empty type attribute may not be valid in Excel. Therefore, the value must be set immediately afterwards.
  */
-XMLAttribute Impl::XLCellValue::CreateTypeAttribute()
-{
+XMLAttribute Impl::XLCellValue::CreateTypeAttribute() {
     if (!HasTypeAttribute())
         ParentCell()->CellNode().append_attribute("t") = "";
 
@@ -299,9 +281,9 @@ XMLAttribute Impl::XLCellValue::CreateTypeAttribute()
  * @pre The parent XLCell object is valid and has a corresponding node in the underlying XML file.
  * @post The current object, and any associated objects, are unchanged.
  */
-XMLNode Impl::XLCellValue::ValueNode()
-{
-    if (!HasValueNode()) CreateValueNode();
+XMLNode Impl::XLCellValue::ValueNode() {
+    if (!HasValueNode())
+        CreateValueNode();
     return ParentCell()->CellNode().child("v");
 }
 
@@ -311,8 +293,7 @@ XMLNode Impl::XLCellValue::ValueNode()
  * @pre The parent XLCell object is valid and has a corresponding node in the underlying XML file.
  * @post The current object, and any associated objects, are unchanged.
  */
-const XMLNode Impl::XLCellValue::ValueNode() const
-{
+const XMLNode Impl::XLCellValue::ValueNode() const {
     return ParentCell()->CellNode().child("v");
 }
 
@@ -321,8 +302,7 @@ const XMLNode Impl::XLCellValue::ValueNode() const
  * @pre The parent XLCell object is valid and has a corresponding node in the underlying XML file.
  * @post The current object, and any associated objects, are unchanged.
  */
-bool Impl::XLCellValue::HasValueNode() const
-{
+bool Impl::XLCellValue::HasValueNode() const {
     if (ParentCell()->CellNode().child("v"))
         return true;
     else
@@ -335,9 +315,9 @@ bool Impl::XLCellValue::HasValueNode() const
  * @pre The parent XLCell object is valid and has a corresponding node in the underlying XML file.
  * @post The current object, and any associated objects, are unchanged.
  */
-XMLAttribute Impl::XLCellValue::TypeAttribute()
-{
-    if (!HasTypeAttribute()) CreateTypeAttribute();
+XMLAttribute Impl::XLCellValue::TypeAttribute() {
+    if (!HasTypeAttribute())
+        CreateTypeAttribute();
     return ParentCell()->CellNode().attribute("t");
 }
 
@@ -347,8 +327,7 @@ XMLAttribute Impl::XLCellValue::TypeAttribute()
  * @pre The parent XLCell object is valid and has a corresponding node in the underlying XML file.
  * @post The current object, and any associated objects, are unchanged.
  */
-const XMLAttribute Impl::XLCellValue::TypeAttribute() const
-{
+const XMLAttribute Impl::XLCellValue::TypeAttribute() const {
     return ParentCell()->CellNode().attribute("t");
 }
 
@@ -357,8 +336,7 @@ const XMLAttribute Impl::XLCellValue::TypeAttribute() const
  * @pre The parent XLCell object is valid and has a corresponding node in the underlying XML file.
  * @post The current object, and any associated objects, are unchanged.
  */
-bool Impl::XLCellValue::HasTypeAttribute() const
-{
+bool Impl::XLCellValue::HasTypeAttribute() const {
     if (!ParentCell()->CellNode().attribute("t"))
         return false;
     else
@@ -369,62 +347,60 @@ bool Impl::XLCellValue::HasTypeAttribute() const
  * @details The number type (integer or floating point) is determined simply by identifying whether or not a decimal
  * point is present in the input string. If present, the number type is floating point.
  */
-Impl::XLNumberType Impl::XLCellValue::DetermineNumberType(const string &numberString) const
-{
-    if (numberString.find('.') != string::npos) return XLNumberType::Float;
-    else return XLNumberType::Integer;
+Impl::XLNumberType Impl::XLCellValue::DetermineNumberType(const string& numberString) const {
+    if (numberString.find('.') != string::npos)
+        return XLNumberType::Float;
+    else
+        return XLNumberType::Integer;
 }
 
 /**
  * @details Returns the shared string node at the given index, by accessing the shared strings via the parent workbook.
  */
-XMLNode Impl::XLCellValue::SharedStringNode(unsigned long index) const
-{
+XMLNode Impl::XLCellValue::SharedStringNode(unsigned long index) const {
     return ParentCell()->ParentWorkbook()->SharedStrings()->GetStringNode(index);
 }
 
-void Impl::XLCellValue::SetInteger(long long int numberValue)
-{
+void Impl::XLCellValue::SetInteger(long long int numberValue) {
     ValueNode().remove_attribute("t");
     ValueNode().text().set(numberValue);
 }
 
-void Impl::XLCellValue::SetBoolean(bool numberValue)
-{
+void Impl::XLCellValue::SetBoolean(bool numberValue) {
     TypeAttribute().set_value("b");
     ValueNode().text().set(numberValue ? 1 : 0);
 }
 
-void Impl::XLCellValue::SetFloat(long double numberValue)
-{
+void Impl::XLCellValue::SetFloat(long double numberValue) {
     ValueNode().remove_attribute("t");
     ValueNode().text().set(std::to_string(numberValue).c_str());
 }
 
-long long int Impl::XLCellValue::GetInteger() const
-{
-    if (ValueType() != XLValueType::Integer) throw XLException("Cell value is not Integer");
+long long int Impl::XLCellValue::GetInteger() const {
+    if (ValueType() != XLValueType::Integer)
+        throw XLException("Cell value is not Integer");
     return ValueNode().text().as_llong();
 }
 
-bool Impl::XLCellValue::GetBoolean() const
-{
-    if (ValueType() != XLValueType::Boolean) throw XLException("Cell value is not Boolean");
+bool Impl::XLCellValue::GetBoolean() const {
+    if (ValueType() != XLValueType::Boolean)
+        throw XLException("Cell value is not Boolean");
     return !(std::string_view(ValueNode().text().get()) == "0");
 }
 
-long double Impl::XLCellValue::GetFloat() const
-{
-    if (ValueType() != XLValueType::Float) throw XLException("Cell value is not Float");
+long double Impl::XLCellValue::GetFloat() const {
+    if (ValueType() != XLValueType::Float)
+        throw XLException("Cell value is not Float");
     return std::stold(ValueNode().text().get());
 }
 
-const char* Impl::XLCellValue::GetString() const
-{
-    if (ValueType() != XLValueType::String) throw XLException("Cell value is not String");
+const char* Impl::XLCellValue::GetString() const {
+    if (ValueType() != XLValueType::String)
+        throw XLException("Cell value is not String");
     if (std::string_view(TypeAttribute().value()) == "str") // ordinary string
         return ValueNode().text().get();
     if (std::string_view(TypeAttribute().value()) == "s") // shared string
         return SharedStringNode(ValueNode().text().as_ullong()).text().get();
-    else throw XLException("Unknown string type");
+    else
+        throw XLException("Unknown string type");
 }

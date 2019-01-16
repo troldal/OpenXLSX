@@ -72,9 +72,9 @@ namespace OpenXLSX::Impl
          * @param italics
          * @param underline
          */
-        explicit XLFont(const std::string &name = "Cambria",
+        explicit XLFont(const std::string& name = "Cambria",
                         unsigned int size = 11,
-                        const XLColor &color = XLColor(),
+                        const XLColor& color = XLColor(),
                         bool bold = false,
                         bool italics = false,
                         bool underline = false);
@@ -83,7 +83,7 @@ namespace OpenXLSX::Impl
          * @brief
          * @param other
          */
-        XLFont(const XLFont &other) = default;
+        XLFont(const XLFont& other) = default;
 
         /**
          * @brief
@@ -95,7 +95,7 @@ namespace OpenXLSX::Impl
          * @param other
          * @return
          */
-        XLFont &operator=(const XLFont &other) = delete;
+        XLFont& operator=(const XLFont& other) = delete;
 
         /**
          * @brief
@@ -105,19 +105,27 @@ namespace OpenXLSX::Impl
 
     private:
 
-        static std::map<std::string, XLFont> s_fonts;
+        static std::map<std::string,
+                        XLFont> s_fonts;
 
         std::unique_ptr<XMLNode> m_fontNode;
 
-        std::string m_name;
+        std::string  m_name;
+
         unsigned int m_size;
-        XLColor m_color;
-        bool m_bold;
-        bool m_italics;
-        bool m_underline;
+
+        XLColor      m_color;
+
+        bool         m_bold;
+
+        bool         m_italics;
+
+        bool         m_underline;
 
         std::string m_theme;
+
         std::string m_family;
+
         std::string m_scheme;
 
     };

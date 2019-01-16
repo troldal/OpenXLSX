@@ -66,10 +66,11 @@ TEST_CASE( "Testing of Document Properties", "[create]" ) {
 
     // Test other properties
 
-    //SECTION( "Set 'Keywords' property" ) {
-    //    doc.DeleteProperty("Keywords");
-    //    REQUIRE(doc.GetProperty(XLProperty::Keywords).empty());
-    //}
+    SECTION( "Set 'Keywords' property" ) {
+        doc.DeleteProperty(XLProperty::Keywords);
+        doc.SaveDocument();
+        REQUIRE(doc.GetProperty(XLProperty::Keywords).empty());
+    }
 
     doc.CloseDocument();
 

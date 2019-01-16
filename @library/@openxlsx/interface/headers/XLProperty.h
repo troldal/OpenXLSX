@@ -5,7 +5,8 @@
 #ifndef OPENXLSX_XLPROPERTY_H
 #define OPENXLSX_XLPROPERTY_H
 
-namespace OpenXLSX {
+namespace OpenXLSX
+{
 
 //======================================================================================================================
 //========== XLDocumentProperties Enum =================================================================================

@@ -49,7 +49,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLDocument_Impl.h"
 #include "XLCell_Impl.h"
 
-
 namespace OpenXLSX::Impl
 {
 
@@ -71,26 +70,25 @@ namespace OpenXLSX::Impl
 
     public:
 
-
         /**
          * @brief Constructor
          * @param parent A pointer to the parent XLWorksheet object.
          * @param rowNode A pointer to the XMLNode object for the row.
          */
-        explicit XLRow(XLWorksheet &parent,
+        explicit XLRow(XLWorksheet& parent,
                        XMLNode rowNode);
 
         /**
          * @brief Copy Constructor
          * @note The copy constructor is explicitly deleted
          */
-        XLRow(const XLRow &other) = delete;
+        XLRow(const XLRow& other) = delete;
 
         /**
          * @brief Move Constructor
          * @note The move constructor has been explicitly deleted.
          */
-        XLRow(XLRow &&other) = default;
+        XLRow(XLRow&& other) = default;
 
         /**
          * @brief Destructor
@@ -102,13 +100,13 @@ namespace OpenXLSX::Impl
          * @brief Copy assignment operator.
          * @note The copy assignment operator is explicitly deleted.
          */
-        XLRow &operator=(const XLRow &other) = delete;
+        XLRow& operator=(const XLRow& other) = delete;
 
         /**
          * @brief Move assignment operator.
          * @note The move assignment operator has been explicitly deleted.
          */
-        XLRow &operator=(XLRow &&other) = delete;
+        XLRow& operator=(XLRow&& other) = delete;
 
         /**
          * @brief Get the height of the row.
@@ -159,14 +157,14 @@ namespace OpenXLSX::Impl
          * @param column The column with the XLCell
          * @return A reference to the XLCell object.
          */
-        XLCell *Cell(unsigned int column);
+        XLCell* Cell(unsigned int column);
 
         /**
          * @brief Get the XLCell object at a specified column for this row.
          * @param column The column with the XLCell
          * @return A const reference to the XLCell object.
          */
-        const XLCell *Cell(unsigned int column) const;
+        const XLCell* Cell(unsigned int column) const;
 
         /**
          * @brief Get the number of cells in the row.
@@ -181,14 +179,13 @@ namespace OpenXLSX::Impl
 
     protected:
 
-
         /**
          * @brief A static method used to create an entirely new XLRow object (no corresponding node in the XML file).
          * @param worksheet A reference to the worksheet object to which the row is to be added.
          * @param rowNumber The row number to add
          * @return A pointer to the newly created XLRow object.
          */
-        static void CreateRow(XLWorksheet &worksheet,
+        static void CreateRow(XLWorksheet& worksheet,
                               unsigned long rowNumber);
 
         /**
@@ -203,21 +200,21 @@ namespace OpenXLSX::Impl
 
     private:
 
-        XLWorksheet &m_parentWorksheet; /**< A pointer to the parent XLWorksheet object. */
-        XLDocument &m_parentDocument; /**< A pointer to the parent XLDocument object. */
+        XLWorksheet& m_parentWorksheet; /**< A pointer to the parent XLWorksheet object. */
+        XLDocument & m_parentDocument; /**< A pointer to the parent XLDocument object. */
 
         std::unique_ptr<XMLNode> m_rowNode; /**< The XMLNode object for the row. */
 
         float m_height; /**< The height of the row. */
         float m_descent; /**< The descent of the row. */
-        bool m_hidden; /**< The hidden state of the row. */
+        bool  m_hidden; /**< The hidden state of the row. */
 
         unsigned long m_rowNumber; /**< The row number of the current row. */
 
-        std::map<unsigned int, std::unique_ptr<XLCell>> m_cells; /**< A vector with the XLCell objects. */
+        std::map<unsigned int,
+                 std::unique_ptr<XLCell>> m_cells; /**< A vector with the XLCell objects. */
     };
 
 }
-
 
 #endif //OPENXLSX_IMPL_XLROW_H

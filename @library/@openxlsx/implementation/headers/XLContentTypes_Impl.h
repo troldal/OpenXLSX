@@ -53,11 +53,11 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <map>
 #include <string>
 
-
 namespace OpenXLSX::Impl
 {
     class XLContentItem;
-    using XLContentItemMap = std::map<std::string, std::unique_ptr<XLContentItem>>;
+    using XLContentItemMap = std::map<std::string,
+                                      std::unique_ptr<XLContentItem>>;
 
 //======================================================================================================================
 //========== XLColumnVector Enum =======================================================================================
@@ -114,28 +114,28 @@ namespace OpenXLSX::Impl
          * @param other
          * @return
          */
-        explicit XLContentItem(const XLContentItem &other);
+        explicit XLContentItem(const XLContentItem& other);
 
         /**
          * @brief
          * @param other
          * @return
          */
-        XLContentItem(XLContentItem &&other);
+        XLContentItem(XLContentItem&& other);
 
         /**
          * @brief
          * @param other
          * @return
          */
-        XLContentItem &operator=(const XLContentItem &other);
+        XLContentItem& operator=(const XLContentItem& other);
 
         /**
          * @brief
          * @param other
          * @return
          */
-        XLContentItem &operator=(XLContentItem &&other);
+        XLContentItem& operator=(XLContentItem&& other);
 
         /**
          * @brief
@@ -147,7 +147,7 @@ namespace OpenXLSX::Impl
          * @brief
          * @return
          */
-        const std::string &Path() const;
+        const std::string& Path() const;
 
         /**
          * @brief
@@ -168,7 +168,7 @@ namespace OpenXLSX::Impl
          * @return
          */
         explicit XLContentItem(XMLNode node,
-                               const std::string &path,
+                               const std::string& path,
                                XLContentType type);
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -178,8 +178,8 @@ namespace OpenXLSX::Impl
     private:
 
         std::unique_ptr<XMLNode> m_contentNode; /**< */
-        std::string m_contentPath; /**< */
-        XLContentType m_contentType; /**< */
+        std::string              m_contentPath; /**< */
+        XLContentType            m_contentType; /**< */
     };
 
 
@@ -190,8 +190,8 @@ namespace OpenXLSX::Impl
 /**
  * @brief The purpose of this class is to load, store add and save item in the [Content_Types].xml file.
  */
-    class XLContentTypes: public XLAbstractXMLFile,
-                          public XLSpreadsheetElement
+    class XLContentTypes : public XLAbstractXMLFile,
+                           public XLSpreadsheetElement
     {
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -205,8 +205,8 @@ namespace OpenXLSX::Impl
          * @param parent
          * @param filePath
          */
-        explicit XLContentTypes(XLDocument &parent,
-                                const std::string &filePath);
+        explicit XLContentTypes(XLDocument& parent,
+                                const std::string& filePath);
 
         /**
          * @brief Destructor
@@ -218,7 +218,7 @@ namespace OpenXLSX::Impl
          * @param key The key
          * @param node The value
          */
-        void AddDefault(const std::string &key,
+        void AddDefault(const std::string& key,
                         XMLNode node);
 
         /**
@@ -226,7 +226,7 @@ namespace OpenXLSX::Impl
          * @param path The key
          * @param type The value
          */
-        void addOverride(const std::string &path,
+        void addOverride(const std::string& path,
                          XLContentType type);
 
         /**
@@ -238,14 +238,14 @@ namespace OpenXLSX::Impl
          * @brief
          * @return
          */
-        const XLContentItemMap *contentItems() const;
+        const XLContentItemMap* contentItems() const;
 
         /**
          * @brief
          * @param path
          * @return
          */
-        XLContentItem *ContentItem(const std::string &path);
+        XLContentItem* ContentItem(const std::string& path);
 
 //----------------------------------------------------------------------------------------------------------------------
 //           Protected Member Functions
@@ -264,8 +264,9 @@ namespace OpenXLSX::Impl
 //----------------------------------------------------------------------------------------------------------------------
 
     private:
-        std::map<std::string, XMLNode> m_defaults; /**< */
-        XLContentItemMap m_overrides; /**< */
+        std::map<std::string,
+                 XMLNode> m_defaults; /**< */
+        XLContentItemMap  m_overrides; /**< */
     };
 }
 

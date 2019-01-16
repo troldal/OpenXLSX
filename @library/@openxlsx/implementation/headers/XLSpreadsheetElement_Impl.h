@@ -72,19 +72,19 @@ namespace OpenXLSX::Impl
          * @brief
          * @param parent
          */
-        explicit XLSpreadsheetElement(XLDocument &parent);
+        explicit XLSpreadsheetElement(XLDocument& parent);
 
         /**
          * @brief
          * @param other
          */
-        XLSpreadsheetElement(const XLSpreadsheetElement &other) = default;
+        XLSpreadsheetElement(const XLSpreadsheetElement& other) = default;
 
         /**
          * @brief
          * @param other
          */
-        XLSpreadsheetElement(XLSpreadsheetElement &&other) = default;
+        XLSpreadsheetElement(XLSpreadsheetElement&& other) = default;
 
         /**
          * @brief
@@ -96,46 +96,46 @@ namespace OpenXLSX::Impl
          * @param other
          * @return
          */
-        XLSpreadsheetElement &operator=(const XLSpreadsheetElement &other) = default;
+        XLSpreadsheetElement& operator=(const XLSpreadsheetElement& other) = default;
 
         /**
          * @brief
          * @param other
          * @return
          */
-        XLSpreadsheetElement &operator=(XLSpreadsheetElement &&other) = default;
+        XLSpreadsheetElement& operator=(XLSpreadsheetElement&& other) = default;
 
         /**
          * @brief
          * @return
          */
-        virtual XLWorkbook *ParentWorkbook();
+        virtual XLWorkbook* ParentWorkbook();
 
         /**
          * @brief
          * @return
          */
-        virtual const XLWorkbook *ParentWorkbook() const;
+        virtual const XLWorkbook* ParentWorkbook() const;
 
         /**
          * @brief
          * @return
          */
-        virtual XLDocument *ParentDocument();
+        virtual XLDocument* ParentDocument();
 
         /**
          * @brief
          * @return
          */
-        virtual const XLDocument *ParentDocument() const;
+        virtual const XLDocument* ParentDocument() const;
 
 //----------------------------------------------------------------------------------------------------------------------
 //           Private Member Variables
 //----------------------------------------------------------------------------------------------------------------------
 
     private:
-        XLDocument *m_document; /**< */
-        XLWorkbook *m_workbook; /**< */
+        XLDocument* m_document; /**< */
+        XLWorkbook* m_workbook; /**< */
 
     };
 
