@@ -3,8 +3,6 @@
 //
 
 #include "XLTokenizer_Impl.h"
-#include <algorithm>
-#include <cstring>
 
 using namespace OpenXLSX;
 using namespace std;
@@ -19,6 +17,7 @@ Impl::XLToken::XLToken(const std::string& token) : m_token(token) {
  * @details
  */
 const std::string& Impl::XLToken::AsString() const {
+
     return m_token;
 }
 
@@ -26,6 +25,7 @@ const std::string& Impl::XLToken::AsString() const {
  * @details
  */
 long long int Impl::XLToken::AsInteger() const {
+
     return stoll(m_token);
 }
 
@@ -33,6 +33,7 @@ long long int Impl::XLToken::AsInteger() const {
  * @details
  */
 long double Impl::XLToken::AsFloat() const {
+
     string temp = m_token;
     replace(temp.begin(),
             temp.end(),
@@ -45,6 +46,7 @@ long double Impl::XLToken::AsFloat() const {
  * @details
  */
 bool Impl::XLToken::AsBoolean() const {
+
     if (m_token == "FALSE")
         return false;
     else
@@ -55,6 +57,7 @@ bool Impl::XLToken::AsBoolean() const {
  * @details
  */
 bool Impl::XLToken::IsString() const {
+
     if (IsBoolean() || IsFloat() || IsInteger())
         return false;
     return true;
@@ -64,6 +67,7 @@ bool Impl::XLToken::IsString() const {
  * @details
  */
 bool Impl::XLToken::IsInteger() const {
+
     for (auto& iter : m_token) {
         if (iter == *m_token.begin() && iter == '-')
             continue;
@@ -78,6 +82,7 @@ bool Impl::XLToken::IsInteger() const {
  * @details
  */
 bool Impl::XLToken::IsFloat() const {
+
     int numDigit   = 0;
     int numDecimal = 0;
     int numOther   = 0;
@@ -108,6 +113,7 @@ bool Impl::XLToken::IsFloat() const {
  * @details
  */
 bool Impl::XLToken::IsBoolean() const {
+
     string strTrue  = "TRUE";
     string strFalse = "FALSE";
 
@@ -135,6 +141,7 @@ Impl::XLTokenizer::XLTokenizer()
         : m_buffer(""),
           m_token(""),
           m_delimiter(" \t\v\n\r\f") {
+
     m_currPos = m_buffer.begin();
 }
 
@@ -146,6 +153,7 @@ Impl::XLTokenizer::XLTokenizer(const std::string& str,
         : m_buffer(str),
           m_token(""),
           m_delimiter(delimiter) {
+
     m_currPos = m_buffer.begin();
 }
 
@@ -154,6 +162,7 @@ Impl::XLTokenizer::XLTokenizer(const std::string& str,
  */
 void Impl::XLTokenizer::Set(const std::string& str,
                             const std::string& delimiter) {
+
     m_buffer    = str;
     m_delimiter = delimiter;
     m_currPos   = m_buffer.begin();
@@ -163,6 +172,7 @@ void Impl::XLTokenizer::Set(const std::string& str,
  * @details
  */
 void Impl::XLTokenizer::SetString(const std::string& str) {
+
     m_buffer  = str;
     m_currPos = m_buffer.begin();
 }
@@ -171,6 +181,7 @@ void Impl::XLTokenizer::SetString(const std::string& str) {
  * @details
  */
 void Impl::XLTokenizer::SetDelimiter(const std::string& delimiter) {
+
     m_delimiter = delimiter;
     m_currPos   = m_buffer.begin();
 }
@@ -179,6 +190,7 @@ void Impl::XLTokenizer::SetDelimiter(const std::string& delimiter) {
  * @details
  */
 Impl::XLToken Impl::XLTokenizer::Next() {
+
     if (m_buffer.empty())
         return XLToken("");           // skip if buffer is empty
     m_token.clear();                              // reset token string
@@ -196,6 +208,7 @@ Impl::XLToken Impl::XLTokenizer::Next() {
  * @details
  */
 void Impl::XLTokenizer::SkipDelimiter() {
+
     while (m_currPos != m_buffer.end() && IsDelimiter(*m_currPos))
         ++m_currPos;
 }
@@ -204,6 +217,7 @@ void Impl::XLTokenizer::SkipDelimiter() {
  * @details
  */
 bool Impl::XLTokenizer::IsDelimiter(char c) {
+
     return (m_delimiter.find(c) != std::string::npos);
 }
 
@@ -211,6 +225,7 @@ bool Impl::XLTokenizer::IsDelimiter(char c) {
  * @details
  */
 vector<Impl::XLToken> Impl::XLTokenizer::Split() {
+
     std::vector<XLToken> tokens;
     std::string          token;
     while (!(token = Next().AsString()).empty()) {

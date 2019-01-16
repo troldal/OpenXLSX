@@ -23,6 +23,7 @@ Impl::XLAbstractXMLFile::XLAbstractXMLFile(XLDocument& parent,
           m_path(filePath),
           m_childXmlDocuments(),
           m_isModified(false) {
+
     if (xmlData.empty())
         SetXmlData(m_parentDocument.GetXMLFile(m_path));
     else
@@ -36,6 +37,7 @@ Impl::XLAbstractXMLFile::~XLAbstractXMLFile() {
  * @details This method sets the XML data with a std::string as input. The underlying XMLDocument reads the data.
  */
 void Impl::XLAbstractXMLFile::SetXmlData(const std::string& xmlData) {
+
     m_xmlDocument->load_string(xmlData.c_str());
 }
 
@@ -43,6 +45,7 @@ void Impl::XLAbstractXMLFile::SetXmlData(const std::string& xmlData) {
  * @details This method retrieves the underlying XML data as a std::string.
  */
 std::string Impl::XLAbstractXMLFile::GetXmlData() const {
+
     ostringstream ostr;
     m_xmlDocument->print(ostr);
     return ostr.str();
@@ -53,6 +56,7 @@ std::string Impl::XLAbstractXMLFile::GetXmlData() const {
  * This, in turn, will add or replace the XML data files in the zipped .xlsx package.
  */
 void Impl::XLAbstractXMLFile::CommitXMLData() {
+
     m_parentDocument.AddOrReplaceXMLFile(m_path,
                                          GetXmlData());
     for (auto file : m_childXmlDocuments) {
@@ -66,6 +70,7 @@ void Impl::XLAbstractXMLFile::CommitXMLData() {
  * This, in turn, delete the XML data files in the zipped .xlsx package.
  */
 void Impl::XLAbstractXMLFile::DeleteXMLData() {
+
     m_parentDocument.DeleteXMLFile(m_path);
     for (auto file : m_childXmlDocuments) {
         if (file.second)
@@ -77,6 +82,7 @@ void Impl::XLAbstractXMLFile::DeleteXMLData() {
  * @details This method returns the path in the .zip file of the XML file as a std::string.
  */
 const string& Impl::XLAbstractXMLFile::FilePath() const {
+
     return m_path;
 }
 
@@ -84,6 +90,7 @@ const string& Impl::XLAbstractXMLFile::FilePath() const {
  * @details This method is mainly meant for debugging, by enabling printing of the xml file to cout.
  */
 void Impl::XLAbstractXMLFile::Print() const {
+
     XmlDocument()->print(cout);
 }
 
@@ -91,6 +98,7 @@ void Impl::XLAbstractXMLFile::Print() const {
  * @details This method returns a pointer to the underlying XMLDocument resource.
  */
 XMLDocument* Impl::XLAbstractXMLFile::XmlDocument() {
+
     return const_cast<XMLDocument*>(static_cast<const XLAbstractXMLFile*>(this)->XmlDocument());
 }
 
@@ -98,6 +106,7 @@ XMLDocument* Impl::XLAbstractXMLFile::XmlDocument() {
  * @details This method returns a pointer to the underlying XMLDocument resource as const.
  */
 const XMLDocument* Impl::XLAbstractXMLFile::XmlDocument() const {
+
     return m_xmlDocument.get();
 }
 
@@ -105,6 +114,7 @@ const XMLDocument* Impl::XLAbstractXMLFile::XmlDocument() const {
  * @details Set the XLWorksheet object to 'modified'. This is done by setting the m_is Modified member to true.
  */
 void Impl::XLAbstractXMLFile::SetModified() {
+
     m_isModified = true;
 }
 
@@ -112,5 +122,6 @@ void Impl::XLAbstractXMLFile::SetModified() {
  * @details Returns the value of the m_isModified member variable.
  */
 bool Impl::XLAbstractXMLFile::IsModified() {
+
     return m_isModified;
 }

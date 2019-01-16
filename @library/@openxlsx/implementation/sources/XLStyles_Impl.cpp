@@ -29,6 +29,7 @@ Impl::XLStyles::XLStyles(XLDocument& parent,
         : XLAbstractXMLFile(parent,
                             filePath),
           XLSpreadsheetElement(parent) {
+
     ParseXMLData();
 }
 
@@ -43,6 +44,7 @@ Impl::XLStyles::~XLStyles() {
  * @details
  */
 bool Impl::XLStyles::ParseXMLData() {
+
     s_numberFormatsNode = XmlDocument()->child("numFmts");
     s_fontsNode         = XmlDocument()->child("fonts");
     s_fillsNode         = XmlDocument()->child("fills");
@@ -90,6 +92,7 @@ bool Impl::XLStyles::ParseXMLData() {
  * @details
  */
 void Impl::XLStyles::AddFont(const XLFont& font) {
+
     m_fonts.push_back(make_unique<XLFont>(font.m_name,
                                           font.m_size,
                                           font.m_color,
@@ -117,6 +120,7 @@ void Impl::XLStyles::AddFont(const XLFont& font) {
  * @details
  */
 Impl::XLFont& Impl::XLStyles::Font(unsigned int id) {
+
     return *m_fonts.at(id);
 }
 
@@ -127,7 +131,7 @@ unsigned int Impl::XLStyles::FontId(const std::string& font) {
 
     unsigned int index  = 0;
     unsigned int result = 0;
-    for (auto    & iter : m_fonts) {
+    for (auto& iter : m_fonts) {
         if (iter->UniqueId() == font) {
             result = index;
             break;

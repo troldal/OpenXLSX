@@ -4,7 +4,6 @@
 
 #include "XLColor_Impl.h"
 #include <sstream>
-#include <algorithm>
 
 using namespace std;
 using namespace OpenXLSX;
@@ -31,6 +30,7 @@ Impl::XLColor::XLColor(const std::string& hexCode)
         : m_red(0),
           m_green(0),
           m_blue(0) {
+
     SetColor(hexCode);
 }
 
@@ -40,6 +40,7 @@ Impl::XLColor::XLColor(const std::string& hexCode)
 void Impl::XLColor::SetColor(unsigned int red,
                              unsigned int green,
                              unsigned int blue) {
+
     m_red   = min(red,
                   255U);
     m_green = min(green,
@@ -81,6 +82,7 @@ void Impl::XLColor::SetColor(const std::string& hexCode) {
  * @details
  */
 unsigned int Impl::XLColor::Red() const {
+
     return m_red;
 }
 
@@ -88,6 +90,7 @@ unsigned int Impl::XLColor::Red() const {
  * @details
  */
 unsigned int Impl::XLColor::Green() const {
+
     return m_green;
 }
 
@@ -95,6 +98,7 @@ unsigned int Impl::XLColor::Green() const {
  * @details
  */
 unsigned int Impl::XLColor::Blue() const {
+
     return m_blue;
 }
 

@@ -74,6 +74,7 @@ void Impl::XLRow::Resize(unsigned int cellCount) {
  * @details Returns the m_height member by value.
  */
 float Impl::XLRow::Height() const {
+
     return m_height;
 }
 
@@ -82,6 +83,7 @@ float Impl::XLRow::Height() const {
  * 'customHeight' attribute to true.
  */
 void Impl::XLRow::SetHeight(float height) {
+
     m_height = height;
 
     // Set the 'ht' attribute for the Cell. If it does not exist, create it.
@@ -103,6 +105,7 @@ void Impl::XLRow::SetHeight(float height) {
  * @details Return the m_descent member by value.
  */
 float Impl::XLRow::Descent() const {
+
     return m_descent;
 }
 
@@ -110,6 +113,7 @@ float Impl::XLRow::Descent() const {
  * @details Set the descent by setting the 'x14ac:dyDescent' attribute in the XML file
  */
 void Impl::XLRow::SetDescent(float descent) {
+
     m_descent = descent;
 
     // Set the 'x14ac:dyDescent' attribute. If it does not exist, create it.
@@ -124,6 +128,7 @@ void Impl::XLRow::SetDescent(float descent) {
  * @details Determine if the row is hidden or not.
  */
 bool Impl::XLRow::Ishidden() const {
+
     return m_hidden;
 }
 
@@ -131,6 +136,7 @@ bool Impl::XLRow::Ishidden() const {
  * @details Set the hidden state by setting the 'hidden' attribute to true or false.
  */
 void Impl::XLRow::SetHidden(bool state) {
+
     m_hidden = state;
 
     std::string hiddenstate;
@@ -151,6 +157,7 @@ void Impl::XLRow::SetHidden(bool state) {
  * @details Get the pointer to the row node in the underlying XML file but returning the m_rowNode member.
  */
 XMLNode Impl::XLRow::RowNode() const {
+
     return *m_rowNode;
 }
 
@@ -208,6 +215,7 @@ const Impl::XLCell* Impl::XLRow::Cell(unsigned int column) const {
  * @details Get the number of cells in the row, by returning the size of the m_cells vector.
  */
 unsigned int Impl::XLRow::CellCount() const {
+
     return static_cast<unsigned int>(m_cells.size());
 }
 

@@ -21,6 +21,7 @@ Impl::XLSharedStrings::XLSharedStrings(XLDocument& parent,
           XLSpreadsheetElement(parent),
           m_sharedStringNodes(),
           m_emptyString("") {
+
     ParseXMLData();
 }
 
@@ -53,6 +54,7 @@ bool Impl::XLSharedStrings::ParseXMLData() {
  * directly.
  */
 const XMLNode Impl::XLSharedStrings::GetStringNode(unsigned long index) const {
+
     if (index > m_sharedStringNodes.size() - 1)
         throw std::range_error("Node does not exist");
     else
@@ -66,6 +68,7 @@ const XMLNode Impl::XLSharedStrings::GetStringNode(unsigned long index) const {
  * directly.
  */
 const XMLNode Impl::XLSharedStrings::GetStringNode(std::string_view str) const {
+
     for (const auto& s : m_sharedStringNodes) {
         if (string_view(s.text().get()) == str)
             return s;
@@ -79,8 +82,8 @@ const XMLNode Impl::XLSharedStrings::GetStringNode(std::string_view str) const {
  */
 long Impl::XLSharedStrings::GetStringIndex(string_view str) const {
 
-    long           result  = -1;
-    long           counter = 0;
+    long result  = -1;
+    long counter = 0;
     for (const auto& s : m_sharedStringNodes) {
         if (string_view(s.text().get()) == str) {
             result = counter;
@@ -107,6 +110,7 @@ bool Impl::XLSharedStrings::StringExists(std::string_view str) const {
  * @details
  */
 bool Impl::XLSharedStrings::StringExists(unsigned long index) const {
+
     if (index > m_sharedStringNodes.size() - 1)
         throw false;
     else
@@ -137,6 +141,7 @@ long Impl::XLSharedStrings::AppendString(string_view str) {
  * is used, it will be erased.
  */
 void Impl::XLSharedStrings::ClearString(int index) {
+
     m_sharedStringNodes.at(index).set_value("");
     SetModified();
 }

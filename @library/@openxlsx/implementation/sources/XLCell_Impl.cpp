@@ -49,6 +49,7 @@ Impl::XLCell::XLCell(XLWorksheet& parent,
  * @todo Consider what happens if the target range extends beyond the maximum spreadsheet limits
  */
 Impl::XLCell& Impl::XLCell::operator=(const XLCellRange& range) {
+
     auto            first = this->CellReference();
     XLCellReference last(first->Row() + range.NumRows() - 1,
                          first->Column() + range.NumColumns() - 1);
@@ -64,6 +65,7 @@ Impl::XLCell& Impl::XLCell::operator=(const XLCellRange& range) {
  * @details
  */
 Impl::XLValueType Impl::XLCell::ValueType() const {
+
     return m_value.ValueType();
 }
 
@@ -71,6 +73,7 @@ Impl::XLValueType Impl::XLCell::ValueType() const {
  * @details
  */
 const Impl::XLCellValue& Impl::XLCell::Value() const {
+
     return m_value;
 }
 
@@ -78,6 +81,7 @@ const Impl::XLCellValue& Impl::XLCell::Value() const {
  * @details
  */
 Impl::XLCellValue& Impl::XLCell::Value() {
+
     return m_value;
 }
 
@@ -85,6 +89,7 @@ Impl::XLCellValue& Impl::XLCell::Value() {
  * @details
  */
 void Impl::XLCell::SetModified() {
+
     ParentWorksheet()->SetModified();
 }
 
@@ -92,6 +97,7 @@ void Impl::XLCell::SetModified() {
  * @details This function returns a const reference to the cellReference property.
  */
 const Impl::XLCellReference* Impl::XLCell::CellReference() const {
+
     return &m_cellReference;
 }
 
@@ -102,6 +108,7 @@ const Impl::XLCellReference* Impl::XLCell::CellReference() const {
  */
 std::unique_ptr<Impl::XLCell> Impl::XLCell::CreateCell(XLWorksheet& parent,
                                                        XMLNode cellNode) {
+
     return unique_ptr<XLCell>(new XLCell(parent,
                                          cellNode));
 }
@@ -127,6 +134,7 @@ void Impl::XLCell::SetTypeAttribute(const std::string& typeString) {
  * @details
  */
 void Impl::XLCell::DeleteTypeAttribute() {
+
     if (m_cellNode->attribute("t").as_bool()) {
         m_cellNode->remove_attribute("t");
     }
@@ -136,6 +144,7 @@ void Impl::XLCell::DeleteTypeAttribute() {
  * @details
  */
 Impl::XLWorksheet* Impl::XLCell::ParentWorksheet() {
+
     return m_parentWorksheet;
 }
 
@@ -143,6 +152,7 @@ Impl::XLWorksheet* Impl::XLCell::ParentWorksheet() {
  * @details
  */
 const Impl::XLWorksheet* Impl::XLCell::ParentWorksheet() const {
+
     return m_parentWorksheet;
 }
 
@@ -150,6 +160,7 @@ const Impl::XLWorksheet* Impl::XLCell::ParentWorksheet() const {
  * @details
  */
 XMLDocument* Impl::XLCell::XmlDocument() {
+
     return ParentWorksheet()->XmlDocument();
 }
 
@@ -157,6 +168,7 @@ XMLDocument* Impl::XLCell::XmlDocument() {
  * @details
  */
 const XMLDocument* Impl::XLCell::XmlDocument() const {
+
     return ParentWorksheet()->XmlDocument();
 }
 
@@ -164,6 +176,7 @@ const XMLDocument* Impl::XLCell::XmlDocument() const {
  * @details
  */
 XMLNode Impl::XLCell::CellNode() {
+
     return *m_cellNode;
 }
 
@@ -171,6 +184,7 @@ XMLNode Impl::XLCell::CellNode() {
  * @details
  */
 const XMLNode Impl::XLCell::CellNode() const {
+
     return *m_cellNode;
 }
 
@@ -178,6 +192,7 @@ const XMLNode Impl::XLCell::CellNode() const {
  * @details
  */
 XMLNode Impl::XLCell::CreateValueNode() {
+
     if (!m_cellNode->child("v"))
         m_cellNode->append_child("v");
     return m_cellNode->child("v");
@@ -187,6 +202,7 @@ XMLNode Impl::XLCell::CreateValueNode() {
  * @details
  */
 bool Impl::XLCell::HasTypeAttribute() const {
+
     if (m_cellNode->attribute("t"))
         return true;
     else
@@ -198,5 +214,6 @@ bool Impl::XLCell::HasTypeAttribute() const {
  * If the cell has no attribute (i.e. is empty or holds a number), a nullptr will be returned.
  */
 const XMLAttribute Impl::XLCell::TypeAttribute() const {
+
     return m_cellNode->attribute("t");
 }

@@ -43,6 +43,7 @@ Impl::XLSheet::~XLSheet() {
  * @details This method returns the m_sheetName property.
  */
 const std::string& Impl::XLSheet::Name() const {
+
     return m_sheetName;
 }
 
@@ -54,6 +55,7 @@ const std::string& Impl::XLSheet::Name() const {
  * - Set the m_isModified property to true.
  */
 void Impl::XLSheet::SetName(const std::string& name) {
+
     m_sheetName = name;
     m_nodeInWorkbook->attribute("name").set_value(name.c_str());
     m_nodeInApp->set_value(name.c_str());
@@ -64,6 +66,7 @@ void Impl::XLSheet::SetName(const std::string& name) {
  * @details This method returns the m_sheetState property.
  */
 const Impl::XLSheetState& Impl::XLSheet::State() const {
+
     return m_sheetState;
 }
 
@@ -75,6 +78,7 @@ const Impl::XLSheetState& Impl::XLSheet::State() const {
  * - If the state is set to Visible, delete the state attribute from the sheet node in the workbook.xml file, if it exists.
  */
 void Impl::XLSheet::SetState(XLSheetState state) {
+
     m_sheetState = state;
 
     switch (m_sheetState) {
@@ -137,6 +141,7 @@ void Impl::XLSheet::Delete() {
  * @details This method simply returns the m_sheetType property.
  */
 const Impl::XLSheetType& Impl::XLSheet::Type() const {
+
     return m_sheetType;
 }
 
@@ -145,6 +150,7 @@ const Impl::XLSheetType& Impl::XLSheet::Type() const {
  * @todo This method is currently unimplemented.
  */
 unsigned int Impl::XLSheet::Index() const {
+
     return 0;
 }
 

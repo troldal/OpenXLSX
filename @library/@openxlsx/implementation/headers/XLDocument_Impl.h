@@ -312,6 +312,7 @@ namespace OpenXLSX::Impl
                                               T>::value,
                               std::unique_ptr<T>>
     XLDocument::CreateItem(const std::string& target) {
+
         if (!m_documentRelationships->TargetExists(target))
             throw XLException("Target does not exist!");
         auto result = std::make_unique<T>(*this,

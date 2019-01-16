@@ -186,7 +186,7 @@ namespace OpenXLSX::Impl
 
     private:
 
-        XLDocument  & m_parentDocument; /**< */
+        XLDocument& m_parentDocument; /**< */
         std::string m_path; /**< */
 
         mutable std::map<std::string,

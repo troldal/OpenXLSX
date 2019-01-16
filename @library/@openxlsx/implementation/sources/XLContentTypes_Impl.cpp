@@ -47,6 +47,7 @@ Impl::XLContentItem::XLContentItem(XLContentItem&& other)
  * @details
  */
 Impl::XLContentItem& Impl::XLContentItem::operator=(const XLContentItem& other) {
+
     *m_contentNode = *other.m_contentNode;
     m_contentPath = other.m_contentPath;
     m_contentType = other.m_contentType;
@@ -58,6 +59,7 @@ Impl::XLContentItem& Impl::XLContentItem::operator=(const XLContentItem& other) 
  * @details
  */
 Impl::XLContentItem& Impl::XLContentItem::operator=(XLContentItem&& other) {
+
     m_contentNode = move(other.m_contentNode);
     m_contentPath = move(other.m_contentPath);
     m_contentType = move(other.m_contentType);
@@ -69,6 +71,7 @@ Impl::XLContentItem& Impl::XLContentItem::operator=(XLContentItem&& other) {
  * @details
  */
 Impl::XLContentType Impl::XLContentItem::Type() const {
+
     return m_contentType;
 }
 
@@ -76,6 +79,7 @@ Impl::XLContentType Impl::XLContentItem::Type() const {
  * @details
  */
 const string& Impl::XLContentItem::Path() const {
+
     return m_contentPath;
 }
 
@@ -83,6 +87,7 @@ const string& Impl::XLContentItem::Path() const {
  * @details
  */
 void Impl::XLContentItem::DeleteItem() {
+
     if (m_contentNode)
         m_contentNode->parent().remove_child(*m_contentNode);
 
@@ -102,6 +107,7 @@ Impl::XLContentTypes::XLContentTypes(XLDocument& parent,
           XLSpreadsheetElement(parent),
           m_defaults(),
           m_overrides() {
+
     ParseXMLData();
 }
 
@@ -109,6 +115,7 @@ Impl::XLContentTypes::XLContentTypes(XLDocument& parent,
  * @details
  */
 bool Impl::XLContentTypes::ParseXMLData() {
+
     m_defaults.clear();
     m_overrides.clear();
 
@@ -193,6 +200,7 @@ bool Impl::XLContentTypes::ParseXMLData() {
  */
 void Impl::XLContentTypes::AddDefault(const string& key,
                                       XMLNode node) {
+
     m_defaults.insert({key,
                        node});
     SetModified();
@@ -203,6 +211,7 @@ void Impl::XLContentTypes::AddDefault(const string& key,
  */
 void Impl::XLContentTypes::addOverride(const string& path,
                                        XLContentType type) {
+
     string typeString;
 
     if (type == XLContentType::WorkbookMacroEnabled)
@@ -266,6 +275,7 @@ void Impl::XLContentTypes::addOverride(const string& path,
  * @details
  */
 void Impl::XLContentTypes::ClearOverrides() {
+
     m_overrides.clear();
     SetModified();
 }
@@ -274,6 +284,7 @@ void Impl::XLContentTypes::ClearOverrides() {
  * @details
  */
 const Impl::XLContentItemMap* Impl::XLContentTypes::contentItems() const {
+
     return &m_overrides;
 }
 
@@ -281,5 +292,6 @@ const Impl::XLContentItemMap* Impl::XLContentTypes::contentItems() const {
  * @details
  */
 Impl::XLContentItem* Impl::XLContentTypes::ContentItem(const std::string& path) {
+
     return m_overrides.at(path).get();
 }

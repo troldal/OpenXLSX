@@ -42,7 +42,7 @@ unordered_map<string,
 unordered_map<unsigned int,
               string>       Impl::XLCellReference::s_columnNames   = {};
 unordered_map<unsigned long,
-              std::string>   Impl::XLCellReference::s_rowNames   = {};
+              std::string>   Impl::XLCellReference::s_rowNames = {};
 unordered_map<std::string,
               unsigned long> Impl::XLCellReference::s_rowNumbers = {};
 
@@ -55,6 +55,7 @@ Impl::XLCellReference::XLCellReference(const std::string& cellAddress)
           m_column(1),
           m_cellAddress("A1"),
           m_valid(true) {
+
     if (cellAddress != "")
         SetAddress(cellAddress);
 }
@@ -70,6 +71,7 @@ Impl::XLCellReference::XLCellReference(unsigned long row,
           m_cellAddress(ColumnAsString(column) +
                         RowAsString(row)),
           m_valid(false) {
+
     if (m_row < 1 || m_row > 1048576 || m_column < 1 || m_column > 16384) {
         m_row         = 0;
         m_column      = 0;
@@ -92,6 +94,7 @@ Impl::XLCellReference::XLCellReference(unsigned long row,
           m_cellAddress(
                   column + RowAsString(row)),
           m_valid(false) {
+
     if (m_row < 1 || m_row > 1048576 || m_column < 1 || m_column > 16384) {
         m_row         = 0;
         m_column      = 0;
@@ -107,6 +110,7 @@ Impl::XLCellReference::XLCellReference(unsigned long row,
  * @details Returns the m_row property.
  */
 unsigned long Impl::XLCellReference::Row() const {
+
     return m_row;
 }
 
@@ -130,6 +134,7 @@ void Impl::XLCellReference::SetRow(unsigned long row) {
  * @details Returns the m_column property.
  */
 unsigned int Impl::XLCellReference::Column() const {
+
     return m_column;
 }
 
@@ -177,6 +182,7 @@ void Impl::XLCellReference::SetRowAndColumn(unsigned long row,
  * @details Returns the m_cellAddress property.
  */
 std::string Impl::XLCellReference::Address() const {
+
     return m_cellAddress;
 }
 
@@ -185,6 +191,7 @@ std::string Impl::XLCellReference::Address() const {
  * or equal to the maximum row and column numbers allowed by Excel.
  */
 void Impl::XLCellReference::SetAddress(const std::string& address) {
+
     auto coordinates = CoordinatesFromAddress(address);
     if (coordinates.first < 1 || coordinates.first > 1048576 || coordinates.second < 1 || coordinates.second > 16384) {
         m_row         = 0;
@@ -220,6 +227,7 @@ std::string Impl::XLCellReference::RowAsString(unsigned long row) {
  * @details
  */
 unsigned long Impl::XLCellReference::RowAsNumber(const std::string& row) {
+
     auto iter = s_rowNumbers.find(row);
 
     if (iter == s_rowNumbers.end()) {
@@ -356,6 +364,7 @@ unsigned int Impl::XLCellReference::ColumnAsNumber(const std::string& column) {
  */
 std::pair<unsigned long,
           unsigned int> Impl::XLCellReference::CoordinatesFromAddress(const std::string& address) {
+
     int letterCount = 0;
 
     for (auto letter : address) {

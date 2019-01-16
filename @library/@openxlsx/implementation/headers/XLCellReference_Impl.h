@@ -255,6 +255,7 @@ namespace OpenXLSX::Impl
      */
     inline bool operator==(const XLCellReference& lhs,
                            const XLCellReference& rhs) {
+
         bool result = false;
         if (lhs.Row() == rhs.Row() && lhs.Column() == rhs.Column())
             result = true;
@@ -269,6 +270,7 @@ namespace OpenXLSX::Impl
      */
     inline bool operator!=(const XLCellReference& lhs,
                            const XLCellReference& rhs) {
+
         return !(lhs == rhs);
     }
 
@@ -280,6 +282,7 @@ namespace OpenXLSX::Impl
      */
     inline bool operator<(const XLCellReference& lhs,
                           const XLCellReference& rhs) {
+
         bool result;
         if (lhs.Row() < rhs.Row())
             result = true;
@@ -302,6 +305,7 @@ namespace OpenXLSX::Impl
      */
     inline bool operator>(const XLCellReference& lhs,
                           const XLCellReference& rhs) {
+
         return (rhs < lhs);
     }
 
@@ -313,6 +317,7 @@ namespace OpenXLSX::Impl
      */
     inline bool operator<=(const XLCellReference& lhs,
                            const XLCellReference& rhs) {
+
         return !(lhs > rhs);
     }
 
@@ -324,6 +329,7 @@ namespace OpenXLSX::Impl
      */
     inline bool operator>=(const XLCellReference& lhs,
                            const XLCellReference& rhs) {
+
         return !(lhs < rhs);
     }
 }

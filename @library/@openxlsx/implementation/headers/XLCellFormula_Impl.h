@@ -56,7 +56,7 @@ namespace OpenXLSX::Impl
     public:
 
     private:
-        XMLNode     m_formulaNode;
+        XMLNode m_formulaNode;
 
         std::string m_formula;
 

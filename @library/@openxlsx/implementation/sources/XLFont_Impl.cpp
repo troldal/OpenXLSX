@@ -39,6 +39,7 @@ Impl::XLFont::XLFont(const string& name,
  * @details
  */
 std::string Impl::XLFont::UniqueId() const {
+
     stringstream str;
 
     str << m_name << m_size << m_color.Hex();

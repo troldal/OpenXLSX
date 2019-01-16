@@ -33,6 +33,7 @@ Impl::XLWorkbook::XLWorkbook(XLDocument& parent,
           m_relationships(nullptr),
           m_sharedStrings(nullptr),
           m_styles(nullptr) {
+
     SetModified();
     ParseXMLData();
 }
@@ -95,6 +96,7 @@ bool Impl::XLWorkbook::ParseXMLData() {
  * @todo Currently, an XLWorksheet object cannot be created from the const method. This should be fixed.
  */
 Impl::XLWorksheet* Impl::XLWorkbook::Worksheet(const std::string& sheetName) {
+
     if (m_sheets.find(sheetName) == m_sheets.end())
         throw std::range_error("Sheet \"" + sheetName + "\" does not exist");
 
@@ -116,6 +118,7 @@ Impl::XLWorksheet* Impl::XLWorkbook::Worksheet(const std::string& sheetName) {
  * @details
  */
 const Impl::XLWorksheet* Impl::XLWorkbook::Worksheet(const std::string& sheetName) const {
+
     if (m_sheets.find(sheetName) == m_sheets.end())
         throw std::range_error("Sheet does not exist");
 
@@ -130,6 +133,7 @@ const Impl::XLWorksheet* Impl::XLWorkbook::Worksheet(const std::string& sheetNam
  * @details
  */
 Impl::XLSheet* Impl::XLWorkbook::Sheet(unsigned int index) {
+
     return nullptr;
 }
 
@@ -137,6 +141,7 @@ Impl::XLSheet* Impl::XLWorkbook::Sheet(unsigned int index) {
  * @details
  */
 Impl::XLSheet* Impl::XLWorkbook::Sheet(const std::string& sheetName) {
+
     return nullptr;
 }
 
@@ -144,6 +149,7 @@ Impl::XLSheet* Impl::XLWorkbook::Sheet(const std::string& sheetName) {
  * @details
  */
 Impl::XLChartsheet* Impl::XLWorkbook::Chartsheet(const std::string& sheetName) {
+
     return nullptr;
 }
 
@@ -151,6 +157,7 @@ Impl::XLChartsheet* Impl::XLWorkbook::Chartsheet(const std::string& sheetName) {
  * @details
  */
 const Impl::XLChartsheet* Impl::XLWorkbook::Chartsheet(const std::string& sheetName) const {
+
     return nullptr;
 }
 
@@ -158,6 +165,7 @@ const Impl::XLChartsheet* Impl::XLWorkbook::Chartsheet(const std::string& sheetN
  * @details
  */
 bool Impl::XLWorkbook::HasSharedStrings() const {
+
     if (m_sharedStrings)
         return true;
     return false;
@@ -167,6 +175,7 @@ bool Impl::XLWorkbook::HasSharedStrings() const {
  * @details
  */
 Impl::XLSharedStrings* Impl::XLWorkbook::SharedStrings() const {
+
     return m_sharedStrings.get();
 }
 
@@ -174,6 +183,7 @@ Impl::XLSharedStrings* Impl::XLWorkbook::SharedStrings() const {
  * @details
  */
 void Impl::XLWorkbook::DeleteNamedRanges() {
+
     for (auto& child : m_definedNames->children())
         child.parent().remove_child(child);
     m_isModified = true;
@@ -206,6 +216,7 @@ void Impl::XLWorkbook::DeleteSheet(const std::string& sheetName) {
  */
 void Impl::XLWorkbook::AddWorksheet(const std::string& sheetName,
                                     unsigned int index) {
+
     CreateWorksheet(*InitiateWorksheet(sheetName,
                                        index),
                     XLWorksheet::NewSheetXmlData());
@@ -218,6 +229,7 @@ void Impl::XLWorkbook::AddWorksheet(const std::string& sheetName,
 void Impl::XLWorkbook::CloneWorksheet(const std::string& extName,
                                       const std::string& newName,
                                       unsigned int index) {
+
     CreateWorksheet(*InitiateWorksheet(newName,
                                        index),
                     Worksheet(extName)->GetXmlData());
@@ -228,6 +240,7 @@ void Impl::XLWorkbook::CloneWorksheet(const std::string& extName,
  */
 Impl::XLRelationshipItem* Impl::XLWorkbook::InitiateWorksheet(const std::string& sheetName,
                                                               unsigned int index) {
+
     std::string worksheetPath = "/xl/worksheets/sheet" + to_string(m_sheetId + 1) + ".xml";
 
     // Add content item to document
@@ -344,6 +357,7 @@ void Impl::XLWorkbook::SetIndexOfSheet(const std::string& sheetName,
  * @details
  */
 unsigned int Impl::XLWorkbook::SheetCount() const {
+
     return m_sheetCount;
 }
 
@@ -351,6 +365,7 @@ unsigned int Impl::XLWorkbook::SheetCount() const {
  * @details
  */
 unsigned int Impl::XLWorkbook::WorksheetCount() const {
+
     return m_worksheetCount;
 }
 
@@ -358,6 +373,7 @@ unsigned int Impl::XLWorkbook::WorksheetCount() const {
  * @details
  */
 unsigned int Impl::XLWorkbook::ChartsheetCount() const {
+
     return m_chartsheetCount;
 }
 
@@ -365,6 +381,7 @@ unsigned int Impl::XLWorkbook::ChartsheetCount() const {
  * @details
  */
 Impl::XLStyles* Impl::XLWorkbook::Styles() {
+
     return m_styles.get();
 }
 
@@ -388,7 +405,7 @@ bool Impl::XLWorkbook::WorksheetExists(const std::string& sheetName) const {
         return false;
     else {
 
-        bool           result = false;
+        bool result = false;
         for (const auto& iter : m_sheets) {
             if (iter.second->Name() == sheetName && iter.second->Type() == XLSheetType::WorkSheet) {
                 result = true;
@@ -405,7 +422,7 @@ bool Impl::XLWorkbook::WorksheetExists(const std::string& sheetName) const {
  */
 bool Impl::XLWorkbook::ChartsheetExists(const std::string& sheetName) const {
 
-    bool           result = false;
+    bool result = false;
     for (const auto& iter : m_sheets) {
         if (iter.second->Name() == sheetName && iter.second->Type() == XLSheetType::ChartSheet) {
             result = true;
@@ -420,6 +437,7 @@ bool Impl::XLWorkbook::ChartsheetExists(const std::string& sheetName) const {
  * @details
  */
 Impl::XLRelationships* Impl::XLWorkbook::Relationships() {
+
     return m_relationships.get();
 }
 
@@ -427,6 +445,7 @@ Impl::XLRelationships* Impl::XLWorkbook::Relationships() {
  * @details
  */
 const Impl::XLRelationships* Impl::XLWorkbook::Relationships() const {
+
     return m_relationships.get();
 }
 
@@ -434,6 +453,7 @@ const Impl::XLRelationships* Impl::XLWorkbook::Relationships() const {
  * @details
  */
 XMLNode Impl::XLWorkbook::SheetNode(const string& sheetName) {
+
     return m_sheetNodes.at(sheetName);
 }
 
@@ -441,6 +461,7 @@ XMLNode Impl::XLWorkbook::SheetNode(const string& sheetName) {
  * @details
  */
 void Impl::XLWorkbook::CreateSharedStrings(const XLRelationshipItem& item) {
+
     m_sharedStrings.reset(new XLSharedStrings(*ParentDocument(),
                                               "xl/" + item.Target()));
     m_childXmlDocuments[m_sharedStrings->FilePath()] = m_sharedStrings.get();
@@ -450,6 +471,7 @@ void Impl::XLWorkbook::CreateSharedStrings(const XLRelationshipItem& item) {
  * @details
  */
 void Impl::XLWorkbook::CreateStyles(const XLRelationshipItem& item) {
+
     m_styles.reset(new XLStyles(*ParentDocument(),
                                 "xl/" + item.Target()));
     m_childXmlDocuments[m_styles->FilePath()] = m_styles.get();
@@ -462,7 +484,7 @@ void Impl::XLWorkbook::CreateWorksheet(const XLRelationshipItem& item,
                                        const std::string& xmlData) {
 
     // Find the appropriate sheet node in the Workbook .xml file; get the name and id of the worksheet.
-    string   name;
+    string name;
     for (auto& node : m_sheetsNode->children()) {
         if (string(node.attribute("r:id").value()) == item.Id()) {
             name = node.attribute("name").value();

@@ -451,6 +451,7 @@ namespace OpenXLSX::Impl
     template <typename T, typename std::enable_if<std::is_integral<T>::value,
                                                   long long int>::type*>
     XLCellValue& XLCellValue::operator=(T numberValue) {
+
         Set(numberValue);
         return *this;
     }
@@ -466,6 +467,7 @@ namespace OpenXLSX::Impl
     template <typename T, typename std::enable_if<std::is_floating_point<T>::value,
                                                   long double>::type*>
     XLCellValue& XLCellValue::operator=(T numberValue) {
+
         Set(numberValue);
         return *this;
     }
@@ -480,6 +482,7 @@ namespace OpenXLSX::Impl
     template <typename T, typename std::enable_if<std::is_integral<T>::value,
                                                   long long int>::type*>
     void XLCellValue::Set(T numberValue) {
+
         if constexpr (std::is_same<T,
                                    bool>::value) { // if bool
             SetBoolean(numberValue);
@@ -498,6 +501,7 @@ namespace OpenXLSX::Impl
     template <typename T, typename std::enable_if<std::is_floating_point<T>::value,
                                                   long double>::type*>
     void XLCellValue::Set(T numberValue) {
+
         SetFloat(numberValue);
     }
 
@@ -511,6 +515,7 @@ namespace OpenXLSX::Impl
     template <typename T, typename std::enable_if<std::is_integral<T>::value,
                                                   long long int>::type*>
     T XLCellValue::Get() {
+
         if constexpr (std::is_same<T,
                                    bool>::value) {
             return GetBoolean();
@@ -529,6 +534,7 @@ namespace OpenXLSX::Impl
     template <typename T, typename std::enable_if<std::is_floating_point<T>::value,
                                                   long double>::type*>
     T XLCellValue::Get() {
+
         return GetFloat();
     }
 
@@ -543,6 +549,7 @@ namespace OpenXLSX::Impl
                                                                                                        bool>::value,
                                                   char*>::type*>
     T XLCellValue::Get() {
+
         return T(GetString());
     }
 }

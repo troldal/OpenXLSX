@@ -28,6 +28,7 @@ Impl::XLRelationshipItem::XLRelationshipItem(XMLNode node,
  * @details Returns the m_relationshipType member variable by value.
  */
 Impl::XLRelationshipType Impl::XLRelationshipItem::Type() const {
+
     return m_relationshipType;
 }
 
@@ -35,6 +36,7 @@ Impl::XLRelationshipType Impl::XLRelationshipItem::Type() const {
  * @details Returns the m_relationshipTarget member variable by value.
  */
 const std::string& Impl::XLRelationshipItem::Target() const {
+
     return m_relationshipTarget;
 }
 
@@ -42,6 +44,7 @@ const std::string& Impl::XLRelationshipItem::Target() const {
  * @details Returns the m_relationshipId member variable by value.
  */
 const std::string& Impl::XLRelationshipItem::Id() const {
+
     return m_relationshipId;
 }
 
@@ -72,6 +75,7 @@ Impl::XLRelationships::XLRelationships(XLDocument& parent,
           XLSpreadsheetElement(parent),
           m_relationships(),
           m_relationshipCount(0) {
+
     ParseXMLData(); // This will call the ParseXMLData method.
 }
 
@@ -79,6 +83,7 @@ Impl::XLRelationships::XLRelationships(XLDocument& parent,
  * @details Returns the XLRelationshipItem with the given ID, by looking it up in the m_relationships map.
  */
 const Impl::XLRelationshipItem* Impl::XLRelationships::RelationshipByID(const std::string& id) const {
+
     return Relationships()->at(id).get();
 }
 
@@ -86,6 +91,7 @@ const Impl::XLRelationshipItem* Impl::XLRelationships::RelationshipByID(const st
  * @details Returns the XLRelationshipItem with the given ID, by looking it up in the m_relationships map.
  */
 Impl::XLRelationshipItem* Impl::XLRelationships::RelationshipByID(const std::string& id) {
+
     return Relationships()->at(id).get();
 }
 
@@ -119,6 +125,7 @@ Impl::XLRelationshipItem* Impl::XLRelationships::RelationshipByTarget(const std:
  * @details Returns a const reference to the internal datastructure (std::map)
  */
 const Impl::XLRelationshipMap* Impl::XLRelationships::Relationships() const {
+
     return &m_relationships;
 }
 
@@ -127,6 +134,7 @@ const Impl::XLRelationshipMap* Impl::XLRelationships::Relationships() const {
  * @todo Consider if there is a more elegant way of doing this.
  */
 Impl::XLRelationshipMap* Impl::XLRelationships::relationshipsMutable() {
+
     return &m_relationships;
 }
 
@@ -147,6 +155,7 @@ void Impl::XLRelationships::DeleteRelationship(const std::string& id) {
  */
 Impl::XLRelationshipItem* Impl::XLRelationships::AddRelationship(XLRelationshipType type,
                                                                  const std::string& target) {
+
     string typeString;
 
     if (type == XLRelationshipType::ExtendedProperties)
@@ -199,7 +208,7 @@ Impl::XLRelationshipItem* Impl::XLRelationships::AddRelationship(XLRelationshipT
     string id = "rId" + to_string(m_relationshipCount);
 
     // Create new node in the .rels file
-    auto node                               = XmlDocument()->first_child().append_child("Relationship");
+    auto node = XmlDocument()->first_child().append_child("Relationship");
     node.append_attribute("Id").set_value(id.c_str());
     node.append_attribute("Type").set_value(typeString.c_str());
     node.append_attribute("Target").set_value(target.c_str());
@@ -213,7 +222,7 @@ Impl::XLRelationshipItem* Impl::XLRelationships::AddRelationship(XLRelationshipT
                                                                 type,
                                                                 target,
                                                                 id));
-    XLRelationshipItem             * result = rShip.get();
+    XLRelationshipItem* result = rShip.get();
     relationshipsMutable()->insert({id,
                                     move(rShip)});
     SetModified();
@@ -228,6 +237,7 @@ Impl::XLRelationshipItem* Impl::XLRelationships::AddRelationship(XLRelationshipT
  * to the current XLRelationship object.
  */
 bool Impl::XLRelationships::ParseXMLData() {
+
     for (auto& theNode : XmlDocument()->first_child().children()) {
         XLRelationshipType type;
         string             typeString = theNode.attribute("Type").value();
@@ -292,6 +302,7 @@ bool Impl::XLRelationships::ParseXMLData() {
 }
 
 bool Impl::XLRelationships::TargetExists(const std::string& target) const {
+
     if (RelationshipByTarget(target))
         return true;
     else
@@ -299,6 +310,7 @@ bool Impl::XLRelationships::TargetExists(const std::string& target) const {
 }
 
 bool Impl::XLRelationships::IdExists(const std::string& id) const {
+
     if (RelationshipByID(id))
         return true;
     else

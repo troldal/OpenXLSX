@@ -25,6 +25,7 @@ Impl::XLCellIterator::XLCellIterator(XLCellRange& range,
           m_currentColumn(1),
           m_numRows(1),
           m_numColumns(1) {
+
     m_currentRow    = 1;
     m_currentColumn = 1;
 
@@ -58,6 +59,7 @@ const Impl::XLCellIterator& Impl::XLCellIterator::operator++() {
  * @details Checks whether two iterator objects are pointing to the same object.
  */
 bool Impl::XLCellIterator::operator!=(const XLCellIterator& other) const {
+
     return (this->m_cell != other.m_cell);
 }
 
@@ -65,6 +67,7 @@ bool Impl::XLCellIterator::operator!=(const XLCellIterator& other) const {
  * @details Dereferences the XLCell object to get the value.
  */
 Impl::XLCell& Impl::XLCellIterator::operator*() const {
+
     return *m_cell;
 }
 
@@ -79,6 +82,7 @@ Impl::XLCellIteratorConst::XLCellIteratorConst(const XLCellRange& range,
           m_currentColumn(1),
           m_numRows(1),
           m_numColumns(1) {
+
     m_currentRow    = 1;
     m_currentColumn = 1;
 
@@ -112,6 +116,7 @@ const Impl::XLCellIteratorConst& Impl::XLCellIteratorConst::operator++() {
  * @details
  */
 bool Impl::XLCellIteratorConst::operator!=(const XLCellIteratorConst& other) const {
+
     return (this->m_cell != other.m_cell);
 }
 
@@ -119,5 +124,6 @@ bool Impl::XLCellIteratorConst::operator!=(const XLCellIteratorConst& other) con
  * @details
  */
 const Impl::XLCell& Impl::XLCellIteratorConst::operator*() const {
+
     return *m_cell;
 }

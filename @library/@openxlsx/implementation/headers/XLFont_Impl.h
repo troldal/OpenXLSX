@@ -110,17 +110,17 @@ namespace OpenXLSX::Impl
 
         std::unique_ptr<XMLNode> m_fontNode;
 
-        std::string  m_name;
+        std::string m_name;
 
         unsigned int m_size;
 
-        XLColor      m_color;
+        XLColor m_color;
 
-        bool         m_bold;
+        bool m_bold;
 
-        bool         m_italics;
+        bool m_italics;
 
-        bool         m_underline;
+        bool m_underline;
 
         std::string m_theme;
 

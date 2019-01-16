@@ -20,6 +20,7 @@ Impl::XLSpreadsheetElement::XLSpreadsheetElement(XLDocument& parent)
  * @details
  */
 Impl::XLWorkbook* Impl::XLSpreadsheetElement::ParentWorkbook() {
+
     return const_cast<XLWorkbook*>(static_cast<const XLSpreadsheetElement*>(this)->ParentWorkbook());
 }
 
@@ -27,6 +28,7 @@ Impl::XLWorkbook* Impl::XLSpreadsheetElement::ParentWorkbook() {
  * @details
  */
 const Impl::XLWorkbook* Impl::XLSpreadsheetElement::ParentWorkbook() const {
+
     return m_workbook;
 }
 
@@ -34,6 +36,7 @@ const Impl::XLWorkbook* Impl::XLSpreadsheetElement::ParentWorkbook() const {
  * @details
  */
 Impl::XLDocument* Impl::XLSpreadsheetElement::ParentDocument() {
+
     return const_cast<XLDocument*>(static_cast<const XLSpreadsheetElement*>(this)->ParentDocument());
 }
 
@@ -41,5 +44,6 @@ Impl::XLDocument* Impl::XLSpreadsheetElement::ParentDocument() {
  * @details
  */
 const Impl::XLDocument* Impl::XLSpreadsheetElement::ParentDocument() const {
+
     return m_document;
 }

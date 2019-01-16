@@ -45,6 +45,7 @@ Impl::XLColumn::XLColumn(XLWorksheet& parent,
  * @details
  */
 float Impl::XLColumn::Width() const {
+
     return m_width;
 }
 
@@ -52,6 +53,7 @@ float Impl::XLColumn::Width() const {
  * @details
  */
 void Impl::XLColumn::SetWidth(float width) {
+
     m_width = width;
 
     // Set the 'Width' attribute for the Cell. If it does not exist, create it.
@@ -73,6 +75,7 @@ void Impl::XLColumn::SetWidth(float width) {
  * @details
  */
 bool Impl::XLColumn::Ishidden() const {
+
     return m_hidden;
 }
 
@@ -80,6 +83,7 @@ bool Impl::XLColumn::Ishidden() const {
  * @details
  */
 void Impl::XLColumn::SetHidden(bool state) {
+
     m_hidden = state;
 
     std::string hiddenstate;
@@ -100,5 +104,6 @@ void Impl::XLColumn::SetHidden(bool state) {
  * @details
  */
 XMLNode Impl::XLColumn::ColumnNode() {
+
     return *m_columnNode;
 }

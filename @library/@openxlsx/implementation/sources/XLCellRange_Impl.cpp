@@ -101,7 +101,7 @@ Impl::XLCell* Impl::XLCellRange::Cell(unsigned long row,
 const Impl::XLCell* Impl::XLCellRange::Cell(unsigned long row,
                                             unsigned int column) const {
 
-    const XLCell    * result = nullptr;
+    const XLCell* result = nullptr;
     XLCellReference cellReference;
 
     // Check if the coordinates are inside the Range.
@@ -124,6 +124,7 @@ const Impl::XLCell* Impl::XLCellRange::Cell(unsigned long row,
  * @details Returns the m_rows property.
  */
 unsigned long Impl::XLCellRange::NumRows() const {
+
     if (!m_transpose)
         return m_rows;
     else
@@ -134,6 +135,7 @@ unsigned long Impl::XLCellRange::NumRows() const {
  * @details Returns the m_columns property.
  */
 unsigned int Impl::XLCellRange::NumColumns() const {
+
     if (!m_transpose)
         return m_columns;
     else
@@ -147,6 +149,7 @@ unsigned int Impl::XLCellRange::NumColumns() const {
  * normal (non-transposed) copy operation.
  */
 void Impl::XLCellRange::Transpose(bool state) const {
+
     m_transpose = state;
 }
 
@@ -164,6 +167,7 @@ Impl::XLCellIterator Impl::XLCellRange::begin() {
  * @details
  */
 Impl::XLCellIteratorConst Impl::XLCellRange::begin() const {
+
     return XLCellIteratorConst(*this,
                                Cell(1,
                                     1));
@@ -184,6 +188,7 @@ Impl::XLCellIterator Impl::XLCellRange::end() {
  * @return 
  */
 Impl::XLCellIteratorConst Impl::XLCellRange::end() const {
+
     return XLCellIteratorConst(*this,
                                nullptr);
 }

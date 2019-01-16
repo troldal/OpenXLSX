@@ -6,7 +6,6 @@
 #include "XLCellRange_Impl.h"
 #include "XLTokenizer_Impl.h"
 #include <sstream>
-#include <algorithm>
 #include <pugixml.hpp>
 
 using namespace std;
@@ -113,6 +112,7 @@ bool Impl::XLWorksheet::ParseXMLData() {
  * handled automatically by the clone function.
  */
 Impl::XLWorksheet* Impl::XLWorksheet::Clone(const std::string& newName) {
+
     ParentWorkbook()->CloneWorksheet(Name(),
                                      newName);
     return ParentWorkbook()->Worksheet(newName);
@@ -123,6 +123,7 @@ Impl::XLWorksheet* Impl::XLWorksheet::Clone(const std::string& newName) {
  * cell(rowNumber, columnNumber) function.
  */
 Impl::XLCell* Impl::XLWorksheet::Cell(const XLCellReference& ref) {
+
     return Cell(ref.Row(),
                 ref.Column());
 }
@@ -131,6 +132,7 @@ Impl::XLCell* Impl::XLWorksheet::Cell(const XLCellReference& ref) {
  * @details
  */
 const Impl::XLCell* Impl::XLWorksheet::Cell(const XLCellReference& ref) const {
+
     return Cell(ref.Row(),
                 ref.Column());
 }
@@ -140,6 +142,7 @@ const Impl::XLCell* Impl::XLWorksheet::Cell(const XLCellReference& ref) const {
  * cell(rowNumber, columnNumber) function.
  */
 Impl::XLCell* Impl::XLWorksheet::Cell(const std::string& address) {
+
     return Cell(XLCellReference(address));
 }
 
@@ -147,6 +150,7 @@ Impl::XLCell* Impl::XLWorksheet::Cell(const std::string& address) {
  * @details
  */
 const Impl::XLCell* Impl::XLWorksheet::Cell(const std::string& address) const {
+
     return Cell(XLCellReference(address));
 }
 
@@ -177,6 +181,7 @@ Impl::XLCell* Impl::XLWorksheet::Cell(unsigned long rowNumber,
  */
 const Impl::XLCell* Impl::XLWorksheet::Cell(unsigned long rowNumber,
                                             unsigned int columnNumber) const {
+
     if (rowNumber > RowCount())
         throw XLException("Row " + to_string(rowNumber) + " does not exist!");
     else
@@ -188,6 +193,7 @@ const Impl::XLCell* Impl::XLWorksheet::Cell(unsigned long rowNumber,
  * that calls a different function overload.
  */
 Impl::XLCellRange Impl::XLWorksheet::Range() {
+
     return Range(FirstCell(),
                  LastCell());
 }
@@ -198,6 +204,7 @@ Impl::XLCellRange Impl::XLWorksheet::Range() {
  * @todo The returned object is not const.
  */
 const Impl::XLCellRange Impl::XLWorksheet::Range() const {
+
     return Range(FirstCell(),
                  LastCell());
 }
@@ -261,6 +268,7 @@ Impl::XLRow* Impl::XLWorksheet::Row(unsigned long rowNumber) {
  * @details
  */
 const Impl::XLRow* Impl::XLWorksheet::Row(unsigned long rowNumber) const {
+
     if (rowNumber >= m_rows.size())
         throw XLException("Row number " + to_string(rowNumber) + " does not exist");
     return &Rows()->at(rowNumber - 1); // vector is 0-based, Excel is 1-based; therefore rowNumber-1.
@@ -296,10 +304,10 @@ Impl::XLColumn* Impl::XLWorksheet::Column(unsigned int columnNumber) {
         }
         else {
             //Otherwise, search the Column nodes vector for the next node and insert there.
-            auto    index = columnNumber - 1; // vector is 0-based, Excel is 1-based; therefore columnNumber-1.
+            auto index = columnNumber - 1; // vector is 0-based, Excel is 1-based; therefore columnNumber-1.
             XLColumn* col = &m_columns.at(index);
             while (col == nullptr)
-                col = &m_columns.at(index++);
+                col    = &m_columns.at(index++);
             nodeColumn = ColumnsNode().insert_child_before("col",
                                                            col->ColumnNode());
         }
@@ -329,6 +337,7 @@ Impl::XLColumn* Impl::XLWorksheet::Column(unsigned int columnNumber) {
  * @details
  */
 const Impl::XLColumn* Impl::XLWorksheet::Column(unsigned int columnNumber) const {
+
     if (columnNumber >= m_columns.size())
         throw XLException("Column number " + to_string(columnNumber) + " does not exist");
     return &m_columns.at(columnNumber - 1);
@@ -338,6 +347,7 @@ const Impl::XLColumn* Impl::XLWorksheet::Column(unsigned int columnNumber) const
  * @details
  */
 Impl::XLRows* Impl::XLWorksheet::Rows() {
+
     return &m_rows;
 }
 
@@ -346,6 +356,7 @@ Impl::XLRows* Impl::XLWorksheet::Rows() {
  * @return
  */
 const Impl::XLRows* Impl::XLWorksheet::Rows() const {
+
     return &m_rows;
 }
 
@@ -353,6 +364,7 @@ const Impl::XLRows* Impl::XLWorksheet::Rows() const {
  * @details
  */
 Impl::XLColumns* Impl::XLWorksheet::Columns() {
+
     return &m_columns;
 }
 
@@ -361,6 +373,7 @@ Impl::XLColumns* Impl::XLWorksheet::Columns() {
  * @return
  */
 const Impl::XLColumns* Impl::XLWorksheet::Columns() const {
+
     return &m_columns;
 }
 
@@ -368,6 +381,7 @@ const Impl::XLColumns* Impl::XLWorksheet::Columns() const {
  * @details
  */
 XMLNode Impl::XLWorksheet::DimensionNode() {
+
     if (!m_dimensionNode)
         throw XLException("The <dimension> node does not exist in " + FilePath());
     return *m_dimensionNode;
@@ -378,6 +392,7 @@ XMLNode Impl::XLWorksheet::DimensionNode() {
  * @todo Instead of throwing an exception, consider creating a dimension node.
  */
 const XMLNode Impl::XLWorksheet::DimensionNode() const {
+
     if (!m_dimensionNode)
         throw XLException("The <dimension> node does not exist in " + FilePath());
     return *m_dimensionNode;
@@ -387,6 +402,7 @@ const XMLNode Impl::XLWorksheet::DimensionNode() const {
  * @details
  */
 void Impl::XLWorksheet::InitDimensionNode() {
+
     *m_dimensionNode = XmlDocument()->first_child().child("dimension");
 }
 
@@ -394,6 +410,7 @@ void Impl::XLWorksheet::InitDimensionNode() {
  * @details
  */
 XMLNode Impl::XLWorksheet::SheetDataNode() {
+
     if (!m_sheetDataNode)
         throw XLException("The <sheetData> node does not exist in " + FilePath());
     return *m_sheetDataNode;
@@ -403,6 +420,7 @@ XMLNode Impl::XLWorksheet::SheetDataNode() {
  * @details
  */
 const XMLNode Impl::XLWorksheet::SheetDataNode() const {
+
     if (!m_sheetDataNode)
         throw XLException("The <sheetData> node does not exist in " + FilePath());
     return *m_sheetDataNode;
@@ -412,6 +430,7 @@ const XMLNode Impl::XLWorksheet::SheetDataNode() const {
  * @details
  */
 void Impl::XLWorksheet::InitSheetDataNode() {
+
     *m_sheetDataNode = XmlDocument()->first_child().child("sheetData");
 }
 
@@ -422,6 +441,7 @@ void Impl::XLWorksheet::InitSheetDataNode() {
  * @throw An XLException object with a description of the error.
  */
 XMLNode Impl::XLWorksheet::ColumnsNode() {
+
     if (!m_columnsNode)
         throw XLException("The <cols> node does not exist in " + FilePath());
     return *m_columnsNode;
@@ -434,6 +454,7 @@ XMLNode Impl::XLWorksheet::ColumnsNode() {
  * @throw An XLException object with a description of the error.
  */
 const XMLNode Impl::XLWorksheet::ColumnsNode() const {
+
     if (!m_columnsNode)
         throw XLException("The <cols> node does not exist in " + FilePath());
     return *m_columnsNode;
@@ -444,6 +465,7 @@ const XMLNode Impl::XLWorksheet::ColumnsNode() const {
  * @note This member function is only intended to be used during object initialization.
  */
 void Impl::XLWorksheet::InitColumnsNode() {
+
     *m_columnsNode = XmlDocument()->first_child().child("cols");
 }
 
@@ -454,6 +476,7 @@ void Impl::XLWorksheet::InitColumnsNode() {
  * @exception Throws an XLException if the sheetViews node does not exist in underlying XML file.
  */
 XMLNode Impl::XLWorksheet::SheetViewsNode() {
+
     if (!m_sheetViewsNode)
         throw XLException("The <sheetViews> node does not exist in " + FilePath());
     return *m_sheetViewsNode;
@@ -467,6 +490,7 @@ XMLNode Impl::XLWorksheet::SheetViewsNode() {
  * @todo Instead of throwing an exception, consider creating a sheetViews node.
  */
 const XMLNode Impl::XLWorksheet::SheetViewsNode() const {
+
     if (!m_sheetViewsNode)
         throw XLException("The <sheetViews> node does not exist in " + FilePath());
     return *m_sheetViewsNode;
@@ -492,6 +516,7 @@ void Impl::XLWorksheet::InitSheetViewsNode() {
  * @post The object must remain unmodified.
  */
 Impl::XLCellReference Impl::XLWorksheet::FirstCell() const noexcept {
+
     return m_firstCell;
 }
 
@@ -501,6 +526,7 @@ Impl::XLCellReference Impl::XLWorksheet::FirstCell() const noexcept {
  * @post The object must remain unmodified.
  */
 Impl::XLCellReference Impl::XLWorksheet::LastCell() const noexcept {
+
     return m_lastCell;
 }
 
@@ -512,6 +538,7 @@ Impl::XLCellReference Impl::XLWorksheet::LastCell() const noexcept {
  * @post The value of the m_lastCell member variable is equal to that of the cellRef parameter.
  */
 void Impl::XLWorksheet::SetFirstCell(const XLCellReference& cellRef) noexcept {
+
     m_firstCell = cellRef;
 }
 
@@ -522,6 +549,7 @@ void Impl::XLWorksheet::SetFirstCell(const XLCellReference& cellRef) noexcept {
  * @post The value of the m_lastCell member variable is equal to that of the cellRef parameter.
  */
 void Impl::XLWorksheet::SetLastCell(const XLCellReference& cellRef) noexcept {
+
     m_lastCell = cellRef;
 }
 
@@ -531,6 +559,7 @@ void Impl::XLWorksheet::SetLastCell(const XLCellReference& cellRef) noexcept {
  * @post Object must remain unmodified.
  */
 unsigned int Impl::XLWorksheet::ColumnCount() const noexcept {
+
     return LastCell().Column();
 }
 
@@ -540,6 +569,7 @@ unsigned int Impl::XLWorksheet::ColumnCount() const noexcept {
  * @post Object must remain unmodified.
  */
 unsigned long Impl::XLWorksheet::RowCount() const noexcept {
+
     return LastCell().Row();
 }
 
@@ -547,6 +577,7 @@ unsigned long Impl::XLWorksheet::RowCount() const noexcept {
  * @details
  */
 std::string Impl::XLWorksheet::NewSheetXmlData() {
+
     return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
            "<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\""
            " xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\""
@@ -568,6 +599,7 @@ std::string Impl::XLWorksheet::NewSheetXmlData() {
 void Impl::XLWorksheet::Export(const std::string& fileName,
                                char decimal,
                                char delimiter) {
+
     ofstream file(fileName);
     string   token;
     char     oldDecimal;
@@ -598,6 +630,7 @@ void Impl::XLWorksheet::Export(const std::string& fileName,
  */
 void Impl::XLWorksheet::Import(const std::string& fileName,
                                const string& delimiter) {
+
     ifstream      file(fileName);
     string        line;
     unsigned long row = 1;
@@ -607,7 +640,7 @@ void Impl::XLWorksheet::Import(const std::string& fileName,
                    line)) {
         tokenizer.SetString(line);
         unsigned int column = 1;
-        for (auto    & iter : tokenizer.Split()) {
+        for (auto& iter : tokenizer.Split()) {
             if (iter.IsInteger())
                 Cell(row,
                      column)->Value().Set(iter.AsInteger());
@@ -634,6 +667,7 @@ void Impl::XLWorksheet::Import(const std::string& fileName,
 }
 
 string Impl::XLWorksheet::GetXmlData() const {
+
     ostringstream ostr;
     m_xmlDocument->save(ostr);
     return ostr.str();

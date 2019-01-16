@@ -41,6 +41,7 @@ Impl::XLDocument::XLDocument(const std::string& docPath)
           m_xmlFiles(),
           m_archive(nullptr),
           m_xmlData() {
+
     OpenDocument(docPath);
 }
 
@@ -48,6 +49,7 @@ Impl::XLDocument::XLDocument(const std::string& docPath)
  * @details The destructor calls the closeDocument method before the object is destroyed.
  */
 Impl::XLDocument::~XLDocument() {
+
     CloseDocument();
 }
 
@@ -83,6 +85,7 @@ void Impl::XLDocument::OpenDocument(const string& fileName) {
  * @details Create a new document. This is done by saving the data in XLTemplate.h in binary format.
  */
 void Impl::XLDocument::CreateDocument(const std::string& fileName) {
+
     std::ofstream outfile(fileName,
                           std::ios::binary);
     outfile.write(reinterpret_cast<char const*>(excelTemplate),
@@ -97,6 +100,7 @@ void Impl::XLDocument::CreateDocument(const std::string& fileName) {
  * @todo Consider deleting all the internal objects as well.
  */
 void Impl::XLDocument::CloseDocument() {
+
     if (m_archive)
         m_archive->discard();
     m_archive.reset(nullptr);
@@ -114,6 +118,7 @@ void Impl::XLDocument::CloseDocument() {
  * @details Save the document with the same name. The existing file will be overwritten.
  */
 bool Impl::XLDocument::SaveDocument() {
+
     return SaveDocumentAs(m_filePath);
 }
 
@@ -158,6 +163,7 @@ bool Impl::XLDocument::SaveDocumentAs(const string& fileName) {
  * @todo Currently, this method returns the full path, which is not the intention.
  */
 std::string Impl::XLDocument::DocumentName() const {
+
     return m_filePath;
 }
 
@@ -165,6 +171,7 @@ std::string Impl::XLDocument::DocumentName() const {
  * @details
  */
 std::string Impl::XLDocument::DocumentPath() const {
+
     return m_filePath;
 }
 
@@ -172,6 +179,7 @@ std::string Impl::XLDocument::DocumentPath() const {
  * @details Get a pointer to the underlying XLWorkbook object.
  */
 Impl::XLWorkbook* Impl::XLDocument::Workbook() {
+
     return m_workbook.get();
 }
 
@@ -179,6 +187,7 @@ Impl::XLWorkbook* Impl::XLDocument::Workbook() {
  * @details Get a const pointer to the underlying XLWorkbook object.
  */
 const Impl::XLWorkbook* Impl::XLDocument::Workbook() const {
+
     return m_workbook.get();
 }
 
@@ -186,6 +195,7 @@ const Impl::XLWorkbook* Impl::XLDocument::Workbook() const {
  * @details Get the value for a property.
  */
 std::string Impl::XLDocument::GetProperty(XLProperty theProperty) const {
+
     switch (theProperty) {
         case XLProperty::Application :
             return m_docAppProperties->Property("Application").text().get();
@@ -257,6 +267,7 @@ std::string Impl::XLDocument::GetProperty(XLProperty theProperty) const {
  */
 void Impl::XLDocument::SetProperty(XLProperty theProperty,
                                    const string& value) {
+
     switch (theProperty) {
         case XLProperty::Application :
             m_docAppProperties->SetProperty("Application",
@@ -365,6 +376,7 @@ void Impl::XLDocument::SetProperty(XLProperty theProperty,
  */
 void
 Impl::XLDocument::DeleteProperty(XLProperty theProperty) {
+
     SetProperty(theProperty,
                 "");
 }
@@ -373,6 +385,7 @@ Impl::XLDocument::DeleteProperty(XLProperty theProperty) {
  * @details Get a pointer to the sheet node in the app.xml file.
  */
 XMLNode Impl::XLDocument::SheetNameNode(const std::string& sheetName) {
+
     return m_docAppProperties->SheetNameNode(sheetName);
 }
 
@@ -380,6 +393,7 @@ XMLNode Impl::XLDocument::SheetNameNode(const std::string& sheetName) {
  * @details Get a pointer to the content item in the [Content_Types].xml file.
  */
 Impl::XLContentItem* Impl::XLDocument::ContentItem(const std::string& path) {
+
     return m_contentTypes->ContentItem(path);
 }
 
@@ -399,6 +413,7 @@ Impl::XLContentItem* Impl::XLDocument::AddContentItem(const std::string& content
  */
 void Impl::XLDocument::AddOrReplaceXMLFile(const std::string& path,
                                            const std::string& content) {
+
     m_xmlData.push_back(content);
     m_archive->addData(path,
                        m_xmlData.back().data(),
@@ -409,6 +424,7 @@ void Impl::XLDocument::AddOrReplaceXMLFile(const std::string& path,
  * @details
  */
 std::string Impl::XLDocument::GetXMLFile(const std::string& path) {
+
     return m_archive->getEntry(path).readAsText();
 }
 
@@ -416,6 +432,7 @@ std::string Impl::XLDocument::GetXMLFile(const std::string& path) {
  * @details
  */
 void Impl::XLDocument::DeleteXMLFile(const std::string& path) {
+
     m_archive->deleteEntry(path);
 }
 
@@ -423,6 +440,7 @@ void Impl::XLDocument::DeleteXMLFile(const std::string& path) {
  * @details Get a pointer to the XLAppProperties object
  */
 Impl::XLAppProperties* Impl::XLDocument::AppProperties() {
+
     return m_docAppProperties.get();
 }
 
@@ -430,6 +448,7 @@ Impl::XLAppProperties* Impl::XLDocument::AppProperties() {
  * @details Get a pointer to the (const) XLAppProperties object
  */
 const Impl::XLAppProperties* Impl::XLDocument::AppProperties() const {
+
     return m_docAppProperties.get();
 }
 
@@ -437,6 +456,7 @@ const Impl::XLAppProperties* Impl::XLDocument::AppProperties() const {
  * @details Get a pointer to the XLCoreProperties object
  */
 Impl::XLCoreProperties* Impl::XLDocument::CoreProperties() {
+
     return m_docCoreProperties.get();
 }
 
@@ -444,5 +464,6 @@ Impl::XLCoreProperties* Impl::XLDocument::CoreProperties() {
  * @details Get a pointer to the (const) XLCoreProperties object
  */
 const Impl::XLCoreProperties* Impl::XLDocument::CoreProperties() const {
+
     return m_docCoreProperties.get();
 }
