@@ -66,8 +66,7 @@ namespace OpenXLSX::Impl
     /**
      * @brief
      */
-    using XLSheetMap = std::map<std::string,
-                                std::unique_ptr<XLSheet>>;
+    using XLSheetMap = std::map<std::string, std::unique_ptr<XLSheet>>;
 
 //======================================================================================================================
 //========== XLWorkbook Class ==========================================================================================
@@ -380,11 +379,11 @@ namespace OpenXLSX::Impl
 
         std::unique_ptr<XMLNode> m_sheetsNode; /**< The parent node for all the sheet nodes (worksheets as well as chartsheets). */
 
-        std::map<std::string,
-                 XMLNode>     m_sheetNodes; /**< Data structure for alle the sheetnodes in workbook.xml  */
-        mutable XLSheetMap    m_sheets; /**< Data structure for all sheets. */
-        std::map<std::string,
-                 std::string> m_sheetPaths; /**<  */
+        std::map<std::string, XMLNode>          m_sheetNodes; /**< Data structure for alle the sheetnodes in workbook.xml  */
+        mutable XLSheetMap                      m_sheets; /**< Data structure for all sheets. */
+        mutable std::map<std::string, XLSheet*> m_worksheets; /**< Data structure for  worksheets. */
+        mutable std::map<std::string, XLSheet*> m_chartsheets; /**< Data structure for chartsheets. */
+        std::map<std::string, std::string>      m_sheetPaths; /**<  */
 
         int m_sheetId; /**< Counter to use to create ID for new sheet */
 
