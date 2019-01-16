@@ -146,7 +146,7 @@ namespace OpenXLSX
          * @brief
          * @param sheetName
          */
-        //void DeleteSheet(const std::string &sheetName) { m_workbook->DeleteSheet(sheetName); }
+        void DeleteSheet(const std::string &sheetName);
 
         /**
          * @brief Add a new worksheet to the workbook, with the given name and index.

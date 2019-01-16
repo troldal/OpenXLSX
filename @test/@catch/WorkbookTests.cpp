@@ -69,4 +69,11 @@ TEST_CASE( "Testing of XLWorkbook objects") {
         REQUIRE(wbk.IndexOfSheet("MyClonedSheet") == 1);
     }
 
+    SECTION( "DeleteSheet" ) {
+        REQUIRE(wbk.SheetExists("MySheet") == true);
+        wbk.DeleteSheet("MySheet");
+        doc.SaveDocument();
+        REQUIRE(wbk.SheetExists("MySheet") == false);
+    }
+
 }

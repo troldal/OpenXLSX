@@ -11,6 +11,11 @@ XLWorkbook::XLWorkbook(Impl::XLWorkbook& workbook)
         : m_workbook(&workbook) {
 }
 
+void XLWorkbook::DeleteSheet(const std::string& sheetName) {
+
+    m_workbook->DeleteSheet(sheetName);
+}
+
 void XLWorkbook::AddWorksheet(const std::string& sheetName,
                               unsigned int index)  {
 

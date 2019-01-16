@@ -191,6 +191,7 @@ void Impl::XLWorkbook::DeleteNamedRanges() {
 
 /**
  * @details
+ * @todo Throw exception if there is only one worksheet in the workbook.
  */
 void Impl::XLWorkbook::DeleteSheet(const std::string& sheetName) {
 
