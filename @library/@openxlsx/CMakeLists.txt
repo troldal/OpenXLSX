@@ -97,13 +97,15 @@ set(OPENXLSX_INTERFACE_HEADERS
         ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLDocument.h
         ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLWorkbook.h
         ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLSheet.h
-        ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLWorksheet.h)
+        ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLWorksheet.h
+        ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLCellReference.h)
 
 set(OPENXLSX_INTERFACE_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/interface/sources/XLDocument.cpp
         ${CMAKE_CURRENT_LIST_DIR}/interface/sources/XLWorkbook.cpp
         ${CMAKE_CURRENT_LIST_DIR}/interface/sources/XLSheet.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/interface/sources/XLWorksheet.cpp)
+        ${CMAKE_CURRENT_LIST_DIR}/interface/sources/XLWorksheet.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/interface/sources/XLCellReference.cpp)
 
 #=======================================================================================================================
 # Build OpenXLSX library
