@@ -189,6 +189,7 @@ namespace OpenXLSX::Impl
          * @brief Add a new worksheet to the workbook, with the given name and index.
          * @param sheetName The name of the worksheet.
          * @param index The index at which the worksheet should be inserted.
+         * @bug Method does not check that another sheet with same name exists.
          */
         void AddWorksheet(const std::string& sheetName,
                           unsigned int index = 0);
@@ -361,6 +362,8 @@ namespace OpenXLSX::Impl
          */
         XLRelationshipItem* InitiateWorksheet(const std::string& sheetName,
                                               unsigned int index);
+
+        void UpdateSheetNames();
 
 
 //----------------------------------------------------------------------------------------------------------------------

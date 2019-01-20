@@ -48,6 +48,9 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 #include <string>
 
+#include "XLSheet.h"
+#include "XLWorksheet.h"
+
 namespace OpenXLSX
 {
     namespace Impl
@@ -103,7 +106,7 @@ namespace OpenXLSX
          * @todo This method is currently unimplemented.
          * @todo What should happen if the index is invalid?
          */
-        //XLSheet Sheet(unsigned int index) { return XLSheet(*m_workbook->Sheet(index)); }
+        XLSheet Sheet(unsigned int index);
 
         /**
          * @brief Get the sheet (worksheet or chartsheet) with the given name.
@@ -119,7 +122,7 @@ namespace OpenXLSX
          * @param sheetName
          * @return
          */
-        //XLWorksheet Worksheet(const std::string &sheetName) { return XLWorksheet(*m_workbook->Worksheet(sheetName)); }
+        XLWorksheet Worksheet(const std::string &sheetName);
 
         /**
          * @brief

@@ -10,7 +10,7 @@ using namespace OpenXLSX;
 
 TEST_CASE( "Testing of XLWorkbook objects") {
     XLDocument doc;
-    doc.OpenDocument("./WorkbookTests.xlsx");
+    doc.OpenDocument("./TestWorkbook.xlsx");
     auto wbk = doc.Workbook();
 
     SECTION( "SheetCount" ) {

@@ -296,10 +296,9 @@ namespace OpenXLSX::Impl
 
     private:
 
-        std::unique_ptr<XMLAttribute> m_sheetCountAttribute; /**< */
-        std::unique_ptr<XMLNode>      m_sheetNamesParent; /**< */
-        std::map<std::string,
-                 XMLNode>             m_sheetNameNodes; /**< */
+        std::unique_ptr<XMLAttribute>  m_sheetCountAttribute; /**< */
+        std::unique_ptr<XMLNode>       m_sheetNamesParent; /**< */
+        std::map<std::string, XMLNode> m_sheetNameNodes; /**< */
 
         std::unique_ptr<XMLAttribute>   m_headingPairsSize; /**< */
         std::unique_ptr<XMLNode>        m_headingPairsCategoryParent; /**< */

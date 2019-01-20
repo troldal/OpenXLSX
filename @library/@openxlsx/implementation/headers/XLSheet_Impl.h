@@ -46,6 +46,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_IMPL_XLABSTRACTSHEET_H
 #define OPENXLSX_IMPL_XLABSTRACTSHEET_H
 
+#include "XLProperty.h"
 #include "XLAbstractXMLFile_Impl.h"
 #include "XLSpreadsheetElement_Impl.h"
 
@@ -56,14 +57,14 @@ namespace OpenXLSX::Impl
     class XLWorkbook;
 
 
-//======================================================================================================================
+/*//======================================================================================================================
 //========== XLSheetType Enum ==========================================================================================
 //======================================================================================================================
 
-    /**
+    *//**
      * @brief The XLSheetType class is an enumeration of the available sheet types, e.g. Worksheet (ordinary
      * spreadsheets), and Chartsheet (sheets with only a chart).
-     */
+     *//*
     enum class XLSheetType
     {
         WorkSheet, ChartSheet, DialogSheet, MacroSheet
@@ -74,13 +75,13 @@ namespace OpenXLSX::Impl
 //========== XLSheetState Enum =========================================================================================
 //======================================================================================================================
 
-    /**
+    *//**
      * @brief The XLSheetState is an enumeration of the possible (visibility) states, e.g. Visible or Hidden.
-     */
+     *//*
     enum class XLSheetState
     {
         Visible, Hidden, VeryHidden
-    };
+    };*/
 
 
 //======================================================================================================================
@@ -162,6 +163,8 @@ namespace OpenXLSX::Impl
         /**
          * @brief Method for setting the state of the sheet.
          * @param state An XLSheetState enum object with the new state.
+         * @bug For some reason, this method doesn't work. The data is written correctly to the xml file, but the sheet
+         * is not hidden when opening the file in Excel.
          */
         virtual void SetState(XLSheetState state);
 

@@ -126,6 +126,10 @@ void Impl::XLAppProperties::SetSheetName(const string& oldTitle,
     for (auto& iter : m_sheetNameNodes) {
         if (iter.second.value() == oldTitle) {
             iter.second.set_value(newTitle.c_str());
+
+            //m_sheetNameNodes[newTitle] = iter.second;
+            //m_sheetNameNodes.erase(oldTitle);
+
             SetModified();
             return;
         }
@@ -137,7 +141,13 @@ void Impl::XLAppProperties::SetSheetName(const string& oldTitle,
  */
 XMLNode Impl::XLAppProperties::SheetNameNode(const string& title) {
 
-    return m_sheetNameNodes.at(title);
+    for (auto& sheet : m_sheetNamesParent->children()) {
+        if (string_view(sheet.child_value()) == title) {
+            return sheet;
+        }
+    }
+
+    return XMLNode();
 }
 
 /**

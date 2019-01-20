@@ -44,7 +44,7 @@ void XLDocument::CreateDocument(const std::string& fileName) {
 void XLDocument::CloseDocument() {
 
     m_document->CloseDocument();
-    m_document = nullptr;
+    //m_document = nullptr;
 }
 
 /**

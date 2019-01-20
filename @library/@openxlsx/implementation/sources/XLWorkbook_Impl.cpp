@@ -4,6 +4,7 @@
 
 #include <cstring>
 #include <pugixml.hpp>
+#include <XLWorkbook_Impl.h>
 
 #include "XLWorkbook_Impl.h"
 #include "XLWorksheet_Impl.h"
@@ -131,10 +132,21 @@ const Impl::XLWorksheet* Impl::XLWorkbook::Worksheet(const std::string& sheetNam
 
 /**
  * @details
+ * @todo Fix returning of Chartsheet objects.
  */
 Impl::XLSheet* Impl::XLWorkbook::Sheet(unsigned int index) {
 
-    return nullptr;
+    auto node = m_sheetsNode->first_child();
+    if (index > 1) {
+        for (int i = 1; i < index; ++i) {
+            node = node.next_sibling();
+        }
+    }
+
+    if (m_worksheets.find(node.attribute("name").as_string()) != m_worksheets.end())
+        return Worksheet(node.attribute("name").as_string());
+    //else
+        //return Chartsheet(node.attribute("name").as_string());
 }
 
 /**
@@ -142,7 +154,8 @@ Impl::XLSheet* Impl::XLWorkbook::Sheet(unsigned int index) {
  */
 Impl::XLSheet* Impl::XLWorkbook::Sheet(const std::string& sheetName) {
 
-    return nullptr;
+    if (m_worksheets.find(sheetName) != m_worksheets.end())
+        return Worksheet(sheetName);
 }
 
 /**
@@ -304,6 +317,33 @@ Impl::XLRelationshipItem* Impl::XLWorkbook::InitiateWorksheet(const std::string&
                                                       WorksheetCount() + 1);
 
     return &item;
+}
+
+void Impl::XLWorkbook::UpdateSheetNames() {
+
+    for (auto& sheet : m_sheets) {
+
+        if (sheet.second != nullptr && sheet.first != sheet.second->Name()) {
+
+            auto oldName = sheet.first;
+            auto newName = sheet.second->Name();
+
+            if (sheet.second->Type() == XLSheetType::WorkSheet) {
+                m_worksheets[newName] = m_worksheets.at(oldName);
+                m_worksheets.erase(oldName);
+            }
+            else {
+                m_chartsheets[newName] = m_chartsheets.at(oldName);
+                m_chartsheets.erase(oldName);
+            }
+
+            m_sheets[newName] = std::move(m_sheets.at(oldName));
+            m_sheets.erase(oldName);
+
+            break;
+
+        }
+    }
 }
 
 /**

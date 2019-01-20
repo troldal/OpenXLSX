@@ -4,6 +4,9 @@
 
 #include "XLTokenizer_Impl.h"
 
+#include <string>
+#include <algorithm>
+
 using namespace OpenXLSX;
 using namespace std;
 

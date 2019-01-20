@@ -56,16 +56,20 @@ const std::string& Impl::XLSheet::Name() const {
  */
 void Impl::XLSheet::SetName(const std::string& name) {
 
+    //ParentDocument()->AppProperties()->SetSheetName(m_sheetName, name);
     m_sheetName = name;
     m_nodeInWorkbook->attribute("name").set_value(name.c_str());
-    m_nodeInApp->set_value(name.c_str());
+    m_nodeInApp->text().set(name.c_str());
+
+    ParentWorkbook()->UpdateSheetNames();
+
     SetModified();
 }
 
 /**
  * @details This method returns the m_sheetState property.
  */
-const Impl::XLSheetState& Impl::XLSheet::State() const {
+const XLSheetState& Impl::XLSheet::State() const {
 
     return m_sheetState;
 }
@@ -140,7 +144,7 @@ void Impl::XLSheet::Delete() {
 /**
  * @details This method simply returns the m_sheetType property.
  */
-const Impl::XLSheetType& Impl::XLSheet::Type() const {
+const XLSheetType& Impl::XLSheet::Type() const {
 
     return m_sheetType;
 }

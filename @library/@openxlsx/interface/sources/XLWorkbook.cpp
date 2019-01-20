@@ -4,11 +4,23 @@
 
 #include <XLWorkbook.h>
 #include <XLWorkbook_Impl.h>
+#include "XLSheet_Impl.h"
+#include "XLWorksheet_Impl.h"
 
 using namespace OpenXLSX;
 
 XLWorkbook::XLWorkbook(Impl::XLWorkbook& workbook)
         : m_workbook(&workbook) {
+}
+
+XLSheet XLWorkbook::Sheet(unsigned int index) {
+
+    return XLSheet(*m_workbook->Sheet(index));
+}
+
+XLWorksheet XLWorkbook::Worksheet(const std::string& sheetName) {
+
+    return XLWorksheet(*m_workbook->Worksheet(sheetName));
 }
 
 void XLWorkbook::DeleteSheet(const std::string& sheetName) {

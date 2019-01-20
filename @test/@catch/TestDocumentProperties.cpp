@@ -11,64 +11,62 @@ using namespace OpenXLSX;
 TEST_CASE( "Testing of Document Properties", "[create]" ) {
 
     XLDocument doc;
-    std::ifstream f("./DocumentProperties.xlsx");
-    if (!f.good())
-        doc.CreateDocument("./DocumentProperties.xlsx");
-    else
-        doc.OpenDocument("./DocumentProperties.xlsx");
+    std::string file = "./TestDocumentProperties.xlsx";
+    doc.OpenDocument(file);
 
-
-    SECTION( "Check empty property" ) {
+    SECTION( "GetProperty" ) {
         REQUIRE(doc.GetProperty(XLProperty::Title).empty());
     }
 
-    SECTION( "Set 'Title' property" ) {
+    SECTION( "SetProperty - Title" ) {
         doc.SetProperty(XLProperty::Title, "TitleTest");
         doc.SaveDocument();
         doc.CloseDocument();
-        doc.OpenDocument("./DocumentProperties.xlsx");
+        doc.OpenDocument(file);
         REQUIRE(doc.GetProperty(XLProperty::Title) == "TitleTest");
     }
 
     // Duplication of above to check that OpenXLSX can handle
     // re-setting of already existing properties.
-    SECTION( "Re-Set 'Title' property" ) {
+    SECTION( "SetProperty - Title (Duplicate)" ) {
         doc.SetProperty(XLProperty::Title, "TitleTest");
         doc.SaveDocument();
         doc.CloseDocument();
-        doc.OpenDocument("./DocumentProperties.xlsx");
+        doc.OpenDocument(file);
         REQUIRE(doc.GetProperty(XLProperty::Title) == "TitleTest");
     }
 
-    SECTION( "Set 'Subject' property" ) {
+    SECTION( "SetProperty - Subject" ) {
         doc.SetProperty(XLProperty::Subject, "SubjectTest");
         doc.SaveDocument();
         doc.CloseDocument();
-        doc.OpenDocument("./DocumentProperties.xlsx");
+        doc.OpenDocument(file);
         REQUIRE(doc.GetProperty(XLProperty::Subject) == "SubjectTest");
     }
 
-    SECTION( "Set 'Creator' property" ) {
+    SECTION( "SetProperty - Creator" ) {
         doc.SetProperty(XLProperty::Creator, "Kenneth");
         doc.SaveDocument();
         doc.CloseDocument();
-        doc.OpenDocument("./DocumentProperties.xlsx");
+        doc.OpenDocument(file);
         REQUIRE(doc.GetProperty(XLProperty::Creator) == "Kenneth");
     }
 
-    SECTION( "Set 'Keywords' property" ) {
+    SECTION( "SetProperty - Keywords" ) {
         doc.SetProperty(XLProperty::Keywords, "A, B, C");
         doc.SaveDocument();
         doc.CloseDocument();
-        doc.OpenDocument("./DocumentProperties.xlsx");
+        doc.OpenDocument(file);
         REQUIRE(doc.GetProperty(XLProperty::Keywords) == "A, B, C");
     }
 
     // Test other properties
 
-    SECTION( "Set 'Keywords' property" ) {
+    SECTION( "DeleteProperty - KEywords" ) {
         doc.DeleteProperty(XLProperty::Keywords);
         doc.SaveDocument();
+        doc.CloseDocument();
+        doc.OpenDocument(file);
         REQUIRE(doc.GetProperty(XLProperty::Keywords).empty());
     }
 

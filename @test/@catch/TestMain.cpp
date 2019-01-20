@@ -15,19 +15,35 @@
 
 using namespace OpenXLSX;
 
-int main( int argc, char* argv[] ) {
-    // global setup...
-    std::remove("./DocumentProperties.xlsx");
-    std::remove("./WorkbookTests.xlsx");
+void PrepareDocument(std::string name) {
 
     XLDocument doc;
-    doc.CreateDocument("./WorkbookTests.xlsx");
+    std::remove(name.c_str());
+    doc.CreateDocument(name);
     doc.SaveDocument();
     doc.CloseDocument();
+}
 
+int main( int argc, char* argv[] ) {
+    // Global Setup
+    XLDocument doc;
+    
+    std::remove("./TestDocumentCreation.xlsx");
+    std::remove("./TestDocumentCreationNew.xlsx");
+
+    PrepareDocument("./TestDocumentProperties.xlsx");
+    PrepareDocument("./TestWorkbook.xlsx");
+    PrepareDocument("./TestSheet.xlsx");
+    PrepareDocument("./TestWorksheet.xlsx");
+    // Global Setup Complete
+
+    // Run Test Suite
     int result = Catch::Session().run( argc, argv );
+    // Run Test Suite Complete
 
-    // global clean-up...
+    // Global Clean-up
+    // ...
+    // Global Setup Complete
 
     return result;
 }
