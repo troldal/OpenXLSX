@@ -75,6 +75,12 @@ TEST_CASE( "Testing of XLWorksheet objects") {
         REQUIRE(sheet.ColumnCount() == 1);
     }
 
+    SECTION( "FirstCell" ) {
+        auto sheet = wbk.Worksheet("Sheet1");
+        auto ref = sheet.FirstCell();
+        REQUIRE(ref.Address() == "A1");
+    }
+
     doc.SaveDocument();
 
 }

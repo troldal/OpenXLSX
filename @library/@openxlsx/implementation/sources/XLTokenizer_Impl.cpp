@@ -4,16 +4,14 @@
 
 #include "XLTokenizer_Impl.h"
 
-#include <string>
-#include <algorithm>
-
 using namespace OpenXLSX;
 using namespace std;
 
 /**
  * @details
  */
-Impl::XLToken::XLToken(const std::string& token) : m_token(token) {
+Impl::XLToken::XLToken(const std::string& token)
+        : m_token(token) {
 }
 
 /**

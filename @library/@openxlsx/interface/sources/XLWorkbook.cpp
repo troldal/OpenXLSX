@@ -29,7 +29,7 @@ void XLWorkbook::DeleteSheet(const std::string& sheetName) {
 }
 
 void XLWorkbook::AddWorksheet(const std::string& sheetName,
-                              unsigned int index)  {
+                              unsigned int index) {
 
     m_workbook->AddWorksheet(sheetName, index);
 }

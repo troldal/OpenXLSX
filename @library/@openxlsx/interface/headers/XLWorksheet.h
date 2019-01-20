@@ -47,6 +47,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #define OPENXLSX_XLWORKSHEET_H
 
 #include "XLSheet.h"
+#include "XLCellReference.h"
 
 namespace OpenXLSX
 {
@@ -181,13 +182,13 @@ namespace OpenXLSX
          * @brief Get an XLCellReference to the first (top left) cell in the worksheet.
          * @return An XLCellReference for the first cell.
          */
-//        XLCellReference FirstCell() const noexcept;
+        XLCellReference FirstCell() const noexcept;
 
         /**
          * @brief Get an XLCellReference to the last (bottom right) cell in the worksheet.
          * @return An XLCellReference for the last cell.
          */
-//        XLCellReference LastCell() const noexcept;
+        XLCellReference LastCell() const noexcept;
 
         /**
          * @brief Get the number of columns in the worksheet.

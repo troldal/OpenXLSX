@@ -6,7 +6,6 @@
 #include <pugixml.hpp>
 #include <XLWorkbook_Impl.h>
 
-#include "XLWorkbook_Impl.h"
 #include "XLWorksheet_Impl.h"
 
 using namespace std;
@@ -146,7 +145,7 @@ Impl::XLSheet* Impl::XLWorkbook::Sheet(unsigned int index) {
     if (m_worksheets.find(node.attribute("name").as_string()) != m_worksheets.end())
         return Worksheet(node.attribute("name").as_string());
     //else
-        //return Chartsheet(node.attribute("name").as_string());
+    //return Chartsheet(node.attribute("name").as_string());
 }
 
 /**
@@ -463,8 +462,8 @@ bool Impl::XLWorkbook::ChartsheetExists(const std::string& sheetName) const {
     if (m_chartsheets.find(sheetName) == m_chartsheets.end())
         return false;
     else
-        return true;    
-    
+        return true;
+
 /*    bool result = false;
     for (const auto& iter : m_sheets) {
         if (iter.second->Name() == sheetName && iter.second->Type() == XLSheetType::ChartSheet) {
@@ -543,7 +542,8 @@ void Impl::XLWorkbook::CreateWorksheet(const XLRelationshipItem& item,
         m_childXmlDocuments["xl/" + item.Target()] = nullptr;
     }
     else {
-        m_sheets[name]                             = make_unique<XLWorksheet>(*this, name, "xl/" + item.Target(), xmlData);
+        m_sheets[name]                             = make_unique<XLWorksheet>(*this, name, "xl/" + item.Target(),
+                                                                              xmlData);
         m_worksheets[name]                         = m_sheets.at(name).get();
         m_childXmlDocuments["xl/" + item.Target()] = m_sheets.at(name).get();
     }

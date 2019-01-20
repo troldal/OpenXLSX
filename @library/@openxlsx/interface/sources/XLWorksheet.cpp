@@ -7,7 +7,18 @@
 
 using namespace OpenXLSX;
 
-XLWorksheet::XLWorksheet(Impl::XLSheet& sheet) : XLSheet(sheet) {
+XLWorksheet::XLWorksheet(Impl::XLSheet& sheet)
+        : XLSheet(sheet) {
+}
+
+XLCellReference XLWorksheet::FirstCell() const noexcept {
+
+    return XLCellReference(dynamic_cast<Impl::XLWorksheet*>(m_sheet)->FirstCell());
+}
+
+XLCellReference XLWorksheet::LastCell() const noexcept {
+
+    return XLCellReference(dynamic_cast<Impl::XLWorksheet*>(m_sheet)->LastCell());
 }
 
 unsigned int XLWorksheet::ColumnCount() const noexcept {

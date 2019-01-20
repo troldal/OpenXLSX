@@ -114,7 +114,8 @@ std::string Impl::XLCellValue::AsString() const {
             return "TRUE";
     }
     else if (string_view(TypeAttribute().value()) == "s")
-        return string(ParentCell()->ParentWorkbook()->SharedStrings()->GetStringNode(ValueNode().text().as_ullong()).text().get());
+        return string(ParentCell()->ParentWorkbook()->SharedStrings()->GetStringNode(
+                ValueNode().text().as_ullong()).text().get());
 
     else
         return ValueNode().text().get();

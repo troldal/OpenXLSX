@@ -50,69 +50,111 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 namespace OpenXLSX
 {
-    namespace Impl {
+    namespace Impl
+    {
         class XLCellReference;
     }
 
     class XLCellReference
     {
     public:
+
+        /**
+         * @brief
+         * @param sheet
+         */
+        explicit XLCellReference(const Impl::XLCellReference& sheet);
+
+        /**
+         * @brief
+         * @param cellAddress
+         */
         explicit XLCellReference(const std::string& cellAddress = "");
 
-        XLCellReference(unsigned long row,
-                        unsigned int column) : m_cellReference(Impl::XLCellReference(row,
-                                                                                     column)) {
-        }
+        /**
+         * @brief
+         * @param row
+         * @param column
+         */
+        XLCellReference(unsigned long row, unsigned int column);
 
-        XLCellReference(const XLCellReference& other) = default;
+        /**
+         * @brief
+         * @param other
+         */
+        XLCellReference(const XLCellReference& other);
 
+        /**
+         * @brief
+         * @param other
+         */
         XLCellReference(XLCellReference&& other) = default;
 
-        virtual ~XLCellReference() = default;
+        /**
+         * @brief
+         */
+        virtual ~XLCellReference();
 
-        XLCellReference& operator=(const XLCellReference& other) = default;
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
+        XLCellReference& operator=(const XLCellReference& other);
 
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
         XLCellReference& operator=(XLCellReference&& other) = default;
 
-        unsigned long Row() {
+        /**
+         * @brief
+         * @return
+         */
+        unsigned long Row();
 
-            return m_cellReference.Row();
-        }
+        /**
+         * @brief
+         * @param row
+         */
+        void SetRow(unsigned long row);
 
-        void SetRow(unsigned long row) {
+        /**
+         * @brief
+         * @return
+         */
+        unsigned int Column();
 
-            m_cellReference.SetRow(row);
-        }
+        /**
+         * @brief
+         * @param column
+         */
+        void SetColumn(unsigned int column);
 
-        unsigned int Column() {
-
-            return m_cellReference.Column();
-        }
-
-        void SetColumn(unsigned int column) {
-
-            m_cellReference.SetColumn(column);
-        }
-
+        /**
+         * @brief
+         * @param row
+         * @param column
+         */
         void SetRowAndColumn(unsigned long row,
-                             unsigned int column) {
+                             unsigned int column);
 
-            m_cellReference.SetRowAndColumn(row,
-                                            column);
-        }
+        /**
+         * @brief
+         * @return
+         */
+        std::string Address() const;
 
-        std::string Address() const {
-
-            return m_cellReference.Address();
-        }
-
-        void SetAddress(const std::string& address) {
-
-            m_cellReference.SetAddress(address);
-        }
+        /**
+         * @brief
+         * @param address
+         */
+        void SetAddress(const std::string& address);
 
     private:
-        Impl::XLCellReference m_cellReference;
+        std::unique_ptr<Impl::XLCellReference> m_cellReference; /** */
 
     };
 

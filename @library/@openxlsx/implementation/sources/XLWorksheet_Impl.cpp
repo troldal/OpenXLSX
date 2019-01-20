@@ -7,7 +7,6 @@
 #include "XLTokenizer_Impl.h"
 #include <sstream>
 #include <pugixml.hpp>
-#include <algorithm>
 
 using namespace std;
 using namespace OpenXLSX;
@@ -32,8 +31,8 @@ Impl::XLWorksheet::XLWorksheet(XLWorkbook& parent,
           m_parentWorkbook(parent),
           m_rows(),
           m_columns(),
-          m_firstCell(1,1),
-          m_lastCell(1,1),
+          m_firstCell(1, 1),
+          m_lastCell(1, 1),
           m_maxColumn(0) {
 
     // Call the 'LoadXMLData' method in the XLAbstractXMLFile base class

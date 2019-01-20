@@ -17,10 +17,11 @@ endif()
 add_executable(InterfaceTest "")
 target_sources(InterfaceTest PRIVATE
         TestMain.cpp
-        #TestDocumentCreation.cpp
-        #TestDocumentProperties.cpp
-        #TestWorkbook.cpp
-        TestSheet.cpp)
+        TestDocumentCreation.cpp
+        TestDocumentProperties.cpp
+        TestWorkbook.cpp
+        TestSheet.cpp
+        TestCellReference.cpp)
 
 target_link_libraries(InterfaceTest INTERFACE Catch2)
 target_link_libraries(InterfaceTest PUBLIC -lOpenXLSX)

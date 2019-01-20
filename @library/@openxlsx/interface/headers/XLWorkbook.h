@@ -122,7 +122,7 @@ namespace OpenXLSX
          * @param sheetName
          * @return
          */
-        XLWorksheet Worksheet(const std::string &sheetName);
+        XLWorksheet Worksheet(const std::string& sheetName);
 
         /**
          * @brief
@@ -149,14 +149,14 @@ namespace OpenXLSX
          * @brief
          * @param sheetName
          */
-        void DeleteSheet(const std::string &sheetName);
+        void DeleteSheet(const std::string& sheetName);
 
         /**
          * @brief Add a new worksheet to the workbook, with the given name and index.
          * @param sheetName The name of the worksheet.
          * @param index The index at which the worksheet should be inserted.
          */
-        void AddWorksheet(const std::string &sheetName, unsigned int index = 0);
+        void AddWorksheet(const std::string& sheetName, unsigned int index = 0);
 
         /**
          * @brief Clone an existing worksheet.
@@ -166,8 +166,8 @@ namespace OpenXLSX
          * @todo The function works, but Excel reports errors when opening.
          * @todo Is it possible to have a common CloneSheet function?
          */
-        void CloneWorksheet(const std::string &extName,
-                            const std::string &newName,
+        void CloneWorksheet(const std::string& extName,
+                            const std::string& newName,
                             unsigned int index = 0);
 
         /**
@@ -176,7 +176,7 @@ namespace OpenXLSX
          * @param index The index at which the chartsheet should be inserted.
          * @todo This method is currently unimplemented.
          */
-        void AddChartsheet(const std::string &sheetName, unsigned int index = 0);
+        void AddChartsheet(const std::string& sheetName, unsigned int index = 0);
 
         /**
          * @brief
