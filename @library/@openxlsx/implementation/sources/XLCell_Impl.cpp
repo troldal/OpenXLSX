@@ -64,7 +64,7 @@ Impl::XLCell& Impl::XLCell::operator=(const XLCellRange& range) {
 /**
  * @details
  */
-Impl::XLValueType Impl::XLCell::ValueType() const {
+XLValueType Impl::XLCell::ValueType() const {
 
     return m_value.ValueType();
 }

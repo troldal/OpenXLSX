@@ -48,6 +48,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 #include "XLSheet.h"
 #include "XLCellReference.h"
+#include "XLCell.h"
 
 namespace OpenXLSX
 {
@@ -93,14 +94,14 @@ namespace OpenXLSX
          * @param address The address of the cell to get, e.g. 'A1'
          * @return A reference to the XLCell object at the given address
          */
-//        XLCell* Cell(const std::string& address);
+        XLCell Cell(const std::string& address);
 
         /**
          * @brief Get the cell with the given address
          * @param address The address of the cell to get, e.g. 'A1'
          * @return A const reference to the XLCell object at the given address
          */
-//        const XLCell* Cell(const std::string& address) const;
+        const XLCell Cell(const std::string& address) const;
 
         /**
          * @brief Get the cell at the given coordinates.

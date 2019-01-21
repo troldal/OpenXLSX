@@ -46,9 +46,11 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_IMPL_XLCELLVALUE_H
 #define OPENXLSX_IMPL_XLCELLVALUE_H
 
+#include "XLProperty.h"
 #include "XLCellType_Impl.h"
 #include "XLException_Impl.h"
 #include "XLXml_Impl.h"
+#include "XLCellValue.h"
 
 #include <string>
 #include <string_view>
@@ -109,6 +111,7 @@ namespace OpenXLSX::Impl
      */
     class XLCellValue
     {
+        friend class OpenXLSX::XLCellValue;
 
 //----------------------------------------------------------------------------------------------------------------------
 //           Public Member Functions

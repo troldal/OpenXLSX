@@ -2,6 +2,8 @@
 // Created by Troldal on 2019-01-16.
 //
 
+#include <XLWorksheet.h>
+
 #include "XLWorksheet.h"
 #include "XLWorksheet_Impl.h"
 
@@ -9,6 +11,16 @@ using namespace OpenXLSX;
 
 XLWorksheet::XLWorksheet(Impl::XLSheet& sheet)
         : XLSheet(sheet) {
+}
+
+XLCell XLWorksheet::Cell(const std::string& address) {
+
+    return XLCell(*dynamic_cast<Impl::XLWorksheet*>(m_sheet)->Cell(address));
+}
+
+const XLCell XLWorksheet::Cell(const std::string& address) const {
+
+    return XLCell(*dynamic_cast<Impl::XLWorksheet*>(m_sheet)->Cell(address));
 }
 
 XLCellReference XLWorksheet::FirstCell() const noexcept {

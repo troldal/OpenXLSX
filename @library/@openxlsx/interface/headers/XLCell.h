@@ -43,62 +43,48 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXLSX_IMPL_XLCELLTYPE_H
-#define OPENXLSX_IMPL_XLCELLTYPE_H
+#ifndef OPENXLSX_XLCELL_H
+#define OPENXLSX_XLCELL_H
 
-namespace OpenXLSX::Impl
-{
+#include "XLProperty.h"
+#include "XLCellReference.h"
+#include "XLCellValue.h"
 
-//======================================================================================================================
-//========== XLCellType Enum ===========================================================================================
-//======================================================================================================================
+namespace OpenXLSX {
+    namespace Impl {
+        class XLCell;
+    }
 
-/**
- * @brief The XLCellType class is an enumeration of the possible cell types, as recognized by Excel.
- */
-    enum class XLCellType
+    class XLCell
     {
-        Empty, Boolean, Number, Error, String
+    public:
+        explicit XLCell(Impl::XLCell& cell);
+
+        XLCell(const XLCell& other) = default;
+
+        XLCell(XLCell&& other) = default;
+
+        virtual ~XLCell() = default;
+
+        XLCell& operator=(const XLCell& other) = default;
+
+        XLCell& operator=(XLCell&& other) = default;
+
+        XLCellValue Value();
+
+        const XLCellValue Value() const;
+
+        XLValueType ValueType() const;
+
+        const XLCellReference CellReference() const;
+
+
+
+    private:
+        Impl::XLCell* m_cell;
     };
-
-
-//======================================================================================================================
-//========== XLStringType Enum =========================================================================================
-//======================================================================================================================
-
-/**
- * @brief The XLStringType class is an enumeration of the possible string types, as recognized by Excel.
- */
-    enum class XLStringType
-    {
-        String, SharedString, InlineString
-    };
-
-//======================================================================================================================
-//========== XLBool Enum ===============================================================================================
-//======================================================================================================================
-
-/**
- * @brief The XLBool enum has two values: True and False. The reason for using this instead of \c bool is for
- * clarity and to avoid implicit \c bool <-> \c int conversions.
- */
-    enum class XLBool
-    {
-        True, False
-    };
-
-//======================================================================================================================
-//========== XLNumberType Enum =========================================================================================
-//======================================================================================================================
-
-/**
- * @brief
- */
-    enum class XLNumberType
-    {
-        Integer, Float
-    };
-
 }
 
-#endif //OPENXLSX_IMPL_XLCELLTYPE_H
+
+
+#endif //OPENXLSX_XLCELL_H

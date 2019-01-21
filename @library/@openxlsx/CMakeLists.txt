@@ -98,14 +98,18 @@ set(OPENXLSX_INTERFACE_HEADERS
         ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLWorkbook.h
         ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLSheet.h
         ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLWorksheet.h
-        ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLCellReference.h)
+        ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLCellReference.h
+        ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLCell.h
+        ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLCellValue.h)
 
 set(OPENXLSX_INTERFACE_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/interface/sources/XLDocument.cpp
         ${CMAKE_CURRENT_LIST_DIR}/interface/sources/XLWorkbook.cpp
         ${CMAKE_CURRENT_LIST_DIR}/interface/sources/XLSheet.cpp
         ${CMAKE_CURRENT_LIST_DIR}/interface/sources/XLWorksheet.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/interface/sources/XLCellReference.cpp)
+        ${CMAKE_CURRENT_LIST_DIR}/interface/sources/XLCellReference.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/interface/sources/XLCell.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/interface/sources/XLCellValue.cpp)
 
 #=======================================================================================================================
 # Build OpenXLSX library
@@ -116,11 +120,11 @@ target_link_libraries(OpenXLSX PUBLIC pugixml zip++ zip z)
 target_link_directories(OpenXLSX PUBLIC ${OPENXLSX_DEPENDENCIES}/lib)
 target_include_directories(OpenXLSX
         PUBLIC # Should this be PRIVATE?
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers
-        ${CMAKE_CURRENT_LIST_DIR}/interface/headers
+            ${CMAKE_CURRENT_LIST_DIR}/implementation/headers
+            ${CMAKE_CURRENT_LIST_DIR}/interface/headers
         SYSTEM INTERFACE
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers
-        ${CMAKE_CURRENT_LIST_DIR}/interface/headers)
+            ${CMAKE_CURRENT_LIST_DIR}/implementation/headers
+            ${CMAKE_CURRENT_LIST_DIR}/interface/headers)
 target_include_directories(OpenXLSX
         PUBLIC
         ${OPENXLSX_DEPENDENCIES}/include)

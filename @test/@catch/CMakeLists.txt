@@ -21,7 +21,8 @@ target_sources(InterfaceTest PRIVATE
         TestDocumentProperties.cpp
         TestWorkbook.cpp
         TestSheet.cpp
-        TestCellReference.cpp)
+        TestCellReference.cpp
+        TestCell.cpp)
 
 target_link_libraries(InterfaceTest INTERFACE Catch2)
 target_link_libraries(InterfaceTest PUBLIC -lOpenXLSX)

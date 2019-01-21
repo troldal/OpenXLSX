@@ -126,7 +126,7 @@ std::string Impl::XLCellValue::AsString() const {
  * @pre The parent XLCell object is valid and has a corresponding node in the underlying XML file.
  * @post The current object, and any associated objects, are unchanged.
  */
-Impl::XLValueType Impl::XLCellValue::ValueType() const {
+XLValueType Impl::XLCellValue::ValueType() const {
 
     switch (CellType()) {
         case XLCellType::Empty:

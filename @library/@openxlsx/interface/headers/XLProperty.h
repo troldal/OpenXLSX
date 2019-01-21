@@ -65,6 +65,20 @@ namespace OpenXLSX
     {
         Visible, Hidden, VeryHidden
     };
+
+
+//======================================================================================================================
+//========== XLValue Enum ==========================================================================================
+//======================================================================================================================
+
+/**
+ * @brief The XLValueType class is an enumeration of the possible cell value types.
+ */
+    enum class XLValueType
+    {
+        Empty, Boolean, Integer, Float, Error, String
+    };
+
 }
 
 #endif //OPENXLSX_XLPROPERTY_H

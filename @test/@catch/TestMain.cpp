@@ -36,6 +36,7 @@ int main( int argc, char* argv[] ) {
     PrepareDocument("./TestSheet.xlsx");
     PrepareDocument("./TestWorksheet.xlsx");
     PrepareDocument("./TestCellReference.xlsx");
+    PrepareDocument("./TestCell.xlsx");
     // Global Setup Complete
 
     // Run Test Suite
