@@ -2,6 +2,8 @@
 // Created by Troldal on 2019-01-21.
 //
 
+#include <XLCellValue.h>
+
 #include "XLCellValue.h"
 #include "XLCellValue_Impl.h"
 
@@ -43,6 +45,11 @@ void XLCellValue::Clear() {
     m_value->Clear();
 }
 
+XLValueType XLCellValue::ValueType() const {
+
+    return m_value->ValueType();
+}
+
 void XLCellValue::SetInteger(long long int numberValue) {
 
     m_value->SetInteger(numberValue);
@@ -77,3 +84,4 @@ const char* XLCellValue::GetString() const {
 
     return m_value->GetString();
 }
+

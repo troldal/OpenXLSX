@@ -49,6 +49,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLSheet.h"
 #include "XLCellReference.h"
 #include "XLCell.h"
+#include "XLCellRange.h"
 
 namespace OpenXLSX
 {
@@ -77,17 +78,14 @@ namespace OpenXLSX
          * @param ref An XLCellReference object with the address of the cell to get.
          * @return A reference to the requested XLCell object.
          */
-//        XLCell Cell(const XLCellReference& ref) {
-
-//            return XLCell(static_cast<Impl::XLWorksheet*>(m_sheet).Cell(ref));
-//        }
+        XLCell Cell(const XLCellReference& ref);
 
         /**
          * @brief Get a pointer to the XLCell object for the given cell reference.
          * @param ref An XLCellReference object with the address of the cell to get.
          * @return A const reference to the requested XLCell object.
          */
-//        const XLCell* Cell(const XLCellReference& ref) const;
+        const XLCell Cell(const XLCellReference& ref) const;
 
         /**
          * @brief Get the cell with the given address
@@ -109,8 +107,8 @@ namespace OpenXLSX
          * @param columnNumber The column number (index base 1).
          * @return A reference to the XLCell object at the given coordinates.
          */
-//        XLCell* Cell(unsigned long rowNumber,
-//                     unsigned int columnNumber);
+        XLCell Cell(unsigned long rowNumber,
+                    unsigned int columnNumber);
 
         /**
          * @brief Get the cell at the given coordinates.
@@ -118,20 +116,20 @@ namespace OpenXLSX
          * @param columnNumber The column number (index base 1).
          * @return A const reference to the XLCell object at the given coordinates.
          */
-//        const XLCell* Cell(unsigned long rowNumber,
-//                           unsigned int columnNumber) const;
+        const XLCell Cell(unsigned long rowNumber,
+                          unsigned int columnNumber) const;
 
         /**
          * @brief Get a range for the area currently in use (i.e. from cell A1 to the last cell being in use).
          * @return An XLCellRange object with the entire range.
          */
-//        XLCellRange Range();
+        XLCellRange Range();
 
         /**
          * @brief Get a range for the area currently in use (i.e. from cell A1 to the last cell being in use).
          * @return A const XLCellRange object with the entire range.
          */
-//        const XLCellRange Range() const;
+        const XLCellRange Range() const;
 
         /**
          * @brief Get a range with the given coordinates.
@@ -139,8 +137,8 @@ namespace OpenXLSX
          * @param bottomRight An XLCellReference object with the coordinates to the bottom right cell.
          * @return An XLCellRange object with the requested range.
          */
-//        XLCellRange Range(const XLCellReference& topLeft,
-//                          const XLCellReference& bottomRight);
+        XLCellRange Range(const XLCellReference& topLeft,
+                          const XLCellReference& bottomRight);
 
         /**
          * @brief Get a range with the given coordinates.
@@ -148,8 +146,8 @@ namespace OpenXLSX
          * @param bottomRight An XLCellReference object with the coordinates to the bottom right cell.
          * @return A const XLCellRange object with the requested range.
          */
-//        const XLCellRange Range(const XLCellReference& topLeft,
-//                                const XLCellReference& bottomRight) const;
+        const XLCellRange Range(const XLCellReference& topLeft,
+                                const XLCellReference& bottomRight) const;
 
         /**
          * @brief Get the row with the given row number.

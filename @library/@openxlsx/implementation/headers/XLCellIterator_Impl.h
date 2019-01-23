@@ -78,6 +78,8 @@ namespace OpenXLSX::Impl
         explicit XLCellIterator(XLCellRange& range,
                                 XLCell* cell);
 
+        virtual ~XLCellIterator();
+
         /**
          * @brief Method for incrementing the iterator.
          */
@@ -95,6 +97,8 @@ namespace OpenXLSX::Impl
          * @return A reference to the value at the iterator.
          */
         XLCell& operator*() const;
+
+        XLCell* dereference();
 
 //----------------------------------------------------------------------------------------------------------------------
 //           Private Member Variables
@@ -134,6 +138,8 @@ namespace OpenXLSX::Impl
          */
         explicit XLCellIteratorConst(const XLCellRange& range,
                                      const XLCell* cell);
+
+        virtual ~XLCellIteratorConst();
 
         /**
          * @brief Method for incrementing the iterator.

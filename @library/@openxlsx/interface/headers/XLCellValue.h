@@ -46,6 +46,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_XLCELLVALUE_H
 #define OPENXLSX_XLCELLVALUE_H
 
+#include "XLProperty.h"
 #include <type_traits>
 #include <string>
 
@@ -102,7 +103,7 @@ namespace OpenXLSX {
 
         void Clear();
 
-//        XLValueType ValueType() const;
+        XLValueType ValueType() const;
 
 
     private:

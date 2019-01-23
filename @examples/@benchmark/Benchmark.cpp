@@ -4,15 +4,10 @@
 #include <sstream>
 #include <fstream>
 #include "table_printer.h"
-#include <OpenXLSX/private/XLDocument_Impl.h>
-#include <OpenXLSX/private/XLWorksheet_Impl.h>
-#include <OpenXLSX/private/XLCellRange_Impl.h>
-#include <OpenXLSX/private/XLCellReference_Impl.h>
-#include <OpenXLSX/private/XLCell_Impl.h>
-#include <OpenXLSX/private/XLCellValue_Impl.h>
+#include <OpenXLSX/OpenXLSX.h>
 
 using namespace std;
-using namespace OpenXLSX::Impl;
+using namespace OpenXLSX;
 using bprinter::TablePrinter;
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -112,15 +107,15 @@ unsigned long WriteTest(T value,
 
         // Create new document
         auto startOpen = chrono::steady_clock::now();
-        OpenXLSX::XLDocument doc;
+        XLDocument doc;
         doc.CreateDocument(fileName);
         auto endOpen = chrono::steady_clock::now();
 
         // Add data to document
         auto startWrite = chrono::steady_clock::now();
-        auto wks = doc.Workbook()->Worksheet("Sheet1");
-        auto arange = wks->Range(XLCellReference("A1"), XLCellReference(rows, columns));
-        for (auto &iter : arange) {
+        auto wks = doc.Workbook().Worksheet("Sheet1");
+        auto arange = wks.Range(XLCellReference("A1"), XLCellReference(rows, columns));
+        for (auto iter : arange) {
             iter.Value().Set(value);
         }
         auto endWrite = chrono::steady_clock::now();
@@ -171,13 +166,13 @@ unsigned long ReadTest(int repetitions, const std::string &fileName, ostream &de
     tp.AddColumn("Reading (ms)", 27);
     tp.AddColumn("Reading (cells/s)", 27);
 
-    OpenXLSX::XLDocument doc;
+    XLDocument doc;
     doc.OpenDocument(fileName);
-    auto rows = doc.Workbook()->Worksheet("Sheet1")->RowCount();
-    auto cols = doc.Workbook()->Worksheet("Sheet1")->ColumnCount();
+    auto rows = doc.Workbook().Worksheet("Sheet1").RowCount();
+    auto cols = doc.Workbook().Worksheet("Sheet1").ColumnCount();
     stringstream ss;
     ss << "Reading \""
-        << doc.Workbook()->Worksheet("Sheet1")->Cell("A1")->Value().AsString()
+        << doc.Workbook().Worksheet("Sheet1").Cell("A1").Value().AsString()
         << "\" from "
         << to_string(rows)
         << " x "
@@ -201,13 +196,13 @@ unsigned long ReadTest(int repetitions, const std::string &fileName, ostream &de
 
         // Add data to document
         auto startRead = chrono::steady_clock::now();
-        auto wks = doc.Workbook()->Worksheet("Sheet1");
+        auto wks = doc.Workbook().Worksheet("Sheet1");
         int intVal;
         double doubleVal;
         std::string stringVal;
         bool boolVal;
-        auto arange = wks->Range(XLCellReference("A1"), XLCellReference(rows, cols));
-        for (auto &iter : arange) {
+        auto arange = wks.Range(XLCellReference("A1"), XLCellReference(rows, cols));
+        for (auto iter : arange) {
             switch(iter.Value().ValueType()) {
                 case XLValueType::Integer :
                     intVal = iter.Value().Get<int>();
@@ -269,8 +264,8 @@ void openLarge() {
 
     OpenXLSX::XLDocument doc;
     doc.OpenDocument("./Large.xlsx");
-    auto wks = doc.Workbook()->Worksheet("Sheet1");
-    wks->Export("./Profiles.csv");
+    auto wks = doc.Workbook().Worksheet("Sheet1");
+    wks.Export("./Profiles.csv");
 
     /*
     for (int i = 1; i <= 1000; ++i) {

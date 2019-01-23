@@ -3,6 +3,8 @@
 //
 
 
+#include <XLCellIterator_Impl.h>
+
 #include "XLCellIterator_Impl.h"
 #include "XLCellRange_Impl.h"
 
@@ -71,6 +73,15 @@ Impl::XLCell& Impl::XLCellIterator::operator*() const {
     return *m_cell;
 }
 
+Impl::XLCell* Impl::XLCellIterator::dereference() {
+
+    return m_cell;
+}
+
+Impl::XLCellIterator::~XLCellIterator() {
+
+}
+
 /**
  * @details
  */
@@ -126,4 +137,8 @@ bool Impl::XLCellIteratorConst::operator!=(const XLCellIteratorConst& other) con
 const Impl::XLCell& Impl::XLCellIteratorConst::operator*() const {
 
     return *m_cell;
+}
+
+Impl::XLCellIteratorConst::~XLCellIteratorConst() {
+
 }
