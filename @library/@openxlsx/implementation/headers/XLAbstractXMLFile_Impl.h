@@ -150,25 +150,14 @@ namespace OpenXLSX::Impl
          * @return A pointer to the XMLDocument object.
          * @note This method is final, i.e. it cannot be overridden.
          */
-        virtual XMLDocument* XmlDocument() final;
+        virtual XMLDocument *XmlDocument() final;
 
         /**
          * @brief This method returns the underlying XMLDocument object.
          * @return A pointer to the const XMLDocument object.
          * @note This method is final, i.e. it cannot be overridden.
          */
-        virtual const XMLDocument* XmlDocument() const final;
-
-        /**
-         * @brief Set the 'm_isModified' flag, meaning that the underlying XML file needs saving.
-         */
-        virtual void SetModified();
-
-        /**
-         * @brief Determine id the XML file has been modified or not.
-         * @return true if the file has been modified; otherwise false.
-         */
-        virtual bool IsModified();
+        virtual const XMLDocument *XmlDocument() const final;
 
         /**
          * @brief The parseXMLData method is used to map or copy the XML data to the internal data structures.
@@ -181,17 +170,15 @@ namespace OpenXLSX::Impl
 //           Private Member Variables
 //----------------------------------------------------------------------------------------------------------------------
 
-    protected:
-        std::unique_ptr<XMLDocument> m_xmlDocument; /**< A pointer to the underlying XMLDocument resource*/
 
     private:
+
+        XMLDocument m_xmlDocument; /**< A pointer to the underlying XMLDocument resource*/
 
         XLDocument& m_parentDocument; /**< */
         std::string m_path; /**< */
 
-        mutable std::map<std::string,
-                         XLAbstractXMLFile*> m_childXmlDocuments; /**< A std::map with the child XML documents. */
-        mutable bool                         m_isModified; /**< A bool indicating if the document has been modified and needs saving. It is mutable, and can therefore be modified in const methods. */
+        mutable std::map<std::string, XLAbstractXMLFile*> m_childXmlDocuments; /**< A std::map with the child XML documents. */
 
     };
 }

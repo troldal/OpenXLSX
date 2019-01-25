@@ -102,7 +102,9 @@ set(OPENXLSX_INTERFACE_HEADERS
         ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLCell.h
         ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLCellValue.h
         ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLCellRange.h
-        ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLCellIterator.h)
+        ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLCellIterator.h
+        ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLRow.h
+        ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLColumn.h)
 
 set(OPENXLSX_INTERFACE_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/interface/sources/XLDocument.cpp
@@ -113,7 +115,9 @@ set(OPENXLSX_INTERFACE_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/interface/sources/XLCell.cpp
         ${CMAKE_CURRENT_LIST_DIR}/interface/sources/XLCellValue.cpp
         ${CMAKE_CURRENT_LIST_DIR}/interface/sources/XLCellRange.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/interface/sources/XLCellIterator.cpp)
+        ${CMAKE_CURRENT_LIST_DIR}/interface/sources/XLCellIterator.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/interface/sources/XLRow.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/interface/sources/XLColumn.cpp)
 
 #=======================================================================================================================
 # Build OpenXLSX library

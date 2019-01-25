@@ -74,6 +74,26 @@ const XLCellRange XLWorksheet::Range(const XLCellReference& topLeft, const XLCel
     return XLCellRange(dynamic_cast<Impl::XLWorksheet*>(m_sheet)->Range(Impl::XLCellReference(topLeft.Address()), Impl::XLCellReference(bottomRight.Address())));
 }
 
+XLRow XLWorksheet::Row(unsigned long rowNumber) {
+
+    return XLRow(*dynamic_cast<Impl::XLWorksheet*>(m_sheet)->Row(rowNumber));
+}
+
+const XLRow XLWorksheet::Row(unsigned long rowNumber) const {
+
+    return XLRow(*dynamic_cast<Impl::XLWorksheet*>(m_sheet)->Row(rowNumber));
+}
+
+XLColumn XLWorksheet::Column(unsigned int columnNumber) {
+
+    return XLColumn(*dynamic_cast<Impl::XLWorksheet*>(m_sheet)->Column(columnNumber));
+}
+
+const XLColumn XLWorksheet::Column(unsigned int columnNumber) const {
+
+    return XLColumn(*dynamic_cast<Impl::XLWorksheet*>(m_sheet)->Column(columnNumber));
+}
+
 unsigned int XLWorksheet::ColumnCount() const noexcept {
 
     return dynamic_cast<Impl::XLWorksheet*>(m_sheet)->ColumnCount();

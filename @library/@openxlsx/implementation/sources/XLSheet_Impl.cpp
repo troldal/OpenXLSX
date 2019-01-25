@@ -62,8 +62,6 @@ void Impl::XLSheet::SetName(const std::string& name) {
     m_nodeInApp->text().set(name.c_str());
 
     ParentWorkbook()->UpdateSheetNames();
-
-    SetModified();
 }
 
 /**
@@ -110,7 +108,6 @@ void Impl::XLSheet::SetState(XLSheetState state) {
                 m_nodeInWorkbook->remove_attribute("state");
         }
     }
-    SetModified();
 }
 
 /**

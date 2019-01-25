@@ -43,104 +43,92 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXLSX_IMPL_XLDOCCOREPROPERTIES_H
-#define OPENXLSX_IMPL_XLDOCCOREPROPERTIES_H
+#ifndef OPENXLSX_XLROW_H
+#define OPENXLSX_XLROW_H
 
-#include "XLAbstractXMLFile_Impl.h"
-#include "XLSpreadsheetElement_Impl.h"
-#include "XLXml_Impl.h"
+#include "XLCell.h"
 
-#include <string>
-#include <vector>
-#include <map>
+namespace OpenXLSX {
+    namespace Impl {
+        class XLRow;
+    }
 
-namespace OpenXLSX::Impl
-{
-
-//======================================================================================================================
-//========== XLCoreProperties Class =================================================================================
-//======================================================================================================================
-
-    /**
-     * @brief
-     */
-    class XLCoreProperties : public XLAbstractXMLFile,
-                             public XLSpreadsheetElement
+    class XLRow
     {
-
-//----------------------------------------------------------------------------------------------------------------------
-//           Public Member Functions
-//----------------------------------------------------------------------------------------------------------------------
-
     public:
+        explicit XLRow(Impl::XLRow& row);
+
+        XLRow(const XLRow& other) = default;
+
+        XLRow(XLRow&& other) = default;
+
+        virtual ~XLRow() = default;
+
+        XLRow& operator=(const XLRow& other) = default;
+
+        XLRow& operator=(XLRow&& other) = default;
+
+        float Height() const;
 
         /**
-         * @brief
-         * @param parent
-         * @param filePath
-         * @return
+         * @brief Set the height of the row.
+         * @param height The height of the row.
          */
-        explicit XLCoreProperties(XLDocument& parent,
-                                  const std::string& filePath);
+        void SetHeight(float height);
 
         /**
-         * @brief
+         * @brief Get the descent of the row, which is the vertical distance in pixels from the bottom of the cells
+         * in the current row to the typographical baseline of the cell content.
+         * @return The row descent.
          */
-        virtual ~XLCoreProperties() override;
+        float Descent() const;
 
         /**
-         * @brief
-         * @param name
-         * @param value
-         * @return
+         * @brief Set the descent of the row, which is he vertical distance in pixels from the bottom of the cells
+         * in the current row to the typographical baseline of the cell content.
+         * @param descent The row descent.
          */
-        bool SetProperty(const std::string& name,
-                         const std::string& value);
+        void SetDescent(float descent);
 
         /**
-         * @brief
-         * @param name
-         * @param value
-         * @return
+         * @brief Is the row hidden?
+         * @return The state of the row.
          */
-        bool SetProperty(const std::string& name,
-                         int value);
+        bool IsHidden() const;
 
         /**
-         * @brief
-         * @param name
-         * @param value
-         * @return
+         * @brief Set the row to be hidden or visible.
+         * @param state The state of the row.
          */
-        bool SetProperty(const std::string& name,
-                         double value);
+        void SetHidden(bool state);
 
         /**
-         * @brief
-         * @param name
-         * @return
+         * @brief Get the XLCell object at a specified column for this row.
+         * @param column The column with the XLCell
+         * @return A reference to the XLCell object.
          */
-        const XMLNode Property(const std::string& name) const;
+        XLCell Cell(unsigned int column);
 
         /**
-         * @brief
-         * @param name
+         * @brief Get the XLCell object at a specified column for this row.
+         * @param column The column with the XLCell
+         * @return A const reference to the XLCell object.
          */
-        void DeleteProperty(const std::string& name);
-
-//----------------------------------------------------------------------------------------------------------------------
-//           Protected Member Functions
-//----------------------------------------------------------------------------------------------------------------------
-
-    protected:
+        const XLCell Cell(unsigned int column) const;
 
         /**
-         * @brief
-         * @return
+         * @brief Get the number of cells in the row.
+         * @return The number of cells in the row.
          */
-        virtual bool ParseXMLData() override;
+        unsigned int CellCount() const;
+
+
+    private:
+        Impl::XLRow* m_row;
 
     };
 }
 
-#endif //OPENXLSX_IMPL_XLDOCCOREPROPERTIES_H
+
+
+#endif //OPENXLSX_XLROW_H

@@ -3,6 +3,7 @@
 //
 
 #include "XLTokenizer_Impl.h"
+#include <algorithm>
 
 using namespace OpenXLSX;
 using namespace std;

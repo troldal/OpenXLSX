@@ -73,15 +73,6 @@ Impl::XLCell& Impl::XLCellIterator::operator*() const {
     return *m_cell;
 }
 
-Impl::XLCell* Impl::XLCellIterator::dereference() {
-
-    return m_cell;
-}
-
-Impl::XLCellIterator::~XLCellIterator() {
-
-}
-
 /**
  * @details
  */
@@ -139,6 +130,3 @@ const Impl::XLCell& Impl::XLCellIteratorConst::operator*() const {
     return *m_cell;
 }
 
-Impl::XLCellIteratorConst::~XLCellIteratorConst() {
-
-}

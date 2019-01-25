@@ -203,7 +203,6 @@ void Impl::XLContentTypes::AddDefault(const string& key,
 
     m_defaults.insert({key,
                        node});
-    SetModified();
 }
 
 /**
@@ -268,7 +267,6 @@ void Impl::XLContentTypes::addOverride(const string& path,
                                                      type));
     m_overrides.insert({path,
                         move(item)});
-    SetModified();
 }
 
 /**
@@ -277,7 +275,6 @@ void Impl::XLContentTypes::addOverride(const string& path,
 void Impl::XLContentTypes::ClearOverrides() {
 
     m_overrides.clear();
-    SetModified();
 }
 
 /**

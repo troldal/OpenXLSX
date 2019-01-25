@@ -146,7 +146,6 @@ void Impl::XLRelationships::DeleteRelationship(const std::string& id) {
     Relationships()->at(id)->Delete();
     relationshipsMutable()->erase(id); // Delete item from the Relationships map
     CommitXMLData(); //TODO: is this really required?
-    SetModified();
 }
 
 /**
@@ -225,7 +224,6 @@ Impl::XLRelationshipItem* Impl::XLRelationships::AddRelationship(XLRelationshipT
     XLRelationshipItem* result = rShip.get();
     relationshipsMutable()->insert({id,
                                     move(rShip)});
-    SetModified();
 
     CommitXMLData(); //TODO: Is this really required?
 

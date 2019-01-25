@@ -130,7 +130,6 @@ long Impl::XLSharedStrings::AppendString(string_view str) {
 
     // Add the node pointer to the internal datastructure.
     m_sharedStringNodes.push_back(value);
-    SetModified();
 
     // Return the Index of the new string.
     return m_sharedStringNodes.size() - 1;
@@ -143,5 +142,4 @@ long Impl::XLSharedStrings::AppendString(string_view str) {
 void Impl::XLSharedStrings::ClearString(int index) {
 
     m_sharedStringNodes.at(index).set_value("");
-    SetModified();
 }

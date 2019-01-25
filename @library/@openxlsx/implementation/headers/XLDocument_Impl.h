@@ -300,8 +300,7 @@ namespace OpenXLSX::Impl
         std::unique_ptr<XLCoreProperties> m_docCoreProperties; /**< A pointer to the Core properties object*/
         std::unique_ptr<XLWorkbook>       m_workbook; /**< A pointer to the workbook object */
 
-        std::map<std::string,
-                 XLAbstractXMLFile*>          m_xmlFiles; /**< A std::map with all the associated XML files*/
+        std::map<std::string, XLAbstractXMLFile*>          m_xmlFiles; /**< A std::map with all the associated XML files*/
         std::unique_ptr<libzippp::ZipArchive> m_archive;
 
         std::vector<std::string> m_xmlData;

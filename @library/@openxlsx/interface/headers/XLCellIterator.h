@@ -34,8 +34,20 @@ namespace OpenXLSX {
     class XLCellIteratorConst
     {
     public:
+/*
+        explicit XLCellIteratorConst(const Impl::XLCellIteratorConst iterator);
+
+        virtual ~XLCellIteratorConst();
+
+        const XLCellIteratorConst& operator++();
+
+        bool operator!=(const XLCellIteratorConst& other) const;
+
+        const XLCell operator*() const;
+*/
 
     private:
+        //const std::unique_ptr<Impl::XLCellIteratorConst> m_iterator;
 
     };
 }

@@ -15,10 +15,8 @@ using namespace OpenXLSX;
  */
 Impl::XLCoreProperties::XLCoreProperties(XLDocument& parent,
                                          const std::string& filePath)
-        : XLAbstractXMLFile(parent,
-                            filePath),
-          XLSpreadsheetElement(parent),
-          m_properties() {
+        : XLAbstractXMLFile(parent, filePath),
+          XLSpreadsheetElement(parent) {
 
     ParseXMLData();
 }
@@ -35,10 +33,6 @@ Impl::XLCoreProperties::~XLCoreProperties() {
  */
 bool Impl::XLCoreProperties::ParseXMLData() {
 
-    m_properties.clear();
-    for (auto& node : XmlDocument()->first_child().children())
-        m_properties.insert_or_assign(node.name(),
-                                      node);
     return true;
 }
 
@@ -49,14 +43,12 @@ bool Impl::XLCoreProperties::SetProperty(const std::string& name,
                                          const std::string& value) {
 
     XMLNode node;
-    if (m_xmlDocument->first_child().child(name.c_str()))
-        node = m_xmlDocument->first_child().child(name.c_str());
+    if (XmlDocument()->first_child().child(name.c_str()))
+        node = XmlDocument()->first_child().child(name.c_str());
     else
-        node = m_xmlDocument->first_child().prepend_child(name.c_str());
+        node = XmlDocument()->first_child().prepend_child(name.c_str());
 
     node.text().set(value.c_str());
-    m_properties[name] = node;
-    SetModified();
     return true;
 }
 
@@ -76,8 +68,7 @@ bool Impl::XLCoreProperties::SetProperty(const std::string& name,
 bool Impl::XLCoreProperties::SetProperty(const std::string& name,
                                          double value) {
 
-    return SetProperty(name,
-                       to_string(value));
+    return SetProperty(name,to_string(value));
 }
 
 /**
@@ -85,11 +76,12 @@ bool Impl::XLCoreProperties::SetProperty(const std::string& name,
  */
 const XMLNode Impl::XLCoreProperties::Property(const std::string& name) const {
 
-    auto result = m_properties.find(name);
-    if (result == m_properties.end())
-        return XMLNode();
-    else
-        return m_properties.at(name);
+    auto property = XmlDocument()->first_child().child(name.c_str());
+    if (!property) {
+        property = XmlDocument()->first_child().append_child(name.c_str());
+    }
+
+    return property;
 }
 
 /**
@@ -97,9 +89,9 @@ const XMLNode Impl::XLCoreProperties::Property(const std::string& name) const {
  */
 void Impl::XLCoreProperties::DeleteProperty(const std::string& name) {
 
-    auto element = m_properties.at(name);
-    element.parent().remove_child(element);
-    m_properties.erase(name);
-    SetModified();
+    auto property = XmlDocument()->first_child().child(name.c_str());
+    if (property)
+        XmlDocument()->first_child().remove_child(property);
+
 }
 

@@ -138,11 +138,6 @@ namespace OpenXLSX::Impl
         const XLCellValue& Value() const;
 
         /**
-         * @brief Set the cell to a 'dirty' state, i.e. the worksheet needs to be saved.
-         */
-        void SetModified();
-
-        /**
          * @brief
          * @return
          */
@@ -254,14 +249,15 @@ namespace OpenXLSX::Impl
 
     private:
 
-        XLDocument      * m_parentDocument; /**< A pointer to the parent XLDocument object. */
-        const XLWorkbook* m_parentWorkbook; /**< A pointer to the parent XLWorkbook object. */
+        // ===== Pointers to parent entities ===== //
+        XLDocument      * m_parentDocument;  /**< A pointer to the parent XLDocument object. */
+        const XLWorkbook* m_parentWorkbook;  /**< A pointer to the parent XLWorkbook object. */
         XLWorksheet     * m_parentWorksheet; /**< A pointer to the parent XLWorksheet object. */
 
-        XLCellReference          m_cellReference; /**< The cell reference variable. */
-        std::unique_ptr<XMLNode> m_cellNode; /**< A pointer to the root XMLNode for the cell. */
-        XLCellValue              m_value; /**<  */
-
+        // ===== Cell entities ===== //
+        XMLNode         m_cellNode;      /**< A pointer to the root XMLNode for the cell. */
+        XLCellReference m_cellReference; /**< The cell reference variable. */
+        XLCellValue     m_value;         /**<  */
     };
 }
 

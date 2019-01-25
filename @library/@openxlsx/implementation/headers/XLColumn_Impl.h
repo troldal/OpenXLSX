@@ -112,7 +112,7 @@ namespace OpenXLSX::Impl
          * @brief Is the column hidden?
          * @return The state of the column.
          */
-        bool Ishidden() const;
+        bool IsHidden() const;
 
         /**
          * @brief Set the column to be shown or hidden.

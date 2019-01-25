@@ -18,11 +18,10 @@ using namespace OpenXLSX;
 Impl::XLAbstractXMLFile::XLAbstractXMLFile(XLDocument& parent,
                                            const std::string& filePath,
                                            const std::string& xmlData)
-        : m_xmlDocument(make_unique<XMLDocument>()),
+        : m_xmlDocument(),
           m_parentDocument(parent),
           m_path(filePath),
-          m_childXmlDocuments(),
-          m_isModified(false) {
+          m_childXmlDocuments() {
 
     if (xmlData.empty())
         SetXmlData(m_parentDocument.GetXMLFile(m_path));
@@ -38,7 +37,7 @@ Impl::XLAbstractXMLFile::~XLAbstractXMLFile() {
  */
 void Impl::XLAbstractXMLFile::SetXmlData(const std::string& xmlData) {
 
-    m_xmlDocument->load_string(xmlData.c_str());
+    m_xmlDocument.load_string(xmlData.c_str());
 }
 
 /**
@@ -47,7 +46,7 @@ void Impl::XLAbstractXMLFile::SetXmlData(const std::string& xmlData) {
 std::string Impl::XLAbstractXMLFile::GetXmlData() const {
 
     ostringstream ostr;
-    m_xmlDocument->print(ostr);
+    m_xmlDocument.print(ostr);
     return ostr.str();
 }
 
@@ -97,31 +96,16 @@ void Impl::XLAbstractXMLFile::Print() const {
 /**
  * @details This method returns a pointer to the underlying XMLDocument resource.
  */
-XMLDocument* Impl::XLAbstractXMLFile::XmlDocument() {
-
-    return const_cast<XMLDocument*>(static_cast<const XLAbstractXMLFile*>(this)->XmlDocument());
+XMLDocument * Impl::XLAbstractXMLFile::XmlDocument()
+{
+    return const_cast<XMLDocument *>(static_cast<const XLAbstractXMLFile *>(this)->XmlDocument());
 }
 
 /**
  * @details This method returns a pointer to the underlying XMLDocument resource as const.
  */
-const XMLDocument* Impl::XLAbstractXMLFile::XmlDocument() const {
-
-    return m_xmlDocument.get();
+const XMLDocument *Impl::XLAbstractXMLFile::XmlDocument() const
+{
+    return &m_xmlDocument;
 }
 
-/**
- * @details Set the XLWorksheet object to 'modified'. This is done by setting the m_is Modified member to true.
- */
-void Impl::XLAbstractXMLFile::SetModified() {
-
-    m_isModified = true;
-}
-
-/**
- * @details Returns the value of the m_isModified member variable.
- */
-bool Impl::XLAbstractXMLFile::IsModified() {
-
-    return m_isModified;
-}

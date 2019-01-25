@@ -74,7 +74,7 @@ void Impl::XLColumn::SetWidth(float width) {
 /**
  * @details
  */
-bool Impl::XLColumn::Ishidden() const {
+bool Impl::XLColumn::IsHidden() const {
 
     return m_hidden;
 }

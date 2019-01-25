@@ -33,7 +33,6 @@ add_subdirectory(@test)
 # Define internal dependencies
 #=======================================================================================================================
 add_dependencies(Demo OpenXLSX)
-add_dependencies(PimplDemo OpenXLSX)
 add_dependencies(Benchmark OpenXLSX)
 add_dependencies(InterfaceTest OpenXLSX)
 

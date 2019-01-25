@@ -50,6 +50,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLCellReference.h"
 #include "XLCell.h"
 #include "XLCellRange.h"
+#include "XLRow.h"
+#include "XLColumn.h"
 
 namespace OpenXLSX
 {
@@ -154,28 +156,28 @@ namespace OpenXLSX
          * @param rowNumber The number of the row to retrieve.
          * @return A pointer to the XLRow object.
          */
-//        XLRow* Row(unsigned long rowNumber);
+        XLRow Row(unsigned long rowNumber);
 
         /**
          * @brief Get the row with the given row number.
          * @param rowNumber The number of the row to retrieve.
          * @return A const pointer to the XLRow object.
          */
-//        const XLRow* Row(unsigned long rowNumber) const;
+        const XLRow Row(unsigned long rowNumber) const;
 
         /**
          * @brief Get the column with the given column number.
          * @param columnNumber The number of the column to retrieve.
          * @return A pointer to the XLColumn object.
          */
-//        XLColumn* Column(unsigned int columnNumber);
+        XLColumn Column(unsigned int columnNumber);
 
         /**
          * @brief Get the column with the given column number.
          * @param columnNumber The number of the column to retrieve.
          * @return A const pointer to the XLColumn object.
          */
-//        const XLColumn* Column(unsigned int columnNumber) const;
+        const XLColumn Column(unsigned int columnNumber) const;
 
         /**
          * @brief Get an XLCellReference to the first (top left) cell in the worksheet.

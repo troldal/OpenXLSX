@@ -47,6 +47,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #define OPENXLSX_XLCELLREFERENCE_H
 
 #include <string>
+#include <memory>
 
 namespace OpenXLSX
 {

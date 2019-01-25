@@ -6,6 +6,7 @@
 #include "XLCellRange_Impl.h"
 #include "XLTokenizer_Impl.h"
 #include <sstream>
+#include <algorithm>
 #include <pugixml.hpp>
 
 using namespace std;
@@ -667,6 +668,6 @@ void Impl::XLWorksheet::Import(const std::string& fileName,
 string Impl::XLWorksheet::GetXmlData() const {
 
     ostringstream ostr;
-    m_xmlDocument->save(ostr);
+    XmlDocument()->save(ostr);
     return ostr.str();
 }

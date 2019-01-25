@@ -32,8 +32,8 @@ Impl::XLCell::XLCell(XLWorksheet& parent,
           m_parentDocument(parent.ParentDocument()),
           m_parentWorkbook(parent.ParentWorkbook()),
           m_parentWorksheet(&parent),
+          m_cellNode(cellNode),
           m_cellReference(XLCellReference(cellNode.attribute("r").value())),
-          m_cellNode(std::make_unique<XMLNode>(cellNode)),
           m_value(*this) {
 }
 
@@ -51,11 +51,8 @@ Impl::XLCell::XLCell(XLWorksheet& parent,
 Impl::XLCell& Impl::XLCell::operator=(const XLCellRange& range) {
 
     auto            first = this->CellReference();
-    XLCellReference last(first->Row() + range.NumRows() - 1,
-                         first->Column() + range.NumColumns() - 1);
-    XLCellRange     rng(*ParentWorksheet(),
-                        *first,
-                        last);
+    XLCellReference last(first->Row() + range.NumRows() - 1, first->Column() + range.NumColumns() - 1);
+    XLCellRange     rng(*ParentWorksheet(), *first, last);
     rng = range;
 
     return *this;
@@ -86,14 +83,6 @@ Impl::XLCellValue& Impl::XLCell::Value() {
 }
 
 /**
- * @details
- */
-void Impl::XLCell::SetModified() {
-
-    ParentWorksheet()->SetModified();
-}
-
-/**
  * @details This function returns a const reference to the cellReference property.
  */
 const Impl::XLCellReference* Impl::XLCell::CellReference() const {
@@ -109,8 +98,7 @@ const Impl::XLCellReference* Impl::XLCell::CellReference() const {
 std::unique_ptr<Impl::XLCell> Impl::XLCell::CreateCell(XLWorksheet& parent,
                                                        XMLNode cellNode) {
 
-    return unique_ptr<XLCell>(new XLCell(parent,
-                                         cellNode));
+    return unique_ptr<XLCell>(new XLCell(parent, cellNode));
 }
 
 /**
@@ -119,14 +107,14 @@ std::unique_ptr<Impl::XLCell> Impl::XLCell::CreateCell(XLWorksheet& parent,
 void Impl::XLCell::SetTypeAttribute(const std::string& typeString) {
 
     if (typeString.empty()) {
-        if (m_cellNode->attribute("t"))
-            m_cellNode->remove_attribute("t");
+        if (m_cellNode.attribute("t"))
+            m_cellNode.remove_attribute("t");
     }
     else {
-        if (m_cellNode->attribute("t") == nullptr)
-            m_cellNode->append_attribute("t") = typeString.c_str();
+        if (m_cellNode.attribute("t") == nullptr)
+            m_cellNode.append_attribute("t") = typeString.c_str();
         else
-            m_cellNode->attribute("t") = typeString.c_str();
+            m_cellNode.attribute("t") = typeString.c_str();
     }
 }
 
@@ -135,8 +123,8 @@ void Impl::XLCell::SetTypeAttribute(const std::string& typeString) {
  */
 void Impl::XLCell::DeleteTypeAttribute() {
 
-    if (m_cellNode->attribute("t").as_bool()) {
-        m_cellNode->remove_attribute("t");
+    if (m_cellNode.attribute("t").as_bool()) {
+        m_cellNode.remove_attribute("t");
     }
 }
 
@@ -177,7 +165,7 @@ const XMLDocument* Impl::XLCell::XmlDocument() const {
  */
 XMLNode Impl::XLCell::CellNode() {
 
-    return *m_cellNode;
+    return m_cellNode;
 }
 
 /**
@@ -185,7 +173,7 @@ XMLNode Impl::XLCell::CellNode() {
  */
 const XMLNode Impl::XLCell::CellNode() const {
 
-    return *m_cellNode;
+    return m_cellNode;
 }
 
 /**
@@ -193,9 +181,9 @@ const XMLNode Impl::XLCell::CellNode() const {
  */
 XMLNode Impl::XLCell::CreateValueNode() {
 
-    if (!m_cellNode->child("v"))
-        m_cellNode->append_child("v");
-    return m_cellNode->child("v");
+    if (!m_cellNode.child("v"))
+        m_cellNode.append_child("v");
+    return m_cellNode.child("v");
 }
 
 /**
@@ -203,7 +191,7 @@ XMLNode Impl::XLCell::CreateValueNode() {
  */
 bool Impl::XLCell::HasTypeAttribute() const {
 
-    if (m_cellNode->attribute("t"))
+    if (m_cellNode.attribute("t"))
         return true;
     else
         return false;
@@ -215,5 +203,5 @@ bool Impl::XLCell::HasTypeAttribute() const {
  */
 const XMLAttribute Impl::XLCell::TypeAttribute() const {
 
-    return m_cellNode->attribute("t");
+    return m_cellNode.attribute("t");
 }

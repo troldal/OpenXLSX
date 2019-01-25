@@ -225,16 +225,11 @@ namespace OpenXLSX::Impl
 
     private:
 
-        static const std::unordered_map<int,
-                                        std::string> s_alphabet; /**< a std::map with the english alphabet */
-        static std::unordered_map<std::string,
-                                  unsigned int>      s_columnNumbers; /**<  */
-        static std::unordered_map<unsigned int,
-                                  std::string>       s_columnNames; /**<  */
-        static std::unordered_map<unsigned long,
-                                  std::string>       s_rowNames; /**<  */
-        static std::unordered_map<std::string,
-                                  unsigned long>     s_rowNumbers; /**<  */
+        static const std::unordered_map<int, std::string> s_alphabet; /**< a std::map with the english alphabet */
+        static std::unordered_map<std::string, unsigned int>      s_columnNumbers; /**<  */
+        static std::unordered_map<unsigned int, std::string>       s_columnNames; /**<  */
+        static std::unordered_map<unsigned long, std::string>       s_rowNames; /**<  */
+        static std::unordered_map<std::string, unsigned long>     s_rowNumbers; /**<  */
 
         unsigned long m_row; /**< The row */
         unsigned int  m_column; /**< The column */

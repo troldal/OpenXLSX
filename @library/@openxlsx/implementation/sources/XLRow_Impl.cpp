@@ -127,7 +127,7 @@ void Impl::XLRow::SetDescent(float descent) {
 /**
  * @details Determine if the row is hidden or not.
  */
-bool Impl::XLRow::Ishidden() const {
+bool Impl::XLRow::IsHidden() const {
 
     return m_hidden;
 }

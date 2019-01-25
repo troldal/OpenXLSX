@@ -84,7 +84,7 @@ namespace OpenXLSX::Impl
          * @brief
          * @param other
          */
-        XLAppProperties(const XLAppProperties& other) = default;
+        XLAppProperties(const XLAppProperties& other) = delete;
 
         /**
          * @brief
@@ -96,7 +96,7 @@ namespace OpenXLSX::Impl
          * @param other
          * @return
          */
-        XLAppProperties& operator=(const XLAppProperties& other) = default;
+        XLAppProperties& operator=(const XLAppProperties& other) = delete;
 
         /**
          * @brief
@@ -156,24 +156,6 @@ namespace OpenXLSX::Impl
          */
         bool SetProperty(const std::string& name,
                          const std::string& value);
-
-        /**
-         * @brief
-         * @param name
-         * @param value
-         * @return
-         */
-        bool SetProperty(const std::string& name,
-                         int value);
-
-        /**
-         * @brief
-         * @param name
-         * @param value
-         * @return
-         */
-        bool SetProperty(const std::string& name,
-                         double value);
 
         /**
          * @brief
@@ -296,21 +278,15 @@ namespace OpenXLSX::Impl
 
     private:
 
-        std::unique_ptr<XMLAttribute>  m_sheetCountAttribute; /**< */
-        std::unique_ptr<XMLNode>       m_sheetNamesParent; /**< */
-        std::map<std::string, XMLNode> m_sheetNameNodes; /**< */
+        // ===== Entities related to sheet names ===== //
+        XMLAttribute  m_sheetCountAttribute; /**< */
+        XMLNode       m_sheetNamesParent; /**< */
 
-        std::unique_ptr<XMLAttribute>   m_headingPairsSize; /**< */
-        std::unique_ptr<XMLNode>        m_headingPairsCategoryParent; /**< */
-        std::unique_ptr<XMLNode>        m_headingPairsCountParent; /**< */
-        std::vector<std::pair<XMLNode,
-                              XMLNode>> m_headingPairs; /**< */
+        // ===== Entities related to "Heading Pairs" ===== //
+        XMLAttribute               m_headingPairsSize; /**< */
+        XMLNode                    m_headingPairsCategories; /**< */
+        XMLNode                    m_headingPairsCounts; /**< */
 
-        std::map<std::string,
-                 XMLNode> m_properties; /**< */
-
-        unsigned int m_worksheetCount; /**< */
-        unsigned int m_chartsheetCount; /**< */
     };
 
 }

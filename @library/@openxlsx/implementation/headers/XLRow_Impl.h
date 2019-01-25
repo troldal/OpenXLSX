@@ -138,7 +138,7 @@ namespace OpenXLSX::Impl
          * @brief Is the row hidden?
          * @return The state of the row.
          */
-        bool Ishidden() const;
+        bool IsHidden() const;
 
         /**
          * @brief Set the row to be hidden or visible.
