@@ -40,7 +40,6 @@ set(OPENXLSX_IMPL_HEADERS
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLContentTypes_Impl.h
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLCoreProperties_Impl.h
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLDocument_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLException_Impl.h
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLFont_Impl.h
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLRelationships_Impl.h
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLSharedStrings_Impl.h
@@ -104,7 +103,8 @@ set(OPENXLSX_INTERFACE_HEADERS
         ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLCellRange.h
         ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLCellIterator.h
         ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLRow.h
-        ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLColumn.h)
+        ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLColumn.h
+        ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLException.h)
 
 set(OPENXLSX_INTERFACE_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/interface/sources/XLDocument.cpp

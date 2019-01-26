@@ -48,7 +48,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 #include "XLProperty.h"
 #include "XLCellType_Impl.h"
-#include "XLException_Impl.h"
+#include "XLException.h"
 #include "XLXml_Impl.h"
 #include "XLCellValue.h"
 

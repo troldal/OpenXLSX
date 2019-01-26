@@ -60,7 +60,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLWorkbook_Impl.h"
 #include "XLSheet_Impl.h"
 #include "XLRelationships_Impl.h"
-#include "XLException_Impl.h"
+#include "XLException.h"
 
 #include "XLProperty.h"
 

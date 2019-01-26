@@ -43,14 +43,13 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXLSX_IMPL_XLEXCEPTION_H
-#define OPENXLSX_IMPL_XLEXCEPTION_H
+#ifndef OPENXLSX_XLEXCEPTION_H
+#define OPENXLSX_XLEXCEPTION_H
 
 #include <stdexcept>
 
-namespace OpenXLSX::Impl
+namespace OpenXLSX
 {
-
     class XLException : public std::runtime_error
     {
     public:
@@ -65,4 +64,4 @@ namespace OpenXLSX::Impl
 
 }
 
-#endif //OPENXLSX_IMPL_XLEXCEPTION_H
+#endif //OPENXLSX_XLEXCEPTION_H
