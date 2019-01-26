@@ -35,23 +35,6 @@ ExternalProject_Add(zlib
             -Wno-dev)
 
 #=======================================================================================================================
-# Download and build the bzip2 library
-#=======================================================================================================================
-#ExternalProject_Add(bzip
-#        GIT_REPOSITORY https://github.com/osrf/bzip2_cmake.git
-#        GIT_TAG 0496eaa
-#        INSTALL_DIR ${OPENXLSX_DEPENDENCIES}
-#        UPDATE_COMMAND ""
-#        CMAKE_ARGS
-#            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-#            -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-#            -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-#            -DCMAKE_POSITION_INDEPENDENT_CODE=ON
-#            -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
-#            -DCMAKE_PREFIX_PATH:PATH=<INSTALL_DIR>
-#            -Wno-dev)
-
-#=======================================================================================================================
 # Download and build the libzip library
 #=======================================================================================================================
 ExternalProject_Add(libzip

@@ -122,25 +122,35 @@ set(OPENXLSX_INTERFACE_SOURCES
 #=======================================================================================================================
 # Build OpenXLSX library
 #=======================================================================================================================
-target_sources(OpenXLSX PUBLIC
-        ${OPENXLSX_INTERFACE_SOURCES} ${OPENXLSX_IMPL_SOURCES} ${OPENXLSX_INTERFACE_HEADERS} ${OPENXLSX_IMPL_HEADERS})
-target_link_libraries(OpenXLSX PUBLIC pugixml zip++ zip z)
-target_link_directories(OpenXLSX PUBLIC ${OPENXLSX_DEPENDENCIES}/lib)
+target_sources(OpenXLSX
+        PRIVATE
+            ${OPENXLSX_INTERFACE_SOURCES}
+            ${OPENXLSX_IMPL_SOURCES}
+            ${OPENXLSX_INTERFACE_HEADERS}
+            ${OPENXLSX_IMPL_HEADERS})
+target_link_libraries(OpenXLSX
+        PRIVATE
+            pugixml zip++ zip z)
+target_link_directories(OpenXLSX
+        PRIVATE
+            ${OPENXLSX_DEPENDENCIES}/lib)
 target_include_directories(OpenXLSX
-        PUBLIC # Should this be PRIVATE?
+        PRIVATE
+            ${OPENXLSX_DEPENDENCIES}/include)
+target_include_directories(OpenXLSX
+        PRIVATE
             ${CMAKE_CURRENT_LIST_DIR}/implementation/headers
+        PUBLIC
             ${CMAKE_CURRENT_LIST_DIR}/interface/headers
         SYSTEM INTERFACE
             ${CMAKE_CURRENT_LIST_DIR}/implementation/headers
             ${CMAKE_CURRENT_LIST_DIR}/interface/headers)
-target_include_directories(OpenXLSX
-        PUBLIC
-        ${OPENXLSX_DEPENDENCIES}/include)
 
+# ===== Set output directories for targets to (staged) installation directory ===== #
 set_target_properties(OpenXLSX PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${OPENXLSX_INSTALLDIR}/lib)
 set_target_properties(OpenXLSX PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${OPENXLSX_INSTALLDIR}/bin)
 
-file(COPY ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/ DESTINATION ${OPENXLSX_INSTALLDIR}/include/OpenXLSX/private)
+# ===== Copy header files to (staged) install directory ===== #
 file(COPY ${CMAKE_CURRENT_LIST_DIR}/interface/headers/ DESTINATION ${OPENXLSX_INSTALLDIR}/include/OpenXLSX)
 
 #=======================================================================================================================
