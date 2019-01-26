@@ -51,16 +51,22 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLSheet.h"
 #include "XLWorksheet.h"
 
-namespace OpenXLSX
-{
-    namespace Impl
-    {
+namespace OpenXLSX {
+    namespace Impl {
         class XLWorkbook;
     }
 
+    /**
+     * @brief
+     */
     class XLWorkbook
     {
     public:
+
+        /**
+         * @brief
+         * @param workbook
+         */
         explicit XLWorkbook(Impl::XLWorkbook& workbook);
 
         /**
@@ -236,7 +242,7 @@ namespace OpenXLSX
         void DeleteNamedRanges();
 
     private:
-        Impl::XLWorkbook* m_workbook;
+        Impl::XLWorkbook* m_workbook; /**< */
     };
 
 }

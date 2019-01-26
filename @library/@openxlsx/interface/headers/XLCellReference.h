@@ -49,13 +49,14 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <string>
 #include <memory>
 
-namespace OpenXLSX
-{
-    namespace Impl
-    {
+namespace OpenXLSX {
+    namespace Impl {
         class XLCellReference;
     }
 
+    /**
+     * @brief
+     */
     class XLCellReference
     {
     public:
@@ -155,7 +156,7 @@ namespace OpenXLSX
         void SetAddress(const std::string& address);
 
     private:
-        std::unique_ptr<Impl::XLCellReference> m_cellReference; /** */
+        std::unique_ptr<Impl::XLCellReference> m_cellReference; /**< */
 
     };
 

@@ -51,10 +51,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLProperty.h"
 #include "XLWorkbook.h"
 
-namespace OpenXLSX
-{
-    namespace Impl
-    {
+namespace OpenXLSX {
+    namespace Impl {
         class XLDocument;
     }
 
@@ -171,7 +169,7 @@ namespace OpenXLSX
 
     private:
 
-        std::shared_ptr<Impl::XLDocument> m_document;
+        std::shared_ptr<Impl::XLDocument> m_document; /**< */
 
     };
 

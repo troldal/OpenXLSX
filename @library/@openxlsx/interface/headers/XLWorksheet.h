@@ -53,26 +53,53 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLRow.h"
 #include "XLColumn.h"
 
-namespace OpenXLSX
-{
-    namespace Impl
-    {
+namespace OpenXLSX {
+    namespace Impl {
         class XLWorksheet;
     }
 
+    /**
+     * @brief
+     */
     class XLWorksheet : public XLSheet
     {
     public:
+
+        /**
+         * @brief
+         * @param sheet
+         */
         explicit XLWorksheet(Impl::XLSheet& sheet);
 
+        /**
+         * @brief
+         * @param other
+         */
         XLWorksheet(const XLWorksheet& other) = default;
 
+        /**
+         * @brief
+         * @param other
+         */
         XLWorksheet(XLWorksheet&& other) = default;
 
+        /**
+         * @brief
+         */
         virtual ~XLWorksheet() = default;
 
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
         XLWorksheet& operator=(const XLWorksheet& other) = default;
 
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
         XLWorksheet& operator=(XLWorksheet&& other) = default;
 
         /**

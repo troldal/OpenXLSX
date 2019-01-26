@@ -50,13 +50,14 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 #include "XLProperty.h"
 
-namespace OpenXLSX
-{
-    namespace Impl
-    {
+namespace OpenXLSX {
+    namespace Impl {
         class XLSheet;
     }
 
+    /**
+     * @brief
+     */
     class XLSheet
     {
     public:
@@ -152,7 +153,7 @@ namespace OpenXLSX
         virtual void SetIndex(int index);
 
     protected:
-        Impl::XLSheet* m_sheet;
+        Impl::XLSheet* m_sheet; /**< */
     };
 }
 

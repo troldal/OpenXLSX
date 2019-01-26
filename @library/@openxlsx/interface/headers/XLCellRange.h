@@ -54,42 +54,95 @@ namespace OpenXLSX {
         class XLCellRange;
     }
 
+    /**
+     * @brief
+     */
     class XLCellRange
     {
     public:
+
+        /**
+         * @brief
+         * @param range
+         */
         explicit XLCellRange(Impl::XLCellRange range);
 
+        /**
+         * @brief
+         * @param other
+         */
         XLCellRange(const XLCellRange& other) = default;
 
+        /**
+         * @brief
+         * @param other
+         */
         XLCellRange(XLCellRange&& other) = default;
 
+        /**
+         * @brief
+         */
         virtual ~XLCellRange();
 
+        /**
+         * @brief
+         * @param row
+         * @param column
+         * @return
+         */
         XLCell Cell(unsigned long row,
-                     unsigned int column);
+                    unsigned int column);
 
+        /**
+         * @brief
+         * @param row
+         * @param column
+         * @return
+         */
         const XLCell Cell(unsigned long row,
-                           unsigned int column) const;
+                          unsigned int column) const;
 
+        /**
+         * @brief
+         * @return
+         */
         unsigned long NumRows() const;
 
+        /**
+         * @brief
+         * @return
+         */
         unsigned int NumColumns() const;
 
+        /**
+         * @brief
+         * @param state
+         */
         void Transpose(bool state) const;
 
+        /**
+         * @brief
+         * @return
+         */
         XLCellIterator begin();
 
 //        XLCellIteratorConst begin() const;
 
+        /**
+         * @brief
+         * @return
+         */
         XLCellIterator end();
 
 //        XLCellIteratorConst end() const;
 
+        /**
+         * @brief
+         */
         void Clear();
 
-
     private:
-        std::unique_ptr<Impl::XLCellRange> m_cellrange;
+        std::unique_ptr<Impl::XLCellRange> m_cellrange; /**< */
     };
 }
 

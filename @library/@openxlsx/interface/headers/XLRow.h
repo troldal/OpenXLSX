@@ -53,21 +53,54 @@ namespace OpenXLSX {
         class XLRow;
     }
 
+    /**
+     * @brief
+     */
     class XLRow
     {
     public:
+
+        /**
+         * @brief
+         * @param row
+         */
         explicit XLRow(Impl::XLRow& row);
 
+        /**
+         * @brief
+         * @param other
+         */
         XLRow(const XLRow& other) = default;
 
+        /**
+         * @brief
+         * @param other
+         */
         XLRow(XLRow&& other) = default;
 
+        /**
+         * @brief
+         */
         virtual ~XLRow() = default;
 
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
         XLRow& operator=(const XLRow& other) = default;
 
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
         XLRow& operator=(XLRow&& other) = default;
 
+        /**
+         * @brief
+         * @return
+         */
         float Height() const;
 
         /**
@@ -124,7 +157,7 @@ namespace OpenXLSX {
 
 
     private:
-        Impl::XLRow* m_row;
+        Impl::XLRow* m_row; /**< */
 
     };
 }

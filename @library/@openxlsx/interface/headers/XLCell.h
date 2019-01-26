@@ -55,33 +55,76 @@ namespace OpenXLSX {
         class XLCell;
     }
 
+    /**
+     * @brief
+     */
     class XLCell
     {
     public:
+
+        /**
+         * @brief
+         * @param cell
+         */
         explicit XLCell(Impl::XLCell& cell);
 
+        /**
+         * @brief
+         * @param other
+         */
         XLCell(const XLCell& other) = default;
 
+        /**
+         * @brief
+         * @param other
+         */
         XLCell(XLCell&& other) = default;
 
+        /**
+         * @brief
+         */
         virtual ~XLCell() = default;
 
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
         XLCell& operator=(const XLCell& other) = default;
 
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
         XLCell& operator=(XLCell&& other) = default;
 
+        /**
+         * @brief
+         * @return
+         */
         XLCellValue Value();
 
+        /**
+         * @brief
+         * @return
+         */
         const XLCellValue Value() const;
 
+        /**
+         * @brief
+         * @return
+         */
         XLValueType ValueType() const;
 
+        /**
+         * @brief
+         * @return
+         */
         const XLCellReference CellReference() const;
 
-
-
     private:
-        Impl::XLCell* m_cell;
+        Impl::XLCell* m_cell; /**<  */
     };
 }
 

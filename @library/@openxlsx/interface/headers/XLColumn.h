@@ -51,19 +51,48 @@ namespace OpenXLSX {
         class XLColumn;
     }
 
+    /**
+     * @brief
+     */
     class XLColumn
     {
     public:
+
+        /**
+         * @brief
+         * @param column
+         */
         explicit XLColumn(Impl::XLColumn& column);
 
+        /**
+         * @brief
+         * @param other
+         */
         XLColumn(const XLColumn& other) = default;
 
+        /**
+         * @brief
+         * @param other
+         */
         XLColumn(XLColumn&& other) = default;
 
+        /**
+         * @brief
+         */
         virtual ~XLColumn() = default;
 
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
         XLColumn& operator=(const XLColumn& other) = default;
 
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
         XLColumn& operator=(XLColumn&& other) = default;
 
         /**
@@ -91,7 +120,7 @@ namespace OpenXLSX {
         void SetHidden(bool state);
 
     private:
-        Impl::XLColumn* m_column;
+        Impl::XLColumn* m_column; /**< */
 
     };
 }
