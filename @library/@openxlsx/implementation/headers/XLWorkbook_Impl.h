@@ -372,7 +372,7 @@ namespace OpenXLSX::Impl
 
     private:
 
-        XMLNode m_sheetsNode; /**< The parent node for all the sheet nodes (worksheets as well as chartsheets). */
+        std::unique_ptr<XMLNode> m_sheetsNode; /**< The parent node for all the sheet nodes (worksheets as well as chartsheets). */
 
         mutable XLSheetMap                      m_sheets; /**< Data structure for all sheets. */
         mutable std::map<std::string, XLSheet*> m_worksheets; /**< Data structure for  worksheets. */
@@ -385,7 +385,7 @@ namespace OpenXLSX::Impl
         unsigned int m_worksheetCount; /**< Holds the count of worksheets. */
         unsigned int m_chartsheetCount; /**< Holds the count of chartsheets. */
 
-        XMLNode m_definedNames; /**< Pointer to root node of defined names in the workbook. */
+        std::unique_ptr<XMLNode> m_definedNames; /**< Pointer to root node of defined names in the workbook. */
 
         std::unique_ptr<XLRelationships>         m_relationships; /**< pointer to the XLRelationships object for workbook. */
         mutable std::unique_ptr<XLSharedStrings> m_sharedStrings; /**< Pointer to the XLSharedStrings object. */

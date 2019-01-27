@@ -18,7 +18,7 @@ using namespace OpenXLSX;
 Impl::XLAbstractXMLFile::XLAbstractXMLFile(XLDocument& parent,
                                            const std::string& filePath,
                                            const std::string& xmlData)
-        : m_xmlDocument(),
+        : m_xmlDocument(std::make_unique<XMLDocument>()),
           m_parentDocument(parent),
           m_path(filePath),
           m_childXmlDocuments() {
@@ -37,7 +37,7 @@ Impl::XLAbstractXMLFile::~XLAbstractXMLFile() {
  */
 void Impl::XLAbstractXMLFile::SetXmlData(const std::string& xmlData) {
 
-    m_xmlDocument.load_string(xmlData.c_str());
+    m_xmlDocument->load_string(xmlData.c_str());
 }
 
 /**
@@ -46,7 +46,7 @@ void Impl::XLAbstractXMLFile::SetXmlData(const std::string& xmlData) {
 std::string Impl::XLAbstractXMLFile::GetXmlData() const {
 
     ostringstream ostr;
-    m_xmlDocument.print(ostr);
+    m_xmlDocument->print(ostr);
     return ostr.str();
 }
 
@@ -106,6 +106,6 @@ XMLDocument * Impl::XLAbstractXMLFile::XmlDocument()
  */
 const XMLDocument *Impl::XLAbstractXMLFile::XmlDocument() const
 {
-    return &m_xmlDocument;
+    return m_xmlDocument.get();
 }
 

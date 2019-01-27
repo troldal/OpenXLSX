@@ -173,7 +173,7 @@ namespace OpenXLSX::Impl
 
     private:
 
-        XMLDocument m_xmlDocument; /**< A pointer to the underlying XMLDocument resource*/
+        std::unique_ptr<XMLDocument> m_xmlDocument; /**< A pointer to the underlying XMLDocument resource*/
 
         XLDocument& m_parentDocument; /**< */
         std::string m_path; /**< */

@@ -5,6 +5,8 @@ cmake_minimum_required(VERSION 3.9 FATAL_ERROR)
 project (OpenXLSX)
 set(OPENXLSX_DEPENDENCIES ${CMAKE_CURRENT_BINARY_DIR}/dependencies)
 set(OPENXLSX_INSTALLDIR ${CMAKE_CURRENT_BINARY_DIR}/install)
+#set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+#set(CMAKE_VISIBILITY_INLINES_HIDDEN YES)
 
 #=======================================================================================================================
 # Set project metadata

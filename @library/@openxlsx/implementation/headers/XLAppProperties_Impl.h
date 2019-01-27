@@ -279,13 +279,13 @@ namespace OpenXLSX::Impl
     private:
 
         // ===== Entities related to sheet names ===== //
-        XMLAttribute  m_sheetCountAttribute; /**< */
-        XMLNode       m_sheetNamesParent; /**< */
+        std::unique_ptr<XMLAttribute>  m_sheetCountAttribute; /**< */
+        std::unique_ptr<XMLNode>       m_sheetNamesParent; /**< */
 
         // ===== Entities related to "Heading Pairs" ===== //
-        XMLAttribute               m_headingPairsSize; /**< */
-        XMLNode                    m_headingPairsCategories; /**< */
-        XMLNode                    m_headingPairsCounts; /**< */
+        std::unique_ptr<XMLAttribute>               m_headingPairsSize; /**< */
+        std::unique_ptr<XMLNode>                    m_headingPairsCategories; /**< */
+        std::unique_ptr<XMLNode>                    m_headingPairsCounts; /**< */
 
     };
 
