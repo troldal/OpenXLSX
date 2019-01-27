@@ -6,6 +6,7 @@
 #include <XLWorkbook_Impl.h>
 #include "XLSheet_Impl.h"
 #include "XLWorksheet_Impl.h"
+#include "XLChartsheet_Impl.h"
 
 using namespace OpenXLSX;
 
@@ -18,9 +19,29 @@ XLSheet XLWorkbook::Sheet(unsigned int index) {
     return XLSheet(*m_workbook->Sheet(index));
 }
 
+XLSheet XLWorkbook::Sheet(const std::string& sheetName) {
+
+    return XLSheet(*m_workbook->Sheet(sheetName));
+}
+
 XLWorksheet XLWorkbook::Worksheet(const std::string& sheetName) {
 
     return XLWorksheet(*m_workbook->Worksheet(sheetName));
+}
+
+const XLWorksheet XLWorkbook::Worksheet(const std::string& sheetName) const {
+
+    return XLWorksheet(*m_workbook->Worksheet(sheetName));
+}
+
+XLChartsheet XLWorkbook::Chartsheet(const std::string& sheetName) {
+
+    return XLChartsheet(*m_workbook->Chartsheet(sheetName));
+}
+
+const XLChartsheet XLWorkbook::Chartsheet(const std::string& sheetName) const {
+
+    return XLChartsheet(*m_workbook->Chartsheet(sheetName));
 }
 
 void XLWorkbook::DeleteSheet(const std::string& sheetName) {

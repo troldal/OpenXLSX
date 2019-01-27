@@ -50,6 +50,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 #include "XLSheet.h"
 #include "XLWorksheet.h"
+#include "XLChartsheet.h"
 
 namespace OpenXLSX {
     namespace Impl {
@@ -121,7 +122,7 @@ namespace OpenXLSX {
          * @todo This method is currently unimplemented.
          * @todo What should happen if the name is invalid?
          */
-        //XLSheet Sheet(const std::string &sheetName) { return XLSheet(*m_workbook->Sheet(sheetName)); }
+        XLSheet Sheet(const std::string &sheetName);
 
         /**
          * @brief
@@ -135,21 +136,21 @@ namespace OpenXLSX {
          * @param sheetName
          * @return
          */
-        //const XLWorksheet Worksheet(const std::string &sheetName) const { return XLWorksheet(*m_workbook->Worksheet(sheetName)); }
+        const XLWorksheet Worksheet(const std::string &sheetName) const;
 
         /**
          * @brief
          * @param sheetName
          * @return
          */
-        //XLChartsheet Chartsheet(const std::string &sheetName) { return XLChartsheet(*m_workbook->Chartsheet(sheetName)); }
+        XLChartsheet Chartsheet(const std::string &sheetName);
 
         /**
          * @brief
          * @param sheetName
          * @return
          */
-        //const XLChartsheet Chartsheet(const std::string &sheetName) const { return XLChartsheet(*m_workbook->Chartsheet(sheetName)); }
+        const XLChartsheet Chartsheet(const std::string &sheetName) const;
 
         /**
          * @brief
