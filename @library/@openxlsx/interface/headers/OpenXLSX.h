@@ -50,6 +50,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLCellRange.h"
 #include "XLCellReference.h"
 #include "XLCellValue.h"
+#include "XLChartsheet.h"
 #include "XLColumn.h"
 #include "XLDocument.h"
 #include "XLException.h"
