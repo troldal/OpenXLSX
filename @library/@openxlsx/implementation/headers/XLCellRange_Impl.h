@@ -47,8 +47,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #define OPENXLSX_IMPL_XLCELLRANGE_H
 
 #include "XLCellReference_Impl.h"
-#include "XLCellIterator_Impl.h"
-
 #include <string>
 
 namespace OpenXLSX::Impl
@@ -165,29 +163,29 @@ namespace OpenXLSX::Impl
          */
         void Transpose(bool state) const;
 
-        /**
+/*        *//**
          * @brief Get an iterator pointing to the first cell in the range.
          * @return The iterator pointing to the first cell in the range.
-         */
+         *//*
         XLCellIterator begin();
 
-        /**
+        *//**
          * @brief
          * @return
-         */
+         *//*
         XLCellIteratorConst begin() const;
 
-        /**
+        *//**
          * @brief Get an iterator pointing to the end of the grid (nullptr)
          * @return The iterator pointing to the end of the range.
-         */
+         *//*
         XLCellIterator end();
 
-        /**
+        *//**
          * @brief
          * @return
-         */
-        XLCellIteratorConst end() const;
+         *//*
+        XLCellIteratorConst end() const;*/
 
         /**
          * @brief

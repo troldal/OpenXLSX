@@ -56,7 +56,6 @@ set(OPENXLSX_IMPL_HEADERS
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLCell_Impl.h
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLCellFormats_Impl.h
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLCellFormula_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLCellIterator_Impl.h
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLCellRange_Impl.h
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLCellReference_Impl.h
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLCellType_Impl.h
@@ -85,7 +84,6 @@ set(OPENXLSX_IMPL_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCell_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellFormats_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellFormula_Impl.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellIterator_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellRange_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellReference_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellValue_Impl.cpp)
@@ -101,7 +99,6 @@ set(OPENXLSX_INTERFACE_HEADERS
         ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLCell.h
         ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLCellValue.h
         ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLCellRange.h
-        ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLCellIterator.h
         ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLChartsheet.h
         ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLRow.h
         ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLColumn.h
@@ -116,7 +113,6 @@ set(OPENXLSX_INTERFACE_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/interface/sources/XLCell.cpp
         ${CMAKE_CURRENT_LIST_DIR}/interface/sources/XLCellValue.cpp
         ${CMAKE_CURRENT_LIST_DIR}/interface/sources/XLCellRange.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/interface/sources/XLCellIterator.cpp
         ${CMAKE_CURRENT_LIST_DIR}/interface/sources/XLChartsheet.cpp
         ${CMAKE_CURRENT_LIST_DIR}/interface/sources/XLRow.cpp
         ${CMAKE_CURRENT_LIST_DIR}/interface/sources/XLColumn.cpp)

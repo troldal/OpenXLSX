@@ -47,7 +47,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #define OPENXLSX_OPENXLSX_H
 
 #include "XLCell.h"
-#include "XLCellIterator.h"
 #include "XLCellRange.h"
 #include "XLCellReference.h"
 #include "XLCellValue.h"

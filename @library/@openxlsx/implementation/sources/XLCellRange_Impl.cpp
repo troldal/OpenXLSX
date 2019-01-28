@@ -155,17 +155,17 @@ void Impl::XLCellRange::Transpose(bool state) const {
 
 /**
  * @details Returns a XLCellGridIterator, pointing to the first cell (top left) in the range.
- */
-Impl::XLCellIterator Impl::XLCellRange::begin() {
+ *//*
+XLCellIterator Impl::XLCellRange::begin() {
     //return XLCellIterator(this);
     return XLCellIterator(*this,
                           Cell(1,
                                1));
 }
 
-/**
+*//**
  * @details
- */
+ *//*
 Impl::XLCellIteratorConst Impl::XLCellRange::begin() const {
 
     return XLCellIteratorConst(*this,
@@ -173,25 +173,25 @@ Impl::XLCellIteratorConst Impl::XLCellRange::begin() const {
                                     1));
 }
 
-/**
+*//**
  * @brief 
  * @return 
- */
+ *//*
 Impl::XLCellIterator Impl::XLCellRange::end() {
     //return XLCellIterator();
     return XLCellIterator(*this,
                           nullptr);
 }
 
-/**
+*//**
  * @brief 
  * @return 
- */
+ *//*
 Impl::XLCellIteratorConst Impl::XLCellRange::end() const {
 
     return XLCellIteratorConst(*this,
                                nullptr);
-}
+}*/
 
 void Impl::XLCellRange::Clear() {
 

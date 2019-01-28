@@ -46,8 +46,11 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_XLCELLRANGE_H
 #define OPENXLSX_XLCELLRANGE_H
 
+#include <vector>
 #include "XLCell.h"
-#include "XLCellIterator.h"
+
+using XLCellIterator = std::vector<OpenXLSX::XLCell>::iterator;
+using XLCellIteratorConst = std::vector<OpenXLSX::XLCell>::const_iterator;
 
 namespace OpenXLSX {
     namespace Impl {
@@ -126,7 +129,7 @@ namespace OpenXLSX {
          */
         XLCellIterator begin();
 
-//        XLCellIteratorConst begin() const;
+        XLCellIteratorConst begin() const;
 
         /**
          * @brief
@@ -134,7 +137,7 @@ namespace OpenXLSX {
          */
         XLCellIterator end();
 
-//        XLCellIteratorConst end() const;
+        XLCellIteratorConst end() const;
 
         /**
          * @brief
@@ -142,7 +145,10 @@ namespace OpenXLSX {
         void Clear();
 
     private:
+        void InitCells() const;
+
         std::unique_ptr<Impl::XLCellRange> m_cellrange; /**< */
+        mutable std::unique_ptr<std::vector<XLCell>> m_cells; /**< */
     };
 }
 

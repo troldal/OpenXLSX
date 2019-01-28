@@ -10,7 +10,8 @@
 using namespace OpenXLSX;
 
 XLCellRange::XLCellRange(Impl::XLCellRange range)
-        : m_cellrange(std::make_unique<Impl::XLCellRange>(range)){
+        : m_cellrange(std::make_unique<Impl::XLCellRange>(range)),
+          m_cells(nullptr) {
 
 }
 
@@ -40,20 +41,46 @@ unsigned int XLCellRange::NumColumns() const {
 
 void XLCellRange::Transpose(bool state) const {
 
+    m_cells = nullptr;
     m_cellrange->Transpose(state);
 }
 
 XLCellIterator XLCellRange::begin() {
 
-    return XLCellIterator(m_cellrange->begin());
+    if (!m_cells) InitCells();
+    return m_cells->begin();
+}
+
+XLCellIteratorConst XLCellRange::begin() const {
+
+    if (!m_cells) InitCells();
+    return m_cells->begin();
 }
 
 XLCellIterator XLCellRange::end() {
 
-    return XLCellIterator(m_cellrange->end());
+    if (!m_cells) InitCells();
+    return m_cells->end();
+}
+
+XLCellIteratorConst XLCellRange::end() const {
+
+    if (!m_cells) InitCells();
+    return m_cells->end();
 }
 
 void XLCellRange::Clear() {
 
     m_cellrange->Clear();
+}
+
+void XLCellRange::InitCells() const {
+
+    m_cells = std::make_unique<std::vector<XLCell>>();
+
+    for (unsigned long row = 1; row <= m_cellrange->NumRows(); row++) {
+        for (unsigned int column = 1; column <= m_cellrange->NumColumns(); column++) {
+            m_cells->push_back(Cell(row, column));
+        }
+    }
 }
