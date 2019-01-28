@@ -202,7 +202,7 @@ unsigned long ReadTest(int repetitions, const std::string &fileName, ostream &de
         std::string stringVal;
         bool boolVal;
         auto arange = wks.Range(XLCellReference("A1"), XLCellReference(rows, cols));
-        for (auto iter : arange) {
+        for (const auto iter : arange) {
             switch(iter.Value().ValueType()) {
                 case XLValueType::Integer :
                     intVal = iter.Value().Get<int>();

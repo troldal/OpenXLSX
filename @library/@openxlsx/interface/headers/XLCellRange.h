@@ -129,6 +129,10 @@ namespace OpenXLSX {
          */
         XLCellIterator begin();
 
+        /**
+         * @brief
+         * @return
+         */
         XLCellIteratorConst begin() const;
 
         /**
@@ -137,6 +141,10 @@ namespace OpenXLSX {
          */
         XLCellIterator end();
 
+        /**
+         * @brief
+         * @return
+         */
         XLCellIteratorConst end() const;
 
         /**
@@ -145,6 +153,10 @@ namespace OpenXLSX {
         void Clear();
 
     private:
+
+        /**
+         * @brief
+         */
         void InitCells() const;
 
         std::unique_ptr<Impl::XLCellRange> m_cellrange; /**< */

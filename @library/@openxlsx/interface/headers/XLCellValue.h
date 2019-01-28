@@ -171,7 +171,7 @@ namespace OpenXLSX {
          * @return
          */
         template <typename T, typename std::enable_if<std::is_integral<T>::value, long long int>::type* = nullptr>
-        T Get();
+        T Get() const;
 
         /**
          * @brief
@@ -179,7 +179,7 @@ namespace OpenXLSX {
          * @return
          */
         template <typename T, typename std::enable_if<std::is_floating_point<T>::value, long double>::type* = nullptr>
-        T Get();
+        T Get() const;
 
         /**
          * @brief
@@ -187,7 +187,7 @@ namespace OpenXLSX {
          * @return
          */
         template <typename T, typename std::enable_if<std::is_constructible<T, char*>::value && !std::is_same<T,bool>::value,char*>::type* = nullptr>
-        T Get();
+        T Get() const;
 
         /**
          * @brief
@@ -301,7 +301,7 @@ namespace OpenXLSX {
      */
     template <typename T, typename std::enable_if<std::is_integral<T>::value,
                                                   long long int>::type*>
-    T XLCellValue::Get() {
+    T XLCellValue::Get() const {
 
         if constexpr (std::is_same<T, bool>::value) {
             return GetBoolean();
@@ -316,7 +316,7 @@ namespace OpenXLSX {
      */
     template <typename T, typename std::enable_if<std::is_floating_point<T>::value,
                                                   long double>::type*>
-    T XLCellValue::Get() {
+    T XLCellValue::Get() const {
 
         return GetFloat();
     }
@@ -328,7 +328,7 @@ namespace OpenXLSX {
                                                                         char*>::value && !std::is_same<T,
                                                                                                        bool>::value,
                                                   char*>::type*>
-    T XLCellValue::Get() {
+    T XLCellValue::Get() const {
 
         return T(GetString());
     }
