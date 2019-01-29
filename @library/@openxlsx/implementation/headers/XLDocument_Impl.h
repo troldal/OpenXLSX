@@ -200,10 +200,9 @@ namespace OpenXLSX::Impl
          * @brief Delete the property from the document
          * @param propertyName The property to delete from the document
          */
-        void
-        DeleteProperty(XLProperty theProperty);
+        void DeleteProperty(XLProperty theProperty);
 
-        //----------------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 //           Protected Member Functions
 //----------------------------------------------------------------------------------------------------------------------
 

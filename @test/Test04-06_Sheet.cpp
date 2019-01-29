@@ -7,7 +7,7 @@
 
 using namespace OpenXLSX;
 
-TEST_CASE( "Testing of XLSheet objects") {
+TEST_CASE( "Test 04: Testing of XLSheet objects") {
     XLDocument doc;
     doc.OpenDocument("./TestSheet.xlsx");
     auto wbk = doc.Workbook();
@@ -60,7 +60,7 @@ TEST_CASE( "Testing of XLSheet objects") {
 
 }
 
-TEST_CASE( "Testing of XLWorksheet objects") {
+TEST_CASE( "Test 05: Testing of XLWorksheet objects") {
     XLDocument doc;
     doc.OpenDocument("./Testworksheet.xlsx");
     auto wbk = doc.Workbook();

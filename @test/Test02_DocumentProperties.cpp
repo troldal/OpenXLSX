@@ -8,7 +8,7 @@
 
 using namespace OpenXLSX;
 
-TEST_CASE( "Testing of Document Properties", "[create]" ) {
+TEST_CASE( "Test 02: Testing of Document Properties", "[create]" ) {
 
     XLDocument doc;
     std::string file = "./TestDocumentProperties.xlsx";

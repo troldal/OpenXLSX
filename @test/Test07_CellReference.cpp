@@ -7,7 +7,7 @@
 
 using namespace OpenXLSX;
 
-TEST_CASE( "Testing of XLCellReference objects") {
+TEST_CASE( "Test 07: Testing of XLCellReference objects") {
     XLCellReference ref(3,3);
 
     SECTION( "Address" ) {

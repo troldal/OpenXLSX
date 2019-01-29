@@ -8,7 +8,7 @@
 
 using namespace OpenXLSX;
 
-TEST_CASE( "Testing of XLWorkbook objects") {
+TEST_CASE( "Test 03: Testing of XLWorkbook objects") {
     XLDocument doc;
     doc.OpenDocument("./TestWorkbook.xlsx");
     auto wbk = doc.Workbook();

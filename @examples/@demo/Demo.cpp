@@ -17,7 +17,6 @@ using namespace OpenXLSX;
  * TODO: Update formulas when changing Sheet Name.
  * TODO: Get vector for a Row or Column.
  * TODO: Conditional formatting
- * TODO: Fix the ConstIterator (currently it's not const)
  */
 
 int main()

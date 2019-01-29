@@ -7,7 +7,7 @@
 
 using namespace OpenXLSX;
 
-TEST_CASE( "Testing of XLCell/XLCellValue objects") {
+TEST_CASE( "Test 08: Testing of XLCell/XLCellValue objects") {
     XLDocument doc;
     doc.OpenDocument("./TestCell.xlsx");
     auto wbk = doc.Workbook();
