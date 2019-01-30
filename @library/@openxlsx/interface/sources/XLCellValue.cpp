@@ -13,6 +13,11 @@ XLCellValue::XLCellValue(Impl::XLCellValue& value)
         : m_value(&value) {
 }
 
+XLCellValue& XLCellValue::operator=(const XLCellValue& other) {
+    *m_value = *other.m_value;
+    return *this;
+}
+
 XLCellValue& XLCellValue::operator=(const char* stringValue) {
 
     *m_value = stringValue;

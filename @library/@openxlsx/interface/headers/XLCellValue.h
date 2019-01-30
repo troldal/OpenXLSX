@@ -56,7 +56,54 @@ namespace OpenXLSX {
     }
 
     /**
-     * @brief
+     * @brief The XLCellValue class represents the concept of a cell value. This can be in the form of a number
+     * (an integer or a float), a string, a boolean or no value (empty).
+     *
+     * @details The XLCellValue class encapsulates the concept of a cell value, i.e. the string, number, boolean or
+     * empty value that a cell can contain. Other cell contents, such as formatting or formulas, are handled by separate
+     * classes.
+     *
+     * ### Usage ###
+     * An XLCellValue object is not created directly by the user, but rather accessed and/or modified through the XLCell
+     * interface (the Value() member function).
+     * The value can be set either through the Set() member function or the operator=(). Both have been overloaded to take
+     * any integer or floating point value, bool value or string value (either std::string or char* string). In order to
+     * set the cell value to empty, use the Clear() member function.
+     *
+     * It is also possible to assign one XLCellValue to another, using the overloaded copy assignment operator (operator=()).
+     * Note that this behaviour is different from most of the classes in the OpenXLSX interface, where each object behaves
+     * like an opaque pointer and the copy assignment operator essentially produces a new pointer to the same implementation
+     * object. For XLCellValue objects, however, operator=() will copy the value of the source object to the destination object.
+     * The copy/move **constructors**, however, has default behaviour; the new object will point to the same implementation
+     * object as the source. Note also that a move assignment operator has not been implemented, as the value **must**
+     * always be copied when assigning to an existing object.
+     *
+     * To get the current value of an XLCellValue object, use the Get<>() member function. The Get<>() member function is a
+     * template function, taking the value return type as template argument. It has been overloaded to take any integer
+     * or floating point type, bool type or string type that can be constructed from a char* string (e.g. std::string or
+     * std::string_view). It is also possible to get the value as a std::string, regardless of the value type, using the
+     * AsString() member function.
+     *
+     * ### Example ###
+     * Here follows an example that sets the value and the prints it to std::cout:
+     * ```cpp
+     * // Code to create document/workbool/worksheet...
+     *
+     * wks->Cell("A1")->Value() = 3.14159;
+     * wks->Cell("B1")->Value() = 42;
+     * wks->Cell("C1")->Value() = "Hello OpenXLSX!";
+     * wks->Cell("D1")->Value() = true;
+
+     * auto A1 = wks->Cell("A1")->Value().Get<double>();
+     * auto B1 = wks->Cell("B1")->Value().Get<int>();
+     * auto C1 = wks->Cell("C1")->Value().Get<std::string>();
+     * auto D1 = wks->Cell("D1")->Value().Get<bool>();
+
+     * cout << "Cell A1: " << A1 << endl;
+     * cout << "Cell B1: " << B1 << endl;
+     * cout << "Cell C1: " << C1 << endl;
+     * cout << "Cell D1: " << D1 << endl;
+     * ```
      */
     class XLCellValue
     {
@@ -90,14 +137,7 @@ namespace OpenXLSX {
          * @param other
          * @return
          */
-        XLCellValue& operator=(const XLCellValue& other) = default;
-
-        /**
-         * @brief
-         * @param other
-         * @return
-         */
-        XLCellValue& operator=(XLCellValue&& other) = default;
+        XLCellValue& operator=(const XLCellValue& other);
 
         /**
          * @brief
@@ -246,7 +286,7 @@ namespace OpenXLSX {
         const char* GetString() const;
 
     private:
-        Impl::XLCellValue* m_value; /**< */
+        Impl::XLCellValue* m_value; /**< A pointer to the underlying implementation object, Impl::XLCellValue*/
     };
 
     /**

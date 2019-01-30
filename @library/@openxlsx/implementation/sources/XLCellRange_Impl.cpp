@@ -37,12 +37,6 @@ Impl::XLCellRange::XLCellRange(XLWorksheet& sheet,
     m_columns      = lastColumn - firstColumn;
     m_rowOffset    = firstRow - 1;
     m_columnOffset = firstColumn - 1;
-
-    // TODO: Something fishy is goung on with the +1/-1 calcs...
-    // TODO: This appears to slow down Cell access significantly!
-    // Ensure that all cells in Range are valid, by setting last Cell.
-    //if (Sheet->Cell(lastRow-1, lastColumn-1)->CellType() == XLCellType::Empty)
-    //Sheet->Cell(lastRow-1, lastColumn-1)->SetEmptyValue();
 }
 
 /**

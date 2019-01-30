@@ -149,6 +149,7 @@ set_target_properties(OpenXLSX PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${OPENXLSX_IN
 set_target_properties(OpenXLSX PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${OPENXLSX_INSTALLDIR}/bin)
 
 # ===== Copy header files to (staged) install directory ===== #
+file(REMOVE_RECURSE ${OPENXLSX_INSTALLDIR}/include/)
 file(COPY ${CMAKE_CURRENT_LIST_DIR}/interface/headers/ DESTINATION ${OPENXLSX_INSTALLDIR}/include/OpenXLSX)
 
 #=======================================================================================================================

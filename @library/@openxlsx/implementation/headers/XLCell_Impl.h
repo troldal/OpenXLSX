@@ -257,7 +257,7 @@ namespace OpenXLSX::Impl
         // ===== Cell entities ===== //
         std::unique_ptr<XMLNode>    m_cellNode;      /**< A pointer to the root XMLNode for the cell. */
         XLCellReference             m_cellReference; /**< The cell reference variable. */
-        XLCellValue                 m_value;         /**<  */
+        XLCellValue                 m_value;         /**< The XLCellValue object, holding the current value. */
     };
 }
 

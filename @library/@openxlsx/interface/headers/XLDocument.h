@@ -57,7 +57,33 @@ namespace OpenXLSX {
     }
 
     /**
-     * @brief
+     * @brief This class encapsulates the concept of an Excel file. It is different from the XLWorkbook, in that an
+     * XLDocument holds an XLWorkbook together with its metadata, as well as methods for opening,
+     * closing and saving the document. \n\n
+     * **The XLDocument class is the entrypoint for clients using the OpenXLSX library.**
+     *
+     * @details This class encapsulates the concept of an Excel file. It is different from the XLWorkbook, in that an
+     * XLDocument holds an XLWorkbook together with its metadata, as well as methods for opening,
+     * closing and saving the document.
+     *
+     * ### Usage ###
+     * Using the member functions of this class, Excel files can be created, and existing files can be opened. An object
+     * of the XLDocument class functions as an opaque pointer. I.e. objects can be copied and moved around, but each copy
+     * will still operate on the same document. Internally, it works by having a std::shared_ptr to an implementation
+     * object. When the last XLDocument object (pointing to the same implementation object) is destroyed or goes out of
+     * scope, the implementation object and any child objects will be destroyed as well.
+     *
+     * ### Example ###
+     *
+     * ```cpp
+     * XLDocument doc;
+     * doc.CreateDocument("./MyTest.xlsx");
+     *
+     * XLDocument copy = doc; //copy and doc points to the same object!
+     * copy.Save();
+     * ```
+     *
+     * @todo Implement a Clone method. Ensure that the source object is not modified in any way, including saving to disk.
      */
     class XLDocument
     {
@@ -90,6 +116,20 @@ namespace OpenXLSX {
          * @brief Destructor
          */
         virtual ~XLDocument() = default;
+
+        /**
+         * @@brief
+         * @param other
+         * @return
+         */
+        XLDocument& operator=(const XLDocument& other) = default;
+
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
+        XLDocument& operator=(XLDocument&& other) = default;
 
         /**
          * @brief Open the .xlsx file with the given path
@@ -169,7 +209,7 @@ namespace OpenXLSX {
 
     private:
 
-        std::shared_ptr<Impl::XLDocument> m_document; /**< */
+        std::shared_ptr<Impl::XLDocument> m_document; /**< A shared pointer to the underlying implementation object. */
 
     };
 
