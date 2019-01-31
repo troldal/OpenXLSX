@@ -7,7 +7,7 @@
       <file path="$PROJECT_DIR$/@doxy" />
       <file path="$PROJECT_DIR$/@examples" />
       <file path="$PROJECT_DIR$/@library" />
-      <file path="$PROJECT_DIR$/@library/@openxlsx/interface" />
+      <file path="$PROJECT_DIR$/@library/@openxlsx/interfaces" />
       <file path="$PROJECT_DIR$/@test" />
     </sourceRoots>
     <excludeRoots>

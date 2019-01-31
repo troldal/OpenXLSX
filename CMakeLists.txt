@@ -30,11 +30,13 @@ add_subdirectory(@library)
 add_subdirectory(@examples)
 add_subdirectory(@doxy)
 add_subdirectory(@test)
+add_subdirectory(@benchmark)
 
 #=======================================================================================================================
 # Define internal dependencies
 #=======================================================================================================================
-add_dependencies(Demo OpenXLSX)
+add_dependencies(CxxDemo OpenXLSX)
+add_dependencies(CDemo OpenXLSX)
 add_dependencies(Benchmark OpenXLSX)
 add_dependencies(InterfaceTest OpenXLSX)
 

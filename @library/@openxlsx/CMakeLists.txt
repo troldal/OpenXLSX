@@ -88,34 +88,40 @@ set(OPENXLSX_IMPL_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellReference_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellValue_Impl.cpp)
 
-set(OPENXLSX_INTERFACE_HEADERS
-        ${CMAKE_CURRENT_LIST_DIR}/interface/headers/OpenXLSX.h
-        ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLProperty.h
-        ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLDocument.h
-        ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLWorkbook.h
-        ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLSheet.h
-        ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLWorksheet.h
-        ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLCellReference.h
-        ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLCell.h
-        ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLCellValue.h
-        ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLCellRange.h
-        ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLChartsheet.h
-        ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLRow.h
-        ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLColumn.h
-        ${CMAKE_CURRENT_LIST_DIR}/interface/headers/XLException.h)
+set(OPENXLSX_CXX_INTERFACE_HEADERS
+        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/OpenXLSX.h
+        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/XLProperty.h
+        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/XLDocument.h
+        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/XLWorkbook.h
+        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/XLSheet.h
+        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/XLWorksheet.h
+        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/XLCellReference.h
+        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/XLCell.h
+        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/XLCellValue.h
+        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/XLCellRange.h
+        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/XLChartsheet.h
+        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/XLRow.h
+        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/XLColumn.h
+        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/XLException.h)
 
-set(OPENXLSX_INTERFACE_SOURCES
-        ${CMAKE_CURRENT_LIST_DIR}/interface/sources/XLDocument.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/interface/sources/XLWorkbook.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/interface/sources/XLSheet.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/interface/sources/XLWorksheet.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/interface/sources/XLCellReference.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/interface/sources/XLCell.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/interface/sources/XLCellValue.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/interface/sources/XLCellRange.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/interface/sources/XLChartsheet.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/interface/sources/XLRow.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/interface/sources/XLColumn.cpp)
+set(OPENXLSX_CXX_INTERFACE_SOURCES
+        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/sources/XLDocument.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/sources/XLWorkbook.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/sources/XLSheet.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/sources/XLWorksheet.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/sources/XLCellReference.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/sources/XLCell.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/sources/XLCellValue.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/sources/XLCellRange.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/sources/XLChartsheet.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/sources/XLRow.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/sources/XLColumn.cpp)
+
+set(OPENXLSX_C_INTERFACE_HEADERS
+        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c/headers/XL_Document.h)
+
+set(OPENXLSX_C_INTERFACE_SOURCES
+        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c/sources/XL_Document.cpp)
 
 #=======================================================================================================================
 # Build OpenXLSX library
@@ -124,8 +130,9 @@ include(GenerateExportHeader)
 generate_export_header(OpenXLSX)
 target_sources(OpenXLSX
         PRIVATE
-            ${OPENXLSX_INTERFACE_SOURCES}
-            ${OPENXLSX_IMPL_SOURCES})
+            ${OPENXLSX_IMPL_SOURCES}
+            ${OPENXLSX_CXX_INTERFACE_SOURCES}
+            ${OPENXLSX_C_INTERFACE_SOURCES})
 target_link_directories(OpenXLSX
         PRIVATE
             ${OPENXLSX_DEPENDENCIES}/lib)
@@ -139,10 +146,11 @@ target_include_directories(OpenXLSX
         PRIVATE
             ${CMAKE_CURRENT_LIST_DIR}/implementation/headers
         PUBLIC
-            ${CMAKE_CURRENT_LIST_DIR}/interface/headers)
+            ${CMAKE_CURRENT_LIST_DIR}/interfaces/c/headers
+            ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers)
         #SYSTEM INTERFACE
         #    ${CMAKE_CURRENT_LIST_DIR}/implementation/headers
-        #    ${CMAKE_CURRENT_LIST_DIR}/interface/headers)
+        #    ${CMAKE_CURRENT_LIST_DIR}/interfaces/headers)
 
 # ===== Set output directories for targets to (staged) installation directory ===== #
 set_target_properties(OpenXLSX PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${OPENXLSX_INSTALLDIR}/lib)
@@ -150,7 +158,8 @@ set_target_properties(OpenXLSX PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${OPENXLSX_IN
 
 # ===== Copy header files to (staged) install directory ===== #
 file(REMOVE_RECURSE ${OPENXLSX_INSTALLDIR}/include/)
-file(COPY ${CMAKE_CURRENT_LIST_DIR}/interface/headers/ DESTINATION ${OPENXLSX_INSTALLDIR}/include/OpenXLSX)
+file(COPY ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/ DESTINATION ${OPENXLSX_INSTALLDIR}/include/OpenXLSX)
+file(COPY ${CMAKE_CURRENT_LIST_DIR}/interfaces/c/headers/ DESTINATION ${OPENXLSX_INSTALLDIR}/include/OpenXLSX)
 
 #=======================================================================================================================
 # Install OpenXLSX Library
