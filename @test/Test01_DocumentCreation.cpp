@@ -141,4 +141,12 @@ TEST_CASE("Test 01: Creation of Excel Documents") {
         REQUIRE(doc.DocumentName() == newfile);
     }
 
+        /**
+     * @brief
+     */
+    SECTION("Section 01L: Open document as const") {
+        const XLDocument doc(file);
+        REQUIRE(doc.DocumentName() == file);
+    }
+
 }
