@@ -1,13 +1,14 @@
 #include <printf.h>
 #include <OpenXLSX/XL_Document.h>
+#include <OpenXLSX/XL_Property.h>
 #include <stdio.h>
 
 int main()
 {
 
-    XL_Document* doc = XL_DocumentCreate("./MyCTest.xlsx");
+    XL_Document* doc = XL_CreateDocument("./MyCTest.xlsx");
 
-    printf("%s", XL_DocumentPath(doc));
+    printf("AppVersion: %s", XL_GetDocumentProperty(doc, AppVersion));
 
 /*    XLDocument doc;
     doc.CreateDocument("./MyTest.xlsx");

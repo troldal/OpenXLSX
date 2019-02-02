@@ -29,7 +29,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 add_subdirectory(@library)
 add_subdirectory(@examples)
 add_subdirectory(@doxy)
-add_subdirectory(@test)
+add_subdirectory(@tests)
 add_subdirectory(@benchmark)
 
 #=======================================================================================================================
