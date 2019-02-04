@@ -162,7 +162,8 @@ bool Impl::XLDocument::SaveDocumentAs(const string& fileName) {
  * @details
  * @todo Currently, this method returns the full path, which is not the intention.
  */
-std::string Impl::XLDocument::DocumentName() const {
+const string &
+Impl::XLDocument::DocumentName() const {
 
     return m_filePath;
 }
@@ -170,7 +171,8 @@ std::string Impl::XLDocument::DocumentName() const {
 /**
  * @details
  */
-std::string Impl::XLDocument::DocumentPath() const {
+const string &
+Impl::XLDocument::DocumentPath() const {
 
     return m_filePath;
 }

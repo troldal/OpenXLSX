@@ -166,13 +166,13 @@ namespace OpenXLSX {
          * @brief Get the filename of the current document, e.g. "spreadsheet.xlsx".
          * @return A std::string with the filename.
          */
-        std::string DocumentName() const;
+        const std::string& DocumentName() const;
 
         /**
          * @brief Get the full path of the current document, e.g. "drive/blah/spreadsheet.xlsx"
          * @return A std::string with the path.
          */
-        std::string DocumentPath() const;
+        const std::string& DocumentPath() const;
 
         /**
          * @brief Get the underlying workbook object.

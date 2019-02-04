@@ -12,7 +12,7 @@ using namespace OpenXLSX;
  * @brief The purpose of this test case is to test the creation of XLDocument objects. Each section section
  * tests document creation using a different method. In addition, saving, closing and copying is tested.
  */
-TEST_CASE("Test 01: Creation of Excel Documents") {
+TEST_CASE("C++ Interface Test 01: Creation of Excel Documents") {
 
     std::string file = "./TestDocumentCreation.xlsx";
     std::string newfile = "./TestDocumentCreationNew.xlsx";
@@ -28,12 +28,16 @@ TEST_CASE("Test 01: Creation of Excel Documents") {
         XLDocument doc;
         doc.CreateDocument(file);
         std::ifstream f(file);
-        REQUIRE(f.good() == true);
+        REQUIRE(f.good());
         REQUIRE(doc.DocumentName() == file);
     }
 
+
     /**
-     * @brief
+     * @brief Open an existing document using the constructor.
+     *
+     * @details Opens an existing document by passing the file name to the constructor.
+     * Success is tested by checking that the DocumentName member function returns the correct file name.
      */
     SECTION("Section 01B: Open existing using Constructor") {
         XLDocument doc(file);
@@ -42,6 +46,8 @@ TEST_CASE("Test 01: Creation of Excel Documents") {
 
     /**
      * @brief
+     *
+     * @details
      */
     SECTION("Section 01C: Open existing using OpenDocument()") {
         XLDocument doc;
@@ -49,32 +55,41 @@ TEST_CASE("Test 01: Creation of Excel Documents") {
         REQUIRE(doc.DocumentName() == file);
     }
 
+
     /**
      * @brief
+     *
+     * @details
      */
     SECTION("Section 01D: Save document using Save()") {
         XLDocument doc(file);
 
         doc.SaveDocument();
         std::ifstream n(file);
-        REQUIRE(n.good() == true);
+        REQUIRE(n.good());
         REQUIRE(doc.DocumentName() == file);
     }
 
+
     /**
      * @brief
+     *
+     * @details
      */
-    SECTION("Section 01E: Save document using SaveAs()") {
+    SECTION("Section 01E: Save document using SaveDocumentAs()") {
         XLDocument doc(file);
 
         doc.SaveDocumentAs(newfile);
         std::ifstream n(newfile);
-        REQUIRE(n.good() == true);
+        REQUIRE(n.good());
         REQUIRE(doc.DocumentName() == newfile);
     }
 
+
     /**
      * @brief
+     *
+     * @details
      */
     SECTION("Section 01F: Copy construction") {
         XLDocument doc(file);
@@ -83,8 +98,11 @@ TEST_CASE("Test 01: Creation of Excel Documents") {
         REQUIRE(copy.DocumentName() == doc.DocumentName());
     }
 
+
     /**
      * @brief
+     *
+     * @details
      */
     SECTION("Section 01G: Copy assignment") {
         XLDocument doc(file);
@@ -96,6 +114,8 @@ TEST_CASE("Test 01: Creation of Excel Documents") {
 
     /**
      * @brief
+     *
+     * @details
      */
     SECTION("Section 01H: Move construction") {
         XLDocument doc(file);
@@ -105,8 +125,11 @@ TEST_CASE("Test 01: Creation of Excel Documents") {
         REQUIRE_THROWS(doc.DocumentName() == file);
     }
 
+
     /**
      * @brief
+     *
+     * @details
      */
     SECTION("Section 01I: Move assignment") {
         XLDocument doc(file);
@@ -117,8 +140,11 @@ TEST_CASE("Test 01: Creation of Excel Documents") {
         REQUIRE_THROWS(doc.DocumentName() == file);
     }
 
+
     /**
      * @brief
+     *
+     * @details
      */
     SECTION("Section 01J: Close and Reopen") {
         XLDocument doc;
@@ -132,6 +158,8 @@ TEST_CASE("Test 01: Creation of Excel Documents") {
 
     /**
      * @brief
+     *
+     * @details
      */
     SECTION("Section 01K: Reopen without closing") {
         XLDocument doc;
@@ -141,8 +169,11 @@ TEST_CASE("Test 01: Creation of Excel Documents") {
         REQUIRE(doc.DocumentName() == newfile);
     }
 
-        /**
+
+    /**
      * @brief
+     *
+     * @details
      */
     SECTION("Section 01L: Open document as const") {
         const XLDocument doc(file);

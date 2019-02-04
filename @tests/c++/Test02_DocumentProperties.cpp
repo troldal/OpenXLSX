@@ -18,7 +18,7 @@ using namespace OpenXLSX;
  *
  * @details
  */
-TEST_CASE("Test 02: Testing of Document Properties") {
+TEST_CASE("C++ Interface Test 02: Testing of Document Properties") {
 
     XLDocument doc;
     std::string file = "./TestDocumentProperties.xlsx";
@@ -61,6 +61,8 @@ TEST_CASE("Test 02: Testing of Document Properties") {
 
     /**
      * @brief
+     *
+     * @details
      */
     SECTION("Test 02D: Test SetProperty - Subject") {
         doc.SetProperty(XLProperty::Subject, "SubjectTest");
@@ -72,6 +74,8 @@ TEST_CASE("Test 02: Testing of Document Properties") {
 
     /**
      * @brief
+     *
+     * @details
      */
     SECTION("Test 02E: Test SetProperty - Creator") {
         doc.SetProperty(XLProperty::Creator, "CreatorTest");
@@ -83,6 +87,8 @@ TEST_CASE("Test 02: Testing of Document Properties") {
 
     /**
      * @brief
+     *
+     * @details
      */
     SECTION("Test 02F: Test SetProperty - Keywords") {
         doc.SetProperty(XLProperty::Keywords, "A, B, C");
@@ -94,6 +100,8 @@ TEST_CASE("Test 02: Testing of Document Properties") {
 
     /**
      * @brief
+     *
+     * @details
      */
     SECTION("Test 02G: Test SetProperty - Description") {
         doc.SetProperty(XLProperty::Description, "DescriptionTest");
@@ -105,6 +113,8 @@ TEST_CASE("Test 02: Testing of Document Properties") {
 
     /**
      * @brief
+     *
+     * @details
      */
     SECTION("Test 02H: Test SetProperty - LastModifiedBy") {
         doc.SetProperty(XLProperty::LastModifiedBy, "LastModifiedByTest");
@@ -116,6 +126,8 @@ TEST_CASE("Test 02: Testing of Document Properties") {
 
     /**
      * @brief
+     *
+     * @details
      */
     SECTION("Test 02I: Test SetProperty - LastPrinted") {
         std::time_t t = std::time(nullptr);
@@ -134,6 +146,8 @@ TEST_CASE("Test 02: Testing of Document Properties") {
 
     /**
      * @brief
+     *
+     * @details
      */
     SECTION("Test 02J: Test SetProperty - CreationDate") {
         std::time_t t = std::time(nullptr);
@@ -152,6 +166,8 @@ TEST_CASE("Test 02: Testing of Document Properties") {
 
     /**
      * @brief
+     *
+     * @details
      */
     SECTION("Test 02K: Test SetProperty - ModificationDate") {
         std::time_t t = std::time(nullptr);
@@ -170,6 +186,8 @@ TEST_CASE("Test 02: Testing of Document Properties") {
 
     /**
      * @brief
+     *
+     * @details
      */
     SECTION("Test 02L: Test SetProperty - Category") {
         doc.SetProperty(XLProperty::Category, "CategoryTest");
@@ -181,6 +199,8 @@ TEST_CASE("Test 02: Testing of Document Properties") {
 
     /**
      * @brief
+     *
+     * @details
      */
     SECTION("Test 02M: Test SetProperty - Application") {
         doc.SetProperty(XLProperty::Application, "ApplicationTest");
@@ -192,6 +212,8 @@ TEST_CASE("Test 02: Testing of Document Properties") {
 
     /**
      * @brief
+     *
+     * @details
      */
     SECTION("Test 02N: Test SetProperty - DocSecurity") {
         doc.SetProperty(XLProperty::DocSecurity, "4");
@@ -203,6 +225,8 @@ TEST_CASE("Test 02: Testing of Document Properties") {
 
     /**
      * @brief
+     *
+     * @details
      */
     SECTION("Test 02O: Test SetProperty - ScaleCrop") {
         doc.SetProperty(XLProperty::ScaleCrop, "false");
@@ -214,6 +238,8 @@ TEST_CASE("Test 02: Testing of Document Properties") {
 
     /**
      * @brief
+     *
+     * @details
      */
     SECTION("Test 02P: Test SetProperty - Manager") {
         doc.SetProperty(XLProperty::Manager, "ManagerTest");
@@ -225,6 +251,8 @@ TEST_CASE("Test 02: Testing of Document Properties") {
 
     /**
      * @brief
+     *
+     * @details
      */
     SECTION("Test 02Q: Test SetProperty - Company") {
         doc.SetProperty(XLProperty::Company, "CompanyTest");
@@ -236,6 +264,8 @@ TEST_CASE("Test 02: Testing of Document Properties") {
 
     /**
      * @brief
+     *
+     * @details
      */
     SECTION("Test 02R: Test SetProperty - LinksUpToDate") {
         doc.SetProperty(XLProperty::LinksUpToDate, "false");
@@ -247,6 +277,8 @@ TEST_CASE("Test 02: Testing of Document Properties") {
 
     /**
      * @brief
+     *
+     * @details
      */
     SECTION("Test 02S: Test SetProperty - SharedDoc") {
         doc.SetProperty(XLProperty::SharedDoc, "false");
@@ -258,6 +290,8 @@ TEST_CASE("Test 02: Testing of Document Properties") {
 
     /**
      * @brief
+     *
+     * @details
      */
     SECTION("Test 02T: Test SetProperty - HyperlinkBase") {
         doc.SetProperty(XLProperty::HyperlinkBase, "HyperlinkBaseTest");
@@ -268,8 +302,10 @@ TEST_CASE("Test 02: Testing of Document Properties") {
     }
 
     /**
-     * @brief
-     */
+    * @brief
+    *
+    * @details
+    */
     SECTION("Test 02U: Test SetProperty - HyperlinksChanged") {
         doc.SetProperty(XLProperty::HyperlinksChanged, "false");
         doc.SaveDocument();
@@ -280,6 +316,8 @@ TEST_CASE("Test 02: Testing of Document Properties") {
 
     /**
      * @brief
+     *
+     * @details
      */
     SECTION("Test 02V: Test SetProperty - AppVersion") {
         doc.SetProperty(XLProperty::AppVersion, "12.0300");
@@ -291,6 +329,8 @@ TEST_CASE("Test 02: Testing of Document Properties") {
 
     /**
      * @brief
+     *
+     * @details
      */
     SECTION( "DeleteProperty - Keywords" ) {
         doc.DeleteProperty(XLProperty::Keywords);

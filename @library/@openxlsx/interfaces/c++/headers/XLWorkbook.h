@@ -78,6 +78,19 @@ namespace OpenXLSX {
         XLWorkbook(const XLWorkbook& other) = default;
 
         /**
+         * @brief Move constructor.
+         * @param other The XLWorkbook to be moved.
+         * @note The move constructor has been explicitly deleted, as XLWorkbook objects should not be moved.
+         */
+        XLWorkbook(XLWorkbook&& other) = default;
+
+        /**
+         * @brief Destructor
+         * @note Default destructor specified
+         */
+        virtual ~XLWorkbook() = default;
+
+        /**
          * @brief Copy assignment operator.
          * @param other The XLWorkbook object to be assigned to the current.
          * @return A reference to *this
@@ -86,25 +99,12 @@ namespace OpenXLSX {
         XLWorkbook& operator=(const XLWorkbook& other) = default;
 
         /**
-         * @brief Move constructor.
-         * @param other The XLWorkbook to be moved.
-         * @note The move constructor has been explicitly deleted, as XLWorkbook objects should not be moved.
-         */
-        XLWorkbook(XLWorkbook&& other) = default;
-
-        /**
          * @brief Move assignment operator.
          * @param other The XLWorkbook to be move assigned.
          * @return A reference to *this
          * @note The move assignment operator has been explicitly deleted, as XLWorkbook objects should not be moved.
          */
         XLWorkbook& operator=(XLWorkbook&& other) = default;
-
-        /**
-         * @brief Destructor
-         * @note Default destructor specified
-         */
-        virtual ~XLWorkbook() = default;
 
         /**
          * @brief Get the sheet (worksheet or chartsheet) at the given index.
@@ -116,6 +116,15 @@ namespace OpenXLSX {
         XLSheet Sheet(unsigned int index);
 
         /**
+         * @brief Get the sheet (worksheet or chartsheet) at the given index.
+         * @param index The index et which the desired sheet is located.
+         * @return A pointer to an XLAbstractSheet with the sheet at the index.
+         * @todo This method is currently unimplemented.
+         * @todo What should happen if the index is invalid?
+         */
+        const XLSheet Sheet(unsigned int index) const;
+
+        /**
          * @brief Get the sheet (worksheet or chartsheet) with the given name.
          * @param sheetName The name at which the desired sheet is located.
          * @return A pointer to an XLAbstractSheet with the sheet at the index.
@@ -123,6 +132,15 @@ namespace OpenXLSX {
          * @todo What should happen if the name is invalid?
          */
         XLSheet Sheet(const std::string &sheetName);
+
+        /**
+         * @brief Get the sheet (worksheet or chartsheet) with the given name.
+         * @param sheetName The name at which the desired sheet is located.
+         * @return A pointer to an XLAbstractSheet with the sheet at the index.
+         * @todo This method is currently unimplemented.
+         * @todo What should happen if the name is invalid?
+         */
+        const XLSheet Sheet(const std::string &sheetName) const;
 
         /**
          * @brief
@@ -196,7 +214,7 @@ namespace OpenXLSX {
          * @param sheetName
          * @return
          */
-        unsigned int IndexOfSheet(const std::string& sheetName);
+        unsigned int IndexOfSheet(const std::string& sheetName) const;
 
         /**
          * @brief
@@ -245,6 +263,7 @@ namespace OpenXLSX {
     private:
         Impl::XLWorkbook* m_workbook; /**< */
     };
+
 
 }
 

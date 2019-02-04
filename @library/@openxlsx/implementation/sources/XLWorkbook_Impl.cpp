@@ -129,6 +129,23 @@ const Impl::XLWorksheet* Impl::XLWorkbook::Worksheet(const std::string& sheetNam
  */
 Impl::XLSheet* Impl::XLWorkbook::Sheet(unsigned int index) {
 
+//    return const_cast<Impl::XLSheet*>(static_cast<const Impl::XLWorkbook*>(this)->Sheet(index));
+
+    auto node = m_sheetsNode->first_child();
+    if (index > 1) {
+        for (int i = 1; i < index; ++i) {
+            node = node.next_sibling();
+        }
+    }
+
+    if (m_worksheets.find(node.attribute("name").as_string()) != m_worksheets.end())
+        return Worksheet(node.attribute("name").as_string());
+    //else
+    //return Chartsheet(node.attribute("name").as_string());
+}
+
+const Impl::XLSheet* Impl::XLWorkbook::Sheet(unsigned int index) const
+{
     auto node = m_sheetsNode->first_child();
     if (index > 1) {
         for (int i = 1; i < index; ++i) {
@@ -147,6 +164,14 @@ Impl::XLSheet* Impl::XLWorkbook::Sheet(unsigned int index) {
  */
 Impl::XLSheet* Impl::XLWorkbook::Sheet(const std::string& sheetName) {
 
+//    return const_cast<Impl::XLSheet*>(static_cast<const Impl::XLWorkbook*>(this)->Sheet(sheetName));
+
+    if (m_worksheets.find(sheetName) != m_worksheets.end())
+        return Worksheet(sheetName);
+}
+
+const Impl::XLSheet* Impl::XLWorkbook::Sheet(const std::string &sheetName) const
+{
     if (m_worksheets.find(sheetName) != m_worksheets.end())
         return Worksheet(sheetName);
 }
@@ -210,10 +235,7 @@ void Impl::XLWorkbook::DeleteSheet(const std::string& sheetName) {
     m_sheets.erase(sheetName);
 
     // Delete the node from Workbook.xml
-    for (auto& sheet : m_sheetsNode->children()) {
-        if (sheet.child_value() == sheetName)
-            m_sheetsNode->remove_child(sheet);
-    }
+    m_sheetsNode->remove_child(m_sheetsNode->find_child_by_attribute("name", sheetName.c_str()));
 
     m_sheetCount--;
     m_worksheetCount--;
@@ -351,12 +373,23 @@ void Impl::XLWorkbook::AddChartsheet(const std::string& sheetName,
  */
 void Impl::XLWorkbook::MoveSheet(const std::string& sheetName, unsigned int index) {
 
+    auto node = m_sheetsNode->find_child_by_attribute("name", sheetName.c_str());
+
+    if (index <= 1)
+        m_sheetsNode->prepend_move(node);
+    else if (index >= SheetCount())
+        m_sheetsNode->append_move(node);
+    else {
+        auto current = m_sheetsNode->first_child();
+        for (int i = 1; i < index; ++i) current = current.next_sibling();
+        m_sheetsNode->insert_move_before(node, current);
+    }
 }
 
 /**
  * @details
  */
-unsigned int Impl::XLWorkbook::IndexOfSheet(const std::string& sheetName) {
+unsigned int Impl::XLWorkbook::IndexOfSheet(const std::string& sheetName) const {
 
     auto node = m_sheetsNode->first_child();
     if (node.type() == pugi::node_null)
