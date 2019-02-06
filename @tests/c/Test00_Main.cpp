@@ -9,13 +9,13 @@
 #define OPENXLSX_TESTMAIN_H
 
 #define CATCH_CONFIG_RUNNER
+
 #include "catch.hpp"
 #include <cstdio>
 
 extern "C" {
 #include <XL_Document.h>
 };
-
 
 void PrepareDocument(std::string name) {
 
@@ -26,9 +26,9 @@ void PrepareDocument(std::string name) {
     XL_DestroyDocument(doc);
 }
 
-int main( int argc, char* argv[] ) {
+int main(int argc, char* argv[]) {
     // Global Setup
-    
+
     std::remove("./TestDocumentCreation.xlsx");
     std::remove("./TestDocumentCreationNew.xlsx");
 
@@ -41,7 +41,7 @@ int main( int argc, char* argv[] ) {
     // Global Setup Complete
 
     // Run Test Suite
-    int result = Catch::Session().run( argc, argv );
+    int result = Catch::Session().run(argc, argv);
     // Run Test Suite Complete
 
     // Global Clean-up
@@ -50,6 +50,5 @@ int main( int argc, char* argv[] ) {
 
     return result;
 }
-
 
 #endif //OPENXLSX_TESTMAIN_H

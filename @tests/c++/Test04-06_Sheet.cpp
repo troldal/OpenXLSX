@@ -7,29 +7,30 @@
 
 using namespace OpenXLSX;
 
-TEST_CASE( "Test 04: Testing of XLSheet objects") {
+TEST_CASE("Test 04: Testing of XLSheet objects") {
+
     XLDocument doc;
     doc.OpenDocument("./TestSheet.xlsx");
     auto wbk = doc.Workbook();
 
-    SECTION( "Name" ) {
+    SECTION("Name") {
         auto sheet = wbk.Sheet(1);
         REQUIRE(sheet.Name() == "Sheet1");
     }
 
-    SECTION( "SetName" ) {
+    SECTION("SetName") {
         auto sheet = wbk.Sheet(1);
         sheet.SetName("MySheet");
         REQUIRE(sheet.Name() == "MySheet");
     }
 
-    SECTION( "State" ) {
+    SECTION("State") {
         auto sheet = wbk.Sheet(1);
         REQUIRE(sheet.State() == XLSheetState::Visible);
         REQUIRE(sheet.State() != XLSheetState::Hidden);
     }
 
-    SECTION( "SetState" ) {
+    SECTION("SetState") {
         wbk.AddWorksheet("Sheet2");
         auto sheet = wbk.Sheet(2);
         sheet.SetState(XLSheetState::Hidden);
@@ -37,19 +38,19 @@ TEST_CASE( "Test 04: Testing of XLSheet objects") {
         REQUIRE(sheet.State() == XLSheetState::Hidden);
     }
 
-    SECTION( "Type" ) {
+    SECTION("Type") {
         auto sheet = wbk.Sheet(1);
         REQUIRE(sheet.Type() == XLSheetType::WorkSheet);
         REQUIRE(sheet.Type() != XLSheetType::ChartSheet);
     }
 
-    SECTION( "Index" ) {
+    SECTION("Index") {
         auto sheet = wbk.Sheet(1);
         REQUIRE(sheet.Index() == 1);
         REQUIRE(sheet.Index() != 2);
     }
 
-    SECTION( "SetIndex" ) {
+    SECTION("SetIndex") {
         auto sheet = wbk.Sheet(2);
         sheet.SetIndex(0);
         REQUIRE(sheet.Index() == 2);
@@ -60,24 +61,25 @@ TEST_CASE( "Test 04: Testing of XLSheet objects") {
 
 }
 
-TEST_CASE( "Test 05: Testing of XLWorksheet objects") {
+TEST_CASE("Test 05: Testing of XLWorksheet objects") {
+
     XLDocument doc;
     doc.OpenDocument("./Testworksheet.xlsx");
     auto wbk = doc.Workbook();
 
-    SECTION( "RowCount" ) {
+    SECTION("RowCount") {
         auto sheet = wbk.Worksheet("Sheet1");
         REQUIRE(sheet.RowCount() == 1);
     }
 
-    SECTION( "ColumnCount" ) {
+    SECTION("ColumnCount") {
         auto sheet = wbk.Worksheet("Sheet1");
         REQUIRE(sheet.ColumnCount() == 1);
     }
 
-    SECTION( "FirstCell" ) {
+    SECTION("FirstCell") {
         auto sheet = wbk.Worksheet("Sheet1");
-        auto ref = sheet.FirstCell();
+        auto ref   = sheet.FirstCell();
         REQUIRE(ref.Address() == "A1");
     }
 

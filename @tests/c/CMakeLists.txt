@@ -6,13 +6,13 @@ FetchContent_Declare(
 )
 FetchContent_GetProperties(catch)
 
-if(NOT catch_POPULATED)
+if (NOT catch_POPULATED)
     FetchContent_Populate(catch)
     add_subdirectory(
             ${catch_SOURCE_DIR}
             ${catch_BINARY_DIR}
     )
-endif()
+endif ()
 
 add_executable(CInterfaceTest "")
 target_sources(CInterfaceTest PRIVATE

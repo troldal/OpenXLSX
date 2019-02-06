@@ -15,7 +15,7 @@ extern "C" {
  */
 TEST_CASE("C Interface Test 01: Creation of Excel Documents") {
 
-    std::string file = "./TestDocumentCreation.xlsx";
+    std::string file    = "./TestDocumentCreation.xlsx";
     std::string newfile = "./TestDocumentCreationNew.xlsx";
 
     /**
@@ -36,17 +36,17 @@ TEST_CASE("C Interface Test 01: Creation of Excel Documents") {
         XL_DestroyDocument(doc);
     }
 
-    /**
-     * @brief
-     */
+        /**
+         * @brief
+         */
     SECTION("Section 01B: Open existing using XL_OpenDocument()") {
         XL_Document* doc = XL_OpenDocument(file.c_str());
         REQUIRE(XL_DocumentName(doc) == file);
     }
 
-    /**
-     * @brief
-     */
+        /**
+         * @brief
+         */
     SECTION("Section 01C: Save document using XL_SaveDocument()") {
         XL_Document* doc = XL_OpenDocument(file.c_str());
         XL_SaveDocument(doc);
@@ -56,9 +56,9 @@ TEST_CASE("C Interface Test 01: Creation of Excel Documents") {
         REQUIRE(XL_DocumentName(doc) == file);
     }
 
-    /**
-     * @brief
-     */
+        /**
+         * @brief
+         */
     SECTION("Section 01D: Save document using XL_SaveDocumentAs()") {
         XL_Document* doc = XL_OpenDocument(file.c_str());
         XL_SaveDocumentAs(doc, newfile.c_str());
@@ -69,9 +69,9 @@ TEST_CASE("C Interface Test 01: Creation of Excel Documents") {
     }
 
 
-    /**
-     * @brief
-     */
+        /**
+         * @brief
+         */
     SECTION("Section 01E: Close and Reopen") {
         XL_Document* doc = XL_CreateDocument(file.c_str());
         XL_CloseDocument(doc);

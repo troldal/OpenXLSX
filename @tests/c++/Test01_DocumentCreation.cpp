@@ -14,7 +14,7 @@ using namespace OpenXLSX;
  */
 TEST_CASE("C++ Interface Test 01: Creation of Excel Documents") {
 
-    std::string file = "./TestDocumentCreation.xlsx";
+    std::string file    = "./TestDocumentCreation.xlsx";
     std::string newfile = "./TestDocumentCreationNew.xlsx";
 
     /**
@@ -33,22 +33,22 @@ TEST_CASE("C++ Interface Test 01: Creation of Excel Documents") {
     }
 
 
-    /**
-     * @brief Open an existing document using the constructor.
-     *
-     * @details Opens an existing document by passing the file name to the constructor.
-     * Success is tested by checking that the DocumentName member function returns the correct file name.
-     */
+        /**
+         * @brief Open an existing document using the constructor.
+         *
+         * @details Opens an existing document by passing the file name to the constructor.
+         * Success is tested by checking that the DocumentName member function returns the correct file name.
+         */
     SECTION("Section 01B: Open existing using Constructor") {
         XLDocument doc(file);
         REQUIRE(doc.DocumentName() == file);
     }
 
-    /**
-     * @brief
-     *
-     * @details
-     */
+        /**
+         * @brief
+         *
+         * @details
+         */
     SECTION("Section 01C: Open existing using OpenDocument()") {
         XLDocument doc;
         doc.OpenDocument(file);
@@ -56,11 +56,11 @@ TEST_CASE("C++ Interface Test 01: Creation of Excel Documents") {
     }
 
 
-    /**
-     * @brief
-     *
-     * @details
-     */
+        /**
+         * @brief
+         *
+         * @details
+         */
     SECTION("Section 01D: Save document using Save()") {
         XLDocument doc(file);
 
@@ -71,11 +71,11 @@ TEST_CASE("C++ Interface Test 01: Creation of Excel Documents") {
     }
 
 
-    /**
-     * @brief
-     *
-     * @details
-     */
+        /**
+         * @brief
+         *
+         * @details
+         */
     SECTION("Section 01E: Save document using SaveDocumentAs()") {
         XLDocument doc(file);
 
@@ -86,11 +86,11 @@ TEST_CASE("C++ Interface Test 01: Creation of Excel Documents") {
     }
 
 
-    /**
-     * @brief
-     *
-     * @details
-     */
+        /**
+         * @brief
+         *
+         * @details
+         */
     SECTION("Section 01F: Copy construction") {
         XLDocument doc(file);
         XLDocument copy = doc;
@@ -99,11 +99,11 @@ TEST_CASE("C++ Interface Test 01: Creation of Excel Documents") {
     }
 
 
-    /**
-     * @brief
-     *
-     * @details
-     */
+        /**
+         * @brief
+         *
+         * @details
+         */
     SECTION("Section 01G: Copy assignment") {
         XLDocument doc(file);
         XLDocument copy;
@@ -112,11 +112,11 @@ TEST_CASE("C++ Interface Test 01: Creation of Excel Documents") {
         REQUIRE(copy.DocumentName() == doc.DocumentName());
     }
 
-    /**
-     * @brief
-     *
-     * @details
-     */
+        /**
+         * @brief
+         *
+         * @details
+         */
     SECTION("Section 01H: Move construction") {
         XLDocument doc(file);
         XLDocument copy = std::move(doc);
@@ -126,11 +126,11 @@ TEST_CASE("C++ Interface Test 01: Creation of Excel Documents") {
     }
 
 
-    /**
-     * @brief
-     *
-     * @details
-     */
+        /**
+         * @brief
+         *
+         * @details
+         */
     SECTION("Section 01I: Move assignment") {
         XLDocument doc(file);
         XLDocument copy;
@@ -141,11 +141,11 @@ TEST_CASE("C++ Interface Test 01: Creation of Excel Documents") {
     }
 
 
-    /**
-     * @brief
-     *
-     * @details
-     */
+        /**
+         * @brief
+         *
+         * @details
+         */
     SECTION("Section 01J: Close and Reopen") {
         XLDocument doc;
         doc.CreateDocument(file);
@@ -156,11 +156,11 @@ TEST_CASE("C++ Interface Test 01: Creation of Excel Documents") {
         REQUIRE(doc.DocumentName() == file);
     }
 
-    /**
-     * @brief
-     *
-     * @details
-     */
+        /**
+         * @brief
+         *
+         * @details
+         */
     SECTION("Section 01K: Reopen without closing") {
         XLDocument doc;
         doc.CreateDocument(file);
@@ -170,11 +170,11 @@ TEST_CASE("C++ Interface Test 01: Creation of Excel Documents") {
     }
 
 
-    /**
-     * @brief
-     *
-     * @details
-     */
+        /**
+         * @brief
+         *
+         * @details
+         */
     SECTION("Section 01L: Open document as const") {
         const XLDocument doc(file);
         REQUIRE(doc.DocumentName() == file);

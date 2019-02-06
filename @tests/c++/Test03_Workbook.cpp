@@ -14,6 +14,7 @@ using namespace OpenXLSX;
  * @details
  */
 TEST_CASE("C++ Interface Test 03: Testing of XLWorkbook objects") {
+
     XLDocument mdoc;
     mdoc.OpenDocument("./TestWorkbook.xlsx");
     const XLDocument cdoc = mdoc;
@@ -26,76 +27,76 @@ TEST_CASE("C++ Interface Test 03: Testing of XLWorkbook objects") {
      *
      * @details
      */
-    SECTION("Test 02A: SheetCount()" ) {
+    SECTION("Test 02A: SheetCount()") {
         REQUIRE(mwbk.SheetCount() == 1);
         REQUIRE(cwbk.SheetCount() == 1);
     }
 
-    /**
-     * @brief
-     *
-     * @details
-     */
+        /**
+         * @brief
+         *
+         * @details
+         */
     SECTION("Test 02B: IndexOfSheet()") {
         REQUIRE(mwbk.IndexOfSheet("Sheet1") == 1);
         REQUIRE(cwbk.IndexOfSheet("Sheet1") == 1);
     }
 
-    /**
-     * @brief
-     *
-     * @details
-     */
+        /**
+         * @brief
+         *
+         * @details
+         */
     SECTION("Test 02C: WorksheetCount()") {
         REQUIRE(mwbk.WorksheetCount() == 1);
         REQUIRE(cwbk.WorksheetCount() == 1);
     }
 
-    /**
-     * @brief
-     *
-     * @details
-     */
+        /**
+         * @brief
+         *
+         * @details
+         */
     SECTION("Test 02D: ChartsheetCount()") {
         REQUIRE(mwbk.ChartsheetCount() == 0);
         REQUIRE(cwbk.ChartsheetCount() == 0);
     }
 
-    /**
-     * @brief
-     *
-     * @details
-     */
+        /**
+         * @brief
+         *
+         * @details
+         */
     SECTION("Test 02E: SheetExists()") {
         REQUIRE(mwbk.SheetExists("Sheet1"));
         REQUIRE(cwbk.SheetExists("Sheet1"));
     }
 
-    /**
-     * @brief
-     *
-     * @details
-     */
+        /**
+         * @brief
+         *
+         * @details
+         */
     SECTION("Test 02F: WorksheetExists()") {
         REQUIRE(mwbk.WorksheetExists("Sheet1"));
         REQUIRE(cwbk.WorksheetExists("Sheet1"));
     }
 
-    /**
-     * @brief
-     *
-     * @details
-     */
+        /**
+         * @brief
+         *
+         * @details
+         */
     SECTION("Test 02G: ChartsheetExists()") {
         REQUIRE(!mwbk.ChartsheetExists("Sheet1"));
         REQUIRE(!cwbk.ChartsheetExists("Sheet1"));
     }
 
-    /**
-     * @brief
-     *
-     * @details
-     */
+        /**
+         * @brief
+         *
+         * @details
+         */
     SECTION("Test 02H: AddWorksheet()") {
         REQUIRE(!mwbk.SheetExists("MySheet"));
         mwbk.AddWorksheet("MySheet");
@@ -106,11 +107,11 @@ TEST_CASE("C++ Interface Test 03: Testing of XLWorkbook objects") {
         cwbk.AddWorksheet("MySheetConst");
     }
 
-    /**
-     * @brief
-     *
-     * @details
-     */
+        /**
+         * @brief
+         *
+         * @details
+         */
     SECTION("Test 02I: CloneWorksheet()") {
         REQUIRE(!mwbk.SheetExists("MyClonedSheet"));
         mwbk.CloneWorksheet("MySheet", "MyClonedSheet");
@@ -121,11 +122,11 @@ TEST_CASE("C++ Interface Test 03: Testing of XLWorkbook objects") {
         //cwbk.CloneWorksheet("MySheetConst", "MyClonedSheetConst");
     }
 
-    /**
-     * @brief
-     *
-     * @details
-     */
+        /**
+         * @brief
+         *
+         * @details
+         */
     SECTION("Test 02J: AddChartsheet()") {
         REQUIRE(!mwbk.SheetExists("MyChartSheet"));
         mwbk.AddChartsheet("MyChartSheet");
@@ -136,11 +137,11 @@ TEST_CASE("C++ Interface Test 03: Testing of XLWorkbook objects") {
         //cwbk.AddChartsheet("MyChartsheetConst");
     }
 
-    /**
-     * @brief
-     *
-     * @details
-     */
+        /**
+         * @brief
+         *
+         * @details
+         */
     SECTION("Test 02K: MoveSheet()") {
         REQUIRE(mwbk.IndexOfSheet("MyClonedSheet") == 3);
         mwbk.MoveSheet("MyClonedSheet", 1);
@@ -151,11 +152,11 @@ TEST_CASE("C++ Interface Test 03: Testing of XLWorkbook objects") {
         //cwbk.MoveSheet("MyClonedSheetConst");
     }
 
-    /**
-     * @brief
-     *
-     * @details
-     */
+        /**
+         * @brief
+         *
+         * @details
+         */
     SECTION("Test 02L: Copy construction and assignment") {
         REQUIRE(mwbk.SheetExists("MySheet"));
         auto mcopy = mwbk;
@@ -168,11 +169,11 @@ TEST_CASE("C++ Interface Test 03: Testing of XLWorkbook objects") {
         mcopy = ccopy;
     }
 
-    /**
-     * @brief
-     *
-     * @details
-     */
+        /**
+         * @brief
+         *
+         * @details
+         */
     SECTION("Test 02N: DeleteSheet()") {
         REQUIRE(mwbk.SheetExists("MySheet"));
         mwbk.DeleteSheet("MySheet");
@@ -182,7 +183,5 @@ TEST_CASE("C++ Interface Test 03: Testing of XLWorkbook objects") {
         // ===== Should not compile as cwbk is const =====//
         //cwbk.DeleteSheet()"MySheet";
     }
-
-
 
 }

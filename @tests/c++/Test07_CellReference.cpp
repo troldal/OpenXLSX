@@ -7,30 +7,31 @@
 
 using namespace OpenXLSX;
 
-TEST_CASE( "Test 07: Testing of XLCellReference objects") {
-    XLCellReference ref(3,3);
+TEST_CASE("Test 07: Testing of XLCellReference objects") {
 
-    SECTION( "Address" ) {
+    XLCellReference ref(3, 3);
+
+    SECTION("Address") {
         REQUIRE(ref.Address() == "C3");
     }
 
-    SECTION( "Column" ) {
+    SECTION("Column") {
         REQUIRE(ref.Column() == 3);
     }
 
-    SECTION( "Row" ) {
+    SECTION("Row") {
         REQUIRE(ref.Row() == 3);
     }
 
-    SECTION( "SetAddress" ) {
+    SECTION("SetAddress") {
         ref.SetAddress("A4");
         REQUIRE(ref.Address() == "A4");
         REQUIRE(ref.Row() == 4);
         REQUIRE(ref.Column() == 1);
     }
 
-    SECTION( "SetRowAndColumn" ) {
-        ref.SetRowAndColumn(2,5);
+    SECTION("SetRowAndColumn") {
+        ref.SetRowAndColumn(2, 5);
         REQUIRE(ref.Address() == "E2");
     }
 
