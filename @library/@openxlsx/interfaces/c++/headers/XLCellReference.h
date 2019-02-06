@@ -57,8 +57,7 @@ namespace OpenXLSX {
     /**
      * @brief
      */
-    class XLCellReference
-    {
+    class XLCellReference {
     public:
 
         /**
@@ -140,8 +139,7 @@ namespace OpenXLSX {
          * @param row
          * @param column
          */
-        void SetRowAndColumn(unsigned long row,
-                             unsigned int column);
+        void SetRowAndColumn(unsigned long row, unsigned int column);
 
         /**
          * @brief

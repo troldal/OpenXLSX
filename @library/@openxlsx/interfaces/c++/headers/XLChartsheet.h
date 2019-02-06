@@ -53,8 +53,7 @@ namespace OpenXLSX {
         class XLChartsheet;
     }
 
-    class XLChartsheet : public XLSheet
-    {
+    class XLChartsheet : public XLSheet {
     public:
 
         /**
@@ -96,7 +95,5 @@ namespace OpenXLSX {
 
     };
 }
-
-
 
 #endif //OPENXLSX_XLCHARTSHEET_H

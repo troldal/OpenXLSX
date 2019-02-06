@@ -54,15 +54,12 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <string>
 #include <vector>
 
-namespace OpenXLSX::Impl
-{
+namespace OpenXLSX::Impl {
 
-/**
- * @brief
- */
-    class XLStyles : public XLAbstractXMLFile,
-                     public XLSpreadsheetElement
-    {
+    /**
+     * @brief
+     */
+    class XLStyles : public XLAbstractXMLFile, public XLSpreadsheetElement {
     public:
         friend class XLFont;
 
@@ -71,8 +68,7 @@ namespace OpenXLSX::Impl
          * @param parent
          * @param filePath
          */
-        explicit XLStyles(XLDocument& parent,
-                          const std::string& filePath);
+        explicit XLStyles(XLDocument& parent, const std::string& filePath);
 
         /**
          * @brief
@@ -123,8 +119,7 @@ namespace OpenXLSX::Impl
 
     private:
 
-        static std::map<std::string,
-                        XLStyles> s_styles;
+        static std::map<std::string, XLStyles> s_styles;
 
         static XMLNode s_numberFormatsNode; /**<  */
         static XMLNode s_fontsNode; /**<  */

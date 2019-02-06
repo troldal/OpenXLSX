@@ -9,11 +9,11 @@
 
 using namespace OpenXLSX;
 
-XLCellValue::XLCellValue(Impl::XLCellValue& value)
-        : m_value(&value) {
+XLCellValue::XLCellValue(Impl::XLCellValue& value) : m_value(&value) {
 }
 
 XLCellValue& XLCellValue::operator=(const XLCellValue& other) {
+
     *m_value = *other.m_value;
     return *this;
 }

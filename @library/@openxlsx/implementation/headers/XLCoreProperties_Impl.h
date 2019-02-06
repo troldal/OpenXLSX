@@ -54,23 +54,20 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <vector>
 #include <map>
 
-namespace OpenXLSX::Impl
-{
+namespace OpenXLSX::Impl {
 
-//======================================================================================================================
-//========== XLCoreProperties Class =================================================================================
-//======================================================================================================================
+    //======================================================================================================================
+    //========== XLCoreProperties Class =================================================================================
+    //======================================================================================================================
 
     /**
      * @brief
      */
-    class XLCoreProperties : public XLAbstractXMLFile,
-                             public XLSpreadsheetElement
-    {
+    class XLCoreProperties : public XLAbstractXMLFile, public XLSpreadsheetElement {
 
-//----------------------------------------------------------------------------------------------------------------------
-//           Public Member Functions
-//----------------------------------------------------------------------------------------------------------------------
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Public Member Functions
+        //----------------------------------------------------------------------------------------------------------------------
 
     public:
 
@@ -80,8 +77,7 @@ namespace OpenXLSX::Impl
          * @param filePath
          * @return
          */
-        explicit XLCoreProperties(XLDocument& parent,
-                                  const std::string& filePath);
+        explicit XLCoreProperties(XLDocument& parent, const std::string& filePath);
 
         /**
          * @brief
@@ -94,8 +90,7 @@ namespace OpenXLSX::Impl
          * @param value
          * @return
          */
-        bool SetProperty(const std::string& name,
-                         const std::string& value);
+        bool SetProperty(const std::string& name, const std::string& value);
 
         /**
          * @brief
@@ -103,8 +98,7 @@ namespace OpenXLSX::Impl
          * @param value
          * @return
          */
-        bool SetProperty(const std::string& name,
-                         int value);
+        bool SetProperty(const std::string& name, int value);
 
         /**
          * @brief
@@ -112,8 +106,7 @@ namespace OpenXLSX::Impl
          * @param value
          * @return
          */
-        bool SetProperty(const std::string& name,
-                         double value);
+        bool SetProperty(const std::string& name, double value);
 
         /**
          * @brief
@@ -128,9 +121,9 @@ namespace OpenXLSX::Impl
          */
         void DeleteProperty(const std::string& name);
 
-//----------------------------------------------------------------------------------------------------------------------
-//           Protected Member Functions
-//----------------------------------------------------------------------------------------------------------------------
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Protected Member Functions
+        //----------------------------------------------------------------------------------------------------------------------
 
     protected:
 

@@ -103,7 +103,7 @@ TEST_CASE("C++ Interface Test 03: Testing of XLWorkbook objects") {
         REQUIRE(mwbk.SheetExists("MySheet"));
 
         // ===== Should not compile as cwbk is const =====//
-        //cwbk.AddWorksheet("MySheetConst");
+        cwbk.AddWorksheet("MySheetConst");
     }
 
     /**

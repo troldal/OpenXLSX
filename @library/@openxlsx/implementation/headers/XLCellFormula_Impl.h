@@ -48,11 +48,9 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 #include "XLXml_Impl.h"
 
-namespace OpenXLSX::Impl
-{
+namespace OpenXLSX::Impl {
 
-    class XLCellFormula
-    {
+    class XLCellFormula {
     public:
 
     private:

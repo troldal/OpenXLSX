@@ -15,22 +15,11 @@ using namespace OpenXLSX;
  * @details The constructor initializes the member variables and calls the loadXMLData from the
  * XLAbstractXMLFile base class.
  */
-Impl::XLWorkbook::XLWorkbook(XLDocument& parent,
-                             const std::string& filePath)
+Impl::XLWorkbook::XLWorkbook(XLDocument& parent, const std::string& filePath)
 
-        : XLAbstractXMLFile(parent,
-                            filePath),
-          XLSpreadsheetElement(parent),
-          m_sheetsNode(make_unique<XMLNode>()),
-          m_sheets(),
-          m_sheetPaths(),
-          m_sheetId(0),
-          m_sheetCount(0),
-          m_worksheetCount(0),
-          m_chartsheetCount(0),
-          m_definedNames(make_unique<XMLNode>()),
-          m_relationships(nullptr),
-          m_sharedStrings(nullptr),
+        : XLAbstractXMLFile(parent, filePath), XLSpreadsheetElement(parent), m_sheetsNode(make_unique<XMLNode>()),
+          m_sheets(), m_sheetPaths(), m_sheetId(0), m_sheetCount(0), m_worksheetCount(0), m_chartsheetCount(0),
+          m_definedNames(make_unique<XMLNode>()), m_relationships(nullptr), m_sharedStrings(nullptr),
           m_styles(nullptr) {
 
     ParseXMLData();
@@ -95,8 +84,7 @@ Impl::XLWorksheet* Impl::XLWorkbook::Worksheet(const std::string& sheetName) {
         throw std::range_error("Sheet \"" + sheetName + "\" does not exist");
 
     if (m_sheets.at(sheetName) == nullptr) {
-        m_sheets.at(sheetName)                             = make_unique<XLWorksheet>(*this,
-                                                                                      sheetName,
+        m_sheets.at(sheetName)                             = make_unique<XLWorksheet>(*this, sheetName,
                                                                                       m_sheetPaths.at(sheetName));
         m_childXmlDocuments.at(m_sheetPaths.at(sheetName)) = m_sheets.at(sheetName).get();
     }
@@ -129,7 +117,7 @@ const Impl::XLWorksheet* Impl::XLWorkbook::Worksheet(const std::string& sheetNam
  */
 Impl::XLSheet* Impl::XLWorkbook::Sheet(unsigned int index) {
 
-//    return const_cast<Impl::XLSheet*>(static_cast<const Impl::XLWorkbook*>(this)->Sheet(index));
+    //    return const_cast<Impl::XLSheet*>(static_cast<const Impl::XLWorkbook*>(this)->Sheet(index));
 
     auto node = m_sheetsNode->first_child();
     if (index > 1) {
@@ -144,8 +132,8 @@ Impl::XLSheet* Impl::XLWorkbook::Sheet(unsigned int index) {
     //return Chartsheet(node.attribute("name").as_string());
 }
 
-const Impl::XLSheet* Impl::XLWorkbook::Sheet(unsigned int index) const
-{
+const Impl::XLSheet* Impl::XLWorkbook::Sheet(unsigned int index) const {
+
     auto node = m_sheetsNode->first_child();
     if (index > 1) {
         for (int i = 1; i < index; ++i) {
@@ -164,14 +152,14 @@ const Impl::XLSheet* Impl::XLWorkbook::Sheet(unsigned int index) const
  */
 Impl::XLSheet* Impl::XLWorkbook::Sheet(const std::string& sheetName) {
 
-//    return const_cast<Impl::XLSheet*>(static_cast<const Impl::XLWorkbook*>(this)->Sheet(sheetName));
+    //    return const_cast<Impl::XLSheet*>(static_cast<const Impl::XLWorkbook*>(this)->Sheet(sheetName));
 
     if (m_worksheets.find(sheetName) != m_worksheets.end())
         return Worksheet(sheetName);
 }
 
-const Impl::XLSheet* Impl::XLWorkbook::Sheet(const std::string &sheetName) const
-{
+const Impl::XLSheet* Impl::XLWorkbook::Sheet(const std::string& sheetName) const {
+
     if (m_worksheets.find(sheetName) != m_worksheets.end())
         return Worksheet(sheetName);
 }
@@ -244,43 +232,33 @@ void Impl::XLWorkbook::DeleteSheet(const std::string& sheetName) {
 /**
  * @details
  */
-void Impl::XLWorkbook::AddWorksheet(const std::string& sheetName,
-                                    unsigned int index) {
+void Impl::XLWorkbook::AddWorksheet(const std::string& sheetName, unsigned int index) {
 
-    CreateWorksheet(*InitiateWorksheet(sheetName,
-                                       index),
-                    XLWorksheet::NewSheetXmlData());
+    CreateWorksheet(*InitiateWorksheet(sheetName, index), XLWorksheet::NewSheetXmlData());
 }
 
 /**
  * @details
  * @todo If the original sheet's tebSelected attribute is set, ensure it is un-set in the clone.
  */
-void Impl::XLWorkbook::CloneWorksheet(const std::string& extName,
-                                      const std::string& newName,
-                                      unsigned int index) {
+void Impl::XLWorkbook::CloneWorksheet(const std::string& extName, const std::string& newName, unsigned int index) {
 
-    CreateWorksheet(*InitiateWorksheet(newName,
-                                       index),
-                    Worksheet(extName)->GetXmlData());
+    CreateWorksheet(*InitiateWorksheet(newName, index), Worksheet(extName)->GetXmlData());
 }
 
 /**
  * @details
  */
-Impl::XLRelationshipItem* Impl::XLWorkbook::InitiateWorksheet(const std::string& sheetName,
-                                                              unsigned int index) {
+Impl::XLRelationshipItem* Impl::XLWorkbook::InitiateWorksheet(const std::string& sheetName, unsigned int index) {
 
     std::string worksheetPath = "/xl/worksheets/sheet" + to_string(m_sheetId + 1) + ".xml";
 
     // Add content item to document
-    ParentDocument()->AddContentItem(worksheetPath,
-                                     XLContentType::Worksheet);
+    ParentDocument()->AddContentItem(worksheetPath, XLContentType::Worksheet);
 
     // Add relationship item
-    XLRelationshipItem& item = *m_relationships->AddRelationship(XLRelationshipType::Worksheet,
-                                                                 "worksheets/sheet" + to_string(m_sheetId + 1)
-                                                                 + ".xml");
+    XLRelationshipItem& item = *m_relationships
+            ->AddRelationship(XLRelationshipType::Worksheet, "worksheets/sheet" + to_string(m_sheetId + 1) + ".xml");
 
     // insert Sheet node at the given Index
     if (index == 0) {
@@ -309,8 +287,7 @@ Impl::XLRelationshipItem* Impl::XLWorkbook::InitiateWorksheet(const std::string&
                     node.append_attribute("r:id")    = item.Id().c_str();
                 }
             }
-            auto         node = m_sheetsNode->insert_child_before("sheet",
-                                                                  curNode);
+            auto         node = m_sheetsNode->insert_child_before("sheet", curNode);
             node.append_attribute("name")    = sheetName.c_str();
             node.append_attribute("sheetId") = to_string(m_sheetId + 1).c_str();
             node.append_attribute("r:id")    = item.Id().c_str();
@@ -319,14 +296,11 @@ Impl::XLRelationshipItem* Impl::XLWorkbook::InitiateWorksheet(const std::string&
 
     // Add entry to the App Properties
     if (index == 0)
-        ParentDocument()->AppProperties()->InsertSheetName(sheetName,
-                                                           WorksheetCount() + 1);
+        ParentDocument()->AppProperties()->InsertSheetName(sheetName, WorksheetCount() + 1);
     else
-        ParentDocument()->AppProperties()->InsertSheetName(sheetName,
-                                                           index);
+        ParentDocument()->AppProperties()->InsertSheetName(sheetName, index);
 
-    ParentDocument()->AppProperties()->SetHeadingPair("Worksheets",
-                                                      WorksheetCount() + 1);
+    ParentDocument()->AppProperties()->SetHeadingPair("Worksheets", WorksheetCount() + 1);
 
     return &item;
 }
@@ -362,8 +336,7 @@ void Impl::XLWorkbook::UpdateSheetNames() {
  * @details
  * @todo To be implemented.
  */
-void Impl::XLWorkbook::AddChartsheet(const std::string& sheetName,
-                                     unsigned int index) {
+void Impl::XLWorkbook::AddChartsheet(const std::string& sheetName, unsigned int index) {
 
 }
 
@@ -380,8 +353,9 @@ void Impl::XLWorkbook::MoveSheet(const std::string& sheetName, unsigned int inde
     else if (index >= SheetCount())
         m_sheetsNode->append_move(node);
     else {
-        auto current = m_sheetsNode->first_child();
-        for (int i = 1; i < index; ++i) current = current.next_sibling();
+        auto     current = m_sheetsNode->first_child();
+        for (int i       = 1; i < index; ++i)
+            current = current.next_sibling();
         m_sheetsNode->insert_move_before(node, current);
     }
 }
@@ -397,8 +371,7 @@ unsigned int Impl::XLWorkbook::IndexOfSheet(const std::string& sheetName) const 
 
     unsigned int index = 1;
     while (node) {
-        if (strcmp(node.attribute("name").value(),
-                   sheetName.c_str()) == 0)
+        if (strcmp(node.attribute("name").value(), sheetName.c_str()) == 0)
             break;
         node = node.next_sibling();
         if (!node)
@@ -462,20 +435,20 @@ bool Impl::XLWorkbook::WorksheetExists(const std::string& sheetName) const {
     else
         return true;
 
-/*    if (m_sheets.find(sheetName) == m_sheets.end())
-        return false;
-    else {
+    /*    if (m_sheets.find(sheetName) == m_sheets.end())
+            return false;
+        else {
 
-        bool result = false;
-        for (const auto& iter : m_sheets) {
-            if (iter.second->Name() == sheetName && iter.second->Type() == XLSheetType::WorkSheet) {
-                result = true;
-                break;
+            bool result = false;
+            for (const auto& iter : m_sheets) {
+                if (iter.second->Name() == sheetName && iter.second->Type() == XLSheetType::WorkSheet) {
+                    result = true;
+                    break;
+                }
             }
-        }
 
-        return result;
-    }*/
+            return result;
+        }*/
 }
 
 /**
@@ -488,15 +461,15 @@ bool Impl::XLWorkbook::ChartsheetExists(const std::string& sheetName) const {
     else
         return true;
 
-/*    bool result = false;
-    for (const auto& iter : m_sheets) {
-        if (iter.second->Name() == sheetName && iter.second->Type() == XLSheetType::ChartSheet) {
-            result = true;
-            break;
+    /*    bool result = false;
+        for (const auto& iter : m_sheets) {
+            if (iter.second->Name() == sheetName && iter.second->Type() == XLSheetType::ChartSheet) {
+                result = true;
+                break;
+            }
         }
-    }
 
-    return result;*/
+        return result;*/
 }
 
 /**
@@ -547,8 +520,7 @@ void Impl::XLWorkbook::CreateStyles(const XLRelationshipItem& item) {
 /**
  * @details
  */
-void Impl::XLWorkbook::CreateWorksheet(const XLRelationshipItem& item,
-                                       const std::string& xmlData) {
+void Impl::XLWorkbook::CreateWorksheet(const XLRelationshipItem& item, const std::string& xmlData) {
 
     // Find the appropriate sheet node in the Workbook .xml file; get the name and id of the worksheet.
     string name;
@@ -589,8 +561,7 @@ void Impl::XLWorkbook::CreateChartsheet(const XLRelationshipItem& item) {
     string name;
     auto   node = m_sheetsNode->first_child();
     while (node) {
-        if (strcmp(node.attribute("r:id").value(),
-                   item.Id().c_str()) == 0) {
+        if (strcmp(node.attribute("r:id").value(), item.Id().c_str()) == 0) {
             name = node.attribute("name").value();
             break;
         }

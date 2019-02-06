@@ -52,14 +52,12 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLColor_Impl.h"
 #include "XLXml_Impl.h"
 
-namespace OpenXLSX::Impl
-{
+namespace OpenXLSX::Impl {
 
     /**
      * @brief
      */
-    class XLFont
-    {
+    class XLFont {
     public:
         friend class XLStyles;
 
@@ -105,8 +103,7 @@ namespace OpenXLSX::Impl
 
     private:
 
-        static std::map<std::string,
-                        XLFont> s_fonts;
+        static std::map<std::string, XLFont> s_fonts;
 
         std::unique_ptr<XMLNode> m_fontNode;
 

@@ -74,14 +74,14 @@ static OpenXLSX::XLProperty ConvertProperty(XL_Property property) {
     }
 }
 
-XL_Document* XL_CreateDocument(const char *name) {
+XL_Document* XL_CreateDocument(const char* name) {
 
     auto result = new OpenXLSX::Impl::XLDocument();
     result->CreateDocument(name);
     return reinterpret_cast<XL_Document*>(result);
 }
 
-XL_Document* XL_OpenDocument(const char *name) {
+XL_Document* XL_OpenDocument(const char* name) {
 
     auto result = new OpenXLSX::Impl::XLDocument();
     result->OpenDocument(name);
@@ -108,8 +108,8 @@ void XL_SaveDocumentAs(XL_Document* doc, const char* name) {
     reinterpret_cast<OpenXLSX::Impl::XLDocument*>(doc)->SaveDocumentAs(name);
 }
 
-const char * XL_DocumentName(XL_Document *doc)
-{
+const char* XL_DocumentName(XL_Document* doc) {
+
     return reinterpret_cast<OpenXLSX::Impl::XLDocument*>(doc)->DocumentName().c_str();
 }
 

@@ -5,10 +5,11 @@
 #ifndef OPENXLSX_IMPL_XLXML_H
 #define OPENXLSX_IMPL_XLXML_H
 
-namespace pugi
-{
+namespace pugi {
     class xml_node;
+
     class xml_attribute;
+
     class xml_document;
 }
 

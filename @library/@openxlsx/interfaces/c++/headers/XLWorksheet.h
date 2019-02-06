@@ -61,8 +61,7 @@ namespace OpenXLSX {
     /**
      * @brief
      */
-    class XLWorksheet : public XLSheet
-    {
+    class XLWorksheet : public XLSheet {
     public:
 
         /**
@@ -136,8 +135,7 @@ namespace OpenXLSX {
          * @param columnNumber The column number (index base 1).
          * @return A reference to the XLCell object at the given coordinates.
          */
-        XLCell Cell(unsigned long rowNumber,
-                    unsigned int columnNumber);
+        XLCell Cell(unsigned long rowNumber, unsigned int columnNumber);
 
         /**
          * @brief Get the cell at the given coordinates.
@@ -145,8 +143,7 @@ namespace OpenXLSX {
          * @param columnNumber The column number (index base 1).
          * @return A const reference to the XLCell object at the given coordinates.
          */
-        const XLCell Cell(unsigned long rowNumber,
-                          unsigned int columnNumber) const;
+        const XLCell Cell(unsigned long rowNumber, unsigned int columnNumber) const;
 
         /**
          * @brief Get a range for the area currently in use (i.e. from cell A1 to the last cell being in use).
@@ -166,8 +163,7 @@ namespace OpenXLSX {
          * @param bottomRight An XLCellReference object with the coordinates to the bottom right cell.
          * @return An XLCellRange object with the requested range.
          */
-        XLCellRange Range(const XLCellReference& topLeft,
-                          const XLCellReference& bottomRight);
+        XLCellRange Range(const XLCellReference& topLeft, const XLCellReference& bottomRight);
 
         /**
          * @brief Get a range with the given coordinates.
@@ -175,8 +171,7 @@ namespace OpenXLSX {
          * @param bottomRight An XLCellReference object with the coordinates to the bottom right cell.
          * @return A const XLCellRange object with the requested range.
          */
-        const XLCellRange Range(const XLCellReference& topLeft,
-                                const XLCellReference& bottomRight) const;
+        const XLCellRange Range(const XLCellReference& topLeft, const XLCellReference& bottomRight) const;
 
         /**
          * @brief Get the row with the given row number.
@@ -235,17 +230,14 @@ namespace OpenXLSX {
          * @param fileName
          * @param delimiter
          */
-        void Export(const std::string& fileName,
-                    char decimal = ',',
-                    char delimiter = ';');
+        void Export(const std::string& fileName, char decimal = ',', char delimiter = ';');
 
         /**
          * @brief
          * @param fileName
          * @param delimiter
          */
-        void Import(const std::string& fileName,
-                    const std::string& delimiter = ";");
+        void Import(const std::string& fileName, const std::string& delimiter = ";");
 
     };
 }

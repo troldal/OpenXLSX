@@ -58,8 +58,7 @@ namespace OpenXLSX {
     /**
      * @brief
      */
-    class XLSheet
-    {
+    class XLSheet {
     public:
 
         /**
@@ -139,7 +138,7 @@ namespace OpenXLSX {
          * @return A pointer to the cloned object.
          * @note This is a pure abstract method. I.e. it is implemented in subclasses.
          */
-//        virtual XLSheet* Clone(const std::string& newName) = 0;
+        //        virtual XLSheet* Clone(const std::string& newName) = 0;
 
         /**
          * @brief Method for getting the index of the sheet.

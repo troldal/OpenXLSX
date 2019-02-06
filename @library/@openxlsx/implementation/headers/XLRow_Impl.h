@@ -49,24 +49,22 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLDocument_Impl.h"
 #include "XLCell_Impl.h"
 
-namespace OpenXLSX::Impl
-{
+namespace OpenXLSX::Impl {
 
-//======================================================================================================================
-//========== XLRow Class ===============================================================================================
-//======================================================================================================================
+    //======================================================================================================================
+    //========== XLRow Class ===============================================================================================
+    //======================================================================================================================
 
-/**
- * @brief The XLRow class represent a row in an Excel spreadsheet. All cell data are stored by row in the underlying
- * XML file.
- */
-    class XLRow
-    {
+    /**
+     * @brief The XLRow class represent a row in an Excel spreadsheet. All cell data are stored by row in the underlying
+     * XML file.
+     */
+    class XLRow {
         friend class XLWorksheet;
 
-//----------------------------------------------------------------------------------------------------------------------
-//           Public Member Functions
-//----------------------------------------------------------------------------------------------------------------------
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Public Member Functions
+        //----------------------------------------------------------------------------------------------------------------------
 
     public:
 
@@ -75,8 +73,7 @@ namespace OpenXLSX::Impl
          * @param parent A pointer to the parent XLWorksheet object.
          * @param rowNode A pointer to the XMLNode object for the row.
          */
-        explicit XLRow(XLWorksheet& parent,
-                       XMLNode rowNode);
+        explicit XLRow(XLWorksheet& parent, XMLNode rowNode);
 
         /**
          * @brief Copy Constructor
@@ -173,9 +170,9 @@ namespace OpenXLSX::Impl
         unsigned int CellCount() const;
 
 
-//----------------------------------------------------------------------------------------------------------------------
-//           Protected Member Functions
-//----------------------------------------------------------------------------------------------------------------------
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Protected Member Functions
+        //----------------------------------------------------------------------------------------------------------------------
 
     protected:
 
@@ -185,8 +182,7 @@ namespace OpenXLSX::Impl
          * @param rowNumber The row number to add
          * @return A pointer to the newly created XLRow object.
          */
-        static void CreateRow(XLWorksheet& worksheet,
-                              unsigned long rowNumber);
+        static void CreateRow(XLWorksheet& worksheet, unsigned long rowNumber);
 
         /**
          * @brief Resize the row, i.e. change the number of cells in the row.
@@ -194,9 +190,9 @@ namespace OpenXLSX::Impl
          */
         void Resize(unsigned int cellCount);
 
-//----------------------------------------------------------------------------------------------------------------------
-//           Private Member Variables
-//----------------------------------------------------------------------------------------------------------------------
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Private Member Variables
+        //----------------------------------------------------------------------------------------------------------------------
 
     private:
 
@@ -211,8 +207,7 @@ namespace OpenXLSX::Impl
 
         unsigned long m_rowNumber; /**< The row number of the current row. */
 
-        std::map<unsigned int,
-                 std::unique_ptr<XLCell>> m_cells; /**< A vector with the XLCell objects. */
+        std::map<unsigned int, std::unique_ptr<XLCell>> m_cells; /**< A vector with the XLCell objects. */
     };
 
 }

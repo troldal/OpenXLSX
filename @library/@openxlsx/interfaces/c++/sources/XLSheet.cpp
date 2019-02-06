@@ -7,8 +7,7 @@
 
 using namespace OpenXLSX;
 
-XLSheet::XLSheet(Impl::XLSheet& sheet)
-        : m_sheet(&sheet) {
+XLSheet::XLSheet(Impl::XLSheet& sheet) : m_sheet(&sheet) {
 }
 
 const std::string& XLSheet::Name() const {

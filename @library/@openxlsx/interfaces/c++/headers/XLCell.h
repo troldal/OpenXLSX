@@ -58,8 +58,7 @@ namespace OpenXLSX {
     /**
      * @brief
      */
-    class XLCell
-    {
+    class XLCell {
     public:
 
         /**
@@ -127,7 +126,5 @@ namespace OpenXLSX {
         Impl::XLCell* m_cell; /**<  */
     };
 }
-
-
 
 #endif //OPENXLSX_XLCELL_H

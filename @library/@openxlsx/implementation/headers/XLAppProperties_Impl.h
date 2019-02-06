@@ -49,26 +49,22 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <memory>
 #include <map>
 
-namespace OpenXLSX::Impl
-{
+namespace OpenXLSX::Impl {
 
-//======================================================================================================================
-//========== XLWorksheet Class =========================================================================================
-//======================================================================================================================
+    //======================================================================================================================
+    //========== XLWorksheet Class =========================================================================================
+    //======================================================================================================================
 
     /**
      * @brief This class is a specialization of the XLAbstractXMLFile, with the purpose of the representing the
      * document app properties in the app.xml file (docProps folder) in the .xlsx package.
      */
-    class XLAppProperties :
-            public XLAbstractXMLFile,
-            public XLSpreadsheetElement
-    {
+    class XLAppProperties : public XLAbstractXMLFile, public XLSpreadsheetElement {
         friend class XLDocument;
 
-//----------------------------------------------------------------------------------------------------------------------
-//           Public Member Functions
-//----------------------------------------------------------------------------------------------------------------------
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Public Member Functions
+        //----------------------------------------------------------------------------------------------------------------------
 
     public:
 
@@ -77,8 +73,7 @@ namespace OpenXLSX::Impl
          * @param parent
          * @param filePath
          */
-        explicit XLAppProperties(XLDocument& parent,
-                                 const std::string& filePath);
+        explicit XLAppProperties(XLDocument& parent, const std::string& filePath);
 
         /**
          * @brief
@@ -116,8 +111,7 @@ namespace OpenXLSX::Impl
          * @param oldTitle
          * @param newTitle
          */
-        void SetSheetName(const std::string& oldTitle,
-                          const std::string& newTitle);
+        void SetSheetName(const std::string& oldTitle, const std::string& newTitle);
 
         /**
          * @brief
@@ -131,8 +125,7 @@ namespace OpenXLSX::Impl
          * @param name
          * @param value
          */
-        void AddHeadingPair(const std::string& name,
-                            int value);
+        void AddHeadingPair(const std::string& name, int value);
 
         /**
          * @brief
@@ -145,8 +138,7 @@ namespace OpenXLSX::Impl
          * @param name
          * @param newValue
          */
-        void SetHeadingPair(const std::string& name,
-                            int newValue);
+        void SetHeadingPair(const std::string& name, int newValue);
 
         /**
          * @brief
@@ -154,8 +146,7 @@ namespace OpenXLSX::Impl
          * @param value
          * @return
          */
-        bool SetProperty(const std::string& name,
-                         const std::string& value);
+        bool SetProperty(const std::string& name, const std::string& value);
 
         /**
          * @brief
@@ -190,8 +181,7 @@ namespace OpenXLSX::Impl
          * @param index
          * @return
          */
-        XMLNode InsertWorksheetName(const std::string& sheetName,
-                                    unsigned int index);
+        XMLNode InsertWorksheetName(const std::string& sheetName, unsigned int index);
 
         /**
          * @brief
@@ -199,8 +189,7 @@ namespace OpenXLSX::Impl
          * @param index
          * @return
          */
-        XMLNode MoveWorksheetName(const std::string& sheetName,
-                                  unsigned int index);
+        XMLNode MoveWorksheetName(const std::string& sheetName, unsigned int index);
 
         /**
          * @brief
@@ -222,8 +211,7 @@ namespace OpenXLSX::Impl
          * @param index
          * @return
          */
-        XMLNode InsertChartsheetName(const std::string& sheetName,
-                                     unsigned int index);
+        XMLNode InsertChartsheetName(const std::string& sheetName, unsigned int index);
 
         /**
          * @brief
@@ -231,8 +219,7 @@ namespace OpenXLSX::Impl
          * @param index
          * @return
          */
-        XMLNode MoveChartsheetName(const std::string& sheetName,
-                                   unsigned int index);
+        XMLNode MoveChartsheetName(const std::string& sheetName, unsigned int index);
 
         /**
          * @brief
@@ -260,8 +247,7 @@ namespace OpenXLSX::Impl
          * @param index
          * @return
          */
-        XMLNode InsertSheetName(const std::string& sheetName,
-                                unsigned int index);
+        XMLNode InsertSheetName(const std::string& sheetName, unsigned int index);
 
         /**
          * @brief
@@ -269,23 +255,22 @@ namespace OpenXLSX::Impl
          * @param index
          * @return
          */
-        XMLNode MoveSheetName(const std::string& sheetName,
-                              unsigned int index);
+        XMLNode MoveSheetName(const std::string& sheetName, unsigned int index);
 
-//----------------------------------------------------------------------------------------------------------------------
-//           Private Member Functions
-//----------------------------------------------------------------------------------------------------------------------
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Private Member Functions
+        //----------------------------------------------------------------------------------------------------------------------
 
     private:
 
         // ===== Entities related to sheet names ===== //
-        std::unique_ptr<XMLAttribute>  m_sheetCountAttribute; /**< */
-        std::unique_ptr<XMLNode>       m_sheetNamesParent; /**< */
+        std::unique_ptr<XMLAttribute> m_sheetCountAttribute; /**< */
+        std::unique_ptr<XMLNode>      m_sheetNamesParent; /**< */
 
         // ===== Entities related to "Heading Pairs" ===== //
-        std::unique_ptr<XMLAttribute>               m_headingPairsSize; /**< */
-        std::unique_ptr<XMLNode>                    m_headingPairsCategories; /**< */
-        std::unique_ptr<XMLNode>                    m_headingPairsCounts; /**< */
+        std::unique_ptr<XMLAttribute> m_headingPairsSize; /**< */
+        std::unique_ptr<XMLNode>      m_headingPairsCategories; /**< */
+        std::unique_ptr<XMLNode>      m_headingPairsCounts; /**< */
 
     };
 

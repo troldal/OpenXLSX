@@ -56,8 +56,7 @@ namespace OpenXLSX {
     /**
      * @brief
      */
-    class XLRow
-    {
+    class XLRow {
     public:
 
         /**
@@ -155,13 +154,10 @@ namespace OpenXLSX {
          */
         unsigned int CellCount() const;
 
-
     private:
         Impl::XLRow* m_row; /**< */
 
     };
 }
-
-
 
 #endif //OPENXLSX_XLROW_H

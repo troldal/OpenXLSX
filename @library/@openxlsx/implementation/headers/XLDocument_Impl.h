@@ -64,23 +64,23 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 #include "XLProperty.h"
 
-namespace libzippp
-{
+namespace libzippp {
     class ZipArchive;
 }
 
-namespace OpenXLSX::Impl
-{
+namespace OpenXLSX::Impl {
 
     class XLSharedStrings;
+
     class XLWorkbook;
+
     class XLWorksheet;
 
 
 
-//======================================================================================================================
-//========== XLDocument Class ==========================================================================================
-//======================================================================================================================
+    //======================================================================================================================
+    //========== XLDocument Class ==========================================================================================
+    //======================================================================================================================
 
     /**
      * @brief This class encapsulates the concept of an excel file. It is different from the XLWorkbook, in that an
@@ -88,16 +88,18 @@ namespace OpenXLSX::Impl
      * closing and saving the document.\n<b><em>The XLDocument is the entrypoint for clients
      * using the RapidXLSX library.</em></b>
      */
-    class XLDocument
-    {
+    class XLDocument {
         friend class XLAbstractXMLFile;
+
         friend class XLWorkbook;
+
         friend class XLSheet;
+
         friend class XLSpreadsheetElement;
 
-//----------------------------------------------------------------------------------------------------------------------
-//           Public Member Functions
-//----------------------------------------------------------------------------------------------------------------------
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Public Member Functions
+        //----------------------------------------------------------------------------------------------------------------------
 
     public:
 
@@ -193,8 +195,7 @@ namespace OpenXLSX::Impl
          * @param theProperty The property to set.
          * @param value The value of the property, as a string
          */
-        void SetProperty(XLProperty theProperty,
-                         const std::string& value);
+        void SetProperty(XLProperty theProperty, const std::string& value);
 
         /**
          * @brief Delete the property from the document
@@ -202,9 +203,9 @@ namespace OpenXLSX::Impl
          */
         void DeleteProperty(XLProperty theProperty);
 
-//----------------------------------------------------------------------------------------------------------------------
-//           Protected Member Functions
-//----------------------------------------------------------------------------------------------------------------------
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Protected Member Functions
+        //----------------------------------------------------------------------------------------------------------------------
 
     protected:
 
@@ -213,8 +214,7 @@ namespace OpenXLSX::Impl
          * @param path The relative path of the new file.
          * @param content The contents (XML data) of the new file.
          */
-        void AddOrReplaceXMLFile(const std::string& path,
-                                 const std::string& content);
+        void AddOrReplaceXMLFile(const std::string& path, const std::string& content);
 
         /**
          * @brief Get an XML file from the .xlsx archive.
@@ -249,8 +249,7 @@ namespace OpenXLSX::Impl
          * @param contentType
          * @return
          */
-        XLContentItem* AddContentItem(const std::string& contentPath,
-                                      XLContentType contentType);
+        XLContentItem* AddContentItem(const std::string& contentPath, XLContentType contentType);
 
         /**
          * @brief Getter method for the App Properties object.
@@ -278,16 +277,14 @@ namespace OpenXLSX::Impl
 
     private:
 
-        template <typename T>
-        typename std::enable_if_t<std::is_base_of<XLAbstractXMLFile,
-                                                  T>::value,
-                                  std::unique_ptr<T>>
+        template<typename T>
+        typename std::enable_if_t<std::is_base_of<XLAbstractXMLFile, T>::value, std::unique_ptr<T>>
         CreateItem(const std::string& target);
 
 
-//----------------------------------------------------------------------------------------------------------------------
-//           Private Member Variables
-//----------------------------------------------------------------------------------------------------------------------
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Private Member Variables
+        //----------------------------------------------------------------------------------------------------------------------
 
     private:
 
@@ -299,22 +296,19 @@ namespace OpenXLSX::Impl
         std::unique_ptr<XLCoreProperties> m_docCoreProperties; /**< A pointer to the Core properties object*/
         std::unique_ptr<XLWorkbook>       m_workbook; /**< A pointer to the workbook object */
 
-        std::map<std::string, XLAbstractXMLFile*>          m_xmlFiles; /**< A std::map with all the associated XML files*/
-        std::unique_ptr<libzippp::ZipArchive> m_archive;
+        std::map<std::string, XLAbstractXMLFile*> m_xmlFiles; /**< A std::map with all the associated XML files*/
+        std::unique_ptr<libzippp::ZipArchive>     m_archive;
 
         std::vector<std::string> m_xmlData;
     };
 
-    template <typename T>
-    typename std::enable_if_t<std::is_base_of<XLAbstractXMLFile,
-                                              T>::value,
-                              std::unique_ptr<T>>
+    template<typename T>
+    typename std::enable_if_t<std::is_base_of<XLAbstractXMLFile, T>::value, std::unique_ptr<T>>
     XLDocument::CreateItem(const std::string& target) {
 
         if (!m_documentRelationships->TargetExists(target))
             throw XLException("Target does not exist!");
-        auto result = std::make_unique<T>(*this,
-                                          m_documentRelationships->RelationshipByTarget(target)->Target());
+        auto result = std::make_unique<T>(*this, m_documentRelationships->RelationshipByTarget(target)->Target());
         m_xmlFiles[result->FilePath()] = result.get();
         return std::move(result);
     }

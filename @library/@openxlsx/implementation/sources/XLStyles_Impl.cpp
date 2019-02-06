@@ -10,25 +10,27 @@
 using namespace std;
 using namespace OpenXLSX;
 
-std::map<std::string,
-         Impl::XLStyles> Impl::XLStyles::s_styles = {};
+std::map<std::string, Impl::XLStyles> Impl::XLStyles::s_styles = {};
 
 XMLNode Impl::XLStyles::s_numberFormatsNode = XMLNode();
-XMLNode Impl::XLStyles::s_fontsNode         = XMLNode();
-XMLNode Impl::XLStyles::s_fillsNode         = XMLNode();
-XMLNode Impl::XLStyles::s_bordersNode       = XMLNode();
-XMLNode Impl::XLStyles::s_cellFormatNode    = XMLNode();
-XMLNode Impl::XLStyles::s_cellStyleNode     = XMLNode();
-XMLNode Impl::XLStyles::s_colors            = XMLNode();
+
+XMLNode Impl::XLStyles::s_fontsNode = XMLNode();
+
+XMLNode Impl::XLStyles::s_fillsNode = XMLNode();
+
+XMLNode Impl::XLStyles::s_bordersNode = XMLNode();
+
+XMLNode Impl::XLStyles::s_cellFormatNode = XMLNode();
+
+XMLNode Impl::XLStyles::s_cellStyleNode = XMLNode();
+
+XMLNode Impl::XLStyles::s_colors = XMLNode();
 
 /**
  * @details
  */
-Impl::XLStyles::XLStyles(XLDocument& parent,
-                         const std::string& filePath)
-        : XLAbstractXMLFile(parent,
-                            filePath),
-          XLSpreadsheetElement(parent) {
+Impl::XLStyles::XLStyles(XLDocument& parent, const std::string& filePath) : XLAbstractXMLFile(parent, filePath),
+                                                                            XLSpreadsheetElement(parent) {
 
     ParseXMLData();
 }
@@ -75,12 +77,7 @@ bool Impl::XLStyles::ParseXMLData() {
         if (currentFont.child("u").type() != pugi::node_null)
             underline = true;
 
-        m_fonts.push_back(make_unique<XLFont>(name,
-                                              size,
-                                              XLColor(color),
-                                              bold,
-                                              italics,
-                                              underline));
+        m_fonts.push_back(make_unique<XLFont>(name, size, XLColor(color), bold, italics, underline));
 
         currentFont = currentFont.next_sibling();
     }
@@ -93,12 +90,8 @@ bool Impl::XLStyles::ParseXMLData() {
  */
 void Impl::XLStyles::AddFont(const XLFont& font) {
 
-    m_fonts.push_back(make_unique<XLFont>(font.m_name,
-                                          font.m_size,
-                                          font.m_color,
-                                          font.m_bold,
-                                          font.m_italics,
-                                          font.m_underline));
+    m_fonts.push_back(
+            make_unique<XLFont>(font.m_name, font.m_size, font.m_color, font.m_bold, font.m_italics, font.m_underline));
 
     auto newFont = s_fontsNode.append_child("font");
 

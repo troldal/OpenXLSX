@@ -26,15 +26,14 @@ using namespace OpenXLSX;
  *      -# If there is no type attribute but there is a value node, the cell has a number value.
  *      -# Otherwise, determine the celltype based on the type attribute.
  */
-Impl::XLCell::XLCell(XLWorksheet& parent,
-                     XMLNode cellNode)
-        : XLSpreadsheetElement(*parent.ParentDocument()),
-          m_parentDocument(parent.ParentDocument()),
-          m_parentWorkbook(parent.ParentWorkbook()),
-          m_parentWorksheet(&parent),
-          m_cellNode(make_unique<XMLNode>(cellNode)),
-          m_cellReference(XLCellReference(cellNode.attribute("r").value())),
-          m_value(*this) {
+Impl::XLCell::XLCell(XLWorksheet& parent, XMLNode cellNode) : XLSpreadsheetElement(*parent.ParentDocument()),
+                                                              m_parentDocument(parent.ParentDocument()),
+                                                              m_parentWorkbook(parent.ParentWorkbook()),
+                                                              m_parentWorksheet(&parent),
+                                                              m_cellNode(make_unique<XMLNode>(cellNode)),
+                                                              m_cellReference(
+                                                                      XLCellReference(cellNode.attribute("r").value())),
+                                                              m_value(*this) {
 }
 
 /**
@@ -95,8 +94,7 @@ const Impl::XLCellReference* Impl::XLCell::CellReference() const {
  * @warning The std::make_unique function doesn't work, because the constructor is protected. Therefore,
  * a new unique_ptr is created manually, which is unfortunate, as it requires a call to operator new which is unsafe.
  */
-std::unique_ptr<Impl::XLCell> Impl::XLCell::CreateCell(XLWorksheet& parent,
-                                                       XMLNode cellNode) {
+std::unique_ptr<Impl::XLCell> Impl::XLCell::CreateCell(XLWorksheet& parent, XMLNode cellNode) {
 
     return unique_ptr<XLCell>(new XLCell(parent, cellNode));
 }

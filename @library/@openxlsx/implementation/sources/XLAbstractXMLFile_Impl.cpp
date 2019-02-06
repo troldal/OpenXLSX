@@ -17,11 +17,9 @@ using namespace OpenXLSX;
  */
 Impl::XLAbstractXMLFile::XLAbstractXMLFile(XLDocument& parent,
                                            const std::string& filePath,
-                                           const std::string& xmlData)
-        : m_xmlDocument(std::make_unique<XMLDocument>()),
-          m_parentDocument(parent),
-          m_path(filePath),
-          m_childXmlDocuments() {
+                                           const std::string& xmlData) : m_xmlDocument(std::make_unique<XMLDocument>()),
+                                                                         m_parentDocument(parent), m_path(filePath),
+                                                                         m_childXmlDocuments() {
 
     if (xmlData.empty())
         SetXmlData(m_parentDocument.GetXMLFile(m_path));
@@ -56,8 +54,7 @@ std::string Impl::XLAbstractXMLFile::GetXmlData() const {
  */
 void Impl::XLAbstractXMLFile::CommitXMLData() {
 
-    m_parentDocument.AddOrReplaceXMLFile(m_path,
-                                         GetXmlData());
+    m_parentDocument.AddOrReplaceXMLFile(m_path, GetXmlData());
     for (auto file : m_childXmlDocuments) {
         if (file.second)
             file.second->CommitXMLData();
@@ -96,16 +93,16 @@ void Impl::XLAbstractXMLFile::Print() const {
 /**
  * @details This method returns a pointer to the underlying XMLDocument resource.
  */
-XMLDocument * Impl::XLAbstractXMLFile::XmlDocument()
-{
-    return const_cast<XMLDocument *>(static_cast<const XLAbstractXMLFile *>(this)->XmlDocument());
+XMLDocument* Impl::XLAbstractXMLFile::XmlDocument() {
+
+    return const_cast<XMLDocument*>(static_cast<const XLAbstractXMLFile*>(this)->XmlDocument());
 }
 
 /**
  * @details This method returns a pointer to the underlying XMLDocument resource as const.
  */
-const XMLDocument *Impl::XLAbstractXMLFile::XmlDocument() const
-{
+const XMLDocument* Impl::XLAbstractXMLFile::XmlDocument() const {
+
     return m_xmlDocument.get();
 }
 

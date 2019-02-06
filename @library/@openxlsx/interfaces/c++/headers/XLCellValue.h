@@ -105,8 +105,7 @@ namespace OpenXLSX {
      * cout << "Cell D1: " << D1 << endl;
      * ```
      */
-    class XLCellValue
-    {
+    class XLCellValue {
     public:
 
         /**
@@ -145,7 +144,7 @@ namespace OpenXLSX {
          * @param numberValue
          * @return
          */
-        template <typename T, typename std::enable_if<std::is_integral<T>::value, long long int>::type* = nullptr>
+        template<typename T, typename std::enable_if<std::is_integral<T>::value, long long int>::type* = nullptr>
         XLCellValue& operator=(T numberValue);
 
         /**
@@ -154,7 +153,7 @@ namespace OpenXLSX {
          * @param numberValue
          * @return
          */
-        template <typename T, typename std::enable_if<std::is_floating_point<T>::value, long double>::type* = nullptr>
+        template<typename T, typename std::enable_if<std::is_floating_point<T>::value, long double>::type* = nullptr>
         XLCellValue& operator=(T numberValue);
 
         /**
@@ -182,7 +181,7 @@ namespace OpenXLSX {
          * @tparam T
          * @param numberValue
          */
-        template <typename T, typename std::enable_if<std::is_integral<T>::value, long long int>::type* = nullptr>
+        template<typename T, typename std::enable_if<std::is_integral<T>::value, long long int>::type* = nullptr>
         void Set(T numberValue);
 
         /**
@@ -190,7 +189,7 @@ namespace OpenXLSX {
          * @tparam T
          * @param numberValue
          */
-        template <typename T, typename std::enable_if<std::is_floating_point<T>::value, long double>::type* = nullptr>
+        template<typename T, typename std::enable_if<std::is_floating_point<T>::value, long double>::type* = nullptr>
         void Set(T numberValue);
 
         /**
@@ -210,7 +209,7 @@ namespace OpenXLSX {
          * @tparam T
          * @return
          */
-        template <typename T, typename std::enable_if<std::is_integral<T>::value, long long int>::type* = nullptr>
+        template<typename T, typename std::enable_if<std::is_integral<T>::value, long long int>::type* = nullptr>
         T Get() const;
 
         /**
@@ -218,7 +217,7 @@ namespace OpenXLSX {
          * @tparam T
          * @return
          */
-        template <typename T, typename std::enable_if<std::is_floating_point<T>::value, long double>::type* = nullptr>
+        template<typename T, typename std::enable_if<std::is_floating_point<T>::value, long double>::type* = nullptr>
         T Get() const;
 
         /**
@@ -226,7 +225,9 @@ namespace OpenXLSX {
          * @tparam T
          * @return
          */
-        template <typename T, typename std::enable_if<std::is_constructible<T, char*>::value && !std::is_same<T,bool>::value,char*>::type* = nullptr>
+        template<typename T, typename std::enable_if<std::is_constructible<T, char*>::value && !std::is_same<T,
+                                                                                                             bool>::value,
+                                                     char*>::type* = nullptr>
         T Get() const;
 
         /**
@@ -239,7 +240,6 @@ namespace OpenXLSX {
          * @return
          */
         XLValueType ValueType() const;
-
 
     private:
 
@@ -292,8 +292,7 @@ namespace OpenXLSX {
     /**
      * @details
      */
-    template <typename T, typename std::enable_if<std::is_integral<T>::value,
-                                                  long long int>::type*>
+    template<typename T, typename std::enable_if<std::is_integral<T>::value, long long int>::type*>
     XLCellValue& XLCellValue::operator=(T numberValue) {
 
         Set(numberValue);
@@ -303,8 +302,7 @@ namespace OpenXLSX {
     /**
      * @details
      */
-    template <typename T, typename std::enable_if<std::is_floating_point<T>::value,
-                                                  long double>::type*>
+    template<typename T, typename std::enable_if<std::is_floating_point<T>::value, long double>::type*>
     XLCellValue& XLCellValue::operator=(T numberValue) {
 
         Set(numberValue);
@@ -314,8 +312,7 @@ namespace OpenXLSX {
     /**
      * @details
      */
-    template <typename T, typename std::enable_if<std::is_integral<T>::value,
-                                                  long long int>::type*>
+    template<typename T, typename std::enable_if<std::is_integral<T>::value, long long int>::type*>
     void XLCellValue::Set(T numberValue) {
 
         if constexpr (std::is_same<T, bool>::value) { // if bool
@@ -329,8 +326,7 @@ namespace OpenXLSX {
     /**
      * @details
      */
-    template <typename T, typename std::enable_if<std::is_floating_point<T>::value,
-                                                  long double>::type*>
+    template<typename T, typename std::enable_if<std::is_floating_point<T>::value, long double>::type*>
     void XLCellValue::Set(T numberValue) {
 
         SetFloat(numberValue);
@@ -339,8 +335,7 @@ namespace OpenXLSX {
     /**
      * @details
      */
-    template <typename T, typename std::enable_if<std::is_integral<T>::value,
-                                                  long long int>::type*>
+    template<typename T, typename std::enable_if<std::is_integral<T>::value, long long int>::type*>
     T XLCellValue::Get() const {
 
         if constexpr (std::is_same<T, bool>::value) {
@@ -354,8 +349,7 @@ namespace OpenXLSX {
     /**
      * @details
      */
-    template <typename T, typename std::enable_if<std::is_floating_point<T>::value,
-                                                  long double>::type*>
+    template<typename T, typename std::enable_if<std::is_floating_point<T>::value, long double>::type*>
     T XLCellValue::Get() const {
 
         return GetFloat();
@@ -364,17 +358,14 @@ namespace OpenXLSX {
     /**
      * @details
      */
-    template <typename T, typename std::enable_if<std::is_constructible<T,
-                                                                        char*>::value && !std::is_same<T,
-                                                                                                       bool>::value,
-                                                  char*>::type*>
+    template<typename T, typename std::enable_if<std::is_constructible<T, char*>::value && !std::is_same<T,
+                                                                                                         bool>::value,
+                                                 char*>::type*>
     T XLCellValue::Get() const {
 
         return T(GetString());
     }
 
 }
-
-
 
 #endif //OPENXLSX_XLCELLVALUE_H

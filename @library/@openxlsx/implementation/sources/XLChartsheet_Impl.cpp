@@ -13,10 +13,6 @@ using namespace OpenXLSX;
 Impl::XLChartsheet::XLChartsheet(XLWorkbook& parent,
                                  const std::string& name,
                                  const std::string& filePath,
-                                 const std::string& xmlData)
-        : XLSheet(parent,
-                  name,
-                  filePath,
-                  xmlData) {
+                                 const std::string& xmlData) : XLSheet(parent, name, filePath, xmlData) {
 
 }

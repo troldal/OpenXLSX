@@ -54,8 +54,7 @@ namespace OpenXLSX {
     /**
      * @brief
      */
-    class XLColumn
-    {
+    class XLColumn {
     public:
 
         /**
@@ -124,7 +123,5 @@ namespace OpenXLSX {
 
     };
 }
-
-
 
 #endif //OPENXLSX_XLCOLUMN_H

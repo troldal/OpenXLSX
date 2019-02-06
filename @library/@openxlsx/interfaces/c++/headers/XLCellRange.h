@@ -60,8 +60,7 @@ namespace OpenXLSX {
     /**
      * @brief
      */
-    class XLCellRange
-    {
+    class XLCellRange {
     public:
 
         /**
@@ -93,8 +92,7 @@ namespace OpenXLSX {
          * @param column
          * @return
          */
-        XLCell Cell(unsigned long row,
-                    unsigned int column);
+        XLCell Cell(unsigned long row, unsigned int column);
 
         /**
          * @brief
@@ -102,8 +100,7 @@ namespace OpenXLSX {
          * @param column
          * @return
          */
-        const XLCell Cell(unsigned long row,
-                          unsigned int column) const;
+        const XLCell Cell(unsigned long row, unsigned int column) const;
 
         /**
          * @brief
@@ -159,11 +156,9 @@ namespace OpenXLSX {
          */
         void InitCells() const;
 
-        std::unique_ptr<Impl::XLCellRange> m_cellrange; /**< */
+        std::unique_ptr<Impl::XLCellRange>           m_cellrange; /**< */
         mutable std::unique_ptr<std::vector<XLCell>> m_cells; /**< */
     };
 }
-
-
 
 #endif //OPENXLSX_XLCELLRANGE_H

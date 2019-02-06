@@ -9,9 +9,8 @@
 
 using namespace OpenXLSX;
 
-XLCellRange::XLCellRange(Impl::XLCellRange range)
-        : m_cellrange(std::make_unique<Impl::XLCellRange>(range)),
-          m_cells(nullptr) {
+XLCellRange::XLCellRange(Impl::XLCellRange range) : m_cellrange(std::make_unique<Impl::XLCellRange>(range)),
+                                                    m_cells(nullptr) {
 
 }
 
@@ -47,25 +46,29 @@ void XLCellRange::Transpose(bool state) const {
 
 XLCellIterator XLCellRange::begin() {
 
-    if (!m_cells) InitCells();
+    if (!m_cells)
+        InitCells();
     return m_cells->begin();
 }
 
 XLCellIteratorConst XLCellRange::begin() const {
 
-    if (!m_cells) InitCells();
+    if (!m_cells)
+        InitCells();
     return m_cells->begin();
 }
 
 XLCellIterator XLCellRange::end() {
 
-    if (!m_cells) InitCells();
+    if (!m_cells)
+        InitCells();
     return m_cells->end();
 }
 
 XLCellIteratorConst XLCellRange::end() const {
 
-    if (!m_cells) InitCells();
+    if (!m_cells)
+        InitCells();
     return m_cells->end();
 }
 

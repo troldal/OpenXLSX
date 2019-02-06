@@ -55,49 +55,47 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLCellValue_Impl.h"
 #include "XLCellReference_Impl.h"
 
-namespace OpenXLSX::Impl
-{
+namespace OpenXLSX::Impl {
     class XLCellRange;
 
-//======================================================================================================================
-//========== XLColumnVector Alias ======================================================================================
-//======================================================================================================================
+    //======================================================================================================================
+    //========== XLColumnVector Alias ======================================================================================
+    //======================================================================================================================
 
     /**
      * @brief A std::vector of std::unique_ptr's to XLColumn objects.
      */
-    using XLColumns = std::map<unsigned int,
-                               XLColumn>;
+    using XLColumns = std::map<unsigned int, XLColumn>;
 
 
-//======================================================================================================================
-//========== XLRowVector Alias =========================================================================================
-//======================================================================================================================
+    //======================================================================================================================
+    //========== XLRowVector Alias =========================================================================================
+    //======================================================================================================================
 
     /**
      * @brief A std::vector of std::unique_ptr's to XLRow objects.
      */
-    using XLRows = std::map<unsigned long,
-                            XLRow>;
+    using XLRows = std::map<unsigned long, XLRow>;
 
 
-//======================================================================================================================
-//========== XLWorksheet Class =========================================================================================
-//======================================================================================================================
+    //======================================================================================================================
+    //========== XLWorksheet Class =========================================================================================
+    //======================================================================================================================
 
     /**
      * @brief A class encapsulating an Excel worksheet. Access to XLWorksheet objects should be via the workbook object.
      */
-    class XLWorksheet : public XLSheet
-    {
+    class XLWorksheet : public XLSheet {
         friend class XLCell;
+
         friend class XLRow;
+
         friend class XLWorkbook;
 
 
-//----------------------------------------------------------------------------------------------------------------------
-//           Public Member Functions
-//----------------------------------------------------------------------------------------------------------------------
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Public Member Functions
+        //----------------------------------------------------------------------------------------------------------------------
 
     public:
 
@@ -176,8 +174,7 @@ namespace OpenXLSX::Impl
          * @param columnNumber The column number (index base 1).
          * @return A reference to the XLCell object at the given coordinates.
          */
-        XLCell* Cell(unsigned long rowNumber,
-                     unsigned int columnNumber);
+        XLCell* Cell(unsigned long rowNumber, unsigned int columnNumber);
 
         /**
          * @brief Get the cell at the given coordinates.
@@ -185,8 +182,7 @@ namespace OpenXLSX::Impl
          * @param columnNumber The column number (index base 1).
          * @return A const reference to the XLCell object at the given coordinates.
          */
-        const XLCell* Cell(unsigned long rowNumber,
-                           unsigned int columnNumber) const;
+        const XLCell* Cell(unsigned long rowNumber, unsigned int columnNumber) const;
 
         /**
          * @brief Get a range for the area currently in use (i.e. from cell A1 to the last cell being in use).
@@ -206,8 +202,7 @@ namespace OpenXLSX::Impl
          * @param bottomRight An XLCellReference object with the coordinates to the bottom right cell.
          * @return An XLCellRange object with the requested range.
          */
-        XLCellRange Range(const XLCellReference& topLeft,
-                          const XLCellReference& bottomRight);
+        XLCellRange Range(const XLCellReference& topLeft, const XLCellReference& bottomRight);
 
         /**
          * @brief Get a range with the given coordinates.
@@ -215,8 +210,7 @@ namespace OpenXLSX::Impl
          * @param bottomRight An XLCellReference object with the coordinates to the bottom right cell.
          * @return A const XLCellRange object with the requested range.
          */
-        const XLCellRange Range(const XLCellReference& topLeft,
-                                const XLCellReference& bottomRight) const;
+        const XLCellRange Range(const XLCellReference& topLeft, const XLCellReference& bottomRight) const;
 
         /**
          * @brief Get the row with the given row number.
@@ -276,23 +270,20 @@ namespace OpenXLSX::Impl
          * @param decimal
          * @param delimiter
          */
-        void Export(const std::string& fileName,
-                    char decimal = ',',
-                    char delimiter = ';');
+        void Export(const std::string& fileName, char decimal = ',', char delimiter = ';');
 
         /**
          * @brief
          * @param fileName
          * @param delimiter
          */
-        void Import(const std::string& fileName,
-                    const std::string& delimiter = ";");
+        void Import(const std::string& fileName, const std::string& delimiter = ";");
 
         std::string GetXmlData() const override;
 
-//----------------------------------------------------------------------------------------------------------------------
-//           Protected Member Functions
-//----------------------------------------------------------------------------------------------------------------------
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Protected Member Functions
+        //----------------------------------------------------------------------------------------------------------------------
 
     protected:
 
@@ -352,9 +343,9 @@ namespace OpenXLSX::Impl
          */
         static std::string NewSheetXmlData();
 
-//----------------------------------------------------------------------------------------------------------------------
-//           Private Member Functions
-//----------------------------------------------------------------------------------------------------------------------
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Private Member Functions
+        //----------------------------------------------------------------------------------------------------------------------
 
     private:
 
@@ -440,9 +431,9 @@ namespace OpenXLSX::Impl
 
 
 
-//----------------------------------------------------------------------------------------------------------------------
-//           Private Member Variables
-//----------------------------------------------------------------------------------------------------------------------
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Private Member Variables
+        //----------------------------------------------------------------------------------------------------------------------
 
     private:
 

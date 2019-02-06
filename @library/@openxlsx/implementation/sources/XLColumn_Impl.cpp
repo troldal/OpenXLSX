@@ -13,14 +13,10 @@ using namespace OpenXLSX;
 /**
  * @details Assumes each node only has data for one column.
  */
-Impl::XLColumn::XLColumn(XLWorksheet& parent,
-                         XMLNode columnNode)
-        : m_parentWorksheet(&parent),
-          m_parentDocument(parent.ParentDocument()),
-          m_columnNode(std::make_unique<XMLNode>(columnNode)),
-          m_width(10),
-          m_hidden(false),
-          m_column(0) {
+Impl::XLColumn::XLColumn(XLWorksheet& parent, XMLNode columnNode) : m_parentWorksheet(&parent),
+                                                                    m_parentDocument(parent.ParentDocument()),
+                                                                    m_columnNode(std::make_unique<XMLNode>(columnNode)),
+                                                                    m_width(10), m_hidden(false), m_column(0) {
     // Read the 'min' attribute of the Column
     auto minmaxAtt = m_columnNode->attribute("min");
     if (minmaxAtt)

@@ -21,20 +21,10 @@ Impl::XLWorksheet::XLWorksheet(XLWorkbook& parent,
                                const std::string& filePath,
                                const std::string& xmlData)
 
-        : XLSheet(parent,
-                  name,
-                  filePath,
-                  xmlData),
-          m_dimensionNode(std::make_unique<XMLNode>()),
-          m_sheetDataNode(std::make_unique<XMLNode>()),
-          m_columnsNode(std::make_unique<XMLNode>()),
-          m_sheetViewsNode(std::make_unique<XMLNode>()),
-          m_parentWorkbook(parent),
-          m_rows(),
-          m_columns(),
-          m_firstCell(1, 1),
-          m_lastCell(1, 1),
-          m_maxColumn(0) {
+        : XLSheet(parent, name, filePath, xmlData), m_dimensionNode(std::make_unique<XMLNode>()),
+          m_sheetDataNode(std::make_unique<XMLNode>()), m_columnsNode(std::make_unique<XMLNode>()),
+          m_sheetViewsNode(std::make_unique<XMLNode>()), m_parentWorkbook(parent), m_rows(), m_columns(),
+          m_firstCell(1, 1), m_lastCell(1, 1), m_maxColumn(0) {
 
     // Call the 'LoadXMLData' method in the XLAbstractXMLFile base class
     ParseXMLData();
@@ -71,8 +61,7 @@ bool Impl::XLWorksheet::ParseXMLData() {
             if (min != max) {
                 currentNode.attribute("min").set_value(max);
                 for (int i = min; i < max; i++) {
-                    auto newnode = ColumnsNode().insert_child_before("col",
-                                                                     currentNode);
+                    auto newnode = ColumnsNode().insert_child_before("col", currentNode);
                     auto attr    = currentNode.first_attribute();
                     while (attr) {
                         newnode.append_attribute(attr.name()) = attr.value();
@@ -90,18 +79,14 @@ bool Impl::XLWorksheet::ParseXMLData() {
     if (m_columnsNode->type() != pugi::node_null) {
         auto currentColumn = ColumnsNode().first_child();
         while (currentColumn) {
-            m_columns.emplace(currentColumn.attribute("min").as_ullong() - 1,
-                              XLColumn(*this,
-                                       currentColumn));
+            m_columns.emplace(currentColumn.attribute("min").as_ullong() - 1, XLColumn(*this, currentColumn));
             currentColumn = currentColumn.next_sibling();
         }
     }
 
     // Store all Row nodes in the m_rows vector. The XLRow constructor will initialize the cells objects
     for (auto& currentRow : SheetDataNode().children())
-        m_rows.emplace(stoul(currentRow.attribute("r").value()) - 1,
-                       XLRow(*this,
-                             currentRow));
+        m_rows.emplace(stoul(currentRow.attribute("r").value()) - 1, XLRow(*this, currentRow));
 
     return true;
 }
@@ -112,8 +97,7 @@ bool Impl::XLWorksheet::ParseXMLData() {
  */
 Impl::XLWorksheet* Impl::XLWorksheet::Clone(const std::string& newName) {
 
-    ParentWorkbook()->CloneWorksheet(Name(),
-                                     newName);
+    ParentWorkbook()->CloneWorksheet(Name(), newName);
     return ParentWorkbook()->Worksheet(newName);
 }
 
@@ -123,8 +107,7 @@ Impl::XLWorksheet* Impl::XLWorksheet::Clone(const std::string& newName) {
  */
 Impl::XLCell* Impl::XLWorksheet::Cell(const XLCellReference& ref) {
 
-    return Cell(ref.Row(),
-                ref.Column());
+    return Cell(ref.Row(), ref.Column());
 }
 
 /**
@@ -132,8 +115,7 @@ Impl::XLCell* Impl::XLWorksheet::Cell(const XLCellReference& ref) {
  */
 const Impl::XLCell* Impl::XLWorksheet::Cell(const XLCellReference& ref) const {
 
-    return Cell(ref.Row(),
-                ref.Column());
+    return Cell(ref.Row(), ref.Column());
 }
 
 /**
@@ -157,8 +139,7 @@ const Impl::XLCell* Impl::XLWorksheet::Cell(const std::string& address) const {
  * @details This function returns a pointer to an XLCell object in the worksheet. This particular overload
  * also serves as the main function, called by the other overloads.
  */
-Impl::XLCell* Impl::XLWorksheet::Cell(unsigned long rowNumber,
-                                      unsigned int columnNumber) {
+Impl::XLCell* Impl::XLWorksheet::Cell(unsigned long rowNumber, unsigned int columnNumber) {
     // If the requested Cell is outside the current Sheet Range, reset the m_lastCell Property accordingly.
     if (columnNumber > ColumnCount() || rowNumber > RowCount()) {
         if (columnNumber > ColumnCount())
@@ -178,8 +159,7 @@ Impl::XLCell* Impl::XLWorksheet::Cell(unsigned long rowNumber,
  * @details
  * @throw XLException if rowNumber exceeds rowCount
  */
-const Impl::XLCell* Impl::XLWorksheet::Cell(unsigned long rowNumber,
-                                            unsigned int columnNumber) const {
+const Impl::XLCell* Impl::XLWorksheet::Cell(unsigned long rowNumber, unsigned int columnNumber) const {
 
     if (rowNumber > RowCount())
         throw XLException("Row " + to_string(rowNumber) + " does not exist!");
@@ -193,8 +173,7 @@ const Impl::XLCell* Impl::XLWorksheet::Cell(unsigned long rowNumber,
  */
 Impl::XLCellRange Impl::XLWorksheet::Range() {
 
-    return Range(FirstCell(),
-                 LastCell());
+    return Range(FirstCell(), LastCell());
 }
 
 /**
@@ -204,35 +183,29 @@ Impl::XLCellRange Impl::XLWorksheet::Range() {
  */
 const Impl::XLCellRange Impl::XLWorksheet::Range() const {
 
-    return Range(FirstCell(),
-                 LastCell());
+    return Range(FirstCell(), LastCell());
 }
 
 /**
  * @details Get an XLCellRange object with the given coordinates.
  */
-Impl::XLCellRange Impl::XLWorksheet::Range(const XLCellReference& topLeft,
-                                           const XLCellReference& bottomRight) {
+Impl::XLCellRange Impl::XLWorksheet::Range(const XLCellReference& topLeft, const XLCellReference& bottomRight) {
     // Set the last Cell to some value, in order to create all objects in Range.
     if (Cell(bottomRight)->ValueType() == XLValueType::Empty)
         Cell(bottomRight)->Value().Clear();
 
-    return XLCellRange(*this,
-                       topLeft,
-                       bottomRight);
+    return XLCellRange(*this, topLeft, bottomRight);
 }
 
 /**
  * @details
  */
-const Impl::XLCellRange Impl::XLWorksheet::Range(const XLCellReference& topLeft,
-                                                 const XLCellReference& bottomRight) const {
+const Impl::XLCellRange
+Impl::XLWorksheet::Range(const XLCellReference& topLeft, const XLCellReference& bottomRight) const {
     // Set the last Cell to some ValueAsString, in order to create all objects in Range.
     //if (Cell(bottomRight)->CellType() == XLCellType::Empty) Cell(bottomRight)->SetEmptyValue();
 
-    return XLCellRange(*this,
-                       topLeft,
-                       bottomRight);
+    return XLCellRange(*this, topLeft, bottomRight);
 }
 
 /**
@@ -255,8 +228,7 @@ Impl::XLRow* Impl::XLWorksheet::Row(unsigned long rowNumber) {
         // If the node does not exist, create and insert it. Otherwise return the existing object.
     else {
         //Rows()->insert({rowNumber - 1, XLRow::CreateRow(*this, rowNumber)});
-        XLRow::CreateRow(*this,
-                         rowNumber);
+        XLRow::CreateRow(*this, rowNumber);
         result = &Rows()->at(rowNumber - 1);
     }
 
@@ -281,8 +253,7 @@ Impl::XLColumn* Impl::XLWorksheet::Column(unsigned int columnNumber) {
 
     // If no columns exists, create the <cols> node in the XML document.
     if (!m_columnsNode)
-        *m_columnsNode = XmlDocument()->root().insert_child_before("cols",
-                                                                   SheetDataNode());
+        *m_columnsNode = XmlDocument()->root().insert_child_before("cols", SheetDataNode());
 
     // Create result object and initialize to nullptr.
     XLColumn* result = nullptr;
@@ -307,8 +278,7 @@ Impl::XLColumn* Impl::XLWorksheet::Column(unsigned int columnNumber) {
             XLColumn* col = &m_columns.at(index);
             while (col == nullptr)
                 col    = &m_columns.at(index++);
-            nodeColumn = ColumnsNode().insert_child_before("col",
-                                                           col->ColumnNode());
+            nodeColumn = ColumnsNode().insert_child_before("col", col->ColumnNode());
         }
 
         nodeColumn.append_attribute("min")         = columnNumber;
@@ -317,9 +287,7 @@ Impl::XLColumn* Impl::XLWorksheet::Column(unsigned int columnNumber) {
         nodeColumn.append_attribute("customWidth") = 1;
 
         // Insert the new Row node in the Row nodes vector.
-        m_columns.emplace(columnNumber - 1,
-                          XLColumn(*this,
-                                   nodeColumn));
+        m_columns.emplace(columnNumber - 1, XLColumn(*this, nodeColumn));
         result = &m_columns.at(columnNumber - 1);
     }
     else {
@@ -595,9 +563,7 @@ std::string Impl::XLWorksheet::NewSheetXmlData() {
 /**
  * @details
  */
-void Impl::XLWorksheet::Export(const std::string& fileName,
-                               char decimal,
-                               char delimiter) {
+void Impl::XLWorksheet::Export(const std::string& fileName, char decimal, char delimiter) {
 
     ofstream file(fileName);
     string   token;
@@ -610,12 +576,8 @@ void Impl::XLWorksheet::Export(const std::string& fileName,
 
     for (unsigned long row = 1; row <= RowCount(); ++row) {
         for (unsigned int column = 1; column <= ColumnCount(); ++column) {
-            token = Cell(row,
-                         column)->Value().AsString();
-            replace(token.begin(),
-                    token.end(),
-                    oldDecimal,
-                    decimal);
+            token = Cell(row, column)->Value().AsString();
+            replace(token.begin(), token.end(), oldDecimal, decimal);
             file << token << delimiter;
         }
         file << "\n";
@@ -627,35 +589,27 @@ void Impl::XLWorksheet::Export(const std::string& fileName,
 /**
  * @details
  */
-void Impl::XLWorksheet::Import(const std::string& fileName,
-                               const string& delimiter) {
+void Impl::XLWorksheet::Import(const std::string& fileName, const string& delimiter) {
 
     ifstream      file(fileName);
     string        line;
     unsigned long row = 1;
-    XLTokenizer   tokenizer("",
-                            delimiter);
-    while (getline(file,
-                   line)) {
+    XLTokenizer   tokenizer("", delimiter);
+    while (getline(file, line)) {
         tokenizer.SetString(line);
         unsigned int column = 1;
         for (auto& iter : tokenizer.Split()) {
             if (iter.IsInteger())
-                Cell(row,
-                     column)->Value().Set(iter.AsInteger());
+                Cell(row, column)->Value().Set(iter.AsInteger());
             if (iter.IsFloat())
-                Cell(row,
-                     column)->Value().Set(iter.AsFloat());
+                Cell(row, column)->Value().Set(iter.AsFloat());
             if (iter.IsString())
-                Cell(row,
-                     column)->Value().Set(iter.AsString());
+                Cell(row, column)->Value().Set(iter.AsString());
             if (iter.IsBoolean()) {
                 if (iter.AsBoolean() == true)
-                    Cell(row,
-                         column)->Value().Set(true);
+                    Cell(row, column)->Value().Set(true);
                 else
-                    Cell(row,
-                         column)->Value().Set(false);
+                    Cell(row, column)->Value().Set(false);
             }
             column++;
         }

@@ -51,39 +51,40 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLSharedStrings_Impl.h"
 #include "XLSpreadsheetElement_Impl.h"
 
-namespace OpenXLSX::Impl
-{
+namespace OpenXLSX::Impl {
     class XLSharedStrings;
+
     class XLSheet;
+
     class XLWorksheet;
+
     class XLChartsheet;
+
     class XLStyles;
 
-//======================================================================================================================
-//========== XLSheetMap Alias ==========================================================================================
-//======================================================================================================================
+    //======================================================================================================================
+    //========== XLSheetMap Alias ==========================================================================================
+    //======================================================================================================================
 
     /**
      * @brief
      */
     using XLSheetMap = std::map<std::string, std::unique_ptr<XLSheet>>;
 
-//======================================================================================================================
-//========== XLWorkbook Class ==========================================================================================
-//======================================================================================================================
+    //======================================================================================================================
+    //========== XLWorkbook Class ==========================================================================================
+    //======================================================================================================================
 
-/**
- * @brief This class encapsulates the concept of a Workbook. It provides access to the embedded sheets
- * (worksheets or chartsheets), as well as functionality for adding, deleting and renaming sheets.
- */
-    class XLWorkbook : public XLAbstractXMLFile,
-                       public XLSpreadsheetElement
-    {
+    /**
+     * @brief This class encapsulates the concept of a Workbook. It provides access to the embedded sheets
+     * (worksheets or chartsheets), as well as functionality for adding, deleting and renaming sheets.
+     */
+    class XLWorkbook : public XLAbstractXMLFile, public XLSpreadsheetElement {
         friend class XLSheet;
 
-//----------------------------------------------------------------------------------------------------------------------
-//           Public Member Functions
-//----------------------------------------------------------------------------------------------------------------------
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Public Member Functions
+        //----------------------------------------------------------------------------------------------------------------------
 
     public:
 
@@ -94,8 +95,7 @@ namespace OpenXLSX::Impl
          * @param filePath The relative path to the underlying XML file.
          * @note Do not create an XLWorkbook object directly. Get access through the an XLDocument object.
          */
-        explicit XLWorkbook(XLDocument& parent,
-                            const std::string& filePath);
+        explicit XLWorkbook(XLDocument& parent, const std::string& filePath);
 
         /**
          * @brief Copy Constructor.
@@ -209,8 +209,7 @@ namespace OpenXLSX::Impl
          * @param index The index at which the worksheet should be inserted.
          * @bug Method does not check that another sheet with same name exists.
          */
-        void AddWorksheet(const std::string& sheetName,
-                          unsigned int index = 0);
+        void AddWorksheet(const std::string& sheetName, unsigned int index = 0);
 
         /**
          * @brief Clone an existing worksheet.
@@ -220,9 +219,7 @@ namespace OpenXLSX::Impl
          * @todo The function works, but Excel reports errors when opening.
          * @todo Is it possible to have a common CloneSheet function?
          */
-        void CloneWorksheet(const std::string& extName,
-                            const std::string& newName,
-                            unsigned int index = 0);
+        void CloneWorksheet(const std::string& extName, const std::string& newName, unsigned int index = 0);
 
         /**
          * @brief Add a new chartsheet to the workbook, with the given name and index.
@@ -230,8 +227,7 @@ namespace OpenXLSX::Impl
          * @param index The index at which the chartsheet should be inserted.
          * @todo This method is currently unimplemented.
          */
-        void AddChartsheet(const std::string& sheetName,
-                           unsigned int index = 0);
+        void AddChartsheet(const std::string& sheetName, unsigned int index = 0);
 
         /**
          * @brief
@@ -308,9 +304,9 @@ namespace OpenXLSX::Impl
         XLStyles* Styles();
 
 
-//----------------------------------------------------------------------------------------------------------------------
-//           Protected Member Functions
-//----------------------------------------------------------------------------------------------------------------------
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Protected Member Functions
+        //----------------------------------------------------------------------------------------------------------------------
 
     protected:
 
@@ -339,9 +335,9 @@ namespace OpenXLSX::Impl
          */
         XMLNode SheetNode(const std::string& sheetName);
 
-//----------------------------------------------------------------------------------------------------------------------
-//           Private Member Functions
-//----------------------------------------------------------------------------------------------------------------------
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Private Member Functions
+        //----------------------------------------------------------------------------------------------------------------------
 
     private:
 
@@ -362,8 +358,7 @@ namespace OpenXLSX::Impl
          * @param item
          * @param xmlData
          */
-        void CreateWorksheet(const XLRelationshipItem& item,
-                             const std::string& xmlData = "");
+        void CreateWorksheet(const XLRelationshipItem& item, const std::string& xmlData = "");
 
         /**
          * @brief
@@ -378,15 +373,14 @@ namespace OpenXLSX::Impl
          * @return A reference to the XLRelationshipItem corresponding to the worksheet file
          * @todo Consider having this as a static function in the XLWorksheet class.
          */
-        XLRelationshipItem* InitiateWorksheet(const std::string& sheetName,
-                                              unsigned int index);
+        XLRelationshipItem* InitiateWorksheet(const std::string& sheetName, unsigned int index);
 
         void UpdateSheetNames();
 
 
-//----------------------------------------------------------------------------------------------------------------------
-//           Private Member Variables
-//----------------------------------------------------------------------------------------------------------------------
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Private Member Variables
+        //----------------------------------------------------------------------------------------------------------------------
 
     private:
 

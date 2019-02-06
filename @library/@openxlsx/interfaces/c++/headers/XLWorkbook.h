@@ -60,8 +60,7 @@ namespace OpenXLSX {
     /**
      * @brief
      */
-    class XLWorkbook
-    {
+    class XLWorkbook {
     public:
 
         /**
@@ -131,7 +130,7 @@ namespace OpenXLSX {
          * @todo This method is currently unimplemented.
          * @todo What should happen if the name is invalid?
          */
-        XLSheet Sheet(const std::string &sheetName);
+        XLSheet Sheet(const std::string& sheetName);
 
         /**
          * @brief Get the sheet (worksheet or chartsheet) with the given name.
@@ -140,7 +139,7 @@ namespace OpenXLSX {
          * @todo This method is currently unimplemented.
          * @todo What should happen if the name is invalid?
          */
-        const XLSheet Sheet(const std::string &sheetName) const;
+        const XLSheet Sheet(const std::string& sheetName) const;
 
         /**
          * @brief
@@ -154,21 +153,21 @@ namespace OpenXLSX {
          * @param sheetName
          * @return
          */
-        const XLWorksheet Worksheet(const std::string &sheetName) const;
+        const XLWorksheet Worksheet(const std::string& sheetName) const;
 
         /**
          * @brief
          * @param sheetName
          * @return
          */
-        XLChartsheet Chartsheet(const std::string &sheetName);
+        XLChartsheet Chartsheet(const std::string& sheetName);
 
         /**
          * @brief
          * @param sheetName
          * @return
          */
-        const XLChartsheet Chartsheet(const std::string &sheetName) const;
+        const XLChartsheet Chartsheet(const std::string& sheetName) const;
 
         /**
          * @brief
@@ -191,9 +190,7 @@ namespace OpenXLSX {
          * @todo The function works, but Excel reports errors when opening.
          * @todo Is it possible to have a common CloneSheet function?
          */
-        void CloneWorksheet(const std::string& extName,
-                            const std::string& newName,
-                            unsigned int index = 0);
+        void CloneWorksheet(const std::string& extName, const std::string& newName, unsigned int index = 0);
 
         /**
          * @brief Add a new chartsheet to the workbook, with the given name and index.
@@ -263,7 +260,6 @@ namespace OpenXLSX {
     private:
         Impl::XLWorkbook* m_workbook; /**< */
     };
-
 
 }
 

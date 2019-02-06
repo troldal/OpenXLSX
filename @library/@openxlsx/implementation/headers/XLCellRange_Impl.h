@@ -49,25 +49,23 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLCellReference_Impl.h"
 #include <string>
 
-namespace OpenXLSX::Impl
-{
+namespace OpenXLSX::Impl {
     class XLWorksheet;
 
-//======================================================================================================================
-//========== XLWorksheet Class =========================================================================================
-//======================================================================================================================
+    //======================================================================================================================
+    //========== XLWorksheet Class =========================================================================================
+    //======================================================================================================================
 
     /**
      * @brief This class encapsulates the concept of a cell range, i.e. a square area
      * (or subset) of cells in a spreadsheet.
      * @todo Consider specifying starting cell and direction of iterator.
      */
-    class XLCellRange
-    {
+    class XLCellRange {
 
-//----------------------------------------------------------------------------------------------------------------------
-//           Public Member Functions
-//----------------------------------------------------------------------------------------------------------------------
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Public Member Functions
+        //----------------------------------------------------------------------------------------------------------------------
 
     public:
 
@@ -77,9 +75,7 @@ namespace OpenXLSX::Impl
          * @param topLeft The first (top left) cell in the range.
          * @param bottomRight The last (bottom right) cell in the range.
          */
-        explicit XLCellRange(XLWorksheet& sheet,
-                             const XLCellReference& topLeft,
-                             const XLCellReference& bottomRight);
+        explicit XLCellRange(XLWorksheet& sheet, const XLCellReference& topLeft, const XLCellReference& bottomRight);
 
         /**
          * @brief
@@ -134,8 +130,7 @@ namespace OpenXLSX::Impl
          * @param column The column number, relative to the first column of the range (index base 1).
          * @return A pointer to the cell at the given range coordinates.
          */
-        XLCell* Cell(unsigned long row,
-                     unsigned int column);
+        XLCell* Cell(unsigned long row, unsigned int column);
 
         /**
          * @brief Get a const pointer to the cell at the given coordinates.
@@ -143,8 +138,7 @@ namespace OpenXLSX::Impl
          * @param column The column number, relative to the first column of the range (index base 1).
          * @return A const pointer to the cell at the given range coordinates.
          */
-        const XLCell* Cell(unsigned long row,
-                           unsigned int column) const;
+        const XLCell* Cell(unsigned long row, unsigned int column) const;
 
         /**
          * @brief Get the number of rows in the range.
@@ -168,9 +162,9 @@ namespace OpenXLSX::Impl
          */
         void Clear();
 
-//----------------------------------------------------------------------------------------------------------------------
-//           Private Member Variables
-//----------------------------------------------------------------------------------------------------------------------
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Private Member Variables
+        //----------------------------------------------------------------------------------------------------------------------
 
     private:
 

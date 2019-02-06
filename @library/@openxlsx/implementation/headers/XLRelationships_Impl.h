@@ -54,25 +54,24 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLSpreadsheetElement_Impl.h"
 #include "XLXml_Impl.h"
 
-namespace OpenXLSX::Impl
-{
+namespace OpenXLSX::Impl {
     class XLDocument;
+
     class XLRelationships;
+
     class XLRelationshipItem;
 
-    using XLRelationshipMap = std::map<std::string,
-                                       std::unique_ptr<XLRelationshipItem>>;
+    using XLRelationshipMap = std::map<std::string, std::unique_ptr<XLRelationshipItem>>;
 
 
-//======================================================================================================================
-//========== XLRelationshipType Enum ===================================================================================
-//======================================================================================================================
+    //======================================================================================================================
+    //========== XLRelationshipType Enum ===================================================================================
+    //======================================================================================================================
 
-/**
- * @brief An enum of the possible relationship (or XML document) types used in relationship (.rels) XML files.
- */
-    enum class XLRelationshipType
-    {
+    /**
+     * @brief An enum of the possible relationship (or XML document) types used in relationship (.rels) XML files.
+     */
+    enum class XLRelationshipType {
         CoreProperties,
         ExtendedProperties,
         CustomProperties,
@@ -100,20 +99,19 @@ namespace OpenXLSX::Impl
     };
 
 
-//======================================================================================================================
-//========== XLRelationshipItem Class ==================================================================================
-//======================================================================================================================
+    //======================================================================================================================
+    //========== XLRelationshipItem Class ==================================================================================
+    //======================================================================================================================
 
-/**
- * @brief An encapsulation of a relationship item, i.e. an XML file in the document, its type and an ID number.
- */
-    class XLRelationshipItem
-    {
+    /**
+     * @brief An encapsulation of a relationship item, i.e. an XML file in the document, its type and an ID number.
+     */
+    class XLRelationshipItem {
         friend class XLRelationships;
 
-//----------------------------------------------------------------------------------------------------------------------
-//           Public Member Functions
-//----------------------------------------------------------------------------------------------------------------------
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Public Member Functions
+        //----------------------------------------------------------------------------------------------------------------------
 
     public:
 
@@ -166,9 +164,9 @@ namespace OpenXLSX::Impl
         const std::string& Id() const;
 
 
-//----------------------------------------------------------------------------------------------------------------------
-//           Protected Member Functions
-//----------------------------------------------------------------------------------------------------------------------
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Protected Member Functions
+        //----------------------------------------------------------------------------------------------------------------------
 
     protected:
 
@@ -179,9 +177,9 @@ namespace OpenXLSX::Impl
          */
         void Delete();
 
-//----------------------------------------------------------------------------------------------------------------------
-//           Private Member Functions
-//----------------------------------------------------------------------------------------------------------------------
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Private Member Functions
+        //----------------------------------------------------------------------------------------------------------------------
 
     private:
 
@@ -192,14 +190,11 @@ namespace OpenXLSX::Impl
          * @param target The target of the relationship item
          * @param id The id of the relationship item
          */
-        XLRelationshipItem(XMLNode node,
-                           XLRelationshipType type,
-                           const std::string& target,
-                           const std::string& id);
+        XLRelationshipItem(XMLNode node, XLRelationshipType type, const std::string& target, const std::string& id);
 
-//----------------------------------------------------------------------------------------------------------------------
-//           Private Member Variables
-//----------------------------------------------------------------------------------------------------------------------
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Private Member Variables
+        //----------------------------------------------------------------------------------------------------------------------
 
     private:
 
@@ -211,20 +206,18 @@ namespace OpenXLSX::Impl
 
 
 
-//======================================================================================================================
-//========== XLRelationships Class =====================================================================================
-//======================================================================================================================
+    //======================================================================================================================
+    //========== XLRelationships Class =====================================================================================
+    //======================================================================================================================
 
-/**
- * @brief An encapsulation of relationship files (.rels files) in an Excel document package.
- */
-    class XLRelationships : public XLAbstractXMLFile,
-                            public XLSpreadsheetElement
-    {
+    /**
+     * @brief An encapsulation of relationship files (.rels files) in an Excel document package.
+     */
+    class XLRelationships : public XLAbstractXMLFile, public XLSpreadsheetElement {
         friend class XLRelationshipItem;
-//----------------------------------------------------------------------------------------------------------------------
-//          Public Member Functions
-//----------------------------------------------------------------------------------------------------------------------
+        //----------------------------------------------------------------------------------------------------------------------
+        //          Public Member Functions
+        //----------------------------------------------------------------------------------------------------------------------
 
     public:
 
@@ -233,8 +226,7 @@ namespace OpenXLSX::Impl
          * @param parent A pointer to the parent XLDocument object.
          * @param filePath The (relative) path to the relationship file.
          */
-        explicit XLRelationships(XLDocument& parent,
-                                 const std::string& filePath);
+        explicit XLRelationships(XLDocument& parent, const std::string& filePath);
 
         /**
          * @brief Destructor
@@ -286,8 +278,7 @@ namespace OpenXLSX::Impl
          * @param type The type of the new relationship item.
          * @param target The target (or path) of the XML file for the relationship item.
          */
-        XLRelationshipItem* AddRelationship(XLRelationshipType type,
-                                            const std::string& target);
+        XLRelationshipItem* AddRelationship(XLRelationshipType type, const std::string& target);
 
         /**
          * @brief
@@ -303,9 +294,9 @@ namespace OpenXLSX::Impl
          */
         bool IdExists(const std::string& id) const;
 
-//----------------------------------------------------------------------------------------------------------------------
-//           Protected Member Functions
-//----------------------------------------------------------------------------------------------------------------------
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Protected Member Functions
+        //----------------------------------------------------------------------------------------------------------------------
 
     protected:
 
@@ -322,9 +313,9 @@ namespace OpenXLSX::Impl
          */
         XLRelationshipMap* relationshipsMutable();
 
-//----------------------------------------------------------------------------------------------------------------------
-//           Private Member Variables
-//----------------------------------------------------------------------------------------------------------------------
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Private Member Variables
+        //----------------------------------------------------------------------------------------------------------------------
 
     private:
 

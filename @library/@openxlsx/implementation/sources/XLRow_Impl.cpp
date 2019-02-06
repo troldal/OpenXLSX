@@ -15,16 +15,10 @@ using namespace OpenXLSX;
  * @details Constructs a new XLRow object from information in the underlying XML file. A pointer to the corresponding
  * node in the underlying XML file must be provided.
  */
-Impl::XLRow::XLRow(XLWorksheet& parent,
-                   XMLNode rowNode)
-        : m_parentWorksheet(parent),
-          m_parentDocument(*parent.ParentDocument()),
-          m_rowNode(std::make_unique<XMLNode>(rowNode)),
-          m_height(15),
-          m_descent(0.25),
-          m_hidden(false),
-          m_rowNumber(0),
-          m_cells() {
+Impl::XLRow::XLRow(XLWorksheet& parent, XMLNode rowNode) : m_parentWorksheet(parent),
+                                                           m_parentDocument(*parent.ParentDocument()),
+                                                           m_rowNode(std::make_unique<XMLNode>(rowNode)), m_height(15),
+                                                           m_descent(0.25), m_hidden(false), m_rowNumber(0), m_cells() {
     // Read the Row number attribute
     auto rowAtt = m_rowNode->attribute("r");
     if (rowAtt)
@@ -55,9 +49,7 @@ Impl::XLRow::XLRow(XLWorksheet& parent,
         for (auto& currentCell : rowNode.children()) {
             XLCellReference cellRef(currentCell.attribute("r").value());
             Resize(cellRef.Column());
-            m_cells.emplace(cellRef.Column() - 1,
-                            XLCell::CreateCell(m_parentWorksheet,
-                                               currentCell));
+            m_cells.emplace(cellRef.Column() - 1, XLCell::CreateCell(m_parentWorksheet, currentCell));
         }
     }
 }
@@ -171,14 +163,11 @@ Impl::XLCell* Impl::XLRow::Cell(unsigned int column) {
     if (auto result = m_cells.lower_bound(column - 1); result == m_cells.end()) {
         // Create the new Cell node
         auto cellNode = m_rowNode->append_child("c");
-        cellNode.append_attribute("r").set_value(XLCellReference(m_rowNumber,
-                                                                 column).Address().c_str());
+        cellNode.append_attribute("r").set_value(XLCellReference(m_rowNumber, column).Address().c_str());
 
         // Append the Cell node to the Row node, and create a new XLCell node and insert it in the m_cells vector.
         m_rowNode->attribute("spans") = string("1:" + to_string(column)).c_str();
-        m_cells.emplace(column - 1,
-                        XLCell::CreateCell(m_parentWorksheet,
-                                           cellNode));
+        m_cells.emplace(column - 1, XLCell::CreateCell(m_parentWorksheet, cellNode));
 
         // If the requested Column number is lower than the number of Columns in the current Row,
         // but the Cell does not exist, create a new node and insert it at the rigth position.
@@ -186,13 +175,9 @@ Impl::XLCell* Impl::XLRow::Cell(unsigned int column) {
     else if ((*result).second->CellReference()->Column() != column) {
 
         // Find the next Cell node and insert the new node at that position.
-        auto cellNode = m_rowNode->insert_child_before("c",
-                                                       (*result).second->CellNode());
-        cellNode.append_attribute("r") = XLCellReference(m_rowNumber,
-                                                         column).Address().c_str();
-        m_cells.emplace(column - 1,
-                        XLCell::CreateCell(m_parentWorksheet,
-                                           cellNode));
+        auto cellNode = m_rowNode->insert_child_before("c", (*result).second->CellNode());
+        cellNode.append_attribute("r") = XLCellReference(m_rowNumber, column).Address().c_str();
+        m_cells.emplace(column - 1, XLCell::CreateCell(m_parentWorksheet, cellNode));
     }
 
     return m_cells.at(column - 1).get();
@@ -224,8 +209,7 @@ unsigned int Impl::XLRow::CellCount() const {
  * in the row are created and inserted in the XML tree. A std::unique_ptr to the new XLRow object is returned
  * @todo What happens if the object is not caught and gets destroyed? The XML data still exists...
  */
-void Impl::XLRow::CreateRow(XLWorksheet& worksheet,
-                            unsigned long rowNumber) {
+void Impl::XLRow::CreateRow(XLWorksheet& worksheet, unsigned long rowNumber) {
     // Create the node
     XMLNode nodeRow;
 
@@ -240,17 +224,13 @@ void Impl::XLRow::CreateRow(XLWorksheet& worksheet,
         // Vector is 0-based, Excel is 1-based; therefore rowNumber-1.
         XLRows::iterator iter = worksheet.Rows()->lower_bound(rowNumber - 1);
         if (iter != worksheet.Rows()->end() && iter->second.RowNode().attribute("r").as_ullong() != rowNumber)
-            nodeRow = worksheet.SheetDataNode().insert_child_before("row",
-                                                                    iter->second.RowNode());
+            nodeRow = worksheet.SheetDataNode().insert_child_before("row", iter->second.RowNode());
     }
 
     nodeRow.append_attribute("r")                   = rowNumber;
     nodeRow.append_attribute("x14ac:dyDescent")     = 0.2;
     nodeRow.append_attribute("spans")               = "1:1";
-    nodeRow.append_child("c").append_attribute("r") = XLCellReference(rowNumber,
-                                                                      1).Address().c_str();
+    nodeRow.append_child("c").append_attribute("r") = XLCellReference(rowNumber, 1).Address().c_str();
 
-    worksheet.Rows()->emplace(rowNumber - 1,
-                              XLRow(worksheet,
-                                    nodeRow));
+    worksheet.Rows()->emplace(rowNumber - 1, XLRow(worksheet, nodeRow));
 }

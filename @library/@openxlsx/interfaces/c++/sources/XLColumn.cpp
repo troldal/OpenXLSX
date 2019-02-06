@@ -7,8 +7,7 @@
 
 using namespace OpenXLSX;
 
-OpenXLSX::XLColumn::XLColumn(Impl::XLColumn& column)
-        : m_column(&column){
+OpenXLSX::XLColumn::XLColumn(Impl::XLColumn& column) : m_column(&column) {
 
 }
 

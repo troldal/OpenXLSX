@@ -54,27 +54,27 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLCellValue_Impl.h"
 #include "XLXml_Impl.h"
 
-namespace OpenXLSX::Impl
-{
+namespace OpenXLSX::Impl {
     class XLCellRange;
+
     class XLCellValue;
 
 
-//======================================================================================================================
-//========== XLCell Class ==============================================================================================
-//======================================================================================================================
+    //======================================================================================================================
+    //========== XLCell Class ==============================================================================================
+    //======================================================================================================================
 
     /**
      * @brief An implementation class encapsulating the properties and behaviours of a spreadsheet cell.
      */
-    class XLCell : public XLSpreadsheetElement
-    {
+    class XLCell : public XLSpreadsheetElement {
         friend class XLRow;
+
         friend class XLCellValue;
 
-//----------------------------------------------------------------------------------------------------------------------
-//           Public Member Functions
-//----------------------------------------------------------------------------------------------------------------------
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Public Member Functions
+        //----------------------------------------------------------------------------------------------------------------------
 
     public:
 
@@ -149,9 +149,9 @@ namespace OpenXLSX::Impl
          */
         const XLCellReference* CellReference() const;
 
-//----------------------------------------------------------------------------------------------------------------------
-//           Protected Member Functions
-//----------------------------------------------------------------------------------------------------------------------
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Protected Member Functions
+        //----------------------------------------------------------------------------------------------------------------------
 
     protected:
 
@@ -160,8 +160,7 @@ namespace OpenXLSX::Impl
          * @param parent A pointer to the parent XLWorksheet object. Must not be nullptr.
          * @param cellNode A pointer to the XMLNode with the cell data. Must not be nullptr.
          */
-        XLCell(XLWorksheet& parent,
-               XMLNode cellNode);
+        XLCell(XLWorksheet& parent, XMLNode cellNode);
 
         /**
          * @brief Factory method for creating a new cell
@@ -169,12 +168,11 @@ namespace OpenXLSX::Impl
          * @param cellNode A pointer to the XMLNode with the cell data. Must not be nullptr.
          * @return A std::unique_ptr to the newly created object
          */
-        static std::unique_ptr<XLCell> CreateCell(XLWorksheet& parent,
-                                                  XMLNode cellNode);
+        static std::unique_ptr<XLCell> CreateCell(XLWorksheet& parent, XMLNode cellNode);
 
-//----------------------------------------------------------------------------------------------------------------------
-//           Private Member Functions
-//----------------------------------------------------------------------------------------------------------------------
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Private Member Functions
+        //----------------------------------------------------------------------------------------------------------------------
 
     private:
 
@@ -243,9 +241,9 @@ namespace OpenXLSX::Impl
         XMLNode CreateValueNode();
 
 
-//----------------------------------------------------------------------------------------------------------------------
-//           Private Member Variables
-//----------------------------------------------------------------------------------------------------------------------
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Private Member Variables
+        //----------------------------------------------------------------------------------------------------------------------
 
     private:
 
@@ -255,9 +253,9 @@ namespace OpenXLSX::Impl
         XLWorksheet     * m_parentWorksheet; /**< A pointer to the parent XLWorksheet object. */
 
         // ===== Cell entities ===== //
-        std::unique_ptr<XMLNode>    m_cellNode;      /**< A pointer to the root XMLNode for the cell. */
-        XLCellReference             m_cellReference; /**< The cell reference variable. */
-        XLCellValue                 m_value;         /**< The XLCellValue object, holding the current value. */
+        std::unique_ptr<XMLNode> m_cellNode;      /**< A pointer to the root XMLNode for the cell. */
+        XLCellReference          m_cellReference; /**< The cell reference variable. */
+        XLCellValue              m_value;         /**< The XLCellValue object, holding the current value. */
     };
 }
 

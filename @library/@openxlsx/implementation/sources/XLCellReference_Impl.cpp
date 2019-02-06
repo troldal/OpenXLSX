@@ -9,52 +9,47 @@
 using namespace std;
 using namespace OpenXLSX;
 
-const unordered_map<int,
-                    string> Impl::XLCellReference::s_alphabet = {{0,  "A"},
-                                                                 {1,  "B"},
-                                                                 {2,  "C"},
-                                                                 {3,  "D"},
-                                                                 {4,  "E"},
-                                                                 {5,  "F"},
-                                                                 {6,  "G"},
-                                                                 {7,  "H"},
-                                                                 {8,  "I"},
-                                                                 {9,  "J"},
-                                                                 {10, "K"},
-                                                                 {11, "L"},
-                                                                 {12, "M"},
-                                                                 {13, "N"},
-                                                                 {14, "O"},
-                                                                 {15, "P"},
-                                                                 {16, "Q"},
-                                                                 {17, "R"},
-                                                                 {18, "S"},
-                                                                 {19, "T"},
-                                                                 {20, "U"},
-                                                                 {21, "V"},
-                                                                 {22, "W"},
-                                                                 {23, "X"},
-                                                                 {24, "Y"},
-                                                                 {25, "Z"}};
+const unordered_map<int, string> Impl::XLCellReference::s_alphabet = {{0,  "A"},
+                                                                      {1,  "B"},
+                                                                      {2,  "C"},
+                                                                      {3,  "D"},
+                                                                      {4,  "E"},
+                                                                      {5,  "F"},
+                                                                      {6,  "G"},
+                                                                      {7,  "H"},
+                                                                      {8,  "I"},
+                                                                      {9,  "J"},
+                                                                      {10, "K"},
+                                                                      {11, "L"},
+                                                                      {12, "M"},
+                                                                      {13, "N"},
+                                                                      {14, "O"},
+                                                                      {15, "P"},
+                                                                      {16, "Q"},
+                                                                      {17, "R"},
+                                                                      {18, "S"},
+                                                                      {19, "T"},
+                                                                      {20, "U"},
+                                                                      {21, "V"},
+                                                                      {22, "W"},
+                                                                      {23, "X"},
+                                                                      {24, "Y"},
+                                                                      {25, "Z"}};
 
-unordered_map<string,
-              unsigned int> Impl::XLCellReference::s_columnNumbers = {};
-unordered_map<unsigned int,
-              string>       Impl::XLCellReference::s_columnNames   = {};
-unordered_map<unsigned long,
-              std::string>   Impl::XLCellReference::s_rowNames = {};
-unordered_map<std::string,
-              unsigned long> Impl::XLCellReference::s_rowNumbers = {};
+unordered_map<string, unsigned int>       Impl::XLCellReference::s_columnNumbers = {};
+
+unordered_map<unsigned int, string>       Impl::XLCellReference::s_columnNames = {};
+
+unordered_map<unsigned long, std::string>   Impl::XLCellReference::s_rowNames = {};
+
+unordered_map<std::string, unsigned long> Impl::XLCellReference::s_rowNumbers = {};
 
 /**
  * @details The constructor creates a new XLCellReference from a string, e.g. 'A1'. If there's no input,
  * the default reference will be cell A1.
  */
-Impl::XLCellReference::XLCellReference(const std::string& cellAddress)
-        : m_row(1),
-          m_column(1),
-          m_cellAddress("A1"),
-          m_valid(true) {
+Impl::XLCellReference::XLCellReference(const std::string& cellAddress) : m_row(1), m_column(1), m_cellAddress("A1"),
+                                                                         m_valid(true) {
 
     if (cellAddress != "")
         SetAddress(cellAddress);
@@ -64,13 +59,10 @@ Impl::XLCellReference::XLCellReference(const std::string& cellAddress)
  * @details This constructor creates a new XLCellReference from a given row and column number, e.g. 1,1 (=A1)
 * @todo consider swapping the arguments.
  */
-Impl::XLCellReference::XLCellReference(unsigned long row,
-                                       unsigned int column)
-        : m_row(row),
-          m_column(column),
-          m_cellAddress(ColumnAsString(column) +
-                        RowAsString(row)),
-          m_valid(false) {
+Impl::XLCellReference::XLCellReference(unsigned long row, unsigned int column) : m_row(row), m_column(column),
+                                                                                 m_cellAddress(ColumnAsString(
+                                                                                         column) + RowAsString(row)),
+                                                                                 m_valid(false) {
 
     if (m_row < 1 || m_row > 1048576 || m_column < 1 || m_column > 16384) {
         m_row         = 0;
@@ -87,13 +79,12 @@ Impl::XLCellReference::XLCellReference(unsigned long row,
  * @details This constructor creates a new XLCellReference from a row number and the column name (e.g. 1, A)
  * @todo consider swapping the arguments.
  */
-Impl::XLCellReference::XLCellReference(unsigned long row,
-                                       const std::string& column)
-        : m_row(row),
-          m_column(ColumnAsNumber(column)),
-          m_cellAddress(
-                  column + RowAsString(row)),
-          m_valid(false) {
+Impl::XLCellReference::XLCellReference(unsigned long row, const std::string& column) : m_row(row),
+                                                                                       m_column(ColumnAsNumber(column)),
+                                                                                       m_cellAddress(
+                                                                                               column + RowAsString(
+                                                                                                       row)),
+                                                                                       m_valid(false) {
 
     if (m_row < 1 || m_row > 1048576 || m_column < 1 || m_column > 16384) {
         m_row         = 0;
@@ -158,8 +149,7 @@ void Impl::XLCellReference::SetColumn(unsigned int column) {
  * @details Sets row and column of the XLCellReference object. Checks that row and column is less than
  * or equal to the maximum row and column numbers allowed by Excel.
  */
-void Impl::XLCellReference::SetRowAndColumn(unsigned long row,
-                                            unsigned int column) {
+void Impl::XLCellReference::SetRowAndColumn(unsigned long row, unsigned int column) {
 
     if (row < 1)
         m_row = 1;
@@ -311,16 +301,14 @@ unsigned int Impl::XLCellReference::ColumnAsNumber(const std::string& column) {
     // If the string is two characters long...
     if (length == 2) {
         for (auto letter : s_alphabet) {
-            if (letter.second == column.substr(0,
-                                               1)) {
+            if (letter.second == column.substr(0, 1)) {
                 result += (letter.first + 1) * 26;
                 break;
             }
         }
 
         for (auto letter : s_alphabet) {
-            if (letter.second == column.substr(1,
-                                               1)) {
+            if (letter.second == column.substr(1, 1)) {
                 result += (letter.first + 1);
                 break;
             }
@@ -329,24 +317,21 @@ unsigned int Impl::XLCellReference::ColumnAsNumber(const std::string& column) {
     // If the string is three characters long...
     if (length == 3) {
         for (auto letter : s_alphabet) {
-            if (letter.second == column.substr(0,
-                                               1)) {
+            if (letter.second == column.substr(0, 1)) {
                 result += (letter.first + 1) * 26 * 26;
                 break;
             }
         }
 
         for (auto letter : s_alphabet) {
-            if (letter.second == column.substr(1,
-                                               1)) {
+            if (letter.second == column.substr(1, 1)) {
                 result += (letter.first + 1) * 26;
                 break;
             }
         }
 
         for (auto letter : s_alphabet) {
-            if (letter.second == column.substr(2,
-                                               1)) {
+            if (letter.second == column.substr(2, 1)) {
                 result += (letter.first + 1);
                 break;
             }
@@ -362,8 +347,7 @@ unsigned int Impl::XLCellReference::ColumnAsNumber(const std::string& column) {
 /**
  * @details Helper method for calculating the coordinates from the cell address.
  */
-std::pair<unsigned long,
-          unsigned int> Impl::XLCellReference::CoordinatesFromAddress(const std::string& address) {
+std::pair<unsigned long, unsigned int> Impl::XLCellReference::CoordinatesFromAddress(const std::string& address) {
 
     int letterCount = 0;
 
@@ -377,17 +361,13 @@ std::pair<unsigned long,
     if (letterCount < 1 || letterCount > 3 || numberCount < 1 || numberCount > 7)
         // If the Address is invalid, return 0,0
         //return pair<unsigned long, unsigned int>(0, 0);
-        return make_pair(0,
-                         0);
+        return make_pair(0, 0);
     else {
-        unsigned int  column = ColumnAsNumber(address.substr(0,
-                                                             letterCount));
-        unsigned long row    = RowAsNumber(address.substr(letterCount,
-                                                          numberCount));
+        unsigned int  column = ColumnAsNumber(address.substr(0, letterCount));
+        unsigned long row    = RowAsNumber(address.substr(letterCount, numberCount));
 
         //return pair<unsigned long, unsigned int>(Row, Column);
-        return make_pair(row,
-                         column);
+        return make_pair(row, column);
     }
 
 }

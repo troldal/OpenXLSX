@@ -20,18 +20,16 @@ using namespace OpenXLSX;
 Impl::XLSheet::XLSheet(XLWorkbook& parent,
                        const std::string& name,
                        const std::string& filepath,
-                       const std::string& xmlData)
-        : XLAbstractXMLFile(*parent.ParentDocument(),
-                            filepath,
-                            xmlData),
-          XLSpreadsheetElement(*parent.ParentDocument()),
-          m_sheetName(name),
-          m_sheetType(XLSheetType::WorkSheet),
-          m_sheetState(XLSheetState::Visible),
-          m_nodeInWorkbook(std::make_unique<XMLNode>(parent.SheetNode(name))),
-          m_nodeInApp(std::make_unique<XMLNode>(parent.ParentDocument()->m_docAppProperties->SheetNameNode(name))),
-          m_nodeInContentTypes(parent.ParentDocument()->ContentItem("/" + filepath)),
-          m_nodeInWorkbookRels(parent.Relationships()->RelationshipByTarget(filepath.substr(3))) {
+                       const std::string& xmlData) : XLAbstractXMLFile(*parent.ParentDocument(), filepath, xmlData),
+                                                     XLSpreadsheetElement(*parent.ParentDocument()), m_sheetName(name),
+                                                     m_sheetType(XLSheetType::WorkSheet),
+                                                     m_sheetState(XLSheetState::Visible), m_nodeInWorkbook(
+                std::make_unique<XMLNode>(parent.SheetNode(name))), m_nodeInApp(
+                std::make_unique<XMLNode>(parent.ParentDocument()->m_docAppProperties->SheetNameNode(name))),
+                                                     m_nodeInContentTypes(
+                                                             parent.ParentDocument()->ContentItem("/" + filepath)),
+                                                     m_nodeInWorkbookRels(parent.Relationships()->RelationshipByTarget(
+                                                             filepath.substr(3))) {
 
 }
 

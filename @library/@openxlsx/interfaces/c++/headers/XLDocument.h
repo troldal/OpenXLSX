@@ -85,8 +85,7 @@ namespace OpenXLSX {
      *
      * @todo Implement a Clone method. Ensure that the source object is not modified in any way, including saving to disk.
      */
-    class XLDocument
-    {
+    class XLDocument {
     public:
 
         /**
@@ -198,8 +197,7 @@ namespace OpenXLSX {
          * @param theProperty The property to set.
          * @param value The value of the property, as a string
          */
-        void SetProperty(XLProperty theProperty,
-                         const std::string& value);
+        void SetProperty(XLProperty theProperty, const std::string& value);
 
         /**
          * @brief Delete the property from the document

@@ -130,27 +130,27 @@ include(GenerateExportHeader)
 generate_export_header(OpenXLSX)
 target_sources(OpenXLSX
         PRIVATE
-            ${OPENXLSX_IMPL_SOURCES}
-            ${OPENXLSX_CXX_INTERFACE_SOURCES}
-            ${OPENXLSX_C_INTERFACE_SOURCES})
+        ${OPENXLSX_IMPL_SOURCES}
+        ${OPENXLSX_CXX_INTERFACE_SOURCES}
+        ${OPENXLSX_C_INTERFACE_SOURCES})
 target_link_directories(OpenXLSX
         PRIVATE
-            ${OPENXLSX_DEPENDENCIES}/lib)
+        ${OPENXLSX_DEPENDENCIES}/lib)
 target_link_libraries(OpenXLSX
         PRIVATE
-            pugixml zip++ zip z)
+        pugixml zip++ zip z)
 target_include_directories(OpenXLSX
         PRIVATE
-            ${OPENXLSX_DEPENDENCIES}/include)
+        ${OPENXLSX_DEPENDENCIES}/include)
 target_include_directories(OpenXLSX
         PRIVATE
-            ${CMAKE_CURRENT_LIST_DIR}/implementation/headers
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers
         PUBLIC
-            ${CMAKE_CURRENT_LIST_DIR}/interfaces/c/headers
-            ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers)
-        #SYSTEM INTERFACE
-        #    ${CMAKE_CURRENT_LIST_DIR}/implementation/headers
-        #    ${CMAKE_CURRENT_LIST_DIR}/interfaces/headers)
+        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c/headers
+        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers)
+#SYSTEM INTERFACE
+#    ${CMAKE_CURRENT_LIST_DIR}/implementation/headers
+#    ${CMAKE_CURRENT_LIST_DIR}/interfaces/headers)
 
 # ===== Set output directories for targets to (staged) installation directory ===== #
 set_target_properties(OpenXLSX PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${OPENXLSX_INSTALLDIR}/lib)

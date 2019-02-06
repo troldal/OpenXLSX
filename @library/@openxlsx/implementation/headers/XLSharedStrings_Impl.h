@@ -53,27 +53,24 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <vector>
 #include <string_view>
 
-namespace OpenXLSX::Impl
-{
+namespace OpenXLSX::Impl {
 
     class XLDocument;
-//======================================================================================================================
-//========== XLSharedStrings Class =====================================================================================
-//======================================================================================================================
+    //======================================================================================================================
+    //========== XLSharedStrings Class =====================================================================================
+    //======================================================================================================================
 
-/**
- * @brief This class encapsulate the Excel concept of Shared Strings. In Excel, instead of havig individual strings
- * in each cell, cells have a reference to an entry in the SharedStrings register. This results in smalle file sizes,
- * as repeated strings are referenced easily.
- * @todo Consider defining a static method for creating a new shared strings object + XML file.
- */
-    class XLSharedStrings : public XLAbstractXMLFile,
-                            public XLSpreadsheetElement
-    {
+    /**
+     * @brief This class encapsulate the Excel concept of Shared Strings. In Excel, instead of havig individual strings
+     * in each cell, cells have a reference to an entry in the SharedStrings register. This results in smalle file sizes,
+     * as repeated strings are referenced easily.
+     * @todo Consider defining a static method for creating a new shared strings object + XML file.
+     */
+    class XLSharedStrings : public XLAbstractXMLFile, public XLSpreadsheetElement {
 
-//----------------------------------------------------------------------------------------------------------------------
-//           Public Member Functions
-//----------------------------------------------------------------------------------------------------------------------
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Public Member Functions
+        //----------------------------------------------------------------------------------------------------------------------
 
     public:
 
@@ -82,8 +79,7 @@ namespace OpenXLSX::Impl
          * @param parent A pointer to the parent XLDocument
          * @param filePath The path to the sharedStrings.xml file
          */
-        explicit XLSharedStrings(XLDocument& parent,
-                                 const std::string& filePath);
+        explicit XLSharedStrings(XLDocument& parent, const std::string& filePath);
 
         /**
          * @brief Destructor
@@ -142,9 +138,9 @@ namespace OpenXLSX::Impl
          */
         void ClearString(int index);
 
-//----------------------------------------------------------------------------------------------------------------------
-//           Protected Member Functions
-//----------------------------------------------------------------------------------------------------------------------
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Protected Member Functions
+        //----------------------------------------------------------------------------------------------------------------------
 
     protected:
 
@@ -154,9 +150,9 @@ namespace OpenXLSX::Impl
          */
         bool ParseXMLData() override;
 
-//----------------------------------------------------------------------------------------------------------------------
-//           Private Member Functions
-//----------------------------------------------------------------------------------------------------------------------
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Private Member Functions
+        //----------------------------------------------------------------------------------------------------------------------
 
     private:
 

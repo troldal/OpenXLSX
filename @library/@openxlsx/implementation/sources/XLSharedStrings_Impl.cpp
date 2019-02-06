@@ -14,13 +14,11 @@ using namespace OpenXLSX;
  * @details Constructs a new XLSharedStrings object. Only one (common) object is allowed per XLDocument instance.
  * A filepath to the underlying XML file must be provided.
  */
-Impl::XLSharedStrings::XLSharedStrings(XLDocument& parent,
-                                       const std::string& filePath)
-        : XLAbstractXMLFile(parent,
-                            filePath),
-          XLSpreadsheetElement(parent),
-          m_sharedStringNodes(),
-          m_emptyString("") {
+Impl::XLSharedStrings::XLSharedStrings(XLDocument& parent, const std::string& filePath) : XLAbstractXMLFile(parent,
+                                                                                                            filePath),
+                                                                                          XLSpreadsheetElement(parent),
+                                                                                          m_sharedStringNodes(),
+                                                                                          m_emptyString("") {
 
     ParseXMLData();
 }

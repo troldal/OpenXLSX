@@ -8,8 +8,7 @@
 
 using namespace OpenXLSX;
 
-XLWorksheet::XLWorksheet(Impl::XLSheet& sheet)
-        : XLSheet(sheet) {
+XLWorksheet::XLWorksheet(Impl::XLSheet& sheet) : XLSheet(sheet) {
 }
 
 XLCell XLWorksheet::Cell(const XLCellReference& ref) {
@@ -64,12 +63,14 @@ const XLCellRange XLWorksheet::Range() const {
 
 XLCellRange XLWorksheet::Range(const XLCellReference& topLeft, const XLCellReference& bottomRight) {
 
-    return XLCellRange(dynamic_cast<Impl::XLWorksheet*>(m_sheet)->Range(Impl::XLCellReference(topLeft.Address()), Impl::XLCellReference(bottomRight.Address())));
+    return XLCellRange(dynamic_cast<Impl::XLWorksheet*>(m_sheet)->Range(Impl::XLCellReference(topLeft.Address()),
+                                                                        Impl::XLCellReference(bottomRight.Address())));
 }
 
 const XLCellRange XLWorksheet::Range(const XLCellReference& topLeft, const XLCellReference& bottomRight) const {
 
-    return XLCellRange(dynamic_cast<Impl::XLWorksheet*>(m_sheet)->Range(Impl::XLCellReference(topLeft.Address()), Impl::XLCellReference(bottomRight.Address())));
+    return XLCellRange(dynamic_cast<Impl::XLWorksheet*>(m_sheet)->Range(Impl::XLCellReference(topLeft.Address()),
+                                                                        Impl::XLCellReference(bottomRight.Address())));
 }
 
 XLRow XLWorksheet::Row(unsigned long rowNumber) {
@@ -102,20 +103,14 @@ unsigned long XLWorksheet::RowCount() const noexcept {
     return dynamic_cast<Impl::XLWorksheet*>(m_sheet)->RowCount();
 }
 
-void XLWorksheet::Export(const std::string& fileName,
-                         char decimal,
-                         char delimiter) {
+void XLWorksheet::Export(const std::string& fileName, char decimal, char delimiter) {
 
-    dynamic_cast<Impl::XLWorksheet*>(m_sheet)->Export(fileName,
-                                                      decimal,
-                                                      delimiter);
+    dynamic_cast<Impl::XLWorksheet*>(m_sheet)->Export(fileName, decimal, delimiter);
 
 }
 
-void XLWorksheet::Import(const std::string& fileName,
-                         const std::string& delimiter) {
+void XLWorksheet::Import(const std::string& fileName, const std::string& delimiter) {
 
-    dynamic_cast<Impl::XLWorksheet*>(m_sheet)->Import(fileName,
-                                                      delimiter);
+    dynamic_cast<Impl::XLWorksheet*>(m_sheet)->Import(fileName, delimiter);
 
 }

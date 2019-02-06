@@ -16,31 +16,18 @@ using namespace OpenXLSX;
 /**
  * @details The default constructor, with no arguments.
  */
-Impl::XLDocument::XLDocument()
-        : m_filePath(""),
-          m_documentRelationships(nullptr),
-          m_contentTypes(nullptr),
-          m_docAppProperties(nullptr),
-          m_docCoreProperties(nullptr),
-          m_workbook(nullptr),
-          m_xmlFiles(),
-          m_archive(nullptr),
-          m_xmlData() {
+Impl::XLDocument::XLDocument() : m_filePath(""), m_documentRelationships(nullptr), m_contentTypes(nullptr),
+                                 m_docAppProperties(nullptr), m_docCoreProperties(nullptr), m_workbook(nullptr),
+                                 m_xmlFiles(), m_archive(nullptr), m_xmlData() {
 }
 
 /**
  * @details An alternative constructor, taking a std::string with the path to the .xlsx package as an argument.
  */
-Impl::XLDocument::XLDocument(const std::string& docPath)
-        : m_filePath(""),
-          m_documentRelationships(nullptr),
-          m_contentTypes(nullptr),
-          m_docAppProperties(nullptr),
-          m_docCoreProperties(nullptr),
-          m_workbook(nullptr),
-          m_xmlFiles(),
-          m_archive(nullptr),
-          m_xmlData() {
+Impl::XLDocument::XLDocument(const std::string& docPath) : m_filePath(""), m_documentRelationships(nullptr),
+                                                           m_contentTypes(nullptr), m_docAppProperties(nullptr),
+                                                           m_docCoreProperties(nullptr), m_workbook(nullptr),
+                                                           m_xmlFiles(), m_archive(nullptr), m_xmlData() {
 
     OpenDocument(docPath);
 }
@@ -70,10 +57,8 @@ void Impl::XLDocument::OpenDocument(const string& fileName) {
     m_archive->open(ZipArchive::WRITE);
 
     // Open the Relationships and Content_Types files for the document level.
-    m_documentRelationships = make_unique<XLRelationships>(*this,
-                                                           "_rels/.rels");
-    m_contentTypes          = make_unique<XLContentTypes>(*this,
-                                                          "[Content_Types].xml");
+    m_documentRelationships = make_unique<XLRelationships>(*this, "_rels/.rels");
+    m_contentTypes          = make_unique<XLContentTypes>(*this, "[Content_Types].xml");
 
     // Create workbook and property items
     m_docCoreProperties = CreateItem<XLCoreProperties>("docProps/core.xml");
@@ -86,10 +71,8 @@ void Impl::XLDocument::OpenDocument(const string& fileName) {
  */
 void Impl::XLDocument::CreateDocument(const std::string& fileName) {
 
-    std::ofstream outfile(fileName,
-                          std::ios::binary);
-    outfile.write(reinterpret_cast<char const*>(excelTemplate),
-                  excelTemplateSize);
+    std::ofstream outfile(fileName, std::ios::binary);
+    outfile.write(reinterpret_cast<char const*>(excelTemplate), excelTemplateSize);
     outfile.close();
 
     OpenDocument(fileName);
@@ -132,10 +115,8 @@ bool Impl::XLDocument::SaveDocumentAs(const string& fileName) {
     // close the current zip file and open the new one.
     if (fileName != m_filePath) {
         m_archive->discard();
-        std::ifstream src(m_filePath,
-                          std::ios::binary);
-        std::ofstream dst(fileName,
-                          std::ios::binary);
+        std::ifstream src(m_filePath, std::ios::binary);
+        std::ofstream dst(fileName, std::ios::binary);
         dst << src.rdbuf();
 
         m_filePath = fileName;
@@ -162,8 +143,7 @@ bool Impl::XLDocument::SaveDocumentAs(const string& fileName) {
  * @details
  * @todo Currently, this method returns the full path, which is not the intention.
  */
-const string &
-Impl::XLDocument::DocumentName() const {
+const string& Impl::XLDocument::DocumentName() const {
 
     return m_filePath;
 }
@@ -171,8 +151,7 @@ Impl::XLDocument::DocumentName() const {
 /**
  * @details
  */
-const string &
-Impl::XLDocument::DocumentPath() const {
+const string& Impl::XLDocument::DocumentPath() const {
 
     return m_filePath;
 }
@@ -288,8 +267,7 @@ std::string Impl::XLDocument::GetProperty(XLProperty theProperty) const {
  *
  * ```
  */
-void Impl::XLDocument::SetProperty(XLProperty theProperty,
-                                   const string& value) {
+void Impl::XLDocument::SetProperty(XLProperty theProperty, const string& value) {
 
     switch (theProperty) {
         case XLProperty::Application :
@@ -300,21 +278,24 @@ void Impl::XLDocument::SetProperty(XLProperty theProperty,
             try {
                 std::stof(value);
             }
-            catch (...){
+            catch (...) {
                 throw XLException("Invalid property value");
             }
 
             if (value.find('.') != std::string::npos) {
-                if(value.substr(value.find('.') + 1).size() >= 1 && value.substr(value.find('.') + 1).size() <= 5) {
-                    if(value.substr(0, value.find('.')).size() >= 1 && value.substr(0, value.find('.')).size() <= 2) {
+                if (value.substr(value.find('.') + 1).size() >= 1 && value.substr(value.find('.') + 1).size() <= 5) {
+                    if (value.substr(0, value.find('.')).size() >= 1 && value.substr(0, value.find('.')).size() <= 2) {
 
                         m_docAppProperties->SetProperty("AppVersion", value);
                     }
-                    else throw XLException("Invalid property value");
+                    else
+                        throw XLException("Invalid property value");
                 }
-                else throw XLException("Invalid property value");
+                else
+                    throw XLException("Invalid property value");
             }
-            else throw XLException("Invalid property value");
+            else
+                throw XLException("Invalid property value");
 
             break;
 
@@ -411,11 +392,9 @@ void Impl::XLDocument::SetProperty(XLProperty theProperty,
 /**
  * @details Delete a property
  */
-void
-Impl::XLDocument::DeleteProperty(XLProperty theProperty) {
+void Impl::XLDocument::DeleteProperty(XLProperty theProperty) {
 
-    SetProperty(theProperty,
-                "");
+    SetProperty(theProperty, "");
 }
 
 /**
@@ -437,24 +416,19 @@ Impl::XLContentItem* Impl::XLDocument::ContentItem(const std::string& path) {
 /**
  * @details Ad a new ContentItem and return the resulting object.
  */
-Impl::XLContentItem* Impl::XLDocument::AddContentItem(const std::string& contentPath,
-                                                      XLContentType contentType) {
+Impl::XLContentItem* Impl::XLDocument::AddContentItem(const std::string& contentPath, XLContentType contentType) {
 
-    m_contentTypes->addOverride(contentPath,
-                                contentType);
+    m_contentTypes->addOverride(contentPath, contentType);
     return m_contentTypes->ContentItem(contentPath);
 }
 
 /**
  * @details Add a xml file to the package.
  */
-void Impl::XLDocument::AddOrReplaceXMLFile(const std::string& path,
-                                           const std::string& content) {
+void Impl::XLDocument::AddOrReplaceXMLFile(const std::string& path, const std::string& content) {
 
     m_xmlData.push_back(content);
-    m_archive->addData(path,
-                       m_xmlData.back().data(),
-                       m_xmlData.back().size());
+    m_archive->addData(path, m_xmlData.back().data(), m_xmlData.back().size());
 }
 
 /**

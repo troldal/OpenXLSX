@@ -11,10 +11,8 @@
 using namespace OpenXLSX;
 
 /**********************************************************************************************************************/
-XLWorkbook::XLWorkbook(Impl::XLWorkbook& workbook)
-        : m_workbook(&workbook) {
+XLWorkbook::XLWorkbook(Impl::XLWorkbook& workbook) : m_workbook(&workbook) {
 }
-
 
 /**********************************************************************************************************************/
 XLSheet XLWorkbook::Sheet(unsigned int index) {
@@ -71,23 +69,19 @@ void XLWorkbook::DeleteSheet(const std::string& sheetName) {
 }
 
 /**********************************************************************************************************************/
-void XLWorkbook::AddWorksheet(const std::string& sheetName,
-                              unsigned int index) {
+void XLWorkbook::AddWorksheet(const std::string& sheetName, unsigned int index) {
 
     m_workbook->AddWorksheet(sheetName, index);
 }
 
 /**********************************************************************************************************************/
-void XLWorkbook::CloneWorksheet(const std::string& extName,
-                                const std::string& newName,
-                                unsigned int index) {
+void XLWorkbook::CloneWorksheet(const std::string& extName, const std::string& newName, unsigned int index) {
 
     m_workbook->CloneWorksheet(extName, newName, index);
 }
 
 /**********************************************************************************************************************/
-void XLWorkbook::AddChartsheet(const std::string& sheetName,
-                               unsigned int index) {
+void XLWorkbook::AddChartsheet(const std::string& sheetName, unsigned int index) {
 
     m_workbook->AddChartsheet(sheetName, index);
 }

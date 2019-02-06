@@ -13,10 +13,10 @@ using namespace OpenXLSX;
 /**
  * @details
  */
-Impl::XLCoreProperties::XLCoreProperties(XLDocument& parent,
-                                         const std::string& filePath)
-        : XLAbstractXMLFile(parent, filePath),
-          XLSpreadsheetElement(parent) {
+Impl::XLCoreProperties::XLCoreProperties(XLDocument& parent, const std::string& filePath) : XLAbstractXMLFile(parent,
+                                                                                                              filePath),
+                                                                                            XLSpreadsheetElement(
+                                                                                                    parent) {
 
     ParseXMLData();
 }
@@ -39,8 +39,7 @@ bool Impl::XLCoreProperties::ParseXMLData() {
 /**
  * @details
  */
-bool Impl::XLCoreProperties::SetProperty(const std::string& name,
-                                         const std::string& value) {
+bool Impl::XLCoreProperties::SetProperty(const std::string& name, const std::string& value) {
 
     XMLNode node;
     if (XmlDocument()->first_child().child(name.c_str()))
@@ -55,20 +54,17 @@ bool Impl::XLCoreProperties::SetProperty(const std::string& name,
 /**
  * @details
  */
-bool Impl::XLCoreProperties::SetProperty(const std::string& name,
-                                         int value) {
+bool Impl::XLCoreProperties::SetProperty(const std::string& name, int value) {
 
-    return SetProperty(name,
-                       to_string(value));
+    return SetProperty(name, to_string(value));
 }
 
 /**
  * @details
  */
-bool Impl::XLCoreProperties::SetProperty(const std::string& name,
-                                         double value) {
+bool Impl::XLCoreProperties::SetProperty(const std::string& name, double value) {
 
-    return SetProperty(name,to_string(value));
+    return SetProperty(name, to_string(value));
 }
 
 /**
