@@ -51,6 +51,11 @@ The ambition is that OpenXLSX should be able to read, write, create and modify E
   Building on Windows using MSYS has not been tested.
   Building using the Intel compiler has not been tested.
   
+  ## Unicode
+  All string manipulations and usage in OpenXLSX uses the C++ std::string, which uses UTF-8 encoding. Also, Excel uses UTF-8 encoding internally (actually, it might be possible to use other encodings, but I'm not sure about that). 
+  
+  For the above reason, if you work with other text encodings, you have to convert to/from UTF-8 yourself. There are a number of options (e.g. std::codecvt or Boost.Locale). I will also suggest that you see James McNellis' presentation at CppCon 2014: https://youtu.be/n0GK-9f4dl8
+  
   ## Usage
   
   ```cpp
