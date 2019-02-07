@@ -322,6 +322,6 @@ namespace OpenXLSX::Impl {
         XLRelationshipMap m_relationships; /**< A std::map with the relationship items, ordered by ID */
         unsigned long     m_relationshipCount; /**< The number of relationship items in the XLRelationship object */
     };
-}
+} // namespace OpenXLSX::Impl
 
 #endif //OPENXLSX_IMPL_XLRELATIONSHIPS_H

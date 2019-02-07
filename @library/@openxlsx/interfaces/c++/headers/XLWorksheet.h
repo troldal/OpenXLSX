@@ -56,7 +56,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 namespace OpenXLSX {
     namespace Impl {
         class XLWorksheet;
-    }
+    } // namespace Impl
 
     /**
      * @brief
@@ -85,7 +85,7 @@ namespace OpenXLSX {
         /**
          * @brief
          */
-        virtual ~XLWorksheet() = default;
+        ~XLWorksheet() override = default;
 
         /**
          * @brief
@@ -228,6 +228,7 @@ namespace OpenXLSX {
         /**
          * @brief
          * @param fileName
+         * @param decimal
          * @param delimiter
          */
         void Export(const std::string& fileName, char decimal = ',', char delimiter = ';');
@@ -240,6 +241,6 @@ namespace OpenXLSX {
         void Import(const std::string& fileName, const std::string& delimiter = ";");
 
     };
-}
+} // namespace OpenXLSX
 
 #endif //OPENXLSX_XLWORKSHEET_H

@@ -219,6 +219,6 @@ namespace OpenXLSX::Impl {
         XLContentItem     * m_nodeInContentTypes; /**< A pointer to the relevant content type item in [Content_Types].xml */
         XLRelationshipItem* m_nodeInWorkbookRels; /**< A pointer to the relationship item in workbook.xml.rels */
     };
-}
+}  // namespace OpenXLSX::Impl
 
 #endif //OPENXLSX_IMPL_XLABSTRACTSHEET_H

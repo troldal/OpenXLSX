@@ -54,7 +54,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 namespace OpenXLSX {
     namespace Impl {
         class XLDocument;
-    }
+    } // namespace Impl
 
     /**
      * @brief This class encapsulates the concept of an Excel file. It is different from the XLWorkbook, in that an
@@ -201,7 +201,7 @@ namespace OpenXLSX {
 
         /**
          * @brief Delete the property from the document
-         * @param propertyName The property to delete from the document
+         * @param theProperty The property to delete from the document
          */
         void DeleteProperty(XLProperty theProperty);
 
@@ -211,6 +211,6 @@ namespace OpenXLSX {
 
     };
 
-}
+}  // namespace OpenXLSX
 
 #endif //OPENXLSX_ALL_XLDOCUMENT_H

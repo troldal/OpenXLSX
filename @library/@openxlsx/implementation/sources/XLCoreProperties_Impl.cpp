@@ -13,10 +13,9 @@ using namespace OpenXLSX;
 /**
  * @details
  */
-Impl::XLCoreProperties::XLCoreProperties(XLDocument& parent, const std::string& filePath) : XLAbstractXMLFile(parent,
-                                                                                                              filePath),
-                                                                                            XLSpreadsheetElement(
-                                                                                                    parent) {
+Impl::XLCoreProperties::XLCoreProperties(XLDocument& parent, const std::string& filePath)
+        : XLAbstractXMLFile(parent, filePath),
+          XLSpreadsheetElement(parent) {
 
     ParseXMLData();
 }
@@ -42,7 +41,7 @@ bool Impl::XLCoreProperties::ParseXMLData() {
 bool Impl::XLCoreProperties::SetProperty(const std::string& name, const std::string& value) {
 
     XMLNode node;
-    if (XmlDocument()->first_child().child(name.c_str()))
+    if (XmlDocument()->first_child().child(name.c_str()) != nullptr)
         node = XmlDocument()->first_child().child(name.c_str());
     else
         node = XmlDocument()->first_child().prepend_child(name.c_str());
@@ -86,7 +85,7 @@ const XMLNode Impl::XLCoreProperties::Property(const std::string& name) const {
 void Impl::XLCoreProperties::DeleteProperty(const std::string& name) {
 
     auto property = XmlDocument()->first_child().child(name.c_str());
-    if (property)
+    if (property != nullptr)
         XmlDocument()->first_child().remove_child(property);
 
 }

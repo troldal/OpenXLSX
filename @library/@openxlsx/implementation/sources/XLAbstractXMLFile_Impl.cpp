@@ -1,3 +1,5 @@
+#include <utility>
+
 //
 // Created by Troldal on 05/08/16.
 //
@@ -15,19 +17,16 @@ using namespace OpenXLSX;
  * the same path in the .zip file will be overwritten upon saving of the document. If no xmlData is provided,
  * the data will be read from the .zip file, using the given path.
  */
-Impl::XLAbstractXMLFile::XLAbstractXMLFile(XLDocument& parent,
-                                           const std::string& filePath,
-                                           const std::string& xmlData) : m_xmlDocument(std::make_unique<XMLDocument>()),
-                                                                         m_parentDocument(parent), m_path(filePath),
-                                                                         m_childXmlDocuments() {
+Impl::XLAbstractXMLFile::XLAbstractXMLFile(XLDocument& parent, std::string filePath, const std::string& xmlData)
+        : m_xmlDocument(std::make_unique<XMLDocument>()),
+          m_parentDocument(parent),
+          m_path(std::move(filePath)),
+          m_childXmlDocuments() {
 
     if (xmlData.empty())
         SetXmlData(m_parentDocument.GetXMLFile(m_path));
     else
         SetXmlData(xmlData);
-}
-
-Impl::XLAbstractXMLFile::~XLAbstractXMLFile() {
 }
 
 /**
@@ -56,7 +55,7 @@ void Impl::XLAbstractXMLFile::CommitXMLData() {
 
     m_parentDocument.AddOrReplaceXMLFile(m_path, GetXmlData());
     for (auto file : m_childXmlDocuments) {
-        if (file.second)
+        if (file.second != nullptr)
             file.second->CommitXMLData();
     }
 }
@@ -69,7 +68,7 @@ void Impl::XLAbstractXMLFile::DeleteXMLData() {
 
     m_parentDocument.DeleteXMLFile(m_path);
     for (auto file : m_childXmlDocuments) {
-        if (file.second)
+        if (file.second != nullptr)
             file.second->DeleteXMLData();
     }
 }

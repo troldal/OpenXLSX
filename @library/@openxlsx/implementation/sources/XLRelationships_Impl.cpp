@@ -15,9 +15,11 @@ using namespace OpenXLSX;
  */
 Impl::XLRelationshipItem::XLRelationshipItem(XMLNode node,
                                              XLRelationshipType type,
-                                             const std::string& target,
-                                             const std::string& id) : m_relationshipNode(
-        std::make_unique<XMLNode>(node)), m_relationshipType(type), m_relationshipTarget(target), m_relationshipId(id) {
+                                             const std::string& target, const std::string& id)
+        : m_relationshipNode(std::make_unique<XMLNode>(node)),
+          m_relationshipType(type),
+          m_relationshipTarget(target),
+          m_relationshipId(id) {
 
 }
 
@@ -65,11 +67,11 @@ void Impl::XLRelationshipItem::Delete() {
 /**
  * @details Creates a XLRelationships object, which will read the XML file with the given path
  */
-Impl::XLRelationships::XLRelationships(XLDocument& parent, const std::string& filePath) : XLAbstractXMLFile(parent,
-                                                                                                            filePath),
-                                                                                          XLSpreadsheetElement(parent),
-                                                                                          m_relationships(),
-                                                                                          m_relationshipCount(0) {
+Impl::XLRelationships::XLRelationships(XLDocument& parent, const std::string& filePath)
+        : XLAbstractXMLFile(parent, filePath),
+          XLSpreadsheetElement(parent),
+          m_relationships(),
+          m_relationshipCount(0) {
 
     ParseXMLData(); // This will call the ParseXMLData method.
 }
@@ -288,16 +290,10 @@ bool Impl::XLRelationships::ParseXMLData() {
 
 bool Impl::XLRelationships::TargetExists(const std::string& target) const {
 
-    if (RelationshipByTarget(target))
-        return true;
-    else
-        return false;
+    return RelationshipByTarget(target) != nullptr;
 }
 
 bool Impl::XLRelationships::IdExists(const std::string& id) const {
 
-    if (RelationshipByID(id))
-        return true;
-    else
-        return false;
+    return RelationshipByID(id) != nullptr;
 }

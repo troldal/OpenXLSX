@@ -16,18 +16,31 @@ using namespace OpenXLSX;
 /**
  * @details The default constructor, with no arguments.
  */
-Impl::XLDocument::XLDocument() : m_filePath(""), m_documentRelationships(nullptr), m_contentTypes(nullptr),
-                                 m_docAppProperties(nullptr), m_docCoreProperties(nullptr), m_workbook(nullptr),
-                                 m_xmlFiles(), m_archive(nullptr), m_xmlData() {
+Impl::XLDocument::XLDocument()
+        : m_filePath(""),
+          m_documentRelationships(nullptr),
+          m_contentTypes(nullptr),
+          m_docAppProperties(nullptr),
+          m_docCoreProperties(nullptr),
+          m_workbook(nullptr),
+          m_xmlFiles(),
+          m_archive(nullptr),
+          m_xmlData() {
 }
 
 /**
  * @details An alternative constructor, taking a std::string with the path to the .xlsx package as an argument.
  */
-Impl::XLDocument::XLDocument(const std::string& docPath) : m_filePath(""), m_documentRelationships(nullptr),
-                                                           m_contentTypes(nullptr), m_docAppProperties(nullptr),
-                                                           m_docCoreProperties(nullptr), m_workbook(nullptr),
-                                                           m_xmlFiles(), m_archive(nullptr), m_xmlData() {
+Impl::XLDocument::XLDocument(const std::string& docPath)
+        : m_filePath(""),
+          m_documentRelationships(nullptr),
+          m_contentTypes(nullptr),
+          m_docAppProperties(nullptr),
+          m_docCoreProperties(nullptr),
+          m_workbook(nullptr),
+          m_xmlFiles(),
+          m_archive(nullptr),
+          m_xmlData() {
 
     OpenDocument(docPath);
 }
@@ -240,7 +253,7 @@ std::string Impl::XLDocument::GetProperty(XLProperty theProperty) const {
 
     }
 
-    return ""; // To silence compiler warning (Weffc++).
+    return ""; // To silence compiler warning.
 }
 
 /**

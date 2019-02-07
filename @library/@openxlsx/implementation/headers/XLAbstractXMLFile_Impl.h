@@ -82,7 +82,7 @@ namespace OpenXLSX::Impl {
          * @param filePath The path of the XML file, relative to the root.
          * @param xmlData An std::string object with the XML data to be represented by the object.
          */
-        explicit XLAbstractXMLFile(XLDocument& parent, const std::string& filePath, const std::string& xmlData = "");
+        explicit XLAbstractXMLFile(XLDocument& parent, std::string filePath, const std::string& xmlData = "");
 
         /**
          * @brief Copy constructor. Default (shallow) implementation used.
@@ -92,7 +92,7 @@ namespace OpenXLSX::Impl {
         /**
          * @brief Destructor. Default implementation used.
          */
-        virtual ~XLAbstractXMLFile();
+        virtual ~XLAbstractXMLFile() = default;
 
         /**
          * @brief The assignment operator. The default implementation has been used.
@@ -179,6 +179,6 @@ namespace OpenXLSX::Impl {
                          XLAbstractXMLFile*> m_childXmlDocuments; /**< A std::map with the child XML documents. */
 
     };
-}
+}  // namespace OpenXLSX::Impl
 
 #endif //OPENXLSX_IMPL_XLABSTRACTXMLFILE_H

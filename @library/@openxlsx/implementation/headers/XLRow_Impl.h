@@ -210,6 +210,6 @@ namespace OpenXLSX::Impl {
         std::map<unsigned int, std::unique_ptr<XLCell>> m_cells; /**< A vector with the XLCell objects. */
     };
 
-}
+}  // namespace OpenXLSX::Impl
 
 #endif //OPENXLSX_IMPL_XLROW_H

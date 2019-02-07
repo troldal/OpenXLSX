@@ -8,7 +8,8 @@
 
 using namespace OpenXLSX;
 
-XLWorksheet::XLWorksheet(Impl::XLSheet& sheet) : XLSheet(sheet) {
+XLWorksheet::XLWorksheet(Impl::XLSheet& sheet)
+        : XLSheet(sheet) {
 }
 
 XLCell XLWorksheet::Cell(const XLCellReference& ref) {

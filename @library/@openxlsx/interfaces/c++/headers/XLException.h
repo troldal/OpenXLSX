@@ -51,13 +51,14 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 namespace OpenXLSX {
     class XLException : public std::runtime_error {
     public:
-        inline explicit XLException(const std::string& err) : runtime_error(err) {
+        inline explicit XLException(const std::string& err)
+                : runtime_error(err) {
         }
 
         inline ~XLException() override = default;
 
     };
 
-}
+}  // namespace OpenXLSX
 
 #endif //OPENXLSX_XLEXCEPTION_H

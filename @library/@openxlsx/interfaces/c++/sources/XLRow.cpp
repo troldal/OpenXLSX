@@ -9,7 +9,8 @@
 
 using namespace OpenXLSX;
 
-XLRow::XLRow(Impl::XLRow& row) : m_row(&row) {
+XLRow::XLRow(Impl::XLRow& row)
+        : m_row(&row) {
 
 }
 

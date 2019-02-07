@@ -9,7 +9,8 @@
 
 using namespace OpenXLSX;
 
-XLCell::XLCell(Impl::XLCell& cell) : m_cell(&cell) {
+XLCell::XLCell(Impl::XLCell& cell)
+        : m_cell(&cell) {
 }
 
 XLValueType XLCell::ValueType() const {

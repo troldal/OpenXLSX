@@ -11,16 +11,20 @@ using namespace OpenXLSX;
 /**
  * @details
  */
-Impl::XLColor::XLColor(unsigned int red, unsigned int green, unsigned int blue) : m_red(min(red, 255U)),
-                                                                                  m_green(min(green, 255U)),
-                                                                                  m_blue(min(blue, 255U)) {
+Impl::XLColor::XLColor(unsigned int red, unsigned int green, unsigned int blue)
+        : m_red(min(red, 255U)),
+          m_green(min(green, 255U)),
+          m_blue(min(blue, 255U)) {
 
 }
 
 /**
  * @details
  */
-Impl::XLColor::XLColor(const std::string& hexCode) : m_red(0), m_green(0), m_blue(0) {
+Impl::XLColor::XLColor(const std::string& hexCode)
+        : m_red(0),
+          m_green(0),
+          m_blue(0) {
 
     SetColor(hexCode);
 }

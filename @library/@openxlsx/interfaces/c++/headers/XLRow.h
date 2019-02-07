@@ -51,7 +51,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 namespace OpenXLSX {
     namespace Impl {
         class XLRow;
-    }
+    } // namespace Impl
 
     /**
      * @brief
@@ -158,6 +158,6 @@ namespace OpenXLSX {
         Impl::XLRow* m_row; /**< */
 
     };
-}
+}  // namespace OpenXLSX
 
 #endif //OPENXLSX_XLROW_H

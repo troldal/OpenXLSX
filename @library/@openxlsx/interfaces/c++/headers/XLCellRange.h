@@ -55,7 +55,7 @@ using XLCellIteratorConst = std::vector<OpenXLSX::XLCell>::const_iterator;
 namespace OpenXLSX {
     namespace Impl {
         class XLCellRange;
-    }
+    } // namespace Impl
 
     /**
      * @brief
@@ -159,6 +159,6 @@ namespace OpenXLSX {
         std::unique_ptr<Impl::XLCellRange>           m_cellrange; /**< */
         mutable std::unique_ptr<std::vector<XLCell>> m_cells; /**< */
     };
-}
+} // namespace OpenXLSX
 
 #endif //OPENXLSX_XLCELLRANGE_H

@@ -26,14 +26,14 @@ using namespace OpenXLSX;
  *      -# If there is no type attribute but there is a value node, the cell has a number value.
  *      -# Otherwise, determine the celltype based on the type attribute.
  */
-Impl::XLCell::XLCell(XLWorksheet& parent, XMLNode cellNode) : XLSpreadsheetElement(*parent.ParentDocument()),
-                                                              m_parentDocument(parent.ParentDocument()),
-                                                              m_parentWorkbook(parent.ParentWorkbook()),
-                                                              m_parentWorksheet(&parent),
-                                                              m_cellNode(make_unique<XMLNode>(cellNode)),
-                                                              m_cellReference(
-                                                                      XLCellReference(cellNode.attribute("r").value())),
-                                                              m_value(*this) {
+Impl::XLCell::XLCell(XLWorksheet& parent, XMLNode cellNode)
+        : XLSpreadsheetElement(*parent.ParentDocument()),
+          m_parentDocument(parent.ParentDocument()),
+          m_parentWorkbook(parent.ParentWorkbook()),
+          m_parentWorksheet(&parent),
+          m_cellNode(make_unique<XMLNode>(cellNode)),
+          m_cellReference(XLCellReference(cellNode.attribute("r").value())),
+          m_value(*this) {
 }
 
 /**
@@ -105,7 +105,7 @@ std::unique_ptr<Impl::XLCell> Impl::XLCell::CreateCell(XLWorksheet& parent, XMLN
 void Impl::XLCell::SetTypeAttribute(const std::string& typeString) {
 
     if (typeString.empty()) {
-        if (m_cellNode->attribute("t"))
+        if (m_cellNode->attribute("t") != nullptr)
             m_cellNode->remove_attribute("t");
     }
     else {
@@ -189,10 +189,7 @@ XMLNode Impl::XLCell::CreateValueNode() {
  */
 bool Impl::XLCell::HasTypeAttribute() const {
 
-    if (m_cellNode->attribute("t"))
-        return true;
-    else
-        return false;
+    return m_cellNode->attribute("t") != nullptr;
 }
 
 /**

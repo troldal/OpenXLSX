@@ -10,23 +10,23 @@
 using namespace OpenXLSX;
 using namespace std;
 
-XLCellReference::XLCellReference(const Impl::XLCellReference& sheet) : m_cellReference(
-        make_unique<Impl::XLCellReference>(sheet)) {
+XLCellReference::XLCellReference(const Impl::XLCellReference& sheet)
+        : m_cellReference(make_unique<Impl::XLCellReference>(sheet)) {
 
 }
 
-XLCellReference::XLCellReference(const std::string& cellAddress) : m_cellReference(
-        make_unique<Impl::XLCellReference>(Impl::XLCellReference(cellAddress))) {
+XLCellReference::XLCellReference(const std::string& cellAddress)
+        : m_cellReference(make_unique<Impl::XLCellReference>(Impl::XLCellReference(cellAddress))) {
 
 }
 
-XLCellReference::XLCellReference(unsigned long row, unsigned int column) : m_cellReference(
-        make_unique<Impl::XLCellReference>(Impl::XLCellReference(row, column))) {
+XLCellReference::XLCellReference(unsigned long row, unsigned int column)
+        : m_cellReference(make_unique<Impl::XLCellReference>(Impl::XLCellReference(row, column))) {
 
 }
 
-XLCellReference::XLCellReference(const XLCellReference& other) : m_cellReference(
-        make_unique<Impl::XLCellReference>(Impl::XLCellReference(*other.m_cellReference))) {
+XLCellReference::XLCellReference(const XLCellReference& other)
+        : m_cellReference(make_unique<Impl::XLCellReference>(Impl::XLCellReference(*other.m_cellReference))) {
 
 }
 
@@ -35,9 +35,7 @@ XLCellReference& XLCellReference::operator=(const XLCellReference& other) {
     *m_cellReference = *other.m_cellReference;
 }
 
-XLCellReference::~XLCellReference() {
-
-}
+XLCellReference::~XLCellReference() = default;
 
 unsigned long XLCellReference::Row() {
 

@@ -403,6 +403,6 @@ namespace OpenXLSX::Impl {
         mutable std::unique_ptr<XLSharedStrings> m_sharedStrings; /**< Pointer to the XLSharedStrings object. */
         std::unique_ptr<XLStyles>                m_styles; /**< Pointer to the XLStyles object for the workbook. */
     };
-}
+}  // namespace OpenXLSX::Impl
 
 #endif //OPENXLSX_IMPL_XLWORKBOOK_H

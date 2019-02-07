@@ -7,6 +7,7 @@
 
 using namespace OpenXLSX;
 
-XLChartsheet::XLChartsheet(Impl::XLSheet& sheet) : XLSheet(sheet) {
+XLChartsheet::XLChartsheet(Impl::XLSheet& sheet)
+        : XLSheet(sheet) {
 
 }

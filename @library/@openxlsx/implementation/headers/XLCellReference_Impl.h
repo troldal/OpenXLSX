@@ -86,7 +86,7 @@ namespace OpenXLSX::Impl {
          * @brief Constructor taking a cell address as argument.
          * @param cellAddress The address of the cell, e.g. 'A1'.
          */
-        XLCellReference(const std::string& cellAddress = "");
+        explicit XLCellReference(const std::string& cellAddress = "");
 
         /**
          * @brief Constructor taking the cell coordinates as arguments.
@@ -213,7 +213,6 @@ namespace OpenXLSX::Impl {
 
     private:
 
-        static const std::unordered_map<int, std::string>     s_alphabet; /**< a std::map with the english alphabet */
         static std::unordered_map<std::string, unsigned int>  s_columnNumbers; /**<  */
         static std::unordered_map<unsigned int, std::string>  s_columnNames; /**<  */
         static std::unordered_map<unsigned long, std::string> s_rowNames; /**<  */
@@ -269,10 +268,7 @@ namespace OpenXLSX::Impl {
         else if (lhs.Row() > rhs.Row())
             result = false;
         else { // lhs.Row() == rhs.Row()
-            if (lhs.Column() < rhs.Column())
-                result = true;
-            else
-                result = false;
+            result = lhs.Column() < rhs.Column();
         }
         return result;
     }
@@ -309,6 +305,6 @@ namespace OpenXLSX::Impl {
 
         return !(lhs < rhs);
     }
-}
+} // namespace OpenXLSX::Impl
 
 #endif //OPENXLSX_IMPL_XLCELLREFERENCE_H

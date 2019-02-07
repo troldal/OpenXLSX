@@ -51,7 +51,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 namespace OpenXLSX {
     namespace Impl {
         class XLChartsheet;
-    }
+    } // namespace Impl
 
     class XLChartsheet : public XLSheet {
     public:
@@ -77,7 +77,7 @@ namespace OpenXLSX {
         /**
          * @brief
          */
-        virtual ~XLChartsheet() = default;
+        ~XLChartsheet() override = default;
 
         /**
          * @brief
@@ -94,6 +94,6 @@ namespace OpenXLSX {
         XLChartsheet& operator=(XLChartsheet&& other) = default;
 
     };
-}
+} // namespace OpenXLSX
 
 #endif //OPENXLSX_XLCHARTSHEET_H

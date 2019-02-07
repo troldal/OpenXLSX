@@ -55,7 +55,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 namespace OpenXLSX {
     namespace Impl {
         class XLWorkbook;
-    }
+    } // namespace Impl
 
     /**
      * @brief
@@ -202,6 +202,7 @@ namespace OpenXLSX {
 
         /**
          * @brief
+         * @param sheetName
          * @param index
          */
         void MoveSheet(const std::string& sheetName, unsigned int index);
@@ -261,6 +262,6 @@ namespace OpenXLSX {
         Impl::XLWorkbook* m_workbook; /**< */
     };
 
-}
+}  // namespace OpenXLSX
 
 #endif //OPENXLSX_XLWORKBOOK_H

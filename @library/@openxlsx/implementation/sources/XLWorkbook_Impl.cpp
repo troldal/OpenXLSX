@@ -17,9 +17,18 @@ using namespace OpenXLSX;
  */
 Impl::XLWorkbook::XLWorkbook(XLDocument& parent, const std::string& filePath)
 
-        : XLAbstractXMLFile(parent, filePath), XLSpreadsheetElement(parent), m_sheetsNode(make_unique<XMLNode>()),
-          m_sheets(), m_sheetPaths(), m_sheetId(0), m_sheetCount(0), m_worksheetCount(0), m_chartsheetCount(0),
-          m_definedNames(make_unique<XMLNode>()), m_relationships(nullptr), m_sharedStrings(nullptr),
+        : XLAbstractXMLFile(parent, filePath),
+          XLSpreadsheetElement(parent),
+          m_sheetsNode(make_unique<XMLNode>()),
+          m_sheets(),
+          m_sheetPaths(),
+          m_sheetId(0),
+          m_sheetCount(0),
+          m_worksheetCount(0),
+          m_chartsheetCount(0),
+          m_definedNames(make_unique<XMLNode>()),
+          m_relationships(nullptr),
+          m_sharedStrings(nullptr),
           m_styles(nullptr) {
 
     ParseXMLData();
@@ -92,8 +101,8 @@ Impl::XLWorksheet* Impl::XLWorkbook::Worksheet(const std::string& sheetName) {
     XLSheet* sheet = m_sheets.at(sheetName).get();
     if (sheet->Type() == XLSheetType::WorkSheet)
         return dynamic_cast<XLWorksheet*>(sheet);
-    else
-        throw std::range_error("Sheet does not exist");
+
+    throw std::range_error("Sheet does not exist");
 }
 
 /**
@@ -107,8 +116,8 @@ const Impl::XLWorksheet* Impl::XLWorkbook::Worksheet(const std::string& sheetNam
     XLSheet* sheet = m_sheets.at(sheetName).get();
     if (sheet->Type() == XLSheetType::WorkSheet)
         return dynamic_cast<XLWorksheet*>(sheet);
-    else
-        throw std::range_error("Sheet does not exist");
+
+    throw std::range_error("Sheet does not exist");
 }
 
 /**
@@ -185,9 +194,7 @@ const Impl::XLChartsheet* Impl::XLWorkbook::Chartsheet(const std::string& sheetN
  */
 bool Impl::XLWorkbook::HasSharedStrings() const {
 
-    if (m_sharedStrings)
-        return true;
-    return false;
+    return m_sharedStrings != nullptr;
 }
 
 /**
@@ -370,7 +377,7 @@ unsigned int Impl::XLWorkbook::IndexOfSheet(const std::string& sheetName) const 
         throw runtime_error("Sheet does not exist.");
 
     unsigned int index = 1;
-    while (node) {
+    while (node != nullptr) {
         if (strcmp(node.attribute("name").value(), sheetName.c_str()) == 0)
             break;
         node = node.next_sibling();
@@ -419,10 +426,7 @@ Impl::XLStyles* Impl::XLWorkbook::Styles() {
  */
 bool Impl::XLWorkbook::SheetExists(const std::string& sheetName) const {
 
-    if (m_sheets.find(sheetName) == m_sheets.end())
-        return false;
-    else
-        return true;
+    return m_sheets.find(sheetName) != m_sheets.end();
 }
 
 /**
@@ -430,10 +434,7 @@ bool Impl::XLWorkbook::SheetExists(const std::string& sheetName) const {
  */
 bool Impl::XLWorkbook::WorksheetExists(const std::string& sheetName) const {
 
-    if (m_worksheets.find(sheetName) == m_worksheets.end())
-        return false;
-    else
-        return true;
+    return m_worksheets.find(sheetName) != m_worksheets.end();
 
     /*    if (m_sheets.find(sheetName) == m_sheets.end())
             return false;
@@ -456,10 +457,7 @@ bool Impl::XLWorkbook::WorksheetExists(const std::string& sheetName) const {
  */
 bool Impl::XLWorkbook::ChartsheetExists(const std::string& sheetName) const {
 
-    if (m_chartsheets.find(sheetName) == m_chartsheets.end())
-        return false;
-    else
-        return true;
+    return m_chartsheets.find(sheetName) != m_chartsheets.end();
 
     /*    bool result = false;
         for (const auto& iter : m_sheets) {
@@ -560,7 +558,7 @@ void Impl::XLWorkbook::CreateChartsheet(const XLRelationshipItem& item) {
 
     string name;
     auto   node = m_sheetsNode->first_child();
-    while (node) {
+    while (node != nullptr) {
         if (strcmp(node.attribute("r:id").value(), item.Id().c_str()) == 0) {
             name = node.attribute("name").value();
             break;

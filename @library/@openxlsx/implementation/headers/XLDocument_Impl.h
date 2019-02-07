@@ -66,7 +66,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 namespace libzippp {
     class ZipArchive;
-}
+} // namespace libzippp
 
 namespace OpenXLSX::Impl {
 
@@ -313,6 +313,6 @@ namespace OpenXLSX::Impl {
         return std::move(result);
     }
 
-}
+} // namespace OpenXLSX::Impl
 
 #endif //OPENXLSX_IMPL_XLDOCUMENT_H

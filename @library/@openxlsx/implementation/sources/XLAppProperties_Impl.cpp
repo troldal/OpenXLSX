@@ -16,21 +16,14 @@ using namespace OpenXLSX;
 /**
  * @details
  */
-Impl::XLAppProperties::XLAppProperties(XLDocument& parent, const std::string& filePath) : XLAbstractXMLFile(parent,
-                                                                                                            filePath),
-                                                                                          XLSpreadsheetElement(parent),
-                                                                                          m_sheetCountAttribute(
-                                                                                                  make_unique<
-                                                                                                          XMLAttribute>()),
-                                                                                          m_sheetNamesParent(
-                                                                                                  make_unique<XMLNode>()),
-                                                                                          m_headingPairsSize(
-                                                                                                  make_unique<
-                                                                                                          XMLAttribute>()),
-                                                                                          m_headingPairsCategories(
-                                                                                                  make_unique<XMLNode>()),
-                                                                                          m_headingPairsCounts(
-                                                                                                  make_unique<XMLNode>()) {
+Impl::XLAppProperties::XLAppProperties(XLDocument& parent, const std::string& filePath)
+        : XLAbstractXMLFile(parent, filePath),
+          XLSpreadsheetElement(parent),
+          m_sheetCountAttribute(make_unique<XMLAttribute>()),
+          m_sheetNamesParent(make_unique<XMLNode>()),
+          m_headingPairsSize(make_unique<XMLAttribute>()),
+          m_headingPairsCategories(make_unique<XMLNode>()),
+          m_headingPairsCounts(make_unique<XMLNode>()) {
 
     ParseXMLData();
 }
@@ -42,7 +35,7 @@ bool Impl::XLAppProperties::ParseXMLData() {
 
     auto node = XmlDocument()->first_child().first_child();
 
-    while (node) {
+    while (node != nullptr) {
         if (string(node.name()) == "HeadingPairs") {
             *m_headingPairsSize       = node.first_child().attribute("size");
             *m_headingPairsCategories = node.first_child().first_child();
@@ -231,7 +224,7 @@ XMLNode Impl::XLAppProperties::InsertSheetName(const std::string& sheetName, uns
 
     auto     curNode = m_sheetNamesParent->first_child();
     unsigned idx     = 1;
-    while (curNode) {
+    while (curNode != nullptr) {
         if (idx == index)
             break;
         curNode = curNode.next_sibling();

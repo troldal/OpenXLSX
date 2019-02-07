@@ -9,14 +9,13 @@
 
 using namespace OpenXLSX;
 
-XLCellRange::XLCellRange(Impl::XLCellRange range) : m_cellrange(std::make_unique<Impl::XLCellRange>(range)),
-                                                    m_cells(nullptr) {
+XLCellRange::XLCellRange(Impl::XLCellRange range)
+        : m_cellrange(std::make_unique<Impl::XLCellRange>(range)),
+          m_cells(nullptr) {
 
 }
 
-XLCellRange::~XLCellRange() {
-
-}
+XLCellRange::~XLCellRange() = default;
 
 XLCell XLCellRange::Cell(unsigned long row, unsigned int column) {
 

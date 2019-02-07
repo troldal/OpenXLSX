@@ -13,23 +13,26 @@ using namespace OpenXLSX;
 /**
  * @details Assumes each node only has data for one column.
  */
-Impl::XLColumn::XLColumn(XLWorksheet& parent, XMLNode columnNode) : m_parentWorksheet(&parent),
-                                                                    m_parentDocument(parent.ParentDocument()),
-                                                                    m_columnNode(std::make_unique<XMLNode>(columnNode)),
-                                                                    m_width(10), m_hidden(false), m_column(0) {
+Impl::XLColumn::XLColumn(XLWorksheet& parent, XMLNode columnNode)
+        : m_parentWorksheet(&parent),
+          m_parentDocument(parent.ParentDocument()),
+          m_columnNode(std::make_unique<XMLNode>(columnNode)),
+          m_width(10),
+          m_hidden(false),
+          m_column(0) {
     // Read the 'min' attribute of the Column
     auto minmaxAtt = m_columnNode->attribute("min");
-    if (minmaxAtt)
+    if (minmaxAtt != nullptr)
         m_column = stoul(minmaxAtt.value());
 
     // Read the 'Width' attribute of the Column
     auto widthAtt = m_columnNode->attribute("width");
-    if (widthAtt)
+    if (widthAtt != nullptr)
         m_width = stof(widthAtt.value());
 
     // Read the 'hidden' attribute of the Column.
     auto hiddenAtt = m_columnNode->attribute("hidden");
-    if (hiddenAtt) {
+    if (hiddenAtt != nullptr) {
         if (string(hiddenAtt.value()) == "1")
             m_hidden = true;
         else

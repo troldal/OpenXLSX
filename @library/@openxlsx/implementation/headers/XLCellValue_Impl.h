@@ -537,6 +537,6 @@ namespace OpenXLSX::Impl {
 
         return T(GetString());
     }
-}
+} // namespace OpenXLSX::Impl
 
 #endif //OPENXLSX_XLCELLVALUE_H

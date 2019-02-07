@@ -19,10 +19,17 @@ Impl::XLFont::XLFont(const string& name,
                      unsigned int size,
                      const XLColor& color,
                      bool bold,
-                     bool italics,
-                     bool underline) : m_fontNode(std::make_unique<XMLNode>()), m_name(name), m_size(size),
-                                       m_color(color), m_bold(bold), m_italics(italics), m_underline(underline),
-                                       m_theme(""), m_family(""), m_scheme("") {
+                     bool italics, bool underline)
+        : m_fontNode(std::make_unique<XMLNode>()),
+          m_name(name),
+          m_size(size),
+          m_color(color),
+          m_bold(bold),
+          m_italics(italics),
+          m_underline(underline),
+          m_theme(""),
+          m_family(""),
+          m_scheme("") {
 
 }
 

@@ -1,3 +1,9 @@
+#include <utility>
+
+#include <utility>
+
+#include <utility>
+
 //
 // Created by KBA012 on 18-04-2018.
 //
@@ -11,7 +17,8 @@ using namespace std;
 /**
  * @details
  */
-Impl::XLToken::XLToken(const std::string& token) : m_token(token) {
+Impl::XLToken::XLToken(std::string token)
+        : m_token(std::move(token)) {
 }
 
 /**
@@ -45,10 +52,7 @@ long double Impl::XLToken::AsFloat() const {
  */
 bool Impl::XLToken::AsBoolean() const {
 
-    if (m_token == "FALSE")
-        return false;
-    else
-        return true;
+    return m_token != "FALSE";
 }
 
 /**
@@ -56,9 +60,7 @@ bool Impl::XLToken::AsBoolean() const {
  */
 bool Impl::XLToken::IsString() const {
 
-    if (IsBoolean() || IsFloat() || IsInteger())
-        return false;
-    return true;
+    return !(IsBoolean() || IsFloat() || IsInteger());
 }
 
 /**
@@ -69,7 +71,7 @@ bool Impl::XLToken::IsInteger() const {
     for (auto& iter : m_token) {
         if (iter == *m_token.begin() && iter == '-')
             continue;
-        if (!isdigit(iter))
+        if (isdigit(iter) == 0)
             return false;
     }
 
@@ -88,7 +90,7 @@ bool Impl::XLToken::IsFloat() const {
     for (auto& iter : m_token) {
         if (iter == *m_token.begin() && iter == '-')
             continue;
-        if (isdigit(iter)) {
+        if (isdigit(iter) != 0) {
             numDigit++;
             continue;
         }
@@ -101,10 +103,8 @@ bool Impl::XLToken::IsFloat() const {
         numOther++;
     }
 
-    if (numDecimal == 1 && numOther == 0 && numDigit > 0)
-        return true;
+    return numDecimal == 1 && numOther == 0 && numDigit > 0;
 
-    return false;
 }
 
 /**
@@ -120,16 +120,16 @@ bool Impl::XLToken::IsBoolean() const {
     bool isFalse = equal(m_token.begin(), m_token.end(), strFalse.begin(),
                          [](int c1, int c2) { return toupper(c1) == toupper(c2); });
 
-    if (isTrue || isFalse)
-        return true;
-    else
-        return false;
+    return isTrue || isFalse;
 }
 
 /**
  * @details
  */
-Impl::XLTokenizer::XLTokenizer() : m_buffer(""), m_token(""), m_delimiter(" \t\v\n\r\f") {
+Impl::XLTokenizer::XLTokenizer()
+        : m_buffer(""),
+          m_token(""),
+          m_delimiter(" \t\v\n\r\f") {
 
     m_currPos = m_buffer.begin();
 }
@@ -137,8 +137,10 @@ Impl::XLTokenizer::XLTokenizer() : m_buffer(""), m_token(""), m_delimiter(" \t\v
 /**
  * @details
  */
-Impl::XLTokenizer::XLTokenizer(const std::string& str, const std::string& delimiter) : m_buffer(str), m_token(""),
-                                                                                       m_delimiter(delimiter) {
+Impl::XLTokenizer::XLTokenizer(std::string str, std::string delimiter)
+        : m_buffer(std::move(str)),
+          m_token(""),
+          m_delimiter(std::move(delimiter)) {
 
     m_currPos = m_buffer.begin();
 }
@@ -214,7 +216,7 @@ vector<Impl::XLToken> Impl::XLTokenizer::Split() {
     std::vector<XLToken> tokens;
     std::string          token;
     while (!(token = Next().AsString()).empty()) {
-        tokens.push_back(XLToken(token));
+        tokens.emplace_back(token);
     }
 
     return tokens;

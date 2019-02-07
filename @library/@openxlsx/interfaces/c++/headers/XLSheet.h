@@ -53,7 +53,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 namespace OpenXLSX {
     namespace Impl {
         class XLSheet;
-    }
+    } // namespace Impl
 
     /**
      * @brief
@@ -132,12 +132,12 @@ namespace OpenXLSX {
          */
         virtual const XLSheetType& Type() const;
 
-        /**
-         * @brief Method for cloning the sheet.
-         * @param newName A std::string with the name of the clone
-         * @return A pointer to the cloned object.
-         * @note This is a pure abstract method. I.e. it is implemented in subclasses.
-         */
+        //**
+        // * @brief Method for cloning the sheet.
+        // * @param newName A std::string with the name of the clone
+        // * @return A pointer to the cloned object.
+        // * @note This is a pure abstract method. I.e. it is implemented in subclasses.
+        // */
         //        virtual XLSheet* Clone(const std::string& newName) = 0;
 
         /**
@@ -154,6 +154,6 @@ namespace OpenXLSX {
     protected:
         Impl::XLSheet* m_sheet; /**< */
     };
-}
+}  // namespace OpenXLSX
 
 #endif //OPENXLSX_XLSHEET_H

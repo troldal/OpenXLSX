@@ -53,7 +53,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 namespace OpenXLSX {
     namespace Impl {
         class XLCellValue;
-    }
+    } // namespace Impl
 
     /**
      * @brief The XLCellValue class represents the concept of a cell value. This can be in the form of a number
@@ -366,6 +366,6 @@ namespace OpenXLSX {
         return T(GetString());
     }
 
-}
+} // namespace OpenXLSX
 
 #endif //OPENXLSX_XLCELLVALUE_H

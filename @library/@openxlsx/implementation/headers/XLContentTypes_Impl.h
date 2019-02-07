@@ -111,7 +111,7 @@ namespace OpenXLSX::Impl {
          * @param other
          * @return
          */
-        explicit XLContentItem(const XLContentItem& other);
+        XLContentItem(const XLContentItem& other);
 
         /**
          * @brief
@@ -164,7 +164,7 @@ namespace OpenXLSX::Impl {
          * @param type
          * @return
          */
-        explicit XLContentItem(XMLNode node, const std::string& path, XLContentType type);
+        explicit XLContentItem(XMLNode node, std::string path, XLContentType type);
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Public Member Variables
@@ -257,6 +257,6 @@ namespace OpenXLSX::Impl {
         std::map<std::string, XMLNode> m_defaults; /**< */
         XLContentItemMap               m_overrides; /**< */
     };
-}
+} // namespace OpenXLSX::Impl
 
 #endif //OPENXLSX_IMPL_XLCONTENTTYPES_H

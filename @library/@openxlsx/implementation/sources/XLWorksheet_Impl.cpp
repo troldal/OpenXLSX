@@ -21,10 +21,17 @@ Impl::XLWorksheet::XLWorksheet(XLWorkbook& parent,
                                const std::string& filePath,
                                const std::string& xmlData)
 
-        : XLSheet(parent, name, filePath, xmlData), m_dimensionNode(std::make_unique<XMLNode>()),
-          m_sheetDataNode(std::make_unique<XMLNode>()), m_columnsNode(std::make_unique<XMLNode>()),
-          m_sheetViewsNode(std::make_unique<XMLNode>()), m_parentWorkbook(parent), m_rows(), m_columns(),
-          m_firstCell(1, 1), m_lastCell(1, 1), m_maxColumn(0) {
+        : XLSheet(parent, name, filePath, xmlData),
+          m_dimensionNode(std::make_unique<XMLNode>()),
+          m_sheetDataNode(std::make_unique<XMLNode>()),
+          m_columnsNode(std::make_unique<XMLNode>()),
+          m_sheetViewsNode(std::make_unique<XMLNode>()),
+          m_parentWorkbook(parent),
+          m_rows(),
+          m_columns(),
+          m_firstCell(1, 1),
+          m_lastCell(1, 1),
+          m_maxColumn(0) {
 
     // Call the 'LoadXMLData' method in the XLAbstractXMLFile base class
     ParseXMLData();
@@ -46,10 +53,10 @@ bool Impl::XLWorksheet::ParseXMLData() {
     // Read the dimensions of the Sheet and set data members accordingly.
     string dimensions = DimensionNode().attribute("ref").value();
     SetFirstCell(XLCellReference("A1"));
-    if (dimensions.find(":") == string::npos)
+    if (dimensions.find(':') == string::npos)
         SetLastCell(XLCellReference("A1"));
     else
-        SetLastCell(XLCellReference(dimensions.substr(dimensions.find(":") + 1)));
+        SetLastCell(XLCellReference(dimensions.substr(dimensions.find(':') + 1)));
 
     // If Column properties are grouped, divide them into properties for individual Columns.
     if (m_columnsNode->type() != pugi::node_null) {
@@ -63,7 +70,7 @@ bool Impl::XLWorksheet::ParseXMLData() {
                 for (int i = min; i < max; i++) {
                     auto newnode = ColumnsNode().insert_child_before("col", currentNode);
                     auto attr    = currentNode.first_attribute();
-                    while (attr) {
+                    while (attr != nullptr) {
                         newnode.append_attribute(attr.name()) = attr.value();
                         attr = attr.next_attribute();
                     }
@@ -78,7 +85,7 @@ bool Impl::XLWorksheet::ParseXMLData() {
     // Store all Column nodes in the m_columns vector.
     if (m_columnsNode->type() != pugi::node_null) {
         auto currentColumn = ColumnsNode().first_child();
-        while (currentColumn) {
+        while (currentColumn != nullptr) {
             m_columns.emplace(currentColumn.attribute("min").as_ullong() - 1, XLColumn(*this, currentColumn));
             currentColumn = currentColumn.next_sibling();
         }
@@ -163,8 +170,8 @@ const Impl::XLCell* Impl::XLWorksheet::Cell(unsigned long rowNumber, unsigned in
 
     if (rowNumber > RowCount())
         throw XLException("Row " + to_string(rowNumber) + " does not exist!");
-    else
-        return Row(rowNumber)->Cell(columnNumber);
+
+    return Row(rowNumber)->Cell(columnNumber);
 }
 
 /**
@@ -606,10 +613,7 @@ void Impl::XLWorksheet::Import(const std::string& fileName, const string& delimi
             if (iter.IsString())
                 Cell(row, column)->Value().Set(iter.AsString());
             if (iter.IsBoolean()) {
-                if (iter.AsBoolean() == true)
-                    Cell(row, column)->Value().Set(true);
-                else
-                    Cell(row, column)->Value().Set(false);
+                Cell(row, column)->Value().Set(iter.AsBoolean());
             }
             column++;
         }

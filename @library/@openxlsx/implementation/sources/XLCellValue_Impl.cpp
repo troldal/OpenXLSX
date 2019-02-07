@@ -110,16 +110,16 @@ std::string Impl::XLCellValue::AsString() const {
     if (string_view(TypeAttribute().value()) == "b") {
         if (string_view(ValueNode().text().get()) == "0")
             return "FALSE";
-        else
-            return "TRUE";
+
+        return "TRUE";
     }
-    else if (string_view(TypeAttribute().value()) == "s")
+
+    if (string_view(TypeAttribute().value()) == "s")
         return string(
                 ParentCell()->ParentWorkbook()->SharedStrings()->GetStringNode(ValueNode().text().as_ullong()).text()
                             .get());
 
-    else
-        return ValueNode().text().get();
+    return ValueNode().text().get();
 }
 
 /**
@@ -139,8 +139,8 @@ XLValueType Impl::XLCellValue::ValueType() const {
         case XLCellType::Number: {
             if (DetermineNumberType(ValueNode().text().get()) == XLNumberType::Integer)
                 return XLValueType::Integer;
-            else
-                return XLValueType::Float;
+
+            return XLValueType::Float;
         }
 
         case XLCellType::Boolean:
@@ -158,40 +158,39 @@ XLValueType Impl::XLCellValue::ValueType() const {
  * @post The current object, and any associated objects, are unchanged.
  */
 Impl::XLCellType Impl::XLCellValue::CellType() const {
-    // Determine the type of the Cell
-    // If neither a Type attribute or a value node is present, the cell is empty.
+
+    // ===== If neither a Type attribute or a value node is present, the cell is empty.
     if (!m_parentCell.HasTypeAttribute() && !HasValueNode()) {
         return XLCellType::Empty;
     }
 
-        // If a Type attribute is not present, but a value node is, the cell contains a number.
-    else if (!m_parentCell.HasTypeAttribute() && HasValueNode()) {
+    // ===== If a Type attribute is not present, but a value node is, the cell contains a number.
+    if (!m_parentCell.HasTypeAttribute() && HasValueNode()) {
         return XLCellType::Number;
     }
 
-        // If the cell is of type "s", the cell contains a shared string.
-    else if (m_parentCell.HasTypeAttribute() && string(m_parentCell.TypeAttribute().value()) == "s") {
+    // ===== If the cell is of type "s", the cell contains a shared string.
+    if (m_parentCell.HasTypeAttribute() && string(m_parentCell.TypeAttribute().value()) == "s") {
         return XLCellType::String;
     }
 
-        // If the cell is of type "inlineStr", the cell contains an inline string.
-    else if (m_parentCell.HasTypeAttribute() && string(m_parentCell.TypeAttribute().value()) == "inlineStr") {
+    // ===== If the cell is of type "inlineStr", the cell contains an inline string.
+    if (m_parentCell.HasTypeAttribute() && string(m_parentCell.TypeAttribute().value()) == "inlineStr") {
         return XLCellType::String;
     }
 
-        // If the cell is of type "str", the cell contains an ordinary string.
-    else if (m_parentCell.HasTypeAttribute() && string(m_parentCell.TypeAttribute().value()) == "str") {
+    // ===== If the cell is of type "str", the cell contains an ordinary string.
+    if (m_parentCell.HasTypeAttribute() && string(m_parentCell.TypeAttribute().value()) == "str") {
         return XLCellType::String;
     }
 
-        // If the cell is of type "b", the cell contains a boolean.
-    else if (m_parentCell.HasTypeAttribute() && string(m_parentCell.TypeAttribute().value()) == "b") {
+    // ===== If the cell is of type "b", the cell contains a boolean.
+    if (m_parentCell.HasTypeAttribute() && string(m_parentCell.TypeAttribute().value()) == "b") {
         return XLCellType::Boolean;
     }
 
-        // Otherwise, the cell contains an error.
-    else
-        return XLCellType::Error; //the m_typeAttribute has the ValueAsString "e"
+    // ===== Otherwise, the cell contains an error.
+    return XLCellType::Error; //the m_typeAttribute has the ValueAsString "e"
 }
 
 /**
@@ -324,10 +323,7 @@ const XMLNode Impl::XLCellValue::ValueNode() const {
  */
 bool Impl::XLCellValue::HasValueNode() const {
 
-    if (ParentCell()->CellNode().child("v"))
-        return true;
-    else
-        return false;
+    return ParentCell()->CellNode().child("v") != nullptr;
 }
 
 /**
@@ -361,10 +357,7 @@ const XMLAttribute Impl::XLCellValue::TypeAttribute() const {
  */
 bool Impl::XLCellValue::HasTypeAttribute() const {
 
-    if (!ParentCell()->CellNode().attribute("t"))
-        return false;
-    else
-        return true;
+    return ParentCell()->CellNode().attribute("t") != nullptr;
 }
 
 /**
@@ -375,8 +368,8 @@ Impl::XLNumberType Impl::XLCellValue::DetermineNumberType(const string& numberSt
 
     if (numberString.find('.') != string::npos)
         return XLNumberType::Float;
-    else
-        return XLNumberType::Integer;
+
+    return XLNumberType::Integer;
 }
 
 /**
@@ -434,6 +427,6 @@ const char* Impl::XLCellValue::GetString() const {
         return ValueNode().text().get();
     if (std::string_view(TypeAttribute().value()) == "s") // shared string
         return SharedStringNode(ValueNode().text().as_ullong()).text().get();
-    else
-        throw XLException("Unknown string type");
+
+    throw XLException("Unknown string type");
 }

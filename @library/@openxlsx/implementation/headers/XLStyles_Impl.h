@@ -79,7 +79,7 @@ namespace OpenXLSX::Impl {
         /**
          * @brief
          */
-        virtual ~XLStyles() override;
+        ~XLStyles() override;
 
         /**
          * @brief
@@ -113,7 +113,7 @@ namespace OpenXLSX::Impl {
          * @brief
          * @return
          */
-        virtual bool ParseXMLData() override;
+        bool ParseXMLData() override;
 
         //static XMLNode *FontsNode() const;
 
@@ -137,6 +137,6 @@ namespace OpenXLSX::Impl {
 
     };
 
-}
+} // namespace OpenXLSX::Impl
 
 #endif //OPENXLSX_IMPL_XLSTYLES_H

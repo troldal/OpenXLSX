@@ -8,11 +8,13 @@
 using namespace OpenXLSX;
 
 /**********************************************************************************************************************/
-XLDocument::XLDocument() : m_document(std::make_shared<Impl::XLDocument>()) {
+XLDocument::XLDocument()
+        : m_document(std::make_shared<Impl::XLDocument>()) {
 }
 
 /**********************************************************************************************************************/
-XLDocument::XLDocument(const std::string& name) : m_document(std::make_shared<Impl::XLDocument>(name)) {
+XLDocument::XLDocument(const std::string& name)
+        : m_document(std::make_shared<Impl::XLDocument>(name)) {
 }
 
 /**********************************************************************************************************************/

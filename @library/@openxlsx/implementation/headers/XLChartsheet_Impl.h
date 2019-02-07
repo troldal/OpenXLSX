@@ -97,6 +97,6 @@ namespace OpenXLSX::Impl {
 
     };
 
-}
+} // namespace OpenXLSX::Impl
 
 #endif //OPENXLSX_IMPL_XLCHARTSHEET_H

@@ -15,28 +15,33 @@ using namespace OpenXLSX;
  * @details Constructs a new XLRow object from information in the underlying XML file. A pointer to the corresponding
  * node in the underlying XML file must be provided.
  */
-Impl::XLRow::XLRow(XLWorksheet& parent, XMLNode rowNode) : m_parentWorksheet(parent),
-                                                           m_parentDocument(*parent.ParentDocument()),
-                                                           m_rowNode(std::make_unique<XMLNode>(rowNode)), m_height(15),
-                                                           m_descent(0.25), m_hidden(false), m_rowNumber(0), m_cells() {
+Impl::XLRow::XLRow(XLWorksheet& parent, XMLNode rowNode)
+        : m_parentWorksheet(parent),
+          m_parentDocument(*parent.ParentDocument()),
+          m_rowNode(std::make_unique<XMLNode>(rowNode)),
+          m_height(15),
+          m_descent(0.25),
+          m_hidden(false),
+          m_rowNumber(0),
+          m_cells() {
     // Read the Row number attribute
     auto rowAtt = m_rowNode->attribute("r");
-    if (rowAtt)
+    if (rowAtt != nullptr)
         m_rowNumber = stoul(rowAtt.value());
 
     // Read the Descent attribute
     auto descentAtt = m_rowNode->attribute("x14ac:dyDescent");
-    if (descentAtt)
+    if (descentAtt != nullptr)
         SetDescent(stof(descentAtt.value()));
 
     // Read the Row Height attribute
     auto heightAtt = m_rowNode->attribute("ht");
-    if (heightAtt)
+    if (heightAtt != nullptr)
         SetHeight(stof(heightAtt.value()));
 
     // Read the hidden attribute
     auto hiddenAtt = m_rowNode->attribute("hidden");
-    if (hiddenAtt) {
+    if (hiddenAtt != nullptr) {
         if (string(hiddenAtt.value()) == "1")
             SetHidden(true);
         else
@@ -45,7 +50,7 @@ Impl::XLRow::XLRow(XLWorksheet& parent, XMLNode rowNode) : m_parentWorksheet(par
 
     // Iterate throught the Cell nodes and add cells to the m_cells vector
     auto spansAtt = m_rowNode->attribute("spans");
-    if (spansAtt) {
+    if (spansAtt != nullptr) {
         for (auto& currentCell : rowNode.children()) {
             XLCellReference cellRef(currentCell.attribute("r").value());
             Resize(cellRef.Column());
@@ -222,7 +227,7 @@ void Impl::XLRow::CreateRow(XLWorksheet& worksheet, unsigned long rowNumber) {
     else {
         // Otherwise, search the Row nodes vector for the next node and insert there.
         // Vector is 0-based, Excel is 1-based; therefore rowNumber-1.
-        XLRows::iterator iter = worksheet.Rows()->lower_bound(rowNumber - 1);
+        auto iter = worksheet.Rows()->lower_bound(rowNumber - 1);
         if (iter != worksheet.Rows()->end() && iter->second.RowNode().attribute("r").as_ullong() != rowNumber)
             nodeRow = worksheet.SheetDataNode().insert_child_before("row", iter->second.RowNode());
     }

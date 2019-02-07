@@ -15,19 +15,23 @@ using namespace OpenXLSX;
  * @details From the two XLCellReference objects, the constructor calculates the dimensions of the range.
  * If the range exceeds the current bounds of the spreadsheet, the spreadsheet is resized to fit.
  */
-Impl::XLCellRange::XLCellRange(XLWorksheet& sheet,
-                               const XLCellReference& topLeft,
-                               const XLCellReference& bottomRight) : m_parentWorksheet(&sheet), m_topLeft(topLeft),
-                                                                     m_bottomRight(bottomRight), m_rowOffset(0),
-                                                                     m_columnOffset(0), m_rows(1), m_columns(1),
-                                                                     m_transpose(false) {
-    // Find the bounds of the Range
+Impl::XLCellRange::XLCellRange(XLWorksheet& sheet, const XLCellReference& topLeft, const XLCellReference& bottomRight)
+        : m_parentWorksheet(&sheet),
+          m_topLeft(topLeft),
+          m_bottomRight(bottomRight),
+          m_rowOffset(0),
+          m_columnOffset(0),
+          m_rows(1),
+          m_columns(1),
+          m_transpose(false) {
+
+    // ===== Find the bounds of the Range =====
     auto firstColumn = m_topLeft.Column();
     auto lastColumn  = m_bottomRight.Column() + 1;
     auto firstRow    = m_topLeft.Row();
     auto lastRow     = m_bottomRight.Row() + 1;
 
-    // Set the dimension and offset parameters
+    // ===== Set the dimension and offset parameters =====
     m_rows         = lastRow - firstRow;
     m_columns      = lastColumn - firstColumn;
     m_rowOffset    = firstRow - 1;
@@ -38,9 +42,8 @@ Impl::XLCellRange::XLCellRange(XLWorksheet& sheet,
  * @todo This is not pretty, but it works
  */
 Impl::XLCellRange::XLCellRange(const XLWorksheet& sheet,
-                               const XLCellReference& topLeft,
-                               const XLCellReference& bottomRight) : XLCellRange(const_cast<XLWorksheet&>(sheet),
-                                                                                 topLeft, bottomRight) {
+                               const XLCellReference& topLeft, const XLCellReference& bottomRight)
+        : XLCellRange(const_cast<XLWorksheet&>(sheet), topLeft, bottomRight) {
 
 }
 
@@ -105,8 +108,8 @@ unsigned long Impl::XLCellRange::NumRows() const {
 
     if (!m_transpose)
         return m_rows;
-    else
-        return m_columns;
+
+    return m_columns;
 }
 
 /**
@@ -116,8 +119,8 @@ unsigned int Impl::XLCellRange::NumColumns() const {
 
     if (!m_transpose)
         return m_columns;
-    else
-        return m_rows;
+
+    return m_rows;
 }
 
 /**

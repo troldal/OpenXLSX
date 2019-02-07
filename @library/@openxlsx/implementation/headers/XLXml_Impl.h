@@ -11,7 +11,7 @@ namespace pugi {
     class xml_attribute;
 
     class xml_document;
-}
+} // namespace pugi
 
 using XMLNode = pugi::xml_node;
 using XMLAttribute = pugi::xml_attribute;

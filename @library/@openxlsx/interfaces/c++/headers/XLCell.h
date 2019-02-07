@@ -53,7 +53,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 namespace OpenXLSX {
     namespace Impl {
         class XLCell;
-    }
+    } // namespace Impl
 
     /**
      * @brief
@@ -125,6 +125,6 @@ namespace OpenXLSX {
     private:
         Impl::XLCell* m_cell; /**<  */
     };
-}
+}  // namespace OpenXLSX
 
 #endif //OPENXLSX_XLCELL_H

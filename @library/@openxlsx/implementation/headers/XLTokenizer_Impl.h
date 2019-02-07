@@ -70,7 +70,7 @@ namespace OpenXLSX::Impl {
          * @brief
          * @param token
          */
-        explicit XLToken(const std::string& token);
+        explicit XLToken(std::string token);
 
         /**
          * @brief Destructor
@@ -164,7 +164,7 @@ namespace OpenXLSX::Impl {
          * @param str The string to be tokenized.
          * @param delimiter A string with the delimiting characters. If none is provided, default delimiters will be used.
          */
-        explicit XLTokenizer(const std::string& str, const std::string& delimiter = " \t\v\n\r\f");
+        explicit XLTokenizer(std::string str, std::string delimiter = " \t\v\n\r\f");
 
         /**
          * @brief Destructor
@@ -231,6 +231,6 @@ namespace OpenXLSX::Impl {
         std::string                 m_delimiter; /**< delimiter string */
         std::string::const_iterator m_currPos; /**< string iterator pointing the current position */
     };
-}
+} // namespace OpenXLSX::Impl
 
 #endif //OPENXLSX_IMPL_XLTOKENIZER_H

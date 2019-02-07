@@ -11,7 +11,8 @@
 using namespace OpenXLSX;
 
 /**********************************************************************************************************************/
-XLWorkbook::XLWorkbook(Impl::XLWorkbook& workbook) : m_workbook(&workbook) {
+XLWorkbook::XLWorkbook(Impl::XLWorkbook& workbook)
+        : m_workbook(&workbook) {
 }
 
 /**********************************************************************************************************************/

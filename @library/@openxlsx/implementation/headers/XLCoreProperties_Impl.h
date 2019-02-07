@@ -82,7 +82,7 @@ namespace OpenXLSX::Impl {
         /**
          * @brief
          */
-        virtual ~XLCoreProperties() override;
+        ~XLCoreProperties() override;
 
         /**
          * @brief
@@ -131,9 +131,9 @@ namespace OpenXLSX::Impl {
          * @brief
          * @return
          */
-        virtual bool ParseXMLData() override;
+        bool ParseXMLData() override;
 
     };
-}
+} // namespace OpenXLSX::Impl
 
 #endif //OPENXLSX_IMPL_XLDOCCOREPROPERTIES_H

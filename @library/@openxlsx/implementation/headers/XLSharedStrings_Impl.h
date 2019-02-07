@@ -84,7 +84,7 @@ namespace OpenXLSX::Impl {
         /**
          * @brief Destructor
          */
-        virtual ~XLSharedStrings() override;
+        ~XLSharedStrings() override;
 
         /**
          * @brief Get a pointer to the XMLNode holding the shared string at a given index.
@@ -161,6 +161,6 @@ namespace OpenXLSX::Impl {
 
     };
 
-}
+} // namespace OpenXLSX::Impl
 
 #endif //OPENXLSX_IMPL_XLSHAREDSTRINGS_H

@@ -115,6 +115,6 @@ namespace OpenXLSX {
         Empty, Boolean, Integer, Float, Error, String
     };
 
-}
+}  // namespace OpenXLSX
 
 #endif //OPENXLSX_XLPROPERTY_H

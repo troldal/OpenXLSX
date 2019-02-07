@@ -94,6 +94,6 @@ namespace OpenXLSX::Impl {
         Integer, Float
     };
 
-}
+}  // namespace OpenXLSX::Impl
 
 #endif //OPENXLSX_IMPL_XLCELLTYPE_H

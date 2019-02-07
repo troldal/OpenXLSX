@@ -29,8 +29,9 @@ XMLNode Impl::XLStyles::s_colors = XMLNode();
 /**
  * @details
  */
-Impl::XLStyles::XLStyles(XLDocument& parent, const std::string& filePath) : XLAbstractXMLFile(parent, filePath),
-                                                                            XLSpreadsheetElement(parent) {
+Impl::XLStyles::XLStyles(XLDocument& parent, const std::string& filePath)
+        : XLAbstractXMLFile(parent, filePath),
+          XLSpreadsheetElement(parent) {
 
     ParseXMLData();
 }

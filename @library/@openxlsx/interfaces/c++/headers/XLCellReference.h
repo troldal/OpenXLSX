@@ -52,7 +52,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 namespace OpenXLSX {
     namespace Impl {
         class XLCellReference;
-    }
+    } // namespace Impl
 
     /**
      * @brief
@@ -158,6 +158,6 @@ namespace OpenXLSX {
 
     };
 
-}
+} // namespace OpenXLSX
 
 #endif //OPENXLSX_XLCELLREFERENCE_H
