@@ -17,6 +17,7 @@
       <file path="$PROJECT_DIR$/cmake-build-debug-llvm-clang" />
       <file path="$PROJECT_DIR$/cmake-build-release-gcc" />
       <file path="$PROJECT_DIR$/cmake-build-release-llvm-clang" />
+      <file path="$PROJECT_DIR$/venv" />
     </excludeRoots>
   </component>
   <component name="JavaScriptSettings">
