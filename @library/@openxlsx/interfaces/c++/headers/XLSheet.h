@@ -48,7 +48,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 #include <string>
 
-#include "XLProperty.h"
+#include "XLDefinitions.h"
 
 namespace OpenXLSX {
     namespace Impl {

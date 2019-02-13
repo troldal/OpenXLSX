@@ -47,8 +47,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #define OPENXLSX_IMPL_XLCELLREFERENCE_H
 
 #include <string>
-#include <map>
-#include <unordered_map>
 
 namespace OpenXLSX::Impl {
 
@@ -212,11 +210,6 @@ namespace OpenXLSX::Impl {
         //----------------------------------------------------------------------------------------------------------------------
 
     private:
-
-        static std::unordered_map<std::string, unsigned int>  s_columnNumbers; /**<  */
-        static std::unordered_map<unsigned int, std::string>  s_columnNames; /**<  */
-        static std::unordered_map<unsigned long, std::string> s_rowNames; /**<  */
-        static std::unordered_map<std::string, unsigned long> s_rowNumbers; /**<  */
 
         unsigned long m_row; /**< The row */
         unsigned int  m_column; /**< The column */

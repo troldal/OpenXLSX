@@ -46,7 +46,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_IMPL_XLABSTRACTSHEET_H
 #define OPENXLSX_IMPL_XLABSTRACTSHEET_H
 
-#include "XLProperty.h"
+#include "XLDefinitions.h"
 #include "XLAbstractXMLFile_Impl.h"
 #include "XLSpreadsheetElement_Impl.h"
 

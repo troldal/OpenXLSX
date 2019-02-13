@@ -43,10 +43,24 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXLSX_XLPROPERTY_H
-#define OPENXLSX_XLPROPERTY_H
+#ifndef OPENXLSX_XLDEFINITIONS_H
+#define OPENXLSX_XLDEFINITIONS_H
+
+#include <cstdint>
 
 namespace OpenXLSX {
+
+    //======================================================================================================================
+    //========== Global Constants ==========================================================================================
+    //======================================================================================================================
+
+    const uint32_t maxRows = 1'048'576;
+
+    const uint16_t maxCols = 16'384;
+
+    constexpr uint8_t alphabetSize = 26;
+
+    constexpr uint8_t asciiOffset  = 64;
 
     //======================================================================================================================
     //========== XLDocumentProperties Enum =================================================================================
@@ -117,4 +131,4 @@ namespace OpenXLSX {
 
 }  // namespace OpenXLSX
 
-#endif //OPENXLSX_XLPROPERTY_H
+#endif //OPENXLSX_XLDEFINITIONS_H

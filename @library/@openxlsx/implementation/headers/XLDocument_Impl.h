@@ -62,7 +62,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLRelationships_Impl.h"
 #include "XLException.h"
 
-#include "XLProperty.h"
+#include "XLDefinitions.h"
 
 namespace libzippp {
     class ZipArchive;

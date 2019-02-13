@@ -90,7 +90,7 @@ set(OPENXLSX_IMPL_SOURCES
 
 set(OPENXLSX_CXX_INTERFACE_HEADERS
         ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/OpenXLSX.h
-        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/XLProperty.h
+        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/XLDefinitions.h
         ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/XLDocument.h
         ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/XLWorkbook.h
         ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/XLSheet.h

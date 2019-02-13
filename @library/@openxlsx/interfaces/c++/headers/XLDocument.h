@@ -48,7 +48,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 #include <memory>
 
-#include "XLProperty.h"
+#include "XLDefinitions.h"
 #include "XLWorkbook.h"
 
 namespace OpenXLSX {

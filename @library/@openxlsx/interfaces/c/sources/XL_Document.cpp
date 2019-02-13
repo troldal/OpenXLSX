@@ -3,7 +3,7 @@
 //
 
 #include "XLDocument_Impl.h"
-#include "XLProperty.h"
+#include "XLDefinitions.h"
 
 extern "C" {
 #include "XL_Document.h"

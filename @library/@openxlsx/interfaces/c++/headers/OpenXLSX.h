@@ -54,7 +54,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLColumn.h"
 #include "XLDocument.h"
 #include "XLException.h"
-#include "XLProperty.h"
+#include "XLDefinitions.h"
 #include "XLRow.h"
 #include "XLSheet.h"
 #include "XLWorkbook.h"
