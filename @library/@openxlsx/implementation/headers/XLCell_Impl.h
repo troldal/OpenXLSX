@@ -48,6 +48,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 #include <string>
 #include <ostream>
+#include <pugixml.hpp>
 #include "XLCellReference_Impl.h"
 #include "XLDocument_Impl.h"
 #include "XLCellType_Impl.h"
@@ -248,14 +249,12 @@ namespace OpenXLSX::Impl {
     private:
 
         // ===== Pointers to parent entities ===== //
-        XLDocument      * m_parentDocument;  /**< A pointer to the parent XLDocument object. */
-        const XLWorkbook* m_parentWorkbook;  /**< A pointer to the parent XLWorkbook object. */
-        XLWorksheet     * m_parentWorksheet; /**< A pointer to the parent XLWorksheet object. */
+        XLWorksheet* m_parentWorksheet; /**< A pointer to the parent XLWorksheet object. */
 
         // ===== Cell entities ===== //
-        std::unique_ptr<XMLNode> m_cellNode;      /**< A pointer to the root XMLNode for the cell. */
-        XLCellReference          m_cellReference; /**< The cell reference variable. */
-        XLCellValue              m_value;         /**< The XLCellValue object, holding the current value. */
+        XMLNode         m_cellNode;      /**< A pointer to the root XMLNode for the cell. */
+        XLCellReference m_cellReference; /**< The cell reference variable. */
+        XLCellValue     m_value;         /**< The XLCellValue object, holding the current value. */
     };
 }
 

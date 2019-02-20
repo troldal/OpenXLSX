@@ -143,6 +143,8 @@ namespace OpenXLSX::Impl {
          */
         void SetHidden(bool state);
 
+        int64_t RowNumber() const;
+
         /**
          * @brief Get the XMLNode object for the row.
          * @return The XMLNode for the object.
@@ -197,15 +199,7 @@ namespace OpenXLSX::Impl {
     private:
 
         XLWorksheet& m_parentWorksheet; /**< A pointer to the parent XLWorksheet object. */
-        XLDocument & m_parentDocument; /**< A pointer to the parent XLDocument object. */
-
-        std::unique_ptr<XMLNode> m_rowNode; /**< The XMLNode object for the row. */
-
-        float m_height; /**< The height of the row. */
-        float m_descent; /**< The descent of the row. */
-        bool  m_hidden; /**< The hidden state of the row. */
-
-        unsigned long m_rowNumber; /**< The row number of the current row. */
+        XMLNode m_rowNode; /**< The XMLNode object for the row. */
 
         std::map<unsigned int, std::unique_ptr<XLCell>> m_cells; /**< A vector with the XLCell objects. */
     };

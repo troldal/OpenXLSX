@@ -17,54 +17,22 @@ using namespace OpenXLSX;
  */
 Impl::XLRow::XLRow(XLWorksheet& parent, XMLNode rowNode)
         : m_parentWorksheet(parent),
-          m_parentDocument(*parent.ParentDocument()),
-          m_rowNode(std::make_unique<XMLNode>(rowNode)),
-          m_height(15),
-          m_descent(0.25),
-          m_hidden(false),
-          m_rowNumber(0),
-          m_cells() {
-    // Read the Row number attribute
-    auto rowAtt = m_rowNode->attribute("r");
-    if (rowAtt != nullptr)
-        m_rowNumber = stoul(rowAtt.value());
+          m_rowNode(rowNode) {
 
-    // Read the Descent attribute
-    auto descentAtt = m_rowNode->attribute("x14ac:dyDescent");
-    if (descentAtt != nullptr)
-        SetDescent(stof(descentAtt.value()));
-
-    // Read the Row Height attribute
-    auto heightAtt = m_rowNode->attribute("ht");
-    if (heightAtt != nullptr)
-        SetHeight(stof(heightAtt.value()));
-
-    // Read the hidden attribute
-    auto hiddenAtt = m_rowNode->attribute("hidden");
-    if (hiddenAtt != nullptr) {
-        if (string(hiddenAtt.value()) == "1")
-            SetHidden(true);
-        else
-            SetHidden(false);
+    // Iterate through the Cell nodes and add cells to the m_cells vector
+    for (auto& currentCell : m_rowNode.children()) {
+        XLCellReference cellRef(currentCell.attribute("r").value());
+        m_cells.emplace(cellRef.Column() - 1, XLCell::CreateCell(m_parentWorksheet, currentCell));
     }
-
-    // Iterate throught the Cell nodes and add cells to the m_cells vector
-    auto spansAtt = m_rowNode->attribute("spans");
-    if (spansAtt != nullptr) {
-        for (auto& currentCell : rowNode.children()) {
-            XLCellReference cellRef(currentCell.attribute("r").value());
-            Resize(cellRef.Column());
-            m_cells.emplace(cellRef.Column() - 1, XLCell::CreateCell(m_parentWorksheet, currentCell));
-        }
-    }
+    Resize(XLCellReference(m_rowNode.last_child().attribute("r").value()).Column());
 }
 
 /**
- * @details Resizes the m_cells vector holding the cells and updates the 'spans' attribure in the row node.
+ * @details Resizes the m_cells vector holding the cells and updates the 'spans' attribute in the row node.
  */
 void Impl::XLRow::Resize(unsigned int cellCount) {
     //m_cells.resize(cellCount);
-    m_rowNode->attribute("spans") = string("1:" + to_string(cellCount)).c_str();
+    m_rowNode.attribute("spans") = string("1:" + to_string(cellCount)).c_str();
 }
 
 /**
@@ -72,7 +40,7 @@ void Impl::XLRow::Resize(unsigned int cellCount) {
  */
 float Impl::XLRow::Height() const {
 
-    return m_height;
+    return m_rowNode.attribute("ht").as_float(15.0);
 }
 
 /**
@@ -81,21 +49,17 @@ float Impl::XLRow::Height() const {
  */
 void Impl::XLRow::SetHeight(float height) {
 
-    m_height = height;
-
     // Set the 'ht' attribute for the Cell. If it does not exist, create it.
-    auto heightAtt = m_rowNode->attribute("ht");
-    if (!heightAtt)
-        m_rowNode->append_attribute("ht") = m_height;
+    if (!m_rowNode.attribute("ht"))
+        m_rowNode.append_attribute("ht") = height;
     else
-        heightAtt.set_value(height);
+        m_rowNode.attribute("ht").set_value(height);
 
     // Set the 'customHeight' attribute. If it does not exist, create it.
-    auto customAtt = m_rowNode->attribute("customHeight");
-    if (!customAtt)
-        m_rowNode->append_attribute("customHeight") = 1;
+    if (!m_rowNode.attribute("customHeight"))
+        m_rowNode.append_attribute("customHeight") = 1;
     else
-        customAtt.set_value(1);
+        m_rowNode.attribute("customHeight").set_value(1);
 }
 
 /**
@@ -103,7 +67,7 @@ void Impl::XLRow::SetHeight(float height) {
  */
 float Impl::XLRow::Descent() const {
 
-    return m_descent;
+    return m_rowNode.attribute("x14ac:dyDescent").as_float(0.25);
 }
 
 /**
@@ -111,14 +75,11 @@ float Impl::XLRow::Descent() const {
  */
 void Impl::XLRow::SetDescent(float descent) {
 
-    m_descent = descent;
-
     // Set the 'x14ac:dyDescent' attribute. If it does not exist, create it.
-    auto descentAtt = m_rowNode->attribute("x14ac:dyDescent");
-    if (!descentAtt)
-        m_rowNode->append_attribute("x14ac:dyDescent") = m_descent;
+    if (!m_rowNode.attribute("x14ac:dyDescent"))
+        m_rowNode.append_attribute("x14ac:dyDescent") = descent;
     else
-        descentAtt = descent;
+        m_rowNode.attribute("x14ac:dyDescent") = descent;
 }
 
 /**
@@ -126,7 +87,7 @@ void Impl::XLRow::SetDescent(float descent) {
  */
 bool Impl::XLRow::IsHidden() const {
 
-    return m_hidden;
+    return m_rowNode.attribute("hidden").as_bool(false);
 }
 
 /**
@@ -134,20 +95,19 @@ bool Impl::XLRow::IsHidden() const {
  */
 void Impl::XLRow::SetHidden(bool state) {
 
-    m_hidden = state;
-
-    std::string hiddenstate;
-    if (m_hidden)
-        hiddenstate = "1";
-    else
-        hiddenstate = "0";
-
     // Set the 'hidden' attribute. If it does not exist, create it.
-    auto hiddenAtt = m_rowNode->attribute("hidden");
-    if (!hiddenAtt)
-        m_rowNode->append_attribute("hidden") = hiddenstate.c_str();
+    if (!m_rowNode.attribute("hidden"))
+        m_rowNode.append_attribute("hidden") = static_cast<int>(state);
     else
-        hiddenAtt.set_value(hiddenstate.c_str());
+        m_rowNode.attribute("hidden").set_value(static_cast<int>(state));
+}
+
+/**
+ * @details
+ */
+int64_t Impl::XLRow::RowNumber() const {
+
+    return m_rowNode.attribute("r").as_ullong();
 }
 
 /**
@@ -155,8 +115,9 @@ void Impl::XLRow::SetHidden(bool state) {
  */
 XMLNode Impl::XLRow::RowNode() const {
 
-    return *m_rowNode;
+    return m_rowNode;
 }
+
 
 /**
  * @details Return a pointer to the XLCell object at the given column number. If the cell does not exist, it will be
@@ -167,11 +128,11 @@ Impl::XLCell* Impl::XLRow::Cell(unsigned int column) {
     // create a new Cell node, append it to the Row node, resize the m_cells vector, and insert the new node.
     if (auto result = m_cells.lower_bound(column - 1); result == m_cells.end()) {
         // Create the new Cell node
-        auto cellNode = m_rowNode->append_child("c");
-        cellNode.append_attribute("r").set_value(XLCellReference(m_rowNumber, column).Address().c_str());
+        auto cellNode = m_rowNode.append_child("c");
+        cellNode.append_attribute("r").set_value(XLCellReference(RowNumber(), column).Address().c_str());
 
         // Append the Cell node to the Row node, and create a new XLCell node and insert it in the m_cells vector.
-        m_rowNode->attribute("spans") = string("1:" + to_string(column)).c_str();
+        m_rowNode.attribute("spans") = string("1:" + to_string(column)).c_str();
         m_cells.emplace(column - 1, XLCell::CreateCell(m_parentWorksheet, cellNode));
 
         // If the requested Column number is lower than the number of Columns in the current Row,
@@ -180,8 +141,8 @@ Impl::XLCell* Impl::XLRow::Cell(unsigned int column) {
     else if ((*result).second->CellReference()->Column() != column) {
 
         // Find the next Cell node and insert the new node at that position.
-        auto cellNode = m_rowNode->insert_child_before("c", (*result).second->CellNode());
-        cellNode.append_attribute("r") = XLCellReference(m_rowNumber, column).Address().c_str();
+        auto cellNode = m_rowNode.insert_child_before("c", (*result).second->CellNode());
+        cellNode.append_attribute("r") = XLCellReference(RowNumber(), column).Address().c_str();
         m_cells.emplace(column - 1, XLCell::CreateCell(m_parentWorksheet, cellNode));
     }
 
