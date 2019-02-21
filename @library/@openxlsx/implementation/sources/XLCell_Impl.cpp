@@ -31,7 +31,7 @@ Impl::XLCell::XLCell(XLWorksheet& parent, XMLNode cellNode)
           m_parentWorksheet(&parent),
           m_cellNode(cellNode),
           m_cellReference(XLCellReference(cellNode.attribute("r").value())),
-          m_value(*this) {
+          m_value(XLCellValue(*this)) {
 
     // Empty constructor body
 }
@@ -41,7 +41,7 @@ Impl::XLCell::XLCell(Impl::XLCell const& other)
           m_parentWorksheet(other.m_parentWorksheet),
           m_cellNode(other.m_cellNode),
           m_cellReference(other.m_cellReference),
-          m_value(*this) {
+          m_value(XLCellValue(*this)) {
 
     // Empty constructor body
 }
@@ -51,7 +51,7 @@ Impl::XLCell::XLCell(Impl::XLCell&& other) noexcept
           m_parentWorksheet(std::move(other.m_parentWorksheet)),
           m_cellNode(std::move(other.m_cellNode)),
           m_cellReference(std::move(other.m_cellReference)),
-          m_value(*this){
+          m_value(XLCellValue(*this)){
 
     // Empty constructor body
 }
