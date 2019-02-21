@@ -32,6 +32,28 @@ Impl::XLCell::XLCell(XLWorksheet& parent, XMLNode cellNode)
           m_cellNode(cellNode),
           m_cellReference(XLCellReference(cellNode.attribute("r").value())),
           m_value(*this) {
+
+    // Empty constructor body
+}
+
+Impl::XLCell::XLCell(Impl::XLCell const& other)
+        : XLSpreadsheetElement(*other.m_parentWorksheet->ParentDocument()),
+          m_parentWorksheet(other.m_parentWorksheet),
+          m_cellNode(other.m_cellNode),
+          m_cellReference(other.m_cellReference),
+          m_value(*this) {
+
+    // Empty constructor body
+}
+
+Impl::XLCell::XLCell(Impl::XLCell&& other) noexcept
+        : XLSpreadsheetElement(*other.m_parentWorksheet->ParentDocument()),
+          m_parentWorksheet(std::move(other.m_parentWorksheet)),
+          m_cellNode(std::move(other.m_cellNode)),
+          m_cellReference(std::move(other.m_cellReference)),
+          m_value(*this){
+
+    // Empty constructor body
 }
 
 /**

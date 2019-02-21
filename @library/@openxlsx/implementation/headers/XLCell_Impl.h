@@ -70,7 +70,6 @@ namespace OpenXLSX::Impl {
      */
     class XLCell : public XLSpreadsheetElement {
         friend class XLRow;
-
         friend class XLCellValue;
 
         //----------------------------------------------------------------------------------------------------------------------
@@ -85,14 +84,14 @@ namespace OpenXLSX::Impl {
          * @note The copy constructor has been deleted, as it makes no sense to copy a cell. If the objective is to
          * copy the value, create the the target object and then use the copy assignment operator.
          */
-        XLCell(const XLCell& other) = delete;
+        XLCell(const XLCell& other);
 
         /**
          * @brief Move constructor
          * @param other The XLCell object to be moved
          * @note The move constructor has been deleted, as it makes no sense to move a cell.
          */
-        XLCell(XLCell&& other) = delete;
+        XLCell(XLCell&& other) noexcept;
 
         /**
          * @brief Destructor
@@ -106,7 +105,7 @@ namespace OpenXLSX::Impl {
          * @return A reference to the new object
          * @note Copies only the cell contents, not the pointer to parent worksheet etc.
          */
-        XLCell& operator=(const XLCell& other) = default;
+        XLCell& operator=(const XLCell& other) = delete;
 
         /**
          * @brief Move assignment operator [deleted]
@@ -114,7 +113,7 @@ namespace OpenXLSX::Impl {
          * @return A reference to the new object
          * @note The move assignment constructor has been deleted, as it makes no sense to move a cell.
          */
-        XLCell& operator=(XLCell&& other) = default;
+        XLCell& operator=(XLCell&& other) noexcept = delete;
 
         /**
          * @brief This copy assignment operators takes a range as the argument. The purpose is to copy the range to a
@@ -154,7 +153,8 @@ namespace OpenXLSX::Impl {
         //           Protected Member Functions
         //----------------------------------------------------------------------------------------------------------------------
 
-    protected:
+    //protected:
+    public:
 
         /**
          * @brief Constructor

@@ -19,11 +19,22 @@ Impl::XLRow::XLRow(XLWorksheet& parent, XMLNode rowNode)
         : m_parentWorksheet(parent),
           m_rowNode(rowNode) {
 
+    // For later optimization:
+    //auto szString = string(m_rowNode.attribute("spans").value());
+    //auto size = stoi(szString.substr(szString.find(':')));
+    //m_cells2.reserve(size);
+
+/*    for (auto& cell : m_rowNode.children()) {
+        XLCellReference cellRef(cell.attribute("r").value());
+        m_cells2.emplace_back(std::make_pair(cellRef.Column(), XLCell(m_parentWorksheet, cell)));
+    }*/
+
     // Iterate through the Cell nodes and add cells to the m_cells vector
     for (auto& currentCell : m_rowNode.children()) {
         XLCellReference cellRef(currentCell.attribute("r").value());
         m_cells.emplace(cellRef.Column() - 1, XLCell::CreateCell(m_parentWorksheet, currentCell));
     }
+
     Resize(XLCellReference(m_rowNode.last_child().attribute("r").value()).Column());
 }
 
@@ -124,9 +135,36 @@ XMLNode Impl::XLRow::RowNode() const {
  * created.
  */
 Impl::XLCell* Impl::XLRow::Cell(unsigned int column) {
+
+/*    auto result = find_if(m_cells2.begin(), m_cells2.end(), [column](const std::pair<unsigned int, XLCell>& elem) -> bool {
+        return elem.first == column - 1;
+    });
+
+    XLCell* ret = nullptr;
+
+    // If the requested Column number is higher than the number of Columns in the current Row,
+    // create a new Cell node, append it to the Row node, resize the m_cells vector, and insert the new node.
+    if (result == m_cells2.end()) {
+        // Create the new Cell node
+        auto cellNode = m_rowNode.append_child("c");
+        cellNode.append_attribute("r").set_value(XLCellReference(RowNumber(), column).Address().c_str());
+
+        // Append the Cell node to the Row node, and create a new XLCell node and insert it in the m_cells vector.
+        m_rowNode.attribute("spans") = string("1:" + to_string(column)).c_str();
+        ret = &m_cells2.emplace_back(std::make_pair(column - 1, XLCell(m_parentWorksheet, cellNode))).second;
+    }
+
+    else {
+        ret = &result->second;
+    }
+
+    return ret;*/
+
+
     // If the requested Column number is higher than the number of Columns in the current Row,
     // create a new Cell node, append it to the Row node, resize the m_cells vector, and insert the new node.
     if (auto result = m_cells.lower_bound(column - 1); result == m_cells.end()) {
+    //if (auto result = m_cells.equal_range(column - 1).second; result == m_cells.end()) {
         // Create the new Cell node
         auto cellNode = m_rowNode.append_child("c");
         cellNode.append_attribute("r").set_value(XLCellReference(RowNumber(), column).Address().c_str());

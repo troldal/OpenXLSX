@@ -46,8 +46,10 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_IMPL_XLROW_H
 #define OPENXLSX_IMPL_XLROW_H
 
+#include <vector>
 #include "XLDocument_Impl.h"
 #include "XLCell_Impl.h"
+#include "tsl/hopscotch_map.h"
 
 namespace OpenXLSX::Impl {
 
@@ -202,6 +204,8 @@ namespace OpenXLSX::Impl {
         XMLNode m_rowNode; /**< The XMLNode object for the row. */
 
         std::map<unsigned int, std::unique_ptr<XLCell>> m_cells; /**< A vector with the XLCell objects. */
+        //tsl::hopscotch_map<unsigned int, std::unique_ptr<XLCell>> m_cells; /**< A vector with the XLCell objects. */
+        std::vector<std::pair<unsigned int, XLCell>> m_cells2;
     };
 
 }  // namespace OpenXLSX::Impl

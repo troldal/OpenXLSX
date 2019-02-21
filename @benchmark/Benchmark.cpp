@@ -115,9 +115,17 @@ unsigned long WriteTest(T value,
         auto startWrite = chrono::steady_clock::now();
         auto wks = doc.Workbook().Worksheet("Sheet1");
         auto arange = wks.Range(XLCellReference("A1"), XLCellReference(rows, columns));
+
+//        for (int row = 1; row < 1000; ++row) {
+//            for (int col = 1; col < 1000; ++col) {
+//                wks.Cell(row, col).Value().Set(value);
+//            }
+//        }
+
         for (auto iter : arange) {
             iter.Value().Set(value);
         }
+
         auto endWrite = chrono::steady_clock::now();
 
         // Save document
