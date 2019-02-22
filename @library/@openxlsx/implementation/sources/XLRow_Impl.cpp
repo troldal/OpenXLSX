@@ -19,21 +19,14 @@ Impl::XLRow::XLRow(XLWorksheet& parent, XMLNode rowNode)
         : m_parentWorksheet(parent),
           m_rowNode(rowNode) {
 
-    // Iterate through the Cell nodes and add cells to the m_cells vector
-    for (auto& cell : m_rowNode.children()) {
-        XLCellReference cellRef(cell.attribute("r").value());
-        m_cells.emplace(cellRef.Column() - 1, XLCell::CreateCell(m_parentWorksheet, cell));
-    }
+    // Iterate through the Cell nodes and add cells to the m_cells hashmap
+    for (auto& cell : m_rowNode.children())
+        m_cells.emplace(XLCellReference(cell.attribute("r").value()).Column() - 1,
+                        XLCell::CreateCell(m_parentWorksheet, cell));
 
-    Resize(XLCellReference(m_rowNode.last_child().attribute("r").value()).Column());
-}
 
-/**
- * @details Resizes the m_cells vector holding the cells and updates the 'spans' attribute in the row node.
- */
-void Impl::XLRow::Resize(unsigned int cellCount) {
-    //m_cells.resize(cellCount);
-    m_rowNode.attribute("spans") = string("1:" + to_string(cellCount)).c_str();
+    m_rowNode.attribute("spans") =
+            string("1:" + to_string(XLCellReference(m_rowNode.last_child().attribute("r").value()).Column())).c_str();
 }
 
 /**
@@ -119,7 +112,6 @@ XMLNode Impl::XLRow::RowNode() const {
     return m_rowNode;
 }
 
-
 /**
  * @details Return a pointer to the XLCell object at the given column number. If the cell does not exist, it will be
  * created.
@@ -161,12 +153,10 @@ Impl::XLCell* Impl::XLRow::Cell(unsigned int column) {
  */
 const Impl::XLCell* Impl::XLRow::Cell(unsigned int column) const {
 
-    if (column > CellCount()) {
-        throw XLException("Cell does not exist!");
-    }
-    else {
-        return m_cells.at(column - 1).get();
-    }
+    if (column > CellCount()) throw XLException("Cell does not exist!");
+
+    return m_cells.at(column - 1).get();
+
 }
 
 /**

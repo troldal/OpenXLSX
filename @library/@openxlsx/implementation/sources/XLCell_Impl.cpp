@@ -1,3 +1,5 @@
+#include <memory>
+
 //
 // Created by Troldal on 02/09/16.
 //
@@ -116,7 +118,7 @@ const Impl::XLCellReference* Impl::XLCell::CellReference() const {
  */
 std::unique_ptr<Impl::XLCell> Impl::XLCell::CreateCell(XLWorksheet& parent, XMLNode cellNode) {
 
-    return unique_ptr<XLCell>(new XLCell(parent, cellNode));
+    return std::make_unique<XLCell>(parent, cellNode);
 }
 
 /**

@@ -187,12 +187,6 @@ namespace OpenXLSX::Impl {
          */
         static void CreateRow(XLWorksheet& worksheet, unsigned long rowNumber);
 
-        /**
-         * @brief Resize the row, i.e. change the number of cells in the row.
-         * @param cellCount The new number of cells in the row.
-         */
-        void Resize(unsigned int cellCount);
-
         //----------------------------------------------------------------------------------------------------------------------
         //           Private Member Variables
         //----------------------------------------------------------------------------------------------------------------------
