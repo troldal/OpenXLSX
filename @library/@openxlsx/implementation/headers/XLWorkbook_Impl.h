@@ -46,6 +46,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_IMPL_XLWORKBOOK_H
 #define OPENXLSX_IMPL_XLWORKBOOK_H
 
+#include <XLDefinitions.h>
 #include "XLAbstractXMLFile_Impl.h"
 #include "XLRelationships_Impl.h"
 #include "XLSharedStrings_Impl.h"
@@ -385,19 +386,12 @@ namespace OpenXLSX::Impl {
     private:
 
         std::unique_ptr<XMLNode> m_sheetsNode; /**< The parent node for all the sheet nodes (worksheets as well as chartsheets). */
+        std::unique_ptr<XMLNode> m_definedNames; /**< Pointer to root node of defined names in the workbook. */
 
-        mutable XLSheetMap                      m_sheets; /**< Data structure for all sheets. */
-        mutable std::map<std::string, XLSheet*> m_worksheets; /**< Data structure for  worksheets. */
-        mutable std::map<std::string, XLSheet*> m_chartsheets; /**< Data structure for chartsheets. */
-        std::map<std::string, std::string>      m_sheetPaths; /**<  */
+        mutable std::map<std::string, std::pair<XLSheetType, std::unique_ptr<XLSheet>>> m_sheets; /**< Data structure for all sheets. */
+        std::map<std::string, std::string>                                              m_sheetPaths; /**<  */
 
         int m_sheetId; /**< Counter to use to create ID for new sheet */
-
-        unsigned int m_sheetCount; /**< Holds the total sheet count. */
-        unsigned int m_worksheetCount; /**< Holds the count of worksheets. */
-        unsigned int m_chartsheetCount; /**< Holds the count of chartsheets. */
-
-        std::unique_ptr<XMLNode> m_definedNames; /**< Pointer to root node of defined names in the workbook. */
 
         std::unique_ptr<XLRelationships>         m_relationships; /**< pointer to the XLRelationships object for workbook. */
         mutable std::unique_ptr<XLSharedStrings> m_sharedStrings; /**< Pointer to the XLSharedStrings object. */
