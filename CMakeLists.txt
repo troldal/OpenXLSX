@@ -5,6 +5,8 @@ cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
 project (OpenXLSX)
 set(OPENXLSX_DEPENDENCIES ${CMAKE_CURRENT_BINARY_DIR}/dependencies)
 set(OPENXLSX_INSTALLDIR ${CMAKE_CURRENT_BINARY_DIR}/install)
+#set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+#set(CMAKE_VISIBILITY_INLINES_HIDDEN YES)
 
 #=======================================================================================================================
 # Set project metadata
@@ -27,12 +29,14 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 add_subdirectory(@library)
 add_subdirectory(@examples)
 add_subdirectory(@doxy)
-add_subdirectory(@test)
+add_subdirectory(@tests)
+add_subdirectory(@benchmark)
 
 #=======================================================================================================================
 # Define internal dependencies
 #=======================================================================================================================
-add_dependencies(Demo OpenXLSX)
+add_dependencies(Demo1 OpenXLSX)
 add_dependencies(Benchmark OpenXLSX)
+add_dependencies(InterfaceTest OpenXLSX)
 
 

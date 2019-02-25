@@ -3,19 +3,21 @@
   <component name="CMakeWorkspace" PROJECT_DIR="$PROJECT_DIR$" />
   <component name="CidrRootsConfiguration">
     <sourceRoots>
+      <file path="$PROJECT_DIR$/@benchmark" />
       <file path="$PROJECT_DIR$/@doxy" />
       <file path="$PROJECT_DIR$/@examples" />
       <file path="$PROJECT_DIR$/@library" />
-      <file path="$PROJECT_DIR$/@test" />
+      <file path="$PROJECT_DIR$/@library/@openxlsx/interfaces" />
+      <file path="$PROJECT_DIR$/@tests" />
     </sourceRoots>
     <excludeRoots>
-      <file path="$PROJECT_DIR$/@library/@openxlsx/interface" />
       <file path="$PROJECT_DIR$/cmake-build-clangdebug" />
       <file path="$PROJECT_DIR$/cmake-build-clangrelease" />
       <file path="$PROJECT_DIR$/cmake-build-debug-gcc" />
       <file path="$PROJECT_DIR$/cmake-build-debug-llvm-clang" />
       <file path="$PROJECT_DIR$/cmake-build-release-gcc" />
       <file path="$PROJECT_DIR$/cmake-build-release-llvm-clang" />
+      <file path="$PROJECT_DIR$/venv" />
     </excludeRoots>
   </component>
   <component name="JavaScriptSettings">

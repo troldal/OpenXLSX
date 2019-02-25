@@ -1,8 +1,8 @@
 # OpenXLSX
-OpenXLSX is a C++ library for reading, writing, creating and modyfing Microsoft Excel® files, with the .xlsx format.
+OpenXLSX is a C++ library for reading, writing, creating and modifying Microsoft Excel® files, with the .xlsx format.
 
 ## Motivation
-Many programming languages have the ability to modify Excel files, either natively or in the form of open source libraries. This includes Python, Java and C#. For C++, however, things are more scattered. While there are some libraries, they are generally less mature and have a smaller featureset than for other languages. Here is a summary of the main C++ libraries for Excel files:
+Many programming languages have the ability to modify Excel files, either natively or in the form of open source libraries. This includes Python, Java and C#. For C++, however, things are more scattered. While there are some libraries, they are generally less mature and have a smaller feature set than for other languages. Here is a summary of the main C++ libraries for Excel files:
 
 ### libxls
 The libxls library (https://sourceforge.net/projects/libxls/) is a C library for reading files in the legacy Excel file format, .xls. It cannot be used for writing or modifying Excel files.
@@ -50,6 +50,11 @@ The ambition is that OpenXLSX should be able to read, write, create and modify E
   OpenXLSX can be compiled on Windows using MSVC, but there is an issue with the CMake script, which prevents MSVC finding the libraries.
   Building on Windows using MSYS has not been tested.
   Building using the Intel compiler has not been tested.
+  
+  ## Unicode
+  All string manipulations and usage in OpenXLSX uses the C++ std::string, which uses UTF-8 encoding. Also, Excel uses UTF-8 encoding internally (actually, it might be possible to use other encodings, but I'm not sure about that). 
+  
+  For the above reason, if you work with other text encodings, you have to convert to/from UTF-8 yourself. There are a number of options (e.g. std::codecvt or Boost.Locale). I will also suggest that you see James McNellis' presentation at CppCon 2014: https://youtu.be/n0GK-9f4dl8
   
   ## Usage
   
