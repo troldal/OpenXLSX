@@ -73,10 +73,7 @@ namespace OpenXLSX::Impl {
          * @param filePath
          * @param xmlData
          */
-        explicit XLChartsheet(XLWorkbook& parent,
-                              const std::string& name,
-                              const std::string& filePath,
-                              const std::string& xmlData = "");
+        explicit XLChartsheet(XLWorkbook& parent, XMLAttribute name, const std::string& filePath, const std::string& xmlData = "");
 
         /**
          * @brief

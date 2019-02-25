@@ -17,16 +17,14 @@ using namespace OpenXLSX;
  * sheet type is WorkSheet and the default sheet state is Visible.
  * @todo Consider to let the sheet type be determined by the subclasses.
  */
-Impl::XLSheet::XLSheet(XLWorkbook& parent,
-                       const std::string& name,
-                       const std::string& filepath, const std::string& xmlData)
+Impl::XLSheet::XLSheet(XLWorkbook& parent, XMLAttribute name, const std::string& filepath, const std::string& xmlData)
         : XLAbstractXMLFile(*parent.ParentDocument(), filepath, xmlData),
           XLSpreadsheetElement(*parent.ParentDocument()),
           m_sheetName(name),
-          m_sheetType(XLSheetType::WorkSheet),
+          m_sheetType(parent.TypeOfSheet(name.value())),
           m_sheetState(XLSheetState::Visible),
-          m_nodeInWorkbook(std::make_unique<XMLNode>(parent.SheetNode(name))),
-          m_nodeInApp(std::make_unique<XMLNode>(parent.ParentDocument()->m_docAppProperties->SheetNameNode(name))),
+          m_nodeInWorkbook(parent.SheetNode(name.value())),
+          m_nodeInApp(parent.ParentDocument()->m_docAppProperties->SheetNameNode(name.value())),
           m_nodeInContentTypes(parent.ParentDocument()->ContentItem("/" + filepath)),
           m_nodeInWorkbookRels(parent.Relationships()->RelationshipByTarget(filepath.substr(3))) {
 
@@ -39,9 +37,9 @@ Impl::XLSheet::~XLSheet() {
 /**
  * @details This method returns the m_sheetName property.
  */
-const std::string& Impl::XLSheet::Name() const {
+string const Impl::XLSheet::Name() const {
 
-    return m_sheetName;
+    return m_sheetName.value();
 }
 
 /**
@@ -54,11 +52,9 @@ const std::string& Impl::XLSheet::Name() const {
 void Impl::XLSheet::SetName(const std::string& name) {
 
     //ParentDocument()->AppProperties()->SetSheetName(m_sheetName, name);
-    m_sheetName = name;
-    m_nodeInWorkbook->attribute("name").set_value(name.c_str());
-    m_nodeInApp->text().set(name.c_str());
-
-    ParentWorkbook()->UpdateSheetNames();
+    m_sheetName.set_value(name.c_str());
+    m_nodeInWorkbook.attribute("name").set_value(name.c_str());
+    m_nodeInApp.text().set(name.c_str());
 }
 
 /**
@@ -82,27 +78,27 @@ void Impl::XLSheet::SetState(XLSheetState state) {
 
     switch (m_sheetState) {
         case XLSheetState::Hidden : {
-            auto att = m_nodeInWorkbook->attribute("state");
-            if (!m_nodeInWorkbook->attribute("state"))
-                m_nodeInWorkbook->append_attribute("state") = "hidden";
+            auto att = m_nodeInWorkbook.attribute("state");
+            if (!m_nodeInWorkbook.attribute("state"))
+                m_nodeInWorkbook.append_attribute("state") = "hidden";
             else
                 att.set_value("hidden");
             break;
         }
 
         case XLSheetState::VeryHidden : {
-            auto att = m_nodeInWorkbook->attribute("state");
+            auto att = m_nodeInWorkbook.attribute("state");
             if (!att)
-                m_nodeInWorkbook->append_attribute("state") = "veryhidden";
+                m_nodeInWorkbook.append_attribute("state") = "veryhidden";
             else
                 att.set_value("veryhidden"); // todo: Check that this actually works
             break;
         }
 
         case XLSheetState::Visible : {
-            auto att = m_nodeInWorkbook->attribute("state");
+            auto att = m_nodeInWorkbook.attribute("state");
             if (att)
-                m_nodeInWorkbook->remove_attribute("state");
+                m_nodeInWorkbook.remove_attribute("state");
         }
     }
 }
@@ -120,8 +116,8 @@ void Impl::XLSheet::SetState(XLSheetState state) {
 void Impl::XLSheet::Delete() {
 
     // Delete the node in AppProperties.
-    ParentDocument()->AppProperties()->DeleteSheetName(m_sheetName);
-    m_nodeInApp = std::make_unique<XMLNode>();
+    ParentDocument()->AppProperties()->DeleteSheetName(m_sheetName.value());
+    m_nodeInApp = XMLNode();
 
     // Delete the item in content_types.xml
     m_nodeInContentTypes->DeleteItem();

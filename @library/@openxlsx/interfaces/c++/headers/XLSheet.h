@@ -106,7 +106,7 @@ namespace OpenXLSX {
          * @brief Method to retrieve the name of the sheet.
          * @return A std::string with the sheet name.
          */
-        virtual const std::string& Name() const;
+        virtual std::string const Name() const;
 
         /**
          * @brief Method for renaming the sheet.

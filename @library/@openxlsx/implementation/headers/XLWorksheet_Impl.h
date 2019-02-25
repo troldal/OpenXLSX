@@ -106,10 +106,7 @@ namespace OpenXLSX::Impl {
          * @param filePath The path to the worksheet .xml file.
          * @param xmlData
          */
-        explicit XLWorksheet(XLWorkbook& parent,
-                             const std::string& name,
-                             const std::string& filePath,
-                             const std::string& xmlData = "");
+        explicit XLWorksheet(XLWorkbook& parent, XMLAttribute name, const std::string& filePath, const std::string& xmlData = "");
 
         /**
          * @brief Copy Constructor.

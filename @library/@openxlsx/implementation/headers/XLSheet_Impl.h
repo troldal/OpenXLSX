@@ -46,6 +46,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_IMPL_XLABSTRACTSHEET_H
 #define OPENXLSX_IMPL_XLABSTRACTSHEET_H
 
+#include <pugixml.hpp>
 #include "XLDefinitions.h"
 #include "XLAbstractXMLFile_Impl.h"
 #include "XLSpreadsheetElement_Impl.h"
@@ -114,10 +115,7 @@ namespace OpenXLSX::Impl {
          * @param filepath A std::string with the relative path to the sheet file in the .xlsx package.
          * @param xmlData
          */
-        XLSheet(XLWorkbook& parent,
-                const std::string& name,
-                const std::string& filepath,
-                const std::string& xmlData = "");
+        XLSheet(XLWorkbook& parent, XMLAttribute name, const std::string& filepath, const std::string& xmlData = "");
 
         /**
          * @brief The copy constructor.
@@ -145,7 +143,7 @@ namespace OpenXLSX::Impl {
          * @brief Method to retrieve the name of the sheet.
          * @return A std::string with the sheet name.
          */
-        virtual const std::string& Name() const;
+        virtual std::string const Name() const;
 
         /**
          * @brief Method for renaming the sheet.
@@ -210,12 +208,13 @@ namespace OpenXLSX::Impl {
         //----------------------------------------------------------------------------------------------------------------------
 
     private:
-        std::string  m_sheetName; /**< The sheet name given by the user */
+        XMLAttribute m_sheetName; /**< The sheet name given by the user */
         XLSheetType  m_sheetType; /**< The sheet type, i.e. WorkSheet, ChartSheet, etc. */
         XLSheetState m_sheetState; /**< The state of the sheet, i.e. Visible, Hidden or VeryHidden */
 
-        std::unique_ptr<XMLNode> m_nodeInWorkbook; /**< A pointer to the relevant sheet node in workbook.xml */
-        std::unique_ptr<XMLNode> m_nodeInApp; /**< A pointer to the relevant TitleOfParts node in app.xml */
+        XMLNode m_nodeInWorkbook; /**< A pointer to the relevant sheet node in workbook.xml */
+        XMLNode m_nodeInApp; /**< A pointer to the relevant TitleOfParts node in app.xml */
+
         XLContentItem     * m_nodeInContentTypes; /**< A pointer to the relevant content type item in [Content_Types].xml */
         XLRelationshipItem* m_nodeInWorkbookRels; /**< A pointer to the relationship item in workbook.xml.rels */
     };

@@ -240,6 +240,10 @@ namespace OpenXLSX::Impl {
          */
         unsigned int IndexOfSheet(const std::string& sheetName) const;
 
+        XLSheetType TypeOfSheet(const std::string& sheetName) const;
+
+        XLSheetType TypeOfSheet(unsigned int index) const;
+
         /**
          * @brief
          * @return
@@ -373,8 +377,10 @@ namespace OpenXLSX::Impl {
          */
         XLRelationshipItem* InitiateWorksheet(const std::string& sheetName, unsigned int index);
 
-        void UpdateSheetNames();
-
+        /**
+         * @brief
+         * @return
+         */
         int GetNewSheetID();
 
         //----------------------------------------------------------------------------------------------------------------------
@@ -384,7 +390,7 @@ namespace OpenXLSX::Impl {
     private:
 
         struct XLSheetData {
-            std::string              sheetName;
+            XMLAttribute             sheetName;
             std::string              sheetPath;
             XLSheetType              sheetType;
             std::unique_ptr<XLSheet> sheetItem;

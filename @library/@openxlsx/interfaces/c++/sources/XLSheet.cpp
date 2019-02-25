@@ -11,7 +11,7 @@ XLSheet::XLSheet(Impl::XLSheet& sheet)
         : m_sheet(&sheet) {
 }
 
-const std::string& XLSheet::Name() const {
+std::string const XLSheet::Name() const {
 
     return m_sheet->Name();
 }

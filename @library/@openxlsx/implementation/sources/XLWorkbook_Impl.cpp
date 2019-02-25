@@ -81,7 +81,7 @@ Impl::XLSheet* Impl::XLWorkbook::Sheet(const std::string& sheetName) {
     //    return const_cast<Impl::XLSheet*>(static_cast<const Impl::XLWorkbook*>(this)->Sheet(sheetName));
 
     auto sheetData = find_if(m_sheets.begin(), m_sheets.end(), [&](const XLSheetData& data) {
-        return data.sheetName == sheetName;
+        return sheetName == data.sheetName.value();
     });
 
     if (sheetData == m_sheets.end())
@@ -112,7 +112,7 @@ Impl::XLSheet* Impl::XLWorkbook::Sheet(const std::string& sheetName) {
 const Impl::XLSheet* Impl::XLWorkbook::Sheet(const std::string& sheetName) const {
 
     auto sheetData = find_if(m_sheets.begin(), m_sheets.end(), [&](const XLSheetData& data) {
-        return data.sheetName == sheetName;
+        return sheetName == data.sheetName.value();
     });
 
     if (sheetData == m_sheets.end())
@@ -164,7 +164,7 @@ const Impl::XLSheet* Impl::XLWorkbook::Sheet(unsigned int index) const {
 Impl::XLWorksheet* Impl::XLWorkbook::Worksheet(const std::string& sheetName) {
 
     auto sheetData = find_if(m_sheets.begin(), m_sheets.end(), [&](const XLSheetData& data) {
-        return (data.sheetName == sheetName && data.sheetType == XLSheetType::WorkSheet);
+        return (sheetName == data.sheetName.value() && data.sheetType == XLSheetType::WorkSheet);
     });
 
     if (sheetData == m_sheets.end())
@@ -179,7 +179,7 @@ Impl::XLWorksheet* Impl::XLWorkbook::Worksheet(const std::string& sheetName) {
 const Impl::XLWorksheet* Impl::XLWorkbook::Worksheet(const std::string& sheetName) const {
 
     auto sheetData = find_if(m_sheets.begin(), m_sheets.end(), [&](const XLSheetData& data) {
-        return (data.sheetName == sheetName && data.sheetType == XLSheetType::WorkSheet);
+        return (sheetName == data.sheetName.value() && data.sheetType == XLSheetType::WorkSheet);
     });
 
     if (sheetData == m_sheets.end())
@@ -194,7 +194,7 @@ const Impl::XLWorksheet* Impl::XLWorkbook::Worksheet(const std::string& sheetNam
 Impl::XLChartsheet* Impl::XLWorkbook::Chartsheet(const std::string& sheetName) {
 
     auto sheetData = find_if(m_sheets.begin(), m_sheets.end(), [&](const XLSheetData& data) {
-        return (data.sheetName == sheetName && data.sheetType == XLSheetType::ChartSheet);
+        return (sheetName == data.sheetName.value() && data.sheetType == XLSheetType::ChartSheet);
     });
 
     if (sheetData == m_sheets.end())
@@ -209,7 +209,7 @@ Impl::XLChartsheet* Impl::XLWorkbook::Chartsheet(const std::string& sheetName) {
 const Impl::XLChartsheet* Impl::XLWorkbook::Chartsheet(const std::string& sheetName) const {
 
     auto sheetData = find_if(m_sheets.begin(), m_sheets.end(), [&](const XLSheetData& data) {
-        return (data.sheetName == sheetName && data.sheetType == XLSheetType::ChartSheet);
+        return (sheetName == data.sheetName.value() && data.sheetType == XLSheetType::ChartSheet);
     });
 
     if (sheetData == m_sheets.end())
@@ -256,7 +256,7 @@ void Impl::XLWorkbook::DeleteSheet(const std::string& sheetName) {
     Worksheet(sheetName)->Delete();
 
     // Delete the pointer to the object
-    m_sheets.erase(find_if(m_sheets.begin(), m_sheets.end(), [&](const XLSheetData& item) { return item.sheetName == sheetName; }));
+    m_sheets.erase(find_if(m_sheets.begin(), m_sheets.end(), [&](const XLSheetData& item) { return sheetName == item.sheetName.value(); }));
 
     // Delete the node from Workbook.xml
     m_sheetsNode.remove_child(m_sheetsNode.find_child_by_attribute("name", sheetName.c_str()));
@@ -319,15 +319,6 @@ Impl::XLRelationshipItem* Impl::XLWorkbook::InitiateWorksheet(const std::string&
     return &item;
 }
 
-void Impl::XLWorkbook::UpdateSheetNames() {
-
-    for (auto& sheet : m_sheets) {
-        if (sheet.sheetItem != nullptr && sheet.sheetName != sheet.sheetItem->Name())
-            sheet.sheetName = sheet.sheetItem->Name();
-
-    }
-}
-
 int Impl::XLWorkbook::GetNewSheetID() {
 
     return ++m_sheetId;
@@ -383,6 +374,24 @@ unsigned int Impl::XLWorkbook::IndexOfSheet(const std::string& sheetName) const 
     return index;
 }
 
+XLSheetType Impl::XLWorkbook::TypeOfSheet(const std::string& sheetName) const {
+
+    auto sheetData = find_if(m_sheets.begin(), m_sheets.end(), [&](const XLSheetData& data) {
+        return sheetName == data.sheetName.value();
+    });
+
+    if (sheetData == m_sheets.end())
+        throw XLException("Sheet \"" + sheetName + "\" does not exist");
+
+    return sheetData->sheetType;
+}
+
+XLSheetType Impl::XLWorkbook::TypeOfSheet(unsigned int index) const {
+
+    string name = vector(m_sheetsNode.begin(), m_sheetsNode.end())[index - 1].attribute("name").as_string();
+    return TypeOfSheet(name);
+}
+
 /**
  * @details
  */
@@ -425,7 +434,7 @@ Impl::XLStyles* Impl::XLWorkbook::Styles() {
 bool Impl::XLWorkbook::SheetExists(const std::string& sheetName) const {
 
     return find_if(m_sheets.begin(), m_sheets.end(), [&](const XLSheetData& item) {
-        return item.sheetName == sheetName;
+        return sheetName == item.sheetName.value();
     }) != m_sheets.end();
 }
 
@@ -435,7 +444,7 @@ bool Impl::XLWorkbook::SheetExists(const std::string& sheetName) const {
 bool Impl::XLWorkbook::WorksheetExists(const std::string& sheetName) const {
 
     return find_if(m_sheets.begin(), m_sheets.end(), [&](const XLSheetData& item) {
-        return (item.sheetName == sheetName && item.sheetType == XLSheetType::WorkSheet);
+        return (sheetName == item.sheetName.value() && item.sheetType == XLSheetType::WorkSheet);
     }) != m_sheets.end();
 }
 
@@ -445,7 +454,7 @@ bool Impl::XLWorkbook::WorksheetExists(const std::string& sheetName) const {
 bool Impl::XLWorkbook::ChartsheetExists(const std::string& sheetName) const {
 
     return find_if(m_sheets.begin(), m_sheets.end(), [&](const XLSheetData& item) {
-        return (item.sheetName == sheetName && item.sheetType == XLSheetType::ChartSheet);
+        return (sheetName == item.sheetName.value() && item.sheetType == XLSheetType::ChartSheet);
     }) != m_sheets.end();
 }
 
@@ -507,7 +516,7 @@ void Impl::XLWorkbook::CreateWorksheet(const XLRelationshipItem& item, const std
     // lazy-instantiated when the worksheet is requested using the 'Worksheet" function.
     // If xmlData is provided (i.e. a new sheet is created or an existing is cloned), create the new worksheets accordingly.
     auto& sheet = m_sheets.emplace_back();
-    sheet.sheetName = string(m_sheetsNode.find_child_by_attribute("r:id", item.Id().c_str()).attribute("name").value());
+    sheet.sheetName = m_sheetsNode.find_child_by_attribute("r:id", item.Id().c_str()).attribute("name");
     sheet.sheetPath = "xl/" + item.Target();
     sheet.sheetType = XLSheetType::WorkSheet;
     sheet.sheetItem = (xmlData.empty() ? nullptr : make_unique<XLWorksheet>(*this, sheet.sheetName, sheet.sheetPath, xmlData));
