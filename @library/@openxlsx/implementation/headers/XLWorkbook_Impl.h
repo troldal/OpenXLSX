@@ -54,13 +54,9 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 namespace OpenXLSX::Impl {
     class XLSharedStrings;
-
     class XLSheet;
-
     class XLWorksheet;
-
     class XLChartsheet;
-
     class XLStyles;
 
     //======================================================================================================================
