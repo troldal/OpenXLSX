@@ -47,6 +47,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #define OPENXLSX_IMPL_XLWORKBOOK_H
 
 #include <XLDefinitions.h>
+#include <pugixml.hpp>
 #include "XLAbstractXMLFile_Impl.h"
 #include "XLRelationships_Impl.h"
 #include "XLSharedStrings_Impl.h"
@@ -374,6 +375,7 @@ namespace OpenXLSX::Impl {
 
         void UpdateSheetNames();
 
+        int GetNewSheetID();
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Private Member Variables
@@ -381,11 +383,17 @@ namespace OpenXLSX::Impl {
 
     private:
 
-        std::unique_ptr<XMLNode> m_sheetsNode; /**< The parent node for all the sheet nodes (worksheets as well as chartsheets). */
-        std::unique_ptr<XMLNode> m_definedNames; /**< Pointer to root node of defined names in the workbook. */
+        struct XLSheetData {
+            std::string              sheetName;
+            std::string              sheetPath;
+            XLSheetType              sheetType;
+            std::unique_ptr<XLSheet> sheetItem;
+        };
 
-        mutable std::map<std::string, std::pair<XLSheetType, std::unique_ptr<XLSheet>>> m_sheets; /**< Data structure for all sheets. */
-        std::map<std::string, std::string>                                              m_sheetPaths; /**<  */
+        XMLNode m_sheetsNode; /**< The parent node for all the sheet nodes (worksheets as well as chartsheets). */
+        XMLNode m_definedNames; /**< Pointer to root node of defined names in the workbook. */
+
+        mutable std::vector<XLSheetData> m_sheets;
 
         int m_sheetId; /**< Counter to use to create ID for new sheet */
 
