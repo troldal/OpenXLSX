@@ -2,5 +2,12 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-debug-gcc/_deps/catch-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-debug-llvm-clang/@library/libzip-prefix/src/libzip" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-debug-llvm-clang/@library/pugi-prefix/src/pugi" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-debug-llvm-clang/@library/zlib-prefix/src/zlib" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-debug-llvm-clang/_deps/catch-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-release-gcc/_deps/catch-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-release-llvm-clang/_deps/catch-src" vcs="Git" />
   </component>
 </project>

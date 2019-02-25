@@ -20,13 +20,15 @@ using namespace OpenXLSX;
 Impl::XLAbstractXMLFile::XLAbstractXMLFile(XLDocument& parent, std::string filePath, const std::string& xmlData)
         : m_xmlDocument(std::make_unique<XMLDocument>()),
           m_parentDocument(parent),
-          m_path(std::move(filePath)),
+          m_path(filePath),
           m_childXmlDocuments() {
 
     if (xmlData.empty())
         SetXmlData(m_parentDocument.GetXMLFile(m_path));
     else
         SetXmlData(xmlData);
+
+    CommitXMLData();
 }
 
 /**
