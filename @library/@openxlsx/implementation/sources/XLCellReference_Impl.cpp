@@ -8,6 +8,7 @@
 #include <charconv>
 #include <iostream>
 #include <string>
+#include <array>
 
 using namespace std;
 using namespace OpenXLSX;

@@ -216,6 +216,20 @@ namespace OpenXLSX {
 
         /**
          * @brief
+         * @param sheetName
+         * @return
+         */
+        XLSheetType TypeOfSheet(const std::string& sheetName) const;
+
+        /**
+         * @brief
+         * @param index
+         * @return
+         */
+        XLSheetType TypeOfSheet(unsigned int index) const;
+
+        /**
+         * @brief
          * @return
          */
         unsigned int SheetCount() const;
@@ -231,6 +245,24 @@ namespace OpenXLSX {
          * @return
          */
         unsigned int ChartsheetCount() const;
+
+        /**
+         * @brief
+         * @return
+         */
+        std::vector<std::string> SheetNames() const;
+
+        /**
+         * @brief
+         * @return
+         */
+        std::vector<std::string> WorksheetNames() const;
+
+        /**
+         * @brief
+         * @return
+         */
+        std::vector<std::string> ChartsheetNames() const;
 
         /**
          * @brief

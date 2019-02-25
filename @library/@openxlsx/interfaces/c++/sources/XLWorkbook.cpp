@@ -100,6 +100,18 @@ unsigned int XLWorkbook::IndexOfSheet(const std::string& sheetName) const {
 }
 
 /**********************************************************************************************************************/
+XLSheetType XLWorkbook::TypeOfSheet(const std::string& sheetName) const {
+
+    return m_workbook->TypeOfSheet(sheetName);
+}
+
+/**********************************************************************************************************************/
+XLSheetType XLWorkbook::TypeOfSheet(unsigned int index) const {
+
+    return m_workbook->TypeOfSheet(index);
+}
+
+/**********************************************************************************************************************/
 unsigned int XLWorkbook::SheetCount() const {
 
     return m_workbook->SheetCount();
@@ -115,6 +127,24 @@ unsigned int XLWorkbook::WorksheetCount() const {
 unsigned int XLWorkbook::ChartsheetCount() const {
 
     return m_workbook->ChartsheetCount();
+}
+
+/**********************************************************************************************************************/
+std::vector<std::string> XLWorkbook::SheetNames() const {
+
+    return m_workbook->SheetNames();
+}
+
+/**********************************************************************************************************************/
+std::vector<std::string> XLWorkbook::WorksheetNames() const {
+
+    return m_workbook->WorksheetNames();
+}
+
+/**********************************************************************************************************************/
+std::vector<std::string> XLWorkbook::ChartsheetNames() const {
+
+    return m_workbook->ChartsheetNames();
 }
 
 /**********************************************************************************************************************/

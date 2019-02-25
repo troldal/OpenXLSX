@@ -3,6 +3,7 @@
 //
 
 #include <cstring>
+#include <algorithm>
 #include <pugixml.hpp>
 #include <XLWorkbook_Impl.h>
 
@@ -350,6 +351,23 @@ void Impl::XLWorkbook::MoveSheet(const std::string& sheetName, unsigned int inde
             current = current.next_sibling();
         m_sheetsNode.insert_move_before(node, current);
     }
+
+    // TODO: Factor out as a separate function
+    unsigned int counter = 1;
+    for (const auto& child : m_sheetsNode.children()) {
+        auto found = find_if(m_sheets.begin(), m_sheets.end(), [&](const XLSheetData& data) {
+            return data.sheetName == child.attribute("name");
+        });
+
+        if (found != m_sheets.end())
+            found->sheetIndex = counter;
+        ++counter;
+    }
+
+    sort(m_sheets.begin(), m_sheets.end(), [](const XLSheetData& first, const XLSheetData& second) {
+        return first.sheetIndex < second.sheetIndex;
+    });
+
 }
 
 /**
@@ -418,6 +436,47 @@ unsigned int Impl::XLWorkbook::ChartsheetCount() const {
     return count_if(m_sheets.begin(), m_sheets.end(), [](const XLSheetData& iter) {
         return iter.sheetType == XLSheetType::ChartSheet;
     });
+}
+
+/**
+ * @details
+ */
+std::vector<std::string> Impl::XLWorkbook::SheetNames() const {
+
+    vector<string> result;
+
+    for (const auto& item : m_sheets)
+        result.emplace_back(item.sheetName.value());
+
+    return result;
+}
+
+/**
+ * @details
+ */
+std::vector<std::string> Impl::XLWorkbook::WorksheetNames() const {
+
+    vector<string> result;
+
+    for (const auto& item : m_sheets)
+        if (item.sheetType == XLSheetType::WorkSheet)
+            result.emplace_back(item.sheetName.value());
+
+    return result;
+}
+
+/**
+ * @details
+ */
+std::vector<std::string> Impl::XLWorkbook::ChartsheetNames() const {
+
+    vector<string> result;
+
+    for (const auto& item : m_sheets)
+        if (item.sheetType == XLSheetType::ChartSheet)
+            result.emplace_back(item.sheetName.value());
+
+    return result;
 }
 
 /**
@@ -516,10 +575,27 @@ void Impl::XLWorkbook::CreateWorksheet(const XLRelationshipItem& item, const std
     // lazy-instantiated when the worksheet is requested using the 'Worksheet" function.
     // If xmlData is provided (i.e. a new sheet is created or an existing is cloned), create the new worksheets accordingly.
     auto& sheet = m_sheets.emplace_back();
-    sheet.sheetName = m_sheetsNode.find_child_by_attribute("r:id", item.Id().c_str()).attribute("name");
-    sheet.sheetPath = "xl/" + item.Target();
-    sheet.sheetType = XLSheetType::WorkSheet;
-    sheet.sheetItem = (xmlData.empty() ? nullptr : make_unique<XLWorksheet>(*this, sheet.sheetName, sheet.sheetPath, xmlData));
+    sheet.sheetIndex = 0;
+    sheet.sheetName  = m_sheetsNode.find_child_by_attribute("r:id", item.Id().c_str()).attribute("name");
+    sheet.sheetPath  = "xl/" + item.Target();
+    sheet.sheetType  = XLSheetType::WorkSheet;
+    sheet.sheetItem  = (xmlData.empty() ? nullptr : make_unique<XLWorksheet>(*this, sheet.sheetName, sheet.sheetPath, xmlData));
+
+    // TODO: Factor out as a separate function
+    unsigned int counter = 1;
+    for (const auto& child : m_sheetsNode.children()) {
+        auto found = find_if(m_sheets.begin(), m_sheets.end(), [&](const XLSheetData& data) {
+            return data.sheetName == child.attribute("name");
+        });
+
+        if (found != m_sheets.end())
+            found->sheetIndex = counter;
+        ++counter;
+    }
+
+    sort(m_sheets.begin(), m_sheets.end(), [](const XLSheetData& first, const XLSheetData& second) {
+        return first.sheetIndex < second.sheetIndex;
+    });
 
     m_childXmlDocuments[sheet.sheetPath] = sheet.sheetItem.get();
 

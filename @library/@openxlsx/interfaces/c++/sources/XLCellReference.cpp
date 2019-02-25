@@ -33,6 +33,7 @@ XLCellReference::XLCellReference(const XLCellReference& other)
 XLCellReference& XLCellReference::operator=(const XLCellReference& other) {
 
     *m_cellReference = *other.m_cellReference;
+    return *this;
 }
 
 XLCellReference::~XLCellReference() = default;

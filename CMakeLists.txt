@@ -35,8 +35,7 @@ add_subdirectory(@benchmark)
 #=======================================================================================================================
 # Define internal dependencies
 #=======================================================================================================================
-add_dependencies(CxxDemo OpenXLSX)
-add_dependencies(CDemo OpenXLSX)
+add_dependencies(Demo1 OpenXLSX)
 add_dependencies(Benchmark OpenXLSX)
 add_dependencies(InterfaceTest OpenXLSX)
 

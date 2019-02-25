@@ -61,15 +61,6 @@ namespace OpenXLSX::Impl {
     class XLStyles;
 
     //======================================================================================================================
-    //========== XLSheetMap Alias ==========================================================================================
-    //======================================================================================================================
-
-    /**
-     * @brief
-     */
-    using XLSheetMap = std::map<std::string, std::unique_ptr<XLSheet>>;
-
-    //======================================================================================================================
     //========== XLWorkbook Class ==========================================================================================
     //======================================================================================================================
 
@@ -240,8 +231,18 @@ namespace OpenXLSX::Impl {
          */
         unsigned int IndexOfSheet(const std::string& sheetName) const;
 
+        /**
+         * @brief
+         * @param sheetName
+         * @return
+         */
         XLSheetType TypeOfSheet(const std::string& sheetName) const;
 
+        /**
+         * @brief
+         * @param index
+         * @return
+         */
         XLSheetType TypeOfSheet(unsigned int index) const;
 
         /**
@@ -261,6 +262,24 @@ namespace OpenXLSX::Impl {
          * @return
          */
         unsigned int ChartsheetCount() const;
+
+        /**
+         * @brief
+         * @return
+         */
+        std::vector<std::string> SheetNames() const;
+
+        /**
+         * @brief
+         * @return
+         */
+        std::vector<std::string> WorksheetNames() const;
+
+        /**
+         * @brief
+         * @return
+         */
+        std::vector<std::string> ChartsheetNames() const;
 
         /**
          * @brief
@@ -390,6 +409,7 @@ namespace OpenXLSX::Impl {
     private:
 
         struct XLSheetData {
+            unsigned int             sheetIndex;
             XMLAttribute             sheetName;
             std::string              sheetPath;
             XLSheetType              sheetType;

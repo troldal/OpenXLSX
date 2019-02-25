@@ -117,12 +117,6 @@ set(OPENXLSX_CXX_INTERFACE_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/sources/XLRow.cpp
         ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/sources/XLColumn.cpp)
 
-set(OPENXLSX_C_INTERFACE_HEADERS
-        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c/headers/XL_Document.h)
-
-set(OPENXLSX_C_INTERFACE_SOURCES
-        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c/sources/XL_Document.cpp)
-
 #=======================================================================================================================
 # Build OpenXLSX library
 #=======================================================================================================================
@@ -131,8 +125,7 @@ generate_export_header(OpenXLSX)
 target_sources(OpenXLSX
         PRIVATE
         ${OPENXLSX_IMPL_SOURCES}
-        ${OPENXLSX_CXX_INTERFACE_SOURCES}
-        ${OPENXLSX_C_INTERFACE_SOURCES})
+        ${OPENXLSX_CXX_INTERFACE_SOURCES})
 target_link_directories(OpenXLSX
         PRIVATE
         ${OPENXLSX_DEPENDENCIES}/lib)
@@ -146,7 +139,6 @@ target_include_directories(OpenXLSX
         PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers
         PUBLIC
-        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c/headers
         ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers)
 #SYSTEM INTERFACE
 #    ${CMAKE_CURRENT_LIST_DIR}/implementation/headers
@@ -159,7 +151,6 @@ set_target_properties(OpenXLSX PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${OPENXLSX_IN
 # ===== Copy header files to (staged) install directory ===== #
 file(REMOVE_RECURSE ${OPENXLSX_INSTALLDIR}/include/)
 file(COPY ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/ DESTINATION ${OPENXLSX_INSTALLDIR}/include/OpenXLSX)
-file(COPY ${CMAKE_CURRENT_LIST_DIR}/interfaces/c/headers/ DESTINATION ${OPENXLSX_INSTALLDIR}/include/OpenXLSX)
 
 #=======================================================================================================================
 # Install OpenXLSX Library
