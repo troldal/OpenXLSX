@@ -9,6 +9,12 @@
       <file path="$PROJECT_DIR$/@library" />
       <file path="$PROJECT_DIR$/@tests" />
     </sourceRoots>
+    <excludeRoots>
+      <file path="$PROJECT_DIR$/cmake-build-debug-gcc" />
+      <file path="$PROJECT_DIR$/cmake-build-debug-llvm-clang" />
+      <file path="$PROJECT_DIR$/cmake-build-release-gcc" />
+      <file path="$PROJECT_DIR$/cmake-build-release-llvm-clang" />
+    </excludeRoots>
   </component>
   <component name="JavaScriptSettings">
     <option name="languageLevel" value="ES6" />

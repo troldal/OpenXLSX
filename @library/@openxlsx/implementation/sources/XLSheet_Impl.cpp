@@ -18,21 +18,19 @@ using namespace OpenXLSX;
  * @todo Consider to let the sheet type be determined by the subclasses.
  */
 Impl::XLSheet::XLSheet(XLWorkbook& parent, XMLAttribute name, const std::string& filepath, const std::string& xmlData)
-        : XLAbstractXMLFile(*parent.ParentDocument(), filepath, xmlData),
-          XLSpreadsheetElement(*parent.ParentDocument()),
+        : XLAbstractXMLFile(*parent.Document(), filepath, xmlData),
           m_sheetName(name),
           m_sheetType(parent.TypeOfSheet(name.value())),
           m_sheetState(XLSheetState::Visible),
           m_nodeInWorkbook(parent.SheetNode(name.value())),
-          m_nodeInApp(parent.ParentDocument()->m_docAppProperties->SheetNameNode(name.value())),
-          m_nodeInContentTypes(parent.ParentDocument()->ContentItem("/" + filepath)),
-          m_nodeInWorkbookRels(parent.Relationships()->RelationshipByTarget(filepath.substr(3))) {
+          m_nodeInApp(parent.Document()->m_docAppProperties->SheetNameNode(name.value())),
+          m_nodeInContentTypes(parent.Document()->ContentItem("/" + filepath)),
+          m_nodeInWorkbookRels(parent.Relationships()->RelationshipByTarget(filepath.substr(3))),
+          m_parentWorkbook(parent){
 
 }
 
-Impl::XLSheet::~XLSheet() {
-
-}
+Impl::XLSheet::~XLSheet() = default;
 
 /**
  * @details This method returns the m_sheetName property.
@@ -116,7 +114,7 @@ void Impl::XLSheet::SetState(XLSheetState state) {
 void Impl::XLSheet::Delete() {
 
     // Delete the node in AppProperties.
-    ParentDocument()->AppProperties()->DeleteSheetName(m_sheetName.value());
+    Workbook()->Document()->AppProperties()->DeleteSheetName(m_sheetName.value());
     m_nodeInApp = XMLNode();
 
     // Delete the item in content_types.xml
@@ -124,7 +122,7 @@ void Impl::XLSheet::Delete() {
     m_nodeInContentTypes = nullptr;
 
     // Delete the item in Workbook.xml.rels
-    ParentDocument()->Workbook()->Relationships()->DeleteRelationship(m_nodeInWorkbookRels->Id());
+    Workbook()->Document()->Workbook()->Relationships()->DeleteRelationship(m_nodeInWorkbookRels->Id());
     m_nodeInWorkbookRels = nullptr;
 
     // Delete the underlying XML file.
@@ -156,3 +154,12 @@ void Impl::XLSheet::SetIndex() {
 
 }
 
+Impl::XLWorkbook* Impl::XLSheet::Workbook() {
+
+    return &m_parentWorkbook;
+}
+
+const Impl::XLWorkbook* Impl::XLSheet::Workbook() const {
+
+    return &m_parentWorkbook;
+}

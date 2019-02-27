@@ -14,8 +14,7 @@ using namespace OpenXLSX;
  * @details
  */
 Impl::XLCoreProperties::XLCoreProperties(XLDocument& parent, const std::string& filePath)
-        : XLAbstractXMLFile(parent, filePath),
-          XLSpreadsheetElement(parent) {
+        : XLAbstractXMLFile(parent, filePath) {
 
     ParseXMLData();
 }

@@ -102,7 +102,6 @@ void Impl::XLContentItem::DeleteItem() {
  */
 Impl::XLContentTypes::XLContentTypes(XLDocument& parent, const string& filePath)
         : XLAbstractXMLFile(parent, filePath),
-          XLSpreadsheetElement(parent),
           m_defaults(),
           m_overrides() {
 

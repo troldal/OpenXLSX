@@ -439,7 +439,7 @@ namespace OpenXLSX::Impl {
         std::unique_ptr<XMLNode> m_columnsNode; /**< The head node for sheet column data */
         std::unique_ptr<XMLNode> m_sheetViewsNode; /**< The head node for sheet views */
 
-        XLWorkbook& m_parentWorkbook; /**< A pointer to the parent XLWorkbook object (const) */
+        /**< A pointer to the parent XLWorkbook object (const) */
 
         XLRows    m_rows; /**< A std::vector with pointers to all rows in the sheet. */
         XLColumns m_columns; /**< A std::vector with pointers to all columns in sheet. */

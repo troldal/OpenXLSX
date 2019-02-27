@@ -48,7 +48,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 #include "XLAbstractXMLFile_Impl.h"
 #include "XLFont_Impl.h"
-#include "XLSpreadsheetElement_Impl.h"
 
 #include <map>
 #include <string>
@@ -59,7 +58,7 @@ namespace OpenXLSX::Impl {
     /**
      * @brief
      */
-    class XLStyles : public XLAbstractXMLFile, public XLSpreadsheetElement {
+    class XLStyles : public XLAbstractXMLFile {
     public:
         friend class XLFont;
 

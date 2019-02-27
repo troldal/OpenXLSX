@@ -16,7 +16,6 @@ using namespace OpenXLSX;
  */
 Impl::XLSharedStrings::XLSharedStrings(XLDocument& parent, const std::string& filePath)
         : XLAbstractXMLFile(parent, filePath),
-          XLSpreadsheetElement(parent),
           m_sharedStringNodes(),
           m_emptyString("") {
 

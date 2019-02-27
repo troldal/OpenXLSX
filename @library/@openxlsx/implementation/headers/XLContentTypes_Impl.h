@@ -47,7 +47,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #define OPENXLSX_IMPL_XLCONTENTTYPES_H
 
 #include "XLAbstractXMLFile_Impl.h"
-#include "XLSpreadsheetElement_Impl.h"
 #include "XLXml_Impl.h"
 
 #include <map>
@@ -185,7 +184,7 @@ namespace OpenXLSX::Impl {
     /**
      * @brief The purpose of this class is to load, store add and save item in the [Content_Types].xml file.
      */
-    class XLContentTypes : public XLAbstractXMLFile, public XLSpreadsheetElement {
+    class XLContentTypes : public XLAbstractXMLFile {
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Public Member Functions

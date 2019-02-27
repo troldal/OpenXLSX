@@ -68,7 +68,7 @@ namespace OpenXLSX::Impl {
     /**
      * @brief An implementation class encapsulating the properties and behaviours of a spreadsheet cell.
      */
-    class XLCell : public XLSpreadsheetElement {
+    class XLCell {
         friend class XLRow;
         friend class XLCellValue;
 
@@ -97,7 +97,7 @@ namespace OpenXLSX::Impl {
          * @brief Destructor
          * @note Using the default destructor
          */
-        ~XLCell() override = default;
+        ~XLCell() = default;
 
         /**
          * @brief Copy assignment operator
@@ -175,19 +175,22 @@ namespace OpenXLSX::Impl {
         //           Private Member Functions
         //----------------------------------------------------------------------------------------------------------------------
 
+    // private:
+    protected:
+
+        /**
+         * @brief
+         * @return
+         */
+        XLWorksheet* Worksheet();
+
+        /**
+         * @brief
+         * @return
+         */
+        const XLWorksheet* Worksheet() const;
+
     private:
-
-        /**
-         * @brief
-         * @return
-         */
-        XLWorksheet* ParentWorksheet();
-
-        /**
-         * @brief
-         * @return
-         */
-        const XLWorksheet* ParentWorksheet() const;
 
         /**
          * @brief

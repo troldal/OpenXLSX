@@ -41,7 +41,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #define OPENXLSX_IMPL_XLAPPPROPERTIES_H
 
 #include "XLAbstractXMLFile_Impl.h"
-#include "XLSpreadsheetElement_Impl.h"
 #include "XLXml_Impl.h"
 
 #include <string>
@@ -59,7 +58,7 @@ namespace OpenXLSX::Impl {
      * @brief This class is a specialization of the XLAbstractXMLFile, with the purpose of the representing the
      * document app properties in the app.xml file (docProps folder) in the .xlsx package.
      */
-    class XLAppProperties : public XLAbstractXMLFile, public XLSpreadsheetElement {
+    class XLAppProperties : public XLAbstractXMLFile {
         friend class XLDocument;
 
         //--------------------------------------------------------------------------------------------------------------

@@ -69,7 +69,6 @@ void Impl::XLRelationshipItem::Delete() {
  */
 Impl::XLRelationships::XLRelationships(XLDocument& parent, const std::string& filePath)
         : XLAbstractXMLFile(parent, filePath),
-          XLSpreadsheetElement(parent),
           m_relationships(),
           m_relationshipCount(0) {
 

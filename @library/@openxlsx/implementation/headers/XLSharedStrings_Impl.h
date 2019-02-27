@@ -47,7 +47,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #define OPENXLSX_IMPL_XLSHAREDSTRINGS_H
 
 #include "XLAbstractXMLFile_Impl.h"
-#include "XLSpreadsheetElement_Impl.h"
 #include "XLXml_Impl.h"
 
 #include <vector>
@@ -66,7 +65,7 @@ namespace OpenXLSX::Impl {
      * as repeated strings are referenced easily.
      * @todo Consider defining a static method for creating a new shared strings object + XML file.
      */
-    class XLSharedStrings : public XLAbstractXMLFile, public XLSpreadsheetElement {
+    class XLSharedStrings : public XLAbstractXMLFile {
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Public Member Functions

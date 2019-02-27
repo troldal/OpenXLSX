@@ -115,8 +115,7 @@ std::string Impl::XLCellValue::AsString() const {
     }
 
     if (string_view(TypeAttribute().value()) == "s")
-        return string(
-                ParentCell()->ParentWorkbook()->SharedStrings()->GetStringNode(ValueNode().text().as_ullong()).text()
+        return string(Cell()->Worksheet()->Workbook()->SharedStrings()->GetStringNode(ValueNode().text().as_ullong()).text()
                             .get());
 
     return ValueNode().text().get();
@@ -198,7 +197,7 @@ Impl::XLCellType Impl::XLCellValue::CellType() const {
  * @pre The parent XLCell object is valid.
  * @post The current object, and any associated objects, are unchanged.
  */
-Impl::XLCell* Impl::XLCellValue::ParentCell() {
+Impl::XLCell* Impl::XLCellValue::Cell() {
 
     return &m_parentCell;
 }
@@ -208,7 +207,7 @@ Impl::XLCell* Impl::XLCellValue::ParentCell() {
  * @pre The parent XLCell object is valid.
  * @post The current object, and any associated objects, are unchanged.
  */
-const Impl::XLCell* Impl::XLCellValue::ParentCell() const {
+const Impl::XLCell* Impl::XLCellValue::Cell() const {
 
     return &m_parentCell;
 }
@@ -248,7 +247,7 @@ void Impl::XLCellValue::DeleteValueNode() {
 XMLNode Impl::XLCellValue::CreateValueNode() {
 
     if (!HasValueNode())
-        ParentCell()->CreateValueNode();
+        Cell()->CreateValueNode();
     return ValueNode();
 }
 
@@ -274,7 +273,7 @@ void Impl::XLCellValue::SetTypeAttribute(const std::string& typeString) {
 void Impl::XLCellValue::DeleteTypeAttribute() {
 
     if (HasTypeAttribute())
-        ParentCell()->CellNode().remove_attribute("t");
+        Cell()->CellNode().remove_attribute("t");
 }
 
 /**
@@ -287,9 +286,9 @@ void Impl::XLCellValue::DeleteTypeAttribute() {
 XMLAttribute Impl::XLCellValue::CreateTypeAttribute() {
 
     if (!HasTypeAttribute())
-        ParentCell()->CellNode().append_attribute("t") = "";
+        Cell()->CellNode().append_attribute("t") = "";
 
-    return ParentCell()->CellNode().attribute("t");
+    return Cell()->CellNode().attribute("t");
 }
 
 /**
@@ -302,7 +301,7 @@ XMLNode Impl::XLCellValue::ValueNode() {
 
     if (!HasValueNode())
         CreateValueNode();
-    return ParentCell()->CellNode().child("v");
+    return Cell()->CellNode().child("v");
 }
 
 /**
@@ -313,7 +312,7 @@ XMLNode Impl::XLCellValue::ValueNode() {
  */
 const XMLNode Impl::XLCellValue::ValueNode() const {
 
-    return ParentCell()->CellNode().child("v");
+    return Cell()->CellNode().child("v");
 }
 
 /**
@@ -323,7 +322,7 @@ const XMLNode Impl::XLCellValue::ValueNode() const {
  */
 bool Impl::XLCellValue::HasValueNode() const {
 
-    return ParentCell()->CellNode().child("v") != nullptr;
+    return Cell()->CellNode().child("v") != nullptr;
 }
 
 /**
@@ -336,7 +335,7 @@ XMLAttribute Impl::XLCellValue::TypeAttribute() {
 
     if (!HasTypeAttribute())
         CreateTypeAttribute();
-    return ParentCell()->CellNode().attribute("t");
+    return Cell()->CellNode().attribute("t");
 }
 
 /**
@@ -347,7 +346,7 @@ XMLAttribute Impl::XLCellValue::TypeAttribute() {
  */
 const XMLAttribute Impl::XLCellValue::TypeAttribute() const {
 
-    return ParentCell()->CellNode().attribute("t");
+    return Cell()->CellNode().attribute("t");
 }
 
 /**
@@ -357,7 +356,7 @@ const XMLAttribute Impl::XLCellValue::TypeAttribute() const {
  */
 bool Impl::XLCellValue::HasTypeAttribute() const {
 
-    return ParentCell()->CellNode().attribute("t") != nullptr;
+    return Cell()->CellNode().attribute("t") != nullptr;
 }
 
 /**
@@ -377,7 +376,7 @@ Impl::XLNumberType Impl::XLCellValue::DetermineNumberType(const string& numberSt
  */
 XMLNode Impl::XLCellValue::SharedStringNode(unsigned long index) const {
 
-    return ParentCell()->ParentWorkbook()->SharedStrings()->GetStringNode(index);
+    return Cell()->Worksheet()->Workbook()->SharedStrings()->GetStringNode(index);
 }
 
 void Impl::XLCellValue::SetInteger(long long int numberValue) {

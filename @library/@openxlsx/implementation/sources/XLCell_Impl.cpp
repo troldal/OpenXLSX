@@ -1,10 +1,9 @@
-#include <memory>
-
 //
 // Created by Troldal on 02/09/16.
 //
 
 #include <pugixml.hpp>
+#include <memory>
 
 #include "XLCell_Impl.h"
 #include "XLWorksheet_Impl.h"
@@ -29,8 +28,7 @@ using namespace OpenXLSX;
  *      -# Otherwise, determine the celltype based on the type attribute.
  */
 Impl::XLCell::XLCell(XLWorksheet& parent, XMLNode cellNode)
-        : XLSpreadsheetElement(*parent.ParentDocument()),
-          m_parentWorksheet(&parent),
+        : m_parentWorksheet(&parent),
           m_cellNode(cellNode),
           m_cellReference(XLCellReference(cellNode.attribute("r").value())),
           m_value(XLCellValue(*this)) {
@@ -39,8 +37,7 @@ Impl::XLCell::XLCell(XLWorksheet& parent, XMLNode cellNode)
 }
 
 Impl::XLCell::XLCell(Impl::XLCell const& other)
-        : XLSpreadsheetElement(*other.m_parentWorksheet->ParentDocument()),
-          m_parentWorksheet(other.m_parentWorksheet),
+        : m_parentWorksheet(other.m_parentWorksheet),
           m_cellNode(other.m_cellNode),
           m_cellReference(other.m_cellReference),
           m_value(XLCellValue(*this)) {
@@ -49,11 +46,10 @@ Impl::XLCell::XLCell(Impl::XLCell const& other)
 }
 
 Impl::XLCell::XLCell(Impl::XLCell&& other) noexcept
-        : XLSpreadsheetElement(*other.m_parentWorksheet->ParentDocument()),
-          m_parentWorksheet(std::move(other.m_parentWorksheet)),
+        : m_parentWorksheet(std::move(other.m_parentWorksheet)),
           m_cellNode(std::move(other.m_cellNode)),
           m_cellReference(std::move(other.m_cellReference)),
-          m_value(XLCellValue(*this)){
+          m_value(XLCellValue(*this)) {
 
     // Empty constructor body
 }
@@ -73,7 +69,7 @@ Impl::XLCell& Impl::XLCell::operator=(const XLCellRange& range) {
 
     auto            first = this->CellReference();
     XLCellReference last(first->Row() + range.NumRows() - 1, first->Column() + range.NumColumns() - 1);
-    XLCellRange     rng(*ParentWorksheet(), *first, last);
+    XLCellRange     rng(*Worksheet(), *first, last);
     rng = range;
 
     return *this;
@@ -151,7 +147,7 @@ void Impl::XLCell::DeleteTypeAttribute() {
 /**
  * @details
  */
-Impl::XLWorksheet* Impl::XLCell::ParentWorksheet() {
+Impl::XLWorksheet* Impl::XLCell::Worksheet() {
 
     return m_parentWorksheet;
 }
@@ -159,7 +155,7 @@ Impl::XLWorksheet* Impl::XLCell::ParentWorksheet() {
 /**
  * @details
  */
-const Impl::XLWorksheet* Impl::XLCell::ParentWorksheet() const {
+const Impl::XLWorksheet* Impl::XLCell::Worksheet() const {
 
     return m_parentWorksheet;
 }
@@ -169,7 +165,7 @@ const Impl::XLWorksheet* Impl::XLCell::ParentWorksheet() const {
  */
 XMLDocument* Impl::XLCell::XmlDocument() {
 
-    return ParentWorksheet()->XmlDocument();
+    return Worksheet()->XmlDocument();
 }
 
 /**
@@ -177,7 +173,7 @@ XMLDocument* Impl::XLCell::XmlDocument() {
  */
 const XMLDocument* Impl::XLCell::XmlDocument() const {
 
-    return ParentWorksheet()->XmlDocument();
+    return Worksheet()->XmlDocument();
 }
 
 /**

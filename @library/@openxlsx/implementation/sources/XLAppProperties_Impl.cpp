@@ -18,7 +18,6 @@ using namespace OpenXLSX;
  */
 Impl::XLAppProperties::XLAppProperties(XLDocument& parent, const std::string& filePath)
         : XLAbstractXMLFile(parent, filePath),
-          XLSpreadsheetElement(parent),
           m_sheetCountAttribute(make_unique<XMLAttribute>()),
           m_sheetNamesParent(make_unique<XMLNode>()),
           m_headingPairsSize(make_unique<XMLAttribute>()),

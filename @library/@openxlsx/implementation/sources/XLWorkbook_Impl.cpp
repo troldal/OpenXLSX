@@ -20,11 +20,11 @@ using namespace OpenXLSX;
 Impl::XLWorkbook::XLWorkbook(XLDocument& parent, const std::string& filePath)
 
         : XLAbstractXMLFile(parent, filePath),
-          XLSpreadsheetElement(parent),
           m_sheetId(0),
           m_relationships(nullptr),
           m_sharedStrings(nullptr),
-          m_styles(nullptr) {
+          m_styles(nullptr),
+          m_document(&parent) {
 
     ParseXMLData();
 }
@@ -35,7 +35,7 @@ Impl::XLWorkbook::XLWorkbook(XLDocument& parent, const std::string& filePath)
 bool Impl::XLWorkbook::ParseXMLData() {
 
     // Set up the Workbook Relationships.
-    m_relationships.reset(new XLRelationships(*ParentDocument(), "xl/_rels/workbook.xml.rels"));
+    m_relationships.reset(new XLRelationships(*Document(), "xl/_rels/workbook.xml.rels"));
 
     // Find the "sheets" section in the Workbook.xml file
     m_sheetsNode   = XmlDocument()->first_child().child("sheets");
@@ -289,7 +289,7 @@ Impl::XLRelationshipItem* Impl::XLWorkbook::InitiateWorksheet(const std::string&
     std::string worksheetPath = "/xl/worksheets/sheet" + to_string(sheetID) + ".xml";
 
     // Add content item to document
-    ParentDocument()->AddContentItem(worksheetPath, XLContentType::Worksheet);
+    Document()->AddContentItem(worksheetPath, XLContentType::Worksheet);
 
     // Add relationship item
     XLRelationshipItem& item = *m_relationships
@@ -311,11 +311,11 @@ Impl::XLRelationshipItem* Impl::XLWorkbook::InitiateWorksheet(const std::string&
 
     // Add entry to the App Properties
     if (index == 0)
-        ParentDocument()->AppProperties()->InsertSheetName(sheetName, WorksheetCount() + 1);
+        Document()->AppProperties()->InsertSheetName(sheetName, WorksheetCount() + 1);
     else
-        ParentDocument()->AppProperties()->InsertSheetName(sheetName, index);
+        Document()->AppProperties()->InsertSheetName(sheetName, index);
 
-    ParentDocument()->AppProperties()->SetHeadingPair("Worksheets", WorksheetCount() + 1);
+    Document()->AppProperties()->SetHeadingPair("Worksheets", WorksheetCount() + 1);
 
     return &item;
 }
@@ -487,6 +487,16 @@ Impl::XLStyles* Impl::XLWorkbook::Styles() {
     return m_styles.get();
 }
 
+Impl::XLDocument* Impl::XLWorkbook::Document() {
+
+    return m_document;
+}
+
+const Impl::XLDocument* Impl::XLWorkbook::Document() const {
+
+    return m_document;
+}
+
 /**
  * @details
  */
@@ -549,7 +559,7 @@ XMLNode Impl::XLWorkbook::SheetNode(const string& sheetName) {
  */
 void Impl::XLWorkbook::CreateSharedStrings(const XLRelationshipItem& item) {
 
-    m_sharedStrings.reset(new XLSharedStrings(*ParentDocument(), "xl/" + item.Target()));
+    m_sharedStrings.reset(new XLSharedStrings(*Document(), "xl/" + item.Target()));
     m_childXmlDocuments[m_sharedStrings->FilePath()] = m_sharedStrings.get();
 }
 
@@ -558,7 +568,7 @@ void Impl::XLWorkbook::CreateSharedStrings(const XLRelationshipItem& item) {
  */
 void Impl::XLWorkbook::CreateStyles(const XLRelationshipItem& item) {
 
-    m_styles.reset(new XLStyles(*ParentDocument(), "xl/" + item.Target()));
+    m_styles.reset(new XLStyles(*Document(), "xl/" + item.Target()));
     m_childXmlDocuments[m_styles->FilePath()] = m_styles.get();
 }
 

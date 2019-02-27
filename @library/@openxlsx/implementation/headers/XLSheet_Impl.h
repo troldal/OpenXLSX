@@ -47,9 +47,14 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #define OPENXLSX_IMPL_XLABSTRACTSHEET_H
 
 #include <pugixml.hpp>
+#include <vector>
 #include "XLDefinitions.h"
 #include "XLAbstractXMLFile_Impl.h"
-#include "XLSpreadsheetElement_Impl.h"
+#include "XLRow_Impl.h"
+#include "XLColumn_Impl.h"
+#include "XLCell_Impl.h"
+#include "XLCellValue_Impl.h"
+#include "XLCellReference_Impl.h"
 
 namespace OpenXLSX::Impl {
     class XLContentItem;
@@ -95,7 +100,7 @@ namespace OpenXLSX::Impl {
      * such as XLWorksheet. It implements functionality common to all sheet types. This is a pure abstract class,
      * so it cannot be instantiated.
      */
-    class XLSheet : public XLAbstractXMLFile, public XLSpreadsheetElement {
+    class XLSheet : public XLAbstractXMLFile {
         friend class XLWorkbook;
         //friend class XLCell;
 
@@ -105,7 +110,6 @@ namespace OpenXLSX::Impl {
         //----------------------------------------------------------------------------------------------------------------------
 
     public:
-
         /**
          * @brief The constructor. There are no default constructor, so all parameters must be provided for
          * constructing an XLAbstractSheet object. Since this is a pure abstract class, instantiation is only
@@ -190,6 +194,10 @@ namespace OpenXLSX::Impl {
          */
         virtual void SetIndex();
 
+        virtual XLWorkbook* Workbook() final;
+
+        virtual const XLWorkbook* Workbook() const final;
+
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Protected Member Functions
@@ -215,6 +223,7 @@ namespace OpenXLSX::Impl {
         XMLNode m_nodeInWorkbook; /**< A pointer to the relevant sheet node in workbook.xml */
         XMLNode m_nodeInApp; /**< A pointer to the relevant TitleOfParts node in app.xml */
 
+        XLWorkbook        & m_parentWorkbook;
         XLContentItem     * m_nodeInContentTypes; /**< A pointer to the relevant content type item in [Content_Types].xml */
         XLRelationshipItem* m_nodeInWorkbookRels; /**< A pointer to the relationship item in workbook.xml.rels */
     };

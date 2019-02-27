@@ -51,7 +51,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <map>
 
 #include "XLAbstractXMLFile_Impl.h"
-#include "XLSpreadsheetElement_Impl.h"
 #include "XLXml_Impl.h"
 
 namespace OpenXLSX::Impl {
@@ -213,7 +212,7 @@ namespace OpenXLSX::Impl {
     /**
      * @brief An encapsulation of relationship files (.rels files) in an Excel document package.
      */
-    class XLRelationships : public XLAbstractXMLFile, public XLSpreadsheetElement {
+    class XLRelationships : public XLAbstractXMLFile{
         friend class XLRelationshipItem;
         //----------------------------------------------------------------------------------------------------------------------
         //          Public Member Functions

@@ -5,6 +5,7 @@
 #include "XLWorksheet_Impl.h"
 #include "XLCellRange_Impl.h"
 #include "XLTokenizer_Impl.h"
+#include "XLSheet_Impl.h"
 #include <sstream>
 #include <algorithm>
 #include <pugixml.hpp>
@@ -23,7 +24,6 @@ Impl::XLWorksheet::XLWorksheet(XLWorkbook& parent, XMLAttribute name, const std:
           m_sheetDataNode(std::make_unique<XMLNode>()),
           m_columnsNode(std::make_unique<XMLNode>()),
           m_sheetViewsNode(std::make_unique<XMLNode>()),
-          m_parentWorkbook(parent),
           m_rows(),
           m_columns(),
           m_firstCell(1, 1),
@@ -101,8 +101,8 @@ bool Impl::XLWorksheet::ParseXMLData() {
  */
 Impl::XLWorksheet* Impl::XLWorksheet::Clone(const std::string& newName) {
 
-    ParentWorkbook()->CloneWorksheet(Name(), newName);
-    return ParentWorkbook()->Worksheet(newName);
+    Workbook()->CloneWorksheet(Name(), newName);
+    return Workbook()->Worksheet(newName);
 }
 
 /**

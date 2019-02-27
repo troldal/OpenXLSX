@@ -47,7 +47,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #define OPENXLSX_IMPL_XLDOCCOREPROPERTIES_H
 
 #include "XLAbstractXMLFile_Impl.h"
-#include "XLSpreadsheetElement_Impl.h"
 #include "XLXml_Impl.h"
 
 #include <string>
@@ -63,7 +62,7 @@ namespace OpenXLSX::Impl {
     /**
      * @brief
      */
-    class XLCoreProperties : public XLAbstractXMLFile, public XLSpreadsheetElement {
+    class XLCoreProperties : public XLAbstractXMLFile{
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Public Member Functions

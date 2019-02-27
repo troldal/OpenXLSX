@@ -43,7 +43,6 @@ set(OPENXLSX_IMPL_HEADERS
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLFont_Impl.h
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLRelationships_Impl.h
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLSharedStrings_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLSpreadsheetElement_Impl.h
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLStyles_Impl.h
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLTokenizer_Impl.h
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLWorkbook_Impl.h
@@ -72,7 +71,6 @@ set(OPENXLSX_IMPL_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLFont_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLRelationships_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLSharedStrings_Impl.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLSpreadsheetElement_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLStyles_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLTokenizer_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLWorkbook_Impl.cpp

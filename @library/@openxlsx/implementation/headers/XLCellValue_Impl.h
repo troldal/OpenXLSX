@@ -51,6 +51,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLException.h"
 #include "XLXml_Impl.h"
 #include "XLCellValue.h"
+#include "XLSharedStrings_Impl.h"
 
 #include <string>
 #include <string_view>
@@ -278,13 +279,13 @@ namespace OpenXLSX::Impl {
          * @brief Get a reference to the parent cell of the XLCellValue object.
          * @return A reference to the parent XLCell object.
          */
-        XLCell* ParentCell();
+        XLCell* Cell();
 
         /**
          * @brief Get a const reference to the parent cell of the XLCellValue object.
          * @return A const reference to the parent XLCell object.
          */
-        const XLCell* ParentCell() const;
+        const XLCell* Cell() const;
 
         /**
          * @brief Get a pointer to the value node in the underlying XML file.
@@ -428,6 +429,7 @@ namespace OpenXLSX::Impl {
 
     private:
         XLCell& m_parentCell; /**< A reference to the parent XLCell object. */
+        XLSharedStrings* m_sharedStrings;
     };
 
     //----------------------------------------------------------------------------------------------------------------------
