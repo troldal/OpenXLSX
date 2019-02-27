@@ -2,7 +2,11 @@
 OpenXLSX is a C++ library for reading, writing, creating and modifying Microsoft Excel® files, with the .xlsx format.
 
 ## Motivation
-Many programming languages have the ability to modify Excel files, either natively or in the form of open source libraries. This includes Python, Java and C#. For C++, however, things are more scattered. While there are some libraries, they are generally less mature and have a smaller feature set than for other languages. Here is a summary of the main C++ libraries for Excel files:
+Many programming languages have the ability to modify Excel files, either natively or in the form of open source libraries. This includes Python, Java and C#. For C++, however, things are more scattered. While there are some libraries, they are generally less mature and have a smaller feature set than for other languages. 
+
+Because there are no open source library that fully fitted my needs, I decided to develop the OpenXLSX library.
+
+Here is a summary of the main C++ libraries for Excel files that I'm aware of:
 
 ### libxls
 The libxls library (https://sourceforge.net/projects/libxls/) is a C library for reading files in the legacy Excel file format, .xls. It cannot be used for writing or modifying Excel files.
@@ -19,7 +23,8 @@ The LibXL library (http://www.libxl.com) can read, write, create and modify Exce
 ### QtXlsx
 Of the open source libraries, the QtXlsx library (https://github.com/dbzhang800/QtXlsxWriter) is the most feature complete. It is, however, based on the Qt framework. While I'm a big fan of Qt for application programming purposes, I don't believe it is the best option for lower-level libraries.
 
-Because there are no open source library that fully fitted my needs, I decided to develop the OpenXLSX library.
+### XLNT
+Recently, I found the XLNT library on GitHub (https://github.com/tfussell/xlnt). It was not available when I began developing OpenXLSX. To be honest, if it had, I wouldn't have begun OpenXLSX. It has a larger feature set and probably has fewer bugs. However, I decided to continue developing OpenXLSX, because I believe that in a few areas it is better than XLNT. Primarily, OpenXLSX is better able to handle very large spreadsheets. 
 
 ## Ambition
 The ambition is that OpenXLSX should be able to read, write, create and modify Excel files (data as well as formatting), and do so with as few dependencies as possible. Currently, OpenXLSX depends on the following 3rd party libraries (all included in the repository):
