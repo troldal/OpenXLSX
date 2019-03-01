@@ -101,7 +101,6 @@ Impl::XLSheet* Impl::XLWorkbook::Sheet(const std::string& sheetName) {
                 throw XLException("Unknown sheet type");
         }
 
-        m_childXmlDocuments.at(sheetData->sheetPath) = sheetData->sheetItem.get();
     }
 
     return sheetData->sheetItem.get();
@@ -132,7 +131,6 @@ const Impl::XLSheet* Impl::XLWorkbook::Sheet(const std::string& sheetName) const
                 throw XLException("Unknown sheet type");
         }
 
-        m_childXmlDocuments.at(sheetData->sheetPath) = sheetData->sheetItem.get();
     }
 
     return sheetData->sheetItem.get();
@@ -249,9 +247,6 @@ void Impl::XLWorkbook::DeleteNamedRanges() {
  * @todo Throw exception if there is only one worksheet in the workbook.
  */
 void Impl::XLWorkbook::DeleteSheet(const std::string& sheetName) {
-
-    // Erase file Path from internal datastructure.
-    m_childXmlDocuments.erase(Worksheet(sheetName)->FilePath());
 
     // Clear Worksheet and set to safe State
     Worksheet(sheetName)->Delete();
@@ -560,7 +555,6 @@ XMLNode Impl::XLWorkbook::SheetNode(const string& sheetName) {
 void Impl::XLWorkbook::CreateSharedStrings(const XLRelationshipItem& item) {
 
     m_sharedStrings.reset(new XLSharedStrings(*Document(), "xl/" + item.Target()));
-    m_childXmlDocuments[m_sharedStrings->FilePath()] = m_sharedStrings.get();
 }
 
 /**
@@ -569,7 +563,6 @@ void Impl::XLWorkbook::CreateSharedStrings(const XLRelationshipItem& item) {
 void Impl::XLWorkbook::CreateStyles(const XLRelationshipItem& item) {
 
     m_styles.reset(new XLStyles(*Document(), "xl/" + item.Target()));
-    m_childXmlDocuments[m_styles->FilePath()] = m_styles.get();
 }
 
 /**
@@ -606,8 +599,6 @@ void Impl::XLWorkbook::CreateWorksheet(const XLRelationshipItem& item, const std
     sort(m_sheets.begin(), m_sheets.end(), [](const XLSheetData& first, const XLSheetData& second) {
         return first.sheetIndex < second.sheetIndex;
     });
-
-    m_childXmlDocuments[sheet.sheetPath] = sheet.sheetItem.get();
 
     // Update internal counters.
     m_sheetId++;

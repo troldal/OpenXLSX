@@ -170,8 +170,6 @@ namespace OpenXLSX::Impl {
         XLDocument& m_parentDocument; /**< */
         std::string m_path; /**< */
 
-        mutable std::map<std::string, XLAbstractXMLFile*> m_childXmlDocuments; /**< A std::map with the child XML documents. */
-
     };
 }  // namespace OpenXLSX::Impl
 
