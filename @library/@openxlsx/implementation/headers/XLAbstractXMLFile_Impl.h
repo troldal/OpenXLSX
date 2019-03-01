@@ -101,6 +101,13 @@ namespace OpenXLSX::Impl {
         XLAbstractXMLFile& operator=(const XLAbstractXMLFile&) = delete;
 
         /**
+         * @brief
+         * @return
+         * @todo implement a "safe operator bool" instead
+         */
+        virtual operator bool() const;
+
+        /**
          * @brief Provide the XML data represented by the object.
          * @param xmlData A std::string with the XML data.
          */

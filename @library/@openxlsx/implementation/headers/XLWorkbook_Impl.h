@@ -53,6 +53,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLAbstractXMLFile_Impl.h"
 #include "XLRelationships_Impl.h"
 #include "XLSharedStrings_Impl.h"
+#include "XLStyles_Impl.h"
 #include "XLXml_Impl.h"
 #include "XLEnums_impl.h"
 
@@ -61,7 +62,6 @@ namespace OpenXLSX::Impl {
     class XLSheet;
     class XLWorksheet;
     class XLChartsheet;
-    class XLStyles;
 
     //======================================================================================================================
     //========== XLWorkbook Class ==========================================================================================
@@ -374,18 +374,6 @@ namespace OpenXLSX::Impl {
         /**
          * @brief
          * @param item
-         */
-        void CreateSharedStrings(const XLRelationshipItem& item);
-
-        /**
-         * @brief
-         * @param item
-         */
-        void CreateStyles(const XLRelationshipItem& item);
-
-        /**
-         * @brief
-         * @param item
          * @param xmlData
          */
         void CreateWorksheet(const XLRelationshipItem& item, const std::string& xmlData = "");
@@ -432,10 +420,10 @@ namespace OpenXLSX::Impl {
 
         int m_sheetId; /**< Counter to use to create ID for new sheet */
 
-        XLRelationships                          m_relationships; /**< pointer to the XLRelationships object for workbook. */
-        mutable std::unique_ptr<XLSharedStrings> m_sharedStrings; /**< Pointer to the XLSharedStrings object. */
-        std::unique_ptr<XLStyles>                m_styles; /**< Pointer to the XLStyles object for the workbook. */
-        XLDocument*                              m_document;
+        XLRelationships         m_relationships; /**< pointer to the XLRelationships object for workbook. */
+        mutable XLSharedStrings m_sharedStrings; /**< Pointer to the XLSharedStrings object. */
+        XLStyles                m_styles; /**< Pointer to the XLStyles object for the workbook. */
+        XLDocument* m_document; /**< */
     };
 }  // namespace OpenXLSX::Impl
 

@@ -67,7 +67,7 @@ namespace OpenXLSX::Impl {
          * @param parent
          * @param filePath
          */
-        explicit XLStyles(XLDocument& parent, const std::string& filePath);
+        explicit XLStyles(XLDocument& parent);
 
         /**
          * @brief

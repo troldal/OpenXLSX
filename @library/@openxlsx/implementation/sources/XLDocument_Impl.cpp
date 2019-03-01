@@ -444,7 +444,7 @@ void Impl::XLDocument::AddOrReplaceXMLFile(const std::string& path, const std::s
  */
 std::string Impl::XLDocument::GetXMLFile(const std::string& path) {
 
-    return m_archive->getEntry(path).readAsText();
+    return (m_archive->hasEntry(path) ? m_archive->getEntry(path).readAsText() : "");
 }
 
 /**

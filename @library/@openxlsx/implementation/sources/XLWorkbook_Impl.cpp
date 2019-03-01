@@ -23,8 +23,8 @@ Impl::XLWorkbook::XLWorkbook(XLDocument& parent, const std::string& filePath)
         : XLAbstractXMLFile(parent, filePath),
           m_sheetId(0),
           m_relationships(parent, "xl/_rels/workbook.xml.rels"),
-          m_sharedStrings(nullptr),
-          m_styles(nullptr),
+          m_sharedStrings(parent),
+          m_styles(parent),
           m_document(&parent) {
 
     ParseXMLData();
@@ -48,16 +48,6 @@ bool Impl::XLWorkbook::ParseXMLData() {
         string path = item->Target();
 
         switch (item->Type()) {
-
-            // Set up SharedStrings file
-            case XLRelationshipType::SharedStrings :
-                CreateSharedStrings(*item);
-                break;
-
-                // Set up Styles file
-            case XLRelationshipType::Styles :
-                CreateStyles(*item);
-                break;
 
                 // Set up Worksheet files
             case XLRelationshipType::Worksheet :
@@ -225,7 +215,7 @@ const Impl::XLChartsheet* Impl::XLWorkbook::Chartsheet(const std::string& sheetN
  */
 bool Impl::XLWorkbook::HasSharedStrings() const {
 
-    return m_sharedStrings != nullptr;
+    return m_sharedStrings; //implicit conversion to bool
 }
 
 /**
@@ -233,7 +223,7 @@ bool Impl::XLWorkbook::HasSharedStrings() const {
  */
 Impl::XLSharedStrings* Impl::XLWorkbook::SharedStrings() const {
 
-    return m_sharedStrings.get();
+    return &m_sharedStrings;
 }
 
 /**
@@ -482,7 +472,7 @@ std::vector<std::string> Impl::XLWorkbook::ChartsheetNames() const {
  */
 Impl::XLStyles* Impl::XLWorkbook::Styles() {
 
-    return m_styles.get();
+    return &m_styles;
 }
 
 Impl::XLDocument* Impl::XLWorkbook::Document() {
@@ -555,22 +545,6 @@ XMLNode Impl::XLWorkbook::SheetNode(const string& sheetName) {
 /**
  * @details
  */
-void Impl::XLWorkbook::CreateSharedStrings(const XLRelationshipItem& item) {
-
-    m_sharedStrings.reset(new XLSharedStrings(*Document(), "xl/" + item.Target()));
-}
-
-/**
- * @details
- */
-void Impl::XLWorkbook::CreateStyles(const XLRelationshipItem& item) {
-
-    m_styles.reset(new XLStyles(*Document(), "xl/" + item.Target()));
-}
-
-/**
- * @details
- */
 void Impl::XLWorkbook::CreateWorksheet(const XLRelationshipItem& item, const std::string& xmlData) {
 
     if (m_sheetsNode.find_child_by_attribute("r:id", item.Id().c_str()) == nullptr)
@@ -616,10 +590,12 @@ void Impl::XLWorkbook::WriteXMLData() {
 
     XLAbstractXMLFile::WriteXMLData();
     m_relationships.WriteXMLData();
+
     if(m_sharedStrings)
-        m_sharedStrings->WriteXMLData();
+        m_sharedStrings.WriteXMLData();
     if(m_styles)
-        m_styles->WriteXMLData();
+        m_styles.WriteXMLData();
+
     for(auto& sheet : m_sheets)
         if(sheet.sheetItem)
             sheet.sheetItem->WriteXMLData();

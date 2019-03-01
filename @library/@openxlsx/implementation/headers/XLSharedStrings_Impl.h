@@ -80,7 +80,7 @@ namespace OpenXLSX::Impl {
          * @param parent A pointer to the parent XLDocument
          * @param filePath The path to the sharedStrings.xml file
          */
-        explicit XLSharedStrings(XLDocument& parent, const std::string& filePath);
+        explicit XLSharedStrings(XLDocument& parent);
 
         /**
          * @brief Destructor

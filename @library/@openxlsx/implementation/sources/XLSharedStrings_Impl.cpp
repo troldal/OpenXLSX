@@ -14,8 +14,8 @@ using namespace OpenXLSX;
  * @details Constructs a new XLSharedStrings object. Only one (common) object is allowed per XLDocument instance.
  * A filepath to the underlying XML file must be provided.
  */
-Impl::XLSharedStrings::XLSharedStrings(XLDocument& parent, const std::string& filePath)
-        : XLAbstractXMLFile(parent, filePath),
+Impl::XLSharedStrings::XLSharedStrings(XLDocument& parent)
+        : XLAbstractXMLFile(parent, "xl/sharedStrings.xml"),
           m_sharedStringNodes(),
           m_emptyString("") {
 
