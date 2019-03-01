@@ -46,11 +46,15 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_IMPL_XLWORKBOOK_H
 #define OPENXLSX_IMPL_XLWORKBOOK_H
 
-#include <XLDefinitions.h>
-#include <pugixml.hpp>
+// ===== Standard Library Includes ===== //
+#include <vector>
+
+// ===== OpenXLSX Includes ===== //
 #include "XLAbstractXMLFile_Impl.h"
 #include "XLRelationships_Impl.h"
 #include "XLSharedStrings_Impl.h"
+#include "XLXml_Impl.h"
+#include "XLEnums_impl.h"
 
 namespace OpenXLSX::Impl {
     class XLSharedStrings;
@@ -103,7 +107,7 @@ namespace OpenXLSX::Impl {
          * @brief Destructor
          * @note Default destructor specified
          */
-        ~XLWorkbook() override = default;
+        ~XLWorkbook() override;
 
         /**
          * @brief Copy assignment operator.
@@ -327,6 +331,8 @@ namespace OpenXLSX::Impl {
 
         const XLDocument* Document() const;
 
+        void WriteXMLData() override;
+
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Protected Member Functions
@@ -419,17 +425,17 @@ namespace OpenXLSX::Impl {
             std::unique_ptr<XLSheet> sheetItem;
         };
 
+        mutable std::vector<XLSheetData> m_sheets;
+
         XMLNode m_sheetsNode; /**< The parent node for all the sheet nodes (worksheets as well as chartsheets). */
         XMLNode m_definedNames; /**< Pointer to root node of defined names in the workbook. */
 
-        mutable std::vector<XLSheetData> m_sheets;
-
         int m_sheetId; /**< Counter to use to create ID for new sheet */
 
-        std::unique_ptr<XLRelationships>         m_relationships; /**< pointer to the XLRelationships object for workbook. */
+        XLRelationships                          m_relationships; /**< pointer to the XLRelationships object for workbook. */
         mutable std::unique_ptr<XLSharedStrings> m_sharedStrings; /**< Pointer to the XLSharedStrings object. */
         std::unique_ptr<XLStyles>                m_styles; /**< Pointer to the XLStyles object for the workbook. */
-        XLDocument* m_document{};
+        XLDocument*                              m_document;
     };
 }  // namespace OpenXLSX::Impl
 

@@ -46,38 +46,31 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_IMPL_XLDOCUMENT_H
 #define OPENXLSX_IMPL_XLDOCUMENT_H
 
+// ===== Standard Library Includes ===== //
 #include <string>
 #include <map>
 #include <vector>
 #include <iostream>
 #include <fstream>
 
-#include "XLContentTypes_Impl.h"
+// ===== OpenXLSX Includes ===== //
 #include "XLAppProperties_Impl.h"
 #include "XLCoreProperties_Impl.h"
-#include "XLSharedStrings_Impl.h"
-#include "XLStyles_Impl.h"
 #include "XLWorkbook_Impl.h"
-#include "XLSheet_Impl.h"
+#include "XLEnums_impl.h"
 #include "XLRelationships_Impl.h"
 #include "XLException.h"
-
+#include "XLXml_Impl.h"
 #include "XLDefinitions.h"
 
-namespace libzippp {
-    class ZipArchive;
-} // namespace libzippp
+namespace libzippp {class ZipArchive;} // namespace libzippp
+using ZipArchive = libzippp::ZipArchive;
 
 namespace OpenXLSX::Impl {
 
-    class XLSharedStrings;
-
-    class XLWorkbook;
-
-    class XLWorksheet;
-
-
-
+    class XLContentItem;
+    class XLContentTypes;
+    
     //======================================================================================================================
     //========== XLDocument Class ==========================================================================================
     //======================================================================================================================
@@ -89,13 +82,13 @@ namespace OpenXLSX::Impl {
      * using the RapidXLSX library.</em></b>
      */
     class XLDocument {
+
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Friends
+        //----------------------------------------------------------------------------------------------------------------------
         friend class XLAbstractXMLFile;
-
         friend class XLWorkbook;
-
         friend class XLSheet;
-
-        friend class XLSpreadsheetElement;
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Public Member Functions
@@ -279,7 +272,12 @@ namespace OpenXLSX::Impl {
 
         template<typename T>
         typename std::enable_if_t<std::is_base_of<XLAbstractXMLFile, T>::value, std::unique_ptr<T>>
-        CreateItem(const std::string& target);
+        CreateItem(const std::string& target) {
+
+            if (!m_documentRelationships->TargetExists(target))
+                throw XLException("Target does not exist!");
+            return std::make_unique<T>(*this, m_documentRelationships->RelationshipByTarget(target)->Target());
+        }
 
 
         //----------------------------------------------------------------------------------------------------------------------
@@ -295,23 +293,9 @@ namespace OpenXLSX::Impl {
         std::unique_ptr<XLAppProperties>  m_docAppProperties; /**< A pointer to the App properties object */
         std::unique_ptr<XLCoreProperties> m_docCoreProperties; /**< A pointer to the Core properties object*/
         std::unique_ptr<XLWorkbook>       m_workbook; /**< A pointer to the workbook object */
+        std::unique_ptr<ZipArchive>       m_archive; /**<  */
 
-        std::map<std::string, XLAbstractXMLFile*> m_xmlFiles; /**< A std::map with all the associated XML files*/
-        std::unique_ptr<libzippp::ZipArchive>     m_archive;
-
-        std::vector<std::string> m_xmlData;
     };
-
-    template<typename T>
-    typename std::enable_if_t<std::is_base_of<XLAbstractXMLFile, T>::value, std::unique_ptr<T>>
-    XLDocument::CreateItem(const std::string& target) {
-
-        if (!m_documentRelationships->TargetExists(target))
-            throw XLException("Target does not exist!");
-        auto result = std::make_unique<T>(*this, m_documentRelationships->RelationshipByTarget(target)->Target());
-        m_xmlFiles[result->FilePath()] = result.get();
-        return std::move(result);
-    }
 
 } // namespace OpenXLSX::Impl
 

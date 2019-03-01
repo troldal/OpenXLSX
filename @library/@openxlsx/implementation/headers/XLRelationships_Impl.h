@@ -46,57 +46,20 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_IMPL_XLRELATIONSHIPS_H
 #define OPENXLSX_IMPL_XLRELATIONSHIPS_H
 
+// ===== Standard Library Includes ===== //
 #include <string>
 #include <vector>
 #include <map>
 
+// ===== OpenXLSX Includes ===== //
 #include "XLAbstractXMLFile_Impl.h"
+#include "XLEnums_impl.h"
 #include "XLXml_Impl.h"
 
 namespace OpenXLSX::Impl {
     class XLDocument;
-
     class XLRelationships;
-
     class XLRelationshipItem;
-
-    using XLRelationshipMap = std::map<std::string, std::unique_ptr<XLRelationshipItem>>;
-
-
-    //======================================================================================================================
-    //========== XLRelationshipType Enum ===================================================================================
-    //======================================================================================================================
-
-    /**
-     * @brief An enum of the possible relationship (or XML document) types used in relationship (.rels) XML files.
-     */
-    enum class XLRelationshipType {
-        CoreProperties,
-        ExtendedProperties,
-        CustomProperties,
-        Workbook,
-        Worksheet,
-        ChartSheet,
-        DialogSheet,
-        MacroSheet,
-        CalculationChain,
-        ExternalLink,
-        ExternalLinkPath,
-        Theme,
-        Styles,
-        Chart,
-        ChartStyle,
-        ChartColorStyle,
-        Image,
-        Drawing,
-        VMLDrawing,
-        SharedStrings,
-        PrinterSettings,
-        VBAProject,
-        ControlProperties,
-        Unknown
-    };
-
 
     //======================================================================================================================
     //========== XLRelationshipItem Class ==================================================================================
@@ -126,7 +89,7 @@ namespace OpenXLSX::Impl {
          * @param other Object to be moved
          * @note The move constructor has been explicitly deleted
          */
-        XLRelationshipItem(XLRelationshipItem&& other) noexcept = delete;
+        XLRelationshipItem(XLRelationshipItem&& other) noexcept = default;
 
         /**
          * @brief Copy assignment operator.
@@ -142,7 +105,7 @@ namespace OpenXLSX::Impl {
          * @return A reference to lhs object.
          * @note The move assignment operator has been explicitly deleted
          */
-        XLRelationshipItem& operator=(XLRelationshipItem&& other) noexcept = delete;
+        XLRelationshipItem& operator=(XLRelationshipItem&& other) noexcept = default;
 
         /**
          * @brief Get the type of the current relationship item.
@@ -197,10 +160,10 @@ namespace OpenXLSX::Impl {
 
     private:
 
-        std::unique_ptr<XMLNode> m_relationshipNode; /**< A pointer to the XML node with the relationship item */
-        XLRelationshipType       m_relationshipType; /**< The type of the relationship item */
-        std::string              m_relationshipTarget; /**< The target of the relationship item */
-        std::string              m_relationshipId; /**< The ID of the relationship item */
+        XMLNode            m_relationshipNode; /**< A pointer to the XML node with the relationship item */
+        XLRelationshipType m_relationshipType; /**< The type of the relationship item */
+        std::string        m_relationshipTarget; /**< The target of the relationship item */
+        std::string        m_relationshipId; /**< The ID of the relationship item */
     };
 
 
@@ -212,8 +175,9 @@ namespace OpenXLSX::Impl {
     /**
      * @brief An encapsulation of relationship files (.rels files) in an Excel document package.
      */
-    class XLRelationships : public XLAbstractXMLFile{
+    class XLRelationships : public XLAbstractXMLFile {
         friend class XLRelationshipItem;
+        
         //----------------------------------------------------------------------------------------------------------------------
         //          Public Member Functions
         //----------------------------------------------------------------------------------------------------------------------
@@ -264,7 +228,7 @@ namespace OpenXLSX::Impl {
          * @brief Get the std::map with the relationship items, ordered by ID.
          * @return A const reference to the std::map with relationship items.
          */
-        const XLRelationshipMap* Relationships() const;
+        std::vector<const XLRelationshipItem*> Relationships() const;
 
         /**
          * @brief Delete a relationship item with the given ID.
@@ -305,12 +269,18 @@ namespace OpenXLSX::Impl {
          */
         bool ParseXMLData() override;
 
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Private Member Functions
+        //----------------------------------------------------------------------------------------------------------------------
+        
+    private:
+
         /**
-         * @brief Get the std::map with the relationship items, ordered by ID.
-         * @return A reference to the std::map with relationship items.
-         * @todo Is there a more elegant way? Using an ordinary overload doesn't work.
+         * @brief 
+         * @return 
          */
-        XLRelationshipMap* relationshipsMutable();
+        unsigned long Count() const;
+        
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Private Member Variables
@@ -318,8 +288,7 @@ namespace OpenXLSX::Impl {
 
     private:
 
-        XLRelationshipMap m_relationships; /**< A std::map with the relationship items, ordered by ID */
-        unsigned long     m_relationshipCount; /**< The number of relationship items in the XLRelationship object */
+        std::map<std::string, XLRelationshipItem> m_relationships; /**< A std::map with the relationship items, ordered by ID */
     };
 } // namespace OpenXLSX::Impl
 

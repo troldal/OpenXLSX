@@ -2,6 +2,7 @@
 // Created by Troldal on 24/07/16.
 //
 
+#include "XLContentTypes_Impl.h"
 #include "XLDocument_Impl.h"
 #include "XLWorksheet_Impl.h"
 #include "XLTemplate_Impl.h"
@@ -23,9 +24,7 @@ Impl::XLDocument::XLDocument()
           m_docAppProperties(nullptr),
           m_docCoreProperties(nullptr),
           m_workbook(nullptr),
-          m_xmlFiles(),
-          m_archive(nullptr),
-          m_xmlData() {
+          m_archive(nullptr) {
 }
 
 /**
@@ -38,9 +37,7 @@ Impl::XLDocument::XLDocument(const std::string& docPath)
           m_docAppProperties(nullptr),
           m_docCoreProperties(nullptr),
           m_workbook(nullptr),
-          m_xmlFiles(),
-          m_archive(nullptr),
-          m_xmlData() {
+          m_archive(nullptr) {
 
     OpenDocument(docPath);
 }
@@ -106,8 +103,6 @@ void Impl::XLDocument::CloseDocument() {
     m_docAppProperties.reset(nullptr);
     m_docCoreProperties.reset(nullptr);
     m_workbook.reset(nullptr);
-    m_xmlFiles.clear();
-    m_xmlData.clear();
 }
 
 /**
@@ -138,16 +133,16 @@ bool Impl::XLDocument::SaveDocumentAs(const string& fileName) {
     }
 
     // Commit all XML files, i.e. save to the zip file.
-    m_documentRelationships->CommitXMLData();
-    m_contentTypes->CommitXMLData();
-    for (auto file : m_xmlFiles) {
-        file.second->CommitXMLData();
-    }
+    m_documentRelationships->WriteXMLData();
+    m_contentTypes->WriteXMLData();
+    m_docAppProperties->WriteXMLData();
+    m_docCoreProperties->WriteXMLData();
+    m_workbook->WriteXMLData();
+
 
     // Close and re-open the zip file, in order to save changes.
     m_archive->close();
     m_archive->open(ZipArchive::WRITE);
-    m_xmlData.clear();
 
     return true;
 }
@@ -437,11 +432,11 @@ Impl::XLContentItem* Impl::XLDocument::AddContentItem(const std::string& content
 
 /**
  * @details Add a xml file to the package.
+ * @warning The content input parameter must remain valud
  */
 void Impl::XLDocument::AddOrReplaceXMLFile(const std::string& path, const std::string& content) {
 
-    m_xmlData.push_back(content);
-    m_archive->addData(path, m_xmlData.back().data(), m_xmlData.back().size());
+    m_archive->addData(path, content.data(), content.size());
 }
 
 /**

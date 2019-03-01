@@ -4,8 +4,9 @@
 
 #include <pugixml.hpp>
 
-#include "XLColumn_Impl.h"
+#include "XLWorkbook_Impl.h"
 #include "XLWorksheet_Impl.h"
+#include "XLColumn_Impl.h"
 
 using namespace std;
 using namespace OpenXLSX;

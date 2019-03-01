@@ -46,48 +46,16 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_IMPL_XLCONTENTTYPES_H
 #define OPENXLSX_IMPL_XLCONTENTTYPES_H
 
-#include "XLAbstractXMLFile_Impl.h"
-#include "XLXml_Impl.h"
-
+// ===== Standard Library Includes ===== //
 #include <map>
 #include <string>
 
+// ===== OpenXLSX Includes ===== //
+#include "XLAbstractXMLFile_Impl.h"
+#include "XLEnums_impl.h"
+#include "XLXml_Impl.h"
+
 namespace OpenXLSX::Impl {
-    class XLContentItem;
-
-    using XLContentItemMap = std::map<std::string, std::unique_ptr<XLContentItem>>;
-
-    //======================================================================================================================
-    //========== XLColumnVector Enum =======================================================================================
-    //======================================================================================================================
-
-    /**
-     * @brief
-     */
-    enum class XLContentType {
-        Workbook,
-        WorkbookMacroEnabled,
-        Worksheet,
-        Chartsheet,
-        ExternalLink,
-        Theme,
-        Styles,
-        SharedStrings,
-        Drawing,
-        Chart,
-        ChartStyle,
-        ChartColorStyle,
-        ControlProperties,
-        CalculationChain,
-        VBAProject,
-        CoreProperties,
-        ExtendedProperties,
-        CustomProperties,
-        Comments,
-        Table,
-        VMLDrawing,
-        Unknown
-    };
 
     //======================================================================================================================
     //========== XLContentItem Class =======================================================================================
@@ -110,28 +78,28 @@ namespace OpenXLSX::Impl {
          * @param other
          * @return
          */
-        XLContentItem(const XLContentItem& other);
+        XLContentItem(const XLContentItem& other) = default;
 
         /**
          * @brief
          * @param other
          * @return
          */
-        XLContentItem(XLContentItem&& other);
+        XLContentItem(XLContentItem&& other) noexcept = default;
 
         /**
          * @brief
          * @param other
          * @return
          */
-        XLContentItem& operator=(const XLContentItem& other);
+        XLContentItem& operator=(const XLContentItem& other) = default;
 
         /**
          * @brief
          * @param other
          * @return
          */
-        XLContentItem& operator=(XLContentItem&& other);
+        XLContentItem& operator=(XLContentItem&& other) noexcept = default;
 
         /**
          * @brief
@@ -171,9 +139,9 @@ namespace OpenXLSX::Impl {
 
     private:
 
-        std::unique_ptr<XMLNode> m_contentNode; /**< */
-        std::string              m_contentPath; /**< */
-        XLContentType            m_contentType; /**< */
+        XMLNode       m_contentNode; /**< */
+        std::string   m_contentPath; /**< */
+        XLContentType m_contentType; /**< */
     };
 
 
@@ -225,12 +193,6 @@ namespace OpenXLSX::Impl {
 
         /**
          * @brief
-         * @return
-         */
-        const XLContentItemMap* contentItems() const;
-
-        /**
-         * @brief
          * @param path
          * @return
          */
@@ -253,8 +215,8 @@ namespace OpenXLSX::Impl {
         //----------------------------------------------------------------------------------------------------------------------
 
     private:
-        std::map<std::string, XMLNode> m_defaults; /**< */
-        XLContentItemMap               m_overrides; /**< */
+        std::map<std::string, XMLNode>       m_defaults; /**< */
+        std::map<std::string, XLContentItem> m_overrides; /**< */
     };
 } // namespace OpenXLSX::Impl
 

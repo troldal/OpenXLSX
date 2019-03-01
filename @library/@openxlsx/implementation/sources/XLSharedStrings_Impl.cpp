@@ -134,3 +134,4 @@ void Impl::XLSharedStrings::ClearString(int index) {
 
     m_sharedStringNodes.at(index).set_value("");
 }
+
