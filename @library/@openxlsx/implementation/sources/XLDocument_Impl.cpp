@@ -132,11 +132,11 @@ bool Impl::XLDocument::SaveDocumentAs(const string& fileName) {
     }
 
     // Commit all XML files, i.e. save to the zip file.
-    m_documentRelationships->CommitXMLData();
-    m_contentTypes->CommitXMLData();
-    m_docAppProperties->CommitXMLData();
-    m_docCoreProperties->CommitXMLData();
-    m_workbook->CommitXMLData();
+    m_documentRelationships->WriteXMLData();
+    m_contentTypes->WriteXMLData();
+    m_docAppProperties->WriteXMLData();
+    m_docCoreProperties->WriteXMLData();
+    m_workbook->WriteXMLData();
 
 
     // Close and re-open the zip file, in order to save changes.

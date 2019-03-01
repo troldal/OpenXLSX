@@ -327,7 +327,7 @@ namespace OpenXLSX::Impl {
 
         const XLDocument* Document() const;
 
-        void CommitXMLData() override;
+        void WriteXMLData() override;
 
 
         //----------------------------------------------------------------------------------------------------------------------

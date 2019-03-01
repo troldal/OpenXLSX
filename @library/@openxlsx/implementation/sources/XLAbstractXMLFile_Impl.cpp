@@ -53,7 +53,7 @@ const string& Impl::XLAbstractXMLFile::GetXmlData() const {
  * @details The CommitXMLData method calls the AddOrReplaceXMLFile method for the current object and all child objects.
  * This, in turn, will add or replace the XML data files in the zipped .xlsx package.
  */
-void Impl::XLAbstractXMLFile::CommitXMLData() {
+void Impl::XLAbstractXMLFile::WriteXMLData() {
 
     m_parentDocument.AddOrReplaceXMLFile(m_path, GetXmlData());
 //    for (auto file : m_childXmlDocuments) {
