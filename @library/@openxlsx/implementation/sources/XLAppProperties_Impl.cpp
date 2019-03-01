@@ -321,3 +321,4 @@ XMLNode Impl::XLAppProperties::MoveChartsheetName(const std::string& sheetName, 
 
     return XMLNode(); //TODO: Dummy implementation.
 }
+

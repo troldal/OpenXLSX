@@ -296,3 +296,4 @@ bool Impl::XLRelationships::IdExists(const std::string& id) const {
 
     return RelationshipByID(id) != nullptr;
 }
+

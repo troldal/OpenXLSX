@@ -18,7 +18,7 @@ using namespace OpenXLSX;
  * the data will be read from the .zip file, using the given path.
  */
 Impl::XLAbstractXMLFile::XLAbstractXMLFile(XLDocument& parent, std::string filePath, const std::string& xmlData)
-        : m_xmlDocument(std::make_unique<XMLDocument>()),
+        : m_xmlDocument(XMLDocument()),
           m_parentDocument(parent),
           m_path(std::move(filePath)),
           m_childXmlDocuments() {
@@ -36,17 +36,18 @@ Impl::XLAbstractXMLFile::XLAbstractXMLFile(XLDocument& parent, std::string fileP
  */
 void Impl::XLAbstractXMLFile::SetXmlData(const std::string& xmlData) {
 
-    m_xmlDocument->load_string(xmlData.c_str());
+    m_xmlDocument.load_string(xmlData.c_str(), pugi::parse_default);
 }
 
 /**
  * @details This method retrieves the underlying XML data as a std::string.
  */
-std::string Impl::XLAbstractXMLFile::GetXmlData() const {
+const string& Impl::XLAbstractXMLFile::GetXmlData() const {
 
     ostringstream ostr;
-    m_xmlDocument->print(ostr);
-    return ostr.str();
+    m_xmlDocument.print(ostr);
+    m_xmlData = ostr.str();
+    return m_xmlData;
 }
 
 /**
@@ -69,10 +70,10 @@ void Impl::XLAbstractXMLFile::CommitXMLData() {
 void Impl::XLAbstractXMLFile::DeleteXMLData() {
 
     m_parentDocument.DeleteXMLFile(m_path);
-    for (auto file : m_childXmlDocuments) {
-        if (file.second != nullptr)
-            file.second->DeleteXMLData();
-    }
+//    for (auto file : m_childXmlDocuments) {
+//        if (file.second != nullptr)
+//            file.second->DeleteXMLData();
+//    }
 }
 
 /**
@@ -81,14 +82,6 @@ void Impl::XLAbstractXMLFile::DeleteXMLData() {
 const string& Impl::XLAbstractXMLFile::FilePath() const {
 
     return m_path;
-}
-
-/**
- * @details This method is mainly meant for debugging, by enabling printing of the xml file to cout.
- */
-void Impl::XLAbstractXMLFile::Print() const {
-
-    XmlDocument()->print(cout);
 }
 
 /**
@@ -104,6 +97,6 @@ XMLDocument* Impl::XLAbstractXMLFile::XmlDocument() {
  */
 const XMLDocument* Impl::XLAbstractXMLFile::XmlDocument() const {
 
-    return m_xmlDocument.get();
+    return &m_xmlDocument;
 }
 

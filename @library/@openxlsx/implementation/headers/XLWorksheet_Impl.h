@@ -137,6 +137,8 @@ namespace OpenXLSX::Impl {
          */
         XLWorksheet& operator=(XLWorksheet&& other) = delete;
 
+
+
         /**
          * @brief Get a pointer to the XLCell object for the given cell reference.
          * @param ref An XLCellReference object with the address of the cell to get.
@@ -276,7 +278,7 @@ namespace OpenXLSX::Impl {
          */
         void Import(const std::string& fileName, const std::string& delimiter = ";");
 
-        std::string GetXmlData() const override;
+        const std::string& GetXmlData() const override;
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Protected Member Functions

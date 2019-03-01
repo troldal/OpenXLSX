@@ -620,9 +620,12 @@ void Impl::XLWorksheet::Import(const std::string& fileName, const string& delimi
     file.close();
 }
 
-string Impl::XLWorksheet::GetXmlData() const {
+const string& Impl::XLWorksheet::GetXmlData() const {
 
-    ostringstream ostr;
-    XmlDocument()->save(ostr);
-    return ostr.str();
+//    ostringstream ostr;
+//    XmlDocument()->save(ostr);
+//    return ostr.str();
+
+    return XLAbstractXMLFile::GetXmlData();
+
 }

@@ -46,6 +46,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_IMPL_XLABSTRACTXMLFILE_H
 #define OPENXLSX_IMPL_XLABSTRACTXMLFILE_H
 
+#include <pugixml.hpp>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -66,7 +67,6 @@ namespace OpenXLSX::Impl {
      */
     class XLAbstractXMLFile {
         friend class XLWorkbook;
-
         friend class XLColumn;
 
         //----------------------------------------------------------------------------------------------------------------------
@@ -110,12 +110,12 @@ namespace OpenXLSX::Impl {
          * @brief Method for getting the XML data represented by the object.
          * @return A std::string with the XML data.
          */
-        virtual std::string GetXmlData() const;
+        virtual const std::string& GetXmlData() const;
 
         /**
          * @brief Commit the XML data to the zipped .xlsx package.
          */
-        virtual void CommitXMLData();
+        virtual void CommitXMLData() final;
 
         /**
          * @brief Delete the XML file from the zipped .xlsx package.
@@ -128,12 +128,6 @@ namespace OpenXLSX::Impl {
          * @note This method is final, i.e. it cannot be overridden.
          */
         virtual const std::string& FilePath() const final;
-
-        /**
-         * @brief Prints the XML document to the standard output
-         * @todo consider having a generic function for both saving and printing.
-         */
-        virtual void Print() const final;
 
 
         //----------------------------------------------------------------------------------------------------------------------
@@ -170,13 +164,13 @@ namespace OpenXLSX::Impl {
 
     private:
 
-        std::unique_ptr<XMLDocument> m_xmlDocument; /**< A pointer to the underlying XMLDocument resource*/
+        XMLDocument         m_xmlDocument; /**< A pointer to the underlying XMLDocument resource*/
+        mutable std::string m_xmlData; /**< A std::string with the XML data. This is only updated when GetXMLData() is called */
 
         XLDocument& m_parentDocument; /**< */
         std::string m_path; /**< */
 
-        mutable std::map<std::string,
-                         XLAbstractXMLFile*> m_childXmlDocuments; /**< A std::map with the child XML documents. */
+        mutable std::map<std::string, XLAbstractXMLFile*> m_childXmlDocuments; /**< A std::map with the child XML documents. */
 
     };
 }  // namespace OpenXLSX::Impl

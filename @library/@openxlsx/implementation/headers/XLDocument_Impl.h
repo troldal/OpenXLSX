@@ -71,12 +71,8 @@ namespace libzippp {
 namespace OpenXLSX::Impl {
 
     class XLSharedStrings;
-
     class XLWorkbook;
-
     class XLWorksheet;
-
-
 
     //======================================================================================================================
     //========== XLDocument Class ==========================================================================================
@@ -90,12 +86,8 @@ namespace OpenXLSX::Impl {
      */
     class XLDocument {
         friend class XLAbstractXMLFile;
-
         friend class XLWorkbook;
-
         friend class XLSheet;
-
-        friend class XLSpreadsheetElement;
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Public Member Functions
@@ -279,7 +271,12 @@ namespace OpenXLSX::Impl {
 
         template<typename T>
         typename std::enable_if_t<std::is_base_of<XLAbstractXMLFile, T>::value, std::unique_ptr<T>>
-        CreateItem(const std::string& target);
+        CreateItem(const std::string& target) {
+
+            if (!m_documentRelationships->TargetExists(target))
+                throw XLException("Target does not exist!");
+            return std::make_unique<T>(*this, m_documentRelationships->RelationshipByTarget(target)->Target());
+        }
 
 
         //----------------------------------------------------------------------------------------------------------------------
@@ -296,22 +293,9 @@ namespace OpenXLSX::Impl {
         std::unique_ptr<XLCoreProperties> m_docCoreProperties; /**< A pointer to the Core properties object*/
         std::unique_ptr<XLWorkbook>       m_workbook; /**< A pointer to the workbook object */
 
-        std::map<std::string, XLAbstractXMLFile*> m_xmlFiles; /**< A std::map with all the associated XML files*/
         std::unique_ptr<libzippp::ZipArchive>     m_archive;
 
-        std::vector<std::string> m_xmlData;
     };
-
-    template<typename T>
-    typename std::enable_if_t<std::is_base_of<XLAbstractXMLFile, T>::value, std::unique_ptr<T>>
-    XLDocument::CreateItem(const std::string& target) {
-
-        if (!m_documentRelationships->TargetExists(target))
-            throw XLException("Target does not exist!");
-        auto result = std::make_unique<T>(*this, m_documentRelationships->RelationshipByTarget(target)->Target());
-        m_xmlFiles[result->FilePath()] = result.get();
-        return std::move(result);
-    }
 
 } // namespace OpenXLSX::Impl
 
