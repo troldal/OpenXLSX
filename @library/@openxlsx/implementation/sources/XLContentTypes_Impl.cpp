@@ -5,7 +5,6 @@
 //
 
 #include <cstring>
-#include <pugixml.hpp>
 
 #include "XLContentTypes_Impl.h"
 #include "XLDocument_Impl.h"
@@ -17,54 +16,10 @@ using namespace OpenXLSX;
  * @details
  */
 Impl::XLContentItem::XLContentItem(XMLNode node, std::string path, XLContentType type)
-        : m_contentNode(std::make_unique<XMLNode>(node)),
+        : m_contentNode(node),
           m_contentPath(std::move(path)),
           m_contentType(type) {
 
-}
-
-/**
- * @details
- */
-Impl::XLContentItem::XLContentItem(const XLContentItem& other)
-        : m_contentNode(std::make_unique<XMLNode>(*other.m_contentNode)),
-          m_contentPath(other.m_contentPath),
-          m_contentType(other.m_contentType) {
-    //todo: copying of base class members...?
-}
-
-/**
- * @details
- */
-Impl::XLContentItem::XLContentItem(XLContentItem&& other)
-        : m_contentNode(move(other.m_contentNode)),
-          m_contentPath(move(other.m_contentPath)),
-          m_contentType(other.m_contentType) {
-
-}
-
-/**
- * @details
- */
-Impl::XLContentItem& Impl::XLContentItem::operator=(const XLContentItem& other) {
-
-    *m_contentNode = *other.m_contentNode;
-    m_contentPath = other.m_contentPath;
-    m_contentType = other.m_contentType;
-
-    return *this;
-}
-
-/**
- * @details
- */
-Impl::XLContentItem& Impl::XLContentItem::operator=(XLContentItem&& other) {
-
-    m_contentNode = move(other.m_contentNode);
-    m_contentPath = move(other.m_contentPath);
-    m_contentType = other.m_contentType;
-
-    return *this;
 }
 
 /**
@@ -89,9 +44,9 @@ const string& Impl::XLContentItem::Path() const {
 void Impl::XLContentItem::DeleteItem() {
 
     if (m_contentNode)
-        m_contentNode->parent().remove_child(*m_contentNode);
+        m_contentNode.parent().remove_child(m_contentNode);
 
-    m_contentNode = std::make_unique<XMLNode>();
+    m_contentNode = XMLNode();
     m_contentPath = "";
     m_contentType = XLContentType::Unknown;
 
@@ -180,8 +135,7 @@ bool Impl::XLContentTypes::ParseXMLData() {
             else
                 type = XLContentType::Unknown;
 
-            unique_ptr<XLContentItem> item(new XLContentItem(node, path, type));
-            m_overrides.insert({path, move(item)});
+            m_overrides.emplace(path, XLContentItem(node, path, type));
         }
     }
 
@@ -193,7 +147,7 @@ bool Impl::XLContentTypes::ParseXMLData() {
  */
 void Impl::XLContentTypes::AddDefault(const string& key, XMLNode node) {
 
-    m_defaults.insert({key, node});
+    m_defaults.emplace(key, node);
 }
 
 /**
@@ -252,8 +206,7 @@ void Impl::XLContentTypes::addOverride(const string& path, XLContentType type) {
     node.append_attribute("PartName").set_value(path.c_str());
     node.append_attribute("ContentType").set_value(typeString.c_str());
 
-    unique_ptr<XLContentItem> item(new XLContentItem(node, path, type));
-    m_overrides.insert({path, move(item)});
+    m_overrides.emplace(path, XLContentItem(node, path, type));
 }
 
 /**
@@ -267,16 +220,8 @@ void Impl::XLContentTypes::ClearOverrides() {
 /**
  * @details
  */
-const Impl::XLContentItemMap* Impl::XLContentTypes::contentItems() const {
-
-    return &m_overrides;
-}
-
-/**
- * @details
- */
 Impl::XLContentItem* Impl::XLContentTypes::ContentItem(const std::string& path) {
 
-    return m_overrides.at(path).get();
+    return &m_overrides.at(path);
 }
 

@@ -46,12 +46,14 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_IMPL_XLDOCCOREPROPERTIES_H
 #define OPENXLSX_IMPL_XLDOCCOREPROPERTIES_H
 
-#include "XLAbstractXMLFile_Impl.h"
-#include "XLXml_Impl.h"
-
+// ===== Standard Library Includes ===== //
 #include <string>
 #include <vector>
 #include <map>
+
+// ===== OpenXLSX Includes ===== //
+#include "XLAbstractXMLFile_Impl.h"
+#include "XLXml_Impl.h"
 
 namespace OpenXLSX::Impl {
 
@@ -62,7 +64,7 @@ namespace OpenXLSX::Impl {
     /**
      * @brief
      */
-    class XLCoreProperties : public XLAbstractXMLFile{
+    class XLCoreProperties : public XLAbstractXMLFile {
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Public Member Functions

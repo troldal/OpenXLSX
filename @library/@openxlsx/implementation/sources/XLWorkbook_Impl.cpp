@@ -44,29 +44,29 @@ bool Impl::XLWorkbook::ParseXMLData() {
     m_sheetsNode   = XmlDocument()->first_child().child("sheets");
     m_definedNames = XmlDocument()->first_child().child("definedNames");
 
-    for (auto const& item : *m_relationships->Relationships()) {
-        string path = item.second->Target();
+    for (const auto& item : m_relationships->Relationships()) {
+        string path = item->Target();
 
-        switch (item.second->Type()) {
+        switch (item->Type()) {
 
             // Set up SharedStrings file
             case XLRelationshipType::SharedStrings :
-                CreateSharedStrings(*item.second);
+                CreateSharedStrings(*item);
                 break;
 
                 // Set up Styles file
             case XLRelationshipType::Styles :
-                CreateStyles(*item.second);
+                CreateStyles(*item);
                 break;
 
                 // Set up Worksheet files
             case XLRelationshipType::Worksheet :
-                CreateWorksheet(*item.second);
+                CreateWorksheet(*item);
                 break;
 
                 // Set up Chartsheet files
             case XLRelationshipType::ChartSheet :
-                CreateChartsheet(*item.second);
+                CreateChartsheet(*item);
                 break;
 
             default:
@@ -365,7 +365,7 @@ void Impl::XLWorkbook::MoveSheet(const std::string& sheetName, unsigned int inde
     sort(m_sheets.begin(), m_sheets.end(), [](const XLSheetData& first, const XLSheetData& second) {
         return first.sheetIndex < second.sheetIndex;
     });
-
+    
 }
 
 /**

@@ -40,13 +40,17 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_IMPL_XLAPPPROPERTIES_H
 #define OPENXLSX_IMPL_XLAPPPROPERTIES_H
 
-#include "XLAbstractXMLFile_Impl.h"
-#include "XLXml_Impl.h"
-
+// ===== Standard Library Includes ===== //
 #include <string>
 #include <vector>
 #include <memory>
 #include <map>
+
+// ===== OpenXLSX Includes ===== //
+#include "XLAbstractXMLFile_Impl.h"
+#include "XLXml_Impl.h"
+
+
 
 namespace OpenXLSX::Impl {
 
@@ -59,7 +63,6 @@ namespace OpenXLSX::Impl {
      * document app properties in the app.xml file (docProps folder) in the .xlsx package.
      */
     class XLAppProperties : public XLAbstractXMLFile {
-        friend class XLDocument;
 
         //--------------------------------------------------------------------------------------------------------------
         //           Public Member Functions
@@ -263,13 +266,13 @@ namespace OpenXLSX::Impl {
     private:
 
         // ===== Entities related to sheet names ===== //
-        std::unique_ptr<XMLAttribute> m_sheetCountAttribute; /**< */
-        std::unique_ptr<XMLNode>      m_sheetNamesParent; /**< */
+        XMLAttribute m_sheetCountAttribute; /**< */
+        XMLNode      m_sheetNamesParent; /**< */
 
         // ===== Entities related to "Heading Pairs" ===== //
-        std::unique_ptr<XMLAttribute> m_headingPairsSize; /**< */
-        std::unique_ptr<XMLNode>      m_headingPairsCategories; /**< */
-        std::unique_ptr<XMLNode>      m_headingPairsCounts; /**< */
+        XMLAttribute m_headingPairsSize; /**< */
+        XMLNode      m_headingPairsCategories; /**< */
+        XMLNode      m_headingPairsCounts; /**< */
 
     };
 

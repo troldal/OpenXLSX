@@ -57,22 +57,20 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLAppProperties_Impl.h"
 #include "XLCoreProperties_Impl.h"
 #include "XLWorkbook_Impl.h"
-#include "XLContentTypeEnum_impl.h"
+#include "XLEnums_impl.h"
 #include "XLRelationships_Impl.h"
 #include "XLException.h"
 #include "XLXml_Impl.h"
 #include "XLDefinitions.h"
-#include "../../../@libzip++/libzip++.h"
-
-using ZipArchive = libzippp::ZipArchive;
 
 namespace libzippp {class ZipArchive;} // namespace libzippp
+using ZipArchive = libzippp::ZipArchive;
+
 namespace OpenXLSX::Impl {
 
     class XLContentItem;
     class XLContentTypes;
-
-
+    
     //======================================================================================================================
     //========== XLDocument Class ==========================================================================================
     //======================================================================================================================

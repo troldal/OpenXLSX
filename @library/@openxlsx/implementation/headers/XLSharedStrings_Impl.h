@@ -46,11 +46,13 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_IMPL_XLSHAREDSTRINGS_H
 #define OPENXLSX_IMPL_XLSHAREDSTRINGS_H
 
-#include "XLAbstractXMLFile_Impl.h"
-#include "XLXml_Impl.h"
-
+// ===== Standard Library Includes ===== //
 #include <vector>
 #include <string_view>
+
+// ===== OpenXLSX Includes ===== //
+#include "XLAbstractXMLFile_Impl.h"
+#include "XLXml_Impl.h"
 
 namespace OpenXLSX::Impl {
 

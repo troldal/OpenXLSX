@@ -5,7 +5,10 @@
 #ifndef OPENXLSX_XLCONTENTTYPEENUM_IMPL_H
 #define OPENXLSX_XLCONTENTTYPEENUM_IMPL_H
 
+#include <XLDefinitions.h>
+
 namespace OpenXLSX::Impl {
+
     //======================================================================================================================
     //========== XLColumnVector Enum =======================================================================================
     //======================================================================================================================
@@ -37,6 +40,41 @@ namespace OpenXLSX::Impl {
         VMLDrawing,
         Unknown
     };
+
+    //======================================================================================================================
+    //========== XLRelationshipType Enum ===================================================================================
+    //======================================================================================================================
+
+    /**
+     * @brief An enum of the possible relationship (or XML document) types used in relationship (.rels) XML files.
+     */
+    enum class XLRelationshipType {
+        CoreProperties,
+        ExtendedProperties,
+        CustomProperties,
+        Workbook,
+        Worksheet,
+        ChartSheet,
+        DialogSheet,
+        MacroSheet,
+        CalculationChain,
+        ExternalLink,
+        ExternalLinkPath,
+        Theme,
+        Styles,
+        Chart,
+        ChartStyle,
+        ChartColorStyle,
+        Image,
+        Drawing,
+        VMLDrawing,
+        SharedStrings,
+        PrinterSettings,
+        VBAProject,
+        ControlProperties,
+        Unknown
+    };
+
 } // namespace OpenXLSX::Impl
 
 #endif //OPENXLSX_XLCONTENTTYPEENUM_IMPL_H
