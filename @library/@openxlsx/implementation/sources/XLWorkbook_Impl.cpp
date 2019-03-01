@@ -623,3 +623,14 @@ void Impl::XLWorkbook::CreateChartsheet(const XLRelationshipItem& item) {
     m_sheetId++;
 }
 
+void Impl::XLWorkbook::CommitXMLData() {
+
+    XLAbstractXMLFile::CommitXMLData();
+    if(m_relationships) m_relationships->CommitXMLData();
+    if(m_sharedStrings) m_sharedStrings->CommitXMLData();
+    if(m_styles) m_styles->CommitXMLData();
+    for(auto& sheet : m_sheets)
+        if(sheet.sheetItem) sheet.sheetItem->CommitXMLData();
+
+}
+

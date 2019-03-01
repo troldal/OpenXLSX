@@ -57,10 +57,10 @@ const string& Impl::XLAbstractXMLFile::GetXmlData() const {
 void Impl::XLAbstractXMLFile::CommitXMLData() {
 
     m_parentDocument.AddOrReplaceXMLFile(m_path, GetXmlData());
-    for (auto file : m_childXmlDocuments) {
-        if (file.second != nullptr)
-            file.second->CommitXMLData();
-    }
+//    for (auto file : m_childXmlDocuments) {
+//        if (file.second != nullptr)
+//            file.second->CommitXMLData();
+//    }
 }
 
 /**

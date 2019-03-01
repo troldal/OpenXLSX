@@ -327,6 +327,8 @@ namespace OpenXLSX::Impl {
 
         const XLDocument* Document() const;
 
+        void CommitXMLData() override;
+
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Protected Member Functions

@@ -115,7 +115,7 @@ namespace OpenXLSX::Impl {
         /**
          * @brief Commit the XML data to the zipped .xlsx package.
          */
-        virtual void CommitXMLData() final;
+        virtual void CommitXMLData();
 
         /**
          * @brief Delete the XML file from the zipped .xlsx package.
