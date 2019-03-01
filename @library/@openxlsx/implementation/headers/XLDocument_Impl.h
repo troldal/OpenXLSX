@@ -46,33 +46,32 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_IMPL_XLDOCUMENT_H
 #define OPENXLSX_IMPL_XLDOCUMENT_H
 
+// ===== Standard Library Includes ===== //
 #include <string>
 #include <map>
 #include <vector>
 #include <iostream>
 #include <fstream>
 
-#include "XLContentTypes_Impl.h"
+// ===== OpenXLSX Includes ===== //
 #include "XLAppProperties_Impl.h"
 #include "XLCoreProperties_Impl.h"
-#include "XLSharedStrings_Impl.h"
-#include "XLStyles_Impl.h"
 #include "XLWorkbook_Impl.h"
-#include "XLSheet_Impl.h"
+#include "XLContentTypeEnum_impl.h"
 #include "XLRelationships_Impl.h"
 #include "XLException.h"
-
+#include "XLXml_Impl.h"
 #include "XLDefinitions.h"
+#include "../../../@libzip++/libzip++.h"
 
-namespace libzippp {
-    class ZipArchive;
-} // namespace libzippp
+using ZipArchive = libzippp::ZipArchive;
 
+namespace libzippp {class ZipArchive;} // namespace libzippp
 namespace OpenXLSX::Impl {
 
-    class XLSharedStrings;
-    class XLWorkbook;
-    class XLWorksheet;
+    class XLContentItem;
+    class XLContentTypes;
+
 
     //======================================================================================================================
     //========== XLDocument Class ==========================================================================================
@@ -85,6 +84,10 @@ namespace OpenXLSX::Impl {
      * using the RapidXLSX library.</em></b>
      */
     class XLDocument {
+
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Friends
+        //----------------------------------------------------------------------------------------------------------------------
         friend class XLAbstractXMLFile;
         friend class XLWorkbook;
         friend class XLSheet;
@@ -292,8 +295,7 @@ namespace OpenXLSX::Impl {
         std::unique_ptr<XLAppProperties>  m_docAppProperties; /**< A pointer to the App properties object */
         std::unique_ptr<XLCoreProperties> m_docCoreProperties; /**< A pointer to the Core properties object*/
         std::unique_ptr<XLWorkbook>       m_workbook; /**< A pointer to the workbook object */
-
-        std::unique_ptr<libzippp::ZipArchive>     m_archive;
+        std::unique_ptr<ZipArchive>       m_archive; /**<  */
 
     };
 

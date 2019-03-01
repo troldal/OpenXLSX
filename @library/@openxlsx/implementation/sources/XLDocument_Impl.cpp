@@ -2,6 +2,7 @@
 // Created by Troldal on 24/07/16.
 //
 
+#include "XLContentTypes_Impl.h"
 #include "XLDocument_Impl.h"
 #include "XLWorksheet_Impl.h"
 #include "XLTemplate_Impl.h"

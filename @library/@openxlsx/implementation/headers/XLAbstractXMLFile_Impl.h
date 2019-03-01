@@ -46,11 +46,13 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_IMPL_XLABSTRACTXMLFILE_H
 #define OPENXLSX_IMPL_XLABSTRACTXMLFILE_H
 
-#include <pugixml.hpp>
+// ===== Standard Library Includes ===== //
 #include <iostream>
 #include <memory>
 #include <string>
 #include <map>
+
+// ===== OpenXLSX Includes ===== //
 #include "XLXml_Impl.h"
 
 namespace OpenXLSX::Impl {
@@ -66,8 +68,6 @@ namespace OpenXLSX::Impl {
      * file in an .xlsx package
      */
     class XLAbstractXMLFile {
-        friend class XLWorkbook;
-        friend class XLColumn;
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Public Member Functions
@@ -164,11 +164,10 @@ namespace OpenXLSX::Impl {
 
     private:
 
+        std::string         m_path; /**< */
+        XLDocument&         m_parentDocument; /**< */
         XMLDocument         m_xmlDocument; /**< A pointer to the underlying XMLDocument resource*/
         mutable std::string m_xmlData; /**< A std::string with the XML data. This is only updated when GetXMLData() is called */
-
-        XLDocument& m_parentDocument; /**< */
-        std::string m_path; /**< */
 
     };
 }  // namespace OpenXLSX::Impl

@@ -103,7 +103,7 @@ namespace OpenXLSX::Impl {
          * @brief Destructor
          * @note Default destructor specified
          */
-        ~XLWorkbook() override = default;
+        ~XLWorkbook() override;
 
         /**
          * @brief Copy assignment operator.

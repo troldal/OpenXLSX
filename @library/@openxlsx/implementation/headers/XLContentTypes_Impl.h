@@ -47,6 +47,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #define OPENXLSX_IMPL_XLCONTENTTYPES_H
 
 #include "XLAbstractXMLFile_Impl.h"
+#include "XLContentTypeEnum_impl.h"
 #include "XLXml_Impl.h"
 
 #include <map>
@@ -57,37 +58,6 @@ namespace OpenXLSX::Impl {
 
     using XLContentItemMap = std::map<std::string, std::unique_ptr<XLContentItem>>;
 
-    //======================================================================================================================
-    //========== XLColumnVector Enum =======================================================================================
-    //======================================================================================================================
-
-    /**
-     * @brief
-     */
-    enum class XLContentType {
-        Workbook,
-        WorkbookMacroEnabled,
-        Worksheet,
-        Chartsheet,
-        ExternalLink,
-        Theme,
-        Styles,
-        SharedStrings,
-        Drawing,
-        Chart,
-        ChartStyle,
-        ChartColorStyle,
-        ControlProperties,
-        CalculationChain,
-        VBAProject,
-        CoreProperties,
-        ExtendedProperties,
-        CustomProperties,
-        Comments,
-        Table,
-        VMLDrawing,
-        Unknown
-    };
 
     //======================================================================================================================
     //========== XLContentItem Class =======================================================================================

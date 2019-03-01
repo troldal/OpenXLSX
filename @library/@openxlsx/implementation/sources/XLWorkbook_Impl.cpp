@@ -9,6 +9,7 @@
 
 #include "XLWorksheet_Impl.h"
 #include "XLChartsheet_Impl.h"
+#include "XLStyles_Impl.h"
 
 using namespace std;
 using namespace OpenXLSX;
@@ -28,6 +29,8 @@ Impl::XLWorkbook::XLWorkbook(XLDocument& parent, const std::string& filePath)
 
     ParseXMLData();
 }
+
+Impl::XLWorkbook::~XLWorkbook() = default;
 
 /**
  * @details
