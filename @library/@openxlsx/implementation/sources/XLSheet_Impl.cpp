@@ -122,7 +122,7 @@ void Impl::XLSheet::Delete() {
     m_nodeInContentTypes = nullptr;
 
     // Delete the item in Workbook.xml.rels
-    Workbook()->Document()->Workbook()->Relationships()->DeleteRelationship(m_nodeInWorkbookRels->Id());
+    Workbook()->Document()->Workbook()->Relationships()->DeleteRelationship(m_nodeInWorkbookRels->Id().value());
     m_nodeInWorkbookRels = nullptr;
 
     // Delete the underlying XML file.

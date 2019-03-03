@@ -13,10 +13,11 @@ int main() {
     auto wbk = doc.Workbook();
 
     wbk.AddWorksheet("MySheet01");    // Append new sheet
-    //wbk.AddWorksheet("MySheet02", 1); // Prepend new sheet
-    //wbk.AddWorksheet("MySheet03", 1); // Prepend new sheet
-    //wbk.AddWorksheet("MySheet04", 2); // Insert new sheet
-    //wbk.MoveSheet("Sheet1", 1);       // Move Sheet1 to front
+    wbk.AddWorksheet("MySheet02", 1); // Prepend new sheet
+    wbk.AddWorksheet("MySheet03", 1); // Prepend new sheet
+    wbk.AddWorksheet("MySheet04", 2); // Insert new sheet
+    wbk.MoveSheet("Sheet1", 1);       // Move Sheet1 to front
+    wbk.DeleteSheet("MySheet01");
 
     for (const auto& name : wbk.WorksheetNames())
         cout << name << ": " << wbk.IndexOfSheet(name) << endl;

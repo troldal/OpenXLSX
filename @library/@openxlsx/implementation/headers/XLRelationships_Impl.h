@@ -61,20 +61,15 @@ namespace OpenXLSX::Impl {
     class XLRelationships;
     class XLRelationshipItem;
 
-    //======================================================================================================================
-    //========== XLRelationshipItem Class ==================================================================================
-    //======================================================================================================================
-
+    //========== XLRelationshipItem Class ========== //
     /**
      * @brief An encapsulation of a relationship item, i.e. an XML file in the document, its type and an ID number.
      */
     class XLRelationshipItem {
+        // ---------- Friend Declarations ---------- //
         friend class XLRelationships;
 
-        //----------------------------------------------------------------------------------------------------------------------
-        //           Public Member Functions
-        //----------------------------------------------------------------------------------------------------------------------
-
+        // ----------Public Member Functions ---------- //
     public:
 
         /**
@@ -117,19 +112,16 @@ namespace OpenXLSX::Impl {
          * @brief Get the target, i.e. the path to the XML file the relationship item refers to.
          * @return A const reference to the target string.
          */
-        const std::string& Target() const;
+        XMLAttribute Target() const;
 
         /**
          * @brief Get the id of the relationship item.
          * @return A const reference to the id string.
          */
-        const std::string& Id() const;
+        XMLAttribute Id() const;
 
 
-        //----------------------------------------------------------------------------------------------------------------------
-        //           Protected Member Functions
-        //----------------------------------------------------------------------------------------------------------------------
-
+        // ---------- Protected Member Functions ---------- //
     protected:
 
         /**
@@ -139,49 +131,40 @@ namespace OpenXLSX::Impl {
          */
         void Delete();
 
-        //----------------------------------------------------------------------------------------------------------------------
-        //           Private Member Functions
-        //----------------------------------------------------------------------------------------------------------------------
 
+        // ---------- Private Member Functions ---------- //
     private:
 
         /**
          * @brief Constructor (Private). New items should only be created through an XLRelationship object.
-         * @param node A pointer to the XML node with thr relationship item.
+         * @param node A pointer to the XML node with the relationship item.
          * @param type The type of the relationship item
          * @param target The target of the relationship item
          * @param id The id of the relationship item
          */
-        XLRelationshipItem(XMLNode node, XLRelationshipType type, const std::string& target, const std::string& id);
+        explicit XLRelationshipItem(XMLNode node);
 
-        //----------------------------------------------------------------------------------------------------------------------
-        //           Private Member Variables
-        //----------------------------------------------------------------------------------------------------------------------
+        static XLRelationshipType GetTypeFromString(const std::string& typeString);
 
+        static std::string GetStringFromType(XLRelationshipType type);
+
+
+        // ---------- Private Member Variables ---------- //
     private:
 
-        XMLNode            m_relationshipNode; /**< A pointer to the XML node with the relationship item */
-        XLRelationshipType m_relationshipType; /**< The type of the relationship item */
-        std::string        m_relationshipTarget; /**< The target of the relationship item */
-        std::string        m_relationshipId; /**< The ID of the relationship item */
+        XMLNode m_relationshipNode; /**< A pointer to the XML node with the relationship item */
     };
 
 
-
-    //======================================================================================================================
-    //========== XLRelationships Class =====================================================================================
-    //======================================================================================================================
-
+    // ========== XLRelationships Class ========== //
     /**
      * @brief An encapsulation of relationship files (.rels files) in an Excel document package.
      */
     class XLRelationships : public XLAbstractXMLFile {
+        // ---------- Friend Declarations ---------- //
         friend class XLRelationshipItem;
-        
-        //----------------------------------------------------------------------------------------------------------------------
-        //          Public Member Functions
-        //----------------------------------------------------------------------------------------------------------------------
 
+        // ---------- Public Member Functions ---------- //
     public:
 
         /**
@@ -257,10 +240,7 @@ namespace OpenXLSX::Impl {
          */
         bool IdExists(const std::string& id) const;
 
-        //----------------------------------------------------------------------------------------------------------------------
-        //           Protected Member Functions
-        //----------------------------------------------------------------------------------------------------------------------
-
+        // ---------- Protected Member Functions ---------- //
     protected:
 
         /**
@@ -269,26 +249,19 @@ namespace OpenXLSX::Impl {
          */
         bool ParseXMLData() override;
 
-        //----------------------------------------------------------------------------------------------------------------------
-        //           Private Member Functions
-        //----------------------------------------------------------------------------------------------------------------------
-        
+        // ------------ Private Member Functions ---------- //
     private:
 
         /**
-         * @brief 
-         * @return 
+         * @brief
+         * @return
          */
-        unsigned long Count() const;
-        
+        unsigned long GetNewRelsID() const;
 
-        //----------------------------------------------------------------------------------------------------------------------
-        //           Private Member Variables
-        //----------------------------------------------------------------------------------------------------------------------
-
+        // ---------- Private Member Variables ---------- //
     private:
 
-        std::map<std::string, XLRelationshipItem> m_relationships; /**< A std::map with the relationship items, ordered by ID */
+        std::vector<XLRelationshipItem> m_relationships; /**< A std::vector with the relationship items */
     };
 } // namespace OpenXLSX::Impl
 

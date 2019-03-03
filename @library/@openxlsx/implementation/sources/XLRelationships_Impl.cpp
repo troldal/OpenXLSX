@@ -13,14 +13,8 @@ using namespace OpenXLSX;
 /**
  * @details Constructor. Initializes the member variables for the new XLRelationshipItem object.
  */
-Impl::XLRelationshipItem::XLRelationshipItem(XMLNode node,
-                                             XLRelationshipType type,
-                                             const std::string& target, const std::string& id)
-        : m_relationshipNode(node),
-          m_relationshipType(type),
-          m_relationshipTarget(target),
-          m_relationshipId(id) {
-
+Impl::XLRelationshipItem::XLRelationshipItem(XMLNode node)
+        : m_relationshipNode(node) {
 }
 
 /**
@@ -28,23 +22,23 @@ Impl::XLRelationshipItem::XLRelationshipItem(XMLNode node,
  */
 Impl::XLRelationshipType Impl::XLRelationshipItem::Type() const {
 
-    return m_relationshipType;
+    return XLRelationshipItem::GetTypeFromString(m_relationshipNode.attribute("Type").value());
 }
 
 /**
  * @details Returns the m_relationshipTarget member variable by value.
  */
-const std::string& Impl::XLRelationshipItem::Target() const {
+XMLAttribute Impl::XLRelationshipItem::Target() const {
 
-    return m_relationshipTarget;
+    return m_relationshipNode.attribute("Target");
 }
 
 /**
  * @details Returns the m_relationshipId member variable by value.
  */
-const std::string& Impl::XLRelationshipItem::Id() const {
+XMLAttribute Impl::XLRelationshipItem::Id() const {
 
-    return m_relationshipId;
+    return m_relationshipNode.attribute("Id");
 }
 
 /**
@@ -58,10 +52,6 @@ void Impl::XLRelationshipItem::Delete() {
 
     // Set the object to a safe State
     m_relationshipNode   = XMLNode();
-    m_relationshipType   = XLRelationshipType::Unknown;
-    m_relationshipTarget = "";
-    m_relationshipId     = "";
-
 }
 
 /**
@@ -71,7 +61,7 @@ Impl::XLRelationships::XLRelationships(XLDocument& parent, const std::string& fi
         : XLAbstractXMLFile(parent, filePath),
           m_relationships() {
 
-    ParseXMLData(); // This will call the ParseXMLData method.
+    ParseXMLData();
 }
 
 /**
@@ -79,7 +69,9 @@ Impl::XLRelationships::XLRelationships(XLDocument& parent, const std::string& fi
  */
 const Impl::XLRelationshipItem* Impl::XLRelationships::RelationshipByID(const std::string& id) const {
 
-    return &m_relationships.at(id);
+    return &*find_if(m_relationships.begin(), m_relationships.end(), [&](const XLRelationshipItem& item){
+        return id == item.Id().value();
+    });
 }
 
 /**
@@ -87,7 +79,9 @@ const Impl::XLRelationshipItem* Impl::XLRelationships::RelationshipByID(const st
  */
 Impl::XLRelationshipItem* Impl::XLRelationships::RelationshipByID(const std::string& id) {
 
-    return &m_relationships.at(id);
+    return &*find_if(m_relationships.begin(), m_relationships.end(), [&](const XLRelationshipItem& item){
+        return id == item.Id().value();
+    });
 }
 
 /**
@@ -95,16 +89,9 @@ Impl::XLRelationshipItem* Impl::XLRelationships::RelationshipByID(const std::str
  */
 const Impl::XLRelationshipItem* Impl::XLRelationships::RelationshipByTarget(const std::string& target) const {
 
-    return &find_if(m_relationships.begin(), m_relationships.end(), [=](decltype(*m_relationships.begin())& item) {
-        return item.second.Target() == target;
-    } )->second;
-
-//    for (auto const& item : *Relationships()) {
-//        if (item.second->Target() == target)
-//            return item.second.get();
-//    }
-//
-//    return nullptr;
+    return &*find_if(m_relationships.begin(), m_relationships.end(), [&](const XLRelationshipItem& item){
+        return target == item.Target().value();
+    });
 }
 
 /**
@@ -112,16 +99,9 @@ const Impl::XLRelationshipItem* Impl::XLRelationships::RelationshipByTarget(cons
  */
 Impl::XLRelationshipItem* Impl::XLRelationships::RelationshipByTarget(const std::string& target) {
 
-    return &find_if(m_relationships.begin(), m_relationships.end(), [=](decltype(*m_relationships.begin())& item) {
-        return item.second.Target() == target;
-    } )->second;
-
-    //    for (auto const& item : *Relationships()) {
-    //        if (item.second->Target() == target)
-    //            return item.second.get();
-    //    }
-    //
-    //    return nullptr;
+    return &*find_if(m_relationships.begin(), m_relationships.end(), [&](const XLRelationshipItem& item){
+        return target == item.Target().value();
+    });
 }
 
 /**
@@ -131,7 +111,7 @@ std::vector<const Impl::XLRelationshipItem*> Impl::XLRelationships::Relationship
 
     auto result = std::vector<const XLRelationshipItem*>();
     for (const auto& item : m_relationships)
-        result.emplace_back(&item.second);
+        result.emplace_back(&item);
 
     return result;
 }
@@ -141,8 +121,10 @@ std::vector<const Impl::XLRelationshipItem*> Impl::XLRelationships::Relationship
  */
 void Impl::XLRelationships::DeleteRelationship(const std::string& id) {
 
-    m_relationships.at(id).Delete();
-    m_relationships.erase(id); // Delete item from the Relationships map
+    RelationshipByID(id)->Delete();
+    remove_if(m_relationships.begin(), m_relationships.end(), [&] (const XLRelationshipItem& item){
+        return id == item.Id().value();
+    });
     WriteXMLData(); //TODO: is this really required?
 }
 
@@ -151,6 +133,114 @@ void Impl::XLRelationships::DeleteRelationship(const std::string& id) {
  * based on the newly created node.
  */
 Impl::XLRelationshipItem* Impl::XLRelationships::AddRelationship(XLRelationshipType type, const std::string& target) {
+
+    string typeString = XLRelationshipItem::GetStringFromType(type);
+
+    string id = "rId" + to_string(GetNewRelsID());
+
+    // Create new node in the .rels file
+    auto node = XmlDocument()->first_child().append_child("Relationship");
+    node.append_attribute("Id").set_value(id.c_str());
+    node.append_attribute("Type").set_value(typeString.c_str());
+    node.append_attribute("Target").set_value(target.c_str());
+
+    if (type == XLRelationshipType::ExternalLinkPath) {
+        node.append_attribute("TargetMode").set_value("External");
+    }
+
+    WriteXMLData(); //TODO: Is this really required?
+
+    return &m_relationships.emplace_back(XLRelationshipItem(node));
+}
+
+/**
+ * @details Each item in the XML file is read and a corresponding XLRelationshipItem object is created and added
+ * to the current XLRelationship object.
+ */
+bool Impl::XLRelationships::ParseXMLData() {
+
+    for (auto& theNode : XmlDocument()->first_child().children()) {
+        string             typeString = theNode.attribute("Type").value();
+        XLRelationshipType type = XLRelationshipItem::GetTypeFromString(typeString);
+
+        m_relationships.emplace_back(XLRelationshipItem(theNode));
+    }
+
+    return true;
+}
+
+unsigned long Impl::XLRelationships::GetNewRelsID() const {
+
+    return stoi(string(max_element(m_relationships.begin(), m_relationships.end(),
+            [] (const XLRelationshipItem& a, const XLRelationshipItem& b) {
+
+        return stoi(string(a.Id().value()).substr(3)) < stoi(string(b.Id().value()).substr(3));
+    })->m_relationshipNode.attribute("Id").value()).substr(3)) + 1;
+}
+
+bool Impl::XLRelationships::TargetExists(const std::string& target) const {
+
+    return RelationshipByTarget(target) != nullptr;
+}
+
+bool Impl::XLRelationships::IdExists(const std::string& id) const {
+
+    return RelationshipByID(id) != nullptr;
+}
+
+Impl::XLRelationshipType Impl::XLRelationshipItem::GetTypeFromString(const std::string& typeString) {
+
+    XLRelationshipType type;
+
+    if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties")
+        type = XLRelationshipType::ExtendedProperties;
+    else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/custom-properties")
+        type = XLRelationshipType::CustomProperties;
+    else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument")
+        type = XLRelationshipType::Workbook;
+    else if (typeString == "http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties")
+        type = XLRelationshipType::CoreProperties;
+    else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet")
+        type = XLRelationshipType::Worksheet;
+    else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles")
+        type = XLRelationshipType::Styles;
+    else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings")
+        type = XLRelationshipType::SharedStrings;
+    else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/calcChain")
+        type = XLRelationshipType::CalculationChain;
+    else if (typeString == "http://schemas.microsoft.com/office/2006/relationships/vbaProject")
+        type = XLRelationshipType::VBAProject;
+    else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/externalLink")
+        type = XLRelationshipType::ExternalLink;
+    else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme")
+        type = XLRelationshipType::Theme;
+    else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/chartsheet")
+        type = XLRelationshipType::ChartSheet;
+    else if (typeString == "http://schemas.microsoft.com/office/2011/relationships/chartStyle")
+        type = XLRelationshipType::ChartStyle;
+    else if (typeString == "http://schemas.microsoft.com/office/2011/relationships/chartColorStyle")
+        type = XLRelationshipType::ChartColorStyle;
+    else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing")
+        type = XLRelationshipType::Drawing;
+    else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image")
+        type = XLRelationshipType::Image;
+    else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart")
+        type = XLRelationshipType::Chart;
+    else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/externalLinkPath")
+        type = XLRelationshipType::ExternalLinkPath;
+    else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/printerSettings")
+        type = XLRelationshipType::PrinterSettings;
+    else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/vmlDrawing")
+        type = XLRelationshipType::VMLDrawing;
+    else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/ctrlProp")
+        type = XLRelationshipType::ControlProperties;
+    else
+        type = XLRelationshipType::Unknown;
+
+    return type;
+}
+
+std::string Impl::XLRelationshipItem::GetStringFromType(Impl::XLRelationshipType type) {
 
     string typeString;
 
@@ -197,105 +287,7 @@ Impl::XLRelationshipItem* Impl::XLRelationships::AddRelationship(XLRelationshipT
     else if (type == XLRelationshipType::ControlProperties)
         typeString = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/ctrlProp";
     else
-        throw runtime_error("RelationshipType not recognized!");
+        throw XLException("RelationshipType not recognized!");
 
-    string id = "rId" + to_string(Count() + 1);
-
-    // Create new node in the .rels file
-    auto node = XmlDocument()->first_child().append_child("Relationship");
-    node.append_attribute("Id").set_value(id.c_str());
-    node.append_attribute("Type").set_value(typeString.c_str());
-    node.append_attribute("Target").set_value(target.c_str());
-
-    if (type == XLRelationshipType::ExternalLinkPath) {
-        node.append_attribute("TargetMode").set_value("External");
-    }
-
-    // Create new XLRelationshipItem object and add to internal datastructure.
-//    unique_ptr<XLRelationshipItem> rShip(new XLRelationshipItem(node, type, target, id));
-//    XLRelationshipItem* result = rShip.get();
-//    m_relationships.insert({id, move(rShip)});
-
-
-    WriteXMLData(); //TODO: Is this really required?
-
-    return &m_relationships.emplace(id, XLRelationshipItem(node, type, target, id)).first->second;
+    return typeString;
 }
-
-/**
- * @details Each item in the XML file is read and a corresponding XLRelationshipItem object is created and added
- * to the current XLRelationship object.
- */
-bool Impl::XLRelationships::ParseXMLData() {
-
-    for (auto& theNode : XmlDocument()->first_child().children()) {
-        XLRelationshipType type;
-        string             typeString = theNode.attribute("Type").value();
-
-        if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties")
-            type = XLRelationshipType::ExtendedProperties;
-        else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/custom-properties")
-            type = XLRelationshipType::CustomProperties;
-        else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument")
-            type = XLRelationshipType::Workbook;
-        else if (typeString == "http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties")
-            type = XLRelationshipType::CoreProperties;
-        else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet")
-            type = XLRelationshipType::Worksheet;
-        else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles")
-            type = XLRelationshipType::Styles;
-        else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings")
-            type = XLRelationshipType::SharedStrings;
-        else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/calcChain")
-            type = XLRelationshipType::CalculationChain;
-        else if (typeString == "http://schemas.microsoft.com/office/2006/relationships/vbaProject")
-            type = XLRelationshipType::VBAProject;
-        else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/externalLink")
-            type = XLRelationshipType::ExternalLink;
-        else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme")
-            type = XLRelationshipType::Theme;
-        else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/chartsheet")
-            type = XLRelationshipType::ChartSheet;
-        else if (typeString == "http://schemas.microsoft.com/office/2011/relationships/chartStyle")
-            type = XLRelationshipType::ChartStyle;
-        else if (typeString == "http://schemas.microsoft.com/office/2011/relationships/chartColorStyle")
-            type = XLRelationshipType::ChartColorStyle;
-        else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing")
-            type = XLRelationshipType::Drawing;
-        else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image")
-            type = XLRelationshipType::Image;
-        else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart")
-            type = XLRelationshipType::Chart;
-        else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/externalLinkPath")
-            type = XLRelationshipType::ExternalLinkPath;
-        else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/printerSettings")
-            type = XLRelationshipType::PrinterSettings;
-        else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/vmlDrawing")
-            type = XLRelationshipType::VMLDrawing;
-        else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/ctrlProp")
-            type = XLRelationshipType::ControlProperties;
-        else
-            type = XLRelationshipType::Unknown;
-
-        m_relationships.emplace(theNode.attribute("Id").value(),
-                                XLRelationshipItem(theNode, type, theNode.attribute("Target").value(), theNode.attribute("Id").value()));
-    }
-
-    return true;
-}
-
-unsigned long Impl::XLRelationships::Count() const {
-
-    return m_relationships.size();
-}
-
-bool Impl::XLRelationships::TargetExists(const std::string& target) const {
-
-    return RelationshipByTarget(target) != nullptr;
-}
-
-bool Impl::XLRelationships::IdExists(const std::string& id) const {
-
-    return RelationshipByID(id) != nullptr;
-}
-

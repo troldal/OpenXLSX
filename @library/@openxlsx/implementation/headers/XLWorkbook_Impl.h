@@ -406,8 +406,8 @@ namespace OpenXLSX::Impl {
     private:
 
         struct XLSheetData {
-            unsigned int             sheetIndex;
-            XMLAttribute             sheetName;
+            XMLNode                  sheetNode;
+            //XLRelationshipItem       sheetRelId;
             std::string              sheetPath;
             XLSheetType              sheetType;
             std::unique_ptr<XLSheet> sheetItem;

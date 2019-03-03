@@ -276,7 +276,7 @@ namespace OpenXLSX::Impl {
 
             if (!m_documentRelationships->TargetExists(target))
                 throw XLException("Target does not exist!");
-            return std::make_unique<T>(*this, m_documentRelationships->RelationshipByTarget(target)->Target());
+            return std::make_unique<T>(*this, m_documentRelationships->RelationshipByTarget(target)->Target().value());
         }
 
 
