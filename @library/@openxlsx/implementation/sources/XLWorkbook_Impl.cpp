@@ -576,6 +576,8 @@ void Impl::XLWorkbook::CreateWorksheet(const XLRelationshipItem& item, const std
     sort(m_sheets.begin(), m_sheets.end(), [](const XLSheetData& first, const XLSheetData& second) {
         return first.sheetIndex < second.sheetIndex;
     });
+
+    m_sheetId++;
 }
 
 /**
