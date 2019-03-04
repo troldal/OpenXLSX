@@ -245,6 +245,9 @@ void Impl::XLWorkbook::DeleteSheet(const std::string& sheetName) {
     // Clear Worksheet and set to safe State
     Worksheet(sheetName)->Delete();
 
+    // Delete the underlying XML file.
+    DeleteXMLData();
+
     // Delete the pointer to the object
     m_sheets.erase(find_if(m_sheets.begin(), m_sheets.end(), [&](const XLSheetData& item) {
         return sheetName == item.sheetNode.attribute("name").value();
@@ -290,7 +293,6 @@ Impl::XLRelationshipItem* Impl::XLWorkbook::InitiateWorksheet(const std::string&
 
     auto node  = XMLNode();
     auto nodes = vector(m_sheetsNode.begin(), m_sheetsNode.end());
-
     if (index == 0 || index > nodes.size())
         node = m_sheetsNode.append_child("sheet");
     else
@@ -332,6 +334,21 @@ void Impl::XLWorkbook::AddChartsheet(const std::string& sheetName, unsigned int 
  */
 void Impl::XLWorkbook::MoveSheet(const std::string& sheetName, unsigned int index) {
 
+    if (index < 1) index               = 1;
+    if (index > m_sheets.size()) index = m_sheets.size();
+
+    // ===== If the new index is equal to the current, don't do anything
+    unsigned int curIndex = 1;
+    for (const auto& item : m_sheets) {
+        if (sheetName == item.sheetNode.attribute("name").value())
+            break;
+        ++curIndex;
+    }
+
+    if (index == curIndex)
+        return;
+
+    // ===== Modify the node in the XML file
     auto node = m_sheetsNode.find_child_by_attribute("name", sheetName.c_str());
 
     if (index <= 1)
@@ -345,22 +362,11 @@ void Impl::XLWorkbook::MoveSheet(const std::string& sheetName, unsigned int inde
         m_sheetsNode.insert_move_before(node, current);
     }
 
-    // TODO: Factor out as a separate function
-    unsigned int counter = 1;
-    for (const auto& child : m_sheetsNode.children()) {
-        auto found = find_if(m_sheets.begin(), m_sheets.end(), [&](const XLSheetData& data) {
-            return data.sheetNode.attribute("name") == child.attribute("name");
-        });
-
-        if (found != m_sheets.end())
-            found->sheetNode.attribute("sheetId") = counter;
-        ++counter;
-    }
-
-    sort(m_sheets.begin(), m_sheets.end(), [](const XLSheetData& first, const XLSheetData& second) {
-        return first.sheetNode.attribute("sheetId").as_int() < second.sheetNode.attribute("sheetId").as_int();
-    });
-
+    // ===== Move the element in the std::vector
+    auto first   = m_sheets.begin() + min(index, curIndex) - 1;
+    auto last    = m_sheets.begin() + max(index, curIndex);
+    auto n_first = m_sheets.begin() + (curIndex > index ? curIndex - 1 : curIndex);
+    rotate(first, n_first, last);
 }
 
 /**
@@ -559,28 +565,20 @@ void Impl::XLWorkbook::CreateWorksheet(const XLRelationshipItem& item, const std
     // If xmlData is empty, set the m_sheets and m_childXmlDocuments elements to nullptr. The worksheet will then be
     // lazy-instantiated when the worksheet is requested using the 'Worksheet" function.
     // If xmlData is provided (i.e. a new sheet is created or an existing is cloned), create the new worksheets accordingly.
-    auto& sheet = m_sheets.emplace_back();
+
+    unsigned int index = 0;
+    for (const auto& elem : m_sheetsNode.children()) {
+        if (string(item.Id().value()) == elem.attribute("r:id").value())
+            break;
+        ++index;
+    }
+
+    auto& sheet = *m_sheets.insert(m_sheets.begin() + index, XLSheetData());
     sheet.sheetNode = m_sheetsNode.find_child_by_attribute("r:id", item.Id().value());
     sheet.sheetPath = "xl/" + string(item.Target().value());
     sheet.sheetType = XLSheetType::WorkSheet;
-    sheet.sheetItem = (xmlData.empty() ? nullptr : make_unique<XLWorksheet>(*this, sheet.sheetNode.attribute("name"),
-                                                                            sheet.sheetPath, xmlData));
+    sheet.sheetItem = (xmlData.empty() ? nullptr : make_unique<XLWorksheet>(*this, sheet.sheetNode.attribute("name"),sheet.sheetPath, xmlData));
 
-    // TODO: Factor out as a separate function
-    unsigned int counter = 1;
-    for (const auto& child : m_sheetsNode.children()) {
-        auto found = find_if(m_sheets.begin(), m_sheets.end(), [&](const XLSheetData& data) {
-            return data.sheetNode.attribute("name") == child.attribute("name");
-        });
-
-        if (found != m_sheets.end())
-            found->sheetNode.attribute("sheetId") = counter;
-        ++counter;
-    }
-
-    sort(m_sheets.begin(), m_sheets.end(), [](const XLSheetData& first, const XLSheetData& second) {
-        return first.sheetNode.attribute("sheetId").as_int() < second.sheetNode.attribute("sheetId").as_int();
-    });
 }
 
 /**
