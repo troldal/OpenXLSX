@@ -73,11 +73,20 @@ namespace OpenXLSX::Impl {
     public:
 
         /**
+         * @brief Constructor (Private). New items should only be created through an XLRelationship object.
+         * @param node A pointer to the XML node with the relationship item.
+         * @param type The type of the relationship item
+         * @param target The target of the relationship item
+         * @param id The id of the relationship item
+         */
+        explicit XLRelationshipItem(XMLNode node = XMLNode());
+
+        /**
          * @brief Copy Constructor
          * @param other Object to be copied
          * @note The copy constructor has been explicitly deleted
          */
-        XLRelationshipItem(const XLRelationshipItem& other) = delete;
+        XLRelationshipItem(const XLRelationshipItem& other) = default;
 
         /**
          * @brief Move Constructor
@@ -92,7 +101,7 @@ namespace OpenXLSX::Impl {
          * @return A reference to the lhs object.
          * @note The copy assignment operator has been explicitly deleted
          */
-        XLRelationshipItem& operator=(const XLRelationshipItem& other) = delete;
+        XLRelationshipItem& operator=(const XLRelationshipItem& other) = default;
 
         /**
          * @brief Move assignment operator.
@@ -135,14 +144,6 @@ namespace OpenXLSX::Impl {
         // ---------- Private Member Functions ---------- //
     private:
 
-        /**
-         * @brief Constructor (Private). New items should only be created through an XLRelationship object.
-         * @param node A pointer to the XML node with the relationship item.
-         * @param type The type of the relationship item
-         * @param target The target of the relationship item
-         * @param id The id of the relationship item
-         */
-        explicit XLRelationshipItem(XMLNode node);
 
         static XLRelationshipType GetTypeFromString(const std::string& typeString);
 

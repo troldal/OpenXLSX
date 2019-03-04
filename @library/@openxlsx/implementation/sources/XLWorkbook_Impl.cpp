@@ -83,8 +83,9 @@ Impl::XLSheet* Impl::XLWorkbook::Sheet(const std::string& sheetName) {
     if (sheetData->sheetItem == nullptr) {
         switch (sheetData->sheetType) {
             case XLSheetType::WorkSheet:
-                sheetData->sheetItem = make_unique<XLWorksheet>(*this, sheetData->sheetNode.attribute("name"),
-                                                                sheetData->sheetPath);
+                sheetData->sheetItem = make_unique<XLWorksheet>(*this,
+                                                                sheetData->sheetNode.attribute("name"),
+                                                                sheetData->sheetRelationship.Target().value());
                 break;
 
             case XLSheetType::ChartSheet:
@@ -286,8 +287,8 @@ Impl::XLRelationshipItem* Impl::XLWorkbook::InitiateWorksheet(const std::string&
     Document()->AddContentItem(worksheetPath, XLContentType::Worksheet);
 
     // Add relationship item
-    XLRelationshipItem& item = *m_relationships
-            .AddRelationship(XLRelationshipType::Worksheet, "worksheets/sheet" + to_string(sheetID) + ".xml");
+    XLRelationshipItem& item = *m_relationships.AddRelationship(XLRelationshipType::Worksheet,
+                                                                "worksheets/sheet" + to_string(sheetID) + ".xml");
 
     // insert Sheet node at the given Index
 
@@ -332,40 +333,46 @@ void Impl::XLWorkbook::AddChartsheet(const std::string& sheetName, unsigned int 
  * @details
  * @todo To be implemented.
  */
-void Impl::XLWorkbook::MoveSheet(const std::string& sheetName, unsigned int index) {
+void Impl::XLWorkbook::MoveSheet(const std::string& sheetName, unsigned int newIndex) {
 
-    if (index < 1) index               = 1;
-    if (index > m_sheets.size()) index = m_sheets.size();
+    if (newIndex < 1) newIndex               = 1;
+    if (newIndex > m_sheets.size()) newIndex = m_sheets.size();
 
     // ===== If the new index is equal to the current, don't do anything
-    unsigned int curIndex = 1;
+    unsigned int oldIndex = 1;
     for (const auto& item : m_sheets) {
         if (sheetName == item.sheetNode.attribute("name").value())
             break;
-        ++curIndex;
+        ++oldIndex;
     }
 
-    if (index == curIndex)
+    if (newIndex == oldIndex)
         return;
 
     // ===== Modify the node in the XML file
     auto node = m_sheetsNode.find_child_by_attribute("name", sheetName.c_str());
 
-    if (index <= 1)
+    if (newIndex <= 1)
         m_sheetsNode.prepend_move(node);
-    else if (index >= SheetCount())
+    else if (newIndex >= SheetCount())
         m_sheetsNode.append_move(node);
     else {
-        auto     current = m_sheetsNode.first_child();
-        for (int i       = 1; i < index; ++i)
-            current = current.next_sibling();
-        m_sheetsNode.insert_move_before(node, current);
+        auto currentSheet = m_sheetsNode.first_child();
+        auto currentIndex = 1;
+        while (currentIndex < newIndex) {
+            currentSheet = currentSheet.next_sibling();
+            ++currentIndex;
+        }
+        if (oldIndex > newIndex)
+            m_sheetsNode.insert_move_before(node, currentSheet);
+        else
+            m_sheetsNode.insert_move_after(node, currentSheet);
     }
 
     // ===== Move the element in the std::vector
-    auto first   = m_sheets.begin() + min(index, curIndex) - 1;
-    auto last    = m_sheets.begin() + max(index, curIndex);
-    auto n_first = m_sheets.begin() + (curIndex > index ? curIndex - 1 : curIndex);
+    auto first   = m_sheets.begin() + min(newIndex, oldIndex) - 1;
+    auto last    = m_sheets.begin() + max(newIndex, oldIndex);
+    auto n_first = m_sheets.begin() + (oldIndex > newIndex ? oldIndex - 1 : oldIndex);
     rotate(first, n_first, last);
 }
 
@@ -574,10 +581,13 @@ void Impl::XLWorkbook::CreateWorksheet(const XLRelationshipItem& item, const std
     }
 
     auto& sheet = *m_sheets.insert(m_sheets.begin() + index, XLSheetData());
-    sheet.sheetNode = m_sheetsNode.find_child_by_attribute("r:id", item.Id().value());
-    sheet.sheetPath = "xl/" + string(item.Target().value());
-    sheet.sheetType = XLSheetType::WorkSheet;
-    sheet.sheetItem = (xmlData.empty() ? nullptr : make_unique<XLWorksheet>(*this, sheet.sheetNode.attribute("name"),sheet.sheetPath, xmlData));
+    sheet.sheetNode         = m_sheetsNode.find_child_by_attribute("r:id", item.Id().value());
+    sheet.sheetRelationship = item;
+    sheet.sheetType         = XLSheetType::WorkSheet;
+    sheet.sheetItem         = (xmlData.empty() ? nullptr : make_unique<XLWorksheet>(*this,
+                                                                                    sheet.sheetNode.attribute("name"),
+                                                                                    sheet.sheetRelationship.Target().value(),
+                                                                                    xmlData));
 
 }
 

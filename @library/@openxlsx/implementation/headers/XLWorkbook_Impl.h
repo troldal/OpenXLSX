@@ -223,9 +223,9 @@ namespace OpenXLSX::Impl {
 
         /**
          * @brief
-         * @param index
+         * @param newIndex
          */
-        void MoveSheet(const std::string& sheetName, unsigned int index);
+        void MoveSheet(const std::string& sheetName, unsigned int newIndex);
 
         /**
          * @brief
@@ -407,8 +407,7 @@ namespace OpenXLSX::Impl {
 
         struct XLSheetData {
             XMLNode                  sheetNode;
-            //XLRelationshipItem       sheetRelId;
-            std::string              sheetPath;
+            XLRelationshipItem       sheetRelationship;
             XLSheetType              sheetType;
             std::unique_ptr<XLSheet> sheetItem;
         };
