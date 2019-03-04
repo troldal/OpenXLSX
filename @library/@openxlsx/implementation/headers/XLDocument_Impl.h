@@ -63,14 +63,14 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLXml_Impl.h"
 #include "XLDefinitions.h"
 
-namespace libzippp {class ZipArchive;} // namespace libzippp
+namespace libzippp { class ZipArchive; } // namespace libzippp
 using ZipArchive = libzippp::ZipArchive;
 
 namespace OpenXLSX::Impl {
 
     class XLContentItem;
     class XLContentTypes;
-    
+
     //======================================================================================================================
     //========== XLDocument Class ==========================================================================================
     //======================================================================================================================

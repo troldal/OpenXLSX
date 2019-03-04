@@ -24,9 +24,7 @@ Impl::XLRow::XLRow(XLWorksheet& parent, XMLNode rowNode)
         m_cells.emplace(XLCellReference(cell.attribute("r").value()).Column() - 1,
                         XLCell::CreateCell(m_parentWorksheet, cell));
 
-
-    m_rowNode.attribute("spans") =
-            string("1:" + to_string(XLCellReference(m_rowNode.last_child().attribute("r").value()).Column())).c_str();
+    m_rowNode.attribute("spans") = string("1:" + to_string(XLCellReference(m_rowNode.last_child().attribute("r").value()).Column())).c_str();
 }
 
 /**

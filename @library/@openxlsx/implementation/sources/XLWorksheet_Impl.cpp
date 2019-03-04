@@ -17,7 +17,10 @@ using namespace OpenXLSX;
  * @details The constructor initializes the member variables and calls the loadXMLData from the
  * XLAbstractXMLFile base class.
  */
-Impl::XLWorksheet::XLWorksheet(XLWorkbook& parent, XMLAttribute name, const std::string& filePath, const std::string& xmlData)
+Impl::XLWorksheet::XLWorksheet(XLWorkbook& parent,
+                               XMLAttribute name,
+                               const std::string& filePath,
+                               const std::string& xmlData)
 
         : XLSheet(parent, name, filePath, xmlData),
           m_dimensionNode(std::make_unique<XMLNode>()),
@@ -622,9 +625,9 @@ void Impl::XLWorksheet::Import(const std::string& fileName, const string& delimi
 
 const string& Impl::XLWorksheet::GetXmlData() const {
 
-//    ostringstream ostr;
-//    XmlDocument()->save(ostr);
-//    return ostr.str();
+    //    ostringstream ostr;
+    //    XmlDocument()->save(ostr);
+    //    return ostr.str();
 
     return XLAbstractXMLFile::GetXmlData();
 

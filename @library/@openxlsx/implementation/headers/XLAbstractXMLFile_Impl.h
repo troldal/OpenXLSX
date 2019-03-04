@@ -171,8 +171,8 @@ namespace OpenXLSX::Impl {
 
     private:
 
-        std::string         m_path; /**< */
-        XLDocument&         m_parentDocument; /**< */
+        std::string m_path; /**< */
+        XLDocument& m_parentDocument; /**< */
         XMLDocument         m_xmlDocument; /**< A pointer to the underlying XMLDocument resource*/
         mutable std::string m_xmlData; /**< A std::string with the XML data. This is only updated when GetXMLData() is called */
 

@@ -51,7 +51,7 @@ void Impl::XLRelationshipItem::Delete() {
         m_relationshipNode.parent().remove_child(m_relationshipNode);
 
     // Set the object to a safe State
-    m_relationshipNode   = XMLNode();
+    m_relationshipNode = XMLNode();
 }
 
 /**
@@ -69,7 +69,7 @@ Impl::XLRelationships::XLRelationships(XLDocument& parent, const std::string& fi
  */
 const Impl::XLRelationshipItem* Impl::XLRelationships::RelationshipByID(const std::string& id) const {
 
-    return &*find_if(m_relationships.begin(), m_relationships.end(), [&](const XLRelationshipItem& item){
+    return &*find_if(m_relationships.begin(), m_relationships.end(), [&](const XLRelationshipItem& item) {
         return id == item.Id().value();
     });
 }
@@ -79,7 +79,7 @@ const Impl::XLRelationshipItem* Impl::XLRelationships::RelationshipByID(const st
  */
 Impl::XLRelationshipItem* Impl::XLRelationships::RelationshipByID(const std::string& id) {
 
-    return &*find_if(m_relationships.begin(), m_relationships.end(), [&](const XLRelationshipItem& item){
+    return &*find_if(m_relationships.begin(), m_relationships.end(), [&](const XLRelationshipItem& item) {
         return id == item.Id().value();
     });
 }
@@ -89,7 +89,7 @@ Impl::XLRelationshipItem* Impl::XLRelationships::RelationshipByID(const std::str
  */
 const Impl::XLRelationshipItem* Impl::XLRelationships::RelationshipByTarget(const std::string& target) const {
 
-    return &*find_if(m_relationships.begin(), m_relationships.end(), [&](const XLRelationshipItem& item){
+    return &*find_if(m_relationships.begin(), m_relationships.end(), [&](const XLRelationshipItem& item) {
         return target == item.Target().value();
     });
 }
@@ -99,7 +99,7 @@ const Impl::XLRelationshipItem* Impl::XLRelationships::RelationshipByTarget(cons
  */
 Impl::XLRelationshipItem* Impl::XLRelationships::RelationshipByTarget(const std::string& target) {
 
-    return &*find_if(m_relationships.begin(), m_relationships.end(), [&](const XLRelationshipItem& item){
+    return &*find_if(m_relationships.begin(), m_relationships.end(), [&](const XLRelationshipItem& item) {
         return target == item.Target().value();
     });
 }
@@ -122,7 +122,7 @@ std::vector<const Impl::XLRelationshipItem*> Impl::XLRelationships::Relationship
 void Impl::XLRelationships::DeleteRelationship(const std::string& id) {
 
     RelationshipByID(id)->Delete();
-    remove_if(m_relationships.begin(), m_relationships.end(), [&] (const XLRelationshipItem& item){
+    remove_if(m_relationships.begin(), m_relationships.end(), [&](const XLRelationshipItem& item) {
         return id == item.Id().value();
     });
     WriteXMLData(); //TODO: is this really required?
@@ -161,7 +161,7 @@ bool Impl::XLRelationships::ParseXMLData() {
 
     for (auto& theNode : XmlDocument()->first_child().children()) {
         string             typeString = theNode.attribute("Type").value();
-        XLRelationshipType type = XLRelationshipItem::GetTypeFromString(typeString);
+        XLRelationshipType type       = XLRelationshipItem::GetTypeFromString(typeString);
 
         m_relationships.emplace_back(XLRelationshipItem(theNode));
     }
@@ -171,11 +171,13 @@ bool Impl::XLRelationships::ParseXMLData() {
 
 unsigned long Impl::XLRelationships::GetNewRelsID() const {
 
-    return stoi(string(max_element(m_relationships.begin(), m_relationships.end(),
-            [] (const XLRelationshipItem& a, const XLRelationshipItem& b) {
+    return stoi(string(max_element(m_relationships.begin(),
+                                   m_relationships.end(),
+                                   [](const XLRelationshipItem& a, const XLRelationshipItem& b) {
 
-        return stoi(string(a.Id().value()).substr(3)) < stoi(string(b.Id().value()).substr(3));
-    })->m_relationshipNode.attribute("Id").value()).substr(3)) + 1;
+                                       return stoi(string(a.Id().value()).substr(3)) < stoi(string(b.Id().value()).substr(
+                                               3));
+                                   })->m_relationshipNode.attribute("Id").value()).substr(3)) + 1;
 }
 
 bool Impl::XLRelationships::TargetExists(const std::string& target) const {

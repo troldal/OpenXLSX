@@ -153,7 +153,7 @@ namespace OpenXLSX::Impl {
         //           Protected Member Functions
         //----------------------------------------------------------------------------------------------------------------------
 
-    //protected:
+        //protected:
     public:
 
         /**
@@ -175,7 +175,7 @@ namespace OpenXLSX::Impl {
         //           Private Member Functions
         //----------------------------------------------------------------------------------------------------------------------
 
-    // private:
+        // private:
     protected:
 
         /**

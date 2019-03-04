@@ -50,8 +50,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLAbstractXMLFile_Impl.h"
 #include "XLXml_Impl.h"
 
-
-
 namespace OpenXLSX::Impl {
 
     //==================================================================================================================

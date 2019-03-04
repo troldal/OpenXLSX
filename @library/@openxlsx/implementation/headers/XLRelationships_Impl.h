@@ -144,7 +144,6 @@ namespace OpenXLSX::Impl {
         // ---------- Private Member Functions ---------- //
     private:
 
-
         static XLRelationshipType GetTypeFromString(const std::string& typeString);
 
         static std::string GetStringFromType(XLRelationshipType type);
