@@ -42,19 +42,6 @@ XMLAttribute Impl::XLRelationshipItem::Id() const {
 }
 
 /**
- * @details Deletes the underlying XML node and sets the object to a safe state. Deletion of the object can only be done
- * from the parent XLRelationships object.
- */
-void Impl::XLRelationshipItem::Delete() {
-    // Delete the XML node
-    if (m_relationshipNode)
-        m_relationshipNode.parent().remove_child(m_relationshipNode);
-
-    // Set the object to a safe State
-    m_relationshipNode = XMLNode();
-}
-
-/**
  * @details Creates a XLRelationships object, which will read the XML file with the given path
  */
 Impl::XLRelationships::XLRelationships(XLDocument& parent, const std::string& filePath)
@@ -116,16 +103,18 @@ std::vector<const Impl::XLRelationshipItem*> Impl::XLRelationships::Relationship
     return result;
 }
 
-/**
- * @details
- */
-void Impl::XLRelationships::DeleteRelationship(const std::string& id) {
+void Impl::XLRelationships::DeleteRelationship(Impl::XLRelationshipItem& item) {
 
-    RelationshipByID(id)->Delete();
-    remove_if(m_relationships.begin(), m_relationships.end(), [&](const XLRelationshipItem& item) {
-        return id == item.Id().value();
+    remove_if(m_relationships.begin(), m_relationships.end(), [&](const XLRelationshipItem& theitem) {
+        if (item.m_relationshipNode == theitem.m_relationshipNode) {
+            theitem.m_relationshipNode.parent().remove_child(theitem.m_relationshipNode);
+            return true;
+        }
+
+        return false;
     });
     WriteXMLData(); //TODO: is this really required?
+
 }
 
 /**

@@ -195,12 +195,11 @@ namespace OpenXLSX::Impl {
          */
         void AddOverride(const std::string& path, XLContentType type);
 
-        void DeleteOverride(XLContentItem& item);
-
         /**
-         * @brief Clear the overrides register.
+         * @brief
+         * @param item
          */
-        void ClearOverrides();
+        void DeleteOverride(XLContentItem& item);
 
         /**
          * @brief

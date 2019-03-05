@@ -112,14 +112,6 @@ void Impl::XLContentTypes::DeleteOverride(XLContentItem& item) {
 /**
  * @details
  */
-void Impl::XLContentTypes::ClearOverrides() {
-
-    m_overrides.clear();
-}
-
-/**
- * @details
- */
 Impl::XLContentItem* Impl::XLContentTypes::ContentItem(const std::string& path) {
 
     return &m_overrides.at(path);

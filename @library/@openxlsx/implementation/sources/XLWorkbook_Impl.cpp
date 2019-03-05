@@ -251,7 +251,7 @@ void Impl::XLWorkbook::DeleteSheet(const std::string& sheetName) {
     Document()->AppProperties()->DeleteSheetName(sheetName);
     Document()->DeleteXMLFile(sheetData->sheetContentItem.Path().substr(1));
     Document()->DeleteContentItem(sheetData->sheetContentItem);
-    Relationships()->DeleteRelationship(sheetData->sheetRelationship.Id().value());
+    Relationships()->DeleteRelationship(sheetData->sheetRelationship);
 
     // Delete the pointer to the object
     m_sheets.erase(find_if(m_sheets.begin(), m_sheets.end(), [&](const XLSheetData& item) {

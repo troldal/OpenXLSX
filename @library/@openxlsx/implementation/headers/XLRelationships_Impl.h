@@ -130,22 +130,21 @@ namespace OpenXLSX::Impl {
         XMLAttribute Id() const;
 
 
-        // ---------- Protected Member Functions ---------- //
-    protected:
-
-        /**
-         * @brief Delete the current relationship item.
-         * @todo Should this be done in the parent XLRelationship object?
-         * @todo Is there a more elegant way to do this?
-         */
-        void Delete();
-
-
         // ---------- Private Member Functions ---------- //
     private:
 
+        /**
+         * @brief
+         * @param typeString
+         * @return
+         */
         static XLRelationshipType GetTypeFromString(const std::string& typeString);
 
+        /**
+         * @brief
+         * @param type
+         * @return
+         */
         static std::string GetStringFromType(XLRelationshipType type);
 
 
@@ -214,10 +213,10 @@ namespace OpenXLSX::Impl {
         std::vector<const XLRelationshipItem*> Relationships() const;
 
         /**
-         * @brief Delete a relationship item with the given ID.
-         * @param id The ID of the relationship item to delete.
+         * @brief
+         * @param item
          */
-        void DeleteRelationship(const std::string& id);
+        void DeleteRelationship(XLRelationshipItem& item);
 
         /**
          * @brief Add a new relationship item to the XLRelationships object.
