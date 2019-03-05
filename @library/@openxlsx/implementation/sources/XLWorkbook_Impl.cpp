@@ -243,11 +243,24 @@ void Impl::XLWorkbook::DeleteNamedRanges() {
  */
 void Impl::XLWorkbook::DeleteSheet(const std::string& sheetName) {
 
-    // Clear Worksheet and set to safe State
-    Worksheet(sheetName)->Delete();
+    auto sheetData = find_if(m_sheets.begin(), m_sheets.end(), [&](const XLSheetData& data) {
+        return sheetName == data.sheetNode.attribute("name").value();
+    });
+
+    // Delete the node in AppProperties.
+    Document()->AppProperties()->DeleteSheetName(sheetName);
+    Document()->DeleteContentItem(string("/xl/worksheets/sheet") + sheetData->sheetNode.attribute("sheetId").value() + ".xml");
+    Relationships()->DeleteRelationship(sheetData->sheetRelationship.Id().value());
+    Document()->DeleteXMLFile(string("xl/worksheets/sheet") + sheetData->sheetNode.attribute("sheetId").value() + ".xml");
 
     // Delete the underlying XML file.
-    DeleteXMLData();
+    //DeleteXMLData();
+
+    // Clear Worksheet and set to safe State
+    //Worksheet(sheetName)->Delete();
+
+    // Delete the underlying XML file.
+    //DeleteXMLData();
 
     // Delete the pointer to the object
     m_sheets.erase(find_if(m_sheets.begin(), m_sheets.end(), [&](const XLSheetData& item) {

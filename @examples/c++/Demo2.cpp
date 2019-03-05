@@ -17,7 +17,7 @@ int main() {
     wbk.AddWorksheet("MySheet03", 1); // Prepend new sheet
     wbk.AddWorksheet("MySheet04", 2); // Insert new sheet
     wbk.MoveSheet("Sheet1", 2);       // Move Sheet1 to second place
-//    wbk.DeleteSheet("MySheet01");
+    wbk.DeleteSheet("MySheet01");
 
     for (const auto& name : wbk.WorksheetNames())
         cout << name << ": " << wbk.IndexOfSheet(name) << endl;
