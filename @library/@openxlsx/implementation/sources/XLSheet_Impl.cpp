@@ -102,34 +102,6 @@ void Impl::XLSheet::SetState(XLSheetState state) {
 }
 
 /**
- * @details The deleteSheet method deletes the sheet in the following steps:
- * - Delete the relevant node in the workbook.xml file.
- * - Delete the title node in the app.xml file.
- * - Delete the content type element in the ContentTypes.xml file.
- * - Delete the relevant item in the relationships file
- * @todo Find the exact names of the .xml fils that will be modified.
- * @todo Consider if this can be moved to the destructor.
- * @todo Delete the associated xml file for the sheet.
- */
-void Impl::XLSheet::Delete() {
-
-    // Delete the node in AppProperties.
-    Workbook()->Document()->AppProperties()->DeleteSheetName(m_sheetName.value());
-    m_nodeInApp = XMLNode();
-
-    // Delete the item in content_types.xml
-    Workbook()->Document()->DeleteContentItem(m_nodeInContentTypes->Path());
-    m_nodeInContentTypes = nullptr;
-
-    // Delete the item in Workbook.xml.rels
-    Workbook()->Document()->Workbook()->Relationships()->DeleteRelationship(m_nodeInWorkbookRels->Id().value());
-    m_nodeInWorkbookRels = nullptr;
-
-    // Delete the underlying XML file.
-    DeleteXMLData();
-}
-
-/**
  * @details This method simply returns the m_sheetType property.
  */
 const XLSheetType& Impl::XLSheet::Type() const {

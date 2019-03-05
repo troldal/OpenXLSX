@@ -38,17 +38,6 @@ const string Impl::XLContentItem::Path() const {
 /**
  * @details
  */
-void Impl::XLContentItem::DeleteItem() {
-
-    if (m_contentNode)
-        m_contentNode.parent().remove_child(m_contentNode);
-
-    m_contentNode = XMLNode();
-}
-
-/**
- * @details
- */
 Impl::XLContentTypes::XLContentTypes(XLDocument& parent, const string& filePath)
         : XLAbstractXMLFile(parent, filePath),
           m_defaults(),
@@ -118,12 +107,6 @@ void Impl::XLContentTypes::DeleteOverride(XLContentItem& item) {
     XmlDocument()->first_child().remove_child(XmlDocument()->first_child().find_child_by_attribute("PartName",
                                                                                                    item.Path().c_str()));
 
-}
-
-void Impl::XLContentTypes::DeleteOverride(const std::string& path) {
-
-    m_overrides.erase(path);
-    XmlDocument()->first_child().remove_child(XmlDocument()->first_child().find_child_by_attribute("PartName", path.c_str()));
 }
 
 /**

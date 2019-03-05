@@ -123,11 +123,6 @@ namespace OpenXLSX::Impl {
          */
         const std::string Path() const;
 
-        /**
-         * @brief
-         */
-        void DeleteItem();
-
         //----------------------------------------------------------------------------------------------------------------------
         //           Private Member Functions
         //----------------------------------------------------------------------------------------------------------------------
@@ -201,8 +196,6 @@ namespace OpenXLSX::Impl {
         void AddOverride(const std::string& path, XLContentType type);
 
         void DeleteOverride(XLContentItem& item);
-
-        void DeleteOverride(const std::string& path);
 
         /**
          * @brief Clear the overrides register.

@@ -246,8 +246,6 @@ namespace OpenXLSX::Impl {
 
         void DeleteContentItem(XLContentItem& item);
 
-        void DeleteContentItem(const std::string& item);
-
         /**
          * @brief Getter method for the App Properties object.
          * @return A pointer to the XLDocAppProperties object.

@@ -203,13 +203,6 @@ namespace OpenXLSX::Impl {
         //           Protected Member Functions
         //----------------------------------------------------------------------------------------------------------------------
 
-    protected:
-        /**
-         * @brief Method for deleting the sheet from the workbook.
-         * @todo Is this the best way to do this? May end up with an invalid object.
-         */
-        virtual void Delete();
-
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Private Member Variables

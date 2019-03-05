@@ -434,10 +434,6 @@ void Impl::XLDocument::DeleteContentItem(Impl::XLContentItem& item) {
     m_contentTypes->DeleteOverride(item);
 }
 
-void Impl::XLDocument::DeleteContentItem(const std::string& item) {
-    m_contentTypes->DeleteOverride(item);
-}
-
 /**
  * @details Add a xml file to the package.
  * @warning The content input parameter must remain valud
