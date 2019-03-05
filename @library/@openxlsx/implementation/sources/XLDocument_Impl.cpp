@@ -426,8 +426,16 @@ Impl::XLContentItem* Impl::XLDocument::ContentItem(const std::string& path) {
  */
 Impl::XLContentItem* Impl::XLDocument::AddContentItem(const std::string& contentPath, XLContentType contentType) {
 
-    m_contentTypes->addOverride(contentPath, contentType);
+    m_contentTypes->AddOverride(contentPath, contentType);
     return m_contentTypes->ContentItem(contentPath);
+}
+
+void Impl::XLDocument::DeleteContentItem(Impl::XLContentItem& item) {
+    m_contentTypes->DeleteOverride(item);
+}
+
+void Impl::XLDocument::DeleteContentItem(const std::string& item) {
+    m_contentTypes->DeleteOverride(item);
 }
 
 /**

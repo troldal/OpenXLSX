@@ -111,7 +111,7 @@ namespace OpenXLSX::Impl {
          * @brief
          * @return
          */
-        const std::string& Path() const;
+        const std::string Path() const;
 
         /**
          * @brief
@@ -133,6 +133,20 @@ namespace OpenXLSX::Impl {
          */
         explicit XLContentItem(XMLNode node, std::string path, XLContentType type);
 
+        /**
+         * @brief
+         * @param typeString
+         * @return
+         */
+        static XLContentType GetTypeFromString(const std::string& typeString);
+
+        /**
+         * @brief
+         * @param type
+         * @return
+         */
+        static std::string GetStringFromType(XLContentType type);
+
         //----------------------------------------------------------------------------------------------------------------------
         //           Public Member Variables
         //----------------------------------------------------------------------------------------------------------------------
@@ -140,8 +154,6 @@ namespace OpenXLSX::Impl {
     private:
 
         XMLNode       m_contentNode; /**< */
-        std::string   m_contentPath; /**< */
-        XLContentType m_contentType; /**< */
     };
 
 
@@ -184,7 +196,11 @@ namespace OpenXLSX::Impl {
          * @param path The key
          * @param type The value
          */
-        void addOverride(const std::string& path, XLContentType type);
+        void AddOverride(const std::string& path, XLContentType type);
+
+        void DeleteOverride(XLContentItem& item);
+
+        void DeleteOverride(const std::string& path);
 
         /**
          * @brief Clear the overrides register.

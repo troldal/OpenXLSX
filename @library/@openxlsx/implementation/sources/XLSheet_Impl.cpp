@@ -118,7 +118,7 @@ void Impl::XLSheet::Delete() {
     m_nodeInApp = XMLNode();
 
     // Delete the item in content_types.xml
-    m_nodeInContentTypes->DeleteItem();
+    Workbook()->Document()->DeleteContentItem(m_nodeInContentTypes->Path());
     m_nodeInContentTypes = nullptr;
 
     // Delete the item in Workbook.xml.rels
