@@ -73,6 +73,16 @@ namespace OpenXLSX::Impl {
 
     public:
 
+
+        /**
+         * @brief
+         * @param node
+         * @param path
+         * @param type
+         * @return
+         */
+        explicit XLContentItem(XMLNode node = XMLNode());
+
         /**
          * @brief
          * @param other
@@ -124,14 +134,6 @@ namespace OpenXLSX::Impl {
 
     private:
 
-        /**
-         * @brief
-         * @param node
-         * @param path
-         * @param type
-         * @return
-         */
-        explicit XLContentItem(XMLNode node, std::string path, XLContentType type);
 
         /**
          * @brief

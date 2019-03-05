@@ -15,7 +15,7 @@ using namespace OpenXLSX;
 /**
  * @details
  */
-Impl::XLContentItem::XLContentItem(XMLNode node, std::string path, XLContentType type)
+Impl::XLContentItem::XLContentItem(XMLNode node)
         : m_contentNode(node) {
 }
 
@@ -83,7 +83,7 @@ bool Impl::XLContentTypes::ParseXMLData() {
             string        path = node.attribute("PartName").value();
             XLContentType type = XLContentItem::GetTypeFromString(node.attribute("ContentType").value());
 
-            m_overrides.emplace(path, XLContentItem(node, path, type));
+            m_overrides.emplace(path, XLContentItem(node));
         }
     }
 
@@ -109,7 +109,7 @@ void Impl::XLContentTypes::AddOverride(const string& path, XLContentType type) {
     node.append_attribute("PartName").set_value(path.c_str());
     node.append_attribute("ContentType").set_value(typeString.c_str());
 
-    m_overrides.emplace(path, XLContentItem(node, path, type));
+    m_overrides.emplace(path, XLContentItem(node));
 }
 
 void Impl::XLContentTypes::DeleteOverride(XLContentItem& item) {

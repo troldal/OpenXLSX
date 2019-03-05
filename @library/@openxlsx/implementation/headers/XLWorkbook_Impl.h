@@ -56,6 +56,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLStyles_Impl.h"
 #include "XLXml_Impl.h"
 #include "XLEnums_impl.h"
+#include "XLContentTypes_Impl.h"
 
 namespace OpenXLSX::Impl {
     class XLSharedStrings;
@@ -408,6 +409,7 @@ namespace OpenXLSX::Impl {
         struct XLSheetData {
             XMLNode                  sheetNode;
             XLRelationshipItem       sheetRelationship;
+            XLContentItem            sheetContentItem;
             XLSheetType              sheetType;
             std::unique_ptr<XLSheet> sheetItem;
         };

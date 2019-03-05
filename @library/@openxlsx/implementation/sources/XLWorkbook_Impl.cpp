@@ -249,18 +249,9 @@ void Impl::XLWorkbook::DeleteSheet(const std::string& sheetName) {
 
     // Delete the node in AppProperties.
     Document()->AppProperties()->DeleteSheetName(sheetName);
-    Document()->DeleteContentItem(string("/xl/worksheets/sheet") + sheetData->sheetNode.attribute("sheetId").value() + ".xml");
+    Document()->DeleteXMLFile(sheetData->sheetContentItem.Path().substr(1));
+    Document()->DeleteContentItem(sheetData->sheetContentItem);
     Relationships()->DeleteRelationship(sheetData->sheetRelationship.Id().value());
-    Document()->DeleteXMLFile(string("xl/worksheets/sheet") + sheetData->sheetNode.attribute("sheetId").value() + ".xml");
-
-    // Delete the underlying XML file.
-    //DeleteXMLData();
-
-    // Clear Worksheet and set to safe State
-    //Worksheet(sheetName)->Delete();
-
-    // Delete the underlying XML file.
-    //DeleteXMLData();
 
     // Delete the pointer to the object
     m_sheets.erase(find_if(m_sheets.begin(), m_sheets.end(), [&](const XLSheetData& item) {
@@ -281,7 +272,7 @@ void Impl::XLWorkbook::AddWorksheet(const std::string& sheetName, unsigned int i
 
 /**
  * @details
- * @todo If the original sheet's tebSelected attribute is set, ensure it is un-set in the clone.
+ * @todo If the original sheet's tabSelected attribute is set, ensure it is un-set in the clone.
  */
 void Impl::XLWorkbook::CloneWorksheet(const std::string& extName, const std::string& newName, unsigned int index) {
 
@@ -596,6 +587,7 @@ void Impl::XLWorkbook::CreateWorksheet(const XLRelationshipItem& item, const std
     auto& sheet = *m_sheets.insert(m_sheets.begin() + index, XLSheetData());
     sheet.sheetNode         = m_sheetsNode.find_child_by_attribute("r:id", item.Id().value());
     sheet.sheetRelationship = item;
+    sheet.sheetContentItem  = *Document()->ContentItem(string("/xl/") + item.Target().value());
     sheet.sheetType         = XLSheetType::WorkSheet;
     sheet.sheetItem         = (xmlData.empty() ? nullptr : make_unique<XLWorksheet>(*this,
                                                                                     sheet.sheetNode.attribute("name"),
