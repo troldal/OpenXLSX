@@ -89,7 +89,7 @@ bool Impl::XLWorksheet::ParseXMLData() {
     }
 
     // Store all Row nodes in the m_rows vector. The XLRow constructor will initialize the cells objects
-    for (auto& currentRow : SheetDataNode().children()) {
+    for (const auto& currentRow : SheetDataNode().children()) {
         auto& row = m_rows.emplace_back(XLRowData());
         row.rowIndex = stoul(currentRow.attribute("r").value());
         row.rowItem  = make_unique<XLRow>(*this, currentRow);
@@ -223,26 +223,30 @@ const Impl::XLCellRange Impl::XLWorksheet::Range(const XLCellReference& topLeft,
  */
 Impl::XLRow* Impl::XLWorksheet::Row(unsigned long rowNumber) {
 
+    // ===== Search for the requested row
     XLRowData searchItem;
     searchItem.rowIndex = rowNumber;
     auto dataItem = lower_bound(m_rows.begin(), m_rows.end(), searchItem, [](const XLRowData& a, const XLRowData& b) {
         return a.rowIndex < b.rowIndex;
     });
 
-    if (dataItem == m_rows.end() || dataItem->rowIndex > rowNumber) {// ===== If row does not exist, create it...
+    // ===== If row does not exist, create it...
+    if (dataItem == m_rows.end() || dataItem->rowIndex > rowNumber) {
 
         auto rowNode = XMLNode();
 
+        // ===== Append or insert new row node in the XML file
         if (dataItem == m_rows.end())
             rowNode = m_sheetDataNode->append_child("row");
         else
             rowNode = m_sheetDataNode->insert_child_before("row", dataItem->rowItem->m_rowNode);
 
+        // ===== Add the newly created node to the std::vector and update the dataItem iterator
         dataItem = m_rows.insert(dataItem, XLRowData());
-
         dataItem->rowIndex = rowNumber;
         dataItem->rowItem  = make_unique<XLRow>(*this, rowNode);
 
+        // ===== Set the correct attributes of the newly created row node
         rowNode.append_attribute("r")                   = rowNumber;
         rowNode.append_attribute("x14ac:dyDescent")     = 0.2;
         rowNode.append_attribute("spans")               = "1:1";
@@ -331,23 +335,6 @@ const Impl::XLColumn* Impl::XLWorksheet::Column(unsigned int columnNumber) const
         throw XLException("Column number " + to_string(columnNumber) + " does not exist");
     return &m_columns.at(columnNumber - 1);
 }
-
-/**
- * @details
- */
-//Impl::XLRows* Impl::XLWorksheet::Rows() {
-//
-//    return &m_rows;
-//}
-
-/**
- * @brief
- * @return
- */
-//const Impl::XLRows* Impl::XLWorksheet::Rows() const {
-//
-//    return &m_rows;
-//}
 
 /**
  * @details
