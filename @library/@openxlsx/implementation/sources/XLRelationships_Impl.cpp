@@ -6,6 +6,7 @@
 #include "XLDocument_Impl.h"
 
 #include <pugixml.hpp>
+#include <algorithm>
 
 using namespace std;
 using namespace OpenXLSX;
