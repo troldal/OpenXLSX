@@ -55,10 +55,10 @@ int main()
     str << " RUNNING WRITE BENCHMARKS ";
     str << "***********************************"<< endl << endl;
 
-    WriteTest("Hello, OpenXLSX!", 1000, 1000, 10, "BenchmarkString.xlsx", str);
-    WriteTest(-42, 1000, 1000, 10, "BenchmarkInteger.xlsx", str);
-    WriteTest(3.14159L, 1000, 1000, 10, "BenchmarkFloat.xlsx", str);
-    WriteTest(true, 1000, 1000, 10, "BenchmarkBool.xlsx", str);
+    WriteTest("Hello, OpenXLSX!", 1000, 1000, 5, "BenchmarkString.xlsx", str);
+    //WriteTest(-42, 1000, 1000, 10, "BenchmarkInteger.xlsx", str);
+    //WriteTest(3.14159L, 1000, 1000, 10, "BenchmarkFloat.xlsx", str);
+    //WriteTest(true, 1000, 1000, 10, "BenchmarkBool.xlsx", str);
 
     cout << endl << endl;
     str << "***********************************";
@@ -66,9 +66,9 @@ int main()
     str << "************************************"<< endl << endl;
 
     ReadTest(5, "BenchmarkString.xlsx", str);
-    ReadTest(5, "BenchmarkInteger.xlsx", str);
-    ReadTest(5, "BenchmarkFloat.xlsx", str);
-    ReadTest(5, "BenchmarkBool.xlsx", str);
+    //ReadTest(5, "BenchmarkInteger.xlsx", str);
+    //ReadTest(5, "BenchmarkFloat.xlsx", str);
+    //ReadTest(5, "BenchmarkBool.xlsx", str);
 
     //ostr.close();
 
