@@ -17,10 +17,7 @@ using namespace OpenXLSX;
  * @details The constructor initializes the member variables and calls the loadXMLData from the
  * XLAbstractXMLFile base class.
  */
-Impl::XLWorksheet::XLWorksheet(XLWorkbook& parent,
-                               XMLAttribute name,
-                               const std::string& filePath,
-                               const std::string& xmlData)
+Impl::XLWorksheet::XLWorksheet(XLWorkbook& parent, XMLAttribute name, const std::string& filePath, const std::string& xmlData)
 
         : XLSheet(parent, name, filePath, xmlData),
           m_dimensionNode(std::make_unique<XMLNode>()),
@@ -92,8 +89,12 @@ bool Impl::XLWorksheet::ParseXMLData() {
     }
 
     // Store all Row nodes in the m_rows vector. The XLRow constructor will initialize the cells objects
-    for (auto& currentRow : SheetDataNode().children())
-        m_rows.emplace(stoul(currentRow.attribute("r").value()) - 1, XLRow(*this, currentRow));
+    for (auto& currentRow : SheetDataNode().children()) {
+        auto& row = m_rows.emplace_back(XLRowData());
+        row.rowIndex = stoul(currentRow.attribute("r").value());
+        row.rowItem  = make_unique<XLRow>(*this, currentRow);
+
+    }
 
     return true;
 }
@@ -207,8 +208,7 @@ Impl::XLCellRange Impl::XLWorksheet::Range(const XLCellReference& topLeft, const
 /**
  * @details
  */
-const Impl::XLCellRange
-Impl::XLWorksheet::Range(const XLCellReference& topLeft, const XLCellReference& bottomRight) const {
+const Impl::XLCellRange Impl::XLWorksheet::Range(const XLCellReference& topLeft, const XLCellReference& bottomRight) const {
     // Set the last Cell to some ValueAsString, in order to create all objects in Range.
     //if (Cell(bottomRight)->CellType() == XLCellType::Empty) Cell(bottomRight)->SetEmptyValue();
 
@@ -223,23 +223,32 @@ Impl::XLWorksheet::Range(const XLCellReference& topLeft, const XLCellReference& 
  */
 Impl::XLRow* Impl::XLWorksheet::Row(unsigned long rowNumber) {
 
-    // Create result object and initialize to nullptr.
-    XLRow* result = nullptr;
+    XLRowData searchItem;
+    searchItem.rowIndex = rowNumber;
+    auto dataItem = lower_bound(m_rows.begin(), m_rows.end(), searchItem, [](const XLRowData& a, const XLRowData& b) {
+        return a.rowIndex < b.rowIndex;
+    });
 
-    auto iter = Rows()->find(rowNumber - 1);
+    if (dataItem == m_rows.end() || dataItem->rowIndex > rowNumber) {// ===== If row does not exist, create it...
 
-    // Retrieve the Row node in the m_rows vector. If it doesn't exist, nullptr will be returned.
-    if (iter != Rows()->end()) {
-        result = &iter->second;
+        auto rowNode = XMLNode();
+
+        if (dataItem == m_rows.end())
+            rowNode = m_sheetDataNode->append_child("row");
+        else
+            rowNode = m_sheetDataNode->insert_child_before("row", dataItem->rowItem->m_rowNode);
+
+        dataItem = m_rows.insert(dataItem, XLRowData());
+
+        dataItem->rowIndex = rowNumber;
+        dataItem->rowItem  = make_unique<XLRow>(*this, rowNode);
+
+        rowNode.append_attribute("r")                   = rowNumber;
+        rowNode.append_attribute("x14ac:dyDescent")     = 0.2;
+        rowNode.append_attribute("spans")               = "1:1";
     }
-        // If the node does not exist, create and insert it. Otherwise return the existing object.
-    else {
-        //Rows()->insert({rowNumber - 1, XLRow::CreateRow(*this, rowNumber)});
-        XLRow::CreateRow(*this, rowNumber);
-        result = &Rows()->at(rowNumber - 1);
-    }
 
-    return result;
+    return dataItem->rowItem.get();
 }
 
 /**
@@ -247,9 +256,15 @@ Impl::XLRow* Impl::XLWorksheet::Row(unsigned long rowNumber) {
  */
 const Impl::XLRow* Impl::XLWorksheet::Row(unsigned long rowNumber) const {
 
-    if (rowNumber >= m_rows.size())
+    auto result = find_if(m_rows.begin(), m_rows.end(), [=](const XLRowData& data) {
+        return data.rowIndex == rowNumber;
+    });
+
+    if (result == m_rows.end())
         throw XLException("Row number " + to_string(rowNumber) + " does not exist");
-    return &Rows()->at(rowNumber - 1); // vector is 0-based, Excel is 1-based; therefore rowNumber-1.
+    //return Rows()->at(rowNumber - 1).get(); // vector is 0-based, Excel is 1-based; therefore rowNumber-1.
+    return result->rowItem.get();
+
 }
 
 /**
@@ -320,19 +335,19 @@ const Impl::XLColumn* Impl::XLWorksheet::Column(unsigned int columnNumber) const
 /**
  * @details
  */
-Impl::XLRows* Impl::XLWorksheet::Rows() {
-
-    return &m_rows;
-}
+//Impl::XLRows* Impl::XLWorksheet::Rows() {
+//
+//    return &m_rows;
+//}
 
 /**
  * @brief
  * @return
  */
-const Impl::XLRows* Impl::XLWorksheet::Rows() const {
-
-    return &m_rows;
-}
+//const Impl::XLRows* Impl::XLWorksheet::Rows() const {
+//
+//    return &m_rows;
+//}
 
 /**
  * @details

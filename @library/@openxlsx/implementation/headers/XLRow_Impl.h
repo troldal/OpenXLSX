@@ -145,6 +145,10 @@ namespace OpenXLSX::Impl {
          */
         void SetHidden(bool state);
 
+        /**
+         * @brief
+         * @return
+         */
         int64_t RowNumber() const;
 
         /**
@@ -173,20 +177,6 @@ namespace OpenXLSX::Impl {
          */
         unsigned int CellCount() const;
 
-
-        //----------------------------------------------------------------------------------------------------------------------
-        //           Protected Member Functions
-        //----------------------------------------------------------------------------------------------------------------------
-
-    protected:
-
-        /**
-         * @brief A static method used to create an entirely new XLRow object (no corresponding node in the XML file).
-         * @param worksheet A reference to the worksheet object to which the row is to be added.
-         * @param rowNumber The row number to add
-         * @return A pointer to the newly created XLRow object.
-         */
-        static void CreateRow(XLWorksheet& worksheet, unsigned long rowNumber);
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Private Member Variables

@@ -69,16 +69,6 @@ namespace OpenXLSX::Impl {
 
 
     //======================================================================================================================
-    //========== XLRowVector Alias =========================================================================================
-    //======================================================================================================================
-
-    /**
-     * @brief A std::vector of std::unique_ptr's to XLRow objects.
-     */
-    using XLRows = std::map<unsigned long, XLRow>;
-
-
-    //======================================================================================================================
     //========== XLWorksheet Class =========================================================================================
     //======================================================================================================================
 
@@ -86,10 +76,9 @@ namespace OpenXLSX::Impl {
      * @brief A class encapsulating an Excel worksheet. Access to XLWorksheet objects should be via the workbook object.
      */
     class XLWorksheet : public XLSheet {
+
         friend class XLCell;
-
         friend class XLRow;
-
         friend class XLWorkbook;
 
 
@@ -106,10 +95,7 @@ namespace OpenXLSX::Impl {
          * @param filePath The path to the worksheet .xml file.
          * @param xmlData
          */
-        explicit XLWorksheet(XLWorkbook& parent,
-                             XMLAttribute name,
-                             const std::string& filePath,
-                             const std::string& xmlData = "");
+        explicit XLWorksheet(XLWorkbook& parent, XMLAttribute name, const std::string& filePath, const std::string& xmlData = "");
 
         /**
          * @brief Copy Constructor.
@@ -279,6 +265,10 @@ namespace OpenXLSX::Impl {
          */
         void Import(const std::string& fileName, const std::string& delimiter = ";");
 
+        /**
+         * @brief
+         * @return
+         */
         const std::string& GetXmlData() const override;
 
         //----------------------------------------------------------------------------------------------------------------------
@@ -300,30 +290,6 @@ namespace OpenXLSX::Impl {
          * @todo Not yet implemented.
          */
         XLWorksheet* Clone(const std::string& newName) override;
-
-        /**
-         * @brief Get access to the parent XLWorkbook object.
-         * @return A pointer to the parent XLWorkbook object. Returned as pointer-to-const.
-         */
-        //const XLWorkbook &ParentWorkbook() const;
-
-        /**
-         * @brief Get a pointer to the parent workbook.
-         * @return A pointer to the parent XLWorkbook object.
-         */
-        //XLWorkbook &ParentWorkbook();
-
-        /**
-         * @brief Get the data structure holding all rows in the worksheet.
-         * @return A reference to the std::vector with the row data.
-         */
-        XLRows* Rows();
-
-        /**
-         * @brief Get the data structure holding all rows in the worksheet.
-         * @return A const reference to the std::vector with the row data.
-         */
-        const XLRows* Rows() const;
 
         /**
          * @brief Get the data structure all columns in the worksheet.
@@ -444,8 +410,13 @@ namespace OpenXLSX::Impl {
 
         /**< A pointer to the parent XLWorkbook object (const) */
 
-        XLRows    m_rows; /**< A std::vector with pointers to all rows in the sheet. */
-        XLColumns m_columns; /**< A std::vector with pointers to all columns in sheet. */
+        struct XLRowData {
+            unsigned long          rowIndex;
+            std::unique_ptr<XLRow> rowItem = nullptr;
+        };
+
+        std::vector<XLRowData> m_rows; /**< A std::vector with pointers to all rows in the sheet. */
+        XLColumns              m_columns; /**< A std::vector with pointers to all columns in sheet. */
 
         XLCellReference         m_firstCell; /**< The first cell in the sheet (i.e. the top left cell).*/
         mutable XLCellReference m_lastCell; /**<  The last cell in the sheet (i.e. the bottom right). */

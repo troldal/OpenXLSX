@@ -164,34 +164,3 @@ unsigned int Impl::XLRow::CellCount() const {
 
     return static_cast<unsigned int>(m_cells.size());
 }
-
-/**
- * @details Create an entirely new XLRow object (no existing node in the underlying XML file. The row and the first cell
- * in the row are created and inserted in the XML tree. A std::unique_ptr to the new XLRow object is returned
- * @todo What happens if the object is not caught and gets destroyed? The XML data still exists...
- */
-void Impl::XLRow::CreateRow(XLWorksheet& worksheet, unsigned long rowNumber) {
-    // Create the node
-    XMLNode nodeRow;
-
-    // Insert the newly created Row and Cell in the right place in the XML structure.
-    if (!worksheet.SheetDataNode().first_child() || rowNumber >= worksheet.RowCount()) {
-        // If there are no Row nodes, or the requested Row number exceed the current maximum, append the the node
-        // after the existing rownodes.
-        nodeRow = worksheet.SheetDataNode().append_child("row");
-    }
-    else {
-        // Otherwise, search the Row nodes vector for the next node and insert there.
-        // Vector is 0-based, Excel is 1-based; therefore rowNumber-1.
-        auto iter = worksheet.Rows()->lower_bound(rowNumber - 1);
-        if (iter != worksheet.Rows()->end() && iter->second.RowNode().attribute("r").as_ullong() != rowNumber)
-            nodeRow = worksheet.SheetDataNode().insert_child_before("row", iter->second.RowNode());
-    }
-
-    nodeRow.append_attribute("r")                   = rowNumber;
-    nodeRow.append_attribute("x14ac:dyDescent")     = 0.2;
-    nodeRow.append_attribute("spans")               = "1:1";
-    nodeRow.append_child("c").append_attribute("r") = XLCellReference(rowNumber, 1).Address().c_str();
-
-    worksheet.Rows()->emplace(rowNumber - 1, XLRow(worksheet, nodeRow));
-}

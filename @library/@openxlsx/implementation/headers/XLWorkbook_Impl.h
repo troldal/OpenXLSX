@@ -73,13 +73,10 @@ namespace OpenXLSX::Impl {
      * (worksheets or chartsheets), as well as functionality for adding, deleting and renaming sheets.
      */
     class XLWorkbook : public XLAbstractXMLFile {
+
         friend class XLSheet;
 
-        //----------------------------------------------------------------------------------------------------------------------
-        //           Public Member Functions
-        //----------------------------------------------------------------------------------------------------------------------
-
-    public:
+    public: // ---------- Public Member Functions ---------- //
 
         /**
          * @brief Constructor. Takes a reference to the parent XLDocument and a std::string with the relative path as
@@ -328,18 +325,25 @@ namespace OpenXLSX::Impl {
          */
         XLStyles* Styles();
 
+        /**
+         * @brief
+         * @return
+         */
         XLDocument* Document();
 
+        /**
+         * @brief
+         * @return
+         */
         const XLDocument* Document() const;
 
+        /**
+         * @brief
+         */
         void WriteXMLData() override;
 
 
-        //----------------------------------------------------------------------------------------------------------------------
-        //           Protected Member Functions
-        //----------------------------------------------------------------------------------------------------------------------
-
-    protected:
+    protected: // ---------- Protected Member Functions ---------- //
 
         /**
          * @brief
@@ -366,11 +370,8 @@ namespace OpenXLSX::Impl {
          */
         XMLNode SheetNode(const std::string& sheetName);
 
-        //----------------------------------------------------------------------------------------------------------------------
-        //           Private Member Functions
-        //----------------------------------------------------------------------------------------------------------------------
 
-    private:
+    private: // ---------- Private Member Functions ---------- //
 
         /**
          * @brief
@@ -400,12 +401,12 @@ namespace OpenXLSX::Impl {
          */
         int GetNewSheetID();
 
-        //----------------------------------------------------------------------------------------------------------------------
-        //           Private Member Variables
-        //----------------------------------------------------------------------------------------------------------------------
 
-    private:
+    private: // ---------- Private Member Variables ---------- //
 
+        /**
+         * @brief Internal data structure for holding the individual sheets and their meta data.
+         */
         struct XLSheetData {
             XMLNode                  sheetNode;
             XLRelationshipItem       sheetRelationship;
@@ -414,7 +415,7 @@ namespace OpenXLSX::Impl {
             std::unique_ptr<XLSheet> sheetItem;
         };
 
-        mutable std::vector<XLSheetData> m_sheets;
+        mutable std::vector<XLSheetData> m_sheets; /**< >*/
 
         XMLNode m_sheetsNode; /**< The parent node for all the sheet nodes (worksheets as well as chartsheets). */
         XMLNode m_definedNames; /**< Pointer to root node of defined names in the workbook. */

@@ -37,9 +37,6 @@ Impl::XLWorkbook::~XLWorkbook() = default;
  */
 bool Impl::XLWorkbook::ParseXMLData() {
 
-    // Set up the Workbook Relationships.
-    //m_relationships.reset(new XLRelationships(*Document(), "xl/_rels/workbook.xml.rels"));
-
     // Find the "sheets" section in the Workbook.xml file
     m_sheetsNode   = XmlDocument()->first_child().child("sheets");
     m_definedNames = XmlDocument()->first_child().child("definedNames");
