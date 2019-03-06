@@ -54,10 +54,13 @@ namespace OpenXLSX {
     //========== Global Constants ==========================================================================================
     //======================================================================================================================
 
-    constexpr uint32_t maxRows = 1'048'576;
-    constexpr uint16_t maxCols = 16'384;
-    constexpr uint8_t alphabetSize = 26;
-    constexpr uint8_t asciiOffset  = 64;
+    constexpr uint32_t maxRows      = 1'048'576;
+
+    constexpr uint16_t maxCols      = 16'384;
+
+    constexpr uint8_t  alphabetSize = 26;
+
+    constexpr uint8_t  asciiOffset  = 64;
 
     //======================================================================================================================
     //========== XLDocumentProperties Enum =================================================================================

@@ -57,21 +57,28 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 namespace OpenXLSX::Impl {
 
-    //======================================================================================================================
-    //========== XLContentItem Class =======================================================================================
-    //======================================================================================================================
+    // ================================================================================
+    // XLContentItem Class
+    // ================================================================================
 
     /**
      * @brief
      */
     class XLContentItem {
+
         friend class XLContentTypes;
 
-        //----------------------------------------------------------------------------------------------------------------------
-        //           Public Member Functions
-        //----------------------------------------------------------------------------------------------------------------------
+    public: // ---------- Public Member Functions ---------- //
 
-    public:
+
+        /**
+         * @brief
+         * @param node
+         * @param path
+         * @param type
+         * @return
+         */
+        explicit XLContentItem(XMLNode node = XMLNode());
 
         /**
          * @brief
@@ -111,54 +118,41 @@ namespace OpenXLSX::Impl {
          * @brief
          * @return
          */
-        const std::string& Path() const;
+        const std::string Path() const;
+
+    private: // ---------- Private Member Functions ---------- //
+
 
         /**
          * @brief
+         * @param typeString
+         * @return
          */
-        void DeleteItem();
-
-        //----------------------------------------------------------------------------------------------------------------------
-        //           Private Member Functions
-        //----------------------------------------------------------------------------------------------------------------------
-
-    private:
+        static XLContentType GetTypeFromString(const std::string& typeString);
 
         /**
          * @brief
-         * @param node
-         * @param path
          * @param type
          * @return
          */
-        explicit XLContentItem(XMLNode node, std::string path, XLContentType type);
+        static std::string GetStringFromType(XLContentType type);
 
-        //----------------------------------------------------------------------------------------------------------------------
-        //           Public Member Variables
-        //----------------------------------------------------------------------------------------------------------------------
+    private: // ---------- Private Member Variables ---------- //
 
-    private:
-
-        XMLNode       m_contentNode; /**< */
-        std::string   m_contentPath; /**< */
-        XLContentType m_contentType; /**< */
+        XMLNode m_contentNode; /**< */
     };
 
 
-    //======================================================================================================================
-    //========== XLContentTypes Class ==============================================================================
-    //======================================================================================================================
+    // ================================================================================
+    // XLContentTypes Class
+    // ================================================================================
 
     /**
      * @brief The purpose of this class is to load, store add and save item in the [Content_Types].xml file.
      */
     class XLContentTypes : public XLAbstractXMLFile {
 
-        //----------------------------------------------------------------------------------------------------------------------
-        //           Public Member Functions
-        //----------------------------------------------------------------------------------------------------------------------
-
-    public:
+    public: // ---------- Public Member Functions ---------- //
 
         /**
          *
@@ -184,25 +178,22 @@ namespace OpenXLSX::Impl {
          * @param path The key
          * @param type The value
          */
-        void addOverride(const std::string& path, XLContentType type);
+        void AddOverride(const std::string& path, XLContentType type);
 
         /**
-         * @brief Clear the overrides register.
+         * @brief
+         * @param item
          */
-        void ClearOverrides();
+        void DeleteOverride(XLContentItem& item);
 
         /**
          * @brief
          * @param path
          * @return
          */
-        XLContentItem* ContentItem(const std::string& path);
+        XLContentItem ContentItem(const std::string& path);
 
-        //----------------------------------------------------------------------------------------------------------------------
-        //           Protected Member Functions
-        //----------------------------------------------------------------------------------------------------------------------
-
-    protected:
+    protected: // ---------- Protected Member Functions ---------- //
 
         /**
          * @brief
@@ -210,13 +201,10 @@ namespace OpenXLSX::Impl {
          */
         bool ParseXMLData() override;
 
-        //----------------------------------------------------------------------------------------------------------------------
-        //           Private Member Variables
-        //----------------------------------------------------------------------------------------------------------------------
+    private: // ---------- Private Member Variables ---------- //
 
-    private:
-        std::map<std::string, XMLNode>       m_defaults; /**< */
-        std::map<std::string, XLContentItem> m_overrides; /**< */
+        std::map<std::string, XMLNode>       m_defaults; /**< @todo Consider changing to std::vector */
+        std::map<std::string, XLContentItem> m_overrides; /**< @todo Consider changing to std::vector */
     };
 } // namespace OpenXLSX::Impl
 

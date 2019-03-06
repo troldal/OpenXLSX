@@ -53,15 +53,16 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLAbstractXMLFile_Impl.h"
 #include "XLRelationships_Impl.h"
 #include "XLSharedStrings_Impl.h"
+#include "XLStyles_Impl.h"
 #include "XLXml_Impl.h"
 #include "XLEnums_impl.h"
+#include "XLContentTypes_Impl.h"
 
 namespace OpenXLSX::Impl {
     class XLSharedStrings;
     class XLSheet;
     class XLWorksheet;
     class XLChartsheet;
-    class XLStyles;
 
     //======================================================================================================================
     //========== XLWorkbook Class ==========================================================================================
@@ -72,13 +73,10 @@ namespace OpenXLSX::Impl {
      * (worksheets or chartsheets), as well as functionality for adding, deleting and renaming sheets.
      */
     class XLWorkbook : public XLAbstractXMLFile {
+
         friend class XLSheet;
 
-        //----------------------------------------------------------------------------------------------------------------------
-        //           Public Member Functions
-        //----------------------------------------------------------------------------------------------------------------------
-
-    public:
+    public: // ---------- Public Member Functions ---------- //
 
         /**
          * @brief Constructor. Takes a reference to the parent XLDocument and a std::string with the relative path as
@@ -223,9 +221,9 @@ namespace OpenXLSX::Impl {
 
         /**
          * @brief
-         * @param index
+         * @param newIndex
          */
-        void MoveSheet(const std::string& sheetName, unsigned int index);
+        void MoveSheet(const std::string& sheetName, unsigned int newIndex);
 
         /**
          * @brief
@@ -327,18 +325,25 @@ namespace OpenXLSX::Impl {
          */
         XLStyles* Styles();
 
+        /**
+         * @brief
+         * @return
+         */
         XLDocument* Document();
 
+        /**
+         * @brief
+         * @return
+         */
         const XLDocument* Document() const;
 
+        /**
+         * @brief
+         */
         void WriteXMLData() override;
 
 
-        //----------------------------------------------------------------------------------------------------------------------
-        //           Protected Member Functions
-        //----------------------------------------------------------------------------------------------------------------------
-
-    protected:
+    protected: // ---------- Protected Member Functions ---------- //
 
         /**
          * @brief
@@ -365,23 +370,8 @@ namespace OpenXLSX::Impl {
          */
         XMLNode SheetNode(const std::string& sheetName);
 
-        //----------------------------------------------------------------------------------------------------------------------
-        //           Private Member Functions
-        //----------------------------------------------------------------------------------------------------------------------
 
-    private:
-
-        /**
-         * @brief
-         * @param item
-         */
-        void CreateSharedStrings(const XLRelationshipItem& item);
-
-        /**
-         * @brief
-         * @param item
-         */
-        void CreateStyles(const XLRelationshipItem& item);
+    private: // ---------- Private Member Functions ---------- //
 
         /**
          * @brief
@@ -411,31 +401,31 @@ namespace OpenXLSX::Impl {
          */
         int GetNewSheetID();
 
-        //----------------------------------------------------------------------------------------------------------------------
-        //           Private Member Variables
-        //----------------------------------------------------------------------------------------------------------------------
 
-    private:
+    private: // ---------- Private Member Variables ---------- //
 
+        /**
+         * @brief Internal data structure for holding the individual sheets and their meta data.
+         */
         struct XLSheetData {
-            unsigned int             sheetIndex;
-            XMLAttribute             sheetName;
-            std::string              sheetPath;
+            XMLNode                  sheetNode;
+            XLRelationshipItem       sheetRelationship;
+            XLContentItem            sheetContentItem;
             XLSheetType              sheetType;
             std::unique_ptr<XLSheet> sheetItem;
         };
 
-        mutable std::vector<XLSheetData> m_sheets;
+        mutable std::vector<XLSheetData> m_sheets; /**< >*/
 
         XMLNode m_sheetsNode; /**< The parent node for all the sheet nodes (worksheets as well as chartsheets). */
         XMLNode m_definedNames; /**< Pointer to root node of defined names in the workbook. */
 
         int m_sheetId; /**< Counter to use to create ID for new sheet */
 
-        XLRelationships                          m_relationships; /**< pointer to the XLRelationships object for workbook. */
-        mutable std::unique_ptr<XLSharedStrings> m_sharedStrings; /**< Pointer to the XLSharedStrings object. */
-        std::unique_ptr<XLStyles>                m_styles; /**< Pointer to the XLStyles object for the workbook. */
-        XLDocument*                              m_document;
+        XLRelationships         m_relationships; /**< pointer to the XLRelationships object for workbook. */
+        mutable XLSharedStrings m_sharedStrings; /**< Pointer to the XLSharedStrings object. */
+        XLStyles                m_styles; /**< Pointer to the XLStyles object for the workbook. */
+        XLDocument* m_document; /**< */
     };
 }  // namespace OpenXLSX::Impl
 

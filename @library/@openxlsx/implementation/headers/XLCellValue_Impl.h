@@ -428,7 +428,7 @@ namespace OpenXLSX::Impl {
         //----------------------------------------------------------------------------------------------------------------------
 
     private:
-        XLCell& m_parentCell; /**< A reference to the parent XLCell object. */
+        XLCell         & m_parentCell; /**< A reference to the parent XLCell object. */
         XLSharedStrings* m_sharedStrings;
     };
 

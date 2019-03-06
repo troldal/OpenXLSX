@@ -115,9 +115,13 @@ bool Impl::XLToken::IsBoolean() const {
     string strTrue  = "TRUE";
     string strFalse = "FALSE";
 
-    bool isTrue  = equal(m_token.begin(), m_token.end(), strTrue.begin(),
+    bool isTrue  = equal(m_token.begin(),
+                         m_token.end(),
+                         strTrue.begin(),
                          [](int c1, int c2) { return toupper(c1) == toupper(c2); });
-    bool isFalse = equal(m_token.begin(), m_token.end(), strFalse.begin(),
+    bool isFalse = equal(m_token.begin(),
+                         m_token.end(),
+                         strFalse.begin(),
                          [](int c1, int c2) { return toupper(c1) == toupper(c2); });
 
     return isTrue || isFalse;

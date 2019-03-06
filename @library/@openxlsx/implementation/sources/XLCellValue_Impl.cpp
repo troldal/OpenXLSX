@@ -115,8 +115,7 @@ std::string Impl::XLCellValue::AsString() const {
     }
 
     if (string_view(TypeAttribute().value()) == "s")
-        return string(Cell()->Worksheet()->Workbook()->SharedStrings()->GetStringNode(ValueNode().text().as_ullong()).text()
-                            .get());
+        return string(Cell()->Worksheet()->Workbook()->SharedStrings()->GetStringNode(ValueNode().text().as_ullong()).text().get());
 
     return ValueNode().text().get();
 }

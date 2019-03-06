@@ -7,6 +7,7 @@
 #include "XLDocument_Impl.h"
 #include <sstream>
 #include <pugixml.hpp>
+#include <XLAbstractXMLFile_Impl.h>
 
 using namespace std;
 using namespace OpenXLSX;
@@ -28,6 +29,11 @@ Impl::XLAbstractXMLFile::XLAbstractXMLFile(XLDocument& parent, std::string fileP
         SetXmlData(xmlData);
 
     m_parentDocument.AddOrReplaceXMLFile(m_path, GetXmlData());
+}
+
+Impl::XLAbstractXMLFile::operator bool() const {
+
+    return (GetXmlData().empty() ? false : true);
 }
 
 /**
@@ -56,10 +62,6 @@ const string& Impl::XLAbstractXMLFile::GetXmlData() const {
 void Impl::XLAbstractXMLFile::WriteXMLData() {
 
     m_parentDocument.AddOrReplaceXMLFile(m_path, GetXmlData());
-//    for (auto file : m_childXmlDocuments) {
-//        if (file.second != nullptr)
-//            file.second->CommitXMLData();
-//    }
 }
 
 /**
@@ -69,10 +71,6 @@ void Impl::XLAbstractXMLFile::WriteXMLData() {
 void Impl::XLAbstractXMLFile::DeleteXMLData() {
 
     m_parentDocument.DeleteXMLFile(m_path);
-//    for (auto file : m_childXmlDocuments) {
-//        if (file.second != nullptr)
-//            file.second->DeleteXMLData();
-//    }
 }
 
 /**

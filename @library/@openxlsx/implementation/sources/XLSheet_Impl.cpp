@@ -18,15 +18,15 @@ using namespace OpenXLSX;
  * @todo Consider to let the sheet type be determined by the subclasses.
  */
 Impl::XLSheet::XLSheet(XLWorkbook& parent, XMLAttribute name, const std::string& filepath, const std::string& xmlData)
-        : XLAbstractXMLFile(*parent.Document(), filepath, xmlData),
+        : XLAbstractXMLFile(*parent.Document(), "xl/" + filepath, xmlData),
           m_sheetName(name),
           m_sheetType(parent.TypeOfSheet(name.value())),
           m_sheetState(XLSheetState::Visible),
           m_nodeInWorkbook(parent.SheetNode(name.value())),
           m_nodeInApp(parent.Document()->m_docAppProperties->SheetNameNode(name.value())),
-          m_nodeInContentTypes(parent.Document()->ContentItem("/" + filepath)),
-          m_nodeInWorkbookRels(parent.Relationships()->RelationshipByTarget(filepath.substr(3))),
-          m_parentWorkbook(parent){
+          m_nodeInContentTypes(parent.Document()->ContentItem("/xl/" + filepath)),
+          m_nodeInWorkbookRels(parent.Relationships()->RelationshipByTarget(filepath)),
+          m_parentWorkbook(parent) {
 
 }
 
@@ -99,34 +99,6 @@ void Impl::XLSheet::SetState(XLSheetState state) {
                 m_nodeInWorkbook.remove_attribute("state");
         }
     }
-}
-
-/**
- * @details The deleteSheet method deletes the sheet in the following steps:
- * - Delete the relevant node in the workbook.xml file.
- * - Delete the title node in the app.xml file.
- * - Delete the content type element in the ContentTypes.xml file.
- * - Delete the relevant item in the relationships file
- * @todo Find the exact names of the .xml fils that will be modified.
- * @todo Consider if this can be moved to the destructor.
- * @todo Delete the associated xml file for the sheet.
- */
-void Impl::XLSheet::Delete() {
-
-    // Delete the node in AppProperties.
-    Workbook()->Document()->AppProperties()->DeleteSheetName(m_sheetName.value());
-    m_nodeInApp = XMLNode();
-
-    // Delete the item in content_types.xml
-    m_nodeInContentTypes->DeleteItem();
-    m_nodeInContentTypes = nullptr;
-
-    // Delete the item in Workbook.xml.rels
-    Workbook()->Document()->Workbook()->Relationships()->DeleteRelationship(m_nodeInWorkbookRels->Id());
-    m_nodeInWorkbookRels = nullptr;
-
-    // Delete the underlying XML file.
-    DeleteXMLData();
 }
 
 /**

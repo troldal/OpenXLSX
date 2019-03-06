@@ -155,8 +155,7 @@ std::string Impl::XLCellReference::Address() const {
 void Impl::XLCellReference::SetAddress(const std::string& address) {
 
     auto coordinates = CoordinatesFromAddress(address);
-    if (coordinates.first < 1 || coordinates.first > maxRows || coordinates.second < 1 || coordinates
-                                                                                                  .second > maxCols) {
+    if (coordinates.first < 1 || coordinates.first > maxRows || coordinates.second < 1 || coordinates.second > maxCols) {
         m_row         = 0;
         m_column      = 0;
         m_cellAddress = "";

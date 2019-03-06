@@ -145,6 +145,10 @@ namespace OpenXLSX::Impl {
          */
         void SetHidden(bool state);
 
+        /**
+         * @brief
+         * @return
+         */
         int64_t RowNumber() const;
 
         /**
@@ -175,20 +179,6 @@ namespace OpenXLSX::Impl {
 
 
         //----------------------------------------------------------------------------------------------------------------------
-        //           Protected Member Functions
-        //----------------------------------------------------------------------------------------------------------------------
-
-    protected:
-
-        /**
-         * @brief A static method used to create an entirely new XLRow object (no corresponding node in the XML file).
-         * @param worksheet A reference to the worksheet object to which the row is to be added.
-         * @param rowNumber The row number to add
-         * @return A pointer to the newly created XLRow object.
-         */
-        static void CreateRow(XLWorksheet& worksheet, unsigned long rowNumber);
-
-        //----------------------------------------------------------------------------------------------------------------------
         //           Private Member Variables
         //----------------------------------------------------------------------------------------------------------------------
 
@@ -197,7 +187,13 @@ namespace OpenXLSX::Impl {
         XLWorksheet& m_parentWorksheet; /**< A pointer to the parent XLWorksheet object. */
         XMLNode m_rowNode; /**< The XMLNode object for the row. */
 
-        std::map<unsigned int, std::unique_ptr<XLCell>> m_cells; /**< A vector with the XLCell objects. */
+        struct XLCellData {
+            unsigned int cellIndex;
+            std::unique_ptr<XLCell> cellItem = nullptr;
+        };
+
+        //std::map<unsigned int, std::unique_ptr<XLCell>> m_cells; /**< A vector with the XLCell objects. */
+        std::vector<XLCellData> m_cells; /**< A vector with the XLCell objects. */
     };
 
 }  // namespace OpenXLSX::Impl

@@ -63,14 +63,14 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLXml_Impl.h"
 #include "XLDefinitions.h"
 
-namespace libzippp {class ZipArchive;} // namespace libzippp
+namespace libzippp { class ZipArchive; } // namespace libzippp
 using ZipArchive = libzippp::ZipArchive;
 
 namespace OpenXLSX::Impl {
 
     class XLContentItem;
     class XLContentTypes;
-    
+
     //======================================================================================================================
     //========== XLDocument Class ==========================================================================================
     //======================================================================================================================
@@ -234,7 +234,7 @@ namespace OpenXLSX::Impl {
          * @param path A std::string with the relative path to the file in question.
          * @return A pointer to the XLContentItem.
          */
-        XLContentItem* ContentItem(const std::string& path);
+        XLContentItem ContentItem(const std::string& path);
 
         /**
          * @brief
@@ -242,7 +242,9 @@ namespace OpenXLSX::Impl {
          * @param contentType
          * @return
          */
-        XLContentItem* AddContentItem(const std::string& contentPath, XLContentType contentType);
+        XLContentItem AddContentItem(const std::string& contentPath, XLContentType contentType);
+
+        void DeleteContentItem(XLContentItem& item);
 
         /**
          * @brief Getter method for the App Properties object.
@@ -276,7 +278,7 @@ namespace OpenXLSX::Impl {
 
             if (!m_documentRelationships->TargetExists(target))
                 throw XLException("Target does not exist!");
-            return std::make_unique<T>(*this, m_documentRelationships->RelationshipByTarget(target)->Target());
+            return std::make_unique<T>(*this, m_documentRelationships->RelationshipByTarget(target).Target().value());
         }
 
 

@@ -416,7 +416,7 @@ XMLNode Impl::XLDocument::SheetNameNode(const std::string& sheetName) {
 /**
  * @details Get a pointer to the content item in the [Content_Types].xml file.
  */
-Impl::XLContentItem* Impl::XLDocument::ContentItem(const std::string& path) {
+Impl::XLContentItem Impl::XLDocument::ContentItem(const std::string& path) {
 
     return m_contentTypes->ContentItem(path);
 }
@@ -424,10 +424,14 @@ Impl::XLContentItem* Impl::XLDocument::ContentItem(const std::string& path) {
 /**
  * @details Ad a new ContentItem and return the resulting object.
  */
-Impl::XLContentItem* Impl::XLDocument::AddContentItem(const std::string& contentPath, XLContentType contentType) {
+Impl::XLContentItem Impl::XLDocument::AddContentItem(const std::string& contentPath, XLContentType contentType) {
 
-    m_contentTypes->addOverride(contentPath, contentType);
+    m_contentTypes->AddOverride(contentPath, contentType);
     return m_contentTypes->ContentItem(contentPath);
+}
+
+void Impl::XLDocument::DeleteContentItem(Impl::XLContentItem& item) {
+    m_contentTypes->DeleteOverride(item);
 }
 
 /**
@@ -444,7 +448,7 @@ void Impl::XLDocument::AddOrReplaceXMLFile(const std::string& path, const std::s
  */
 std::string Impl::XLDocument::GetXMLFile(const std::string& path) {
 
-    return m_archive->getEntry(path).readAsText();
+    return (m_archive->hasEntry(path) ? m_archive->getEntry(path).readAsText() : "");
 }
 
 /**
