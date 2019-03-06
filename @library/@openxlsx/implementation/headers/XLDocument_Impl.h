@@ -234,7 +234,7 @@ namespace OpenXLSX::Impl {
          * @param path A std::string with the relative path to the file in question.
          * @return A pointer to the XLContentItem.
          */
-        XLContentItem* ContentItem(const std::string& path);
+        XLContentItem ContentItem(const std::string& path);
 
         /**
          * @brief
@@ -242,7 +242,7 @@ namespace OpenXLSX::Impl {
          * @param contentType
          * @return
          */
-        XLContentItem* AddContentItem(const std::string& contentPath, XLContentType contentType);
+        XLContentItem AddContentItem(const std::string& contentPath, XLContentType contentType);
 
         void DeleteContentItem(XLContentItem& item);
 
@@ -278,7 +278,7 @@ namespace OpenXLSX::Impl {
 
             if (!m_documentRelationships->TargetExists(target))
                 throw XLException("Target does not exist!");
-            return std::make_unique<T>(*this, m_documentRelationships->RelationshipByTarget(target)->Target().value());
+            return std::make_unique<T>(*this, m_documentRelationships->RelationshipByTarget(target).Target().value());
         }
 
 

@@ -54,19 +54,9 @@ Impl::XLRelationships::XLRelationships(XLDocument& parent, const std::string& fi
 /**
  * @details Returns the XLRelationshipItem with the given ID, by looking it up in the m_relationships map.
  */
-const Impl::XLRelationshipItem* Impl::XLRelationships::RelationshipByID(const std::string& id) const {
+Impl::XLRelationshipItem Impl::XLRelationships::RelationshipByID(const std::string& id) const {
 
-    return &*find_if(m_relationships.begin(), m_relationships.end(), [&](const XLRelationshipItem& item) {
-        return id == item.Id().value();
-    });
-}
-
-/**
- * @details Returns the XLRelationshipItem with the given ID, by looking it up in the m_relationships map.
- */
-Impl::XLRelationshipItem* Impl::XLRelationships::RelationshipByID(const std::string& id) {
-
-    return &*find_if(m_relationships.begin(), m_relationships.end(), [&](const XLRelationshipItem& item) {
+    return *find_if(m_relationships.begin(), m_relationships.end(), [&](const XLRelationshipItem& item) {
         return id == item.Id().value();
     });
 }
@@ -74,19 +64,9 @@ Impl::XLRelationshipItem* Impl::XLRelationships::RelationshipByID(const std::str
 /**
  * @details Returns the XLRelationshipItem with the requested target, by iterating through the items.
  */
-const Impl::XLRelationshipItem* Impl::XLRelationships::RelationshipByTarget(const std::string& target) const {
+Impl::XLRelationshipItem Impl::XLRelationships::RelationshipByTarget(const std::string& target) const {
 
-    return &*find_if(m_relationships.begin(), m_relationships.end(), [&](const XLRelationshipItem& item) {
-        return target == item.Target().value();
-    });
-}
-
-/**
- * @details Returns the XLRelationshipItem with the requested target, by iterating through the items.
- */
-Impl::XLRelationshipItem* Impl::XLRelationships::RelationshipByTarget(const std::string& target) {
-
-    return &*find_if(m_relationships.begin(), m_relationships.end(), [&](const XLRelationshipItem& item) {
+    return *find_if(m_relationships.begin(), m_relationships.end(), [&](const XLRelationshipItem& item) {
         return target == item.Target().value();
     });
 }
@@ -158,6 +138,9 @@ bool Impl::XLRelationships::ParseXMLData() {
     return true;
 }
 
+/**
+ * @details
+ */
 unsigned long Impl::XLRelationships::GetNewRelsID() const {
 
     return stoi(string(max_element(m_relationships.begin(),
@@ -169,16 +152,29 @@ unsigned long Impl::XLRelationships::GetNewRelsID() const {
                                    })->m_relationshipNode.attribute("Id").value()).substr(3)) + 1;
 }
 
+/**
+ * @details
+ */
 bool Impl::XLRelationships::TargetExists(const std::string& target) const {
 
-    return RelationshipByTarget(target) != nullptr;
+    return find_if(m_relationships.begin(), m_relationships.end(), [&](const XLRelationshipItem& item) {
+        return (target == item.Target().value());
+    }) != m_relationships.end();
 }
 
+/**
+ * @details
+ */
 bool Impl::XLRelationships::IdExists(const std::string& id) const {
 
-    return RelationshipByID(id) != nullptr;
+    return find_if(m_relationships.begin(), m_relationships.end(), [&](const XLRelationshipItem& item) {
+        return (id == item.Id().value());
+    }) != m_relationships.end();
 }
 
+/**
+ * @details
+ */
 Impl::XLRelationshipType Impl::XLRelationshipItem::GetTypeFromString(const std::string& typeString) {
 
     XLRelationshipType type;
@@ -231,6 +227,9 @@ Impl::XLRelationshipType Impl::XLRelationshipItem::GetTypeFromString(const std::
     return type;
 }
 
+/**
+ * @details
+ */
 std::string Impl::XLRelationshipItem::GetStringFromType(Impl::XLRelationshipType type) {
 
     string typeString;

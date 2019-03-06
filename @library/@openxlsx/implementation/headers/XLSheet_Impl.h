@@ -217,8 +217,8 @@ namespace OpenXLSX::Impl {
         XMLNode m_nodeInApp; /**< A pointer to the relevant TitleOfParts node in app.xml */
 
         XLWorkbook        & m_parentWorkbook;
-        XLContentItem     * m_nodeInContentTypes; /**< A pointer to the relevant content type item in [Content_Types].xml */
-        XLRelationshipItem* m_nodeInWorkbookRels; /**< A pointer to the relationship item in workbook.xml.rels */
+        XLContentItem      m_nodeInContentTypes; /**< A pointer to the relevant content type item in [Content_Types].xml */
+        XLRelationshipItem m_nodeInWorkbookRels; /**< A pointer to the relationship item in workbook.xml.rels */
     };
 }  // namespace OpenXLSX::Impl
 

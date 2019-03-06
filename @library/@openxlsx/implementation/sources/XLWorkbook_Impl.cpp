@@ -584,10 +584,12 @@ void Impl::XLWorkbook::CreateWorksheet(const XLRelationshipItem& item, const std
         ++index;
     }
 
+    if (index > m_sheets.size()) index = m_sheets.size();
+
     auto& sheet = *m_sheets.insert(m_sheets.begin() + index, XLSheetData());
     sheet.sheetNode         = m_sheetsNode.find_child_by_attribute("r:id", item.Id().value());
     sheet.sheetRelationship = item;
-    sheet.sheetContentItem  = *Document()->ContentItem(string("/xl/") + item.Target().value());
+    sheet.sheetContentItem  = Document()->ContentItem(string("/xl/") + item.Target().value());
     sheet.sheetType         = XLSheetType::WorkSheet;
     sheet.sheetItem         = (xmlData.empty() ? nullptr : make_unique<XLWorksheet>(*this,
                                                                                     sheet.sheetNode.attribute("name"),
