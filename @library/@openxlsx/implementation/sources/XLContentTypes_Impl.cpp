@@ -101,6 +101,9 @@ void Impl::XLContentTypes::AddOverride(const string& path, XLContentType type) {
     m_overrides.emplace(path, XLContentItem(node));
 }
 
+/**
+ * @details
+ */
 void Impl::XLContentTypes::DeleteOverride(XLContentItem& item) {
 
     m_overrides.erase(item.Path());
@@ -117,6 +120,9 @@ Impl::XLContentItem Impl::XLContentTypes::ContentItem(const std::string& path) {
     return m_overrides.at(path);
 }
 
+/**
+ * @details
+ */
 Impl::XLContentType Impl::XLContentItem::GetTypeFromString(const std::string& typeString) {
 
     XLContentType type;
@@ -169,6 +175,9 @@ Impl::XLContentType Impl::XLContentItem::GetTypeFromString(const std::string& ty
     return type;
 }
 
+/**
+ * @details
+ */
 std::string Impl::XLContentItem::GetStringFromType(Impl::XLContentType type) {
 
     string typeString;
