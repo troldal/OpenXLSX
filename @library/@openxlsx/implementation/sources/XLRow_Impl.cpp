@@ -20,9 +20,11 @@ Impl::XLRow::XLRow(XLWorksheet& parent, XMLNode rowNode)
           m_rowNode(rowNode) {
 
     // Iterate through the Cell nodes and add cells to the m_cells hashmap
-    for (auto& cell : m_rowNode.children())
-        m_cells.emplace(XLCellReference(cell.attribute("r").value()).Column() - 1,
-                        XLCell::CreateCell(m_parentWorksheet, cell));
+    for (auto& cell : m_rowNode.children()) {
+        auto& newCell = m_cells.emplace_back(XLCellData());
+        newCell.cellIndex = XLCellReference(cell.attribute("r").value()).Column();
+        newCell.cellItem = XLCell::CreateCell(m_parentWorksheet, cell);
+    }
 
     m_rowNode.attribute("spans") = string("1:" + to_string(XLCellReference(m_rowNode.last_child().attribute("r").value()).Column())).c_str();
 }
@@ -116,34 +118,30 @@ XMLNode Impl::XLRow::RowNode() const {
  */
 Impl::XLCell* Impl::XLRow::Cell(unsigned int column) {
 
-    // If the requested Column number is higher than the number of Columns in the current Row,
-    // create a new Cell node, append it to the Row node, resize the m_cells vector, and insert the new node.
-    XLCell* result = nullptr;
-    auto item = m_cells.equal_range(column - 1).first;
-    if (item == m_cells.end()) {
-        // Create the new Cell node
-        auto cellNode = m_rowNode.append_child("c");
+    XLCellData searchItem;
+    searchItem.cellIndex = column;
+    auto dataItem = lower_bound(m_cells.begin(), m_cells.end(), searchItem, [](const XLCellData& a, const XLCellData& b) {
+        return a.cellIndex < b.cellIndex;
+    });
+
+    if (dataItem == m_cells.end() || dataItem->cellIndex > column) {// ===== If cell does not exist, create it...
+
+        auto cellNode = XMLNode();
+
+        if (dataItem == m_cells.end())
+            cellNode = m_rowNode.append_child("c");
+        else
+            cellNode = m_rowNode.insert_child_before("c", dataItem->cellItem->m_cellNode);
+
+        dataItem = m_cells.insert(dataItem, XLCellData());
+        dataItem->cellIndex = column;
+        dataItem->cellItem  = XLCell::CreateCell(m_parentWorksheet, cellNode);
+
         cellNode.append_attribute("r").set_value(XLCellReference(RowNumber(), column).Address().c_str());
 
-        // Append the Cell node to the Row node, and create a new XLCell node and insert it in the m_cells vector.
-        m_rowNode.attribute("spans") = string("1:" + to_string(column)).c_str();
-        result = m_cells.emplace(column - 1, XLCell::CreateCell(m_parentWorksheet, cellNode)).first->second.get();
-
-        // If the requested Column number is lower than the number of Columns in the current Row,
-        // but the Cell does not exist, create a new node and insert it at the rigth position.
-    }
-    else if ((*item).second->CellReference()->Column() != column) {
-
-        // Find the next Cell node and insert the new node at that position.
-        auto cellNode = m_rowNode.insert_child_before("c", (*item).second->CellNode());
-        cellNode.append_attribute("r") = XLCellReference(RowNumber(), column).Address().c_str();
-        result = m_cells.emplace(column - 1, XLCell::CreateCell(m_parentWorksheet, cellNode)).first->second.get();
-    }
-    else {
-        result = m_cells.at(column - 1).get();
     }
 
-    return result;
+    return dataItem->cellItem.get();
 }
 
 /**
@@ -151,9 +149,13 @@ Impl::XLCell* Impl::XLRow::Cell(unsigned int column) {
  */
 const Impl::XLCell* Impl::XLRow::Cell(unsigned int column) const {
 
-    if (column > CellCount()) throw XLException("Cell does not exist!");
+    auto result = find_if(m_cells.begin(), m_cells.end(), [=](const XLCellData& data) {
+        return data.cellIndex == column;
+    });
 
-    return m_cells.at(column - 1).get();
+    if (result == m_cells.end())
+        throw XLException("Cell does not exist!");
+    return result->cellItem.get();
 
 }
 
