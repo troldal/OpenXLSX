@@ -79,6 +79,13 @@ namespace OpenXLSX::Impl {
     public:
 
         /**
+         * @brief Constructor
+         * @param parent A pointer to the parent XLWorksheet object. Must not be nullptr.
+         * @param cellNode A pointer to the XMLNode with the cell data. Must not be nullptr.
+         */
+        XLCell(XLWorksheet& parent, XMLNode cellNode);
+
+        /**
          * @brief Copy constructor
          * @param other The XLCell object to be copied.
          * @note The copy constructor has been deleted, as it makes no sense to copy a cell. If the objective is to
@@ -149,27 +156,6 @@ namespace OpenXLSX::Impl {
          */
         const XLCellReference* CellReference() const;
 
-        //----------------------------------------------------------------------------------------------------------------------
-        //           Protected Member Functions
-        //----------------------------------------------------------------------------------------------------------------------
-
-        //protected:
-    public:
-
-        /**
-         * @brief Constructor
-         * @param parent A pointer to the parent XLWorksheet object. Must not be nullptr.
-         * @param cellNode A pointer to the XMLNode with the cell data. Must not be nullptr.
-         */
-        XLCell(XLWorksheet& parent, XMLNode cellNode);
-
-        /**
-         * @brief Factory method for creating a new cell
-         * @param parent A pointer to the parent XLWorksheet object. Must not be nullptr.
-         * @param cellNode A pointer to the XMLNode with the cell data. Must not be nullptr.
-         * @return A std::unique_ptr to the newly created object
-         */
-        static std::unique_ptr<XLCell> CreateCell(XLWorksheet& parent, XMLNode cellNode);
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Private Member Functions

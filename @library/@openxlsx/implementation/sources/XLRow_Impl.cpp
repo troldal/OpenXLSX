@@ -23,10 +23,8 @@ Impl::XLRow::XLRow(XLWorksheet& parent, XMLNode rowNode)
     for (auto& cell : m_rowNode.children()) {
         auto& newCell = m_cells.emplace_back(XLCellData());
         newCell.cellIndex = XLCellReference(cell.attribute("r").value()).Column();
-        newCell.cellItem = XLCell::CreateCell(m_parentWorksheet, cell);
+        newCell.cellItem = make_unique<XLCell>(m_parentWorksheet, cell);
     }
-
-    m_rowNode.attribute("spans") = string("1:" + to_string(XLCellReference(m_rowNode.last_child().attribute("r").value()).Column())).c_str();
 }
 
 /**
@@ -135,7 +133,7 @@ Impl::XLCell* Impl::XLRow::Cell(unsigned int column) {
 
         dataItem = m_cells.insert(dataItem, XLCellData());
         dataItem->cellIndex = column;
-        dataItem->cellItem  = XLCell::CreateCell(m_parentWorksheet, cellNode);
+        dataItem->cellItem  = make_unique<XLCell>(m_parentWorksheet, cellNode);
 
         cellNode.append_attribute("r").set_value(XLCellReference(RowNumber(), column).Address().c_str());
 

@@ -108,16 +108,6 @@ const Impl::XLCellReference* Impl::XLCell::CellReference() const {
 }
 
 /**
- * @details Creates a new std::unique_ptr using a raw pointer to the new object
- * @warning The std::make_unique function doesn't work, because the constructor is protected. Therefore,
- * a new unique_ptr is created manually, which is unfortunate, as it requires a call to operator new which is unsafe.
- */
-std::unique_ptr<Impl::XLCell> Impl::XLCell::CreateCell(XLWorksheet& parent, XMLNode cellNode) {
-
-    return std::make_unique<XLCell>(parent, cellNode);
-}
-
-/**
  * @details
  */
 void Impl::XLCell::SetTypeAttribute(const std::string& typeString) {
