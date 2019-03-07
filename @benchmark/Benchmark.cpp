@@ -109,18 +109,12 @@ unsigned long WriteTest(T value,
         auto startOpen = chrono::steady_clock::now();
         XLDocument doc;
         doc.CreateDocument(fileName);
+        auto wks = doc.Workbook().Worksheet("Sheet1");
         auto endOpen = chrono::steady_clock::now();
 
         // Add data to document
         auto startWrite = chrono::steady_clock::now();
-        auto wks = doc.Workbook().Worksheet("Sheet1");
         auto arange = wks.Range(XLCellReference("A1"), XLCellReference(rows, columns));
-
-//        for (int row = 1; row < 1000; ++row) {
-//            for (int col = 1; col < 1000; ++col) {
-//                wks.Cell(row, col).Value().Set(value);
-//            }
-//        }
 
         for (auto iter : arange) {
             iter.Value().Set(value);
@@ -200,11 +194,11 @@ unsigned long ReadTest(int repetitions, const std::string &fileName, ostream &de
         auto startOpen = chrono::steady_clock::now();
         OpenXLSX::XLDocument doc;
         doc.OpenDocument(fileName);
+        auto wks = doc.Workbook().Worksheet("Sheet1");
         auto endOpen = chrono::steady_clock::now();
 
         // Add data to document
         auto startRead = chrono::steady_clock::now();
-        auto wks = doc.Workbook().Worksheet("Sheet1");
         int intVal;
         double doubleVal;
         std::string stringVal;

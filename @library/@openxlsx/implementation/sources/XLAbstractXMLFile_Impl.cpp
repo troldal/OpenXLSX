@@ -50,7 +50,7 @@ void Impl::XLAbstractXMLFile::SetXmlData(const std::string& xmlData) {
 const string& Impl::XLAbstractXMLFile::GetXmlData() const {
 
     ostringstream ostr;
-    m_xmlDocument.print(ostr);
+    m_xmlDocument.save(ostr);
     m_xmlData = ostr.str();
     return m_xmlData;
 }
