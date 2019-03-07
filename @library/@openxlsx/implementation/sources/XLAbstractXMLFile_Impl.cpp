@@ -33,7 +33,7 @@ Impl::XLAbstractXMLFile::XLAbstractXMLFile(XLDocument& parent, std::string fileP
 
 Impl::XLAbstractXMLFile::operator bool() const {
 
-    return (GetXmlData().empty() ? false : true);
+    return !GetXmlData().empty();
 }
 
 /**
