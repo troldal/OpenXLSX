@@ -192,7 +192,6 @@ namespace OpenXLSX::Impl {
             std::unique_ptr<XLCell> cellItem = nullptr;
         };
 
-        //std::map<unsigned int, std::unique_ptr<XLCell>> m_cells; /**< A vector with the XLCell objects. */
         std::vector<XLCellData> m_cells; /**< A vector with the XLCell objects. */
     };
 

@@ -55,10 +55,10 @@ int main()
     str << " RUNNING WRITE BENCHMARKS ";
     str << "***********************************"<< endl << endl;
 
-    WriteTest("Hello, OpenXLSX!", 1000, 1000, 10, "BenchmarkString.xlsx", str);
-    WriteTest(-42, 1000, 1000, 10, "BenchmarkInteger.xlsx", str);
-    WriteTest(3.14159L, 1000, 1000, 10, "BenchmarkFloat.xlsx", str);
-    WriteTest(true, 1000, 1000, 10, "BenchmarkBool.xlsx", str);
+    WriteTest("Hello, OpenXLSX!", 1000, 1000, 5, "BenchmarkString.xlsx", str);
+    //WriteTest(-42, 1000, 1000, 10, "BenchmarkInteger.xlsx", str);
+    //WriteTest(3.14159L, 1000, 1000, 10, "BenchmarkFloat.xlsx", str);
+    //WriteTest(true, 1000, 1000, 10, "BenchmarkBool.xlsx", str);
 
     cout << endl << endl;
     str << "***********************************";
@@ -66,9 +66,9 @@ int main()
     str << "************************************"<< endl << endl;
 
     ReadTest(5, "BenchmarkString.xlsx", str);
-    ReadTest(5, "BenchmarkInteger.xlsx", str);
-    ReadTest(5, "BenchmarkFloat.xlsx", str);
-    ReadTest(5, "BenchmarkBool.xlsx", str);
+    //ReadTest(5, "BenchmarkInteger.xlsx", str);
+    //ReadTest(5, "BenchmarkFloat.xlsx", str);
+    //ReadTest(5, "BenchmarkBool.xlsx", str);
 
     //ostr.close();
 
@@ -109,18 +109,12 @@ unsigned long WriteTest(T value,
         auto startOpen = chrono::steady_clock::now();
         XLDocument doc;
         doc.CreateDocument(fileName);
+        auto wks = doc.Workbook().Worksheet("Sheet1");
         auto endOpen = chrono::steady_clock::now();
 
         // Add data to document
         auto startWrite = chrono::steady_clock::now();
-        auto wks = doc.Workbook().Worksheet("Sheet1");
         auto arange = wks.Range(XLCellReference("A1"), XLCellReference(rows, columns));
-
-//        for (int row = 1; row < 1000; ++row) {
-//            for (int col = 1; col < 1000; ++col) {
-//                wks.Cell(row, col).Value().Set(value);
-//            }
-//        }
 
         for (auto iter : arange) {
             iter.Value().Set(value);
@@ -200,11 +194,11 @@ unsigned long ReadTest(int repetitions, const std::string &fileName, ostream &de
         auto startOpen = chrono::steady_clock::now();
         OpenXLSX::XLDocument doc;
         doc.OpenDocument(fileName);
+        auto wks = doc.Workbook().Worksheet("Sheet1");
         auto endOpen = chrono::steady_clock::now();
 
         // Add data to document
         auto startRead = chrono::steady_clock::now();
-        auto wks = doc.Workbook().Worksheet("Sheet1");
         int intVal;
         double doubleVal;
         std::string stringVal;
