@@ -41,9 +41,8 @@
 /*
  * This file contains a modified version of the libzippp library by ctabin (https://github.com/ctabin/libzippp)
  * The modifications are:
- *    1. Collapsed the library into a single header file
- *    2. Numerous clang-tidy fixes
- *    3. Simplifications and modernizations
+ *    1. Numerous clang-tidy fixes
+ *    2. Simplifications and modernizations
  */
 
 #include <cstdio>
@@ -255,9 +254,9 @@ namespace OpenXLSX {
          * The zip file must be open otherwise a null-ZipEntry will be returned.
          */
         XLZipEntry getEntry(const std::string& name,
-                          bool excludeDirectories = false,
-                          bool caseSensitive = true,
-                          State state = CURRENT) const;
+                            bool excludeDirectories = false,
+                            bool caseSensitive = true,
+                            State state = CURRENT) const;
 
         /**
          * Return the ZipEntry for the specified index. If the index is out of range,
@@ -617,14 +616,14 @@ namespace OpenXLSX {
         int         crc;
 
         XLZipEntry(const XLZipArchive* zipFile,
-                 const std::string& name,
-                 uint64 index,
-                 time_t time,
-                 uint16 compMethod,
-                 uint16 encMethod,
-                 uint64 size,
-                 uint64 sizeComp,
-                 int crc)
+                   const std::string& name,
+                   uint64 index,
+                   time_t time,
+                   uint16 compMethod,
+                   uint16 encMethod,
+                   uint64 size,
+                   uint64 sizeComp,
+                   int crc)
                 : zipFile(zipFile),
                   name(name),
                   index(index),
@@ -639,6 +638,5 @@ namespace OpenXLSX {
 }
 
 #endif // LIBZIPPP_H
-
 
 #pragma clang diagnostic pop
