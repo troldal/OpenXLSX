@@ -62,9 +62,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLException.h"
 #include "XLXml_Impl.h"
 #include "XLDefinitions.h"
-
-namespace libzippp { class ZipArchive; } // namespace libzippp
-using ZipArchive = libzippp::ZipArchive;
+#include "XLZip_Impl.h"
 
 namespace OpenXLSX::Impl {
 
@@ -244,6 +242,10 @@ namespace OpenXLSX::Impl {
          */
         XLContentItem AddContentItem(const std::string& contentPath, XLContentType contentType);
 
+        /**
+         * @brief
+         * @param item
+         */
         void DeleteContentItem(XLContentItem& item);
 
         /**
@@ -295,7 +297,7 @@ namespace OpenXLSX::Impl {
         std::unique_ptr<XLAppProperties>  m_docAppProperties; /**< A pointer to the App properties object */
         std::unique_ptr<XLCoreProperties> m_docCoreProperties; /**< A pointer to the Core properties object*/
         std::unique_ptr<XLWorkbook>       m_workbook; /**< A pointer to the workbook object */
-        std::unique_ptr<ZipArchive>       m_archive; /**<  */
+        std::unique_ptr<XLZipArchive>     m_archive; /**<  */
 
     };
 

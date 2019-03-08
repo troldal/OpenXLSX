@@ -35,23 +35,6 @@ ExternalProject_Add(zlib
             -Wno-dev)
 
 #=======================================================================================================================
-# Download and build the bzip2 library
-#=======================================================================================================================
-#ExternalProject_Add(bzip
-#        GIT_REPOSITORY https://github.com/osrf/bzip2_cmake.git
-#        GIT_TAG 0496eaa
-#        INSTALL_DIR ${OPENXLSX_DEPENDENCIES}
-#        UPDATE_COMMAND ""
-#        CMAKE_ARGS
-#            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-#            -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-#            -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-#            -DCMAKE_POSITION_INDEPENDENT_CODE=ON
-#            -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
-#            -DCMAKE_PREFIX_PATH:PATH=<INSTALL_DIR>
-#            -Wno-dev)
-
-#=======================================================================================================================
 # Download and build the libzip library
 #=======================================================================================================================
 ExternalProject_Add(libzip
@@ -80,25 +63,6 @@ ExternalProject_Add(libzip
             -Wno-dev)
 
 #=======================================================================================================================
-# Build the libzip++ library
-#=======================================================================================================================
-ExternalProject_Add(libzip++
-        SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/@libzip++
-        INSTALL_DIR ${OPENXLSX_DEPENDENCIES}
-        UPDATE_COMMAND ""
-        CMAKE_ARGS
-            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-            -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-            -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-            -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}
-            -DCMAKE_CXX_STANDARD_REQUIRED=${CMAKE_CXX_STANDARD_REQUIRED}
-            -DCMAKE_CXX_EXTENSIONS=${CMAKE_CXX_EXTENSIONS}
-            -DCMAKE_POSITION_INDEPENDENT_CODE=ON
-            -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
-            -DCMAKE_PREFIX_PATH:PATH=<INSTALL_DIR>
-            -Wno-dev)
-
-#=======================================================================================================================
 # Load the OpenXLSX library folder
 #=======================================================================================================================
 include_directories(SYSTEM ${OPENXLSX_DEPENDENCIES}/include)
@@ -108,5 +72,4 @@ add_subdirectory(@openxlsx)
 # Define Dependencies
 #=======================================================================================================================
 ExternalProject_Add_StepDependencies(libzip install zlib)
-ExternalProject_Add_StepDependencies(libzip++ install libzip)
-add_dependencies(OpenXLSX pugi libzip++)
+add_dependencies(OpenXLSX pugi libzip)

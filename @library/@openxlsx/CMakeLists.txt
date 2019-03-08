@@ -59,7 +59,8 @@ set(OPENXLSX_IMPL_HEADERS
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLCellReference_Impl.h
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLCellType_Impl.h
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLCellValue_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLXml_Impl.h)
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLXml_Impl.h
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLZip_Impl.h)
 
 set(OPENXLSX_IMPL_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLAbstractXMLFile_Impl.cpp
@@ -84,7 +85,8 @@ set(OPENXLSX_IMPL_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellFormula_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellRange_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellReference_Impl.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellValue_Impl.cpp)
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellValue_Impl.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLZip_Impl.cpp)
 
 set(OPENXLSX_CXX_INTERFACE_HEADERS
         ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/OpenXLSX.h
@@ -129,7 +131,7 @@ target_link_directories(OpenXLSX
         ${OPENXLSX_DEPENDENCIES}/lib)
 target_link_libraries(OpenXLSX
         PRIVATE
-        pugixml zip++ zip z)
+        pugixml zip z)
 target_include_directories(OpenXLSX
         PRIVATE
         ${OPENXLSX_DEPENDENCIES}/include)
