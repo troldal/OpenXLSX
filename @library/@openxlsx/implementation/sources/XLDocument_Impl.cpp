@@ -7,11 +7,10 @@
 #include "XLWorksheet_Impl.h"
 #include "XLTemplate_Impl.h"
 
-#include <libzip++.h>
 #include <pugixml.hpp>
 
 using namespace std;
-using namespace libzippp;
+using namespace OpenXLSX;
 using namespace OpenXLSX;
 
 /**
@@ -63,8 +62,8 @@ void Impl::XLDocument::OpenDocument(const string& fileName) {
         CloseDocument();
 
     m_filePath = fileName;
-    m_archive  = make_unique<ZipArchive>(m_filePath);
-    m_archive->open(ZipArchive::WRITE);
+    m_archive  = make_unique<XLZipArchive>(m_filePath);
+    m_archive->open(XLZipArchive::WRITE);
 
     // Open the Relationships and Content_Types files for the document level.
     m_documentRelationships = make_unique<XLRelationships>(*this, "_rels/.rels");
@@ -128,8 +127,8 @@ bool Impl::XLDocument::SaveDocumentAs(const string& fileName) {
         dst << src.rdbuf();
 
         m_filePath = fileName;
-        m_archive  = make_unique<ZipArchive>(m_filePath);
-        m_archive->open(ZipArchive::WRITE);
+        m_archive  = make_unique<XLZipArchive>(m_filePath);
+        m_archive->open(XLZipArchive::WRITE);
     }
 
     // Commit all XML files, i.e. save to the zip file.
@@ -142,7 +141,7 @@ bool Impl::XLDocument::SaveDocumentAs(const string& fileName) {
 
     // Close and re-open the zip file, in order to save changes.
     m_archive->close();
-    m_archive->open(ZipArchive::WRITE);
+    m_archive->open(XLZipArchive::WRITE);
 
     return true;
 }
