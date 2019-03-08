@@ -90,12 +90,7 @@ bool Impl::XLStyles::ParseXMLData() {
  */
 void Impl::XLStyles::AddFont(const XLFont& font) {
 
-    m_fonts.push_back(make_unique<XLFont>(font.m_name,
-                                          font.m_size,
-                                          font.m_color,
-                                          font.m_bold,
-                                          font.m_italics,
-                                          font.m_underline));
+    m_fonts.push_back(make_unique<XLFont>(font.m_name, font.m_size, font.m_color, font.m_bold, font.m_italics, font.m_underline));
 
     auto newFont = s_fontsNode.append_child("font");
 

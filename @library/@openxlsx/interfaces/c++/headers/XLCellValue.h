@@ -225,8 +225,7 @@ namespace OpenXLSX {
          * @tparam T
          * @return
          */
-        template<typename T, typename std::enable_if<std::is_constructible<T, char*>::value && !std::is_same<T,
-                                                                                                             bool>::value,
+        template<typename T, typename std::enable_if<std::is_constructible<T, char*>::value && !std::is_same<T, bool>::value,
                                                      char*>::type* = nullptr>
         T Get() const;
 
@@ -358,8 +357,7 @@ namespace OpenXLSX {
     /**
      * @details
      */
-    template<typename T, typename std::enable_if<std::is_constructible<T, char*>::value && !std::is_same<T,
-                                                                                                         bool>::value,
+    template<typename T, typename std::enable_if<std::is_constructible<T, char*>::value && !std::is_same<T, bool>::value,
                                                  char*>::type*>
     T XLCellValue::Get() const {
 

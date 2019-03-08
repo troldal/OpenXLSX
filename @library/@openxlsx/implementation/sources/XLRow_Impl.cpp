@@ -23,7 +23,7 @@ Impl::XLRow::XLRow(XLWorksheet& parent, XMLNode rowNode)
     for (const auto& cell : m_rowNode.children()) {
         auto& newCell = m_cells.emplace_back(XLCellData());
         newCell.cellIndex = XLCellReference(cell.attribute("r").value()).Column();
-        newCell.cellItem = make_unique<XLCell>(m_parentWorksheet, cell);
+        newCell.cellItem  = make_unique<XLCell>(m_parentWorksheet, cell);
     }
 }
 

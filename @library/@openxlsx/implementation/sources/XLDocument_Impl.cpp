@@ -431,6 +431,7 @@ Impl::XLContentItem Impl::XLDocument::AddContentItem(const std::string& contentP
 }
 
 void Impl::XLDocument::DeleteContentItem(Impl::XLContentItem& item) {
+
     m_contentTypes->DeleteOverride(item);
 }
 

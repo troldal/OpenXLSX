@@ -247,9 +247,9 @@ Impl::XLRow* Impl::XLWorksheet::Row(unsigned long rowNumber) {
         dataItem->rowItem  = make_unique<XLRow>(*this, rowNode);
 
         // ===== Set the correct attributes of the newly created row node
-        rowNode.append_attribute("r")                   = rowNumber;
-        rowNode.append_attribute("x14ac:dyDescent")     = 0.2;
-        rowNode.append_attribute("spans")               = "1:1";
+        rowNode.append_attribute("r")               = rowNumber;
+        rowNode.append_attribute("x14ac:dyDescent") = 0.2;
+        rowNode.append_attribute("spans")           = "1:1";
     }
 
     return dataItem->rowItem.get();

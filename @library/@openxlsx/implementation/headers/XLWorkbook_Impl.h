@@ -342,7 +342,6 @@ namespace OpenXLSX::Impl {
          */
         void WriteXMLData() override;
 
-
     protected: // ---------- Protected Member Functions ---------- //
 
         /**
@@ -369,7 +368,6 @@ namespace OpenXLSX::Impl {
          * @return
          */
         XMLNode SheetNode(const std::string& sheetName);
-
 
     private: // ---------- Private Member Functions ---------- //
 
@@ -400,7 +398,6 @@ namespace OpenXLSX::Impl {
          * @return
          */
         int GetNewSheetID();
-
 
     private: // ---------- Private Member Variables ---------- //
 

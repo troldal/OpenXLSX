@@ -83,9 +83,7 @@ namespace OpenXLSX::Impl {
          * @param topLeft
          * @param bottomRight
          */
-        explicit XLCellRange(const XLWorksheet& sheet,
-                             const XLCellReference& topLeft,
-                             const XLCellReference& bottomRight);
+        explicit XLCellRange(const XLWorksheet& sheet, const XLCellReference& topLeft, const XLCellReference& bottomRight);
 
         /**
          * @brief Copy constructor [default].

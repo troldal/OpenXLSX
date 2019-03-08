@@ -41,9 +41,7 @@ Impl::XLCellRange::XLCellRange(XLWorksheet& sheet, const XLCellReference& topLef
 /**
  * @todo This is not pretty, but it works
  */
-Impl::XLCellRange::XLCellRange(const XLWorksheet& sheet,
-                               const XLCellReference& topLeft,
-                               const XLCellReference& bottomRight)
+Impl::XLCellRange::XLCellRange(const XLWorksheet& sheet, const XLCellReference& topLeft, const XLCellReference& bottomRight)
         : XLCellRange(const_cast<XLWorksheet&>(sheet), topLeft, bottomRight) {
 
 }
