@@ -1,5 +1,3 @@
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
 #ifndef LIBZIPPP_H
 #define LIBZIPPP_H
 
@@ -638,5 +636,3 @@ namespace OpenXLSX {
 }
 
 #endif // LIBZIPPP_H
-
-#pragma clang diagnostic pop

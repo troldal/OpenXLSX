@@ -130,7 +130,6 @@ namespace OpenXLSX::Impl {
         //----------------------------------------------------------------------------------------------------------------------
 
     private:
-        XLWorksheet* m_parentWorksheet; /**< A pointer to the parent XLWorksheet object. */
         XLDocument * m_parentDocument; /**< A pointer to the parent XLDocument object. */
 
         std::unique_ptr<XMLNode> m_columnNode; /**< A pointer to the XMLNode object for the column. */
