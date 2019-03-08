@@ -248,8 +248,7 @@ namespace OpenXLSX::Impl {
          * @brief Get string value.
          * @tparam T The string type to get.
          */
-        template<typename T, typename std::enable_if<std::is_constructible<T, char*>::value && !std::is_same<T,
-                                                                                                             bool>::value,
+        template<typename T, typename std::enable_if<std::is_constructible<T, char*>::value && !std::is_same<T, bool>::value,
                                                      char*>::type* = nullptr>
         T Get();
 
@@ -428,8 +427,7 @@ namespace OpenXLSX::Impl {
         //----------------------------------------------------------------------------------------------------------------------
 
     private:
-        XLCell         & m_parentCell; /**< A reference to the parent XLCell object. */
-        XLSharedStrings* m_sharedStrings;
+        XLCell& m_parentCell; /**< A reference to the parent XLCell object. */
     };
 
     //----------------------------------------------------------------------------------------------------------------------
@@ -532,8 +530,7 @@ namespace OpenXLSX::Impl {
      * @pre
      * @post
      */
-    template<typename T, typename std::enable_if<std::is_constructible<T, char*>::value && !std::is_same<T,
-                                                                                                         bool>::value,
+    template<typename T, typename std::enable_if<std::is_constructible<T, char*>::value && !std::is_same<T, bool>::value,
                                                  char*>::type*>
     T XLCellValue::Get() {
 

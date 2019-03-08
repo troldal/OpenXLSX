@@ -188,7 +188,7 @@ namespace OpenXLSX::Impl {
         XMLNode m_rowNode; /**< The XMLNode object for the row. */
 
         struct XLCellData {
-            unsigned int cellIndex;
+            unsigned int            cellIndex;
             std::unique_ptr<XLCell> cellItem = nullptr;
         };
 
