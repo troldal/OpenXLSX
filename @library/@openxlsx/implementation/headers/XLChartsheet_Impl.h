@@ -82,7 +82,7 @@ namespace OpenXLSX::Impl {
          * @brief
          * @param other
          */
-        XLChartsheet(const XLChartsheet& other) = default;
+        XLChartsheet(const XLChartsheet& other) = delete;
 
         /**
          * @brief
@@ -93,7 +93,7 @@ namespace OpenXLSX::Impl {
          * @brief
          * @return
          */
-        XLChartsheet& operator=(const XLChartsheet&) = default;
+        XLChartsheet& operator=(const XLChartsheet&) = delete;
 
     };
 

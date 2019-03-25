@@ -86,7 +86,7 @@ const XLWorkbook XLDocument::Workbook() const {
 
     if (!m_document)
         throw XLException("Invalid XLDocument object!");
-    return static_cast<const XLWorkbook>(XLWorkbook(*m_document->Workbook()));
+    return static_cast<const XLWorkbook>(*m_document->Workbook());
 }
 
 /**********************************************************************************************************************/

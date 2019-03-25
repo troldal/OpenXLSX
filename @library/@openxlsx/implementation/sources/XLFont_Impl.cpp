@@ -16,7 +16,7 @@ std::map<string, Impl::XLFont> Impl::XLFont::s_fonts = {};
  * @details
  */
 Impl::XLFont::XLFont(const string& name, unsigned int size, const XLColor& color, bool bold, bool italics, bool underline)
-        : m_fontNode(std::make_unique<XMLNode>()),
+        : m_fontNode(XMLNode()),
           m_name(name),
           m_size(size),
           m_color(color),

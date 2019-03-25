@@ -26,7 +26,7 @@ XLCellReference::XLCellReference(unsigned long row, unsigned int column)
 }
 
 XLCellReference::XLCellReference(const XLCellReference& other)
-        : m_cellReference(make_unique<Impl::XLCellReference>(Impl::XLCellReference(*other.m_cellReference))) {
+        : m_cellReference(make_unique<Impl::XLCellReference>(*other.m_cellReference)) {
 
 }
 
