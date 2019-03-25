@@ -37,6 +37,9 @@ int main()
     auto C1 = wks.Cell("C1").Value().Get<std::string>();
     auto D1 = wks.Cell("D1").Value().Get<bool>();
     auto E1 = wks.Cell("E1").Value().Get<std::string>();
+    
+    auto val = wks.Cell("E1").Value();
+    cout << val.Get<std::string>() << endl;
 
     cout << "Cell A1: " << A1 << endl;
     cout << "Cell B1: " << B1 << endl;

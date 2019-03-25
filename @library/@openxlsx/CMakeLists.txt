@@ -5,25 +5,84 @@ add_library(OpenXLSX SHARED "")
 add_library(OpenXLSX::OpenXLSX ALIAS OpenXLSX)
 
 #=======================================================================================================================
+# Feature Checks
+#=======================================================================================================================
+include(CheckCXXSourceCompiles)
+check_cxx_source_compiles("
+                          #include <array>
+                          #include <string>
+                          #include <charconv>
+                          
+                          int main() {
+                                  std::array<char, 7> str {};
+                                  auto p = std::to_chars(str.data(), str.data() + str.size(), 12345).ptr;
+                                  auto strResult = std::string(str.data(), p - str.data());
+                                  
+                                  unsigned long value = 0;
+                                  std::from_chars(strResult.data(), strResult.data() + strResult.size(), value);
+
+                                  return 0;
+                          }" CHARCONV_RESULT)
+
+if(CHARCONV_RESULT)
+    target_compile_definitions(OpenXLSX PRIVATE CHARCONV_ENABLED)
+endif()
+
+#=======================================================================================================================
 # Set compiler flags
 #=======================================================================================================================
-include(CheckIPOSupported)
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    target_compile_options(OpenXLSX PRIVATE -Wall)
-    target_compile_options(OpenXLSX PRIVATE -Wextra)
-    target_compile_options(OpenXLSX PRIVATE -pedantic)
-    #target_compile_options(OpenXLSX PRIVATE -fsanitize=leak -g)
-    #target_link_options(OpenXLSX PRIVATE -fsanitize=leak -g)
     if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-        #target_compile_options(OpenXLSX PRIVATE -Weverything)
+        #target_compile_options(OpenXLSX PRIVATE -Wlifetime)
     elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+        target_compile_options(OpenXLSX PRIVATE -Wmisleading-indentation)
+        target_compile_options(OpenXLSX PRIVATE -Wduplicated-cond)
+        target_compile_options(OpenXLSX PRIVATE -Wduplicated-branches)
+        target_compile_options(OpenXLSX PRIVATE -Wlogical-op)
+        target_compile_options(OpenXLSX PRIVATE -Wnull-dereference)
+        target_compile_options(OpenXLSX PRIVATE -Wuseless-cast)
+    elseif (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") OR ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"))
+        target_compile_options(OpenXLSX PRIVATE -Wall)
+        target_compile_options(OpenXLSX PRIVATE -Wextra)
+        target_compile_options(OpenXLSX PRIVATE -Wshadow)
+        target_compile_options(OpenXLSX PRIVATE -Wnon-virtual-dtor)
+        target_compile_options(OpenXLSX PRIVATE -Wold-style-cast)
+        target_compile_options(OpenXLSX PRIVATE -Wcast-align)
+        target_compile_options(OpenXLSX PRIVATE -Wunused)
+        target_compile_options(OpenXLSX PRIVATE -Woverloaded-virtual)
+        target_compile_options(OpenXLSX PRIVATE -Wpedantic)
+        target_compile_options(OpenXLSX PRIVATE -Wconversion)
+        target_compile_options(OpenXLSX PRIVATE -Wsign-conversion)
+        target_compile_options(OpenXLSX PRIVATE -Wdouble-promotion)
+        target_compile_options(OpenXLSX PRIVATE -Wformat=2)
         target_compile_options(OpenXLSX PRIVATE -Weffc++)
     elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
         # using Intel C++
     elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-        # using Visual Studio C++
+        target_compile_options(OpenXLSX PRIVATE /permissive)
+        target_compile_options(OpenXLSX PRIVATE /W4)
+        target_compile_options(OpenXLSX PRIVATE /w14242)
+        target_compile_options(OpenXLSX PRIVATE /w14254)
+        target_compile_options(OpenXLSX PRIVATE /w14263)
+        target_compile_options(OpenXLSX PRIVATE /w14265)
+        target_compile_options(OpenXLSX PRIVATE /w14287)
+        target_compile_options(OpenXLSX PRIVATE /we4289)
+        target_compile_options(OpenXLSX PRIVATE /w14296)
+        target_compile_options(OpenXLSX PRIVATE /w14311)
+        target_compile_options(OpenXLSX PRIVATE /w14545)
+        target_compile_options(OpenXLSX PRIVATE /w14546)
+        target_compile_options(OpenXLSX PRIVATE /w14547)
+        target_compile_options(OpenXLSX PRIVATE /w14549)
+        target_compile_options(OpenXLSX PRIVATE /w14555)
+        target_compile_options(OpenXLSX PRIVATE /w14619)
+        target_compile_options(OpenXLSX PRIVATE /w14640)
+        target_compile_options(OpenXLSX PRIVATE /w14826)
+        target_compile_options(OpenXLSX PRIVATE /w14905)
+        target_compile_options(OpenXLSX PRIVATE /w14906)
+        target_compile_options(OpenXLSX PRIVATE /w14928)
     endif ()
 elseif (CMAKE_BUILD_TYPE STREQUAL "Release")
+    include(CheckIPOSupported)
     check_ipo_supported(RESULT result OUTPUT output)
     if (result)
         set_property(TARGET OpenXLSX PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
@@ -60,7 +119,7 @@ set(OPENXLSX_IMPL_HEADERS
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLCellType_Impl.h
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLCellValue_Impl.h
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLXml_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLZip_Impl.h)
+        )
 
 set(OPENXLSX_IMPL_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLAbstractXMLFile_Impl.cpp
@@ -86,7 +145,7 @@ set(OPENXLSX_IMPL_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellRange_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellReference_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellValue_Impl.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLZip_Impl.cpp)
+        )
 
 set(OPENXLSX_CXX_INTERFACE_HEADERS
         ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/OpenXLSX.h
@@ -120,29 +179,18 @@ set(OPENXLSX_CXX_INTERFACE_SOURCES
 #=======================================================================================================================
 # Build OpenXLSX library
 #=======================================================================================================================
-include(GenerateExportHeader)
-generate_export_header(OpenXLSX)
 target_sources(OpenXLSX
         PRIVATE
         ${OPENXLSX_IMPL_SOURCES}
         ${OPENXLSX_CXX_INTERFACE_SOURCES})
-target_link_directories(OpenXLSX
-        PRIVATE
-        ${OPENXLSX_DEPENDENCIES}/lib)
 target_link_libraries(OpenXLSX
         PRIVATE
-        pugixml zip z)
-target_include_directories(OpenXLSX
-        PRIVATE
-        ${OPENXLSX_DEPENDENCIES}/include)
+        PugiXML Zippy)
 target_include_directories(OpenXLSX
         PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers
         PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers)
-#SYSTEM INTERFACE
-#    ${CMAKE_CURRENT_LIST_DIR}/implementation/headers
-#    ${CMAKE_CURRENT_LIST_DIR}/interfaces/headers)
 
 # ===== Set output directories for targets to (staged) installation directory ===== #
 set_target_properties(OpenXLSX PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${OPENXLSX_INSTALLDIR}/lib)

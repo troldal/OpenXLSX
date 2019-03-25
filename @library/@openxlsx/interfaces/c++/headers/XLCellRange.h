@@ -73,7 +73,7 @@ namespace OpenXLSX {
          * @brief
          * @param other
          */
-        XLCellRange(const XLCellRange& other) = default;
+        XLCellRange(const XLCellRange& other);
 
         /**
          * @brief

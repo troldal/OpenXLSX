@@ -4,6 +4,7 @@
 
 #include <cstring>
 #include <algorithm>
+#include <vector>
 #include <pugixml.hpp>
 #include <XLWorkbook_Impl.h>
 
@@ -135,7 +136,7 @@ const Impl::XLSheet* Impl::XLWorkbook::Sheet(const std::string& sheetName) const
 Impl::XLSheet* Impl::XLWorkbook::Sheet(unsigned int index) {
 
     //    return const_cast<Impl::XLSheet*>(static_cast<const Impl::XLWorkbook*>(this)->Sheet(index));
-    string name = vector(m_sheetsNode.begin(), m_sheetsNode.end())[index - 1].attribute("name").as_string();
+    string name = vector<XMLNode>(m_sheetsNode.begin(), m_sheetsNode.end())[index - 1].attribute("name").as_string();
     return Sheet(name);
 }
 
@@ -144,7 +145,7 @@ Impl::XLSheet* Impl::XLWorkbook::Sheet(unsigned int index) {
  */
 const Impl::XLSheet* Impl::XLWorkbook::Sheet(unsigned int index) const {
 
-    string name = vector(m_sheetsNode.begin(), m_sheetsNode.end())[index - 1].attribute("name").as_string();
+    string name = vector<XMLNode>(m_sheetsNode.begin(), m_sheetsNode.end())[index - 1].attribute("name").as_string();
     return Sheet(name);
 }
 
@@ -294,7 +295,7 @@ Impl::XLRelationshipItem* Impl::XLWorkbook::InitiateWorksheet(const std::string&
     // insert Sheet node at the given Index
 
     auto node  = XMLNode();
-    auto nodes = vector(m_sheetsNode.begin(), m_sheetsNode.end());
+    auto nodes = vector<XMLNode>(m_sheetsNode.begin(), m_sheetsNode.end());
     if (index == 0 || index > nodes.size())
         node = m_sheetsNode.append_child("sheet");
     else
@@ -413,7 +414,7 @@ XLSheetType Impl::XLWorkbook::TypeOfSheet(const std::string& sheetName) const {
 
 XLSheetType Impl::XLWorkbook::TypeOfSheet(unsigned int index) const {
 
-    string name = vector(m_sheetsNode.begin(), m_sheetsNode.end())[index - 1].attribute("name").as_string();
+    string name = vector<XMLNode>(m_sheetsNode.begin(), m_sheetsNode.end())[index - 1].attribute("name").as_string();
     return TypeOfSheet(name);
 }
 

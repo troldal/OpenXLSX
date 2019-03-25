@@ -46,11 +46,13 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_IMPL_XLCOLUMN_H
 #define OPENXLSX_IMPL_XLCOLUMN_H
 
-#include "XLDocument_Impl.h"
+#include <memory>
+#include "XLXml_Impl.h"
 
 namespace OpenXLSX::Impl {
 
     class XLWorksheet;
+    class XLDocument;
 
     //======================================================================================================================
     //========== XLWorksheet Class =========================================================================================
@@ -130,8 +132,7 @@ namespace OpenXLSX::Impl {
         //----------------------------------------------------------------------------------------------------------------------
 
     private:
-        XLWorksheet* m_parentWorksheet; /**< A pointer to the parent XLWorksheet object. */
-        XLDocument * m_parentDocument; /**< A pointer to the parent XLDocument object. */
+        XLDocument* m_parentDocument; /**< A pointer to the parent XLDocument object. */
 
         std::unique_ptr<XMLNode> m_columnNode; /**< A pointer to the XMLNode object for the column. */
 

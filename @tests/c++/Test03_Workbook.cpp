@@ -2,7 +2,7 @@
 // Created by Troldal on 2019-01-12.
 //
 
-#include "catch.hpp"
+#include <catch.hpp>
 #include <fstream>
 #include <OpenXLSX.h>
 

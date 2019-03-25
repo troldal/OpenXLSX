@@ -24,9 +24,9 @@ Impl::XLSheet::XLSheet(XLWorkbook& parent, XMLAttribute name, const std::string&
           m_sheetState(XLSheetState::Visible),
           m_nodeInWorkbook(parent.SheetNode(name.value())),
           m_nodeInApp(parent.Document()->m_docAppProperties->SheetNameNode(name.value())),
+          m_parentWorkbook(parent),
           m_nodeInContentTypes(parent.Document()->ContentItem("/xl/" + filepath)),
-          m_nodeInWorkbookRels(parent.Relationships()->RelationshipByTarget(filepath)),
-          m_parentWorkbook(parent) {
+          m_nodeInWorkbookRels(parent.Relationships()->RelationshipByTarget(filepath)) {
 
 }
 

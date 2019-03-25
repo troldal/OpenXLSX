@@ -24,7 +24,7 @@ XLSheet XLWorkbook::Sheet(unsigned int index) {
 /**********************************************************************************************************************/
 const XLSheet XLWorkbook::Sheet(unsigned int index) const {
 
-    return static_cast<const XLSheet>(XLSheet(*m_workbook->Sheet(index)));
+    return static_cast<const XLSheet>(*m_workbook->Sheet(index));
 }
 
 /**********************************************************************************************************************/
@@ -36,7 +36,7 @@ XLSheet XLWorkbook::Sheet(const std::string& sheetName) {
 /**********************************************************************************************************************/
 const XLSheet XLWorkbook::Sheet(const std::string& sheetName) const {
 
-    return static_cast<const XLSheet>(XLSheet(*m_workbook->Sheet(sheetName)));
+    return static_cast<const XLSheet>(*m_workbook->Sheet(sheetName));
 }
 
 /**********************************************************************************************************************/
@@ -48,7 +48,7 @@ XLWorksheet XLWorkbook::Worksheet(const std::string& sheetName) {
 /**********************************************************************************************************************/
 const XLWorksheet XLWorkbook::Worksheet(const std::string& sheetName) const {
 
-    return static_cast<const XLWorksheet>(XLWorksheet(*m_workbook->Worksheet(sheetName)));
+    return static_cast<const XLWorksheet>(*m_workbook->Worksheet(sheetName));
 }
 
 /**********************************************************************************************************************/
@@ -60,7 +60,7 @@ XLChartsheet XLWorkbook::Chartsheet(const std::string& sheetName) {
 /**********************************************************************************************************************/
 const XLChartsheet XLWorkbook::Chartsheet(const std::string& sheetName) const {
 
-    return static_cast<const XLChartsheet>(XLChartsheet(*m_workbook->Chartsheet(sheetName)));
+    return static_cast<const XLChartsheet>(*m_workbook->Chartsheet(sheetName));
 }
 
 /**********************************************************************************************************************/

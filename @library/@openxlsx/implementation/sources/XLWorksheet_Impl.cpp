@@ -156,7 +156,7 @@ Impl::XLCell* Impl::XLWorksheet::Cell(unsigned long rowNumber, unsigned int colu
             m_lastCell.SetRow(rowNumber);
 
         // Reset the dimension node to reflect the full Range of the current Sheet.
-        DimensionNode().attribute("ref").set_value(string(FirstCell().Address() + ":" + LastCell().Address()).c_str());
+        DimensionNode().attribute("ref").set_value((FirstCell().Address() + ":" + LastCell().Address()).c_str());
     }
 
     // Return a pointer to the requested XLCell object.

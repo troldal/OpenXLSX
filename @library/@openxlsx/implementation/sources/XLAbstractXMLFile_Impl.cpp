@@ -19,9 +19,9 @@ using namespace OpenXLSX;
  * the data will be read from the .zip file, using the given path.
  */
 Impl::XLAbstractXMLFile::XLAbstractXMLFile(XLDocument& parent, std::string filePath, const std::string& xmlData)
-        : m_xmlDocument(XMLDocument()),
+        : m_path(std::move(filePath)),
           m_parentDocument(parent),
-          m_path(std::move(filePath)) {
+          m_xmlDocument(XMLDocument()) {
 
     if (xmlData.empty())
         SetXmlData(m_parentDocument.GetXMLFile(m_path));

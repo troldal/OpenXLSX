@@ -106,25 +106,26 @@ namespace OpenXLSX {
      * ```
      */
     class XLCellValue {
-    public:
+        friend class XLCell;
 
+    private:
         /**
          * @brief
          * @param value
          */
         explicit XLCellValue(Impl::XLCellValue& value);
+    public:
+        /**
+         * @brief
+         * @param other
+         */
+        XLCellValue(const XLCellValue& other) = delete;
 
         /**
          * @brief
          * @param other
          */
-        XLCellValue(const XLCellValue& other) = default;
-
-        /**
-         * @brief
-         * @param other
-         */
-        XLCellValue(XLCellValue&& other) = default;
+        XLCellValue(XLCellValue&& other) = delete;
 
         /**
          * @brief

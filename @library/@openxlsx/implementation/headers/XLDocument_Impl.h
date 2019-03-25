@@ -62,7 +62,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLException.h"
 #include "XLXml_Impl.h"
 #include "XLDefinitions.h"
-#include "XLZip_Impl.h"
+#include <Zippy.h>
 
 namespace OpenXLSX::Impl {
 
@@ -292,12 +292,12 @@ namespace OpenXLSX::Impl {
 
         std::string m_filePath; /**< The path to the original file*/
 
-        std::unique_ptr<XLRelationships>  m_documentRelationships; /**< A pointer to the document relationships object*/
-        std::unique_ptr<XLContentTypes>   m_contentTypes; /**< A pointer to the content types object*/
-        std::unique_ptr<XLAppProperties>  m_docAppProperties; /**< A pointer to the App properties object */
-        std::unique_ptr<XLCoreProperties> m_docCoreProperties; /**< A pointer to the Core properties object*/
-        std::unique_ptr<XLWorkbook>       m_workbook; /**< A pointer to the workbook object */
-        std::unique_ptr<XLZipArchive>     m_archive; /**<  */
+        std::unique_ptr<XLRelationships>   m_documentRelationships; /**< A pointer to the document relationships object*/
+        std::unique_ptr<XLContentTypes>    m_contentTypes; /**< A pointer to the content types object*/
+        std::unique_ptr<XLAppProperties>   m_docAppProperties; /**< A pointer to the App properties object */
+        std::unique_ptr<XLCoreProperties>  m_docCoreProperties; /**< A pointer to the Core properties object*/
+        std::unique_ptr<XLWorkbook>        m_workbook; /**< A pointer to the workbook object */
+        std::unique_ptr<Zippy::ZipArchive> m_archive; /**<  */
 
     };
 

@@ -15,6 +15,12 @@ XLCellRange::XLCellRange(Impl::XLCellRange range)
 
 }
 
+XLCellRange::XLCellRange(const XLCellRange& other)
+        : m_cellrange(std::make_unique<Impl::XLCellRange>(*other.m_cellrange)),
+          m_cells(nullptr) {
+
+}
+
 XLCellRange::~XLCellRange() = default;
 
 XLCell XLCellRange::Cell(unsigned long row, unsigned int column) {
