@@ -8,5 +8,5 @@ target_sources(InterfaceTest PRIVATE
         Test07_CellReference.cpp
         Test08_Cell.cpp)
 
-target_link_libraries(InterfaceTest PRIVATE Catch SYSTEM INTERFACE Catch)
+target_link_libraries(InterfaceTest PRIVATE Catch INTERFACE Catch)
 target_link_libraries(InterfaceTest PUBLIC OpenXLSX)
