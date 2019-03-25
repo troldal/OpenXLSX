@@ -326,7 +326,8 @@ namespace Zippy {
          * @param includeFiles If true, the list will include files; otherwise not. Default is true
          * @return A std::vector of ZipEntryMetaData structs with the entry metadata. The directory itself is not included.
          */
-        std::vector<ZipEntryMetaData> GetMetaDataInDir(const std::string& dir, bool includeDirs = true, bool includeFiles = true) {
+        std::vector<ZipEntryMetaData>
+        GetMetaDataInDir(const std::string& dir, bool includeDirs = true, bool includeFiles = true) {
 
             std::vector<ZipEntryMetaData> result;
             for (auto& item : m_ZipEntries) {
@@ -345,6 +346,7 @@ namespace Zippy {
 
             return result;
         }
+
         /**
          * @brief Get the number of entries in the archive. Depending on the input parameters, the number will include
          * directories, files or both.
@@ -352,7 +354,7 @@ namespace Zippy {
          * @param includeFiles If true, the number will include files; otherwise not. Default is true
          * @return An int with the number of entries.
          */
-        int GetNumEntries(bool includeDirs = true, bool includeFiles = true)  {
+        int GetNumEntries(bool includeDirs = true, bool includeFiles = true) {
 
             return GetEntryNames(includeDirs, includeFiles).size();
         }
@@ -386,7 +388,7 @@ namespace Zippy {
          * @param filename The new filename.
          * @note If no filename is provided, the file will be saved with the existing name, overwriting any existing data.
          */
-        void Save(std::string filename = "")  {
+        void Save(std::string filename = "") {
 
             if (filename.empty()) filename = m_ArchivePath;
 
@@ -465,7 +467,11 @@ namespace Zippy {
 
             // ===== Extract the data from the archive to the ZipEntry object.
             result->m_EntryData.resize(result->UncompressedSize());
-            mz_zip_reader_extract_file_to_mem(&m_Archive, name.c_str(), result->m_EntryData.data(), result->m_EntryData.size(), 0);
+            mz_zip_reader_extract_file_to_mem(&m_Archive,
+                                              name.c_str(),
+                                              result->m_EntryData.data(),
+                                              result->m_EntryData.size(),
+                                              0);
 
             // ===== Check that the operation was successful
             if (result->m_EntryData.data() == nullptr)

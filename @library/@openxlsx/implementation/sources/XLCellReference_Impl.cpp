@@ -177,7 +177,7 @@ void Impl::XLCellReference::SetAddress(const std::string& address) {
  */
 std::string Impl::XLCellReference::RowAsString(unsigned long row) {
 
-    #ifdef __clang__
+#ifdef __clang__
     string result;
     while (row != 0) {
         int rem = row % 10;
@@ -189,11 +189,11 @@ std::string Impl::XLCellReference::RowAsString(unsigned long row) {
         std::swap(result[i], result[result.length() - i - 1]);
 
     return result;
-    #else
+#else
     std::array<char, 7> str {};
     auto p = std::to_chars(str.data(), str.data() + str.size(), row).ptr;
     return string(str.data(), p - str.data());
-    #endif
+#endif
 
 }
 

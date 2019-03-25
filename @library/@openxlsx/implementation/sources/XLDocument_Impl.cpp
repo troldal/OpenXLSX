@@ -120,16 +120,16 @@ bool Impl::XLDocument::SaveDocument() {
 bool Impl::XLDocument::SaveDocumentAs(const string& fileName) {
     // If the filename is different than the name of the current file, copy the current file to new destination,
     // close the current zip file and open the new one.
-//    if (fileName != m_filePath) {
-//        m_archive->discard();
-//        std::ifstream src(m_filePath, std::ios::binary);
-//        std::ofstream dst(fileName, std::ios::binary);
-//        dst << src.rdbuf();
-//
-//        m_filePath = fileName;
-//        m_archive  = make_unique<XLZipArchive>(m_filePath);
-//        m_archive->open(XLZipArchive::WRITE);
-//    }
+    //    if (fileName != m_filePath) {
+    //        m_archive->discard();
+    //        std::ifstream src(m_filePath, std::ios::binary);
+    //        std::ofstream dst(fileName, std::ios::binary);
+    //        dst << src.rdbuf();
+    //
+    //        m_filePath = fileName;
+    //        m_archive  = make_unique<XLZipArchive>(m_filePath);
+    //        m_archive->open(XLZipArchive::WRITE);
+    //    }
 
     m_filePath = fileName;
 

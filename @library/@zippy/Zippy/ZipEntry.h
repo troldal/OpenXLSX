@@ -306,7 +306,8 @@ namespace Zippy {
              * @return
              */
             static uint32_t GetNewIndex(uint32_t latestIndex = 0) {
-                static uint32_t index {0};
+
+                static uint32_t index{0};
 
                 if (latestIndex > index) {
                     index = latestIndex;
