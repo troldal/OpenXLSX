@@ -46,11 +46,13 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_IMPL_XLCOLUMN_H
 #define OPENXLSX_IMPL_XLCOLUMN_H
 
-#include "XLDocument_Impl.h"
+//#include "XLDocument_Impl.h"
+#include "XLXml_Impl.h"
 
 namespace OpenXLSX::Impl {
 
     class XLWorksheet;
+    class XLDocument;
 
     //======================================================================================================================
     //========== XLWorksheet Class =========================================================================================

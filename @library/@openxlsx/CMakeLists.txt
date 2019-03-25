@@ -60,7 +60,7 @@ set(OPENXLSX_IMPL_HEADERS
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLCellType_Impl.h
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLCellValue_Impl.h
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLXml_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLZip_Impl.h)
+        )
 
 set(OPENXLSX_IMPL_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLAbstractXMLFile_Impl.cpp
@@ -86,7 +86,7 @@ set(OPENXLSX_IMPL_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellRange_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellReference_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellValue_Impl.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLZip_Impl.cpp)
+        )
 
 set(OPENXLSX_CXX_INTERFACE_HEADERS
         ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/OpenXLSX.h
@@ -120,18 +120,13 @@ set(OPENXLSX_CXX_INTERFACE_SOURCES
 #=======================================================================================================================
 # Build OpenXLSX library
 #=======================================================================================================================
-include(GenerateExportHeader)
-generate_export_header(OpenXLSX)
 target_sources(OpenXLSX
         PRIVATE
         ${OPENXLSX_IMPL_SOURCES}
         ${OPENXLSX_CXX_INTERFACE_SOURCES})
-target_link_directories(OpenXLSX
-        PRIVATE
-        ${OPENXLSX_DEPENDENCIES}/lib)
 target_link_libraries(OpenXLSX
         PRIVATE
-        pugixml zip z)
+        PugiXML Zippy)
 target_include_directories(OpenXLSX
         PRIVATE
         ${OPENXLSX_DEPENDENCIES}/include)
