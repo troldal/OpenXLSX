@@ -4306,14 +4306,13 @@ extern "C" {
 #if defined(_MSC_VER) || defined(__MINGW64__)
 static FILE *mz_fopen(const char *pFilename, const char *pMode)
 {
-    FILE *pFile = NULL;
-    fopen_s(&pFile, pFilename, pMode);
+    FILE *pFile = fopen(pFilename, pMode);
     return pFile;
 }
 static FILE *mz_freopen(const char *pPath, const char *pMode, FILE *pStream)
 {
-    FILE *pFile = NULL;
-    if (freopen_s(&pFile, pPath, pMode, pStream))
+    FILE *pFile = freopen(pPath, pMode, pStream);
+    if (!pFile)
         return NULL;
     return pFile;
 }
