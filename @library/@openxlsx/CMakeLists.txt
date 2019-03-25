@@ -5,9 +5,32 @@ add_library(OpenXLSX SHARED "")
 add_library(OpenXLSX::OpenXLSX ALIAS OpenXLSX)
 
 #=======================================================================================================================
+# Feature Checks
+#=======================================================================================================================
+include(CheckCXXSourceCompiles)
+check_cxx_source_compiles("
+                          #include <array>
+                          #include <string>
+                          #include <charconv>
+                          
+                          int main() {
+                                  std::array<char, 7> str {};
+                                  auto p = std::to_chars(str.data(), str.data() + str.size(), 12345).ptr;
+                                  auto strResult = std::string(str.data(), p - str.data());
+                                  
+                                  unsigned long value = 0;
+                                  std::from_chars(strResult.data(), strResult.data() + strResult.size(), value);
+
+                                  return 0;
+                          }" CHARCONV_RESULT)
+
+if(CHARCONV_RESULT)
+    target_compile_definitions(OpenXLSX PRIVATE CHARCONV_ENABLED)
+endif()
+
+#=======================================================================================================================
 # Set compiler flags
 #=======================================================================================================================
-include(CheckIPOSupported)
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
         #target_compile_options(OpenXLSX PRIVATE -Wlifetime)
@@ -59,6 +82,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
         target_compile_options(OpenXLSX PRIVATE /w14928)
     endif ()
 elseif (CMAKE_BUILD_TYPE STREQUAL "Release")
+    include(CheckIPOSupported)
     check_ipo_supported(RESULT result OUTPUT output)
     if (result)
         set_property(TARGET OpenXLSX PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
@@ -164,15 +188,9 @@ target_link_libraries(OpenXLSX
         PugiXML Zippy)
 target_include_directories(OpenXLSX
         PRIVATE
-        ${OPENXLSX_DEPENDENCIES}/include)
-target_include_directories(OpenXLSX
-        PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers
         PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers)
-#SYSTEM INTERFACE
-#    ${CMAKE_CURRENT_LIST_DIR}/implementation/headers
-#    ${CMAKE_CURRENT_LIST_DIR}/interfaces/headers)
 
 # ===== Set output directories for targets to (staged) installation directory ===== #
 set_target_properties(OpenXLSX PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${OPENXLSX_INSTALLDIR}/lib)

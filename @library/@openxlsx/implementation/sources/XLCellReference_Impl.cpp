@@ -9,7 +9,7 @@
 #include <string>
 #include <array>
 
-#ifndef __linux__
+#ifdef CHARCONV_ENABLED
 #include <charconv>
 #endif
 
@@ -180,24 +180,22 @@ void Impl::XLCellReference::SetAddress(const std::string& address) {
  */
 std::string Impl::XLCellReference::RowAsString(unsigned long row) {
 
-//#ifdef __clang__
-//    string result;
-//    while (row != 0) {
-//        int rem = row % 10;
-//        result += (rem > 9) ? (rem - 10) + 'a' : rem + '0';
-//        row     = row / 10;
-//    }
-//
-//    for (int i = 0; i < result.length() / 2; i++)
-//        std::swap(result[i], result[result.length() - i - 1]);
-//
-//    return result;
-#ifdef __linux__
-    return to_string(row);
-#else
+#ifdef CHARCONV_ENABLED
     std::array<char, 7> str {};
     auto p = std::to_chars(str.data(), str.data() + str.size(), row).ptr;
     return string(str.data(), p - str.data());
+#else
+    string result;
+    while (row != 0) {
+        int rem = row % 10;
+        result += (rem > 9) ? (rem - 10) + 'a' : rem + '0';
+        row     = row / 10;
+    }
+
+    for (int i = 0; i < result.length() / 2; i++)
+        std::swap(result[i], result[result.length() - i - 1]);
+
+    return result;
 #endif
 
 }
@@ -207,12 +205,12 @@ std::string Impl::XLCellReference::RowAsString(unsigned long row) {
  */
 unsigned long Impl::XLCellReference::RowAsNumber(const std::string& row) {
 
-#ifdef __linux__
-    return stoul(row);
-#else
+#ifdef CHARCONV_ENABLED
     unsigned long value = 0;
     std::from_chars(row.data(), row.data() + row.size(), value);
     return value;
+#else
+    return stoul(row);
 #endif
 }
 
