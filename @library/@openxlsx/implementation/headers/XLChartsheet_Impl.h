@@ -95,6 +95,11 @@ namespace OpenXLSX::Impl {
          */
         XLChartsheet& operator=(const XLChartsheet&) = delete;
 
+        XLSheet* Clone(const std::string& newName) override;
+
+    protected:
+        bool ParseXMLData() override;
+
     };
 
 } // namespace OpenXLSX::Impl

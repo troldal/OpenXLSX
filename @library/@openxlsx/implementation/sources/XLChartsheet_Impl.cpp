@@ -14,3 +14,13 @@ Impl::XLChartsheet::XLChartsheet(XLWorkbook& parent, XMLAttribute name, const st
         : XLSheet(parent, name, filePath, xmlData) {
 
 }
+
+Impl::XLSheet* Impl::XLChartsheet::Clone(const std::string& newName) {
+
+    return nullptr;
+}
+
+bool Impl::XLChartsheet::ParseXMLData() {
+
+    return false;
+}
