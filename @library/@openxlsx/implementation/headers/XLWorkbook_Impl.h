@@ -48,6 +48,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== Standard Library Includes ===== //
 #include <vector>
+#include <variant>
 
 // ===== OpenXLSX Includes ===== //
 #include "XLAbstractXMLFile_Impl.h"
@@ -57,6 +58,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLXml_Impl.h"
 #include "XLEnums_impl.h"
 #include "XLContentTypes_Impl.h"
+//#include "XLWorksheet_Impl.h"
+//#include "XLChartsheet_Impl.h"
 
 namespace OpenXLSX::Impl {
     class XLSharedStrings;
