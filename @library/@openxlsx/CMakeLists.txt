@@ -3,6 +3,7 @@
 #=======================================================================================================================
 add_library(OpenXLSX SHARED "")
 add_library(OpenXLSX::OpenXLSX ALIAS OpenXLSX)
+#set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE -Xiwyu;any;-Xiwyu;iwyu;-Xiwyu)
 
 #=======================================================================================================================
 # Feature Checks
