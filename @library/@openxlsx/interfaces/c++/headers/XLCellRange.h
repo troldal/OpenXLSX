@@ -47,6 +47,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #define OPENXLSX_XLCELLRANGE_H
 
 #include <vector>
+#include "config.h"
 #include "XLCell.h"
 
 using XLCellIterator = std::vector<OpenXLSX::XLCell>::iterator;
@@ -57,6 +58,8 @@ namespace OpenXLSX {
         class XLCellRange;
     } // namespace Impl
 
+    // We can't mark XLCellRange as __declspec(dllexport) because Impl::XLCellRange is incomplete type.
+    // Instance it, we mark all functions as exportable
     /**
      * @brief
      */
@@ -67,24 +70,24 @@ namespace OpenXLSX {
          * @brief
          * @param range
          */
-        explicit XLCellRange(Impl::XLCellRange range);
+        OPENXLSX_EXPORT explicit XLCellRange(Impl::XLCellRange range);
 
         /**
          * @brief
          * @param other
          */
-        XLCellRange(const XLCellRange& other);
+        OPENXLSX_EXPORT XLCellRange(const XLCellRange& other);
 
         /**
          * @brief
          * @param other
          */
-        XLCellRange(XLCellRange&& other) = default;
+        OPENXLSX_EXPORT XLCellRange(XLCellRange&& other) = default;
 
         /**
          * @brief
          */
-        virtual ~XLCellRange();
+        OPENXLSX_EXPORT virtual ~XLCellRange();
 
         /**
          * @brief
@@ -92,7 +95,7 @@ namespace OpenXLSX {
          * @param column
          * @return
          */
-        XLCell Cell(unsigned long row, unsigned int column);
+        OPENXLSX_EXPORT XLCell Cell(unsigned long row, unsigned int column);
 
         /**
          * @brief
@@ -100,54 +103,54 @@ namespace OpenXLSX {
          * @param column
          * @return
          */
-        const XLCell Cell(unsigned long row, unsigned int column) const;
+        OPENXLSX_EXPORT const XLCell Cell(unsigned long row, unsigned int column) const;
 
         /**
          * @brief
          * @return
          */
-        unsigned long NumRows() const;
+        OPENXLSX_EXPORT unsigned long NumRows() const;
 
         /**
          * @brief
          * @return
          */
-        unsigned int NumColumns() const;
+        OPENXLSX_EXPORT unsigned int NumColumns() const;
 
         /**
          * @brief
          * @param state
          */
-        void Transpose(bool state) const;
+        OPENXLSX_EXPORT void Transpose(bool state) const;
 
         /**
          * @brief
          * @return
          */
-        XLCellIterator begin();
+        OPENXLSX_EXPORT XLCellIterator begin();
 
         /**
          * @brief
          * @return
          */
-        XLCellIteratorConst begin() const;
+        OPENXLSX_EXPORT XLCellIteratorConst begin() const;
 
         /**
          * @brief
          * @return
          */
-        XLCellIterator end();
+        OPENXLSX_EXPORT XLCellIterator end();
 
         /**
          * @brief
          * @return
          */
-        XLCellIteratorConst end() const;
+        OPENXLSX_EXPORT XLCellIteratorConst end() const;
 
         /**
          * @brief
          */
-        void Clear();
+        OPENXLSX_EXPORT void Clear();
 
     private:
 

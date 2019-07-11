@@ -48,6 +48,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 #include <string>
 
+#include "config.h"
 #include "XLDefinitions.h"
 
 namespace OpenXLSX {
@@ -58,7 +59,7 @@ namespace OpenXLSX {
     /**
      * @brief
      */
-    class XLSheet {
+    class OPENXLSX_EXPORT XLSheet {
     public:
 
         /**

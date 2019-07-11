@@ -47,6 +47,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #define OPENXLSX_XLDEFINITIONS_H
 
 #include <cstdint>
+#include "config.h"
 
 namespace OpenXLSX {
 

@@ -49,6 +49,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <string>
 #include <memory>
 
+#include "config.h"
+
 namespace OpenXLSX {
     namespace Impl {
         class XLCellReference;
@@ -64,94 +66,94 @@ namespace OpenXLSX {
          * @brief
          * @param sheet
          */
-        explicit XLCellReference(const Impl::XLCellReference& sheet);
+        OPENXLSX_EXPORT explicit XLCellReference(const Impl::XLCellReference& sheet);
 
         /**
          * @brief
          * @param cellAddress
          */
-        explicit XLCellReference(const std::string& cellAddress = "");
+        OPENXLSX_EXPORT explicit XLCellReference(const std::string& cellAddress = "");
 
         /**
          * @brief
          * @param row
          * @param column
          */
-        XLCellReference(unsigned long row, unsigned int column);
+        OPENXLSX_EXPORT XLCellReference(unsigned long row, unsigned int column);
 
         /**
          * @brief
          * @param other
          */
-        XLCellReference(const XLCellReference& other);
+        OPENXLSX_EXPORT XLCellReference(const XLCellReference& other);
 
         /**
          * @brief
          * @param other
          */
-        XLCellReference(XLCellReference&& other) = default;
+        OPENXLSX_EXPORT XLCellReference(XLCellReference&& other) = default;
 
         /**
          * @brief
          */
-        virtual ~XLCellReference();
-
-        /**
-         * @brief
-         * @param other
-         * @return
-         */
-        XLCellReference& operator=(const XLCellReference& other);
+        OPENXLSX_EXPORT virtual ~XLCellReference();
 
         /**
          * @brief
          * @param other
          * @return
          */
-        XLCellReference& operator=(XLCellReference&& other) = default;
+        OPENXLSX_EXPORT XLCellReference& operator=(const XLCellReference& other);
+
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
+        OPENXLSX_EXPORT XLCellReference& operator=(XLCellReference&& other) = default;
 
         /**
          * @brief
          * @return
          */
-        unsigned long Row();
+        OPENXLSX_EXPORT unsigned long Row();
 
         /**
          * @brief
          * @param row
          */
-        void SetRow(unsigned long row);
+        OPENXLSX_EXPORT void SetRow(unsigned long row);
 
         /**
          * @brief
          * @return
          */
-        unsigned int Column();
+        OPENXLSX_EXPORT unsigned int Column();
 
         /**
          * @brief
          * @param column
          */
-        void SetColumn(unsigned int column);
+        OPENXLSX_EXPORT void SetColumn(unsigned int column);
 
         /**
          * @brief
          * @param row
          * @param column
          */
-        void SetRowAndColumn(unsigned long row, unsigned int column);
+        OPENXLSX_EXPORT void SetRowAndColumn(unsigned long row, unsigned int column);
 
         /**
          * @brief
          * @return
          */
-        std::string Address() const;
+        OPENXLSX_EXPORT std::string Address() const;
 
         /**
          * @brief
          * @param address
          */
-        void SetAddress(const std::string& address);
+        OPENXLSX_EXPORT void SetAddress(const std::string& address);
 
     private:
         std::unique_ptr<Impl::XLCellReference> m_cellReference; /**< */
