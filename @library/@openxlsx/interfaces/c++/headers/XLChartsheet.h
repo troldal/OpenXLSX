@@ -46,6 +46,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_XLCHARTSHEET_H
 #define OPENXLSX_XLCHARTSHEET_H
 
+#include "config.h"
 #include "XLSheet.h"
 
 namespace OpenXLSX {
@@ -53,7 +54,7 @@ namespace OpenXLSX {
         class XLChartsheet;
     } // namespace Impl
 
-    class XLChartsheet : public XLSheet {
+    class OPENXLSX_EXPORT XLChartsheet : public XLSheet {
     public:
 
         /**

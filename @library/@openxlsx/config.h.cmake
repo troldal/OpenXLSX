@@ -43,89 +43,23 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXLSX_XLCELL_H
-#define OPENXLSX_XLCELL_H
+#ifndef OPENXLSX_CONFIG_H
+#define OPENXLSX_CONFIG_H
 
-#include "config.h"
-#include "XLDefinitions.h"
-#include "XLCellReference.h"
-#include "XLCellValue.h"
+#cmakedefine BUILD_SHARED @BUILD_SHARED@
 
-namespace OpenXLSX {
-    namespace Impl {
-        class XLCell;
-    } // namespace Impl
+#ifdef WIN32
+  #ifdef BUILD_SHARED
+    #ifdef INBUILD
+      #define OPENXLSX_EXPORT __declspec(dllexport)
+    #else //INBUILD
+      #define OPENXLSX_EXPORT __declspec(dllimport)
+    #endif //INBUILD
+  #else //BUILD_SHARED
+    #define OPENXLSX_EXPORT
+  #endif //BUILD_SHARED
+#else //WIN32
+  #define OPENXLSX_EXPORT
+#endif //WIN32
 
-    /**
-     * @brief
-     */
-    class OPENXLSX_EXPORT XLCell {
-    public:
-
-        /**
-         * @brief
-         * @param cell
-         */
-        explicit XLCell(Impl::XLCell& cell);
-
-        /**
-         * @brief
-         * @param other
-         */
-        XLCell(const XLCell& other) = default;
-
-        /**
-         * @brief
-         * @param other
-         */
-        XLCell(XLCell&& other) = default;
-
-        /**
-         * @brief
-         */
-        virtual ~XLCell() = default;
-
-        /**
-         * @brief
-         * @param other
-         * @return
-         */
-        XLCell& operator=(const XLCell& other) = default;
-
-        /**
-         * @brief
-         * @param other
-         * @return
-         */
-        XLCell& operator=(XLCell&& other) = default;
-
-        /**
-         * @brief
-         * @return
-         */
-        XLCellValue Value();
-
-        /**
-         * @brief
-         * @return
-         */
-        const XLCellValue Value() const;
-
-        /**
-         * @brief
-         * @return
-         */
-        XLValueType ValueType() const;
-
-        /**
-         * @brief
-         * @return
-         */
-        const XLCellReference CellReference() const;
-
-    private:
-        Impl::XLCell* m_cell; /**<  */
-    };
-}  // namespace OpenXLSX
-
-#endif //OPENXLSX_XLCELL_H
+#endif //OPENXLSX_CONFIG_H

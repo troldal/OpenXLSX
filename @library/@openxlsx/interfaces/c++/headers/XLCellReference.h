@@ -49,6 +49,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <string>
 #include <memory>
 
+#include "config.h"
+
 namespace OpenXLSX {
     namespace Impl {
         class XLCellReference;
@@ -57,7 +59,7 @@ namespace OpenXLSX {
     /**
      * @brief
      */
-    class XLCellReference {
+    class OPENXLSX_EXPORT XLCellReference {
     public:
 
         /**
@@ -89,7 +91,7 @@ namespace OpenXLSX {
          * @brief
          * @param other
          */
-        XLCellReference(XLCellReference&& other) = default;
+        XLCellReference(XLCellReference&& other);
 
         /**
          * @brief
@@ -108,7 +110,7 @@ namespace OpenXLSX {
          * @param other
          * @return
          */
-        XLCellReference& operator=(XLCellReference&& other) = default;
+        XLCellReference& operator=(XLCellReference&& other);
 
         /**
          * @brief

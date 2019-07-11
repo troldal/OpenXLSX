@@ -30,6 +30,16 @@ if(CHARCONV_RESULT)
 endif()
 
 #=======================================================================================================================
+# Enable dllspec if it's Win32 target
+#=======================================================================================================================
+get_target_property(TARGET_TYPE OpenXLSX TYPE)
+if (WIN32 AND (TARGET_TYPE STREQUAL "SHARED_LIBRARY"))
+    set(BUILD_SHARED 1)
+    target_compile_definitions(OpenXLSX PRIVATE "INBUILD")
+endif()
+configure_file(${CMAKE_CURRENT_LIST_DIR}/config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.h)
+
+#=======================================================================================================================
 # Set compiler flags
 #=======================================================================================================================
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -191,7 +201,8 @@ target_include_directories(OpenXLSX
         PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers
         PUBLIC
-        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers)
+        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers
+        ${CMAKE_CURRENT_BINARY_DIR})
 
 # ===== Set output directories for targets to (staged) installation directory ===== #
 set_target_properties(OpenXLSX PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${OPENXLSX_INSTALLDIR}/lib)
@@ -200,6 +211,7 @@ set_target_properties(OpenXLSX PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${OPENXLSX_IN
 # ===== Copy header files to (staged) install directory ===== #
 file(REMOVE_RECURSE ${OPENXLSX_INSTALLDIR}/include/)
 file(COPY ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/ DESTINATION ${OPENXLSX_INSTALLDIR}/include/OpenXLSX)
+file(COPY ${CMAKE_CURRENT_BINARY_DIR}/config.h DESTINATION ${OPENXLSX_INSTALLDIR}/include/OpenXLSX)
 
 #=======================================================================================================================
 # Install OpenXLSX Library
