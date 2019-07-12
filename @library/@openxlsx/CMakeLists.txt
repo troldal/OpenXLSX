@@ -1,7 +1,11 @@
 #=======================================================================================================================
 # Define library targets
 #=======================================================================================================================
-add_library(OpenXLSX SHARED "")
+if (NOT STATIC)
+    add_library(OpenXLSX SHARED "")
+else()
+    add_library(OpenXLSX STATIC "")
+endif()
 add_library(OpenXLSX::OpenXLSX ALIAS OpenXLSX)
 #set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE -Xiwyu;any;-Xiwyu;iwyu;-Xiwyu)
 
