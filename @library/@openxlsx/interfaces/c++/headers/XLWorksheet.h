@@ -46,6 +46,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_XLWORKSHEET_H
 #define OPENXLSX_XLWORKSHEET_H
 
+#include "config.h"
 #include "XLSheet.h"
 #include "XLCellReference.h"
 #include "XLCell.h"
@@ -61,7 +62,7 @@ namespace OpenXLSX {
     /**
      * @brief
      */
-    class XLWorksheet : public XLSheet {
+    class OPENXLSX_EXPORT XLWorksheet : public XLSheet {
     public:
 
         /**

@@ -46,6 +46,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_XLCOLUMN_H
 #define OPENXLSX_XLCOLUMN_H
 
+#include "config.h"
+
 namespace OpenXLSX {
     namespace Impl {
         class XLColumn;
@@ -54,7 +56,7 @@ namespace OpenXLSX {
     /**
      * @brief
      */
-    class XLColumn {
+    class OPENXLSX_EXPORT XLColumn {
     public:
 
         /**
