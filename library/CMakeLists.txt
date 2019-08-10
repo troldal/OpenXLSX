@@ -1,9 +1,9 @@
 #=======================================================================================================================
 # Load the OpenXLSX library folder
 #=======================================================================================================================
-add_subdirectory(@pugixml)
-add_subdirectory(@zippy)
-add_subdirectory(@openxlsx)
+add_subdirectory(pugixml)
+add_subdirectory(zippy)
+add_subdirectory(openxlsx)
 
 #=======================================================================================================================
 # Define Dependencies

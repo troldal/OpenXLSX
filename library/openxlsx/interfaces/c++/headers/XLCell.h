@@ -43,57 +43,89 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXLSX_XLCHARTSHEET_H
-#define OPENXLSX_XLCHARTSHEET_H
+#ifndef OPENXLSX_XLCELL_H
+#define OPENXLSX_XLCELL_H
 
-#include "XLSheet.h"
+#include "config.h"
+#include "XLDefinitions.h"
+#include "XLCellReference.h"
+#include "XLCellValue.h"
 
 namespace OpenXLSX {
     namespace Impl {
-        class XLChartsheet;
+        class XLCell;
     } // namespace Impl
 
-    class XLChartsheet : public XLSheet {
+    /**
+     * @brief
+     */
+    class OPENXLSX_EXPORT XLCell {
     public:
 
         /**
          * @brief
-         * @param sheet
+         * @param cell
          */
-        explicit XLChartsheet(Impl::XLSheet& sheet);
+        explicit XLCell(Impl::XLCell& cell);
 
         /**
          * @brief
          * @param other
          */
-        XLChartsheet(const XLChartsheet& other) = default;
+        XLCell(const XLCell& other) = default;
 
         /**
          * @brief
          * @param other
          */
-        XLChartsheet(XLChartsheet&& other) = default;
+        XLCell(XLCell&& other) = default;
 
         /**
          * @brief
          */
-        ~XLChartsheet() override = default;
-
-        /**
-         * @brief
-         * @param other
-         * @return
-         */
-        XLChartsheet& operator=(const XLChartsheet& other) = default;
+        virtual ~XLCell() = default;
 
         /**
          * @brief
          * @param other
          * @return
          */
-        XLChartsheet& operator=(XLChartsheet&& other) = default;
+        XLCell& operator=(const XLCell& other) = default;
 
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
+        XLCell& operator=(XLCell&& other) = default;
+
+        /**
+         * @brief
+         * @return
+         */
+        XLCellValue Value();
+
+        /**
+         * @brief
+         * @return
+         */
+        const XLCellValue Value() const;
+
+        /**
+         * @brief
+         * @return
+         */
+        XLValueType ValueType() const;
+
+        /**
+         * @brief
+         * @return
+         */
+        const XLCellReference CellReference() const;
+
+    private:
+        Impl::XLCell* m_cell; /**<  */
     };
-} // namespace OpenXLSX
+}  // namespace OpenXLSX
 
-#endif //OPENXLSX_XLCHARTSHEET_H
+#endif //OPENXLSX_XLCELL_H

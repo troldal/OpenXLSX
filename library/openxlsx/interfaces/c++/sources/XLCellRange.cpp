@@ -20,6 +20,7 @@ XLCellRange::XLCellRange(const XLCellRange& other)
           m_cells(nullptr) {
 
 }
+XLCellRange::XLCellRange(XLCellRange&& other) = default;
 
 XLCellRange::~XLCellRange() = default;
 

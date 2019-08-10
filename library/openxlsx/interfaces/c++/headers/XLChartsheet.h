@@ -43,22 +43,58 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXLSX_XLEXCEPTION_H
-#define OPENXLSX_XLEXCEPTION_H
+#ifndef OPENXLSX_XLCHARTSHEET_H
+#define OPENXLSX_XLCHARTSHEET_H
 
-#include <stdexcept>
+#include "config.h"
+#include "XLSheet.h"
 
 namespace OpenXLSX {
-    class XLException : public std::runtime_error {
-    public:
-        inline explicit XLException(const std::string& err)
-                : runtime_error(err) {
-        }
+    namespace Impl {
+        class XLChartsheet;
+    } // namespace Impl
 
-        inline ~XLException() override = default;
+    class OPENXLSX_EXPORT XLChartsheet : public XLSheet {
+    public:
+
+        /**
+         * @brief
+         * @param sheet
+         */
+        explicit XLChartsheet(Impl::XLSheet& sheet);
+
+        /**
+         * @brief
+         * @param other
+         */
+        XLChartsheet(const XLChartsheet& other) = default;
+
+        /**
+         * @brief
+         * @param other
+         */
+        XLChartsheet(XLChartsheet&& other) = default;
+
+        /**
+         * @brief
+         */
+        ~XLChartsheet() override = default;
+
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
+        XLChartsheet& operator=(const XLChartsheet& other) = default;
+
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
+        XLChartsheet& operator=(XLChartsheet&& other) = default;
 
     };
+} // namespace OpenXLSX
 
-}  // namespace OpenXLSX
-
-#endif //OPENXLSX_XLEXCEPTION_H
+#endif //OPENXLSX_XLCHARTSHEET_H

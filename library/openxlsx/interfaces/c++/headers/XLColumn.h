@@ -43,121 +43,87 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXLSX_XLROW_H
-#define OPENXLSX_XLROW_H
+#ifndef OPENXLSX_XLCOLUMN_H
+#define OPENXLSX_XLCOLUMN_H
 
-#include "XLCell.h"
+#include "config.h"
 
 namespace OpenXLSX {
     namespace Impl {
-        class XLRow;
+        class XLColumn;
     } // namespace Impl
 
     /**
      * @brief
      */
-    class XLRow {
+    class OPENXLSX_EXPORT XLColumn {
     public:
 
         /**
          * @brief
-         * @param row
+         * @param column
          */
-        explicit XLRow(Impl::XLRow& row);
+        explicit XLColumn(Impl::XLColumn& column);
 
         /**
          * @brief
          * @param other
          */
-        XLRow(const XLRow& other) = default;
+        XLColumn(const XLColumn& other) = default;
 
         /**
          * @brief
          * @param other
          */
-        XLRow(XLRow&& other) = default;
+        XLColumn(XLColumn&& other) = default;
 
         /**
          * @brief
          */
-        virtual ~XLRow() = default;
-
-        /**
-         * @brief
-         * @param other
-         * @return
-         */
-        XLRow& operator=(const XLRow& other) = default;
+        virtual ~XLColumn() = default;
 
         /**
          * @brief
          * @param other
          * @return
          */
-        XLRow& operator=(XLRow&& other) = default;
+        XLColumn& operator=(const XLColumn& other) = default;
 
         /**
          * @brief
+         * @param other
          * @return
          */
-        float Height() const;
+        XLColumn& operator=(XLColumn&& other) = default;
 
         /**
-         * @brief Set the height of the row.
-         * @param height The height of the row.
+         * @brief Get the width of the column.
+         * @return The width of the column.
          */
-        void SetHeight(float height);
+        float Width() const;
 
         /**
-         * @brief Get the descent of the row, which is the vertical distance in pixels from the bottom of the cells
-         * in the current row to the typographical baseline of the cell content.
-         * @return The row descent.
+         * @brief Set the width of the column
+         * @param width The width of the column
          */
-        float Descent() const;
+        void SetWidth(float width);
 
         /**
-         * @brief Set the descent of the row, which is he vertical distance in pixels from the bottom of the cells
-         * in the current row to the typographical baseline of the cell content.
-         * @param descent The row descent.
-         */
-        void SetDescent(float descent);
-
-        /**
-         * @brief Is the row hidden?
-         * @return The state of the row.
+         * @brief Is the column hidden?
+         * @return The state of the column.
          */
         bool IsHidden() const;
 
         /**
-         * @brief Set the row to be hidden or visible.
-         * @param state The state of the row.
+         * @brief Set the column to be shown or hidden.
+         * @param state The state of the column.
          */
         void SetHidden(bool state);
 
-        /**
-         * @brief Get the XLCell object at a specified column for this row.
-         * @param column The column with the XLCell
-         * @return A reference to the XLCell object.
-         */
-        XLCell Cell(unsigned int column);
-
-        /**
-         * @brief Get the XLCell object at a specified column for this row.
-         * @param column The column with the XLCell
-         * @return A const reference to the XLCell object.
-         */
-        const XLCell Cell(unsigned int column) const;
-
-        /**
-         * @brief Get the number of cells in the row.
-         * @return The number of cells in the row.
-         */
-        unsigned int CellCount() const;
-
     private:
-        Impl::XLRow* m_row; /**< */
+        Impl::XLColumn* m_column; /**< */
 
     };
 }  // namespace OpenXLSX
 
-#endif //OPENXLSX_XLROW_H
+#endif //OPENXLSX_XLCOLUMN_H

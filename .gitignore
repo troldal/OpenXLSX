@@ -4,3 +4,7 @@
 
 # Build Directories
 cmake*/
+
+# Visual Studio
+.vs/
+out/

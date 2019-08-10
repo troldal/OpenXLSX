@@ -46,6 +46,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_XLCELLVALUE_H
 #define OPENXLSX_XLCELLVALUE_H
 
+#include "config.h"
 #include "XLDefinitions.h"
 #include <type_traits>
 #include <string>
@@ -105,7 +106,7 @@ namespace OpenXLSX {
      * cout << "Cell D1: " << D1 << endl;
      * ```
      */
-    class XLCellValue {
+    class OPENXLSX_EXPORT XLCellValue {
         friend class XLCell;
 
     private:

@@ -43,85 +43,123 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXLSX_XLCOLUMN_H
-#define OPENXLSX_XLCOLUMN_H
+#ifndef OPENXLSX_XLCELLREFERENCE_H
+#define OPENXLSX_XLCELLREFERENCE_H
+
+#include <string>
+#include <memory>
+
+#include "config.h"
 
 namespace OpenXLSX {
     namespace Impl {
-        class XLColumn;
+        class XLCellReference;
     } // namespace Impl
 
     /**
      * @brief
      */
-    class XLColumn {
+    class OPENXLSX_EXPORT XLCellReference {
     public:
+
+        /**
+         * @brief
+         * @param sheet
+         */
+        explicit XLCellReference(const Impl::XLCellReference& sheet);
+
+        /**
+         * @brief
+         * @param cellAddress
+         */
+        explicit XLCellReference(const std::string& cellAddress = "");
+
+        /**
+         * @brief
+         * @param row
+         * @param column
+         */
+        XLCellReference(unsigned long row, unsigned int column);
+
+        /**
+         * @brief
+         * @param other
+         */
+        XLCellReference(const XLCellReference& other);
+
+        /**
+         * @brief
+         * @param other
+         */
+        XLCellReference(XLCellReference&& other);
+
+        /**
+         * @brief
+         */
+        virtual ~XLCellReference();
+
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
+        XLCellReference& operator=(const XLCellReference& other);
+
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
+        XLCellReference& operator=(XLCellReference&& other);
+
+        /**
+         * @brief
+         * @return
+         */
+        unsigned long Row();
+
+        /**
+         * @brief
+         * @param row
+         */
+        void SetRow(unsigned long row);
+
+        /**
+         * @brief
+         * @return
+         */
+        unsigned int Column();
 
         /**
          * @brief
          * @param column
          */
-        explicit XLColumn(Impl::XLColumn& column);
+        void SetColumn(unsigned int column);
 
         /**
          * @brief
-         * @param other
+         * @param row
+         * @param column
          */
-        XLColumn(const XLColumn& other) = default;
+        void SetRowAndColumn(unsigned long row, unsigned int column);
 
         /**
          * @brief
-         * @param other
-         */
-        XLColumn(XLColumn&& other) = default;
-
-        /**
-         * @brief
-         */
-        virtual ~XLColumn() = default;
-
-        /**
-         * @brief
-         * @param other
          * @return
          */
-        XLColumn& operator=(const XLColumn& other) = default;
+        std::string Address() const;
 
         /**
          * @brief
-         * @param other
-         * @return
+         * @param address
          */
-        XLColumn& operator=(XLColumn&& other) = default;
-
-        /**
-         * @brief Get the width of the column.
-         * @return The width of the column.
-         */
-        float Width() const;
-
-        /**
-         * @brief Set the width of the column
-         * @param width The width of the column
-         */
-        void SetWidth(float width);
-
-        /**
-         * @brief Is the column hidden?
-         * @return The state of the column.
-         */
-        bool IsHidden() const;
-
-        /**
-         * @brief Set the column to be shown or hidden.
-         * @param state The state of the column.
-         */
-        void SetHidden(bool state);
+        void SetAddress(const std::string& address);
 
     private:
-        Impl::XLColumn* m_column; /**< */
+        std::unique_ptr<Impl::XLCellReference> m_cellReference; /**< */
 
     };
-}  // namespace OpenXLSX
 
-#endif //OPENXLSX_XLCOLUMN_H
+} // namespace OpenXLSX
+
+#endif //OPENXLSX_XLCELLREFERENCE_H

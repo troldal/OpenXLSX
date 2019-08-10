@@ -48,6 +48,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 #include <memory>
 
+#include "config.h"
 #include "XLDefinitions.h"
 #include "XLWorkbook.h"
 
@@ -85,7 +86,7 @@ namespace OpenXLSX {
      *
      * @todo Implement a Clone method. Ensure that the source object is not modified in any way, including saving to disk.
      */
-    class XLDocument {
+    class OPENXLSX_EXPORT XLDocument {
     public:
 
         /**

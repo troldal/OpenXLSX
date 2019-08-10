@@ -43,121 +43,23 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXLSX_XLCELLREFERENCE_H
-#define OPENXLSX_XLCELLREFERENCE_H
+#ifndef OPENXLSX_XLEXCEPTION_H
+#define OPENXLSX_XLEXCEPTION_H
 
-#include <string>
-#include <memory>
+#include <stdexcept>
+#include "config.h"
 
 namespace OpenXLSX {
-    namespace Impl {
-        class XLCellReference;
-    } // namespace Impl
-
-    /**
-     * @brief
-     */
-    class XLCellReference {
+    class OPENXLSX_EXPORT XLException : public std::runtime_error {
     public:
+        inline explicit XLException(const std::string& err)
+                : runtime_error(err) {
+        }
 
-        /**
-         * @brief
-         * @param sheet
-         */
-        explicit XLCellReference(const Impl::XLCellReference& sheet);
-
-        /**
-         * @brief
-         * @param cellAddress
-         */
-        explicit XLCellReference(const std::string& cellAddress = "");
-
-        /**
-         * @brief
-         * @param row
-         * @param column
-         */
-        XLCellReference(unsigned long row, unsigned int column);
-
-        /**
-         * @brief
-         * @param other
-         */
-        XLCellReference(const XLCellReference& other);
-
-        /**
-         * @brief
-         * @param other
-         */
-        XLCellReference(XLCellReference&& other) = default;
-
-        /**
-         * @brief
-         */
-        virtual ~XLCellReference();
-
-        /**
-         * @brief
-         * @param other
-         * @return
-         */
-        XLCellReference& operator=(const XLCellReference& other);
-
-        /**
-         * @brief
-         * @param other
-         * @return
-         */
-        XLCellReference& operator=(XLCellReference&& other) = default;
-
-        /**
-         * @brief
-         * @return
-         */
-        unsigned long Row();
-
-        /**
-         * @brief
-         * @param row
-         */
-        void SetRow(unsigned long row);
-
-        /**
-         * @brief
-         * @return
-         */
-        unsigned int Column();
-
-        /**
-         * @brief
-         * @param column
-         */
-        void SetColumn(unsigned int column);
-
-        /**
-         * @brief
-         * @param row
-         * @param column
-         */
-        void SetRowAndColumn(unsigned long row, unsigned int column);
-
-        /**
-         * @brief
-         * @return
-         */
-        std::string Address() const;
-
-        /**
-         * @brief
-         * @param address
-         */
-        void SetAddress(const std::string& address);
-
-    private:
-        std::unique_ptr<Impl::XLCellReference> m_cellReference; /**< */
+        inline ~XLException() override = default;
 
     };
 
-} // namespace OpenXLSX
+}  // namespace OpenXLSX
 
-#endif //OPENXLSX_XLCELLREFERENCE_H
+#endif //OPENXLSX_XLEXCEPTION_H

@@ -24,13 +24,18 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 #=======================================================================================================================
+# Add build options
+#=======================================================================================================================
+option(STATIC "Set to ON to build a static library instance of a shared library")
+
+#=======================================================================================================================
 # Add project subdirectories
 #=======================================================================================================================
-add_subdirectory(@library)
-add_subdirectory(@examples)
-add_subdirectory(@doxy)
-add_subdirectory(@tests)
-add_subdirectory(@benchmark)
+add_subdirectory(library)
+add_subdirectory(examples)
+add_subdirectory(doxy)
+add_subdirectory(tests)
+add_subdirectory(benchmark)
 
 #=======================================================================================================================
 # Define internal dependencies

@@ -43,117 +43,122 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXLSX_XLSHEET_H
-#define OPENXLSX_XLSHEET_H
+#ifndef OPENXLSX_XLROW_H
+#define OPENXLSX_XLROW_H
 
-#include <string>
-
-#include "XLDefinitions.h"
+#include "config.h"
+#include "XLCell.h"
 
 namespace OpenXLSX {
     namespace Impl {
-        class XLSheet;
+        class XLRow;
     } // namespace Impl
 
     /**
      * @brief
      */
-    class XLSheet {
+    class OPENXLSX_EXPORT XLRow {
     public:
 
         /**
          * @brief
-         * @param sheet
+         * @param row
          */
-        explicit XLSheet(Impl::XLSheet& sheet);
-
-        /**
-          * @brief The copy constructor.
-          * @param other The object to be copied.
-          * @note The default copy constructor is used, i.e. only shallow copying of pointer data members.
-          * @todo Can this method be deleted?
-          */
-        XLSheet(const XLSheet& other) = default;
+        explicit XLRow(Impl::XLRow& row);
 
         /**
          * @brief
          * @param other
          */
-        XLSheet(XLSheet&& other) = default;
+        XLRow(const XLRow& other) = default;
 
         /**
-         * @brief The destructor
-         * @note The default destructor is used, since cleanup of pointer data members is not required.
+         * @brief
+         * @param other
          */
-        virtual ~XLSheet() = default;
+        XLRow(XLRow&& other) = default;
 
         /**
-         * @brief Assignment operator
-         * @return A reference to the new object.
-         * @note The default assignment operator is used, i.e. only shallow copying of pointer data members.
-         * @todo Can this method be deleted?
+         * @brief
          */
-        XLSheet& operator=(const XLSheet& other) = default;
+        virtual ~XLRow() = default;
 
         /**
          * @brief
          * @param other
          * @return
          */
-        XLSheet& operator=(XLSheet&& other) = default;
+        XLRow& operator=(const XLRow& other) = default;
 
         /**
-         * @brief Method to retrieve the name of the sheet.
-         * @return A std::string with the sheet name.
+         * @brief
+         * @param other
+         * @return
          */
-        virtual std::string const Name() const;
+        XLRow& operator=(XLRow&& other) = default;
 
         /**
-         * @brief Method for renaming the sheet.
-         * @param name A std::string with the new name.
+         * @brief
+         * @return
          */
-        virtual void SetName(const std::string& name);
+        float Height() const;
 
         /**
-         * @brief Method for getting the current visibility state of the sheet.
-         * @return An XLSheetState enum object, with the current sheet state.
+         * @brief Set the height of the row.
+         * @param height The height of the row.
          */
-        virtual const XLSheetState& State() const;
+        void SetHeight(float height);
 
         /**
-         * @brief Method for setting the state of the sheet.
-         * @param state An XLSheetState enum object with the new state.
+         * @brief Get the descent of the row, which is the vertical distance in pixels from the bottom of the cells
+         * in the current row to the typographical baseline of the cell content.
+         * @return The row descent.
          */
-        virtual void SetState(XLSheetState state);
+        float Descent() const;
 
         /**
-         * @brief Method to get the type of the sheet.
-         * @return An XLSheetType enum object with the sheet type.
+         * @brief Set the descent of the row, which is he vertical distance in pixels from the bottom of the cells
+         * in the current row to the typographical baseline of the cell content.
+         * @param descent The row descent.
          */
-        virtual const XLSheetType& Type() const;
-
-        //**
-        // * @brief Method for cloning the sheet.
-        // * @param newName A std::string with the name of the clone
-        // * @return A pointer to the cloned object.
-        // * @note This is a pure abstract method. I.e. it is implemented in subclasses.
-        // */
-        //        virtual XLSheet* Clone(const std::string& newName) = 0;
+        void SetDescent(float descent);
 
         /**
-         * @brief Method for getting the index of the sheet.
-         * @return An int with the index of the sheet.
+         * @brief Is the row hidden?
+         * @return The state of the row.
          */
-        virtual unsigned int Index() const;
+        bool IsHidden() const;
 
         /**
-         * @brief Method for setting the index of the sheet. This effectively moves the sheet to a different position.
+         * @brief Set the row to be hidden or visible.
+         * @param state The state of the row.
          */
-        virtual void SetIndex(int index);
+        void SetHidden(bool state);
 
-    protected:
-        Impl::XLSheet* m_sheet; /**< */
+        /**
+         * @brief Get the XLCell object at a specified column for this row.
+         * @param column The column with the XLCell
+         * @return A reference to the XLCell object.
+         */
+        XLCell Cell(unsigned int column);
+
+        /**
+         * @brief Get the XLCell object at a specified column for this row.
+         * @param column The column with the XLCell
+         * @return A const reference to the XLCell object.
+         */
+        const XLCell Cell(unsigned int column) const;
+
+        /**
+         * @brief Get the number of cells in the row.
+         * @return The number of cells in the row.
+         */
+        unsigned int CellCount() const;
+
+    private:
+        Impl::XLRow* m_row; /**< */
+
     };
 }  // namespace OpenXLSX
 
-#endif //OPENXLSX_XLSHEET_H
+#endif //OPENXLSX_XLROW_H
