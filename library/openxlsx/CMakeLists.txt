@@ -210,6 +210,7 @@ target_include_directories(OpenXLSX
 
 # ===== Set output directories for targets to (staged) installation directory ===== #
 set_target_properties(OpenXLSX PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${OPENXLSX_INSTALLDIR}/lib)
+set_target_properties(OpenXLSX PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${OPENXLSX_INSTALLDIR}/lib)
 set_target_properties(OpenXLSX PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${OPENXLSX_INSTALLDIR}/bin)
 
 # ===== Copy header files to (staged) install directory ===== #
