@@ -14,7 +14,7 @@ set(OPENXLSX_INSTALLDIR ${CMAKE_CURRENT_BINARY_DIR}/install)
 set(PROJECT_VENDOR "Kenneth Troldal Balslev")
 set(PROJECT_CONTACT "kenneth.balslev@gmail.com")
 set(PROJECT_URL "https://github.com/troldal/OpenXLSX")
-set(PROJECT_DESCRIPTION "A library for reading, writing and modifying Excel spreadsheets for C++17")
+set(PROJECT_DESCRIPTION "A C++17 library for reading, writing and modifying Excel spreadsheets")
 
 #=======================================================================================================================
 # Set C/C++ compiler version
