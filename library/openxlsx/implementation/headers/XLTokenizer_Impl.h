@@ -49,7 +49,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <string>
 #include <vector>
 
-namespace OpenXLSX::Impl {
+namespace OpenXLSX::Impl
+{
 
     //======================================================================================================================
     //========== XLToken Class =============================================================================================
@@ -58,7 +59,8 @@ namespace OpenXLSX::Impl {
     /**
      * @brief
      */
-    class XLToken {
+    class XLToken
+    {
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Public Member Functions
@@ -146,7 +148,8 @@ namespace OpenXLSX::Impl {
      * separated by one or more defined separators.
      * It is based on the Tokenizer class developed by Song Ho Ahn (http://www.songho.ca/misc/tokenizer/tokenizer.html)
      */
-    class XLTokenizer {
+    class XLTokenizer
+    {
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Public Member Functions
@@ -226,9 +229,9 @@ namespace OpenXLSX::Impl {
 
     private:
 
-        std::string                 m_buffer; /**< input string */
-        std::string                 m_token; /**< output string */
-        std::string                 m_delimiter; /**< delimiter string */
+        std::string m_buffer; /**< input string */
+        std::string m_token; /**< output string */
+        std::string m_delimiter; /**< delimiter string */
         std::string::const_iterator m_currPos; /**< string iterator pointing the current position */
     };
 } // namespace OpenXLSX::Impl

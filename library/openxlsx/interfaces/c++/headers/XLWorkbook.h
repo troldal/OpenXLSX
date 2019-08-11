@@ -53,15 +53,18 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLWorksheet.h"
 #include "XLChartsheet.h"
 
-namespace OpenXLSX {
-    namespace Impl {
+namespace OpenXLSX
+{
+    namespace Impl
+    {
         class XLWorkbook;
     } // namespace Impl
 
     /**
      * @brief
      */
-    class OPENXLSX_EXPORT XLWorkbook {
+    class OPENXLSX_EXPORT XLWorkbook
+    {
     public:
 
         /**

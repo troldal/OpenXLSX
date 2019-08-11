@@ -56,7 +56,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <string>
 #include <string_view>
 
-namespace OpenXLSX::Impl {
+namespace OpenXLSX::Impl
+{
 
     class XLCell;
 
@@ -109,7 +110,8 @@ namespace OpenXLSX::Impl {
      * The only member variable is a reference to the parent XLCell object. All functionality works by manipulating
      * the parent cell through the reference.
      */
-    class XLCellValue {
+    class XLCellValue
+    {
         friend class OpenXLSX::XLCellValue;
 
         //----------------------------------------------------------------------------------------------------------------------
@@ -248,8 +250,9 @@ namespace OpenXLSX::Impl {
          * @brief Get string value.
          * @tparam T The string type to get.
          */
-        template<typename T, typename std::enable_if<std::is_constructible<T, char*>::value && !std::is_same<T, bool>::value,
-                                                     char*>::type* = nullptr>
+        template<typename T, typename std::enable_if<
+                std::is_constructible<T, char*>::value && !std::is_same<T, bool>::value,
+                char*>::type* = nullptr>
         T Get();
 
         /**
@@ -530,8 +533,9 @@ namespace OpenXLSX::Impl {
      * @pre
      * @post
      */
-    template<typename T, typename std::enable_if<std::is_constructible<T, char*>::value && !std::is_same<T, bool>::value,
-                                                 char*>::type*>
+    template<typename T, typename std::enable_if<
+            std::is_constructible<T, char*>::value && !std::is_same<T, bool>::value,
+            char*>::type*>
     T XLCellValue::Get() {
 
         return T(GetString());

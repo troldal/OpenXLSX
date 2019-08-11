@@ -46,7 +46,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_IMPL_XLCELLTYPE_H
 #define OPENXLSX_IMPL_XLCELLTYPE_H
 
-namespace OpenXLSX::Impl {
+namespace OpenXLSX::Impl
+{
 
     //======================================================================================================================
     //========== XLCellType Enum ===========================================================================================
@@ -55,7 +56,8 @@ namespace OpenXLSX::Impl {
     /**
      * @brief The XLCellType class is an enumeration of the possible cell types, as recognized by Excel.
      */
-    enum class XLCellType {
+    enum class XLCellType
+    {
         Empty, Boolean, Number, Error, String
     };
 
@@ -67,7 +69,8 @@ namespace OpenXLSX::Impl {
     /**
      * @brief The XLStringType class is an enumeration of the possible string types, as recognized by Excel.
      */
-    enum class XLStringType {
+    enum class XLStringType
+    {
         String, SharedString, InlineString
     };
 
@@ -79,7 +82,8 @@ namespace OpenXLSX::Impl {
      * @brief The XLBool enum has two values: True and False. The reason for using this instead of \c bool is for
      * clarity and to avoid implicit \c bool <-> \c int conversions.
      */
-    enum class XLBool {
+    enum class XLBool
+    {
         True, False
     };
 
@@ -90,7 +94,8 @@ namespace OpenXLSX::Impl {
     /**
      * @brief
      */
-    enum class XLNumberType {
+    enum class XLNumberType
+    {
         Integer, Float
     };
 

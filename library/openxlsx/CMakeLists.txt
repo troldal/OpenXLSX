@@ -3,9 +3,9 @@
 #=======================================================================================================================
 if (NOT STATIC)
     add_library(OpenXLSX SHARED "")
-else()
+else ()
     add_library(OpenXLSX STATIC "")
-endif()
+endif ()
 add_library(OpenXLSX::OpenXLSX ALIAS OpenXLSX)
 #set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE -Xiwyu;any;-Xiwyu;iwyu;-Xiwyu)
 
@@ -29,9 +29,9 @@ check_cxx_source_compiles("
                                   return 0;
                           }" CHARCONV_RESULT)
 
-if(CHARCONV_RESULT)
+if (CHARCONV_RESULT)
     target_compile_definitions(OpenXLSX PRIVATE CHARCONV_ENABLED)
-endif()
+endif ()
 
 #=======================================================================================================================
 # Enable dllspec if it's Win32 target
@@ -40,7 +40,7 @@ get_target_property(TARGET_TYPE OpenXLSX TYPE)
 if (WIN32 AND (TARGET_TYPE STREQUAL "SHARED_LIBRARY"))
     set(BUILD_SHARED 1)
     target_compile_definitions(OpenXLSX PRIVATE "INBUILD")
-endif()
+endif ()
 configure_file(${CMAKE_CURRENT_LIST_DIR}/config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
 #=======================================================================================================================

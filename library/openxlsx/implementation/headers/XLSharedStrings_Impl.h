@@ -54,7 +54,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLAbstractXMLFile_Impl.h"
 #include "XLXml_Impl.h"
 
-namespace OpenXLSX::Impl {
+namespace OpenXLSX::Impl
+{
 
     class XLDocument;
     //======================================================================================================================
@@ -67,7 +68,8 @@ namespace OpenXLSX::Impl {
      * as repeated strings are referenced easily.
      * @todo Consider defining a static method for creating a new shared strings object + XML file.
      */
-    class XLSharedStrings : public XLAbstractXMLFile {
+    class XLSharedStrings : public XLAbstractXMLFile
+    {
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Public Member Functions
@@ -158,7 +160,7 @@ namespace OpenXLSX::Impl {
     private:
 
         std::vector<XMLNode> m_sharedStringNodes; /**< A std::vector with the XMLNodes holding the shared strings. */
-        std::string          m_emptyString; /**< A dummy member used for returning an empty string. */
+        std::string m_emptyString; /**< A dummy member used for returning an empty string. */
 
     };
 

@@ -49,7 +49,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <cstdint>
 #include "config.h"
 
-namespace OpenXLSX {
+namespace OpenXLSX
+{
 
     //======================================================================================================================
     //========== Global Constants ==========================================================================================
@@ -71,7 +72,8 @@ namespace OpenXLSX {
      * @brief The XLDocumentProperties class is an enumeration of the possible properties (metadata) that can be set
      * for a XLDocument object (and .xlsx file)
      */
-    enum class XLProperty {
+    enum class XLProperty
+    {
         Title,
         Subject,
         Creator,
@@ -102,7 +104,8 @@ namespace OpenXLSX {
      * @brief The XLSheetType class is an enumeration of the available sheet types, e.g. Worksheet (ordinary
      * spreadsheets), and Chartsheet (sheets with only a chart).
      */
-    enum class XLSheetType {
+    enum class XLSheetType
+    {
         WorkSheet, ChartSheet, DialogSheet, MacroSheet
     };
 
@@ -114,7 +117,8 @@ namespace OpenXLSX {
     /**
      * @brief The XLSheetState is an enumeration of the possible (visibility) states, e.g. Visible or Hidden.
      */
-    enum class XLSheetState {
+    enum class XLSheetState
+    {
         Visible, Hidden, VeryHidden
     };
 
@@ -126,7 +130,8 @@ namespace OpenXLSX {
     /**
      * @brief The XLValueType class is an enumeration of the possible cell value types.
      */
-    enum class XLValueType {
+    enum class XLValueType
+    {
         Empty, Boolean, Integer, Float, Error, String
     };
 

@@ -7,8 +7,10 @@
 
 #include <stdexcept>
 
-namespace Zippy {
-    class ZipException : public std::runtime_error {
+namespace Zippy
+{
+    class ZipException : public std::runtime_error
+    {
     public:
         inline explicit ZipException(const std::string& err)
                 : runtime_error(err) {
@@ -17,7 +19,8 @@ namespace Zippy {
         inline ~ZipException() override = default;
     };
 
-    class ZipExceptionUndefined : public ZipException {
+    class ZipExceptionUndefined : public ZipException
+    {
     public:
         inline explicit ZipExceptionUndefined(const std::string& err)
                 : ZipException(err) {
@@ -26,7 +29,8 @@ namespace Zippy {
         inline ~ZipExceptionUndefined() override = default;
     };
 
-    class ZipExceptionTooManyFiles : public ZipException {
+    class ZipExceptionTooManyFiles : public ZipException
+    {
     public:
         inline explicit ZipExceptionTooManyFiles(const std::string& err)
                 : ZipException(err) {
@@ -35,7 +39,8 @@ namespace Zippy {
         inline ~ZipExceptionTooManyFiles() override = default;
     };
 
-    class ZipExceptionFileTooLarge : public ZipException {
+    class ZipExceptionFileTooLarge : public ZipException
+    {
     public:
         inline explicit ZipExceptionFileTooLarge(const std::string& err)
                 : ZipException(err) {
@@ -44,7 +49,8 @@ namespace Zippy {
         inline ~ZipExceptionFileTooLarge() override = default;
     };
 
-    class ZipExceptionUnsupportedMethod : public ZipException {
+    class ZipExceptionUnsupportedMethod : public ZipException
+    {
     public:
         inline explicit ZipExceptionUnsupportedMethod(const std::string& err)
                 : ZipException(err) {
@@ -53,7 +59,8 @@ namespace Zippy {
         inline ~ZipExceptionUnsupportedMethod() override = default;
     };
 
-    class ZipExceptionUnsupportedEncryption : public ZipException {
+    class ZipExceptionUnsupportedEncryption : public ZipException
+    {
     public:
         inline explicit ZipExceptionUnsupportedEncryption(const std::string& err)
                 : ZipException(err) {
@@ -62,7 +69,8 @@ namespace Zippy {
         inline ~ZipExceptionUnsupportedEncryption() override = default;
     };
 
-    class ZipExceptionUnsupportedFeature : public ZipException {
+    class ZipExceptionUnsupportedFeature : public ZipException
+    {
     public:
         inline explicit ZipExceptionUnsupportedFeature(const std::string& err)
                 : ZipException(err) {
@@ -71,7 +79,8 @@ namespace Zippy {
         inline ~ZipExceptionUnsupportedFeature() override = default;
     };
 
-    class ZipExceptionFailedFindingCentralDir : public ZipException {
+    class ZipExceptionFailedFindingCentralDir : public ZipException
+    {
     public:
         inline explicit ZipExceptionFailedFindingCentralDir(const std::string& err)
                 : ZipException(err) {
@@ -80,7 +89,8 @@ namespace Zippy {
         inline ~ZipExceptionFailedFindingCentralDir() override = default;
     };
 
-    class ZipExceptionNotAnArchive : public ZipException {
+    class ZipExceptionNotAnArchive : public ZipException
+    {
     public:
         inline explicit ZipExceptionNotAnArchive(const std::string& err)
                 : ZipException(err) {
@@ -89,7 +99,8 @@ namespace Zippy {
         inline ~ZipExceptionNotAnArchive() override = default;
     };
 
-    class ZipExceptionInvalidHeader : public ZipException {
+    class ZipExceptionInvalidHeader : public ZipException
+    {
     public:
         inline explicit ZipExceptionInvalidHeader(const std::string& err)
                 : ZipException(err) {
@@ -98,7 +109,8 @@ namespace Zippy {
         inline ~ZipExceptionInvalidHeader() override = default;
     };
 
-    class ZipExceptionMultidiskUnsupported : public ZipException {
+    class ZipExceptionMultidiskUnsupported : public ZipException
+    {
     public:
         inline explicit ZipExceptionMultidiskUnsupported(const std::string& err)
                 : ZipException(err) {
@@ -107,7 +119,8 @@ namespace Zippy {
         inline ~ZipExceptionMultidiskUnsupported() override = default;
     };
 
-    class ZipExceptionDecompressionFailed : public ZipException {
+    class ZipExceptionDecompressionFailed : public ZipException
+    {
     public:
         inline explicit ZipExceptionDecompressionFailed(const std::string& err)
                 : ZipException(err) {
@@ -116,7 +129,8 @@ namespace Zippy {
         inline ~ZipExceptionDecompressionFailed() override = default;
     };
 
-    class ZipExceptionCompressionFailed : public ZipException {
+    class ZipExceptionCompressionFailed : public ZipException
+    {
     public:
         inline explicit ZipExceptionCompressionFailed(const std::string& err)
                 : ZipException(err) {
@@ -125,7 +139,8 @@ namespace Zippy {
         inline ~ZipExceptionCompressionFailed() override = default;
     };
 
-    class ZipExceptionUnexpectedDecompSize : public ZipException {
+    class ZipExceptionUnexpectedDecompSize : public ZipException
+    {
     public:
         inline explicit ZipExceptionUnexpectedDecompSize(const std::string& err)
                 : ZipException(err) {
@@ -134,7 +149,8 @@ namespace Zippy {
         inline ~ZipExceptionUnexpectedDecompSize() override = default;
     };
 
-    class ZipExceptionCrcCheckFailed : public ZipException {
+    class ZipExceptionCrcCheckFailed : public ZipException
+    {
     public:
         inline explicit ZipExceptionCrcCheckFailed(const std::string& err)
                 : ZipException(err) {
@@ -143,7 +159,8 @@ namespace Zippy {
         inline ~ZipExceptionCrcCheckFailed() override = default;
     };
 
-    class ZipExceptionUnsupportedCDirSize : public ZipException {
+    class ZipExceptionUnsupportedCDirSize : public ZipException
+    {
     public:
         inline explicit ZipExceptionUnsupportedCDirSize(const std::string& err)
                 : ZipException(err) {
@@ -152,7 +169,8 @@ namespace Zippy {
         inline ~ZipExceptionUnsupportedCDirSize() override = default;
     };
 
-    class ZipExceptionAllocFailed : public ZipException {
+    class ZipExceptionAllocFailed : public ZipException
+    {
     public:
         inline explicit ZipExceptionAllocFailed(const std::string& err)
                 : ZipException(err) {
@@ -161,7 +179,8 @@ namespace Zippy {
         inline ~ZipExceptionAllocFailed() override = default;
     };
 
-    class ZipExceptionFileOpenFailed : public ZipException {
+    class ZipExceptionFileOpenFailed : public ZipException
+    {
     public:
         inline explicit ZipExceptionFileOpenFailed(const std::string& err)
                 : ZipException(err) {
@@ -170,7 +189,8 @@ namespace Zippy {
         inline ~ZipExceptionFileOpenFailed() override = default;
     };
 
-    class ZipExceptionFileCreateFailed : public ZipException {
+    class ZipExceptionFileCreateFailed : public ZipException
+    {
     public:
         inline explicit ZipExceptionFileCreateFailed(const std::string& err)
                 : ZipException(err) {
@@ -179,7 +199,8 @@ namespace Zippy {
         inline ~ZipExceptionFileCreateFailed() override = default;
     };
 
-    class ZipExceptionFileWriteFailed : public ZipException {
+    class ZipExceptionFileWriteFailed : public ZipException
+    {
     public:
         inline explicit ZipExceptionFileWriteFailed(const std::string& err)
                 : ZipException(err) {
@@ -188,7 +209,8 @@ namespace Zippy {
         inline ~ZipExceptionFileWriteFailed() override = default;
     };
 
-    class ZipExceptionFileReadFailed : public ZipException {
+    class ZipExceptionFileReadFailed : public ZipException
+    {
     public:
         inline explicit ZipExceptionFileReadFailed(const std::string& err)
                 : ZipException(err) {
@@ -197,7 +219,8 @@ namespace Zippy {
         inline ~ZipExceptionFileReadFailed() override = default;
     };
 
-    class ZipExceptionFileCloseFailed : public ZipException {
+    class ZipExceptionFileCloseFailed : public ZipException
+    {
     public:
         inline explicit ZipExceptionFileCloseFailed(const std::string& err)
                 : ZipException(err) {
@@ -206,7 +229,8 @@ namespace Zippy {
         inline ~ZipExceptionFileCloseFailed() override = default;
     };
 
-    class ZipExceptionFileSeekFailed : public ZipException {
+    class ZipExceptionFileSeekFailed : public ZipException
+    {
     public:
         inline explicit ZipExceptionFileSeekFailed(const std::string& err)
                 : ZipException(err) {
@@ -215,7 +239,8 @@ namespace Zippy {
         inline ~ZipExceptionFileSeekFailed() override = default;
     };
 
-    class ZipExceptionFileStatFailed : public ZipException {
+    class ZipExceptionFileStatFailed : public ZipException
+    {
     public:
         inline explicit ZipExceptionFileStatFailed(const std::string& err)
                 : ZipException(err) {
@@ -224,7 +249,8 @@ namespace Zippy {
         inline ~ZipExceptionFileStatFailed() override = default;
     };
 
-    class ZipExceptionInvalidParameter : public ZipException {
+    class ZipExceptionInvalidParameter : public ZipException
+    {
     public:
         inline explicit ZipExceptionInvalidParameter(const std::string& err)
                 : ZipException(err) {
@@ -233,7 +259,8 @@ namespace Zippy {
         inline ~ZipExceptionInvalidParameter() override = default;
     };
 
-    class ZipExceptionInvalidFilename : public ZipException {
+    class ZipExceptionInvalidFilename : public ZipException
+    {
     public:
         inline explicit ZipExceptionInvalidFilename(const std::string& err)
                 : ZipException(err) {
@@ -242,7 +269,8 @@ namespace Zippy {
         inline ~ZipExceptionInvalidFilename() override = default;
     };
 
-    class ZipExceptionBufferTooSmall : public ZipException {
+    class ZipExceptionBufferTooSmall : public ZipException
+    {
     public:
         inline explicit ZipExceptionBufferTooSmall(const std::string& err)
                 : ZipException(err) {
@@ -251,7 +279,8 @@ namespace Zippy {
         inline ~ZipExceptionBufferTooSmall() override = default;
     };
 
-    class ZipExceptionInternalError : public ZipException {
+    class ZipExceptionInternalError : public ZipException
+    {
     public:
         inline explicit ZipExceptionInternalError(const std::string& err)
                 : ZipException(err) {
@@ -260,7 +289,8 @@ namespace Zippy {
         inline ~ZipExceptionInternalError() override = default;
     };
 
-    class ZipExceptionFileNotFound : public ZipException {
+    class ZipExceptionFileNotFound : public ZipException
+    {
     public:
         inline explicit ZipExceptionFileNotFound(const std::string& err)
                 : ZipException(err) {
@@ -269,7 +299,8 @@ namespace Zippy {
         inline ~ZipExceptionFileNotFound() override = default;
     };
 
-    class ZipExceptionArchiveTooLarge : public ZipException {
+    class ZipExceptionArchiveTooLarge : public ZipException
+    {
     public:
         inline explicit ZipExceptionArchiveTooLarge(const std::string& err)
                 : ZipException(err) {
@@ -278,7 +309,8 @@ namespace Zippy {
         inline ~ZipExceptionArchiveTooLarge() override = default;
     };
 
-    class ZipExceptionValidationFailed : public ZipException {
+    class ZipExceptionValidationFailed : public ZipException
+    {
     public:
         inline explicit ZipExceptionValidationFailed(const std::string& err)
                 : ZipException(err) {
@@ -287,7 +319,8 @@ namespace Zippy {
         inline ~ZipExceptionValidationFailed() override = default;
     };
 
-    class ZipExceptionWriteCallbackFailed : public ZipException {
+    class ZipExceptionWriteCallbackFailed : public ZipException
+    {
     public:
         inline explicit ZipExceptionWriteCallbackFailed(const std::string& err)
                 : ZipException(err) {

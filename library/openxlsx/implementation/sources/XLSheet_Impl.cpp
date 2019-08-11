@@ -75,29 +75,29 @@ void Impl::XLSheet::SetState(XLSheetState state) {
     m_sheetState = state;
 
     switch (m_sheetState) {
-        case XLSheetState::Hidden : {
-            auto att = m_nodeInWorkbook.attribute("state");
-            if (!m_nodeInWorkbook.attribute("state"))
-                m_nodeInWorkbook.append_attribute("state") = "hidden";
-            else
-                att.set_value("hidden");
-            break;
-        }
+    case XLSheetState::Hidden : {
+        auto att = m_nodeInWorkbook.attribute("state");
+        if (!m_nodeInWorkbook.attribute("state"))
+            m_nodeInWorkbook.append_attribute("state") = "hidden";
+        else
+            att.set_value("hidden");
+        break;
+    }
 
-        case XLSheetState::VeryHidden : {
-            auto att = m_nodeInWorkbook.attribute("state");
-            if (!att)
-                m_nodeInWorkbook.append_attribute("state") = "veryhidden";
-            else
-                att.set_value("veryhidden"); // todo: Check that this actually works
-            break;
-        }
+    case XLSheetState::VeryHidden : {
+        auto att = m_nodeInWorkbook.attribute("state");
+        if (!att)
+            m_nodeInWorkbook.append_attribute("state") = "veryhidden";
+        else
+            att.set_value("veryhidden"); // todo: Check that this actually works
+        break;
+    }
 
-        case XLSheetState::Visible : {
-            auto att = m_nodeInWorkbook.attribute("state");
-            if (att)
-                m_nodeInWorkbook.remove_attribute("state");
-        }
+    case XLSheetState::Visible : {
+        auto att = m_nodeInWorkbook.attribute("state");
+        if (att)
+            m_nodeInWorkbook.remove_attribute("state");
+    }
     }
 }
 

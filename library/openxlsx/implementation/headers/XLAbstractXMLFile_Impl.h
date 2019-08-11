@@ -55,7 +55,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 // ===== OpenXLSX Includes ===== //
 #include "XLXml_Impl.h"
 
-namespace OpenXLSX::Impl {
+namespace OpenXLSX::Impl
+{
     class XLDocument;
 
     //======================================================================================================================
@@ -67,7 +68,8 @@ namespace OpenXLSX::Impl {
      * for derived classes to use. It functions as an ancestor to all classes which are represented by an .xml
      * file in an .xlsx package
      */
-    class XLAbstractXMLFile {
+    class XLAbstractXMLFile
+    {
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Public Member Functions
@@ -173,7 +175,7 @@ namespace OpenXLSX::Impl {
 
         std::string m_path; /**< */
         XLDocument& m_parentDocument; /**< */
-        XMLDocument         m_xmlDocument; /**< A pointer to the underlying XMLDocument resource*/
+        XMLDocument m_xmlDocument; /**< A pointer to the underlying XMLDocument resource*/
         mutable std::string m_xmlData; /**< A std::string with the XML data. This is only updated when GetXMLData() is called */
 
     };

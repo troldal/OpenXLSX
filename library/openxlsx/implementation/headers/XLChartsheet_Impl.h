@@ -48,7 +48,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 #include "XLSheet_Impl.h"
 
-namespace OpenXLSX::Impl {
+namespace OpenXLSX::Impl
+{
 
     //======================================================================================================================
     //========== XLChartsheet Class ========================================================================================
@@ -58,7 +59,8 @@ namespace OpenXLSX::Impl {
      * @brief Class representing the an Excel chartsheet.
      * @todo This class is largely unimplemented and works just as a placeholder.
      */
-    class XLChartsheet : public XLSheet {
+    class XLChartsheet : public XLSheet
+    {
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Public Member Functions

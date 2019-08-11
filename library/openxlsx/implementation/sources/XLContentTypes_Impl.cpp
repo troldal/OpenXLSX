@@ -55,7 +55,7 @@ bool Impl::XLContentTypes::ParseXMLData() {
     m_overrides.clear();
 
     std::string strOverride = "Override";
-    std::string strDefault  = "Default";
+    std::string strDefault = "Default";
 
     for (auto& node : XmlDocument()->first_child().children()) {
         if (string(node.name()) == "Default") {
@@ -63,13 +63,13 @@ bool Impl::XLContentTypes::ParseXMLData() {
             std::string contentType;
 
             if (node.attribute("Extension") != nullptr)
-                extension   = node.attribute("Extension").value();
+                extension = node.attribute("Extension").value();
             if (node.attribute("ContentType") != nullptr)
                 contentType = node.attribute("ContentType").value();
             m_defaults.insert({extension, node});
         }
         else if (string(node.name()) == "Override") {
-            string        path = node.attribute("PartName").value();
+            string path = node.attribute("PartName").value();
             XLContentType type = XLContentItem::GetTypeFromString(node.attribute("ContentType").value());
 
             m_overrides.emplace(path, XLContentItem(node));
@@ -108,7 +108,8 @@ void Impl::XLContentTypes::DeleteOverride(XLContentItem& item) {
 
     m_overrides.erase(item.Path());
     XmlDocument()->first_child().remove_child(XmlDocument()->first_child().find_child_by_attribute("PartName",
-                                                                                                   item.Path().c_str()));
+                                                                                                   item.Path()
+                                                                                                       .c_str()));
 
 }
 

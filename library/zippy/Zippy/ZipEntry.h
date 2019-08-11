@@ -13,16 +13,19 @@
 // ===== Other Includes
 #include "miniz/miniz.h"
 
-namespace Zippy {
+namespace Zippy
+{
 
     class ZipArchive;
+
     class ZipEntry;
 
     // ===== Alias Declarations
     using ZipEntryInfo = mz_zip_archive_file_stat;
     using ZipEntryData = std::vector<std::byte>;
 
-    struct ZipEntryMetaData {
+    struct ZipEntryMetaData
+    {
         explicit ZipEntryMetaData(const ZipEntryInfo& info)
                 : Index(info.m_file_index),
                   CompressedSize(info.m_comp_size),
@@ -36,23 +39,26 @@ namespace Zippy {
 
         }
 
-        uint32_t     Index;
-        uint64_t     CompressedSize;
-        uint64_t     UncompressedSize;
-        bool         IsDirectory;
-        bool         IsEncrypted;
-        bool         IsSupported;
-        std::string  Filename;
-        std::string  Comment;
+        uint32_t Index;
+        uint64_t CompressedSize;
+        uint64_t UncompressedSize;
+        bool IsDirectory;
+        bool IsEncrypted;
+        bool IsSupported;
+        std::string Filename;
+        std::string Comment;
         const time_t Time;
     };
 
-    namespace Impl {
+    namespace Impl
+    {
         /**
          * @brief
          */
-        class ZipEntry {
+        class ZipEntry
+        {
             friend class Zippy::ZipArchive;
+
             friend class Zippy::ZipEntry;
 
         public:
@@ -78,8 +84,8 @@ namespace Zippy {
              */
             ZipEntry(const std::string& name, const ZipEntryData& data) {
 
-                m_EntryInfo  = CreateInfo(name);
-                m_EntryData  = data;
+                m_EntryInfo = CreateInfo(name);
+                m_EntryData = data;
                 m_IsModified = true;
 
             }
@@ -168,7 +174,7 @@ namespace Zippy {
                 for (auto& ch : data)
                     result.push_back(static_cast<std::byte>(ch));
 
-                m_EntryData  = result;
+                m_EntryData = result;
                 m_IsModified = true;
             }
 
@@ -178,7 +184,7 @@ namespace Zippy {
              */
             void SetData(const ZipEntryData& data) {
 
-                m_EntryData  = data;
+                m_EntryData = data;
                 m_IsModified = true;
             }
 
@@ -326,23 +332,23 @@ namespace Zippy {
 
                 ZipEntryInfo info;
 
-                info.m_file_index       = GetNewIndex(0);
-                info.m_central_dir_ofs  = 0;
-                info.m_version_made_by  = 0;
-                info.m_version_needed   = 0;
-                info.m_bit_flag         = 0;
-                info.m_method           = 0;
-                info.m_time             = time(nullptr);
-                info.m_crc32            = 0;
-                info.m_comp_size        = 0;
-                info.m_uncomp_size      = 0;
-                info.m_internal_attr    = 0;
-                info.m_external_attr    = 0;
+                info.m_file_index = GetNewIndex(0);
+                info.m_central_dir_ofs = 0;
+                info.m_version_made_by = 0;
+                info.m_version_needed = 0;
+                info.m_bit_flag = 0;
+                info.m_method = 0;
+                info.m_time = time(nullptr);
+                info.m_crc32 = 0;
+                info.m_comp_size = 0;
+                info.m_uncomp_size = 0;
+                info.m_internal_attr = 0;
+                info.m_external_attr = 0;
                 info.m_local_header_ofs = 0;
-                info.m_comment_size     = 0;
-                info.m_is_directory     = (name.back() == '/');
-                info.m_is_encrypted     = false;
-                info.m_is_supported     = true;
+                info.m_comment_size = 0;
+                info.m_is_directory = (name.back() == '/');
+                info.m_is_encrypted = false;
+                info.m_is_supported = true;
 
                 strcpy(info.m_filename, name.c_str());
                 strcpy(info.m_comment, "");
@@ -356,7 +362,8 @@ namespace Zippy {
     /**
      * @brief
      */
-    class ZipEntry {
+    class ZipEntry
+    {
         friend class ZipArchive;
 
     public:

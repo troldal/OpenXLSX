@@ -130,8 +130,8 @@ Impl::XLRelationshipItem* Impl::XLRelationships::AddRelationship(XLRelationshipT
 bool Impl::XLRelationships::ParseXMLData() {
 
     for (auto& theNode : XmlDocument()->first_child().children()) {
-        string             typeString = theNode.attribute("Type").value();
-        XLRelationshipType type       = XLRelationshipItem::GetTypeFromString(typeString);
+        string typeString = theNode.attribute("Type").value();
+        XLRelationshipType type = XLRelationshipItem::GetTypeFromString(typeString);
 
         m_relationships.emplace_back(XLRelationshipItem(theNode));
     }
@@ -148,7 +148,8 @@ unsigned long Impl::XLRelationships::GetNewRelsID() const {
                                    m_relationships.end(),
                                    [](const XLRelationshipItem& a, const XLRelationshipItem& b) {
 
-                                       return stoi(string(a.Id().value()).substr(3)) < stoi(string(b.Id().value()).substr(3));
+                                       return stoi(string(a.Id().value()).substr(3))
+                                               < stoi(string(b.Id().value()).substr(3));
                                    })->m_relationshipNode.attribute("Id").value()).substr(3)) + 1;
 }
 

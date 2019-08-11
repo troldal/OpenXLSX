@@ -7,7 +7,8 @@
 
 #include <XLDefinitions.h>
 
-namespace OpenXLSX::Impl {
+namespace OpenXLSX::Impl
+{
 
     //======================================================================================================================
     //========== XLColumnVector Enum =======================================================================================
@@ -16,7 +17,8 @@ namespace OpenXLSX::Impl {
     /**
      * @brief
      */
-    enum class XLContentType {
+    enum class XLContentType
+    {
         Workbook,
         WorkbookMacroEnabled,
         Worksheet,
@@ -48,7 +50,8 @@ namespace OpenXLSX::Impl {
     /**
      * @brief An enum of the possible relationship (or XML document) types used in relationship (.rels) XML files.
      */
-    enum class XLRelationshipType {
+    enum class XLRelationshipType
+    {
         CoreProperties,
         ExtendedProperties,
         CustomProperties,

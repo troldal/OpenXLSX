@@ -64,9 +64,11 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLDefinitions.h"
 #include <Zippy.h>
 
-namespace OpenXLSX::Impl {
+namespace OpenXLSX::Impl
+{
 
     class XLContentItem;
+
     class XLContentTypes;
 
     //======================================================================================================================
@@ -79,13 +81,16 @@ namespace OpenXLSX::Impl {
      * closing and saving the document.\n<b><em>The XLDocument is the entrypoint for clients
      * using the RapidXLSX library.</em></b>
      */
-    class XLDocument {
+    class XLDocument
+    {
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Friends
         //----------------------------------------------------------------------------------------------------------------------
         friend class XLAbstractXMLFile;
+
         friend class XLWorkbook;
+
         friend class XLSheet;
 
         //----------------------------------------------------------------------------------------------------------------------
@@ -292,11 +297,11 @@ namespace OpenXLSX::Impl {
 
         std::string m_filePath; /**< The path to the original file*/
 
-        std::unique_ptr<XLRelationships>   m_documentRelationships; /**< A pointer to the document relationships object*/
-        std::unique_ptr<XLContentTypes>    m_contentTypes; /**< A pointer to the content types object*/
-        std::unique_ptr<XLAppProperties>   m_docAppProperties; /**< A pointer to the App properties object */
-        std::unique_ptr<XLCoreProperties>  m_docCoreProperties; /**< A pointer to the Core properties object*/
-        std::unique_ptr<XLWorkbook>        m_workbook; /**< A pointer to the workbook object */
+        std::unique_ptr<XLRelationships> m_documentRelationships; /**< A pointer to the document relationships object*/
+        std::unique_ptr<XLContentTypes> m_contentTypes; /**< A pointer to the content types object*/
+        std::unique_ptr<XLAppProperties> m_docAppProperties; /**< A pointer to the App properties object */
+        std::unique_ptr<XLCoreProperties> m_docCoreProperties; /**< A pointer to the Core properties object*/
+        std::unique_ptr<XLWorkbook> m_workbook; /**< A pointer to the workbook object */
         std::unique_ptr<Zippy::ZipArchive> m_archive; /**<  */
 
     };

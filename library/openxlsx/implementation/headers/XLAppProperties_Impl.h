@@ -50,7 +50,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLAbstractXMLFile_Impl.h"
 #include "XLXml_Impl.h"
 
-namespace OpenXLSX::Impl {
+namespace OpenXLSX::Impl
+{
 
     //==================================================================================================================
     //========== XLWorksheet Class =====================================================================================
@@ -60,7 +61,8 @@ namespace OpenXLSX::Impl {
      * @brief This class is a specialization of the XLAbstractXMLFile, with the purpose of the representing the
      * document app properties in the app.xml file (docProps folder) in the .xlsx package.
      */
-    class XLAppProperties : public XLAbstractXMLFile {
+    class XLAppProperties : public XLAbstractXMLFile
+    {
 
         //--------------------------------------------------------------------------------------------------------------
         //           Public Member Functions
@@ -265,12 +267,12 @@ namespace OpenXLSX::Impl {
 
         // ===== Entities related to sheet names ===== //
         XMLAttribute m_sheetCountAttribute; /**< */
-        XMLNode      m_sheetNamesParent; /**< */
+        XMLNode m_sheetNamesParent; /**< */
 
         // ===== Entities related to "Heading Pairs" ===== //
         XMLAttribute m_headingPairsSize; /**< */
-        XMLNode      m_headingPairsCategories; /**< */
-        XMLNode      m_headingPairsCounts; /**< */
+        XMLNode m_headingPairsCategories; /**< */
+        XMLNode m_headingPairsCounts; /**< */
 
     };
 

@@ -60,10 +60,14 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 //#include "XLWorksheet_Impl.h"
 //#include "XLChartsheet_Impl.h"
 
-namespace OpenXLSX::Impl {
+namespace OpenXLSX::Impl
+{
     class XLSharedStrings;
+
     class XLSheet;
+
     class XLWorksheet;
+
     class XLChartsheet;
 
     //======================================================================================================================
@@ -74,7 +78,8 @@ namespace OpenXLSX::Impl {
      * @brief This class encapsulates the concept of a Workbook. It provides access to the embedded sheets
      * (worksheets or chartsheets), as well as functionality for adding, deleting and renaming sheets.
      */
-    class XLWorkbook : public XLAbstractXMLFile {
+    class XLWorkbook : public XLAbstractXMLFile
+    {
 
         friend class XLSheet;
 
@@ -401,11 +406,12 @@ namespace OpenXLSX::Impl {
         /**
          * @brief Internal data structure for holding the individual sheets and their meta data.
          */
-        struct XLSheetData {
-            XMLNode                  sheetNode;
-            XLRelationshipItem       sheetRelationship;
-            XLContentItem            sheetContentItem;
-            XLSheetType              sheetType;
+        struct XLSheetData
+        {
+            XMLNode sheetNode;
+            XLRelationshipItem sheetRelationship;
+            XLContentItem sheetContentItem;
+            XLSheetType sheetType;
             std::unique_ptr<XLSheet> sheetItem;
         };
 
@@ -416,7 +422,7 @@ namespace OpenXLSX::Impl {
 
         int m_sheetId; /**< Counter to use to create ID for new sheet */
 
-        XLRelationships         m_relationships; /**< pointer to the XLRelationships object for workbook. */
+        XLRelationships m_relationships; /**< pointer to the XLRelationships object for workbook. */
         mutable XLSharedStrings m_sharedStrings; /**< Pointer to the XLSharedStrings object. */
         XLDocument* m_document; /**< */
     };

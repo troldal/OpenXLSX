@@ -17,7 +17,8 @@ using namespace OpenXLSX;
  * @details The constructor initializes the member variables and calls the loadXMLData from the
  * XLAbstractXMLFile base class.
  */
-Impl::XLWorksheet::XLWorksheet(XLWorkbook& parent, XMLAttribute name, const std::string& filePath, const std::string& xmlData)
+Impl::XLWorksheet::XLWorksheet(XLWorkbook& parent, XMLAttribute name, const std::string& filePath,
+                               const std::string& xmlData)
 
         : XLSheet(parent, name, filePath, xmlData),
           m_dimensionNode(std::make_unique<XMLNode>()),
@@ -66,7 +67,7 @@ bool Impl::XLWorksheet::ParseXMLData() {
                 currentNode.attribute("min").set_value(max);
                 for (int i = min; i < max; i++) {
                     auto newnode = ColumnsNode().insert_child_before("col", currentNode);
-                    auto attr    = currentNode.first_attribute();
+                    auto attr = currentNode.first_attribute();
                     while (attr != nullptr) {
                         newnode.append_attribute(attr.name()) = attr.value();
                         attr = attr.next_attribute();
@@ -92,7 +93,7 @@ bool Impl::XLWorksheet::ParseXMLData() {
     for (const auto& currentRow : SheetDataNode().children()) {
         auto& row = m_rows.emplace_back(XLRowData());
         row.rowIndex = stoul(currentRow.attribute("r").value());
-        row.rowItem  = make_unique<XLRow>(*this, currentRow);
+        row.rowItem = make_unique<XLRow>(*this, currentRow);
 
     }
 
@@ -208,7 +209,8 @@ Impl::XLCellRange Impl::XLWorksheet::Range(const XLCellReference& topLeft, const
 /**
  * @details
  */
-const Impl::XLCellRange Impl::XLWorksheet::Range(const XLCellReference& topLeft, const XLCellReference& bottomRight) const {
+const Impl::XLCellRange Impl::XLWorksheet::Range(const XLCellReference& topLeft,
+                                                 const XLCellReference& bottomRight) const {
     // Set the last Cell to some ValueAsString, in order to create all objects in Range.
     //if (Cell(bottomRight)->CellType() == XLCellType::Empty) Cell(bottomRight)->SetEmptyValue();
 
@@ -244,12 +246,12 @@ Impl::XLRow* Impl::XLWorksheet::Row(unsigned long rowNumber) {
         // ===== Add the newly created node to the std::vector and update the dataItem iterator
         dataItem = m_rows.insert(dataItem, XLRowData());
         dataItem->rowIndex = rowNumber;
-        dataItem->rowItem  = make_unique<XLRow>(*this, rowNode);
+        dataItem->rowItem = make_unique<XLRow>(*this, rowNode);
 
         // ===== Set the correct attributes of the newly created row node
-        rowNode.append_attribute("r")               = rowNumber;
+        rowNode.append_attribute("r") = rowNumber;
         rowNode.append_attribute("x14ac:dyDescent") = 0.2;
-        rowNode.append_attribute("spans")           = "1:1";
+        rowNode.append_attribute("spans") = "1:1";
     }
 
     return dataItem->rowItem.get();
@@ -303,13 +305,13 @@ Impl::XLColumn* Impl::XLWorksheet::Column(unsigned int columnNumber) {
             auto index = columnNumber - 1; // vector is 0-based, Excel is 1-based; therefore columnNumber-1.
             XLColumn* col = &m_columns.at(index);
             while (col == nullptr)
-                col    = &m_columns.at(index++);
+                col = &m_columns.at(index++);
             nodeColumn = ColumnsNode().insert_child_before("col", col->ColumnNode());
         }
 
-        nodeColumn.append_attribute("min")         = columnNumber;
-        nodeColumn.append_attribute("max")         = columnNumber;
-        nodeColumn.append_attribute("width")       = 10;
+        nodeColumn.append_attribute("min") = columnNumber;
+        nodeColumn.append_attribute("max") = columnNumber;
+        nodeColumn.append_attribute("width") = 10;
         nodeColumn.append_attribute("customWidth") = 1;
 
         // Insert the new Row node in the Row nodes vector.
@@ -575,8 +577,8 @@ std::string Impl::XLWorksheet::NewSheetXmlData() {
 void Impl::XLWorksheet::Export(const std::string& fileName, char decimal, char delimiter) {
 
     ofstream file(fileName);
-    string   token;
-    char     oldDecimal;
+    string token;
+    char oldDecimal;
 
     if (decimal == ',')
         oldDecimal = '.';
@@ -600,10 +602,10 @@ void Impl::XLWorksheet::Export(const std::string& fileName, char decimal, char d
  */
 void Impl::XLWorksheet::Import(const std::string& fileName, const string& delimiter) {
 
-    ifstream      file(fileName);
-    string        line;
+    ifstream file(fileName);
+    string line;
     unsigned long row = 1;
-    XLTokenizer   tokenizer("", delimiter);
+    XLTokenizer tokenizer("", delimiter);
     while (getline(file, line)) {
         tokenizer.SetString(line);
         unsigned int column = 1;

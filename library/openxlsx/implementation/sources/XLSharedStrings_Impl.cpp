@@ -79,7 +79,7 @@ const XMLNode Impl::XLSharedStrings::GetStringNode(std::string_view str) const {
  */
 long Impl::XLSharedStrings::GetStringIndex(string_view str) const {
 
-    long result  = -1;
+    long result = -1;
     long counter = 0;
     for (const auto& s : m_sharedStringNodes) {
         if (string_view(s.text().get()) == str) {
@@ -115,7 +115,7 @@ bool Impl::XLSharedStrings::StringExists(unsigned long index) const {
 long Impl::XLSharedStrings::AppendString(string_view str) {
 
     // Create the required nodes
-    auto node  = XmlDocument()->append_child("si");
+    auto node = XmlDocument()->append_child("si");
     auto value = node.append_child("t");
     value.text().set(string(str).c_str());
 

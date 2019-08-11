@@ -56,7 +56,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLCellValue_Impl.h"
 #include "XLCellReference_Impl.h"
 
-namespace OpenXLSX::Impl {
+namespace OpenXLSX::Impl
+{
     class XLContentItem;
 
     class XLRelationshipItem;
@@ -72,7 +73,8 @@ namespace OpenXLSX::Impl {
      * such as XLWorksheet. It implements functionality common to all sheet types. This is a pure abstract class,
      * so it cannot be instantiated.
      */
-    class XLSheet : public XLAbstractXMLFile {
+    class XLSheet : public XLAbstractXMLFile
+    {
         friend class XLWorkbook;
         //friend class XLCell;
 
@@ -182,14 +184,14 @@ namespace OpenXLSX::Impl {
 
     private:
         XMLAttribute m_sheetName; /**< The sheet name given by the user */
-        XLSheetType  m_sheetType; /**< The sheet type, i.e. WorkSheet, ChartSheet, etc. */
+        XLSheetType m_sheetType; /**< The sheet type, i.e. WorkSheet, ChartSheet, etc. */
         XLSheetState m_sheetState; /**< The state of the sheet, i.e. Visible, Hidden or VeryHidden */
 
         XMLNode m_nodeInWorkbook; /**< A pointer to the relevant sheet node in workbook.xml */
         XMLNode m_nodeInApp; /**< A pointer to the relevant TitleOfParts node in app.xml */
 
         XLWorkbook& m_parentWorkbook;
-        XLContentItem      m_nodeInContentTypes; /**< A pointer to the relevant content type item in [Content_Types].xml */
+        XLContentItem m_nodeInContentTypes; /**< A pointer to the relevant content type item in [Content_Types].xml */
         XLRelationshipItem m_nodeInWorkbookRels; /**< A pointer to the relationship item in workbook.xml.rels */
     };
 }  // namespace OpenXLSX::Impl
