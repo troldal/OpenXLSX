@@ -10,7 +10,6 @@
 
 #include "XLWorksheet_Impl.h"
 #include "XLChartsheet_Impl.h"
-#include "XLStyles_Impl.h"
 
 using namespace std;
 using namespace OpenXLSX;
@@ -25,7 +24,6 @@ Impl::XLWorkbook::XLWorkbook(XLDocument& parent, const std::string& filePath)
           m_sheetId(0),
           m_relationships(parent, "xl/_rels/workbook.xml.rels"),
           m_sharedStrings(parent),
-          m_styles(parent),
           m_document(&parent) {
 
     ParseXMLData();
@@ -487,14 +485,6 @@ std::vector<std::string> Impl::XLWorkbook::ChartsheetNames() const {
     return result;
 }
 
-/**
- * @details
- */
-Impl::XLStyles* Impl::XLWorkbook::Styles() {
-
-    return &m_styles;
-}
-
 Impl::XLDocument* Impl::XLWorkbook::Document() {
 
     return m_document;
@@ -611,8 +601,6 @@ void Impl::XLWorkbook::WriteXMLData() {
 
     if (m_sharedStrings)
         m_sharedStrings.WriteXMLData();
-    if (m_styles)
-        m_styles.WriteXMLData();
 
     for (auto& sheet : m_sheets)
         if (sheet.sheetItem)

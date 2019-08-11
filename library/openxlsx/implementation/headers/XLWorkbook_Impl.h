@@ -54,7 +54,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLAbstractXMLFile_Impl.h"
 #include "XLRelationships_Impl.h"
 #include "XLSharedStrings_Impl.h"
-#include "XLStyles_Impl.h"
 #include "XLXml_Impl.h"
 #include "XLEnums_impl.h"
 #include "XLContentTypes_Impl.h"
@@ -325,11 +324,6 @@ namespace OpenXLSX::Impl {
 
         /**
          * @brief
-         */
-        XLStyles* Styles();
-
-        /**
-         * @brief
          * @return
          */
         XLDocument* Document();
@@ -424,7 +418,6 @@ namespace OpenXLSX::Impl {
 
         XLRelationships         m_relationships; /**< pointer to the XLRelationships object for workbook. */
         mutable XLSharedStrings m_sharedStrings; /**< Pointer to the XLSharedStrings object. */
-        XLStyles                m_styles; /**< Pointer to the XLStyles object for the workbook. */
         XLDocument* m_document; /**< */
     };
 }  // namespace OpenXLSX::Impl
