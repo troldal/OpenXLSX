@@ -14,4 +14,3 @@ target_link_libraries(Demo2 PUBLIC OpenXLSX)
 target_include_directories(Demo2 PUBLIC ${OPENXLSX_INSTALLDIR}/include)
 set_target_properties(Demo2 PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${OPENXLSX_INSTALLDIR}/bin)
 
-

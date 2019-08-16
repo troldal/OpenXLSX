@@ -827,6 +827,6 @@ namespace OpenXLSX::Impl
                                                0x0a, 0x00, 0x0a, 0x00, 0x80, 0x02, 0x00, 0x00, 0xaf, 0x1e, 0x00,
                                                0x00, 0x00, 0x00};
 
-}
+}  // namespace OpenXLSX::Impl
 
 #endif //OPENXLSX_IMPL_XLTEMPLATE_H
