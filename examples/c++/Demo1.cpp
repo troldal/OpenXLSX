@@ -18,9 +18,8 @@ using namespace OpenXLSX;
  * TODO: Conditional formatting
  */
 
-int main()
-{
-    
+int main() {
+
     XLDocument doc;
     doc.CreateDocument("./MyTest.xlsx");
     auto wks = doc.Workbook().Worksheet("Sheet1");
@@ -36,7 +35,7 @@ int main()
     auto C1 = wks.Cell("C1").Value().Get<std::string>();
     auto D1 = wks.Cell("D1").Value().Get<bool>();
     auto E1 = wks.Cell("E1").Value().Get<std::string>();
-    
+
     auto val = wks.Cell("E1").Value();
     cout << val.Get<std::string>() << endl;
 

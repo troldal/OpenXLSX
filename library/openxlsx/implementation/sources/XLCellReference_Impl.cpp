@@ -41,10 +41,10 @@ Impl::XLCellReference::XLCellReference(unsigned long row, unsigned int column)
           m_valid(false) {
 
     if (m_row < 1 || m_row > maxRows || m_column < 1 || m_column > maxCols) {
-        m_row         = 0;
-        m_column      = 0;
+        m_row = 0;
+        m_column = 0;
         m_cellAddress = "";
-        m_valid       = false;
+        m_valid = false;
     }
     else {
         m_valid = true;
@@ -62,10 +62,10 @@ Impl::XLCellReference::XLCellReference(unsigned long row, const std::string& col
           m_valid(false) {
 
     if (m_row < 1 || m_row > maxRows || m_column < 1 || m_column > maxCols) {
-        m_row         = 0;
-        m_column      = 0;
+        m_row = 0;
+        m_column = 0;
         m_cellAddress = "";
-        m_valid       = false;
+        m_valid = false;
     }
     else {
         m_valid = true;
@@ -158,17 +158,18 @@ std::string Impl::XLCellReference::Address() const {
 void Impl::XLCellReference::SetAddress(const std::string& address) {
 
     auto coordinates = CoordinatesFromAddress(address);
-    if (coordinates.first < 1 || coordinates.first > maxRows || coordinates.second < 1 || coordinates.second > maxCols) {
-        m_row         = 0;
-        m_column      = 0;
+    if (coordinates.first < 1 || coordinates.first > maxRows || coordinates.second < 1
+            || coordinates.second > maxCols) {
+        m_row = 0;
+        m_column = 0;
         m_cellAddress = "";
-        m_valid       = false;
+        m_valid = false;
     }
     else {
-        m_row         = coordinates.first;
-        m_column      = coordinates.second;
+        m_row = coordinates.first;
+        m_column = coordinates.second;
         m_cellAddress = address;
-        m_valid       = true;
+        m_valid = true;
     }
 }
 
@@ -189,7 +190,7 @@ std::string Impl::XLCellReference::RowAsString(unsigned long row) {
     while (row != 0) {
         int rem = row % 10;
         result += (rem > 9) ? (rem - 10) + 'a' : rem + '0';
-        row     = row / 10;
+        row = row / 10;
     }
 
     for (int i = 0; i < result.length() / 2; i++)
@@ -293,8 +294,8 @@ std::pair<unsigned long, unsigned int> Impl::XLCellReference::CoordinatesFromAdd
         // If the Address is invalid, return 0,0
         return make_pair(0, 0);
     else {
-        unsigned int  column = ColumnAsNumber(address.substr(0, letterCount));
-        unsigned long row    = RowAsNumber(address.substr(letterCount, numberCount));
+        unsigned int column = ColumnAsNumber(address.substr(0, letterCount));
+        unsigned long row = RowAsNumber(address.substr(letterCount, numberCount));
 
         return make_pair(row, column);
     }

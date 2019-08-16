@@ -54,15 +54,18 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLRow.h"
 #include "XLColumn.h"
 
-namespace OpenXLSX {
-    namespace Impl {
+namespace OpenXLSX
+{
+    namespace Impl
+    {
         class XLWorksheet;
     } // namespace Impl
 
     /**
      * @brief
      */
-    class OPENXLSX_EXPORT XLWorksheet : public XLSheet {
+    class OPENXLSX_EXPORT XLWorksheet : public XLSheet
+    {
     public:
 
         /**

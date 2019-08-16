@@ -49,7 +49,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLCellReference_Impl.h"
 #include <string>
 
-namespace OpenXLSX::Impl {
+namespace OpenXLSX::Impl
+{
     class XLWorksheet;
 
     //======================================================================================================================
@@ -61,7 +62,8 @@ namespace OpenXLSX::Impl {
      * (or subset) of cells in a spreadsheet.
      * @todo Consider specifying starting cell and direction of iterator.
      */
-    class XLCellRange {
+    class XLCellRange
+    {
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Public Member Functions
@@ -83,7 +85,8 @@ namespace OpenXLSX::Impl {
          * @param topLeft
          * @param bottomRight
          */
-        explicit XLCellRange(const XLWorksheet& sheet, const XLCellReference& topLeft, const XLCellReference& bottomRight);
+        explicit XLCellRange(const XLWorksheet& sheet, const XLCellReference& topLeft,
+                             const XLCellReference& bottomRight);
 
         /**
          * @brief Copy constructor [default].
@@ -170,10 +173,10 @@ namespace OpenXLSX::Impl {
 
         XLCellReference m_topLeft; /**< The cell reference of the first cell in the range */
         XLCellReference m_bottomRight; /**< The cell reference of the last cell in the range */
-        unsigned long   m_rowOffset; /**< The row offset, relative to the parent spreadsheet */
-        unsigned int    m_columnOffset; /**< The column offset, relative to the parent spreadsheet */
-        unsigned long   m_rows; /**< The number of rows in the range */
-        unsigned int    m_columns; /**< The number of columns in the range */
+        unsigned long m_rowOffset; /**< The row offset, relative to the parent spreadsheet */
+        unsigned int m_columnOffset; /**< The column offset, relative to the parent spreadsheet */
+        unsigned long m_rows; /**< The number of rows in the range */
+        unsigned int m_columns; /**< The number of columns in the range */
 
         mutable bool m_transpose; /**< */
 

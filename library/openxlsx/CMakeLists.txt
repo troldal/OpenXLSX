@@ -3,9 +3,9 @@
 #=======================================================================================================================
 if (NOT STATIC)
     add_library(OpenXLSX SHARED "")
-else()
+else ()
     add_library(OpenXLSX STATIC "")
-endif()
+endif ()
 add_library(OpenXLSX::OpenXLSX ALIAS OpenXLSX)
 #set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE -Xiwyu;any;-Xiwyu;iwyu;-Xiwyu)
 
@@ -29,9 +29,9 @@ check_cxx_source_compiles("
                                   return 0;
                           }" CHARCONV_RESULT)
 
-if(CHARCONV_RESULT)
+if (CHARCONV_RESULT)
     target_compile_definitions(OpenXLSX PRIVATE CHARCONV_ENABLED)
-endif()
+endif ()
 
 #=======================================================================================================================
 # Enable dllspec if it's Win32 target
@@ -40,7 +40,7 @@ get_target_property(TARGET_TYPE OpenXLSX TYPE)
 if (WIN32 AND (TARGET_TYPE STREQUAL "SHARED_LIBRARY"))
     set(BUILD_SHARED 1)
     target_compile_definitions(OpenXLSX PRIVATE "INBUILD")
-endif()
+endif ()
 configure_file(${CMAKE_CURRENT_LIST_DIR}/config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
 #=======================================================================================================================
@@ -110,14 +110,11 @@ endif ()
 set(OPENXLSX_IMPL_HEADERS
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLAbstractXMLFile_Impl.h
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLAppProperties_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLColor_Impl.h
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLContentTypes_Impl.h
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLCoreProperties_Impl.h
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLDocument_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLFont_Impl.h
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLRelationships_Impl.h
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLSharedStrings_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLStyles_Impl.h
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLTokenizer_Impl.h
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLWorkbook_Impl.h
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLChartsheet_Impl.h
@@ -127,8 +124,6 @@ set(OPENXLSX_IMPL_HEADERS
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLTemplate_Impl.h
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLWorksheet_Impl.h
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLCell_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLCellFormats_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLCellFormula_Impl.h
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLCellRange_Impl.h
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLCellReference_Impl.h
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLCellType_Impl.h
@@ -139,14 +134,11 @@ set(OPENXLSX_IMPL_HEADERS
 set(OPENXLSX_IMPL_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLAbstractXMLFile_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLAppProperties_Impl.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLColor_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLContentTypes_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCoreProperties_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLDocument_Impl.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLFont_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLRelationships_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLSharedStrings_Impl.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLStyles_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLTokenizer_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLWorkbook_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLChartsheet_Impl.cpp
@@ -155,8 +147,6 @@ set(OPENXLSX_IMPL_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLSheet_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLWorksheet_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCell_Impl.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellFormats_Impl.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellFormula_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellRange_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellReference_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellValue_Impl.cpp

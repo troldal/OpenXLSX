@@ -2,7 +2,7 @@
 # Preamble
 #=======================================================================================================================
 cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
-project (OpenXLSX)
+project(OpenXLSX)
 set(OPENXLSX_DEPENDENCIES ${CMAKE_CURRENT_BINARY_DIR}/dependencies)
 set(OPENXLSX_INSTALLDIR ${CMAKE_CURRENT_BINARY_DIR}/install)
 #set(CMAKE_CXX_VISIBILITY_PRESET hidden)
@@ -14,7 +14,7 @@ set(OPENXLSX_INSTALLDIR ${CMAKE_CURRENT_BINARY_DIR}/install)
 set(PROJECT_VENDOR "Kenneth Troldal Balslev")
 set(PROJECT_CONTACT "kenneth.balslev@gmail.com")
 set(PROJECT_URL "https://github.com/troldal/OpenXLSX")
-set(PROJECT_DESCRIPTION "A library for reading, writing and modifying Excel spreadsheets for C++17")
+set(PROJECT_DESCRIPTION "A C++17 library for reading, writing and modifying Excel spreadsheets")
 
 #=======================================================================================================================
 # Set C/C++ compiler version

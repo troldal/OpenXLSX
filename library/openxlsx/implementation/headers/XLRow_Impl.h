@@ -50,7 +50,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLDocument_Impl.h"
 #include "XLCell_Impl.h"
 
-namespace OpenXLSX::Impl {
+namespace OpenXLSX::Impl
+{
     class XLCell;
 
     //======================================================================================================================
@@ -61,7 +62,8 @@ namespace OpenXLSX::Impl {
      * @brief The XLRow class represent a row in an Excel spreadsheet. All cell data are stored by row in the underlying
      * XML file.
      */
-    class XLRow {
+    class XLRow
+    {
         friend class XLWorksheet;
 
         //----------------------------------------------------------------------------------------------------------------------
@@ -187,8 +189,9 @@ namespace OpenXLSX::Impl {
         XLWorksheet& m_parentWorksheet; /**< A pointer to the parent XLWorksheet object. */
         XMLNode m_rowNode; /**< The XMLNode object for the row. */
 
-        struct XLCellData {
-            unsigned int            cellIndex;
+        struct XLCellData
+        {
+            unsigned int cellIndex;
             std::unique_ptr<XLCell> cellItem = nullptr;
         };
 

@@ -55,9 +55,12 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLCellValue_Impl.h"
 #include "XLXml_Impl.h"
 
-namespace OpenXLSX::Impl {
+namespace OpenXLSX::Impl
+{
     class XLCellRange;
+
     class XLWorksheet;
+
     class XLCellValue;
 
 
@@ -68,8 +71,10 @@ namespace OpenXLSX::Impl {
     /**
      * @brief An implementation class encapsulating the properties and behaviours of a spreadsheet cell.
      */
-    class XLCell {
+    class XLCell
+    {
         friend class XLRow;
+
         friend class XLCellValue;
 
         //----------------------------------------------------------------------------------------------------------------------
@@ -241,9 +246,9 @@ namespace OpenXLSX::Impl {
         XLWorksheet* m_parentWorksheet; /**< A pointer to the parent XLWorksheet object. */
 
         // ===== Cell entities ===== //
-        XMLNode         m_cellNode;      /**< A pointer to the root XMLNode for the cell. */
+        XMLNode m_cellNode;      /**< A pointer to the root XMLNode for the cell. */
         XLCellReference m_cellReference; /**< The cell reference variable. */
-        XLCellValue     m_value;         /**< The XLCellValue object, holding the current value. */
+        XLCellValue m_value;         /**< The XLCellValue object, holding the current value. */
     };
 }
 

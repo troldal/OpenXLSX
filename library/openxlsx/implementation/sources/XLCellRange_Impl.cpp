@@ -27,21 +27,22 @@ Impl::XLCellRange::XLCellRange(XLWorksheet& sheet, const XLCellReference& topLef
 
     // ===== Find the bounds of the Range =====
     auto firstColumn = m_topLeft.Column();
-    auto lastColumn  = m_bottomRight.Column() + 1;
-    auto firstRow    = m_topLeft.Row();
-    auto lastRow     = m_bottomRight.Row() + 1;
+    auto lastColumn = m_bottomRight.Column() + 1;
+    auto firstRow = m_topLeft.Row();
+    auto lastRow = m_bottomRight.Row() + 1;
 
     // ===== Set the dimension and offset parameters =====
-    m_rows         = lastRow - firstRow;
-    m_columns      = lastColumn - firstColumn;
-    m_rowOffset    = firstRow - 1;
+    m_rows = lastRow - firstRow;
+    m_columns = lastColumn - firstColumn;
+    m_rowOffset = firstRow - 1;
     m_columnOffset = firstColumn - 1;
 }
 
 /**
  * @todo This is not pretty, but it works
  */
-Impl::XLCellRange::XLCellRange(const XLWorksheet& sheet, const XLCellReference& topLeft, const XLCellReference& bottomRight)
+Impl::XLCellRange::XLCellRange(const XLWorksheet& sheet, const XLCellReference& topLeft,
+                               const XLCellReference& bottomRight)
         : XLCellRange(const_cast<XLWorksheet&>(sheet), topLeft, bottomRight) {
 
 }

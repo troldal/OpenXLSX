@@ -55,9 +55,12 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLEnums_impl.h"
 #include "XLXml_Impl.h"
 
-namespace OpenXLSX::Impl {
+namespace OpenXLSX::Impl
+{
     class XLDocument;
+
     class XLRelationships;
+
     class XLRelationshipItem;
 
     // ================================================================================
@@ -67,7 +70,8 @@ namespace OpenXLSX::Impl {
     /**
      * @brief An encapsulation of a relationship item, i.e. an XML file in the document, its type and an ID number.
      */
-    class XLRelationshipItem {
+    class XLRelationshipItem
+    {
 
         friend class XLRelationships;
 
@@ -153,7 +157,8 @@ namespace OpenXLSX::Impl {
     /**
      * @brief An encapsulation of relationship files (.rels files) in an Excel document package.
      */
-    class XLRelationships : public XLAbstractXMLFile {
+    class XLRelationships : public XLAbstractXMLFile
+    {
 
         friend class XLRelationshipItem;
 

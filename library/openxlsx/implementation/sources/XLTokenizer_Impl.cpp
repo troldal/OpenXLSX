@@ -83,9 +83,9 @@ bool Impl::XLToken::IsInteger() const {
  */
 bool Impl::XLToken::IsFloat() const {
 
-    int numDigit   = 0;
+    int numDigit = 0;
     int numDecimal = 0;
-    int numOther   = 0;
+    int numOther = 0;
 
     for (auto& iter : m_token) {
         if (iter == *m_token.begin() && iter == '-')
@@ -112,17 +112,21 @@ bool Impl::XLToken::IsFloat() const {
  */
 bool Impl::XLToken::IsBoolean() const {
 
-    string strTrue  = "TRUE";
+    string strTrue = "TRUE";
     string strFalse = "FALSE";
 
-    bool isTrue  = equal(m_token.begin(),
-                         m_token.end(),
-                         strTrue.begin(),
-                         [](int c1, int c2) { return toupper(c1) == toupper(c2); });
+    bool isTrue = equal(m_token.begin(),
+                        m_token.end(),
+                        strTrue.begin(),
+                        [](int c1, int c2) {
+                            return toupper(c1) == toupper(c2);
+                        });
     bool isFalse = equal(m_token.begin(),
                          m_token.end(),
                          strFalse.begin(),
-                         [](int c1, int c2) { return toupper(c1) == toupper(c2); });
+                         [](int c1, int c2) {
+                             return toupper(c1) == toupper(c2);
+                         });
 
     return isTrue || isFalse;
 }
@@ -154,9 +158,9 @@ Impl::XLTokenizer::XLTokenizer(std::string str, std::string delimiter)
  */
 void Impl::XLTokenizer::Set(const std::string& str, const std::string& delimiter) {
 
-    m_buffer    = str;
+    m_buffer = str;
     m_delimiter = delimiter;
-    m_currPos   = m_buffer.begin();
+    m_currPos = m_buffer.begin();
 }
 
 /**
@@ -164,7 +168,7 @@ void Impl::XLTokenizer::Set(const std::string& str, const std::string& delimiter
  */
 void Impl::XLTokenizer::SetString(const std::string& str) {
 
-    m_buffer  = str;
+    m_buffer = str;
     m_currPos = m_buffer.begin();
 }
 
@@ -174,7 +178,7 @@ void Impl::XLTokenizer::SetString(const std::string& str) {
 void Impl::XLTokenizer::SetDelimiter(const std::string& delimiter) {
 
     m_delimiter = delimiter;
-    m_currPos   = m_buffer.begin();
+    m_currPos = m_buffer.begin();
 }
 
 /**
@@ -218,7 +222,7 @@ bool Impl::XLTokenizer::IsDelimiter(char c) {
 vector<Impl::XLToken> Impl::XLTokenizer::Split() {
 
     std::vector<XLToken> tokens;
-    std::string          token;
+    std::string token;
     while (!(token = Next().AsString()).empty()) {
         tokens.emplace_back(token);
     }

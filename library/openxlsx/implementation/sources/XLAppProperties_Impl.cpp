@@ -36,13 +36,13 @@ bool Impl::XLAppProperties::ParseXMLData() {
 
     while (node != nullptr) {
         if (string(node.name()) == "HeadingPairs") {
-            m_headingPairsSize       = node.first_child().attribute("size");
+            m_headingPairsSize = node.first_child().attribute("size");
             m_headingPairsCategories = node.first_child().first_child();
-            m_headingPairsCounts     = m_headingPairsCategories.next_sibling();
+            m_headingPairsCounts = m_headingPairsCategories.next_sibling();
         }
         else if (string(node.name()) == "TitlesOfParts") {
             m_sheetCountAttribute = node.first_child().attribute("size");
-            m_sheetNamesParent    = node.first_child();
+            m_sheetNamesParent = node.first_child();
         }
 
         node = node.next_sibling();
@@ -129,7 +129,7 @@ void Impl::XLAppProperties::AddHeadingPair(const string& name, int value) {
 void Impl::XLAppProperties::DeleteHeadingPair(const string& name) {
 
     auto category = m_headingPairsCategories.begin();
-    auto count    = m_headingPairsCounts.begin();
+    auto count = m_headingPairsCounts.begin();
     while (category != m_headingPairsCategories.end() && count != m_headingPairsCounts.end()) {
         if (category->child_value() == name) {
             m_headingPairsCategories.remove_child(*category);
@@ -147,7 +147,7 @@ void Impl::XLAppProperties::DeleteHeadingPair(const string& name) {
 void Impl::XLAppProperties::SetHeadingPair(const string& name, int newValue) {
 
     auto category = m_headingPairsCategories.begin();
-    auto count    = m_headingPairsCounts.begin();
+    auto count = m_headingPairsCounts.begin();
     while (category != m_headingPairsCategories.end() && count != m_headingPairsCounts.end()) {
         if (category->child_value() == name) {
             count->text().set(to_string(newValue).c_str());
@@ -221,8 +221,8 @@ XMLNode Impl::XLAppProperties::InsertSheetName(const std::string& sheetName, uns
     if (index > m_sheetCountAttribute.as_uint())
         return AppendSheetName(sheetName);
 
-    auto     curNode = m_sheetNamesParent.first_child();
-    unsigned idx     = 1;
+    auto curNode = m_sheetNamesParent.first_child();
+    unsigned idx = 1;
     while (curNode != nullptr) {
         if (idx == index)
             break;

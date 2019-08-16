@@ -55,7 +55,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLEnums_impl.h"
 #include "XLXml_Impl.h"
 
-namespace OpenXLSX::Impl {
+namespace OpenXLSX::Impl
+{
 
     // ================================================================================
     // XLContentItem Class
@@ -64,7 +65,8 @@ namespace OpenXLSX::Impl {
     /**
      * @brief
      */
-    class XLContentItem {
+    class XLContentItem
+    {
 
         friend class XLContentTypes;
 
@@ -150,7 +152,8 @@ namespace OpenXLSX::Impl {
     /**
      * @brief The purpose of this class is to load, store add and save item in the [Content_Types].xml file.
      */
-    class XLContentTypes : public XLAbstractXMLFile {
+    class XLContentTypes : public XLAbstractXMLFile
+    {
 
     public: // ---------- Public Member Functions ---------- //
 
@@ -203,7 +206,7 @@ namespace OpenXLSX::Impl {
 
     private: // ---------- Private Member Variables ---------- //
 
-        std::map<std::string, XMLNode>       m_defaults; /**< @todo Consider changing to std::vector */
+        std::map<std::string, XMLNode> m_defaults; /**< @todo Consider changing to std::vector */
         std::map<std::string, XLContentItem> m_overrides; /**< @todo Consider changing to std::vector */
     };
 } // namespace OpenXLSX::Impl

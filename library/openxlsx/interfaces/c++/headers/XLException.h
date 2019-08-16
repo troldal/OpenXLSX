@@ -49,8 +49,10 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <stdexcept>
 #include "config.h"
 
-namespace OpenXLSX {
-    class OPENXLSX_EXPORT XLException : public std::runtime_error {
+namespace OpenXLSX
+{
+    class OPENXLSX_EXPORT XLException : public std::runtime_error
+    {
     public:
         inline explicit XLException(const std::string& err)
                 : runtime_error(err) {

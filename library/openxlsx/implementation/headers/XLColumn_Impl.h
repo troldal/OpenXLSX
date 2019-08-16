@@ -49,9 +49,11 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <memory>
 #include "XLXml_Impl.h"
 
-namespace OpenXLSX::Impl {
+namespace OpenXLSX::Impl
+{
 
     class XLWorksheet;
+
     class XLDocument;
 
     //======================================================================================================================
@@ -61,7 +63,8 @@ namespace OpenXLSX::Impl {
     /**
      * @brief
      */
-    class XLColumn {
+    class XLColumn
+    {
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Public Member Functions
@@ -137,7 +140,7 @@ namespace OpenXLSX::Impl {
         std::unique_ptr<XMLNode> m_columnNode; /**< A pointer to the XMLNode object for the column. */
 
         float m_width; /**< The width of the column */
-        bool  m_hidden; /**< The hidden state of the column */
+        bool m_hidden; /**< The hidden state of the column */
 
         unsigned long m_column; /**< The column number for the column */
 

@@ -40,7 +40,8 @@
 #include "miniz/miniz.h"
 #include "ZipEntry.h"
 
-namespace Zippy {
+namespace Zippy
+{
 
     /**
      * @brief The ZipArchive class represents the zip archive file as a whole. It consists of the individual zip entries, which
@@ -86,7 +87,8 @@ namespace Zippy {
      *
      * Note that the actual files in the .zip archive can be retrieved via the ZipEntry interface, not the ZipArchive interface.
      */
-    class ZipArchive {
+    class ZipArchive
+    {
 
     public:
 
@@ -202,7 +204,8 @@ namespace Zippy {
         void Open(const std::string& fileName) {
 
             // ===== Open the archive file for reading.
-            if (m_IsOpen) mz_zip_reader_end(&m_Archive);
+            if (m_IsOpen)
+                mz_zip_reader_end(&m_Archive);
             m_ArchivePath = fileName;
             if (!mz_zip_reader_init_file(&m_Archive, m_ArchivePath.c_str(), 0))
                 ThrowException(m_Archive.m_last_error, "Error opening archive file " + fileName + ".");
@@ -218,7 +221,9 @@ namespace Zippy {
             }
 
             // ===== Remove entries with identical names. The newest entries will be retained.
-            auto isEqual = [](const Impl::ZipEntry& a, const Impl::ZipEntry& b) { return a.Filename() == b.Filename(); };
+            auto isEqual = [](const Impl::ZipEntry& a, const Impl::ZipEntry& b) {
+                return a.Filename() == b.Filename();
+            };
             std::reverse(m_ZipEntries.begin(), m_ZipEntries.end());
             m_ZipEntries.erase(std::unique(m_ZipEntries.begin(), m_ZipEntries.end(), isEqual), m_ZipEntries.end());
             std::reverse(m_ZipEntries.begin(), m_ZipEntries.end());
@@ -230,7 +235,8 @@ namespace Zippy {
          */
         void Close() {
 
-            if (m_IsOpen) mz_zip_reader_end(&m_Archive);
+            if (m_IsOpen)
+                mz_zip_reader_end(&m_Archive);
             m_ZipEntries.clear();
             m_ArchivePath = "";
         }
@@ -277,14 +283,17 @@ namespace Zippy {
          * @param includeFiles If true, the list will include files; otherwise not. Default is true
          * @return A std::vector of std::strings with the entry names. The directory itself is not included.
          */
-        std::vector<std::string> GetEntryNamesInDir(const std::string& dir, bool includeDirs = true, bool includeFiles = true) {
+        std::vector<std::string> GetEntryNamesInDir(const std::string& dir, bool includeDirs = true,
+                                                    bool includeFiles = true) {
 
             auto result = GetEntryNames(includeDirs, includeFiles);
 
-            if (dir.empty()) return result;
+            if (dir.empty())
+                return result;
 
             auto theDir = dir;
-            if (theDir.back() != '/') theDir += '/';
+            if (theDir.back() != '/')
+                theDir += '/';
 
             result.erase(std::remove_if(result.begin(), result.end(), [&](const std::string& filename) {
                 return filename.substr(0, theDir.size()) != theDir || filename == theDir;
@@ -331,7 +340,8 @@ namespace Zippy {
 
             std::vector<ZipEntryMetaData> result;
             for (auto& item : m_ZipEntries) {
-                if (item.Filename().substr(0, dir.size()) != dir) continue;
+                if (item.Filename().substr(0, dir.size()) != dir)
+                    continue;
 
                 if (includeDirs && item.IsDirectory()) {
                     result.emplace_back(ZipEntryMetaData(item.m_EntryInfo));
@@ -390,7 +400,8 @@ namespace Zippy {
          */
         void Save(std::string filename = "") {
 
-            if (filename.empty()) filename = m_ArchivePath;
+            if (filename.empty())
+                filename = m_ArchivePath;
 
             // ===== Generate a random file name with the same path as the current file
             std::string tempPath = filename.substr(0, filename.rfind('/') + 1) + GenerateRandomName(20);
@@ -448,9 +459,10 @@ namespace Zippy {
          */
         void DeleteEntry(const std::string& name) {
 
-            m_ZipEntries.erase(std::remove_if(m_ZipEntries.begin(), m_ZipEntries.end(), [&](const Impl::ZipEntry& entry) {
-                return name == entry.Filename();
-            }), m_ZipEntries.end());
+            m_ZipEntries
+                    .erase(std::remove_if(m_ZipEntries.begin(), m_ZipEntries.end(), [&](const Impl::ZipEntry& entry) {
+                        return name == entry.Filename();
+                    }), m_ZipEntries.end());
         }
 
         /**
@@ -596,101 +608,69 @@ namespace Zippy {
         static void ThrowException(mz_zip_error error, const std::string& errorString) {
 
             switch (error) {
-                case MZ_ZIP_UNDEFINED_ERROR:
-                    throw ZipExceptionUndefined(errorString);
+            case MZ_ZIP_UNDEFINED_ERROR:throw ZipExceptionUndefined(errorString);
 
-                case MZ_ZIP_TOO_MANY_FILES:
-                    throw ZipExceptionTooManyFiles(errorString);
+            case MZ_ZIP_TOO_MANY_FILES:throw ZipExceptionTooManyFiles(errorString);
 
-                case MZ_ZIP_FILE_TOO_LARGE:
-                    throw ZipExceptionFileTooLarge(errorString);
+            case MZ_ZIP_FILE_TOO_LARGE:throw ZipExceptionFileTooLarge(errorString);
 
-                case MZ_ZIP_UNSUPPORTED_METHOD:
-                    throw ZipExceptionUnsupportedMethod(errorString);
+            case MZ_ZIP_UNSUPPORTED_METHOD:throw ZipExceptionUnsupportedMethod(errorString);
 
-                case MZ_ZIP_UNSUPPORTED_ENCRYPTION:
-                    throw ZipExceptionUnsupportedEncryption(errorString);
+            case MZ_ZIP_UNSUPPORTED_ENCRYPTION:throw ZipExceptionUnsupportedEncryption(errorString);
 
-                case MZ_ZIP_UNSUPPORTED_FEATURE:
-                    throw ZipExceptionUnsupportedFeature(errorString);
+            case MZ_ZIP_UNSUPPORTED_FEATURE:throw ZipExceptionUnsupportedFeature(errorString);
 
-                case MZ_ZIP_FAILED_FINDING_CENTRAL_DIR:
-                    throw ZipExceptionFailedFindingCentralDir(errorString);
+            case MZ_ZIP_FAILED_FINDING_CENTRAL_DIR:throw ZipExceptionFailedFindingCentralDir(errorString);
 
-                case MZ_ZIP_NOT_AN_ARCHIVE:
-                    throw ZipExceptionNotAnArchive(errorString);
+            case MZ_ZIP_NOT_AN_ARCHIVE:throw ZipExceptionNotAnArchive(errorString);
 
-                case MZ_ZIP_INVALID_HEADER_OR_CORRUPTED:
-                    throw ZipExceptionInvalidHeader(errorString);
+            case MZ_ZIP_INVALID_HEADER_OR_CORRUPTED:throw ZipExceptionInvalidHeader(errorString);
 
-                case MZ_ZIP_UNSUPPORTED_MULTIDISK:
-                    throw ZipExceptionMultidiskUnsupported(errorString);
+            case MZ_ZIP_UNSUPPORTED_MULTIDISK:throw ZipExceptionMultidiskUnsupported(errorString);
 
-                case MZ_ZIP_DECOMPRESSION_FAILED:
-                    throw ZipExceptionDecompressionFailed(errorString);
+            case MZ_ZIP_DECOMPRESSION_FAILED:throw ZipExceptionDecompressionFailed(errorString);
 
-                case MZ_ZIP_COMPRESSION_FAILED:
-                    throw ZipExceptionCompressionFailed(errorString);
+            case MZ_ZIP_COMPRESSION_FAILED:throw ZipExceptionCompressionFailed(errorString);
 
-                case MZ_ZIP_UNEXPECTED_DECOMPRESSED_SIZE:
-                    throw ZipExceptionUnexpectedDecompSize(errorString);
+            case MZ_ZIP_UNEXPECTED_DECOMPRESSED_SIZE:throw ZipExceptionUnexpectedDecompSize(errorString);
 
-                case MZ_ZIP_CRC_CHECK_FAILED:
-                    throw ZipExceptionCrcCheckFailed(errorString);
+            case MZ_ZIP_CRC_CHECK_FAILED:throw ZipExceptionCrcCheckFailed(errorString);
 
-                case MZ_ZIP_UNSUPPORTED_CDIR_SIZE:
-                    throw ZipExceptionUnsupportedCDirSize(errorString);
+            case MZ_ZIP_UNSUPPORTED_CDIR_SIZE:throw ZipExceptionUnsupportedCDirSize(errorString);
 
-                case MZ_ZIP_ALLOC_FAILED:
-                    throw ZipExceptionAllocFailed(errorString);
+            case MZ_ZIP_ALLOC_FAILED:throw ZipExceptionAllocFailed(errorString);
 
-                case MZ_ZIP_FILE_OPEN_FAILED:
-                    throw ZipExceptionFileOpenFailed(errorString);
+            case MZ_ZIP_FILE_OPEN_FAILED:throw ZipExceptionFileOpenFailed(errorString);
 
-                case MZ_ZIP_FILE_CREATE_FAILED:
-                    throw ZipExceptionFileCreateFailed(errorString);
+            case MZ_ZIP_FILE_CREATE_FAILED:throw ZipExceptionFileCreateFailed(errorString);
 
-                case MZ_ZIP_FILE_WRITE_FAILED:
-                    throw ZipExceptionFileWriteFailed(errorString);
+            case MZ_ZIP_FILE_WRITE_FAILED:throw ZipExceptionFileWriteFailed(errorString);
 
-                case MZ_ZIP_FILE_READ_FAILED:
-                    throw ZipExceptionFileReadFailed(errorString);
+            case MZ_ZIP_FILE_READ_FAILED:throw ZipExceptionFileReadFailed(errorString);
 
-                case MZ_ZIP_FILE_CLOSE_FAILED:
-                    throw ZipExceptionFileCloseFailed(errorString);
+            case MZ_ZIP_FILE_CLOSE_FAILED:throw ZipExceptionFileCloseFailed(errorString);
 
-                case MZ_ZIP_FILE_SEEK_FAILED:
-                    throw ZipExceptionFileSeekFailed(errorString);
+            case MZ_ZIP_FILE_SEEK_FAILED:throw ZipExceptionFileSeekFailed(errorString);
 
-                case MZ_ZIP_FILE_STAT_FAILED:
-                    throw ZipExceptionFileStatFailed(errorString);
+            case MZ_ZIP_FILE_STAT_FAILED:throw ZipExceptionFileStatFailed(errorString);
 
-                case MZ_ZIP_INVALID_PARAMETER:
-                    throw ZipExceptionInvalidParameter(errorString);
+            case MZ_ZIP_INVALID_PARAMETER:throw ZipExceptionInvalidParameter(errorString);
 
-                case MZ_ZIP_INVALID_FILENAME:
-                    throw ZipExceptionInvalidFilename(errorString);
+            case MZ_ZIP_INVALID_FILENAME:throw ZipExceptionInvalidFilename(errorString);
 
-                case MZ_ZIP_BUF_TOO_SMALL:
-                    throw ZipExceptionBufferTooSmall(errorString);
+            case MZ_ZIP_BUF_TOO_SMALL:throw ZipExceptionBufferTooSmall(errorString);
 
-                case MZ_ZIP_INTERNAL_ERROR:
-                    throw ZipExceptionInternalError(errorString);
+            case MZ_ZIP_INTERNAL_ERROR:throw ZipExceptionInternalError(errorString);
 
-                case MZ_ZIP_FILE_NOT_FOUND:
-                    throw ZipExceptionFileNotFound(errorString);
+            case MZ_ZIP_FILE_NOT_FOUND:throw ZipExceptionFileNotFound(errorString);
 
-                case MZ_ZIP_ARCHIVE_TOO_LARGE:
-                    throw ZipExceptionArchiveTooLarge(errorString);
+            case MZ_ZIP_ARCHIVE_TOO_LARGE:throw ZipExceptionArchiveTooLarge(errorString);
 
-                case MZ_ZIP_VALIDATION_FAILED:
-                    throw ZipExceptionValidationFailed(errorString);
+            case MZ_ZIP_VALIDATION_FAILED:throw ZipExceptionValidationFailed(errorString);
 
-                case MZ_ZIP_WRITE_CALLBACK_FAILED:
-                    throw ZipExceptionWriteCallbackFailed(errorString);
+            case MZ_ZIP_WRITE_CALLBACK_FAILED:throw ZipExceptionWriteCallbackFailed(errorString);
 
-                default:
-                    throw ZipException(errorString);
+            default:throw ZipException(errorString);
 
             }
         }
@@ -705,14 +685,14 @@ namespace Zippy {
 
             std::string letters = "abcdefghijklmnopqrstuvwxyz0123456789";
 
-            auto                               range_from = 0;
-            auto                               range_to   = letters.size() - 1;
-            std::random_device                 rand_dev;
-            std::mt19937                       generator(rand_dev());
+            auto range_from = 0;
+            auto range_to = letters.size() - 1;
+            std::random_device rand_dev;
+            std::mt19937 generator(rand_dev());
             std::uniform_int_distribution<int> distr(range_from, range_to);
 
             std::string result;
-            for (int    i                                 = 0; i < length; ++i) {
+            for (int i = 0; i < length; ++i) {
                 result += letters[distr(generator)];
             }
 
@@ -720,9 +700,9 @@ namespace Zippy {
         }
 
     private:
-        mz_zip_archive m_Archive     = mz_zip_archive(); /**< The struct used by miniz, to handle archive files. */
-        std::string    m_ArchivePath = ""; /**< The path of the archive file. */
-        bool           m_IsOpen      = false; /**< A flag indicating if the file is currently open for reading and writing. */
+        mz_zip_archive m_Archive = mz_zip_archive(); /**< The struct used by miniz, to handle archive files. */
+        std::string m_ArchivePath = ""; /**< The path of the archive file. */
+        bool m_IsOpen = false; /**< A flag indicating if the file is currently open for reading and writing. */
 
         std::vector<Impl::ZipEntry> m_ZipEntries = std::vector<Impl::ZipEntry>(); /**< Data structure for all entries in the archive. */
 

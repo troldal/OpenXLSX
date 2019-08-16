@@ -53,15 +53,18 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 using XLCellIterator = std::vector<OpenXLSX::XLCell>::iterator;
 using XLCellIteratorConst = std::vector<OpenXLSX::XLCell>::const_iterator;
 
-namespace OpenXLSX {
-    namespace Impl {
+namespace OpenXLSX
+{
+    namespace Impl
+    {
         class XLCellRange;
     } // namespace Impl
 
     /**
      * @brief
      */
-    class OPENXLSX_EXPORT XLCellRange {
+    class OPENXLSX_EXPORT XLCellRange
+    {
     public:
 
         /**
@@ -157,7 +160,7 @@ namespace OpenXLSX {
          */
         void InitCells() const;
 
-        std::unique_ptr<Impl::XLCellRange>           m_cellrange; /**< */
+        std::unique_ptr<Impl::XLCellRange> m_cellrange; /**< */
         mutable std::unique_ptr<std::vector<XLCell>> m_cells; /**< */
     };
 } // namespace OpenXLSX

@@ -67,9 +67,9 @@ Impl::XLCell::XLCell(Impl::XLCell&& other) noexcept
  */
 Impl::XLCell& Impl::XLCell::operator=(const XLCellRange& range) {
 
-    auto            first = this->CellReference();
+    auto first = this->CellReference();
     XLCellReference last(first->Row() + range.NumRows() - 1, first->Column() + range.NumColumns() - 1);
-    XLCellRange     rng(*Worksheet(), *first, last);
+    XLCellRange rng(*Worksheet(), *first, last);
     rng = range;
 
     return *this;

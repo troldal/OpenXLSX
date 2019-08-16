@@ -51,8 +51,10 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <type_traits>
 #include <string>
 
-namespace OpenXLSX {
-    namespace Impl {
+namespace OpenXLSX
+{
+    namespace Impl
+    {
         class XLCellValue;
     } // namespace Impl
 
@@ -106,7 +108,8 @@ namespace OpenXLSX {
      * cout << "Cell D1: " << D1 << endl;
      * ```
      */
-    class OPENXLSX_EXPORT XLCellValue {
+    class OPENXLSX_EXPORT XLCellValue
+    {
         friend class XLCell;
 
     private:
@@ -227,8 +230,9 @@ namespace OpenXLSX {
          * @tparam T
          * @return
          */
-        template<typename T, typename std::enable_if<std::is_constructible<T, char*>::value && !std::is_same<T, bool>::value,
-                                                     char*>::type* = nullptr>
+        template<typename T, typename std::enable_if<
+                std::is_constructible<T, char*>::value && !std::is_same<T, bool>::value,
+                char*>::type* = nullptr>
         T Get() const;
 
         /**
@@ -359,8 +363,9 @@ namespace OpenXLSX {
     /**
      * @details
      */
-    template<typename T, typename std::enable_if<std::is_constructible<T, char*>::value && !std::is_same<T, bool>::value,
-                                                 char*>::type*>
+    template<typename T, typename std::enable_if<
+            std::is_constructible<T, char*>::value && !std::is_same<T, bool>::value,
+            char*>::type*>
     T XLCellValue::Get() const {
 
         return T(GetString());

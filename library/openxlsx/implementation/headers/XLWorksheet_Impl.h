@@ -55,7 +55,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLCellValue_Impl.h"
 #include "XLCellReference_Impl.h"
 
-namespace OpenXLSX::Impl {
+namespace OpenXLSX::Impl
+{
     class XLCellRange;
 
     //======================================================================================================================
@@ -75,10 +76,13 @@ namespace OpenXLSX::Impl {
     /**
      * @brief A class encapsulating an Excel worksheet. Access to XLWorksheet objects should be via the workbook object.
      */
-    class XLWorksheet : public XLSheet {
+    class XLWorksheet : public XLSheet
+    {
 
         friend class XLCell;
+
         friend class XLRow;
+
         friend class XLWorkbook;
 
 
@@ -95,7 +99,8 @@ namespace OpenXLSX::Impl {
          * @param filePath The path to the worksheet .xml file.
          * @param xmlData
          */
-        explicit XLWorksheet(XLWorkbook& parent, XMLAttribute name, const std::string& filePath, const std::string& xmlData = "");
+        explicit XLWorksheet(XLWorkbook& parent, XMLAttribute name, const std::string& filePath,
+                             const std::string& xmlData = "");
 
         /**
          * @brief Copy Constructor.
@@ -410,17 +415,18 @@ namespace OpenXLSX::Impl {
 
         /**< A pointer to the parent XLWorkbook object (const) */
 
-        struct XLRowData {
-            unsigned long          rowIndex;
+        struct XLRowData
+        {
+            unsigned long rowIndex;
             std::unique_ptr<XLRow> rowItem = nullptr;
         };
 
         std::vector<XLRowData> m_rows; /**< A std::vector with pointers to all rows in the sheet. */
-        XLColumns              m_columns; /**< A std::vector with pointers to all columns in sheet. */
+        XLColumns m_columns; /**< A std::vector with pointers to all columns in sheet. */
 
-        XLCellReference         m_firstCell; /**< The first cell in the sheet (i.e. the top left cell).*/
+        XLCellReference m_firstCell; /**< The first cell in the sheet (i.e. the top left cell).*/
         mutable XLCellReference m_lastCell; /**<  The last cell in the sheet (i.e. the bottom right). */
-        unsigned int            m_maxColumn; /**< The last column with properties set */
+        unsigned int m_maxColumn; /**< The last column with properties set */
     };
 } // namespace OpenXLSX::Impl
 

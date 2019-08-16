@@ -48,7 +48,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 #include <string>
 
-namespace OpenXLSX::Impl {
+namespace OpenXLSX::Impl
+{
 
     //======================================================================================================================
     //========== XLCoordinates Alias =======================================================================================
@@ -66,7 +67,8 @@ namespace OpenXLSX::Impl {
     /**
      * @brief
      */
-    class XLCellReference final {
+    class XLCellReference final
+    {
         friend bool operator==(const XLCellReference& lhs, const XLCellReference& rhs);
         friend bool operator!=(const XLCellReference& lhs, const XLCellReference& rhs);
         friend bool operator<(const XLCellReference& lhs, const XLCellReference& rhs);
@@ -212,9 +214,9 @@ namespace OpenXLSX::Impl {
     private:
 
         unsigned long m_row; /**< The row */
-        unsigned int  m_column; /**< The column */
-        std::string   m_cellAddress; /**< The address, e.g. 'A1' */
-        bool          m_valid /**< Flag indicating if the reference is valid. */;
+        unsigned int m_column; /**< The column */
+        std::string m_cellAddress; /**< The address, e.g. 'A1' */
+        bool m_valid /**< Flag indicating if the reference is valid. */;
 
     };
 
