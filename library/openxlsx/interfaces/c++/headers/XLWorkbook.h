@@ -48,7 +48,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 #include <string>
 
-#include "config.h"
+#include "openxlsx_export.h"
 #include "XLSheet.h"
 #include "XLWorksheet.h"
 #include "XLChartsheet.h"

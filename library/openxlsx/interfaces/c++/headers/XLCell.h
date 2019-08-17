@@ -46,7 +46,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_XLCELL_H
 #define OPENXLSX_XLCELL_H
 
-#include "config.h"
+#include "openxlsx_export.h"
 #include "XLDefinitions.h"
 #include "XLCellReference.h"
 #include "XLCellValue.h"
