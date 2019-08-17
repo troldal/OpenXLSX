@@ -46,7 +46,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_XLCOLUMN_H
 #define OPENXLSX_XLCOLUMN_H
 
-#include "config.h"
+#include "openxlsx_export.h"
 
 namespace OpenXLSX
 {

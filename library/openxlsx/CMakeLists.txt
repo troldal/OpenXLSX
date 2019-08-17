@@ -198,6 +198,9 @@ target_include_directories(OpenXLSX
         ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers
         ${CMAKE_CURRENT_BINARY_DIR})
 
+include(GenerateExportHeader)
+generate_export_header(OpenXLSX)
+
 # ===== Set output directories for targets to (staged) installation directory ===== #
 set_target_properties(OpenXLSX PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${OPENXLSX_INSTALLDIR}/lib)
 set_target_properties(OpenXLSX PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${OPENXLSX_INSTALLDIR}/lib)
@@ -206,7 +209,10 @@ set_target_properties(OpenXLSX PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${OPENXLSX_IN
 # ===== Copy header files to (staged) install directory ===== #
 file(REMOVE_RECURSE ${OPENXLSX_INSTALLDIR}/include/)
 file(COPY ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/ DESTINATION ${OPENXLSX_INSTALLDIR}/include/OpenXLSX)
-file(COPY ${CMAKE_CURRENT_BINARY_DIR}/config.h DESTINATION ${OPENXLSX_INSTALLDIR}/include/OpenXLSX)
+#file(COPY ${CMAKE_CURRENT_BINARY_DIR}/config.h DESTINATION ${OPENXLSX_INSTALLDIR}/include/OpenXLSX)
+file(COPY ${CMAKE_CURRENT_BINARY_DIR}/openxlsx_export.h DESTINATION ${OPENXLSX_INSTALLDIR}/include/OpenXLSX)
+
+
 
 #=======================================================================================================================
 # Install OpenXLSX Library

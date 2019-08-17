@@ -47,7 +47,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #define OPENXLSX_XLCELLRANGE_H
 
 #include <vector>
-#include "config.h"
+#include "openxlsx_export.h"
 #include "XLCell.h"
 
 using XLCellIterator = std::vector<OpenXLSX::XLCell>::iterator;

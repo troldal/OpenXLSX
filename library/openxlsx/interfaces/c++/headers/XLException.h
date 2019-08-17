@@ -47,7 +47,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #define OPENXLSX_XLEXCEPTION_H
 
 #include <stdexcept>
-#include "config.h"
+#include "openxlsx_export.h"
 
 namespace OpenXLSX
 {
