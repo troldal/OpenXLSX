@@ -3,6 +3,7 @@
 .DS_Store
 
 # Build Directories
+@cmake*/
 cmake*/
 
 # Visual Studio
