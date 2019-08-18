@@ -41,7 +41,6 @@ if (WIN32 AND (TARGET_TYPE STREQUAL "SHARED_LIBRARY"))
     set(BUILD_SHARED 1)
     target_compile_definitions(OpenXLSX PRIVATE "INBUILD")
 endif ()
-configure_file(${CMAKE_CURRENT_LIST_DIR}/config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
 #=======================================================================================================================
 # Set compiler flags
@@ -209,7 +208,6 @@ set_target_properties(OpenXLSX PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${OPENXLSX_IN
 # ===== Copy header files to (staged) install directory ===== #
 file(REMOVE_RECURSE ${OPENXLSX_INSTALLDIR}/include/)
 file(COPY ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/ DESTINATION ${OPENXLSX_INSTALLDIR}/include/OpenXLSX)
-#file(COPY ${CMAKE_CURRENT_BINARY_DIR}/config.h DESTINATION ${OPENXLSX_INSTALLDIR}/include/OpenXLSX)
 file(COPY ${CMAKE_CURRENT_BINARY_DIR}/openxlsx_export.h DESTINATION ${OPENXLSX_INSTALLDIR}/include/OpenXLSX)
 
 
