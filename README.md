@@ -24,14 +24,13 @@ The LibXL library (http://www.libxl.com) can read, write, create and modify Exce
 Of the open source libraries, the QtXlsx library (https://github.com/dbzhang800/QtXlsxWriter) is the most feature complete. It is, however, based on the Qt framework. While I'm a big fan of Qt for application programming purposes, I don't believe it is the best option for lower-level libraries.
 
 ### XLNT
-Recently, I found the XLNT library on GitHub (https://github.com/tfussell/xlnt). It was not available when I began developing OpenXLSX. To be honest, if it had, I wouldn't have begun OpenXLSX. It has a larger feature set and probably has fewer bugs. However, I decided to continue developing OpenXLSX, because I believe that in a few areas it is better than XLNT. Primarily, OpenXLSX is better able to handle very large spreadsheets. 
+Recently, I found the XLNT library on GitHub (https://github.com/tfussell/xlnt). It was not available when I began developing OpenXLSX. To be honest, if it had, I wouldn't have begun OpenXLSX. It has a larger feature set and probably has fewer bugs. However, I decided to continue developing OpenXLSX, because I believe that in a few areas it is better than XLNT. Primarily, OpenXLSX is better able to handle very large spreadsheets (up to a million rows). 
 
 ## Ambition
 The ambition is that OpenXLSX should be able to read, write, create and modify Excel files (data as well as formatting), and do so with as few dependencies as possible. Currently, OpenXLSX depends on the following 3rd party libraries (all included in the repository):
 
  - PugiXML
- - LibZip
- - LibZip++
+ - Zippy (C++ wrapper around miniz)
  
  ## Current Status
  OpenXLSX is still work i progress. The following is a list of features which have been implemented and should be working properly:
@@ -41,19 +40,18 @@ The ambition is that OpenXLSX should be able to read, write, create and modify E
   - Copy cells and cell ranges
   - Copy worksheets
   
-  Features related to formatting, plots and figures have not yet been implemented
+  Features related to formatting, plots and figures have not been implemented, and are not planned to be in the near future.
   
   It should be noted, that creating const XLDocument objects, is currently not working!
   
   ## Compatibility
   OpenXLSX can be built and run on the following platforms/compilers:
   
-  - Linux (GCC)
-  - MacOS (GCC/LLVM/Xcode)
-  - Windows (MinGW)
+  - Linux (GCC/Clang)
+  - MacOS (GCC/Clang/Xcode)
+  - Windows (MinGW/Clang/MSVC)
   
-  OpenXLSX can be compiled on Windows using MSVC, but there is an issue with the CMake script, which prevents MSVC finding the libraries.
-  Building on Windows using MSYS has not been tested.
+  Building on Windows using MSYS or Cygwin has not been tested.
   Building using the Intel compiler has not been tested.
   
   ## Unicode
