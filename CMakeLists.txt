@@ -26,22 +26,38 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 #=======================================================================================================================
 # Add build options
 #=======================================================================================================================
-option(STATIC "Set to ON to build a static library instance of a shared library")
+option(STATIC "Set to ON to build a static library instance of a shared library" OFF)
+option(CREATE_DOCS "Build library documentation (requires Doxygen and Graphviz/Dot to be installed)" ON)
+option(BUILD_BENCHMARKS "Build library benchmarks" ON)
+option(BUILD_SAMPLES "Build sample programs" ON)
+option(BUILD_TESTS "Build library tests" ON)
 
 #=======================================================================================================================
 # Add project subdirectories
 #=======================================================================================================================
 add_subdirectory(library)
-add_subdirectory(examples)
-add_subdirectory(doxy)
-add_subdirectory(tests)
-add_subdirectory(benchmark)
 
-#=======================================================================================================================
-# Define internal dependencies
-#=======================================================================================================================
-add_dependencies(Demo1 OpenXLSX)
-add_dependencies(Benchmark OpenXLSX)
-add_dependencies(InterfaceTest OpenXLSX)
+if(${CREATE_DOCS})
+    add_subdirectory(doxy)
+endif()
+
+if(${BUILD_BENCHMARKS})
+    add_subdirectory(benchmark)
+    add_dependencies(Benchmark OpenXLSX)
+endif()
+
+if(${BUILD_SAMPLES})
+    add_subdirectory(examples)
+    add_dependencies(Demo1 OpenXLSX)
+endif()
+
+if(${BUILD_TESTS})
+    add_subdirectory(tests)
+    add_dependencies(InterfaceTest OpenXLSX)
+endif()
+
+
+
+
 
 
