@@ -10,4 +10,4 @@ target_sources(InterfaceTest PRIVATE
 
 target_link_libraries(InterfaceTest PRIVATE Catch INTERFACE Catch)
 target_link_libraries(InterfaceTest PUBLIC OpenXLSX)
-add_custom_command(TARGET InterfaceTest POST_BUILD COMMAND InterfaceTest)
+#add_custom_command(TARGET InterfaceTest POST_BUILD COMMAND InterfaceTest)

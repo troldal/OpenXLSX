@@ -7,7 +7,6 @@ else ()
     add_library(OpenXLSX STATIC "")
 endif ()
 add_library(OpenXLSX::OpenXLSX ALIAS OpenXLSX)
-#set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE -Xiwyu;any;-Xiwyu;iwyu;-Xiwyu)
 
 #=======================================================================================================================
 # Feature Checks
@@ -36,11 +35,11 @@ endif ()
 #=======================================================================================================================
 # Enable dllspec if it's Win32 target
 #=======================================================================================================================
-get_target_property(TARGET_TYPE OpenXLSX TYPE)
-if (WIN32 AND (TARGET_TYPE STREQUAL "SHARED_LIBRARY"))
-    set(BUILD_SHARED 1)
-    target_compile_definitions(OpenXLSX PRIVATE "INBUILD")
-endif ()
+#get_target_property(TARGET_TYPE OpenXLSX TYPE)
+#if (WIN32 AND (TARGET_TYPE STREQUAL "SHARED_LIBRARY"))
+#    set(BUILD_SHARED 1)
+#    target_compile_definitions(OpenXLSX PRIVATE "INBUILD")
+#endif ()
 
 #=======================================================================================================================
 # Set compiler flags
@@ -197,6 +196,7 @@ target_include_directories(OpenXLSX
         ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers
         ${CMAKE_CURRENT_BINARY_DIR})
 
+# ===== Generate shared library export header with compiler-specific keywords ===== #
 include(GenerateExportHeader)
 generate_export_header(OpenXLSX)
 
@@ -209,8 +209,6 @@ set_target_properties(OpenXLSX PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${OPENXLSX_IN
 file(REMOVE_RECURSE ${OPENXLSX_INSTALLDIR}/include/)
 file(COPY ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/ DESTINATION ${OPENXLSX_INSTALLDIR}/include/OpenXLSX)
 file(COPY ${CMAKE_CURRENT_BINARY_DIR}/openxlsx_export.h DESTINATION ${OPENXLSX_INSTALLDIR}/include/OpenXLSX)
-
-
 
 #=======================================================================================================================
 # Install OpenXLSX Library

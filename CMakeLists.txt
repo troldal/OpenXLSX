@@ -27,10 +27,10 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # Add build options
 #=======================================================================================================================
 option(STATIC "Set to ON to build a static library instance of a shared library" OFF)
-option(CREATE_DOCS "Build library documentation (requires Doxygen and Graphviz/Dot to be installed)" OFF)
-option(BUILD_SAMPLES "Build sample programs" OFF)
-option(BUILD_TESTS "Build and run library tests" OFF)
-option(BUILD_BENCHMARKS "Build and run library benchmarks" OFF)
+option(CREATE_DOCS "Build library documentation (requires Doxygen and Graphviz/Dot to be installed)" ON)
+option(BUILD_SAMPLES "Build sample programs" ON)
+option(BUILD_TESTS "Build and run library tests" ON)
+option(BUILD_BENCHMARKS "Build and run library benchmarks" ON)
 
 #=======================================================================================================================
 # Add project subdirectories
