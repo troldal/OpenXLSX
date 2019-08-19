@@ -41,11 +41,6 @@ if(${CREATE_DOCS})
     add_subdirectory(doxy)
 endif()
 
-if(${BUILD_BENCHMARKS})
-    add_subdirectory(benchmark)
-    add_dependencies(Benchmark OpenXLSX)
-endif()
-
 if(${BUILD_SAMPLES})
     add_subdirectory(examples)
     add_dependencies(Demo1 OpenXLSX)
@@ -55,6 +50,13 @@ if(${BUILD_TESTS})
     add_subdirectory(tests)
     add_dependencies(InterfaceTest OpenXLSX)
 endif()
+
+if(${BUILD_BENCHMARKS})
+    add_subdirectory(benchmark)
+    add_dependencies(Benchmark OpenXLSX)
+endif()
+
+
 
 
 
