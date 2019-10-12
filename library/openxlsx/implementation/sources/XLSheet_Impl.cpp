@@ -49,10 +49,14 @@ string const Impl::XLSheet::Name() const {
  */
 void Impl::XLSheet::SetName(const std::string& name) {
 
-    //ParentDocument()->AppProperties()->SetSheetName(m_sheetName, name);
+    // ===== Update defined names
+    m_parentWorkbook.UpdateSheetName(m_sheetName.value(), name);
+
+    // ===== Change sheet name in main .xml files
     m_sheetName.set_value(name.c_str());
     m_nodeInWorkbook.attribute("name").set_value(name.c_str());
     m_nodeInApp.text().set(name.c_str());
+
 }
 
 /**
@@ -75,30 +79,52 @@ void Impl::XLSheet::SetState(XLSheetState state) {
     m_sheetState = state;
 
     switch (m_sheetState) {
-    case XLSheetState::Hidden : {
-        auto att = m_nodeInWorkbook.attribute("state");
-        if (!m_nodeInWorkbook.attribute("state"))
-            m_nodeInWorkbook.append_attribute("state") = "hidden";
-        else
-            att.set_value("hidden");
-        break;
-    }
+        case XLSheetState::Hidden : {
+            auto att = m_nodeInWorkbook.attribute("state");
+            if (!m_nodeInWorkbook.attribute("state"))
+                m_nodeInWorkbook.append_attribute("state") = "hidden";
+            else
+                att.set_value("hidden");
+            break;
+        }
 
-    case XLSheetState::VeryHidden : {
-        auto att = m_nodeInWorkbook.attribute("state");
-        if (!att)
-            m_nodeInWorkbook.append_attribute("state") = "veryhidden";
-        else
-            att.set_value("veryhidden"); // todo: Check that this actually works
-        break;
-    }
+        case XLSheetState::VeryHidden : {
+            auto att = m_nodeInWorkbook.attribute("state");
+            if (!att)
+                m_nodeInWorkbook.append_attribute("state") = "veryhidden";
+            else
+                att.set_value("veryhidden"); // todo: Check that this actually works
+            break;
+        }
 
-    case XLSheetState::Visible : {
-        auto att = m_nodeInWorkbook.attribute("state");
-        if (att)
-            m_nodeInWorkbook.remove_attribute("state");
+        case XLSheetState::Visible : {
+            auto att = m_nodeInWorkbook.attribute("state");
+            if (att)
+                m_nodeInWorkbook.remove_attribute("state");
+        }
     }
-    }
+}
+
+/**
+ * @details
+ */
+Impl::XLColor Impl::XLSheet::Color() {
+    return Impl::XLColor();
+}
+
+/**
+ * @details
+ */
+void Impl::XLSheet::SetColor(const Impl::XLColor& color) {
+
+}
+
+/**
+ * @details
+ */
+void Impl::XLSheet::SetSelected(bool selected) {
+    unsigned int value = (selected ? 1 : 0);
+    XmlDocument()->first_child().child("sheetViews").first_child().attribute("tabSelected").set_value(value);
 }
 
 /**
@@ -115,7 +141,7 @@ const XLSheetType& Impl::XLSheet::Type() const {
  */
 unsigned int Impl::XLSheet::Index() const {
 
-    return 0;
+    return m_parentWorkbook.IndexOfSheet(Name());
 }
 
 /**

@@ -130,20 +130,24 @@ std::string Impl::XLCellValue::AsString() const {
 XLValueType Impl::XLCellValue::ValueType() const {
 
     switch (CellType()) {
-    case XLCellType::Empty:return XLValueType::Empty;
+        case XLCellType::Empty:
+            return XLValueType::Empty;
 
-    case XLCellType::Error:return XLValueType::Error;
+        case XLCellType::Error:
+            return XLValueType::Error;
 
-    case XLCellType::Number: {
-        if (DetermineNumberType(ValueNode().text().get()) == XLNumberType::Integer)
-            return XLValueType::Integer;
+        case XLCellType::Number: {
+            if (DetermineNumberType(ValueNode().text().get()) == XLNumberType::Integer)
+                return XLValueType::Integer;
 
-        return XLValueType::Float;
-    }
+            return XLValueType::Float;
+        }
 
-    case XLCellType::Boolean:return XLValueType::Boolean;
+        case XLCellType::Boolean:
+            return XLValueType::Boolean;
 
-    default:return XLValueType::String;
+        default:
+            return XLValueType::String;
     }
 }
 

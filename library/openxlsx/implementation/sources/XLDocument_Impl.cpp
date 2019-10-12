@@ -187,45 +187,65 @@ const Impl::XLWorkbook* Impl::XLDocument::Workbook() const {
 std::string Impl::XLDocument::GetProperty(XLProperty theProperty) const {
 
     switch (theProperty) {
-    case XLProperty::Application :return m_docAppProperties->Property("Application").text().get();
+        case XLProperty::Application :
+            return m_docAppProperties->Property("Application").text().get();
 
-    case XLProperty::AppVersion :return m_docAppProperties->Property("AppVersion").text().get();
+        case XLProperty::AppVersion :
+            return m_docAppProperties->Property("AppVersion").text().get();
 
-    case XLProperty::Category :return m_docCoreProperties->Property("cp:category").text().get();
+        case XLProperty::Category :
+            return m_docCoreProperties->Property("cp:category").text().get();
 
-    case XLProperty::Company :return m_docAppProperties->Property("Company").text().get();
+        case XLProperty::Company :
+            return m_docAppProperties->Property("Company").text().get();
 
-    case XLProperty::CreationDate :return m_docCoreProperties->Property("dcterms:created").text().get();
+        case XLProperty::CreationDate :
+            return m_docCoreProperties->Property("dcterms:created").text().get();
 
-    case XLProperty::Creator :return m_docCoreProperties->Property("dc:creator").text().get();
+        case XLProperty::Creator :
+            return m_docCoreProperties->Property("dc:creator").text().get();
 
-    case XLProperty::Description :return m_docCoreProperties->Property("dc:description").text().get();
+        case XLProperty::Description :
+            return m_docCoreProperties->Property("dc:description").text().get();
 
-    case XLProperty::DocSecurity :return m_docAppProperties->Property("DocSecurity").text().get();
+        case XLProperty::DocSecurity :
+            return m_docAppProperties->Property("DocSecurity").text().get();
 
-    case XLProperty::HyperlinkBase :return m_docAppProperties->Property("HyperlinkBase").text().get();
+        case XLProperty::HyperlinkBase :
+            return m_docAppProperties->Property("HyperlinkBase").text().get();
 
-    case XLProperty::HyperlinksChanged :return m_docAppProperties->Property("HyperlinksChanged").text().get();
+        case XLProperty::HyperlinksChanged :
+            return m_docAppProperties->Property("HyperlinksChanged").text().get();
 
-    case XLProperty::Keywords :return m_docCoreProperties->Property("cp:keywords").text().get();
+        case XLProperty::Keywords :
+            return m_docCoreProperties->Property("cp:keywords").text().get();
 
-    case XLProperty::LastModifiedBy :return m_docCoreProperties->Property("cp:lastModifiedBy").text().get();
+        case XLProperty::LastModifiedBy :
+            return m_docCoreProperties->Property("cp:lastModifiedBy").text().get();
 
-    case XLProperty::LastPrinted :return m_docCoreProperties->Property("cp:lastPrinted").text().get();
+        case XLProperty::LastPrinted :
+            return m_docCoreProperties->Property("cp:lastPrinted").text().get();
 
-    case XLProperty::LinksUpToDate :return m_docAppProperties->Property("LinksUpToDate").text().get();
+        case XLProperty::LinksUpToDate :
+            return m_docAppProperties->Property("LinksUpToDate").text().get();
 
-    case XLProperty::Manager :return m_docAppProperties->Property("Manager").text().get();
+        case XLProperty::Manager :
+            return m_docAppProperties->Property("Manager").text().get();
 
-    case XLProperty::ModificationDate :return m_docCoreProperties->Property("dcterms:modified").text().get();
+        case XLProperty::ModificationDate :
+            return m_docCoreProperties->Property("dcterms:modified").text().get();
 
-    case XLProperty::ScaleCrop :return m_docAppProperties->Property("ScaleCrop").text().get();
+        case XLProperty::ScaleCrop :
+            return m_docAppProperties->Property("ScaleCrop").text().get();
 
-    case XLProperty::SharedDoc :return m_docAppProperties->Property("SharedDoc").text().get();
+        case XLProperty::SharedDoc :
+            return m_docAppProperties->Property("SharedDoc").text().get();
 
-    case XLProperty::Subject :return m_docCoreProperties->Property("dc:subject").text().get();
+        case XLProperty::Subject :
+            return m_docCoreProperties->Property("dc:subject").text().get();
 
-    case XLProperty::Title :return m_docCoreProperties->Property("dc:title").text().get();
+        case XLProperty::Title :
+            return m_docCoreProperties->Property("dc:title").text().get();
 
     }
 
@@ -259,108 +279,122 @@ std::string Impl::XLDocument::GetProperty(XLProperty theProperty) const {
 void Impl::XLDocument::SetProperty(XLProperty theProperty, const string& value) {
 
     switch (theProperty) {
-    case XLProperty::Application :m_docAppProperties->SetProperty("Application", value);
-        break;
+        case XLProperty::Application :
+            m_docAppProperties->SetProperty("Application", value);
+            break;
 
-    case XLProperty::AppVersion : // ===== TODO: Clean up this section
-        try {
-            std::stof(value);
-        }
-        catch (...) {
-            throw XLException("Invalid property value");
-        }
+        case XLProperty::AppVersion : // ===== TODO: Clean up this section
+            try {
+                std::stof(value);
+            }
+            catch (...) {
+                throw XLException("Invalid property value");
+            }
 
-        if (value.find('.') != std::string::npos) {
-            if (value.substr(value.find('.') + 1).size() >= 1 && value.substr(value.find('.') + 1).size() <= 5) {
-                if (value.substr(0, value.find('.')).size() >= 1 && value.substr(0, value.find('.')).size() <= 2) {
+            if (value.find('.') != std::string::npos) {
+                if (value.substr(value.find('.') + 1).size() >= 1 && value.substr(value.find('.') + 1).size() <= 5) {
+                    if (value.substr(0, value.find('.')).size() >= 1 && value.substr(0, value.find('.')).size() <= 2) {
 
-                    m_docAppProperties->SetProperty("AppVersion", value);
+                        m_docAppProperties->SetProperty("AppVersion", value);
+                    }
+                    else
+                        throw XLException("Invalid property value");
                 }
                 else
                     throw XLException("Invalid property value");
             }
             else
                 throw XLException("Invalid property value");
-        }
-        else
-            throw XLException("Invalid property value");
 
-        break;
+            break;
 
-    case XLProperty::Category :m_docCoreProperties->SetProperty("cp:category", value);
-        break;
+        case XLProperty::Category :
+            m_docCoreProperties->SetProperty("cp:category", value);
+            break;
 
-    case XLProperty::Company :m_docAppProperties->SetProperty("Company", value);
-        break;
+        case XLProperty::Company :
+            m_docAppProperties->SetProperty("Company", value);
+            break;
 
-    case XLProperty::CreationDate :m_docCoreProperties->SetProperty("dcterms:created", value);
-        break;
+        case XLProperty::CreationDate :
+            m_docCoreProperties->SetProperty("dcterms:created", value);
+            break;
 
-    case XLProperty::Creator :m_docCoreProperties->SetProperty("dc:creator", value);
-        break;
+        case XLProperty::Creator :
+            m_docCoreProperties->SetProperty("dc:creator", value);
+            break;
 
-    case XLProperty::Description :m_docCoreProperties->SetProperty("dc:description", value);
-        break;
+        case XLProperty::Description :
+            m_docCoreProperties->SetProperty("dc:description", value);
+            break;
 
-    case XLProperty::DocSecurity :
-        if (value == "0" || value == "1" || value == "2" || value == "4" || value == "8")
-            m_docAppProperties->SetProperty("DocSecurity", value);
-        else
-            throw XLException("Invalid property value");
-        break;
+        case XLProperty::DocSecurity :
+            if (value == "0" || value == "1" || value == "2" || value == "4" || value == "8")
+                m_docAppProperties->SetProperty("DocSecurity", value);
+            else
+                throw XLException("Invalid property value");
+            break;
 
-    case XLProperty::HyperlinkBase :m_docAppProperties->SetProperty("HyperlinkBase", value);
-        break;
+        case XLProperty::HyperlinkBase :
+            m_docAppProperties->SetProperty("HyperlinkBase", value);
+            break;
 
-    case XLProperty::HyperlinksChanged :
-        if (value == "true" || value == "false")
-            m_docAppProperties->SetProperty("HyperlinksChanged", value);
-        else
-            throw XLException("Invalid property value");
+        case XLProperty::HyperlinksChanged :
+            if (value == "true" || value == "false")
+                m_docAppProperties->SetProperty("HyperlinksChanged", value);
+            else
+                throw XLException("Invalid property value");
 
-        break;
+            break;
 
-    case XLProperty::Keywords :m_docCoreProperties->SetProperty("cp:keywords", value);
-        break;
+        case XLProperty::Keywords :
+            m_docCoreProperties->SetProperty("cp:keywords", value);
+            break;
 
-    case XLProperty::LastModifiedBy :m_docCoreProperties->SetProperty("cp:lastModifiedBy", value);
-        break;
+        case XLProperty::LastModifiedBy :
+            m_docCoreProperties->SetProperty("cp:lastModifiedBy", value);
+            break;
 
-    case XLProperty::LastPrinted :m_docCoreProperties->SetProperty("cp:lastPrinted", value);
-        break;
+        case XLProperty::LastPrinted :
+            m_docCoreProperties->SetProperty("cp:lastPrinted", value);
+            break;
 
-    case XLProperty::LinksUpToDate :
-        if (value == "true" || value == "false")
-            m_docAppProperties->SetProperty("LinksUpToDate", value);
-        else
-            throw XLException("Invalid property value");
-        break;
+        case XLProperty::LinksUpToDate :
+            if (value == "true" || value == "false")
+                m_docAppProperties->SetProperty("LinksUpToDate", value);
+            else
+                throw XLException("Invalid property value");
+            break;
 
-    case XLProperty::Manager :m_docAppProperties->SetProperty("Manager", value);
-        break;
+        case XLProperty::Manager :
+            m_docAppProperties->SetProperty("Manager", value);
+            break;
 
-    case XLProperty::ModificationDate :m_docCoreProperties->SetProperty("dcterms:modified", value);
-        break;
+        case XLProperty::ModificationDate :
+            m_docCoreProperties->SetProperty("dcterms:modified", value);
+            break;
 
-    case XLProperty::ScaleCrop :
-        if (value == "true" || value == "false")
-            m_docAppProperties->SetProperty("ScaleCrop", value);
-        else
-            throw XLException("Invalid property value");
-        break;
+        case XLProperty::ScaleCrop :
+            if (value == "true" || value == "false")
+                m_docAppProperties->SetProperty("ScaleCrop", value);
+            else
+                throw XLException("Invalid property value");
+            break;
 
-    case XLProperty::SharedDoc :
-        if (value == "true" || value == "false")
-            m_docAppProperties->SetProperty("SharedDoc", value);
-        else
-            throw XLException("Invalid property value");
-        break;
+        case XLProperty::SharedDoc :
+            if (value == "true" || value == "false")
+                m_docAppProperties->SetProperty("SharedDoc", value);
+            else
+                throw XLException("Invalid property value");
+            break;
 
-    case XLProperty::Subject :m_docCoreProperties->SetProperty("dc:subject", value);
-        break;
+        case XLProperty::Subject :
+            m_docCoreProperties->SetProperty("dc:subject", value);
+            break;
 
-    case XLProperty::Title :m_docCoreProperties->SetProperty("dc:title", value);
-        break;
+        case XLProperty::Title :
+            m_docCoreProperties->SetProperty("dc:title", value);
+            break;
     }
 }
 

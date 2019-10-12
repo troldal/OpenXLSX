@@ -554,6 +554,46 @@ unsigned long Impl::XLWorksheet::RowCount() const noexcept {
 /**
  * @details
  */
+void Impl::XLWorksheet::UpdateSheetName(const std::string& oldName, const std::string& newName) {
+    // ===== Set up temporary variables
+    std::string oldNameTemp = oldName;
+    std::string newNameTemp = newName;
+    std::string formula;
+
+    // ===== If the sheet name contains spaces, it should be enclosed in single quotes (')
+    if (oldName.find(' ') != std::string::npos)
+        oldNameTemp = "\'" + oldName + "\'";
+    if (newName.find(' ') != std::string::npos)
+        newNameTemp = "\'" + newName + "\'";
+
+    // ===== Ensure only sheet names are replaced (references to sheets always ends with a '!')
+    oldNameTemp += '!';
+    newNameTemp += '!';
+
+    // ===== Iterate through all defined names
+    for (auto& row : m_rows) {
+        for (auto& cell : row.rowItem->m_cells) {
+            if (!cell.cellItem->HasFormula())
+                continue;
+
+            formula = cell.cellItem->GetFormula();
+
+            // ===== Skip if formula contains a '[' and ']' (means that the defined refers to external workbook)
+            if (formula.find('[') == string::npos && formula.find(']') == string::npos) {
+
+                // ===== For all instances of the old sheet name in the formula, replace with the new name.
+                while (formula.find(oldNameTemp) != string::npos) {
+                    formula.replace(formula.find(oldNameTemp), oldNameTemp.length(), newNameTemp);
+                }
+                cell.cellItem->SetFormula(formula);
+            }
+        }
+    }
+}
+
+/**
+ * @details
+ */
 std::string Impl::XLWorksheet::NewSheetXmlData() {
 
     return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"

@@ -14,3 +14,10 @@ target_link_libraries(Demo2 PUBLIC OpenXLSX)
 target_include_directories(Demo2 PUBLIC ${OPENXLSX_INSTALLDIR}/include)
 set_target_properties(Demo2 PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${OPENXLSX_INSTALLDIR}/bin)
 
+#=======================================================================================================================
+# Define Demo3 target
+#=======================================================================================================================
+add_executable(Demo3 Demo3.cpp)
+target_link_libraries(Demo3 PUBLIC OpenXLSX)
+target_include_directories(Demo3 PUBLIC ${OPENXLSX_INSTALLDIR}/include)
+set_target_properties(Demo3 PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${OPENXLSX_INSTALLDIR}/bin)
