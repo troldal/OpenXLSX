@@ -32,7 +32,7 @@ Impl::XLCellReference::XLCellReference(const std::string& cellAddress)
 
 /**
  * @details This constructor creates a new XLCellReference from a given row and column number, e.g. 1,1 (=A1)
-* @todo consider swapping the arguments.
+ * @todo consider swapping the arguments.
  */
 Impl::XLCellReference::XLCellReference(unsigned long row, unsigned int column)
         : m_row(row),
@@ -176,7 +176,7 @@ void Impl::XLCellReference::SetAddress(const std::string& address) {
 /**
  * @details
  *
- * @todo Find out why std::to_chars causes a linker error when using LLVM/Clang. As a workaround, a custom conversing
+ * @todo Find out why std::to_chars causes a linker error when using LLVM/Clang. As a workaround, a custom conversion
  * algorithm has been implemented for clang (std::to_string is too slow!)
  */
 std::string Impl::XLCellReference::RowAsString(unsigned long row) {

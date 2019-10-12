@@ -257,6 +257,13 @@ namespace OpenXLSX::Impl
 
         /**
          * @brief
+         * @param oldName
+         * @param newName
+         */
+        void UpdateSheetName(const std::string& oldName, const std::string& newName);
+
+        /**
+         * @brief
          * @param fileName
          * @param decimal
          * @param delimiter

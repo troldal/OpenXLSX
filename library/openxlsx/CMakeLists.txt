@@ -29,7 +29,8 @@ check_cxx_source_compiles("
                           }" CHARCONV_RESULT)
 
 if (CHARCONV_RESULT)
-    target_compile_definitions(OpenXLSX PRIVATE CHARCONV_ENABLED)
+    #The following line is currently disabled, because on Clang-9, the code above compiles, but generates errors on OpenXLSX
+    #target_compile_definitions(OpenXLSX PRIVATE CHARCONV_ENABLED)
 endif ()
 
 #=======================================================================================================================
@@ -117,6 +118,7 @@ set(OPENXLSX_IMPL_HEADERS
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLWorkbook_Impl.h
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLChartsheet_Impl.h
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLColumn_Impl.h
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLColor_Impl.h
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLRow_Impl.h
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLSheet_Impl.h
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLTemplate_Impl.h
@@ -141,6 +143,7 @@ set(OPENXLSX_IMPL_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLWorkbook_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLChartsheet_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLColumn_Impl.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLColor_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLRow_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLSheet_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLWorksheet_Impl.cpp

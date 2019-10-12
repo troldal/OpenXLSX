@@ -55,18 +55,13 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLCell_Impl.h"
 #include "XLCellValue_Impl.h"
 #include "XLCellReference_Impl.h"
+#include "XLColor_Impl.h"
 
 namespace OpenXLSX::Impl
 {
     class XLContentItem;
-
     class XLRelationshipItem;
-
     class XLWorkbook;
-
-    //======================================================================================================================
-    //========== XLSheet Class =====================================================================================
-    //======================================================================================================================
 
     /**
      * @brief The XLAbstractSheet is a generalized sheet class, which functions as superclass for specialized classes,
@@ -76,12 +71,6 @@ namespace OpenXLSX::Impl
     class XLSheet : public XLAbstractXMLFile
     {
         friend class XLWorkbook;
-        //friend class XLCell;
-
-
-        //----------------------------------------------------------------------------------------------------------------------
-        //           Public Member Functions
-        //----------------------------------------------------------------------------------------------------------------------
 
     public:
         /**
@@ -144,6 +133,24 @@ namespace OpenXLSX::Impl
         virtual void SetState(XLSheetState state);
 
         /**
+         * @brief
+         * @return
+         */
+        virtual XLColor Color();
+
+        /**
+         * @brief
+         * @param color
+         */
+        virtual void SetColor(const XLColor& color);
+
+        /**
+         * @brief
+         * @param selected
+         */
+        virtual void SetSelected(bool selected);
+
+        /**
          * @brief Method to get the type of the sheet.
          * @return An XLSheetType enum object with the sheet type.
          */
@@ -168,8 +175,16 @@ namespace OpenXLSX::Impl
          */
         virtual void SetIndex();
 
+        /**
+         * @brief
+         * @return
+         */
         virtual XLWorkbook* Workbook() final;
 
+        /**
+         * @brief
+         * @return
+         */
         virtual const XLWorkbook* Workbook() const final;
 
 
@@ -190,7 +205,7 @@ namespace OpenXLSX::Impl
         XMLNode m_nodeInWorkbook; /**< A pointer to the relevant sheet node in workbook.xml */
         XMLNode m_nodeInApp; /**< A pointer to the relevant TitleOfParts node in app.xml */
 
-        XLWorkbook& m_parentWorkbook;
+        XLWorkbook& m_parentWorkbook; /**<  */
         XLContentItem m_nodeInContentTypes; /**< A pointer to the relevant content type item in [Content_Types].xml */
         XLRelationshipItem m_nodeInWorkbookRels; /**< A pointer to the relationship item in workbook.xml.rels */
     };

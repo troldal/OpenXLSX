@@ -57,8 +57,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLXml_Impl.h"
 #include "XLEnums_impl.h"
 #include "XLContentTypes_Impl.h"
-//#include "XLWorksheet_Impl.h"
-//#include "XLChartsheet_Impl.h"
 
 namespace OpenXLSX::Impl
 {
@@ -70,17 +68,12 @@ namespace OpenXLSX::Impl
 
     class XLChartsheet;
 
-    //======================================================================================================================
-    //========== XLWorkbook Class ==========================================================================================
-    //======================================================================================================================
-
     /**
      * @brief This class encapsulates the concept of a Workbook. It provides access to the embedded sheets
      * (worksheets or chartsheets), as well as functionality for adding, deleting and renaming sheets.
      */
     class XLWorkbook : public XLAbstractXMLFile
     {
-
         friend class XLSheet;
 
     public: // ---------- Public Member Functions ---------- //
@@ -195,8 +188,11 @@ namespace OpenXLSX::Impl
         const XLChartsheet* Chartsheet(const std::string& sheetName) const;
 
         /**
-         * @brief
-         * @param sheetName
+         * @brief Delete sheet (worksheet or chartsheet) from the workbook.
+         * @param sheetName Name of the sheet to delete.
+         * @throws XLException An exception will be thrown if trying to delete the last worksheet in the workbook
+         * @warning A workbook must contain at least one worksheet. Trying to delete the last worksheet from the
+         * workbook will trow an exception.
          */
         void DeleteSheet(const std::string& sheetName);
 
@@ -312,6 +308,13 @@ namespace OpenXLSX::Impl
 
         /**
          * @brief
+         * @param oldName
+         * @param newName
+         */
+        void UpdateSheetName(const std::string& oldName, const std::string& newName);
+
+        /**
+         * @brief
          * @return
          */
         XLSharedStrings* SharedStrings() const;
@@ -408,21 +411,35 @@ namespace OpenXLSX::Impl
          */
         struct XLSheetData
         {
-            XMLNode sheetNode;
-            XLRelationshipItem sheetRelationship;
-            XLContentItem sheetContentItem;
-            XLSheetType sheetType;
+            XMLNode                  sheetNode;
+            XLRelationshipItem       sheetRelationship;
+            XLContentItem            sheetContentItem;
+            XLSheetType              sheetType;
             std::unique_ptr<XLSheet> sheetItem;
         };
 
-        mutable std::vector<XLSheetData> m_sheets; /**< >*/
+        /**
+         * @brief Internal data structure for holding the individual sheets and their meta data.
+         */
+        struct XLDefinedName
+        {
+            XMLNode      definedNameNode;
+            XMLAttribute name;
+            XMLAttribute localSheetId;
+            XMLNode      sheetNode;
+        };
+
+        // ===== Internal data structures
+        mutable std::vector<XLSheetData>   m_sheets; /**< */
+        mutable std::vector<XLDefinedName> m_definedNames; /**< */
 
         XMLNode m_sheetsNode; /**< The parent node for all the sheet nodes (worksheets as well as chartsheets). */
-        XMLNode m_definedNames; /**< Pointer to root node of defined names in the workbook. */
+        XMLNode m_definedNamesNode; /**< Parent node  of defined names in the workbook. */
+        XMLNode m_activeSheet; /**< */
 
         int m_sheetId; /**< Counter to use to create ID for new sheet */
 
-        XLRelationships m_relationships; /**< pointer to the XLRelationships object for workbook. */
+        XLRelationships         m_relationships; /**< pointer to the XLRelationships object for workbook. */
         mutable XLSharedStrings m_sharedStrings; /**< Pointer to the XLSharedStrings object. */
         XLDocument* m_document; /**< */
     };
