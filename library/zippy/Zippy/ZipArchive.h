@@ -438,6 +438,7 @@ namespace Zippy
                 ThrowException(errordata, "Invalid archive");
 
             // ===== Close the current archive, delete the file with input filename (if it exists), rename the temporary and call Open.
+            // TODO: Check the result of remove and rename; throw exception if necessary.
             Close();
             std::remove(filename.c_str());
             std::rename(tempPath.c_str(), filename.c_str());
