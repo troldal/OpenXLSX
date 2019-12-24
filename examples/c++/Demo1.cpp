@@ -18,7 +18,7 @@ using namespace OpenXLSX;
  * TODO: Conditional formatting
  */
 
-int main() {
+/*int main() {
 
     XLDocument doc;
     doc.CreateDocument("./MyTest.xlsx");
@@ -46,6 +46,54 @@ int main() {
     cout << "Cell E1: " << E1 << endl;
 
     doc.SaveDocument();
+
+    return 0;
+}*/
+
+#include <iostream>
+#include <iomanip>
+#include <OpenXLSX/OpenXLSX.h>
+
+using namespace std;
+using namespace OpenXLSX;
+
+int main(int argc, char** argv)
+{
+    XLDocument doc;
+
+    if (argc < 2)
+    {
+        cout << "Usage: " << argv[0] << " <file.xlsx>" << endl;
+        return 1;
+    }
+
+    doc.OpenDocument(argv[1]);
+    auto wks = doc.Workbook().Worksheet("Tabelle1");
+
+    auto tA2 = wks.Cell("A2").ValueType();
+
+    if (tA2 == OpenXLSX::XLValueType::Error)
+        cout << "Format error at cell A2" << endl;
+
+    auto tC2 = wks.Cell("C2").ValueType();
+
+    if (tC2 == OpenXLSX::XLValueType::Error)
+        cout << "Format error at cell C2" << endl;
+
+    auto tD2 = wks.Cell("D2").ValueType();
+
+    if (tD2 == OpenXLSX::XLValueType::Error)
+        cout << "Format error at cell D2" << endl;
+
+    auto A1 = wks.Cell("A1").Value().Get<std::string>();
+    auto A2 = wks.Cell("A2").Value().Get<unsigned int>();
+    auto B1 = wks.Cell("B1").Value().Get<std::string>();
+    auto B2 = wks.Cell("B2").Value().Get<std::string>();
+
+    cout << "Cell A1: " << A1 << endl;
+    cout << "Cell A2: " << A2 << endl;
+    cout << "Cell B1: " << B1 << endl;
+    cout << "Cell B2: " << B2 << endl;
 
     return 0;
 }
