@@ -161,7 +161,7 @@ Impl::XLCellType Impl::XLCellValue::CellType() const {
     }
 
     // ===== If a Type attribute is not present, but a value node is, the cell contains a number.
-    if (!m_parentCell.HasTypeAttribute() && HasValueNode()) {
+    if ((!m_parentCell.HasTypeAttribute() || string(m_parentCell.TypeAttribute().value()) == "n") && HasValueNode()) {
         return XLCellType::Number;
     }
 
