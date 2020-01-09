@@ -213,6 +213,7 @@ XMLNode Impl::XLCell::CreateValueNode() {
 
     if (!m_cellNode.child("v"))
         m_cellNode.append_child("v");
+    m_cellNode.child("v").append_attribute("xml:space").set_value("default");
     return m_cellNode.child("v");
 }
 
