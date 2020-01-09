@@ -29,8 +29,7 @@ check_cxx_source_compiles("
                           }" CHARCONV_RESULT)
 
 if (CHARCONV_RESULT)
-    #The following line is currently disabled, because on Clang-9, the code above compiles, but generates errors on OpenXLSX
-    #target_compile_definitions(OpenXLSX PRIVATE CHARCONV_ENABLED)
+    target_compile_definitions(OpenXLSX PRIVATE CHARCONV_ENABLED)
 endif ()
 
 #=======================================================================================================================
