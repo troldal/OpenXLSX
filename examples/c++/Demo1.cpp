@@ -26,7 +26,7 @@ int main() {
 
     wks.Cell("A1").Value() = 3.14159;
     wks.Cell("B1").Value() = 42;
-    wks.Cell("C1").Value() = "Hello OpenXLSX!";
+    wks.Cell("C1").Value() = "  Hello OpenXLSX!  ";
     wks.Cell("D1").Value() = true;
     wks.Cell("E1").Value() = wks.Cell("C1").Value();
 

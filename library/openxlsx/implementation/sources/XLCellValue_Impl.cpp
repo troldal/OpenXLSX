@@ -33,6 +33,7 @@ Impl::XLCellValue& Impl::XLCellValue::operator=(const Impl::XLCellValue& other) 
 
     if (&other != this) {
         SetValueNode(!other.ValueNode() ? "" : other.ValueNode().text().get());
+        ValueNode().attribute("xml:space").set_value(other.ValueNode().attribute("xml:space").value());
         SetTypeAttribute(!other.TypeAttribute() ? "" : other.TypeAttribute().value());
     }
 
@@ -87,6 +88,8 @@ void Impl::XLCellValue::Set(const char* stringValue) {
 
     TypeAttribute().set_value("str");
     ValueNode().text().set(stringValue);
+    ValueNode().attribute("xml:space").set_value("preserve");
+
 }
 
 /**
@@ -380,18 +383,21 @@ void Impl::XLCellValue::SetInteger(long long int numberValue) {
 
     ValueNode().remove_attribute("t");
     ValueNode().text().set(numberValue);
+    ValueNode().attribute("xml:space").set_value("default");
 }
 
 void Impl::XLCellValue::SetBoolean(bool numberValue) {
 
     TypeAttribute().set_value("b");
     ValueNode().text().set(numberValue ? 1 : 0);
+    ValueNode().attribute("xml:space").set_value("default");
 }
 
 void Impl::XLCellValue::SetFloat(long double numberValue) {
 
     ValueNode().remove_attribute("t");
     ValueNode().text().set(std::to_string(numberValue).c_str());
+    ValueNode().attribute("xml:space").set_value("default");
 }
 
 long long int Impl::XLCellValue::GetInteger() const {
