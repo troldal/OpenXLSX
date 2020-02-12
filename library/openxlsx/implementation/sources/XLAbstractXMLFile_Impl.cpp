@@ -41,7 +41,7 @@ Impl::XLAbstractXMLFile::operator bool() const {
  */
 void Impl::XLAbstractXMLFile::SetXmlData(const std::string& xmlData) {
 
-    m_xmlDocument.load_string(xmlData.c_str(), pugi::parse_default);
+    m_xmlDocument.load_string(xmlData.c_str(),pugi::parse_default | pugi::parse_ws_pcdata);
 }
 
 /**
@@ -50,7 +50,7 @@ void Impl::XLAbstractXMLFile::SetXmlData(const std::string& xmlData) {
 const string& Impl::XLAbstractXMLFile::GetXmlData() const {
 
     ostringstream ostr;
-    m_xmlDocument.save(ostr);
+    m_xmlDocument.save(ostr, "", pugi::format_raw);
     m_xmlData = ostr.str();
     return m_xmlData;
 }

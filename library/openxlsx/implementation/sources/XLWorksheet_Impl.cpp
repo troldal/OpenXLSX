@@ -94,7 +94,6 @@ bool Impl::XLWorksheet::ParseXMLData() {
         auto& row = m_rows.emplace_back(XLRowData());
         row.rowIndex = stoul(currentRow.attribute("r").value());
         row.rowItem = make_unique<XLRow>(*this, currentRow);
-
     }
 
     return true;
