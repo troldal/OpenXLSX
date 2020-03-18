@@ -1,12 +1,7 @@
 #=======================================================================================================================
 # Define library targets
 #=======================================================================================================================
-if (NOT STATIC)
-    add_library(OpenXLSX SHARED "")
-else ()
-    add_library(OpenXLSX STATIC "")
-endif ()
-add_library(OpenXLSX::OpenXLSX ALIAS OpenXLSX)
+add_library(OpenXLSX-objs OBJECT "")
 
 #=======================================================================================================================
 # Feature Checks
@@ -29,7 +24,7 @@ check_cxx_source_compiles("
                           }" CHARCONV_RESULT)
 
 if (CHARCONV_RESULT)
-    target_compile_definitions(OpenXLSX PRIVATE CHARCONV_ENABLED)
+    target_compile_definitions(OpenXLSX-objs PRIVATE CHARCONV_ENABLED)
 endif ()
 
 #=======================================================================================================================
@@ -48,57 +43,66 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
         #target_compile_options(OpenXLSX PRIVATE -Wlifetime)
     elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-        target_compile_options(OpenXLSX PRIVATE -Wmisleading-indentation)
-        target_compile_options(OpenXLSX PRIVATE -Wduplicated-cond)
-        target_compile_options(OpenXLSX PRIVATE -Wduplicated-branches)
-        target_compile_options(OpenXLSX PRIVATE -Wlogical-op)
-        target_compile_options(OpenXLSX PRIVATE -Wnull-dereference)
-        target_compile_options(OpenXLSX PRIVATE -Wuseless-cast)
+        target_compile_options(OpenXLSX-objs
+            PRIVATE
+                -Wmisleading-indentation
+                -Wduplicated-cond
+                -Wduplicated-branches
+                -Wlogical-op
+                -Wnull-dereference
+                -Wuseless-cast
+        )
     elseif (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") OR ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"))
-        target_compile_options(OpenXLSX PRIVATE -Wall)
-        target_compile_options(OpenXLSX PRIVATE -Wextra)
-        target_compile_options(OpenXLSX PRIVATE -Wshadow)
-        target_compile_options(OpenXLSX PRIVATE -Wnon-virtual-dtor)
-        target_compile_options(OpenXLSX PRIVATE -Wold-style-cast)
-        target_compile_options(OpenXLSX PRIVATE -Wcast-align)
-        target_compile_options(OpenXLSX PRIVATE -Wunused)
-        target_compile_options(OpenXLSX PRIVATE -Woverloaded-virtual)
-        target_compile_options(OpenXLSX PRIVATE -Wpedantic)
-        target_compile_options(OpenXLSX PRIVATE -Wconversion)
-        target_compile_options(OpenXLSX PRIVATE -Wsign-conversion)
-        target_compile_options(OpenXLSX PRIVATE -Wdouble-promotion)
-        target_compile_options(OpenXLSX PRIVATE -Wformat=2)
-        target_compile_options(OpenXLSX PRIVATE -Weffc++)
+        target_compile_options(OpenXLSX-objs
+            PRIVATE
+                -Wall
+                -Wextra
+                -Wshadow
+                -Wnon-virtual-dtor
+                -Wold-style-cast
+                -Wcast-align
+                -Wunused
+                -Woverloaded-virtual
+                -Wpedantic
+                -Wconversion
+                -Wsign-conversion
+                -Wdouble-promotion
+                -Wformat=2
+                -Weffc++
+        )
     elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
         # using Intel C++
     elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-        target_compile_options(OpenXLSX PRIVATE /permissive)
-        target_compile_options(OpenXLSX PRIVATE /W4)
-        target_compile_options(OpenXLSX PRIVATE /w14242)
-        target_compile_options(OpenXLSX PRIVATE /w14254)
-        target_compile_options(OpenXLSX PRIVATE /w14263)
-        target_compile_options(OpenXLSX PRIVATE /w14265)
-        target_compile_options(OpenXLSX PRIVATE /w14287)
-        target_compile_options(OpenXLSX PRIVATE /we4289)
-        target_compile_options(OpenXLSX PRIVATE /w14296)
-        target_compile_options(OpenXLSX PRIVATE /w14311)
-        target_compile_options(OpenXLSX PRIVATE /w14545)
-        target_compile_options(OpenXLSX PRIVATE /w14546)
-        target_compile_options(OpenXLSX PRIVATE /w14547)
-        target_compile_options(OpenXLSX PRIVATE /w14549)
-        target_compile_options(OpenXLSX PRIVATE /w14555)
-        target_compile_options(OpenXLSX PRIVATE /w14619)
-        target_compile_options(OpenXLSX PRIVATE /w14640)
-        target_compile_options(OpenXLSX PRIVATE /w14826)
-        target_compile_options(OpenXLSX PRIVATE /w14905)
-        target_compile_options(OpenXLSX PRIVATE /w14906)
-        target_compile_options(OpenXLSX PRIVATE /w14928)
+        target_compile_options(OpenXLSX-objs
+            PRIVATE
+                /permissive
+                /W4
+                /w14242
+                /w14254
+                /w14263
+                /w14265
+                /w14287
+                /we4289
+                /w14296
+                /w14311
+                /w14545
+                /w14546
+                /w14547
+                /w14549
+                /w14555
+                /w14619
+                /w14640
+                /w14826
+                /w14905
+                /w14906
+                /w14928
+        )
     endif ()
 elseif (CMAKE_BUILD_TYPE STREQUAL "Release")
     include(CheckIPOSupported)
     check_ipo_supported(RESULT result OUTPUT output)
     if (result)
-        set_property(TARGET OpenXLSX PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+        set_property(TARGET OpenXLSX-objs PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
     endif ()
 endif ()
 
@@ -184,19 +188,32 @@ set(OPENXLSX_CXX_INTERFACE_SOURCES
 #=======================================================================================================================
 # Build OpenXLSX library
 #=======================================================================================================================
-target_sources(OpenXLSX
-        PRIVATE
+target_sources(OpenXLSX-objs
+    PRIVATE
         ${OPENXLSX_IMPL_SOURCES}
         ${OPENXLSX_CXX_INTERFACE_SOURCES})
-target_link_libraries(OpenXLSX
-        PRIVATE
+target_link_libraries(OpenXLSX-objs
+    PRIVATE
         PugiXML Zippy)
-target_include_directories(OpenXLSX
-        PRIVATE
+target_include_directories(OpenXLSX-objs
+    PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers
-        PUBLIC
+    PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers
         ${CMAKE_CURRENT_BINARY_DIR})
+target_compile_definitions(OpenXLSX-objs
+    PRIVATE
+        OpenXLSX_EXPORTS
+)
+
+# ===== Generate static or shared library ===== #
+if (NOT STATIC)
+    add_library(OpenXLSX SHARED "")
+else ()
+    add_library(OpenXLSX STATIC "")
+endif ()
+target_link_libraries(OpenXLSX PUBLIC OpenXLSX-objs)
+add_library(OpenXLSX::OpenXLSX ALIAS OpenXLSX)
 
 # ===== Generate shared library export header with compiler-specific keywords ===== #
 include(GenerateExportHeader)
