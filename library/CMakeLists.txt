@@ -4,8 +4,3 @@
 add_subdirectory(pugixml)
 add_subdirectory(zippy)
 add_subdirectory(openxlsx)
-
-#=======================================================================================================================
-# Define Dependencies
-#=======================================================================================================================
-add_dependencies(OpenXLSX PugiXML Zippy)
