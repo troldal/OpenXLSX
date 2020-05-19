@@ -59,11 +59,7 @@ namespace OpenXLSX::Impl
 {
     class XLDocument;
 
-    //======================================================================================================================
-    //========== XLAbstractXMLFile Class ===================================================================================
-    //======================================================================================================================
-
-    /**
+   /**
      * @brief The XLAbstractXMLFile is an pure abstract class, which provides an interface
      * for derived classes to use. It functions as an ancestor to all classes which are represented by an .xml
      * file in an .xlsx package
@@ -71,11 +67,7 @@ namespace OpenXLSX::Impl
     class XLAbstractXMLFile
     {
 
-        //----------------------------------------------------------------------------------------------------------------------
-        //           Public Member Functions
-        //----------------------------------------------------------------------------------------------------------------------
-
-    public:
+    public: // ===== PUBLIC MEMBER FUNCTIONS
 
         /**
          * @brief Constructor. Creates an object using the parent XLDocument object, the relative file path
@@ -113,7 +105,7 @@ namespace OpenXLSX::Impl
          * @brief Provide the XML data represented by the object.
          * @param xmlData A std::string with the XML data.
          */
-        virtual void SetXmlData(const std::string& xmlData);
+        void SetXmlData(const std::string& xmlData);
 
         /**
          * @brief Method for getting the XML data represented by the object.
@@ -139,11 +131,7 @@ namespace OpenXLSX::Impl
         virtual const std::string& FilePath() const final;
 
 
-        //----------------------------------------------------------------------------------------------------------------------
-        //           Protected Member Functions
-        //----------------------------------------------------------------------------------------------------------------------
-
-    protected:
+    protected: // ===== PROTECTED MEMBER FUNCTIONS
 
         /**
          * @brief This method returns the underlying XMLDocument object.
@@ -166,12 +154,8 @@ namespace OpenXLSX::Impl
          */
         virtual bool ParseXMLData() = 0;
 
-        //----------------------------------------------------------------------------------------------------------------------
-        //           Private Member Variables
-        //----------------------------------------------------------------------------------------------------------------------
 
-
-    private:
+    private: // ===== PRIVATE MEMBER VARIABLES
 
         std::string m_path; /**< */
         XLDocument& m_parentDocument; /**< */
