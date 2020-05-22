@@ -13,6 +13,7 @@ using namespace std;
 using namespace OpenXLSX;
 using namespace OpenXLSX;
 
+
 /**
  * @details The default constructor, with no arguments.
  */
@@ -81,7 +82,9 @@ void Impl::XLDocument::OpenDocument(const string& fileName) {
 void Impl::XLDocument::CreateDocument(const std::string& fileName) {
 
     std::ofstream outfile(fileName, std::ios::binary);
-    outfile.write(reinterpret_cast<char const*>(excelTemplate), excelTemplateSize);
+
+    // ===== Casting, in particular reinterpret_cast, is discouraged, but in this case it is unfortunately unavoidable.
+    outfile.write(reinterpret_cast<const char*>(excelTemplate.data()), excelTemplate.size());
     outfile.close();
 
     OpenDocument(fileName);
@@ -292,8 +295,8 @@ void Impl::XLDocument::SetProperty(XLProperty theProperty, const string& value) 
             }
 
             if (value.find('.') != std::string::npos) {
-                if (value.substr(value.find('.') + 1).size() >= 1 && value.substr(value.find('.') + 1).size() <= 5) {
-                    if (value.substr(0, value.find('.')).size() >= 1 && value.substr(0, value.find('.')).size() <= 2) {
+                if (!value.substr(value.find('.') + 1).empty() && value.substr(value.find('.') + 1).size() <= 5) {
+                    if (!value.substr(0, value.find('.')).empty() && value.substr(0, value.find('.')).size() <= 2) {
 
                         m_docAppProperties->SetProperty("AppVersion", value);
                     }

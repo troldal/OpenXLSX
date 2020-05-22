@@ -4,7 +4,7 @@
 if (NOT STATIC)
     add_library(OpenXLSX SHARED "")
 else ()
-    add_library(OpenXLSX STATIC "")
+    add_library(OpenXLSX STATIC "" implementation/headers/IZipFile.hpp)
 endif ()
 add_library(OpenXLSX::OpenXLSX ALIAS OpenXLSX)
 

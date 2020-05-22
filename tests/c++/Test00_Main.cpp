@@ -25,7 +25,8 @@ void PrepareDocument(std::string name) {
     doc.CloseDocument();
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc,
+         char* argv[]) {
     // Global Setup
     XLDocument doc;
 
