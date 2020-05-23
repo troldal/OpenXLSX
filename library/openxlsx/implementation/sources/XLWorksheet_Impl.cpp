@@ -2,10 +2,10 @@
 // Created by Troldal on 03/09/16.
 //
 
-#include "XLWorksheet_Impl.h"
-#include "XLCellRange_Impl.h"
-#include "XLTokenizer_Impl.h"
-#include "XLSheet_Impl.h"
+#include "XLWorksheet_Impl.hpp"
+#include "XLCellRange_Impl.hpp"
+#include "XLTokenizer_Impl.hpp"
+#include "XLSheet_Impl.hpp"
 #include <sstream>
 #include <algorithm>
 #include <pugixml.hpp>

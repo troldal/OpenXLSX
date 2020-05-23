@@ -4,7 +4,7 @@
 
 #include <catch.hpp>
 #include <fstream>
-#include <OpenXLSX.h>
+#include <OpenXLSX.hpp>
 
 using namespace OpenXLSX;
 

@@ -2,8 +2,8 @@
 // Created by Troldal on 01/09/16.
 //
 
-#include "XLSharedStrings_Impl.h"
-#include "XLDocument_Impl.h"
+#include "XLSharedStrings_Impl.hpp"
+#include "XLDocument_Impl.hpp"
 
 #include <pugixml.hpp>
 

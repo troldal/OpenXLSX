@@ -4,7 +4,7 @@
 if (NOT STATIC)
     add_library(OpenXLSX SHARED "")
 else ()
-    add_library(OpenXLSX STATIC "" implementation/headers/IZipFile.hpp)
+    add_library(OpenXLSX STATIC "" implementation/headers/XLZipFileInterface.hpp)
 endif ()
 add_library(OpenXLSX::OpenXLSX ALIAS OpenXLSX)
 
@@ -106,28 +106,29 @@ endif ()
 # Find project files
 #=======================================================================================================================
 set(OPENXLSX_IMPL_HEADERS
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLAbstractXMLFile_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLAppProperties_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLContentTypes_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLCoreProperties_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLDocument_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLRelationships_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLSharedStrings_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLTokenizer_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLWorkbook_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLChartsheet_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLColumn_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLColor_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLRow_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLSheet_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLTemplate_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLWorksheet_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLCell_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLCellRange_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLCellReference_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLCellType_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLCellValue_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLXml_Impl.h
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLAbstractXMLFile_Impl.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLAppProperties_Impl.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLContentTypes_Impl.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLCoreProperties_Impl.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLDocument_Impl.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLRelationships_Impl.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLSharedStrings_Impl.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLTokenizer_Impl.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLWorkbook_Impl.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLChartsheet_Impl.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLColumn_Impl.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLColor_Impl.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLRow_Impl.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLSheet_Impl.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLTemplate_Impl.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLWorksheet_Impl.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLCell_Impl.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLCellRange_Impl.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLCellReference_Impl.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLCellType_Impl.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLCellValue_Impl.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLXml_Impl.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLZipFileInterface.hpp
         )
 
 set(OPENXLSX_IMPL_SOURCES
@@ -153,20 +154,20 @@ set(OPENXLSX_IMPL_SOURCES
         )
 
 set(OPENXLSX_CXX_INTERFACE_HEADERS
-        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/OpenXLSX.h
-        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/XLDefinitions.h
-        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/XLDocument.h
-        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/XLWorkbook.h
-        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/XLSheet.h
-        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/XLWorksheet.h
-        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/XLCellReference.h
-        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/XLCell.h
-        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/XLCellValue.h
-        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/XLCellRange.h
-        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/XLChartsheet.h
-        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/XLRow.h
-        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/XLColumn.h
-        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/XLException.h)
+        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/OpenXLSX.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/XLDefinitions.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/XLDocument.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/XLWorkbook.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/XLSheet.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/XLWorksheet.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/XLCellReference.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/XLCell.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/XLCellValue.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/XLCellRange.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/XLChartsheet.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/XLRow.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/XLColumn.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/XLException.hpp)
 
 set(OPENXLSX_CXX_INTERFACE_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/sources/XLDocument.cpp

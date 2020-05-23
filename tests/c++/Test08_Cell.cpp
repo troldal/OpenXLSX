@@ -3,7 +3,7 @@
 //
 
 #include "catch.hpp"
-#include <OpenXLSX.h>
+#include <OpenXLSX.hpp>
 
 using namespace OpenXLSX;
 

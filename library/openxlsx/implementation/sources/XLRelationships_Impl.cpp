@@ -2,8 +2,8 @@
 // Created by Troldal on 25/07/16.
 //
 
-#include "XLRelationships_Impl.h"
-#include "XLDocument_Impl.h"
+#include "XLRelationships_Impl.hpp"
+#include "XLDocument_Impl.hpp"
 
 #include <pugixml.hpp>
 #include <algorithm>

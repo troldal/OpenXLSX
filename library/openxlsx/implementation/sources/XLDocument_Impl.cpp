@@ -2,15 +2,14 @@
 // Created by Troldal on 24/07/16.
 //
 
-#include "XLContentTypes_Impl.h"
-#include "XLDocument_Impl.h"
-#include "XLWorksheet_Impl.h"
-#include "XLTemplate_Impl.h"
+#include "XLContentTypes_Impl.hpp"
+#include "XLDocument_Impl.hpp"
+#include "XLWorksheet_Impl.hpp"
+#include "XLTemplate_Impl.hpp"
 
 #include <pugixml.hpp>
 
 using namespace std;
-using namespace OpenXLSX;
 using namespace OpenXLSX;
 
 
@@ -23,8 +22,7 @@ Impl::XLDocument::XLDocument()
           m_contentTypes(nullptr),
           m_docAppProperties(nullptr),
           m_docCoreProperties(nullptr),
-          m_workbook(nullptr),
-          m_archive(nullptr) {
+          m_workbook(nullptr){
 }
 
 /**
@@ -36,8 +34,7 @@ Impl::XLDocument::XLDocument(const std::string& docPath)
           m_contentTypes(nullptr),
           m_docAppProperties(nullptr),
           m_docCoreProperties(nullptr),
-          m_workbook(nullptr),
-          m_archive(nullptr) {
+          m_workbook(nullptr) {
 
     OpenDocument(docPath);
 }
@@ -59,21 +56,31 @@ Impl::XLDocument::~XLDocument() {
  */
 void Impl::XLDocument::OpenDocument(const string& fileName) {
     // Check if a document is already open. If yes, close it.
-    if (m_archive && m_archive->IsOpen())
+    // TODO: Consider throwing if a file is already open.
+    if (m_archive.isOpen())
         CloseDocument();
 
     m_filePath = fileName;
-    m_archive = make_unique<Zippy::ZipArchive>();
-    m_archive->Open(m_filePath);
+    m_archive.openArchive(m_filePath);
 
-    // Open the Relationships and Content_Types files for the document level.
-    m_documentRelationships = make_unique<XLRelationships>(*this, "_rels/.rels");
-    m_contentTypes = make_unique<XLContentTypes>(*this, "[Content_Types].xml");
 
-    // Create workbook and property items
-    m_docCoreProperties = CreateItem<XLCoreProperties>("docProps/core.xml");
-    m_docAppProperties = CreateItem<XLAppProperties>("docProps/app.xml");
-    m_workbook = CreateItem<XLWorkbook>("xl/workbook.xml");
+    // ===== Open the Relationships and Content_Types files for the document level.
+    m_documentRelationships =
+            std::make_unique<XLRelationships>(*this, "_rels/.rels");
+
+    m_contentTypes =
+            std::make_unique<XLContentTypes>(*this, "[Content_Types].xml");
+
+    // ===== Open the workbook and document property items
+    m_docCoreProperties =
+            std::make_unique<XLCoreProperties>(*this,m_documentRelationships->RelationshipByTarget("docProps/core.xml").Target().value());
+
+    m_docAppProperties =
+            std::make_unique<XLAppProperties>(*this,m_documentRelationships->RelationshipByTarget("docProps/app.xml").Target().value());
+
+    m_workbook =
+            std::make_unique<XLWorkbook>(*this,m_documentRelationships->RelationshipByTarget("xl/workbook.xml").Target().value());
+
 }
 
 /**
@@ -82,6 +89,7 @@ void Impl::XLDocument::OpenDocument(const string& fileName) {
 void Impl::XLDocument::CreateDocument(const std::string& fileName) {
 
     std::ofstream outfile(fileName, std::ios::binary);
+    // TODO: Resource leak in case of an exception.
 
     // ===== Casting, in particular reinterpret_cast, is discouraged, but in this case it is unfortunately unavoidable.
     outfile.write(reinterpret_cast<const char*>(excelTemplate.data()), excelTemplate.size());
@@ -96,9 +104,7 @@ void Impl::XLDocument::CreateDocument(const std::string& fileName) {
  */
 void Impl::XLDocument::CloseDocument() {
 
-    if (m_archive)
-        m_archive->Close();
-    m_archive.reset(nullptr);
+    m_archive.closeArchive();
     m_filePath.clear();
     m_documentRelationships.reset(nullptr);
     m_contentTypes.reset(nullptr);
@@ -121,18 +127,6 @@ bool Impl::XLDocument::SaveDocument() {
  * file. This will happen automatically, without the user noticing.
  */
 bool Impl::XLDocument::SaveDocumentAs(const string& fileName) {
-    // If the filename is different than the name of the current file, copy the current file to new destination,
-    // close the current zip file and open the new one.
-    //    if (fileName != m_filePath) {
-    //        m_archive->discard();
-    //        std::ifstream src(m_filePath, std::ios::binary);
-    //        std::ofstream dst(fileName, std::ios::binary);
-    //        dst << src.rdbuf();
-    //
-    //        m_filePath = fileName;
-    //        m_archive  = make_unique<XLZipArchive>(m_filePath);
-    //        m_archive->open(XLZipArchive::WRITE);
-    //    }
 
     m_filePath = fileName;
 
@@ -143,10 +137,7 @@ bool Impl::XLDocument::SaveDocumentAs(const string& fileName) {
     m_docCoreProperties->WriteXMLData();
     m_workbook->WriteXMLData();
 
-
-    // Close and re-open the zip file, in order to save changes.
-    //m_archive->close();
-    m_archive->Save(m_filePath); // open(XLZipArchive::WRITE);
+    m_archive.saveArchive(m_filePath);
 
     return true;
 }
@@ -445,7 +436,7 @@ void Impl::XLDocument::DeleteContentItem(Impl::XLContentItem& item) {
  */
 void Impl::XLDocument::AddOrReplaceXMLFile(const std::string& path, const std::string& content) {
 
-    m_archive->AddEntry(path, content);
+    m_archive.addEntry(path, content);
 }
 
 /**
@@ -453,7 +444,7 @@ void Impl::XLDocument::AddOrReplaceXMLFile(const std::string& path, const std::s
  */
 std::string Impl::XLDocument::GetXMLFile(const std::string& path) {
 
-    return (m_archive->HasEntry(path) ? m_archive->GetEntry(path).GetDataAsString() : "");
+    return (m_archive.hasEntry(path) ? m_archive.getEntry(path) : "");
 }
 
 /**
@@ -461,7 +452,7 @@ std::string Impl::XLDocument::GetXMLFile(const std::string& path) {
  */
 void Impl::XLDocument::DeleteXMLFile(const std::string& path) {
 
-    m_archive->DeleteEntry(path);
+    m_archive.deleteEntry(path);
 }
 
 /**

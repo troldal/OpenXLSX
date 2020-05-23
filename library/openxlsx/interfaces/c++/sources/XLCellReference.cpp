@@ -2,10 +2,10 @@
 // Created by Troldal on 2019-01-20.
 //
 
-#include <XLCellReference.h>
+#include <XLCellReference.hpp>
 
-#include "XLCellReference.h"
-#include "XLCellReference_Impl.h"
+#include "XLCellReference.hpp"
+#include "XLCellReference_Impl.hpp"
 
 using namespace OpenXLSX;
 using namespace std;

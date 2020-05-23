@@ -2,10 +2,10 @@
 // Created by Troldal on 2019-01-21.
 //
 
-#include <XLCellRange.h>
+#include <XLCellRange.hpp>
 
-#include "XLCellRange.h"
-#include "XLCellRange_Impl.h"
+#include "XLCellRange.hpp"
+#include "XLCellRange_Impl.hpp"
 
 using namespace OpenXLSX;
 

@@ -2,11 +2,11 @@
 // Created by Troldal on 2019-01-16.
 //
 
-#include <XLWorkbook.h>
-#include <XLWorkbook_Impl.h>
-#include "XLSheet_Impl.h"
-#include "XLWorksheet_Impl.h"
-#include "XLChartsheet_Impl.h"
+#include <XLWorkbook.hpp>
+#include <XLWorkbook_Impl.hpp>
+#include "XLSheet_Impl.hpp"
+#include "XLWorksheet_Impl.hpp"
+#include "XLChartsheet_Impl.hpp"
 
 using namespace OpenXLSX;
 

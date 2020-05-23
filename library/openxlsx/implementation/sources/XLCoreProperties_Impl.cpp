@@ -4,8 +4,8 @@
 
 #include <pugixml.hpp>
 
-#include "XLCoreProperties_Impl.h"
-#include "XLDocument_Impl.h"
+#include "XLCoreProperties_Impl.hpp"
+#include "XLDocument_Impl.hpp"
 
 using namespace std;
 using namespace OpenXLSX;

@@ -1,8 +1,8 @@
 #include <utility>
-#include "XLDocument_Impl.h"
+#include "XLDocument_Impl.hpp"
 #include <sstream>
 #include <pugixml.hpp>
-#include <XLAbstractXMLFile_Impl.h>
+#include <XLAbstractXMLFile_Impl.hpp>
 
 using namespace std;
 using namespace OpenXLSX;

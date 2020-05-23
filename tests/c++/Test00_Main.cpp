@@ -11,7 +11,7 @@
 #define CATCH_CONFIG_RUNNER
 
 #include "catch.hpp"
-#include <OpenXLSX.h>
+#include <OpenXLSX.hpp>
 #include <cstdio>
 
 using namespace OpenXLSX;
