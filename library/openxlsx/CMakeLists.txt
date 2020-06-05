@@ -50,7 +50,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
         target_compile_options(OpenXLSX PRIVATE -Wmisleading-indentation)
         target_compile_options(OpenXLSX PRIVATE -Wduplicated-cond)
-        target_compile_options(OpenXLSX PRIVATE -Wduplicated-branches)
+        # target_compile_options(OpenXLSX PRIVATE -Wduplicated-branches) # Not available on GCC version <= 6
         target_compile_options(OpenXLSX PRIVATE -Wlogical-op)
         target_compile_options(OpenXLSX PRIVATE -Wnull-dereference)
         target_compile_options(OpenXLSX PRIVATE -Wuseless-cast)
