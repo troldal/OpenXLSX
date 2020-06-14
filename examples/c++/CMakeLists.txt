@@ -39,7 +39,7 @@ target_include_directories(Demo5 PUBLIC ${OPENXLSX_INSTALLDIR}/include)
 set_target_properties(Demo5 PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${OPENXLSX_INSTALLDIR}/bin)
 
 #=======================================================================================================================
-# Define Demo5 target
+# Define Demo6 target
 #=======================================================================================================================
 add_executable(Demo6 Demo6.cpp)
 target_link_libraries(Demo6 PUBLIC OpenXLSX)
