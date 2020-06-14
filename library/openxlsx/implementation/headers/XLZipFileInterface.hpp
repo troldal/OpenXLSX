@@ -15,11 +15,41 @@ namespace OpenXLSX::Impl {
     class XLZipFileInterface {
 
     public:
+
+        /**
+         * @brief
+         */
         XLZipFileInterface() : m_archive(nullptr) {}
+
+        /**
+         * @brief
+         */
         ~XLZipFileInterface() = default;
+
+        /**
+         * @brief
+         * @param other
+         */
         XLZipFileInterface(const XLZipFileInterface& other) = delete;
+
+        /**
+         * @brief
+         * @param other
+         */
         XLZipFileInterface(XLZipFileInterface&& other) noexcept = default;
+
+        /**
+         * @brief
+         * @param lhs
+         * @return
+         */
         XLZipFileInterface& operator=(const XLZipFileInterface& lhs) = delete;
+
+        /**
+         * @brief
+         * @param lhs
+         * @return
+         */
         XLZipFileInterface& operator=(XLZipFileInterface&& lhs) noexcept = default;
 
         /**
@@ -27,7 +57,7 @@ namespace OpenXLSX::Impl {
          * @param fileName
          */
         void openArchive(const std::string& fileName) {
-            if (m_archive && m_archive->IsOpen()) // TODO: Consider to thow if an archive is already open.
+            if (m_archive && m_archive->IsOpen()) // TODO: Consider to throw if an archive is already open.
                 m_archive->Close();
 
             m_archive = std::make_unique<Zippy::ZipArchive>();
@@ -58,18 +88,37 @@ namespace OpenXLSX::Impl {
             return (m_archive && m_archive->IsOpen());
         }
 
+        /**
+         * @brief
+         * @param path
+         * @param content
+         */
         void addEntry(const std::string& path, const std::string& content) {
             m_archive->AddEntry(path, content);
         }
 
+        /**
+         * @brief
+         * @param path
+         */
         void deleteEntry(const std::string& path) {
             m_archive->DeleteEntry(path);
         }
 
+        /**
+         * @brief
+         * @param path
+         * @return
+         */
         bool hasEntry(const std::string& path) {
             return m_archive->HasEntry(path);
         }
 
+        /**
+         * @brief
+         * @param path
+         * @return
+         */
         std::string getEntry(const std::string& path) {
             return m_archive->GetEntry(path).GetDataAsString();
         }
