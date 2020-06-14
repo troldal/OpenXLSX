@@ -369,7 +369,8 @@ bool Impl::XLCellValue::HasTypeAttribute() const {
  */
 Impl::XLNumberType Impl::XLCellValue::DetermineNumberType(const string& numberString) const {
 
-    if (numberString.find('.') != string::npos)
+    if (numberString.find('.') != string::npos || numberString.find("E-") != string::npos || numberString.find("e-")
+    != string::npos)
         return XLNumberType::Float;
 
     return XLNumberType::Integer;
