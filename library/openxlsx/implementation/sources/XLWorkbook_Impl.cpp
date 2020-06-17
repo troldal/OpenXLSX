@@ -8,10 +8,10 @@
 #include <type_traits>
 
 #include <pugixml.hpp>
-#include <XLWorkbook_Impl.h>
+#include <XLWorkbook_Impl.hpp>
 
-#include "XLWorksheet_Impl.h"
-#include "XLChartsheet_Impl.h"
+#include "XLWorksheet_Impl.hpp"
+#include "XLChartsheet_Impl.hpp"
 
 using namespace std;
 using namespace OpenXLSX;

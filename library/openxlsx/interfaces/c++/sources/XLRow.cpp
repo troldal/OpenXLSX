@@ -2,10 +2,10 @@
 // Created by Troldal on 2019-01-23.
 //
 
-#include <XLRow.h>
+#include <XLRow.hpp>
 
-#include "XLRow.h"
-#include "XLRow_Impl.h"
+#include "XLRow.hpp"
+#include "XLRow_Impl.hpp"
 
 using namespace OpenXLSX;
 

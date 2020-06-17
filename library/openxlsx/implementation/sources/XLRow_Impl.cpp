@@ -5,8 +5,8 @@
 #include <algorithm>
 #include <pugixml.hpp>
 
-#include "XLRow_Impl.h"
-#include "XLWorksheet_Impl.h"
+#include "XLRow_Impl.hpp"
+#include "XLWorksheet_Impl.hpp"
 
 using namespace std;
 using namespace OpenXLSX;

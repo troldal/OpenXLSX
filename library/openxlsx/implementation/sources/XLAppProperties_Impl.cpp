@@ -7,8 +7,8 @@
 #include <iterator>
 #include <pugixml.hpp>
 
-#include "XLAppProperties_Impl.h"
-#include "XLDocument_Impl.h"
+#include "XLAppProperties_Impl.hpp"
+#include "XLDocument_Impl.hpp"
 
 using namespace std;
 using namespace OpenXLSX;

@@ -8,7 +8,7 @@
 // Created by KBA012 on 18-04-2018.
 //
 
-#include "XLTokenizer_Impl.h"
+#include "XLTokenizer_Impl.hpp"
 #include <algorithm>
 
 using namespace OpenXLSX;

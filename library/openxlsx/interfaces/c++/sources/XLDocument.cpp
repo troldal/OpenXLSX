@@ -2,8 +2,8 @@
 // Created by Troldal on 2019-01-10.
 //
 
-#include <XLDocument.h>
-#include <XLDocument_Impl.h>
+#include <XLDocument.hpp>
+#include <XLDocument_Impl.hpp>
 
 using namespace OpenXLSX;
 

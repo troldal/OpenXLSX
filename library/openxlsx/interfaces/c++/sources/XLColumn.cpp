@@ -2,8 +2,8 @@
 // Created by Troldal on 2019-01-25.
 //
 
-#include "XLColumn.h"
-#include "XLColumn_Impl.h"
+#include "XLColumn.hpp"
+#include "XLColumn_Impl.hpp"
 
 using namespace OpenXLSX;
 

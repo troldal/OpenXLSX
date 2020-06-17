@@ -2,10 +2,10 @@
 // Created by Troldal on 02/09/16.
 //
 
-#include "XLSheet_Impl.h"
-#include "XLContentTypes_Impl.h"
-#include "XLRelationships_Impl.h"
-#include "XLDocument_Impl.h"
+#include "XLSheet_Impl.hpp"
+#include "XLContentTypes_Impl.hpp"
+#include "XLRelationships_Impl.hpp"
+#include "XLDocument_Impl.hpp"
 
 #include <pugixml.hpp>
 

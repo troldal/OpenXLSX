@@ -2,8 +2,8 @@
 // Created by Troldal on 2019-01-16.
 //
 
-#include "XLSheet.h"
-#include "XLSheet_Impl.h"
+#include "XLSheet.hpp"
+#include "XLSheet_Impl.hpp"
 
 using namespace OpenXLSX;
 

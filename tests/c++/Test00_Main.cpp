@@ -11,7 +11,7 @@
 #define CATCH_CONFIG_RUNNER
 
 #include "catch.hpp"
-#include <OpenXLSX.h>
+#include <OpenXLSX.hpp>
 #include <cstdio>
 
 using namespace OpenXLSX;
@@ -25,7 +25,8 @@ void PrepareDocument(std::string name) {
     doc.CloseDocument();
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc,
+         char* argv[]) {
     // Global Setup
     XLDocument doc;
 

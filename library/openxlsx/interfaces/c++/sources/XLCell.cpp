@@ -2,10 +2,10 @@
 // Created by Troldal on 2019-01-21.
 //
 
-#include <XLCell.h>
+#include <XLCell.hpp>
 
-#include "XLCell.h"
-#include "XLCell_Impl.h"
+#include "XLCell.hpp"
+#include "XLCell_Impl.hpp"
 
 using namespace OpenXLSX;
 

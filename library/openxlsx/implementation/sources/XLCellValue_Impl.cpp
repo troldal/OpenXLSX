@@ -5,9 +5,9 @@
 #include <cassert>
 #include <pugixml.hpp>
 
-#include "XLCellValue_Impl.h"
-#include "XLCell_Impl.h"
-#include "XLWorksheet_Impl.h"
+#include "XLCellValue_Impl.hpp"
+#include "XLCell_Impl.hpp"
+#include "XLWorksheet_Impl.hpp"
 
 using namespace OpenXLSX;
 using namespace std;
