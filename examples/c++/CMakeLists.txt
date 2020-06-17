@@ -2,7 +2,7 @@
 # Define Demo1 target
 #=======================================================================================================================
 add_executable(Demo1 Demo1.cpp)
-target_link_libraries(Demo1 PUBLIC OpenXLSX-statit)
+target_link_libraries(Demo1 PUBLIC OpenXLSX-static)
 #target_include_directories(Demo1 PUBLIC ${OPENXLSX_INSTALLDIR}/include)
 set_target_properties(Demo1 PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${OPENXLSX_INSTALLDIR}/bin)
 
@@ -45,3 +45,4 @@ add_executable(Demo6 Demo6.cpp)
 target_link_libraries(Demo6 PUBLIC OpenXLSX-static)
 #target_include_directories(Demo6 PUBLIC ${OPENXLSX_INSTALLDIR}/include)
 set_target_properties(Demo6 PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${OPENXLSX_INSTALLDIR}/bin)
+

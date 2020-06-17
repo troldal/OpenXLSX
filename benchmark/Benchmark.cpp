@@ -4,7 +4,7 @@
 #include <sstream>
 #include <fstream>
 #include "table_printer.h"
-#include <OpenXLSX/OpenXLSX.hpp>
+#include <OpenXLSX.hpp>
 
 using namespace std;
 using namespace OpenXLSX;
