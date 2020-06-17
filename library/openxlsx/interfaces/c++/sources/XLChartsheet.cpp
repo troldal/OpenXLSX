@@ -2,8 +2,8 @@
 // Created by Troldal on 2019-01-28.
 //
 
-#include "XLChartsheet.h"
-#include "XLChartsheet_Impl.h"
+#include "XLChartsheet.hpp"
+#include "XLChartsheet_Impl.hpp"
 
 using namespace OpenXLSX;
 

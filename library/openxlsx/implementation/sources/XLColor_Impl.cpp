@@ -2,7 +2,7 @@
 // Created by Kenneth Balslev on 04/06/2017.
 //
 
-#include "XLColor_Impl.h"
+#include "XLColor_Impl.hpp"
 #include <sstream>
 #include <algorithm>
 

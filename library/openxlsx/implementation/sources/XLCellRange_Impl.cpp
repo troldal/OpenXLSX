@@ -4,9 +4,9 @@
 
 #include <stdexcept>
 
-#include "XLCell_Impl.h"
-#include "XLCellRange_Impl.h"
-#include "XLWorksheet_Impl.h"
+#include "XLCell_Impl.hpp"
+#include "XLCellRange_Impl.hpp"
+#include "XLWorksheet_Impl.hpp"
 
 using namespace std;
 using namespace OpenXLSX;

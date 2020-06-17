@@ -1,13 +1,8 @@
 #include <utility>
-
-//
-// Created by Troldal on 05/08/16.
-//
-
-#include "XLDocument_Impl.h"
+#include "XLDocument_Impl.hpp"
 #include <sstream>
 #include <pugixml.hpp>
-#include <XLAbstractXMLFile_Impl.h>
+#include <XLAbstractXMLFile_Impl.hpp>
 
 using namespace std;
 using namespace OpenXLSX;
@@ -31,6 +26,9 @@ Impl::XLAbstractXMLFile::XLAbstractXMLFile(XLDocument& parent, std::string fileP
     m_parentDocument.AddOrReplaceXMLFile(m_path, GetXmlData());
 }
 
+/**
+ * @details
+ */
 Impl::XLAbstractXMLFile::operator bool() const {
 
     return !GetXmlData().empty();
@@ -38,9 +36,14 @@ Impl::XLAbstractXMLFile::operator bool() const {
 
 /**
  * @details This method sets the XML data with a std::string as input. The underlying XMLDocument reads the data.
+ * When envoking the load_string method in PugiXML, the flag 'parse_ws_pcdata' is passed along with the default flags.
+ * This will enable parsing of whitespace characters. If not set, Excel cells with only spaces will be returned as
+ * empty strings, which is not what we want. The downside is that whitespace characters such as \\n and \\t in the
+ * input xml file may mess up the parsing.
  */
 void Impl::XLAbstractXMLFile::SetXmlData(const std::string& xmlData) {
 
+    //TODO: Determine if pugi::parse_ws_pcdata can be used without risking parsing error.
     m_xmlDocument.load_string(xmlData.c_str(),pugi::parse_default | pugi::parse_ws_pcdata);
 }
 

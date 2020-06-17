@@ -2,9 +2,9 @@
 // Created by Troldal on 07/09/16.
 //
 
-#include "XLCellReference_Impl.h"
+#include "XLCellReference_Impl.hpp"
 
-#include <XLDefinitions.h>
+#include <XLDefinitions.hpp>
 #include <iostream>
 #include <string>
 #include <array>

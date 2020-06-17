@@ -1,5 +1,5 @@
 #include <iostream>
-#include <OpenXLSX/OpenXLSX.h>
+#include <OpenXLSX/OpenXLSX.hpp>
 
 using namespace std;
 using namespace OpenXLSX;

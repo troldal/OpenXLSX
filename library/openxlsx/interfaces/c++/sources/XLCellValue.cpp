@@ -2,10 +2,10 @@
 // Created by Troldal on 2019-01-21.
 //
 
-#include <XLCellValue.h>
+#include <XLCellValue.hpp>
 
-#include "XLCellValue.h"
-#include "XLCellValue_Impl.h"
+#include "XLCellValue.hpp"
+#include "XLCellValue_Impl.hpp"
 
 using namespace OpenXLSX;
 
