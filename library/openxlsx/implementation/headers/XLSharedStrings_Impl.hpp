@@ -90,6 +90,32 @@ namespace OpenXLSX::Impl
         ~XLSharedStrings() override;
 
         /**
+         * @brief
+         * @param other
+         */
+        XLSharedStrings(const XLSharedStrings& other) = delete;
+
+        /**
+         * @brief
+         * @param other
+         */
+        XLSharedStrings(XLSharedStrings&& other) = delete;
+
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
+        XLSharedStrings& operator=(const XLSharedStrings& other) = delete;
+
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
+        XLSharedStrings& operator=(XLSharedStrings&& other) = delete;
+
+        /**
          * @brief Get a pointer to the XMLNode holding the shared string at a given index.
          * @param index The index to look up.
          * @return A pointer to the XMLNode holding the shared string.
