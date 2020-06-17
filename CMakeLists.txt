@@ -2,7 +2,10 @@
 # Preamble
 #=======================================================================================================================
 cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
-project(OpenXLSX)
+project(OpenXLSX
+        VERSION 0.1.0
+        LANGUAGES CXX
+        )
 set(OPENXLSX_DEPENDENCIES ${CMAKE_CURRENT_BINARY_DIR}/dependencies)
 set(OPENXLSX_INSTALLDIR ${CMAKE_CURRENT_BINARY_DIR}/install)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
@@ -22,6 +25,7 @@ set(PROJECT_DESCRIPTION "A C++17 library for reading, writing and modifying Exce
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_DEBUG_POSTFIX d)
 
 #=======================================================================================================================
 # Add build options
@@ -43,17 +47,17 @@ endif()
 
 if(${BUILD_SAMPLES})
     add_subdirectory(examples)
-    add_dependencies(Demo1 OpenXLSX)
+#    add_dependencies(Demo1 OpenXLSX)
 endif()
 
 if(${BUILD_TESTS})
     add_subdirectory(tests)
-    add_dependencies(InterfaceTest OpenXLSX)
+#    add_dependencies(InterfaceTest OpenXLSX)
 endif()
 
 if(${BUILD_BENCHMARKS})
     add_subdirectory(benchmark)
-    add_dependencies(Benchmark OpenXLSX)
+#    add_dependencies(Benchmark OpenXLSX)
 endif()
 
 
