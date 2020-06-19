@@ -217,6 +217,7 @@ target_link_libraries(OpenXLSX-shared
         OpenXLSX-objs
         )
 
+# ===== Enable Lik-Time Optimization for static and shared libraries ===== #
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
     include(CheckIPOSupported)
     check_ipo_supported(RESULT result OUTPUT output)

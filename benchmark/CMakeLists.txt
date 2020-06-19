@@ -16,29 +16,26 @@ endif()
 
 
 #=======================================================================================================================
-# Define Benchmark target
+# Define Benchmark targets
 #=======================================================================================================================
-add_executable(TestBench bench.cpp)
-target_link_libraries(TestBench PRIVATE benchmark OpenXLSX-static)
 
+# ===== Target using static library ===== #
+add_executable(OpenXLSXBenchmark-static Benchmark.cpp)
+target_link_libraries(OpenXLSXBenchmark-static PRIVATE benchmark benchmark_main OpenXLSX-static)
 
+# ===== Target using shared library ===== #
+add_executable(OpenXLSXBenchmark-shared Benchmark.cpp)
+target_link_libraries(OpenXLSXBenchmark-shared PRIVATE benchmark benchmark_main OpenXLSX-shared)
 
-#=======================================================================================================================
-# Define Benchmark target
-#=======================================================================================================================
-add_executable(Benchmark-Static Benchmark.cpp table_printer.h)
-target_link_libraries(Benchmark-Static PRIVATE OpenXLSX-static)
-
-add_executable(Benchmark-Shared Benchmark.cpp table_printer.h)
-target_link_libraries(Benchmark-Shared PRIVATE OpenXLSX-shared)
-
-add_executable(Benchmark-Obj Benchmark.cpp table_printer.h)
-target_link_libraries(Benchmark-Obj PRIVATE OpenXLSX-objs)
+# ===== Target using object library ===== #
+add_executable(OpenXLSXBenchmark-objs Benchmark.cpp)
+target_link_libraries(OpenXLSXBenchmark-objs PRIVATE benchmark benchmark_main OpenXLSX-objs)
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
     include(CheckIPOSupported)
     check_ipo_supported(RESULT result OUTPUT output)
     if (result)
-        set_property(TARGET Benchmark-Obj PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+        set_property(TARGET OpenXLSXBenchmark-objs PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
     endif ()
 endif()
+
 
