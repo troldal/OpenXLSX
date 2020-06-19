@@ -1,24 +1,25 @@
 #=======================================================================================================================
 # Download Google Benchmark
 #=======================================================================================================================
-include(ExternalProject)
-ExternalProject_Add(GBench
+include(FetchContent)
+FetchContent_Declare(gbench
         GIT_REPOSITORY https://github.com/google/benchmark.git
         GIT_TAG master
-        EP_BASE ${CMAKE_CURRENT_BINARY_DIR}/GBench
-        INSTALL_COMMAND ""
-        CMAKE_ARGS  -D BENCHMARK_ENABLE_GTEST_TESTS=OFF
-                    -D CMAKE_BUILD_TYPE=Release
         )
 
-set_target_properties(GBench PROPERTIES EXCLUDE_FROM_ALL TRUE)
-ExternalProject_Get_Property(GBench BINARY_DIR)
-add_library(googlebench STATIC IMPORTED)
-set_property(TARGET googlebench PROPERTY IMPORTED_LOCATION ${BINARY_DIR}/src/libbenchmark.a)
+FetchContent_GetProperties(gbench)
+if(NOT gbench_POPULATED)
+    FetchContent_Populate(gbench)
+    set(BENCHMARK_ENABLE_TESTING OFF)
+    add_subdirectory(${gbench_SOURCE_DIR} ${gbench_BINARY_DIR})
+endif()
+
+
 #=======================================================================================================================
 # Define Benchmark target
 #=======================================================================================================================
-
+add_executable(TestBench bench.cpp)
+target_link_libraries(TestBench PRIVATE benchmark OpenXLSX-static)
 
 
 

@@ -1,12 +1,6 @@
 #=======================================================================================================================
 # Define library targets
 #=======================================================================================================================
-#if (NOT STATIC)
-#    add_library(OpenXLSX SHARED "")
-#else ()
-#    add_library(OpenXLSX STATIC "")
-#endif ()
-#add_library(OpenXLSX::OpenXLSX ALIAS OpenXLSX)
 add_library(OpenXLSX-objs OBJECT "")
 
 #=======================================================================================================================
@@ -97,12 +91,6 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
                 /w14905
                 /w14906
                 /w14928)
-    endif ()
-elseif (CMAKE_BUILD_TYPE STREQUAL "Release")
-    include(CheckIPOSupported)
-    check_ipo_supported(RESULT result OUTPUT output)
-    if (result)
-        set_property(TARGET OpenXLSX-objs PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
     endif ()
 endif ()
 
@@ -212,13 +200,6 @@ target_compile_definitions(OpenXLSX-objs
         )
 
 # ===== Generate static or shared library ===== #
-#if (NOT STATIC)
-#    add_library(OpenXLSX SHARED "")
-#else ()
-#    add_library(OpenXLSX STATIC "")
-#endif ()
-#target_link_libraries(OpenXLSX PUBLIC OpenXLSX-objs)
-#add_library(OpenXLSX::OpenXLSX ALIAS OpenXLSX)
 add_library(OpenXLSX-static STATIC "")
 target_link_libraries(OpenXLSX-static
         PUBLIC
@@ -236,20 +217,17 @@ target_link_libraries(OpenXLSX-shared
         OpenXLSX-objs
         )
 
+if (CMAKE_BUILD_TYPE STREQUAL "Release")
+    include(CheckIPOSupported)
+    check_ipo_supported(RESULT result OUTPUT output)
+    if (result)
+        set_property(TARGET OpenXLSX-static PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+        set_property(TARGET OpenXLSX-shared PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+    endif ()
+endif()
 
 # ===== Generate shared library export header with compiler-specific keywords ===== #
 include(GenerateExportHeader)
-#generate_export_header(OpenXLSX)
-#
-## ===== Set output directories for targets to (staged) installation directory ===== #
-#set_target_properties(OpenXLSX PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${OPENXLSX_INSTALLDIR}/lib)
-#set_target_properties(OpenXLSX PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${OPENXLSX_INSTALLDIR}/lib)
-#set_target_properties(OpenXLSX PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${OPENXLSX_INSTALLDIR}/bin)
-#
-## ===== Copy header files to (staged) install directory ===== #
-#file(REMOVE_RECURSE ${OPENXLSX_INSTALLDIR}/include/)
-#file(COPY ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers/ DESTINATION ${OPENXLSX_INSTALLDIR}/include/OpenXLSX)
-#file(COPY ${CMAKE_CURRENT_BINARY_DIR}/openxlsx_export.h DESTINATION ${OPENXLSX_INSTALLDIR}/include/OpenXLSX)
 generate_export_header(OpenXLSX-shared
         BASE_NAME openxlsx
         EXPORT_FILE_NAME openxlsx_export.h
