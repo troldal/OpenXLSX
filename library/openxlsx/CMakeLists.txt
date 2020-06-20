@@ -208,7 +208,7 @@ target_link_libraries(OpenXLSX-shared
         OpenXLSX-objs
         )
 
-# ===== Enable Lik-Time Optimization for static and shared libraries ===== #
+# ===== Enable Link-Time Optimization for static and shared libraries ===== #
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
     include(CheckIPOSupported)
     check_ipo_supported(RESULT result OUTPUT output)
@@ -217,6 +217,32 @@ if (CMAKE_BUILD_TYPE STREQUAL "Release")
         set_property(TARGET OpenXLSX-shared PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
     endif ()
 endif()
+
+#=======================================================================================================================
+# Enable code coverage
+#=======================================================================================================================
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" AND NOT WIN32)
+        target_compile_options(OpenXLSX-static PRIVATE -fprofile-instr-generate -fcoverage-mapping)
+        target_compile_options(OpenXLSX-shared PRIVATE -fprofile-instr-generate -fcoverage-mapping)
+        target_compile_options(OpenXLSX-objs PRIVATE -fprofile-instr-generate -fcoverage-mapping)
+        target_link_options(OpenXLSX-static PRIVATE -fprofile-instr-generate)
+        target_link_options(OpenXLSX-shared PRIVATE -fprofile-instr-generate)
+        target_link_options(OpenXLSX-objs PRIVATE -fprofile-instr-generate)
+        #Uncomment in case of linker errors
+        #link_libraries(clang_rt.profile-x86_64)
+    elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+        target_compile_options(OpenXLSX-static PRIVATE --coverage)
+        target_compile_options(OpenXLSX-shared PRIVATE --coverage)
+        target_compile_options(OpenXLSX-objs PRIVATE --coverage)
+        target_link_options(OpenXLSX-static PRIVATE --coverage)
+        target_link_options(OpenXLSX-shared PRIVATE --coverage)
+        target_link_options(OpenXLSX-objs PRIVATE --coverage)
+        #Uncomment in case of linker errors
+        #link_libraries(gcov)
+    endif ()
+endif()
+
 
 # ===== Generate shared library export header with compiler-specific keywords ===== #
 include(GenerateExportHeader)
