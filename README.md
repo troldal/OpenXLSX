@@ -106,6 +106,6 @@ The ambition is that OpenXLSX should be able to read, write, create and modify E
 
 ## Credits
 
-Thanks to @zeux for providing the awesome PugiXML library.
-Thanks to @richgel999 for providing the miniz library.
-Thanks to @tectu for cleaning up my CMakeLists.txt files.
+- Thanks to @zeux for providing the awesome PugiXML library.
+- Thanks to @richgel999 for providing the miniz library.
+- Thanks to @tectu for cleaning up my CMakeLists.txt files.
