@@ -5,7 +5,7 @@
 #ifndef OPENXLSX_XLZIPFILEINTERFACE_HPP
 #define OPENXLSX_XLZIPFILEINTERFACE_HPP
 
-#include <Zippy.h>
+#include <Zippy.hpp>
 
 namespace OpenXLSX::Impl {
 
