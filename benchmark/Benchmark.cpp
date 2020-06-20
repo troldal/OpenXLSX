@@ -24,7 +24,7 @@ static void BM_WriteMatrix(benchmark::State& state) {
     }
 
     state.SetItemsProcessed(state.range(0) * state.range(0));
-    state.counters["Cells"] = state.items_processed();
+    state.counters["items"] = state.items_processed();
 
     doc.SaveDocument();
     doc.CloseDocument();
@@ -49,7 +49,7 @@ static void BM_WriteColumns(benchmark::State& state) {
     }
 
     state.SetItemsProcessed(1048576 * state.range(0));
-    state.counters["Cells"] = state.items_processed();
+    state.counters["items"] = state.items_processed();
 
     doc.SaveDocument();
     doc.CloseDocument();
@@ -74,7 +74,7 @@ static void BM_WriteRows(benchmark::State& state) {
     }
 
     state.SetItemsProcessed(16384 * state.range(0));
-    state.counters["Cells"] = state.items_processed();
+    state.counters["items"] = state.items_processed();
 
     doc.SaveDocument();
     doc.CloseDocument();

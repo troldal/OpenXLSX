@@ -28,15 +28,6 @@ if (CHARCONV_RESULT)
 endif ()
 
 #=======================================================================================================================
-# Enable dllspec if it's Win32 target
-#=======================================================================================================================
-#get_target_property(TARGET_TYPE OpenXLSX TYPE)
-#if (WIN32 AND (TARGET_TYPE STREQUAL "SHARED_LIBRARY"))
-#    set(BUILD_SHARED 1)
-#    target_compile_definitions(OpenXLSX PRIVATE "INBUILD")
-#endif ()
-
-#=======================================================================================================================
 # Set compiler flags
 #=======================================================================================================================
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -206,14 +197,14 @@ target_link_libraries(OpenXLSX-static
         OpenXLSX-objs
         )
 target_compile_definitions(OpenXLSX-static
-        PUBLIC
+        PRIVATE
         OPENXLSX_STATIC_DEFINE
         )
 
 # ===== Generate shared library ===== #
 add_library(OpenXLSX-shared SHARED "")
 target_link_libraries(OpenXLSX-shared
-        PRIVATE
+        PUBLIC
         OpenXLSX-objs
         )
 

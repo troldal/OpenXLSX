@@ -244,7 +244,7 @@ ALIASES                =
 # A mapping has the form "name=value". For example adding "class=itcl::class"
 # will allow you to use the command class in the itcl::class meaning.
 
-TCL_SUBST              =
+# TCL_SUBST              = # OBSOLETE
 
 # Set the OPTIMIZE_OUTPUT_FOR_C tag to YES if your project consists of C sources
 # only. Doxygen will then generate output that is more tailored for C. For
