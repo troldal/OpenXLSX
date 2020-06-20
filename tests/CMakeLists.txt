@@ -30,21 +30,23 @@ target_sources(InterfaceTest
 
 target_link_libraries(InterfaceTest
         PRIVATE
-        OpenXLSX-static
+        OpenXLSX-objs
         Catch
         )
 
 #=======================================================================================================================
 # Enable code coverage
 #=======================================================================================================================
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" AND NOT WIN32)
-    target_compile_options(InterfaceTest PRIVATE -fprofile-instr-generate -fcoverage-mapping)
-    target_link_options(InterfaceTest PRIVATE -fprofile-instr-generate)
-    #Uncomment in case of linker errors
-    #link_libraries(clang_rt.profile-x86_64)
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-    target_compile_options(InterfaceTest PRIVATE --coverage)
-    target_link_options(InterfaceTest PRIVATE --coverage)
-    #Uncomment in case of linker errors
-    #link_libraries(gcov)
-endif ()
+if(ENABLE_COVERAGE AND CMAKE_BUILD_TYPE STREQUAL "Debug")
+    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" AND NOT WIN32)
+        target_compile_options(InterfaceTest PRIVATE -fprofile-instr-generate -fcoverage-mapping)
+        target_link_options(InterfaceTest PRIVATE -fprofile-instr-generate)
+        #Uncomment in case of linker errors
+        #link_libraries(clang_rt.profile-x86_64)
+    elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+        target_compile_options(InterfaceTest PRIVATE --coverage)
+        target_link_options(InterfaceTest PRIVATE --coverage)
+        #Uncomment in case of linker errors
+        #link_libraries(gcov)
+    endif ()
+endif()

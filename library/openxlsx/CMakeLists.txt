@@ -1,7 +1,42 @@
 #=======================================================================================================================
+# Download and define PugiXML library target
+#=======================================================================================================================
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/_deps/PugiXML)
+if(NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/_deps/PugiXML/pugiconfig.hpp)
+    message(STATUS "PugiXML config file not found. Downloading...")
+    file(DOWNLOAD
+            https://raw.githubusercontent.com/zeux/pugixml/master/src/pugiconfig.hpp
+            ${CMAKE_CURRENT_BINARY_DIR}/_deps/PugiXML/pugiconfig.hpp
+            TIMEOUT 60)
+endif()
+
+if(NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/_deps/PugiXML/pugixml.hpp)
+    message(STATUS "PugiXML header file not found. Downloading...")
+    file(DOWNLOAD
+            https://raw.githubusercontent.com/zeux/pugixml/master/src/pugixml.hpp
+            ${CMAKE_CURRENT_BINARY_DIR}/_deps/PugiXML/pugixml.hpp
+            TIMEOUT 60)
+endif()
+
+if(NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/_deps/PugiXML/pugixml.cpp)
+    message(STATUS "PugiXML source file not found. Downloading...")
+    file(DOWNLOAD
+            https://raw.githubusercontent.com/zeux/pugixml/master/src/pugixml.cpp
+            ${CMAKE_CURRENT_BINARY_DIR}/_deps/PugiXML/pugixml.cpp
+            TIMEOUT 60)
+endif()
+
+add_library(PugiXML INTERFACE)
+add_library(PugiXML::PugiXML ALIAS PugiXML)
+target_include_directories(PugiXML SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/_deps/PugiXML>)
+target_compile_definitions(PugiXML INTERFACE PUGIXML_NO_XPATH PUGIXML_HEADER_ONLY)
+
+#=======================================================================================================================
 # Define library targets
 #=======================================================================================================================
 add_library(OpenXLSX-objs OBJECT "")
+add_library(OpenXLSX-static STATIC "")
+add_library(OpenXLSX-shared SHARED "")
 
 #=======================================================================================================================
 # Feature Checks
@@ -165,7 +200,7 @@ set(OPENXLSX_CXX_INTERFACE_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/sources/XLColumn.cpp)
 
 #=======================================================================================================================
-# Build OpenXLSX library
+# Generate object library
 #=======================================================================================================================
 target_sources(OpenXLSX-objs
         PRIVATE
@@ -176,11 +211,8 @@ target_link_libraries(OpenXLSX-objs
         PugiXML Zippy)
 target_include_directories(OpenXLSX-objs
         PRIVATE
-        #${CMAKE_CURRENT_LIST_DIR}/implementation/headers
         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/implementation/headers>
         PUBLIC
-        #${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers
-        #${CMAKE_CURRENT_BINARY_DIR}
         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/interfaces/c++/headers>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>      # For export header
         )
@@ -190,8 +222,9 @@ target_compile_definitions(OpenXLSX-objs
         OpenXLSX_shared_EXPORTS
         )
 
-# ===== Generate static or shared library ===== #
-add_library(OpenXLSX-static STATIC "")
+#=======================================================================================================================
+# Generate static library
+#=======================================================================================================================
 target_link_libraries(OpenXLSX-static
         PUBLIC
         OpenXLSX-objs
@@ -201,14 +234,17 @@ target_compile_definitions(OpenXLSX-static
         OPENXLSX_STATIC_DEFINE
         )
 
-# ===== Generate shared library ===== #
-add_library(OpenXLSX-shared SHARED "")
+#=======================================================================================================================
+# Generate shared library
+#=======================================================================================================================
 target_link_libraries(OpenXLSX-shared
         PUBLIC
         OpenXLSX-objs
         )
 
-# ===== Enable Link-Time Optimization for static and shared libraries ===== #
+#=======================================================================================================================
+# Enable Link-Time Optimization
+#=======================================================================================================================
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
     include(CheckIPOSupported)
     check_ipo_supported(RESULT result OUTPUT output)
@@ -218,33 +254,27 @@ if (CMAKE_BUILD_TYPE STREQUAL "Release")
     endif ()
 endif()
 
+
 #=======================================================================================================================
 # Enable code coverage
 #=======================================================================================================================
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+if(ENABLE_COVERAGE AND CMAKE_BUILD_TYPE STREQUAL "Debug")
     if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" AND NOT WIN32)
-        target_compile_options(OpenXLSX-static PRIVATE -fprofile-instr-generate -fcoverage-mapping)
-        target_compile_options(OpenXLSX-shared PRIVATE -fprofile-instr-generate -fcoverage-mapping)
         target_compile_options(OpenXLSX-objs PRIVATE -fprofile-instr-generate -fcoverage-mapping)
-        target_link_options(OpenXLSX-static PRIVATE -fprofile-instr-generate)
-        target_link_options(OpenXLSX-shared PRIVATE -fprofile-instr-generate)
         target_link_options(OpenXLSX-objs PRIVATE -fprofile-instr-generate)
         #Uncomment in case of linker errors
         #link_libraries(clang_rt.profile-x86_64)
     elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-        target_compile_options(OpenXLSX-static PRIVATE --coverage)
-        target_compile_options(OpenXLSX-shared PRIVATE --coverage)
         target_compile_options(OpenXLSX-objs PRIVATE --coverage)
-        target_link_options(OpenXLSX-static PRIVATE --coverage)
-        target_link_options(OpenXLSX-shared PRIVATE --coverage)
         target_link_options(OpenXLSX-objs PRIVATE --coverage)
         #Uncomment in case of linker errors
         #link_libraries(gcov)
     endif ()
 endif()
 
-
-# ===== Generate shared library export header with compiler-specific keywords ===== #
+#=======================================================================================================================
+# Generate shared library export header with compiler-specific keywords
+#=======================================================================================================================
 include(GenerateExportHeader)
 generate_export_header(OpenXLSX-shared
         BASE_NAME openxlsx
