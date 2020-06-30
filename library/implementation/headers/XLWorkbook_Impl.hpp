@@ -400,6 +400,8 @@ namespace OpenXLSX::Impl
          */
         int GetNewSheetID();
 
+        XMLNode getSheetsNode() const;
+
         void setSheetName(const std::string& sheetRID, const std::string& newName);
 
         void setSheetVisibility(const std::string& sheetRID, const std::string& state);
@@ -439,8 +441,6 @@ namespace OpenXLSX::Impl
         mutable std::vector<XLSheetData>   m_sheets; /**< */
         mutable std::vector<XLDefinedName> m_definedNames; /**< */
 
-        XMLNode m_sheetsNode; /**< The parent node for all the sheet nodes (worksheets as well as chartsheets). */
-        XMLNode m_definedNamesNode; /**< Parent node  of defined names in the workbook. */
         XMLNode m_activeSheet; /**< */
 
         int m_sheetId; /**< Counter to use to create ID for new sheet */

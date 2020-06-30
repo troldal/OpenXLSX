@@ -134,7 +134,7 @@ namespace OpenXLSX
          * @brief Method to get the type of the sheet.
          * @return An XLSheetType enum object with the sheet type.
          */
-        virtual const XLSheetType& Type() const;
+        virtual XLSheetType Type() const;
 
         //**
         // * @brief Method for cloning the sheet.

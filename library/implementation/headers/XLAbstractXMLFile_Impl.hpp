@@ -111,7 +111,7 @@ namespace OpenXLSX::Impl
          * @brief Method for getting the XML data represented by the object.
          * @return A std::string with the XML data.
          */
-        virtual const std::string& GetXmlData() const;
+        virtual std::string GetXmlData() const;
 
         /**
          * @brief Commit the XML data to the zipped .xlsx package.
@@ -130,6 +130,13 @@ namespace OpenXLSX::Impl
          */
         virtual const std::string& FilePath() const final;
 
+        virtual const XLDocument& ParentDoc() const final {
+            return m_parentDocument;
+        }
+
+        virtual XLDocument& ParentDoc() final {
+            return m_parentDocument;
+        }
 
     protected: // ===== PROTECTED MEMBER FUNCTIONS
 
@@ -147,13 +154,7 @@ namespace OpenXLSX::Impl
          */
         virtual const XMLDocument* XmlDocument() const final;
 
-        virtual XLDocument& ParentDoc() final {
-            return m_parentDocument;
-        }
 
-        virtual const XLDocument& ParentDoc() const final {
-            return m_parentDocument;
-        }
 
         /**
          * @brief The parseXMLData method is used to map or copy the XML data to the internal data structures.
@@ -168,8 +169,6 @@ namespace OpenXLSX::Impl
         std::string m_path; /**< */
         XLDocument& m_parentDocument; /**< */
         XMLDocument m_xmlDocument; /**< A pointer to the underlying XMLDocument resource*/
-        mutable std::string m_xmlData; /**< A std::string with the XML data. This is only updated when GetXMLData() is called */
-
     };
 }  // namespace OpenXLSX::Impl
 

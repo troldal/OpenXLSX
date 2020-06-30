@@ -119,7 +119,7 @@ std::string Impl::XLCellValue::AsString() const {
 
     if (string_view(TypeAttribute().value()) == "s")
         return string(
-                Cell()->Worksheet()->Workbook()->SharedStrings()->GetStringNode(ValueNode().text().as_ullong()).text()
+                Cell()->Worksheet()->ParentDoc().Workbook()->SharedStrings()->GetStringNode(ValueNode().text().as_ullong()).text()
                       .get());
 
     return ValueNode().text().get();
@@ -381,7 +381,7 @@ Impl::XLNumberType Impl::XLCellValue::DetermineNumberType(const string& numberSt
  */
 XMLNode Impl::XLCellValue::SharedStringNode(unsigned long index) const {
 
-    return Cell()->Worksheet()->Workbook()->SharedStrings()->GetStringNode(index);
+    return Cell()->Worksheet()->ParentDoc().Workbook()->SharedStrings()->GetStringNode(index);
 }
 
 void Impl::XLCellValue::SetInteger(long long int numberValue) {

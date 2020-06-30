@@ -432,7 +432,7 @@ void Impl::XLDocument::executeCommand(XLCommand command) {
     }
 }
 
-std::string Impl::XLDocument::queryCommand(XLQuery query) const {
+std::string Impl::XLDocument::executeQuery(XLQuery query) const {
 
     switch (query.queryType()) {
 

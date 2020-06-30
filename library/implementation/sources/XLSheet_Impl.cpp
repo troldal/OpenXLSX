@@ -30,7 +30,7 @@ Impl::XLSheet::~XLSheet() = default;
  */
 string Impl::XLSheet::Name() const {
 
-    return ParentDoc().queryCommand(XLQuery(XLQueryType::GetSheetName, m_sheetRID));
+    return ParentDoc().executeQuery(XLQuery(XLQueryType::GetSheetName, m_sheetRID));
 }
 
 /**
@@ -50,7 +50,7 @@ void Impl::XLSheet::SetName(const std::string& name) {
  */
 XLSheetState Impl::XLSheet::State() const {
 
-    auto state = ParentDoc().queryCommand(XLQuery(XLQueryType::GetSheetVisibility, m_sheetRID));
+    auto state = ParentDoc().executeQuery(XLQuery(XLQueryType::GetSheetVisibility, m_sheetRID));
     auto result = XLSheetState::Visible;
 
     if (state == "visible" || state.empty()) {
@@ -121,7 +121,7 @@ void Impl::XLSheet::SetSelected(bool selected) {
  */
 unsigned int Impl::XLSheet::Index() const {
 
-    return stoi(ParentDoc().queryCommand(XLQuery(XLQueryType::GetSheetIndex, m_sheetRID)));
+    return stoi(ParentDoc().executeQuery(XLQuery(XLQueryType::GetSheetIndex, m_sheetRID)));
 }
 
 /**
@@ -132,12 +132,3 @@ void Impl::XLSheet::SetIndex() {
 
 }
 
-Impl::XLWorkbook* Impl::XLSheet::Workbook() {
-
-    return ParentDoc().Workbook();
-}
-
-const Impl::XLWorkbook* Impl::XLSheet::Workbook() const {
-
-    return ParentDoc().Workbook();
-}

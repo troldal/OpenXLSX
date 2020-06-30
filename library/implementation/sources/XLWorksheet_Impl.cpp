@@ -95,8 +95,8 @@ bool Impl::XLWorksheet::ParseXMLData() {
  */
 Impl::XLWorksheet* Impl::XLWorksheet::Clone(const std::string& newName) {
 
-    Workbook()->CloneWorksheet(Name(), newName);
-    return Workbook()->Worksheet(newName);
+    ParentDoc().Workbook()->CloneWorksheet(Name(), newName);
+    return ParentDoc().Workbook()->Worksheet(newName);
 }
 
 /**
@@ -561,7 +561,7 @@ void Impl::XLWorksheet::Import(const std::string& fileName, const string& delimi
     file.close();
 }
 
-const string& Impl::XLWorksheet::GetXmlData() const {
+std::string Impl::XLWorksheet::GetXmlData() const {
 
     //    ostringstream ostr;
     //    XmlDocument()->save(ostr);

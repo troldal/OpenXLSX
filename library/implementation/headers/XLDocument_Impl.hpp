@@ -195,7 +195,7 @@ namespace OpenXLSX::Impl
 
         void executeCommand(XLCommand command);
 
-        std::string queryCommand(XLQuery query) const;
+        std::string executeQuery(XLQuery query) const;
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Protected Member Functions

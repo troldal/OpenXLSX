@@ -41,10 +41,6 @@ Impl::XLWorkbook::~XLWorkbook() = default;
  */
 bool Impl::XLWorkbook::ParseXMLData() {
 
-    // ===== Find the "sheets" section in the Workbook.xml file
-    m_sheetsNode = XmlDocument()->first_child().child("sheets");
-    m_definedNamesNode = XmlDocument()->first_child().child("definedNames");
-
     // ===== Iterate through the relationship items and handle them accordingly
     for (const auto& relationship : m_relationships.Relationships()) {
         string path = relationship->Target().value();
@@ -69,8 +65,8 @@ bool Impl::XLWorkbook::ParseXMLData() {
 
     // ===== Read all defined names
     // ===== TODO: Consider factoring this out.
-    if (m_definedNamesNode) {
-        for (const auto& name : m_definedNamesNode.children()) {
+    if (XmlDocument()->first_child().child("definedNames")) {
+        for (const auto& name : XmlDocument()->first_child().child("definedNames").children()) {
             auto& definedName = m_definedNames.emplace_back(XLDefinedName());
             definedName.definedNameNode = name;
             definedName.name = name.attribute("name");
@@ -78,7 +74,7 @@ bool Impl::XLWorkbook::ParseXMLData() {
 
             // ===== If the defined name is scoped to a single worksheet, find the corresponding worksheet node
             if (definedName.localSheetId)
-                definedName.sheetNode = GetChildByIndex(m_sheetsNode, definedName.localSheetId.as_uint());
+                definedName.sheetNode = GetChildByIndex(getSheetsNode(), definedName.localSheetId.as_uint());
         }
     }
 
@@ -88,7 +84,7 @@ bool Impl::XLWorkbook::ParseXMLData() {
         XmlDocument()->first_child().child("bookViews").first_child().append_attribute("activeTab").set_value(0);
     }
     unsigned int activeTab = XmlDocument()->first_child().child("bookViews").first_child().attribute("activeTab").as_uint();
-    m_activeSheet = GetChildByIndex(m_sheetsNode, activeTab);
+    m_activeSheet = GetChildByIndex(getSheetsNode(), activeTab);
 
     return true;
 }
@@ -156,7 +152,7 @@ Impl::XLSheet* Impl::XLWorkbook::Sheet(unsigned int index) {
  */
 const Impl::XLSheet* Impl::XLWorkbook::Sheet(unsigned int index) const {
 
-    return Sheet(vector<XMLNode>(m_sheetsNode.begin(), m_sheetsNode.end())[index - 1].attribute("name").as_string());
+    return Sheet(vector<XMLNode>(getSheetsNode().begin(), getSheetsNode().end())[index - 1].attribute("name").as_string());
 }
 
 /**
@@ -230,7 +226,7 @@ Impl::XLSharedStrings* Impl::XLWorkbook::SharedStrings() const {
  */
 void Impl::XLWorkbook::DeleteNamedRanges() {
 
-    for (auto& child : m_definedNamesNode.children())
+    for (auto& child : XmlDocument()->first_child().child("definedNames").children())
         child.parent().remove_child(child);
 }
 
@@ -264,16 +260,16 @@ void Impl::XLWorkbook::DeleteSheet(const std::string& sheetName) {
     }));
 
     // ===== Delete the node from Workbook.xml
-    m_sheetsNode.remove_child(m_sheetsNode.find_child_by_attribute("name", sheetName.c_str()));
+    getSheetsNode().remove_child(getSheetsNode().find_child_by_attribute("name", sheetName.c_str()));
 
     // ===== Update the activeTab attribute. If the deleted sheet was the active sheet, set the property to zero
     if (!m_activeSheet) {
         XmlDocument()->first_child().child("bookViews").first_child().attribute("activeTab").set_value(0);
-        m_activeSheet = m_sheetsNode.first_child();
+        m_activeSheet = getSheetsNode().first_child();
     }
     else {
         unsigned int index = 0;
-        for (auto& item : m_sheetsNode.children()) {
+        for (auto& item : getSheetsNode().children()) {
             if (m_activeSheet == item) {
                 XmlDocument()->first_child().child("bookViews").first_child().attribute("activeTab").set_value(index);
                 break;
@@ -318,11 +314,11 @@ Impl::XLRelationshipItem* Impl::XLWorkbook::InitiateWorksheet(const std::string&
     // insert Sheet node at the given Index
 
     auto node = XMLNode();
-    auto nodes = vector<XMLNode>(m_sheetsNode.begin(), m_sheetsNode.end());
+    auto nodes = vector<XMLNode>(getSheetsNode().begin(), getSheetsNode().end());
     if (index == 0 || index > nodes.size())
-        node = m_sheetsNode.append_child("sheet");
+        node = getSheetsNode().append_child("sheet");
     else
-        node = m_sheetsNode.insert_child_before("sheet", nodes[index - 1]);
+        node = getSheetsNode().insert_child_before("sheet", nodes[index - 1]);
 
     node.append_attribute("name") = sheetName.c_str();
     node.append_attribute("sheetId") = to_string(sheetID).c_str();
@@ -344,6 +340,10 @@ int Impl::XLWorkbook::GetNewSheetID() {
     return max_element(m_sheets.begin(), m_sheets.end(), [](const XLSheetData& a, const XLSheetData& b) {
         return a.sheetNode.attribute("sheetId").as_int() < b.sheetNode.attribute("sheetId").as_int();
     })->sheetNode.attribute("sheetId").as_int() + 1;
+}
+
+XMLNode Impl::XLWorkbook::getSheetsNode() const {
+    return XmlDocument()->first_child().child("sheets");
 }
 
 void Impl::XLWorkbook::setSheetName(const string& sheetRID,
@@ -394,7 +394,7 @@ std::string Impl::XLWorkbook::getSheetVisibility(const string& sheetRID) const {
 std::string Impl::XLWorkbook::getSheetIndex(const string& sheetRID) const {
 
     unsigned int index = 1;
-    for (auto& sheet : m_sheetsNode.children()) {
+    for (auto& sheet : getSheetsNode().children()) {
         if (sheetRID == sheet.attribute("r:id").value())
             return to_string(index);
         index++;
@@ -435,23 +435,23 @@ void Impl::XLWorkbook::MoveSheet(const std::string& sheetName, unsigned int newI
         return;
 
     // ===== Modify the node in the XML file
-    auto node = m_sheetsNode.find_child_by_attribute("name", sheetName.c_str());
+    auto node = getSheetsNode().find_child_by_attribute("name", sheetName.c_str());
 
     if (newIndex <= 1)
-        m_sheetsNode.prepend_move(node);
+        getSheetsNode().prepend_move(node);
     else if (newIndex >= SheetCount())
-        m_sheetsNode.append_move(node);
+        getSheetsNode().append_move(node);
     else {
-        auto currentSheet = m_sheetsNode.first_child();
+        auto currentSheet = getSheetsNode().first_child();
         auto currentIndex = 1;
         while (currentIndex < newIndex) {
             currentSheet = currentSheet.next_sibling();
             ++currentIndex;
         }
         if (oldIndex > newIndex)
-            m_sheetsNode.insert_move_before(node, currentSheet);
+            getSheetsNode().insert_move_before(node, currentSheet);
         else
-            m_sheetsNode.insert_move_after(node, currentSheet);
+            getSheetsNode().insert_move_after(node, currentSheet);
     }
 
     // ===== Move the element to the right location in the vector
@@ -469,7 +469,7 @@ void Impl::XLWorkbook::MoveSheet(const std::string& sheetName, unsigned int newI
 
     // ===== Update the activeTab attribute.
     unsigned int index = 0;
-    for (auto& item : m_sheetsNode.children()) {
+    for (auto& item : getSheetsNode().children()) {
         if (m_activeSheet == item) {
             XmlDocument()->first_child().child("bookViews").first_child().attribute("activeTab").set_value(index);
             break;
@@ -485,7 +485,7 @@ unsigned int Impl::XLWorkbook::IndexOfSheet(const std::string& sheetName) const 
 
     // ===== Iterate through sheet nodes. When a match is found, return the index;
     unsigned int index = 1;
-    for (auto& sheet : m_sheetsNode.children()) {
+    for (auto& sheet : getSheetsNode().children()) {
         if (sheetName == sheet.attribute("name").value())
             return index;
         index++;
@@ -510,7 +510,7 @@ XLSheetType Impl::XLWorkbook::TypeOfSheet(const std::string& sheetName) const {
 
 XLSheetType Impl::XLWorkbook::TypeOfSheet(unsigned int index) const {
 
-    string name = vector<XMLNode>(m_sheetsNode.begin(), m_sheetsNode.end())[index - 1].attribute("name").as_string();
+    string name = vector<XMLNode>(getSheetsNode().begin(), getSheetsNode().end())[index - 1].attribute("name").as_string();
     return TypeOfSheet(name);
 }
 
@@ -678,7 +678,7 @@ const Impl::XLRelationships* Impl::XLWorkbook::Relationships() const {
  */
 XMLNode Impl::XLWorkbook::SheetNode(const string& sheetName) {
 
-    auto sheet = m_sheetsNode.find_child_by_attribute("name", sheetName.c_str());
+    auto sheet = getSheetsNode().find_child_by_attribute("name", sheetName.c_str());
     if (!sheet)
         throw XLException("Sheet named " + sheetName + " does not exist.");
     return sheet;
@@ -689,7 +689,7 @@ XMLNode Impl::XLWorkbook::SheetNode(const string& sheetName) {
  */
 void Impl::XLWorkbook::CreateWorksheet(const XLRelationshipItem& item, const std::string& xmlData) {
 
-    if (m_sheetsNode.find_child_by_attribute("r:id", item.Id().value()) == nullptr)
+    if (getSheetsNode().find_child_by_attribute("r:id", item.Id().value()) == nullptr)
         throw XLException("Invalid sheet ID");
 
     // Find the appropriate sheet node in the Workbook .xml file; get the name and id of the worksheet.
@@ -698,7 +698,7 @@ void Impl::XLWorkbook::CreateWorksheet(const XLRelationshipItem& item, const std
     // If xmlData is provided (i.e. a new sheet is created or an existing is cloned), create the new worksheets accordingly.
 
     unsigned int index = 0;
-    for (const auto& elem : m_sheetsNode.children()) {
+    for (const auto& elem : getSheetsNode().children()) {
         if (string(item.Id().value()) == elem.attribute("r:id").value())
             break;
         ++index;
@@ -708,7 +708,7 @@ void Impl::XLWorkbook::CreateWorksheet(const XLRelationshipItem& item, const std
         index = m_sheets.size();
 
     auto& sheet = *m_sheets.insert(m_sheets.begin() + index, XLSheetData());
-    sheet.sheetNode = m_sheetsNode.find_child_by_attribute("r:id", item.Id().value());
+    sheet.sheetNode = getSheetsNode().find_child_by_attribute("r:id", item.Id().value());
     sheet.sheetRelationship = item;
     sheet.sheetContentItem = ParentDoc().ContentItem(string("/xl/") + item.Target().value());
     sheet.sheetType = XLSheetType::WorkSheet;
@@ -720,7 +720,7 @@ void Impl::XLWorkbook::CreateWorksheet(const XLRelationshipItem& item, const std
 
     // ===== Update the activeTab attribute. If the deleted sheet was the active sheet, set the property to zero
     unsigned int idx = 0;
-    for (auto& it : m_sheetsNode.children()) {
+    for (auto& it : getSheetsNode().children()) {
         if (m_activeSheet == it) {
             XmlDocument()->first_child().child("bookViews").first_child().attribute("activeTab").set_value(idx);
             break;

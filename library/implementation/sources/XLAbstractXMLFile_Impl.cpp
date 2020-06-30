@@ -50,12 +50,11 @@ void Impl::XLAbstractXMLFile::SetXmlData(const std::string& xmlData) {
 /**
  * @details This method retrieves the underlying XML data as a std::string.
  */
-const string& Impl::XLAbstractXMLFile::GetXmlData() const {
+std::string Impl::XLAbstractXMLFile::GetXmlData() const {
 
     ostringstream ostr;
     m_xmlDocument.save(ostr, "", pugi::format_raw);
-    m_xmlData = ostr.str();
-    return m_xmlData;
+    return ostr.str();
 }
 
 /**

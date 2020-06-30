@@ -31,7 +31,7 @@ void XLSheet::SetState(XLSheetState state) {
     m_sheet->SetState(state);
 }
 
-const XLSheetType& XLSheet::Type() const {
+XLSheetType XLSheet::Type() const {
 
     return m_sheet->Type();
 }

@@ -281,7 +281,7 @@ namespace OpenXLSX::Impl
          * @brief
          * @return
          */
-        const std::string& GetXmlData() const override;
+        std::string GetXmlData() const override;
 
         XLSheetType Type() const override;
 
