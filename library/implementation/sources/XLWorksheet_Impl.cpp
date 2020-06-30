@@ -17,14 +17,10 @@ using namespace OpenXLSX;
  * @details The constructor initializes the member variables and calls the loadXMLData from the
  * XLAbstractXMLFile base class.
  */
-Impl::XLWorksheet::XLWorksheet(XLWorkbook& parent, const std::string& sheetRID, XMLAttribute name, const std::string& filePath,
+Impl::XLWorksheet::XLWorksheet(XLDocument& parent, const std::string& sheetRID, XMLAttribute name, const std::string& filePath,
                                const std::string& xmlData)
 
         : XLSheet(parent, sheetRID, name, filePath, xmlData),
-          m_dimensionNode(std::make_unique<XMLNode>()),
-          m_sheetDataNode(std::make_unique<XMLNode>()),
-          m_columnsNode(std::make_unique<XMLNode>()),
-          m_sheetViewsNode(std::make_unique<XMLNode>()),
           m_rows(),
           m_columns(),
           m_firstCell(1, 1),
@@ -42,12 +38,6 @@ Impl::XLWorksheet::XLWorksheet(XLWorkbook& parent, const std::string& sheetRID, 
  */
 bool Impl::XLWorksheet::ParseXMLData() {
 
-    // Get pointers to key nodes in the XML document.
-    InitDimensionNode();
-    InitSheetViewsNode();
-    InitSheetDataNode();
-    InitColumnsNode();
-
     // Read the dimensions of the Sheet and set data members accordingly.
     string dimensions = DimensionNode().attribute("ref").value();
     SetFirstCell(XLCellReference("A1"));
@@ -57,7 +47,7 @@ bool Impl::XLWorksheet::ParseXMLData() {
         SetLastCell(XLCellReference(dimensions.substr(dimensions.find(':') + 1)));
 
     // If Column properties are grouped, divide them into properties for individual Columns.
-    if (m_columnsNode->type() != pugi::node_null) {
+    if (ColumnsNode().type() != pugi::node_null) {
         auto currentNode = ColumnsNode().first_child();
         while (currentNode != nullptr) {
             int min = stoi(currentNode.attribute("min").value());
@@ -81,7 +71,7 @@ bool Impl::XLWorksheet::ParseXMLData() {
     }
 
     // Store all Column nodes in the m_columns vector.
-    if (m_columnsNode->type() != pugi::node_null) {
+    if (ColumnsNode().type() != pugi::node_null) {
         auto currentColumn = ColumnsNode().first_child();
         while (currentColumn != nullptr) {
             m_columns.emplace(currentColumn.attribute("min").as_ullong() - 1, XLColumn(*this, currentColumn));
@@ -238,9 +228,9 @@ Impl::XLRow* Impl::XLWorksheet::Row(unsigned long rowNumber) {
 
         // ===== Append or insert new row node in the XML file
         if (dataItem == m_rows.end())
-            rowNode = m_sheetDataNode->append_child("row");
+            rowNode = SheetDataNode().append_child("row");
         else
-            rowNode = m_sheetDataNode->insert_child_before("row", dataItem->rowItem->m_rowNode);
+            rowNode = SheetDataNode().insert_child_before("row", dataItem->rowItem->m_rowNode);
 
         // ===== Add the newly created node to the std::vector and update the dataItem iterator
         dataItem = m_rows.insert(dataItem, XLRowData());
@@ -279,8 +269,8 @@ const Impl::XLRow* Impl::XLWorksheet::Row(unsigned long rowNumber) const {
 Impl::XLColumn* Impl::XLWorksheet::Column(unsigned int columnNumber) {
 
     // If no columns exists, create the <cols> node in the XML document.
-    if (!m_columnsNode)
-        *m_columnsNode = XmlDocument()->root().insert_child_before("cols", SheetDataNode());
+    if (!ColumnsNode())
+        XmlDocument()->root().insert_child_before("cols", SheetDataNode());
 
     // Create result object and initialize to nullptr.
     XLColumn* result = nullptr;
@@ -357,58 +347,17 @@ const Impl::XLColumns* Impl::XLWorksheet::Columns() const {
 /**
  * @details
  */
-XMLNode Impl::XLWorksheet::DimensionNode() {
+XMLNode Impl::XLWorksheet::DimensionNode() const {
 
-    if (!m_dimensionNode)
-        throw XLException("The <dimension> node does not exist in " + FilePath());
-    return *m_dimensionNode;
-}
-
-/**
- * @details
- * @todo Instead of throwing an exception, consider creating a dimension node.
- */
-const XMLNode Impl::XLWorksheet::DimensionNode() const {
-
-    if (!m_dimensionNode)
-        throw XLException("The <dimension> node does not exist in " + FilePath());
-    return *m_dimensionNode;
+    return XmlDocument()->document_element().child("dimension");
 }
 
 /**
  * @details
  */
-void Impl::XLWorksheet::InitDimensionNode() {
+XMLNode Impl::XLWorksheet::SheetDataNode() const {
 
-    *m_dimensionNode = XmlDocument()->first_child().child("dimension");
-}
-
-/**
- * @details
- */
-XMLNode Impl::XLWorksheet::SheetDataNode() {
-
-    if (!m_sheetDataNode)
-        throw XLException("The <sheetData> node does not exist in " + FilePath());
-    return *m_sheetDataNode;
-}
-
-/**
- * @details
- */
-const XMLNode Impl::XLWorksheet::SheetDataNode() const {
-
-    if (!m_sheetDataNode)
-        throw XLException("The <sheetData> node does not exist in " + FilePath());
-    return *m_sheetDataNode;
-}
-
-/**
- * @details
- */
-void Impl::XLWorksheet::InitSheetDataNode() {
-
-    *m_sheetDataNode = XmlDocument()->first_child().child("sheetData");
+    return XmlDocument()->first_child().child("sheetData");
 }
 
 /**
@@ -417,33 +366,9 @@ void Impl::XLWorksheet::InitSheetDataNode() {
  * or the initialization of the object.
  * @throw An XLException object with a description of the error.
  */
-XMLNode Impl::XLWorksheet::ColumnsNode() {
+XMLNode Impl::XLWorksheet::ColumnsNode() const {
 
-    if (!m_columnsNode)
-        throw XLException("The <cols> node does not exist in " + FilePath());
-    return *m_columnsNode;
-}
-
-/**
- * @details Returns the m_columnsNode member variable as a const reference.
- * @note The m_columnsNode member variable must have a value. Otherwise, there is something wrong with the XML file,
- * or the initialization of the object.
- * @throw An XLException object with a description of the error.
- */
-const XMLNode Impl::XLWorksheet::ColumnsNode() const {
-
-    if (!m_columnsNode)
-        throw XLException("The <cols> node does not exist in " + FilePath());
-    return *m_columnsNode;
-}
-
-/**
- * @details Assigns the address of the node parameter to the m_columnsNode member variable.
- * @note This member function is only intended to be used during object initialization.
- */
-void Impl::XLWorksheet::InitColumnsNode() {
-
-    *m_columnsNode = XmlDocument()->first_child().child("cols");
+    return XmlDocument()->first_child().child("cols");
 }
 
 /**
@@ -452,39 +377,9 @@ void Impl::XLWorksheet::InitColumnsNode() {
  * or the initialization of the object.
  * @exception Throws an XLException if the sheetViews node does not exist in underlying XML file.
  */
-XMLNode Impl::XLWorksheet::SheetViewsNode() {
+XMLNode Impl::XLWorksheet::SheetViewsNode() const{
 
-    if (!m_sheetViewsNode)
-        throw XLException("The <sheetViews> node does not exist in " + FilePath());
-    return *m_sheetViewsNode;
-}
-
-/**
- * @details Returns the m_sheetViewsNode member variable as a const reference.
- * @note The m_sheetViewsNode member variable must have a value. Otherwise, there is something wrong with the XML file,
- * or the initialization of the object.
- * @exception Throws an XLException if the sheetViews node does not exist in underlying XML file.
- * @todo Instead of throwing an exception, consider creating a sheetViews node.
- */
-const XMLNode Impl::XLWorksheet::SheetViewsNode() const {
-
-    if (!m_sheetViewsNode)
-        throw XLException("The <sheetViews> node does not exist in " + FilePath());
-    return *m_sheetViewsNode;
-}
-
-/**
- * @details If the m_sheetViewsNode is null, assign the address of the node parameter to it.
- * @note This member function is only intended to be used during object initialization.
- * @pre The underlying XML file must be existing and valid.
- * @post The m_sheetViewsNode variable must be in a valid state. nullptr is also a valid state, as sheetViews node
- * is not required in the XML file.
- * @todo Consider creating the sheetViews node if it doesn't exist.
- */
-void Impl::XLWorksheet::InitSheetViewsNode() {
-    // Only set the variable if it is null.
-    if (!m_sheetViewsNode)
-        *m_sheetViewsNode = XmlDocument()->first_child().child("sheetViews");
+    return XmlDocument()->first_child().child("sheetViews");
 }
 
 /**
@@ -674,4 +569,8 @@ const string& Impl::XLWorksheet::GetXmlData() const {
 
     return XLAbstractXMLFile::GetXmlData();
 
+}
+
+XLSheetType Impl::XLWorksheet::Type() const {
+    return XLSheetType::WorkSheet;
 }

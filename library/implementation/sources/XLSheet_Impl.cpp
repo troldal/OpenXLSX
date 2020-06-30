@@ -17,10 +17,10 @@ using namespace OpenXLSX;
  * sheet type is WorkSheet and the default sheet state is Visible.
  * @todo Consider to let the sheet type be determined by the subclasses.
  */
-Impl::XLSheet::XLSheet(XLWorkbook& parent, const std::string& sheetRID, XMLAttribute name, const std::string& filepath, const std::string& xmlData)
-        : XLAbstractXMLFile(*parent.Document(), "xl/" + filepath, xmlData),
-          m_sheetRID(sheetRID),
-          m_sheetType(parent.TypeOfSheet(name.value())) {
+Impl::XLSheet::XLSheet(XLDocument& parent, const std::string& sheetRID, XMLAttribute name, const std::string& filepath, const std::string& xmlData)
+        : XLAbstractXMLFile(parent, "xl/" + filepath, xmlData),
+          m_sheetRID(sheetRID) {
+
 }
 
 Impl::XLSheet::~XLSheet() = default;
@@ -113,14 +113,6 @@ void Impl::XLSheet::SetColor(const Impl::XLColor& color) {
 void Impl::XLSheet::SetSelected(bool selected) {
     unsigned int value = (selected ? 1 : 0);
     XmlDocument()->first_child().child("sheetViews").first_child().attribute("tabSelected").set_value(value);
-}
-
-/**
- * @details This method simply returns the m_sheetType property.
- */
-const XLSheetType& Impl::XLSheet::Type() const {
-
-    return m_sheetType;
 }
 
 /**

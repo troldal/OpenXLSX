@@ -25,8 +25,7 @@ Impl::XLWorkbook::XLWorkbook(XLDocument& parent, const std::string& filePath)
         : XLAbstractXMLFile(parent, filePath),
           m_sheetId(0),
           m_relationships(parent, "xl/_rels/workbook.xml.rels"),
-          m_sharedStrings(parent),
-          m_document(&parent) {
+          m_sharedStrings(parent) {
 
     ParseXMLData();
 }
@@ -122,7 +121,7 @@ const Impl::XLSheet* Impl::XLWorkbook::Sheet(const std::string& sheetName) const
 
             // ===== Handler for worksheets
             case XLSheetType::WorkSheet: // TODO: The const_cast here is REALLY ugly. Find a way to eliminate this somehow!
-                sheetData->sheetItem = make_unique<XLWorksheet>(const_cast<XLWorkbook&>(*this),
+                sheetData->sheetItem = make_unique<XLWorksheet>(const_cast<XLWorkbook&>(*this).ParentDoc(),
                                                                 sheetData->sheetNode.attribute("r:id").value(),
                                                                 sheetData->sheetNode.attribute("name"),
                                                                 sheetData->sheetRelationship.Target().value());
@@ -254,9 +253,9 @@ void Impl::XLWorkbook::DeleteSheet(const std::string& sheetName) {
         throw XLException("Invalid operation. There must be at least one worksheet in the workbook.");
 
     // ===== Delete references to the sheet in the .xml files
-    Document()->AppProperties()->DeleteSheetName(sheetName);
-    Document()->DeleteXMLFile(sheetData->sheetContentItem.Path().substr(1));
-    Document()->DeleteContentItem(sheetData->sheetContentItem);
+    ParentDoc().AppProperties()->DeleteSheetName(sheetName);
+    ParentDoc().DeleteXMLFile(sheetData->sheetContentItem.Path().substr(1));
+    ParentDoc().DeleteContentItem(sheetData->sheetContentItem);
     Relationships()->DeleteRelationship(sheetData->sheetRelationship);
 
     // ===== Delete the XLSheetData item from the internal data structure
@@ -310,7 +309,7 @@ Impl::XLRelationshipItem* Impl::XLWorkbook::InitiateWorksheet(const std::string&
     std::string worksheetPath = "/xl/worksheets/sheet" + to_string(sheetID) + ".xml";
 
     // Add content item to document
-    Document()->AddContentItem(worksheetPath, XLContentType::Worksheet);
+    ParentDoc().AddContentItem(worksheetPath, XLContentType::Worksheet);
 
     // Add relationship item
     XLRelationshipItem& item = *m_relationships.AddRelationship(XLRelationshipType::Worksheet,
@@ -331,11 +330,11 @@ Impl::XLRelationshipItem* Impl::XLWorkbook::InitiateWorksheet(const std::string&
 
     // Add entry to the App Properties
     if (index == 0)
-        Document()->AppProperties()->InsertSheetName(sheetName, WorksheetCount() + 1);
+        ParentDoc().AppProperties()->InsertSheetName(sheetName, WorksheetCount() + 1);
     else
-        Document()->AppProperties()->InsertSheetName(sheetName, index);
+        ParentDoc().AppProperties()->InsertSheetName(sheetName, index);
 
-    Document()->AppProperties()->SetHeadingPair("Worksheets", WorksheetCount() + 1);
+    ParentDoc().AppProperties()->SetHeadingPair("Worksheets", WorksheetCount() + 1);
 
     return &item;
 }
@@ -584,16 +583,6 @@ std::vector<std::string> Impl::XLWorkbook::ChartsheetNames() const {
     return result;
 }
 
-Impl::XLDocument* Impl::XLWorkbook::Document() {
-
-    return m_document;
-}
-
-const Impl::XLDocument* Impl::XLWorkbook::Document() const {
-
-    return m_document;
-}
-
 /**
  * @details
  */
@@ -721,9 +710,9 @@ void Impl::XLWorkbook::CreateWorksheet(const XLRelationshipItem& item, const std
     auto& sheet = *m_sheets.insert(m_sheets.begin() + index, XLSheetData());
     sheet.sheetNode = m_sheetsNode.find_child_by_attribute("r:id", item.Id().value());
     sheet.sheetRelationship = item;
-    sheet.sheetContentItem = Document()->ContentItem(string("/xl/") + item.Target().value());
+    sheet.sheetContentItem = ParentDoc().ContentItem(string("/xl/") + item.Target().value());
     sheet.sheetType = XLSheetType::WorkSheet;
-    sheet.sheetItem = (xmlData.empty() ? nullptr : make_unique<XLWorksheet>(*this,
+    sheet.sheetItem = (xmlData.empty() ? nullptr : make_unique<XLWorksheet>(this->ParentDoc(),
                                                                             sheet.sheetNode.attribute("r:id").value(),
                                                                             sheet.sheetNode.attribute("name"),
                                                                             sheet.sheetRelationship.Target().value(),

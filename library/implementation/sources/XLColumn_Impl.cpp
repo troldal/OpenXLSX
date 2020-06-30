@@ -15,8 +15,7 @@ using namespace OpenXLSX;
  * @details Assumes each node only has data for one column.
  */
 Impl::XLColumn::XLColumn(XLWorksheet& parent, XMLNode columnNode)
-        : m_parentDocument(parent.Workbook()->Document()),
-          m_columnNode(std::make_unique<XMLNode>(columnNode)),
+        : m_columnNode(std::make_unique<XMLNode>(columnNode)),
           m_width(10),
           m_hidden(false),
           m_column(0) {

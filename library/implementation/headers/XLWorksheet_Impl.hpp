@@ -99,7 +99,7 @@ namespace OpenXLSX::Impl
          * @param filePath The path to the worksheet .xml file.
          * @param xmlData
          */
-        explicit XLWorksheet(XLWorkbook& parent, const std::string& sheetRID, XMLAttribute name, const std::string& filePath,
+        explicit XLWorksheet(XLDocument& parent, const std::string& sheetRID, XMLAttribute name, const std::string& filePath,
                              const std::string& xmlData = "");
 
         /**
@@ -283,6 +283,8 @@ namespace OpenXLSX::Impl
          */
         const std::string& GetXmlData() const override;
 
+        XLSheetType Type() const override;
+
         //----------------------------------------------------------------------------------------------------------------------
         //           Protected Member Functions
         //----------------------------------------------------------------------------------------------------------------------
@@ -331,69 +333,25 @@ namespace OpenXLSX::Impl
          * @brief Get access to the dimension node in the underlying XML file.
          * @return A pointer to the XMLNode object.
          */
-        XMLNode DimensionNode();
-
-        /**
-         * @brief Get read-only access to the dimension node in the underlying XML file.
-         * @return A const pointer to the XMLNode object. Returned as pointer-to-const.
-         */
-        const XMLNode DimensionNode() const;
-
-        /**
-         * @brief Initialize the dimension node in the underlying XML file.
-         */
-        void InitDimensionNode();
+        XMLNode DimensionNode() const;
 
         /**
          * @brief Get access to the sheet data node in the underlying XML file.
          * @return A pointer to the corresponding XMLNode object.
          */
-        XMLNode SheetDataNode();
-
-        /**
-         * @brief Get access to the sheet data node in the underlying XML file.
-         * @return A const pointer to the corresponding XMLNode object.
-         */
-        const XMLNode SheetDataNode() const;
-
-        /**
-         * @brief Initialize the sheet data node in the underlying XML file.
-         */
-        void InitSheetDataNode();
+        XMLNode SheetDataNode() const;
 
         /**
          * @brief Get a reference to the XMLNode object corresponding to the columns (cols) node in the XML file.
          * @return A XMLNode reference.
          */
-        XMLNode ColumnsNode();
-
-        /**
-         * @brief Get a const reference to the XMLNode object corresponding to the columns (cols) node in the XML file.
-         * @return A const XMLNode reference.
-         */
-        const XMLNode ColumnsNode() const;
-
-        /**
-         * @brief Initialize the columns (cols) node in the underlying XML file.
-         */
-        void InitColumnsNode();
+        XMLNode ColumnsNode() const;
 
         /**
          * @brief Get a reference to the XMLNode object corresponding to the sheet views node in the XML file.
          * @return An XMLNode reference.
          */
-        XMLNode SheetViewsNode();
-
-        /**
-         * @brief Get a const reference to the XMLNode object corresponding to the sheet views node in the XML file.
-         * @return A const XMLNode reference.
-         */
-        const XMLNode SheetViewsNode() const;
-
-        /**
-         * @brief Initialize the sheet views node in the underlying XML file.
-         */
-        void InitSheetViewsNode();
+        XMLNode SheetViewsNode() const;
 
         /**
          * @brief Specify the first cell (upper left) of the worksheet.
@@ -414,13 +372,6 @@ namespace OpenXLSX::Impl
         //----------------------------------------------------------------------------------------------------------------------
 
     private:
-
-        std::unique_ptr<XMLNode> m_dimensionNode; /**< The node specifying the dimensions of the sheet, e.g. "A1:AZ100"*/
-        std::unique_ptr<XMLNode> m_sheetDataNode; /**< The node where the sheet data (i.e. rows and cells) begin. */
-        std::unique_ptr<XMLNode> m_columnsNode; /**< The head node for sheet column data */
-        std::unique_ptr<XMLNode> m_sheetViewsNode; /**< The head node for sheet views */
-
-        /**< A pointer to the parent XLWorkbook object (const) */
 
         struct XLRowData
         {

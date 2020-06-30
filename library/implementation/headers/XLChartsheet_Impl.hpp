@@ -75,7 +75,7 @@ namespace OpenXLSX::Impl
          * @param filePath
          * @param xmlData
          */
-        explicit XLChartsheet(XLWorkbook& parent,
+        explicit XLChartsheet(XLDocument& parent,
                               const std::string& sheetRID,
                               XMLAttribute name,
                               const std::string& filePath,
@@ -99,6 +99,8 @@ namespace OpenXLSX::Impl
         XLChartsheet& operator=(const XLChartsheet&) = delete;
 
         XLSheet* Clone(const std::string& newName) override;
+
+        XLSheetType Type() const override;
 
     protected:
         bool ParseXMLData() override;

@@ -335,18 +335,6 @@ namespace OpenXLSX::Impl
 
         /**
          * @brief
-         * @return
-         */
-        XLDocument* Document();
-
-        /**
-         * @brief
-         * @return
-         */
-        const XLDocument* Document() const;
-
-        /**
-         * @brief
          */
         void WriteXMLData() override;
 
@@ -459,7 +447,6 @@ namespace OpenXLSX::Impl
 
         XLRelationships         m_relationships; /**< pointer to the XLRelationships object for workbook. */
         mutable XLSharedStrings m_sharedStrings; /**< Pointer to the XLSharedStrings object. */
-        XLDocument* m_document; /**< */
     };
 }  // namespace OpenXLSX::Impl
 

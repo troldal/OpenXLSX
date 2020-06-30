@@ -10,7 +10,7 @@ using namespace OpenXLSX;
 /**
  * @details
  */
-Impl::XLChartsheet::XLChartsheet(XLWorkbook& parent, const std::string& sheetRID, XMLAttribute name, const std::string& filePath,
+Impl::XLChartsheet::XLChartsheet(XLDocument& parent, const std::string& sheetRID, XMLAttribute name, const std::string& filePath,
                                  const std::string& xmlData)
         : XLSheet(parent, sheetRID, name, filePath, xmlData) {
 
@@ -24,4 +24,8 @@ Impl::XLSheet* Impl::XLChartsheet::Clone(const std::string& newName) {
 bool Impl::XLChartsheet::ParseXMLData() {
 
     return false;
+}
+
+XLSheetType Impl::XLChartsheet::Type() const {
+    return XLSheetType::ChartSheet;
 }
