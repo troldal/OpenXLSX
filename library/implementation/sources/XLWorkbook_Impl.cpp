@@ -123,6 +123,7 @@ const Impl::XLSheet* Impl::XLWorkbook::Sheet(const std::string& sheetName) const
             // ===== Handler for worksheets
             case XLSheetType::WorkSheet: // TODO: The const_cast here is REALLY ugly. Find a way to eliminate this somehow!
                 sheetData->sheetItem = make_unique<XLWorksheet>(const_cast<XLWorkbook&>(*this),
+                                                                sheetData->sheetNode.attribute("r:id").value(),
                                                                 sheetData->sheetNode.attribute("name"),
                                                                 sheetData->sheetRelationship.Target().value());
                 break;
@@ -344,6 +345,23 @@ int Impl::XLWorkbook::GetNewSheetID() {
     return max_element(m_sheets.begin(), m_sheets.end(), [](const XLSheetData& a, const XLSheetData& b) {
         return a.sheetNode.attribute("sheetId").as_int() < b.sheetNode.attribute("sheetId").as_int();
     })->sheetNode.attribute("sheetId").as_int() + 1;
+}
+
+void Impl::XLWorkbook::setSheetName(const string& sheetRID,
+                                    const string& newName) {
+
+    auto sheetName = XmlDocument()->document_element()
+                                  .child("sheets")
+                                  .find_child_by_attribute("r:id", sheetRID.c_str())
+                                  .attribute("name");
+
+    UpdateSheetName(sheetName.value(), newName);
+    sheetName.set_value(newName.c_str());
+
+}
+
+std::string Impl::XLWorkbook::getSheetName(const string& sheetRID) {
+    return XmlDocument()->document_element().child("sheets").find_child_by_attribute("r:id", sheetRID.c_str()).attribute("name").value();
 }
 
 /**
@@ -666,6 +684,7 @@ void Impl::XLWorkbook::CreateWorksheet(const XLRelationshipItem& item, const std
     sheet.sheetContentItem = Document()->ContentItem(string("/xl/") + item.Target().value());
     sheet.sheetType = XLSheetType::WorkSheet;
     sheet.sheetItem = (xmlData.empty() ? nullptr : make_unique<XLWorksheet>(*this,
+                                                                            sheet.sheetNode.attribute("r:id").value(),
                                                                             sheet.sheetNode.attribute("name"),
                                                                             sheet.sheetRelationship.Target().value(),
                                                                             xmlData));
@@ -702,3 +721,14 @@ void Impl::XLWorkbook::WriteXMLData() {
             sheet.sheetItem->WriteXMLData();
 }
 
+void Impl::XLWorkbook::ExecuteCommand(Impl::XLCommand command) {
+
+    switch (command.commandType()) {
+        case XLCommandType::SetSheetName:
+            setSheetName(command.sender(), command.parameter());
+            break;
+        default:
+            break;
+    }
+
+}

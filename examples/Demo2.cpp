@@ -29,6 +29,8 @@ int main() {
     for (auto iter = 1; iter <= wbk.SheetCount(); ++iter)
         cout << iter << ": " << wbk.Sheet(iter).Name() << endl;
 
+    wbk.Worksheet("Sheet1").SetName("BLAH");
+
     doc.SaveDocument();
 
     return 0;

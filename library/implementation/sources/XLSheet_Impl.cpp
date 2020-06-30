@@ -17,8 +17,9 @@ using namespace OpenXLSX;
  * sheet type is WorkSheet and the default sheet state is Visible.
  * @todo Consider to let the sheet type be determined by the subclasses.
  */
-Impl::XLSheet::XLSheet(XLWorkbook& parent, XMLAttribute name, const std::string& filepath, const std::string& xmlData)
+Impl::XLSheet::XLSheet(XLWorkbook& parent, const std::string& sheetRID, XMLAttribute name, const std::string& filepath, const std::string& xmlData)
         : XLAbstractXMLFile(*parent.Document(), "xl/" + filepath, xmlData),
+          m_sheetRID(sheetRID),
           m_sheetName(name),
           m_sheetType(parent.TypeOfSheet(name.value())),
           m_sheetState(XLSheetState::Visible),
@@ -49,14 +50,7 @@ string const Impl::XLSheet::Name() const {
  */
 void Impl::XLSheet::SetName(const std::string& name) {
 
-    // ===== Update defined names
-    m_parentWorkbook.UpdateSheetName(m_sheetName.value(), name);
-
-    // ===== Change sheet name in main .xml files
-    m_sheetName.set_value(name.c_str());
-    m_nodeInWorkbook.attribute("name").set_value(name.c_str());
-    m_nodeInApp.text().set(name.c_str());
-
+    ParentDoc().ExecuteCommand(XLCommand(XLCommandType::SetSheetName, m_sheetRID, name));
 }
 
 /**

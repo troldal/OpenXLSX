@@ -63,6 +63,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLXml_Impl.hpp"
 #include "XLDefinitions.hpp"
 #include "XLZipFileInterface.hpp"
+#include "XlCommand_Impl.hpp"
 
 namespace OpenXLSX::Impl
 {
@@ -191,6 +192,8 @@ namespace OpenXLSX::Impl
          */
         void DeleteProperty(XLProperty theProperty);
 
+        void ExecuteCommand(XLCommand command);
+
         //----------------------------------------------------------------------------------------------------------------------
         //           Protected Member Functions
         //----------------------------------------------------------------------------------------------------------------------
@@ -274,6 +277,9 @@ namespace OpenXLSX::Impl
         //----------------------------------------------------------------------------------------------------------------------
 
     private:
+
+        void setSheetName(XLCommand command);
+
 
         std::string m_filePath; /**< The path to the original file*/
 

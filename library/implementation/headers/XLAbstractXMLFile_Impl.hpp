@@ -147,6 +147,14 @@ namespace OpenXLSX::Impl
          */
         virtual const XMLDocument* XmlDocument() const final;
 
+        virtual XLDocument& ParentDoc() final {
+            return m_parentDocument;
+        }
+
+        virtual const XLDocument& ParentDoc() const final {
+            return m_parentDocument;
+        }
+
         /**
          * @brief The parseXMLData method is used to map or copy the XML data to the internal data structures.
          * @return true on success; otherwise false.

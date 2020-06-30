@@ -57,6 +57,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLXml_Impl.hpp"
 #include "XLEnums_impl.hpp"
 #include "XLContentTypes_Impl.hpp"
+#include "XlCommand_Impl.hpp"
 
 namespace OpenXLSX::Impl
 {
@@ -75,6 +76,7 @@ namespace OpenXLSX::Impl
     class XLWorkbook : public XLAbstractXMLFile
     {
         friend class XLSheet;
+        friend class XLDocument;
 
     public: // ---------- Public Member Functions ---------- //
 
@@ -347,6 +349,9 @@ namespace OpenXLSX::Impl
          */
         void WriteXMLData() override;
 
+        void ExecuteCommand(XLCommand command);
+
+
     protected: // ---------- Protected Member Functions ---------- //
 
         /**
@@ -403,6 +408,10 @@ namespace OpenXLSX::Impl
          * @return
          */
         int GetNewSheetID();
+
+        void setSheetName(const std::string& sheetRID, const std::string& newName);
+
+        std::string getSheetName(const std::string& sheetRID);
 
     private: // ---------- Private Member Variables ---------- //
 

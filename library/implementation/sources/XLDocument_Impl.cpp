@@ -401,6 +401,33 @@ void Impl::XLDocument::DeleteProperty(XLProperty theProperty) {
 }
 
 /**
+ * @brief
+ * @param command
+ */
+void Impl::XLDocument::ExecuteCommand(Impl::XLCommand command) {
+
+    switch(command.commandType()) {
+
+        case XLCommandType::None :
+            break;
+
+        case XLCommandType::SetSheetColor :
+            break;
+
+        case XLCommandType::SetSheetName :
+            setSheetName(command);
+            break;
+
+        case XLCommandType::DeleteSheet :
+            break;
+
+        case XLCommandType::CloneSheet :
+            break;
+
+    }
+}
+
+/**
  * @details Get a pointer to the sheet node in the app.xml file.
  */
 XMLNode Impl::XLDocument::SheetNameNode(const std::string& sheetName) {
@@ -485,4 +512,9 @@ Impl::XLCoreProperties* Impl::XLDocument::CoreProperties() {
 const Impl::XLCoreProperties* Impl::XLDocument::CoreProperties() const {
 
     return m_docCoreProperties.get();
+}
+
+void Impl::XLDocument::setSheetName(XLCommand command) {
+    m_docAppProperties->SetSheetName(m_workbook->getSheetName(command.sender()), command.parameter());
+    m_workbook->ExecuteCommand(command);
 }

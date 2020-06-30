@@ -82,7 +82,7 @@ namespace OpenXLSX::Impl
          * @param filepath A std::string with the relative path to the sheet file in the .xlsx package.
          * @param xmlData
          */
-        XLSheet(XLWorkbook& parent, XMLAttribute name, const std::string& filepath, const std::string& xmlData = "");
+        XLSheet(XLWorkbook& parent, const std::string& sheetRID, XMLAttribute name, const std::string& filepath, const std::string& xmlData = "");
 
         /**
          * @brief The copy constructor.
@@ -198,6 +198,8 @@ namespace OpenXLSX::Impl
         //----------------------------------------------------------------------------------------------------------------------
 
     private:
+        std::string m_sheetRID; /**< The relationship ID for the sheet. */
+
         XMLAttribute m_sheetName; /**< The sheet name given by the user */
         XLSheetType m_sheetType; /**< The sheet type, i.e. WorkSheet, ChartSheet, etc. */
         XLSheetState m_sheetState; /**< The state of the sheet, i.e. Visible, Hidden or VeryHidden */

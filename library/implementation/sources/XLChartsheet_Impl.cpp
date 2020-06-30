@@ -10,9 +10,9 @@ using namespace OpenXLSX;
 /**
  * @details
  */
-Impl::XLChartsheet::XLChartsheet(XLWorkbook& parent, XMLAttribute name, const std::string& filePath,
+Impl::XLChartsheet::XLChartsheet(XLWorkbook& parent, const std::string& sheetRID, XMLAttribute name, const std::string& filePath,
                                  const std::string& xmlData)
-        : XLSheet(parent, name, filePath, xmlData) {
+        : XLSheet(parent, sheetRID, name, filePath, xmlData) {
 
 }
 
