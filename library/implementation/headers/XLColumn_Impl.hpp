@@ -51,24 +51,11 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 namespace OpenXLSX::Impl
 {
-
-    class XLWorksheet;
-
-    class XLDocument;
-
-    //======================================================================================================================
-    //========== XLWorksheet Class =========================================================================================
-    //======================================================================================================================
-
     /**
      * @brief
      */
     class XLColumn
     {
-
-        //----------------------------------------------------------------------------------------------------------------------
-        //           Public Member Functions
-        //----------------------------------------------------------------------------------------------------------------------
 
     public:
 
@@ -77,18 +64,18 @@ namespace OpenXLSX::Impl
          * @param parent A pointer to the parent XLWorksheet object.
          * @param columnNode A pointer to the XMLNode for the column.
          */
-        explicit XLColumn(XLWorksheet& parent, XMLNode columnNode);
+        explicit XLColumn(XMLNode columnNode);
 
         /**
          * @brief Copy Constructor [deleted]
          */
-        XLColumn(const XLColumn& other) = delete;
+        XLColumn(const XLColumn& other) = default;
 
         /**
          * @brief Move Constructor
          * @note The move constructor has been explicitly deleted.
          */
-        XLColumn(XLColumn&& other) = default;
+        XLColumn(XLColumn&& other) noexcept = default;
 
         /**
          * @brief Destructor
@@ -98,7 +85,14 @@ namespace OpenXLSX::Impl
         /**
          * @brief Copy assignment operator [deleted]
          */
-        XLColumn& operator=(const XLColumn& other) = delete;
+        XLColumn& operator=(const XLColumn& other) = default;
+
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
+        XLColumn& operator=(XLColumn&& other) noexcept = default;
 
         /**
          * @brief Get the width of the column.
@@ -128,21 +122,11 @@ namespace OpenXLSX::Impl
          * @brief Get the XMLNode object for the column.
          * @return The XMLNode for the column
          */
-        XMLNode ColumnNode();
-
-        //----------------------------------------------------------------------------------------------------------------------
-        //           Private Member Variables
-        //----------------------------------------------------------------------------------------------------------------------
+        XMLNode ColumnNode() const;
 
     private:
 
-        std::unique_ptr<XMLNode> m_columnNode; /**< A pointer to the XMLNode object for the column. */
-
-        float m_width; /**< The width of the column */
-        bool m_hidden; /**< The hidden state of the column */
-
-        unsigned long m_column; /**< The column number for the column */
-
+        XMLNode m_columnNode; /**< A pointer to the XMLNode object for the column. */
     };
 
 }  // namespace OpenXLSX::Impl

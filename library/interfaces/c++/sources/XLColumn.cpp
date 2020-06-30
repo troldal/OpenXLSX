@@ -2,14 +2,13 @@
 // Created by Troldal on 2019-01-25.
 //
 
-#include "XLColumn.hpp"
 #include "XLColumn_Impl.hpp"
+#include "XLColumn.hpp"
 
 using namespace OpenXLSX;
 
-OpenXLSX::XLColumn::XLColumn(Impl::XLColumn& column)
-        : m_column(&column) {
-
+OpenXLSX::XLColumn::XLColumn(Impl::XLColumn column)
+        : m_column(std::make_unique<Impl::XLColumn>(column)) {
 }
 
 float OpenXLSX::XLColumn::Width() const {

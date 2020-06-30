@@ -14,37 +14,15 @@ using namespace OpenXLSX;
 /**
  * @details Assumes each node only has data for one column.
  */
-Impl::XLColumn::XLColumn(XLWorksheet& parent, XMLNode columnNode)
-        : m_columnNode(std::make_unique<XMLNode>(columnNode)),
-          m_width(10),
-          m_hidden(false),
-          m_column(0) {
-    // Read the 'min' attribute of the Column
-    auto minmaxAtt = m_columnNode->attribute("min");
-    if (minmaxAtt != nullptr)
-        m_column = stoul(minmaxAtt.value());
-
-    // Read the 'Width' attribute of the Column
-    auto widthAtt = m_columnNode->attribute("width");
-    if (widthAtt != nullptr)
-        m_width = stof(widthAtt.value());
-
-    // Read the 'hidden' attribute of the Column.
-    auto hiddenAtt = m_columnNode->attribute("hidden");
-    if (hiddenAtt != nullptr) {
-        if (string(hiddenAtt.value()) == "1")
-            m_hidden = true;
-        else
-            m_hidden = false;
-    }
-}
+Impl::XLColumn::XLColumn(XMLNode columnNode)
+        : m_columnNode(columnNode) {}
 
 /**
  * @details
  */
 float Impl::XLColumn::Width() const {
 
-    return m_width;
+    return ColumnNode().attribute("width").as_float();
 }
 
 /**
@@ -52,21 +30,19 @@ float Impl::XLColumn::Width() const {
  */
 void Impl::XLColumn::SetWidth(float width) {
 
-    m_width = width;
-
     // Set the 'Width' attribute for the Cell. If it does not exist, create it.
-    auto widthAtt = m_columnNode->attribute("width");
+    auto widthAtt = ColumnNode().attribute("width");
     if (!widthAtt)
-        m_columnNode->append_attribute("width") = m_width;
-    else
-        widthAtt.set_value(m_width);
+        widthAtt = ColumnNode().append_attribute("width");
+
+    widthAtt.set_value(width);
 
     // Set the 'customWidth' attribute for the Cell. If it does not exist, create it.
-    auto customAtt = m_columnNode->attribute("customWidth");
+    auto customAtt = ColumnNode().attribute("customWidth");
     if (!customAtt)
-        m_columnNode->append_attribute("customWidth") = "1";
-    else
-        customAtt.set_value("1");
+        customAtt =ColumnNode().append_attribute("customWidth");
+
+    customAtt.set_value("1");
 }
 
 /**
@@ -74,7 +50,7 @@ void Impl::XLColumn::SetWidth(float width) {
  */
 bool Impl::XLColumn::IsHidden() const {
 
-    return m_hidden;
+    return ColumnNode().attribute("hidden").as_bool();
 }
 
 /**
@@ -82,26 +58,20 @@ bool Impl::XLColumn::IsHidden() const {
  */
 void Impl::XLColumn::SetHidden(bool state) {
 
-    m_hidden = state;
-
-    std::string hiddenstate;
-    if (m_hidden)
-        hiddenstate = "1";
-    else
-        hiddenstate = "0";
-
-    // Set the 'hidden' attribute for the Cell. If it does not exist, create it.
-    auto hiddenAtt = m_columnNode->attribute("hidden");
+    auto hiddenAtt = ColumnNode().attribute("hidden");
     if (!hiddenAtt)
-        m_columnNode->append_attribute("hidden") = hiddenstate.c_str();
+        hiddenAtt = ColumnNode().append_attribute("hidden");
+
+    if (state)
+        hiddenAtt.set_value("1");
     else
-        hiddenAtt.set_value(hiddenstate.c_str());
+        hiddenAtt.set_value("0");
 }
 
 /**
  * @details
  */
-XMLNode Impl::XLColumn::ColumnNode() {
+XMLNode Impl::XLColumn::ColumnNode() const {
 
-    return *m_columnNode;
+    return m_columnNode;
 }

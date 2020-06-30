@@ -22,7 +22,6 @@ Impl::XLWorksheet::XLWorksheet(XLDocument& parent, const std::string& sheetRID, 
 
         : XLSheet(parent, sheetRID, name, filePath, xmlData),
           m_rows(),
-          m_columns(),
           m_firstCell(1, 1),
           m_lastCell(1, 1),
           m_maxColumn(0) {
@@ -67,15 +66,6 @@ bool Impl::XLWorksheet::ParseXMLData() {
                 }
             }
             currentNode = currentNode.next_sibling();
-        }
-    }
-
-    // Store all Column nodes in the m_columns vector.
-    if (ColumnsNode().type() != pugi::node_null) {
-        auto currentColumn = ColumnsNode().first_child();
-        while (currentColumn != nullptr) {
-            m_columns.emplace(currentColumn.attribute("min").as_ullong() - 1, XLColumn(*this, currentColumn));
-            currentColumn = currentColumn.next_sibling();
         }
     }
 
@@ -266,82 +256,32 @@ const Impl::XLRow* Impl::XLWorksheet::Row(unsigned long rowNumber) const {
  * @details Get the XLColumn object corresponding to the given column number. In the underlying XML data structure,
  * column nodes do not hold any cell data. Columns are used solely to hold data regarding column formatting.
  */
-Impl::XLColumn* Impl::XLWorksheet::Column(unsigned int columnNumber) {
+Impl::XLColumn Impl::XLWorksheet::Column(unsigned int columnNumber) const {
 
     // If no columns exists, create the <cols> node in the XML document.
     if (!ColumnsNode())
         XmlDocument()->root().insert_child_before("cols", SheetDataNode());
 
-    // Create result object and initialize to nullptr.
-    XLColumn* result = nullptr;
+    auto columnNode = ColumnsNode().find_child([&](XMLNode node) {
+        return node.attribute("min").as_int() >= columnNumber;
+    });
 
-    // Retrieve the Column node in the m_columns vector. If it doesn't exist, nullptr will be returned.
-    XLColumn* colNode = &m_columns.at(columnNumber - 1); // vector is 0-based;
+    if (!columnNumber || columnNode.attribute("min").as_int() > columnNumber) {
 
-    // If the node does not exist, create and insert it.
-    if (colNode == nullptr) {
-        // Create the node.
-        XMLNode nodeColumn;
-
-        // Insert the newly created Column node in the right place in the XML structure.
-        if (!ColumnsNode().first_child() || columnNumber >= m_maxColumn) {
-            // If there are no Column nodes, or the requested Column number exceed the current maximum, append the the node
-            // after the existing Column nodes.
-            nodeColumn = ColumnsNode().append_child("col");
+        if (columnNode.attribute("min").as_int() > columnNumber) {
+            columnNode = ColumnsNode().insert_child_before("col", columnNode);
         }
         else {
-            //Otherwise, search the Column nodes vector for the next node and insert there.
-            auto index = columnNumber - 1; // vector is 0-based, Excel is 1-based; therefore columnNumber-1.
-            XLColumn* col = &m_columns.at(index);
-            while (col == nullptr)
-                col = &m_columns.at(index++);
-            nodeColumn = ColumnsNode().insert_child_before("col", col->ColumnNode());
+            columnNode = ColumnsNode().append_child("col");
         }
 
-        nodeColumn.append_attribute("min") = columnNumber;
-        nodeColumn.append_attribute("max") = columnNumber;
-        nodeColumn.append_attribute("width") = 10;
-        nodeColumn.append_attribute("customWidth") = 1;
-
-        // Insert the new Row node in the Row nodes vector.
-        m_columns.emplace(columnNumber - 1, XLColumn(*this, nodeColumn));
-        result = &m_columns.at(columnNumber - 1);
-    }
-    else {
-        result = colNode;
+        columnNode.append_attribute("min") = columnNumber;
+        columnNode.append_attribute("max") = columnNumber;
+        columnNode.append_attribute("width") = 10;
+        columnNode.append_attribute("customWidth") = 1;
     }
 
-    if (columnNumber > m_maxColumn)
-        m_maxColumn = columnNumber;
-
-    return result;
-}
-
-/**
- * @details
- */
-const Impl::XLColumn* Impl::XLWorksheet::Column(unsigned int columnNumber) const {
-
-    if (columnNumber >= m_columns.size())
-        throw XLException("Column number " + to_string(columnNumber) + " does not exist");
-    return &m_columns.at(columnNumber - 1);
-}
-
-/**
- * @details
- */
-Impl::XLColumns* Impl::XLWorksheet::Columns() {
-
-    return &m_columns;
-}
-
-/**
- * @brief
- * @return
- */
-const Impl::XLColumns* Impl::XLWorksheet::Columns() const {
-
-    return &m_columns;
+    return XLColumn(columnNode);
 }
 
 /**

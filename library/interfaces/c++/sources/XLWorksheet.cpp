@@ -86,12 +86,12 @@ const XLRow XLWorksheet::Row(unsigned long rowNumber) const {
 
 XLColumn XLWorksheet::Column(unsigned int columnNumber) {
 
-    return XLColumn(*dynamic_cast<Impl::XLWorksheet*>(m_sheet)->Column(columnNumber));
+    return XLColumn(dynamic_cast<Impl::XLWorksheet*>(m_sheet)->Column(columnNumber));
 }
 
 const XLColumn XLWorksheet::Column(unsigned int columnNumber) const {
 
-    return XLColumn(*dynamic_cast<Impl::XLWorksheet*>(m_sheet)->Column(columnNumber));
+    return XLColumn(dynamic_cast<Impl::XLWorksheet*>(m_sheet)->Column(columnNumber));
 }
 
 unsigned int XLWorksheet::ColumnCount() const noexcept {

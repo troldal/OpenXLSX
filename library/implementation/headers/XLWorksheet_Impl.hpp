@@ -222,14 +222,7 @@ namespace OpenXLSX::Impl
          * @param columnNumber The number of the column to retrieve.
          * @return A pointer to the XLColumn object.
          */
-        XLColumn* Column(unsigned int columnNumber);
-
-        /**
-         * @brief Get the column with the given column number.
-         * @param columnNumber The number of the column to retrieve.
-         * @return A const pointer to the XLColumn object.
-         */
-        const XLColumn* Column(unsigned int columnNumber) const;
+        Impl::XLColumn Column(unsigned int columnNumber) const;
 
         /**
          * @brief Get an XLCellReference to the first (top left) cell in the worksheet.
@@ -306,18 +299,6 @@ namespace OpenXLSX::Impl
         XLWorksheet* Clone(const std::string& newName) override;
 
         /**
-         * @brief Get the data structure all columns in the worksheet.
-         * @return A reference to the std::vector with the column data.
-         */
-        XLColumns* Columns();
-
-        /**
-         * @brief Get the data structure all columns in the worksheet.
-         * @return A const reference to the std::vector with the column data.
-         */
-        const XLColumns* Columns() const;
-
-        /**
          * @brief
          * @return
          */
@@ -380,7 +361,6 @@ namespace OpenXLSX::Impl
         };
 
         std::vector<XLRowData> m_rows; /**< A std::vector with pointers to all rows in the sheet. */
-        XLColumns m_columns; /**< A std::vector with pointers to all columns in sheet. */
 
         XLCellReference m_firstCell; /**< The first cell in the sheet (i.e. the top left cell).*/
         mutable XLCellReference m_lastCell; /**<  The last cell in the sheet (i.e. the bottom right). */

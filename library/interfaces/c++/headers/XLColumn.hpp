@@ -66,7 +66,7 @@ namespace OpenXLSX
          * @brief
          * @param column
          */
-        explicit XLColumn(Impl::XLColumn& column);
+        explicit XLColumn(Impl::XLColumn column);
 
         /**
          * @brief
@@ -124,7 +124,7 @@ namespace OpenXLSX
         void SetHidden(bool state);
 
     private:
-        Impl::XLColumn* m_column; /**< */
+        std::unique_ptr<Impl::XLColumn> m_column; /**< */
 
     };
 }  // namespace OpenXLSX
