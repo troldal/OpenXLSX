@@ -8,6 +8,7 @@
 #include "XLTemplate_Impl.hpp"
 
 #include <pugixml.hpp>
+#include <XlQuery_Impl.hpp>
 
 using namespace std;
 using namespace OpenXLSX;
@@ -404,12 +405,9 @@ void Impl::XLDocument::DeleteProperty(XLProperty theProperty) {
  * @brief
  * @param command
  */
-void Impl::XLDocument::ExecuteCommand(Impl::XLCommand command) {
+void Impl::XLDocument::executeCommand(XLCommand command) {
 
     switch(command.commandType()) {
-
-        case XLCommandType::None :
-            break;
 
         case XLCommandType::SetSheetColor :
             break;
@@ -424,7 +422,35 @@ void Impl::XLDocument::ExecuteCommand(Impl::XLCommand command) {
         case XLCommandType::CloneSheet :
             break;
 
+        case XLCommandType::SetSheetVisibility :
+            m_workbook->executeCommand(command);
+            break;
+
+        default:
+            break;
+
     }
+}
+
+std::string Impl::XLDocument::queryCommand(XLQuery query) const {
+
+    switch (query.queryType()) {
+
+        case XLQueryType::GetSheetName:
+            return m_workbook->queryCommand(query);
+
+        case XLQueryType::GetSheetIndex:
+            return m_workbook->queryCommand(query);
+
+        case XLQueryType::GetSheetVisibility:
+            return m_workbook->queryCommand(query);
+
+        default:
+            return std::string();
+
+    }
+
+
 }
 
 /**
@@ -516,5 +542,5 @@ const Impl::XLCoreProperties* Impl::XLDocument::CoreProperties() const {
 
 void Impl::XLDocument::setSheetName(XLCommand command) {
     m_docAppProperties->SetSheetName(m_workbook->getSheetName(command.sender()), command.parameter());
-    m_workbook->ExecuteCommand(command);
+    m_workbook->executeCommand(command);
 }

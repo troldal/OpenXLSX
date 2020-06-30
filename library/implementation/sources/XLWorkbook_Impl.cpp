@@ -360,8 +360,48 @@ void Impl::XLWorkbook::setSheetName(const string& sheetRID,
 
 }
 
-std::string Impl::XLWorkbook::getSheetName(const string& sheetRID) {
-    return XmlDocument()->document_element().child("sheets").find_child_by_attribute("r:id", sheetRID.c_str()).attribute("name").value();
+void Impl::XLWorkbook::setSheetVisibility(const string& sheetRID,
+                                          const string& state) {
+
+    auto stateAttribute = XmlDocument()->document_element()
+                                       .child("sheets")
+                                       .find_child_by_attribute("r:id", sheetRID.c_str())
+                                       .attribute("state");
+
+    if (!stateAttribute) {
+        stateAttribute = XmlDocument()->document_element()
+                                      .child("sheets")
+                                      .find_child_by_attribute("r:id", sheetRID.c_str())
+                                      .append_attribute("state");
+    }
+
+    stateAttribute.set_value(state.c_str());
+}
+
+std::string Impl::XLWorkbook::getSheetName(const string& sheetRID) const {
+    return XmlDocument()->document_element()
+                        .child("sheets")
+                        .find_child_by_attribute("r:id", sheetRID.c_str())
+                        .attribute("name").value();
+}
+
+std::string Impl::XLWorkbook::getSheetVisibility(const string& sheetRID) const {
+    return XmlDocument()->document_element()
+                        .child("sheets")
+                        .find_child_by_attribute("r:id", sheetRID.c_str())
+                        .attribute("state").value();
+}
+
+std::string Impl::XLWorkbook::getSheetIndex(const string& sheetRID) const {
+
+    unsigned int index = 1;
+    for (auto& sheet : m_sheetsNode.children()) {
+        if (sheetRID == sheet.attribute("r:id").value())
+            return to_string(index);
+        index++;
+    }
+
+    throw XLException("Sheet does not exist");
 }
 
 /**
@@ -721,14 +761,33 @@ void Impl::XLWorkbook::WriteXMLData() {
             sheet.sheetItem->WriteXMLData();
 }
 
-void Impl::XLWorkbook::ExecuteCommand(Impl::XLCommand command) {
+void Impl::XLWorkbook::executeCommand(Impl::XLCommand command) {
 
     switch (command.commandType()) {
         case XLCommandType::SetSheetName:
             setSheetName(command.sender(), command.parameter());
             break;
+
+
+
+
         default:
             break;
     }
+}
 
+std::string Impl::XLWorkbook::queryCommand(Impl::XLQuery query) const {
+
+    switch (query.queryType()) {
+
+        case XLQueryType::GetSheetName :
+            return getSheetName(query.subject());
+
+        case XLQueryType::GetSheetVisibility :
+            return getSheetVisibility(query.subject());
+
+        default:
+            return std::string();
+
+    }
 }

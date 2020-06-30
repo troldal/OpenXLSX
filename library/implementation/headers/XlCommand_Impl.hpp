@@ -12,7 +12,7 @@ namespace OpenXLSX::Impl
     /**
      * @brief
      */
-    enum class XLCommandType { None, SetSheetName, SetSheetColor, DeleteSheet, CloneSheet };
+    enum class XLCommandType { None, SetSheetName, SetSheetColor, DeleteSheet, CloneSheet, SetSheetVisibility };
 
     /**
      * @brief

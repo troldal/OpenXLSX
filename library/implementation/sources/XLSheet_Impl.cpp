@@ -20,15 +20,7 @@ using namespace OpenXLSX;
 Impl::XLSheet::XLSheet(XLWorkbook& parent, const std::string& sheetRID, XMLAttribute name, const std::string& filepath, const std::string& xmlData)
         : XLAbstractXMLFile(*parent.Document(), "xl/" + filepath, xmlData),
           m_sheetRID(sheetRID),
-          m_sheetName(name),
-          m_sheetType(parent.TypeOfSheet(name.value())),
-          m_sheetState(XLSheetState::Visible),
-          m_nodeInWorkbook(parent.SheetNode(name.value())),
-          m_nodeInApp(parent.Document()->m_docAppProperties->SheetNameNode(name.value())),
-          m_parentWorkbook(parent),
-          m_nodeInContentTypes(parent.Document()->ContentItem("/xl/" + filepath)),
-          m_nodeInWorkbookRels(parent.Relationships()->RelationshipByTarget(filepath)) {
-
+          m_sheetType(parent.TypeOfSheet(name.value())) {
 }
 
 Impl::XLSheet::~XLSheet() = default;
@@ -36,9 +28,9 @@ Impl::XLSheet::~XLSheet() = default;
 /**
  * @details This method returns the m_sheetName property.
  */
-string const Impl::XLSheet::Name() const {
+string Impl::XLSheet::Name() const {
 
-    return m_sheetName.value();
+    return ParentDoc().queryCommand(XLQuery(XLQueryType::GetSheetName, m_sheetRID));
 }
 
 /**
@@ -50,15 +42,28 @@ string const Impl::XLSheet::Name() const {
  */
 void Impl::XLSheet::SetName(const std::string& name) {
 
-    ParentDoc().ExecuteCommand(XLCommand(XLCommandType::SetSheetName, m_sheetRID, name));
+    ParentDoc().executeCommand(XLCommand(XLCommandType::SetSheetName, m_sheetRID, name));
 }
 
 /**
  * @details This method returns the m_sheetState property.
  */
-const XLSheetState& Impl::XLSheet::State() const {
+XLSheetState Impl::XLSheet::State() const {
 
-    return m_sheetState;
+    auto state = ParentDoc().queryCommand(XLQuery(XLQueryType::GetSheetVisibility, m_sheetRID));
+    auto result = XLSheetState::Visible;
+
+    if (state == "visible" || state.empty()) {
+        result = XLSheetState::Visible;
+    }
+    else if (state == "hidden") {
+        result = XLSheetState::Hidden;
+    }
+    else if (state == "veryHidden") {
+        result = XLSheetState::VeryHidden;
+    }
+
+    return result;
 }
 
 /**
@@ -70,33 +75,22 @@ const XLSheetState& Impl::XLSheet::State() const {
  */
 void Impl::XLSheet::SetState(XLSheetState state) {
 
-    m_sheetState = state;
-
-    switch (m_sheetState) {
-        case XLSheetState::Hidden : {
-            auto att = m_nodeInWorkbook.attribute("state");
-            if (!m_nodeInWorkbook.attribute("state"))
-                m_nodeInWorkbook.append_attribute("state") = "hidden";
-            else
-                att.set_value("hidden");
+    auto stateString = std::string();
+    switch (state) {
+        case XLSheetState::Visible :
+            stateString = "visible";
             break;
-        }
 
-        case XLSheetState::VeryHidden : {
-            auto att = m_nodeInWorkbook.attribute("state");
-            if (!att)
-                m_nodeInWorkbook.append_attribute("state") = "veryhidden";
-            else
-                att.set_value("veryhidden"); // todo: Check that this actually works
+        case XLSheetState::Hidden :
+            stateString = "hidden";
             break;
-        }
 
-        case XLSheetState::Visible : {
-            auto att = m_nodeInWorkbook.attribute("state");
-            if (att)
-                m_nodeInWorkbook.remove_attribute("state");
-        }
+        case XLSheetState::VeryHidden :
+            stateString = "veryHidden";
+            break;
     }
+
+    ParentDoc().executeCommand(XLCommand(XLCommandType::SetSheetVisibility, m_sheetRID, stateString));
 }
 
 /**
@@ -135,7 +129,7 @@ const XLSheetType& Impl::XLSheet::Type() const {
  */
 unsigned int Impl::XLSheet::Index() const {
 
-    return m_parentWorkbook.IndexOfSheet(Name());
+    return stoi(ParentDoc().queryCommand(XLQuery(XLQueryType::GetSheetIndex, m_sheetRID)));
 }
 
 /**
@@ -148,10 +142,10 @@ void Impl::XLSheet::SetIndex() {
 
 Impl::XLWorkbook* Impl::XLSheet::Workbook() {
 
-    return &m_parentWorkbook;
+    return ParentDoc().Workbook();
 }
 
 const Impl::XLWorkbook* Impl::XLSheet::Workbook() const {
 
-    return &m_parentWorkbook;
+    return ParentDoc().Workbook();
 }

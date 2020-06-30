@@ -58,6 +58,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLEnums_impl.hpp"
 #include "XLContentTypes_Impl.hpp"
 #include "XlCommand_Impl.hpp"
+#include "XlQuery_Impl.hpp"
 
 namespace OpenXLSX::Impl
 {
@@ -349,7 +350,9 @@ namespace OpenXLSX::Impl
          */
         void WriteXMLData() override;
 
-        void ExecuteCommand(XLCommand command);
+        void executeCommand(XLCommand command);
+
+        std::string queryCommand(XLQuery query) const;
 
 
     protected: // ---------- Protected Member Functions ---------- //
@@ -411,7 +414,13 @@ namespace OpenXLSX::Impl
 
         void setSheetName(const std::string& sheetRID, const std::string& newName);
 
-        std::string getSheetName(const std::string& sheetRID);
+        void setSheetVisibility(const std::string& sheetRID, const std::string& state);
+
+        std::string getSheetName(const std::string& sheetRID) const;
+
+        std::string getSheetVisibility(const std::string& sheetRID) const;
+
+        std::string getSheetIndex(const std::string& sheetRID) const;
 
     private: // ---------- Private Member Variables ---------- //
 

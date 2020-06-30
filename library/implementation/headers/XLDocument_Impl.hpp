@@ -64,6 +64,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLDefinitions.hpp"
 #include "XLZipFileInterface.hpp"
 #include "XlCommand_Impl.hpp"
+#include "XlQuery_Impl.hpp"
 
 namespace OpenXLSX::Impl
 {
@@ -192,7 +193,9 @@ namespace OpenXLSX::Impl
          */
         void DeleteProperty(XLProperty theProperty);
 
-        void ExecuteCommand(XLCommand command);
+        void executeCommand(XLCommand command);
+
+        std::string queryCommand(XLQuery query) const;
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Protected Member Functions

@@ -59,8 +59,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 namespace OpenXLSX::Impl
 {
-    class XLContentItem;
-    class XLRelationshipItem;
     class XLWorkbook;
 
     /**
@@ -110,7 +108,7 @@ namespace OpenXLSX::Impl
          * @brief Method to retrieve the name of the sheet.
          * @return A std::string with the sheet name.
          */
-        virtual std::string const Name() const;
+        virtual std::string Name() const;
 
         /**
          * @brief Method for renaming the sheet.
@@ -122,7 +120,7 @@ namespace OpenXLSX::Impl
          * @brief Method for getting the current visibility state of the sheet.
          * @return An XLSheetState enum object, with the current sheet state.
          */
-        virtual const XLSheetState& State() const;
+        virtual XLSheetState State() const;
 
         /**
          * @brief Method for setting the state of the sheet.
@@ -199,17 +197,7 @@ namespace OpenXLSX::Impl
 
     private:
         std::string m_sheetRID; /**< The relationship ID for the sheet. */
-
-        XMLAttribute m_sheetName; /**< The sheet name given by the user */
         XLSheetType m_sheetType; /**< The sheet type, i.e. WorkSheet, ChartSheet, etc. */
-        XLSheetState m_sheetState; /**< The state of the sheet, i.e. Visible, Hidden or VeryHidden */
-
-        XMLNode m_nodeInWorkbook; /**< A pointer to the relevant sheet node in workbook.xml */
-        XMLNode m_nodeInApp; /**< A pointer to the relevant TitleOfParts node in app.xml */
-
-        XLWorkbook& m_parentWorkbook; /**<  */
-        XLContentItem m_nodeInContentTypes; /**< A pointer to the relevant content type item in [Content_Types].xml */
-        XLRelationshipItem m_nodeInWorkbookRels; /**< A pointer to the relationship item in workbook.xml.rels */
     };
 }  // namespace OpenXLSX::Impl
 

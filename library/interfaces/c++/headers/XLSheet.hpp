@@ -122,7 +122,7 @@ namespace OpenXLSX
          * @brief Method for getting the current visibility state of the sheet.
          * @return An XLSheetState enum object, with the current sheet state.
          */
-        virtual const XLSheetState& State() const;
+        virtual XLSheetState State() const;
 
         /**
          * @brief Method for setting the state of the sheet.

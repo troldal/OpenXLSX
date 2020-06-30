@@ -21,7 +21,7 @@ void XLSheet::SetName(const std::string& name) {
     m_sheet->SetName(name);
 }
 
-const XLSheetState& XLSheet::State() const {
+XLSheetState XLSheet::State() const {
 
     return m_sheet->State();
 }
