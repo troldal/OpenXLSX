@@ -6,6 +6,7 @@
 #include "XLDocument_Impl.hpp"
 
 #include <pugixml.hpp>
+#include <algorithm>
 
 using namespace std;
 using namespace OpenXLSX;
@@ -15,18 +16,12 @@ using namespace OpenXLSX;
  * A filepath to the underlying XML file must be provided.
  */
 Impl::XLSharedStrings::XLSharedStrings(XLDocument& parent)
-        : XLAbstractXMLFile(parent, "xl/sharedStrings.xml"),
-          m_sharedStringNodes(),
-          m_emptyString("") {
+        : XLAbstractXMLFile(parent, "xl/sharedStrings.xml")
+//          m_sharedStringNodes(),
+//          m_emptyString("")
+          {
 
     ParseXMLData();
-}
-
-/**
- * @details Saves the XML file (if modified) and destroys the object.
- */
-Impl::XLSharedStrings::~XLSharedStrings() {
-    //CommitXMLData();
 }
 
 /**
@@ -36,66 +31,41 @@ Impl::XLSharedStrings::~XLSharedStrings() {
  */
 bool Impl::XLSharedStrings::ParseXMLData() {
     // Clear the datastructure
-    m_sharedStringNodes.clear();
+    //m_sharedStringNodes.clear();
 
     // Find the first node and iterate through the XML file, storing all string nodes in the internal datastructure
-    for (auto& node : XmlDocument()->first_child().children())
-        m_sharedStringNodes.push_back(node.first_child());
+//    for (auto& node : XmlDocument()->first_child().children())
+//        m_sharedStringNodes.push_back(node.first_child());
     return true;
-}
-
-/**
- * @details Look up a shared string by index and return a pointer to the corresponding node in the underlying XML file.
- * If the index is larger than the number of shared strings a nullptr will be returned.
- * The resulting string is returned as pointer-to-const, as the client is not supposed to modify the shared strings
- * directly.
- */
-const XMLNode Impl::XLSharedStrings::GetStringNode(unsigned long index) const {
-
-    if (index > m_sharedStringNodes.size() - 1)
-        throw std::range_error("Node does not exist");
-    else
-        return m_sharedStringNodes.at(index);
-}
-
-/**
- * @details Look up a shared string node by string and return a pointer to the corresponding node in the underlying XML file.
- * If the index is larger than the number of shared strings a nullptr will be returned.
- * The resulting string is returned as pointer-to-const, as the client is not supposed to modify the shared strings
- * directly.
- */
-const XMLNode Impl::XLSharedStrings::GetStringNode(std::string_view str) const {
-
-    for (const auto& s : m_sharedStringNodes) {
-        if (string_view(s.text().get()) == str)
-            return s;
-    }
-
-    throw std::range_error("Node does not exist");
 }
 
 /**
  * @details Look up a string index by the string content. If the string does not exist, the returned index is -1.
  */
-long Impl::XLSharedStrings::GetStringIndex(string_view str) const {
+int32_t Impl::XLSharedStrings::GetStringIndex(const string& str) const {
 
-    long result = -1;
-    long counter = 0;
-    for (const auto& s : m_sharedStringNodes) {
-        if (string_view(s.text().get()) == str) {
-            result = counter;
-            break;
-        }
-        counter++;
-    }
+    auto iter = std::find_if(XmlDocument()->document_element().children().begin(),
+                             XmlDocument()->document_element().children().end(),
+                             [&](const XMLNode& node) { return strcmp(node.first_child().text().get(), str.c_str()) == 0; });
 
-    return result;
+
+//    long result = -1;
+//    long counter = 0;
+//    for (const auto& s : m_sharedStringNodes) {
+//        if (string_view(s.text().get()) == str) {
+//            result = counter;
+//            break;
+//        }
+//        counter++;
+//    }
+
+    return iter == XmlDocument()->document_element().children().end() ? -1 : std::distance(XmlDocument()->document_element().children().begin(), iter);
 }
 
 /**
  * @details
  */
-bool Impl::XLSharedStrings::StringExists(std::string_view str) const {
+bool Impl::XLSharedStrings::StringExists(const string& str) const {
 
     return GetStringIndex(str) >= 0;
 }
@@ -103,27 +73,33 @@ bool Impl::XLSharedStrings::StringExists(std::string_view str) const {
 /**
  * @details
  */
-bool Impl::XLSharedStrings::StringExists(unsigned long index) const {
+bool Impl::XLSharedStrings::StringExists(uint32_t index) const {
 
-    return index <= m_sharedStringNodes.size() - 1;
+    //return index <= m_sharedStringNodes.size() - 1;
+    return index <= std::distance(XmlDocument()->document_element().children().begin(),
+                                  XmlDocument()->document_element().children().end()) - 1;
+}
+
+/**
+ * @details
+ */
+const char* Impl::XLSharedStrings::GetString(uint32_t index) const {
+
+    auto iter = XmlDocument()->document_element().children().begin();
+    std::advance(iter, index);
+    return iter->text().get();
 }
 
 /**
  * @details Append a string by creating a new node in the XML file and adding the string to it. The index to the
  * shared string is returned
  */
-long Impl::XLSharedStrings::AppendString(string_view str) {
+int32_t Impl::XLSharedStrings::AppendString(const string& str) {
 
-    // Create the required nodes
-    auto node = XmlDocument()->append_child("si");
-    auto value = node.append_child("t");
-    value.text().set(string(str).c_str());
+    XmlDocument()->document_element().append_child("si").append_child("t").text().set(str.c_str());
 
-    // Add the node pointer to the internal datastructure.
-    m_sharedStringNodes.push_back(value);
-
-    // Return the Index of the new string.
-    return m_sharedStringNodes.size() - 1;
+    return std::distance(XmlDocument()->document_element().children().begin(),
+                         XmlDocument()->document_element().children().end()) - 1;
 }
 
 /**
@@ -132,6 +108,10 @@ long Impl::XLSharedStrings::AppendString(string_view str) {
  */
 void Impl::XLSharedStrings::ClearString(int index) {
 
-    m_sharedStringNodes.at(index).set_value("");
+    auto iter = XmlDocument()->document_element().children().begin();
+    std::advance(iter, index);
+    iter->text().set("");
+
+    //m_sharedStringNodes.at(index).set_value("");
 }
 

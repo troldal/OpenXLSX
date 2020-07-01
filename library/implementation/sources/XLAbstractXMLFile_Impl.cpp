@@ -15,15 +15,15 @@ using namespace OpenXLSX;
  */
 Impl::XLAbstractXMLFile::XLAbstractXMLFile(XLDocument& parent, std::string filePath, const std::string& xmlData)
         : m_path(std::move(filePath)),
-          m_parentDocument(parent),
-          m_xmlDocument(XMLDocument()) {
+          m_parentDocument(&parent),
+          m_xmlDocument(std::make_shared<XMLDocument>()) {
 
     if (xmlData.empty())
-        SetXmlData(m_parentDocument.GetXMLFile(m_path));
+        SetXmlData(m_parentDocument->GetXMLFile(m_path));
     else
         SetXmlData(xmlData);
 
-    m_parentDocument.AddOrReplaceXMLFile(m_path, GetXmlData());
+    m_parentDocument->AddOrReplaceXMLFile(m_path, GetXmlData());
 }
 
 /**
@@ -44,7 +44,7 @@ Impl::XLAbstractXMLFile::operator bool() const {
 void Impl::XLAbstractXMLFile::SetXmlData(const std::string& xmlData) {
 
     //TODO: Determine if pugi::parse_ws_pcdata can be used without risking parsing error.
-    m_xmlDocument.load_string(xmlData.c_str(),pugi::parse_default | pugi::parse_ws_pcdata);
+    m_xmlDocument->load_string(xmlData.c_str(),pugi::parse_default | pugi::parse_ws_pcdata);
 }
 
 /**
@@ -53,7 +53,7 @@ void Impl::XLAbstractXMLFile::SetXmlData(const std::string& xmlData) {
 std::string Impl::XLAbstractXMLFile::GetXmlData() const {
 
     ostringstream ostr;
-    m_xmlDocument.save(ostr, "", pugi::format_raw);
+    m_xmlDocument->save(ostr, "", pugi::format_raw);
     return ostr.str();
 }
 
@@ -63,7 +63,7 @@ std::string Impl::XLAbstractXMLFile::GetXmlData() const {
  */
 void Impl::XLAbstractXMLFile::WriteXMLData() {
 
-    m_parentDocument.AddOrReplaceXMLFile(m_path, GetXmlData());
+    m_parentDocument->AddOrReplaceXMLFile(m_path, GetXmlData());
 }
 
 /**
@@ -72,7 +72,7 @@ void Impl::XLAbstractXMLFile::WriteXMLData() {
  */
 void Impl::XLAbstractXMLFile::DeleteXMLData() {
 
-    m_parentDocument.DeleteXMLFile(m_path);
+    m_parentDocument->DeleteXMLFile(m_path);
 }
 
 /**
@@ -96,6 +96,6 @@ XMLDocument* Impl::XLAbstractXMLFile::XmlDocument() {
  */
 const XMLDocument* Impl::XLAbstractXMLFile::XmlDocument() const {
 
-    return &m_xmlDocument;
+    return m_xmlDocument.get();
 }
 

@@ -277,91 +277,6 @@ namespace OpenXLSX::Impl
          */
         XLCellType CellType() const;
 
-        /**
-         * @brief Get a reference to the parent cell of the XLCellValue object.
-         * @return A reference to the parent XLCell object.
-         */
-        XLCell* Cell();
-
-        /**
-         * @brief Get a const reference to the parent cell of the XLCellValue object.
-         * @return A const reference to the parent XLCell object.
-         */
-        const XLCell* Cell() const;
-
-        /**
-         * @brief Get a pointer to the value node in the underlying XML file.
-         * @return A pointer to an XMLNode object corresponding to the value node.
-         */
-        XMLNode ValueNode();
-
-        /**
-         * @brief Get a const pointer to the value node in the underlying XML file.
-         * @return A const pointer to an XMLNode object corresponding to the value node.
-         */
-        const XMLNode ValueNode() const;
-
-        /**
-         * @brief Confirm whether or not a value node exists.
-         * @return true if a value node exists; otherwise false.
-         */
-        bool HasValueNode() const;
-
-        /**
-         * @brief Set the value of the value node.
-         * @param value A std::string with the value.
-         */
-        void SetValueNode(std::string_view value);
-
-        /**
-         * @brief Delete the value node in the underlying XML file.
-         */
-        void DeleteValueNode();
-
-        /**
-         * @brief Create a new value node.
-         * @return A pointer to the XMLNode object for the value node.
-         */
-        XMLNode CreateValueNode();
-
-        /**
-         * @brief Get a pointer to the type attribute in the underlying XML file.
-         * @return A pointer to an XMLAttribute object corresponding to the type attribute; nullptr if it
-         * doesn't exist.
-         */
-        XMLAttribute TypeAttribute();
-
-        /**
-         * @brief Get a const pointer to the type attribute in the underlying XML file.
-         * @return A const pointer to an XMLAttribute object corresponding to the type attribute; nullptr if it
-         * doesn't exist.
-         */
-        const XMLAttribute TypeAttribute() const;
-
-        /**
-         * @brief Confirm whether or not a type attribute exists.
-         * @return true if a type attribute exists; otherwise false.
-         */
-        bool HasTypeAttribute() const;
-
-        /**
-         * @brief Set the value of the type attribute.
-         * @param typeString A std::string with the value.
-         */
-        void SetTypeAttribute(const std::string& typeString);
-
-        /**
-         * @brief Delete the type attribute in the underlying XML file.
-         */
-        void DeleteTypeAttribute();
-
-        /**
-         * @brief Create a new type attribute.
-         * @return A pointer to the XMLAttribute object for the type attribute.
-         */
-        XMLAttribute CreateTypeAttribute();
-
-
         //----------------------------------------------------------------------------------------------------------------------
         //           Private Member Functions
         //----------------------------------------------------------------------------------------------------------------------
@@ -374,13 +289,6 @@ namespace OpenXLSX::Impl
          * @return An XLNumberType::Integer or XLNumberType::Float
          */
         XLNumberType DetermineNumberType(const std::string& numberString) const;
-
-        /**
-         * @brief Get the xml node with the requested shared string.
-         * @param index The index of the requested shared string.
-         * @return An xml node with the shared string.
-         */
-        XMLNode SharedStringNode(unsigned long index) const;
 
         /**
          * @brief
@@ -398,7 +306,7 @@ namespace OpenXLSX::Impl
          * @brief
          * @param numberValue
          */
-        void SetFloat(long double numberValue);
+        void SetFloat(double numberValue);
 
         /**
          * @brief
@@ -430,7 +338,9 @@ namespace OpenXLSX::Impl
         //----------------------------------------------------------------------------------------------------------------------
 
     private:
-        XLCell& m_parentCell; /**< A reference to the parent XLCell object. */
+        XMLNode m_cellNode;
+        XLSharedStrings m_sharedStrings;
+        //XLCell& m_parentCell; /**< A reference to the parent XLCell object. */
     };
 
     //----------------------------------------------------------------------------------------------------------------------

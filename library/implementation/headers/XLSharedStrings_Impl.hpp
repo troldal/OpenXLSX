@@ -87,76 +87,68 @@ namespace OpenXLSX::Impl
         /**
          * @brief Destructor
          */
-        ~XLSharedStrings() override;
+        ~XLSharedStrings() override = default;
 
         /**
          * @brief
          * @param other
          */
-        XLSharedStrings(const XLSharedStrings& other) = delete;
+        XLSharedStrings(const XLSharedStrings& other) = default;
 
         /**
          * @brief
          * @param other
          */
-        XLSharedStrings(XLSharedStrings&& other) = delete;
-
-        /**
-         * @brief
-         * @param other
-         * @return
-         */
-        XLSharedStrings& operator=(const XLSharedStrings& other) = delete;
+        XLSharedStrings(XLSharedStrings&& other) noexcept = default;
 
         /**
          * @brief
          * @param other
          * @return
          */
-        XLSharedStrings& operator=(XLSharedStrings&& other) = delete;
+        XLSharedStrings& operator=(const XLSharedStrings& other) = default;
 
         /**
-         * @brief Get a pointer to the XMLNode holding the shared string at a given index.
-         * @param index The index to look up.
-         * @return A pointer to the XMLNode holding the shared string.
+         * @brief
+         * @param other
+         * @return
          */
-        const XMLNode GetStringNode(unsigned long index) const;
-
-        /**
-         * @brief Get a pointer to the XMLNode with the given string. If more than one XMLNode exists with the lookup
-         * string, the first will be returned.
-         * @param str The string to look up.
-         * @return A pointer to the XMLNode holding the shared string.
-         */
-        const XMLNode GetStringNode(std::string_view str) const;
+        XLSharedStrings& operator=(XLSharedStrings&& other) noexcept = default;
 
         /**
          * @brief
          * @param str
          * @return
          */
-        long GetStringIndex(std::string_view str) const;
+        int32_t GetStringIndex(const std::string& str) const;
 
         /**
          * @brief
          * @param str
          * @return
          */
-        bool StringExists(std::string_view str) const;
+        bool StringExists(const std::string& str) const;
 
         /**
          * @brief
          * @param index
          * @return
          */
-        bool StringExists(unsigned long index) const;
+        bool StringExists(uint32_t index) const;
+
+        /**
+         * @brief
+         * @param index
+         * @return
+         */
+        const char* GetString(uint32_t index) const;
 
         /**
          * @brief Append a new string to the list of shared strings.
          * @param str The string to append.
          * @return A long int with the index of the appended string
          */
-        long AppendString(std::string_view str);
+        int32_t AppendString(const std::string& str);
 
         /**
          * @brief Clear the string at the given index.
@@ -183,10 +175,10 @@ namespace OpenXLSX::Impl
         //           Private Member Functions
         //----------------------------------------------------------------------------------------------------------------------
 
-    private:
-
-        std::vector<XMLNode> m_sharedStringNodes; /**< A std::vector with the XMLNodes holding the shared strings. */
-        std::string m_emptyString; /**< A dummy member used for returning an empty string. */
+//    private:
+//
+//        std::vector<XMLNode> m_sharedStringNodes; /**< A std::vector with the XMLNodes holding the shared strings. */
+//        std::string m_emptyString; /**< A dummy member used for returning an empty string. */
 
     };
 

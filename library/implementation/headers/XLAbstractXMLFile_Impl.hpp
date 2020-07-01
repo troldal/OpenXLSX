@@ -81,7 +81,9 @@ namespace OpenXLSX::Impl
         /**
          * @brief Copy constructor. Default (shallow) implementation used.
          */
-        XLAbstractXMLFile(const XLAbstractXMLFile&) = delete;
+        XLAbstractXMLFile(const XLAbstractXMLFile&) = default;
+
+        XLAbstractXMLFile(XLAbstractXMLFile&& other) noexcept = default;
 
         /**
          * @brief Destructor. Default implementation used.
@@ -92,7 +94,9 @@ namespace OpenXLSX::Impl
          * @brief The assignment operator. The default implementation has been used.
          * @return A reference to the new object.
          */
-        XLAbstractXMLFile& operator=(const XLAbstractXMLFile&) = delete;
+        XLAbstractXMLFile& operator=(const XLAbstractXMLFile&) = default;
+
+        XLAbstractXMLFile& operator=(XLAbstractXMLFile&& other) noexcept = default;
 
         /**
          * @brief
@@ -131,11 +135,11 @@ namespace OpenXLSX::Impl
         virtual const std::string& FilePath() const final;
 
         virtual const XLDocument& ParentDoc() const final {
-            return m_parentDocument;
+            return *m_parentDocument;
         }
 
         virtual XLDocument& ParentDoc() final {
-            return m_parentDocument;
+            return *m_parentDocument;
         }
 
     protected: // ===== PROTECTED MEMBER FUNCTIONS
@@ -167,8 +171,8 @@ namespace OpenXLSX::Impl
     private: // ===== PRIVATE MEMBER VARIABLES
 
         std::string m_path; /**< */
-        XLDocument& m_parentDocument; /**< */
-        XMLDocument m_xmlDocument; /**< A pointer to the underlying XMLDocument resource*/
+        XLDocument* m_parentDocument; /**< */
+        std::shared_ptr<XMLDocument> m_xmlDocument; /**< A pointer to the underlying XMLDocument resource*/
     };
 }  // namespace OpenXLSX::Impl
 
