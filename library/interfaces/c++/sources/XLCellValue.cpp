@@ -9,9 +9,11 @@
 
 using namespace OpenXLSX;
 
-XLCellValue::XLCellValue(Impl::XLCellValue& value)
-        : m_value(&value) {
+XLCellValue::XLCellValue(Impl::XLCellValue value)
+        : m_value(std::make_unique<Impl::XLCellValue>(value)) {
 }
+
+XLCellValue::~XLCellValue() = default;
 
 XLCellValue& XLCellValue::operator=(const XLCellValue& other) {
 

@@ -141,13 +141,7 @@ namespace OpenXLSX::Impl
          * @brief Get a reference to the XLCellValue object for the cell.
          * @return A reference to an XLCellValue object.
          */
-        XLCellValue& Value();
-
-        /**
-         * @brief Get a const reference to the XLCellValue object for the cell.
-         * @return A const reference to an XLCellValue object.
-         */
-        const XLCellValue& Value() const;
+        Impl::XLCellValue Value() const;
 
         /**
          * @brief
@@ -159,7 +153,7 @@ namespace OpenXLSX::Impl
          * @brief get the XLCellReference object for the cell.
          * @return A reference to the cells' XLCellReference object.
          */
-        const XLCellReference* CellReference() const;
+        Impl::XLCellReference CellReference() const;
 
         bool HasFormula() const;
 
@@ -246,16 +240,13 @@ namespace OpenXLSX::Impl
         //           Private Member Variables
         //----------------------------------------------------------------------------------------------------------------------
 
-    private:
 
         // ===== Pointers to parent entities ===== //
         XLWorksheet* m_parentWorksheet; /**< A pointer to the parent XLWorksheet object. */
 
         // ===== Cell entities ===== //
         XMLNode m_cellNode;              /**< A pointer to the root XMLNode for the cell. */
-        XLCellReference m_cellReference; /**< The cell reference variable. */
-        XLCellValue m_value;             /**< The XLCellValue object, holding the current value. */
     };
-}
+}  // namespace OpenXLSX::Impl
 
 #endif //OPENXLSX_IMPL_XLCELL_H

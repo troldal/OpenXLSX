@@ -20,7 +20,7 @@ XLValueType XLCell::ValueType() const {
 
 const XLCellReference XLCell::CellReference() const {
 
-    return XLCellReference(*m_cell->CellReference());
+    return XLCellReference(m_cell->CellReference());
 }
 
 XLCellValue XLCell::Value() {

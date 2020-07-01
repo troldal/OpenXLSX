@@ -29,27 +29,21 @@ using namespace OpenXLSX;
  */
 Impl::XLCell::XLCell(XLWorksheet& parent, XMLNode cellNode)
         : m_parentWorksheet(&parent),
-          m_cellNode(cellNode),
-          m_cellReference(XLCellReference(cellNode.attribute("r").value())),
-          m_value(XLCellValue(*this)) {
+          m_cellNode(cellNode) {
 
     // Empty constructor body
 }
 
 Impl::XLCell::XLCell(Impl::XLCell const& other)
         : m_parentWorksheet(other.m_parentWorksheet),
-          m_cellNode(other.m_cellNode),
-          m_cellReference(other.m_cellReference),
-          m_value(XLCellValue(*this)) {
+          m_cellNode(other.m_cellNode) {
 
     // Empty constructor body
 }
 
 Impl::XLCell::XLCell(Impl::XLCell&& other) noexcept
         : m_parentWorksheet(std::move(other.m_parentWorksheet)),
-          m_cellNode(std::move(other.m_cellNode)),
-          m_cellReference(std::move(other.m_cellReference)),
-          m_value(XLCellValue(*this)) {
+          m_cellNode(std::move(other.m_cellNode)) {
 
     // Empty constructor body
 }
@@ -67,9 +61,9 @@ Impl::XLCell::XLCell(Impl::XLCell&& other) noexcept
  */
 Impl::XLCell& Impl::XLCell::operator=(const XLCellRange& range) {
 
-    auto first = this->CellReference();
-    XLCellReference last(first->Row() + range.NumRows() - 1, first->Column() + range.NumColumns() - 1);
-    XLCellRange rng(*Worksheet(), *first, last);
+    auto first = CellReference();
+    XLCellReference last(first.Row() + range.NumRows() - 1, first.Column() + range.NumColumns() - 1);
+    XLCellRange rng(*Worksheet(), first, last);
     rng = range;
 
     return *this;
@@ -80,31 +74,24 @@ Impl::XLCell& Impl::XLCell::operator=(const XLCellRange& range) {
  */
 XLValueType Impl::XLCell::ValueType() const {
 
-    return m_value.ValueType();
+    return XLCellValue(*this).ValueType();
+    //return m_value.ValueType();
 }
 
 /**
  * @details
  */
-const Impl::XLCellValue& Impl::XLCell::Value() const {
+Impl::XLCellValue Impl::XLCell::Value() const {
 
-    return m_value;
-}
-
-/**
- * @details
- */
-Impl::XLCellValue& Impl::XLCell::Value() {
-
-    return m_value;
+    return XLCellValue(*this);
 }
 
 /**
  * @details This function returns a const reference to the cellReference property.
  */
-const Impl::XLCellReference* Impl::XLCell::CellReference() const {
+Impl::XLCellReference Impl::XLCell::CellReference() const {
 
-    return &m_cellReference;
+    return XLCellReference(m_cellNode.attribute("r").value());
 }
 
 /**

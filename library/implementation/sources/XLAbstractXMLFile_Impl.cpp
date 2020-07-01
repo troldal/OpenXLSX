@@ -16,7 +16,7 @@ using namespace OpenXLSX;
 Impl::XLAbstractXMLFile::XLAbstractXMLFile(XLDocument& parent, std::string filePath, const std::string& xmlData)
         : m_path(std::move(filePath)),
           m_parentDocument(&parent),
-          m_xmlDocument(std::make_shared<XMLDocument>()) {
+          m_xmlDocument() {
 
     if (xmlData.empty())
         SetXmlData(m_parentDocument->GetXMLFile(m_path));
@@ -44,7 +44,7 @@ Impl::XLAbstractXMLFile::operator bool() const {
 void Impl::XLAbstractXMLFile::SetXmlData(const std::string& xmlData) {
 
     //TODO: Determine if pugi::parse_ws_pcdata can be used without risking parsing error.
-    m_xmlDocument->load_string(xmlData.c_str(),pugi::parse_default | pugi::parse_ws_pcdata);
+    m_xmlDocument.load_string(xmlData.c_str(),pugi::parse_default | pugi::parse_ws_pcdata);
 }
 
 /**
@@ -53,7 +53,7 @@ void Impl::XLAbstractXMLFile::SetXmlData(const std::string& xmlData) {
 std::string Impl::XLAbstractXMLFile::GetXmlData() const {
 
     ostringstream ostr;
-    m_xmlDocument->save(ostr, "", pugi::format_raw);
+    m_xmlDocument.save(ostr, "", pugi::format_raw);
     return ostr.str();
 }
 
@@ -96,6 +96,6 @@ XMLDocument* Impl::XLAbstractXMLFile::XmlDocument() {
  */
 const XMLDocument* Impl::XLAbstractXMLFile::XmlDocument() const {
 
-    return m_xmlDocument.get();
+    return &m_xmlDocument;
 }
 

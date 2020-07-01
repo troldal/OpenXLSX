@@ -18,9 +18,9 @@ using namespace std;
  * @pre The parent input parameter is a valid XLCell object.
  * @post A valid XLCellValue object has been constructed.
  */
-Impl::XLCellValue::XLCellValue(XLCell& parent) noexcept
+Impl::XLCellValue::XLCellValue(const XLCell& parent) noexcept
         : m_cellNode(parent.CellNode()),
-          m_sharedStrings(*parent.Worksheet()->ParentDoc().Workbook()->SharedStrings()) {
+          m_sharedStrings(parent.Worksheet()->ParentDoc().Workbook()->SharedStrings()) {
 }
 
 /**
@@ -97,11 +97,6 @@ void Impl::XLCellValue::Set(const char* stringValue) {
     m_cellNode.attribute("t").set_value("str");
     m_cellNode.child("v").text().set(stringValue);
     m_cellNode.attribute("xml:space").set_value("preserve");
-
-    //TypeAttribute().set_value("str");
-    //ValueNode().text().set(stringValue);
-    //ValueNode().attribute("xml:space").set_value("preserve");
-
 }
 
 /**
@@ -130,7 +125,7 @@ std::string Impl::XLCellValue::AsString() const {
     }
 
     if (strcmp(m_cellNode.attribute("t").value(), "s") == 0)
-        return m_sharedStrings.GetString(m_cellNode.child("v").text().as_ullong());
+        return m_sharedStrings->GetString(m_cellNode.child("v").text().as_ullong());
 
     return m_cellNode.child("v").text().get();
 }
@@ -219,17 +214,13 @@ Impl::XLNumberType Impl::XLCellValue::DetermineNumberType(const string& numberSt
     return XLNumberType::Integer;
 }
 
-void Impl::XLCellValue::SetInteger(long long int numberValue) {
+void Impl::XLCellValue::SetInteger(int64_t numberValue) {
 
     if (!m_cellNode.child("v")) m_cellNode.append_child("v");
 
     m_cellNode.remove_attribute("t");
     m_cellNode.child("v").text().set(numberValue);
     m_cellNode.child("v").attribute("xml:space").set_value("default");
-
-    //ValueNode().remove_attribute("t");
-    //ValueNode().text().set(numberValue);
-    //ValueNode().attribute("xml:space").set_value("default");
 }
 
 void Impl::XLCellValue::SetBoolean(bool numberValue) {
@@ -240,10 +231,6 @@ void Impl::XLCellValue::SetBoolean(bool numberValue) {
     m_cellNode.attribute("t").set_value("b");
     m_cellNode.child("v").text().set(numberValue ? 1 : 0);
     m_cellNode.child("v").attribute("xml:space").set_value("default");
-
-    //TypeAttribute().set_value("b");
-    //ValueNode().text().set(numberValue ? 1 : 0);
-    //ValueNode().attribute("xml:space").set_value("default");
 }
 
 void Impl::XLCellValue::SetFloat(double numberValue) {
@@ -253,13 +240,9 @@ void Impl::XLCellValue::SetFloat(double numberValue) {
     m_cellNode.remove_attribute("t");
     m_cellNode.child("v").text().set(numberValue);
     m_cellNode.child("v").attribute("xml:space").set_value("default");
-
-    //ValueNode().remove_attribute("t");
-    //ValueNode().text().set(std::to_string(numberValue).c_str());
-    //ValueNode().attribute("xml:space").set_value("default");
 }
 
-long long int Impl::XLCellValue::GetInteger() const {
+int64_t Impl::XLCellValue::GetInteger() const {
 
     if (ValueType() != XLValueType::Integer)
         throw XLException("Cell value is not Integer");
@@ -287,7 +270,7 @@ const char* Impl::XLCellValue::GetString() const {
     if (strcmp(m_cellNode.attribute("t").value(),"str") == 0) // ordinary string
         return m_cellNode.child("v").text().get();
     if (strcmp(m_cellNode.attribute("t").value(),"s") == 0) // shared string
-        return m_sharedStrings.GetString(m_cellNode.child("v").text().as_ullong());
+        return m_sharedStrings->GetString(m_cellNode.child("v").text().as_ullong());
 
     throw XLException("Unknown string type");
 }

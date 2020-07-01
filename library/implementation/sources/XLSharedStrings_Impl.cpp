@@ -30,12 +30,7 @@ Impl::XLSharedStrings::XLSharedStrings(XLDocument& parent)
  * @todo Consider making the return value void.
  */
 bool Impl::XLSharedStrings::ParseXMLData() {
-    // Clear the datastructure
-    //m_sharedStringNodes.clear();
 
-    // Find the first node and iterate through the XML file, storing all string nodes in the internal datastructure
-//    for (auto& node : XmlDocument()->first_child().children())
-//        m_sharedStringNodes.push_back(node.first_child());
     return true;
 }
 
@@ -47,17 +42,6 @@ int32_t Impl::XLSharedStrings::GetStringIndex(const string& str) const {
     auto iter = std::find_if(XmlDocument()->document_element().children().begin(),
                              XmlDocument()->document_element().children().end(),
                              [&](const XMLNode& node) { return strcmp(node.first_child().text().get(), str.c_str()) == 0; });
-
-
-//    long result = -1;
-//    long counter = 0;
-//    for (const auto& s : m_sharedStringNodes) {
-//        if (string_view(s.text().get()) == str) {
-//            result = counter;
-//            break;
-//        }
-//        counter++;
-//    }
 
     return iter == XmlDocument()->document_element().children().end() ? -1 : std::distance(XmlDocument()->document_element().children().begin(), iter);
 }
@@ -75,7 +59,6 @@ bool Impl::XLSharedStrings::StringExists(const string& str) const {
  */
 bool Impl::XLSharedStrings::StringExists(uint32_t index) const {
 
-    //return index <= m_sharedStringNodes.size() - 1;
     return index <= std::distance(XmlDocument()->document_element().children().begin(),
                                   XmlDocument()->document_element().children().end()) - 1;
 }
@@ -111,7 +94,5 @@ void Impl::XLSharedStrings::ClearString(int index) {
     auto iter = XmlDocument()->document_element().children().begin();
     std::advance(iter, index);
     iter->text().set("");
-
-    //m_sharedStringNodes.at(index).set_value("");
 }
 

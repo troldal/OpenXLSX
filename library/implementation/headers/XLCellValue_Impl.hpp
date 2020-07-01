@@ -61,10 +61,6 @@ namespace OpenXLSX::Impl
 
     class XLCell;
 
-    //======================================================================================================================
-    //========== XLCellValue Class =========================================================================================
-    //======================================================================================================================
-
     /**
      * @brief The XLCellValue class represents the concept of a cell value. This can be in the form of a number
      * (an integer or a float), a string, a boolean or no value (empty).
@@ -124,7 +120,7 @@ namespace OpenXLSX::Impl
          * @brief Constructor
          * @param parent A reference to the parent XLCell object.
          */
-        explicit XLCellValue(XLCell& parent) noexcept;
+        explicit XLCellValue(const XLCell& parent) noexcept;
 
         /**
          * @brief Copy constructor.
@@ -134,7 +130,7 @@ namespace OpenXLSX::Impl
          * @param other object to be copied.
          * @note The default copy constructor has been used.
          */
-        XLCellValue(const XLCellValue& other) = delete;
+        XLCellValue(const XLCellValue& other) = default;
 
         /**
          * @brief Move constructor.
@@ -164,7 +160,7 @@ namespace OpenXLSX::Impl
          * @note The move assignment operator has been explicitly deleted. Move will not be allowed, as an XLCellValue must
          * always remain valid. Moving will invalidate the source object.
          */
-        XLCellValue& operator=(XLCellValue&& other) noexcept = delete;
+        XLCellValue& operator=(XLCellValue&& other) noexcept = default;
 
         /**
          * @brief Assignment operator
@@ -172,7 +168,7 @@ namespace OpenXLSX::Impl
          * @param numberValue The integer value to assign to the XLCellValue object.
          * @return A reference to the current object, with the new value.
          */
-        template<typename T, typename std::enable_if<std::is_integral<T>::value, long long int>::type* = nullptr>
+        template<typename T, typename std::enable_if<std::is_integral<T>::value, int64_t>::type* = nullptr>
         XLCellValue& operator=(T numberValue);
 
         /**
@@ -209,7 +205,7 @@ namespace OpenXLSX::Impl
          * @tparam T The integer type to assign.
          * @param numberValue The integer value to assign.
          */
-        template<typename T, typename std::enable_if<std::is_integral<T>::value, long long int>::type* = nullptr>
+        template<typename T, typename std::enable_if<std::is_integral<T>::value, int64_t>::type* = nullptr>
         void Set(T numberValue);
 
         /**
@@ -236,7 +232,7 @@ namespace OpenXLSX::Impl
          * @brief Get integer value.
          * @tparam T The integer type to get.
          */
-        template<typename T, typename std::enable_if<std::is_integral<T>::value, long long int>::type* = nullptr>
+        template<typename T, typename std::enable_if<std::is_integral<T>::value, int64_t>::type* = nullptr>
         T Get();
 
         /**
@@ -294,7 +290,7 @@ namespace OpenXLSX::Impl
          * @brief
          * @param numberValue
          */
-        void SetInteger(long long int numberValue);
+        void SetInteger(int64_t numberValue);
 
         /**
          * @brief
@@ -312,7 +308,7 @@ namespace OpenXLSX::Impl
          * @brief
          * @return
          */
-        long long int GetInteger() const;
+        int64_t GetInteger() const;
 
         /**
          * @brief
@@ -332,15 +328,10 @@ namespace OpenXLSX::Impl
          */
         const char* GetString() const;
 
+        // ========== Member Variables ==========
 
-        //----------------------------------------------------------------------------------------------------------------------
-        //           Private Member Variables
-        //----------------------------------------------------------------------------------------------------------------------
-
-    private:
         XMLNode m_cellNode;
-        XLSharedStrings m_sharedStrings;
-        //XLCell& m_parentCell; /**< A reference to the parent XLCell object. */
+        XLSharedStrings* m_sharedStrings;
     };
 
     //----------------------------------------------------------------------------------------------------------------------
@@ -355,7 +346,7 @@ namespace OpenXLSX::Impl
      * @post The underlying xml object has been modified to hold the value of the input parameter and the type attribute
      * has been set accordingly.
      */
-    template<typename T, typename std::enable_if<std::is_integral<T>::value, long long int>::type*>
+    template<typename T, typename std::enable_if<std::is_integral<T>::value, int64_t>::type*>
     XLCellValue& XLCellValue::operator=(T numberValue) {
 
         Set(numberValue);
@@ -384,7 +375,7 @@ namespace OpenXLSX::Impl
      * @pre
      * @post
      */
-    template<typename T, typename std::enable_if<std::is_integral<T>::value, long long int>::type*>
+    template<typename T, typename std::enable_if<std::is_integral<T>::value, int64_t>::type*>
     void XLCellValue::Set(T numberValue) {
 
         if constexpr (std::is_same<T, bool>::value) { // if bool
@@ -414,7 +405,7 @@ namespace OpenXLSX::Impl
      * @pre
      * @post
      */
-    template<typename T, typename std::enable_if<std::is_integral<T>::value, long long int>::type*>
+    template<typename T, typename std::enable_if<std::is_integral<T>::value, int64_t>::type*>
     T XLCellValue::Get() {
 
         if constexpr (std::is_same<T, bool>::value) {

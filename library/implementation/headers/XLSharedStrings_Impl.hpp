@@ -93,7 +93,7 @@ namespace OpenXLSX::Impl
          * @brief
          * @param other
          */
-        XLSharedStrings(const XLSharedStrings& other) = default;
+        XLSharedStrings(const XLSharedStrings& other) = delete;
 
         /**
          * @brief
@@ -106,7 +106,7 @@ namespace OpenXLSX::Impl
          * @param other
          * @return
          */
-        XLSharedStrings& operator=(const XLSharedStrings& other) = default;
+        XLSharedStrings& operator=(const XLSharedStrings& other) = delete;
 
         /**
          * @brief
@@ -170,16 +170,6 @@ namespace OpenXLSX::Impl
          * @return true if successful; otherwise false.
          */
         bool ParseXMLData() override;
-
-        //----------------------------------------------------------------------------------------------------------------------
-        //           Private Member Functions
-        //----------------------------------------------------------------------------------------------------------------------
-
-//    private:
-//
-//        std::vector<XMLNode> m_sharedStringNodes; /**< A std::vector with the XMLNodes holding the shared strings. */
-//        std::string m_emptyString; /**< A dummy member used for returning an empty string. */
-
     };
 
 } // namespace OpenXLSX::Impl

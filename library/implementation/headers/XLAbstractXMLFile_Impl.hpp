@@ -172,7 +172,7 @@ namespace OpenXLSX::Impl
 
         std::string m_path; /**< */
         XLDocument* m_parentDocument; /**< */
-        std::shared_ptr<XMLDocument> m_xmlDocument; /**< A pointer to the underlying XMLDocument resource*/
+        XMLDocument m_xmlDocument; /**< A pointer to the underlying XMLDocument resource*/
     };
 }  // namespace OpenXLSX::Impl
 

@@ -50,6 +50,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLDefinitions.hpp"
 #include <type_traits>
 #include <string>
+#include <memory>
 
 namespace OpenXLSX
 {
@@ -117,7 +118,7 @@ namespace OpenXLSX
          * @brief
          * @param value
          */
-        explicit XLCellValue(Impl::XLCellValue& value);
+        explicit XLCellValue(Impl::XLCellValue value);
     public:
         /**
          * @brief
@@ -134,7 +135,7 @@ namespace OpenXLSX
         /**
          * @brief
          */
-        virtual ~XLCellValue() = default;
+        virtual ~XLCellValue();
 
         /**
          * @brief
@@ -291,7 +292,7 @@ namespace OpenXLSX
         const char* GetString() const;
 
     private:
-        Impl::XLCellValue* m_value; /**< A pointer to the underlying implementation object, Impl::XLCellValue*/
+        std::unique_ptr<Impl::XLCellValue> m_value; /**< A pointer to the underlying implementation object, Impl::XLCellValue*/
     };
 
     /**
