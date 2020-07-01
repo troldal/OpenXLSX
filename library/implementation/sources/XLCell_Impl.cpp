@@ -30,7 +30,6 @@ using namespace OpenXLSX;
 Impl::XLCell::XLCell(XLWorksheet& parent, XMLNode cellNode)
         : m_parentWorksheet(&parent),
           m_cellNode(cellNode),
-          m_cellFormula(cellNode.child("f")),
           m_cellReference(XLCellReference(cellNode.attribute("r").value())),
           m_value(XLCellValue(*this)) {
 
@@ -40,7 +39,6 @@ Impl::XLCell::XLCell(XLWorksheet& parent, XMLNode cellNode)
 Impl::XLCell::XLCell(Impl::XLCell const& other)
         : m_parentWorksheet(other.m_parentWorksheet),
           m_cellNode(other.m_cellNode),
-          m_cellFormula(other.m_cellFormula),
           m_cellReference(other.m_cellReference),
           m_value(XLCellValue(*this)) {
 
@@ -50,7 +48,6 @@ Impl::XLCell::XLCell(Impl::XLCell const& other)
 Impl::XLCell::XLCell(Impl::XLCell&& other) noexcept
         : m_parentWorksheet(std::move(other.m_parentWorksheet)),
           m_cellNode(std::move(other.m_cellNode)),
-          m_cellFormula(std::move(other.m_cellFormula)),
           m_cellReference(std::move(other.m_cellReference)),
           m_value(XLCellValue(*this)) {
 
@@ -114,21 +111,21 @@ const Impl::XLCellReference* Impl::XLCell::CellReference() const {
  * @details
  */
 bool Impl::XLCell::HasFormula() const {
-    return m_cellFormula != nullptr;
+    return m_cellNode.child("f") != nullptr;
 }
 
 /**
  * @details
  */
 std::string Impl::XLCell::GetFormula() const {
-    return m_cellFormula.text().get();
+    return m_cellNode.child("f").text().get();
 }
 
 /**
  * @details
  */
 void Impl::XLCell::SetFormula(const std::string& newFormula) {
-    m_cellFormula.text().set(newFormula.c_str());
+    m_cellNode.child("f").text().set(newFormula.c_str());
 }
 
 /**

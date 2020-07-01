@@ -253,7 +253,6 @@ namespace OpenXLSX::Impl
 
         // ===== Cell entities ===== //
         XMLNode m_cellNode;              /**< A pointer to the root XMLNode for the cell. */
-        XMLNode m_cellFormula;           /**< A pointer to the formula node (if any). */
         XLCellReference m_cellReference; /**< The cell reference variable. */
         XLCellValue m_value;             /**< The XLCellValue object, holding the current value. */
     };

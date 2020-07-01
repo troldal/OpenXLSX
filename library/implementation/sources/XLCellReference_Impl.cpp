@@ -11,6 +11,8 @@
 
 #ifdef CHARCONV_ENABLED
 #include <charconv>
+#include <XLException.hpp>
+
 #endif
 
 using namespace std;
@@ -23,8 +25,7 @@ using namespace OpenXLSX;
 Impl::XLCellReference::XLCellReference(const std::string& cellAddress)
         : m_row(1),
           m_column(1),
-          m_cellAddress("A1"),
-          m_valid(true) {
+          m_cellAddress("A1") {
 
     if (!cellAddress.empty())
         SetAddress(cellAddress);
@@ -34,20 +35,15 @@ Impl::XLCellReference::XLCellReference(const std::string& cellAddress)
  * @details This constructor creates a new XLCellReference from a given row and column number, e.g. 1,1 (=A1)
  * @todo consider swapping the arguments.
  */
-Impl::XLCellReference::XLCellReference(unsigned long row, unsigned int column)
+Impl::XLCellReference::XLCellReference(uint32_t row, uint16_t column)
         : m_row(row),
           m_column(column),
-          m_cellAddress(ColumnAsString(column) + RowAsString(row)),
-          m_valid(false) {
+          m_cellAddress(ColumnAsString(column) + RowAsString(row)) {
 
     if (m_row < 1 || m_row > maxRows || m_column < 1 || m_column > maxCols) {
         m_row = 0;
         m_column = 0;
         m_cellAddress = "";
-        m_valid = false;
-    }
-    else {
-        m_valid = true;
     }
 }
 
@@ -55,27 +51,22 @@ Impl::XLCellReference::XLCellReference(unsigned long row, unsigned int column)
  * @details This constructor creates a new XLCellReference from a row number and the column name (e.g. 1, A)
  * @todo consider swapping the arguments.
  */
-Impl::XLCellReference::XLCellReference(unsigned long row, const std::string& column)
+Impl::XLCellReference::XLCellReference(uint32_t row, const std::string& column)
         : m_row(row),
           m_column(ColumnAsNumber(column)),
-          m_cellAddress(column + RowAsString(row)),
-          m_valid(false) {
+          m_cellAddress(column + RowAsString(row)) {
 
     if (m_row < 1 || m_row > maxRows || m_column < 1 || m_column > maxCols) {
         m_row = 0;
         m_column = 0;
         m_cellAddress = "";
-        m_valid = false;
-    }
-    else {
-        m_valid = true;
     }
 }
 
 /**
  * @details Returns the m_row property.
  */
-unsigned long Impl::XLCellReference::Row() const {
+uint32_t Impl::XLCellReference::Row() const {
 
     return m_row;
 }
@@ -84,7 +75,7 @@ unsigned long Impl::XLCellReference::Row() const {
  * @details Sets the row of the XLCellReference objects. If the number is larger than 16384 (the maximum),
  * the row is set to 16384.
  */
-void Impl::XLCellReference::SetRow(unsigned long row) {
+void Impl::XLCellReference::SetRow(uint32_t row) {
 
     if (row < 1)
         m_row = 1;
@@ -99,7 +90,7 @@ void Impl::XLCellReference::SetRow(unsigned long row) {
 /**
  * @details Returns the m_column property.
  */
-unsigned int Impl::XLCellReference::Column() const {
+uint16_t Impl::XLCellReference::Column() const {
 
     return m_column;
 }
@@ -108,7 +99,7 @@ unsigned int Impl::XLCellReference::Column() const {
  * @details Sets the column of the XLCellReference object. If the number is larger than 1048576 (the maximum),
  * the column is set to 1048576.
  */
-void Impl::XLCellReference::SetColumn(unsigned int column) {
+void Impl::XLCellReference::SetColumn(uint16_t column) {
 
     if (column < 1)
         m_column = 1;
@@ -124,7 +115,7 @@ void Impl::XLCellReference::SetColumn(unsigned int column) {
  * @details Sets row and column of the XLCellReference object. Checks that row and column is less than
  * or equal to the maximum row and column numbers allowed by Excel.
  */
-void Impl::XLCellReference::SetRowAndColumn(unsigned long row, unsigned int column) {
+void Impl::XLCellReference::SetRowAndColumn(uint32_t row, uint16_t column) {
 
     if (row < 1)
         m_row = 1;
@@ -163,13 +154,11 @@ void Impl::XLCellReference::SetAddress(const std::string& address) {
         m_row = 0;
         m_column = 0;
         m_cellAddress = "";
-        m_valid = false;
     }
     else {
         m_row = coordinates.first;
         m_column = coordinates.second;
         m_cellAddress = address;
-        m_valid = true;
     }
 }
 
@@ -179,11 +168,11 @@ void Impl::XLCellReference::SetAddress(const std::string& address) {
  * @todo Find out why std::to_chars causes a linker error when using LLVM/Clang. As a workaround, a custom conversion
  * algorithm has been implemented for clang (std::to_string is too slow!)
  */
-std::string Impl::XLCellReference::RowAsString(unsigned long row) {
+std::string Impl::XLCellReference::RowAsString(uint32_t row) {
 
 #ifdef CHARCONV_ENABLED
     std::array<char, 7> str {};
-    auto p = std::to_chars(str.data(), str.data() + str.size(), row).ptr;
+    auto *p = std::to_chars(str.data(), str.data() + str.size(), row).ptr;
     return string(str.data(), p - str.data());
 #else
     string result;
@@ -204,7 +193,7 @@ std::string Impl::XLCellReference::RowAsString(unsigned long row) {
 /**
  * @details
  */
-unsigned long Impl::XLCellReference::RowAsNumber(const std::string& row) {
+uint32_t Impl::XLCellReference::RowAsNumber(const std::string& row) {
 
 #ifdef CHARCONV_ENABLED
     unsigned long value = 0;
@@ -218,7 +207,7 @@ unsigned long Impl::XLCellReference::RowAsNumber(const std::string& row) {
 /**
  * @details Helper method to calculate the column letter from column number.
  */
-std::string Impl::XLCellReference::ColumnAsString(unsigned int column) {
+std::string Impl::XLCellReference::ColumnAsString(uint16_t column) {
 
     string result;
 
@@ -250,7 +239,7 @@ std::string Impl::XLCellReference::ColumnAsString(unsigned int column) {
 /**
  * @details Helper method to calculate the column number from column letter.
  */
-unsigned int Impl::XLCellReference::ColumnAsNumber(const std::string& column) {
+uint16_t Impl::XLCellReference::ColumnAsNumber(const std::string& column) {
 
     unsigned int length = column.size();
     unsigned int result = 0;
@@ -279,7 +268,7 @@ unsigned int Impl::XLCellReference::ColumnAsNumber(const std::string& column) {
 /**
  * @details Helper method for calculating the coordinates from the cell address.
  */
-std::pair<unsigned long, unsigned int> Impl::XLCellReference::CoordinatesFromAddress(const std::string& address) {
+Impl::XLCoordinates Impl::XLCellReference::CoordinatesFromAddress(const std::string& address) {
 
     int letterCount = 0;
 
@@ -291,13 +280,8 @@ std::pair<unsigned long, unsigned int> Impl::XLCellReference::CoordinatesFromAdd
     int numberCount = address.size() - letterCount;
 
     if (letterCount < 1 || letterCount > 3 || numberCount < 1 || numberCount > 7)
-        // If the Address is invalid, return 0,0
-        return make_pair(0, 0);
-    else {
-        unsigned int column = ColumnAsNumber(address.substr(0, letterCount));
-        unsigned long row = RowAsNumber(address.substr(letterCount, numberCount));
+        throw XLException("Cell address \"" + address + "\" is invalid!");
 
-        return make_pair(row, column);
-    }
-
+    return make_pair(RowAsNumber(address.substr(letterCount, numberCount)),
+            ColumnAsNumber(address.substr(0, letterCount)));
 }

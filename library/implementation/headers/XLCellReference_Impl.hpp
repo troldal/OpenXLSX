@@ -58,7 +58,7 @@ namespace OpenXLSX::Impl
     /**
      * @brief
      */
-    using XLCoordinates = std::pair<unsigned long, unsigned int>;
+    using XLCoordinates = std::pair<uint32_t, uint16_t>;
 
     //======================================================================================================================
     //========== XLCellReference Class =====================================================================================
@@ -93,20 +93,26 @@ namespace OpenXLSX::Impl
          * @param row The row number of the cell.
          * @param column The column number of the cell.
          */
-        explicit XLCellReference(unsigned long row, unsigned int column);
+        explicit XLCellReference(uint32_t row, uint16_t column);
 
         /**
          * @brief Constructor taking the row number and the column letter as arguments.
          * @param row The row number of the cell.
          * @param column The column letter of the cell.
          */
-        explicit XLCellReference(unsigned long row, const std::string& column);
+        explicit XLCellReference(uint32_t row, const std::string& column);
 
         /**
          * @brief Copy constructor
          * @param other The object to be copied.
          */
         XLCellReference(const XLCellReference& other) = default;
+
+        /**
+         * @brief
+         * @param other
+         */
+        XLCellReference(XLCellReference&& other) noexcept = default;
 
         /**
          * @brief Destructor. Default implementation used.
@@ -121,35 +127,42 @@ namespace OpenXLSX::Impl
         XLCellReference& operator=(const XLCellReference& other) = default;
 
         /**
+         * @brief
+         * @param other
+         * @return
+         */
+        XLCellReference& operator=(XLCellReference&& other) noexcept = default;
+
+        /**
          * @brief Get the row number of the XLCellReference.
          * @return The row.
          */
-        unsigned long Row() const;
+        uint32_t Row() const;
 
         /**
          * @brief Set the row number for the XLCellReference.
          * @param row The row number.
          */
-        void SetRow(unsigned long row);
+        void SetRow(uint32_t row);
 
         /**
          * @brief Get the column number of the XLCellReference.
          * @return The column number.
          */
-        unsigned int Column() const;
+        uint16_t Column() const;
 
         /**
          * @brief Set the column number of the XLCellReference.
          * @param column The column number.
          */
-        void SetColumn(unsigned int column);
+        void SetColumn(uint16_t column);
 
         /**
          * @brief Set both row and column number of the XLCellReference.
          * @param row The row number.
          * @param column The column number.
          */
-        void SetRowAndColumn(unsigned long row, unsigned int column);
+        void SetRowAndColumn(uint32_t row, uint16_t column);
 
         /**
          * @brief Get the address of the XLCellReference
@@ -174,36 +187,33 @@ namespace OpenXLSX::Impl
          * @param row
          * @return
          */
-        static std::string RowAsString(unsigned long row);
+        static std::string RowAsString(uint32_t row);
 
         /**
          * @brief
          * @param row
          * @return
          */
-        static unsigned long RowAsNumber(const std::string& row);
+        static uint32_t RowAsNumber(const std::string& row);
 
         /**
          * @brief Static helper function to convert column number to column letter (e.g. column 1 becomes 'A')
          * @param column The column number.
          * @return The column letter
-         * @todo Include a cache of column names generated.
          */
-        static std::string ColumnAsString(unsigned int column);
+        static std::string ColumnAsString(uint16_t column);
 
         /**
          * @brief Static helper function to convert column letter to column number (e.g. column 'A' becomes 1)
          * @param column The column letter, e.g. 'A'
          * @return The column number.
-         * @todo Include a cache of column names generated.
          */
-        static unsigned int ColumnAsNumber(const std::string& column);
+        static uint16_t ColumnAsNumber(const std::string& column);
 
         /**
          * @brief Static helper function to convert cell address to coordinates.
          * @param address The address to be converted, e.g. 'A1'
          * @return A std::pair<row, column>
-         * @todo Consider including a cache of the coordinates requested,
          */
         static XLCoordinates CoordinatesFromAddress(const std::string& address);
 
@@ -211,13 +221,9 @@ namespace OpenXLSX::Impl
         //           Private Member Variables
         //----------------------------------------------------------------------------------------------------------------------
 
-    private:
-
-        unsigned long m_row; /**< The row */
-        unsigned int m_column; /**< The column */
+        uint32_t m_row; /**< The row */
+        uint16_t m_column; /**< The column */
         std::string m_cellAddress; /**< The address, e.g. 'A1' */
-        bool m_valid /**< Flag indicating if the reference is valid. */;
-
     };
 
     //======================================================================================================================
@@ -232,10 +238,7 @@ namespace OpenXLSX::Impl
      */
     inline bool operator==(const XLCellReference& lhs, const XLCellReference& rhs) {
 
-        bool result = false;
-        if (lhs.Row() == rhs.Row() && lhs.Column() == rhs.Column())
-            result = true;
-        return result;
+        return lhs.Row() == rhs.Row() && lhs.Column() == rhs.Column();
     }
 
     /**
@@ -257,15 +260,7 @@ namespace OpenXLSX::Impl
      */
     inline bool operator<(const XLCellReference& lhs, const XLCellReference& rhs) {
 
-        bool result;
-        if (lhs.Row() < rhs.Row())
-            result = true;
-        else if (lhs.Row() > rhs.Row())
-            result = false;
-        else { // lhs.Row() == rhs.Row()
-            result = lhs.Column() < rhs.Column();
-        }
-        return result;
+        return (lhs.Row() < rhs.Row() ? true : (lhs.Row() > rhs.Row() ? false : lhs.Column() < rhs.Column()));
     }
 
     /**
