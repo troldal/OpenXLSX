@@ -5,7 +5,7 @@
 #ifndef OPENXLSX_XLCONTENTTYPEENUM_IMPL_H
 #define OPENXLSX_XLCONTENTTYPEENUM_IMPL_H
 
-#include <XLDefinitions.hpp>
+#include "XLDefinitions_Impl.hpp"
 
 namespace OpenXLSX::Impl
 {

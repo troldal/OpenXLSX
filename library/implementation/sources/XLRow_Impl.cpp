@@ -114,7 +114,7 @@ XMLNode Impl::XLRow::RowNode() const {
  * @details Return a pointer to the XLCell object at the given column number. If the cell does not exist, it will be
  * created.
  */
-Impl::XLCell* Impl::XLRow::Cell(unsigned int column) {
+Impl::XLCell Impl::XLRow::Cell(unsigned int column) {
 
     // ===== Search for the cell at the requested column
     XLCellData searchItem;
@@ -145,13 +145,13 @@ Impl::XLCell* Impl::XLRow::Cell(unsigned int column) {
 
     }
 
-    return dataItem->cellItem.get();
+    return *dataItem->cellItem;
 }
 
 /**
  * @details
  */
-const Impl::XLCell* Impl::XLRow::Cell(unsigned int column) const {
+Impl::XLCell Impl::XLRow::Cell(unsigned int column) const {
 
     auto result = find_if(m_cells.begin(), m_cells.end(), [=](const XLCellData& data) {
         return data.cellIndex == column;
@@ -159,7 +159,7 @@ const Impl::XLCell* Impl::XLRow::Cell(unsigned int column) const {
 
     if (result == m_cells.end())
         throw XLException("Cell does not exist!");
-    return result->cellItem.get();
+    return *result->cellItem;
 
 }
 

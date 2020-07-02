@@ -26,6 +26,6 @@ bool Impl::XLChartsheet::ParseXMLData() {
     return false;
 }
 
-XLSheetType Impl::XLChartsheet::Type() const {
+Impl::XLSheetType Impl::XLChartsheet::Type() const {
     return XLSheetType::ChartSheet;
 }

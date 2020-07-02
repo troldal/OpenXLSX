@@ -49,7 +49,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <cstdint>
 #include "openxlsx_export.h"
 
-namespace OpenXLSX
+namespace OpenXLSX::Impl
 {
 
     //======================================================================================================================

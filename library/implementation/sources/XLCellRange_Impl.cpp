@@ -58,11 +58,11 @@ Impl::XLCellRange& Impl::XLCellRange::operator=(const XLCellRange& other) {
 
     for (unsigned long r = 1; r <= NumRows(); ++r) {
         for (unsigned int c = 1; c <= NumColumns(); ++c) {
-            if (other.Cell(r, c) == nullptr) {
-                Cell(r, c)->Value().Clear();
+            if (other.Cell(r, c) == XLCell()) {
+                Cell(r, c).Value().Clear();
             }
             else {
-                Cell(r, c)->Value() = other.Cell(r, c)->Value();
+                Cell(r, c).Value() = other.Cell(r, c).Value();
             }
         }
     }
@@ -74,17 +74,17 @@ Impl::XLCellRange& Impl::XLCellRange::operator=(const XLCellRange& other) {
  * @details Returns a pointer to the XLCell at the given coordinates.
  * @todo return a const_cast version of the const method.
  */
-Impl::XLCell* Impl::XLCellRange::Cell(unsigned long row, unsigned int column) {
+Impl::XLCell Impl::XLCellRange::Cell(unsigned long row, unsigned int column) {
 
-    return const_cast<XLCell*>(static_cast<const XLCellRange*>(this)->Cell(row, column));
+    return static_cast<const XLCellRange&>(*this).Cell(row, column);
 }
 
 /**
  * @details Returns a const pointer to the XLCell at the given coordinates.
  */
-const Impl::XLCell* Impl::XLCellRange::Cell(unsigned long row, unsigned int column) const {
+Impl::XLCell Impl::XLCellRange::Cell(unsigned long row, unsigned int column) const {
 
-    const XLCell* result = nullptr;
+    //const XLCell* result = nullptr;
     XLCellReference cellReference;
 
     // Check if the coordinates are inside the Range.
@@ -96,9 +96,11 @@ const Impl::XLCell* Impl::XLCellRange::Cell(unsigned long row, unsigned int colu
     else
         cellReference.SetRowAndColumn(column + m_rowOffset, row + m_columnOffset);
 
-    result = m_parentWorksheet->Cell(cellReference);
+//    result = m_parentWorksheet->Cell(cellReference);
+//
+//    return result;
 
-    return result;
+    return m_parentWorksheet->Cell(cellReference);
 }
 
 /**
@@ -138,7 +140,7 @@ void Impl::XLCellRange::Clear() {
 
     for (unsigned long row = 1; row <= m_rows; row++) {
         for (unsigned int column = 1; column <= m_columns; column++) {
-            Cell(row, column)->Value().Clear();
+            Cell(row, column).Value().Clear();
         }
     }
 }

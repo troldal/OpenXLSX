@@ -61,9 +61,6 @@ namespace OpenXLSX::Impl
 
     class XLWorksheet;
 
-    class XLCellValue;
-
-
     //======================================================================================================================
     //========== XLCell Class ==============================================================================================
     //======================================================================================================================
@@ -77,11 +74,15 @@ namespace OpenXLSX::Impl
 
         friend class XLCellValue;
 
+        friend bool operator==(const XLCell& lhs, const XLCell& rhs);
+
         //----------------------------------------------------------------------------------------------------------------------
         //           Public Member Functions
         //----------------------------------------------------------------------------------------------------------------------
 
     public:
+
+        explicit XLCell();
 
         /**
          * @brief Constructor
@@ -199,41 +200,7 @@ namespace OpenXLSX::Impl
          * @brief
          * @return
          */
-        XMLNode CellNode();
-
-        /**
-         * @brief
-         * @return
-         */
-        const XMLNode CellNode() const;
-
-        /**
-         * @brief 
-         * @return 
-         */
-        bool HasTypeAttribute() const;
-
-        /**
-         * @brief
-         * @return
-         */
-        const XMLAttribute TypeAttribute() const;
-
-        /**
-         * @brief
-         * @param typeString
-         */
-        void SetTypeAttribute(const std::string& typeString = "");
-
-        /**
-         * @brief
-         */
-        void DeleteTypeAttribute();
-
-        /**
-         * @brief
-         */
-        XMLNode CreateValueNode();
+        XMLNode CellNode() const;
 
 
         //----------------------------------------------------------------------------------------------------------------------
@@ -247,6 +214,12 @@ namespace OpenXLSX::Impl
         // ===== Cell entities ===== //
         XMLNode m_cellNode;              /**< A pointer to the root XMLNode for the cell. */
     };
+
+    inline bool operator==(const XLCell& lhs, const XLCell& rhs) {
+
+        return lhs.m_parentWorksheet == rhs.m_parentWorksheet && lhs.m_cellNode == rhs.m_cellNode;
+    }
+
 }  // namespace OpenXLSX::Impl
 
 #endif //OPENXLSX_IMPL_XLCELL_H

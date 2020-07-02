@@ -46,6 +46,26 @@ Impl::XLCellValue& Impl::XLCellValue::operator=(const Impl::XLCellValue& other) 
 }
 
 /**
+ * @brief
+ * @param other
+ * @return
+ * @todo Currently, the move constructor is identical to the copy constructor. Ensure that this is the correct behaviour.
+ */
+Impl::XLCellValue& Impl::XLCellValue::operator=(Impl::XLCellValue&& other) noexcept {
+    if (&other != this) {
+
+        if (!m_cellNode.attribute("t")) m_cellNode.append_attribute("t");
+        if (!m_cellNode.child("v")) m_cellNode.append_child("v");
+
+        m_cellNode.child("v").set_value(!other.m_cellNode.child("v") ? "" : other.m_cellNode.child("v").text().get());
+        m_cellNode.child("v").attribute("xml:space").set_value(other.m_cellNode.child("v").attribute("xml:space").value());
+        m_cellNode.attribute("t").set_value(!other.m_cellNode.attribute("t") ? "" : other.m_cellNode.attribute("t").value());
+    }
+
+    return *this;
+}
+
+/**
  * @details The assignment operator taking a std::string object as a parameter, calls the corresponding Set method
  * and returns the resulting object.
  * @pre The XLCellValue object and the stringValue parameter are both valid.
@@ -135,7 +155,7 @@ std::string Impl::XLCellValue::AsString() const {
  * @pre The parent XLCell object is valid and has a corresponding node in the underlying XML file.
  * @post The current object, and any associated objects, are unchanged.
  */
-XLValueType Impl::XLCellValue::ValueType() const {
+Impl::XLValueType Impl::XLCellValue::ValueType() const {
 
     switch (CellType()) {
         case XLCellType::Empty:

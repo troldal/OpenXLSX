@@ -46,11 +46,10 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_IMPL_XLCELLVALUE_H
 #define OPENXLSX_IMPL_XLCELLVALUE_H
 
-#include "XLDefinitions.hpp"
+#include "XLDefinitions_Impl.hpp"
 #include "XLCellType_Impl.hpp"
-#include "XLException.hpp"
+#include "XLException_Impl.hpp"
 #include "XLXml_Impl.hpp"
-#include "XLCellValue.hpp"
 #include "XLSharedStrings_Impl.hpp"
 
 #include <string>
@@ -108,8 +107,6 @@ namespace OpenXLSX::Impl
      */
     class XLCellValue
     {
-        friend class OpenXLSX::XLCellValue;
-
         //----------------------------------------------------------------------------------------------------------------------
         //           Public Member Functions
         //----------------------------------------------------------------------------------------------------------------------
@@ -160,7 +157,7 @@ namespace OpenXLSX::Impl
          * @note The move assignment operator has been explicitly deleted. Move will not be allowed, as an XLCellValue must
          * always remain valid. Moving will invalidate the source object.
          */
-        XLCellValue& operator=(XLCellValue&& other) noexcept = default;
+        XLCellValue& operator=(XLCellValue&& other) noexcept;
 
         /**
          * @brief Assignment operator

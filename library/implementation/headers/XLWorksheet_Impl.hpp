@@ -136,28 +136,28 @@ namespace OpenXLSX::Impl
          * @param ref An XLCellReference object with the address of the cell to get.
          * @return A reference to the requested XLCell object.
          */
-        XLCell* Cell(const XLCellReference& ref);
+        Impl::XLCell Cell(const XLCellReference& ref);
 
         /**
          * @brief Get a pointer to the XLCell object for the given cell reference.
          * @param ref An XLCellReference object with the address of the cell to get.
          * @return A const reference to the requested XLCell object.
          */
-        const XLCell* Cell(const XLCellReference& ref) const;
+        Impl::XLCell Cell(const XLCellReference& ref) const;
 
         /**
          * @brief Get the cell with the given address
          * @param address The address of the cell to get, e.g. 'A1'
          * @return A reference to the XLCell object at the given address
          */
-        XLCell* Cell(const std::string& address);
+        Impl::XLCell Cell(const std::string& address);
 
         /**
          * @brief Get the cell with the given address
          * @param address The address of the cell to get, e.g. 'A1'
          * @return A const reference to the XLCell object at the given address
          */
-        const XLCell* Cell(const std::string& address) const;
+        Impl::XLCell Cell(const std::string& address) const;
 
         /**
          * @brief Get the cell at the given coordinates.
@@ -165,7 +165,7 @@ namespace OpenXLSX::Impl
          * @param columnNumber The column number (index base 1).
          * @return A reference to the XLCell object at the given coordinates.
          */
-        XLCell* Cell(unsigned long rowNumber, unsigned int columnNumber);
+        Impl::XLCell Cell(unsigned long rowNumber, unsigned int columnNumber);
 
         /**
          * @brief Get the cell at the given coordinates.
@@ -173,7 +173,7 @@ namespace OpenXLSX::Impl
          * @param columnNumber The column number (index base 1).
          * @return A const reference to the XLCell object at the given coordinates.
          */
-        const XLCell* Cell(unsigned long rowNumber, unsigned int columnNumber) const;
+        Impl::XLCell Cell(unsigned long rowNumber, unsigned int columnNumber) const;
 
         /**
          * @brief Get a range for the area currently in use (i.e. from cell A1 to the last cell being in use).
@@ -327,12 +327,6 @@ namespace OpenXLSX::Impl
          * @return A XMLNode reference.
          */
         XMLNode ColumnsNode() const;
-
-        /**
-         * @brief Get a reference to the XMLNode object corresponding to the sheet views node in the XML file.
-         * @return An XMLNode reference.
-         */
-        XMLNode SheetViewsNode() const;
 
         /**
          * @brief Specify the first cell (upper left) of the worksheet.

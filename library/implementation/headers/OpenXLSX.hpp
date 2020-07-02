@@ -43,90 +43,21 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXLSX_XLCOLUMN_HPP
-#define OPENXLSX_XLCOLUMN_HPP
+#ifndef OPENXLSX_OPENXLSX_HPP
+#define OPENXLSX_OPENXLSX_HPP
 
-#include "openxlsx_export.h"
+#include "XLCell_Impl.hpp"
+#include "XLCellRange_Impl.hpp"
+#include "XLCellReference_Impl.hpp"
+#include "XLCellValue_Impl.hpp"
+#include "XLChartsheet_Impl.hpp"
+#include "XLColumn_Impl.hpp"
+#include "XLDocument_Impl.hpp"
+#include "XLException_Impl.hpp"
+#include "XLDefinitions_Impl.hpp"
+#include "XLRow_Impl.hpp"
+#include "XLSheet_Impl.hpp"
+#include "XLWorkbook_Impl.hpp"
+#include "XLWorksheet_Impl.hpp"
 
-namespace OpenXLSX
-{
-    namespace Impl
-    {
-        class XLColumn;
-    } // namespace Impl
-
-    /**
-     * @brief
-     */
-    class OPENXLSX_EXPORT XLColumn
-    {
-    public:
-
-        /**
-         * @brief
-         * @param column
-         */
-        explicit XLColumn(Impl::XLColumn column);
-
-        /**
-         * @brief
-         * @param other
-         */
-        XLColumn(const XLColumn& other) = default;
-
-        /**
-         * @brief
-         * @param other
-         */
-        XLColumn(XLColumn&& other) = default;
-
-        /**
-         * @brief
-         */
-        virtual ~XLColumn() = default;
-
-        /**
-         * @brief
-         * @param other
-         * @return
-         */
-        XLColumn& operator=(const XLColumn& other) = default;
-
-        /**
-         * @brief
-         * @param other
-         * @return
-         */
-        XLColumn& operator=(XLColumn&& other) = default;
-
-        /**
-         * @brief Get the width of the column.
-         * @return The width of the column.
-         */
-        float Width() const;
-
-        /**
-         * @brief Set the width of the column
-         * @param width The width of the column
-         */
-        void SetWidth(float width);
-
-        /**
-         * @brief Is the column hidden?
-         * @return The state of the column.
-         */
-        bool IsHidden() const;
-
-        /**
-         * @brief Set the column to be shown or hidden.
-         * @param state The state of the column.
-         */
-        void SetHidden(bool state);
-
-    private:
-        std::unique_ptr<Impl::XLColumn> m_column; /**< */
-
-    };
-}  // namespace OpenXLSX
-
-#endif //OPENXLSX_XLCOLUMN_HPP
+#endif //OPENXLSX_OPENXLSX_HPP

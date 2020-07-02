@@ -3,15 +3,14 @@
 //
 
 #include "XLCellReference_Impl.hpp"
-
-#include <XLDefinitions.hpp>
+#include "XLDefinitions_Impl.hpp"
 #include <iostream>
 #include <string>
 #include <array>
 
 #ifdef CHARCONV_ENABLED
 #include <charconv>
-#include <XLException.hpp>
+#include "XLException_Impl.hpp"
 
 #endif
 

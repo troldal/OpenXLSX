@@ -131,7 +131,7 @@ namespace OpenXLSX::Impl
          * @param column The column number, relative to the first column of the range (index base 1).
          * @return A pointer to the cell at the given range coordinates.
          */
-        XLCell* Cell(unsigned long row, unsigned int column);
+        Impl::XLCell Cell(unsigned long row, unsigned int column);
 
         /**
          * @brief Get a const pointer to the cell at the given coordinates.
@@ -139,7 +139,7 @@ namespace OpenXLSX::Impl
          * @param column The column number, relative to the first column of the range (index base 1).
          * @return A const pointer to the cell at the given range coordinates.
          */
-        const XLCell* Cell(unsigned long row, unsigned int column) const;
+        Impl::XLCell Cell(unsigned long row, unsigned int column) const;
 
         /**
          * @brief Get the number of rows in the range.

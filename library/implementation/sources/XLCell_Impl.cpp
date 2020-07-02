@@ -12,6 +12,12 @@
 using namespace std;
 using namespace OpenXLSX;
 
+Impl::XLCell::XLCell()
+        : m_parentWorksheet(nullptr),
+          m_cellNode(XMLNode()) {
+
+}
+
 /**
  * @details This constructor creates a XLCell object based on the cell XMLNode input parameter, and is
  * intended for use when the corresponding cell XMLNode already exist.
@@ -72,7 +78,7 @@ Impl::XLCell& Impl::XLCell::operator=(const XLCellRange& range) {
 /**
  * @details
  */
-XLValueType Impl::XLCell::ValueType() const {
+Impl::XLValueType Impl::XLCell::ValueType() const {
 
     return XLCellValue(*this).ValueType();
     //return m_value.ValueType();
@@ -118,33 +124,6 @@ void Impl::XLCell::SetFormula(const std::string& newFormula) {
 /**
  * @details
  */
-void Impl::XLCell::SetTypeAttribute(const std::string& typeString) {
-
-    if (typeString.empty()) {
-        if (m_cellNode.attribute("t") != nullptr)
-            m_cellNode.remove_attribute("t");
-    }
-    else {
-        if (m_cellNode.attribute("t") == nullptr)
-            m_cellNode.append_attribute("t") = typeString.c_str();
-        else
-            m_cellNode.attribute("t") = typeString.c_str();
-    }
-}
-
-/**
- * @details
- */
-void Impl::XLCell::DeleteTypeAttribute() {
-
-    if (m_cellNode.attribute("t").as_bool()) {
-        m_cellNode.remove_attribute("t");
-    }
-}
-
-/**
- * @details
- */
 Impl::XLWorksheet* Impl::XLCell::Worksheet() {
 
     return m_parentWorksheet;
@@ -177,43 +156,8 @@ const XMLDocument* Impl::XLCell::XmlDocument() const {
 /**
  * @details
  */
-XMLNode Impl::XLCell::CellNode() {
+XMLNode Impl::XLCell::CellNode() const {
 
     return m_cellNode;
 }
 
-/**
- * @details
- */
-const XMLNode Impl::XLCell::CellNode() const {
-
-    return m_cellNode;
-}
-
-/**
- * @details
- */
-XMLNode Impl::XLCell::CreateValueNode() {
-
-    if (!m_cellNode.child("v"))
-        m_cellNode.append_child("v");
-    m_cellNode.child("v").append_attribute("xml:space").set_value("default");
-    return m_cellNode.child("v");
-}
-
-/**
- * @details
- */
-bool Impl::XLCell::HasTypeAttribute() const {
-
-    return m_cellNode.attribute("t") != nullptr;
-}
-
-/**
- * @details Return the cell type attribute, by querying the attribute named "t" in the XML node for the cell. 
- * If the cell has no attribute (i.e. is empty or holds a number), a nullptr will be returned.
- */
-const XMLAttribute Impl::XLCell::TypeAttribute() const {
-
-    return m_cellNode.attribute("t");
-}

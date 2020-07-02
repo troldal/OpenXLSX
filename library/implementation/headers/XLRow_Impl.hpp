@@ -164,14 +164,14 @@ namespace OpenXLSX::Impl
          * @param column The column with the XLCell
          * @return A reference to the XLCell object.
          */
-        XLCell* Cell(unsigned int column);
+        Impl::XLCell Cell(unsigned int column);
 
         /**
          * @brief Get the XLCell object at a specified column for this row.
          * @param column The column with the XLCell
          * @return A const reference to the XLCell object.
          */
-        const XLCell* Cell(unsigned int column) const;
+        Impl::XLCell Cell(unsigned int column) const;
 
         /**
          * @brief Get the number of cells in the row.

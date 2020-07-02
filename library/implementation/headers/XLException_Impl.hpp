@@ -43,92 +43,25 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXLSX_XLCELL_HPP
-#define OPENXLSX_XLCELL_HPP
+#ifndef OPENXLSX_XLEXCEPTION_HPP
+#define OPENXLSX_XLEXCEPTION_HPP
 
+#include <stdexcept>
 #include "openxlsx_export.h"
-#include "XLDefinitions.hpp"
-#include "XLCellReference.hpp"
-#include "XLCellValue.hpp"
 
 namespace OpenXLSX
 {
-    namespace Impl
-    {
-        class XLCell;
-    } // namespace Impl
-
-    /**
-     * @brief
-     */
-    class OPENXLSX_EXPORT XLCell
+    class OPENXLSX_EXPORT XLException : public std::runtime_error
     {
     public:
+        inline explicit XLException(const std::string& err)
+                : runtime_error(err) {
+        }
 
-        /**
-         * @brief
-         * @param cell
-         */
-        explicit XLCell(Impl::XLCell& cell);
+        inline ~XLException() override = default;
 
-        /**
-         * @brief
-         * @param other
-         */
-        XLCell(const XLCell& other) = default;
-
-        /**
-         * @brief
-         * @param other
-         */
-        XLCell(XLCell&& other) = default;
-
-        /**
-         * @brief
-         */
-        virtual ~XLCell() = default;
-
-        /**
-         * @brief
-         * @param other
-         * @return
-         */
-        XLCell& operator=(const XLCell& other) = default;
-
-        /**
-         * @brief
-         * @param other
-         * @return
-         */
-        XLCell& operator=(XLCell&& other) = default;
-
-        /**
-         * @brief
-         * @return
-         */
-        XLCellValue Value();
-
-        /**
-         * @brief
-         * @return
-         */
-        const XLCellValue Value() const;
-
-        /**
-         * @brief
-         * @return
-         */
-        XLValueType ValueType() const;
-
-        /**
-         * @brief
-         * @return
-         */
-        const XLCellReference CellReference() const;
-
-    private:
-        Impl::XLCell* m_cell; /**<  */
     };
+
 }  // namespace OpenXLSX
 
-#endif //OPENXLSX_XLCELL_HPP
+#endif //OPENXLSX_XLEXCEPTION_HPP

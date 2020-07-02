@@ -5,7 +5,7 @@
 #include "catch.hpp"
 #include <OpenXLSX.hpp>
 
-using namespace OpenXLSX;
+using namespace OpenXLSX::Impl;
 
 TEST_CASE("Test 04: Testing of XLSheet objects") {
 

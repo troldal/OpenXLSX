@@ -48,7 +48,7 @@ void Impl::XLSheet::SetName(const std::string& name) {
 /**
  * @details This method returns the m_sheetState property.
  */
-XLSheetState Impl::XLSheet::State() const {
+Impl::XLSheetState Impl::XLSheet::State() const {
 
     auto state = ParentDoc().executeQuery(XLQuery(XLQueryType::GetSheetVisibility, m_sheetRID));
     auto result = XLSheetState::Visible;

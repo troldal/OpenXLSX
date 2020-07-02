@@ -496,7 +496,7 @@ unsigned int Impl::XLWorkbook::IndexOfSheet(const std::string& sheetName) const 
 
 }
 
-XLSheetType Impl::XLWorkbook::TypeOfSheet(const std::string& sheetName) const {
+Impl::XLSheetType Impl::XLWorkbook::TypeOfSheet(const std::string& sheetName) const {
 
     auto sheetData = find_if(m_sheets.begin(), m_sheets.end(), [&](const XLSheetData& data) {
         return sheetName == data.sheetNode.attribute("name").value();
@@ -508,7 +508,7 @@ XLSheetType Impl::XLWorkbook::TypeOfSheet(const std::string& sheetName) const {
     return sheetData->sheetType;
 }
 
-XLSheetType Impl::XLWorkbook::TypeOfSheet(unsigned int index) const {
+Impl::XLSheetType Impl::XLWorkbook::TypeOfSheet(unsigned int index) const {
 
     string name = vector<XMLNode>(getSheetsNode().begin(), getSheetsNode().end())[index - 1].attribute("name").as_string();
     return TypeOfSheet(name);
