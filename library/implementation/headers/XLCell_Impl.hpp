@@ -215,6 +215,12 @@ namespace OpenXLSX::Impl
         XMLNode m_cellNode;              /**< A pointer to the root XMLNode for the cell. */
     };
 
+    /**
+     * @brief
+     * @param lhs
+     * @param rhs
+     * @return
+     */
     inline bool operator==(const XLCell& lhs, const XLCell& rhs) {
 
         return lhs.m_parentWorksheet == rhs.m_parentWorksheet && lhs.m_cellNode == rhs.m_cellNode;

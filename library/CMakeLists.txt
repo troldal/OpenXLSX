@@ -215,7 +215,6 @@ set(OPENXLSX_IMPL_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLDocument_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLRelationships_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLSharedStrings_Impl.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLTokenizer_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLWorkbook_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLChartsheet_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLColumn_Impl.cpp

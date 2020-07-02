@@ -134,30 +134,9 @@ namespace OpenXLSX::Impl
         /**
          * @brief Get a pointer to the XLCell object for the given cell reference.
          * @param ref An XLCellReference object with the address of the cell to get.
-         * @return A reference to the requested XLCell object.
-         */
-        Impl::XLCell Cell(const XLCellReference& ref);
-
-        /**
-         * @brief Get a pointer to the XLCell object for the given cell reference.
-         * @param ref An XLCellReference object with the address of the cell to get.
          * @return A const reference to the requested XLCell object.
          */
         Impl::XLCell Cell(const XLCellReference& ref) const;
-
-        /**
-         * @brief Get the cell with the given address
-         * @param address The address of the cell to get, e.g. 'A1'
-         * @return A reference to the XLCell object at the given address
-         */
-        Impl::XLCell Cell(const std::string& address);
-
-        /**
-         * @brief Get the cell with the given address
-         * @param address The address of the cell to get, e.g. 'A1'
-         * @return A const reference to the XLCell object at the given address
-         */
-        Impl::XLCell Cell(const std::string& address) const;
 
         /**
          * @brief Get the cell at the given coordinates.
@@ -257,25 +236,14 @@ namespace OpenXLSX::Impl
 
         /**
          * @brief
-         * @param fileName
-         * @param decimal
-         * @param delimiter
+         * @return
          */
-        void Export(const std::string& fileName, char decimal = ',', char delimiter = ';');
-
-        /**
-         * @brief
-         * @param fileName
-         * @param delimiter
-         */
-        void Import(const std::string& fileName, const std::string& delimiter = ";");
+        std::string GetXmlData() const override;
 
         /**
          * @brief
          * @return
          */
-        std::string GetXmlData() const override;
-
         XLSheetType Type() const override;
 
         //----------------------------------------------------------------------------------------------------------------------

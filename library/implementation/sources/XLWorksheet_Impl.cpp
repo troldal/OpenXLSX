@@ -90,37 +90,11 @@ Impl::XLWorksheet* Impl::XLWorksheet::Clone(const std::string& newName) {
 }
 
 /**
- * @details Get te cell with the given cell reference. This is a convenience function, which calls the
- * cell(rowNumber, columnNumber) function.
- */
-Impl::XLCell Impl::XLWorksheet::Cell(const XLCellReference& ref) {
-
-    return Cell(ref.Row(), ref.Column());
-}
-
-/**
  * @details
  */
 Impl::XLCell Impl::XLWorksheet::Cell(const XLCellReference& ref) const {
 
     return Cell(ref.Row(), ref.Column());
-}
-
-/**
- * @details Get the cell with the given cell address. This is a convenience function, which calls the
- * cell(rowNumber, columnNumber) function.
- */
-Impl::XLCell Impl::XLWorksheet::Cell(const std::string& address) {
-
-    return Cell(XLCellReference(address));
-}
-
-/**
- * @details
- */
-Impl::XLCell Impl::XLWorksheet::Cell(const std::string& address) const {
-
-    return Cell(XLCellReference(address));
 }
 
 /**
@@ -432,62 +406,6 @@ std::string Impl::XLWorksheet::NewSheetXmlData() {
            "<sheetData/>"
            "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/>"
            "</worksheet>";
-}
-
-/**
- * @details
- */
-void Impl::XLWorksheet::Export(const std::string& fileName, char decimal, char delimiter) {
-
-    ofstream file(fileName);
-    string token;
-    char oldDecimal;
-
-    if (decimal == ',')
-        oldDecimal = '.';
-    else
-        oldDecimal = ',';
-
-    for (unsigned long row = 1; row <= RowCount(); ++row) {
-        for (unsigned int column = 1; column <= ColumnCount(); ++column) {
-            token = Cell(row, column).Value().AsString();
-            replace(token.begin(), token.end(), oldDecimal, decimal);
-            file << token << delimiter;
-        }
-        file << "\n";
-    }
-
-    file.close();
-}
-
-/**
- * @details
- */
-void Impl::XLWorksheet::Import(const std::string& fileName, const string& delimiter) {
-
-    ifstream file(fileName);
-    string line;
-    unsigned long row = 1;
-    XLTokenizer tokenizer("", delimiter);
-    while (getline(file, line)) {
-        tokenizer.SetString(line);
-        unsigned int column = 1;
-        for (auto& iter : tokenizer.Split()) {
-            if (iter.IsInteger())
-                Cell(row, column).Value().Set(iter.AsInteger());
-            if (iter.IsFloat())
-                Cell(row, column).Value().Set(iter.AsFloat());
-            if (iter.IsString())
-                Cell(row, column).Value().Set(iter.AsString());
-            if (iter.IsBoolean()) {
-                Cell(row, column).Value().Set(iter.AsBoolean());
-            }
-            column++;
-        }
-        row++;
-    }
-
-    file.close();
 }
 
 std::string Impl::XLWorksheet::GetXmlData() const {
