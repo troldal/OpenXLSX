@@ -60,16 +60,6 @@ namespace OpenXLSX::Impl
     class XLCellRange;
 
     //======================================================================================================================
-    //========== XLColumnVector Alias ======================================================================================
-    //======================================================================================================================
-
-    /**
-     * @brief A std::vector of std::unique_ptr's to XLColumn objects.
-     */
-    using XLColumns = std::map<unsigned int, XLColumn>;
-
-
-    //======================================================================================================================
     //========== XLWorksheet Class =========================================================================================
     //======================================================================================================================
 
@@ -136,6 +126,13 @@ namespace OpenXLSX::Impl
          * @param ref An XLCellReference object with the address of the cell to get.
          * @return A const reference to the requested XLCell object.
          */
+        Impl::XLCell Cell(const XLCellReference& ref);
+
+        /**
+         * @brief Get a pointer to the XLCell object for the given cell reference.
+         * @param ref An XLCellReference object with the address of the cell to get.
+         * @return A const reference to the requested XLCell object.
+         */
         Impl::XLCell Cell(const XLCellReference& ref) const;
 
         /**
@@ -144,7 +141,7 @@ namespace OpenXLSX::Impl
          * @param columnNumber The column number (index base 1).
          * @return A reference to the XLCell object at the given coordinates.
          */
-        Impl::XLCell Cell(unsigned long rowNumber, unsigned int columnNumber);
+        Impl::XLCell Cell(uint32_t rowNumber, uint16_t columnNumber);
 
         /**
          * @brief Get the cell at the given coordinates.
@@ -152,7 +149,7 @@ namespace OpenXLSX::Impl
          * @param columnNumber The column number (index base 1).
          * @return A const reference to the XLCell object at the given coordinates.
          */
-        Impl::XLCell Cell(unsigned long rowNumber, unsigned int columnNumber) const;
+        Impl::XLCell Cell(uint32_t rowNumber, uint16_t columnNumber) const;
 
         /**
          * @brief Get a range for the area currently in use (i.e. from cell A1 to the last cell being in use).
@@ -187,27 +184,21 @@ namespace OpenXLSX::Impl
          * @param rowNumber The number of the row to retrieve.
          * @return A pointer to the XLRow object.
          */
-        XLRow* Row(unsigned long rowNumber);
+        Impl::XLRow Row(uint32_t rowNumber);
 
         /**
          * @brief Get the row with the given row number.
          * @param rowNumber The number of the row to retrieve.
          * @return A const pointer to the XLRow object.
          */
-        const XLRow* Row(unsigned long rowNumber) const;
+        const XLRow* Row(uint32_t rowNumber) const;
 
         /**
          * @brief Get the column with the given column number.
          * @param columnNumber The number of the column to retrieve.
          * @return A pointer to the XLColumn object.
          */
-        Impl::XLColumn Column(unsigned int columnNumber) const;
-
-        /**
-         * @brief Get an XLCellReference to the first (top left) cell in the worksheet.
-         * @return An XLCellReference for the first cell.
-         */
-        XLCellReference FirstCell() const noexcept;
+        Impl::XLColumn Column(uint16_t columnNumber) const;
 
         /**
          * @brief Get an XLCellReference to the last (bottom right) cell in the worksheet.
@@ -219,13 +210,13 @@ namespace OpenXLSX::Impl
          * @brief Get the number of columns in the worksheet.
          * @return The number of columns.
          */
-        unsigned int ColumnCount() const noexcept;
+        uint16_t ColumnCount() const noexcept;
 
         /**
          * @brief Get the number of rows in the worksheet.
          * @return The number of rows.
          */
-        unsigned long RowCount() const noexcept;
+        uint32_t RowCount() const noexcept;
 
         /**
          * @brief
@@ -265,68 +256,6 @@ namespace OpenXLSX::Impl
          * @todo Not yet implemented.
          */
         XLWorksheet* Clone(const std::string& newName) override;
-
-        /**
-         * @brief
-         * @return
-         */
-        static std::string NewSheetXmlData();
-
-        //----------------------------------------------------------------------------------------------------------------------
-        //           Private Member Functions
-        //----------------------------------------------------------------------------------------------------------------------
-
-    private:
-
-        /**
-         * @brief Get access to the dimension node in the underlying XML file.
-         * @return A pointer to the XMLNode object.
-         */
-        XMLNode DimensionNode() const;
-
-        /**
-         * @brief Get access to the sheet data node in the underlying XML file.
-         * @return A pointer to the corresponding XMLNode object.
-         */
-        XMLNode SheetDataNode() const;
-
-        /**
-         * @brief Get a reference to the XMLNode object corresponding to the columns (cols) node in the XML file.
-         * @return A XMLNode reference.
-         */
-        XMLNode ColumnsNode() const;
-
-        /**
-         * @brief Specify the first cell (upper left) of the worksheet.
-         * @param cellRef An XLCellReference object with a reference to the first cell in the sheet.
-         */
-        void SetFirstCell(const XLCellReference& cellRef) noexcept;
-
-        /**
-         * @brief Specify the last cell (bottom right) of the spreadsheet.
-         * @param cellRef An XLCellReference object with a reference to the last cell in the sheet.
-         */
-        void SetLastCell(const XLCellReference& cellRef) noexcept;
-
-
-
-        //----------------------------------------------------------------------------------------------------------------------
-        //           Private Member Variables
-        //----------------------------------------------------------------------------------------------------------------------
-
-    private:
-
-        struct XLRowData
-        {
-            unsigned long rowIndex;
-            std::unique_ptr<XLRow> rowItem = nullptr;
-        };
-
-        std::vector<XLRowData> m_rows; /**< A std::vector with pointers to all rows in the sheet. */
-
-        XLCellReference m_firstCell; /**< The first cell in the sheet (i.e. the top left cell).*/
-        mutable XLCellReference m_lastCell; /**<  The last cell in the sheet (i.e. the bottom right). */
-        unsigned int m_maxColumn; /**< The last column with properties set */
     };
 } // namespace OpenXLSX::Impl
 

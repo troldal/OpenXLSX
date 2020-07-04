@@ -69,7 +69,7 @@ Impl::XLCell& Impl::XLCell::operator=(const XLCellRange& range) {
 
     auto first = CellReference();
     XLCellReference last(first.Row() + range.NumRows() - 1, first.Column() + range.NumColumns() - 1);
-    XLCellRange rng(*Worksheet(), first, last);
+    XLCellRange rng(*m_parentWorksheet, first, last);
     rng = range;
 
     return *this;
@@ -121,43 +121,6 @@ void Impl::XLCell::SetFormula(const std::string& newFormula) {
     m_cellNode.child("f").text().set(newFormula.c_str());
 }
 
-/**
- * @details
- */
-Impl::XLWorksheet* Impl::XLCell::Worksheet() {
-
-    return m_parentWorksheet;
+void Impl::XLCell::reset(XMLNode cellNode) {
+    m_cellNode = cellNode;
 }
-
-/**
- * @details
- */
-const Impl::XLWorksheet* Impl::XLCell::Worksheet() const {
-
-    return m_parentWorksheet;
-}
-
-/**
- * @details
- */
-XMLDocument* Impl::XLCell::XmlDocument() {
-
-    return Worksheet()->XmlDocument();
-}
-
-/**
- * @details
- */
-const XMLDocument* Impl::XLCell::XmlDocument() const {
-
-    return Worksheet()->XmlDocument();
-}
-
-/**
- * @details
- */
-XMLNode Impl::XLCell::CellNode() const {
-
-    return m_cellNode;
-}
-

@@ -69,12 +69,18 @@ namespace OpenXLSX::Impl
      */
     class XLCellReference final
     {
-        friend bool operator==(const XLCellReference& lhs, const XLCellReference& rhs);
-        friend bool operator!=(const XLCellReference& lhs, const XLCellReference& rhs);
-        friend bool operator<(const XLCellReference& lhs, const XLCellReference& rhs);
-        friend bool operator>(const XLCellReference& lhs, const XLCellReference& rhs);
-        friend bool operator<=(const XLCellReference& lhs, const XLCellReference& rhs);
-        friend bool operator>=(const XLCellReference& lhs, const XLCellReference& rhs);
+        friend bool operator==(const XLCellReference& lhs,
+                               const XLCellReference& rhs);
+        friend bool operator!=(const XLCellReference& lhs,
+                               const XLCellReference& rhs);
+        friend bool operator<(const XLCellReference& lhs,
+                              const XLCellReference& rhs);
+        friend bool operator>(const XLCellReference& lhs,
+                              const XLCellReference& rhs);
+        friend bool operator<=(const XLCellReference& lhs,
+                               const XLCellReference& rhs);
+        friend bool operator>=(const XLCellReference& lhs,
+                               const XLCellReference& rhs);
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Public Member Functions
@@ -85,22 +91,26 @@ namespace OpenXLSX::Impl
         /**
          * @brief Constructor taking a cell address as argument.
          * @param cellAddress The address of the cell, e.g. 'A1'.
+         * @details The constructor creates a new XLCellReference from a string, e.g. 'A1'. If there's no input,
+         * the default reference will be cell A1.
          */
-        XLCellReference(const std::string& cellAddress = "");
+        explicit XLCellReference(const std::string& cellAddress = "");
 
         /**
          * @brief Constructor taking the cell coordinates as arguments.
          * @param row The row number of the cell.
          * @param column The column number of the cell.
          */
-        explicit XLCellReference(uint32_t row, uint16_t column);
+        explicit XLCellReference(uint32_t row,
+                                 uint16_t column);
 
         /**
          * @brief Constructor taking the row number and the column letter as arguments.
          * @param row The row number of the cell.
          * @param column The column letter of the cell.
          */
-        explicit XLCellReference(uint32_t row, const std::string& column);
+        explicit XLCellReference(uint32_t row,
+                                 const std::string& column);
 
         /**
          * @brief Copy constructor
@@ -162,7 +172,8 @@ namespace OpenXLSX::Impl
          * @param row The row number.
          * @param column The column number.
          */
-        void SetRowAndColumn(uint32_t row, uint16_t column);
+        void SetRowAndColumn(uint32_t row,
+                                    uint16_t column);
 
         /**
          * @brief Get the address of the XLCellReference
@@ -173,6 +184,7 @@ namespace OpenXLSX::Impl
         /**
          * @brief Set the address of the XLCellReference
          * @param address The address, e.g. 'A1'
+         * @pre The address input string must be a valid Excel cell reference. Otherwise the behaviour is undefined.
          */
         void SetAddress(const std::string& address);
 
@@ -180,7 +192,7 @@ namespace OpenXLSX::Impl
         //           Private Member Functions
         //----------------------------------------------------------------------------------------------------------------------
 
-    private:
+        //private:
 
         /**
          * @brief
@@ -217,12 +229,13 @@ namespace OpenXLSX::Impl
          */
         static XLCoordinates CoordinatesFromAddress(const std::string& address);
 
+
         //----------------------------------------------------------------------------------------------------------------------
         //           Private Member Variables
         //----------------------------------------------------------------------------------------------------------------------
 
-        uint32_t m_row; /**< The row */
-        uint16_t m_column; /**< The column */
+        uint32_t    m_row; /**< The row */
+        uint16_t    m_column; /**< The column */
         std::string m_cellAddress; /**< The address, e.g. 'A1' */
     };
 
@@ -236,7 +249,8 @@ namespace OpenXLSX::Impl
      * @param rhs The second XLCellReference
      * @return true if equal; otherwise false.
      */
-    inline bool operator==(const XLCellReference& lhs, const XLCellReference& rhs) {
+    inline bool operator==(const XLCellReference& lhs,
+                           const XLCellReference& rhs) {
 
         return lhs.Row() == rhs.Row() && lhs.Column() == rhs.Column();
     }
@@ -247,7 +261,8 @@ namespace OpenXLSX::Impl
      * @param rhs The second XLCellReference
      * @return false if equal; otherwise true.
      */
-    inline bool operator!=(const XLCellReference& lhs, const XLCellReference& rhs) {
+    inline bool operator!=(const XLCellReference& lhs,
+                           const XLCellReference& rhs) {
 
         return !(lhs == rhs);
     }
@@ -258,7 +273,8 @@ namespace OpenXLSX::Impl
      * @param rhs The second XLCellReference
      * @return true if lhs < rhs; otherwise false.
      */
-    inline bool operator<(const XLCellReference& lhs, const XLCellReference& rhs) {
+    inline bool operator<(const XLCellReference& lhs,
+                          const XLCellReference& rhs) {
 
         return (lhs.Row() < rhs.Row() ? true : (lhs.Row() > rhs.Row() ? false : lhs.Column() < rhs.Column()));
     }
@@ -269,7 +285,8 @@ namespace OpenXLSX::Impl
      * @param rhs The second XLCellReference
      * @return true if lhs > rhs; otherwise false.
      */
-    inline bool operator>(const XLCellReference& lhs, const XLCellReference& rhs) {
+    inline bool operator>(const XLCellReference& lhs,
+                          const XLCellReference& rhs) {
 
         return (rhs < lhs);
     }
@@ -280,7 +297,8 @@ namespace OpenXLSX::Impl
      * @param rhs The second XLCellReference
      * @return true if lhs <= rhs; otherwise false
      */
-    inline bool operator<=(const XLCellReference& lhs, const XLCellReference& rhs) {
+    inline bool operator<=(const XLCellReference& lhs,
+                           const XLCellReference& rhs) {
 
         return !(lhs > rhs);
     }
@@ -291,7 +309,8 @@ namespace OpenXLSX::Impl
      * @param rhs The second XLCellReference
      * @return true if lhs >= rhs; otherwise false.
      */
-    inline bool operator>=(const XLCellReference& lhs, const XLCellReference& rhs) {
+    inline bool operator>=(const XLCellReference& lhs,
+                           const XLCellReference& rhs) {
 
         return !(lhs < rhs);
     }

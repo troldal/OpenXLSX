@@ -19,8 +19,8 @@ using namespace std;
  * @post A valid XLCellValue object has been constructed.
  */
 Impl::XLCellValue::XLCellValue(const XLCell& parent) noexcept
-        : m_cellNode(parent.CellNode()),
-          m_sharedStrings(parent.Worksheet()->ParentDoc().Workbook()->SharedStrings()) {
+        : m_cellNode(parent.m_cellNode),
+          m_sharedStrings(parent.m_parentWorksheet->ParentDoc().Workbook()->SharedStrings()) {
 }
 
 /**

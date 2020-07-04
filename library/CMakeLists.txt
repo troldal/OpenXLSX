@@ -29,7 +29,7 @@ endif()
 add_library(PugiXML INTERFACE)
 add_library(PugiXML::PugiXML ALIAS PugiXML)
 target_include_directories(PugiXML SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/_deps/PugiXML>)
-target_compile_definitions(PugiXML INTERFACE PUGIXML_NO_XPATH PUGIXML_HEADER_ONLY)
+target_compile_definitions(PugiXML INTERFACE PUGIXML_NO_XPATH PUGIXML_HEADER_ONLY) # PUGIXML_COMPACT)
 
 #=======================================================================================================================
 # Download and define Zippy library target
@@ -224,8 +224,8 @@ set(OPENXLSX_IMPL_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLWorksheet_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCell_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellRange_Impl.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellReference_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellValue_Impl.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellReference_Impl.cpp
         )
 
 #=======================================================================================================================

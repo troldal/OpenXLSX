@@ -19,8 +19,6 @@ int main() {
     wbk->MoveSheet("Sheet1", 2);       // Move Sheet1 to second place
     wbk->DeleteSheet("MySheet01");
 
-    wbk->Worksheet("Sheet1")->Row(1);
-
     for (const auto& name : wbk->WorksheetNames())
         cout << name << ": " << wbk->IndexOfSheet(name) << endl;
 

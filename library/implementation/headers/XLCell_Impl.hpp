@@ -70,8 +70,7 @@ namespace OpenXLSX::Impl
      */
     class XLCell
     {
-        friend class XLRow;
-
+        friend class XLWorksheet;
         friend class XLCellValue;
 
         friend bool operator==(const XLCell& lhs, const XLCell& rhs);
@@ -167,41 +166,9 @@ namespace OpenXLSX::Impl
         //           Private Member Functions
         //----------------------------------------------------------------------------------------------------------------------
 
-        // private:
-    protected:
-
-        /**
-         * @brief
-         * @return
-         */
-        XLWorksheet* Worksheet();
-
-        /**
-         * @brief
-         * @return
-         */
-        const XLWorksheet* Worksheet() const;
-
     private:
 
-        /**
-         * @brief
-         * @return
-         */
-        XMLDocument* XmlDocument();
-
-        /**
-         * @brief
-         * @return
-         */
-        const XMLDocument* XmlDocument() const;
-
-        /**
-         * @brief
-         * @return
-         */
-        XMLNode CellNode() const;
-
+        void reset(XMLNode cellNode);
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Private Member Variables

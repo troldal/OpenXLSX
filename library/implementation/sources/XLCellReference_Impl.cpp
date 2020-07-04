@@ -4,14 +4,12 @@
 
 #include "XLCellReference_Impl.hpp"
 #include "XLDefinitions_Impl.hpp"
-#include <iostream>
-#include <string>
+#include "XLException_Impl.hpp"
 #include <array>
+#include <cmath>
 
 #ifdef CHARCONV_ENABLED
 #include <charconv>
-#include "XLException_Impl.hpp"
-
 #endif
 
 using namespace std;
@@ -34,32 +32,22 @@ Impl::XLCellReference::XLCellReference(const std::string& cellAddress)
  * @details This constructor creates a new XLCellReference from a given row and column number, e.g. 1,1 (=A1)
  * @todo consider swapping the arguments.
  */
-Impl::XLCellReference::XLCellReference(uint32_t row, uint16_t column)
+Impl::XLCellReference::XLCellReference(uint32_t row,
+                                       uint16_t column)
         : m_row(row),
           m_column(column),
           m_cellAddress(ColumnAsString(column) + RowAsString(row)) {
-
-    if (m_row < 1 || m_row > maxRows || m_column < 1 || m_column > maxCols) {
-        m_row = 0;
-        m_column = 0;
-        m_cellAddress = "";
-    }
 }
 
 /**
  * @details This constructor creates a new XLCellReference from a row number and the column name (e.g. 1, A)
  * @todo consider swapping the arguments.
  */
-Impl::XLCellReference::XLCellReference(uint32_t row, const std::string& column)
+Impl::XLCellReference::XLCellReference(uint32_t row,
+                                       const std::string& column)
         : m_row(row),
           m_column(ColumnAsNumber(column)),
           m_cellAddress(column + RowAsString(row)) {
-
-    if (m_row < 1 || m_row > maxRows || m_column < 1 || m_column > maxCols) {
-        m_row = 0;
-        m_column = 0;
-        m_cellAddress = "";
-    }
 }
 
 /**
@@ -148,17 +136,10 @@ std::string Impl::XLCellReference::Address() const {
 void Impl::XLCellReference::SetAddress(const std::string& address) {
 
     auto coordinates = CoordinatesFromAddress(address);
-    if (coordinates.first < 1 || coordinates.first > maxRows || coordinates.second < 1
-            || coordinates.second > maxCols) {
-        m_row = 0;
-        m_column = 0;
-        m_cellAddress = "";
-    }
-    else {
-        m_row = coordinates.first;
-        m_column = coordinates.second;
-        m_cellAddress = address;
-    }
+
+    m_row         = coordinates.first;
+    m_column      = coordinates.second;
+    m_cellAddress = address;
 }
 
 /**
@@ -172,13 +153,13 @@ std::string Impl::XLCellReference::RowAsString(uint32_t row) {
 #ifdef CHARCONV_ENABLED
     std::array<char, 7> str {};
     auto *p = std::to_chars(str.data(), str.data() + str.size(), row).ptr;
-    return string(str.data(), p - str.data());
+    return std::string(str.data(), p - str.data());
 #else
-    string result;
+    std::string result;
     while (row != 0) {
         int rem = row % 10;
         result += (rem > 9) ? (rem - 10) + 'a' : rem + '0';
-        row = row / 10;
+        row     = row / 10;
     }
 
     for (int i = 0; i < result.length() / 2; i++)
@@ -195,7 +176,7 @@ std::string Impl::XLCellReference::RowAsString(uint32_t row) {
 uint32_t Impl::XLCellReference::RowAsNumber(const std::string& row) {
 
 #ifdef CHARCONV_ENABLED
-    unsigned long value = 0;
+    uint32_t value = 0;
     std::from_chars(row.data(), row.data() + row.size(), value);
     return value;
 #else
@@ -208,19 +189,14 @@ uint32_t Impl::XLCellReference::RowAsNumber(const std::string& row) {
  */
 std::string Impl::XLCellReference::ColumnAsString(uint16_t column) {
 
-    string result;
-
-    if (column <= 1)
-        return std::string("A");
-    else if (column >= maxCols)
-        result += std::string("XFD");
+    std::string result;
 
         // ===== If there is one letter in the Column Name:
-    else if (column <= alphabetSize)
+    if (column <= alphabetSize)
         result += char(column + asciiOffset);
 
         // ===== If there are two letters in the Column Name:
-    else if (column > alphabetSize && column <= 702) {
+    else if (column > alphabetSize && column <= alphabetSize * (alphabetSize + 1)) {
         result += char((column - (alphabetSize + 1)) / alphabetSize + asciiOffset + 1);
         result += char((column - (alphabetSize + 1)) % alphabetSize + asciiOffset + 1);
     }
@@ -240,25 +216,10 @@ std::string Impl::XLCellReference::ColumnAsString(uint16_t column) {
  */
 uint16_t Impl::XLCellReference::ColumnAsNumber(const std::string& column) {
 
-    unsigned int length = column.size();
-    unsigned int result = 0;
+    uint16_t result = 0;
 
-    // ===== If the length of the string is only one character, look up the number in the alphabet.
-    if (length == 1) {
-        result += (column.at(0) - asciiOffset);
-    }
-
-        // ===== If the string is two characters long...
-    else if (length == 2) {
-        result += (column.at(0) - asciiOffset) * alphabetSize;
-        result += (column.at(1) - asciiOffset);
-    }
-
-        // ===== If the string is three characters long...
-    else if (length == 3) {
-        result += (column.at(0) - asciiOffset) * alphabetSize * alphabetSize;
-        result += (column.at(1) - asciiOffset) * alphabetSize;
-        result += (column.at(2) - asciiOffset);
+    for (int32_t i = column.size() - 1, j = 0; i >= 0; --i, ++j) {
+        result += (column[i] - asciiOffset) * std::pow(alphabetSize, j);
     }
 
     return result;
@@ -269,18 +230,16 @@ uint16_t Impl::XLCellReference::ColumnAsNumber(const std::string& column) {
  */
 Impl::XLCoordinates Impl::XLCellReference::CoordinatesFromAddress(const std::string& address) {
 
-    int letterCount = 0;
-
+    int       letterCount = 0;
     for (auto letter : address) {
-        if (isalpha(letter) != 0)
+        if (letter >= 65)
             ++letterCount;
+        else if (letter <= 57)
+            break;
     }
 
     int numberCount = address.size() - letterCount;
 
-    if (letterCount < 1 || letterCount > 3 || numberCount < 1 || numberCount > 7)
-        throw XLException("Cell address \"" + address + "\" is invalid!");
-
-    return make_pair(RowAsNumber(address.substr(letterCount, numberCount)),
-            ColumnAsNumber(address.substr(0, letterCount)));
+    return std::make_pair(RowAsNumber(address.substr(letterCount, numberCount)),
+                          ColumnAsNumber(address.substr(0, letterCount)));
 }

@@ -4,14 +4,66 @@
 
 #include "XLWorksheet_Impl.hpp"
 #include "XLCellRange_Impl.hpp"
-#include "XLTokenizer_Impl.hpp"
 #include "XLSheet_Impl.hpp"
-#include <sstream>
 #include <algorithm>
 #include <pugixml.hpp>
 
 using namespace std;
 using namespace OpenXLSX;
+
+namespace {
+
+    /**
+     * @brief
+     * @param sheetDataNode
+     * @param rowNumber
+     * @return
+     */
+    inline XMLNode getRowNode(XMLNode sheetDataNode, uint32_t rowNumber) {
+
+        auto result = XMLNode();
+        if (rowNumber > sheetDataNode.last_child().attribute("r").as_ullong()) {
+            result = sheetDataNode.append_child("row");
+
+            result.append_attribute("r") = rowNumber;
+            result.append_attribute("x14ac:dyDescent") = 0.2;
+            result.append_attribute("spans") = "1:1";
+
+            //TODO: Use rowNode.append_copy instead of the above;
+//        for (auto& attribute : rowNode.previous_sibling().attributes()) {
+//            rowNode.append_copy(attribute);
+//        }
+        }
+
+        // ===== If the requested node is closest to the end, start from the end and search backwards
+        else if (sheetDataNode.last_child().attribute("r").as_ullong() - rowNumber < rowNumber ) {
+            result = sheetDataNode.last_child();
+            while (result.attribute("r").as_ullong() > rowNumber) result = result.previous_sibling();
+            if (result.attribute("r").as_ullong() < rowNumber) {
+                result = sheetDataNode.insert_child_after("row", result);
+                result.append_attribute("r") = rowNumber;
+                result.append_attribute("x14ac:dyDescent") = 0.2;
+                result.append_attribute("spans") = "1:1";
+            }
+        }
+
+        // ===== Otherwise, start from the beginning
+        else {
+            result = sheetDataNode.first_child();
+            while (result.attribute("r").as_ullong() < rowNumber) result = result.next_sibling();
+            if (result.attribute("r").as_ullong() > rowNumber) {
+                result = sheetDataNode.insert_child_before("row", result);
+                result.append_attribute("r") = rowNumber;
+                result.append_attribute("x14ac:dyDescent") = 0.2;
+                result.append_attribute("spans") = "1:1";
+            }
+        }
+
+        return result;
+    }
+
+}  // namespace
+
 
 /**
  * @details The constructor initializes the member variables and calls the loadXMLData from the
@@ -20,11 +72,7 @@ using namespace OpenXLSX;
 Impl::XLWorksheet::XLWorksheet(XLDocument& parent, const std::string& sheetRID, XMLAttribute name, const std::string& filePath,
                                const std::string& xmlData)
 
-        : XLSheet(parent, sheetRID, name, filePath, xmlData),
-          m_rows(),
-          m_firstCell(1, 1),
-          m_lastCell(1, 1),
-          m_maxColumn(0) {
+        : XLSheet(parent, sheetRID, name, filePath, xmlData) {
 
     // Call the 'LoadXMLData' method in the XLAbstractXMLFile base class
     ParseXMLData();
@@ -38,24 +86,22 @@ Impl::XLWorksheet::XLWorksheet(XLDocument& parent, const std::string& sheetRID, 
 bool Impl::XLWorksheet::ParseXMLData() {
 
     // Read the dimensions of the Sheet and set data members accordingly.
-    string dimensions = DimensionNode().attribute("ref").value();
-    SetFirstCell(XLCellReference("A1"));
+    string dimensions = XmlDocument()->document_element().child("dimension").attribute("ref").value();
     if (dimensions.find(':') == string::npos)
-        SetLastCell(XLCellReference("A1"));
+        XmlDocument()->document_element().child("dimension").set_value("A1");
     else
-        SetLastCell(XLCellReference(dimensions.substr(dimensions.find(':') + 1)));
+        XmlDocument()->document_element().child("dimension").set_value(dimensions.substr(dimensions.find(':') + 1).c_str());
 
     // If Column properties are grouped, divide them into properties for individual Columns.
-    if (ColumnsNode().type() != pugi::node_null) {
-        auto currentNode = ColumnsNode().first_child();
+    if (XmlDocument()->first_child().child("cols").type() != pugi::node_null) {
+        auto currentNode = XmlDocument()->first_child().child("cols").first_child();
         while (currentNode != nullptr) {
             int min = stoi(currentNode.attribute("min").value());
             int max = stoi(currentNode.attribute("max").value());
-            m_maxColumn = max;
             if (min != max) {
                 currentNode.attribute("min").set_value(max);
                 for (int i = min; i < max; i++) {
-                    auto newnode = ColumnsNode().insert_child_before("col", currentNode);
+                    auto newnode = XmlDocument()->first_child().child("cols").insert_child_before("col", currentNode);
                     auto attr = currentNode.first_attribute();
                     while (attr != nullptr) {
                         newnode.append_attribute(attr.name()) = attr.value();
@@ -67,13 +113,6 @@ bool Impl::XLWorksheet::ParseXMLData() {
             }
             currentNode = currentNode.next_sibling();
         }
-    }
-
-    // Store all Row nodes in the m_rows vector. The XLRow constructor will initialize the cells objects
-    for (const auto& currentRow : SheetDataNode().children()) {
-        auto& row = m_rows.emplace_back(XLRowData());
-        row.rowIndex = stoul(currentRow.attribute("r").value());
-        row.rowItem = make_unique<XLRow>(*this, currentRow);
     }
 
     return true;
@@ -89,6 +128,11 @@ Impl::XLWorksheet* Impl::XLWorksheet::Clone(const std::string& newName) {
     return ParentDoc().Workbook()->Worksheet(newName);
 }
 
+Impl::XLCell Impl::XLWorksheet::Cell(const XLCellReference& ref) {
+
+    return Cell(ref.Row(), ref.Column());
+}
+
 /**
  * @details
  */
@@ -101,32 +145,56 @@ Impl::XLCell Impl::XLWorksheet::Cell(const XLCellReference& ref) const {
  * @details This function returns a pointer to an XLCell object in the worksheet. This particular overload
  * also serves as the main function, called by the other overloads.
  */
-Impl::XLCell Impl::XLWorksheet::Cell(unsigned long rowNumber, unsigned int columnNumber) {
-    // If the requested Cell is outside the current Sheet Range, reset the m_lastCell Property accordingly.
-    if (columnNumber > ColumnCount() || rowNumber > RowCount()) {
-        if (columnNumber > ColumnCount())
-            m_lastCell.SetColumn(columnNumber);
-        if (rowNumber > RowCount())
-            m_lastCell.SetRow(rowNumber);
+Impl::XLCell Impl::XLWorksheet::Cell(uint32_t rowNumber,
+                                      uint16_t columnNumber) {
 
-        // Reset the dimension node to reflect the full Range of the current Sheet.
-        DimensionNode().attribute("ref").set_value((FirstCell().Address() + ":" + LastCell().Address()).c_str());
+    auto cellNode = XMLNode();
+    auto cellRef  = XLCellReference(rowNumber, columnNumber);
+    auto rowNode  = getRowNode(XmlDocument()->first_child().child("sheetData"), rowNumber);
+
+        // ===== If there are no cells in the current row, or the requested cell is beyond the last cell in the row...
+    if (rowNode.last_child().empty() || XLCellReference(rowNode.last_child().attribute("r").value()).Column() < columnNumber) {
+    //if (rowNode.last_child().empty() || XLCellReference::CoordinatesFromAddress(rowNode.last_child().attribute("r").value()).second < columnNumber) {
+        rowNode.append_child("c").append_attribute("r").set_value(cellRef.Address().c_str());
+        cellNode = rowNode.last_child();
+    }
+        // ===== If the requested node is closest to the end, start from the end and search backwards...
+    else if (XLCellReference(rowNode.last_child().attribute("r").value()).Column() - columnNumber < columnNumber) {
+        cellNode = rowNode.last_child();
+        while (XLCellReference(cellNode.attribute("r").value()).Column() > columnNumber)
+            cellNode = cellNode.previous_sibling();
+        if (XLCellReference(cellNode.attribute("r").value()).Column() < columnNumber) {
+            cellNode = rowNode.insert_child_after("c", cellNode);
+            cellNode.append_attribute("r").set_value(cellRef.Address().c_str());
+        }
+    }
+        // ===== Otherwise, start from the beginning
+    else {
+        cellNode = rowNode.first_child();
+        while (XLCellReference(cellNode.attribute("r").value()).Column() < columnNumber)
+            cellNode = cellNode.next_sibling();
+        if (XLCellReference(cellNode.attribute("r").value()).Column() > columnNumber) {
+            cellNode = rowNode.insert_child_before("c", cellNode);
+            cellNode.append_attribute("r").set_value(cellRef.Address().c_str());
+        }
     }
 
-    // Return a pointer to the requested XLCell object.
-    return Row(rowNumber)->Cell(columnNumber);
+//    m_currentCell->reset(cellNode);
+//    return *m_currentCell;
+    return XLCell(*this, cellNode);
 }
 
 /**
  * @details
  * @throw XLException if rowNumber exceeds rowCount
  */
-Impl::XLCell Impl::XLWorksheet::Cell(unsigned long rowNumber, unsigned int columnNumber) const {
+ Impl::XLCell Impl::XLWorksheet::Cell(uint32_t rowNumber, uint16_t columnNumber) const {
 
-    if (rowNumber > RowCount())
-        throw XLException("Row " + to_string(rowNumber) + " does not exist!");
+//    if (rowNumber > RowCount())
+//        throw XLException("Row " + to_string(rowNumber) + " does not exist!");
+//
+//    return Row(rowNumber)->Cell(columnNumber);
 
-    return Row(rowNumber)->Cell(columnNumber);
 }
 
 /**
@@ -135,7 +203,7 @@ Impl::XLCell Impl::XLWorksheet::Cell(unsigned long rowNumber, unsigned int colum
  */
 Impl::XLCellRange Impl::XLWorksheet::Range() {
 
-    return Range(FirstCell(), LastCell());
+    return Range(XLCellReference("A1"), LastCell());
 }
 
 /**
@@ -145,7 +213,7 @@ Impl::XLCellRange Impl::XLWorksheet::Range() {
  */
 const Impl::XLCellRange Impl::XLWorksheet::Range() const {
 
-    return Range(FirstCell(), LastCell());
+    return Range(XLCellReference("A1"), LastCell());
 }
 
 /**
@@ -176,53 +244,17 @@ const Impl::XLCellRange Impl::XLWorksheet::Range(const XLCellReference& topLeft,
  * node for that row. In RapidXLSX,the vector with all rows are initialized to a fixed size (the maximum size),
  * but most elements will be nullptr.
  */
-Impl::XLRow* Impl::XLWorksheet::Row(unsigned long rowNumber) {
+Impl::XLRow Impl::XLWorksheet::Row(uint32_t rowNumber) {
 
-    // ===== Search for the requested row
-    XLRowData searchItem;
-    searchItem.rowIndex = rowNumber;
-    auto dataItem = lower_bound(m_rows.begin(), m_rows.end(), searchItem, [](const XLRowData& a, const XLRowData& b) {
-        return a.rowIndex < b.rowIndex;
-    });
-
-    // ===== If row does not exist, create it...
-    if (dataItem == m_rows.end() || dataItem->rowIndex > rowNumber) {
-
-        auto rowNode = XMLNode();
-
-        // ===== Append or insert new row node in the XML file
-        if (dataItem == m_rows.end())
-            rowNode = SheetDataNode().append_child("row");
-        else
-            rowNode = SheetDataNode().insert_child_before("row", dataItem->rowItem->m_rowNode);
-
-        // ===== Add the newly created node to the std::vector and update the dataItem iterator
-        dataItem = m_rows.insert(dataItem, XLRowData());
-        dataItem->rowIndex = rowNumber;
-        dataItem->rowItem = make_unique<XLRow>(*this, rowNode);
-
-        // ===== Set the correct attributes of the newly created row node
-        rowNode.append_attribute("r") = rowNumber;
-        rowNode.append_attribute("x14ac:dyDescent") = 0.2;
-        rowNode.append_attribute("spans") = "1:1";
-    }
-
-    return dataItem->rowItem.get();
+    return XLRow(*this, getRowNode(XmlDocument()->first_child().child("sheetData"), rowNumber));
 }
 
 /**
  * @details
  */
-const Impl::XLRow* Impl::XLWorksheet::Row(unsigned long rowNumber) const {
+const Impl::XLRow* Impl::XLWorksheet::Row(uint32_t rowNumber) const {
 
-    auto result = find_if(m_rows.begin(), m_rows.end(), [=](const XLRowData& data) {
-        return data.rowIndex == rowNumber;
-    });
-
-    if (result == m_rows.end())
-        throw XLException("Row number " + to_string(rowNumber) + " does not exist");
-    //return Rows()->at(rowNumber - 1).get(); // vector is 0-based, Excel is 1-based; therefore rowNumber-1.
-    return result->rowItem.get();
+    return nullptr;
 
 }
 
@@ -230,23 +262,23 @@ const Impl::XLRow* Impl::XLWorksheet::Row(unsigned long rowNumber) const {
  * @details Get the XLColumn object corresponding to the given column number. In the underlying XML data structure,
  * column nodes do not hold any cell data. Columns are used solely to hold data regarding column formatting.
  */
-Impl::XLColumn Impl::XLWorksheet::Column(unsigned int columnNumber) const {
+Impl::XLColumn Impl::XLWorksheet::Column(uint16_t columnNumber) const {
 
     // If no columns exists, create the <cols> node in the XML document.
-    if (!ColumnsNode())
-        XmlDocument()->root().insert_child_before("cols", SheetDataNode());
+    if (!XmlDocument()->first_child().child("cols"))
+        XmlDocument()->root().insert_child_before("cols", XmlDocument()->first_child().child("sheetData"));
 
-    auto columnNode = ColumnsNode().find_child([&](XMLNode node) {
+    auto columnNode = XmlDocument()->first_child().child("cols").find_child([&](XMLNode node) {
         return node.attribute("min").as_int() >= columnNumber;
     });
 
     if (!columnNumber || columnNode.attribute("min").as_int() > columnNumber) {
 
         if (columnNode.attribute("min").as_int() > columnNumber) {
-            columnNode = ColumnsNode().insert_child_before("col", columnNode);
+            columnNode = XmlDocument()->first_child().child("cols").insert_child_before("col", columnNode);
         }
         else {
-            columnNode = ColumnsNode().append_child("col");
+            columnNode = XmlDocument()->first_child().child("cols").append_child("col");
         }
 
         columnNode.append_attribute("min") = columnNumber;
@@ -259,73 +291,14 @@ Impl::XLColumn Impl::XLWorksheet::Column(unsigned int columnNumber) const {
 }
 
 /**
- * @details
- */
-XMLNode Impl::XLWorksheet::DimensionNode() const {
-
-    return XmlDocument()->document_element().child("dimension");
-}
-
-/**
- * @details
- */
-XMLNode Impl::XLWorksheet::SheetDataNode() const {
-
-    return XmlDocument()->first_child().child("sheetData");
-}
-
-/**
- * @details Returns the m_columnsNode member variable as a reference.
- * @note The m_columnsNode member variable must have a value. Otherwise, there is something wrong with the XML file,
- * or the initialization of the object.
- * @throw An XLException object with a description of the error.
- */
-XMLNode Impl::XLWorksheet::ColumnsNode() const {
-
-    return XmlDocument()->first_child().child("cols");
-}
-
-/**
- * @details Returns the value of the m_firstCell member variable.
- * @pre The m_lastCell member variable must have a valid value.
- * @post The object must remain unmodified.
- */
-Impl::XLCellReference Impl::XLWorksheet::FirstCell() const noexcept {
-
-    return m_firstCell;
-}
-
-/**
  * @details Returns the value of the m_lastCell member variable.
  * @pre The m_lastCell member variable must have a valid value.
  * @post The object must remain unmodified.
  */
 Impl::XLCellReference Impl::XLWorksheet::LastCell() const noexcept {
 
-    return m_lastCell;
-}
-
-/**
- * @details Assigns the cellRef parameter to the m_firstCell member variable. This is an internal member function, which
- * should only be used if the occupied part of the worksheet changes dimensions. In most cases, m_firstCell will
- * refer to cell 'A1', but in some cases it may not.
- * @pre The cellRef parameter must represent a valid cell address.
- * @post The value of the m_lastCell member variable is equal to that of the cellRef parameter.
- */
-void Impl::XLWorksheet::SetFirstCell(const XLCellReference& cellRef) noexcept {
-
-    m_firstCell = cellRef;
-}
-
-/**
- * @details Assigns the cellRef parameter to the m_lastCell member variable. This is an internal member function, which
- * should only be used if the occupied part of the worksheet changes dimensions.
- * @pre The cellRef parameter must represent a valid cell address.
- * @post The value of the m_lastCell member variable is equal to that of the cellRef parameter.
- */
-void Impl::XLWorksheet::SetLastCell(const XLCellReference& cellRef) noexcept {
-
-    m_lastCell = cellRef;
+    std::string dim = XmlDocument()->document_element().child("dimension").value();
+    return XLCellReference(dim.substr(dim.find(':') + 1));
 }
 
 /**
@@ -333,7 +306,7 @@ void Impl::XLWorksheet::SetLastCell(const XLCellReference& cellRef) noexcept {
  * @pre LastCell() must return a valid XLCellReference object, which accurately represents the worksheet size.
  * @post Object must remain unmodified.
  */
-unsigned int Impl::XLWorksheet::ColumnCount() const noexcept {
+uint16_t Impl::XLWorksheet::ColumnCount() const noexcept {
 
     return LastCell().Column();
 }
@@ -343,15 +316,16 @@ unsigned int Impl::XLWorksheet::ColumnCount() const noexcept {
  * @pre LastCell() must return a valid XLCellReference object, which accurately represents the worksheet size.
  * @post Object must remain unmodified.
  */
-unsigned long Impl::XLWorksheet::RowCount() const noexcept {
+uint32_t Impl::XLWorksheet::RowCount() const noexcept {
 
-    return LastCell().Row();
+    return XmlDocument()->document_element().child("sheetData").last_child().attribute("r").as_ullong();
 }
 
 /**
  * @details
  */
 void Impl::XLWorksheet::UpdateSheetName(const std::string& oldName, const std::string& newName) {
+
     // ===== Set up temporary variables
     std::string oldNameTemp = oldName;
     std::string newNameTemp = newName;
@@ -368,12 +342,12 @@ void Impl::XLWorksheet::UpdateSheetName(const std::string& oldName, const std::s
     newNameTemp += '!';
 
     // ===== Iterate through all defined names
-    for (auto& row : m_rows) {
-        for (auto& cell : row.rowItem->m_cells) {
-            if (!cell.cellItem->HasFormula())
+    for (auto& row : XmlDocument()->document_element().child("sheetData")) {
+        for (auto& cell : row.children()) {
+            if (!XLCell(*this, cell).HasFormula())
                 continue;
 
-            formula = cell.cellItem->GetFormula();
+            formula = XLCell(*this, cell).GetFormula();
 
             // ===== Skip if formula contains a '[' and ']' (means that the defined refers to external workbook)
             if (formula.find('[') == string::npos && formula.find(']') == string::npos) {
@@ -382,37 +356,13 @@ void Impl::XLWorksheet::UpdateSheetName(const std::string& oldName, const std::s
                 while (formula.find(oldNameTemp) != string::npos) {
                     formula.replace(formula.find(oldNameTemp), oldNameTemp.length(), newNameTemp);
                 }
-                cell.cellItem->SetFormula(formula);
+                XLCell(*this, cell).SetFormula(formula);
             }
         }
     }
 }
 
-/**
- * @details
- */
-std::string Impl::XLWorksheet::NewSheetXmlData() {
-
-    return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
-           "<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\""
-           " xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\""
-           " xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac\""
-           " xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\">"
-           "<dimension ref=\"A1\"/>"
-           "<sheetViews>"
-           "<sheetView workbookViewId=\"0\"/>"
-           "</sheetViews>"
-           "<sheetFormatPr baseColWidth=\"10\" defaultRowHeight=\"16\" x14ac:dyDescent=\"0.2\"/>"
-           "<sheetData/>"
-           "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/>"
-           "</worksheet>";
-}
-
 std::string Impl::XLWorksheet::GetXmlData() const {
-
-    //    ostringstream ostr;
-    //    XmlDocument()->save(ostr);
-    //    return ostr.str();
 
     return XLAbstractXMLFile::GetXmlData();
 
