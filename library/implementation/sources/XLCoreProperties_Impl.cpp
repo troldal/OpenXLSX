@@ -2,7 +2,7 @@
 // Created by Troldal on 18/08/16.
 //
 
-#include <pugixml.hpp>
+//#include <pugixml.hpp>
 
 #include "XLCoreProperties_Impl.hpp"
 #include "XLDocument_Impl.hpp"

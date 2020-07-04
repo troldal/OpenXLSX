@@ -1,7 +1,7 @@
 #include <utility>
 #include "XLDocument_Impl.hpp"
 #include <sstream>
-#include <pugixml.hpp>
+//#include <pugixml.hpp>
 #include <XLAbstractXMLFile_Impl.hpp>
 
 using namespace std;

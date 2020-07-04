@@ -1,37 +1,4 @@
 #=======================================================================================================================
-# Download and define PugiXML library target
-#=======================================================================================================================
-file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/_deps/PugiXML)
-if(NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/_deps/PugiXML/pugiconfig.hpp)
-    message(STATUS "PugiXML config file not found. Downloading...")
-    file(DOWNLOAD
-            https://raw.githubusercontent.com/zeux/pugixml/master/src/pugiconfig.hpp
-            ${CMAKE_CURRENT_BINARY_DIR}/_deps/PugiXML/pugiconfig.hpp
-            TIMEOUT 60)
-endif()
-
-if(NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/_deps/PugiXML/pugixml.hpp)
-    message(STATUS "PugiXML header file not found. Downloading...")
-    file(DOWNLOAD
-            https://raw.githubusercontent.com/zeux/pugixml/master/src/pugixml.hpp
-            ${CMAKE_CURRENT_BINARY_DIR}/_deps/PugiXML/pugixml.hpp
-            TIMEOUT 60)
-endif()
-
-if(NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/_deps/PugiXML/pugixml.cpp)
-    message(STATUS "PugiXML source file not found. Downloading...")
-    file(DOWNLOAD
-            https://raw.githubusercontent.com/zeux/pugixml/master/src/pugixml.cpp
-            ${CMAKE_CURRENT_BINARY_DIR}/_deps/PugiXML/pugixml.cpp
-            TIMEOUT 60)
-endif()
-
-add_library(PugiXML INTERFACE)
-add_library(PugiXML::PugiXML ALIAS PugiXML)
-target_include_directories(PugiXML SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/_deps/PugiXML>)
-target_compile_definitions(PugiXML INTERFACE PUGIXML_NO_XPATH PUGIXML_HEADER_ONLY) # PUGIXML_COMPACT)
-
-#=======================================================================================================================
 # Download and define Zippy library target
 #=======================================================================================================================
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/_deps/Zippy/zippy/miniz)
@@ -226,6 +193,7 @@ set(OPENXLSX_IMPL_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellRange_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellValue_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellReference_Impl.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLXml_Impl.cpp
         )
 
 #=======================================================================================================================
@@ -236,7 +204,7 @@ target_sources(OpenXLSX-objs
         ${OPENXLSX_IMPL_SOURCES})
 target_link_libraries(OpenXLSX-objs
         PUBLIC                                          # TODO: Make this private
-        PugiXML Zippy)
+        Zippy)
 target_include_directories(OpenXLSX-objs
         PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/implementation/headers>
@@ -333,7 +301,6 @@ install(
         OpenXLSX-objs
         OpenXLSX-static
         OpenXLSX-shared
-        PugiXML
         Zippy
         EXPORT OpenXLSXTargets
         LIBRARY

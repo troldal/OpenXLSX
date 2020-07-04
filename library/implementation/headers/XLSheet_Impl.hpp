@@ -46,7 +46,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_IMPL_XLABSTRACTSHEET_H
 #define OPENXLSX_IMPL_XLABSTRACTSHEET_H
 
-#include <pugixml.hpp>
+//#include <pugixml.hpp>
 #include <vector>
 #include "XLDefinitions_Impl.hpp"
 #include "XLAbstractXMLFile_Impl.hpp"

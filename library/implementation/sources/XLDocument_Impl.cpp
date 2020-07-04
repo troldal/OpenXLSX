@@ -7,7 +7,7 @@
 #include "XLWorksheet_Impl.hpp"
 #include "XLTemplate_Impl.hpp"
 
-#include <pugixml.hpp>
+//#include <pugixml.hpp>
 #include <XlQuery_Impl.hpp>
 
 using namespace std;

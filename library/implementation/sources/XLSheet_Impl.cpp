@@ -7,7 +7,7 @@
 #include "XLRelationships_Impl.hpp"
 #include "XLDocument_Impl.hpp"
 
-#include <pugixml.hpp>
+//#include <pugixml.hpp>
 
 using namespace std;
 using namespace OpenXLSX;

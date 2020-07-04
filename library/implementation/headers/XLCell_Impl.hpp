@@ -48,7 +48,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 #include <string>
 #include <ostream>
-#include <pugixml.hpp>
+//#include <pugixml.hpp>
 #include "XLCellReference_Impl.hpp"
 #include "XLDocument_Impl.hpp"
 #include "XLCellType_Impl.hpp"

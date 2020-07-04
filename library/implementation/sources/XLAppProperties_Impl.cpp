@@ -5,7 +5,7 @@
 #include <cstring>
 #include <utility>
 #include <iterator>
-#include <pugixml.hpp>
+//#include <pugixml.hpp>
 
 #include "XLAppProperties_Impl.hpp"
 #include "XLDocument_Impl.hpp"

@@ -5,7 +5,7 @@
 #include "XLRelationships_Impl.hpp"
 #include "XLDocument_Impl.hpp"
 
-#include <pugixml.hpp>
+//#include <pugixml.hpp>
 #include <algorithm>
 
 using namespace std;

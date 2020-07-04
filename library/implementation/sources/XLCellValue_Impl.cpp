@@ -3,7 +3,7 @@
 //
 
 #include <cassert>
-#include <pugixml.hpp>
+//#include <pugixml.hpp>
 
 #include "XLCellValue_Impl.hpp"
 #include "XLCell_Impl.hpp"
