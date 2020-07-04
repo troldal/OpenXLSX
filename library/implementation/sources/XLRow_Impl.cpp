@@ -15,16 +15,14 @@ using namespace OpenXLSX;
  * @details Constructs a new XLRow object from information in the underlying XML file. A pointer to the corresponding
  * node in the underlying XML file must be provided.
  */
-Impl::XLRow::XLRow(XLWorksheet& parent, XMLNode rowNode)
-        : m_rowNode(rowNode) {
-}
+Impl::XLRow::XLRow(XMLNode rowNode) : m_rowNode(rowNode) {}
 
 /**
  * @details Returns the m_height member by value.
  */
-float Impl::XLRow::Height() const {
+double Impl::XLRow::Height() const {
 
-    return m_rowNode.attribute("ht").as_float(15.0);
+    return m_rowNode.attribute("ht").as_double(15.0);
 }
 
 /**

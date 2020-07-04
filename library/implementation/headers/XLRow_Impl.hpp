@@ -54,21 +54,17 @@ namespace OpenXLSX::Impl
 {
     class XLCell;
 
-    //======================================================================================================================
-    //========== XLRow Class ===============================================================================================
-    //======================================================================================================================
+    //========== XLRow Class ========== //
 
     /**
-     * @brief The XLRow class represent a row in an Excel spreadsheet. All cell data are stored by row in the underlying
-     * XML file.
+     * @brief The XLRow class represent a row in an Excel spreadsheet. Using XLRow objects, various row formatting options
+     * can be set and modified.
      */
     class XLRow
     {
         friend class XLWorksheet;
 
-        //----------------------------------------------------------------------------------------------------------------------
-        //           Public Member Functions
-        //----------------------------------------------------------------------------------------------------------------------
+        //---------- PUBLIC MEMBER FUNCTIONS ----------//
 
     public:
 
@@ -77,19 +73,19 @@ namespace OpenXLSX::Impl
          * @param parent A pointer to the parent XLWorksheet object.
          * @param rowNode A pointer to the XMLNode object for the row.
          */
-        explicit XLRow(XLWorksheet& parent, XMLNode rowNode);
+        explicit XLRow(XMLNode rowNode);
 
         /**
          * @brief Copy Constructor
          * @note The copy constructor is explicitly deleted
          */
-        XLRow(const XLRow& other) = delete;
+        XLRow(const XLRow& other) = default;
 
         /**
          * @brief Move Constructor
          * @note The move constructor has been explicitly deleted.
          */
-        XLRow(XLRow&& other) = default;
+        XLRow(XLRow&& other) noexcept = default;
 
         /**
          * @brief Destructor
@@ -101,19 +97,19 @@ namespace OpenXLSX::Impl
          * @brief Copy assignment operator.
          * @note The copy assignment operator is explicitly deleted.
          */
-        XLRow& operator=(const XLRow& other) = delete;
+        XLRow& operator=(const XLRow& other) = default;
 
         /**
          * @brief Move assignment operator.
          * @note The move assignment operator has been explicitly deleted.
          */
-        XLRow& operator=(XLRow&& other) = delete;
+        XLRow& operator=(XLRow&& other) noexcept = default;
 
         /**
          * @brief Get the height of the row.
          * @return the row height.
          */
-        float Height() const;
+        double Height() const;
 
         /**
          * @brief Set the height of the row.
@@ -129,7 +125,7 @@ namespace OpenXLSX::Impl
         float Descent() const;
 
         /**
-         * @brief Set the descent of the row, ehich is he vertical distance in pixels from the bottom of the cells
+         * @brief Set the descent of the row, which is he vertical distance in pixels from the bottom of the cells
          * in the current row to the typographical baseline of the cell content.
          * @param descent The row descent.
          */
@@ -160,9 +156,8 @@ namespace OpenXLSX::Impl
         unsigned int CellCount() const;
 
 
-        //----------------------------------------------------------------------------------------------------------------------
-        //           Private Member Variables
-        //----------------------------------------------------------------------------------------------------------------------
+
+        //---------- PRIVATE MEMBER VARIABLES ----------//
 
     private:
 

@@ -246,7 +246,7 @@ const Impl::XLCellRange Impl::XLWorksheet::Range(const XLCellReference& topLeft,
  */
 Impl::XLRow Impl::XLWorksheet::Row(uint32_t rowNumber) {
 
-    return XLRow(*this, getRowNode(XmlDocument()->first_child().child("sheetData"), rowNumber));
+    return XLRow(getRowNode(XmlDocument()->first_child().child("sheetData"), rowNumber));
 }
 
 /**

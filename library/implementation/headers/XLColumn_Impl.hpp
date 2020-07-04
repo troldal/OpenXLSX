@@ -64,7 +64,7 @@ namespace OpenXLSX::Impl
          * @param parent A pointer to the parent XLWorksheet object.
          * @param columnNode A pointer to the XMLNode for the column.
          */
-        explicit XLColumn(XMLNode columnNode);
+        explicit XLColumn(const XMLNode& columnNode);
 
         /**
          * @brief Copy Constructor [deleted]
@@ -126,7 +126,7 @@ namespace OpenXLSX::Impl
 
     private:
 
-        XMLNode m_columnNode; /**< A pointer to the XMLNode object for the column. */
+        const XMLNode& m_columnNode; /**< A pointer to the XMLNode object for the column. */
     };
 
 }  // namespace OpenXLSX::Impl
