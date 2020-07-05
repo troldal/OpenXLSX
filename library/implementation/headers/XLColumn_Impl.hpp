@@ -46,7 +46,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_IMPL_XLCOLUMN_H
 #define OPENXLSX_IMPL_XLCOLUMN_H
 
-#include <memory>
 #include "XLXml_Impl.hpp"
 
 namespace OpenXLSX::Impl
@@ -64,7 +63,7 @@ namespace OpenXLSX::Impl
          * @param parent A pointer to the parent XLWorksheet object.
          * @param columnNode A pointer to the XMLNode for the column.
          */
-        explicit XLColumn(const XMLNode& columnNode);
+        explicit XLColumn(XMLNode columnNode);
 
         /**
          * @brief Copy Constructor [deleted]
@@ -126,7 +125,7 @@ namespace OpenXLSX::Impl
 
     private:
 
-        const XMLNode& m_columnNode; /**< A pointer to the XMLNode object for the column. */
+        XMLNode m_columnNode; /**< A pointer to the XMLNode object for the column. */
     };
 
 }  // namespace OpenXLSX::Impl

@@ -14,9 +14,7 @@ using namespace OpenXLSX;
 
 Impl::XLCell::XLCell()
         : m_parentWorksheet(nullptr),
-          m_cellNode(XMLNode()) {
-
-}
+          m_cellNode(XMLNode()) {}
 
 /**
  * @details This constructor creates a XLCell object based on the cell XMLNode input parameter, and is
@@ -35,24 +33,15 @@ Impl::XLCell::XLCell()
  */
 Impl::XLCell::XLCell(XLWorksheet& parent, XMLNode cellNode)
         : m_parentWorksheet(&parent),
-          m_cellNode(cellNode) {
-
-    // Empty constructor body
-}
+          m_cellNode(cellNode) {}
 
 Impl::XLCell::XLCell(Impl::XLCell const& other)
         : m_parentWorksheet(other.m_parentWorksheet),
-          m_cellNode(other.m_cellNode) {
-
-    // Empty constructor body
-}
+          m_cellNode(other.m_cellNode) {}
 
 Impl::XLCell::XLCell(Impl::XLCell&& other) noexcept
         : m_parentWorksheet(std::move(other.m_parentWorksheet)),
-          m_cellNode(std::move(other.m_cellNode)) {
-
-    // Empty constructor body
-}
+          m_cellNode(std::move(other.m_cellNode)) {}
 
 /**
  * @details This methods copies a range into a new location, with the top left cell being located in the target cell.
@@ -81,7 +70,6 @@ Impl::XLCell& Impl::XLCell::operator=(const XLCellRange& range) {
 Impl::XLValueType Impl::XLCell::ValueType() const {
 
     return XLCellValue(*this).ValueType();
-    //return m_value.ValueType();
 }
 
 /**

@@ -48,17 +48,12 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 #include "XLDefinitions_Impl.hpp"
 #include "XLCellType_Impl.hpp"
-#include "XLException_Impl.hpp"
 #include "XLXml_Impl.hpp"
-#include "XLSharedStrings_Impl.hpp"
-
-#include <string>
-#include <string_view>
 
 namespace OpenXLSX::Impl
 {
-
     class XLCell;
+    class XLSharedStrings;
 
     /**
      * @brief The XLCellValue class represents the concept of a cell value. This can be in the form of a number

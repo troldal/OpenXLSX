@@ -46,14 +46,10 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_IMPL_XLROW_H
 #define OPENXLSX_IMPL_XLROW_H
 
-#include <vector>
-#include "XLDocument_Impl.hpp"
-#include "XLCell_Impl.hpp"
+#include "XLXml_Impl.hpp"
 
 namespace OpenXLSX::Impl
 {
-    class XLCell;
-
     //========== XLRow Class ========== //
 
     /**
@@ -62,10 +58,8 @@ namespace OpenXLSX::Impl
      */
     class XLRow
     {
-        friend class XLWorksheet;
 
         //---------- PUBLIC MEMBER FUNCTIONS ----------//
-
     public:
 
         /**
@@ -155,10 +149,7 @@ namespace OpenXLSX::Impl
          */
         unsigned int CellCount() const;
 
-
-
         //---------- PRIVATE MEMBER VARIABLES ----------//
-
     private:
 
         XMLNode m_rowNode; /**< The XMLNode object for the row. */

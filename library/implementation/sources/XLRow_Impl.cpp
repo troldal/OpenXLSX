@@ -2,11 +2,8 @@
 // Created by KBA012 on 02/06/2017.
 //
 
-#include <algorithm>
-//#include <pugixml.hpp>
-
 #include "XLRow_Impl.hpp"
-#include "XLWorksheet_Impl.hpp"
+#include "XLCellReference_Impl.hpp"
 
 using namespace std;
 using namespace OpenXLSX;

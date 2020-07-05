@@ -2,11 +2,12 @@
 // Created by Troldal on 03/09/16.
 //
 
+#include "XLDocument_Impl.hpp"
 #include "XLWorksheet_Impl.hpp"
 #include "XLCellRange_Impl.hpp"
 #include "XLSheet_Impl.hpp"
 #include <algorithm>
-//#include <pugixml.hpp>
+
 
 using namespace std;
 using namespace OpenXLSX;

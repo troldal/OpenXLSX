@@ -3,11 +3,12 @@
 //
 
 #include <cassert>
-//#include <pugixml.hpp>
+
 
 #include "XLCellValue_Impl.hpp"
 #include "XLCell_Impl.hpp"
 #include "XLWorksheet_Impl.hpp"
+#include "XLDocument_Impl.hpp"
 
 using namespace OpenXLSX;
 using namespace std;

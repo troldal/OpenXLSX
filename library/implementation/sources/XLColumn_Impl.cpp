@@ -14,7 +14,7 @@ using namespace OpenXLSX;
 /**
  * @details Assumes each node only has data for one column.
  */
-Impl::XLColumn::XLColumn(const XMLNode& columnNode)
+Impl::XLColumn::XLColumn(XMLNode columnNode)
         : m_columnNode(columnNode) {}
 
 /**

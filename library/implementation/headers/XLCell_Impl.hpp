@@ -46,19 +46,13 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_IMPL_XLCELL_H
 #define OPENXLSX_IMPL_XLCELL_H
 
-#include <string>
-#include <ostream>
-//#include <pugixml.hpp>
 #include "XLCellReference_Impl.hpp"
-#include "XLDocument_Impl.hpp"
-#include "XLCellType_Impl.hpp"
 #include "XLCellValue_Impl.hpp"
 #include "XLXml_Impl.hpp"
 
 namespace OpenXLSX::Impl
 {
     class XLCellRange;
-
     class XLWorksheet;
 
     //======================================================================================================================
@@ -70,16 +64,14 @@ namespace OpenXLSX::Impl
      */
     class XLCell
     {
-        friend class XLWorksheet;
+
         friend class XLCellValue;
 
         friend bool operator==(const XLCell& lhs, const XLCell& rhs);
 
-        //----------------------------------------------------------------------------------------------------------------------
-        //           Public Member Functions
-        //----------------------------------------------------------------------------------------------------------------------
 
     public:
+        //---------- Public Member Functions ----------//
 
         explicit XLCell();
 
@@ -155,30 +147,31 @@ namespace OpenXLSX::Impl
          */
         Impl::XLCellReference CellReference() const;
 
+        /**
+         * @brief
+         * @return
+         */
         bool HasFormula() const;
 
+        /**
+         * @brief
+         * @return
+         */
         std::string GetFormula() const;
 
+        /**
+         * @brief
+         * @param newFormula
+         */
         void SetFormula(const std::string& newFormula);
-
-
-        //----------------------------------------------------------------------------------------------------------------------
-        //           Private Member Functions
-        //----------------------------------------------------------------------------------------------------------------------
 
     private:
 
+        //---------- Private Member Functions ---------- //
         void reset(XMLNode cellNode);
 
-        //----------------------------------------------------------------------------------------------------------------------
-        //           Private Member Variables
-        //----------------------------------------------------------------------------------------------------------------------
-
-
-        // ===== Pointers to parent entities ===== //
+        //---------- Private Member Variables ---------- //
         XLWorksheet* m_parentWorksheet; /**< A pointer to the parent XLWorksheet object. */
-
-        // ===== Cell entities ===== //
         XMLNode m_cellNode;              /**< A pointer to the root XMLNode for the cell. */
     };
 

@@ -7,9 +7,8 @@
 #include <utility>
 #include <type_traits>
 
-//#include <pugixml.hpp>
-#include <XLWorkbook_Impl.hpp>
-
+#include "XLWorkbook_Impl.hpp"
+#include "XLDocument_Impl.hpp"
 #include "XLWorksheet_Impl.hpp"
 #include "XLChartsheet_Impl.hpp"
 
