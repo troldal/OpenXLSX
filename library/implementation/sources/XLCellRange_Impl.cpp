@@ -51,22 +51,6 @@ Impl::XLCellRange& Impl::XLCellRange::operator=(const XLCellRange& other) {
 }
 
 /**
- * @details Returns a const pointer to the XLCell at the given coordinates.
- */
-Impl::XLCell Impl::XLCellRange::Cell(uint32_t row, uint16_t column) const {
-
-    XLCellReference cellReference;
-
-    // Check if the coordinates are inside the Range.
-    if (row > NumRows() || column > NumColumns())
-        throw std::range_error("Cell coordinates outside of Range");
-
-    cellReference.SetRowAndColumn(column + RowOffset(), row + ColumnOffset());
-
-    return XLCell(); // TODO: Dummy implementation. Has to be properly implemented.
-}
-
-/**
  * @details Returns the m_rows property.
  */
 uint32_t Impl::XLCellRange::NumRows() const {
@@ -82,20 +66,12 @@ uint16_t Impl::XLCellRange::NumColumns() const {
     return m_bottomRight.Column() + 1 - m_topLeft.Column();
 }
 
-uint32_t Impl::XLCellRange::RowOffset() const {
-    return m_topLeft.Row() - 1;
-}
-
-uint16_t Impl::XLCellRange::ColumnOffset() const {
-    return m_topLeft.Column() - 1;
-}
-
 void Impl::XLCellRange::Clear() {
 
-    for (uint32_t row = 1; row <= NumRows(); row++) {
-        for (uint16_t column = 1; column <= NumColumns(); column++) {
-            Cell(row, column).Value().Clear();
-        }
-    }
+//    for (uint32_t row = 1; row <= NumRows(); row++) {
+//        for (uint16_t column = 1; column <= NumColumns(); column++) {
+//            Cell(row, column).Value().Clear();
+//        }
+//    }
 }
 

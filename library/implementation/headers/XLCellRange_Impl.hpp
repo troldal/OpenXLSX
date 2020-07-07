@@ -116,14 +116,6 @@ namespace OpenXLSX::Impl
         XLCellRange& operator=(XLCellRange&& other) = default;
 
         /**
-         * @brief Get a const pointer to the cell at the given coordinates.
-         * @param row The row number, relative to the first row of the range (index base 1).
-         * @param column The column number, relative to the first column of the range (index base 1).
-         * @return A const pointer to the cell at the given range coordinates.
-         */
-        Impl::XLCell Cell(uint32_t row, uint16_t column) const;
-
-        /**
          * @brief Get the number of rows in the range.
          * @return The number of rows.
          */
@@ -134,18 +126,6 @@ namespace OpenXLSX::Impl
          * @return The number of columns.
          */
         uint16_t NumColumns() const;
-
-        /**
-         * @brief
-         * @return
-         */
-        uint32_t RowOffset() const;
-
-        /**
-         * @brief
-         * @return
-         */
-        uint16_t ColumnOffset() const;
 
         /**
          * @brief
