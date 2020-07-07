@@ -180,9 +180,7 @@ Impl::XLCell Impl::XLWorksheet::Cell(uint32_t rowNumber,
         }
     }
 
-//    m_currentCell->reset(cellNode);
-//    return *m_currentCell;
-    return XLCell(*this, cellNode);
+    return XLCell(cellNode, ParentDoc().Workbook()->SharedStrings());
 }
 
 /**
@@ -199,44 +197,22 @@ Impl::XLCell Impl::XLWorksheet::Cell(uint32_t rowNumber,
 }
 
 /**
- * @details Get an XLCellRange object, encompassing all valid cells in the worksheet. This is a convenience function
- * that calls a different function overload.
- */
-Impl::XLCellRange Impl::XLWorksheet::Range() {
-
-    return Range(XLCellReference("A1"), LastCell());
-}
-
-/**
  * @brief
  * @return
  * @todo The returned object is not const.
  */
-const Impl::XLCellRange Impl::XLWorksheet::Range() const {
+Impl::XLCellRange Impl::XLWorksheet::Range() const {
 
     return Range(XLCellReference("A1"), LastCell());
-}
-
-/**
- * @details Get an XLCellRange object with the given coordinates.
- */
-Impl::XLCellRange Impl::XLWorksheet::Range(const XLCellReference& topLeft, const XLCellReference& bottomRight) {
-    // Set the last Cell to some value, in order to create all objects in Range.
-    if (Cell(bottomRight).ValueType() == XLValueType::Empty)
-        Cell(bottomRight).Value().Clear();
-
-    return XLCellRange(*this, topLeft, bottomRight);
 }
 
 /**
  * @details
  */
-const Impl::XLCellRange Impl::XLWorksheet::Range(const XLCellReference& topLeft,
+Impl::XLCellRange Impl::XLWorksheet::Range(const XLCellReference& topLeft,
                                                  const XLCellReference& bottomRight) const {
-    // Set the last Cell to some ValueAsString, in order to create all objects in Range.
-    //if (Cell(bottomRight)->CellType() == XLCellType::Empty) Cell(bottomRight)->SetEmptyValue();
 
-    return XLCellRange(*this, topLeft, bottomRight);
+    return XLCellRange(XmlDocument()->first_child().child("sheetData"), ParentDoc().Workbook()->SharedStrings(), topLeft, bottomRight);
 }
 
 /**
@@ -345,10 +321,10 @@ void Impl::XLWorksheet::UpdateSheetName(const std::string& oldName, const std::s
     // ===== Iterate through all defined names
     for (auto& row : XmlDocument()->document_element().child("sheetData")) {
         for (auto& cell : row.children()) {
-            if (!XLCell(*this, cell).HasFormula())
+            if (!XLCell(cell, nullptr).HasFormula())
                 continue;
 
-            formula = XLCell(*this, cell).GetFormula();
+            formula = XLCell(cell, nullptr).GetFormula();
 
             // ===== Skip if formula contains a '[' and ']' (means that the defined refers to external workbook)
             if (formula.find('[') == string::npos && formula.find(']') == string::npos) {
@@ -357,7 +333,7 @@ void Impl::XLWorksheet::UpdateSheetName(const std::string& oldName, const std::s
                 while (formula.find(oldNameTemp) != string::npos) {
                     formula.replace(formula.find(oldNameTemp), oldNameTemp.length(), newNameTemp);
                 }
-                XLCell(*this, cell).SetFormula(formula);
+                XLCell(cell, nullptr).SetFormula(formula);
             }
         }
     }

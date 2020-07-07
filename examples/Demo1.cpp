@@ -13,7 +13,7 @@ int main() {
 
     wks->Cell(XLCellReference("A1")).Value() = 3.14159;
     wks->Cell(XLCellReference("B1")).Value() = 42;
-    wks->Cell(XLCellReference("C1")).Value() = "  Hello OpenXLSX!  ";
+    wks->Cell(XLCellReference("C1")).Value() = string("  Hello OpenXLSX!  ");
     wks->Cell(XLCellReference("D1")).Value() = true;
     wks->Cell(XLCellReference("E1")).Value() = wks->Cell(XLCellReference("C1")).Value();
 

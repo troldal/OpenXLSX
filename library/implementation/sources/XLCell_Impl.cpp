@@ -2,19 +2,15 @@
 // Created by Troldal on 02/09/16.
 //
 
-//#include <pugixml.hpp>
-#include <memory>
-
 #include "XLCell_Impl.hpp"
-#include "XLWorksheet_Impl.hpp"
 #include "XLCellRange_Impl.hpp"
 
 using namespace std;
 using namespace OpenXLSX;
 
 Impl::XLCell::XLCell()
-        : m_parentWorksheet(nullptr),
-          m_cellNode(XMLNode()) {}
+        : m_cellNode(XMLNode()),
+          m_sharedStrings(nullptr){}
 
 /**
  * @details This constructor creates a XLCell object based on the cell XMLNode input parameter, and is
@@ -31,17 +27,10 @@ Impl::XLCell::XLCell()
  *      -# If there is no type attribute but there is a value node, the cell has a number value.
  *      -# Otherwise, determine the celltype based on the type attribute.
  */
-Impl::XLCell::XLCell(XLWorksheet& parent, XMLNode cellNode)
-        : m_parentWorksheet(&parent),
-          m_cellNode(cellNode) {}
-
-Impl::XLCell::XLCell(Impl::XLCell const& other)
-        : m_parentWorksheet(other.m_parentWorksheet),
-          m_cellNode(other.m_cellNode) {}
-
-Impl::XLCell::XLCell(Impl::XLCell&& other) noexcept
-        : m_parentWorksheet(std::move(other.m_parentWorksheet)),
-          m_cellNode(std::move(other.m_cellNode)) {}
+Impl::XLCell::XLCell(XMLNode cellNode,
+                     XLSharedStrings* sharedStrings)
+        : m_cellNode(cellNode),
+          m_sharedStrings(sharedStrings) {}
 
 /**
  * @details This methods copies a range into a new location, with the top left cell being located in the target cell.
@@ -58,7 +47,7 @@ Impl::XLCell& Impl::XLCell::operator=(const XLCellRange& range) {
 
     auto first = CellReference();
     XLCellReference last(first.Row() + range.NumRows() - 1, first.Column() + range.NumColumns() - 1);
-    XLCellRange rng(*m_parentWorksheet, first, last);
+    XLCellRange rng(m_cellNode.parent().parent(), nullptr, first, last);
     rng = range;
 
     return *this;
@@ -69,7 +58,7 @@ Impl::XLCell& Impl::XLCell::operator=(const XLCellRange& range) {
  */
 Impl::XLValueType Impl::XLCell::ValueType() const {
 
-    return XLCellValue(*this).ValueType();
+    return XLCellValue(m_cellNode, nullptr).ValueType();
 }
 
 /**
@@ -77,7 +66,7 @@ Impl::XLValueType Impl::XLCell::ValueType() const {
  */
 Impl::XLCellValue Impl::XLCell::Value() const {
 
-    return XLCellValue(*this);
+    return XLCellValue(m_cellNode, m_sharedStrings);
 }
 
 /**

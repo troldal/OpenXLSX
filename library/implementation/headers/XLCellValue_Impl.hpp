@@ -46,14 +46,20 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_IMPL_XLCELLVALUE_H
 #define OPENXLSX_IMPL_XLCELLVALUE_H
 
-#include "XLDefinitions_Impl.hpp"
-#include "XLCellType_Impl.hpp"
 #include "XLXml_Impl.hpp"
 
 namespace OpenXLSX::Impl
 {
     class XLCell;
     class XLSharedStrings;
+
+    /**
+     * @brief The XLValueType class is an enumeration of the possible cell value types.
+     */
+    enum class XLValueType
+    {
+        Empty, Boolean, Integer, Float, Error, String
+    };
 
     /**
      * @brief The XLCellValue class represents the concept of a cell value. This can be in the form of a number
@@ -102,17 +108,14 @@ namespace OpenXLSX::Impl
      */
     class XLCellValue
     {
-        //----------------------------------------------------------------------------------------------------------------------
-        //           Public Member Functions
-        //----------------------------------------------------------------------------------------------------------------------
-
     public:
+        //---------- PUBLIC MEMBER FUNCTIONS ----------//
 
         /**
          * @brief Constructor
-         * @param parent A reference to the parent XLCell object.
+         * @param cellNode A reference to the parent XLCell object.
          */
-        explicit XLCellValue(const XLCell& parent) noexcept;
+        explicit XLCellValue(XMLNode cellNode, XLSharedStrings* sharedStrings) noexcept;
 
         /**
          * @brief Copy constructor.
@@ -187,12 +190,6 @@ namespace OpenXLSX::Impl
         XLCellValue& operator=(const std::string& stringValue);
 
         /**
-         * @brief Get the value of the object as a string, regardless of the value type.
-         * @return The value as a string.
-         */
-        std::string AsString() const;
-
-        /**
          * @brief Set the object to an integer value.
          * @tparam T The integer type to assign.
          * @param numberValue The integer value to assign.
@@ -244,6 +241,12 @@ namespace OpenXLSX::Impl
         T Get();
 
         /**
+         * @brief Get the value of the object as a string, regardless of the value type.
+         * @return The value as a string.
+         */
+        std::string AsString() const;
+
+        /**
          * @brief Clear the cell value.
          */
         void Clear();
@@ -254,29 +257,10 @@ namespace OpenXLSX::Impl
          */
         XLValueType ValueType() const;
 
-        //----------------------------------------------------------------------------------------------------------------------
-        //           Protected Member Functions
-        //----------------------------------------------------------------------------------------------------------------------
-    protected:
-
-        /**
-         * @brief Get the cell type of the cell.
-         * @return An XLCellType object corresponding to the cell type.
-         */
-        XLCellType CellType() const;
-
-        //----------------------------------------------------------------------------------------------------------------------
-        //           Private Member Functions
-        //----------------------------------------------------------------------------------------------------------------------
 
     private:
 
-        /**
-         * @brief Determine if the input string holds an integer or a floating point value.
-         * @param numberString The string holding a number.
-         * @return An XLNumberType::Integer or XLNumberType::Float
-         */
-        XLNumberType DetermineNumberType(const std::string& numberString) const;
+        //---------- PRIVATE MEMBER FUNCTIONS ----------//
 
         /**
          * @brief
@@ -320,7 +304,8 @@ namespace OpenXLSX::Impl
          */
         const char* GetString() const;
 
-        // ========== Member Variables ==========
+
+        //---------- PRIVATE MEMBER VARIABLES ----------//
 
         XMLNode m_cellNode;
         XLSharedStrings* m_sharedStrings;
@@ -385,10 +370,7 @@ namespace OpenXLSX::Impl
      * @post
      */
     template<typename T, typename std::enable_if<std::is_floating_point<T>::value, long double>::type*>
-    void XLCellValue::Set(T numberValue) {
-
-        SetFloat(numberValue);
-    }
+    void XLCellValue::Set(T numberValue) { SetFloat(numberValue); }
 
     /**
      * @details This is a template function for all integer-type parameters. It has been implemented using the
@@ -415,10 +397,7 @@ namespace OpenXLSX::Impl
      * @post
      */
     template<typename T, typename std::enable_if<std::is_floating_point<T>::value, long double>::type*>
-    T XLCellValue::Get() {
-
-        return GetFloat();
-    }
+    T XLCellValue::Get() { return GetFloat(); }
 
     /**
      * @details This is a template function for all types that can be constructed from a char* string, including
@@ -429,10 +408,7 @@ namespace OpenXLSX::Impl
     template<typename T, typename std::enable_if<
             std::is_constructible<T, char*>::value && !std::is_same<T, bool>::value,
             char*>::type*>
-    T XLCellValue::Get() {
-
-        return T(GetString());
-    }
+    T XLCellValue::Get() { return T(GetString()); }
 } // namespace OpenXLSX::Impl
 
 #endif //OPENXLSX_XLCELLVALUE_HPP

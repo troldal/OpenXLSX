@@ -46,21 +46,17 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_IMPL_XLCELLRANGE_H
 #define OPENXLSX_IMPL_XLCELLRANGE_H
 
+#include "XLCell_Impl.hpp"
 #include "XLCellReference_Impl.hpp"
+#include "XLSharedStrings_Impl.hpp"
+#include "XLXml_Impl.hpp"
 #include <string>
 
 namespace OpenXLSX::Impl
 {
-    class XLWorksheet;
-
-    //======================================================================================================================
-    //========== XLWorksheet Class =========================================================================================
-    //======================================================================================================================
-
     /**
      * @brief This class encapsulates the concept of a cell range, i.e. a square area
      * (or subset) of cells in a spreadsheet.
-     * @todo Consider specifying starting cell and direction of iterator.
      */
     class XLCellRange
     {
@@ -73,19 +69,13 @@ namespace OpenXLSX::Impl
 
         /**
          * @brief Constructor
-         * @param sheet A pointer to the parent spreadsheet, i.e. the sheet from which the range refers. Must not be nullptr.
+         * @param dataNode A pointer to the parent spreadsheet, i.e. the sheet from which the range refers. Must not be nullptr.
          * @param topLeft The first (top left) cell in the range.
          * @param bottomRight The last (bottom right) cell in the range.
          */
-        explicit XLCellRange(XLWorksheet& sheet, const XLCellReference& topLeft, const XLCellReference& bottomRight);
-
-        /**
-         * @brief
-         * @param sheet
-         * @param topLeft
-         * @param bottomRight
-         */
-        explicit XLCellRange(const XLWorksheet& sheet, const XLCellReference& topLeft,
+        explicit XLCellRange(XMLNode dataNode,
+                             XLSharedStrings* sharedStrings,
+                             const XLCellReference& topLeft,
                              const XLCellReference& bottomRight);
 
         /**
@@ -126,37 +116,36 @@ namespace OpenXLSX::Impl
         XLCellRange& operator=(XLCellRange&& other) = default;
 
         /**
-         * @brief Get a pointer to the cell at the given coordinates.
-         * @param row The row number, relative to the first row of the range (index base 1).
-         * @param column The column number, relative to the first column of the range (index base 1).
-         * @return A pointer to the cell at the given range coordinates.
-         */
-        Impl::XLCell Cell(unsigned long row, unsigned int column);
-
-        /**
          * @brief Get a const pointer to the cell at the given coordinates.
          * @param row The row number, relative to the first row of the range (index base 1).
          * @param column The column number, relative to the first column of the range (index base 1).
          * @return A const pointer to the cell at the given range coordinates.
          */
-        Impl::XLCell Cell(unsigned long row, unsigned int column) const;
+        Impl::XLCell Cell(uint32_t row, uint16_t column) const;
 
         /**
          * @brief Get the number of rows in the range.
          * @return The number of rows.
          */
-        unsigned long NumRows() const;
+        uint32_t NumRows() const;
 
         /**
          * @brief Get the number of columns in the range.
          * @return The number of columns.
          */
-        unsigned int NumColumns() const;
+        uint16_t NumColumns() const;
 
         /**
-         * @brief Transpose the range.
+         * @brief
+         * @return
          */
-        void Transpose(bool state) const;
+        uint32_t RowOffset() const;
+
+        /**
+         * @brief
+         * @return
+         */
+        uint16_t ColumnOffset() const;
 
         /**
          * @brief
@@ -169,17 +158,10 @@ namespace OpenXLSX::Impl
 
     private:
 
-        XLWorksheet* m_parentWorksheet; /**< A pointer to the parent spreadsheet */
-
+        XMLNode m_dataNode;
+        XLSharedStrings* m_sharedStrings;
         XLCellReference m_topLeft; /**< The cell reference of the first cell in the range */
         XLCellReference m_bottomRight; /**< The cell reference of the last cell in the range */
-        unsigned long m_rowOffset; /**< The row offset, relative to the parent spreadsheet */
-        unsigned int m_columnOffset; /**< The column offset, relative to the parent spreadsheet */
-        unsigned long m_rows; /**< The number of rows in the range */
-        unsigned int m_columns; /**< The number of columns in the range */
-
-        mutable bool m_transpose; /**< */
-
     };
 
 } // namespace OpenXLSX::Impl

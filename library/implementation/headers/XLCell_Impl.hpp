@@ -47,17 +47,13 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #define OPENXLSX_IMPL_XLCELL_H
 
 #include "XLCellReference_Impl.hpp"
+#include "XLSharedStrings_Impl.hpp"
 #include "XLCellValue_Impl.hpp"
 #include "XLXml_Impl.hpp"
 
 namespace OpenXLSX::Impl
 {
     class XLCellRange;
-    class XLWorksheet;
-
-    //======================================================================================================================
-    //========== XLCell Class ==============================================================================================
-    //======================================================================================================================
 
     /**
      * @brief An implementation class encapsulating the properties and behaviours of a spreadsheet cell.
@@ -66,7 +62,6 @@ namespace OpenXLSX::Impl
     {
 
         friend class XLCellValue;
-
         friend bool operator==(const XLCell& lhs, const XLCell& rhs);
 
 
@@ -80,7 +75,8 @@ namespace OpenXLSX::Impl
          * @param parent A pointer to the parent XLWorksheet object. Must not be nullptr.
          * @param cellNode A pointer to the XMLNode with the cell data. Must not be nullptr.
          */
-        XLCell(XLWorksheet& parent, XMLNode cellNode);
+        XLCell(XMLNode cellNode,
+               XLSharedStrings* sharedStrings);
 
         /**
          * @brief Copy constructor
@@ -88,14 +84,14 @@ namespace OpenXLSX::Impl
          * @note The copy constructor has been deleted, as it makes no sense to copy a cell. If the objective is to
          * copy the value, create the the target object and then use the copy assignment operator.
          */
-        XLCell(const XLCell& other);
+        XLCell(const XLCell& other) = default;
 
         /**
          * @brief Move constructor
          * @param other The XLCell object to be moved
          * @note The move constructor has been deleted, as it makes no sense to move a cell.
          */
-        XLCell(XLCell&& other) noexcept;
+        XLCell(XLCell&& other) noexcept = default;
 
         /**
          * @brief Destructor
@@ -109,7 +105,7 @@ namespace OpenXLSX::Impl
          * @return A reference to the new object
          * @note Copies only the cell contents, not the pointer to parent worksheet etc.
          */
-        XLCell& operator=(const XLCell& other) = delete;
+        XLCell& operator=(const XLCell& other) = default;
 
         /**
          * @brief Move assignment operator [deleted]
@@ -117,7 +113,7 @@ namespace OpenXLSX::Impl
          * @return A reference to the new object
          * @note The move assignment constructor has been deleted, as it makes no sense to move a cell.
          */
-        XLCell& operator=(XLCell&& other) noexcept = delete;
+        XLCell& operator=(XLCell&& other) noexcept = default;
 
         /**
          * @brief This copy assignment operators takes a range as the argument. The purpose is to copy the range to a
@@ -171,8 +167,8 @@ namespace OpenXLSX::Impl
         void reset(XMLNode cellNode);
 
         //---------- Private Member Variables ---------- //
-        XLWorksheet* m_parentWorksheet; /**< A pointer to the parent XLWorksheet object. */
         XMLNode m_cellNode;              /**< A pointer to the root XMLNode for the cell. */
+        XLSharedStrings* m_sharedStrings;
     };
 
     /**
@@ -183,7 +179,7 @@ namespace OpenXLSX::Impl
      */
     inline bool operator==(const XLCell& lhs, const XLCell& rhs) {
 
-        return lhs.m_parentWorksheet == rhs.m_parentWorksheet && lhs.m_cellNode == rhs.m_cellNode;
+        return lhs.m_cellNode == rhs.m_cellNode;
     }
 
 }  // namespace OpenXLSX::Impl

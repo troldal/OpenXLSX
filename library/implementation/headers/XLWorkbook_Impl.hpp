@@ -57,8 +57,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLXml_Impl.hpp"
 #include "XLEnums_impl.hpp"
 #include "XLContentTypes_Impl.hpp"
-#include "XlCommand_Impl.hpp"
-#include "XlQuery_Impl.hpp"
+#include "XLCommand_Impl.hpp"
+#include "XLQuery_Impl.hpp"
 
 namespace OpenXLSX::Impl
 {

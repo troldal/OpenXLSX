@@ -172,6 +172,7 @@ set(OPENXLSX_IMPL_HEADERS
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLXml_Impl.h
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLDefinitions_Impl.h
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLException_Impl.h
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLCellIterator_Impl.hpp
         )
 
 set(OPENXLSX_IMPL_SOURCES
@@ -194,6 +195,7 @@ set(OPENXLSX_IMPL_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellValue_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellReference_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLXml_Impl.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellIterator_Impl.cpp
         )
 
 #=======================================================================================================================

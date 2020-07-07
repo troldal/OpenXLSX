@@ -153,23 +153,9 @@ namespace OpenXLSX::Impl
 
         /**
          * @brief Get a range for the area currently in use (i.e. from cell A1 to the last cell being in use).
-         * @return An XLCellRange object with the entire range.
-         */
-        XLCellRange Range();
-
-        /**
-         * @brief Get a range for the area currently in use (i.e. from cell A1 to the last cell being in use).
          * @return A const XLCellRange object with the entire range.
          */
-        const XLCellRange Range() const;
-
-        /**
-         * @brief Get a range with the given coordinates.
-         * @param topLeft An XLCellReference object with the coordinates to the top left cell.
-         * @param bottomRight An XLCellReference object with the coordinates to the bottom right cell.
-         * @return An XLCellRange object with the requested range.
-         */
-        XLCellRange Range(const XLCellReference& topLeft, const XLCellReference& bottomRight);
+        Impl::XLCellRange Range() const;
 
         /**
          * @brief Get a range with the given coordinates.
@@ -177,7 +163,7 @@ namespace OpenXLSX::Impl
          * @param bottomRight An XLCellReference object with the coordinates to the bottom right cell.
          * @return A const XLCellRange object with the requested range.
          */
-        const XLCellRange Range(const XLCellReference& topLeft, const XLCellReference& bottomRight) const;
+        Impl::XLCellRange Range(const XLCellReference& topLeft, const XLCellReference& bottomRight) const;
 
         /**
          * @brief Get the row with the given row number.
