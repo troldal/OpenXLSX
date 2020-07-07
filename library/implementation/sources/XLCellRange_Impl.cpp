@@ -16,11 +16,9 @@ using namespace OpenXLSX;
  * If the range exceeds the current bounds of the spreadsheet, the spreadsheet is resized to fit.
  */
 Impl::XLCellRange::XLCellRange(XMLNode dataNode,
-                               XLSharedStrings* sharedStrings,
                                const XLCellReference& topLeft,
                                const XLCellReference& bottomRight)
         : m_dataNode(dataNode),
-          m_sharedStrings(sharedStrings),
           m_topLeft(topLeft),
           m_bottomRight(bottomRight) {
 }

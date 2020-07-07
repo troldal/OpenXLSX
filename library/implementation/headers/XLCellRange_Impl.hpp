@@ -74,7 +74,6 @@ namespace OpenXLSX::Impl
          * @param bottomRight The last (bottom right) cell in the range.
          */
         explicit XLCellRange(XMLNode dataNode,
-                             XLSharedStrings* sharedStrings,
                              const XLCellReference& topLeft,
                              const XLCellReference& bottomRight);
 
@@ -139,7 +138,6 @@ namespace OpenXLSX::Impl
     private:
 
         XMLNode m_dataNode;
-        XLSharedStrings* m_sharedStrings;
         XLCellReference m_topLeft; /**< The cell reference of the first cell in the range */
         XLCellReference m_bottomRight; /**< The cell reference of the last cell in the range */
     };

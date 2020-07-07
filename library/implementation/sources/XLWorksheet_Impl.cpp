@@ -212,7 +212,7 @@ Impl::XLCellRange Impl::XLWorksheet::Range() const {
 Impl::XLCellRange Impl::XLWorksheet::Range(const XLCellReference& topLeft,
                                                  const XLCellReference& bottomRight) const {
 
-    return XLCellRange(XmlDocument()->first_child().child("sheetData"), ParentDoc().Workbook()->SharedStrings(), topLeft, bottomRight);
+    return XLCellRange(XmlDocument()->first_child().child("sheetData"), topLeft, bottomRight);
 }
 
 /**

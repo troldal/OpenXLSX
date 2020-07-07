@@ -47,7 +47,7 @@ Impl::XLCell& Impl::XLCell::operator=(const XLCellRange& range) {
 
     auto first = CellReference();
     XLCellReference last(first.Row() + range.NumRows() - 1, first.Column() + range.NumColumns() - 1);
-    XLCellRange rng(m_cellNode.parent().parent(), nullptr, first, last);
+    XLCellRange rng(m_cellNode.parent().parent(), first, last);
     rng = range;
 
     return *this;
