@@ -426,20 +426,8 @@ namespace OpenXLSX::Impl
             std::unique_ptr<XLSheet> sheetItem;
         };
 
-        /**
-         * @brief Internal data structure for holding the individual sheets and their meta data.
-         */
-        struct XLDefinedName
-        {
-            XMLNode      definedNameNode;
-            XMLAttribute name;
-            XMLAttribute localSheetId;
-            XMLNode      sheetNode;
-        };
-
         // ===== Internal data structures
         mutable std::vector<XLSheetData>   m_sheets; /**< */
-        mutable std::vector<XLDefinedName> m_definedNames; /**< */
 
         XMLNode m_activeSheet; /**< */
 

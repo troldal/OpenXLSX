@@ -82,21 +82,6 @@ bool Impl::XLWorkbook::ParseXMLData() {
         }
     }
 
-    // ===== Read all defined names
-    // ===== TODO: Consider factoring this out.
-    if (XmlDocument()->first_child().child("definedNames")) {
-        for (const auto& name : XmlDocument()->first_child().child("definedNames").children()) {
-            auto& definedName = m_definedNames.emplace_back(XLDefinedName());
-            definedName.definedNameNode = name;
-            definedName.name = name.attribute("name");
-            definedName.localSheetId = name.attribute("localSheetId");
-
-            // ===== If the defined name is scoped to a single worksheet, find the corresponding worksheet node
-            if (definedName.localSheetId)
-                definedName.sheetNode = GetChildByIndex(getSheetsNode(), definedName.localSheetId.as_uint());
-        }
-    }
-
     // ===== Find the sheet node corresponding to the active sheet
     // ===== TODO: Consider factoring this out
     if (!XmlDocument()->first_child().child("bookViews").first_child().attribute("activeTab")) {
@@ -245,7 +230,7 @@ Impl::XLSharedStrings* Impl::XLWorkbook::SharedStrings() const {
  */
 void Impl::XLWorkbook::DeleteNamedRanges() {
 
-    for (auto& child : XmlDocument()->first_child().child("definedNames").children())
+    for (auto& child : XmlDocument()->document_element().child("definedNames").children())
         child.parent().remove_child(child);
 }
 
@@ -480,10 +465,9 @@ void Impl::XLWorkbook::MoveSheet(const std::string& sheetName, unsigned int newI
     rotate(first, n_first, last);
 
     // ===== Updated defined names with worksheet scopes.
-    for (auto& definedName : m_definedNames) {
-        if (definedName.localSheetId) {
-            definedName.localSheetId.set_value(IndexOfSheet(definedName.sheetNode.attribute("name").value()) - 1);
-        }
+    for (auto& definedName : XmlDocument()->document_element().child("definedNames").children()) {
+        definedName.attribute("localSheetId").set_value(IndexOfSheet(sheetName) - 1);
+
     }
 
     // ===== Update the activeTab attribute.
@@ -661,8 +645,8 @@ void Impl::XLWorkbook::UpdateSheetName(const std::string& oldName, const std::st
     newNameTemp += '!';
 
     // ===== Iterate through all defined names
-    for (auto& definedName : m_definedNames) {
-        formula = definedName.definedNameNode.text().get();
+    for (auto& definedName : XmlDocument()->document_element().child("definedNames").children()) {
+        formula = definedName.text().get();
 
         // ===== Skip if formula contains a '[' and ']' (means that the defined refers to external workbook)
         if (formula.find('[') == string::npos && formula.find(']') == string::npos) {
@@ -671,7 +655,7 @@ void Impl::XLWorkbook::UpdateSheetName(const std::string& oldName, const std::st
             while (formula.find(oldNameTemp) != string::npos) {
                 formula.replace(formula.find(oldNameTemp), oldNameTemp.length(), newNameTemp);
             }
-            definedName.definedNameNode.text().set(formula.c_str());
+            definedName.text().set(formula.c_str());
         }
     }
 }
