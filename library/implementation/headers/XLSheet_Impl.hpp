@@ -80,7 +80,7 @@ namespace OpenXLSX::Impl
          * @param filepath A std::string with the relative path to the sheet file in the .xlsx package.
          * @param xmlData
          */
-        XLSheet(XLDocument& parent, const std::string& sheetRID, XMLAttribute name, const std::string& filepath, const std::string& xmlData = "");
+        XLSheet(XLDocument& parent, const std::string& sheetRID, const std::string& filepath, const std::string& xmlData);
 
         /**
          * @brief The copy constructor.

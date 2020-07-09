@@ -73,7 +73,7 @@ namespace {
 Impl::XLWorksheet::XLWorksheet(XLDocument& parent, const std::string& sheetRID, XMLAttribute name, const std::string& filePath,
                                const std::string& xmlData)
 
-        : XLSheet(parent, sheetRID, name, filePath, xmlData) {
+        : XLSheet(parent, sheetRID, filePath, xmlData) {
 
     // Call the 'LoadXMLData' method in the XLAbstractXMLFile base class
     ParseXMLData();

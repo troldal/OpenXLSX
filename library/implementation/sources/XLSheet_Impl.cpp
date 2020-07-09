@@ -17,7 +17,7 @@ using namespace OpenXLSX;
  * sheet type is WorkSheet and the default sheet state is Visible.
  * @todo Consider to let the sheet type be determined by the subclasses.
  */
-Impl::XLSheet::XLSheet(XLDocument& parent, const std::string& sheetRID, XMLAttribute name, const std::string& filepath, const std::string& xmlData)
+Impl::XLSheet::XLSheet(XLDocument& parent, const std::string& sheetRID, const std::string& filepath, const std::string& xmlData)
         : XLAbstractXMLFile(parent, "xl/" + filepath, xmlData),
           m_sheetRID(sheetRID) {
 

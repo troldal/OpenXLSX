@@ -363,13 +363,6 @@ namespace OpenXLSX::Impl
          */
         const XLRelationships* Relationships() const;
 
-        /**
-         * @brief
-         * @param sheetName
-         * @return
-         */
-        XMLNode SheetNode(const std::string& sheetName);
-
     private: // ---------- Private Member Functions ---------- //
 
         /**
@@ -407,10 +400,6 @@ namespace OpenXLSX::Impl
         void setSheetVisibility(const std::string& sheetRID, const std::string& state);
 
         std::string getSheetName(const std::string& sheetRID) const;
-
-        std::string getSheetVisibility(const std::string& sheetRID) const;
-
-        std::string getSheetIndex(const std::string& sheetRID) const;
 
     private: // ---------- Private Member Variables ---------- //
 

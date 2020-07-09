@@ -83,6 +83,10 @@ namespace OpenXLSX::Impl
          */
         XLAbstractXMLFile(const XLAbstractXMLFile&) = default;
 
+        /**
+         * @brief
+         * @param other
+         */
         XLAbstractXMLFile(XLAbstractXMLFile&& other) noexcept = default;
 
         /**
@@ -96,6 +100,11 @@ namespace OpenXLSX::Impl
          */
         XLAbstractXMLFile& operator=(const XLAbstractXMLFile&) = default;
 
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
         XLAbstractXMLFile& operator=(XLAbstractXMLFile&& other) noexcept = default;
 
         /**
@@ -172,7 +181,7 @@ namespace OpenXLSX::Impl
 
         std::string m_path; /**< */
         XLDocument* m_parentDocument; /**< */
-        XMLDocument m_xmlDocument; /**< A pointer to the underlying XMLDocument resource*/
+        std::shared_ptr<XMLDocument> m_xmlDocument; /**< A pointer to the underlying XMLDocument resource*/
     };
 }  // namespace OpenXLSX::Impl
 

@@ -34,3 +34,9 @@ target_link_libraries(Demo5 PRIVATE OpenXLSX-static)
 add_executable(Demo6 Demo6.cpp)
 target_link_libraries(Demo6 PRIVATE OpenXLSX-static)
 
+#=======================================================================================================================
+# Define Demo7 target
+#=======================================================================================================================
+add_executable(Demo7 Demo7.cpp)
+target_link_libraries(Demo7 PRIVATE OpenXLSX-static)
+

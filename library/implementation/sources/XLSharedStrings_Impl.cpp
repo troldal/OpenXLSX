@@ -70,7 +70,7 @@ const char* Impl::XLSharedStrings::GetString(uint32_t index) const {
 
     auto iter = XmlDocument()->document_element().children().begin();
     std::advance(iter, index);
-    return iter->text().get();
+    return iter->first_child().text().get();
 }
 
 /**

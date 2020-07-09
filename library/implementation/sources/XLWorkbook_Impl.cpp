@@ -32,6 +32,54 @@ namespace {
                "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/>"
                "</worksheet>";
     }
+
+    inline XMLNode getSheetNodeByRID(XMLNode sheetsNode, const std::string& sheetRID) {
+        return sheetsNode.find_child_by_attribute("r:id", sheetRID.c_str());
+    }
+
+    inline XMLNode getSheetNodeByID(XMLNode sheetsNode, uint16_t sheetID) {
+        return sheetsNode.find_child_by_attribute("sheetId", std::to_string(sheetID).c_str());
+    }
+
+    inline XMLNode getSheetNodeByName(XMLNode sheetsNode, const std::string& sheetName) {
+        return sheetsNode.find_child_by_attribute("name", sheetName.c_str());
+    }
+
+    inline uint16_t getSheetIndexByRID(XMLNode sheetsNode, const std::string& sheetRID) {
+
+        auto sheetNode = getSheetNodeByRID(sheetsNode, sheetRID);
+        if (!sheetsNode) throw XLException("Sheet does not exist");
+
+        for (auto iter = sheetsNode.children().begin(); iter != sheetsNode.children().end(); ++iter)
+            if (*iter == sheetNode) return std::distance(sheetNode.children().begin(), iter);
+    }
+
+    inline uint16_t getSheetIndexByID(XMLNode sheetsNode, uint16_t sheetID) {
+
+        auto sheetNode = getSheetNodeByID(sheetsNode, sheetID);
+        if (!sheetsNode) throw XLException("Sheet does not exist");
+
+        for (auto iter = sheetsNode.children().begin(); iter != sheetsNode.children().end(); ++iter)
+            if (*iter == sheetNode) return std::distance(sheetNode.children().begin(), iter);
+    }
+
+    inline uint16_t getSheetIndexByName(XMLNode sheetsNode, const std::string& sheetName) {
+
+        auto sheetNode = getSheetNodeByName(sheetsNode, sheetName);
+        if (!sheetsNode) throw XLException("Sheet does not exist");
+
+        for (auto iter = sheetsNode.children().begin(); iter != sheetsNode.children().end(); ++iter)
+            if (*iter == sheetNode) return std::distance(sheetNode.children().begin(), iter);
+    }
+
+    inline std::string getSheetNameByRID(XMLNode sheetsNode, const std::string& sheetRID) {
+        return getSheetNodeByRID(sheetsNode, sheetRID).attribute("name").value();
+    }
+
+    inline std::string getSheetRIDByName(XMLNode sheetsNode, const std::string& sheetName) {
+        return getSheetNodeByName(sheetsNode, sheetName).attribute("r:id").value();
+    }
+
 }  // namespace
 
 
@@ -382,29 +430,11 @@ void Impl::XLWorkbook::setSheetVisibility(const string& sheetRID,
 }
 
 std::string Impl::XLWorkbook::getSheetName(const string& sheetRID) const {
+
     return XmlDocument()->document_element()
                         .child("sheets")
                         .find_child_by_attribute("r:id", sheetRID.c_str())
                         .attribute("name").value();
-}
-
-std::string Impl::XLWorkbook::getSheetVisibility(const string& sheetRID) const {
-    return XmlDocument()->document_element()
-                        .child("sheets")
-                        .find_child_by_attribute("r:id", sheetRID.c_str())
-                        .attribute("state").value();
-}
-
-std::string Impl::XLWorkbook::getSheetIndex(const string& sheetRID) const {
-
-    unsigned int index = 1;
-    for (auto& sheet : getSheetsNode().children()) {
-        if (sheetRID == sheet.attribute("r:id").value())
-            return to_string(index);
-        index++;
-    }
-
-    throw XLException("Sheet does not exist");
 }
 
 /**
@@ -679,17 +709,6 @@ const Impl::XLRelationships* Impl::XLWorkbook::Relationships() const {
 /**
  * @details
  */
-XMLNode Impl::XLWorkbook::SheetNode(const string& sheetName) {
-
-    auto sheet = getSheetsNode().find_child_by_attribute("name", sheetName.c_str());
-    if (!sheet)
-        throw XLException("Sheet named " + sheetName + " does not exist.");
-    return sheet;
-}
-
-/**
- * @details
- */
 void Impl::XLWorkbook::CreateWorksheet(const XLRelationshipItem& item, const std::string& xmlData) {
 
     if (getSheetsNode().find_child_by_attribute("r:id", item.Id().value()) == nullptr)
@@ -776,7 +795,7 @@ std::string Impl::XLWorkbook::queryCommand(Impl::XLQuery query) const {
             return getSheetName(query.subject());
 
         case XLQueryType::GetSheetVisibility :
-            return getSheetVisibility(query.subject());
+            return getSheetNodeByRID(XmlDocument()->document_element().child("sheets"), query.subject()).attribute("state").value();
 
         default:
             return std::string();

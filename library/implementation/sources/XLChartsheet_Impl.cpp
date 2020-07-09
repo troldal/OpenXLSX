@@ -12,7 +12,7 @@ using namespace OpenXLSX;
  */
 Impl::XLChartsheet::XLChartsheet(XLDocument& parent, const std::string& sheetRID, XMLAttribute name, const std::string& filePath,
                                  const std::string& xmlData)
-        : XLSheet(parent, sheetRID, name, filePath, xmlData) {
+        : XLSheet(parent, sheetRID, filePath, xmlData) {
 
 }
 
