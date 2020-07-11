@@ -60,11 +60,12 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLEnums_impl.hpp"
 #include "XLRelationships_Impl.hpp"
 #include "XLException_Impl.hpp"
-#include "XLXml_Impl.hpp"
+#include "XLXmlParser_Impl.hpp"
 #include "XLDefinitions_Impl.hpp"
 #include "XLZipFileInterface.hpp"
 #include "XLCommand_Impl.hpp"
 #include "XLQuery_Impl.hpp"
+#include "XLXmlData.hpp"
 
 namespace OpenXLSX::Impl
 {
@@ -197,6 +198,14 @@ namespace OpenXLSX::Impl
 
         std::string executeQuery(XLQuery query) const;
 
+        XLXmlData& getXmlData(const std::string& path);
+
+        void addXmlData(const std::string& path);
+
+        void addXmlData(const std::string& path, const char* data);
+
+        void addXmlData(const std::string& path, const void* data, size_t size);
+
         //----------------------------------------------------------------------------------------------------------------------
         //           Protected Member Functions
         //----------------------------------------------------------------------------------------------------------------------
@@ -285,6 +294,7 @@ namespace OpenXLSX::Impl
 
 
         std::string m_filePath; /**< The path to the original file*/
+        std::vector<XLXmlData> m_data {};
 
         std::unique_ptr<XLRelationships> m_documentRelationships; /**< A pointer to the document relationships object*/
         std::unique_ptr<XLContentTypes> m_contentTypes; /**< A pointer to the content types object*/

@@ -51,10 +51,10 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <variant>
 
 // ===== OpenXLSX Includes ===== //
-#include "XLAbstractXMLFile_Impl.hpp"
+#include "XLAbstractXMLFile.hpp"
 #include "XLRelationships_Impl.hpp"
 #include "XLSharedStrings_Impl.hpp"
-#include "XLXml_Impl.hpp"
+#include "XLXmlParser_Impl.hpp"
 #include "XLEnums_impl.hpp"
 #include "XLContentTypes_Impl.hpp"
 #include "XLCommand_Impl.hpp"

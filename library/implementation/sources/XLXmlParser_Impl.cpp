@@ -14,7 +14,7 @@
 #ifndef SOURCE_PUGIXML_CPP
 #define SOURCE_PUGIXML_CPP
 
-#include "XLXml_Impl.hpp"
+#include "XLXmlParser_Impl.hpp"
 
 #include <stdlib.h>
 #include <stdio.h>

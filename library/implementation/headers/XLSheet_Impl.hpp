@@ -49,7 +49,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 //#include <pugixml.hpp>
 #include <vector>
 #include "XLDefinitions_Impl.hpp"
-#include "XLAbstractXMLFile_Impl.hpp"
+#include "XLAbstractXMLFile.hpp"
 #include "XLRow_Impl.hpp"
 #include "XLColumn_Impl.hpp"
 #include "XLCell_Impl.hpp"

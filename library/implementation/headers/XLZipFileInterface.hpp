@@ -123,6 +123,10 @@ namespace OpenXLSX::Impl {
             return m_archive->GetEntry(path).GetDataAsString();
         }
 
+        std::vector<std::string> GetPaths() const {
+            return m_archive->GetEntryNames(false, true);
+        }
+
     private:
 
         std::unique_ptr<Zippy::ZipArchive> m_archive; /**<  */

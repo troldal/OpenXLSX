@@ -51,8 +51,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <string_view>
 
 // ===== OpenXLSX Includes ===== //
-#include "XLAbstractXMLFile_Impl.hpp"
-#include "XLXml_Impl.hpp"
+#include "XLAbstractXMLFile.hpp"
+#include "XLXmlParser_Impl.hpp"
 
 namespace OpenXLSX::Impl
 {

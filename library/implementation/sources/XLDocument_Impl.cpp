@@ -843,6 +843,7 @@ void Impl::XLDocument::OpenDocument(const string& fileName) {
     m_filePath = fileName;
     m_archive.openArchive(m_filePath);
 
+    for (const auto& path : m_archive.GetPaths()) { addXmlData(path); }
 
     // ===== Open the Relationships and Content_Types files for the document level.
     m_documentRelationships =
@@ -1228,8 +1229,27 @@ std::string Impl::XLDocument::executeQuery(XLQuery query) const {
             return std::string();
 
     }
+}
 
+Impl::XLXmlData& Impl::XLDocument::getXmlData(const string& path) {
+    auto result = std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) { return item.getPath() == path; } );
 
+    if (!result->getData())
+        result->setData(m_archive.getEntry(path).c_str());
+
+    return *result;
+}
+
+void Impl::XLDocument::addXmlData(const string& path) {
+    m_data.emplace_back(path);
+}
+
+void Impl::XLDocument::addXmlData(const string& path, const char* data) {
+    m_data.emplace_back(path, data);
+}
+
+void Impl::XLDocument::addXmlData(const string& path, const void* data, size_t size) {
+    m_data.emplace_back(path, data, size);
 }
 
 /**

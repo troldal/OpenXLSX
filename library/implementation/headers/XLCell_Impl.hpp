@@ -49,7 +49,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLCellReference_Impl.hpp"
 #include "XLSharedStrings_Impl.hpp"
 #include "XLCellValue_Impl.hpp"
-#include "XLXml_Impl.hpp"
+#include "XLXmlParser_Impl.hpp"
 
 namespace OpenXLSX::Impl
 {

@@ -176,7 +176,7 @@ set(OPENXLSX_IMPL_HEADERS
         )
 
 set(OPENXLSX_IMPL_SOURCES
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLAbstractXMLFile_Impl.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLAbstractXMLFile.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLAppProperties_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLContentTypes_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCoreProperties_Impl.cpp
@@ -194,7 +194,7 @@ set(OPENXLSX_IMPL_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellRange_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellValue_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellReference_Impl.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLXml_Impl.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLXmlParser_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellIterator_Impl.cpp
         )
 

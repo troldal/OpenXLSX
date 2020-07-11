@@ -2,7 +2,7 @@
 #include "XLDocument_Impl.hpp"
 #include <sstream>
 //#include <pugixml.hpp>
-#include <XLAbstractXMLFile_Impl.hpp>
+#include <XLAbstractXMLFile.hpp>
 
 using namespace std;
 using namespace OpenXLSX;
