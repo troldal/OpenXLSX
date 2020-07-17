@@ -75,6 +75,7 @@ namespace OpenXLSX
         //----------------------------------------------------------------------------------------------------------------------
 
     public:
+        XLSharedStrings() = default;
         /**
          * @brief Constructor
          * @param parent A pointer to the parent XLDocument

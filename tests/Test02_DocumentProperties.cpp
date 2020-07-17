@@ -22,21 +22,15 @@ TEST_CASE("C++ Interface Test 02: Testing of Document Properties") {
 
     XLDocument  doc;
     std::string file = "./TestDocumentProperties.xlsx";
-    doc.
-               OpenDocument(file);
+    doc.open(file);
 
-/**
+    /**
  * @brief
  *
  * @details
  */
     SECTION("Test 02A: GetProperty") {
-        REQUIRE(doc
-                        .
-                                GetProperty(XLProperty::Title)
-                        .
-                                empty()
-               );
+        REQUIRE(doc.property(XLProperty::Title).empty());
     }
 
 /**
@@ -44,492 +38,329 @@ TEST_CASE("C++ Interface Test 02: Testing of Document Properties") {
  *
  * @details
  */
-    SECTION("Test 02B: Test SetProperty - Title") {
-        doc.
-                   SetProperty(XLProperty::Title,
-                               "TitleTest");
-        doc.
-                   SaveDocument();
-        doc.
-                   CloseDocument();
-        doc.
-                   OpenDocument(file);
-        REQUIRE(doc
-                        .
-                                GetProperty(XLProperty::Title)
-                        == "TitleTest");
+    SECTION("Test 02B: Test SetProperty - Title")
+    {
+        doc.setProperty(XLProperty::Title, "TitleTest");
+        doc.save();
+        doc.close();
+        doc.open(file);
+        REQUIRE(doc.property(XLProperty::Title) == "TitleTest");
     }
 
-/**
+    /**
  * @brief
  *
  * @details
  */
-    SECTION("Test 02C: Test SetProperty - Title (Duplicate)") {
-        doc.
-                   SetProperty(XLProperty::Title,
-                               "TitleTest");
-        doc.
-                   SaveDocument();
-        doc.
-                   CloseDocument();
-        doc.
-                   OpenDocument(file);
-        REQUIRE(doc
-                        .
-                                GetProperty(XLProperty::Title)
-                        == "TitleTest");
+    SECTION("Test 02C: Test SetProperty - Title (Duplicate)")
+    {
+        doc.setProperty(XLProperty::Title, "TitleTest");
+        doc.save();
+        doc.close();
+        doc.open(file);
+        REQUIRE(doc.property(XLProperty::Title) == "TitleTest");
     }
 
-/**
+    /**
  * @brief
  *
  * @details
  */
-    SECTION("Test 02D: Test SetProperty - Subject") {
-        doc.
-                   SetProperty(XLProperty::Subject,
-                               "SubjectTest");
-        doc.
-                   SaveDocument();
-        doc.
-                   CloseDocument();
-        doc.
-                   OpenDocument(file);
-        REQUIRE(doc
-                        .
-                                GetProperty(XLProperty::Subject)
-                        == "SubjectTest");
+    SECTION("Test 02D: Test SetProperty - Subject")
+    {
+        doc.setProperty(XLProperty::Subject, "SubjectTest");
+        doc.save();
+        doc.close();
+        doc.open(file);
+        REQUIRE(doc.property(XLProperty::Subject) == "SubjectTest");
     }
 
-/**
+    /**
  * @brief
  *
  * @details
  */
-    SECTION("Test 02E: Test SetProperty - Creator") {
-        doc.
-                   SetProperty(XLProperty::Creator,
-                               "CreatorTest");
-        doc.
-                   SaveDocument();
-        doc.
-                   CloseDocument();
-        doc.
-                   OpenDocument(file);
-        REQUIRE(doc
-                        .
-                                GetProperty(XLProperty::Creator)
-                        == "CreatorTest");
+    SECTION("Test 02E: Test SetProperty - Creator")
+    {
+        doc.setProperty(XLProperty::Creator, "CreatorTest");
+        doc.save();
+        doc.close();
+        doc.open(file);
+        REQUIRE(doc.property(XLProperty::Creator) == "CreatorTest");
     }
 
-/**
+    /**
  * @brief
  *
  * @details
  */
-    SECTION("Test 02F: Test SetProperty - Keywords") {
-        doc.
-                   SetProperty(XLProperty::Keywords,
-                               "A, B, C");
-        doc.
-                   SaveDocument();
-        doc.
-                   CloseDocument();
-        doc.
-                   OpenDocument(file);
-        REQUIRE(doc
-                        .
-                                GetProperty(XLProperty::Keywords)
-                        == "A, B, C");
+    SECTION("Test 02F: Test SetProperty - Keywords")
+    {
+        doc.setProperty(XLProperty::Keywords, "A, B, C");
+        doc.save();
+        doc.close();
+        doc.open(file);
+        REQUIRE(doc.property(XLProperty::Keywords) == "A, B, C");
     }
 
-/**
+    /**
  * @brief
  *
  * @details
  */
-    SECTION("Test 02G: Test SetProperty - Description") {
-        doc.
-                   SetProperty(XLProperty::Description,
-                               "DescriptionTest");
-        doc.
-                   SaveDocument();
-        doc.
-                   CloseDocument();
-        doc.
-                   OpenDocument(file);
-        REQUIRE(doc
-                        .
-                                GetProperty(XLProperty::Description)
-                        == "DescriptionTest");
+    SECTION("Test 02G: Test SetProperty - Description")
+    {
+        doc.setProperty(XLProperty::Description, "DescriptionTest");
+        doc.save();
+        doc.close();
+        doc.open(file);
+        REQUIRE(doc.property(XLProperty::Description) == "DescriptionTest");
     }
 
-/**
+    /**
  * @brief
  *
  * @details
  */
-    SECTION("Test 02H: Test SetProperty - LastModifiedBy") {
-        doc.
-                   SetProperty(XLProperty::LastModifiedBy,
-                               "LastModifiedByTest");
-        doc.
-                   SaveDocument();
-        doc.
-                   CloseDocument();
-        doc.
-                   OpenDocument(file);
-        REQUIRE(doc
-                        .
-                                GetProperty(XLProperty::LastModifiedBy)
-                        == "LastModifiedByTest");
+    SECTION("Test 02H: Test SetProperty - LastModifiedBy")
+    {
+        doc.setProperty(XLProperty::LastModifiedBy, "LastModifiedByTest");
+        doc.save();
+        doc.close();
+        doc.open(file);
+        REQUIRE(doc.property(XLProperty::LastModifiedBy) == "LastModifiedByTest");
     }
 
-/**
+    /**
  * @brief
  *
  * @details
  */
-    SECTION("Test 02I: Test SetProperty - LastPrinted") {
+    SECTION("Test 02I: Test SetProperty - LastPrinted")
+    {
         std::time_t t  = std::time(nullptr);
         std::tm     tm = *std::gmtime(&t);
 
         std::stringstream ss;
-        ss <<
-           std::put_time(&tm,
-                         "%FT%TZ");
+        ss << std::put_time(&tm, "%FT%TZ");
         auto datetime = ss.str();
 
-        doc.
-                   SetProperty(XLProperty::LastPrinted, datetime
-                              );
-        doc.
-                   SaveDocument();
-        doc.
-                   CloseDocument();
-        doc.
-                   OpenDocument(file);
-        REQUIRE(doc
-                        .
-                                GetProperty(XLProperty::LastPrinted)
-                        == datetime);
+        doc.setProperty(XLProperty::LastPrinted, datetime);
+        doc.save();
+        doc.close();
+        doc.open(file);
+        REQUIRE(doc.property(XLProperty::LastPrinted) == datetime);
     }
 
-/**
+    /**
  * @brief
  *
  * @details
  */
-    SECTION("Test 02J: Test SetProperty - CreationDate") {
+    SECTION("Test 02J: Test SetProperty - CreationDate")
+    {
         std::time_t t  = std::time(nullptr);
         std::tm     tm = *std::gmtime(&t);
 
         std::stringstream ss;
-        ss <<
-           std::put_time(&tm,
-                         "%FT%TZ");
+        ss << std::put_time(&tm, "%FT%TZ");
         auto datetime = ss.str();
 
-        doc.
-                   SetProperty(XLProperty::CreationDate, datetime
-                              );
-        doc.
-                   SaveDocument();
-        doc.
-                   CloseDocument();
-        doc.
-                   OpenDocument(file);
-        REQUIRE(doc
-                        .
-                                GetProperty(XLProperty::CreationDate)
-                        == datetime);
+        doc.setProperty(XLProperty::CreationDate, datetime);
+        doc.save();
+        doc.close();
+        doc.open(file);
+        REQUIRE(doc.property(XLProperty::CreationDate) == datetime);
     }
 
-/**
+    /**
  * @brief
  *
  * @details
  */
-    SECTION("Test 02K: Test SetProperty - ModificationDate") {
+    SECTION("Test 02K: Test SetProperty - ModificationDate")
+    {
         std::time_t t  = std::time(nullptr);
         std::tm     tm = *std::gmtime(&t);
 
         std::stringstream ss;
-        ss <<
-           std::put_time(&tm,
-                         "%FT%TZ");
+        ss << std::put_time(&tm, "%FT%TZ");
         auto datetime = ss.str();
 
-        doc.
-                   SetProperty(XLProperty::ModificationDate, datetime
-                              );
-        doc.
-                   SaveDocument();
-        doc.
-                   CloseDocument();
-        doc.
-                   OpenDocument(file);
-        REQUIRE(doc
-                        .
-                                GetProperty(XLProperty::ModificationDate)
-                        == datetime);
+        doc.setProperty(XLProperty::ModificationDate, datetime);
+        doc.save();
+        doc.close();
+        doc.open(file);
+        REQUIRE(doc.property(XLProperty::ModificationDate) == datetime);
     }
 
-/**
+    /**
  * @brief
  *
  * @details
  */
-    SECTION("Test 02L: Test SetProperty - Category") {
-        doc.
-                   SetProperty(XLProperty::Category,
-                               "CategoryTest");
-        doc.
-                   SaveDocument();
-        doc.
-                   CloseDocument();
-        doc.
-                   OpenDocument(file);
-        REQUIRE(doc
-                        .
-                                GetProperty(XLProperty::Category)
-                        == "CategoryTest");
+    SECTION("Test 02L: Test SetProperty - Category")
+    {
+        doc.setProperty(XLProperty::Category, "CategoryTest");
+        doc.save();
+        doc.close();
+        doc.open(file);
+        REQUIRE(doc.property(XLProperty::Category) == "CategoryTest");
     }
 
-/**
+    /**
  * @brief
  *
  * @details
  */
-    SECTION("Test 02M: Test SetProperty - Application") {
-        doc.
-                   SetProperty(XLProperty::Application,
-                               "ApplicationTest");
-        doc.
-                   SaveDocument();
-        doc.
-                   CloseDocument();
-        doc.
-                   OpenDocument(file);
-        REQUIRE(doc
-                        .
-                                GetProperty(XLProperty::Application)
-                        == "ApplicationTest");
+    SECTION("Test 02M: Test SetProperty - Application")
+    {
+        doc.setProperty(XLProperty::Application, "ApplicationTest");
+        doc.save();
+        doc.close();
+        doc.open(file);
+        REQUIRE(doc.property(XLProperty::Application) == "ApplicationTest");
     }
 
-/**
+    /**
  * @brief
  *
  * @details
  */
-    SECTION("Test 02N: Test SetProperty - DocSecurity") {
-        doc.
-                   SetProperty(XLProperty::DocSecurity,
-                               "4");
-        doc.
-                   SaveDocument();
-        doc.
-                   CloseDocument();
-        doc.
-                   OpenDocument(file);
-        REQUIRE(doc
-                        .
-                                GetProperty(XLProperty::DocSecurity)
-                        == "4");
+    SECTION("Test 02N: Test SetProperty - DocSecurity")
+    {
+        doc.setProperty(XLProperty::DocSecurity, "4");
+        doc.save();
+        doc.close();
+        doc.open(file);
+        REQUIRE(doc.property(XLProperty::DocSecurity) == "4");
     }
 
-/**
+    /**
  * @brief
  *
  * @details
  */
-    SECTION("Test 02O: Test SetProperty - ScaleCrop") {
-        doc.
-                   SetProperty(XLProperty::ScaleCrop,
-                               "false");
-        doc.
-                   SaveDocument();
-        doc.
-                   CloseDocument();
-        doc.
-                   OpenDocument(file);
-        REQUIRE(doc
-                        .
-                                GetProperty(XLProperty::ScaleCrop)
-                        == "false");
+    SECTION("Test 02O: Test SetProperty - ScaleCrop")
+    {
+        doc.setProperty(XLProperty::ScaleCrop, "false");
+        doc.save();
+        doc.close();
+        doc.open(file);
+        REQUIRE(doc.property(XLProperty::ScaleCrop) == "false");
     }
 
-/**
+    /**
  * @brief
  *
  * @details
  */
-    SECTION("Test 02P: Test SetProperty - Manager") {
-        doc.
-                   SetProperty(XLProperty::Manager,
-                               "ManagerTest");
-        doc.
-                   SaveDocument();
-        doc.
-                   CloseDocument();
-        doc.
-                   OpenDocument(file);
-        REQUIRE(doc
-                        .
-                                GetProperty(XLProperty::Manager)
-                        == "ManagerTest");
+    SECTION("Test 02P: Test SetProperty - Manager")
+    {
+        doc.setProperty(XLProperty::Manager, "ManagerTest");
+        doc.save();
+        doc.close();
+        doc.open(file);
+        REQUIRE(doc.property(XLProperty::Manager) == "ManagerTest");
     }
 
-/**
+    /**
  * @brief
  *
  * @details
  */
-    SECTION("Test 02Q: Test SetProperty - Company") {
-        doc.
-                   SetProperty(XLProperty::Company,
-                               "CompanyTest");
-        doc.
-                   SaveDocument();
-        doc.
-                   CloseDocument();
-        doc.
-                   OpenDocument(file);
-        REQUIRE(doc
-                        .
-                                GetProperty(XLProperty::Company)
-                        == "CompanyTest");
+    SECTION("Test 02Q: Test SetProperty - Company")
+    {
+        doc.setProperty(XLProperty::Company, "CompanyTest");
+        doc.save();
+        doc.close();
+        doc.open(file);
+        REQUIRE(doc.property(XLProperty::Company) == "CompanyTest");
     }
 
-/**
+    /**
  * @brief
  *
  * @details
  */
-    SECTION("Test 02R: Test SetProperty - LinksUpToDate") {
-        doc.
-                   SetProperty(XLProperty::LinksUpToDate,
-                               "false");
-        doc.
-                   SaveDocument();
-        doc.
-                   CloseDocument();
-        doc.
-                   OpenDocument(file);
-        REQUIRE(doc
-                        .
-                                GetProperty(XLProperty::LinksUpToDate)
-                        == "false");
+    SECTION("Test 02R: Test SetProperty - LinksUpToDate")
+    {
+        doc.setProperty(XLProperty::LinksUpToDate, "false");
+        doc.save();
+        doc.close();
+        doc.open(file);
+        REQUIRE(doc.property(XLProperty::LinksUpToDate) == "false");
     }
 
-/**
+    /**
  * @brief
  *
  * @details
  */
-    SECTION("Test 02S: Test SetProperty - SharedDoc") {
-        doc.
-                   SetProperty(XLProperty::SharedDoc,
-                               "false");
-        doc.
-                   SaveDocument();
-        doc.
-                   CloseDocument();
-        doc.
-                   OpenDocument(file);
-        REQUIRE(doc
-                        .
-                                GetProperty(XLProperty::SharedDoc)
-                        == "false");
+    SECTION("Test 02S: Test SetProperty - SharedDoc")
+    {
+        doc.setProperty(XLProperty::SharedDoc, "false");
+        doc.save();
+        doc.close();
+        doc.open(file);
+        REQUIRE(doc.property(XLProperty::SharedDoc) == "false");
     }
 
-/**
+    /**
  * @brief
  *
  * @details
  */
-    SECTION("Test 02T: Test SetProperty - HyperlinkBase") {
-        doc.
-                   SetProperty(XLProperty::HyperlinkBase,
-                               "HyperlinkBaseTest");
-        doc.
-                   SaveDocument();
-        doc.
-                   CloseDocument();
-        doc.
-                   OpenDocument(file);
-        REQUIRE(doc
-                        .
-                                GetProperty(XLProperty::HyperlinkBase)
-                        == "HyperlinkBaseTest");
+    SECTION("Test 02T: Test SetProperty - HyperlinkBase")
+    {
+        doc.setProperty(XLProperty::HyperlinkBase, "HyperlinkBaseTest");
+        doc.save();
+        doc.close();
+        doc.open(file);
+        REQUIRE(doc.property(XLProperty::HyperlinkBase) == "HyperlinkBaseTest");
     }
 
-/**
+    /**
 * @brief
 *
 * @details
 */
-    SECTION("Test 02U: Test SetProperty - HyperlinksChanged") {
-        doc.
-                   SetProperty(XLProperty::HyperlinksChanged,
-                               "false");
-        doc.
-                   SaveDocument();
-        doc.
-                   CloseDocument();
-        doc.
-                   OpenDocument(file);
-        REQUIRE(doc
-                        .
-                                GetProperty(XLProperty::HyperlinksChanged)
-                        == "false");
+    SECTION("Test 02U: Test SetProperty - HyperlinksChanged")
+    {
+        doc.setProperty(XLProperty::HyperlinksChanged, "false");
+        doc.save();
+        doc.close();
+        doc.open(file);
+        REQUIRE(doc.property(XLProperty::HyperlinksChanged) == "false");
     }
 
-/**
+    /**
  * @brief
  *
  * @details
  */
-    SECTION("Test 02V: Test SetProperty - AppVersion") {
-        doc.
-                   SetProperty(XLProperty::AppVersion,
-                               "12.0300");
-        doc.
-                   SaveDocument();
-        doc.
-                   CloseDocument();
-        doc.
-                   OpenDocument(file);
-        REQUIRE(doc
-                        .
-                                GetProperty(XLProperty::AppVersion)
-                        == "12.0300");
+    SECTION("Test 02V: Test SetProperty - AppVersion")
+    {
+        doc.setProperty(XLProperty::AppVersion, "12.0300");
+        doc.save();
+        doc.close();
+        doc.open(file);
+        REQUIRE(doc.property(XLProperty::AppVersion) == "12.0300");
     }
 
-/**
+    /**
  * @brief
  *
  * @details
  */
-    SECTION("DeleteProperty - Keywords") {
-        doc.
-                   DeleteProperty(XLProperty::Keywords);
-        doc.
-                   SaveDocument();
-        doc.
-                   CloseDocument();
-        doc.
-                   OpenDocument(file);
-        REQUIRE(doc
-                        .
-                                GetProperty(XLProperty::Keywords)
-                        .
-                                empty()
-               );
+    SECTION("DeleteProperty - Keywords")
+    {
+        doc.deleteProperty(XLProperty::Keywords);
+        doc.save();
+        doc.close();
+        doc.open(file);
+        REQUIRE(doc.property(XLProperty::Keywords).empty());
     }
 
-    doc.
-               CloseDocument();
-
+    doc.close();
 }

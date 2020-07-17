@@ -59,7 +59,7 @@ OpenXLSX::XLContentType OpenXLSX::XLXmlData::getXmlType() const
 OpenXLSX::XMLDocument* OpenXLSX::XLXmlData::getXmlDocument()
 {
     if (!m_xmlDoc.document_element())
-        m_xmlDoc.load_string(m_parentDoc->getXmlDataFromArchive(m_xmlPath).c_str(), pugi::parse_default | pugi::parse_ws_pcdata);
+        m_xmlDoc.load_string(m_parentDoc->extractXmlFromArchive(m_xmlPath).c_str(), pugi::parse_default | pugi::parse_ws_pcdata);
 
     return &m_xmlDoc;
 }
@@ -67,7 +67,7 @@ OpenXLSX::XMLDocument* OpenXLSX::XLXmlData::getXmlDocument()
 const OpenXLSX::XMLDocument* OpenXLSX::XLXmlData::getXmlDocument() const
 {
     if (!m_xmlDoc.document_element())
-        m_xmlDoc.load_string(m_parentDoc->getXmlDataFromArchive(m_xmlPath).c_str(), pugi::parse_default | pugi::parse_ws_pcdata);
+        m_xmlDoc.load_string(m_parentDoc->extractXmlFromArchive(m_xmlPath).c_str(), pugi::parse_default | pugi::parse_ws_pcdata);
 
     return &m_xmlDoc;
 }

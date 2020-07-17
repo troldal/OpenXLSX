@@ -68,6 +68,7 @@ namespace OpenXLSX
     class XLAbstractXMLFile
     {
     public:    // ===== PUBLIC MEMBER FUNCTIONS
+        XLAbstractXMLFile() = default;
         /**
          * @brief Constructor. Creates an object using the parent XLDocument object, the relative file path
          * and a data object as input.
@@ -123,11 +124,6 @@ namespace OpenXLSX
          * @return A std::string with the XML data.
          */
         virtual std::string GetXmlData() const;
-
-        /**
-         * @brief Delete the XML file from the zipped .xlsx package.
-         */
-        virtual void DeleteXMLData();
 
         /**
          * @brief Get the path of the current file.
@@ -186,7 +182,7 @@ namespace OpenXLSX
         virtual bool ParseXMLData() = 0;
 
     private:    // ===== PRIVATE MEMBER VARIABLES
-        XLXmlData* m_xmlData;
+        XLXmlData* m_xmlData { nullptr };
     };
 }    // namespace OpenXLSX
 

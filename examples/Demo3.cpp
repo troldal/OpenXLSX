@@ -6,11 +6,11 @@
 using namespace std;
 using namespace OpenXLSX;
 
-int main() {
-
+int main()
+{
     XLDocument doc;
-    doc.OpenDocument("./Names.xlsx");
-    auto wbk = doc.Workbook();
+    doc.open("./Names.xlsx");
+    auto wbk = doc.workbook();
     auto wks = wbk.Worksheet("Long Sheet Name");
 
     wks.SetName("Even Longer Sheet Name");
@@ -20,7 +20,7 @@ int main() {
     wbk.MoveSheet("NewName", 4);
     wbk.DeleteSheet("Number Three");
 
-    doc.SaveDocumentAs("Names2.xlsx");
+    doc.saveAs("Names2.xlsx");
 
     return 0;
 }

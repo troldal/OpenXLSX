@@ -13,26 +13,27 @@ using namespace OpenXLSX;
  *
  * @details
  */
-TEST_CASE("C++ Interface Test 03: Testing of XLWorkbook objects") {
-
+TEST_CASE("C++ Interface Test 03: Testing of XLWorkbook objects")
+{
     XLDocument mdoc;
-    mdoc.OpenDocument("./TestWorkbook.xlsx");
+    mdoc.open("./TestWorkbook.xlsx");
     const XLDocument cdoc = mdoc;
 
-    auto mwbk = mdoc.Workbook();
-    auto cwbk = cdoc.Workbook();
+    auto mwbk = mdoc.workbook();
+    auto cwbk = cdoc.workbook();
 
-/**
- * @brief
- *
- * @details
- */
-    SECTION("Test 02A: SheetCount()") {
-        REQUIRE(mwbk.SheetCount()== 1);
-        REQUIRE(cwbk.SheetCount()== 1);
+    /**
+     * @brief
+     *
+     * @details
+     */
+    SECTION("Test 02A: SheetCount()")
+    {
+        REQUIRE(mwbk.SheetCount() == 1);
+        REQUIRE(cwbk.SheetCount() == 1);
     }
 
-/**
+    /**
  * @brief
  *
  * @details
@@ -100,7 +101,7 @@ TEST_CASE("C++ Interface Test 03: Testing of XLWorkbook objects") {
     SECTION("Test 02H: AddWorksheet()") {
         REQUIRE(!mwbk.SheetExists("MySheet"));
         mwbk.AddWorksheet("MySheet");
-        mdoc.SaveDocument();
+        mdoc.save();
         REQUIRE(mwbk.SheetExists("MySheet"));
 
 // ===== Should not compile as cwbk is const =====//
@@ -115,7 +116,7 @@ TEST_CASE("C++ Interface Test 03: Testing of XLWorkbook objects") {
     SECTION("Test 02I: CloneWorksheet()") {
         REQUIRE(!mwbk.SheetExists("MyClonedSheet"));
         mwbk.CloneWorksheet("MySheet", "MyClonedSheet");
-        mdoc.SaveDocument();
+        mdoc.save();
         REQUIRE(mwbk.SheetExists("MyClonedSheet"));
 
 // ===== Should not compile as cwbk is const =====//
@@ -130,7 +131,7 @@ TEST_CASE("C++ Interface Test 03: Testing of XLWorkbook objects") {
     SECTION("Test 02J: AddChartsheet()") {
         REQUIRE(!mwbk.SheetExists("MyChartSheet"));
         mwbk.AddChartsheet("MyChartSheet");
-        mdoc.SaveDocument();
+        mdoc.save();
         REQUIRE(mwbk.SheetExists("MyChartSheet"));
 
 // ===== Should not compile as cwbk is const =====//
@@ -145,7 +146,7 @@ TEST_CASE("C++ Interface Test 03: Testing of XLWorkbook objects") {
     SECTION("Test 02K: MoveSheet()") {
         REQUIRE(mwbk.IndexOfSheet("MyClonedSheet") == 3);
         mwbk.MoveSheet("MyClonedSheet", 1);
-        mdoc.SaveDocument();
+        mdoc.save();
         REQUIRE(mwbk.IndexOfSheet("MyClonedSheet") == 1);
 
 // ===== Should not compile as cwbk is const =====//
@@ -177,7 +178,7 @@ TEST_CASE("C++ Interface Test 03: Testing of XLWorkbook objects") {
     SECTION("Test 02N: DeleteSheet()") {
         REQUIRE(mwbk.SheetExists("MySheet"));
         mwbk.DeleteSheet("MySheet");
-        mdoc.SaveDocument();
+        mdoc.save();
         REQUIRE(!mwbk.SheetExists("MySheet"));
 
 // ===== Should not compile as cwbk is const =====//

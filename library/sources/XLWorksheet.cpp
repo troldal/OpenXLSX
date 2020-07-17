@@ -122,8 +122,8 @@ bool XLWorksheet::ParseXMLData()
  */
 XLWorksheet XLWorksheet::Clone(const std::string& newName)
 {
-    ParentDoc().Workbook()->CloneWorksheet(Name(), newName);
-    return ParentDoc().Workbook()->Worksheet(newName);
+    ParentDoc().workbook()->CloneWorksheet(Name(), newName);
+    return ParentDoc().workbook()->Worksheet(newName);
 }
 
 XLCell XLWorksheet::Cell(const string& ref)
@@ -185,7 +185,7 @@ XLCell XLWorksheet::Cell(uint32_t rowNumber, uint16_t columnNumber)
         }
     }
 
-    return XLCell(cellNode, ParentDoc().Workbook()->SharedStrings());
+    return XLCell(cellNode, ParentDoc().workbook()->SharedStrings());
 }
 
 /**

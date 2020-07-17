@@ -67,6 +67,7 @@ namespace OpenXLSX
         //--------------------------------------------------------------------------------------------------------------
 
     public:
+        XLAppProperties() = default;
         /**
          * @brief
          * @param parent
@@ -78,7 +79,7 @@ namespace OpenXLSX
          * @brief
          * @param other
          */
-        XLAppProperties(const XLAppProperties& other) = delete;
+        XLAppProperties(const XLAppProperties& other) = default;
 
         /**
          * @brief
@@ -90,7 +91,7 @@ namespace OpenXLSX
          * @param other
          * @return
          */
-        XLAppProperties& operator=(const XLAppProperties& other) = delete;
+        XLAppProperties& operator=(const XLAppProperties& other) = default;
 
         /**
          * @brief

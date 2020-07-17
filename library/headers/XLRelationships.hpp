@@ -137,6 +137,7 @@ namespace OpenXLSX
     class XLRelationships : public XLAbstractXMLFile
     {
     public:    // ---------- Public Member Functions ---------- //
+        XLRelationships() = default;
         /**
          * @brief Constructor
          * @param parent A pointer to the parent XLDocument object.

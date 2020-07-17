@@ -42,28 +42,28 @@ using namespace OpenXLSX;
  * @brief
  * @param state
  */
-static void BM_WriteMatrix(benchmark::State& state) {
+static void BM_WriteMatrix(benchmark::State& state)
+{
     XLDocument doc;
-    doc.CreateDocument("./benchmark.xlsx");
-    auto wks = doc.Workbook()->Worksheet("Sheet1");
-    //auto arange = wks->Range(XLCellReference("A1"), XLCellReference(state.range(0), state.range(0)));
+    doc.create("./benchmark.xlsx");
+    auto wks = doc.workbook()->Worksheet("Sheet1");
+    // auto arange = wks->Range(XLCellReference("A1"), XLCellReference(state.range(0), state.range(0)));
 
     for (auto _ : state) {
-//        for (auto iter : arange) {
-//            iter.Value().Set(3.1415);
-//        }
+        //        for (auto iter : arange) {
+        //            iter.Value().Set(3.1415);
+        //        }
 
         for (auto i = 1; i < state.range(0); ++i) {
             for (auto j = 1; j < state.range(0); ++j) wks.Cell(i, j).Value().Set(3.1415);
         }
-
     }
 
     state.SetItemsProcessed(state.range(0) * state.range(0));
     state.counters["items"] = state.items_processed();
 
-    doc.SaveDocument();
-    doc.CloseDocument();
+    doc.save();
+    doc.close();
 }
 
 BENCHMARK(BM_WriteMatrix)->RangeMultiplier(2)->Range(8, 8 << 9)->Unit(benchmark::kMillisecond);

@@ -138,6 +138,7 @@ namespace OpenXLSX
     class XLContentTypes : public XLAbstractXMLFile
     {
     public:    // ---------- Public Member Functions ---------- //
+        XLContentTypes() = default;
         /**
          *
          * @param parent

@@ -45,7 +45,7 @@ string XLSheet::Name() const
  */
 void XLSheet::SetName(const std::string& name)
 {
-    ParentDoc().executeCommand(XLCommand(XLCommandType::SetSheetName, XLCommandParams { { "sheetName", name } }, getRID()));
+    ParentDoc().executeCommand(XLCommandSetSheetName(getRID(), Name(), name));
 }
 
 /**
@@ -94,7 +94,7 @@ void XLSheet::SetState(XLSheetState state)
             break;
     }
 
-    ParentDoc().executeCommand(XLCommand(XLCommandType::SetSheetVisibility, XLCommandParams { { "visibility", stateString } }, getRID()));
+    ParentDoc().executeCommand(XLCommandSetSheetVisibility(getRID(), Name(), stateString));
 }
 
 /**

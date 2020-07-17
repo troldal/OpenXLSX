@@ -80,6 +80,7 @@ namespace OpenXLSX
         friend class XLDocument;
 
     public:    // ---------- Public Member Functions ---------- //
+        XLWorkbook() = default;
         /**
          * @brief Constructor. Takes a reference to the parent XLDocument and a std::string with the relative path as
          * arguments.
@@ -94,14 +95,14 @@ namespace OpenXLSX
          * @param other The XLWorkbook object to be copied.
          * @note The copy constructor has been explicitly deleted, as XLWorkbook objects should not be copied.
          */
-        XLWorkbook(const XLWorkbook& other) = delete;
+        XLWorkbook(const XLWorkbook& other) = default;
 
         /**
          * @brief Move constructor.
          * @param other The XLWorkbook to be moved.
          * @note The move constructor has been explicitly deleted, as XLWorkbook objects should not be moved.
          */
-        XLWorkbook(XLWorkbook&& other) = delete;
+        XLWorkbook(XLWorkbook&& other) = default;
 
         /**
          * @brief Destructor
@@ -115,7 +116,7 @@ namespace OpenXLSX
          * @return A reference to *this
          * @note The copy assignment operator has been explicitly deleted, as XLWorkbook objects should not be copied.
          */
-        XLWorkbook& operator=(const XLWorkbook& other) = delete;
+        XLWorkbook& operator=(const XLWorkbook& other) = default;
 
         /**
          * @brief Move assignment operator.
@@ -123,7 +124,7 @@ namespace OpenXLSX
          * @return A reference to *this
          * @note The move assignment operator has been explicitly deleted, as XLWorkbook objects should not be moved.
          */
-        XLWorkbook& operator=(XLWorkbook&& other) = delete;
+        XLWorkbook& operator=(XLWorkbook&& other) = default;
 
         /**
          * @brief Get the sheet (worksheet or chartsheet) at the given index.

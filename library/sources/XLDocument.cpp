@@ -8,6 +8,8 @@
 #include "XLQuery.hpp"
 #include "XLWorksheet.hpp"
 
+#include <variant>
+
 using namespace std;
 using namespace OpenXLSX;
 
@@ -393,26 +395,20 @@ namespace
  * @details The default constructor, with no arguments.
  */
 XLDocument::XLDocument()
-    : m_filePath(""),
-      m_docRelationships(nullptr),
-      m_contentTypes(nullptr),
-      m_docAppProperties(nullptr),
-      m_docCoreProperties(nullptr),
-      m_workbook(nullptr)
-{}
+    : m_filePath(""), m_docRelationships(), m_contentTypes(), m_appProperties(), m_coreProperties(), m_workbook() {}
 
 /**
  * @details An alternative constructor, taking a std::string with the path to the .xlsx package as an argument.
  */
 XLDocument::XLDocument(const std::string& docPath)
     : m_filePath(""),
-      m_docRelationships(nullptr),
-      m_contentTypes(nullptr),
-      m_docAppProperties(nullptr),
-      m_docCoreProperties(nullptr),
-      m_workbook(nullptr)
+      m_docRelationships(),
+      m_contentTypes(),
+      m_appProperties(),
+      m_coreProperties(),
+      m_workbook()
 {
-    OpenDocument(docPath);
+    open(docPath);
 }
 
 /**
@@ -420,7 +416,7 @@ XLDocument::XLDocument(const std::string& docPath)
  */
 XLDocument::~XLDocument()
 {
-    CloseDocument();
+    close();
 }
 
 /**
@@ -430,11 +426,11 @@ XLDocument::~XLDocument()
  * - Unzip the contents of the package to the temporary folder.
  * - load the contents into the datastructure for manipulation.
  */
-void XLDocument::OpenDocument(const string& fileName)
+void XLDocument::open(const string& fileName)
 {
     // Check if a document is already open. If yes, close it.
     // TODO: Consider throwing if a file is already open.
-    if (m_archive.IsOpen()) CloseDocument();
+    if (m_archive.IsOpen()) close();
 
     m_filePath = fileName;
     m_archive.Open(m_filePath);
@@ -444,35 +440,35 @@ void XLDocument::OpenDocument(const string& fileName)
     m_data.emplace_back(this, "_rels/.rels");
     m_data.emplace_back(this, "xl/_rels/workbook.xml.rels");
 
-    m_contentTypes     = std::make_unique<XLContentTypes>(getXmlData("[Content_Types].xml"));
-    m_docRelationships = std::make_unique<XLRelationships>(getXmlData("_rels/.rels"));
-    m_wbkRelationships = std::make_unique<XLRelationships>(getXmlData("xl/_rels/workbook.xml.rels"));
+    m_contentTypes     = XLContentTypes(getXmlData("[Content_Types].xml"));
+    m_docRelationships = XLRelationships(getXmlData("_rels/.rels"));
+    m_wbkRelationships = XLRelationships(getXmlData("xl/_rels/workbook.xml.rels"));
 
     // ===== Add remaining spreadsheet elements to the vector of XLXmlData objects.
-    for (auto item : m_contentTypes->getContentItems()) {
+    for (auto item : m_contentTypes.getContentItems()) {
         if (item.Path().substr(0, 4) == "/xl/" && !(item.Path() == "/xl/workbook.xml"))
             m_data.emplace_back(/* parentDoc */ this,
                                 /* xmlPath   */ item.Path().substr(1),
-                                /* xmlID     */ m_wbkRelationships->RelationshipByTarget(item.Path().substr(4)).Id(),
+                                /* xmlID     */ m_wbkRelationships.RelationshipByTarget(item.Path().substr(4)).Id(),
                                 /* xmlType   */ item.Type());
 
         else
             m_data.emplace_back(/* parentDoc */ this,
                                 /* xmlPath   */ item.Path().substr(1),
-                                /* xmlID     */ m_docRelationships->RelationshipByTarget(item.Path().substr(1)).Id(),
+                                /* xmlID     */ m_docRelationships.RelationshipByTarget(item.Path().substr(1)).Id(),
                                 /* xmlType   */ item.Type());
     }
 
     // ===== Open the workbook and document property items
-    m_docCoreProperties = std::make_unique<XLCoreProperties>(getXmlData("docProps/core.xml"));
-    m_docAppProperties  = std::make_unique<XLAppProperties>(getXmlData("docProps/app.xml"));
-    m_workbook          = std::make_unique<XLWorkbook>(getXmlData("xl/workbook.xml"));
+    m_coreProperties = XLCoreProperties(getXmlData("docProps/core.xml"));
+    m_appProperties  = XLAppProperties(getXmlData("docProps/app.xml"));
+    m_workbook       = XLWorkbook(getXmlData("xl/workbook.xml"));
 }
 
 /**
  * @details Create a new document. This is done by saving the data in XLTemplate.h in binary format.
  */
-void XLDocument::CreateDocument(const std::string& fileName)
+void XLDocument::create(const std::string& fileName)
 {
     std::ofstream outfile(fileName, std::ios::binary);
     // TODO: Resource leak in case of an exception.
@@ -481,30 +477,31 @@ void XLDocument::CreateDocument(const std::string& fileName)
     outfile.write(reinterpret_cast<const char*>(templateData), templateSize);
     outfile.close();
 
-    OpenDocument(fileName);
+    open(fileName);
 }
 
 /**
  * @details The document is closed by deleting the temporary folder structure.
  * @todo Consider deleting all the internal objects as well.
  */
-void XLDocument::CloseDocument()
+void XLDocument::close()
 {
     m_archive.Close();
     m_filePath.clear();
-    m_docRelationships.reset(nullptr);
-    m_contentTypes.reset(nullptr);
-    m_docAppProperties.reset(nullptr);
-    m_docCoreProperties.reset(nullptr);
-    m_workbook.reset(nullptr);
+    m_data.clear();
+    m_docRelationships = XLRelationships();
+    m_contentTypes     = XLContentTypes();
+    m_appProperties    = XLAppProperties();
+    m_coreProperties   = XLCoreProperties();
+    m_workbook         = XLWorkbook();
 }
 
 /**
  * @details Save the document with the same name. The existing file will be overwritten.
  */
-bool XLDocument::SaveDocument()
+bool XLDocument::save()
 {
-    return SaveDocumentAs(m_filePath);
+    return saveAs(m_filePath);
 }
 
 /**
@@ -512,7 +509,7 @@ bool XLDocument::SaveDocument()
  * is that changes to the document may invalidate the calcChain.xml file. Deleting will force Excel to re-create the
  * file. This will happen automatically, without the user noticing.
  */
-bool XLDocument::SaveDocumentAs(const string& fileName)
+bool XLDocument::saveAs(const string& fileName)
 {
     m_filePath = fileName;
 
@@ -526,7 +523,7 @@ bool XLDocument::SaveDocumentAs(const string& fileName)
  * @details
  * @todo Currently, this method returns the full path, which is not the intention.
  */
-const string& XLDocument::DocumentName() const
+const string& XLDocument::name() const
 {
     return m_filePath;
 }
@@ -534,7 +531,7 @@ const string& XLDocument::DocumentName() const
 /**
  * @details
  */
-const string& XLDocument::DocumentPath() const
+const string& XLDocument::path() const
 {
     return m_filePath;
 }
@@ -542,65 +539,65 @@ const string& XLDocument::DocumentPath() const
 /**
  * @details Get a pointer to the underlying XLWorkbook object.
  */
-XLWorkbook* XLDocument::Workbook()
+XLWorkbook* XLDocument::workbook()
 {
-    return m_workbook.get();
+    return &m_workbook;
 }
 
 /**
  * @details Get a const pointer to the underlying XLWorkbook object.
  */
-const XLWorkbook* XLDocument::Workbook() const
+const XLWorkbook* XLDocument::workbook() const
 {
-    return m_workbook.get();
+    return &m_workbook;
 }
 
 /**
  * @details Get the value for a property.
  */
-std::string XLDocument::GetProperty(XLProperty theProperty) const
+std::string XLDocument::property(XLProperty prop) const
 {
-    switch (theProperty) {
+    switch (prop) {
         case XLProperty::Application:
-            return m_docAppProperties->Property("Application").text().get();
+            return m_appProperties.Property("Application").text().get();
         case XLProperty::AppVersion:
-            return m_docAppProperties->Property("AppVersion").text().get();
+            return m_appProperties.Property("AppVersion").text().get();
         case XLProperty::Category:
-            return m_docCoreProperties->Property("cp:category");
+            return m_coreProperties.Property("cp:category");
         case XLProperty::Company:
-            return m_docAppProperties->Property("Company").text().get();
+            return m_appProperties.Property("Company").text().get();
         case XLProperty::CreationDate:
-            return m_docCoreProperties->Property("dcterms:created");
+            return m_coreProperties.Property("dcterms:created");
         case XLProperty::Creator:
-            return m_docCoreProperties->Property("dc:creator");
+            return m_coreProperties.Property("dc:creator");
         case XLProperty::Description:
-            return m_docCoreProperties->Property("dc:description");
+            return m_coreProperties.Property("dc:description");
         case XLProperty::DocSecurity:
-            return m_docAppProperties->Property("DocSecurity").text().get();
+            return m_appProperties.Property("DocSecurity").text().get();
         case XLProperty::HyperlinkBase:
-            return m_docAppProperties->Property("HyperlinkBase").text().get();
+            return m_appProperties.Property("HyperlinkBase").text().get();
         case XLProperty::HyperlinksChanged:
-            return m_docAppProperties->Property("HyperlinksChanged").text().get();
+            return m_appProperties.Property("HyperlinksChanged").text().get();
         case XLProperty::Keywords:
-            return m_docCoreProperties->Property("cp:keywords");
+            return m_coreProperties.Property("cp:keywords");
         case XLProperty::LastModifiedBy:
-            return m_docCoreProperties->Property("cp:lastModifiedBy");
+            return m_coreProperties.Property("cp:lastModifiedBy");
         case XLProperty::LastPrinted:
-            return m_docCoreProperties->Property("cp:lastPrinted");
+            return m_coreProperties.Property("cp:lastPrinted");
         case XLProperty::LinksUpToDate:
-            return m_docAppProperties->Property("LinksUpToDate").text().get();
+            return m_appProperties.Property("LinksUpToDate").text().get();
         case XLProperty::Manager:
-            return m_docAppProperties->Property("Manager").text().get();
+            return m_appProperties.Property("Manager").text().get();
         case XLProperty::ModificationDate:
-            return m_docCoreProperties->Property("dcterms:modified");
+            return m_coreProperties.Property("dcterms:modified");
         case XLProperty::ScaleCrop:
-            return m_docAppProperties->Property("ScaleCrop").text().get();
+            return m_appProperties.Property("ScaleCrop").text().get();
         case XLProperty::SharedDoc:
-            return m_docAppProperties->Property("SharedDoc").text().get();
+            return m_appProperties.Property("SharedDoc").text().get();
         case XLProperty::Subject:
-            return m_docCoreProperties->Property("dc:subject");
+            return m_coreProperties.Property("dc:subject");
         case XLProperty::Title:
-            return m_docCoreProperties->Property("dc:title");
+            return m_coreProperties.Property("dc:title");
     }
 
     return "";    // To silence compiler warning.
@@ -630,11 +627,11 @@ std::string XLDocument::GetProperty(XLProperty theProperty) const
  *
  * ```
  */
-void XLDocument::SetProperty(XLProperty theProperty, const string& value)
+void XLDocument::setProperty(XLProperty prop, const string& value)
 {
-    switch (theProperty) {
+    switch (prop) {
         case XLProperty::Application:
-            m_docAppProperties->SetProperty("Application", value);
+            m_appProperties.SetProperty("Application", value);
             break;
         case XLProperty::AppVersion:    // ===== TODO: Clean up this section
             try {
@@ -647,7 +644,7 @@ void XLDocument::SetProperty(XLProperty theProperty, const string& value)
             if (value.find('.') != std::string::npos) {
                 if (!value.substr(value.find('.') + 1).empty() && value.substr(value.find('.') + 1).size() <= 5) {
                     if (!value.substr(0, value.find('.')).empty() && value.substr(0, value.find('.')).size() <= 2) {
-                        m_docAppProperties->SetProperty("AppVersion", value);
+                        m_appProperties.SetProperty("AppVersion", value);
                     }
                     else
                         throw XLException("Invalid property value");
@@ -661,79 +658,79 @@ void XLDocument::SetProperty(XLProperty theProperty, const string& value)
             break;
 
         case XLProperty::Category:
-            m_docCoreProperties->SetProperty("cp:category", value);
+            m_coreProperties.SetProperty("cp:category", value);
             break;
         case XLProperty::Company:
-            m_docAppProperties->SetProperty("Company", value);
+            m_appProperties.SetProperty("Company", value);
             break;
         case XLProperty::CreationDate:
-            m_docCoreProperties->SetProperty("dcterms:created", value);
+            m_coreProperties.SetProperty("dcterms:created", value);
             break;
         case XLProperty::Creator:
-            m_docCoreProperties->SetProperty("dc:creator", value);
+            m_coreProperties.SetProperty("dc:creator", value);
             break;
         case XLProperty::Description:
-            m_docCoreProperties->SetProperty("dc:description", value);
+            m_coreProperties.SetProperty("dc:description", value);
             break;
         case XLProperty::DocSecurity:
             if (value == "0" || value == "1" || value == "2" || value == "4" || value == "8")
-                m_docAppProperties->SetProperty("DocSecurity", value);
+                m_appProperties.SetProperty("DocSecurity", value);
             else
                 throw XLException("Invalid property value");
             break;
 
         case XLProperty::HyperlinkBase:
-            m_docAppProperties->SetProperty("HyperlinkBase", value);
+            m_appProperties.SetProperty("HyperlinkBase", value);
             break;
         case XLProperty::HyperlinksChanged:
             if (value == "true" || value == "false")
-                m_docAppProperties->SetProperty("HyperlinksChanged", value);
+                m_appProperties.SetProperty("HyperlinksChanged", value);
             else
                 throw XLException("Invalid property value");
 
             break;
 
         case XLProperty::Keywords:
-            m_docCoreProperties->SetProperty("cp:keywords", value);
+            m_coreProperties.SetProperty("cp:keywords", value);
             break;
         case XLProperty::LastModifiedBy:
-            m_docCoreProperties->SetProperty("cp:lastModifiedBy", value);
+            m_coreProperties.SetProperty("cp:lastModifiedBy", value);
             break;
         case XLProperty::LastPrinted:
-            m_docCoreProperties->SetProperty("cp:lastPrinted", value);
+            m_coreProperties.SetProperty("cp:lastPrinted", value);
             break;
         case XLProperty::LinksUpToDate:
             if (value == "true" || value == "false")
-                m_docAppProperties->SetProperty("LinksUpToDate", value);
+                m_appProperties.SetProperty("LinksUpToDate", value);
             else
                 throw XLException("Invalid property value");
             break;
 
         case XLProperty::Manager:
-            m_docAppProperties->SetProperty("Manager", value);
+            m_appProperties.SetProperty("Manager", value);
             break;
         case XLProperty::ModificationDate:
-            m_docCoreProperties->SetProperty("dcterms:modified", value);
+            m_coreProperties.SetProperty("dcterms:modified", value);
             break;
         case XLProperty::ScaleCrop:
             if (value == "true" || value == "false")
-                m_docAppProperties->SetProperty("ScaleCrop", value);
+                m_appProperties.SetProperty("ScaleCrop", value);
             else
                 throw XLException("Invalid property value");
             break;
 
         case XLProperty::SharedDoc:
             if (value == "true" || value == "false")
-                m_docAppProperties->SetProperty("SharedDoc", value);
+                m_appProperties.SetProperty("SharedDoc", value);
             else
                 throw XLException("Invalid property value");
             break;
 
         case XLProperty::Subject:
-            m_docCoreProperties->SetProperty("dc:subject", value);
+            m_coreProperties.SetProperty("dc:subject", value);
             break;
         case XLProperty::Title:
-            m_docCoreProperties->SetProperty("dc:title", value);
+            m_coreProperties.SetProperty("dc:title", value);
             break;
     }
 }
@@ -741,9 +738,9 @@ void XLDocument::SetProperty(XLProperty theProperty, const string& value)
 /**
  * @details Delete a property
  */
-void XLDocument::DeleteProperty(XLProperty theProperty)
+void XLDocument::deleteProperty(XLProperty theProperty)
 {
-    SetProperty(theProperty, "");
+    setProperty(theProperty, "");
 }
 
 /**
@@ -753,59 +750,40 @@ void XLDocument::DeleteProperty(XLProperty theProperty)
  */
 void XLDocument::executeCommand(XLCommand command)
 {
-    switch (command.commandType()) {
-        case XLCommandType::SetSheetColor:
-            break;
-
-        case XLCommandType::SetSheetName:
-            setSheetName(command);
-            break;
-
-        case XLCommandType::AddWorksheet:
-            addSheetMetaData(command);
-            addWorksheet(command);
-            break;
-
-        case XLCommandType::AddChartsheet:
-            break;
-
-        case XLCommandType::DeleteSheet:
-            deleteSheet(command);
-            break;
-
-        case XLCommandType::CloneSheet:
-            break;
-
-        case XLCommandType::SetSheetVisibility:
-            m_workbook->executeCommand(command);
-            break;
-
-        case XLCommandType::None:
-            break;
-    }
+    std::visit(overloaded { [this](XLCommandSetSheetName cmd) { setSheetName(cmd); },
+                            [this](XLCommandSetSheetVisibility cmd) {},
+                            [this](XLCommandSetSheetColor cmd) {},
+                            [this](XLCommandAddWorksheet cmd) {
+                                addSheetMetaData(cmd);
+                                addWorksheet(cmd);
+                            },
+                            [this](XLCommandAddChartsheet cmd) {},
+                            [this](XLCommandDeleteSheet cmd) { deleteSheet(cmd); },
+                            [this](XLCommandCloneSheet cmd) {} },
+               command);
 }
 
 std::string XLDocument::executeQuery(const XLQuery& query) const
 {
     switch (query.queryType()) {
         case XLQueryType::GetSheetName:
-            return m_workbook->queryCommand(query);
+            return m_workbook.queryCommand(query);
 
         case XLQueryType::GetSheetIndex:
-            return m_workbook->queryCommand(query);
+            return m_workbook.queryCommand(query);
 
         case XLQueryType::GetSheetVisibility:
-            return m_workbook->queryCommand(query);
+            return m_workbook.queryCommand(query);
 
         case XLQueryType::GetSheetType: {
-            if (m_wbkRelationships->RelationshipByID(query.parameters().at("sheetID")).Type() == XLRelationshipType::Worksheet)
+            if (m_wbkRelationships.RelationshipByID(query.parameters().at("sheetID")).Type() == XLRelationshipType::Worksheet)
                 return "WORKSHEET";
             else
                 return "CHARTSHEET";
         }
 
         case XLQueryType::GetSheetID:
-            return m_wbkRelationships->RelationshipByTarget(query.parameters().at("sheetPath").substr(4)).Id();
+            return m_wbkRelationships.RelationshipByTarget(query.parameters().at("sheetPath").substr(4)).Id();
 
         case XLQueryType::None:
             return std::string();
@@ -815,142 +793,55 @@ std::string XLDocument::executeQuery(const XLQuery& query) const
 XLXmlData* XLDocument::getXmlData(const string& path)
 {
     auto result = std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) { return item.getXmlPath() == path; });
-
     if (result == m_data.end()) throw XLException("Path does not exist in zip archive.");
-
-    // if (!result->getRawData()) result->setRawData(m_archive.getEntry(path).c_str());
-
     return &*result;
 }
 
 const XLXmlData* XLDocument::getXmlData(const string& path) const
 {
     auto result = std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) { return item.getXmlPath() == path; });
-
     if (result == m_data.end()) throw XLException("Path does not exist in zip archive.");
-
-    // if (!result->getRawData()) result->setRawData(m_archive.getEntry(path).c_str());
-
     return &*result;
 }
 
 /**
- * @details Get a pointer to the sheet node in the app.xml file.
- */
-XMLNode XLDocument::SheetNameNode(const std::string& sheetName)
-{
-    return m_docAppProperties->SheetNameNode(sheetName);
-}
-
-/**
- * @details Get a pointer to the content item in the [Content_Types].xml file.
- */
-XLContentItem XLDocument::ContentItem(const std::string& path)
-{
-    return m_contentTypes->ContentItem(path);
-}
-
-/**
- * @details Ad a new ContentItem and return the resulting object.
- */
-XLContentItem XLDocument::AddContentItem(const std::string& contentPath, XLContentType contentType)
-{
-    m_contentTypes->AddOverride(contentPath, contentType);
-    return m_contentTypes->ContentItem(contentPath);
-}
-
-void XLDocument::DeleteContentItem(XLContentItem& item)
-{
-    m_contentTypes->DeleteOverride(item);
-}
-
-/**
- * @details Add a xml file to the package.
- * @warning The content input parameter must remain valud
- */
-void XLDocument::AddOrReplaceXMLFile(const std::string& path, const std::string& content)
-{
-    m_archive.AddEntry(path, content);
-}
-
-/**
  * @details
  */
-std::string XLDocument::getXmlDataFromArchive(const std::string& path)
+std::string XLDocument::extractXmlFromArchive(const std::string& path)
 {
     return (m_archive.HasEntry(path) ? m_archive.GetEntry(path).GetDataAsString() : "");
 }
 
-/**
- * @details
- */
-void XLDocument::DeleteXMLFile(const std::string& path)
+void XLDocument::setSheetName(XLCommandSetSheetName command)
 {
-    m_archive.DeleteEntry(path);
+    m_appProperties.SetSheetName(command.sheetName(), command.newName());
+    m_workbook.executeCommand(command);
 }
 
-/**
- * @details Get a pointer to the XLAppProperties object
- */
-XLAppProperties* XLDocument::AppProperties()
+void XLDocument::addSheetMetaData(const XLCommandAddWorksheet& command)
 {
-    return m_docAppProperties.get();
+    m_contentTypes.AddOverride(command.sheetPath(), XLContentType::Worksheet);
+    m_wbkRelationships.AddRelationship(XLRelationshipType::Worksheet, command.sheetPath().substr(4));
+    m_appProperties.InsertSheetName(command.sheetName(), command.sheetIndex());
 }
 
-/**
- * @details Get a pointer to the (const) XLAppProperties object
- */
-const XLAppProperties* XLDocument::AppProperties() const
+void XLDocument::addWorksheet(const XLCommandAddWorksheet& command)
 {
-    return m_docAppProperties.get();
-}
-
-/**
- * @details Get a pointer to the XLCoreProperties object
- */
-XLCoreProperties* XLDocument::CoreProperties()
-{
-    return m_docCoreProperties.get();
-}
-
-/**
- * @details Get a pointer to the (const) XLCoreProperties object
- */
-const XLCoreProperties* XLDocument::CoreProperties() const
-{
-    return m_docCoreProperties.get();
-}
-
-void XLDocument::setSheetName(XLCommand command)
-{
-    m_docAppProperties->SetSheetName(m_workbook->getSheetName(command.sender()), command.parameters().at("sheetName"));
-    m_workbook->executeCommand(command);
-}
-
-void XLDocument::addSheetMetaData(XLCommand command)
-{
-    AddContentItem(command.parameters().at("sheetPath"), XLContentType::Worksheet);
-    m_wbkRelationships->AddRelationship(XLRelationshipType::Worksheet, command.parameters().at("sheetPath").substr(4));
-    m_docAppProperties->InsertSheetName(command.parameters().at("sheetName"), stoi(command.parameters().at("sheetIndex")));
-}
-
-void XLDocument::addWorksheet(XLCommand command)
-{
-    m_archive.AddEntry(command.parameters().at("sheetPath").substr(1), emptyWorksheet);
+    m_archive.AddEntry(command.sheetPath().substr(1), emptyWorksheet);
     m_data.emplace_back(/* parentDoc */ this,
-                        /* xmlPath   */ command.parameters().at("sheetPath").substr(1),
-                        /* xmlID     */ m_wbkRelationships->RelationshipByTarget(command.parameters().at("sheetPath").substr(4)).Id(),
+                        /* xmlPath   */ command.sheetPath().substr(1),
+                        /* xmlID     */ m_wbkRelationships.RelationshipByTarget(command.sheetPath().substr(4)).Id(),
                         /* xmlType   */ XLContentType::Worksheet);
 }
 
-void XLDocument::deleteSheet(XLCommand command)
+void XLDocument::deleteSheet(const XLCommandDeleteSheet& command)
 {
-    m_docAppProperties->DeleteSheetName(command.parameters().at("sheetName"));
+    m_appProperties.DeleteSheetName(command.sheetName());
 
-    auto sheetPath = "/xl/" + m_wbkRelationships->RelationshipByID(command.parameters().at("sheetID")).Target();
-    DeleteXMLFile(sheetPath.substr(1));
-    m_contentTypes->DeleteOverride(sheetPath);
-    m_wbkRelationships->DeleteRelationship(command.parameters().at("sheetID"));
+    auto sheetPath = "/xl/" + m_wbkRelationships.RelationshipByID(command.sheetID()).Target();
+    m_archive.DeleteEntry(sheetPath.substr(1));
+    m_contentTypes.DeleteOverride(sheetPath);
+    m_wbkRelationships.DeleteRelationship(command.sheetID());
 
     m_data.erase(
         std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) { return item.getXmlPath() == sheetPath.substr(1); }));

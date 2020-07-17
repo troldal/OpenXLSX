@@ -7,8 +7,8 @@ using namespace OpenXLSX;
 int main()
 {
     XLDocument doc1;
-    doc1.CreateDocument("./NumberTest.xlsx");
-    auto wks1 = doc1.Workbook()->Worksheet("Sheet1");
+    doc1.create("./NumberTest.xlsx");
+    auto wks1 = doc1.workbook()->Worksheet("Sheet1");
 
     wks1.Cell("A1").Value() = 0.01;
     wks1.Cell("B1").Value() = 0.02;
@@ -17,12 +17,12 @@ int main()
     wks1.Cell("B2").Value() = 0.002;
     wks1.Cell("C2").Value() = 0.003;
 
-    doc1.SaveDocument();
-    doc1.CloseDocument();
+    doc1.save();
+    doc1.close();
 
     XLDocument doc2;
-    doc2.OpenDocument("./NumberTest.xlsx");
-    auto wks2 = doc2.Workbook()->Worksheet("Sheet1");
+    doc2.open("./NumberTest.xlsx");
+    auto wks2 = doc2.workbook()->Worksheet("Sheet1");
 
     cout << "Cell A1: " << wks2.Cell("A1").Value().Get<double>() << endl;
     cout << "Cell B1: " << wks2.Cell("B1").Value().Get<double>() << endl;
@@ -59,7 +59,7 @@ int main()
     PrintCell(wks2.Cell("B2"));
     PrintCell(wks2.Cell("C2"));
 
-    doc2.CloseDocument();
+    doc2.close();
 
     return 0;
 }

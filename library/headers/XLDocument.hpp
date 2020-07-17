@@ -69,18 +69,13 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 namespace OpenXLSX
 {
-    class XLContentItem;
-    class XLContentTypes;
-
-    //========== XLDocument Class
-
     /**
      * @brief This class encapsulates the concept of an excel file. It is different from the XLWorkbook, in that an
      * XLDocument holds an XLWorkbook together with its metadata, as well as methods for opening,
      * closing and saving the document.\n<b><em>The XLDocument is the entrypoint for clients
      * using the RapidXLSX library.</em></b>
      */
-    class XLDocument
+    class XLDocument final
     {
         //----- Friends
         friend class XLAbstractXMLFile;
@@ -93,7 +88,7 @@ namespace OpenXLSX
         /**
          * @brief Constructor. The default constructor with no arguments.
          */
-        explicit XLDocument();
+        XLDocument();
 
         /**
          * @brief Constructor. An alternative constructor, taking the path to the .xlsx file as an argument.
@@ -105,10 +100,14 @@ namespace OpenXLSX
          * @brief Copy constructor
          * @param other The object to copy
          * @note Copy constructor explicitly deleted.
-         * @todo Consider implementing this, as it may make sense to copy the entire document, although it may not make
-         * sense to copy individual elements (e.g. the XLWorkbook object). Alternatively, implement a 'Clone' function.
          */
         XLDocument(const XLDocument& other) = delete;
+
+        /**
+         * @brief
+         * @param other
+         */
+        XLDocument(XLDocument&& other) noexcept = default;
 
         /**
          * @brief Destructor
@@ -116,87 +115,105 @@ namespace OpenXLSX
         virtual ~XLDocument();
 
         /**
+         * @brief
+         * @param other
+         * @return
+         */
+        XLDocument& operator=(const XLDocument& other) = delete;
+
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
+        XLDocument& operator=(XLDocument&& other) noexcept = default;
+
+        /**
          * @brief Open the .xlsx file with the given path
          * @param fileName The path of the .xlsx file to open
-         * @todo Consider opening the zipped files as streams, instead of unpacking to a temporary folder
          */
-        void OpenDocument(const std::string& fileName);
+        void open(const std::string& fileName);
 
         /**
          * @brief Create a new .xlsx file with the given name.
          * @param fileName The path of the new .xlsx file.
          */
-        void CreateDocument(const std::string& fileName);
+        void create(const std::string& fileName);
 
         /**
          * @brief Close the current document
          */
-        void CloseDocument();
+        void close();
 
         /**
          * @brief Save the current document using the current filename, overwriting the existing file.
          * @return true if successful; otherwise false.
          */
-        bool SaveDocument();
+        bool save();
 
         /**
          * @brief Save the document with a new name. If a file exists with that name, it will be overwritten.
          * @param fileName The path of the file
          * @return true if successful; otherwise false.
          */
-        bool SaveDocumentAs(const std::string& fileName);
+        bool saveAs(const std::string& fileName);
 
         /**
          * @brief Get the filename of the current document, e.g. "spreadsheet.xlsx".
          * @return A std::string with the filename.
          */
-        const std::string& DocumentName() const;
+        const std::string& name() const;
 
         /**
          * @brief Get the full path of the current document, e.g. "drive/blah/spreadsheet.xlsx"
          * @return A std::string with the path.
          */
-        const std::string& DocumentPath() const;
+        const std::string& path() const;
 
         /**
          * @brief Get the underlying workbook object.
          * @return A pointer to the XLWorkbook object
          */
-        XLWorkbook* Workbook();
+        XLWorkbook* workbook();
 
         /**
          * @brief Get the underlying workbook object, as a const object.
          * @return A const pointer to the XLWorkbook object.
          */
-        const XLWorkbook* Workbook() const;
+        const XLWorkbook* workbook() const;
 
         /**
          * @brief Get the requested document property.
-         * @param theProperty The name of the property to get.
+         * @param prop The name of the property to get.
          * @return The property as a string
          */
-        std::string GetProperty(XLProperty theProperty) const;
+        std::string property(XLProperty prop) const;
 
         /**
          * @brief Set a property
-         * @param theProperty The property to set.
+         * @param prop The property to set.
          * @param value The value of the property, as a string
          */
-        void SetProperty(XLProperty theProperty, const std::string& value);
+        void setProperty(XLProperty prop, const std::string& value);
 
         /**
          * @brief Delete the property from the document
          * @param propertyName The property to delete from the document
          */
-        void DeleteProperty(XLProperty theProperty);
+        void deleteProperty(XLProperty theProperty);
 
+        /**
+         * @brief
+         * @param command
+         */
         void executeCommand(XLCommand command);
 
+        /**
+         * @brief
+         * @param query
+         * @return
+         */
         std::string executeQuery(const XLQuery& query) const;
-
-        XLXmlData* getXmlData(const std::string& path);
-
-        const XLXmlData* getXmlData(const std::string& path) const;
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Protected Member Functions
@@ -204,97 +221,46 @@ namespace OpenXLSX
 
     protected:
         /**
-         * @brief Method for adding a new (XML) file to the .xlsx package.
-         * @param path The relative path of the new file.
-         * @param content The contents (XML data) of the new file.
-         */
-        void AddOrReplaceXMLFile(const std::string& path, const std::string& content);
-
-        /**
          * @brief Get an XML file from the .xlsx archive.
          * @param path The relative path of the file.
          * @return A std::string with the content of the file
          */
-        std::string getXmlDataFromArchive(const std::string& path);
-
-        /**
-         * @brief Delete a file from the .xlsx archive.
-         * @param path The path of the file to delete.
-         */
-        void DeleteXMLFile(const std::string& path);
-
-        /**
-         * @brief Get the xml node in the app.xml file, for the sheet name.
-         * @param sheetName A std::string with the name of the sheet.
-         * @return A pointer to the XMLNode object.
-         */
-        XMLNode SheetNameNode(const std::string& sheetName);
-
-        /**
-         * @brief Get the content item element in the contenttypes.xml file.
-         * @param path A std::string with the relative path to the file in question.
-         * @return A pointer to the XLContentItem.
-         */
-        XLContentItem ContentItem(const std::string& path);
+        std::string extractXmlFromArchive(const std::string& path);
 
         /**
          * @brief
-         * @param contentPath
-         * @param contentType
+         * @param path
          * @return
          */
-        XLContentItem AddContentItem(const std::string& contentPath, XLContentType contentType);
+        XLXmlData* getXmlData(const std::string& path);
 
         /**
          * @brief
-         * @param item
+         * @param path
+         * @return
          */
-        void DeleteContentItem(XLContentItem& item);
-
-        /**
-         * @brief Getter method for the App Properties object.
-         * @return A pointer to the XLDocAppProperties object.
-         */
-        XLAppProperties* AppProperties();
-
-        /**
-         * @brief Getter method for the App Properties object.
-         * @return A pointer to the const XLDocAppProperties object.
-         */
-        const XLAppProperties* AppProperties() const;
-
-        /**
-         * @brief Getter method for the Core Properties object.
-         * @return A pointer to the XLDocCoreProperties object.
-         */
-        XLCoreProperties* CoreProperties();
-
-        /**
-         * @brief Getter method for the Core Properties object.
-         * @return A pointer to the const XLDocCoreProperties object.
-         */
-        const XLCoreProperties* CoreProperties() const;
+        const XLXmlData* getXmlData(const std::string& path) const;
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Private Member Variables
         //----------------------------------------------------------------------------------------------------------------------
 
     private:
-        void setSheetName(XLCommand command);
-        void addSheetMetaData(XLCommand command);
-        void addWorksheet(XLCommand command);
-        void deleteSheet(XLCommand command);
+        void setSheetName(XLCommandSetSheetName command);
+        void addSheetMetaData(const XLCommandAddWorksheet& command);
+        void addWorksheet(const XLCommandAddWorksheet& command);
+        void deleteSheet(const XLCommandDeleteSheet& command);
 
         std::string                  m_filePath; /**< The path to the original file*/
         mutable std::list<XLXmlData> m_data {};
 
-        std::unique_ptr<XLRelationships>  m_docRelationships;  /**< A pointer to the document relationships object*/
-        std::unique_ptr<XLRelationships>  m_wbkRelationships;  /**< A pointer to the document relationships object*/
-        std::unique_ptr<XLContentTypes>   m_contentTypes;      /**< A pointer to the content types object*/
-        std::unique_ptr<XLAppProperties>  m_docAppProperties;  /**< A pointer to the App properties object */
-        std::unique_ptr<XLCoreProperties> m_docCoreProperties; /**< A pointer to the Core properties object*/
-        std::unique_ptr<XLWorkbook>       m_workbook;          /**< A pointer to the workbook object */
-        Zippy::ZipArchive                 m_archive;           /**<  */
+        XLRelationships   m_docRelationships; /**< A pointer to the document relationships object*/
+        XLRelationships   m_wbkRelationships; /**< A pointer to the document relationships object*/
+        XLContentTypes    m_contentTypes;     /**< A pointer to the content types object*/
+        XLAppProperties   m_appProperties;    /**< A pointer to the App properties object */
+        XLCoreProperties  m_coreProperties;   /**< A pointer to the Core properties object*/
+        XLWorkbook        m_workbook;         /**< A pointer to the workbook object */
+        Zippy::ZipArchive m_archive;          /**<  */
     };
 
 }    // namespace OpenXLSX

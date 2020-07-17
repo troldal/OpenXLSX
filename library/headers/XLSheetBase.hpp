@@ -80,7 +80,7 @@ namespace OpenXLSX
          */
         void SetName(const std::string& name)
         {
-            ParentDoc().executeCommand(XLCommand(XLCommandType::SetSheetName, XLCommandParams { { "sheetName", name } }, getRID()));
+            ParentDoc().executeCommand(XLCommandSetSheetName(getRID(), Name(), name));
         }
 
         /**

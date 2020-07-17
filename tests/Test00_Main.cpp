@@ -16,13 +16,13 @@
 
 using namespace OpenXLSX;
 
-void PrepareDocument(std::string name) {
-
+void PrepareDocument(std::string name)
+{
     XLDocument doc;
     std::remove(name.c_str());
-    doc.CreateDocument(name);
-    doc.SaveDocument();
-    doc.CloseDocument();
+    doc.create(name);
+    doc.save();
+    doc.close();
 }
 
 int main(int argc,

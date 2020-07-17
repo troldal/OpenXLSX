@@ -8,8 +8,8 @@ using namespace OpenXLSX;
 int main()
 {
     XLDocument doc;
-    doc.CreateDocument("./MyTest.xlsx");
-    auto wks = doc.Workbook()->Worksheet("Sheet1");
+    doc.create("./MyTest.xlsx");
+    auto wks = doc.workbook()->Worksheet("Sheet1");
 
     wks.Cell(XLCellReference("A1")).Value() = 3.14159;
     wks.Cell(XLCellReference("B1")).Value() = 42;
@@ -32,7 +32,7 @@ int main()
     cout << "Cell D1: " << D1 << endl;
     cout << "Cell E1: " << E1 << endl;
 
-    doc.SaveDocument();
+    doc.save();
 
     return 0;
 }

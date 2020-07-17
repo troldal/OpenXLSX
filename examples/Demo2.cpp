@@ -6,16 +6,16 @@
 using namespace std;
 using namespace OpenXLSX;
 
-int main() {
-
+int main()
+{
     XLDocument doc;
-    doc.CreateDocument("./MyTest.xlsx");
-    auto wbk = doc.Workbook();
+    doc.create("./MyTest.xlsx");
+    auto wbk = doc.workbook();
 
-    wbk->AddWorksheet("MySheet01");    // Append new sheet
-    wbk->AddWorksheet("MySheet02", 1); // Prepend new sheet
-    wbk->AddWorksheet("MySheet03", 1); // Prepend new sheet
-    wbk->AddWorksheet("MySheet04", 2); // Insert new sheet
+    wbk->AddWorksheet("MySheet01");       // Append new sheet
+    wbk->AddWorksheet("MySheet02", 1);    // Prepend new sheet
+    wbk->AddWorksheet("MySheet03", 1);    // Prepend new sheet
+    wbk->AddWorksheet("MySheet04", 2);    // Insert new sheet
     wbk->MoveSheet("Sheet1", 2);          // Move Sheet1 to second place
     wbk->DeleteSheet("MySheet01");
 
@@ -29,7 +29,7 @@ int main() {
         cout << iter << ": " << wbk->Sheet(iter).Name() << endl;
     }
 
-    doc.SaveDocument();
+    doc.save();
 
     return 0;
 }

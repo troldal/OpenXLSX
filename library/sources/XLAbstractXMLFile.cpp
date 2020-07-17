@@ -45,15 +45,6 @@ std::string XLAbstractXMLFile::GetXmlData() const
 }
 
 /**
- * @details The DeleteXMLData method calls the DeleteXMLFile method for the current object and all child objects.
- * This, in turn, delete the XML data files in the zipped .xlsx package.
- */
-void XLAbstractXMLFile::DeleteXMLData()
-{
-    m_xmlData->getParentDoc()->DeleteXMLFile(m_xmlData->getXmlPath());
-}
-
-/**
  * @details This method returns the path in the .zip file of the XML file as a std::string.
  */
 string XLAbstractXMLFile::FilePath() const

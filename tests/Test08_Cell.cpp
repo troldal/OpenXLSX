@@ -7,22 +7,17 @@
 
 using namespace OpenXLSX;
 
-TEST_CASE("Test 08: Testing of XLCell/XLCellValue objects") {
-
+TEST_CASE("Test 08: Testing of XLCell/XLCellValue objects")
+{
     XLDocument doc;
-    doc.OpenDocument("./TestCell.xlsx");
-    auto wbk = doc.Workbook();
+    doc.open("./TestCell.xlsx");
+    auto wbk = doc.workbook();
     auto wks = wbk.Worksheet("Sheet1");
 
-    SECTION("CellValue (String)") {
-        wks.Cell("A1").
-                Value() = "Hello OpenXLSX!";
-        REQUIRE(wks
-                        .Cell("A1").
-                        Value()
-                        .
-                                Get<std::string>()
-                        == "Hello OpenXLSX!");
+    SECTION("CellValue (String)")
+    {
+        wks.Cell("A1").Value() = "Hello OpenXLSX!";
+        REQUIRE(wks.Cell("A1").Value().Get<std::string>() == "Hello OpenXLSX!");
         REQUIRE(wks
                         .Cell(1, 1).
                         Value()
@@ -169,7 +164,5 @@ TEST_CASE("Test 08: Testing of XLCell/XLCellValue objects") {
                         == 3);
     }
 
-    doc.
-               SaveDocument();
-
+    doc.save();
 }

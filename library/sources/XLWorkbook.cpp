@@ -245,8 +245,7 @@ void XLWorkbook::DeleteSheet(const std::string& sheetName)
     if (worksheetCount == 1 && worksheetType == "WORKSHEET")
         throw XLException("Invalid operation. There must be at least one worksheet in the workbook.");
 
-    ParentDoc().executeCommand(
-        XLCommand(XLCommandType::DeleteSheet, XLCommandParams { { "sheetName", sheetName }, { "sheetID", sheetID } }, ""));
+    ParentDoc().executeCommand(XLCommandDeleteSheet(sheetID, sheetName));
 
     // ===== Delete the node from Workbook.xml
     getSheetsNode().remove_child(getSheetsNode().find_child_by_attribute("name", sheetName.c_str()));
@@ -302,10 +301,7 @@ XLRelationshipItem* XLWorkbook::InitiateWorksheet(const std::string& sheetName, 
     auto        sheetID       = GetNewSheetID(XmlDocument().document_element().child("sheets"));
     std::string worksheetPath = "/xl/worksheets/sheet" + to_string(sheetID) + ".xml";
 
-    ParentDoc().executeCommand(
-        XLCommand(XLCommandType::AddWorksheet,
-                  XLCommandParams { { "sheetPath", worksheetPath }, { "sheetName", sheetName }, { "sheetIndex", to_string(index) } },
-                  ""));
+    ParentDoc().executeCommand(XLCommandAddWorksheet(sheetName, worksheetPath, index));
 
     auto node  = XMLNode();
     auto nodes = vector<XMLNode>(getSheetsNode().begin(), getSheetsNode().end());
@@ -667,14 +663,14 @@ void XLWorkbook::CreateChartsheet(const XLRelationshipItem& item)
 
 void XLWorkbook::executeCommand(XLCommand command)
 {
-    switch (command.commandType()) {
-        case XLCommandType::SetSheetName:
-            setSheetName(command.sender(), command.parameters().at("sheetName"));
-            break;
-
-        default:
-            break;
-    }
+    std::visit(overloaded { [this](XLCommandSetSheetName cmd) { setSheetName(cmd.sheetID(), cmd.sheetName()); },
+                            [this](XLCommandSetSheetVisibility cmd) {},
+                            [this](XLCommandSetSheetColor cmd) {},
+                            [this](XLCommandAddWorksheet cmd) {},
+                            [this](XLCommandAddChartsheet cmd) {},
+                            [this](XLCommandDeleteSheet cmd) {},
+                            [this](XLCommandCloneSheet cmd) {} },
+               command);
 }
 
 std::string XLWorkbook::queryCommand(XLQuery query) const
