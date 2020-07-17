@@ -246,12 +246,7 @@ namespace OpenXLSX
         //----------------------------------------------------------------------------------------------------------------------
 
     private:
-        void setSheetName(XLCommandSetSheetName command);
-        void addSheetMetaData(const XLCommandAddWorksheet& command);
-        void addWorksheet(const XLCommandAddWorksheet& command);
-        void deleteSheet(const XLCommandDeleteSheet& command);
-
-        std::string                  m_filePath; /**< The path to the original file*/
+        std::string                  m_filePath {}; /**< The path to the original file*/
         mutable std::list<XLXmlData> m_data {};
 
         XLRelationships   m_docRelationships; /**< A pointer to the document relationships object*/

@@ -10,12 +10,11 @@
 
 #include <variant>
 
-using namespace std;
 using namespace OpenXLSX;
 
 namespace
 {
-    const std::string emptyWorksheet =
+    const std::string emptyWorksheet {
         "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
         "<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\""
         " xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\""
@@ -28,7 +27,8 @@ namespace
         "<sheetFormatPr baseColWidth=\"10\" defaultRowHeight=\"16\" x14ac:dyDescent=\"0.2\"/>"
         "<sheetData/>"
         "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/>"
-        "</worksheet>";
+        "</worksheet>"
+    };
 
     const int           templateSize       = 7714;
     const unsigned char templateData[7714] = {
@@ -387,21 +387,16 @@ namespace
 
 }    // namespace
 
-namespace
-{
-}    // namespace
-
 /**
  * @details The default constructor, with no arguments.
  */
-XLDocument::XLDocument()
-    : m_filePath(""), m_docRelationships(), m_contentTypes(), m_appProperties(), m_coreProperties(), m_workbook() {}
+XLDocument::XLDocument() : m_docRelationships(), m_contentTypes(), m_appProperties(), m_coreProperties(), m_workbook() {}
 
 /**
  * @details An alternative constructor, taking a std::string with the path to the .xlsx package as an argument.
  */
 XLDocument::XLDocument(const std::string& docPath)
-    : m_filePath(""),
+    : m_filePath(),
       m_docRelationships(),
       m_contentTypes(),
       m_appProperties(),
@@ -426,7 +421,7 @@ XLDocument::~XLDocument()
  * - Unzip the contents of the package to the temporary folder.
  * - load the contents into the datastructure for manipulation.
  */
-void XLDocument::open(const string& fileName)
+void XLDocument::open(const std::string& fileName)
 {
     // Check if a document is already open. If yes, close it.
     // TODO: Consider throwing if a file is already open.
@@ -474,7 +469,7 @@ void XLDocument::create(const std::string& fileName)
     // TODO: Resource leak in case of an exception.
 
     // ===== Casting, in particular reinterpret_cast, is discouraged, but in this case it is unfortunately unavoidable.
-    outfile.write(reinterpret_cast<const char*>(templateData), templateSize);
+    outfile.write(reinterpret_cast<const char*>(templateData), templateSize);    // NOLINT
     outfile.close();
 
     open(fileName);
@@ -509,7 +504,7 @@ bool XLDocument::save()
  * is that changes to the document may invalidate the calcChain.xml file. Deleting will force Excel to re-create the
  * file. This will happen automatically, without the user noticing.
  */
-bool XLDocument::saveAs(const string& fileName)
+bool XLDocument::saveAs(const std::string& fileName)
 {
     m_filePath = fileName;
 
@@ -523,7 +518,7 @@ bool XLDocument::saveAs(const string& fileName)
  * @details
  * @todo Currently, this method returns the full path, which is not the intention.
  */
-const string& XLDocument::name() const
+const std::string& XLDocument::name() const
 {
     return m_filePath;
 }
@@ -531,7 +526,7 @@ const string& XLDocument::name() const
 /**
  * @details
  */
-const string& XLDocument::path() const
+const std::string& XLDocument::path() const
 {
     return m_filePath;
 }
@@ -627,7 +622,7 @@ std::string XLDocument::property(XLProperty prop) const
  *
  * ```
  */
-void XLDocument::setProperty(XLProperty prop, const string& value)
+void XLDocument::setProperty(XLProperty prop, const std::string& value)
 {
     switch (prop) {
         case XLProperty::Application:
@@ -750,16 +745,35 @@ void XLDocument::deleteProperty(XLProperty theProperty)
  */
 void XLDocument::executeCommand(XLCommand command)
 {
-    std::visit(overloaded { [this](XLCommandSetSheetName cmd) { setSheetName(cmd); },
-                            [this](XLCommandSetSheetVisibility cmd) {},
-                            [this](XLCommandSetSheetColor cmd) {},
-                            [this](XLCommandAddWorksheet cmd) {
-                                addSheetMetaData(cmd);
-                                addWorksheet(cmd);
+    std::visit(overloaded { [this](const XLCommandSetSheetName& cmd) {
+                               m_appProperties.SetSheetName(cmd.sheetName(), cmd.newName());
+                               m_workbook.executeCommand(cmd);
+                           },
+                            [this](const XLCommandSetSheetVisibility& cmd) {},
+                            [this](const XLCommandSetSheetColor& cmd) {},
+                            [this](const XLCommandAddWorksheet& cmd) {
+                                m_contentTypes.AddOverride(cmd.sheetPath(), XLContentType::Worksheet);
+                                m_wbkRelationships.AddRelationship(XLRelationshipType::Worksheet, cmd.sheetPath().substr(4));
+                                m_appProperties.InsertSheetName(cmd.sheetName(), cmd.sheetIndex());
+                                m_archive.AddEntry(cmd.sheetPath().substr(1), emptyWorksheet);
+                                m_data.emplace_back(
+                                    /* parentDoc */ this,
+                                    /* xmlPath   */ cmd.sheetPath().substr(1),
+                                    /* xmlID     */ m_wbkRelationships.RelationshipByTarget(cmd.sheetPath().substr(4)).Id(),
+                                    /* xmlType   */ XLContentType::Worksheet);
                             },
-                            [this](XLCommandAddChartsheet cmd) {},
-                            [this](XLCommandDeleteSheet cmd) { deleteSheet(cmd); },
-                            [this](XLCommandCloneSheet cmd) {} },
+                            [this](const XLCommandAddChartsheet& cmd) {},
+                            [this](const XLCommandDeleteSheet& cmd) {
+                                m_appProperties.DeleteSheetName(cmd.sheetName());
+                                auto sheetPath = "/xl/" + m_wbkRelationships.RelationshipByID(cmd.sheetID()).Target();
+                                m_archive.DeleteEntry(sheetPath.substr(1));
+                                m_contentTypes.DeleteOverride(sheetPath);
+                                m_wbkRelationships.DeleteRelationship(cmd.sheetID());
+                                m_data.erase(std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) {
+                                    return item.getXmlPath() == sheetPath.substr(1);
+                                }));
+                            },
+                            [this](const XLCommandCloneSheet& cmd) {} },
                command);
 }
 
@@ -790,14 +804,14 @@ std::string XLDocument::executeQuery(const XLQuery& query) const
     }
 }
 
-XLXmlData* XLDocument::getXmlData(const string& path)
+XLXmlData* XLDocument::getXmlData(const std::string& path)
 {
     auto result = std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) { return item.getXmlPath() == path; });
     if (result == m_data.end()) throw XLException("Path does not exist in zip archive.");
     return &*result;
 }
 
-const XLXmlData* XLDocument::getXmlData(const string& path) const
+const XLXmlData* XLDocument::getXmlData(const std::string& path) const
 {
     auto result = std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) { return item.getXmlPath() == path; });
     if (result == m_data.end()) throw XLException("Path does not exist in zip archive.");
@@ -810,39 +824,4 @@ const XLXmlData* XLDocument::getXmlData(const string& path) const
 std::string XLDocument::extractXmlFromArchive(const std::string& path)
 {
     return (m_archive.HasEntry(path) ? m_archive.GetEntry(path).GetDataAsString() : "");
-}
-
-void XLDocument::setSheetName(XLCommandSetSheetName command)
-{
-    m_appProperties.SetSheetName(command.sheetName(), command.newName());
-    m_workbook.executeCommand(command);
-}
-
-void XLDocument::addSheetMetaData(const XLCommandAddWorksheet& command)
-{
-    m_contentTypes.AddOverride(command.sheetPath(), XLContentType::Worksheet);
-    m_wbkRelationships.AddRelationship(XLRelationshipType::Worksheet, command.sheetPath().substr(4));
-    m_appProperties.InsertSheetName(command.sheetName(), command.sheetIndex());
-}
-
-void XLDocument::addWorksheet(const XLCommandAddWorksheet& command)
-{
-    m_archive.AddEntry(command.sheetPath().substr(1), emptyWorksheet);
-    m_data.emplace_back(/* parentDoc */ this,
-                        /* xmlPath   */ command.sheetPath().substr(1),
-                        /* xmlID     */ m_wbkRelationships.RelationshipByTarget(command.sheetPath().substr(4)).Id(),
-                        /* xmlType   */ XLContentType::Worksheet);
-}
-
-void XLDocument::deleteSheet(const XLCommandDeleteSheet& command)
-{
-    m_appProperties.DeleteSheetName(command.sheetName());
-
-    auto sheetPath = "/xl/" + m_wbkRelationships.RelationshipByID(command.sheetID()).Target();
-    m_archive.DeleteEntry(sheetPath.substr(1));
-    m_contentTypes.DeleteOverride(sheetPath);
-    m_wbkRelationships.DeleteRelationship(command.sheetID());
-
-    m_data.erase(
-        std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) { return item.getXmlPath() == sheetPath.substr(1); }));
 }
