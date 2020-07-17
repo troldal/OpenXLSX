@@ -12,8 +12,8 @@
 #include <string>
 
 // ===== OpenXLSX Includes ===== //
-#include "XLEnums_impl.hpp"
-#include "XLXmlParser_Impl.hpp"
+#include "XLEnums.hpp"
+#include "XLXmlParser.hpp"
 
 namespace OpenXLSX::Impl
 {

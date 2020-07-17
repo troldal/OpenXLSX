@@ -6,10 +6,10 @@
 #define OPENXLSX_XLSHEETBASE_HPP
 
 #include "XLAbstractXMLFile.hpp"
-#include "XLColor_Impl.hpp"
-#include "XLCommand_Impl.hpp"
-#include "XLDefinitions_Impl.hpp"
-#include "XLQuery_Impl.hpp"
+#include "XLColor.hpp"
+#include "XLCommand.hpp"
+#include "XLDefinitions.hpp"
+#include "XLQuery.hpp"
 
 namespace OpenXLSX::Impl
 {

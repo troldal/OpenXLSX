@@ -54,7 +54,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== OpenXLSX Includes ===== //
 #include "XLXmlData.hpp"
-#include "XLXmlParser_Impl.hpp"
+#include "XLXmlParser.hpp"
 
 namespace OpenXLSX::Impl
 {
@@ -123,11 +123,6 @@ namespace OpenXLSX::Impl
          * @return A std::string with the XML data.
          */
         virtual std::string GetXmlData() const;
-
-        /**
-         * @brief Commit the XML data to the zipped .xlsx package.
-         */
-        virtual void WriteXMLData();
 
         /**
          * @brief Delete the XML file from the zipped .xlsx package.

@@ -118,31 +118,31 @@ set(OPENXLSX_IMPL_HEADERS
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLXmlData_Impl.h
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLDefinitions_Impl.h
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLException_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLCellIterator_Impl.hpp
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLCellIterator.hpp
         )
 
 set(OPENXLSX_IMPL_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLAbstractXMLFile.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLAppProperties_Impl.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLContentTypes_Impl.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCoreProperties_Impl.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLDocument_Impl.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLRelationships_Impl.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLSharedStrings_Impl.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLWorkbook_Impl.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLChartsheet_Impl.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLColumn_Impl.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLColor_Impl.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLRow_Impl.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLSheet_Impl.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLWorksheet_Impl.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCell_Impl.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellRange_Impl.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellValue_Impl.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellReference_Impl.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLXmlParser_Impl.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLAppProperties.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLContentTypes.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCoreProperties.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLDocument.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLRelationships.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLSharedStrings.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLWorkbook.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLChartsheet.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLColumn.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLColor.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLRow.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLSheet.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLWorksheet.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCell.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellRange.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellValue.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellReference.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLXmlParser.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLXmlData.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellIterator_Impl.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellIterator.cpp
         )
 
 #=======================================================================================================================

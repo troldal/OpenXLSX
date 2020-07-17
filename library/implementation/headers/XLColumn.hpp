@@ -43,21 +43,88 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXLSX_OPENXLSX_HPP
-#define OPENXLSX_OPENXLSX_HPP
+#ifndef OPENXLSX_IMPL_XLCOLUMN_H
+#define OPENXLSX_IMPL_XLCOLUMN_H
 
-#include "XLCell.hpp"
-#include "XLCellRange.hpp"
-#include "XLCellReference.hpp"
-#include "XLCellValue.hpp"
-#include "XLChartsheet.hpp"
-#include "XLColumn.hpp"
-#include "XLDefinitions.hpp"
-#include "XLDocument.hpp"
-#include "XLException.hpp"
-#include "XLRow.hpp"
-#include "XLSheet.hpp"
-#include "XLWorkbook.hpp"
-#include "XLWorksheet.hpp"
+#include "XLXmlParser.hpp"
 
-#endif    // OPENXLSX_OPENXLSX_HPP
+namespace OpenXLSX::Impl
+{
+    /**
+     * @brief
+     */
+    class XLColumn
+    {
+    public:
+        /**
+         * @brief Constructor
+         * @param parent A pointer to the parent XLWorksheet object.
+         * @param columnNode A pointer to the XMLNode for the column.
+         */
+        explicit XLColumn(XMLNode columnNode);
+
+        /**
+         * @brief Copy Constructor [deleted]
+         */
+        XLColumn(const XLColumn& other) = default;
+
+        /**
+         * @brief Move Constructor
+         * @note The move constructor has been explicitly deleted.
+         */
+        XLColumn(XLColumn&& other) noexcept = default;
+
+        /**
+         * @brief Destructor
+         */
+        virtual ~XLColumn() = default;
+
+        /**
+         * @brief Copy assignment operator [deleted]
+         */
+        XLColumn& operator=(const XLColumn& other) = default;
+
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
+        XLColumn& operator=(XLColumn&& other) noexcept = default;
+
+        /**
+         * @brief Get the width of the column.
+         * @return The width of the column.
+         */
+        float Width() const;
+
+        /**
+         * @brief Set the width of the column
+         * @param width The width of the column
+         */
+        void SetWidth(float width);
+
+        /**
+         * @brief Is the column hidden?
+         * @return The state of the column.
+         */
+        bool IsHidden() const;
+
+        /**
+         * @brief Set the column to be shown or hidden.
+         * @param state The state of the column.
+         */
+        void SetHidden(bool state);
+
+        /**
+         * @brief Get the XMLNode object for the column.
+         * @return The XMLNode for the column
+         */
+        XMLNode ColumnNode() const;
+
+    private:
+        XMLNode m_columnNode; /**< A pointer to the XMLNode object for the column. */
+    };
+
+}    // namespace OpenXLSX::Impl
+
+#endif    // OPENXLSX_IMPL_XLCOLUMN_H

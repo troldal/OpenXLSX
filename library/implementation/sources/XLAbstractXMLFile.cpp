@@ -1,6 +1,6 @@
 #include "XLAbstractXMLFile.hpp"
 
-#include "XLDocument_Impl.hpp"
+#include "XLDocument.hpp"
 
 #include <sstream>
 #include <utility>
@@ -42,15 +42,6 @@ void Impl::XLAbstractXMLFile::SetXmlData(const std::string& xmlData)
 std::string Impl::XLAbstractXMLFile::GetXmlData() const
 {
     return m_xmlData->getRawData();
-}
-
-/**
- * @details The CommitXMLData method calls the AddOrReplaceXMLFile method for the current object and all child objects.
- * This, in turn, will add or replace the XML data files in the zipped .xlsx package.
- */
-void Impl::XLAbstractXMLFile::WriteXMLData()
-{
-    m_xmlData->getParentDoc()->AddOrReplaceXMLFile(m_xmlData->getXmlPath(), GetXmlData());
 }
 
 /**

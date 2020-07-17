@@ -4,7 +4,7 @@
 
 #include "XLXmlData.hpp"
 
-#include "XLDocument_Impl.hpp"
+#include "XLDocument.hpp"
 
 OpenXLSX::Impl::XLXmlData::XLXmlData(OpenXLSX::Impl::XLDocument*   parentDoc,
                                      const std::string&            xmlPath,
