@@ -46,18 +46,18 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_OPENXLSX_HPP
 #define OPENXLSX_OPENXLSX_HPP
 
-#include "XLCell_Impl.hpp"
 #include "XLCellRange_Impl.hpp"
 #include "XLCellReference_Impl.hpp"
 #include "XLCellValue_Impl.hpp"
+#include "XLCell_Impl.hpp"
 #include "XLChartsheet_Impl.hpp"
 #include "XLColumn_Impl.hpp"
+#include "XLDefinitions_Impl.hpp"
 #include "XLDocument_Impl.hpp"
 #include "XLException_Impl.hpp"
-#include "XLDefinitions_Impl.hpp"
 #include "XLRow_Impl.hpp"
 #include "XLSheet_Impl.hpp"
 #include "XLWorkbook_Impl.hpp"
 #include "XLWorksheet_Impl.hpp"
 
-#endif //OPENXLSX_OPENXLSX_HPP
+#endif    // OPENXLSX_OPENXLSX_HPP

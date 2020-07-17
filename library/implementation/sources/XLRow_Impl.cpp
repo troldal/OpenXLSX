@@ -3,6 +3,7 @@
 //
 
 #include "XLRow_Impl.hpp"
+
 #include "XLCellReference_Impl.hpp"
 
 using namespace std;
@@ -17,8 +18,8 @@ Impl::XLRow::XLRow(XMLNode rowNode) : m_rowNode(rowNode) {}
 /**
  * @details Returns the m_height member by value.
  */
-double Impl::XLRow::Height() const {
-
+double Impl::XLRow::Height() const
+{
     return m_rowNode.attribute("ht").as_double(15.0);
 }
 
@@ -26,8 +27,8 @@ double Impl::XLRow::Height() const {
  * @details Set the height of the row. This is done by setting the value of the 'ht' attribute and setting the
  * 'customHeight' attribute to true.
  */
-void Impl::XLRow::SetHeight(float height) {
-
+void Impl::XLRow::SetHeight(float height)
+{
     // Set the 'ht' attribute for the Cell. If it does not exist, create it.
     if (!m_rowNode.attribute("ht"))
         m_rowNode.append_attribute("ht") = height;
@@ -44,16 +45,16 @@ void Impl::XLRow::SetHeight(float height) {
 /**
  * @details Return the m_descent member by value.
  */
-float Impl::XLRow::Descent() const {
-
+float Impl::XLRow::Descent() const
+{
     return m_rowNode.attribute("x14ac:dyDescent").as_float(0.25);
 }
 
 /**
  * @details Set the descent by setting the 'x14ac:dyDescent' attribute in the XML file
  */
-void Impl::XLRow::SetDescent(float descent) {
-
+void Impl::XLRow::SetDescent(float descent)
+{
     // Set the 'x14ac:dyDescent' attribute. If it does not exist, create it.
     if (!m_rowNode.attribute("x14ac:dyDescent"))
         m_rowNode.append_attribute("x14ac:dyDescent") = descent;
@@ -64,16 +65,16 @@ void Impl::XLRow::SetDescent(float descent) {
 /**
  * @details Determine if the row is hidden or not.
  */
-bool Impl::XLRow::IsHidden() const {
-
+bool Impl::XLRow::IsHidden() const
+{
     return m_rowNode.attribute("hidden").as_bool(false);
 }
 
 /**
  * @details Set the hidden state by setting the 'hidden' attribute to true or false.
  */
-void Impl::XLRow::SetHidden(bool state) {
-
+void Impl::XLRow::SetHidden(bool state)
+{
     // Set the 'hidden' attribute. If it does not exist, create it.
     if (!m_rowNode.attribute("hidden"))
         m_rowNode.append_attribute("hidden") = static_cast<int>(state);
@@ -84,15 +85,15 @@ void Impl::XLRow::SetHidden(bool state) {
 /**
  * @details
  */
-int64_t Impl::XLRow::RowNumber() const {
-
+int64_t Impl::XLRow::RowNumber() const
+{
     return m_rowNode.attribute("r").as_ullong();
 }
 
 /**
  * @details Get the number of cells in the row, by returning the size of the m_cells vector.
  */
-unsigned int Impl::XLRow::CellCount() const {
-
+unsigned int Impl::XLRow::CellCount() const
+{
     return XLCellReference(m_rowNode.last_child().attribute("r").value()).Column();
 }

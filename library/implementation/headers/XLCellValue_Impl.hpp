@@ -56,10 +56,7 @@ namespace OpenXLSX::Impl
     /**
      * @brief The XLValueType class is an enumeration of the possible cell value types.
      */
-    enum class XLValueType
-    {
-        Empty, Boolean, Integer, Float, Error, String
-    };
+    enum class XLValueType { Empty, Boolean, Integer, Float, Error, String };
 
     /**
      * @brief The XLCellValue class represents the concept of a cell value. This can be in the form of a number
@@ -71,11 +68,13 @@ namespace OpenXLSX::Impl
      * ## Usage ##
      * An XLCellValue object is not created directly by the user, but rather accessed and/or modified through the XLCell
      * interface (the Value() member function).
-     * The value can be set either through the Set() member function or the operator=(). Both have been overloaded to take
+     * The value can be set either through the Set() member function or the operator=(). Both have been overloaded to
+     take
      * any integer or floating point value, bool value or string value (either std::string or char* string). In order to
      * set the cell value to empty, use the Clear() member function.
      *
-     * To get the current value of an XLCellValue object, use the Get<>() member function. The Get<>() member function is a
+     * To get the current value of an XLCellValue object, use the Get<>() member function. The Get<>() member function
+     is a
      * template function, taking the value return type as template argument. It has been overloaded to take any integer
      * or floating point type, bool type or string type that can be constructed from a char* string (e.g. std::string or
      * std::string_view). It is also possible to get the value as a std::string, regardless of the valuetype, using the
@@ -152,8 +151,8 @@ namespace OpenXLSX::Impl
          * @brief Move assignment operator.
          * @param other The object to be moved.
          * @return A reference to the current object, with the new value.
-         * @note The move assignment operator has been explicitly deleted. Move will not be allowed, as an XLCellValue must
-         * always remain valid. Moving will invalidate the source object.
+         * @note The move assignment operator has been explicitly deleted. Move will not be allowed, as an XLCellValue
+         * must always remain valid. Moving will invalidate the source object.
          */
         XLCellValue& operator=(XLCellValue&& other) noexcept;
 
@@ -235,9 +234,8 @@ namespace OpenXLSX::Impl
          * @brief Get string value.
          * @tparam T The string type to get.
          */
-        template<typename T, typename std::enable_if<
-                std::is_constructible<T, char*>::value && !std::is_same<T, bool>::value,
-                char*>::type* = nullptr>
+        template<typename T,
+                 typename std::enable_if<std::is_constructible<T, char*>::value && !std::is_same<T, bool>::value, char*>::type* = nullptr>
         T Get();
 
         /**
@@ -257,9 +255,7 @@ namespace OpenXLSX::Impl
          */
         XLValueType ValueType() const;
 
-
     private:
-
         //---------- PRIVATE MEMBER FUNCTIONS ----------//
 
         /**
@@ -304,10 +300,9 @@ namespace OpenXLSX::Impl
          */
         const char* GetString() const;
 
-
         //---------- PRIVATE MEMBER VARIABLES ----------//
 
-        XMLNode m_cellNode;
+        XMLNode          m_cellNode;
         XLSharedStrings* m_sharedStrings;
     };
 
@@ -324,23 +319,23 @@ namespace OpenXLSX::Impl
      * has been set accordingly.
      */
     template<typename T, typename std::enable_if<std::is_integral<T>::value, int64_t>::type*>
-    XLCellValue& XLCellValue::operator=(T numberValue) {
-
+    XLCellValue& XLCellValue::operator=(T numberValue)
+    {
         Set(numberValue);
         return *this;
     }
 
     /**
      * @details This is a template assignment operator for all floating point-type paremeters. The function calls the
-     * Set() template function and returns *this. It has been implemented using the std::enable_if template function which
-     * wil SFINAE out any non-floating point types.
+     * Set() template function and returns *this. It has been implemented using the std::enable_if template function
+     * which wil SFINAE out any non-floating point types.
      * @pre The input parameter, the XLCellValue object and the underlying xml object are valid.
      * @post The underlying xml object has been modified to hold the value of the input parameter and the type attribute
      * has been set accordingly.
      */
     template<typename T, typename std::enable_if<std::is_floating_point<T>::value, long double>::type*>
-    XLCellValue& XLCellValue::operator=(T numberValue) {
-
+    XLCellValue& XLCellValue::operator=(T numberValue)
+    {
         Set(numberValue);
         return *this;
     }
@@ -353,12 +348,12 @@ namespace OpenXLSX::Impl
      * @post
      */
     template<typename T, typename std::enable_if<std::is_integral<T>::value, int64_t>::type*>
-    void XLCellValue::Set(T numberValue) {
-
-        if constexpr (std::is_same<T, bool>::value) { // if bool
+    void XLCellValue::Set(T numberValue)
+    {
+        if constexpr (std::is_same<T, bool>::value) {    // if bool
             SetBoolean(numberValue);
         }
-        else { // if not bool
+        else {    // if not bool
             SetInteger(numberValue);
         }
     }
@@ -370,7 +365,10 @@ namespace OpenXLSX::Impl
      * @post
      */
     template<typename T, typename std::enable_if<std::is_floating_point<T>::value, long double>::type*>
-    void XLCellValue::Set(T numberValue) { SetFloat(numberValue); }
+    void XLCellValue::Set(T numberValue)
+    {
+        SetFloat(numberValue);
+    }
 
     /**
      * @details This is a template function for all integer-type parameters. It has been implemented using the
@@ -380,8 +378,8 @@ namespace OpenXLSX::Impl
      * @post
      */
     template<typename T, typename std::enable_if<std::is_integral<T>::value, int64_t>::type*>
-    T XLCellValue::Get() {
-
+    T XLCellValue::Get()
+    {
         if constexpr (std::is_same<T, bool>::value) {
             return GetBoolean();
         }
@@ -397,7 +395,10 @@ namespace OpenXLSX::Impl
      * @post
      */
     template<typename T, typename std::enable_if<std::is_floating_point<T>::value, long double>::type*>
-    T XLCellValue::Get() { return GetFloat(); }
+    T XLCellValue::Get()
+    {
+        return GetFloat();
+    }
 
     /**
      * @details This is a template function for all types that can be constructed from a char* string, including
@@ -405,10 +406,11 @@ namespace OpenXLSX::Impl
      * @pre
      * @post
      */
-    template<typename T, typename std::enable_if<
-            std::is_constructible<T, char*>::value && !std::is_same<T, bool>::value,
-            char*>::type*>
-    T XLCellValue::Get() { return T(GetString()); }
-} // namespace OpenXLSX::Impl
+    template<typename T, typename std::enable_if<std::is_constructible<T, char*>::value && !std::is_same<T, bool>::value, char*>::type*>
+    T XLCellValue::Get()
+    {
+        return T(GetString());
+    }
+}    // namespace OpenXLSX::Impl
 
-#endif //OPENXLSX_XLCELLVALUE_HPP
+#endif    // OPENXLSX_XLCELLVALUE_HPP

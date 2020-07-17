@@ -53,15 +53,13 @@ namespace OpenXLSX::Impl
     //========== XLRow Class ========== //
 
     /**
-     * @brief The XLRow class represent a row in an Excel spreadsheet. Using XLRow objects, various row formatting options
-     * can be set and modified.
+     * @brief The XLRow class represent a row in an Excel spreadsheet. Using XLRow objects, various row formatting
+     * options can be set and modified.
      */
     class XLRow
     {
-
         //---------- PUBLIC MEMBER FUNCTIONS ----------//
     public:
-
         /**
          * @brief Constructor
          * @param parent A pointer to the parent XLWorksheet object.
@@ -151,10 +149,9 @@ namespace OpenXLSX::Impl
 
         //---------- PRIVATE MEMBER VARIABLES ----------//
     private:
-
         XMLNode m_rowNode; /**< The XMLNode object for the row. */
     };
 
-}  // namespace OpenXLSX::Impl
+}    // namespace OpenXLSX::Impl
 
-#endif //OPENXLSX_IMPL_XLROW_H
+#endif    // OPENXLSX_IMPL_XLROW_H

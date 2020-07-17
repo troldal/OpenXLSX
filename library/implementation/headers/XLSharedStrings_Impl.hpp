@@ -47,8 +47,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #define OPENXLSX_IMPL_XLSHAREDSTRINGS_H
 
 // ===== Standard Library Includes ===== //
-#include <vector>
 #include <string_view>
+#include <vector>
 
 // ===== OpenXLSX Includes ===== //
 #include "XLAbstractXMLFile.hpp"
@@ -56,33 +56,31 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 namespace OpenXLSX::Impl
 {
-
     class XLDocument;
     //======================================================================================================================
-    //========== XLSharedStrings Class =====================================================================================
+    //========== XLSharedStrings Class
+    //=====================================================================================
     //======================================================================================================================
 
     /**
      * @brief This class encapsulate the Excel concept of Shared Strings. In Excel, instead of havig individual strings
-     * in each cell, cells have a reference to an entry in the SharedStrings register. This results in smalle file sizes,
-     * as repeated strings are referenced easily.
+     * in each cell, cells have a reference to an entry in the SharedStrings register. This results in smalle file
+     * sizes, as repeated strings are referenced easily.
      * @todo Consider defining a static method for creating a new shared strings object + XML file.
      */
     class XLSharedStrings : public XLAbstractXMLFile
     {
-
         //----------------------------------------------------------------------------------------------------------------------
         //           Public Member Functions
         //----------------------------------------------------------------------------------------------------------------------
 
     public:
-
         /**
          * @brief Constructor
          * @param parent A pointer to the parent XLDocument
          * @param filePath The path to the sharedStrings.xml file
          */
-        explicit XLSharedStrings(XLDocument& parent);
+        explicit XLSharedStrings(XLXmlData* xmlData);
 
         /**
          * @brief Destructor
@@ -164,14 +162,14 @@ namespace OpenXLSX::Impl
         //----------------------------------------------------------------------------------------------------------------------
 
     protected:
-
         /**
-         * @brief Parse the contents of the underlying XML file and fills the datastructure with the data from the XML file.
+         * @brief Parse the contents of the underlying XML file and fills the datastructure with the data from the XML
+         * file.
          * @return true if successful; otherwise false.
          */
         bool ParseXMLData() override;
     };
 
-} // namespace OpenXLSX::Impl
+}    // namespace OpenXLSX::Impl
 
-#endif //OPENXLSX_IMPL_XLSHAREDSTRINGS_H
+#endif    // OPENXLSX_IMPL_XLSHAREDSTRINGS_H

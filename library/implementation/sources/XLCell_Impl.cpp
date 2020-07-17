@@ -3,14 +3,13 @@
 //
 
 #include "XLCell_Impl.hpp"
+
 #include "XLCellRange_Impl.hpp"
 
 using namespace std;
 using namespace OpenXLSX;
 
-Impl::XLCell::XLCell()
-        : m_cellNode(XMLNode()),
-          m_sharedStrings(nullptr){}
+Impl::XLCell::XLCell() : m_cellNode(XMLNode()), m_sharedStrings(nullptr) {}
 
 /**
  * @details This constructor creates a XLCell object based on the cell XMLNode input parameter, and is
@@ -27,10 +26,7 @@ Impl::XLCell::XLCell()
  *      -# If there is no type attribute but there is a value node, the cell has a number value.
  *      -# Otherwise, determine the celltype based on the type attribute.
  */
-Impl::XLCell::XLCell(XMLNode cellNode,
-                     XLSharedStrings* sharedStrings)
-        : m_cellNode(cellNode),
-          m_sharedStrings(sharedStrings) {}
+Impl::XLCell::XLCell(XMLNode cellNode, XLSharedStrings* sharedStrings) : m_cellNode(cellNode), m_sharedStrings(sharedStrings) {}
 
 /**
  * @details This methods copies a range into a new location, with the top left cell being located in the target cell.
@@ -43,11 +39,11 @@ Impl::XLCell::XLCell(XMLNode cellNode,
  * @post
  * @todo Consider what happens if the target range extends beyond the maximum spreadsheet limits
  */
-Impl::XLCell& Impl::XLCell::operator=(const XLCellRange& range) {
-
-    auto first = CellReference();
+Impl::XLCell& Impl::XLCell::operator=(const XLCellRange& range)
+{
+    auto            first = CellReference();
     XLCellReference last(first.Row() + range.NumRows() - 1, first.Column() + range.NumColumns() - 1);
-    XLCellRange rng(m_cellNode.parent().parent(), first, last);
+    XLCellRange     rng(m_cellNode.parent().parent(), first, last);
     rng = range;
 
     return *this;
@@ -56,48 +52,52 @@ Impl::XLCell& Impl::XLCell::operator=(const XLCellRange& range) {
 /**
  * @details
  */
-Impl::XLValueType Impl::XLCell::ValueType() const {
-
+Impl::XLValueType Impl::XLCell::ValueType() const
+{
     return XLCellValue(m_cellNode, nullptr).ValueType();
 }
 
 /**
  * @details
  */
-Impl::XLCellValue Impl::XLCell::Value() const {
-
+Impl::XLCellValue Impl::XLCell::Value() const
+{
     return XLCellValue(m_cellNode, m_sharedStrings);
 }
 
 /**
  * @details This function returns a const reference to the cellReference property.
  */
-Impl::XLCellReference Impl::XLCell::CellReference() const {
-
+Impl::XLCellReference Impl::XLCell::CellReference() const
+{
     return XLCellReference(m_cellNode.attribute("r").value());
 }
 
 /**
  * @details
  */
-bool Impl::XLCell::HasFormula() const {
+bool Impl::XLCell::HasFormula() const
+{
     return m_cellNode.child("f") != nullptr;
 }
 
 /**
  * @details
  */
-std::string Impl::XLCell::GetFormula() const {
+std::string Impl::XLCell::GetFormula() const
+{
     return m_cellNode.child("f").text().get();
 }
 
 /**
  * @details
  */
-void Impl::XLCell::SetFormula(const std::string& newFormula) {
+void Impl::XLCell::SetFormula(const std::string& newFormula)
+{
     m_cellNode.child("f").text().set(newFormula.c_str());
 }
 
-void Impl::XLCell::reset(XMLNode cellNode) {
+void Impl::XLCell::reset(XMLNode cellNode)
+{
     m_cellNode = cellNode;
 }

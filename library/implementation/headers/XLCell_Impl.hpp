@@ -47,8 +47,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #define OPENXLSX_IMPL_XLCELL_H
 
 #include "XLCellReference_Impl.hpp"
-#include "XLSharedStrings_Impl.hpp"
 #include "XLCellValue_Impl.hpp"
+#include "XLSharedStrings_Impl.hpp"
 #include "XLXmlParser_Impl.hpp"
 
 namespace OpenXLSX::Impl
@@ -60,10 +60,8 @@ namespace OpenXLSX::Impl
      */
     class XLCell
     {
-
         friend class XLCellValue;
         friend bool operator==(const XLCell& lhs, const XLCell& rhs);
-
 
     public:
         //---------- Public Member Functions ----------//
@@ -75,8 +73,7 @@ namespace OpenXLSX::Impl
          * @param parent A pointer to the parent XLWorksheet object. Must not be nullptr.
          * @param cellNode A pointer to the XMLNode with the cell data. Must not be nullptr.
          */
-        XLCell(XMLNode cellNode,
-               XLSharedStrings* sharedStrings);
+        XLCell(XMLNode cellNode, XLSharedStrings* sharedStrings);
 
         /**
          * @brief Copy constructor
@@ -162,12 +159,11 @@ namespace OpenXLSX::Impl
         void SetFormula(const std::string& newFormula);
 
     private:
-
         //---------- Private Member Functions ---------- //
         void reset(XMLNode cellNode);
 
         //---------- Private Member Variables ---------- //
-        XMLNode m_cellNode;              /**< A pointer to the root XMLNode for the cell. */
+        XMLNode          m_cellNode; /**< A pointer to the root XMLNode for the cell. */
         XLSharedStrings* m_sharedStrings;
     };
 
@@ -177,11 +173,11 @@ namespace OpenXLSX::Impl
      * @param rhs
      * @return
      */
-    inline bool operator==(const XLCell& lhs, const XLCell& rhs) {
-
+    inline bool operator==(const XLCell& lhs, const XLCell& rhs)
+    {
         return lhs.m_cellNode == rhs.m_cellNode;
     }
 
-}  // namespace OpenXLSX::Impl
+}    // namespace OpenXLSX::Impl
 
-#endif //OPENXLSX_IMPL_XLCELL_H
+#endif    // OPENXLSX_IMPL_XLCELL_H

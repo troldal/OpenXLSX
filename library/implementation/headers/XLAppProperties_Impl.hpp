@@ -41,10 +41,10 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #define OPENXLSX_IMPL_XLAPPPROPERTIES_H
 
 // ===== Standard Library Includes ===== //
+#include <map>
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
-#include <map>
 
 // ===== OpenXLSX Includes ===== //
 #include "XLAbstractXMLFile.hpp"
@@ -52,7 +52,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 namespace OpenXLSX::Impl
 {
-
     //==================================================================================================================
     //========== XLWorksheet Class =====================================================================================
     //==================================================================================================================
@@ -63,19 +62,17 @@ namespace OpenXLSX::Impl
      */
     class XLAppProperties : public XLAbstractXMLFile
     {
-
         //--------------------------------------------------------------------------------------------------------------
         //           Public Member Functions
         //--------------------------------------------------------------------------------------------------------------
 
     public:
-
         /**
          * @brief
          * @param parent
-         * @param filePath
+         * @param xmlData
          */
-        explicit XLAppProperties(XLDocument& parent, const std::string& filePath);
+        explicit XLAppProperties(XLXmlData* xmlData);
 
         /**
          * @brief
@@ -258,24 +255,8 @@ namespace OpenXLSX::Impl
          * @return
          */
         XMLNode MoveSheetName(const std::string& sheetName, unsigned int index);
-
-        //--------------------------------------------------------------------------------------------------------------
-        //           Private Member Functions
-        //--------------------------------------------------------------------------------------------------------------
-
-    private:
-
-        // ===== Entities related to sheet names ===== //
-        XMLAttribute m_sheetCountAttribute; /**< */
-        XMLNode m_sheetNamesParent; /**< */
-
-        // ===== Entities related to "Heading Pairs" ===== //
-        XMLAttribute m_headingPairsSize; /**< */
-        XMLNode m_headingPairsCategories; /**< */
-        XMLNode m_headingPairsCounts; /**< */
-
     };
 
-}  // namespace OpenXLSX::Impl
+}    // namespace OpenXLSX::Impl
 
-#endif //OPENXLSX_IMPL_XLAPPPROPERTIES_H
+#endif    // OPENXLSX_IMPL_XLAPPPROPERTIES_H

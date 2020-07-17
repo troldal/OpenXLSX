@@ -47,9 +47,9 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #define OPENXLSX_IMPL_XLDOCCOREPROPERTIES_H
 
 // ===== Standard Library Includes ===== //
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
 
 // ===== OpenXLSX Includes ===== //
 #include "XLAbstractXMLFile.hpp"
@@ -57,9 +57,9 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 namespace OpenXLSX::Impl
 {
-
     //======================================================================================================================
-    //========== XLCoreProperties Class =================================================================================
+    //========== XLCoreProperties Class
+    //=================================================================================
     //======================================================================================================================
 
     /**
@@ -67,20 +67,18 @@ namespace OpenXLSX::Impl
      */
     class XLCoreProperties : public XLAbstractXMLFile
     {
-
         //----------------------------------------------------------------------------------------------------------------------
         //           Public Member Functions
         //----------------------------------------------------------------------------------------------------------------------
 
     public:
-
         /**
          * @brief
          * @param parent
-         * @param filePath
+         * @param xmlData
          * @return
          */
-        explicit XLCoreProperties(XLDocument& parent, const std::string& filePath);
+        explicit XLCoreProperties(XLXmlData* xmlData);
 
         /**
          * @brief
@@ -116,7 +114,7 @@ namespace OpenXLSX::Impl
          * @param name
          * @return
          */
-        const XMLNode Property(const std::string& name) const;
+        std::string Property(const std::string& name) const;
 
         /**
          * @brief
@@ -129,14 +127,12 @@ namespace OpenXLSX::Impl
         //----------------------------------------------------------------------------------------------------------------------
 
     protected:
-
         /**
          * @brief
          * @return
          */
         bool ParseXMLData() override;
-
     };
-} // namespace OpenXLSX::Impl
+}    // namespace OpenXLSX::Impl
 
-#endif //OPENXLSX_IMPL_XLDOCCOREPROPERTIES_H
+#endif    // OPENXLSX_IMPL_XLDOCCOREPROPERTIES_H

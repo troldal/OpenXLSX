@@ -46,16 +46,21 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_IMPL_XLABSTRACTSHEET_H
 #define OPENXLSX_IMPL_XLABSTRACTSHEET_H
 
-//#include <pugixml.hpp>
-#include <vector>
-#include "XLDefinitions_Impl.hpp"
 #include "XLAbstractXMLFile.hpp"
-#include "XLRow_Impl.hpp"
-#include "XLColumn_Impl.hpp"
-#include "XLCell_Impl.hpp"
-#include "XLCellValue_Impl.hpp"
 #include "XLCellReference_Impl.hpp"
+#include "XLCellValue_Impl.hpp"
+#include "XLCell_Impl.hpp"
+#include "XLChartsheet_Impl.hpp"
 #include "XLColor_Impl.hpp"
+#include "XLColumn_Impl.hpp"
+#include "XLDefinitions_Impl.hpp"
+#include "XLException_Impl.hpp"
+#include "XLRow_Impl.hpp"
+#include "XLWorksheet_Impl.hpp"
+
+#include <type_traits>
+#include <variant>
+#include <vector>
 
 namespace OpenXLSX::Impl
 {
@@ -80,7 +85,7 @@ namespace OpenXLSX::Impl
          * @param filepath A std::string with the relative path to the sheet file in the .xlsx package.
          * @param xmlData
          */
-        XLSheet(XLDocument& parent, const std::string& sheetRID, const std::string& filepath, const std::string& xmlData);
+        XLSheet(XLXmlData* xmlData);
 
         /**
          * @brief The copy constructor.
@@ -88,7 +93,13 @@ namespace OpenXLSX::Impl
          * @note The default copy constructor is used, i.e. only shallow copying of pointer data members.
          * @todo Can this method be deleted?
          */
-        XLSheet(const XLSheet& other) = delete;
+        XLSheet(const XLSheet& other) = default;
+
+        /**
+         * @brief
+         * @param other
+         */
+        XLSheet(XLSheet&& other) noexcept = default;
 
         /**
          * @brief The destructor
@@ -102,25 +113,32 @@ namespace OpenXLSX::Impl
          * @note The default assignment operator is used, i.e. only shallow copying of pointer data members.
          * @todo Can this method be deleted?
          */
-        XLSheet& operator=(const XLSheet&) = delete;
+        XLSheet& operator=(const XLSheet& other) = default;
+
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
+        XLSheet& operator=(XLSheet&& other) noexcept = default;
 
         /**
          * @brief Method to retrieve the name of the sheet.
          * @return A std::string with the sheet name.
          */
-        virtual std::string Name() const;
+        std::string Name() const;
 
         /**
          * @brief Method for renaming the sheet.
          * @param name A std::string with the new name.
          */
-        virtual void SetName(const std::string& name);
+        void SetName(const std::string& name);
 
         /**
          * @brief Method for getting the current visibility state of the sheet.
          * @return An XLSheetState enum object, with the current sheet state.
          */
-        virtual XLSheetState State() const;
+        XLSheetState State() const;
 
         /**
          * @brief Method for setting the state of the sheet.
@@ -128,31 +146,31 @@ namespace OpenXLSX::Impl
          * @bug For some reason, this method doesn't work. The data is written correctly to the xml file, but the sheet
          * is not hidden when opening the file in Excel.
          */
-        virtual void SetState(XLSheetState state);
+        void SetState(XLSheetState state);
 
         /**
          * @brief
          * @return
          */
-        virtual XLColor Color();
+        XLColor Color();
 
         /**
          * @brief
          * @param color
          */
-        virtual void SetColor(const XLColor& color);
+        void SetColor(const XLColor& color);
 
         /**
          * @brief
          * @param selected
          */
-        virtual void SetSelected(bool selected);
+        void SetSelected(bool selected);
 
         /**
          * @brief Method to get the type of the sheet.
          * @return An XLSheetType enum object with the sheet type.
          */
-        virtual XLSheetType Type() const = 0;
+        // XLSheetType Type() const = 0;
 
         /**
          * @brief Method for cloning the sheet.
@@ -160,27 +178,46 @@ namespace OpenXLSX::Impl
          * @return A pointer to the cloned object.
          * @note This is a pure abstract method. I.e. it is implemented in subclasses.
          */
-        virtual XLSheet* Clone(const std::string& newName) = 0;
+        // XLSheet* Clone(const std::string& newName) = 0;
 
         /**
          * @brief Method for getting the index of the sheet.
          * @return An int with the index of the sheet.
          */
-        virtual unsigned int Index() const;
+        unsigned int Index() const;
 
         /**
          * @brief Method for setting the index of the sheet. This effectively moves the sheet to a different position.
          */
-        virtual void SetIndex();
+        void SetIndex();
+
+        template<typename T>
+        T Get()
+        {
+            if constexpr (std::is_same<T, XLWorksheet>::value)
+                return std::get<XLWorksheet>(m_sheet);
+
+            else if constexpr (std::is_same<T, XLChartsheet>::value)
+                return std::get<XLChartsheet>(m_sheet);
+
+            else
+                throw XLException("Invalid sheet type.");
+        }
+
+    protected:
+        /**
+         * @brief
+         * @return
+         */
+        bool ParseXMLData() override;
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Private Member Variables
         //----------------------------------------------------------------------------------------------------------------------
 
     private:
-        std::string m_sheetRID; /**< The relationship ID for the sheet. */
-
+        std::variant<XLWorksheet, XLChartsheet> m_sheet; /**<  */
     };
-}  // namespace OpenXLSX::Impl
+}    // namespace OpenXLSX::Impl
 
-#endif //OPENXLSX_IMPL_XLABSTRACTSHEET_H
+#endif    // OPENXLSX_IMPL_XLABSTRACTSHEET_H

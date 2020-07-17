@@ -54,15 +54,12 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 using namespace OpenXLSX;
 using namespace std;
 
-namespace {
-
+namespace
+{
     /**
      * @brief The XLCellType class is an enumeration of the possible cell types, as recognized by Excel.
      */
-    enum class XLCellType
-    {
-        Empty, Boolean, Number, Error, String
-    };
+    enum class XLCellType { Empty, Boolean, Number, Error, String };
 
     /**
      * @details Determine the cell type, based on the contents of the underlying XML file, and returns the corresponding
@@ -70,8 +67,8 @@ namespace {
      * @pre The parent XLCell object is valid and has a corresponding node in the underlying XML file.
      * @post The current object, and any associated objects, are unchanged.
      */
-    XLCellType getCellType(XMLNode cellNode) {
-
+    XLCellType getCellType(XMLNode cellNode)
+    {
         // ===== If neither a Type attribute or a value node is present, the cell is empty.
         if (!cellNode.attribute("t") && !cellNode.child("v")) {
             return XLCellType::Empty;
@@ -103,30 +100,26 @@ namespace {
         }
 
         // ===== Otherwise, the cell contains an error.
-        return XLCellType::Error; //the m_typeAttribute has the ValueAsString "e"
+        return XLCellType::Error;    // the m_typeAttribute has the ValueAsString "e"
     }
 
     /**
      * @brief
      */
-    enum class XLNumberType
-    {
-        Integer, Float
-    };
+    enum class XLNumberType { Integer, Float };
 
     /**
      * @details The number type (integer or floating point) is determined simply by identifying whether or not a decimal
      * point is present in the input string. If present, the number type is floating point.
      */
-    XLNumberType DetermineNumberType(const string& numberString) {
-
-        if (numberString.find('.') != string::npos || numberString.find("E-") != string::npos || numberString.find("e-")
-                != string::npos)
+    XLNumberType DetermineNumberType(const string& numberString)
+    {
+        if (numberString.find('.') != string::npos || numberString.find("E-") != string::npos || numberString.find("e-") != string::npos)
             return XLNumberType::Float;
 
         return XLNumberType::Integer;
     }
-}  // namespace
+}    // namespace
 
 /**
  * @details The constructor sets the m_parentCell to the value of the input parameter. The m_parentCell member variable
@@ -135,9 +128,9 @@ namespace {
  * @post A valid XLCellValue object has been constructed.
  */
 Impl::XLCellValue::XLCellValue(XMLNode cellNode, XLSharedStrings* sharedStrings) noexcept
-        : m_cellNode(cellNode),
-          m_sharedStrings(sharedStrings) {
-}
+    : m_cellNode(cellNode),
+      m_sharedStrings(sharedStrings)
+{}
 
 /**
  * @details The copy constructor and copy assignment operator works differently for XLCellValue objects.
@@ -146,10 +139,9 @@ Impl::XLCellValue::XLCellValue(XMLNode cellNode, XLSharedStrings* sharedStrings)
  * @pre Both the lhs and rhs are valid objects.
  * @post Successful assignment to the target object.
  */
-Impl::XLCellValue& Impl::XLCellValue::operator=(const Impl::XLCellValue& other) {
-
+Impl::XLCellValue& Impl::XLCellValue::operator=(const Impl::XLCellValue& other)
+{
     if (&other != this) {
-
         if (!m_cellNode.attribute("t")) m_cellNode.append_attribute("t");
         if (!m_cellNode.child("v")) m_cellNode.append_child("v");
 
@@ -165,11 +157,12 @@ Impl::XLCellValue& Impl::XLCellValue::operator=(const Impl::XLCellValue& other) 
  * @brief
  * @param other
  * @return
- * @todo Currently, the move constructor is identical to the copy constructor. Ensure that this is the correct behaviour.
+ * @todo Currently, the move constructor is identical to the copy constructor. Ensure that this is the correct
+ * behaviour.
  */
-Impl::XLCellValue& Impl::XLCellValue::operator=(Impl::XLCellValue&& other) noexcept {
+Impl::XLCellValue& Impl::XLCellValue::operator=(Impl::XLCellValue&& other) noexcept
+{
     if (&other != this) {
-
         if (!m_cellNode.attribute("t")) m_cellNode.append_attribute("t");
         if (!m_cellNode.child("v")) m_cellNode.append_child("v");
 
@@ -188,8 +181,8 @@ Impl::XLCellValue& Impl::XLCellValue::operator=(Impl::XLCellValue&& other) noexc
  * @post The underlying cell xml data has been set to the value of the input parameter and the type attribute has been
  * set to 'str'
  */
-Impl::XLCellValue& Impl::XLCellValue::operator=(const std::string& stringValue) {
-
+Impl::XLCellValue& Impl::XLCellValue::operator=(const std::string& stringValue)
+{
     Set(stringValue);
     return *this;
 }
@@ -201,8 +194,8 @@ Impl::XLCellValue& Impl::XLCellValue::operator=(const std::string& stringValue) 
  * @post The underlying cell xml data has been set to the value of the input parameter and the type attribute has been
  * set to 'str'
  */
-Impl::XLCellValue& Impl::XLCellValue::operator=(const char* stringValue) {
-
+Impl::XLCellValue& Impl::XLCellValue::operator=(const char* stringValue)
+{
     Set(stringValue);
     return *this;
 }
@@ -214,8 +207,8 @@ Impl::XLCellValue& Impl::XLCellValue::operator=(const char* stringValue) {
  * @post The underlying cell xml data has been set to the value of the input parameter and the type attribute has been
  * set to 'str'
  */
-void Impl::XLCellValue::Set(const string& stringValue) {
-
+void Impl::XLCellValue::Set(const string& stringValue)
+{
     Set(stringValue.c_str());
 }
 
@@ -225,13 +218,15 @@ void Impl::XLCellValue::Set(const string& stringValue) {
  * @post The underlying cell xml data has been set to the value of the input parameter and the type attribute has been
  * set to 'str'
  */
-void Impl::XLCellValue::Set(const char* stringValue) {
-
+void Impl::XLCellValue::Set(const char* stringValue)
+{
     if (!m_cellNode.attribute("t")) m_cellNode.append_attribute("t");
     if (!m_cellNode.child("v")) m_cellNode.append_child("v");
 
     m_cellNode.attribute("t").set_value("str");
     m_cellNode.child("v").text().set(stringValue);
+
+    if (!m_cellNode.attribute("xml:space")) m_cellNode.append_attribute("xml:space");
     m_cellNode.attribute("xml:space").set_value("preserve");
 }
 
@@ -240,8 +235,8 @@ void Impl::XLCellValue::Set(const char* stringValue) {
  * @pre The parent XLCell object is valid and has a corresponding node in the underlying XML file.
  * @post The value node and the type attribute in the underlying xml data has been deleted.
  */
-void Impl::XLCellValue::Clear() {
-
+void Impl::XLCellValue::Clear()
+{
     m_cellNode.remove_child(m_cellNode.child("v"));
     m_cellNode.remove_attribute(m_cellNode.attribute("t"));
 }
@@ -251,17 +246,15 @@ void Impl::XLCellValue::Clear() {
  * @pre The m_value member variable is valid.
  * @post The current object, and any associated objects, are unchanged.
  */
-std::string Impl::XLCellValue::AsString() const {
-
+std::string Impl::XLCellValue::AsString() const
+{
     if (strcmp(m_cellNode.attribute("t").value(), "b") == 0) {
-        if (strcmp(m_cellNode.child("v").text().get(), "0") == 0)
-            return "FALSE";
+        if (strcmp(m_cellNode.child("v").text().get(), "0") == 0) return "FALSE";
 
         return "TRUE";
     }
 
-    if (strcmp(m_cellNode.attribute("t").value(), "s") == 0)
-        return m_sharedStrings->GetString(m_cellNode.child("v").text().as_ullong());
+    if (strcmp(m_cellNode.attribute("t").value(), "s") == 0) return m_sharedStrings->GetString(m_cellNode.child("v").text().as_ullong());
 
     return m_cellNode.child("v").text().get();
 }
@@ -271,8 +264,8 @@ std::string Impl::XLCellValue::AsString() const {
  * @pre The parent XLCell object is valid and has a corresponding node in the underlying XML file.
  * @post The current object, and any associated objects, are unchanged.
  */
-Impl::XLValueType Impl::XLCellValue::ValueType() const {
-
+Impl::XLValueType Impl::XLCellValue::ValueType() const
+{
     switch (getCellType(m_cellNode)) {
         case XLCellType::Empty:
             return XLValueType::Empty;
@@ -281,8 +274,7 @@ Impl::XLValueType Impl::XLCellValue::ValueType() const {
             return XLValueType::Error;
 
         case XLCellType::Number: {
-            if (DetermineNumberType(m_cellNode.child("v").text().get()) == XLNumberType::Integer)
-                return XLValueType::Integer;
+            if (DetermineNumberType(m_cellNode.child("v").text().get()) == XLNumberType::Integer) return XLValueType::Integer;
 
             return XLValueType::Float;
         }
@@ -298,8 +290,8 @@ Impl::XLValueType Impl::XLCellValue::ValueType() const {
 /**
  * @details
  */
-void Impl::XLCellValue::SetInteger(int64_t numberValue) {
-
+void Impl::XLCellValue::SetInteger(int64_t numberValue)
+{
     if (!m_cellNode.child("v")) m_cellNode.append_child("v");
 
     m_cellNode.remove_attribute("t");
@@ -310,8 +302,8 @@ void Impl::XLCellValue::SetInteger(int64_t numberValue) {
 /**
  * @details
  */
-void Impl::XLCellValue::SetBoolean(bool numberValue) {
-
+void Impl::XLCellValue::SetBoolean(bool numberValue)
+{
     if (!m_cellNode.attribute("t")) m_cellNode.append_attribute("t");
     if (!m_cellNode.child("v")) m_cellNode.append_child("v");
 
@@ -323,8 +315,8 @@ void Impl::XLCellValue::SetBoolean(bool numberValue) {
 /**
  * @details
  */
-void Impl::XLCellValue::SetFloat(double numberValue) {
-
+void Impl::XLCellValue::SetFloat(double numberValue)
+{
     if (!m_cellNode.child("v")) m_cellNode.append_child("v");
 
     m_cellNode.remove_attribute("t");
@@ -335,43 +327,39 @@ void Impl::XLCellValue::SetFloat(double numberValue) {
 /**
  * @details
  */
-int64_t Impl::XLCellValue::GetInteger() const {
-
-    if (ValueType() != XLValueType::Integer)
-        throw XLException("Cell value is not Integer");
+int64_t Impl::XLCellValue::GetInteger() const
+{
+    if (ValueType() != XLValueType::Integer) throw XLException("Cell value is not Integer");
     return m_cellNode.child("v").text().as_llong();
 }
 
 /**
  * @details
  */
-bool Impl::XLCellValue::GetBoolean() const {
-
-    if (ValueType() != XLValueType::Boolean)
-        throw XLException("Cell value is not Boolean");
+bool Impl::XLCellValue::GetBoolean() const
+{
+    if (ValueType() != XLValueType::Boolean) throw XLException("Cell value is not Boolean");
     return m_cellNode.child("v").text().as_bool();
 }
 
 /**
  * @details
  */
-long double Impl::XLCellValue::GetFloat() const {
-
-    if (ValueType() != XLValueType::Float)
-        throw XLException("Cell value is not Float");
+long double Impl::XLCellValue::GetFloat() const
+{
+    if (ValueType() != XLValueType::Float) throw XLException("Cell value is not Float");
     return m_cellNode.child("v").text().as_double();
 }
 
 /**
  * @details
  */
-const char* Impl::XLCellValue::GetString() const {
-
-    if (ValueType() != XLValueType::String)
-        throw XLException("Cell value is not String");
-    if (strcmp(m_cellNode.attribute("t").value(),"str") == 0) // ordinary string
+const char* Impl::XLCellValue::GetString() const
+{
+    if (ValueType() != XLValueType::String) throw XLException("Cell value is not String");
+    if (strcmp(m_cellNode.attribute("t").value(), "str") == 0)    // ordinary string
         return m_cellNode.child("v").text().get();
-    if (strcmp(m_cellNode.attribute("t").value(),"s") == 0) // shared string
+    if (strcmp(m_cellNode.attribute("t").value(), "s") == 0)    // shared string
         return m_sharedStrings->GetString(m_cellNode.child("v").text().as_ullong());
 
     throw XLException("Unknown string type");

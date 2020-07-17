@@ -1,59 +1,4 @@
-#=======================================================================================================================
-# Download and define Zippy library target
-#=======================================================================================================================
-file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/_deps/Zippy/zippy/miniz)
-if(NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/_deps/Zippy/zippy/miniz/miniz.h)
-    message(STATUS "Miniz library not found. Downloading...")
-    file(DOWNLOAD
-            https://raw.githubusercontent.com/troldal/Zippy/master/library/Zippy/miniz/miniz.h
-            ${CMAKE_CURRENT_BINARY_DIR}/_deps/Zippy/zippy/miniz/miniz.h
-            TIMEOUT 60)
-endif()
-
-if(NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/_deps/Zippy/zippy/ZipArchive.hpp)
-    message(STATUS "ZipArchive.hpp not found. Downloading...")
-    file(DOWNLOAD
-            https://raw.githubusercontent.com/troldal/Zippy/master/library/Zippy/ZipArchive.hpp
-            ${CMAKE_CURRENT_BINARY_DIR}/_deps/Zippy/zippy/ZipArchive.hpp
-            TIMEOUT 60)
-endif()
-
-if(NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/_deps/Zippy/zippy/ZipEntry.hpp)
-    message(STATUS "ZipEntry.hpp not found. Downloading...")
-    file(DOWNLOAD
-            https://raw.githubusercontent.com/troldal/Zippy/master/library/Zippy/ZipEntry.hpp
-            ${CMAKE_CURRENT_BINARY_DIR}/_deps/Zippy/zippy/ZipEntry.hpp
-            TIMEOUT 60)
-endif()
-
-if(NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/_deps/Zippy/zippy/ZipException.hpp)
-    message(STATUS "ZipException.hpp not found. Downloading...")
-    file(DOWNLOAD
-            https://raw.githubusercontent.com/troldal/Zippy/master/library/Zippy/ZipException.hpp
-            ${CMAKE_CURRENT_BINARY_DIR}/_deps/Zippy/zippy/ZipException.hpp
-            TIMEOUT 60)
-endif()
-
-if(NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/_deps/Zippy/zippy/ZipUtilities.h)
-    message(STATUS "ZipUtilities.hpp not found. Downloading...")
-    file(DOWNLOAD
-            https://raw.githubusercontent.com/troldal/Zippy/master/library/Zippy/ZipUtilities.hpp
-            ${CMAKE_CURRENT_BINARY_DIR}/_deps/Zippy/zippy/ZipUtilities.hpp
-            TIMEOUT 60)
-endif()
-
-if(NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/_deps/Zippy/Zippy.hpp)
-    message(STATUS "Zippy.hpp not found. Downloading...")
-    file(DOWNLOAD
-            https://raw.githubusercontent.com/troldal/Zippy/master/library/Zippy.hpp
-            ${CMAKE_CURRENT_BINARY_DIR}/_deps/Zippy/Zippy.hpp
-            TIMEOUT 60)
-endif()
-
-add_library(Zippy INTERFACE)
-add_library(Zippy::Zippy ALIAS Zippy)
-target_include_directories(Zippy SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/_deps/Zippy>)
-target_compile_definitions(Zippy INTERFACE MINIZ_HEADER_FILE_ONLY)
+#target_compile_definitions(Zippy INTERFACE MINIZ_HEADER_FILE_ONLY)
 
 #=======================================================================================================================
 # Define library targets
@@ -169,7 +114,8 @@ set(OPENXLSX_IMPL_HEADERS
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLCellReference_Impl.h
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLCellType_Impl.h
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLCellValue_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLXml_Impl.h
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLXmlParser_Impl.h
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLXmlData_Impl.h
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLDefinitions_Impl.h
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLException_Impl.h
         ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLCellIterator_Impl.hpp
@@ -195,6 +141,7 @@ set(OPENXLSX_IMPL_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellValue_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellReference_Impl.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLXmlParser_Impl.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLXmlData.cpp
         ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellIterator_Impl.cpp
         )
 
@@ -204,9 +151,6 @@ set(OPENXLSX_IMPL_SOURCES
 target_sources(OpenXLSX-objs
         PRIVATE
         ${OPENXLSX_IMPL_SOURCES})
-target_link_libraries(OpenXLSX-objs
-        PUBLIC                                          # TODO: Make this private
-        Zippy)
 target_include_directories(OpenXLSX-objs
         PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/implementation/headers>
@@ -303,7 +247,6 @@ install(
         OpenXLSX-objs
         OpenXLSX-static
         OpenXLSX-shared
-        Zippy
         EXPORT OpenXLSXTargets
         LIBRARY
         DESTINATION ${CMAKE_INSTALL_LIBDIR}

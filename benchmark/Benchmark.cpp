@@ -54,8 +54,7 @@ static void BM_WriteMatrix(benchmark::State& state) {
 //        }
 
         for (auto i = 1; i < state.range(0); ++i) {
-            for (auto j = 1; j < state.range(0); ++j)
-                wks->Cell(i, j).Value().Set(3.1415);
+            for (auto j = 1; j < state.range(0); ++j) wks.Cell(i, j).Value().Set(3.1415);
         }
 
     }

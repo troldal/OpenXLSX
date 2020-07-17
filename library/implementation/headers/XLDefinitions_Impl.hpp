@@ -46,34 +46,35 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_XLDEFINITIONS_HPP
 #define OPENXLSX_XLDEFINITIONS_HPP
 
-#include <cstdint>
 #include "openxlsx_export.h"
+
+#include <cstdint>
 
 namespace OpenXLSX::Impl
 {
-
     //======================================================================================================================
-    //========== Global Constants ==========================================================================================
+    //========== Global Constants
+    //==========================================================================================
     //======================================================================================================================
 
-    constexpr uint32_t maxRows = 1'048'576;
+    constexpr uint32_t maxRows = 1048576;
 
     constexpr uint16_t maxCols = 16'384;
 
-    constexpr uint8_t alphabetSize = 26;
+        constexpr uint8_t alphabetSize = 26;
 
     constexpr uint8_t asciiOffset = 64;
 
     //======================================================================================================================
-    //========== XLDocumentProperties Enum =================================================================================
+    //========== XLDocumentProperties Enum
+    //=================================================================================
     //======================================================================================================================
 
     /**
      * @brief The XLDocumentProperties class is an enumeration of the possible properties (metadata) that can be set
      * for a XLDocument object (and .xlsx file)
      */
-    enum class XLProperty
-    {
+    enum class XLProperty {
         Title,
         Subject,
         Creator,
@@ -97,31 +98,26 @@ namespace OpenXLSX::Impl
     };
 
     //======================================================================================================================
-    //========== XLSheetType Enum ==========================================================================================
+    //========== XLSheetType Enum
+    //==========================================================================================
     //======================================================================================================================
 
     /**
      * @brief The XLSheetType class is an enumeration of the available sheet types, e.g. Worksheet (ordinary
      * spreadsheets), and Chartsheet (sheets with only a chart).
      */
-    enum class XLSheetType
-    {
-        WorkSheet, ChartSheet, DialogSheet, MacroSheet
-    };
-
+    enum class XLSheetType { WorkSheet, ChartSheet, DialogSheet, MacroSheet };
 
     //======================================================================================================================
-    //========== XLSheetState Enum =========================================================================================
+    //========== XLSheetState Enum
+    //=========================================================================================
     //======================================================================================================================
 
     /**
      * @brief The XLSheetState is an enumeration of the possible (visibility) states, e.g. Visible or Hidden.
      */
-    enum class XLSheetState
-    {
-        Visible, Hidden, VeryHidden
-    };
+    enum class XLSheetState { Visible, Hidden, VeryHidden };
 
-}  // namespace OpenXLSX
+}    // namespace OpenXLSX::Impl
 
-#endif //OPENXLSX_XLDEFINITIONS_HPP
+#endif    // OPENXLSX_XLDEFINITIONS_HPP

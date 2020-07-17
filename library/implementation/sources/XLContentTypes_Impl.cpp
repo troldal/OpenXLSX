@@ -4,229 +4,206 @@
 // Created by Troldal on 13/08/16.
 //
 
-#include <cstring>
-
 #include "XLContentTypes_Impl.hpp"
 #include "XLDocument_Impl.hpp"
+
+#include <cstring>
 
 using namespace std;
 using namespace OpenXLSX;
 
+namespace
+{
+    /**
+     * @details
+     */
+    Impl::XLContentType GetTypeFromString(const std::string& typeString)
+    {
+        Impl::XLContentType type;
+
+        if (typeString == "application/vnd.ms-excel.Sheet.macroEnabled.main+xml")
+            type = Impl::XLContentType::WorkbookMacroEnabled;
+        else if (typeString == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml")
+            type = Impl::XLContentType::Workbook;
+        else if (typeString == "application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml")
+            type = Impl::XLContentType::Worksheet;
+        else if (typeString == "application/vnd.openxmlformats-officedocument.spreadsheetml.chartsheet+xml")
+            type = Impl::XLContentType::Chartsheet;
+        else if (typeString == "application/vnd.openxmlformats-officedocument.spreadsheetml.externalLink+xml")
+            type = Impl::XLContentType::ExternalLink;
+        else if (typeString == "application/vnd.openxmlformats-officedocument.theme+xml")
+            type = Impl::XLContentType::Theme;
+        else if (typeString == "application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml")
+            type = Impl::XLContentType::Styles;
+        else if (typeString == "application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml")
+            type = Impl::XLContentType::SharedStrings;
+        else if (typeString == "application/vnd.openxmlformats-officedocument.drawing+xml")
+            type = Impl::XLContentType::Drawing;
+        else if (typeString == "application/vnd.openxmlformats-officedocument.drawingml.chart+xml")
+            type = Impl::XLContentType::Chart;
+        else if (typeString == "application/vnd.ms-office.chartstyle+xml")
+            type = Impl::XLContentType::ChartStyle;
+        else if (typeString == "application/vnd.ms-office.chartcolorstyle+xml")
+            type = Impl::XLContentType::ChartColorStyle;
+        else if (typeString == "application/vnd.ms-excel.controlproperties+xml")
+            type = Impl::XLContentType::ControlProperties;
+        else if (typeString == "application/vnd.openxmlformats-officedocument.spreadsheetml.calcChain+xml")
+            type = Impl::XLContentType::CalculationChain;
+        else if (typeString == "application/vnd.ms-office.vbaProject")
+            type = Impl::XLContentType::VBAProject;
+        else if (typeString == "application/vnd.openxmlformats-package.core-properties+xml")
+            type = Impl::XLContentType::CoreProperties;
+        else if (typeString == "application/vnd.openxmlformats-officedocument.extended-properties+xml")
+            type = Impl::XLContentType::ExtendedProperties;
+        else if (typeString == "application/vnd.openxmlformats-officedocument.custom-properties+xml")
+            type = Impl::XLContentType::CustomProperties;
+        else if (typeString == "application/vnd.openxmlformats-officedocument.spreadsheetml.comments+xml")
+            type = Impl::XLContentType::Comments;
+        else if (typeString == "application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml")
+            type = Impl::XLContentType::Table;
+        else if (typeString == "application/vnd.openxmlformats-officedocument.vmlDrawing")
+            type = Impl::XLContentType::VMLDrawing;
+        else
+            type = Impl::XLContentType::Unknown;
+
+        return type;
+    }
+
+    /**
+     * @details
+     */
+    std::string GetStringFromType(Impl::XLContentType type)
+    {
+        string typeString;
+
+        if (type == Impl::XLContentType::WorkbookMacroEnabled)
+            typeString = "application/vnd.ms-excel.Sheet.macroEnabled.main+xml";
+        else if (type == Impl::XLContentType::Workbook)
+            typeString = "application/vnd.openxmlformats-officedocument.spreadsheetml.Sheet.main+xml";
+        else if (type == Impl::XLContentType::Worksheet)
+            typeString = "application/vnd.openxmlformats-officedocument.spreadsheetml.Worksheet+xml";
+        else if (type == Impl::XLContentType::Chartsheet)
+            typeString = "application/vnd.openxmlformats-officedocument.spreadsheetml.Chartsheet+xml";
+        else if (type == Impl::XLContentType::ExternalLink)
+            typeString = "application/vnd.openxmlformats-officedocument.spreadsheetml.externalLink+xml";
+        else if (type == Impl::XLContentType::Theme)
+            typeString = "application/vnd.openxmlformats-officedocument.theme+xml";
+        else if (type == Impl::XLContentType::Styles)
+            typeString = "application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml";
+        else if (type == Impl::XLContentType::SharedStrings)
+            typeString = "application/vnd.openxmlformats-officedocument.spreadsheetml.SharedStrings+xml";
+        else if (type == Impl::XLContentType::Drawing)
+            typeString = "application/vnd.openxmlformats-officedocument.drawing+xml";
+        else if (type == Impl::XLContentType::Chart)
+            typeString = "application/vnd.openxmlformats-officedocument.drawingml.chart+xml";
+        else if (type == Impl::XLContentType::ChartStyle)
+            typeString = "application/vnd.ms-office.chartstyle+xml";
+        else if (type == Impl::XLContentType::ChartColorStyle)
+            typeString = "application/vnd.ms-office.chartcolorstyle+xml";
+        else if (type == Impl::XLContentType::ControlProperties)
+            typeString = "application/vnd.ms-excel.controlproperties+xml";
+        else if (type == Impl::XLContentType::CalculationChain)
+            typeString = "application/vnd.openxmlformats-officedocument.spreadsheetml.calcChain+xml";
+        else if (type == Impl::XLContentType::VBAProject)
+            typeString = "application/vnd.ms-office.vbaProject";
+        else if (type == Impl::XLContentType::CoreProperties)
+            typeString = "application/vnd.openxmlformats-package.core-properties+xml";
+        else if (type == Impl::XLContentType::ExtendedProperties)
+            typeString = "application/vnd.openxmlformats-officedocument.extended-properties+xml";
+        else if (type == Impl::XLContentType::CustomProperties)
+            typeString = "application/vnd.openxmlformats-officedocument.custom-properties+xml";
+        else if (type == Impl::XLContentType::Comments)
+            typeString = "application/vnd.openxmlformats-officedocument.spreadsheetml.comments+xml";
+        else if (type == Impl::XLContentType::Table)
+            typeString = "application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml";
+        else if (type == Impl::XLContentType::VMLDrawing)
+            typeString = "application/vnd.openxmlformats-officedocument.vmlDrawing";
+        else
+            throw XLException("Unknown ContentType");
+
+        return typeString;
+    }
+}    // namespace
+
 /**
  * @details
  */
-Impl::XLContentItem::XLContentItem(XMLNode node)
-        : m_contentNode(node) {
+Impl::XLContentItem::XLContentItem(XMLNode node) : m_contentNode(node) {}
+
+/**
+ * @details
+ */
+Impl::XLContentType Impl::XLContentItem::Type() const
+{
+    return GetTypeFromString(m_contentNode.attribute("ContentType").value());
 }
 
 /**
  * @details
  */
-Impl::XLContentType Impl::XLContentItem::Type() const {
-
-    return XLContentItem::GetTypeFromString(m_contentNode.attribute("ContentType").value());
-}
-
-/**
- * @details
- */
-const string Impl::XLContentItem::Path() const {
-
+string Impl::XLContentItem::Path() const
+{
     return m_contentNode.attribute("PartName").value();
 }
 
 /**
  * @details
  */
-Impl::XLContentTypes::XLContentTypes(XLDocument& parent, const string& filePath)
-        : XLAbstractXMLFile(parent, filePath),
-          m_defaults(),
-          m_overrides() {
-
+Impl::XLContentTypes::XLContentTypes(XLXmlData* xmlData) : XLAbstractXMLFile(xmlData)
+{
     ParseXMLData();
 }
 
 /**
  * @details
  */
-bool Impl::XLContentTypes::ParseXMLData() {
-
-    m_defaults.clear();
-    m_overrides.clear();
-
-    std::string strOverride = "Override";
-    std::string strDefault = "Default";
-
-    for (auto& node : XmlDocument()->first_child().children()) {
-        if (string(node.name()) == "Default") {
-            std::string extension;
-            std::string contentType;
-
-            if (node.attribute("Extension") != nullptr)
-                extension = node.attribute("Extension").value();
-            if (node.attribute("ContentType") != nullptr)
-                contentType = node.attribute("ContentType").value();
-            m_defaults.insert({extension, node});
-        }
-        else if (string(node.name()) == "Override") {
-            string path = node.attribute("PartName").value();
-            XLContentType type = XLContentItem::GetTypeFromString(node.attribute("ContentType").value());
-
-            m_overrides.emplace(path, XLContentItem(node));
-        }
-    }
-
+bool Impl::XLContentTypes::ParseXMLData()
+{
     return true;
 }
 
 /**
  * @details
  */
-void Impl::XLContentTypes::AddDefault(const string& key, XMLNode node) {
+void Impl::XLContentTypes::AddOverride(const string& path, XLContentType type)
+{
+    string typeString = GetStringFromType(type);
 
-    m_defaults.emplace(key, node);
-}
-
-/**
- * @details
- */
-void Impl::XLContentTypes::AddOverride(const string& path, XLContentType type) {
-
-    string typeString = XLContentItem::GetStringFromType(type);
-
-    auto node = XmlDocument()->first_child().append_child("Override");
+    auto node = XmlDocument().first_child().append_child("Override");
     node.append_attribute("PartName").set_value(path.c_str());
     node.append_attribute("ContentType").set_value(typeString.c_str());
-
-    m_overrides.emplace(path, XLContentItem(node));
 }
 
 /**
  * @details
  */
-void Impl::XLContentTypes::DeleteOverride(XLContentItem& item) {
-
-    m_overrides.erase(item.Path());
-    XmlDocument()->first_child().remove_child(XmlDocument()->first_child().find_child_by_attribute("PartName",
-                                                                                                   item.Path()
-                                                                                                       .c_str()));
-
+void Impl::XLContentTypes::DeleteOverride(const string& path)
+{
+    XmlDocument().document_element().remove_child(XmlDocument().document_element().find_child_by_attribute("PartName", path.c_str()));
 }
 
 /**
  * @details
  */
-Impl::XLContentItem Impl::XLContentTypes::ContentItem(const std::string& path) {
-
-    return m_overrides.at(path);
+void Impl::XLContentTypes::DeleteOverride(XLContentItem& item)
+{
+    DeleteOverride(item.Path());
 }
 
 /**
  * @details
  */
-Impl::XLContentType Impl::XLContentItem::GetTypeFromString(const std::string& typeString) {
-
-    XLContentType type;
-
-    if (typeString == "application/vnd.ms-excel.Sheet.macroEnabled.main+xml")
-        type = XLContentType::WorkbookMacroEnabled;
-    else if (typeString == "application/vnd.openxmlformats-officedocument.spreadsheetml.Sheet.main+xml")
-        type = XLContentType::Workbook;
-    else if (typeString == "application/vnd.openxmlformats-officedocument.spreadsheetml.Worksheet+xml")
-        type = XLContentType::Worksheet;
-    else if (typeString == "application/vnd.openxmlformats-officedocument.spreadsheetml.Chartsheet+xml")
-        type = XLContentType::Chartsheet;
-    else if (typeString == "application/vnd.openxmlformats-officedocument.spreadsheetml.externalLink+xml")
-        type = XLContentType::ExternalLink;
-    else if (typeString == "application/vnd.openxmlformats-officedocument.theme+xml")
-        type = XLContentType::Theme;
-    else if (typeString == "application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml")
-        type = XLContentType::Styles;
-    else if (typeString == "application/vnd.openxmlformats-officedocument.spreadsheetml.SharedStrings+xml")
-        type = XLContentType::SharedStrings;
-    else if (typeString == "application/vnd.openxmlformats-officedocument.drawing+xml")
-        type = XLContentType::Drawing;
-    else if (typeString == "application/vnd.openxmlformats-officedocument.drawingml.chart+xml")
-        type = XLContentType::Chart;
-    else if (typeString == "application/vnd.ms-office.chartstyle+xml")
-        type = XLContentType::ChartStyle;
-    else if (typeString == "application/vnd.ms-office.chartcolorstyle+xml")
-        type = XLContentType::ChartColorStyle;
-    else if (typeString == "application/vnd.ms-excel.controlproperties+xml")
-        type = XLContentType::ControlProperties;
-    else if (typeString == "application/vnd.openxmlformats-officedocument.spreadsheetml.calcChain+xml")
-        type = XLContentType::CalculationChain;
-    else if (typeString == "application/vnd.ms-office.vbaProject")
-        type = XLContentType::VBAProject;
-    else if (typeString == "application/vnd.openxmlformats-package.core-properties+xml")
-        type = XLContentType::CoreProperties;
-    else if (typeString == "application/vnd.openxmlformats-officedocument.extended-properties+xml")
-        type = XLContentType::ExtendedProperties;
-    else if (typeString == "application/vnd.openxmlformats-officedocument.custom-properties+xml")
-        type = XLContentType::CustomProperties;
-    else if (typeString == "application/vnd.openxmlformats-officedocument.spreadsheetml.comments+xml")
-        type = XLContentType::Comments;
-    else if (typeString == "application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml")
-        type = XLContentType::Table;
-    else if (typeString == "application/vnd.openxmlformats-officedocument.vmlDrawing")
-        type = XLContentType::VMLDrawing;
-    else
-        type = XLContentType::Unknown;
-
-    return type;
+Impl::XLContentItem Impl::XLContentTypes::ContentItem(const std::string& path)
+{
+    return XLContentItem(XmlDocument().document_element().find_child_by_attribute("PartName", path.c_str()));
 }
 
-/**
- * @details
- */
-std::string Impl::XLContentItem::GetStringFromType(Impl::XLContentType type) {
+vector<Impl::XLContentItem> Impl::XLContentTypes::getContentItems()
+{
+    std::vector<Impl::XLContentItem> result;
+    for (auto item : XmlDocument().document_element().children()) {
+        if (strcmp(item.name(), "Override") == 0) result.emplace_back(item);
+    }
 
-    string typeString;
-
-    if (type == XLContentType::WorkbookMacroEnabled)
-        typeString = "application/vnd.ms-excel.Sheet.macroEnabled.main+xml";
-    else if (type == XLContentType::Workbook)
-        typeString = "application/vnd.openxmlformats-officedocument.spreadsheetml.Sheet.main+xml";
-    else if (type == XLContentType::Worksheet)
-        typeString = "application/vnd.openxmlformats-officedocument.spreadsheetml.Worksheet+xml";
-    else if (type == XLContentType::Chartsheet)
-        typeString = "application/vnd.openxmlformats-officedocument.spreadsheetml.Chartsheet+xml";
-    else if (type == XLContentType::ExternalLink)
-        typeString = "application/vnd.openxmlformats-officedocument.spreadsheetml.externalLink+xml";
-    else if (type == XLContentType::Theme)
-        typeString = "application/vnd.openxmlformats-officedocument.theme+xml";
-    else if (type == XLContentType::Styles)
-        typeString = "application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml";
-    else if (type == XLContentType::SharedStrings)
-        typeString = "application/vnd.openxmlformats-officedocument.spreadsheetml.SharedStrings+xml";
-    else if (type == XLContentType::Drawing)
-        typeString = "application/vnd.openxmlformats-officedocument.drawing+xml";
-    else if (type == XLContentType::Chart)
-        typeString = "application/vnd.openxmlformats-officedocument.drawingml.chart+xml";
-    else if (type == XLContentType::ChartStyle)
-        typeString = "application/vnd.ms-office.chartstyle+xml";
-    else if (type == XLContentType::ChartColorStyle)
-        typeString = "application/vnd.ms-office.chartcolorstyle+xml";
-    else if (type == XLContentType::ControlProperties)
-        typeString = "application/vnd.ms-excel.controlproperties+xml";
-    else if (type == XLContentType::CalculationChain)
-        typeString = "application/vnd.openxmlformats-officedocument.spreadsheetml.calcChain+xml";
-    else if (type == XLContentType::VBAProject)
-        typeString = "application/vnd.ms-office.vbaProject";
-    else if (type == XLContentType::CoreProperties)
-        typeString = "application/vnd.openxmlformats-package.core-properties+xml";
-    else if (type == XLContentType::ExtendedProperties)
-        typeString = "application/vnd.openxmlformats-officedocument.extended-properties+xml";
-    else if (type == XLContentType::CustomProperties)
-        typeString = "application/vnd.openxmlformats-officedocument.custom-properties+xml";
-    else if (type == XLContentType::Comments)
-        typeString = "application/vnd.openxmlformats-officedocument.spreadsheetml.comments+xml";
-    else if (type == XLContentType::Table)
-        typeString = "application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml";
-    else if (type == XLContentType::VMLDrawing)
-        typeString = "application/vnd.openxmlformats-officedocument.vmlDrawing";
-    else
-        throw XLException("Unknown ContentType");
-
-    return typeString;
+    return result;
 }

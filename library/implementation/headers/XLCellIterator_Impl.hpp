@@ -9,7 +9,7 @@
 //#include "XLCell_Impl.hpp"
 //#include "XLXml_Impl.hpp"
 //
-//namespace OpenXLSX::Impl
+// namespace OpenXLSX::Impl
 //{
 //    enum class XLIteratorDirection { Forward, Reverse };
 //

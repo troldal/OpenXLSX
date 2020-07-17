@@ -72,11 +72,7 @@ namespace OpenXLSX::Impl
      */
     class XLRelationshipItem
     {
-
-        friend class XLRelationships;
-
-    public: // ---------- Public Member Functions ---------- //
-
+    public:    // ---------- Public Member Functions ---------- //
         /**
          * @brief Constructor. New items should only be created through an XLRelationship object.
          * @param node An XMLNode object with the relationship item. If no input is provided, a null node is used.
@@ -119,36 +115,17 @@ namespace OpenXLSX::Impl
          * @brief Get the target, i.e. the path to the XML file the relationship item refers to.
          * @return An XMLAttribute object containing the Target value.
          */
-        XMLAttribute Target() const;
+        std::string Target() const;
 
         /**
          * @brief Get the id of the relationship item.
          * @return An XMLAttribute object containing the Id value.
          */
-        XMLAttribute Id() const;
+        std::string Id() const;
 
-    private: // ---------- Private Member Functions ---------- //
-
-        /**
-         * @brief A static helper function for conversion of type string to XLRelationshipType.
-         * @param typeString The string to convert.
-         * @return A XLRelationshipType enum object.
-         */
-        static XLRelationshipType GetTypeFromString(const std::string& typeString);
-
-        /**
-         * @brief A static helper function for conversion of XLRelationshipType to type string.
-         * @param type The XLRelationshipType object to convert
-         * @return A std::string with the type
-         */
-        static std::string GetStringFromType(XLRelationshipType type);
-
-    private: // ---------- Private Member Variables ---------- //
-
+    private:                        // ---------- Private Member Variables ---------- //
         XMLNode m_relationshipNode; /**< An XMLNode object with the relationship item */
     };
-
-
 
     // ================================================================================
     // XLRelationships Class
@@ -159,22 +136,44 @@ namespace OpenXLSX::Impl
      */
     class XLRelationships : public XLAbstractXMLFile
     {
-
-        friend class XLRelationshipItem;
-
-    public: // ---------- Public Member Functions ---------- //
-
+    public:    // ---------- Public Member Functions ---------- //
         /**
          * @brief Constructor
          * @param parent A pointer to the parent XLDocument object.
-         * @param filePath The (relative) path to the relationship file.
+         * @param xmlData The (relative) path to the relationship file.
          */
-        explicit XLRelationships(XLDocument& parent, const std::string& filePath);
+        explicit XLRelationships(XLXmlData* xmlData);
 
         /**
          * @brief Destructor
          */
         ~XLRelationships() override = default;
+
+        /**
+         * @brief
+         * @param other
+         */
+        XLRelationships(const XLRelationships& other) = default;
+
+        /**
+         * @brief
+         * @param other
+         */
+        XLRelationships(XLRelationships&& other) noexcept = default;
+
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
+        XLRelationships& operator=(const XLRelationships& other) = default;
+
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
+        XLRelationships& operator=(XLRelationships&& other) noexcept = default;
 
         /**
          * @brief Look up a relationship item by ID.
@@ -194,7 +193,13 @@ namespace OpenXLSX::Impl
          * @brief Get the std::map with the relationship items, ordered by ID.
          * @return A const reference to the std::map with relationship items.
          */
-        std::vector<const XLRelationshipItem*> Relationships() const;
+        std::vector<Impl::XLRelationshipItem> Relationships() const;
+
+        /**
+         * @brief
+         * @param relID
+         */
+        void DeleteRelationship(const std::string& relID);
 
         /**
          * @brief Delete an item from the Relationships register
@@ -207,7 +212,7 @@ namespace OpenXLSX::Impl
          * @param type The type of the new relationship item.
          * @param target The target (or path) of the XML file for the relationship item.
          */
-        XLRelationshipItem* AddRelationship(XLRelationshipType type, const std::string& target);
+        Impl::XLRelationshipItem AddRelationship(XLRelationshipType type, const std::string& target);
 
         /**
          * @brief Check if a XLRelationshipItem with the given Target string exists.
@@ -223,26 +228,13 @@ namespace OpenXLSX::Impl
          */
         bool IdExists(const std::string& id) const;
 
-    protected: // ---------- Protected Member Functions ---------- //
-
+    protected:    // ---------- Protected Member Functions ---------- //
         /**
          * @brief Parse the contents of the underlying XML file with the relationship items.
          * @return true on success, otherwise false.
          */
         bool ParseXMLData() override;
-
-    private: // ------------ Private Member Functions ---------- //
-
-        /**
-         * @brief Generate a new relationship ID, ensuring that every item has a unique ID.
-         * @return A new ID number.
-         */
-        unsigned long GetNewRelsID() const;
-
-    private: // ---------- Private Member Variables ---------- //
-
-        std::vector<XLRelationshipItem> m_relationships; /**< A std::vector with the relationship items */
     };
-} // namespace OpenXLSX::Impl
+}    // namespace OpenXLSX::Impl
 
-#endif //OPENXLSX_IMPL_XLRELATIONSHIPS_H
+#endif    // OPENXLSX_IMPL_XLRELATIONSHIPS_H

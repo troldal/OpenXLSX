@@ -49,6 +49,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 // ===== Standard Library Includes ===== //
 #include <map>
 #include <string>
+#include <vector>
 
 // ===== OpenXLSX Includes ===== //
 #include "XLAbstractXMLFile.hpp"
@@ -57,7 +58,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 namespace OpenXLSX::Impl
 {
-
     // ================================================================================
     // XLContentItem Class
     // ================================================================================
@@ -67,12 +67,9 @@ namespace OpenXLSX::Impl
      */
     class XLContentItem
     {
-
         friend class XLContentTypes;
 
-    public: // ---------- Public Member Functions ---------- //
-
-
+    public:    // ---------- Public Member Functions ---------- //
         /**
          * @brief
          * @param node
@@ -81,6 +78,11 @@ namespace OpenXLSX::Impl
          * @return
          */
         explicit XLContentItem(XMLNode node = XMLNode());
+
+        /**
+         * @brief
+         */
+        ~XLContentItem() = default;
 
         /**
          * @brief
@@ -120,30 +122,11 @@ namespace OpenXLSX::Impl
          * @brief
          * @return
          */
-        const std::string Path() const;
+        std::string Path() const;
 
-    private: // ---------- Private Member Functions ---------- //
-
-
-        /**
-         * @brief
-         * @param typeString
-         * @return
-         */
-        static XLContentType GetTypeFromString(const std::string& typeString);
-
-        /**
-         * @brief
-         * @param type
-         * @return
-         */
-        static std::string GetStringFromType(XLContentType type);
-
-    private: // ---------- Private Member Variables ---------- //
-
+    private:                   // ---------- Private Member Variables ---------- //
         XMLNode m_contentNode; /**< */
     };
-
 
     // ================================================================================
     // XLContentTypes Class
@@ -154,15 +137,13 @@ namespace OpenXLSX::Impl
      */
     class XLContentTypes : public XLAbstractXMLFile
     {
-
-    public: // ---------- Public Member Functions ---------- //
-
+    public:    // ---------- Public Member Functions ---------- //
         /**
          *
          * @param parent
-         * @param filePath
+         * @param xmlData
          */
-        explicit XLContentTypes(XLDocument& parent, const std::string& filePath);
+        explicit XLContentTypes(XLXmlData* xmlData);
 
         /**
          * @brief Destructor
@@ -170,11 +151,30 @@ namespace OpenXLSX::Impl
         ~XLContentTypes() override = default;
 
         /**
-         * @brief Add a new default key/value pair to the data store.
-         * @param key The key
-         * @param node The value
+         * @brief
+         * @param other
          */
-        void AddDefault(const std::string& key, XMLNode node);
+        XLContentTypes(const XLContentTypes& other) = default;
+
+        /**
+         * @brief
+         * @param other
+         */
+        XLContentTypes(XLContentTypes&& other) noexcept = default;
+
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
+        XLContentTypes& operator=(const XLContentTypes& other) = default;
+
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
+        XLContentTypes& operator=(XLContentTypes&& other) noexcept = default;
 
         /**
          * @brief Add a new override key/value pair to the data store.
@@ -182,6 +182,12 @@ namespace OpenXLSX::Impl
          * @param type The value
          */
         void AddOverride(const std::string& path, XLContentType type);
+
+        /**
+         * @brief
+         * @param path
+         */
+        void DeleteOverride(const std::string& path);
 
         /**
          * @brief
@@ -196,19 +202,15 @@ namespace OpenXLSX::Impl
          */
         XLContentItem ContentItem(const std::string& path);
 
-    protected: // ---------- Protected Member Functions ---------- //
+        std::vector<XLContentItem> getContentItems();
 
+    protected:    // ---------- Protected Member Functions ---------- //
         /**
          * @brief
          * @return
          */
         bool ParseXMLData() override;
-
-    private: // ---------- Private Member Variables ---------- //
-
-        std::map<std::string, XMLNode> m_defaults; /**< @todo Consider changing to std::vector */
-        std::map<std::string, XLContentItem> m_overrides; /**< @todo Consider changing to std::vector */
     };
-} // namespace OpenXLSX::Impl
+}    // namespace OpenXLSX::Impl
 
-#endif //OPENXLSX_IMPL_XLCONTENTTYPES_H
+#endif    // OPENXLSX_IMPL_XLCONTENTTYPES_H

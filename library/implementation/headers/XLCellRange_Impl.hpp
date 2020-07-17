@@ -46,10 +46,11 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_IMPL_XLCELLRANGE_H
 #define OPENXLSX_IMPL_XLCELLRANGE_H
 
-#include "XLCell_Impl.hpp"
 #include "XLCellReference_Impl.hpp"
+#include "XLCell_Impl.hpp"
 #include "XLSharedStrings_Impl.hpp"
 #include "XLXmlParser_Impl.hpp"
+
 #include <string>
 
 namespace OpenXLSX::Impl
@@ -60,22 +61,19 @@ namespace OpenXLSX::Impl
      */
     class XLCellRange
     {
-
         //----------------------------------------------------------------------------------------------------------------------
         //           Public Member Functions
         //----------------------------------------------------------------------------------------------------------------------
 
     public:
-
         /**
          * @brief Constructor
-         * @param dataNode A pointer to the parent spreadsheet, i.e. the sheet from which the range refers. Must not be nullptr.
+         * @param dataNode A pointer to the parent spreadsheet, i.e. the sheet from which the range refers. Must not be
+         * nullptr.
          * @param topLeft The first (top left) cell in the range.
          * @param bottomRight The last (bottom right) cell in the range.
          */
-        explicit XLCellRange(XMLNode dataNode,
-                             const XLCellReference& topLeft,
-                             const XLCellReference& bottomRight);
+        explicit XLCellRange(XMLNode dataNode, const XLCellReference& topLeft, const XLCellReference& bottomRight);
 
         /**
          * @brief Copy constructor [default].
@@ -136,12 +134,11 @@ namespace OpenXLSX::Impl
         //----------------------------------------------------------------------------------------------------------------------
 
     private:
-
-        XMLNode m_dataNode;
-        XLCellReference m_topLeft; /**< The cell reference of the first cell in the range */
+        XMLNode         m_dataNode;
+        XLCellReference m_topLeft;     /**< The cell reference of the first cell in the range */
         XLCellReference m_bottomRight; /**< The cell reference of the last cell in the range */
     };
 
-} // namespace OpenXLSX::Impl
+}    // namespace OpenXLSX::Impl
 
-#endif //OPENXLSX_IMPL_XLCELLRANGE_H
+#endif    // OPENXLSX_IMPL_XLCELLRANGE_H

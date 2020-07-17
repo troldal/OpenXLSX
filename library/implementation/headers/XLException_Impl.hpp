@@ -46,22 +46,20 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_XLEXCEPTION_HPP
 #define OPENXLSX_XLEXCEPTION_HPP
 
-#include <stdexcept>
 #include "openxlsx_export.h"
+
+#include <stdexcept>
 
 namespace OpenXLSX
 {
     class OPENXLSX_EXPORT XLException : public std::runtime_error
     {
     public:
-        inline explicit XLException(const std::string& err)
-                : runtime_error(err) {
-        }
+        inline explicit XLException(const std::string& err) : runtime_error(err) {}
 
         inline ~XLException() override = default;
-
     };
 
-}  // namespace OpenXLSX
+}    // namespace OpenXLSX
 
-#endif //OPENXLSX_XLEXCEPTION_HPP
+#endif    // OPENXLSX_XLEXCEPTION_HPP

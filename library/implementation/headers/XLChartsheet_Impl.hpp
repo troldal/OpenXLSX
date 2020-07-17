@@ -46,28 +46,26 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_IMPL_XLCHARTSHEET_H
 #define OPENXLSX_IMPL_XLCHARTSHEET_H
 
-#include "XLSheet_Impl.hpp"
+#include "XLSheetBase.hpp"
 
 namespace OpenXLSX::Impl
 {
-
     //======================================================================================================================
-    //========== XLChartsheet Class ========================================================================================
+    //========== XLChartsheet Class
+    //========================================================================================
     //======================================================================================================================
 
     /**
      * @brief Class representing the an Excel chartsheet.
      * @todo This class is largely unimplemented and works just as a placeholder.
      */
-    class XLChartsheet : public XLSheet
+    class XLChartsheet : public XLSheetBase<XLChartsheet>
     {
-
         //----------------------------------------------------------------------------------------------------------------------
         //           Public Member Functions
         //----------------------------------------------------------------------------------------------------------------------
 
     public:
-
         /**
          * @brief
          * @param parent
@@ -75,38 +73,49 @@ namespace OpenXLSX::Impl
          * @param filePath
          * @param xmlData
          */
-        explicit XLChartsheet(XLDocument& parent,
-                              const std::string& sheetRID,
-                              XMLAttribute name,
-                              const std::string& filePath,
-                              const std::string& xmlData = "");
+        explicit XLChartsheet(XLXmlData* xmlData);
 
         /**
          * @brief
          * @param other
          */
-        XLChartsheet(const XLChartsheet& other) = delete;
+        XLChartsheet(const XLChartsheet& other) = default;
+
+        /**
+         * @brief
+         * @param other
+         */
+        XLChartsheet(XLChartsheet&& other) noexcept = default;
 
         /**
          * @brief
          */
-        virtual ~XLChartsheet() = default;
+        ~XLChartsheet() override = default;
 
         /**
          * @brief
          * @return
          */
-        XLChartsheet& operator=(const XLChartsheet&) = delete;
+        XLChartsheet& operator=(const XLChartsheet& other) = default;
 
-        XLSheet* Clone(const std::string& newName) override;
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
+        XLChartsheet& operator=(XLChartsheet&& other) noexcept = default;
 
-        XLSheetType Type() const override;
+        /**
+         * @brief
+         * @param newName
+         * @return
+         */
+        XLChartsheet Clone(const std::string& newName);
 
     protected:
         bool ParseXMLData() override;
-
     };
 
-} // namespace OpenXLSX::Impl
+}    // namespace OpenXLSX::Impl
 
-#endif //OPENXLSX_IMPL_XLCHARTSHEET_H
+#endif    // OPENXLSX_IMPL_XLCHARTSHEET_H

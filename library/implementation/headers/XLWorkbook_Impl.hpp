@@ -47,18 +47,18 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #define OPENXLSX_IMPL_XLWORKBOOK_H
 
 // ===== Standard Library Includes ===== //
-#include <vector>
 #include <variant>
+#include <vector>
 
 // ===== OpenXLSX Includes ===== //
 #include "XLAbstractXMLFile.hpp"
+#include "XLCommand_Impl.hpp"
+#include "XLContentTypes_Impl.hpp"
+#include "XLEnums_impl.hpp"
+#include "XLQuery_Impl.hpp"
 #include "XLRelationships_Impl.hpp"
 #include "XLSharedStrings_Impl.hpp"
 #include "XLXmlParser_Impl.hpp"
-#include "XLEnums_impl.hpp"
-#include "XLContentTypes_Impl.hpp"
-#include "XLCommand_Impl.hpp"
-#include "XLQuery_Impl.hpp"
 
 namespace OpenXLSX::Impl
 {
@@ -79,16 +79,15 @@ namespace OpenXLSX::Impl
         friend class XLSheet;
         friend class XLDocument;
 
-    public: // ---------- Public Member Functions ---------- //
-
+    public:    // ---------- Public Member Functions ---------- //
         /**
          * @brief Constructor. Takes a reference to the parent XLDocument and a std::string with the relative path as
          * arguments.
          * @param parent A reference to the parent XLDocument object.
-         * @param filePath The relative path to the underlying XML file.
+         * @param xmlData The relative path to the underlying XML file.
          * @note Do not create an XLWorkbook object directly. Get access through the an XLDocument object.
          */
-        explicit XLWorkbook(XLDocument& parent, const std::string& filePath);
+        explicit XLWorkbook(XLXmlData* xmlData);
 
         /**
          * @brief Copy Constructor.
@@ -133,16 +132,7 @@ namespace OpenXLSX::Impl
          * @todo This method is currently unimplemented.
          * @todo What should happen if the index is invalid?
          */
-        XLSheet* Sheet(unsigned int index);
-
-        /**
-         * @brief Get the sheet (worksheet or chartsheet) at the given index.
-         * @param index The index et which the desired sheet is located.
-         * @return A pointer to an XLAbstractSheet with the sheet at the index.
-         * @todo This method is currently unimplemented.
-         * @todo What should happen if the index is invalid?
-         */
-        const XLSheet* Sheet(unsigned int index) const;
+        XLSheet Sheet(unsigned int index);
 
         /**
          * @brief Get the sheet (worksheet or chartsheet) with the given name.
@@ -151,44 +141,21 @@ namespace OpenXLSX::Impl
          * @todo This method is currently unimplemented.
          * @todo What should happen if the name is invalid?
          */
-        XLSheet* Sheet(const std::string& sheetName);
-
-        /**
-         * @brief Get the sheet (worksheet or chartsheet) with the given name.
-         * @param sheetName The name at which the desired sheet is located.
-         * @return A pointer to an XLAbstractSheet with the sheet at the index.
-         * @todo This method is currently unimplemented.
-         * @todo What should happen if the name is invalid?
-         */
-        const XLSheet* Sheet(const std::string& sheetName) const;
+        XLSheet Sheet(const std::string& sheetName);
 
         /**
          * @brief
          * @param sheetName
          * @return
          */
-        XLWorksheet* Worksheet(const std::string& sheetName);
+        XLWorksheet Worksheet(const std::string& sheetName);
 
         /**
          * @brief
          * @param sheetName
          * @return
          */
-        const XLWorksheet* Worksheet(const std::string& sheetName) const;
-
-        /**
-         * @brief
-         * @param sheetName
-         * @return
-         */
-        XLChartsheet* Chartsheet(const std::string& sheetName);
-
-        /**
-         * @brief
-         * @param sheetName
-         * @return
-         */
-        const XLChartsheet* Chartsheet(const std::string& sheetName) const;
+        XLChartsheet Chartsheet(const std::string& sheetName);
 
         /**
          * @brief Delete sheet (worksheet or chartsheet) from the workbook.
@@ -342,9 +309,7 @@ namespace OpenXLSX::Impl
 
         std::string queryCommand(XLQuery query) const;
 
-
-    protected: // ---------- Protected Member Functions ---------- //
-
+    protected:    // ---------- Protected Member Functions ---------- //
         /**
          * @brief
          * @return
@@ -363,8 +328,7 @@ namespace OpenXLSX::Impl
          */
         const XLRelationships* Relationships() const;
 
-    private: // ---------- Private Member Functions ---------- //
-
+    private:    // ---------- Private Member Functions ---------- //
         /**
          * @brief
          * @param item
@@ -387,12 +351,6 @@ namespace OpenXLSX::Impl
          */
         XLRelationshipItem* InitiateWorksheet(const std::string& sheetName, unsigned int index);
 
-        /**
-         * @brief
-         * @return
-         */
-        int GetNewSheetID();
-
         XMLNode getSheetsNode() const;
 
         void setSheetName(const std::string& sheetRID, const std::string& newName);
@@ -401,30 +359,12 @@ namespace OpenXLSX::Impl
 
         std::string getSheetName(const std::string& sheetRID) const;
 
-    private: // ---------- Private Member Variables ---------- //
-
-        /**
-         * @brief Internal data structure for holding the individual sheets and their meta data.
-         */
-        struct XLSheetData
-        {
-            XMLNode                  sheetNode;
-            XLRelationshipItem       sheetRelationship;
-            XLContentItem            sheetContentItem;
-            XLSheetType              sheetType;
-            std::unique_ptr<XLSheet> sheetItem;
-        };
-
-        // ===== Internal data structures
-        mutable std::vector<XLSheetData>   m_sheets; /**< */
-
-        XMLNode m_activeSheet; /**< */
-
+    private:           // ---------- Private Member Variables ---------- //
         int m_sheetId; /**< Counter to use to create ID for new sheet */
 
         XLRelationships         m_relationships; /**< pointer to the XLRelationships object for workbook. */
         mutable XLSharedStrings m_sharedStrings; /**< Pointer to the XLSharedStrings object. */
     };
-}  // namespace OpenXLSX::Impl
+}    // namespace OpenXLSX::Impl
 
-#endif //OPENXLSX_IMPL_XLWORKBOOK_H
+#endif    // OPENXLSX_IMPL_XLWORKBOOK_H

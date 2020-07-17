@@ -9,16 +9,15 @@
 
 namespace OpenXLSX::Impl
 {
-
     //======================================================================================================================
-    //========== XLColumnVector Enum =======================================================================================
+    //========== XLColumnVector Enum
+    //=======================================================================================
     //======================================================================================================================
 
     /**
      * @brief
      */
-    enum class XLContentType
-    {
+    enum class XLContentType {
         Workbook,
         WorkbookMacroEnabled,
         Worksheet,
@@ -44,14 +43,14 @@ namespace OpenXLSX::Impl
     };
 
     //======================================================================================================================
-    //========== XLRelationshipType Enum ===================================================================================
+    //========== XLRelationshipType Enum
+    //===================================================================================
     //======================================================================================================================
 
     /**
      * @brief An enum of the possible relationship (or XML document) types used in relationship (.rels) XML files.
      */
-    enum class XLRelationshipType
-    {
+    enum class XLRelationshipType {
         CoreProperties,
         ExtendedProperties,
         CustomProperties,
@@ -78,6 +77,6 @@ namespace OpenXLSX::Impl
         Unknown
     };
 
-} // namespace OpenXLSX::Impl
+}    // namespace OpenXLSX::Impl
 
-#endif //OPENXLSX_XLCONTENTTYPEENUM_IMPL_H
+#endif    // OPENXLSX_XLCONTENTTYPEENUM_IMPL_H

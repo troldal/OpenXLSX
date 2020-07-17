@@ -47,32 +47,30 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #define OPENXLSX_IMPL_XLDOCUMENT_H
 
 // ===== Standard Library Includes ===== //
-#include <string>
-#include <map>
-#include <vector>
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <list>
+#include <map>
+#include <string>
 
 // ===== OpenXLSX Includes ===== //
 #include "XLAppProperties_Impl.hpp"
-#include "XLCoreProperties_Impl.hpp"
-#include "XLWorkbook_Impl.hpp"
-#include "XLEnums_impl.hpp"
-#include "XLRelationships_Impl.hpp"
-#include "XLException_Impl.hpp"
-#include "XLXmlParser_Impl.hpp"
-#include "XLDefinitions_Impl.hpp"
-#include "XLZipFileInterface.hpp"
 #include "XLCommand_Impl.hpp"
+#include "XLCoreProperties_Impl.hpp"
+#include "XLDefinitions_Impl.hpp"
+#include "XLEnums_impl.hpp"
+#include "XLException_Impl.hpp"
 #include "XLQuery_Impl.hpp"
+#include "XLRelationships_Impl.hpp"
+#include "XLWorkbook_Impl.hpp"
 #include "XLXmlData.hpp"
+#include "XLXmlParser_Impl.hpp"
+#include "XLZipArchive.hpp"
 
 namespace OpenXLSX::Impl
 {
-
     class XLContentItem;
     class XLContentTypes;
-
 
     //========== XLDocument Class
 
@@ -84,16 +82,14 @@ namespace OpenXLSX::Impl
      */
     class XLDocument
     {
-
-
         //----- Friends
         friend class XLAbstractXMLFile;
         friend class XLWorkbook;
         friend class XLSheet;
+        friend class XLXmlData;
 
         //---------- Public Member Functions
     public:
-
         /**
          * @brief Constructor. The default constructor with no arguments.
          */
@@ -196,22 +192,17 @@ namespace OpenXLSX::Impl
 
         void executeCommand(XLCommand command);
 
-        std::string executeQuery(XLQuery query) const;
+        std::string executeQuery(const XLQuery& query) const;
 
-        XLXmlData& getXmlData(const std::string& path);
+        Impl::XLXmlData* getXmlData(const std::string& path);
 
-        void addXmlData(const std::string& path);
-
-        void addXmlData(const std::string& path, const char* data);
-
-        void addXmlData(const std::string& path, const void* data, size_t size);
+        const Impl::XLXmlData* getXmlData(const std::string& path) const;
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Protected Member Functions
         //----------------------------------------------------------------------------------------------------------------------
 
     protected:
-
         /**
          * @brief Method for adding a new (XML) file to the .xlsx package.
          * @param path The relative path of the new file.
@@ -224,7 +215,7 @@ namespace OpenXLSX::Impl
          * @param path The relative path of the file.
          * @return A std::string with the content of the file
          */
-        std::string GetXMLFile(const std::string& path);
+        std::string getXmlDataFromArchive(const std::string& path);
 
         /**
          * @brief Delete a file from the .xlsx archive.
@@ -289,22 +280,23 @@ namespace OpenXLSX::Impl
         //----------------------------------------------------------------------------------------------------------------------
 
     private:
-
         void setSheetName(XLCommand command);
+        void addSheetMetaData(XLCommand command);
+        void addWorksheet(XLCommand command);
+        void deleteSheet(XLCommand command);
 
+        std::string                  m_filePath; /**< The path to the original file*/
+        mutable std::list<XLXmlData> m_data {};
 
-        std::string m_filePath; /**< The path to the original file*/
-        std::vector<XLXmlData> m_data {};
-
-        std::unique_ptr<XLRelationships> m_documentRelationships; /**< A pointer to the document relationships object*/
-        std::unique_ptr<XLContentTypes> m_contentTypes; /**< A pointer to the content types object*/
-        std::unique_ptr<XLAppProperties> m_docAppProperties; /**< A pointer to the App properties object */
+        std::unique_ptr<XLRelationships>  m_docRelationships;  /**< A pointer to the document relationships object*/
+        std::unique_ptr<XLRelationships>  m_wbkRelationships;  /**< A pointer to the document relationships object*/
+        std::unique_ptr<XLContentTypes>   m_contentTypes;      /**< A pointer to the content types object*/
+        std::unique_ptr<XLAppProperties>  m_docAppProperties;  /**< A pointer to the App properties object */
         std::unique_ptr<XLCoreProperties> m_docCoreProperties; /**< A pointer to the Core properties object*/
-        std::unique_ptr<XLWorkbook> m_workbook; /**< A pointer to the workbook object */
-        XLZipFileInterface m_archive; /**<  */
-
+        std::unique_ptr<XLWorkbook>       m_workbook;          /**< A pointer to the workbook object */
+        Zippy::ZipArchive                 m_archive;           /**<  */
     };
 
-} // namespace OpenXLSX::Impl
+}    // namespace OpenXLSX::Impl
 
-#endif //OPENXLSX_IMPL_XLDOCUMENT_H
+#endif    // OPENXLSX_IMPL_XLDOCUMENT_H

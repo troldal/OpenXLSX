@@ -48,27 +48,26 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== Standard Library Includes ===== //
 #include <iostream>
+#include <map>
 #include <memory>
 #include <string>
-#include <map>
 
 // ===== OpenXLSX Includes ===== //
+#include "XLXmlData.hpp"
 #include "XLXmlParser_Impl.hpp"
 
 namespace OpenXLSX::Impl
 {
     class XLDocument;
 
-   /**
+    /**
      * @brief The XLAbstractXMLFile is an pure abstract class, which provides an interface
      * for derived classes to use. It functions as an ancestor to all classes which are represented by an .xml
      * file in an .xlsx package
      */
     class XLAbstractXMLFile
     {
-
-    public: // ===== PUBLIC MEMBER FUNCTIONS
-
+    public:    // ===== PUBLIC MEMBER FUNCTIONS
         /**
          * @brief Constructor. Creates an object using the parent XLDocument object, the relative file path
          * and a data object as input.
@@ -76,7 +75,7 @@ namespace OpenXLSX::Impl
          * @param filePath The path of the XML file, relative to the root.
          * @param xmlData An std::string object with the XML data to be represented by the object.
          */
-        explicit XLAbstractXMLFile(XLDocument& parent, std::string filePath, const std::string& xmlData = "");
+        explicit XLAbstractXMLFile(XLXmlData* xmlData);
 
         /**
          * @brief Copy constructor. Default (shallow) implementation used.
@@ -110,9 +109,8 @@ namespace OpenXLSX::Impl
         /**
          * @brief
          * @return
-         * @todo implement a "safe operator bool" instead
          */
-        virtual operator bool() const;
+        virtual explicit operator bool() const;
 
         /**
          * @brief Provide the XML data represented by the object.
@@ -141,33 +139,49 @@ namespace OpenXLSX::Impl
          * @return A string with the path of the file.
          * @note This method is final, i.e. it cannot be overridden.
          */
-        virtual const std::string& FilePath() const final;
+        virtual std::string FilePath() const final;
 
-        virtual const XLDocument& ParentDoc() const final {
-            return *m_parentDocument;
+        /**
+         * @brief
+         * @return
+         */
+        virtual const XLDocument& ParentDoc() const final
+        {
+            return *m_xmlData->getParentDoc();
         }
 
-        virtual XLDocument& ParentDoc() final {
-            return *m_parentDocument;
+        /**
+         * @brief
+         * @return
+         */
+        virtual XLDocument& ParentDoc() final
+        {
+            return *m_xmlData->getParentDoc();
         }
 
-    protected: // ===== PROTECTED MEMBER FUNCTIONS
+        /**
+         * @brief
+         * @return
+         */
+        virtual std::string getRID() const final
+        {
+            return m_xmlData->getXmlID();
+        }
 
+    protected:    // ===== PROTECTED MEMBER FUNCTIONS
         /**
          * @brief This method returns the underlying XMLDocument object.
          * @return A pointer to the XMLDocument object.
          * @note This method is final, i.e. it cannot be overridden.
          */
-        virtual XMLDocument* XmlDocument() final;
+        virtual XMLDocument& XmlDocument() final;
 
         /**
          * @brief This method returns the underlying XMLDocument object.
          * @return A pointer to the const XMLDocument object.
          * @note This method is final, i.e. it cannot be overridden.
          */
-        virtual const XMLDocument* XmlDocument() const final;
-
-
+        virtual const XMLDocument& XmlDocument() const final;
 
         /**
          * @brief The parseXMLData method is used to map or copy the XML data to the internal data structures.
@@ -176,13 +190,9 @@ namespace OpenXLSX::Impl
          */
         virtual bool ParseXMLData() = 0;
 
-
-    private: // ===== PRIVATE MEMBER VARIABLES
-
-        std::string m_path; /**< */
-        XLDocument* m_parentDocument; /**< */
-        std::shared_ptr<XMLDocument> m_xmlDocument; /**< A pointer to the underlying XMLDocument resource*/
+    private:    // ===== PRIVATE MEMBER VARIABLES
+        XLXmlData* m_xmlData;
     };
-}  // namespace OpenXLSX::Impl
+}    // namespace OpenXLSX::Impl
 
-#endif //OPENXLSX_IMPL_XLABSTRACTXMLFILE_H
+#endif    // OPENXLSX_IMPL_XLABSTRACTXMLFILE_H

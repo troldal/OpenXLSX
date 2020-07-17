@@ -55,9 +55,7 @@ namespace OpenXLSX::Impl
      */
     class XLColumn
     {
-
     public:
-
         /**
          * @brief Constructor
          * @param parent A pointer to the parent XLWorksheet object.
@@ -124,10 +122,9 @@ namespace OpenXLSX::Impl
         XMLNode ColumnNode() const;
 
     private:
-
         XMLNode m_columnNode; /**< A pointer to the XMLNode object for the column. */
     };
 
-}  // namespace OpenXLSX::Impl
+}    // namespace OpenXLSX::Impl
 
-#endif //OPENXLSX_IMPL_XLCOLUMN_H
+#endif    // OPENXLSX_IMPL_XLCOLUMN_H

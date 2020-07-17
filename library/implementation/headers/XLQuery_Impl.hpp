@@ -5,14 +5,17 @@
 #ifndef OPENXLSX_XLQUERY_IMPL_HPP
 #define OPENXLSX_XLQUERY_IMPL_HPP
 
+#include <map>
 #include <string>
 
 namespace OpenXLSX::Impl
 {
+    using XLQueryParams = std::map<std::string, std::string>;
+
     /**
      * @brief
      */
-    enum class XLQueryType { None, GetSheetName, GetSheetIndex, GetSheetVisibility };
+    enum class XLQueryType { None, GetSheetName, GetSheetIndex, GetSheetVisibility, GetSheetType, GetSheetID };
 
     /**
      * @brief
@@ -20,38 +23,73 @@ namespace OpenXLSX::Impl
     class XLQuery
     {
     public:
+        /**
+         * @brief
+         */
         explicit XLQuery() = default;
-        explicit XLQuery(XLQueryType queryType, const std::string& sender, const std::string& parameter = "")
-                : m_queryType(queryType),
-                  m_subject(sender),
-                  m_parameter(parameter) {}
 
+        /**
+         * @brief
+         * @param queryType
+         * @param sender
+         * @param parameter
+         */
+        explicit XLQuery(XLQueryType queryType, const XLQueryParams& parameters = {}) : m_queryType(queryType), m_parameters(parameters) {}
+
+        /**
+         * @brief
+         * @param other
+         */
         XLQuery(const XLQuery& other) = default;
+
+        /**
+         * @brief
+         * @param other
+         */
         XLQuery(XLQuery&& other) noexcept = default;
+
+        /**
+         * @brief
+         */
         ~XLQuery() = default;
+
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
         XLQuery& operator=(const XLQuery& other) = default;
+
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
         XLQuery& operator=(XLQuery&& other) noexcept = default;
 
-        XLQueryType queryType() const {
+        /**
+         * @brief
+         * @return
+         */
+        XLQueryType queryType() const
+        {
             return m_queryType;
         }
 
-        const std::string& subject() const {
-            return m_subject;
-        }
-
-        const std::string& parameter() const {
-            return m_parameter;
+        /**
+         * @brief
+         * @return
+         */
+        const XLQueryParams& parameters() const
+        {
+            return m_parameters;
         }
 
     private:
-
-        XLQueryType m_queryType = XLQueryType::None;
-        std::string m_subject;
-        std::string m_parameter;
-
+        XLQueryType   m_queryType { XLQueryType::None }; /**< */
+        XLQueryParams m_parameters;                      /**< */
     };
 
-}
+}    // namespace OpenXLSX::Impl
 
-#endif //OPENXLSX_XLQUERY_IMPL_HPP
+#endif    // OPENXLSX_XLQUERY_IMPL_HPP

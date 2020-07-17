@@ -16,18 +16,18 @@ int main() {
     wbk->AddWorksheet("MySheet02", 1); // Prepend new sheet
     wbk->AddWorksheet("MySheet03", 1); // Prepend new sheet
     wbk->AddWorksheet("MySheet04", 2); // Insert new sheet
-    wbk->MoveSheet("Sheet1", 2);       // Move Sheet1 to second place
+    wbk->MoveSheet("Sheet1", 2);          // Move Sheet1 to second place
     wbk->DeleteSheet("MySheet01");
 
-    for (const auto& name : wbk->WorksheetNames())
-        cout << name << ": " << wbk->IndexOfSheet(name) << endl;
+    for (const auto& name : wbk->WorksheetNames()) cout << name << ": " << wbk->IndexOfSheet(name) << endl;
 
     cout << endl;
 
-    for (auto iter = 1; iter <= wbk->SheetCount(); ++iter)
-        cout << iter << ": " << wbk->Sheet(iter)->Name() << endl;
+    wbk->Worksheet("Sheet1").SetName("BLAH");
 
-    wbk->Worksheet("Sheet1")->SetName("BLAH");
+    for (auto iter = 1; iter <= wbk->SheetCount(); ++iter) {
+        cout << iter << ": " << wbk->Sheet(iter).Name() << endl;
+    }
 
     doc.SaveDocument();
 

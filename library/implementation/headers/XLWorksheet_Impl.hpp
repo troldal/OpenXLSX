@@ -46,41 +46,39 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_IMPL_XLWORKSHEET_H
 #define OPENXLSX_IMPL_XLWORKSHEET_H
 
-#include <vector>
-
-#include "XLSheet_Impl.hpp"
-#include "XLRow_Impl.hpp"
-#include "XLColumn_Impl.hpp"
-#include "XLCell_Impl.hpp"
-#include "XLCellValue_Impl.hpp"
 #include "XLCellReference_Impl.hpp"
+#include "XLCellValue_Impl.hpp"
+#include "XLCell_Impl.hpp"
+#include "XLColumn_Impl.hpp"
+#include "XLRow_Impl.hpp"
+#include "XLSheetBase.hpp"
+
+#include <vector>
 
 namespace OpenXLSX::Impl
 {
     class XLCellRange;
 
     //======================================================================================================================
-    //========== XLWorksheet Class =========================================================================================
+    //========== XLWorksheet Class
+    //=========================================================================================
     //======================================================================================================================
 
     /**
      * @brief A class encapsulating an Excel worksheet. Access to XLWorksheet objects should be via the workbook object.
      */
-    class XLWorksheet : public XLSheet
+    class XLWorksheet : public XLSheetBase<XLWorksheet>
     {
-
         friend class XLCell;
-
         friend class XLRow;
-
         friend class XLWorkbook;
-
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Public Member Functions
         //----------------------------------------------------------------------------------------------------------------------
 
     public:
+        XLWorksheet() : XLSheetBase(nullptr) {};
 
         /**
          * @brief Constructor
@@ -89,20 +87,19 @@ namespace OpenXLSX::Impl
          * @param filePath The path to the worksheet .xml file.
          * @param xmlData
          */
-        explicit XLWorksheet(XLDocument& parent, const std::string& sheetRID, XMLAttribute name, const std::string& filePath,
-                             const std::string& xmlData = "");
+        explicit XLWorksheet(XLXmlData* xmlData);
 
         /**
          * @brief Copy Constructor.
          * @note The copy constructor has been explicitly deleted.
          */
-        XLWorksheet(const XLWorksheet& other) = delete;
+        XLWorksheet(const XLWorksheet& other) = default;
 
         /**
          * @brief Move Constructor.
          * @note The move constructor has been explicitly deleted.
          */
-        XLWorksheet(XLWorksheet&& other) = delete;
+        XLWorksheet(XLWorksheet&& other) = default;
 
         /**
          * @brief Destructor.
@@ -113,13 +110,17 @@ namespace OpenXLSX::Impl
          * @brief Copy assignment operator.
          * @note The copy assignment operator has been explicitly deleted.
          */
-        XLWorksheet& operator=(const XLWorksheet& other) = delete;
+        XLWorksheet& operator=(const XLWorksheet& other) = default;
 
         /**
          * @brief Move assignment operator.
          * @note The move assignment operator has been explicitly deleted.
          */
-        XLWorksheet& operator=(XLWorksheet&& other) = delete;
+        XLWorksheet& operator=(XLWorksheet&& other) = default;
+
+        Impl::XLCell Cell(const std::string& ref);
+
+        Impl::XLCell Cell(const std::string& ref) const;
 
         /**
          * @brief Get a pointer to the XLCell object for the given cell reference.
@@ -217,20 +218,14 @@ namespace OpenXLSX::Impl
          */
         std::string GetXmlData() const override;
 
-        /**
-         * @brief
-         * @return
-         */
-        XLSheetType Type() const override;
-
         //----------------------------------------------------------------------------------------------------------------------
         //           Protected Member Functions
         //----------------------------------------------------------------------------------------------------------------------
 
     protected:
-
         /**
-         * @brief The overridden parseXMLData method is used to map or copy the XML data to the internal data structures.
+         * @brief The overridden parseXMLData method is used to map or copy the XML data to the internal data
+         * structures.
          * @return true on success; otherwise false.
          */
         bool ParseXMLData() override;
@@ -241,8 +236,8 @@ namespace OpenXLSX::Impl
          * @return A pointer to the newly created clone.
          * @todo Not yet implemented.
          */
-        XLWorksheet* Clone(const std::string& newName) override;
+        XLWorksheet Clone(const std::string& newName);
     };
-} // namespace OpenXLSX::Impl
+}    // namespace OpenXLSX::Impl
 
-#endif //OPENXLSX_IMPL_XLWORKSHEET_H
+#endif    // OPENXLSX_IMPL_XLWORKSHEET_H
