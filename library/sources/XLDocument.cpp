@@ -388,11 +388,6 @@ namespace
 }    // namespace
 
 /**
- * @details The default constructor, with no arguments.
- */
-XLDocument::XLDocument() : m_docRelationships(), m_contentTypes(), m_appProperties(), m_coreProperties(), m_workbook() {}
-
-/**
  * @details An alternative constructor, taking a std::string with the path to the .xlsx package as an argument.
  */
 XLDocument::XLDocument(const std::string& docPath)
