@@ -3,7 +3,7 @@
 #include <OpenXLSX.hpp>
 
 using namespace std;
-using namespace OpenXLSX::Impl;
+using namespace OpenXLSX;
 
 int main() {
 

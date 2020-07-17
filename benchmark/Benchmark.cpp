@@ -5,7 +5,7 @@
 #include <benchmark/benchmark.h>
 #include <OpenXLSX.hpp>
 
-using namespace OpenXLSX::Impl;
+using namespace OpenXLSX;
 
 ///**
 // * @brief

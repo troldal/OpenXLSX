@@ -92,57 +92,28 @@ endif ()
 #=======================================================================================================================
 # Find project files
 #=======================================================================================================================
-set(OPENXLSX_IMPL_HEADERS
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLAbstractXMLFile_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLAppProperties_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLContentTypes_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLCoreProperties_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLDocument_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLRelationships_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLSharedStrings_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLTokenizer_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLWorkbook_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLChartsheet_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLColumn_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLColor_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLRow_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLSheet_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLTemplate_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLWorksheet_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLCell_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLCellRange_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLCellReference_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLCellType_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLCellValue_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLXmlParser_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLXmlData_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLDefinitions_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLException_Impl.h
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/headers/XLCellIterator.hpp
-        )
-
-set(OPENXLSX_IMPL_SOURCES
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLAbstractXMLFile.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLAppProperties.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLContentTypes.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCoreProperties.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLDocument.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLRelationships.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLSharedStrings.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLWorkbook.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLChartsheet.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLColumn.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLColor.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLRow.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLSheet.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLWorksheet.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCell.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellRange.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellValue.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellReference.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLXmlParser.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLXmlData.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/implementation/sources/XLCellIterator.cpp
+set(OPENXLSX_SOURCES
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLAbstractXMLFile.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLAppProperties.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLContentTypes.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLCoreProperties.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLDocument.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLRelationships.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLSharedStrings.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLWorkbook.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLChartsheet.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLColumn.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLColor.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLRow.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLSheet.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLWorksheet.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLCell.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLCellRange.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLCellValue.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLCellReference.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLXmlParser.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLXmlData.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLCellIterator.cpp
         )
 
 #=======================================================================================================================
@@ -150,10 +121,10 @@ set(OPENXLSX_IMPL_SOURCES
 #=======================================================================================================================
 target_sources(OpenXLSX-objs
         PRIVATE
-        ${OPENXLSX_IMPL_SOURCES})
+        ${OPENXLSX_SOURCES})
 target_include_directories(OpenXLSX-objs
         PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/implementation/headers>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>      # For export header
         )
 
@@ -192,13 +163,13 @@ if (CMAKE_BUILD_TYPE STREQUAL "Release")
         set_property(TARGET OpenXLSX-static PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
         set_property(TARGET OpenXLSX-shared PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
     endif ()
-endif()
+endif ()
 
 
 #=======================================================================================================================
 # Enable code coverage
 #=======================================================================================================================
-if(ENABLE_COVERAGE AND CMAKE_BUILD_TYPE STREQUAL "Debug")
+if (ENABLE_COVERAGE AND CMAKE_BUILD_TYPE STREQUAL "Debug")
     if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" AND NOT WIN32)
         target_compile_options(OpenXLSX-objs PRIVATE -fprofile-instr-generate -fcoverage-mapping)
         target_link_options(OpenXLSX-objs PRIVATE -fprofile-instr-generate)
@@ -210,7 +181,7 @@ if(ENABLE_COVERAGE AND CMAKE_BUILD_TYPE STREQUAL "Debug")
         #Uncomment in case of linker errors
         #link_libraries(gcov)
     endif ()
-endif()
+endif ()
 
 #=======================================================================================================================
 # Generate shared library export header with compiler-specific keywords
