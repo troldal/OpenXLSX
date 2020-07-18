@@ -233,16 +233,13 @@ void XLWorkbook::DeleteSheet(const std::string& sheetName)
     auto sheetID = getSheetsNode().find_child_by_attribute("name", sheetName.c_str()).attribute("r:id").value();
 
     auto worksheetCount = count_if(getSheetsNode().children().begin(), getSheetsNode().children().end(), [&](const XMLNode& item) {
-        return ParentDoc().executeQuery(
-                   XLQuery(XLQueryType::GetSheetType, XLQueryParams { { "sheetID", item.attribute("r:id").value() } })) == "WORKSHEET";
+        return ParentDoc().executeQuery(XLQuerySheetType(item.attribute("r:id").value())).sheetType() == XLContentType::Worksheet;
     });
 
-    auto worksheetType = ParentDoc().executeQuery(XLQuery(
-        XLQueryType::GetSheetType,
-        XLQueryParams { { "sheetID", getSheetsNode().find_child_by_attribute("name", sheetName.c_str()).attribute("r:id").value() } }));
+    auto worksheetType = ParentDoc().executeQuery(XLQuerySheetType(getRID())).sheetType();
 
     // ===== If this is the last worksheet in the workbook, throw an exception.
-    if (worksheetCount == 1 && worksheetType == "WORKSHEET")
+    if (worksheetCount == 1 && worksheetType == XLContentType::Worksheet)
         throw XLException("Invalid operation. There must be at least one worksheet in the workbook.");
 
     ParentDoc().executeCommand(XLCommandDeleteSheet(sheetID, sheetName));
@@ -312,8 +309,7 @@ XLRelationshipItem* XLWorkbook::InitiateWorksheet(const std::string& sheetName, 
 
     node.append_attribute("name")    = sheetName.c_str();
     node.append_attribute("sheetId") = to_string(sheetID).c_str();
-    node.append_attribute("r:id") =
-        ParentDoc().executeQuery(XLQuery(XLQueryType::GetSheetID, XLQueryParams { { "sheetPath", worksheetPath } })).c_str();
+    node.append_attribute("r:id")    = ParentDoc().executeQuery(XLQuerySheetRelsID(worksheetPath)).sheetID().c_str();
 
     // Add content item to document
     // ParentDoc().AddContentItem(worksheetPath, XLContentType::Worksheet);
@@ -456,7 +452,6 @@ XLSheetType XLWorkbook::TypeOfSheet(unsigned int index) const
 unsigned int XLWorkbook::SheetCount() const
 {
     return std::distance(getSheetsNode().children().begin(), getSheetsNode().children().end());
-    // return m_sheets.size();
 }
 
 /**
@@ -499,8 +494,7 @@ std::vector<std::string> XLWorkbook::WorksheetNames() const
     std::vector<std::string> results;
 
     for (const auto& item : getSheetsNode().children()) {
-        if (ParentDoc().executeQuery(XLQuery(XLQueryType::GetSheetType, XLQueryParams { { "sheetID", item.attribute("r:id").value() } })) ==
-            "WORKSHEET")
+        if (ParentDoc().executeQuery(XLQuerySheetType(item.attribute("r:id").value())).sheetType() == XLContentType::Worksheet)
             results.emplace_back(item.attribute("name").value());
     }
 
@@ -671,20 +665,4 @@ void XLWorkbook::executeCommand(XLCommand command)
                             [this](XLCommandDeleteSheet cmd) {},
                             [this](XLCommandCloneSheet cmd) {} },
                command);
-}
-
-std::string XLWorkbook::queryCommand(XLQuery query) const
-{
-    switch (query.queryType()) {
-        case XLQueryType::GetSheetName:
-            return getSheetName(query.parameters().at("sheetID"));
-
-        case XLQueryType::GetSheetVisibility:
-            return getSheetNodeByRID(XmlDocument().document_element().child("sheets"), query.parameters().at("sheetID"))
-                .attribute("state")
-                .value();
-
-        default:
-            return std::string();
-    }
 }

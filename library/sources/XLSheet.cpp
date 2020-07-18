@@ -33,7 +33,7 @@ XLSheet::~XLSheet() = default;
  */
 string XLSheet::Name() const
 {
-    return ParentDoc().executeQuery(XLQuery(XLQueryType::GetSheetName, XLQueryParams { { "sheetID", getRID() } }));
+    return ParentDoc().executeQuery(XLQuerySheetName(getRID())).sheetName();
 }
 
 /**
@@ -53,7 +53,7 @@ void XLSheet::SetName(const std::string& name)
  */
 XLSheetState XLSheet::State() const
 {
-    auto state  = ParentDoc().executeQuery(XLQuery(XLQueryType::GetSheetVisibility, XLQueryParams { { "sheetID", getRID() } }));
+    auto state  = ParentDoc().executeQuery(XLQuerySheetVisibility(getRID())).sheetVisibility();
     auto result = XLSheetState::Visible;
 
     if (state == "visible" || state.empty()) {
@@ -125,7 +125,7 @@ void XLSheet::SetSelected(bool selected)
  */
 unsigned int XLSheet::Index() const
 {
-    return stoi(ParentDoc().executeQuery(XLQuery(XLQueryType::GetSheetIndex, XLQueryParams { { "sheetID", getRID() } })));
+    return ParentDoc().executeQuery(XLQuerySheetIndex(getRID())).sheetIndex();
 }
 
 /**

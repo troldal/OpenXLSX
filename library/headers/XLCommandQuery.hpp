@@ -2,8 +2,10 @@
 // Created by Kenneth Balslev on 30/06/2020.
 //
 
-#ifndef OPENXLSX_XLCOMMAND_HPP
-#define OPENXLSX_XLCOMMAND_HPP
+#ifndef OPENXLSX_XLCOMMANDQUERY_HPP
+#define OPENXLSX_XLCOMMANDQUERY_HPP
+
+#include "XLEnums.hpp"
 
 #include <map>
 #include <string>
@@ -11,112 +13,6 @@
 
 namespace OpenXLSX
 {
-    /**
-     * @brief
-     */
-    using XLCommandParams = std::map<std::string, std::string>;
-
-    /**
-     * @brief
-     */
-    enum class XLCommandType {
-        None,
-        SetSheetName,
-        SetSheetVisibility,
-        SetSheetColor,
-        AddWorksheet,
-        AddChartsheet,
-        DeleteSheet,
-        CloneSheet
-    };
-
-    /**
-     * @brief
-     */
-    //    class XLCommand
-    //    {
-    //    public:
-    //        /**
-    //         * @brief
-    //         */
-    //        XLCommand() = default;
-    //
-    //        /**
-    //         * @brief
-    //         * @param commandType
-    //         * @param parameters
-    //         * @param sender
-    //         */
-    //        XLCommand(XLCommandType commandType, const XLCommandParams& parameters, const std::string& sender)
-    //            : m_commandType(commandType),
-    //              m_parameters(parameters),
-    //              m_sender(sender)
-    //        {}
-    //
-    //        /**
-    //         * @brief
-    //         * @param other
-    //         */
-    //        XLCommand(const XLCommand& other) = default;
-    //
-    //        /**
-    //         * @brief
-    //         * @param other
-    //         */
-    //        XLCommand(XLCommand&& other) noexcept = default;
-    //
-    //        /**
-    //         * @brief
-    //         */
-    //        ~XLCommand() = default;
-    //
-    //        /**
-    //         * @brief
-    //         * @param other
-    //         * @return
-    //         */
-    //        XLCommand& operator=(const XLCommand& other) = default;
-    //
-    //        /**
-    //         * @brief
-    //         * @param other
-    //         * @return
-    //         */
-    //        XLCommand& operator=(XLCommand&& other) noexcept = default;
-    //
-    //        /**
-    //         * @brief
-    //         * @return
-    //         */
-    //        XLCommandType commandType() const
-    //        {
-    //            return m_commandType;
-    //        }
-    //
-    //        /**
-    //         * @brief
-    //         * @return
-    //         */
-    //        const std::string& sender() const
-    //        {
-    //            return m_sender;
-    //        }
-    //
-    //        /**
-    //         * @brief
-    //         * @return
-    //         */
-    //        const XLCommandParams& parameters() const
-    //        {
-    //            return m_parameters;
-    //        }
-    //
-    //    private:
-    //        XLCommandType   m_commandType { XLCommandType::None }; /**< */
-    //        XLCommandParams m_parameters;                          /**< */
-    //        std::string     m_sender;                              /**< */
-    //    };
-
     class XLCommandSetSheetName
     {
     public:
@@ -130,10 +26,12 @@ namespace OpenXLSX
         {
             return m_sheetID;
         }
+
         const std::string& sheetName() const
         {
             return m_sheetName;
         }
+
         const std::string& newName() const
         {
             return m_newName;
@@ -296,6 +194,156 @@ namespace OpenXLSX
                                    XLCommandDeleteSheet,
                                    XLCommandCloneSheet>;
 
+    class XLQuerySheetName
+    {
+    public:
+        explicit XLQuerySheetName(const std::string& sheetID) : m_sheetID(sheetID) {}
+
+        const std::string& sheetID() const
+        {
+            return m_sheetID;
+        }
+
+        const std::string& sheetName() const
+        {
+            return m_sheetName;
+        }
+
+        void setSheetName(const std::string& sheetName)
+        {
+            m_sheetName = sheetName;
+        }
+
+    private:
+        std::string m_sheetID {};
+        std::string m_sheetName {};
+    };
+
+    class XLQuerySheetIndex
+    {
+    public:
+        explicit XLQuerySheetIndex(const std::string& sheetID) : m_sheetID(sheetID) {}
+
+        const std::string& sheetID() const
+        {
+            return m_sheetID;
+        }
+
+        uint16_t sheetIndex() const
+        {
+            return m_sheetIndex;
+        }
+
+        void setSheetIndex(uint16_t sheetIndex)
+        {
+            m_sheetIndex = sheetIndex;
+        }
+
+    private:
+        std::string m_sheetID {};
+        uint16_t    m_sheetIndex {};
+    };
+
+    class XLQuerySheetVisibility
+    {
+    public:
+        explicit XLQuerySheetVisibility(const std::string& sheetID) : m_sheetID(sheetID) {}
+
+        const std::string& sheetID() const
+        {
+            return m_sheetID;
+        }
+
+        const std::string& sheetVisibility() const
+        {
+            return m_sheetVisibility;
+        }
+
+        void setSheetVisibility(const std::string& sheetVisibility)
+        {
+            m_sheetVisibility = sheetVisibility;
+        }
+
+    private:
+        std::string m_sheetID {};
+        std::string m_sheetVisibility {};
+    };
+
+    class XLQuerySheetType
+    {
+    public:
+        explicit XLQuerySheetType(const std::string& sheetID) : m_sheetID(sheetID) {}
+
+        const std::string& sheetID() const
+        {
+            return m_sheetID;
+        }
+
+        XLContentType sheetType() const
+        {
+            return m_sheetType;
+        }
+
+        void setSheetType(XLContentType sheetType)
+        {
+            m_sheetType = sheetType;
+        }
+
+    private:
+        std::string   m_sheetID {};
+        XLContentType m_sheetType {};
+    };
+
+    class XLQuerySheetID
+    {
+    public:
+        explicit XLQuerySheetID(const std::string& sheetName) : m_sheetName(sheetName) {}
+
+        const std::string& sheetName() const
+        {
+            return m_sheetName;
+        }
+
+        const std::string& sheetID() const
+        {
+            return m_sheetID;
+        }
+
+        void setSheetID(const std::string& sheetID)
+        {
+            m_sheetID = sheetID;
+        }
+
+    private:
+        std::string m_sheetName {};
+        std::string m_sheetID {};
+    };
+
+    class XLQuerySheetRelsID
+    {
+    public:
+        explicit XLQuerySheetRelsID(const std::string& sheetPath) : m_sheetPath(sheetPath) {}
+
+        const std::string& sheetPath() const
+        {
+            return m_sheetPath;
+        }
+
+        const std::string& sheetID() const
+        {
+            return m_sheetID;
+        }
+
+        void setSheetID(const std::string& sheetID)
+        {
+            m_sheetID = sheetID;
+        }
+
+    private:
+        std::string m_sheetPath {};
+        std::string m_sheetID {};
+    };
+
     template<class... Ts>
     struct overloaded : Ts...
     {
@@ -306,4 +354,4 @@ namespace OpenXLSX
 
 }    // namespace OpenXLSX
 
-#endif    // OPENXLSX_XLCOMMAND_HPP
+#endif    // OPENXLSX_XLCOMMANDQUERY_HPP

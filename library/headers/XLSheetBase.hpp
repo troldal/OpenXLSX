@@ -7,9 +7,8 @@
 
 #include "XLAbstractXMLFile.hpp"
 #include "XLColor.hpp"
-#include "XLCommand.hpp"
+#include "XLCommandQuery.hpp"
 #include "XLDefinitions.hpp"
-#include "XLQuery.hpp"
 
 namespace OpenXLSX
 {
@@ -71,7 +70,7 @@ namespace OpenXLSX
          */
         std::string Name() const
         {
-            return ParentDoc().executeQuery(XLQuery(XLQueryType::GetSheetName, XLQueryParams { { "sheetID", getRID() } }));
+            return ParentDoc().executeQuery(XLQuerySheetName(getRID())).sheetName();
         }
 
         /**
@@ -89,7 +88,7 @@ namespace OpenXLSX
          */
         XLSheetState State() const
         {
-            auto state  = ParentDoc().executeQuery(XLQuery(XLQueryType::GetSheetVisibility, getRID));
+            auto state  = ParentDoc().executeQuery(XLQuerySheetVisibility(getRID())).sheetVisibility();
             auto result = XLSheetState::Visible;
 
             if (state == "visible" || state.empty()) {
@@ -128,7 +127,7 @@ namespace OpenXLSX
                     break;
             }
 
-            ParentDoc().executeCommand(XLCommand(XLCommandType::SetSheetVisibility, getRID(), stateString));
+            ParentDoc().executeCommand(XLCommandSetSheetVisibility(getRID(), Name(), stateString));
         }
 
         /**
@@ -182,7 +181,7 @@ namespace OpenXLSX
          */
         unsigned int Index() const
         {
-            return stoi(ParentDoc().executeQuery(XLQuery(XLQueryType::GetSheetIndex, getRID())));
+            return ParentDoc().executeQuery(XLQuerySheetIndex(getRID())).sheetIndex();
         }
 
         /**

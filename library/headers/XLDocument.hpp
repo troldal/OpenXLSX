@@ -55,12 +55,11 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== OpenXLSX Includes ===== //
 #include "XLAppProperties.hpp"
-#include "XLCommand.hpp"
+#include "XLCommandQuery.hpp"
 #include "XLCoreProperties.hpp"
 #include "XLDefinitions.hpp"
 #include "XLEnums.hpp"
 #include "XLException.hpp"
-#include "XLQuery.hpp"
 #include "XLRelationships.hpp"
 #include "XLWorkbook.hpp"
 #include "XLXmlData.hpp"
@@ -213,7 +212,43 @@ namespace OpenXLSX
          * @param query
          * @return
          */
-        std::string executeQuery(const XLQuery& query) const;
+        template<typename Query>
+        Query executeQuery(Query query) const
+        {
+            if constexpr (std::is_same_v<Query, XLQuerySheetName>) {
+                return m_workbook.executeQuery(query);
+            }
+
+            else if constexpr (std::is_same_v<Query, XLQuerySheetIndex>) {
+                return m_workbook.executeQuery(query);
+            }
+
+            else if constexpr (std::is_same_v<Query, XLQuerySheetVisibility>) {
+                return m_workbook.executeQuery(query);
+            }
+
+            else if constexpr (std::is_same_v<Query, XLQuerySheetType>) {
+                if (m_wbkRelationships.RelationshipByID(query.sheetID()).Type() == XLRelationshipType::Worksheet)
+                    query.setSheetType(XLContentType::Worksheet);
+                else
+                    query.setSheetType(XLContentType::Chartsheet);
+
+                return query;
+            }
+
+            else if constexpr (std::is_same_v<Query, XLQuerySheetID>) {
+                return m_workbook.executeQuery(query);
+            }
+
+            else if constexpr (std::is_same_v<Query, XLQuerySheetRelsID>) {
+                query.setSheetID(m_wbkRelationships.RelationshipByTarget(query.sheetPath().substr(4)).Id());
+                return query;
+            }
+
+            else {
+                throw XLException("Invalid query object.");
+            }
+        }
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Protected Member Functions

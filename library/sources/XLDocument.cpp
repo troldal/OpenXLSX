@@ -5,7 +5,6 @@
 #include "XLDocument.hpp"
 
 #include "XLContentTypes.hpp"
-#include "XLQuery.hpp"
 #include "XLWorksheet.hpp"
 
 #include <variant>
@@ -771,33 +770,6 @@ void XLDocument::executeCommand(XLCommand command)
                             },
                             [this](const XLCommandCloneSheet& cmd) {} },
                command);
-}
-
-std::string XLDocument::executeQuery(const XLQuery& query) const
-{
-    switch (query.queryType()) {
-        case XLQueryType::GetSheetName:
-            return m_workbook.queryCommand(query);
-
-        case XLQueryType::GetSheetIndex:
-            return m_workbook.queryCommand(query);
-
-        case XLQueryType::GetSheetVisibility:
-            return m_workbook.queryCommand(query);
-
-        case XLQueryType::GetSheetType: {
-            if (m_wbkRelationships.RelationshipByID(query.parameters().at("sheetID")).Type() == XLRelationshipType::Worksheet)
-                return "WORKSHEET";
-            else
-                return "CHARTSHEET";
-        }
-
-        case XLQueryType::GetSheetID:
-            return m_wbkRelationships.RelationshipByTarget(query.parameters().at("sheetPath").substr(4)).Id();
-
-        case XLQueryType::None:
-            return std::string();
-    }
 }
 
 /**

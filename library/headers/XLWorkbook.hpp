@@ -52,10 +52,10 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== OpenXLSX Includes ===== //
 #include "XLAbstractXMLFile.hpp"
-#include "XLCommand.hpp"
+#include "XLCommandQuery.hpp"
 #include "XLContentTypes.hpp"
 #include "XLEnums.hpp"
-#include "XLQuery.hpp"
+#include "XLException.hpp"
 #include "XLRelationships.hpp"
 #include "XLSharedStrings.hpp"
 #include "XLXmlParser.hpp"
@@ -303,7 +303,48 @@ namespace OpenXLSX
 
         void executeCommand(XLCommand command);
 
-        std::string queryCommand(XLQuery query) const;
+        template<typename Query>
+        Query executeQuery(Query query) const
+        {
+            if constexpr (std::is_same_v<Query, XLQuerySheetName>) {
+                query.setSheetName(getSheetName(query.sheetID()));
+                return query;
+            }
+
+            else if constexpr (std::is_same_v<Query, XLQuerySheetIndex>) {
+                return query;
+            }
+
+            else if constexpr (std::is_same_v<Query, XLQuerySheetVisibility>) {
+                query.setSheetVisibility(XmlDocument()
+                                             .document_element()
+                                             .child("sheets")
+                                             .find_child_by_attribute("r:id", query.sheetID().c_str())
+                                             .attribute("state")
+                                             .value());
+
+                return query;
+            }
+
+            else if constexpr (std::is_same_v<Query, XLQuerySheetType>) {
+                return query;
+            }
+
+            else if constexpr (std::is_same_v<Query, XLQuerySheetID>) {
+                query.setSheetID(XmlDocument()
+                                     .document_element()
+                                     .child("sheets")
+                                     .find_child_by_attribute("name", query.sheetName().c_str())
+                                     .attribute("r:id")
+                                     .value());
+
+                return query;
+            }
+
+            else {
+                throw XLException("Invalid query object.");
+            }
+        }
 
     protected:    // ---------- Protected Member Functions ---------- //
         /**
