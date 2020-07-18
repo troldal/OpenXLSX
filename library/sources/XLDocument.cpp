@@ -460,9 +460,10 @@ void XLDocument::open(const std::string& fileName)
  */
 void XLDocument::create(const std::string& fileName)
 {
+    // ===== Create a temporary output file stream.
     std::ofstream outfile(fileName, std::ios::binary);
-    // TODO: Resource leak in case of an exception.
 
+    // ===== Stream the binary data for an empty workbook to the output file.
     // ===== Casting, in particular reinterpret_cast, is discouraged, but in this case it is unfortunately unavoidable.
     outfile.write(reinterpret_cast<const char*>(templateData), templateSize);    // NOLINT
     outfile.close();
@@ -472,13 +473,14 @@ void XLDocument::create(const std::string& fileName)
 
 /**
  * @details The document is closed by deleting the temporary folder structure.
- * @todo Consider deleting all the internal objects as well.
  */
 void XLDocument::close()
 {
     m_archive.Close();
     m_filePath.clear();
     m_data.clear();
+
+    m_wbkRelationships = XLRelationships();
     m_docRelationships = XLRelationships();
     m_contentTypes     = XLContentTypes();
     m_appProperties    = XLAppProperties();
@@ -489,9 +491,9 @@ void XLDocument::close()
 /**
  * @details Save the document with the same name. The existing file will be overwritten.
  */
-bool XLDocument::save()
+void XLDocument::save()
 {
-    return saveAs(m_filePath);
+    saveAs(m_filePath);
 }
 
 /**
@@ -499,14 +501,13 @@ bool XLDocument::save()
  * is that changes to the document may invalidate the calcChain.xml file. Deleting will force Excel to re-create the
  * file. This will happen automatically, without the user noticing.
  */
-bool XLDocument::saveAs(const std::string& fileName)
+void XLDocument::saveAs(const std::string& fileName)
 {
     m_filePath = fileName;
 
+    // ===== Add all xml items to archive and save the archive.
     for (auto& item : m_data) m_archive.AddEntry(item.getXmlPath(), item.getRawData());
     m_archive.Save(m_filePath);
-
-    return true;
 }
 
 /**
@@ -588,9 +589,9 @@ std::string XLDocument::property(XLProperty prop) const
             return m_coreProperties.Property("dc:subject");
         case XLProperty::Title:
             return m_coreProperties.Property("dc:title");
+        default:
+            return "";    // To silence compiler warning.
     }
-
-    return "";    // To silence compiler warning.
 }
 
 /**
@@ -799,6 +800,9 @@ std::string XLDocument::executeQuery(const XLQuery& query) const
     }
 }
 
+/**
+ * @details
+ */
 XLXmlData* XLDocument::getXmlData(const std::string& path)
 {
     auto result = std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) { return item.getXmlPath() == path; });
@@ -806,6 +810,9 @@ XLXmlData* XLDocument::getXmlData(const std::string& path)
     return &*result;
 }
 
+/**
+ * @details
+ */
 const XLXmlData* XLDocument::getXmlData(const std::string& path) const
 {
     auto result = std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) { return item.getXmlPath() == path; });
