@@ -308,7 +308,7 @@ namespace OpenXLSX
                 return query;
             }
 
-            else if constexpr (std::is_same_v<Query, XLQuerySheetIndex>) {
+            else if constexpr (std::is_same_v<Query, XLQuerySheetIndex>) {    // NOLINT
                 return query;
             }
 
@@ -343,12 +343,7 @@ namespace OpenXLSX
             }
         }
 
-    protected:    // ---------- Protected Member Functions ---------- //
-        /**
-         * @brief
-         * @return
-         */
-        bool ParseXMLData() override;
+        // ---------- Protected Member Functions ---------- //
 
     private:    // ---------- Private Member Functions ---------- //
         /**

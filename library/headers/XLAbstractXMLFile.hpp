@@ -180,7 +180,7 @@ namespace OpenXLSX
          * @return true on success; otherwise false.
          * @note This is a pure virtual function, meaning that this must be implemented in derived classes.
          */
-        virtual bool ParseXMLData() = 0;
+        // virtual bool ParseXMLData() = 0;
 
     private:    // ===== PRIVATE MEMBER VARIABLES
         XLXmlData* m_xmlData { nullptr };

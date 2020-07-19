@@ -111,9 +111,6 @@ namespace OpenXLSX
          * @return
          */
         XLChartsheet Clone(const std::string& newName);
-
-    protected:
-        bool ParseXMLData() override;
     };
 
 }    // namespace OpenXLSX

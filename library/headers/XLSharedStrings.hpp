@@ -161,14 +161,6 @@ namespace OpenXLSX
         //----------------------------------------------------------------------------------------------------------------------
         //           Protected Member Functions
         //----------------------------------------------------------------------------------------------------------------------
-
-    protected:
-        /**
-         * @brief Parse the contents of the underlying XML file and fills the datastructure with the data from the XML
-         * file.
-         * @return true if successful; otherwise false.
-         */
-        bool ParseXMLData() override;
     };
 
 }    // namespace OpenXLSX

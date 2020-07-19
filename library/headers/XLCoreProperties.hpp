@@ -83,8 +83,34 @@ namespace OpenXLSX
 
         /**
          * @brief
+         * @param other
+         */
+        XLCoreProperties(const XLCoreProperties& other) = default;
+
+        /**
+         * @brief
+         * @param other
+         */
+        XLCoreProperties(XLCoreProperties&& other) noexcept = default;
+
+        /**
+         * @brief
          */
         ~XLCoreProperties() override;
+
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
+        XLCoreProperties& operator=(const XLCoreProperties& other) = default;
+
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
+        XLCoreProperties& operator=(XLCoreProperties&& other) = default;
 
         /**
          * @brief
@@ -126,13 +152,6 @@ namespace OpenXLSX
         //----------------------------------------------------------------------------------------------------------------------
         //           Protected Member Functions
         //----------------------------------------------------------------------------------------------------------------------
-
-    protected:
-        /**
-         * @brief
-         * @return
-         */
-        bool ParseXMLData() override;
     };
 }    // namespace OpenXLSX
 

@@ -205,12 +205,7 @@ namespace OpenXLSX
 
         std::vector<XLContentItem> getContentItems();
 
-    protected:    // ---------- Protected Member Functions ---------- //
-        /**
-         * @brief
-         * @return
-         */
-        bool ParseXMLData() override;
+        // ---------- Protected Member Functions ---------- //
     };
 }    // namespace OpenXLSX
 

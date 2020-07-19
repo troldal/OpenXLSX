@@ -108,24 +108,13 @@ namespace
  * @details The constructor initializes the member variables and calls the loadXMLData from the
  * XLAbstractXMLFile base class.
  */
-XLWorkbook::XLWorkbook(XLXmlData* xmlData) : XLAbstractXMLFile(xmlData)
-{
-    ParseXMLData();
-}
+XLWorkbook::XLWorkbook(XLXmlData* xmlData) : XLAbstractXMLFile(xmlData) {}
 
 /**
  * @details The destructor is specifically defaulted in the implementation file. Otherwise compilation issues
  * will occur.
  */
 XLWorkbook::~XLWorkbook() = default;
-
-/**
- * @details
- */
-bool XLWorkbook::ParseXMLData()
-{
-    return true;
-}
 
 /**
  * @details

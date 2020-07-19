@@ -214,7 +214,7 @@ namespace OpenXLSX
                 m_workbook.setSheetName(command.sheetID(), command.sheetName());
             }
 
-            else if constexpr (std::is_same_v<Command, XLCommandSetSheetVisibility>) {
+            else if constexpr (std::is_same_v<Command, XLCommandSetSheetVisibility>) {    // NOLINT
             }
 
             else if constexpr (std::is_same_v<Command, XLCommandSetSheetColor>) {
@@ -277,7 +277,7 @@ namespace OpenXLSX
         template<typename Query>
         Query executeQuery(Query query) const
         {
-            if constexpr (std::is_same_v<Query, XLQuerySheetName>) {
+            if constexpr (std::is_same_v<Query, XLQuerySheetName>) {    // NOLINT
                 return m_workbook.executeQuery(query);
             }
 
@@ -313,10 +313,16 @@ namespace OpenXLSX
             }
         }
 
+        /**
+         * @brief
+         * @tparam Query
+         * @param query
+         * @return
+         */
         template<typename Query>
         Query executeQuery(Query query)
         {
-            if constexpr (std::is_same_v<Query, XLQuerySheetName>) {
+            if constexpr (std::is_same_v<Query, XLQuerySheetName>) {    // NOLINT
                 return static_cast<const XLDocument&>(*this).executeQuery(query);
             }
 

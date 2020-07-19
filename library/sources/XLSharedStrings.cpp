@@ -16,22 +16,7 @@ using namespace OpenXLSX;
  * @details Constructs a new XLSharedStrings object. Only one (common) object is allowed per XLDocument instance.
  * A filepath to the underlying XML file must be provided.
  */
-XLSharedStrings::XLSharedStrings(XLXmlData* xmlData) : XLAbstractXMLFile(xmlData)
-//          m_sharedStringNodes(),
-//          m_emptyString("")
-{
-    ParseXMLData();
-}
-
-/**
- * @details Overrides the method in XLAbstractXMLFile. Clears the internal datastructure and fills it with the strings
- * in the XML file.
- * @todo Consider making the return value void.
- */
-bool XLSharedStrings::ParseXMLData()
-{
-    return true;
-}
+XLSharedStrings::XLSharedStrings(XLXmlData* xmlData) : XLAbstractXMLFile(xmlData) {}
 
 /**
  * @details Look up a string index by the string content. If the string does not exist, the returned index is -1.

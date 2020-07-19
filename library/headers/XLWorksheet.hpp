@@ -224,13 +224,6 @@ namespace OpenXLSX
 
     protected:
         /**
-         * @brief The overridden parseXMLData method is used to map or copy the XML data to the internal data
-         * structures.
-         * @return true on success; otherwise false.
-         */
-        bool ParseXMLData() override;
-
-        /**
          * @brief Creates a clone of the sheet and adds it to the parent XLWorkbook object.
          * @param newName The name of the cloned sheet.
          * @return A pointer to the newly created clone.

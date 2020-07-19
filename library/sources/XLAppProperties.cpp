@@ -44,18 +44,7 @@ namespace
 /**
  * @details
  */
-XLAppProperties::XLAppProperties(XLXmlData* xmlData) : XLAbstractXMLFile(xmlData)
-{
-    ParseXMLData();
-}
-
-/**
- * @details
- */
-bool XLAppProperties::ParseXMLData()
-{
-    return true;
-}
+XLAppProperties::XLAppProperties(XLXmlData* xmlData) : XLAbstractXMLFile(xmlData) {}
 
 /**
  * @details

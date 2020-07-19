@@ -85,7 +85,7 @@ namespace OpenXLSX
          * @param filepath A std::string with the relative path to the sheet file in the .xlsx package.
          * @param xmlData
          */
-        XLSheet(XLXmlData* xmlData);
+        explicit XLSheet(XLXmlData* xmlData);
 
         /**
          * @brief The copy constructor.
@@ -203,13 +203,6 @@ namespace OpenXLSX
             else
                 throw XLException("Invalid sheet type.");
         }
-
-    protected:
-        /**
-         * @brief
-         * @return
-         */
-        bool ParseXMLData() override;
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Private Member Variables

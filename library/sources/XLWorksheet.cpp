@@ -72,17 +72,6 @@ namespace
  */
 XLWorksheet::XLWorksheet(XLXmlData* xmlData) : XLSheetBase(xmlData)
 {
-    // Call the 'LoadXMLData' method in the XLAbstractXMLFile base class
-    ParseXMLData();
-}
-
-/**
- * @details This function reads the .xml file for the worksheet and populates the data into the internal
- * datastructure of the class. This function is not called directly, but is called via the loadXMLData
- * function in the base class.
- */
-bool XLWorksheet::ParseXMLData()
-{
     // Read the dimensions of the Sheet and set data members accordingly.
     string dimensions = XmlDocument().document_element().child("dimension").attribute("ref").value();
     if (dimensions.find(':') == string::npos)
@@ -112,8 +101,6 @@ bool XLWorksheet::ParseXMLData()
             currentNode = currentNode.next_sibling();
         }
     }
-
-    return true;
 }
 
 /**

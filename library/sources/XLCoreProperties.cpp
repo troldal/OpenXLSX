@@ -14,23 +14,12 @@ using namespace OpenXLSX;
 /**
  * @details
  */
-XLCoreProperties::XLCoreProperties(XLXmlData* xmlData) : XLAbstractXMLFile(xmlData)
-{
-    ParseXMLData();
-}
+XLCoreProperties::XLCoreProperties(XLXmlData* xmlData) : XLAbstractXMLFile(xmlData) {}
 
 /**
  * @details
  */
 XLCoreProperties::~XLCoreProperties() = default;
-
-/**
- * @details
- */
-bool XLCoreProperties::ParseXMLData()
-{
-    return true;
-}
 
 /**
  * @details

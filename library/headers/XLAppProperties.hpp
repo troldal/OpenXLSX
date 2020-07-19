@@ -83,6 +83,12 @@ namespace OpenXLSX
 
         /**
          * @brief
+         * @param other
+         */
+        XLAppProperties(XLAppProperties&& other) noexcept = default;
+
+        /**
+         * @brief
          */
         ~XLAppProperties() override = default;
 
@@ -92,6 +98,13 @@ namespace OpenXLSX
          * @return
          */
         XLAppProperties& operator=(const XLAppProperties& other) = default;
+
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
+        XLAppProperties& operator=(XLAppProperties&& other) noexcept = default;
 
         /**
          * @brief
@@ -220,12 +233,6 @@ namespace OpenXLSX
          * @return
          */
         XMLNode MoveChartsheetName(const std::string& sheetName, unsigned int index);
-
-        /**
-         * @brief
-         * @return
-         */
-        bool ParseXMLData() override;
 
         /**
          * @brief

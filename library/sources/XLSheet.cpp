@@ -133,8 +133,3 @@ unsigned int XLSheet::Index() const
  * @todo This method is currently unimplemented.
  */
 void XLSheet::SetIndex() {}
-
-bool XLSheet::ParseXMLData()
-{
-    return false;
-}

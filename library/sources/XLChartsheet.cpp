@@ -14,8 +14,3 @@ using namespace OpenXLSX;
 XLChartsheet::XLChartsheet(XLXmlData* xmlData) : XLSheetBase(xmlData) {}
 
 XLChartsheet XLChartsheet::Clone(const std::string& newName) {}
-
-bool XLChartsheet::ParseXMLData()
-{
-    return false;
-}

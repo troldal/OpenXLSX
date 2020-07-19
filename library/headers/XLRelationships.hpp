@@ -92,6 +92,11 @@ namespace OpenXLSX
         XLRelationshipItem(XLRelationshipItem&& other) noexcept = default;
 
         /**
+         * @brief
+         */
+        ~XLRelationshipItem() = default;
+
+        /**
          * @brief Copy assignment operator.
          * @param other Right hand side of assignment operation.
          * @return A reference to the lhs object.
@@ -229,12 +234,7 @@ namespace OpenXLSX
          */
         bool IdExists(const std::string& id) const;
 
-    protected:    // ---------- Protected Member Functions ---------- //
-        /**
-         * @brief Parse the contents of the underlying XML file with the relationship items.
-         * @return true on success, otherwise false.
-         */
-        bool ParseXMLData() override;
+        // ---------- Protected Member Functions ---------- //
     };
 }    // namespace OpenXLSX
 
