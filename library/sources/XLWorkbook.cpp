@@ -109,7 +109,6 @@ namespace
  * XLAbstractXMLFile base class.
  */
 XLWorkbook::XLWorkbook(XLXmlData* xmlData)
-
     : XLAbstractXMLFile(xmlData),
       m_sheetId(0),
       m_relationships(ParentDoc().getXmlData("xl/_rels/workbook.xml.rels")),
@@ -653,16 +652,4 @@ void XLWorkbook::CreateWorksheet(const XLRelationshipItem& item, const std::stri
 void XLWorkbook::CreateChartsheet(const XLRelationshipItem& item)
 {
     // TODO: Create Chartsheet object here.
-}
-
-void XLWorkbook::executeCommand(XLCommand command)
-{
-    std::visit(overloaded { [this](XLCommandSetSheetName cmd) { setSheetName(cmd.sheetID(), cmd.sheetName()); },
-                            [this](XLCommandSetSheetVisibility cmd) {},
-                            [this](XLCommandSetSheetColor cmd) {},
-                            [this](XLCommandAddWorksheet cmd) {},
-                            [this](XLCommandAddChartsheet cmd) {},
-                            [this](XLCommandDeleteSheet cmd) {},
-                            [this](XLCommandCloneSheet cmd) {} },
-               command);
 }

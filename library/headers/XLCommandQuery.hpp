@@ -186,14 +186,6 @@ namespace OpenXLSX
         std::string m_sheetName {};
     };
 
-    using XLCommand = std::variant<XLCommandSetSheetName,
-                                   XLCommandSetSheetVisibility,
-                                   XLCommandSetSheetColor,
-                                   XLCommandAddWorksheet,
-                                   XLCommandAddChartsheet,
-                                   XLCommandDeleteSheet,
-                                   XLCommandCloneSheet>;
-
     class XLQuerySheetName
     {
     public:
@@ -343,14 +335,6 @@ namespace OpenXLSX
         std::string m_sheetPath {};
         std::string m_sheetID {};
     };
-
-    template<class... Ts>
-    struct overloaded : Ts...
-    {
-        using Ts::operator()...;
-    };
-    template<class... Ts>
-    overloaded(Ts...) -> overloaded<Ts...>;
 
 }    // namespace OpenXLSX
 

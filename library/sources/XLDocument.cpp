@@ -735,45 +735,6 @@ void XLDocument::deleteProperty(XLProperty theProperty)
 
 /**
  * @details
- * @pre
- * @post
- */
-void XLDocument::executeCommand(XLCommand command)
-{
-    std::visit(overloaded { [this](const XLCommandSetSheetName& cmd) {
-                               m_appProperties.SetSheetName(cmd.sheetName(), cmd.newName());
-                               m_workbook.executeCommand(cmd);
-                           },
-                            [this](const XLCommandSetSheetVisibility& cmd) {},
-                            [this](const XLCommandSetSheetColor& cmd) {},
-                            [this](const XLCommandAddWorksheet& cmd) {
-                                m_contentTypes.AddOverride(cmd.sheetPath(), XLContentType::Worksheet);
-                                m_wbkRelationships.AddRelationship(XLRelationshipType::Worksheet, cmd.sheetPath().substr(4));
-                                m_appProperties.InsertSheetName(cmd.sheetName(), cmd.sheetIndex());
-                                m_archive.AddEntry(cmd.sheetPath().substr(1), emptyWorksheet);
-                                m_data.emplace_back(
-                                    /* parentDoc */ this,
-                                    /* xmlPath   */ cmd.sheetPath().substr(1),
-                                    /* xmlID     */ m_wbkRelationships.RelationshipByTarget(cmd.sheetPath().substr(4)).Id(),
-                                    /* xmlType   */ XLContentType::Worksheet);
-                            },
-                            [this](const XLCommandAddChartsheet& cmd) {},
-                            [this](const XLCommandDeleteSheet& cmd) {
-                                m_appProperties.DeleteSheetName(cmd.sheetName());
-                                auto sheetPath = "/xl/" + m_wbkRelationships.RelationshipByID(cmd.sheetID()).Target();
-                                m_archive.DeleteEntry(sheetPath.substr(1));
-                                m_contentTypes.DeleteOverride(sheetPath);
-                                m_wbkRelationships.DeleteRelationship(cmd.sheetID());
-                                m_data.erase(std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) {
-                                    return item.getXmlPath() == sheetPath.substr(1);
-                                }));
-                            },
-                            [this](const XLCommandCloneSheet& cmd) {} },
-               command);
-}
-
-/**
- * @details
  */
 XLXmlData* XLDocument::getXmlData(const std::string& path)
 {

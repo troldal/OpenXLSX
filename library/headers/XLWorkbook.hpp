@@ -301,7 +301,35 @@ namespace OpenXLSX
          */
         void DeleteNamedRanges();
 
-        void executeCommand(XLCommand command);
+        template<typename Command>
+        void executeCommand(Command command)
+        {
+            if constexpr (std::is_same_v<Command, XLCommandSetSheetName>) {
+                setSheetName(command.sheetID(), command.sheetName());
+            }
+
+            else if constexpr (std::is_same_v<Command, XLCommandSetSheetVisibility>) {
+            }
+
+            else if constexpr (std::is_same_v<Command, XLCommandSetSheetColor>) {
+            }
+
+            else if constexpr (std::is_same_v<Command, XLCommandAddWorksheet>) {
+            }
+
+            else if constexpr (std::is_same_v<Command, XLCommandAddChartsheet>) {
+            }
+
+            else if constexpr (std::is_same_v<Command, XLCommandDeleteSheet>) {
+            }
+
+            else if constexpr (std::is_same_v<Command, XLCommandCloneSheet>) {
+            }
+
+            else {
+                throw XLException("Invalid command object.");
+            }
+        }
 
         template<typename Query>
         Query executeQuery(Query query) const

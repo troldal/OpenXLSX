@@ -205,7 +205,68 @@ namespace OpenXLSX
          * @brief
          * @param command
          */
-        void executeCommand(XLCommand command);
+        template<typename Command>
+        void executeCommand(Command command)
+        {
+            if constexpr (std::is_same_v<Command, XLCommandSetSheetName>) {
+                m_appProperties.SetSheetName(command.sheetName(), command.newName());
+                m_workbook.executeCommand(command);
+            }
+
+            else if constexpr (std::is_same_v<Command, XLCommandSetSheetVisibility>) {
+            }
+
+            else if constexpr (std::is_same_v<Command, XLCommandSetSheetColor>) {
+            }
+
+            else if constexpr (std::is_same_v<Command, XLCommandAddWorksheet>) {
+                std::string emptyWorksheet {
+                    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
+                    "<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\""
+                    " xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\""
+                    " xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac\""
+                    " xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\">"
+                    "<dimension ref=\"A1\"/>"
+                    "<sheetViews>"
+                    "<sheetView workbookViewId=\"0\"/>"
+                    "</sheetViews>"
+                    "<sheetFormatPr baseColWidth=\"10\" defaultRowHeight=\"16\" x14ac:dyDescent=\"0.2\"/>"
+                    "<sheetData/>"
+                    "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/>"
+                    "</worksheet>"
+                };
+                m_contentTypes.AddOverride(command.sheetPath(), XLContentType::Worksheet);
+                m_wbkRelationships.AddRelationship(XLRelationshipType::Worksheet, command.sheetPath().substr(4));
+                m_appProperties.InsertSheetName(command.sheetName(), command.sheetIndex());
+                m_archive.AddEntry(command.sheetPath().substr(1), emptyWorksheet);
+                m_data.emplace_back(
+                    /* parentDoc */ this,
+                    /* xmlPath   */ command.sheetPath().substr(1),
+                    /* xmlID     */ m_wbkRelationships.RelationshipByTarget(command.sheetPath().substr(4)).Id(),
+                    /* xmlType   */ XLContentType::Worksheet);
+            }
+
+            else if constexpr (std::is_same_v<Command, XLCommandAddChartsheet>) {
+            }
+
+            else if constexpr (std::is_same_v<Command, XLCommandDeleteSheet>) {
+                m_appProperties.DeleteSheetName(command.sheetName());
+                auto sheetPath = "/xl/" + m_wbkRelationships.RelationshipByID(command.sheetID()).Target();
+                m_archive.DeleteEntry(sheetPath.substr(1));
+                m_contentTypes.DeleteOverride(sheetPath);
+                m_wbkRelationships.DeleteRelationship(command.sheetID());
+                m_data.erase(std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) {
+                    return item.getXmlPath() == sheetPath.substr(1);
+                }));
+            }
+
+            else if constexpr (std::is_same_v<Command, XLCommandCloneSheet>) {
+            }
+
+            else {
+                throw XLException("Invalid command object.");
+            }
+        }
 
         /**
          * @brief
