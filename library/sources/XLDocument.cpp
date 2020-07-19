@@ -13,22 +13,6 @@ using namespace OpenXLSX;
 
 namespace
 {
-    const std::string emptyWorksheet {
-        "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
-        "<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\""
-        " xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\""
-        " xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac\""
-        " xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\">"
-        "<dimension ref=\"A1\"/>"
-        "<sheetViews>"
-        "<sheetView workbookViewId=\"0\"/>"
-        "</sheetViews>"
-        "<sheetFormatPr baseColWidth=\"10\" defaultRowHeight=\"16\" x14ac:dyDescent=\"0.2\"/>"
-        "<sheetData/>"
-        "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/>"
-        "</worksheet>"
-    };
-
     const int           templateSize       = 7714;
     const unsigned char templateData[7714] = {
         0x50, 0x4b, 0x03, 0x04, 0x14, 0x00, 0x06, 0x00, 0x08, 0x00, 0x00, 0x00, 0x21, 0x00, 0xb5, 0x55, 0x30, 0x23, 0xf4, 0x00, 0x00, 0x00,
@@ -451,6 +435,7 @@ void XLDocument::open(const std::string& fileName)
     // ===== Open the workbook and document property items
     m_coreProperties = XLCoreProperties(getXmlData("docProps/core.xml"));
     m_appProperties  = XLAppProperties(getXmlData("docProps/app.xml"));
+    m_sharedStrings  = XLSharedStrings(getXmlData("xl/sharedStrings.xml"));
     m_workbook       = XLWorkbook(getXmlData("xl/workbook.xml"));
 }
 

@@ -92,7 +92,7 @@ namespace OpenXLSX
          * @brief
          * @param other
          */
-        XLSharedStrings(const XLSharedStrings& other) = delete;
+        XLSharedStrings(const XLSharedStrings& other) = default;
 
         /**
          * @brief
@@ -105,7 +105,7 @@ namespace OpenXLSX
          * @param other
          * @return
          */
-        XLSharedStrings& operator=(const XLSharedStrings& other) = delete;
+        XLSharedStrings& operator=(const XLSharedStrings& other) = default;
 
         /**
          * @brief

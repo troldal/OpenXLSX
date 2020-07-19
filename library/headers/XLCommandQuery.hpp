@@ -6,6 +6,7 @@
 #define OPENXLSX_XLCOMMANDQUERY_HPP
 
 #include "XLEnums.hpp"
+#include "XLXmlData.hpp"
 
 #include <map>
 #include <string>
@@ -13,6 +14,8 @@
 
 namespace OpenXLSX
 {
+    class XLSharedStrings;
+
     class XLCommandSetSheetName
     {
     public:
@@ -334,6 +337,75 @@ namespace OpenXLSX
     private:
         std::string m_sheetPath {};
         std::string m_sheetID {};
+    };
+
+    class XLQuerySheetRelsTarget
+    {
+    public:
+        explicit XLQuerySheetRelsTarget(const std::string& sheetID) : m_sheetID(sheetID) {}
+
+        const std::string& sheetID() const
+        {
+            return m_sheetID;
+        }
+
+        const std::string& sheetTarget() const
+        {
+            return m_sheetTarget;
+        }
+
+        void setSheetTarget(const std::string& sheetTarget)
+        {
+            m_sheetTarget = sheetTarget;
+        }
+
+    private:
+        std::string m_sheetID {};
+        std::string m_sheetTarget {};
+    };
+
+    class XLQuerySharedStrings
+    {
+    public:
+        explicit XLQuerySharedStrings() {}
+
+        XLSharedStrings* sharedStrings() const
+        {
+            return m_sharedStrings;
+        }
+
+        void setSharedStrings(XLSharedStrings* sharedStrings)
+        {
+            m_sharedStrings = sharedStrings;
+        }
+
+    private:
+        XLSharedStrings* m_sharedStrings { nullptr };
+    };
+
+    class XLQueryXmlData
+    {
+    public:
+        explicit XLQueryXmlData(const std::string& xmlPath) : m_xmlPath(xmlPath) {}
+
+        const std::string& xmlPath() const
+        {
+            return m_xmlPath;
+        }
+
+        XLXmlData* xmlData() const
+        {
+            return m_xmlData;
+        }
+
+        void setXmlData(XLXmlData* xmlData)
+        {
+            m_xmlData = xmlData;
+        }
+
+    private:
+        std::string m_xmlPath {};
+        XLXmlData*  m_xmlData { nullptr };
     };
 
 }    // namespace OpenXLSX

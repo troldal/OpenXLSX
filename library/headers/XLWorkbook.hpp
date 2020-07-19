@@ -57,7 +57,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLEnums.hpp"
 #include "XLException.hpp"
 #include "XLRelationships.hpp"
-#include "XLSharedStrings.hpp"
 #include "XLXmlParser.hpp"
 
 namespace OpenXLSX
@@ -288,7 +287,7 @@ namespace OpenXLSX
          * @brief
          * @return
          */
-        XLSharedStrings* SharedStrings() const;
+        XLSharedStrings* SharedStrings();
 
         /**
          * @brief
@@ -300,36 +299,6 @@ namespace OpenXLSX
          * @brief
          */
         void DeleteNamedRanges();
-
-        template<typename Command>
-        void executeCommand(Command command)
-        {
-            if constexpr (std::is_same_v<Command, XLCommandSetSheetName>) {
-                setSheetName(command.sheetID(), command.sheetName());
-            }
-
-            else if constexpr (std::is_same_v<Command, XLCommandSetSheetVisibility>) {
-            }
-
-            else if constexpr (std::is_same_v<Command, XLCommandSetSheetColor>) {
-            }
-
-            else if constexpr (std::is_same_v<Command, XLCommandAddWorksheet>) {
-            }
-
-            else if constexpr (std::is_same_v<Command, XLCommandAddChartsheet>) {
-            }
-
-            else if constexpr (std::is_same_v<Command, XLCommandDeleteSheet>) {
-            }
-
-            else if constexpr (std::is_same_v<Command, XLCommandCloneSheet>) {
-            }
-
-            else {
-                throw XLException("Invalid command object.");
-            }
-        }
 
         template<typename Query>
         Query executeQuery(Query query) const
@@ -381,18 +350,6 @@ namespace OpenXLSX
          */
         bool ParseXMLData() override;
 
-        /**
-         * @brief
-         * @return
-         */
-        XLRelationships* Relationships();
-
-        /**
-         * @brief
-         * @return
-         */
-        const XLRelationships* Relationships() const;
-
     private:    // ---------- Private Member Functions ---------- //
         /**
          * @brief
@@ -416,19 +373,32 @@ namespace OpenXLSX
          */
         XLRelationshipItem* InitiateWorksheet(const std::string& sheetName, unsigned int index);
 
+        /**
+         * @brief
+         * @return
+         */
         XMLNode getSheetsNode() const;
 
+        /**
+         * @brief
+         * @param sheetRID
+         * @param newName
+         */
         void setSheetName(const std::string& sheetRID, const std::string& newName);
 
+        /**
+         * @brief
+         * @param sheetRID
+         * @param state
+         */
         void setSheetVisibility(const std::string& sheetRID, const std::string& state);
 
+        /**
+         * @brief
+         * @param sheetRID
+         * @return
+         */
         std::string getSheetName(const std::string& sheetRID) const;
-
-    private:           // ---------- Private Member Variables ---------- //
-        int m_sheetId; /**< Counter to use to create ID for new sheet */
-
-        XLRelationships         m_relationships; /**< pointer to the XLRelationships object for workbook. */
-        mutable XLSharedStrings m_sharedStrings; /**< Pointer to the XLSharedStrings object. */
     };
 }    // namespace OpenXLSX
 

@@ -108,11 +108,7 @@ namespace
  * @details The constructor initializes the member variables and calls the loadXMLData from the
  * XLAbstractXMLFile base class.
  */
-XLWorkbook::XLWorkbook(XLXmlData* xmlData)
-    : XLAbstractXMLFile(xmlData),
-      m_sheetId(0),
-      m_relationships(ParentDoc().getXmlData("xl/_rels/workbook.xml.rels")),
-      m_sharedStrings(ParentDoc().getXmlData("xl/sharedStrings.xml"))
+XLWorkbook::XLWorkbook(XLXmlData* xmlData) : XLAbstractXMLFile(xmlData)
 {
     ParseXMLData();
 }
@@ -143,7 +139,8 @@ XLSheet XLWorkbook::Sheet(const std::string& sheetName)
     // ===== Find the sheet data corresponding to the sheet with the requested name
     std::string xmlID =
         XmlDocument().document_element().child("sheets").find_child_by_attribute("name", sheetName.c_str()).attribute("r:id").value();
-    std::string xmlPath = m_relationships.RelationshipByID(xmlID).Target();
+    //    std::string xmlPath = m_relationships.RelationshipByID(xmlID).Target();
+    std::string xmlPath = ParentDoc().executeQuery(XLQuerySheetRelsTarget(xmlID)).sheetTarget();
     return XLSheet(ParentDoc().getXmlData("xl/" + xmlPath));
 
     //    auto sheetData = find_if(m_sheets.begin(), m_sheets.end(), [&](const XLSheetData& data) {
@@ -211,9 +208,10 @@ bool XLWorkbook::HasSharedStrings() const
 /**
  * @details
  */
-XLSharedStrings* XLWorkbook::SharedStrings() const
+XLSharedStrings* XLWorkbook::SharedStrings()
 {
-    return &m_sharedStrings;
+    return ParentDoc().executeQuery(XLQuerySharedStrings()).sharedStrings();
+    // return &m_sharedStrings;
 }
 
 /**
@@ -585,22 +583,6 @@ void XLWorkbook::UpdateSheetName(const std::string& oldName, const std::string& 
     //            definedName.text().set(formula.c_str());
     //        }
     //    }
-}
-
-/**
- * @details
- */
-XLRelationships* XLWorkbook::Relationships()
-{
-    return &m_relationships;
-}
-
-/**
- * @details
- */
-const XLRelationships* XLWorkbook::Relationships() const
-{
-    return &m_relationships;
 }
 
 /**

@@ -61,6 +61,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLEnums.hpp"
 #include "XLException.hpp"
 #include "XLRelationships.hpp"
+#include "XLSharedStrings.hpp"
 #include "XLWorkbook.hpp"
 #include "XLXmlData.hpp"
 #include "XLXmlParser.hpp"
@@ -210,7 +211,7 @@ namespace OpenXLSX
         {
             if constexpr (std::is_same_v<Command, XLCommandSetSheetName>) {
                 m_appProperties.SetSheetName(command.sheetName(), command.newName());
-                m_workbook.executeCommand(command);
+                m_workbook.setSheetName(command.sheetID(), command.sheetName());
             }
 
             else if constexpr (std::is_same_v<Command, XLCommandSetSheetVisibility>) {
@@ -306,6 +307,56 @@ namespace OpenXLSX
                 return query;
             }
 
+            else if constexpr (std::is_same_v<Query, XLQuerySheetRelsTarget>) {
+                query.setSheetTarget(m_wbkRelationships.RelationshipByID(query.sheetID()).Target());
+                return query;
+            }
+        }
+
+        template<typename Query>
+        Query executeQuery(Query query)
+        {
+            if constexpr (std::is_same_v<Query, XLQuerySheetName>) {
+                return static_cast<const XLDocument&>(*this).executeQuery(query);
+            }
+
+            else if constexpr (std::is_same_v<Query, XLQuerySheetIndex>) {
+                return static_cast<const XLDocument&>(*this).executeQuery(query);
+            }
+
+            else if constexpr (std::is_same_v<Query, XLQuerySheetVisibility>) {
+                return static_cast<const XLDocument&>(*this).executeQuery(query);
+            }
+
+            else if constexpr (std::is_same_v<Query, XLQuerySheetType>) {
+                return static_cast<const XLDocument&>(*this).executeQuery(query);
+            }
+
+            else if constexpr (std::is_same_v<Query, XLQuerySheetID>) {
+                return static_cast<const XLDocument&>(*this).executeQuery(query);
+            }
+
+            else if constexpr (std::is_same_v<Query, XLQuerySheetRelsID>) {
+                return static_cast<const XLDocument&>(*this).executeQuery(query);
+            }
+
+            else if constexpr (std::is_same_v<Query, XLQuerySheetRelsTarget>) {
+                return static_cast<const XLDocument&>(*this).executeQuery(query);
+            }
+
+            else if constexpr (std::is_same_v<Query, XLQuerySharedStrings>) {
+                query.setSharedStrings(&m_sharedStrings);
+                return query;
+            }
+
+            else if constexpr (std::is_same_v<Query, XLQueryXmlData>) {
+                auto result =
+                    std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) { return item.getXmlPath() == query.xmlPath(); });
+                if (result == m_data.end()) throw XLException("Path does not exist in zip archive.");
+                query.setXmlData(&*result);
+                return query;
+            }
+
             else {
                 throw XLException("Invalid query object.");
             }
@@ -350,6 +401,7 @@ namespace OpenXLSX
         XLContentTypes    m_contentTypes;     /**< A pointer to the content types object*/
         XLAppProperties   m_appProperties;    /**< A pointer to the App properties object */
         XLCoreProperties  m_coreProperties;   /**< A pointer to the Core properties object*/
+        XLSharedStrings   m_sharedStrings;
         XLWorkbook        m_workbook;         /**< A pointer to the workbook object */
         Zippy::ZipArchive m_archive;          /**<  */
     };
