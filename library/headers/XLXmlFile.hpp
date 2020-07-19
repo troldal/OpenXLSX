@@ -66,10 +66,10 @@ namespace OpenXLSX
      * for derived classes to use. It functions as an ancestor to all classes which are represented by an .xml
      * file in an .xlsx package
      */
-    class XLAbstractXMLFile
+    class XLXmlFile
     {
     public:    // ===== PUBLIC MEMBER FUNCTIONS
-        XLAbstractXMLFile() = default;
+        XLXmlFile() = default;
         /**
          * @brief Constructor. Creates an object using the parent XLDocument object, the relative file path
          * and a data object as input.
@@ -77,36 +77,36 @@ namespace OpenXLSX
          * @param filePath The path of the XML file, relative to the root.
          * @param xmlData An std::string object with the XML data to be represented by the object.
          */
-        explicit XLAbstractXMLFile(XLXmlData* xmlData);
+        explicit XLXmlFile(XLXmlData* xmlData);
 
         /**
          * @brief Copy constructor. Default (shallow) implementation used.
          */
-        XLAbstractXMLFile(const XLAbstractXMLFile&) = default;
+        XLXmlFile(const XLXmlFile&) = default;
 
         /**
          * @brief
          * @param other
          */
-        XLAbstractXMLFile(XLAbstractXMLFile&& other) noexcept = default;
+        XLXmlFile(XLXmlFile&& other) noexcept = default;
 
         /**
          * @brief Destructor. Default implementation used.
          */
-        virtual ~XLAbstractXMLFile() = default;
+        virtual ~XLXmlFile() = default;
 
         /**
          * @brief The assignment operator. The default implementation has been used.
          * @return A reference to the new object.
          */
-        XLAbstractXMLFile& operator=(const XLAbstractXMLFile&) = default;
+        XLXmlFile& operator=(const XLXmlFile&) = default;
 
         /**
          * @brief
          * @param other
          * @return
          */
-        XLAbstractXMLFile& operator=(XLAbstractXMLFile&& other) noexcept = default;
+        XLXmlFile& operator=(XLXmlFile&& other) noexcept = default;
 
         /**
          * @brief
@@ -175,12 +175,6 @@ namespace OpenXLSX
          */
         virtual const XMLDocument& XmlDocument() const final;
 
-        /**
-         * @brief The parseXMLData method is used to map or copy the XML data to the internal data structures.
-         * @return true on success; otherwise false.
-         * @note This is a pure virtual function, meaning that this must be implemented in derived classes.
-         */
-        // virtual bool ParseXMLData() = 0;
 
     private:    // ===== PRIVATE MEMBER VARIABLES
         XLXmlData* m_xmlData { nullptr };

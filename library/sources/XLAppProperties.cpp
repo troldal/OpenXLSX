@@ -44,7 +44,7 @@ namespace
 /**
  * @details
  */
-XLAppProperties::XLAppProperties(XLXmlData* xmlData) : XLAbstractXMLFile(xmlData) {}
+XLAppProperties::XLAppProperties(XLXmlData* xmlData) : XLXmlFile(xmlData) {}
 
 /**
  * @details

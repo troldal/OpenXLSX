@@ -78,7 +78,7 @@ namespace OpenXLSX
     class XLDocument final
     {
         //----- Friends
-        friend class XLAbstractXMLFile;
+        friend class XLXmlFile;
         friend class XLWorkbook;
         friend class XLSheet;
         friend class XLXmlData;

@@ -149,7 +149,7 @@ string XLContentItem::Path() const
 /**
  * @details
  */
-XLContentTypes::XLContentTypes(XLXmlData* xmlData) : XLAbstractXMLFile(xmlData) {}
+XLContentTypes::XLContentTypes(XLXmlData* xmlData) : XLXmlFile(xmlData) {}
 
 /**
  * @details

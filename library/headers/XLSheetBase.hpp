@@ -5,18 +5,18 @@
 #ifndef OPENXLSX_XLSHEETBASE_HPP
 #define OPENXLSX_XLSHEETBASE_HPP
 
-#include "XLAbstractXMLFile.hpp"
 #include "XLColor.hpp"
 #include "XLCommandQuery.hpp"
 #include "XLDefinitions.hpp"
+#include "XLXmlFile.hpp"
 
 namespace OpenXLSX
 {
     template<typename T>
-    class XLSheetBase : public XLAbstractXMLFile
+    class XLSheetBase : public XLXmlFile
     {
     public:
-        XLSheetBase() : XLAbstractXMLFile(nullptr) {};
+        XLSheetBase() : XLXmlFile(nullptr) {};
 
         /**
          * @brief The constructor. There are no default constructor, so all parameters must be provided for
@@ -27,7 +27,7 @@ namespace OpenXLSX
          * @param filepath A std::string with the relative path to the sheet file in the .xlsx package.
          * @param xmlData
          */
-        explicit XLSheetBase(XLXmlData* xmlData) : XLAbstractXMLFile(xmlData) {};
+        explicit XLSheetBase(XLXmlData* xmlData) : XLXmlFile(xmlData) {};
 
         /**
          * @brief The copy constructor.

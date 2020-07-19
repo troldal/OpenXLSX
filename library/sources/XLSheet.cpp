@@ -18,7 +18,7 @@ using namespace OpenXLSX;
  * sheet type is WorkSheet and the default sheet state is Visible.
  * @todo Consider to let the sheet type be determined by the subclasses.
  */
-XLSheet::XLSheet(XLXmlData* xmlData) : XLAbstractXMLFile(xmlData), m_sheet()
+XLSheet::XLSheet(XLXmlData* xmlData) : XLXmlFile(xmlData), m_sheet()
 {
     if (xmlData->getXmlType() == XLContentType::Worksheet)
         m_sheet = XLWorksheet(xmlData);

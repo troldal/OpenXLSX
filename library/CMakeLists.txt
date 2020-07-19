@@ -93,7 +93,7 @@ endif ()
 # Find project files
 #=======================================================================================================================
 set(OPENXLSX_SOURCES
-        ${CMAKE_CURRENT_LIST_DIR}/sources/XLAbstractXMLFile.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLXmlFile.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLAppProperties.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLContentTypes.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLCoreProperties.cpp

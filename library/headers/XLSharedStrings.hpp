@@ -51,7 +51,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <vector>
 
 // ===== OpenXLSX Includes ===== //
-#include "XLAbstractXMLFile.hpp"
+#include "XLXmlFile.hpp"
 #include "XLXmlParser.hpp"
 
 namespace OpenXLSX
@@ -68,7 +68,7 @@ namespace OpenXLSX
      * sizes, as repeated strings are referenced easily.
      * @todo Consider defining a static method for creating a new shared strings object + XML file.
      */
-    class XLSharedStrings : public XLAbstractXMLFile
+    class XLSharedStrings : public XLXmlFile
     {
         //----------------------------------------------------------------------------------------------------------------------
         //           Public Member Functions

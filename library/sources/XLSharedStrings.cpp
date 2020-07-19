@@ -16,7 +16,7 @@ using namespace OpenXLSX;
  * @details Constructs a new XLSharedStrings object. Only one (common) object is allowed per XLDocument instance.
  * A filepath to the underlying XML file must be provided.
  */
-XLSharedStrings::XLSharedStrings(XLXmlData* xmlData) : XLAbstractXMLFile(xmlData) {}
+XLSharedStrings::XLSharedStrings(XLXmlData* xmlData) : XLXmlFile(xmlData) {}
 
 /**
  * @details Look up a string index by the string content. If the string does not exist, the returned index is -1.

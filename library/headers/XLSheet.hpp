@@ -46,7 +46,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_IMPL_XLABSTRACTSHEET_H
 #define OPENXLSX_IMPL_XLABSTRACTSHEET_H
 
-#include "XLAbstractXMLFile.hpp"
 #include "XLCell.hpp"
 #include "XLCellReference.hpp"
 #include "XLCellValue.hpp"
@@ -57,6 +56,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLException.hpp"
 #include "XLRow.hpp"
 #include "XLWorksheet.hpp"
+#include "XLXmlFile.hpp"
 
 #include <type_traits>
 #include <variant>
@@ -71,7 +71,7 @@ namespace OpenXLSX
      * such as XLWorksheet. It implements functionality common to all sheet types. This is a pure abstract class,
      * so it cannot be instantiated.
      */
-    class XLSheet : public XLAbstractXMLFile
+    class XLSheet : public XLXmlFile
     {
         friend class XLWorkbook;
 

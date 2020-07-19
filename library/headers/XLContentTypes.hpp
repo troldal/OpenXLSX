@@ -52,8 +52,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <vector>
 
 // ===== OpenXLSX Includes ===== //
-#include "XLAbstractXMLFile.hpp"
 #include "XLEnums.hpp"
+#include "XLXmlFile.hpp"
 #include "XLXmlParser.hpp"
 
 namespace OpenXLSX
@@ -135,7 +135,7 @@ namespace OpenXLSX
     /**
      * @brief The purpose of this class is to load, store add and save item in the [Content_Types].xml file.
      */
-    class XLContentTypes : public XLAbstractXMLFile
+    class XLContentTypes : public XLXmlFile
     {
     public:    // ---------- Public Member Functions ---------- //
         XLContentTypes() = default;

@@ -14,7 +14,7 @@ using namespace OpenXLSX;
 /**
  * @details
  */
-XLCoreProperties::XLCoreProperties(XLXmlData* xmlData) : XLAbstractXMLFile(xmlData) {}
+XLCoreProperties::XLCoreProperties(XLXmlData* xmlData) : XLXmlFile(xmlData) {}
 
 /**
  * @details

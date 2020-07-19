@@ -51,12 +51,12 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <vector>
 
 // ===== OpenXLSX Includes ===== //
-#include "XLAbstractXMLFile.hpp"
 #include "XLCommandQuery.hpp"
 #include "XLContentTypes.hpp"
 #include "XLEnums.hpp"
 #include "XLException.hpp"
 #include "XLRelationships.hpp"
+#include "XLXmlFile.hpp"
 #include "XLXmlParser.hpp"
 
 namespace OpenXLSX
@@ -73,7 +73,7 @@ namespace OpenXLSX
      * @brief This class encapsulates the concept of a Workbook. It provides access to the embedded sheets
      * (worksheets or chartsheets), as well as functionality for adding, deleting and renaming sheets.
      */
-    class XLWorkbook : public XLAbstractXMLFile
+    class XLWorkbook : public XLXmlFile
     {
         friend class XLSheet;
         friend class XLDocument;

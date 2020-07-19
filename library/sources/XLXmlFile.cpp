@@ -1,4 +1,4 @@
-#include "XLAbstractXMLFile.hpp"
+#include "XLXmlFile.hpp"
 
 #include "XLDocument.hpp"
 
@@ -14,12 +14,12 @@ using namespace OpenXLSX;
  * the same path in the .zip file will be overwritten upon saving of the document. If no xmlData is provided,
  * the data will be read from the .zip file, using the given path.
  */
-XLAbstractXMLFile::XLAbstractXMLFile(XLXmlData* xmlData) : m_xmlData(xmlData) {}
+XLXmlFile::XLXmlFile(XLXmlData* xmlData) : m_xmlData(xmlData) {}
 
 /**
  * @details
  */
-XLAbstractXMLFile::operator bool() const
+XLXmlFile::operator bool() const
 {
     return !GetXmlData().empty();
 }
@@ -31,7 +31,7 @@ XLAbstractXMLFile::operator bool() const
  * empty strings, which is not what we want. The downside is that whitespace characters such as \\n and \\t in the
  * input xml file may mess up the parsing.
  */
-void XLAbstractXMLFile::SetXmlData(const std::string& xmlData)
+void XLXmlFile::SetXmlData(const std::string& xmlData)
 {
     m_xmlData->setRawData(xmlData);
 }
@@ -39,7 +39,7 @@ void XLAbstractXMLFile::SetXmlData(const std::string& xmlData)
 /**
  * @details This method retrieves the underlying XML data as a std::string.
  */
-std::string XLAbstractXMLFile::GetXmlData() const
+std::string XLXmlFile::GetXmlData() const
 {
     return m_xmlData->getRawData();
 }
@@ -47,7 +47,7 @@ std::string XLAbstractXMLFile::GetXmlData() const
 /**
  * @details This method returns the path in the .zip file of the XML file as a std::string.
  */
-string XLAbstractXMLFile::FilePath() const
+string XLXmlFile::FilePath() const
 {
     return m_xmlData->getXmlPath();
 }
@@ -55,15 +55,15 @@ string XLAbstractXMLFile::FilePath() const
 /**
  * @details This method returns a pointer to the underlying XMLDocument resource.
  */
-XMLDocument& XLAbstractXMLFile::XmlDocument()
+XMLDocument& XLXmlFile::XmlDocument()
 {
-    return const_cast<XMLDocument&>(static_cast<const XLAbstractXMLFile*>(this)->XmlDocument());
+    return const_cast<XMLDocument&>(static_cast<const XLXmlFile*>(this)->XmlDocument());
 }
 
 /**
  * @details This method returns a pointer to the underlying XMLDocument resource as const.
  */
-const XMLDocument& XLAbstractXMLFile::XmlDocument() const
+const XMLDocument& XLXmlFile::XmlDocument() const
 {
     return *m_xmlData->getXmlDocument();
 }

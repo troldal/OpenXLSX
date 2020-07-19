@@ -47,7 +47,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <vector>
 
 // ===== OpenXLSX Includes ===== //
-#include "XLAbstractXMLFile.hpp"
+#include "XLXmlFile.hpp"
 #include "XLXmlParser.hpp"
 
 namespace OpenXLSX
@@ -60,7 +60,7 @@ namespace OpenXLSX
      * @brief This class is a specialization of the XLAbstractXMLFile, with the purpose of the representing the
      * document app properties in the app.xml file (docProps folder) in the .xlsx package.
      */
-    class XLAppProperties : public XLAbstractXMLFile
+    class XLAppProperties : public XLXmlFile
     {
         //--------------------------------------------------------------------------------------------------------------
         //           Public Member Functions

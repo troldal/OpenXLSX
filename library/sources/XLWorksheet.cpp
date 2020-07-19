@@ -324,5 +324,5 @@ void XLWorksheet::UpdateSheetName(const std::string& oldName, const std::string&
 
 std::string XLWorksheet::GetXmlData() const
 {
-    return XLAbstractXMLFile::GetXmlData();
+    return XLXmlFile::GetXmlData();
 }

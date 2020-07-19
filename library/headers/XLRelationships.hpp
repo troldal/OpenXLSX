@@ -51,8 +51,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <vector>
 
 // ===== OpenXLSX Includes ===== //
-#include "XLAbstractXMLFile.hpp"
 #include "XLEnums.hpp"
+#include "XLXmlFile.hpp"
 #include "XLXmlParser.hpp"
 
 namespace OpenXLSX
@@ -139,7 +139,7 @@ namespace OpenXLSX
     /**
      * @brief An encapsulation of relationship files (.rels files) in an Excel document package.
      */
-    class XLRelationships : public XLAbstractXMLFile
+    class XLRelationships : public XLXmlFile
     {
     public:    // ---------- Public Member Functions ---------- //
         XLRelationships() = default;

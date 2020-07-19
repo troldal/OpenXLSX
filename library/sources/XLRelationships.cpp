@@ -164,7 +164,7 @@ std::string XLRelationshipItem::Id() const
 /**
  * @details Creates a XLRelationships object, which will read the XML file with the given path
  */
-XLRelationships::XLRelationships(XLXmlData* xmlData) : XLAbstractXMLFile(xmlData) {}
+XLRelationships::XLRelationships(XLXmlData* xmlData) : XLXmlFile(xmlData) {}
 
 /**
  * @details Returns the XLRelationshipItem with the given ID, by looking it up in the m_relationships map.
