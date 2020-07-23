@@ -12,11 +12,11 @@ int main()
     doc.create("./MyTest.xlsx");
     auto wbk = doc.workbook();
 
-    wbk->AddWorksheet("MySheet01");       // Append new sheet
-    wbk->AddWorksheet("MySheet02", 1);    // Prepend new sheet
-    wbk->AddWorksheet("MySheet03", 1);    // Prepend new sheet
-    wbk->AddWorksheet("MySheet04", 2);    // Insert new sheet
-    wbk->MoveSheet("Sheet1", 2);          // Move Sheet1 to second place
+    wbk->AddWorksheet("MySheet01");     // Append new sheet
+    wbk->AddWorksheet("MySheet02");     // Prepend new sheet
+    wbk->AddWorksheet("MySheet03");     // Prepend new sheet
+    wbk->AddWorksheet("MySheet04");     // Insert new sheet
+    wbk->setSheetIndex("Sheet1", 2);    // Move Sheet1 to second place
     wbk->DeleteSheet("MySheet01");
 
     for (const auto& name : wbk->WorksheetNames()) cout << name << ": " << wbk->IndexOfSheet(name) << endl;

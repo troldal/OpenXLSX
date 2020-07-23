@@ -172,7 +172,7 @@ namespace OpenXLSX
          * @param index The index at which the worksheet should be inserted.
          * @bug Method does not check that another sheet with same name exists.
          */
-        void AddWorksheet(const std::string& sheetName, unsigned int index = 0);
+        void AddWorksheet(const std::string& sheetName);
 
         /**
          * @brief Clone an existing worksheet.
@@ -182,21 +182,13 @@ namespace OpenXLSX
          * @todo The function works, but Excel reports errors when opening.
          * @todo Is it possible to have a common CloneSheet function?
          */
-        void CloneWorksheet(const std::string& extName, const std::string& newName, unsigned int index = 0);
-
-        /**
-         * @brief Add a new chartsheet to the workbook, with the given name and index.
-         * @param sheetName The name of the chartsheet.
-         * @param index The index at which the chartsheet should be inserted.
-         * @todo This method is currently unimplemented.
-         */
-        void AddChartsheet(const std::string& sheetName, unsigned int index = 0);
+        void CloneWorksheet(const std::string& extName, const std::string& newName);
 
         /**
          * @brief
-         * @param newIndex
+         * @param index
          */
-        void MoveSheet(const std::string& sheetName, unsigned int newIndex);
+        void setSheetIndex(const std::string& sheetName, unsigned int index);
 
         /**
          * @brief
@@ -304,7 +296,12 @@ namespace OpenXLSX
         Query executeQuery(Query query) const
         {
             if constexpr (std::is_same_v<Query, XLQuerySheetName>) {
-                query.setSheetName(getSheetName(query.sheetID()));
+                query.setSheetName(XmlDocument()
+                                       .document_element()
+                                       .child("sheets")
+                                       .find_child_by_attribute("r:id", query.sheetID().c_str())
+                                       .attribute("name")
+                                       .value());
                 return query;
             }
 
@@ -347,26 +344,13 @@ namespace OpenXLSX
 
     private:    // ---------- Private Member Functions ---------- //
         /**
-         * @brief
-         * @param item
-         * @param xmlData
-         */
-        void CreateWorksheet(const XLRelationshipItem& item, const std::string& xmlData = "");
-
-        /**
-         * @brief
-         * @param item
-         */
-        void CreateChartsheet(const XLRelationshipItem& item);
-
-        /**
          * @brief Helper function to create a new XML file to hold the data for a new worksheet.
          * @param sheetName The name of the new worksheet.
          * @param index The index at which to insert the new worksheet.
          * @return A reference to the XLRelationshipItem corresponding to the worksheet file
          * @todo Consider having this as a static function in the XLWorksheet class.
          */
-        XLRelationshipItem* InitiateWorksheet(const std::string& sheetName, unsigned int index);
+        void prepareSheetMetadata(const std::string& sheetName, uint16_t internalID);
 
         /**
          * @brief
@@ -387,13 +371,6 @@ namespace OpenXLSX
          * @param state
          */
         void setSheetVisibility(const std::string& sheetRID, const std::string& state);
-
-        /**
-         * @brief
-         * @param sheetRID
-         * @return
-         */
-        std::string getSheetName(const std::string& sheetRID) const;
     };
 }    // namespace OpenXLSX
 

@@ -91,7 +91,7 @@ namespace
         return getSheetNodeByName(sheetsNode, sheetName).attribute("r:id").value();
     }
 
-    inline uint16_t GetNewSheetID(XMLNode sheetsNode)
+    inline uint16_t calculateNewSheetNumber(XMLNode sheetsNode)
     {
         return std::max_element(
                    sheetsNode.children().begin(),
@@ -128,36 +128,8 @@ XLSheet XLWorkbook::Sheet(const std::string& sheetName)
     // ===== Find the sheet data corresponding to the sheet with the requested name
     std::string xmlID =
         XmlDocument().document_element().child("sheets").find_child_by_attribute("name", sheetName.c_str()).attribute("r:id").value();
-    //    std::string xmlPath = m_relationships.RelationshipByID(xmlID).Target();
     std::string xmlPath = ParentDoc().executeQuery(XLQuerySheetRelsTarget(xmlID)).sheetTarget();
-    return XLSheet(ParentDoc().getXmlData("xl/" + xmlPath));
-
-    //    auto sheetData = find_if(m_sheets.begin(), m_sheets.end(), [&](const XLSheetData& data) {
-    //        return sheetName == data.sheetNode.attribute("name").value();
-    //    });
-
-    //    // ===== If the sheet has not been loaded, load it into memory
-    //    if (sheetData->sheetItem == nullptr) {
-    //        switch (sheetData->sheetType) {
-    //        // ===== Handler for worksheets
-    //        case XLSheetType::WorkSheet:    // TODO: The const_cast here is REALLY ugly. Find a way to eliminate this
-    //                                        // somehow!
-    //            sheetData->sheetItem = make_unique<XLWorksheet>(
-    //                &const_cast<XLWorkbook&>(*this).ParentDoc().getXmlData(sheetData->sheetRelationship.Target()),
-    //                sheetData->sheetNode.attribute("r:id").value());
-    //            break;
-    //
-    //        // ===== Handler for chartsheets
-    //        case XLSheetType::ChartSheet:
-    //            // TODO: Implement creation of chartsheet
-    //            break;
-    //
-    //        // ===== Default handler
-    //        default: throw XLException("Unknown sheet type");
-    //        }
-    //    }
-    //
-    //    return sheetData->sheetItem.get();
+    return XLSheet(ParentDoc().executeQuery(XLQueryXmlData("xl/" + xmlPath)).xmlData());
 }
 
 /**
@@ -191,7 +163,7 @@ XLChartsheet XLWorkbook::Chartsheet(const std::string& sheetName)
  */
 bool XLWorkbook::HasSharedStrings() const
 {
-    return true;    // m_sharedStrings;    // implicit conversion to bool
+    return ParentDoc().executeQuery(XLQuerySharedStrings()).sharedStrings() != nullptr;
 }
 
 /**
@@ -200,7 +172,6 @@ bool XLWorkbook::HasSharedStrings() const
 XLSharedStrings* XLWorkbook::SharedStrings()
 {
     return ParentDoc().executeQuery(XLQuerySharedStrings()).sharedStrings();
-    // return &m_sharedStrings;
 }
 
 /**
@@ -216,112 +187,87 @@ void XLWorkbook::DeleteNamedRanges()
  */
 void XLWorkbook::DeleteSheet(const std::string& sheetName)
 {
-    auto sheetID = getSheetsNode().find_child_by_attribute("name", sheetName.c_str()).attribute("r:id").value();
-
+    // ===== Determine ID and type of sheet, as well as current worksheet count.
+    auto sheetID        = getSheetsNode().find_child_by_attribute("name", sheetName.c_str()).attribute("r:id").value();    // NOLINT
+    auto sheetType      = ParentDoc().executeQuery(XLQuerySheetType(getRID())).sheetType();
     auto worksheetCount = count_if(getSheetsNode().children().begin(), getSheetsNode().children().end(), [&](const XMLNode& item) {
         return ParentDoc().executeQuery(XLQuerySheetType(item.attribute("r:id").value())).sheetType() == XLContentType::Worksheet;
     });
 
-    auto worksheetType = ParentDoc().executeQuery(XLQuerySheetType(getRID())).sheetType();
-
     // ===== If this is the last worksheet in the workbook, throw an exception.
-    if (worksheetCount == 1 && worksheetType == XLContentType::Worksheet)
+    if (worksheetCount == 1 && sheetType == XLContentType::Worksheet)
         throw XLException("Invalid operation. There must be at least one worksheet in the workbook.");
 
+    // ===== Delete the sheet data as well as the sheet node from Workbook.xml
     ParentDoc().executeCommand(XLCommandDeleteSheet(sheetID, sheetName));
-
-    // ===== Delete the node from Workbook.xml
     getSheetsNode().remove_child(getSheetsNode().find_child_by_attribute("name", sheetName.c_str()));
 
-    // ===== Update the activeTab attribute. If the deleted sheet was the active sheet, set the property to zero
-    //        if (!m_activeSheet) {
-    //            XmlDocument()->first_child().child("bookViews").first_child().attribute("activeTab").set_value(0);
-    //            m_activeSheet = getSheetsNode().first_child();
-    //        }
-    //        else {
-    //            unsigned int index = 0;
-    //            for (auto& item : getSheetsNode().children()) {
-    //                if (m_activeSheet == item) {
-    //                    XmlDocument()->first_child().child("bookViews").first_child().attribute("activeTab").set_value(index);
-    //                    break;
-    //                }
-    //                index++;
-    //            }
-    //        }
+    // TODO: The 'activeSheet' property may need to be updated.
 }
 
 /**
  * @details
  */
-void XLWorkbook::AddWorksheet(const std::string& sheetName, unsigned int index)
+void XLWorkbook::AddWorksheet(const std::string& sheetName)
 {
     // ===== If a sheet with the given name already exists, throw an exception.
     if (XmlDocument().document_element().child("sheets").find_child_by_attribute("name", sheetName.c_str()))
         throw XLException("Sheet named \"" + sheetName + "\" already exists.");
 
-    // CreateWorksheet(*InitiateWorksheet(sheetName, index), getNewSheetXmlData());
-    InitiateWorksheet(sheetName, index), getNewSheetXmlData();
+    // ===== Create new internal (workbook) ID for the sheet
+    auto internalID = calculateNewSheetNumber(XmlDocument().document_element().child("sheets"));
+
+    // ===== Create xml file for new worksheet and add metadata to the workbook file.
+    ParentDoc().executeCommand(XLCommandAddWorksheet(sheetName, "/xl/worksheets/sheet" + to_string(internalID) + ".xml"));
+    prepareSheetMetadata(sheetName, internalID);
 }
 
 /**
  * @details
  * @todo If the original sheet's tabSelected attribute is set, ensure it is un-set in the clone.
  */
-void XLWorkbook::CloneWorksheet(const std::string& extName, const std::string& newName, unsigned int index)
+void XLWorkbook::CloneWorksheet(const std::string& extName, const std::string& newName)
 {
     // ===== If a sheet with the given name already exists, throw an exception.
     if (XmlDocument().document_element().child("sheets").find_child_by_attribute("name", newName.c_str()))
         throw XLException("Sheet named \"" + newName + "\" already exists.");
 
-    CreateWorksheet(*InitiateWorksheet(newName, index), Worksheet(extName).GetXmlData());
+    // ===== Create new internal (workbook) ID for the sheet and retrieve the sheet ID for the sheet to clone.
+    auto        internalID = calculateNewSheetNumber(XmlDocument().document_element().child("sheets"));
+    std::string sheetID    = getSheetsNode().find_child_by_attribute("name", extName.c_str()).attribute("r:id").value();
+
+    // ===== Create xml file for new worksheet and add metadata to the workbook file.
+    ParentDoc().executeCommand(XLCommandCloneSheet(sheetID, newName, "/xl/worksheets/sheet" + to_string(internalID) + ".xml"));
+    prepareSheetMetadata(newName, internalID);
 }
 
 /**
  * @details
  */
-XLRelationshipItem* XLWorkbook::InitiateWorksheet(const std::string& sheetName, unsigned int index)
+void XLWorkbook::prepareSheetMetadata(const std::string& sheetName, uint16_t internalID)
 {
-    auto        sheetID       = GetNewSheetID(XmlDocument().document_element().child("sheets"));
-    std::string worksheetPath = "/xl/worksheets/sheet" + to_string(sheetID) + ".xml";
+    // ===== Add new child node to the "sheets" node.
+    auto node = getSheetsNode().append_child("sheet");
 
-    ParentDoc().executeCommand(XLCommandAddWorksheet(sheetName, worksheetPath, index));
-
-    auto node  = XMLNode();
-    auto nodes = vector<XMLNode>(getSheetsNode().begin(), getSheetsNode().end());
-    if (index == 0 || index > nodes.size())
-        node = getSheetsNode().append_child("sheet");
-    else
-        node = getSheetsNode().insert_child_before("sheet", nodes[index - 1]);
-
+    // ===== append the required attributes to the newly created sheet node.
+    std::string sheetPath            = "/xl/worksheets/sheet" + to_string(internalID) + ".xml";
     node.append_attribute("name")    = sheetName.c_str();
-    node.append_attribute("sheetId") = to_string(sheetID).c_str();
-    node.append_attribute("r:id")    = ParentDoc().executeQuery(XLQuerySheetRelsID(worksheetPath)).sheetID().c_str();
-
-    // Add content item to document
-    // ParentDoc().AddContentItem(worksheetPath, XLContentType::Worksheet);
-
-    // Add relationship item
-    //    XLRelationshipItem item = m_relationships.AddRelationship(XLRelationshipType::Worksheet,
-    //                                                              "worksheets/sheet" + to_string(sheetID) + ".xml");
-
-    // insert Sheet node at the given Index
-
-    // Add entry to the App Properties
-    //    if (index == 0)
-    //        ParentDoc().AppProperties()->InsertSheetName(sheetName, WorksheetCount() + 1);
-    //    else
-    //        ParentDoc().AppProperties()->InsertSheetName(sheetName, index);
-    //
-    //    ParentDoc().AppProperties()->SetHeadingPair("Worksheets", WorksheetCount() + 1);
-
-    return nullptr;
+    node.append_attribute("sheetId") = to_string(internalID).c_str();
+    node.append_attribute("r:id")    = ParentDoc().executeQuery(XLQuerySheetRelsID(sheetPath)).sheetID().c_str();
 }
 
+/**
+ * @details
+ * @todo Consider putting this in an anonymous namespace.
+ */
 XMLNode XLWorkbook::getSheetsNode() const
 {
     return XmlDocument().first_child().child("sheets");
 }
 
+/**
+ * @details
+ */
 void XLWorkbook::setSheetName(const string& sheetRID, const string& newName)
 {
     auto sheetName = XmlDocument().document_element().child("sheets").find_child_by_attribute("r:id", sheetRID.c_str()).attribute("name");
@@ -330,11 +276,14 @@ void XLWorkbook::setSheetName(const string& sheetRID, const string& newName)
     sheetName.set_value(newName.c_str());
 }
 
+/**
+ * @details
+ */
 void XLWorkbook::setSheetVisibility(const string& sheetRID, const string& state)
 {
+    // ===== Retrieve or create the visibility ("state") attribute for the sheet.
     auto stateAttribute =
         XmlDocument().document_element().child("sheets").find_child_by_attribute("r:id", sheetRID.c_str()).attribute("state");
-
     if (!stateAttribute) {
         stateAttribute =
             XmlDocument().document_element().child("sheets").find_child_by_attribute("r:id", sheetRID.c_str()).append_attribute("state");
@@ -343,43 +292,31 @@ void XLWorkbook::setSheetVisibility(const string& sheetRID, const string& state)
     stateAttribute.set_value(state.c_str());
 }
 
-std::string XLWorkbook::getSheetName(const string& sheetRID) const
-{
-    return XmlDocument().document_element().child("sheets").find_child_by_attribute("r:id", sheetRID.c_str()).attribute("name").value();
-}
-
 /**
  * @details
- * @todo To be implemented.
  */
-void XLWorkbook::AddChartsheet(const std::string& sheetName, unsigned int index) {}
-
-/**
- * @details
- * @todo To be implemented.
- */
-void XLWorkbook::MoveSheet(const std::string& sheetName, unsigned int newIndex)
+void XLWorkbook::setSheetIndex(const std::string& sheetName, unsigned int index)
 {
     // ===== Check that the input is valid
-    if (newIndex < 1 || newIndex > std::distance(XmlDocument().document_element().child("sheets").children().begin(),
-                                                 XmlDocument().document_element().child("sheets").children().end()))
+    if (index < 1 || index > std::distance(XmlDocument().document_element().child("sheets").children().begin(),
+                                           XmlDocument().document_element().child("sheets").children().end()))
         throw XLException("Invalid sheet index");
 
     // ===== If the new index is equal to the current, don't do anything
-    if (newIndex == std::distance(XmlDocument().document_element().child("sheets").children().begin(),
-                                  std::find_if(XmlDocument().document_element().child("sheets").children().begin(),
-                                               XmlDocument().document_element().child("sheets").children().end(),
-                                               [&](const XMLNode& item) { return sheetName == item.attribute("name").value(); })))
+    if (index == std::distance(XmlDocument().document_element().child("sheets").children().begin(),
+                               std::find_if(XmlDocument().document_element().child("sheets").children().begin(),
+                                            XmlDocument().document_element().child("sheets").children().end(),
+                                            [&](const XMLNode& item) { return sheetName == item.attribute("name").value(); })))
         return;
 
     // ===== Modify the node in the XML file
-    if (newIndex <= 1)
+    if (index <= 1)
         getSheetsNode().prepend_move(getSheetsNode().find_child_by_attribute("name", sheetName.c_str()));
-    else if (newIndex >= SheetCount())
+    else if (index >= SheetCount())
         getSheetsNode().append_move(getSheetsNode().find_child_by_attribute("name", sheetName.c_str()));
     else {
         auto currentSheet = getSheetsNode().first_child();
-        for (auto i = 1; i < newIndex; ++i) currentSheet = currentSheet.next_sibling();
+        for (auto i = 1; i < index; ++i) currentSheet = currentSheet.next_sibling();
         getSheetsNode().insert_move_before(getSheetsNode().find_child_by_attribute("name", sheetName.c_str()), currentSheet);
     }
 
@@ -415,6 +352,9 @@ unsigned int XLWorkbook::IndexOfSheet(const std::string& sheetName) const
     throw XLException("Sheet does not exist");
 }
 
+/**
+ * @details
+ */
 XLSheetType XLWorkbook::TypeOfSheet(const std::string& sheetName) const
 {
     //    auto sheetData = find_if(m_sheets.begin(), m_sheets.end(), [&](const XLSheetData& data) {
@@ -426,6 +366,9 @@ XLSheetType XLWorkbook::TypeOfSheet(const std::string& sheetName) const
     //    return sheetData->sheetType;
 }
 
+/**
+ * @details
+ */
 XLSheetType XLWorkbook::TypeOfSheet(unsigned int index) const
 {
     string name = vector<XMLNode>(getSheetsNode().begin(), getSheetsNode().end())[index - 1].attribute("name").as_string();
@@ -572,55 +515,4 @@ void XLWorkbook::UpdateSheetName(const std::string& oldName, const std::string& 
     //            definedName.text().set(formula.c_str());
     //        }
     //    }
-}
-
-/**
- * @details
- */
-void XLWorkbook::CreateWorksheet(const XLRelationshipItem& item, const std::string& xmlData)
-{
-    //        if (getSheetsNode().find_child_by_attribute("r:id", item.Id().c_str()) == nullptr)
-    //            throw XLException("Invalid sheet ID");
-    //
-    //        // Find the appropriate sheet node in the Workbook .xml file; get the name and id of the worksheet.
-    //        // If xmlData is empty, set the m_sheets and m_childXmlDocuments elements to nullptr. The worksheet will then be
-    //        // lazy-instantiated when the worksheet is requested using the 'Worksheet" function.
-    //        // If xmlData is provided (i.e. a new sheet is created or an existing is cloned), create the new worksheets
-    //        // accordingly.
-    //
-    //        unsigned int index = 0;
-    //        for (const auto& elem : getSheetsNode().children()) {
-    //            if (string(item.Id()) == elem.attribute("r:id").value()) break;
-    //            ++index;
-    //        }
-    //
-    //        if (index > m_sheets.size()) index = m_sheets.size();
-    //
-    //        auto& sheet             = *m_sheets.insert(m_sheets.begin() + index, XLSheetData());
-    //        sheet.sheetNode         = getSheetsNode().find_child_by_attribute("r:id", item.Id().c_str());
-    //        sheet.sheetRelationship = item;
-    //        sheet.sheetContentItem  = ParentDoc().ContentItem(string("/xl/") + item.Target());
-    //        sheet.sheetType         = XLSheetType::WorkSheet;
-    //        sheet.sheetItem =
-    //            (xmlData.empty() ? nullptr
-    //                             : make_unique<XLWorksheet>(&ParentDoc().getXmlData(sheet.sheetRelationship.Target()),
-    //                                                        sheet.sheetNode.attribute("r:id").value()));
-    //
-    //        // ===== Update the activeTab attribute. If the deleted sheet was the active sheet, set the property to zero
-    //        unsigned int idx = 0;
-    //        for (auto& it : getSheetsNode().children()) {
-    //            if (m_activeSheet == it) {
-    //                XmlDocument()->first_child().child("bookViews").first_child().attribute("activeTab").set_value(idx);
-    //                break;
-    //            }
-    //            index++;
-    //        }
-}
-
-/**
- * @details
- */
-void XLWorkbook::CreateChartsheet(const XLRelationshipItem& item)
-{
-    // TODO: Create Chartsheet object here.
 }

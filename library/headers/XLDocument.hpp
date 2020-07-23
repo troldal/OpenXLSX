@@ -238,7 +238,7 @@ namespace OpenXLSX
                 };
                 m_contentTypes.AddOverride(command.sheetPath(), XLContentType::Worksheet);
                 m_wbkRelationships.AddRelationship(XLRelationshipType::Worksheet, command.sheetPath().substr(4));
-                m_appProperties.InsertSheetName(command.sheetName(), command.sheetIndex());
+                m_appProperties.AppendSheetName(command.sheetName());
                 m_archive.AddEntry(command.sheetPath().substr(1), emptyWorksheet);
                 m_data.emplace_back(
                     /* parentDoc */ this,
@@ -262,6 +262,36 @@ namespace OpenXLSX
             }
 
             else if constexpr (std::is_same_v<Command, XLCommandCloneSheet>) {
+                if (m_wbkRelationships.RelationshipByID(command.sheetID()).Type() == XLRelationshipType::Worksheet) {
+                    m_contentTypes.AddOverride(command.clonePath(), XLContentType::Worksheet);
+                    m_wbkRelationships.AddRelationship(XLRelationshipType::Worksheet, command.clonePath().substr(4));
+                    m_appProperties.AppendSheetName(command.cloneName());
+                    m_archive.AddEntry(command.clonePath().substr(1),
+                                       std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& data) {
+                                           return data.getXmlPath().substr(3) ==
+                                                  m_wbkRelationships.RelationshipByID(command.sheetID()).Target();
+                                       })->getRawData());
+                    m_data.emplace_back(
+                        /* parentDoc */ this,
+                        /* xmlPath   */ command.clonePath().substr(1),
+                        /* xmlID     */ m_wbkRelationships.RelationshipByTarget(command.clonePath().substr(4)).Id(),
+                        /* xmlType   */ XLContentType::Worksheet);
+                }
+                else {
+                    m_contentTypes.AddOverride(command.clonePath(), XLContentType::Chartsheet);
+                    m_wbkRelationships.AddRelationship(XLRelationshipType::Chartsheet, command.clonePath().substr(4));
+                    m_appProperties.AppendSheetName(command.cloneName());
+                    m_archive.AddEntry(command.clonePath().substr(1),
+                                       std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& data) {
+                                           return data.getXmlPath().substr(3) ==
+                                                  m_wbkRelationships.RelationshipByID(command.sheetID()).Target();
+                                       })->getRawData());
+                    m_data.emplace_back(
+                        /* parentDoc */ this,
+                        /* xmlPath   */ command.clonePath().substr(1),
+                        /* xmlID     */ m_wbkRelationships.RelationshipByTarget(command.clonePath().substr(4)).Id(),
+                        /* xmlType   */ XLContentType::Chartsheet);
+                }
             }
 
             else {

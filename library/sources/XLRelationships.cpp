@@ -40,7 +40,7 @@ namespace
         else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme")
             type = XLRelationshipType::Theme;
         else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/chartsheet")
-            type = XLRelationshipType::ChartSheet;
+            type = XLRelationshipType::Chartsheet;
         else if (typeString == "http://schemas.microsoft.com/office/2011/relationships/chartStyle")
             type = XLRelationshipType::ChartStyle;
         else if (typeString == "http://schemas.microsoft.com/office/2011/relationships/chartColorStyle")
@@ -91,7 +91,7 @@ namespace
             typeString = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/externalLink";
         else if (type == XLRelationshipType::Theme)
             typeString = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme";
-        else if (type == XLRelationshipType::ChartSheet)
+        else if (type == XLRelationshipType::Chartsheet)
             typeString = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/chartsheet";
         else if (type == XLRelationshipType::ChartStyle)
             typeString = "http://schemas.microsoft.com/office/2011/relationships/chartStyle";

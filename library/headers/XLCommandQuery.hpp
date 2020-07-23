@@ -105,10 +105,7 @@ namespace OpenXLSX
     class XLCommandAddWorksheet
     {
     public:
-        XLCommandAddWorksheet(const std::string& sheetName, const std::string& sheetPath, uint16_t sheetIndex)
-            : m_sheetName(sheetName),
-              m_sheetPath(sheetPath),
-              m_sheetIndex(sheetIndex)
+        XLCommandAddWorksheet(const std::string& sheetName, const std::string& sheetPath) : m_sheetName(sheetName), m_sheetPath(sheetPath)
         {}
 
         const std::string& sheetName() const
@@ -121,15 +118,9 @@ namespace OpenXLSX
             return m_sheetPath;
         }
 
-        uint16_t sheetIndex() const
-        {
-            return m_sheetIndex;
-        }
-
     private:
         std::string m_sheetName {};
         std::string m_sheetPath {};
-        uint16_t    m_sheetIndex {};
     };
 
     class XLCommandAddChartsheet
@@ -173,20 +164,31 @@ namespace OpenXLSX
     class XLCommandCloneSheet
     {
     public:
-        XLCommandCloneSheet(const std::string& sheetID, const std::string& sheetName) : m_sheetID(sheetID), m_sheetName(sheetName) {}
+        XLCommandCloneSheet(const std::string& sheetID, const std::string& cloneName, const std::string& clonePath)
+            : m_sheetID(sheetID),
+              m_cloneName(cloneName),
+              m_clonePath(clonePath)
+        {}
 
         const std::string& sheetID() const
         {
             return m_sheetID;
         }
-        const std::string& sheetName() const
+
+        const std::string& cloneName() const
         {
-            return m_sheetName;
+            return m_cloneName;
+        }
+
+        const std::string& clonePath() const
+        {
+            return m_clonePath;
         }
 
     private:
-        std::string m_sheetID {};
-        std::string m_sheetName {};
+        std::string m_sheetID {};   /**< ID of the sheet to clone. */
+        std::string m_cloneName {}; /**< Name of the cloned sheet. */
+        std::string m_clonePath {}; /**< Path of the cloned sheet. */
     };
 
     class XLQuerySheetName
