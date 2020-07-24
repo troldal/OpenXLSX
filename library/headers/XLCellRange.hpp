@@ -46,12 +46,9 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_IMPL_XLCELLRANGE_H
 #define OPENXLSX_IMPL_XLCELLRANGE_H
 
-#include "XLCell.hpp"
+// ===== OpenXLSX Includes ===== //
 #include "XLCellReference.hpp"
-#include "XLSharedStrings.hpp"
 #include "XLXmlParser.hpp"
-
-#include <string>
 
 namespace OpenXLSX
 {

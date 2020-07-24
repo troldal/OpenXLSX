@@ -46,14 +46,15 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_IMPL_XLCELL_H
 #define OPENXLSX_IMPL_XLCELL_H
 
+// ===== OpenXLSX Includes ===== //
 #include "XLCellReference.hpp"
 #include "XLCellValue.hpp"
-#include "XLSharedStrings.hpp"
 #include "XLXmlParser.hpp"
 
 namespace OpenXLSX
 {
     class XLCellRange;
+    class XLSharedStrings;
 
     /**
      * @brief An implementation class encapsulating the properties and behaviours of a spreadsheet cell.

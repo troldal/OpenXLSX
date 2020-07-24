@@ -46,16 +46,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_IMPL_XLABSTRACTXMLFILE_H
 #define OPENXLSX_IMPL_XLABSTRACTXMLFILE_H
 
-// ===== Standard Library Includes ===== //
-#include <iostream>
-#include <map>
-#include <memory>
-#include <string>
-
 // ===== OpenXLSX Includes ===== //
-#include "XLCommandQuery.hpp"
 #include "XLXmlData.hpp"
-#include "XLXmlParser.hpp"
 
 namespace OpenXLSX
 {

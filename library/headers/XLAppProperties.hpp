@@ -40,15 +40,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_IMPL_XLAPPPROPERTIES_H
 #define OPENXLSX_IMPL_XLAPPPROPERTIES_H
 
-// ===== Standard Library Includes ===== //
-#include <map>
-#include <memory>
-#include <string>
-#include <vector>
-
 // ===== OpenXLSX Includes ===== //
 #include "XLXmlFile.hpp"
-#include "XLXmlParser.hpp"
 
 namespace OpenXLSX
 {

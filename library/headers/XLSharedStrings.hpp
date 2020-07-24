@@ -46,27 +46,16 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_IMPL_XLSHAREDSTRINGS_H
 #define OPENXLSX_IMPL_XLSHAREDSTRINGS_H
 
-// ===== Standard Library Includes ===== //
-#include <string_view>
-#include <vector>
-
 // ===== OpenXLSX Includes ===== //
 #include "XLXmlFile.hpp"
-#include "XLXmlParser.hpp"
 
 namespace OpenXLSX
 {
-    class XLDocument;
-    //======================================================================================================================
-    //========== XLSharedStrings Class
-    //=====================================================================================
-    //======================================================================================================================
 
     /**
      * @brief This class encapsulate the Excel concept of Shared Strings. In Excel, instead of havig individual strings
      * in each cell, cells have a reference to an entry in the SharedStrings register. This results in smalle file
      * sizes, as repeated strings are referenced easily.
-     * @todo Consider defining a static method for creating a new shared strings object + XML file.
      */
     class XLSharedStrings : public XLXmlFile
     {
@@ -157,12 +146,7 @@ namespace OpenXLSX
          * the contents of the string, but keeps the XMLNode holding the string.
          */
         void ClearString(int index);
-
-        //----------------------------------------------------------------------------------------------------------------------
-        //           Protected Member Functions
-        //----------------------------------------------------------------------------------------------------------------------
     };
-
 }    // namespace OpenXLSX
 
 #endif    // OPENXLSX_IMPL_XLSHAREDSTRINGS_H
