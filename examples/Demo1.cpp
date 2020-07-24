@@ -9,7 +9,7 @@ int main()
 {
     XLDocument doc;
     doc.create("./MyTest.xlsx");
-    auto wks = doc.workbook()->Worksheet("Sheet1");
+    auto wks = doc.workbook().Worksheet("Sheet1");
 
     wks.Cell(XLCellReference("A1")).Value() = 3.14159;
     wks.Cell(XLCellReference("B1")).Value() = 42;

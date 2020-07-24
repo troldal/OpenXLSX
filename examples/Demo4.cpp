@@ -8,7 +8,7 @@ int main()
 {
     XLDocument doc1;
     doc1.create("./UnicodeTest.xlsx");
-    auto wks1 = doc1.workbook()->Worksheet("Sheet1");
+    auto wks1 = doc1.workbook().Worksheet("Sheet1");
 
     wks1.Cell(XLCellReference("A1")).Value() = "안녕하세요 세계!";
     wks1.Cell(XLCellReference("A2")).Value() = "你好，世界!";
@@ -22,7 +22,7 @@ int main()
 
     XLDocument doc2;
     doc2.open("./UnicodeTest.xlsx");
-    auto wks2 = doc2.workbook()->Worksheet("Sheet1");
+    auto wks2 = doc2.workbook().Worksheet("Sheet1");
 
     cout << "Cell A1: " << wks2.Cell(XLCellReference("A1")).Value().Get<std::string>() << endl;
     cout << "Cell A2: " << wks2.Cell(XLCellReference("A2")).Value().Get<std::string>() << endl;

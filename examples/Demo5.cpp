@@ -8,7 +8,7 @@ int main()
 {
     XLDocument doc1;
     doc1.create("./NumberTest.xlsx");
-    auto wks1 = doc1.workbook()->Worksheet("Sheet1");
+    auto wks1 = doc1.workbook().Worksheet("Sheet1");
 
     wks1.Cell("A1").Value() = 0.01;
     wks1.Cell("B1").Value() = 0.02;
@@ -22,7 +22,7 @@ int main()
 
     XLDocument doc2;
     doc2.open("./NumberTest.xlsx");
-    auto wks2 = doc2.workbook()->Worksheet("Sheet1");
+    auto wks2 = doc2.workbook().Worksheet("Sheet1");
 
     cout << "Cell A1: " << wks2.Cell("A1").Value().Get<double>() << endl;
     cout << "Cell B1: " << wks2.Cell("B1").Value().Get<double>() << endl;

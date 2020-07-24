@@ -8,7 +8,7 @@ int main()
 {
     XLDocument doc1;
     doc1.create("./StringTest.xlsx");
-    auto wks1 = doc1.workbook()->Worksheet("Sheet1");
+    auto wks1 = doc1.workbook().Worksheet("Sheet1");
 
     wks1.Cell("A1").Value() = "Hello OpenXLSX!";
     wks1.Cell("B1").Value() = " Hello OpenXLSX! ";
@@ -22,7 +22,7 @@ int main()
 
     XLDocument doc2;
     doc2.open("./StringTest.xlsx");
-    auto wks2 = doc2.workbook()->Worksheet("Sheet1");
+    auto wks2 = doc2.workbook().Worksheet("Sheet1");
 
     cout << "Cell A1: " << wks2.Cell("A1").Value().Get<std::string>().length() << endl;
     cout << "Cell B1: " << wks2.Cell("B1").Value().Get<std::string>().length() << endl;

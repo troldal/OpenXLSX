@@ -46,7 +46,7 @@ static void BM_WriteMatrix(benchmark::State& state)
 {
     XLDocument doc;
     doc.create("./benchmark.xlsx");
-    auto wks = doc.workbook()->Worksheet("Sheet1");
+    auto wks = doc.workbook().Worksheet("Sheet1");
     // auto arange = wks->Range(XLCellReference("A1"), XLCellReference(state.range(0), state.range(0)));
 
     for (auto _ : state) {
