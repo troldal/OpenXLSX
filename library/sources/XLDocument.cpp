@@ -512,19 +512,11 @@ const std::string& XLDocument::path() const
 }
 
 /**
- * @details Get a pointer to the underlying XLWorkbook object.
- */
-XLWorkbook* XLDocument::workbook()
-{
-    return &m_workbook;
-}
-
-/**
  * @details Get a const pointer to the underlying XLWorkbook object.
  */
-const XLWorkbook* XLDocument::workbook() const
+XLWorkbook XLDocument::workbook() const
 {
-    return &m_workbook;
+    return m_workbook;
 }
 
 /**

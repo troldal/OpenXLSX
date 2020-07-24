@@ -14,43 +14,49 @@
 #include <utility>
 #include <vector>
 
-using namespace std;
 using namespace OpenXLSX;
 
 namespace
 {
-    std::string getNewSheetXmlData()
-    {
-        return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
-               "<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\""
-               " xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\""
-               " xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac\""
-               " xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\">"
-               "<dimension ref=\"A1\"/>"
-               "<sheetViews>"
-               "<sheetView workbookViewId=\"0\"/>"
-               "</sheetViews>"
-               "<sheetFormatPr baseColWidth=\"10\" defaultRowHeight=\"16\" x14ac:dyDescent=\"0.2\"/>"
-               "<sheetData/>"
-               "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/>"
-               "</worksheet>";
-    }
-
+    /**
+     * @brief
+     * @param sheetsNode
+     * @param sheetRID
+     * @return
+     */
     inline XMLNode getSheetNodeByRID(XMLNode sheetsNode, const std::string& sheetRID)
     {
         return sheetsNode.find_child_by_attribute("r:id", sheetRID.c_str());
     }
 
+    /**
+     * @brief
+     * @param sheetsNode
+     * @param sheetID
+     * @return
+     */
     inline XMLNode getSheetNodeByID(XMLNode sheetsNode, uint16_t sheetID)
     {
         return sheetsNode.find_child_by_attribute("sheetId", std::to_string(sheetID).c_str());
     }
 
+    /**
+     * @brief
+     * @param sheetsNode
+     * @param sheetName
+     * @return
+     */
     inline XMLNode getSheetNodeByName(XMLNode sheetsNode, const std::string& sheetName)
     {
         return sheetsNode.find_child_by_attribute("name", sheetName.c_str());
     }
 
+    /**
+     * @brief
+     * @param sheetsNode
+     * @param sheetRID
+     * @return
+     */
     inline uint16_t getSheetIndexByRID(XMLNode sheetsNode, const std::string& sheetRID)
     {
         auto sheetNode = getSheetNodeByRID(sheetsNode, sheetRID);
@@ -61,6 +67,12 @@ namespace
         throw XLException("Sheet with rID \"" + sheetRID + "\" does not exist.");
     }
 
+    /**
+     * @brief
+     * @param sheetsNode
+     * @param sheetID
+     * @return
+     */
     inline uint16_t getSheetIndexByID(XMLNode sheetsNode, uint16_t sheetID)
     {
         auto sheetNode = getSheetNodeByID(sheetsNode, sheetID);
@@ -68,9 +80,15 @@ namespace
 
         for (auto iter = sheetsNode.children().begin(); iter != sheetsNode.children().end(); ++iter)
             if (*iter == sheetNode) return std::distance(sheetNode.children().begin(), iter);
-        throw XLException("Sheet with ID \"" + to_string(sheetID) + "\" does not exist.");
+        throw XLException("Sheet with ID \"" + std::to_string(sheetID) + "\" does not exist.");
     }
 
+    /**
+     * @brief
+     * @param sheetsNode
+     * @param sheetName
+     * @return
+     */
     inline uint16_t getSheetIndexByName(XMLNode sheetsNode, const std::string& sheetName)
     {
         auto sheetNode = getSheetNodeByName(sheetsNode, sheetName);
@@ -81,16 +99,33 @@ namespace
         throw XLException("Sheet with name \"" + sheetName + "\" does not exist.");
     }
 
+    /**
+     * @brief
+     * @param sheetsNode
+     * @param sheetRID
+     * @return
+     */
     inline std::string getSheetNameByRID(XMLNode sheetsNode, const std::string& sheetRID)
     {
         return getSheetNodeByRID(sheetsNode, sheetRID).attribute("name").value();
     }
 
+    /**
+     * @brief
+     * @param sheetsNode
+     * @param sheetName
+     * @return
+     */
     inline std::string getSheetRIDByName(XMLNode sheetsNode, const std::string& sheetName)
     {
         return getSheetNodeByName(sheetsNode, sheetName).attribute("r:id").value();
     }
 
+    /**
+     * @brief
+     * @param sheetsNode
+     * @return
+     */
     inline uint16_t calculateNewSheetNumber(XMLNode sheetsNode)
     {
         return std::max_element(
@@ -111,12 +146,6 @@ namespace
 XLWorkbook::XLWorkbook(XLXmlData* xmlData) : XLXmlFile(xmlData) {}
 
 /**
- * @details The destructor is specifically defaulted in the implementation file. Otherwise compilation issues
- * will occur.
- */
-XLWorkbook::~XLWorkbook() = default;
-
-/**
  * @details
  */
 XLSheet XLWorkbook::Sheet(const std::string& sheetName)
@@ -135,11 +164,11 @@ XLSheet XLWorkbook::Sheet(const std::string& sheetName)
 /**
  * @details Create a vector with sheet nodes, retrieve the node at the requested index, get sheet name and return the
  * corresponding sheet object.
- * @todo Throw if index is out of bounds
  */
-XLSheet XLWorkbook::Sheet(unsigned int index)
+XLSheet XLWorkbook::Sheet(uint16_t index)
 {
-    return Sheet(vector<XMLNode>(getSheetsNode().begin(), getSheetsNode().end())[index - 1].attribute("name").as_string());
+    if (index < 1 || index > SheetCount()) throw XLException("Sheet index is out of bounds");
+    return Sheet(std::vector<XMLNode>(getSheetsNode().begin(), getSheetsNode().end())[index - 1].attribute("name").as_string());
 }
 
 /**
@@ -190,7 +219,7 @@ void XLWorkbook::DeleteSheet(const std::string& sheetName)
     // ===== Determine ID and type of sheet, as well as current worksheet count.
     auto sheetID        = getSheetsNode().find_child_by_attribute("name", sheetName.c_str()).attribute("r:id").value();    // NOLINT
     auto sheetType      = ParentDoc().executeQuery(XLQuerySheetType(getRID())).sheetType();
-    auto worksheetCount = count_if(getSheetsNode().children().begin(), getSheetsNode().children().end(), [&](const XMLNode& item) {
+    auto worksheetCount = std::count_if(getSheetsNode().children().begin(), getSheetsNode().children().end(), [&](const XMLNode& item) {
         return ParentDoc().executeQuery(XLQuerySheetType(item.attribute("r:id").value())).sheetType() == XLContentType::Worksheet;
     });
 
@@ -218,7 +247,7 @@ void XLWorkbook::AddWorksheet(const std::string& sheetName)
     auto internalID = calculateNewSheetNumber(XmlDocument().document_element().child("sheets"));
 
     // ===== Create xml file for new worksheet and add metadata to the workbook file.
-    ParentDoc().executeCommand(XLCommandAddWorksheet(sheetName, "/xl/worksheets/sheet" + to_string(internalID) + ".xml"));
+    ParentDoc().executeCommand(XLCommandAddWorksheet(sheetName, "/xl/worksheets/sheet" + std::to_string(internalID) + ".xml"));
     prepareSheetMetadata(sheetName, internalID);
 }
 
@@ -226,7 +255,7 @@ void XLWorkbook::AddWorksheet(const std::string& sheetName)
  * @details
  * @todo If the original sheet's tabSelected attribute is set, ensure it is un-set in the clone.
  */
-void XLWorkbook::CloneWorksheet(const std::string& extName, const std::string& newName)
+void XLWorkbook::cloneSheet(const std::string& extName, const std::string& newName)
 {
     // ===== If a sheet with the given name already exists, throw an exception.
     if (XmlDocument().document_element().child("sheets").find_child_by_attribute("name", newName.c_str()))
@@ -237,7 +266,7 @@ void XLWorkbook::CloneWorksheet(const std::string& extName, const std::string& n
     std::string sheetID    = getSheetsNode().find_child_by_attribute("name", extName.c_str()).attribute("r:id").value();
 
     // ===== Create xml file for new worksheet and add metadata to the workbook file.
-    ParentDoc().executeCommand(XLCommandCloneSheet(sheetID, newName, "/xl/worksheets/sheet" + to_string(internalID) + ".xml"));
+    ParentDoc().executeCommand(XLCommandCloneSheet(sheetID, newName, "/xl/worksheets/sheet" + std::to_string(internalID) + ".xml"));
     prepareSheetMetadata(newName, internalID);
 }
 
@@ -250,9 +279,9 @@ void XLWorkbook::prepareSheetMetadata(const std::string& sheetName, uint16_t int
     auto node = getSheetsNode().append_child("sheet");
 
     // ===== append the required attributes to the newly created sheet node.
-    std::string sheetPath            = "/xl/worksheets/sheet" + to_string(internalID) + ".xml";
+    std::string sheetPath            = "/xl/worksheets/sheet" + std::to_string(internalID) + ".xml";
     node.append_attribute("name")    = sheetName.c_str();
-    node.append_attribute("sheetId") = to_string(internalID).c_str();
+    node.append_attribute("sheetId") = std::to_string(internalID).c_str();
     node.append_attribute("r:id")    = ParentDoc().executeQuery(XLQuerySheetRelsID(sheetPath)).sheetID().c_str();
 }
 
@@ -268,7 +297,7 @@ XMLNode XLWorkbook::getSheetsNode() const
 /**
  * @details
  */
-void XLWorkbook::setSheetName(const string& sheetRID, const string& newName)
+void XLWorkbook::setSheetName(const std::string& sheetRID, const std::string& newName)
 {
     auto sheetName = XmlDocument().document_element().child("sheets").find_child_by_attribute("r:id", sheetRID.c_str()).attribute("name");
 
@@ -279,7 +308,7 @@ void XLWorkbook::setSheetName(const string& sheetRID, const string& newName)
 /**
  * @details
  */
-void XLWorkbook::setSheetVisibility(const string& sheetRID, const string& state)
+void XLWorkbook::setSheetVisibility(const std::string& sheetRID, const std::string& state)
 {
     // ===== Retrieve or create the visibility ("state") attribute for the sheet.
     auto stateAttribute =
@@ -289,6 +318,7 @@ void XLWorkbook::setSheetVisibility(const string& sheetRID, const string& state)
             XmlDocument().document_element().child("sheets").find_child_by_attribute("r:id", sheetRID.c_str()).append_attribute("state");
     }
 
+    // ===== Set the visibility attribute.
     stateAttribute.set_value(state.c_str());
 }
 
@@ -357,13 +387,12 @@ unsigned int XLWorkbook::IndexOfSheet(const std::string& sheetName) const
  */
 XLSheetType XLWorkbook::TypeOfSheet(const std::string& sheetName) const
 {
-    //    auto sheetData = find_if(m_sheets.begin(), m_sheets.end(), [&](const XLSheetData& data) {
-    //        return sheetName == data.sheetNode.attribute("name").value();
-    //    });
-    //
-    //    if (sheetData == m_sheets.end()) throw XLException("Sheet \"" + sheetName + "\" does not exist");
-    //
-    //    return sheetData->sheetType;
+    if (!SheetExists(sheetName)) throw XLException("Sheet with name \"" + sheetName + "\" doesn't exist.");
+
+    if (WorksheetExists(sheetName))
+        return XLSheetType::Worksheet;
+    else
+        return XLSheetType::Chartsheet;
 }
 
 /**
@@ -371,7 +400,7 @@ XLSheetType XLWorkbook::TypeOfSheet(const std::string& sheetName) const
  */
 XLSheetType XLWorkbook::TypeOfSheet(unsigned int index) const
 {
-    string name = vector<XMLNode>(getSheetsNode().begin(), getSheetsNode().end())[index - 1].attribute("name").as_string();
+    std::string name = std::vector<XMLNode>(getSheetsNode().begin(), getSheetsNode().end())[index - 1].attribute("name").as_string();
     return TypeOfSheet(name);
 }
 
@@ -388,9 +417,7 @@ unsigned int XLWorkbook::SheetCount() const
  */
 unsigned int XLWorkbook::WorksheetCount() const
 {
-    //    return count_if(m_sheets.begin(), m_sheets.end(), [](const XLSheetData& iter) {
-    //        return iter.sheetType == XLSheetType::WorkSheet;
-    //    });
+    return WorksheetNames().size();
 }
 
 /**
@@ -398,9 +425,7 @@ unsigned int XLWorkbook::WorksheetCount() const
  */
 unsigned int XLWorkbook::ChartsheetCount() const
 {
-    //    return count_if(m_sheets.begin(), m_sheets.end(), [](const XLSheetData& iter) {
-    //        return iter.sheetType == XLSheetType::ChartSheet;
-    //    });
+    return ChartsheetNames().size();
 }
 
 /**
@@ -408,11 +433,11 @@ unsigned int XLWorkbook::ChartsheetCount() const
  */
 std::vector<std::string> XLWorkbook::SheetNames() const
 {
-    //    vector<string> result;
-    //
-    //    for (const auto& item : m_sheets) result.emplace_back(item.sheetNode.attribute("name").value());
-    //
-    //    return result;
+    std::vector<std::string> results;
+
+    for (const auto& item : getSheetsNode().children()) results.emplace_back(item.attribute("name").value());
+
+    return results;
 }
 
 /**
@@ -435,13 +460,14 @@ std::vector<std::string> XLWorkbook::WorksheetNames() const
  */
 std::vector<std::string> XLWorkbook::ChartsheetNames() const
 {
-    //    vector<string> result;
-    //
-    //    for (const auto& item : m_sheets)
-    //        if (item.sheetType == XLSheetType::ChartSheet)
-    //        result.emplace_back(item.sheetNode.attribute("name").value());
-    //
-    //    return result;
+    std::vector<std::string> results;
+
+    for (const auto& item : getSheetsNode().children()) {
+        if (ParentDoc().executeQuery(XLQuerySheetType(item.attribute("r:id").value())).sheetType() == XLContentType::Chartsheet)
+            results.emplace_back(item.attribute("name").value());
+    }
+
+    return results;
 }
 
 /**
@@ -449,9 +475,7 @@ std::vector<std::string> XLWorkbook::ChartsheetNames() const
  */
 bool XLWorkbook::SheetExists(const std::string& sheetName) const
 {
-    //    return find_if(m_sheets.begin(), m_sheets.end(), [&](const XLSheetData& item) {
-    //               return sheetName == item.sheetNode.attribute("name").value();
-    //           }) != m_sheets.end();
+    return ChartsheetExists(sheetName) || WorksheetExists(sheetName);
 }
 
 /**
@@ -459,10 +483,8 @@ bool XLWorkbook::SheetExists(const std::string& sheetName) const
  */
 bool XLWorkbook::WorksheetExists(const std::string& sheetName) const
 {
-    //    return find_if(m_sheets.begin(), m_sheets.end(), [&](const XLSheetData& item) {
-    //               return (sheetName == item.sheetNode.attribute("name").value() &&
-    //                       item.sheetType == XLSheetType::WorkSheet);
-    //           }) != m_sheets.end();
+    auto wksNames = WorksheetNames();
+    return std::find(wksNames.begin(), wksNames.end(), sheetName) != wksNames.end();
 }
 
 /**
@@ -470,10 +492,8 @@ bool XLWorkbook::WorksheetExists(const std::string& sheetName) const
  */
 bool XLWorkbook::ChartsheetExists(const std::string& sheetName) const
 {
-    //    return find_if(m_sheets.begin(), m_sheets.end(), [&](const XLSheetData& item) {
-    //               return (sheetName == item.sheetNode.attribute("name").value() &&
-    //                       item.sheetType == XLSheetType::ChartSheet);
-    //           }) != m_sheets.end();
+    auto chsNames = ChartsheetNames();
+    return std::find(chsNames.begin(), chsNames.end(), sheetName) != chsNames.end();
 }
 
 /**

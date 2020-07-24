@@ -70,8 +70,8 @@ namespace OpenXLSX
     class XLChartsheet;
 
     /**
-     * @brief This class encapsulates the concept of a Workbook. It provides access to the embedded sheets
-     * (worksheets or chartsheets), as well as functionality for adding, deleting and renaming sheets.
+     * @brief This class encapsulates the concept of a Workbook. It provides access to the individual sheets
+     * (worksheets or chartsheets), as well as functionality for adding, deleting, moving and renaming sheets.
      */
     class XLWorkbook : public XLXmlFile
     {
@@ -79,12 +79,14 @@ namespace OpenXLSX
         friend class XLDocument;
 
     public:    // ---------- Public Member Functions ---------- //
-        XLWorkbook() = default;
         /**
-         * @brief Constructor. Takes a reference to the parent XLDocument and a std::string with the relative path as
-         * arguments.
-         * @param parent A reference to the parent XLDocument object.
-         * @param xmlData The relative path to the underlying XML file.
+         * @brief Default constructor. Creates an empty ('null') XLWorkbook object.
+         */
+        XLWorkbook() = default;
+
+        /**
+         * @brief Constructor. Takes a pointer to an XLXmlData object (stored in the parent XLDocument object).
+         * @param xmlData A pointer to the underlying XLXmlData object, which holds the XML data.
          * @note Do not create an XLWorkbook object directly. Get access through the an XLDocument object.
          */
         explicit XLWorkbook(XLXmlData* xmlData);
@@ -92,14 +94,14 @@ namespace OpenXLSX
         /**
          * @brief Copy Constructor.
          * @param other The XLWorkbook object to be copied.
-         * @note The copy constructor has been explicitly deleted, as XLWorkbook objects should not be copied.
+         * @note The copy constructor has been explicitly defaulted.
          */
         XLWorkbook(const XLWorkbook& other) = default;
 
         /**
          * @brief Move constructor.
          * @param other The XLWorkbook to be moved.
-         * @note The move constructor has been explicitly deleted, as XLWorkbook objects should not be moved.
+         * @note The move constructor has been explicitly defaulted.
          */
         XLWorkbook(XLWorkbook&& other) = default;
 
@@ -107,7 +109,7 @@ namespace OpenXLSX
          * @brief Destructor
          * @note Default destructor specified
          */
-        ~XLWorkbook() override;
+        ~XLWorkbook() override = default;
 
         /**
          * @brief Copy assignment operator.
@@ -127,19 +129,16 @@ namespace OpenXLSX
 
         /**
          * @brief Get the sheet (worksheet or chartsheet) at the given index.
-         * @param index The index et which the desired sheet is located.
+         * @param index The index at which the desired sheet is located.
          * @return A pointer to an XLAbstractSheet with the sheet at the index.
-         * @todo This method is currently unimplemented.
-         * @todo What should happen if the index is invalid?
+         * @note The index must be 1-based (rather than 0-based) as this is the default for Excel spreadsheets.
          */
-        XLSheet Sheet(unsigned int index);
+        XLSheet Sheet(uint16_t index);
 
         /**
          * @brief Get the sheet (worksheet or chartsheet) with the given name.
          * @param sheetName The name at which the desired sheet is located.
          * @return A pointer to an XLAbstractSheet with the sheet at the index.
-         * @todo This method is currently unimplemented.
-         * @todo What should happen if the name is invalid?
          */
         XLSheet Sheet(const std::string& sheetName);
 
@@ -179,10 +178,8 @@ namespace OpenXLSX
          * @param extName The name of the worksheet to clone.
          * @param newName The name of the cloned worksheet.
          * @param index The index at which the worksheet should be inserted.
-         * @todo The function works, but Excel reports errors when opening.
-         * @todo Is it possible to have a common CloneSheet function?
          */
-        void CloneWorksheet(const std::string& extName, const std::string& newName);
+        void cloneSheet(const std::string& extName, const std::string& newName);
 
         /**
          * @brief
@@ -340,7 +337,6 @@ namespace OpenXLSX
             }
         }
 
-        // ---------- Protected Member Functions ---------- //
 
     private:    // ---------- Private Member Functions ---------- //
         /**

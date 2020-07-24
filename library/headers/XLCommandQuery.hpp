@@ -369,7 +369,7 @@ namespace OpenXLSX
     class XLQuerySharedStrings
     {
     public:
-        explicit XLQuerySharedStrings() {}
+        explicit XLQuerySharedStrings() = default;
 
         XLSharedStrings* sharedStrings() const
         {

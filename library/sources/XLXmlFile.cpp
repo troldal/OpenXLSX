@@ -57,7 +57,7 @@ string XLXmlFile::FilePath() const
  */
 XMLDocument& XLXmlFile::XmlDocument()
 {
-    return const_cast<XMLDocument&>(static_cast<const XLXmlFile*>(this)->XmlDocument());
+    return const_cast<XMLDocument&>(static_cast<const XLXmlFile*>(this)->XmlDocument());    // NOLINT
 }
 
 /**

@@ -161,7 +161,7 @@ namespace OpenXLSX
          */
         XLSheetType Type() const
         {
-            return XLSheetType::WorkSheet;
+            return XLSheetType::Worksheet;
         }
 
         /**

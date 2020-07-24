@@ -171,16 +171,10 @@ namespace OpenXLSX
         const std::string& path() const;
 
         /**
-         * @brief Get the underlying workbook object.
-         * @return A pointer to the XLWorkbook object
-         */
-        XLWorkbook* workbook();
-
-        /**
          * @brief Get the underlying workbook object, as a const object.
          * @return A const pointer to the XLWorkbook object.
          */
-        const XLWorkbook* workbook() const;
+        XLWorkbook workbook() const;
 
         /**
          * @brief Get the requested document property.
