@@ -273,6 +273,30 @@ void XLWorkbook::cloneSheet(const std::string& extName, const std::string& newNa
 /**
  * @details
  */
+std::string XLWorkbook::sheetID(const std::string& sheetName)
+{
+    return xmlDocument().document_element().child("sheets").find_child_by_attribute("name", sheetName.c_str()).attribute("r:id").value();
+}
+
+/**
+ * @details
+ */
+std::string XLWorkbook::sheetName(const std::string& sheetID) const
+{
+    return xmlDocument().document_element().child("sheets").find_child_by_attribute("r:id", sheetID.c_str()).attribute("name").value();
+}
+
+/**
+ * @details
+ */
+std::string XLWorkbook::sheetVisibility(const std::string& sheetID) const
+{
+    return xmlDocument().document_element().child("sheets").find_child_by_attribute("r:id", sheetID.c_str()).attribute("state").value();
+}
+
+/**
+ * @details
+ */
 void XLWorkbook::prepareSheetMetadata(const std::string& sheetName, uint16_t internalID)
 {
     // ===== Add new child node to the "sheets" node.

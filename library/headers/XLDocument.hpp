@@ -295,6 +295,7 @@ namespace OpenXLSX
 
         /**
          * @brief
+         * @tparam Query
          * @param query
          * @return
          */
@@ -302,15 +303,17 @@ namespace OpenXLSX
         Query executeQuery(Query query) const
         {
             if constexpr (std::is_same_v<Query, XLQuerySheetName>) {    // NOLINT
-                return m_workbook.executeQuery(query);
+                query.setSheetName(m_workbook.sheetName(query.sheetID()));
+                return query;
             }
 
             else if constexpr (std::is_same_v<Query, XLQuerySheetIndex>) {
-                return m_workbook.executeQuery(query);
+                return query;
             }
 
             else if constexpr (std::is_same_v<Query, XLQuerySheetVisibility>) {
-                return m_workbook.executeQuery(query);
+                query.setSheetVisibility(m_workbook.sheetVisibility(query.sheetID()));
+                return query;
             }
 
             else if constexpr (std::is_same_v<Query, XLQuerySheetType>) {
@@ -323,7 +326,8 @@ namespace OpenXLSX
             }
 
             else if constexpr (std::is_same_v<Query, XLQuerySheetID>) {
-                return m_workbook.executeQuery(query);
+                query.setSheetVisibility(m_workbook.sheetVisibility(query.sheetName()));
+                return query;
             }
 
             else if constexpr (std::is_same_v<Query, XLQuerySheetRelsID>) {

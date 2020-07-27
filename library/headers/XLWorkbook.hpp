@@ -289,56 +289,28 @@ namespace OpenXLSX
          */
         void deleteNamedRanges();
 
-        template<typename Query>
-        Query executeQuery(Query query) const
-        {
-            if constexpr (std::is_same_v<Query, XLQuerySheetName>) {
-                query.setSheetName(xmlDocument()
-                                       .document_element()
-                                       .child("sheets")
-                                       .find_child_by_attribute("r:id", query.sheetID().c_str())
-                                       .attribute("name")
-                                       .value());
-                return query;
-            }
-
-            else if constexpr (std::is_same_v<Query, XLQuerySheetIndex>) {    // NOLINT
-                return query;
-            }
-
-            else if constexpr (std::is_same_v<Query, XLQuerySheetVisibility>) {
-                query.setSheetVisibility(xmlDocument()
-                                             .document_element()
-                                             .child("sheets")
-                                             .find_child_by_attribute("r:id", query.sheetID().c_str())
-                                             .attribute("state")
-                                             .value());
-
-                return query;
-            }
-
-            else if constexpr (std::is_same_v<Query, XLQuerySheetType>) {
-                return query;
-            }
-
-            else if constexpr (std::is_same_v<Query, XLQuerySheetID>) {
-                query.setSheetID(xmlDocument()
-                                     .document_element()
-                                     .child("sheets")
-                                     .find_child_by_attribute("name", query.sheetName().c_str())
-                                     .attribute("r:id")
-                                     .value());
-
-                return query;
-            }
-
-            else {
-                throw XLException("Invalid query object.");
-            }
-        }
-
-
     private:    // ---------- Private Member Functions ---------- //
+        /**
+         * @brief
+         * @param sheetName
+         * @return
+         */
+        std::string sheetID(const std::string& sheetName);
+
+        /**
+         * @brief
+         * @param sheetID
+         * @return
+         */
+        std::string sheetName(const std::string& sheetID) const;
+
+        /**
+         * @brief
+         * @param sheetID
+         * @return
+         */
+        std::string sheetVisibility(const std::string& sheetID) const;
+
         /**
          * @brief Helper function to create a new XML file to hold the data for a new worksheet.
          * @param sheetName The name of the new worksheet.
