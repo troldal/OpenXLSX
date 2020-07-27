@@ -526,13 +526,13 @@ std::string XLDocument::property(XLProperty prop) const
 {
     switch (prop) {
         case XLProperty::Application:
-            return m_appProperties.Property("Application").text().get();
+            return m_appProperties.property("Application").text().get();
         case XLProperty::AppVersion:
-            return m_appProperties.Property("AppVersion").text().get();
+            return m_appProperties.property("AppVersion").text().get();
         case XLProperty::Category:
             return m_coreProperties.Property("cp:category");
         case XLProperty::Company:
-            return m_appProperties.Property("Company").text().get();
+            return m_appProperties.property("Company").text().get();
         case XLProperty::CreationDate:
             return m_coreProperties.Property("dcterms:created");
         case XLProperty::Creator:
@@ -540,11 +540,11 @@ std::string XLDocument::property(XLProperty prop) const
         case XLProperty::Description:
             return m_coreProperties.Property("dc:description");
         case XLProperty::DocSecurity:
-            return m_appProperties.Property("DocSecurity").text().get();
+            return m_appProperties.property("DocSecurity").text().get();
         case XLProperty::HyperlinkBase:
-            return m_appProperties.Property("HyperlinkBase").text().get();
+            return m_appProperties.property("HyperlinkBase").text().get();
         case XLProperty::HyperlinksChanged:
-            return m_appProperties.Property("HyperlinksChanged").text().get();
+            return m_appProperties.property("HyperlinksChanged").text().get();
         case XLProperty::Keywords:
             return m_coreProperties.Property("cp:keywords");
         case XLProperty::LastModifiedBy:
@@ -552,15 +552,15 @@ std::string XLDocument::property(XLProperty prop) const
         case XLProperty::LastPrinted:
             return m_coreProperties.Property("cp:lastPrinted");
         case XLProperty::LinksUpToDate:
-            return m_appProperties.Property("LinksUpToDate").text().get();
+            return m_appProperties.property("LinksUpToDate").text().get();
         case XLProperty::Manager:
-            return m_appProperties.Property("Manager").text().get();
+            return m_appProperties.property("Manager").text().get();
         case XLProperty::ModificationDate:
             return m_coreProperties.Property("dcterms:modified");
         case XLProperty::ScaleCrop:
-            return m_appProperties.Property("ScaleCrop").text().get();
+            return m_appProperties.property("ScaleCrop").text().get();
         case XLProperty::SharedDoc:
-            return m_appProperties.Property("SharedDoc").text().get();
+            return m_appProperties.property("SharedDoc").text().get();
         case XLProperty::Subject:
             return m_coreProperties.Property("dc:subject");
         case XLProperty::Title:
@@ -598,7 +598,7 @@ void XLDocument::setProperty(XLProperty prop, const std::string& value)
 {
     switch (prop) {
         case XLProperty::Application:
-            m_appProperties.SetProperty("Application", value);
+            m_appProperties.setProperty("Application", value);
             break;
         case XLProperty::AppVersion:    // ===== TODO: Clean up this section
             try {
@@ -611,7 +611,7 @@ void XLDocument::setProperty(XLProperty prop, const std::string& value)
             if (value.find('.') != std::string::npos) {
                 if (!value.substr(value.find('.') + 1).empty() && value.substr(value.find('.') + 1).size() <= 5) {
                     if (!value.substr(0, value.find('.')).empty() && value.substr(0, value.find('.')).size() <= 2) {
-                        m_appProperties.SetProperty("AppVersion", value);
+                        m_appProperties.setProperty("AppVersion", value);
                     }
                     else
                         throw XLException("Invalid property value");
@@ -628,7 +628,7 @@ void XLDocument::setProperty(XLProperty prop, const std::string& value)
             m_coreProperties.SetProperty("cp:category", value);
             break;
         case XLProperty::Company:
-            m_appProperties.SetProperty("Company", value);
+            m_appProperties.setProperty("Company", value);
             break;
         case XLProperty::CreationDate:
             m_coreProperties.SetProperty("dcterms:created", value);
@@ -641,17 +641,17 @@ void XLDocument::setProperty(XLProperty prop, const std::string& value)
             break;
         case XLProperty::DocSecurity:
             if (value == "0" || value == "1" || value == "2" || value == "4" || value == "8")
-                m_appProperties.SetProperty("DocSecurity", value);
+                m_appProperties.setProperty("DocSecurity", value);
             else
                 throw XLException("Invalid property value");
             break;
 
         case XLProperty::HyperlinkBase:
-            m_appProperties.SetProperty("HyperlinkBase", value);
+            m_appProperties.setProperty("HyperlinkBase", value);
             break;
         case XLProperty::HyperlinksChanged:
             if (value == "true" || value == "false")
-                m_appProperties.SetProperty("HyperlinksChanged", value);
+                m_appProperties.setProperty("HyperlinksChanged", value);
             else
                 throw XLException("Invalid property value");
 
@@ -668,27 +668,27 @@ void XLDocument::setProperty(XLProperty prop, const std::string& value)
             break;
         case XLProperty::LinksUpToDate:
             if (value == "true" || value == "false")
-                m_appProperties.SetProperty("LinksUpToDate", value);
+                m_appProperties.setProperty("LinksUpToDate", value);
             else
                 throw XLException("Invalid property value");
             break;
 
         case XLProperty::Manager:
-            m_appProperties.SetProperty("Manager", value);
+            m_appProperties.setProperty("Manager", value);
             break;
         case XLProperty::ModificationDate:
             m_coreProperties.SetProperty("dcterms:modified", value);
             break;
         case XLProperty::ScaleCrop:
             if (value == "true" || value == "false")
-                m_appProperties.SetProperty("ScaleCrop", value);
+                m_appProperties.setProperty("ScaleCrop", value);
             else
                 throw XLException("Invalid property value");
             break;
 
         case XLProperty::SharedDoc:
             if (value == "true" || value == "false")
-                m_appProperties.SetProperty("SharedDoc", value);
+                m_appProperties.setProperty("SharedDoc", value);
             else
                 throw XLException("Invalid property value");
             break;
