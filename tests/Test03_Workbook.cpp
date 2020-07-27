@@ -29,8 +29,8 @@ TEST_CASE("C++ Interface Test 03: Testing of XLWorkbook objects")
      */
     SECTION("Test 02A: SheetCount()")
     {
-        REQUIRE(mwbk.SheetCount() == 1);
-        REQUIRE(cwbk.SheetCount() == 1);
+        REQUIRE(mwbk.sheetCount() == 1);
+        REQUIRE(cwbk.sheetCount() == 1);
     }
 
     /**
@@ -38,151 +38,162 @@ TEST_CASE("C++ Interface Test 03: Testing of XLWorkbook objects")
  *
  * @details
  */
-    SECTION("Test 02B: IndexOfSheet()") {
-        REQUIRE(mwbk.IndexOfSheet("Sheet1") == 1);
-        REQUIRE(cwbk.IndexOfSheet("Sheet1") == 1);
+    SECTION("Test 02B: IndexOfSheet()")
+    {
+        REQUIRE(mwbk.indexOfSheet("Sheet1") == 1);
+        REQUIRE(cwbk.indexOfSheet("Sheet1") == 1);
     }
 
-/**
+    /**
  * @brief
  *
  * @details
  */
-    SECTION("Test 02C: WorksheetCount()") {
-        REQUIRE(mwbk.WorksheetCount() == 1);
-        REQUIRE(cwbk.WorksheetCount() == 1);
+    SECTION("Test 02C: WorksheetCount()")
+    {
+        REQUIRE(mwbk.worksheetCount() == 1);
+        REQUIRE(cwbk.worksheetCount() == 1);
     }
 
-/**
+    /**
  * @brief
  *
  * @details
  */
-    SECTION("Test 02D: ChartsheetCount()") {
-        REQUIRE(mwbk.ChartsheetCount() == 0);
-        REQUIRE(cwbk.ChartsheetCount() == 0);
+    SECTION("Test 02D: ChartsheetCount()")
+    {
+        REQUIRE(mwbk.chartsheetCount() == 0);
+        REQUIRE(cwbk.chartsheetCount() == 0);
     }
 
-/**
+    /**
  * @brief
  *
  * @details
  */
-    SECTION("Test 02E: SheetExists()") {
-        REQUIRE(mwbk.SheetExists("Sheet1"));
-        REQUIRE(cwbk.SheetExists("Sheet1"));
+    SECTION("Test 02E: SheetExists()")
+    {
+        REQUIRE(mwbk.sheetExists("Sheet1"));
+        REQUIRE(cwbk.sheetExists("Sheet1"));
     }
 
-/**
+    /**
  * @brief
  *
  * @details
  */
-    SECTION("Test 02F: WorksheetExists()") {
-        REQUIRE(mwbk.WorksheetExists("Sheet1"));
-        REQUIRE(cwbk.WorksheetExists("Sheet1"));
+    SECTION("Test 02F: WorksheetExists()")
+    {
+        REQUIRE(mwbk.worksheetExists("Sheet1"));
+        REQUIRE(cwbk.worksheetExists("Sheet1"));
     }
 
-/**
+    /**
  * @brief
  *
  * @details
  */
-    SECTION("Test 02G: ChartsheetExists()") {
-        REQUIRE(!mwbk.ChartsheetExists("Sheet1"));
-        REQUIRE(!cwbk.ChartsheetExists("Sheet1"));
+    SECTION("Test 02G: ChartsheetExists()")
+    {
+        REQUIRE(!mwbk.chartsheetExists("Sheet1"));
+        REQUIRE(!cwbk.chartsheetExists("Sheet1"));
     }
 
-/**
+    /**
  * @brief
  *
  * @details
  */
-    SECTION("Test 02H: AddWorksheet()") {
-        REQUIRE(!mwbk.SheetExists("MySheet"));
-        mwbk.AddWorksheet("MySheet");
+    SECTION("Test 02H: AddWorksheet()")
+    {
+        REQUIRE(!mwbk.sheetExists("MySheet"));
+        mwbk.addWorksheet("MySheet");
         mdoc.save();
-        REQUIRE(mwbk.SheetExists("MySheet"));
+        REQUIRE(mwbk.sheetExists("MySheet"));
 
-// ===== Should not compile as cwbk is const =====//
-        cwbk.AddWorksheet("MySheetConst");
+        // ===== Should not compile as cwbk is const =====//
+        cwbk.addWorksheet("MySheetConst");
     }
 
-/**
+    /**
  * @brief
  *
  * @details
  */
-    SECTION("Test 02I: CloneWorksheet()") {
-        REQUIRE(!mwbk.SheetExists("MyClonedSheet"));
+    SECTION("Test 02I: CloneWorksheet()")
+    {
+        REQUIRE(!mwbk.sheetExists("MyClonedSheet"));
         mwbk.CloneWorksheet("MySheet", "MyClonedSheet");
         mdoc.save();
-        REQUIRE(mwbk.SheetExists("MyClonedSheet"));
+        REQUIRE(mwbk.sheetExists("MyClonedSheet"));
 
-// ===== Should not compile as cwbk is const =====//
-//cwbk.CloneWorksheet("MySheetConst", "MyClonedSheetConst");
+        // ===== Should not compile as cwbk is const =====//
+        // cwbk.CloneWorksheet("MySheetConst", "MyClonedSheetConst");
     }
 
-/**
+    /**
  * @brief
  *
  * @details
  */
-    SECTION("Test 02J: AddChartsheet()") {
-        REQUIRE(!mwbk.SheetExists("MyChartSheet"));
+    SECTION("Test 02J: AddChartsheet()")
+    {
+        REQUIRE(!mwbk.sheetExists("MyChartSheet"));
         mwbk.AddChartsheet("MyChartSheet");
         mdoc.save();
-        REQUIRE(mwbk.SheetExists("MyChartSheet"));
+        REQUIRE(mwbk.sheetExists("MyChartSheet"));
 
-// ===== Should not compile as cwbk is const =====//
-//cwbk.AddChartsheet("MyChartsheetConst");
+        // ===== Should not compile as cwbk is const =====//
+        // cwbk.AddChartsheet("MyChartsheetConst");
     }
 
-/**
+    /**
  * @brief
  *
  * @details
  */
-    SECTION("Test 02K: MoveSheet()") {
-        REQUIRE(mwbk.IndexOfSheet("MyClonedSheet") == 3);
+    SECTION("Test 02K: MoveSheet()")
+    {
+        REQUIRE(mwbk.indexOfSheet("MyClonedSheet") == 3);
         mwbk.MoveSheet("MyClonedSheet", 1);
         mdoc.save();
-        REQUIRE(mwbk.IndexOfSheet("MyClonedSheet") == 1);
+        REQUIRE(mwbk.indexOfSheet("MyClonedSheet") == 1);
 
-// ===== Should not compile as cwbk is const =====//
-//cwbk.MoveSheet("MyClonedSheetConst");
+        // ===== Should not compile as cwbk is const =====//
+        // cwbk.MoveSheet("MyClonedSheetConst");
     }
 
-/**
+    /**
  * @brief
  *
  * @details
  */
-    SECTION("Test 02L: Copy construction and assignment") {
-        REQUIRE(mwbk.SheetExists("MySheet"));
+    SECTION("Test 02L: Copy construction and assignment")
+    {
+        REQUIRE(mwbk.sheetExists("MySheet"));
         auto mcopy = mwbk;
-        REQUIRE(mcopy.SheetExists("MySheet"));
+        REQUIRE(mcopy.sheetExists("MySheet"));
 
-        REQUIRE(cwbk.SheetExists("Sheet1"));
+        REQUIRE(cwbk.sheetExists("Sheet1"));
         auto ccopy = cwbk;
-        REQUIRE(ccopy.SheetExists("Sheet1"));
+        REQUIRE(ccopy.sheetExists("Sheet1"));
 
         mcopy = ccopy;
     }
 
-/**
+    /**
  * @brief
  *
  * @details
  */
-    SECTION("Test 02N: DeleteSheet()") {
-        REQUIRE(mwbk.SheetExists("MySheet"));
-        mwbk.DeleteSheet("MySheet");
+    SECTION("Test 02N: DeleteSheet()")
+    {
+        REQUIRE(mwbk.sheetExists("MySheet"));
+        mwbk.deleteSheet("MySheet");
         mdoc.save();
-        REQUIRE(!mwbk.SheetExists("MySheet"));
+        REQUIRE(!mwbk.sheetExists("MySheet"));
 
-// ===== Should not compile as cwbk is const =====//
-//cwbk.DeleteSheet()"MySheet";
+        // ===== Should not compile as cwbk is const =====//
+        // cwbk.DeleteSheet()"MySheet";
     }
-
 }

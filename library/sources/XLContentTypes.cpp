@@ -133,7 +133,7 @@ XLContentItem::XLContentItem(XMLNode node) : m_contentNode(node) {}
 /**
  * @details
  */
-XLContentType XLContentItem::Type() const
+XLContentType XLContentItem::type() const
 {
     return GetTypeFromString(m_contentNode.attribute("ContentType").value());
 }
@@ -141,7 +141,7 @@ XLContentType XLContentItem::Type() const
 /**
  * @details
  */
-string XLContentItem::Path() const
+string XLContentItem::path() const
 {
     return m_contentNode.attribute("PartName").value();
 }
@@ -154,11 +154,11 @@ XLContentTypes::XLContentTypes(XLXmlData* xmlData) : XLXmlFile(xmlData) {}
 /**
  * @details
  */
-void XLContentTypes::AddOverride(const string& path, XLContentType type)
+void XLContentTypes::addOverride(const string& path, XLContentType type)
 {
     string typeString = GetStringFromType(type);
 
-    auto node = XmlDocument().first_child().append_child("Override");
+    auto node = xmlDocument().first_child().append_child("Override");
     node.append_attribute("PartName").set_value(path.c_str());
     node.append_attribute("ContentType").set_value(typeString.c_str());
 }
@@ -166,31 +166,31 @@ void XLContentTypes::AddOverride(const string& path, XLContentType type)
 /**
  * @details
  */
-void XLContentTypes::DeleteOverride(const string& path)
+void XLContentTypes::deleteOverride(const string& path)
 {
-    XmlDocument().document_element().remove_child(XmlDocument().document_element().find_child_by_attribute("PartName", path.c_str()));
+    xmlDocument().document_element().remove_child(xmlDocument().document_element().find_child_by_attribute("PartName", path.c_str()));
 }
 
 /**
  * @details
  */
-void XLContentTypes::DeleteOverride(XLContentItem& item)
+void XLContentTypes::deleteOverride(XLContentItem& item)
 {
-    DeleteOverride(item.Path());
+    deleteOverride(item.path());
 }
 
 /**
  * @details
  */
-XLContentItem XLContentTypes::ContentItem(const std::string& path)
+XLContentItem XLContentTypes::contentItem(const std::string& path)
 {
-    return XLContentItem(XmlDocument().document_element().find_child_by_attribute("PartName", path.c_str()));
+    return XLContentItem(xmlDocument().document_element().find_child_by_attribute("PartName", path.c_str()));
 }
 
 vector<XLContentItem> XLContentTypes::getContentItems()
 {
     std::vector<XLContentItem> result;
-    for (auto item : XmlDocument().document_element().children()) {
+    for (auto item : xmlDocument().document_element().children()) {
         if (strcmp(item.name(), "Override") == 0) result.emplace_back(item);
     }
 

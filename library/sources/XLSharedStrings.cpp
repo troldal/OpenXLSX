@@ -21,40 +21,40 @@ XLSharedStrings::XLSharedStrings(XLXmlData* xmlData) : XLXmlFile(xmlData) {}
 /**
  * @details Look up a string index by the string content. If the string does not exist, the returned index is -1.
  */
-int32_t XLSharedStrings::GetStringIndex(const string& str) const
+int32_t XLSharedStrings::getStringIndex(const string& str) const
 {
-    auto iter = std::find_if(XmlDocument().document_element().children().begin(),
-                             XmlDocument().document_element().children().end(),
+    auto iter = std::find_if(xmlDocument().document_element().children().begin(),
+                             xmlDocument().document_element().children().end(),
                              [&](const XMLNode& node) { return strcmp(node.first_child().text().get(), str.c_str()) == 0; });
 
-    return iter == XmlDocument().document_element().children().end()
+    return iter == xmlDocument().document_element().children().end()
                ? -1
-               : std::distance(XmlDocument().document_element().children().begin(), iter);
+               : std::distance(xmlDocument().document_element().children().begin(), iter);
 }
 
 /**
  * @details
  */
-bool XLSharedStrings::StringExists(const string& str) const
+bool XLSharedStrings::stringExists(const string& str) const
 {
-    return GetStringIndex(str) >= 0;
+    return getStringIndex(str) >= 0;
 }
 
 /**
  * @details
  */
-bool XLSharedStrings::StringExists(uint32_t index) const
+bool XLSharedStrings::stringExists(uint32_t index) const
 {
     return index <=
-           std::distance(XmlDocument().document_element().children().begin(), XmlDocument().document_element().children().end()) - 1;
+           std::distance(xmlDocument().document_element().children().begin(), xmlDocument().document_element().children().end()) - 1;
 }
 
 /**
  * @details
  */
-const char* XLSharedStrings::GetString(uint32_t index) const
+const char* XLSharedStrings::getString(uint32_t index) const
 {
-    auto iter = XmlDocument().document_element().children().begin();
+    auto iter = xmlDocument().document_element().children().begin();
     std::advance(iter, index);
     return iter->first_child().text().get();
 }
@@ -63,20 +63,20 @@ const char* XLSharedStrings::GetString(uint32_t index) const
  * @details Append a string by creating a new node in the XML file and adding the string to it. The index to the
  * shared string is returned
  */
-int32_t XLSharedStrings::AppendString(const string& str)
+int32_t XLSharedStrings::appendString(const string& str)
 {
-    XmlDocument().document_element().append_child("si").append_child("t").text().set(str.c_str());
+    xmlDocument().document_element().append_child("si").append_child("t").text().set(str.c_str());
 
-    return std::distance(XmlDocument().document_element().children().begin(), XmlDocument().document_element().children().end()) - 1;
+    return std::distance(xmlDocument().document_element().children().begin(), xmlDocument().document_element().children().end()) - 1;
 }
 
 /**
  * @details Clear the string at the given index. This will affect the entire spreadsheet; everywhere the shared string
  * is used, it will be erased.
  */
-void XLSharedStrings::ClearString(int index)
+void XLSharedStrings::clearString(int index)
 {
-    auto iter = XmlDocument().document_element().children().begin();
+    auto iter = xmlDocument().document_element().children().begin();
     std::advance(iter, index);
     iter->text().set("");
 }

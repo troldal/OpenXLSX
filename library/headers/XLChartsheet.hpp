@@ -110,7 +110,7 @@ namespace OpenXLSX
          * @param newName
          * @return
          */
-        XLChartsheet Clone(const std::string& newName);
+        XLChartsheet clone(const std::string& newName);
     };
 
 }    // namespace OpenXLSX

@@ -8,28 +8,28 @@ int main()
 {
     XLDocument doc1;
     doc1.create("./StringTest.xlsx");
-    auto wks1 = doc1.workbook().Worksheet("Sheet1");
+    auto wks1 = doc1.workbook().worksheet("Sheet1");
 
-    wks1.Cell("A1").Value() = "Hello OpenXLSX!";
-    wks1.Cell("B1").Value() = " Hello OpenXLSX! ";
-    wks1.Cell("C1").Value() = "  Hello OpenXLSX!  ";
-    wks1.Cell("A2").Value() = "";
-    wks1.Cell("B2").Value() = " ";
-    wks1.Cell("C2").Value() = "  ";
+    wks1.cell("A1").value() = "Hello OpenXLSX!";
+    wks1.cell("B1").value() = " Hello OpenXLSX! ";
+    wks1.cell("C1").value() = "  Hello OpenXLSX!  ";
+    wks1.cell("A2").value() = "";
+    wks1.cell("B2").value() = " ";
+    wks1.cell("C2").value() = "  ";
 
     doc1.save();
     doc1.close();
 
     XLDocument doc2;
     doc2.open("./StringTest.xlsx");
-    auto wks2 = doc2.workbook().Worksheet("Sheet1");
+    auto wks2 = doc2.workbook().worksheet("Sheet1");
 
-    cout << "Cell A1: " << wks2.Cell("A1").Value().Get<std::string>().length() << endl;
-    cout << "Cell B1: " << wks2.Cell("B1").Value().Get<std::string>().length() << endl;
-    cout << "Cell C1: " << wks2.Cell("C1").Value().Get<std::string>().length() << endl;
-    cout << "Cell A2: " << wks2.Cell("A2").Value().Get<std::string>().length() << endl;
-    cout << "Cell B2: " << wks2.Cell("B2").Value().Get<std::string>().length() << endl;
-    cout << "Cell C2: " << wks2.Cell("C2").Value().Get<std::string>().length() << endl;
+    cout << "Cell A1: " << wks2.cell("A1").value().get<std::string>().length() << endl;
+    cout << "Cell B1: " << wks2.cell("B1").value().get<std::string>().length() << endl;
+    cout << "Cell C1: " << wks2.cell("C1").value().get<std::string>().length() << endl;
+    cout << "Cell A2: " << wks2.cell("A2").value().get<std::string>().length() << endl;
+    cout << "Cell B2: " << wks2.cell("B2").value().get<std::string>().length() << endl;
+    cout << "Cell C2: " << wks2.cell("C2").value().get<std::string>().length() << endl;
 
     doc2.close();
 

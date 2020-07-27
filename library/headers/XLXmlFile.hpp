@@ -110,26 +110,26 @@ namespace OpenXLSX
          * @brief Provide the XML data represented by the object.
          * @param xmlData A std::string with the XML data.
          */
-        void SetXmlData(const std::string& xmlData);
+        void setXmlData(const std::string& xmlData);
 
         /**
          * @brief Method for getting the XML data represented by the object.
          * @return A std::string with the XML data.
          */
-        virtual std::string GetXmlData() const;
+        virtual std::string xmlData() const;
 
         /**
          * @brief Get the path of the current file.
          * @return A string with the path of the file.
          * @note This method is final, i.e. it cannot be overridden.
          */
-        virtual std::string FilePath() const final;
+        virtual std::string filePath() const final;
 
         /**
          * @brief
          * @return
          */
-        virtual const XLDocument& ParentDoc() const final
+        virtual const XLDocument& parentDoc() const final
         {
             return *m_xmlData->getParentDoc();
         }
@@ -138,7 +138,7 @@ namespace OpenXLSX
          * @brief
          * @return
          */
-        virtual XLDocument& ParentDoc() final
+        virtual XLDocument& parentDoc() final
         {
             return *m_xmlData->getParentDoc();
         }
@@ -158,15 +158,14 @@ namespace OpenXLSX
          * @return A pointer to the XMLDocument object.
          * @note This method is final, i.e. it cannot be overridden.
          */
-        virtual XMLDocument& XmlDocument() final;
+        virtual XMLDocument& xmlDocument() final;
 
         /**
          * @brief This method returns the underlying XMLDocument object.
          * @return A pointer to the const XMLDocument object.
          * @note This method is final, i.e. it cannot be overridden.
          */
-        virtual const XMLDocument& XmlDocument() const final;
-
+        virtual const XMLDocument& xmlDocument() const final;
 
     private:    // ===== PRIVATE MEMBER VARIABLES
         XLXmlData* m_xmlData { nullptr };

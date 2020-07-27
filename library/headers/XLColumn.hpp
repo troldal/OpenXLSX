@@ -95,31 +95,31 @@ namespace OpenXLSX
          * @brief Get the width of the column.
          * @return The width of the column.
          */
-        float Width() const;
+        float width() const;
 
         /**
          * @brief Set the width of the column
          * @param width The width of the column
          */
-        void SetWidth(float width);
+        void setWidth(float width);
 
         /**
          * @brief Is the column hidden?
          * @return The state of the column.
          */
-        bool IsHidden() const;
+        bool isHidden() const;
 
         /**
          * @brief Set the column to be shown or hidden.
          * @param state The state of the column.
          */
-        void SetHidden(bool state);
+        void setHidden(bool state);
 
         /**
          * @brief Get the XMLNode object for the column.
          * @return The XMLNode for the column
          */
-        XMLNode ColumnNode() const;
+        XMLNode columnNode() const;
 
     private:
         XMLNode m_columnNode; /**< A pointer to the XMLNode object for the column. */

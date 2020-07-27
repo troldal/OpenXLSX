@@ -18,25 +18,25 @@ XLColumn::XLColumn(XMLNode columnNode) : m_columnNode(columnNode) {}
 /**
  * @details
  */
-float XLColumn::Width() const
+float XLColumn::width() const
 {
-    return ColumnNode().attribute("width").as_float();
+    return columnNode().attribute("width").as_float();
 }
 
 /**
  * @details
  */
-void XLColumn::SetWidth(float width)
+void XLColumn::setWidth(float width)
 {
     // Set the 'Width' attribute for the Cell. If it does not exist, create it.
-    auto widthAtt = ColumnNode().attribute("width");
-    if (!widthAtt) widthAtt = ColumnNode().append_attribute("width");
+    auto widthAtt = columnNode().attribute("width");
+    if (!widthAtt) widthAtt = columnNode().append_attribute("width");
 
     widthAtt.set_value(width);
 
     // Set the 'customWidth' attribute for the Cell. If it does not exist, create it.
-    auto customAtt = ColumnNode().attribute("customWidth");
-    if (!customAtt) customAtt = ColumnNode().append_attribute("customWidth");
+    auto customAtt = columnNode().attribute("customWidth");
+    if (!customAtt) customAtt = columnNode().append_attribute("customWidth");
 
     customAtt.set_value("1");
 }
@@ -44,18 +44,18 @@ void XLColumn::SetWidth(float width)
 /**
  * @details
  */
-bool XLColumn::IsHidden() const
+bool XLColumn::isHidden() const
 {
-    return ColumnNode().attribute("hidden").as_bool();
+    return columnNode().attribute("hidden").as_bool();
 }
 
 /**
  * @details
  */
-void XLColumn::SetHidden(bool state)
+void XLColumn::setHidden(bool state)
 {
-    auto hiddenAtt = ColumnNode().attribute("hidden");
-    if (!hiddenAtt) hiddenAtt = ColumnNode().append_attribute("hidden");
+    auto hiddenAtt = columnNode().attribute("hidden");
+    if (!hiddenAtt) hiddenAtt = columnNode().append_attribute("hidden");
 
     if (state)
         hiddenAtt.set_value("1");
@@ -66,7 +66,7 @@ void XLColumn::SetHidden(bool state)
 /**
  * @details
  */
-XMLNode XLColumn::ColumnNode() const
+XMLNode XLColumn::columnNode() const
 {
     return m_columnNode;
 }

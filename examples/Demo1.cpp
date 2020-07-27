@@ -9,22 +9,22 @@ int main()
 {
     XLDocument doc;
     doc.create("./MyTest.xlsx");
-    auto wks = doc.workbook().Worksheet("Sheet1");
+    auto wks = doc.workbook().worksheet("Sheet1");
 
-    wks.Cell(XLCellReference("A1")).Value() = 3.14159;
-    wks.Cell(XLCellReference("B1")).Value() = 42;
-    wks.Cell(XLCellReference("C1")).Value() = string("  Hello OpenXLSX!  ");
-    wks.Cell(XLCellReference("D1")).Value() = true;
-    wks.Cell(XLCellReference("E1")).Value() = wks.Cell(XLCellReference("C1")).Value();
+    wks.cell(XLCellReference("A1")).value() = 3.14159;
+    wks.cell(XLCellReference("B1")).value() = 42;
+    wks.cell(XLCellReference("C1")).value() = string("  Hello OpenXLSX!  ");
+    wks.cell(XLCellReference("D1")).value() = true;
+    wks.cell(XLCellReference("E1")).value() = wks.cell(XLCellReference("C1")).value();
 
-    auto A1 = wks.Cell(XLCellReference("A1")).Value().Get<double>();
-    auto B1 = wks.Cell(XLCellReference("B1")).Value().Get<unsigned int>();
-    auto C1 = wks.Cell(XLCellReference("C1")).Value().Get<std::string>();
-    auto D1 = wks.Cell(XLCellReference("D1")).Value().Get<bool>();
-    auto E1 = wks.Cell(XLCellReference("E1")).Value().Get<std::string>();
+    auto A1 = wks.cell(XLCellReference("A1")).value().get<double>();
+    auto B1 = wks.cell(XLCellReference("B1")).value().get<unsigned int>();
+    auto C1 = wks.cell(XLCellReference("C1")).value().get<std::string>();
+    auto D1 = wks.cell(XLCellReference("D1")).value().get<bool>();
+    auto E1 = wks.cell(XLCellReference("E1")).value().get<std::string>();
 
-    auto val = wks.Cell(XLCellReference("E1")).Value();
-    cout << val.Get<std::string>() << endl;
+    auto val = wks.cell(XLCellReference("E1")).value();
+    cout << val.get<std::string>() << endl;
 
     cout << "Cell A1: " << A1 << endl;
     cout << "Cell B1: " << B1 << endl;

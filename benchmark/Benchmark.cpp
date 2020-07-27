@@ -46,7 +46,7 @@ static void BM_WriteMatrix(benchmark::State& state)
 {
     XLDocument doc;
     doc.create("./benchmark.xlsx");
-    auto wks = doc.workbook().Worksheet("Sheet1");
+    auto wks = doc.workbook().worksheet("Sheet1");
     // auto arange = wks->Range(XLCellReference("A1"), XLCellReference(state.range(0), state.range(0)));
 
     for (auto _ : state) {
@@ -55,7 +55,7 @@ static void BM_WriteMatrix(benchmark::State& state)
         //        }
 
         for (auto i = 1; i < state.range(0); ++i) {
-            for (auto j = 1; j < state.range(0); ++j) wks.Cell(i, j).Value().Set(3.1415);
+            for (auto j = 1; j < state.range(0); ++j) wks.cell(i, j).value().set(3.1415);
         }
     }
 

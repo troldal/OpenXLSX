@@ -108,35 +108,35 @@ namespace OpenXLSX
          * @param str
          * @return
          */
-        int32_t GetStringIndex(const std::string& str) const;
+        int32_t getStringIndex(const std::string& str) const;
 
         /**
          * @brief
          * @param str
          * @return
          */
-        bool StringExists(const std::string& str) const;
+        bool stringExists(const std::string& str) const;
 
         /**
          * @brief
          * @param index
          * @return
          */
-        bool StringExists(uint32_t index) const;
+        bool stringExists(uint32_t index) const;
 
         /**
          * @brief
          * @param index
          * @return
          */
-        const char* GetString(uint32_t index) const;
+        const char* getString(uint32_t index) const;
 
         /**
          * @brief Append a new string to the list of shared strings.
          * @param str The string to append.
          * @return A long int with the index of the appended string
          */
-        int32_t AppendString(const std::string& str);
+        int32_t appendString(const std::string& str);
 
         /**
          * @brief Clear the string at the given index.
@@ -145,7 +145,7 @@ namespace OpenXLSX
          * shared string indices for the cells in the spreadsheet. Instead use this member functions, which clears
          * the contents of the string, but keeps the XMLNode holding the string.
          */
-        void ClearString(int index);
+        void clearString(int index);
     };
 }    // namespace OpenXLSX
 

@@ -186,53 +186,53 @@ namespace OpenXLSX
          * @param id The ID string of the relationship item to retrieve.
          * @return An XLRelationshipItem object.
          */
-        XLRelationshipItem RelationshipByID(const std::string& id) const;
+        XLRelationshipItem relationshipById(const std::string& id) const;
 
         /**
          * @brief Look up a relationship item by Target.
          * @param target The Target string of the relationship item to retrieve.
          * @return An XLRelationshipItem object.
          */
-        XLRelationshipItem RelationshipByTarget(const std::string& target) const;
+        XLRelationshipItem relationshipByTarget(const std::string& target) const;
 
         /**
          * @brief Get the std::map with the relationship items, ordered by ID.
          * @return A const reference to the std::map with relationship items.
          */
-        std::vector<XLRelationshipItem> Relationships() const;
+        std::vector<XLRelationshipItem> relationships() const;
 
         /**
          * @brief
          * @param relID
          */
-        void DeleteRelationship(const std::string& relID);
+        void deleteRelationship(const std::string& relID);
 
         /**
          * @brief Delete an item from the Relationships register
          * @param item The XLRelationshipItem object to delete.
          */
-        void DeleteRelationship(XLRelationshipItem& item);
+        void deleteRelationship(const XLRelationshipItem& item);
 
         /**
          * @brief Add a new relationship item to the XLRelationships object.
          * @param type The type of the new relationship item.
          * @param target The target (or path) of the XML file for the relationship item.
          */
-        XLRelationshipItem AddRelationship(XLRelationshipType type, const std::string& target);
+        XLRelationshipItem addRelationship(XLRelationshipType type, const std::string& target);
 
         /**
          * @brief Check if a XLRelationshipItem with the given Target string exists.
          * @param target The Target string to look up.
          * @return true if the XLRelationshipItem exists; otherwise false.
          */
-        bool TargetExists(const std::string& target) const;
+        bool targetExists(const std::string& target) const;
 
         /**
          * @brief Check if a XLRelationshipItem with the given Id string exists.
          * @param id The Id string to look up.
          * @return true if the XLRelationshipItem exists; otherwise false.
          */
-        bool IdExists(const std::string& id) const;
+        bool idExists(const std::string& id) const;
 
         // ---------- Protected Member Functions ---------- //
     };

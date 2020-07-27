@@ -118,7 +118,7 @@ namespace OpenXLSX
          * @param value
          * @return
          */
-        bool SetProperty(const std::string& name, const std::string& value);
+        bool setProperty(const std::string& name, const std::string& value);
 
         /**
          * @brief
@@ -126,7 +126,7 @@ namespace OpenXLSX
          * @param value
          * @return
          */
-        bool SetProperty(const std::string& name, int value);
+        bool setProperty(const std::string& name, int value);
 
         /**
          * @brief
@@ -134,20 +134,20 @@ namespace OpenXLSX
          * @param value
          * @return
          */
-        bool SetProperty(const std::string& name, double value);
+        bool setProperty(const std::string& name, double value);
 
         /**
          * @brief
          * @param name
          * @return
          */
-        std::string Property(const std::string& name) const;
+        std::string property(const std::string& name) const;
 
         /**
          * @brief
          * @param name
          */
-        void DeleteProperty(const std::string& name);
+        void deleteProperty(const std::string& name);
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Protected Member Functions

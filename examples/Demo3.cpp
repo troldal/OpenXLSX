@@ -11,14 +11,14 @@ int main()
     XLDocument doc;
     doc.open("./Names.xlsx");
     auto wbk = doc.workbook();
-    auto wks = wbk.Worksheet("Long Sheet Name");
+    auto wks = wbk.worksheet("Long Sheet Name");
 
-    wks.SetName("Even Longer Sheet Name");
-    wbk.Worksheet("Sheet1").SetName("NewName");
-    wbk.Worksheet("Sheet2").SetName("Number Two");
-    wbk.Worksheet("Sheet3").SetName("Number Three");
+    wks.setName("Even Longer Sheet Name");
+    wbk.worksheet("Sheet1").setName("NewName");
+    wbk.worksheet("Sheet2").setName("Number Two");
+    wbk.worksheet("Sheet3").setName("Number Three");
     wbk.MoveSheet("NewName", 4);
-    wbk.DeleteSheet("Number Three");
+    wbk.deleteSheet("Number Three");
 
     doc.saveAs("Names2.xlsx");
 

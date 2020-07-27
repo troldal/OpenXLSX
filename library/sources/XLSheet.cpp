@@ -31,9 +31,9 @@ XLSheet::~XLSheet() = default;
 /**
  * @details This method returns the m_sheetName property.
  */
-string XLSheet::Name() const
+string XLSheet::name() const
 {
-    return ParentDoc().executeQuery(XLQuerySheetName(getRID())).sheetName();
+    return parentDoc().executeQuery(XLQuerySheetName(getRID())).sheetName();
 }
 
 /**
@@ -43,17 +43,17 @@ string XLSheet::Name() const
  * - Set the value of the title node in the app.xml file to the new name
  * - Set the m_isModified property to true.
  */
-void XLSheet::SetName(const std::string& name)
+void XLSheet::setName(const std::string& name)
 {
-    ParentDoc().executeCommand(XLCommandSetSheetName(getRID(), Name(), name));
+    parentDoc().executeCommand(XLCommandSetSheetName(getRID(), this->name(), name));
 }
 
 /**
  * @details This method returns the m_sheetState property.
  */
-XLSheetState XLSheet::State() const
+XLSheetState XLSheet::state() const
 {
-    auto state  = ParentDoc().executeQuery(XLQuerySheetVisibility(getRID())).sheetVisibility();
+    auto state  = parentDoc().executeQuery(XLQuerySheetVisibility(getRID())).sheetVisibility();
     auto result = XLSheetState::Visible;
 
     if (state == "visible" || state.empty()) {
@@ -77,7 +77,7 @@ XLSheetState XLSheet::State() const
  * - If the state is set to Visible, delete the state attribute from the sheet node in the workbook.xml file, if it
  * exists.
  */
-void XLSheet::SetState(XLSheetState state)
+void XLSheet::setState(XLSheetState state)
 {
     auto stateString = std::string();
     switch (state) {
@@ -94,13 +94,13 @@ void XLSheet::SetState(XLSheetState state)
             break;
     }
 
-    ParentDoc().executeCommand(XLCommandSetSheetVisibility(getRID(), Name(), stateString));
+    parentDoc().executeCommand(XLCommandSetSheetVisibility(getRID(), name(), stateString));
 }
 
 /**
  * @details
  */
-XLColor XLSheet::Color()
+XLColor XLSheet::color()
 {
     return XLColor();
 }
@@ -108,28 +108,28 @@ XLColor XLSheet::Color()
 /**
  * @details
  */
-void XLSheet::SetColor(const XLColor& color) {}
+void XLSheet::setColor(const XLColor& color) {}
 
 /**
  * @details
  */
-void XLSheet::SetSelected(bool selected)
+void XLSheet::setSelected(bool selected)
 {
     unsigned int value = (selected ? 1 : 0);
-    XmlDocument().first_child().child("sheetViews").first_child().attribute("tabSelected").set_value(value);
+    xmlDocument().first_child().child("sheetViews").first_child().attribute("tabSelected").set_value(value);
 }
 
 /**
  * @details
  * @todo This method is currently unimplemented.
  */
-unsigned int XLSheet::Index() const
+unsigned int XLSheet::index() const
 {
-    return ParentDoc().executeQuery(XLQuerySheetIndex(getRID())).sheetIndex();
+    return parentDoc().executeQuery(XLQuerySheetIndex(getRID())).sheetIndex();
 }
 
 /**
  * @details
  * @todo This method is currently unimplemented.
  */
-void XLSheet::SetIndex() {}
+void XLSheet::setIndex() {}

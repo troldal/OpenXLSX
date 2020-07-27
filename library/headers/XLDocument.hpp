@@ -230,14 +230,14 @@ namespace OpenXLSX
                     "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/>"
                     "</worksheet>"
                 };
-                m_contentTypes.AddOverride(command.sheetPath(), XLContentType::Worksheet);
-                m_wbkRelationships.AddRelationship(XLRelationshipType::Worksheet, command.sheetPath().substr(4));
+                m_contentTypes.addOverride(command.sheetPath(), XLContentType::Worksheet);
+                m_wbkRelationships.addRelationship(XLRelationshipType::Worksheet, command.sheetPath().substr(4));
                 m_appProperties.appendSheetName(command.sheetName());
                 m_archive.AddEntry(command.sheetPath().substr(1), emptyWorksheet);
                 m_data.emplace_back(
                     /* parentDoc */ this,
                     /* xmlPath   */ command.sheetPath().substr(1),
-                    /* xmlID     */ m_wbkRelationships.RelationshipByTarget(command.sheetPath().substr(4)).Id(),
+                    /* xmlID     */ m_wbkRelationships.relationshipByTarget(command.sheetPath().substr(4)).Id(),
                     /* xmlType   */ XLContentType::Worksheet);
             }
 
@@ -246,44 +246,44 @@ namespace OpenXLSX
 
             else if constexpr (std::is_same_v<Command, XLCommandDeleteSheet>) {
                 m_appProperties.deleteSheetName(command.sheetName());
-                auto sheetPath = "/xl/" + m_wbkRelationships.RelationshipByID(command.sheetID()).Target();
+                auto sheetPath = "/xl/" + m_wbkRelationships.relationshipById(command.sheetID()).Target();
                 m_archive.DeleteEntry(sheetPath.substr(1));
-                m_contentTypes.DeleteOverride(sheetPath);
-                m_wbkRelationships.DeleteRelationship(command.sheetID());
+                m_contentTypes.deleteOverride(sheetPath);
+                m_wbkRelationships.deleteRelationship(command.sheetID());
                 m_data.erase(std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) {
                     return item.getXmlPath() == sheetPath.substr(1);
                 }));
             }
 
             else if constexpr (std::is_same_v<Command, XLCommandCloneSheet>) {
-                if (m_wbkRelationships.RelationshipByID(command.sheetID()).Type() == XLRelationshipType::Worksheet) {
-                    m_contentTypes.AddOverride(command.clonePath(), XLContentType::Worksheet);
-                    m_wbkRelationships.AddRelationship(XLRelationshipType::Worksheet, command.clonePath().substr(4));
+                if (m_wbkRelationships.relationshipById(command.sheetID()).Type() == XLRelationshipType::Worksheet) {
+                    m_contentTypes.addOverride(command.clonePath(), XLContentType::Worksheet);
+                    m_wbkRelationships.addRelationship(XLRelationshipType::Worksheet, command.clonePath().substr(4));
                     m_appProperties.appendSheetName(command.cloneName());
                     m_archive.AddEntry(command.clonePath().substr(1),
                                        std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& data) {
                                            return data.getXmlPath().substr(3) ==
-                                                  m_wbkRelationships.RelationshipByID(command.sheetID()).Target();
+                                                  m_wbkRelationships.relationshipById(command.sheetID()).Target();
                                        })->getRawData());
                     m_data.emplace_back(
                         /* parentDoc */ this,
                         /* xmlPath   */ command.clonePath().substr(1),
-                        /* xmlID     */ m_wbkRelationships.RelationshipByTarget(command.clonePath().substr(4)).Id(),
+                        /* xmlID     */ m_wbkRelationships.relationshipByTarget(command.clonePath().substr(4)).Id(),
                         /* xmlType   */ XLContentType::Worksheet);
                 }
                 else {
-                    m_contentTypes.AddOverride(command.clonePath(), XLContentType::Chartsheet);
-                    m_wbkRelationships.AddRelationship(XLRelationshipType::Chartsheet, command.clonePath().substr(4));
+                    m_contentTypes.addOverride(command.clonePath(), XLContentType::Chartsheet);
+                    m_wbkRelationships.addRelationship(XLRelationshipType::Chartsheet, command.clonePath().substr(4));
                     m_appProperties.appendSheetName(command.cloneName());
                     m_archive.AddEntry(command.clonePath().substr(1),
                                        std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& data) {
                                            return data.getXmlPath().substr(3) ==
-                                                  m_wbkRelationships.RelationshipByID(command.sheetID()).Target();
+                                                  m_wbkRelationships.relationshipById(command.sheetID()).Target();
                                        })->getRawData());
                     m_data.emplace_back(
                         /* parentDoc */ this,
                         /* xmlPath   */ command.clonePath().substr(1),
-                        /* xmlID     */ m_wbkRelationships.RelationshipByTarget(command.clonePath().substr(4)).Id(),
+                        /* xmlID     */ m_wbkRelationships.relationshipByTarget(command.clonePath().substr(4)).Id(),
                         /* xmlType   */ XLContentType::Chartsheet);
                 }
             }
@@ -314,7 +314,7 @@ namespace OpenXLSX
             }
 
             else if constexpr (std::is_same_v<Query, XLQuerySheetType>) {
-                if (m_wbkRelationships.RelationshipByID(query.sheetID()).Type() == XLRelationshipType::Worksheet)
+                if (m_wbkRelationships.relationshipById(query.sheetID()).Type() == XLRelationshipType::Worksheet)
                     query.setSheetType(XLContentType::Worksheet);
                 else
                     query.setSheetType(XLContentType::Chartsheet);
@@ -327,12 +327,12 @@ namespace OpenXLSX
             }
 
             else if constexpr (std::is_same_v<Query, XLQuerySheetRelsID>) {
-                query.setSheetID(m_wbkRelationships.RelationshipByTarget(query.sheetPath().substr(4)).Id());
+                query.setSheetID(m_wbkRelationships.relationshipByTarget(query.sheetPath().substr(4)).Id());
                 return query;
             }
 
             else if constexpr (std::is_same_v<Query, XLQuerySheetRelsTarget>) {
-                query.setSheetTarget(m_wbkRelationships.RelationshipByID(query.sheetID()).Target());
+                query.setSheetTarget(m_wbkRelationships.relationshipById(query.sheetID()).Target());
                 return query;
             }
         }

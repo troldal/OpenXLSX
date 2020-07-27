@@ -113,18 +113,18 @@ namespace OpenXLSX
          * @brief Get the number of rows in the range.
          * @return The number of rows.
          */
-        uint32_t NumRows() const;
+        uint32_t numRows() const;
 
         /**
          * @brief Get the number of columns in the range.
          * @return The number of columns.
          */
-        uint16_t NumColumns() const;
+        uint16_t numColumns() const;
 
         /**
          * @brief
          */
-        void Clear();
+        void clear();
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Private Member Variables

@@ -23,7 +23,7 @@ using namespace OpenXLSX;
  */
 XLCellReference::XLCellReference(const std::string& cellAddress) : m_row(1), m_column(1), m_cellAddress("A1")
 {
-    if (!cellAddress.empty()) SetAddress(cellAddress);
+    if (!cellAddress.empty()) setAddress(cellAddress);
 }
 
 /**
@@ -33,7 +33,7 @@ XLCellReference::XLCellReference(const std::string& cellAddress) : m_row(1), m_c
 XLCellReference::XLCellReference(uint32_t row, uint16_t column)
     : m_row(row),
       m_column(column),
-      m_cellAddress(ColumnAsString(column) + RowAsString(row))
+      m_cellAddress(columnAsString(column) + rowAsString(row))
 {}
 
 /**
@@ -42,14 +42,14 @@ XLCellReference::XLCellReference(uint32_t row, uint16_t column)
  */
 XLCellReference::XLCellReference(uint32_t row, const std::string& column)
     : m_row(row),
-      m_column(ColumnAsNumber(column)),
-      m_cellAddress(column + RowAsString(row))
+      m_column(columnAsNumber(column)),
+      m_cellAddress(column + rowAsString(row))
 {}
 
 /**
  * @details Returns the m_row property.
  */
-uint32_t XLCellReference::Row() const
+uint32_t XLCellReference::row() const
 {
     return m_row;
 }
@@ -58,7 +58,7 @@ uint32_t XLCellReference::Row() const
  * @details Sets the row of the XLCellReference objects. If the number is larger than 16384 (the maximum),
  * the row is set to 16384.
  */
-void XLCellReference::SetRow(uint32_t row)
+void XLCellReference::setRow(uint32_t row)
 {
     if (row < 1)
         m_row = 1;
@@ -67,13 +67,13 @@ void XLCellReference::SetRow(uint32_t row)
     else
         m_row = row;
 
-    m_cellAddress = ColumnAsString(m_column) + RowAsString(m_row);
+    m_cellAddress = columnAsString(m_column) + rowAsString(m_row);
 }
 
 /**
  * @details Returns the m_column property.
  */
-uint16_t XLCellReference::Column() const
+uint16_t XLCellReference::column() const
 {
     return m_column;
 }
@@ -82,7 +82,7 @@ uint16_t XLCellReference::Column() const
  * @details Sets the column of the XLCellReference object. If the number is larger than 1048576 (the maximum),
  * the column is set to 1048576.
  */
-void XLCellReference::SetColumn(uint16_t column)
+void XLCellReference::setColumn(uint16_t column)
 {
     if (column < 1)
         m_column = 1;
@@ -91,14 +91,14 @@ void XLCellReference::SetColumn(uint16_t column)
     else
         m_column = column;
 
-    m_cellAddress = ColumnAsString(m_column) + RowAsString(m_row);
+    m_cellAddress = columnAsString(m_column) + rowAsString(m_row);
 }
 
 /**
  * @details Sets row and column of the XLCellReference object. Checks that row and column is less than
  * or equal to the maximum row and column numbers allowed by Excel.
  */
-void XLCellReference::SetRowAndColumn(uint32_t row, uint16_t column)
+void XLCellReference::setRowAndColumn(uint32_t row, uint16_t column)
 {
     if (row < 1)
         m_row = 1;
@@ -114,13 +114,13 @@ void XLCellReference::SetRowAndColumn(uint32_t row, uint16_t column)
     else
         m_column = column;
 
-    m_cellAddress = ColumnAsString(m_column) + RowAsString(m_row);
+    m_cellAddress = columnAsString(m_column) + rowAsString(m_row);
 }
 
 /**
  * @details Returns the m_cellAddress property.
  */
-std::string XLCellReference::Address() const
+std::string XLCellReference::address() const
 {
     return m_cellAddress;
 }
@@ -129,9 +129,9 @@ std::string XLCellReference::Address() const
  * @details Sets the address of the XLCellReference object, e.g. 'B2'. Checks that row and column is less than
  * or equal to the maximum row and column numbers allowed by Excel.
  */
-void XLCellReference::SetAddress(const std::string& address)
+void XLCellReference::setAddress(const std::string& address)
 {
-    auto coordinates = CoordinatesFromAddress(address);
+    auto coordinates = coordinatesFromAddress(address);
 
     m_row         = coordinates.first;
     m_column      = coordinates.second;
@@ -144,7 +144,7 @@ void XLCellReference::SetAddress(const std::string& address)
  * @todo Find out why std::to_chars causes a linker error when using LLVM/Clang. As a workaround, a custom conversion
  * algorithm has been implemented for clang (std::to_string is too slow!)
  */
-std::string XLCellReference::RowAsString(uint32_t row)
+std::string XLCellReference::rowAsString(uint32_t row)
 {
 #ifdef CHARCONV_ENABLED
     std::array<char, 7> str {};
@@ -167,7 +167,7 @@ std::string XLCellReference::RowAsString(uint32_t row)
 /**
  * @details
  */
-uint32_t XLCellReference::RowAsNumber(const std::string& row)
+uint32_t XLCellReference::rowAsNumber(const std::string& row)
 {
 #ifdef CHARCONV_ENABLED
     uint32_t value = 0;
@@ -181,7 +181,7 @@ uint32_t XLCellReference::RowAsNumber(const std::string& row)
 /**
  * @details Helper method to calculate the column letter from column number.
  */
-std::string XLCellReference::ColumnAsString(uint16_t column)
+std::string XLCellReference::columnAsString(uint16_t column)
 {
     std::string result;
 
@@ -207,7 +207,7 @@ std::string XLCellReference::ColumnAsString(uint16_t column)
 /**
  * @details Helper method to calculate the column number from column letter.
  */
-uint16_t XLCellReference::ColumnAsNumber(const std::string& column)
+uint16_t XLCellReference::columnAsNumber(const std::string& column)
 {
     uint16_t result = 0;
 
@@ -221,7 +221,7 @@ uint16_t XLCellReference::ColumnAsNumber(const std::string& column)
 /**
  * @details Helper method for calculating the coordinates from the cell address.
  */
-XLCoordinates XLCellReference::CoordinatesFromAddress(const std::string& address)
+XLCoordinates XLCellReference::coordinatesFromAddress(const std::string& address)
 {
     int letterCount = 0;
     for (auto letter : address) {
@@ -233,5 +233,5 @@ XLCoordinates XLCellReference::CoordinatesFromAddress(const std::string& address
 
     int numberCount = address.size() - letterCount;
 
-    return std::make_pair(RowAsNumber(address.substr(letterCount, numberCount)), ColumnAsNumber(address.substr(0, letterCount)));
+    return std::make_pair(rowAsNumber(address.substr(letterCount, numberCount)), columnAsNumber(address.substr(0, letterCount)));
 }

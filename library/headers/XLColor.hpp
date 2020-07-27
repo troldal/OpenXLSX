@@ -103,37 +103,37 @@ namespace OpenXLSX
          * @param green
          * @param blue
          */
-        void SetColor(uint8_t red = 0, uint8_t green = 0, uint8_t blue = 0);
+        void setColor(uint8_t red = 0, uint8_t green = 0, uint8_t blue = 0);
 
         /**
          * @brief
          * @param hexCode
          */
-        void SetColor(const std::string& hexCode);
+        void color(const std::string& hexCode);
 
         /**
          * @brief
          * @return
          */
-        uint8_t Red() const;
+        uint8_t red() const;
 
         /**
          * @brief
          * @return
          */
-        uint8_t Green() const;
+        uint8_t green() const;
 
         /**
          * @brief
          * @return
          */
-        uint8_t Blue() const;
+        uint8_t blue() const;
 
         /**
          * @brief
          * @return
          */
-        std::string Hex() const;
+        std::string hex() const;
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Private Member Variables

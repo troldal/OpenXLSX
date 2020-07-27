@@ -18,7 +18,7 @@ XLRow::XLRow(XMLNode rowNode) : m_rowNode(rowNode) {}
 /**
  * @details Returns the m_height member by value.
  */
-double XLRow::Height() const
+double XLRow::height() const
 {
     return m_rowNode.attribute("ht").as_double(15.0);
 }
@@ -27,7 +27,7 @@ double XLRow::Height() const
  * @details Set the height of the row. This is done by setting the value of the 'ht' attribute and setting the
  * 'customHeight' attribute to true.
  */
-void XLRow::SetHeight(float height)
+void XLRow::setHeight(float height)
 {
     // Set the 'ht' attribute for the Cell. If it does not exist, create it.
     if (!m_rowNode.attribute("ht"))
@@ -45,7 +45,7 @@ void XLRow::SetHeight(float height)
 /**
  * @details Return the m_descent member by value.
  */
-float XLRow::Descent() const
+float XLRow::descent() const
 {
     return m_rowNode.attribute("x14ac:dyDescent").as_float(0.25);
 }
@@ -53,7 +53,7 @@ float XLRow::Descent() const
 /**
  * @details Set the descent by setting the 'x14ac:dyDescent' attribute in the XML file
  */
-void XLRow::SetDescent(float descent)
+void XLRow::setDescent(float descent)
 {
     // Set the 'x14ac:dyDescent' attribute. If it does not exist, create it.
     if (!m_rowNode.attribute("x14ac:dyDescent"))
@@ -65,7 +65,7 @@ void XLRow::SetDescent(float descent)
 /**
  * @details Determine if the row is hidden or not.
  */
-bool XLRow::IsHidden() const
+bool XLRow::isHidden() const
 {
     return m_rowNode.attribute("hidden").as_bool(false);
 }
@@ -73,7 +73,7 @@ bool XLRow::IsHidden() const
 /**
  * @details Set the hidden state by setting the 'hidden' attribute to true or false.
  */
-void XLRow::SetHidden(bool state)
+void XLRow::setHidden(bool state)
 {
     // Set the 'hidden' attribute. If it does not exist, create it.
     if (!m_rowNode.attribute("hidden"))
@@ -85,7 +85,7 @@ void XLRow::SetHidden(bool state)
 /**
  * @details
  */
-int64_t XLRow::RowNumber() const
+int64_t XLRow::rowNumber() const
 {
     return m_rowNode.attribute("r").as_ullong();
 }
@@ -93,7 +93,7 @@ int64_t XLRow::RowNumber() const
 /**
  * @details Get the number of cells in the row, by returning the size of the m_cells vector.
  */
-unsigned int XLRow::CellCount() const
+unsigned int XLRow::cellCount() const
 {
-    return XLCellReference(m_rowNode.last_child().attribute("r").value()).Column();
+    return XLCellReference(m_rowNode.last_child().attribute("r").value()).column();
 }

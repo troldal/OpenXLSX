@@ -20,13 +20,13 @@ XLColor::XLColor(uint8_t red, uint8_t green, uint8_t blue) : m_red(red), m_green
  */
 XLColor::XLColor(const std::string& hexCode) : m_red(0), m_green(0), m_blue(0)
 {
-    SetColor(hexCode);
+    color(hexCode);
 }
 
 /**
  * @details
  */
-void XLColor::SetColor(uint8_t red, uint8_t green, uint8_t blue)
+void XLColor::setColor(uint8_t red, uint8_t green, uint8_t blue)
 {
     m_red   = red;
     m_green = green;
@@ -36,7 +36,7 @@ void XLColor::SetColor(uint8_t red, uint8_t green, uint8_t blue)
 /**
  * @details
  */
-void XLColor::SetColor(const std::string& hexCode)
+void XLColor::color(const std::string& hexCode)
 {
     std::string temp = hexCode;
 
@@ -56,7 +56,7 @@ void XLColor::SetColor(const std::string& hexCode)
 /**
  * @details
  */
-uint8_t XLColor::Red() const
+uint8_t XLColor::red() const
 {
     return m_red;
 }
@@ -64,7 +64,7 @@ uint8_t XLColor::Red() const
 /**
  * @details
  */
-uint8_t XLColor::Green() const
+uint8_t XLColor::green() const
 {
     return m_green;
 }
@@ -72,7 +72,7 @@ uint8_t XLColor::Green() const
 /**
  * @details
  */
-uint8_t XLColor::Blue() const
+uint8_t XLColor::blue() const
 {
     return m_blue;
 }
@@ -80,7 +80,7 @@ uint8_t XLColor::Blue() const
 /**
  * @details
  */
-std::string XLColor::Hex() const
+std::string XLColor::hex() const
 {
     stringstream str;
     str << "ff";

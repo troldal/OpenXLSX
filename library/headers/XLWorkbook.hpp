@@ -133,28 +133,28 @@ namespace OpenXLSX
          * @return A pointer to an XLAbstractSheet with the sheet at the index.
          * @note The index must be 1-based (rather than 0-based) as this is the default for Excel spreadsheets.
          */
-        XLSheet Sheet(uint16_t index);
+        XLSheet sheet(uint16_t index);
 
         /**
          * @brief Get the sheet (worksheet or chartsheet) with the given name.
          * @param sheetName The name at which the desired sheet is located.
          * @return A pointer to an XLAbstractSheet with the sheet at the index.
          */
-        XLSheet Sheet(const std::string& sheetName);
+        XLSheet sheet(const std::string& sheetName);
 
         /**
          * @brief
          * @param sheetName
          * @return
          */
-        XLWorksheet Worksheet(const std::string& sheetName);
+        XLWorksheet worksheet(const std::string& sheetName);
 
         /**
          * @brief
          * @param sheetName
          * @return
          */
-        XLChartsheet Chartsheet(const std::string& sheetName);
+        XLChartsheet chartsheet(const std::string& sheetName);
 
         /**
          * @brief Delete sheet (worksheet or chartsheet) from the workbook.
@@ -163,7 +163,7 @@ namespace OpenXLSX
          * @warning A workbook must contain at least one worksheet. Trying to delete the last worksheet from the
          * workbook will trow an exception.
          */
-        void DeleteSheet(const std::string& sheetName);
+        void deleteSheet(const std::string& sheetName);
 
         /**
          * @brief Add a new worksheet to the workbook, with the given name and index.
@@ -171,7 +171,7 @@ namespace OpenXLSX
          * @param index The index at which the worksheet should be inserted.
          * @bug Method does not check that another sheet with same name exists.
          */
-        void AddWorksheet(const std::string& sheetName);
+        void addWorksheet(const std::string& sheetName);
 
         /**
          * @brief Clone an existing worksheet.
@@ -192,108 +192,108 @@ namespace OpenXLSX
          * @param sheetName
          * @return
          */
-        unsigned int IndexOfSheet(const std::string& sheetName) const;
+        unsigned int indexOfSheet(const std::string& sheetName) const;
 
         /**
          * @brief
          * @param sheetName
          * @return
          */
-        XLSheetType TypeOfSheet(const std::string& sheetName) const;
+        XLSheetType typeOfSheet(const std::string& sheetName) const;
 
         /**
          * @brief
          * @param index
          * @return
          */
-        XLSheetType TypeOfSheet(unsigned int index) const;
+        XLSheetType typeOfSheet(unsigned int index) const;
 
         /**
          * @brief
          * @return
          */
-        unsigned int SheetCount() const;
+        unsigned int sheetCount() const;
 
         /**
          * @brief
          * @return
          */
-        unsigned int WorksheetCount() const;
+        unsigned int worksheetCount() const;
 
         /**
          * @brief
          * @return
          */
-        unsigned int ChartsheetCount() const;
+        unsigned int chartsheetCount() const;
 
         /**
          * @brief
          * @return
          */
-        std::vector<std::string> SheetNames() const;
+        std::vector<std::string> sheetNames() const;
 
         /**
          * @brief
          * @return
          */
-        std::vector<std::string> WorksheetNames() const;
+        std::vector<std::string> worksheetNames() const;
 
         /**
          * @brief
          * @return
          */
-        std::vector<std::string> ChartsheetNames() const;
-
-        /**
-         * @brief
-         * @param sheetName
-         * @return
-         */
-        bool SheetExists(const std::string& sheetName) const;
+        std::vector<std::string> chartsheetNames() const;
 
         /**
          * @brief
          * @param sheetName
          * @return
          */
-        bool WorksheetExists(const std::string& sheetName) const;
+        bool sheetExists(const std::string& sheetName) const;
 
         /**
          * @brief
          * @param sheetName
          * @return
          */
-        bool ChartsheetExists(const std::string& sheetName) const;
+        bool worksheetExists(const std::string& sheetName) const;
+
+        /**
+         * @brief
+         * @param sheetName
+         * @return
+         */
+        bool chartsheetExists(const std::string& sheetName) const;
 
         /**
          * @brief
          * @param oldName
          * @param newName
          */
-        void UpdateSheetName(const std::string& oldName, const std::string& newName);
+        void updateSheetName(const std::string& oldName, const std::string& newName);
 
         /**
          * @brief
          * @return
          */
-        XLSharedStrings* SharedStrings();
+        XLSharedStrings* sharedStrings();
 
         /**
          * @brief
          * @return
          */
-        bool HasSharedStrings() const;
+        bool hasSharedStrings() const;
 
         /**
          * @brief
          */
-        void DeleteNamedRanges();
+        void deleteNamedRanges();
 
         template<typename Query>
         Query executeQuery(Query query) const
         {
             if constexpr (std::is_same_v<Query, XLQuerySheetName>) {
-                query.setSheetName(XmlDocument()
+                query.setSheetName(xmlDocument()
                                        .document_element()
                                        .child("sheets")
                                        .find_child_by_attribute("r:id", query.sheetID().c_str())
@@ -307,7 +307,7 @@ namespace OpenXLSX
             }
 
             else if constexpr (std::is_same_v<Query, XLQuerySheetVisibility>) {
-                query.setSheetVisibility(XmlDocument()
+                query.setSheetVisibility(xmlDocument()
                                              .document_element()
                                              .child("sheets")
                                              .find_child_by_attribute("r:id", query.sheetID().c_str())
@@ -322,7 +322,7 @@ namespace OpenXLSX
             }
 
             else if constexpr (std::is_same_v<Query, XLQuerySheetID>) {
-                query.setSheetID(XmlDocument()
+                query.setSheetID(xmlDocument()
                                      .document_element()
                                      .child("sheets")
                                      .find_child_by_attribute("name", query.sheetName().c_str())

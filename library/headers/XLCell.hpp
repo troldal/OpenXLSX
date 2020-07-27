@@ -127,37 +127,37 @@ namespace OpenXLSX
          * @brief Get a reference to the XLCellValue object for the cell.
          * @return A reference to an XLCellValue object.
          */
-        XLCellValue Value() const;
+        XLCellValue value() const;
 
         /**
          * @brief
          * @return
          */
-        XLValueType ValueType() const;
+        XLValueType valueType() const;
 
         /**
          * @brief get the XLCellReference object for the cell.
          * @return A reference to the cells' XLCellReference object.
          */
-        XLCellReference CellReference() const;
+        XLCellReference cellReference() const;
 
         /**
          * @brief
          * @return
          */
-        bool HasFormula() const;
+        bool hasFormula() const;
 
         /**
          * @brief
          * @return
          */
-        std::string GetFormula() const;
+        std::string formula() const;
 
         /**
          * @brief
          * @param newFormula
          */
-        void SetFormula(const std::string& newFormula);
+        void setFormula(const std::string& newFormula);
 
     private:
         //---------- Private Member Functions ---------- //

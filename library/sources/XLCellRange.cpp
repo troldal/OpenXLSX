@@ -50,20 +50,20 @@ XLCellRange& XLCellRange::operator=(const XLCellRange& other)
 /**
  * @details Returns the m_rows property.
  */
-uint32_t XLCellRange::NumRows() const
+uint32_t XLCellRange::numRows() const
 {
-    return m_bottomRight.Row() + 1 - m_topLeft.Row();
+    return m_bottomRight.row() + 1 - m_topLeft.row();
 }
 
 /**
  * @details Returns the m_columns property.
  */
-uint16_t XLCellRange::NumColumns() const
+uint16_t XLCellRange::numColumns() const
 {
-    return m_bottomRight.Column() + 1 - m_topLeft.Column();
+    return m_bottomRight.column() + 1 - m_topLeft.column();
 }
 
-void XLCellRange::Clear()
+void XLCellRange::clear()
 {
     //    for (uint32_t row = 1; row <= NumRows(); row++) {
     //        for (uint16_t column = 1; column <= NumColumns(); column++) {

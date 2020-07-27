@@ -169,52 +169,52 @@ XLRelationships::XLRelationships(XLXmlData* xmlData) : XLXmlFile(xmlData) {}
 /**
  * @details Returns the XLRelationshipItem with the given ID, by looking it up in the m_relationships map.
  */
-XLRelationshipItem XLRelationships::RelationshipByID(const std::string& id) const
+XLRelationshipItem XLRelationships::relationshipById(const std::string& id) const
 {
-    return XLRelationshipItem(XmlDocument().document_element().find_child_by_attribute("Id", id.c_str()));
+    return XLRelationshipItem(xmlDocument().document_element().find_child_by_attribute("Id", id.c_str()));
 }
 
 /**
  * @details Returns the XLRelationshipItem with the requested target, by iterating through the items.
  */
-XLRelationshipItem XLRelationships::RelationshipByTarget(const std::string& target) const
+XLRelationshipItem XLRelationships::relationshipByTarget(const std::string& target) const
 {
-    return XLRelationshipItem(XmlDocument().document_element().find_child_by_attribute("Target", target.c_str()));
+    return XLRelationshipItem(xmlDocument().document_element().find_child_by_attribute("Target", target.c_str()));
 }
 
 /**
  * @details Returns a const reference to the internal datastructure (std::map)
  */
-std::vector<XLRelationshipItem> XLRelationships::Relationships() const
+std::vector<XLRelationshipItem> XLRelationships::relationships() const
 {
     auto result = std::vector<XLRelationshipItem>();
-    for (const auto& item : XmlDocument().document_element().children()) result.emplace_back(XLRelationshipItem(item));
+    for (const auto& item : xmlDocument().document_element().children()) result.emplace_back(XLRelationshipItem(item));
 
     return result;
 }
 
-void XLRelationships::DeleteRelationship(const string& relID)
+void XLRelationships::deleteRelationship(const string& relID)
 {
-    XmlDocument().document_element().remove_child(XmlDocument().document_element().find_child_by_attribute("Id", relID.c_str()));
+    xmlDocument().document_element().remove_child(xmlDocument().document_element().find_child_by_attribute("Id", relID.c_str()));
 }
 
-void XLRelationships::DeleteRelationship(XLRelationshipItem& item)
+void XLRelationships::deleteRelationship(const XLRelationshipItem& item)
 {
-    DeleteRelationship(item.Id());
+    deleteRelationship(item.Id());
 }
 
 /**
  * @details Adds a new relationship by creating new XML node in the .rels file and creating a new XLRelationshipItem
  * based on the newly created node.
  */
-XLRelationshipItem XLRelationships::AddRelationship(XLRelationshipType type, const std::string& target)
+XLRelationshipItem XLRelationships::addRelationship(XLRelationshipType type, const std::string& target)
 {
     string typeString = GetStringFromType(type);
 
-    string id = "rId" + to_string(GetNewRelsID(XmlDocument().document_element()));
+    string id = "rId" + to_string(GetNewRelsID(xmlDocument().document_element()));
 
     // Create new node in the .rels file
-    auto node = XmlDocument().document_element().append_child("Relationship");
+    auto node = xmlDocument().document_element().append_child("Relationship");
     node.append_attribute("Id").set_value(id.c_str());
     node.append_attribute("Type").set_value(typeString.c_str());
     node.append_attribute("Target").set_value(target.c_str());
@@ -229,15 +229,15 @@ XLRelationshipItem XLRelationships::AddRelationship(XLRelationshipType type, con
 /**
  * @details
  */
-bool XLRelationships::TargetExists(const std::string& target) const
+bool XLRelationships::targetExists(const std::string& target) const
 {
-    return XmlDocument().document_element().find_child_by_attribute("Target", target.c_str()) != nullptr;
+    return xmlDocument().document_element().find_child_by_attribute("Target", target.c_str()) != nullptr;
 }
 
 /**
  * @details
  */
-bool XLRelationships::IdExists(const std::string& id) const
+bool XLRelationships::idExists(const std::string& id) const
 {
-    return XmlDocument().document_element().find_child_by_attribute("Id", id.c_str()) != nullptr;
+    return xmlDocument().document_element().find_child_by_attribute("Id", id.c_str()) != nullptr;
 }

@@ -118,23 +118,23 @@ namespace OpenXLSX
          */
         XLWorksheet& operator=(XLWorksheet&& other) = default;
 
-        XLCell Cell(const std::string& ref);
+        XLCell cell(const std::string& ref);
 
-        XLCell Cell(const std::string& ref) const;
-
-        /**
-         * @brief Get a pointer to the XLCell object for the given cell reference.
-         * @param ref An XLCellReference object with the address of the cell to get.
-         * @return A const reference to the requested XLCell object.
-         */
-        XLCell Cell(const XLCellReference& ref);
+        XLCell cell(const std::string& ref) const;
 
         /**
          * @brief Get a pointer to the XLCell object for the given cell reference.
          * @param ref An XLCellReference object with the address of the cell to get.
          * @return A const reference to the requested XLCell object.
          */
-        XLCell Cell(const XLCellReference& ref) const;
+        XLCell cell(const XLCellReference& ref);
+
+        /**
+         * @brief Get a pointer to the XLCell object for the given cell reference.
+         * @param ref An XLCellReference object with the address of the cell to get.
+         * @return A const reference to the requested XLCell object.
+         */
+        XLCell cell(const XLCellReference& ref) const;
 
         /**
          * @brief Get the cell at the given coordinates.
@@ -142,7 +142,7 @@ namespace OpenXLSX
          * @param columnNumber The column number (index base 1).
          * @return A reference to the XLCell object at the given coordinates.
          */
-        XLCell Cell(uint32_t rowNumber, uint16_t columnNumber);
+        XLCell cell(uint32_t rowNumber, uint16_t columnNumber);
 
         /**
          * @brief Get the cell at the given coordinates.
@@ -150,13 +150,13 @@ namespace OpenXLSX
          * @param columnNumber The column number (index base 1).
          * @return A const reference to the XLCell object at the given coordinates.
          */
-        XLCell Cell(uint32_t rowNumber, uint16_t columnNumber) const;
+        XLCell cell(uint32_t rowNumber, uint16_t columnNumber) const;
 
         /**
          * @brief Get a range for the area currently in use (i.e. from cell A1 to the last cell being in use).
          * @return A const XLCellRange object with the entire range.
          */
-        XLCellRange Range() const;
+        XLCellRange range() const;
 
         /**
          * @brief Get a range with the given coordinates.
@@ -164,59 +164,59 @@ namespace OpenXLSX
          * @param bottomRight An XLCellReference object with the coordinates to the bottom right cell.
          * @return A const XLCellRange object with the requested range.
          */
-        XLCellRange Range(const XLCellReference& topLeft, const XLCellReference& bottomRight) const;
+        XLCellRange range(const XLCellReference& topLeft, const XLCellReference& bottomRight) const;
 
         /**
          * @brief Get the row with the given row number.
          * @param rowNumber The number of the row to retrieve.
          * @return A pointer to the XLRow object.
          */
-        XLRow Row(uint32_t rowNumber);
+        XLRow row(uint32_t rowNumber);
 
         /**
          * @brief Get the row with the given row number.
          * @param rowNumber The number of the row to retrieve.
          * @return A const pointer to the XLRow object.
          */
-        const XLRow* Row(uint32_t rowNumber) const;
+        const XLRow* row(uint32_t rowNumber) const;
 
         /**
          * @brief Get the column with the given column number.
          * @param columnNumber The number of the column to retrieve.
          * @return A pointer to the XLColumn object.
          */
-        XLColumn Column(uint16_t columnNumber) const;
+        XLColumn column(uint16_t columnNumber) const;
 
         /**
          * @brief Get an XLCellReference to the last (bottom right) cell in the worksheet.
          * @return An XLCellReference for the last cell.
          */
-        XLCellReference LastCell() const noexcept;
+        XLCellReference lastCell() const noexcept;
 
         /**
          * @brief Get the number of columns in the worksheet.
          * @return The number of columns.
          */
-        uint16_t ColumnCount() const noexcept;
+        uint16_t columnCount() const noexcept;
 
         /**
          * @brief Get the number of rows in the worksheet.
          * @return The number of rows.
          */
-        uint32_t RowCount() const noexcept;
+        uint32_t rowCount() const noexcept;
 
         /**
          * @brief
          * @param oldName
          * @param newName
          */
-        void UpdateSheetName(const std::string& oldName, const std::string& newName);
+        void updateSheetName(const std::string& oldName, const std::string& newName);
 
         /**
          * @brief
          * @return
          */
-        std::string GetXmlData() const override;
+        std::string xmlData() const override;
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Protected Member Functions
@@ -229,7 +229,7 @@ namespace OpenXLSX
          * @return A pointer to the newly created clone.
          * @todo Not yet implemented.
          */
-        XLWorksheet Clone(const std::string& newName);
+        XLWorksheet clone(const std::string& newName);
     };
 }    // namespace OpenXLSX
 

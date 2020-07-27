@@ -41,8 +41,8 @@ XLCell::XLCell(XMLNode cellNode, XLSharedStrings* sharedStrings) : m_cellNode(ce
  */
 XLCell& XLCell::operator=(const XLCellRange& range)
 {
-    auto            first = CellReference();
-    XLCellReference last(first.Row() + range.NumRows() - 1, first.Column() + range.NumColumns() - 1);
+    auto            first = cellReference();
+    XLCellReference last(first.row() + range.numRows() - 1, first.column() + range.numColumns() - 1);
     XLCellRange     rng(m_cellNode.parent().parent(), first, last);
     rng = range;
 
@@ -52,15 +52,15 @@ XLCell& XLCell::operator=(const XLCellRange& range)
 /**
  * @details
  */
-XLValueType XLCell::ValueType() const
+XLValueType XLCell::valueType() const
 {
-    return XLCellValue(m_cellNode, nullptr).ValueType();
+    return XLCellValue(m_cellNode, nullptr).valueType();
 }
 
 /**
  * @details
  */
-XLCellValue XLCell::Value() const
+XLCellValue XLCell::value() const
 {
     return XLCellValue(m_cellNode, m_sharedStrings);
 }
@@ -68,7 +68,7 @@ XLCellValue XLCell::Value() const
 /**
  * @details This function returns a const reference to the cellReference property.
  */
-XLCellReference XLCell::CellReference() const
+XLCellReference XLCell::cellReference() const
 {
     return XLCellReference(m_cellNode.attribute("r").value());
 }
@@ -76,7 +76,7 @@ XLCellReference XLCell::CellReference() const
 /**
  * @details
  */
-bool XLCell::HasFormula() const
+bool XLCell::hasFormula() const
 {
     return m_cellNode.child("f") != nullptr;
 }
@@ -84,7 +84,7 @@ bool XLCell::HasFormula() const
 /**
  * @details
  */
-std::string XLCell::GetFormula() const
+std::string XLCell::formula() const
 {
     return m_cellNode.child("f").text().get();
 }
@@ -92,7 +92,7 @@ std::string XLCell::GetFormula() const
 /**
  * @details
  */
-void XLCell::SetFormula(const std::string& newFormula)
+void XLCell::setFormula(const std::string& newFormula)
 {
     m_cellNode.child("f").text().set(newFormula.c_str());
 }

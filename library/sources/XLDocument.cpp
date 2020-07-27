@@ -419,17 +419,17 @@ void XLDocument::open(const std::string& fileName)
 
     // ===== Add remaining spreadsheet elements to the vector of XLXmlData objects.
     for (auto item : m_contentTypes.getContentItems()) {
-        if (item.Path().substr(0, 4) == "/xl/" && !(item.Path() == "/xl/workbook.xml"))
+        if (item.path().substr(0, 4) == "/xl/" && !(item.path() == "/xl/workbook.xml"))
             m_data.emplace_back(/* parentDoc */ this,
-                                /* xmlPath   */ item.Path().substr(1),
-                                /* xmlID     */ m_wbkRelationships.RelationshipByTarget(item.Path().substr(4)).Id(),
-                                /* xmlType   */ item.Type());
+                                /* xmlPath   */ item.path().substr(1),
+                                /* xmlID     */ m_wbkRelationships.relationshipByTarget(item.path().substr(4)).Id(),
+                                /* xmlType   */ item.type());
 
         else
             m_data.emplace_back(/* parentDoc */ this,
-                                /* xmlPath   */ item.Path().substr(1),
-                                /* xmlID     */ m_docRelationships.RelationshipByTarget(item.Path().substr(1)).Id(),
-                                /* xmlType   */ item.Type());
+                                /* xmlPath   */ item.path().substr(1),
+                                /* xmlID     */ m_docRelationships.relationshipByTarget(item.path().substr(1)).Id(),
+                                /* xmlType   */ item.type());
     }
 
     // ===== Open the workbook and document property items
@@ -530,15 +530,15 @@ std::string XLDocument::property(XLProperty prop) const
         case XLProperty::AppVersion:
             return m_appProperties.property("AppVersion").text().get();
         case XLProperty::Category:
-            return m_coreProperties.Property("cp:category");
+            return m_coreProperties.property("cp:category");
         case XLProperty::Company:
             return m_appProperties.property("Company").text().get();
         case XLProperty::CreationDate:
-            return m_coreProperties.Property("dcterms:created");
+            return m_coreProperties.property("dcterms:created");
         case XLProperty::Creator:
-            return m_coreProperties.Property("dc:creator");
+            return m_coreProperties.property("dc:creator");
         case XLProperty::Description:
-            return m_coreProperties.Property("dc:description");
+            return m_coreProperties.property("dc:description");
         case XLProperty::DocSecurity:
             return m_appProperties.property("DocSecurity").text().get();
         case XLProperty::HyperlinkBase:
@@ -546,25 +546,25 @@ std::string XLDocument::property(XLProperty prop) const
         case XLProperty::HyperlinksChanged:
             return m_appProperties.property("HyperlinksChanged").text().get();
         case XLProperty::Keywords:
-            return m_coreProperties.Property("cp:keywords");
+            return m_coreProperties.property("cp:keywords");
         case XLProperty::LastModifiedBy:
-            return m_coreProperties.Property("cp:lastModifiedBy");
+            return m_coreProperties.property("cp:lastModifiedBy");
         case XLProperty::LastPrinted:
-            return m_coreProperties.Property("cp:lastPrinted");
+            return m_coreProperties.property("cp:lastPrinted");
         case XLProperty::LinksUpToDate:
             return m_appProperties.property("LinksUpToDate").text().get();
         case XLProperty::Manager:
             return m_appProperties.property("Manager").text().get();
         case XLProperty::ModificationDate:
-            return m_coreProperties.Property("dcterms:modified");
+            return m_coreProperties.property("dcterms:modified");
         case XLProperty::ScaleCrop:
             return m_appProperties.property("ScaleCrop").text().get();
         case XLProperty::SharedDoc:
             return m_appProperties.property("SharedDoc").text().get();
         case XLProperty::Subject:
-            return m_coreProperties.Property("dc:subject");
+            return m_coreProperties.property("dc:subject");
         case XLProperty::Title:
-            return m_coreProperties.Property("dc:title");
+            return m_coreProperties.property("dc:title");
         default:
             return "";    // To silence compiler warning.
     }
@@ -625,19 +625,19 @@ void XLDocument::setProperty(XLProperty prop, const std::string& value)
             break;
 
         case XLProperty::Category:
-            m_coreProperties.SetProperty("cp:category", value);
+            m_coreProperties.setProperty("cp:category", value);
             break;
         case XLProperty::Company:
             m_appProperties.setProperty("Company", value);
             break;
         case XLProperty::CreationDate:
-            m_coreProperties.SetProperty("dcterms:created", value);
+            m_coreProperties.setProperty("dcterms:created", value);
             break;
         case XLProperty::Creator:
-            m_coreProperties.SetProperty("dc:creator", value);
+            m_coreProperties.setProperty("dc:creator", value);
             break;
         case XLProperty::Description:
-            m_coreProperties.SetProperty("dc:description", value);
+            m_coreProperties.setProperty("dc:description", value);
             break;
         case XLProperty::DocSecurity:
             if (value == "0" || value == "1" || value == "2" || value == "4" || value == "8")
@@ -658,13 +658,13 @@ void XLDocument::setProperty(XLProperty prop, const std::string& value)
             break;
 
         case XLProperty::Keywords:
-            m_coreProperties.SetProperty("cp:keywords", value);
+            m_coreProperties.setProperty("cp:keywords", value);
             break;
         case XLProperty::LastModifiedBy:
-            m_coreProperties.SetProperty("cp:lastModifiedBy", value);
+            m_coreProperties.setProperty("cp:lastModifiedBy", value);
             break;
         case XLProperty::LastPrinted:
-            m_coreProperties.SetProperty("cp:lastPrinted", value);
+            m_coreProperties.setProperty("cp:lastPrinted", value);
             break;
         case XLProperty::LinksUpToDate:
             if (value == "true" || value == "false")
@@ -677,7 +677,7 @@ void XLDocument::setProperty(XLProperty prop, const std::string& value)
             m_appProperties.setProperty("Manager", value);
             break;
         case XLProperty::ModificationDate:
-            m_coreProperties.SetProperty("dcterms:modified", value);
+            m_coreProperties.setProperty("dcterms:modified", value);
             break;
         case XLProperty::ScaleCrop:
             if (value == "true" || value == "false")
@@ -694,10 +694,10 @@ void XLDocument::setProperty(XLProperty prop, const std::string& value)
             break;
 
         case XLProperty::Subject:
-            m_coreProperties.SetProperty("dc:subject", value);
+            m_coreProperties.setProperty("dc:subject", value);
             break;
         case XLProperty::Title:
-            m_coreProperties.SetProperty("dc:title", value);
+            m_coreProperties.setProperty("dc:title", value);
             break;
     }
 }

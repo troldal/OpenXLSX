@@ -21,7 +21,7 @@ XLXmlFile::XLXmlFile(XLXmlData* xmlData) : m_xmlData(xmlData) {}
  */
 XLXmlFile::operator bool() const
 {
-    return !GetXmlData().empty();
+    return !xmlData().empty();
 }
 
 /**
@@ -31,7 +31,7 @@ XLXmlFile::operator bool() const
  * empty strings, which is not what we want. The downside is that whitespace characters such as \\n and \\t in the
  * input xml file may mess up the parsing.
  */
-void XLXmlFile::SetXmlData(const std::string& xmlData)
+void XLXmlFile::setXmlData(const std::string& xmlData)
 {
     m_xmlData->setRawData(xmlData);
 }
@@ -39,7 +39,7 @@ void XLXmlFile::SetXmlData(const std::string& xmlData)
 /**
  * @details This method retrieves the underlying XML data as a std::string.
  */
-std::string XLXmlFile::GetXmlData() const
+std::string XLXmlFile::xmlData() const
 {
     return m_xmlData->getRawData();
 }
@@ -47,7 +47,7 @@ std::string XLXmlFile::GetXmlData() const
 /**
  * @details This method returns the path in the .zip file of the XML file as a std::string.
  */
-string XLXmlFile::FilePath() const
+string XLXmlFile::filePath() const
 {
     return m_xmlData->getXmlPath();
 }
@@ -55,15 +55,15 @@ string XLXmlFile::FilePath() const
 /**
  * @details This method returns a pointer to the underlying XMLDocument resource.
  */
-XMLDocument& XLXmlFile::XmlDocument()
+XMLDocument& XLXmlFile::xmlDocument()
 {
-    return const_cast<XMLDocument&>(static_cast<const XLXmlFile*>(this)->XmlDocument());    // NOLINT
+    return const_cast<XMLDocument&>(static_cast<const XLXmlFile*>(this)->xmlDocument());    // NOLINT
 }
 
 /**
  * @details This method returns a pointer to the underlying XMLDocument resource as const.
  */
-const XMLDocument& XLXmlFile::XmlDocument() const
+const XMLDocument& XLXmlFile::xmlDocument() const
 {
     return *m_xmlData->getXmlDocument();
 }

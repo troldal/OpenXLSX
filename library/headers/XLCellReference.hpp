@@ -140,45 +140,45 @@ namespace OpenXLSX
          * @brief Get the row number of the XLCellReference.
          * @return The row.
          */
-        uint32_t Row() const;
+        uint32_t row() const;
 
         /**
          * @brief Set the row number for the XLCellReference.
          * @param row The row number.
          */
-        void SetRow(uint32_t row);
+        void setRow(uint32_t row);
 
         /**
          * @brief Get the column number of the XLCellReference.
          * @return The column number.
          */
-        uint16_t Column() const;
+        uint16_t column() const;
 
         /**
          * @brief Set the column number of the XLCellReference.
          * @param column The column number.
          */
-        void SetColumn(uint16_t column);
+        void setColumn(uint16_t column);
 
         /**
          * @brief Set both row and column number of the XLCellReference.
          * @param row The row number.
          * @param column The column number.
          */
-        void SetRowAndColumn(uint32_t row, uint16_t column);
+        void setRowAndColumn(uint32_t row, uint16_t column);
 
         /**
          * @brief Get the address of the XLCellReference
          * @return The address, e.g. 'A1'
          */
-        std::string Address() const;
+        std::string address() const;
 
         /**
          * @brief Set the address of the XLCellReference
          * @param address The address, e.g. 'A1'
          * @pre The address input string must be a valid Excel cell reference. Otherwise the behaviour is undefined.
          */
-        void SetAddress(const std::string& address);
+        void setAddress(const std::string& address);
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Private Member Functions
@@ -191,49 +191,44 @@ namespace OpenXLSX
          * @param row
          * @return
          */
-        static std::string RowAsString(uint32_t row);
+        static std::string rowAsString(uint32_t row);
 
         /**
          * @brief
          * @param row
          * @return
          */
-        static uint32_t RowAsNumber(const std::string& row);
+        static uint32_t rowAsNumber(const std::string& row);
 
         /**
          * @brief Static helper function to convert column number to column letter (e.g. column 1 becomes 'A')
          * @param column The column number.
          * @return The column letter
          */
-        static std::string ColumnAsString(uint16_t column);
+        static std::string columnAsString(uint16_t column);
 
         /**
          * @brief Static helper function to convert column letter to column number (e.g. column 'A' becomes 1)
          * @param column The column letter, e.g. 'A'
          * @return The column number.
          */
-        static uint16_t ColumnAsNumber(const std::string& column);
+        static uint16_t columnAsNumber(const std::string& column);
 
         /**
          * @brief Static helper function to convert cell address to coordinates.
          * @param address The address to be converted, e.g. 'A1'
          * @return A std::pair<row, column>
          */
-        static XLCoordinates CoordinatesFromAddress(const std::string& address);
+        static XLCoordinates coordinatesFromAddress(const std::string& address);
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Private Member Variables
         //----------------------------------------------------------------------------------------------------------------------
-
+    private:
         uint32_t    m_row;         /**< The row */
         uint16_t    m_column;      /**< The column */
         std::string m_cellAddress; /**< The address, e.g. 'A1' */
     };
-
-    //======================================================================================================================
-    //========== Global Functions
-    //==========================================================================================
-    //======================================================================================================================
 
     /**
      * @brief Helper function to check equality between two XLCellReferences.
@@ -243,7 +238,7 @@ namespace OpenXLSX
      */
     inline bool operator==(const XLCellReference& lhs, const XLCellReference& rhs)
     {
-        return lhs.Row() == rhs.Row() && lhs.Column() == rhs.Column();
+        return lhs.row() == rhs.row() && lhs.column() == rhs.column();
     }
 
     /**
@@ -265,7 +260,7 @@ namespace OpenXLSX
      */
     inline bool operator<(const XLCellReference& lhs, const XLCellReference& rhs)
     {
-        return (lhs.Row() < rhs.Row() ? true : (lhs.Row() > rhs.Row() ? false : lhs.Column() < rhs.Column()));
+        return (lhs.row() < rhs.row() ? true : (lhs.row() > rhs.row() ? false : lhs.column() < rhs.column()));
     }
 
     /**

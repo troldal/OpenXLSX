@@ -24,13 +24,13 @@ XLCoreProperties::~XLCoreProperties() = default;
 /**
  * @details
  */
-bool XLCoreProperties::SetProperty(const std::string& name, const std::string& value)
+bool XLCoreProperties::setProperty(const std::string& name, const std::string& value)
 {
     XMLNode node;
-    if (XmlDocument().first_child().child(name.c_str()) != nullptr)
-        node = XmlDocument().first_child().child(name.c_str());
+    if (xmlDocument().first_child().child(name.c_str()) != nullptr)
+        node = xmlDocument().first_child().child(name.c_str());
     else
-        node = XmlDocument().first_child().prepend_child(name.c_str());
+        node = xmlDocument().first_child().prepend_child(name.c_str());
 
     node.text().set(value.c_str());
     return true;
@@ -39,27 +39,27 @@ bool XLCoreProperties::SetProperty(const std::string& name, const std::string& v
 /**
  * @details
  */
-bool XLCoreProperties::SetProperty(const std::string& name, int value)
+bool XLCoreProperties::setProperty(const std::string& name, int value)
 {
-    return SetProperty(name, to_string(value));
+    return setProperty(name, to_string(value));
 }
 
 /**
  * @details
  */
-bool XLCoreProperties::SetProperty(const std::string& name, double value)
+bool XLCoreProperties::setProperty(const std::string& name, double value)
 {
-    return SetProperty(name, to_string(value));
+    return setProperty(name, to_string(value));
 }
 
 /**
  * @details
  */
-std::string XLCoreProperties::Property(const std::string& name) const
+std::string XLCoreProperties::property(const std::string& name) const
 {
-    auto property = XmlDocument().first_child().child(name.c_str());
+    auto property = xmlDocument().first_child().child(name.c_str());
     if (!property) {
-        property = XmlDocument().first_child().append_child(name.c_str());
+        property = xmlDocument().first_child().append_child(name.c_str());
     }
 
     return property.text().get();
@@ -68,8 +68,8 @@ std::string XLCoreProperties::Property(const std::string& name) const
 /**
  * @details
  */
-void XLCoreProperties::DeleteProperty(const std::string& name)
+void XLCoreProperties::deleteProperty(const std::string& name)
 {
-    auto property = XmlDocument().first_child().child(name.c_str());
-    if (property != nullptr) XmlDocument().first_child().remove_child(property);
+    auto property = xmlDocument().first_child().child(name.c_str());
+    if (property != nullptr) xmlDocument().first_child().remove_child(property);
 }

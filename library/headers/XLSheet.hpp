@@ -126,19 +126,19 @@ namespace OpenXLSX
          * @brief Method to retrieve the name of the sheet.
          * @return A std::string with the sheet name.
          */
-        std::string Name() const;
+        std::string name() const;
 
         /**
          * @brief Method for renaming the sheet.
          * @param name A std::string with the new name.
          */
-        void SetName(const std::string& name);
+        void setName(const std::string& name);
 
         /**
          * @brief Method for getting the current visibility state of the sheet.
          * @return An XLSheetState enum object, with the current sheet state.
          */
-        XLSheetState State() const;
+        XLSheetState state() const;
 
         /**
          * @brief Method for setting the state of the sheet.
@@ -146,25 +146,25 @@ namespace OpenXLSX
          * @bug For some reason, this method doesn't work. The data is written correctly to the xml file, but the sheet
          * is not hidden when opening the file in Excel.
          */
-        void SetState(XLSheetState state);
+        void setState(XLSheetState state);
 
         /**
          * @brief
          * @return
          */
-        XLColor Color();
+        XLColor color();
 
         /**
          * @brief
          * @param color
          */
-        void SetColor(const XLColor& color);
+        void setColor(const XLColor& color);
 
         /**
          * @brief
          * @param selected
          */
-        void SetSelected(bool selected);
+        void setSelected(bool selected);
 
         /**
          * @brief Method to get the type of the sheet.
@@ -184,12 +184,12 @@ namespace OpenXLSX
          * @brief Method for getting the index of the sheet.
          * @return An int with the index of the sheet.
          */
-        unsigned int Index() const;
+        unsigned int index() const;
 
         /**
          * @brief Method for setting the index of the sheet. This effectively moves the sheet to a different position.
          */
-        void SetIndex();
+        void setIndex();
 
         template<typename T>
         T Get()

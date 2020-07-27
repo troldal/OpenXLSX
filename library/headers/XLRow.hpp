@@ -101,51 +101,51 @@ namespace OpenXLSX
          * @brief Get the height of the row.
          * @return the row height.
          */
-        double Height() const;
+        double height() const;
 
         /**
          * @brief Set the height of the row.
          * @param height The height of the row.
          */
-        void SetHeight(float height);
+        void setHeight(float height);
 
         /**
          * @brief Get the descent of the row, which is the vertical distance in pixels from the bottom of the cells
          * in the current row to the typographical baseline of the cell content.
          * @return The row descent.
          */
-        float Descent() const;
+        float descent() const;
 
         /**
          * @brief Set the descent of the row, which is he vertical distance in pixels from the bottom of the cells
          * in the current row to the typographical baseline of the cell content.
          * @param descent The row descent.
          */
-        void SetDescent(float descent);
+        void setDescent(float descent);
 
         /**
          * @brief Is the row hidden?
          * @return The state of the row.
          */
-        bool IsHidden() const;
+        bool isHidden() const;
 
         /**
          * @brief Set the row to be hidden or visible.
          * @param state The state of the row.
          */
-        void SetHidden(bool state);
+        void setHidden(bool state);
 
         /**
          * @brief
          * @return
          */
-        int64_t RowNumber() const;
+        int64_t rowNumber() const;
 
         /**
          * @brief Get the number of cells in the row.
          * @return The number of cells in the row.
          */
-        unsigned int CellCount() const;
+        unsigned int cellCount() const;
 
         //---------- PRIVATE MEMBER VARIABLES ----------//
     private:

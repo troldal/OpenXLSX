@@ -116,13 +116,13 @@ namespace OpenXLSX
          * @brief
          * @return
          */
-        XLContentType Type() const;
+        XLContentType type() const;
 
         /**
          * @brief
          * @return
          */
-        std::string Path() const;
+        std::string path() const;
 
     private:                   // ---------- Private Member Variables ---------- //
         XMLNode m_contentNode; /**< */
@@ -182,27 +182,31 @@ namespace OpenXLSX
          * @param path The key
          * @param type The value
          */
-        void AddOverride(const std::string& path, XLContentType type);
+        void addOverride(const std::string& path, XLContentType type);
 
         /**
          * @brief
          * @param path
          */
-        void DeleteOverride(const std::string& path);
+        void deleteOverride(const std::string& path);
 
         /**
          * @brief
          * @param item
          */
-        void DeleteOverride(XLContentItem& item);
+        void deleteOverride(XLContentItem& item);
 
         /**
          * @brief
          * @param path
          * @return
          */
-        XLContentItem ContentItem(const std::string& path);
+        XLContentItem contentItem(const std::string& path);
 
+        /**
+         * @brief
+         * @return
+         */
         std::vector<XLContentItem> getContentItems();
 
         // ---------- Protected Member Functions ---------- //
