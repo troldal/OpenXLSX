@@ -45,7 +45,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== OpenXLSX Includes ===== //
 #include "XLSheet.hpp"
-
 #include "XLDocument.hpp"
 #include "XLRelationships.hpp"
 
