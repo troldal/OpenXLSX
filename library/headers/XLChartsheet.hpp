@@ -46,7 +46,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_IMPL_XLCHARTSHEET_H
 #define OPENXLSX_IMPL_XLCHARTSHEET_H
 
-#include "XLSheetBase.hpp"
+#include "XLXmlFile.hpp"
 
 namespace OpenXLSX
 {
@@ -59,7 +59,7 @@ namespace OpenXLSX
      * @brief Class representing the an Excel chartsheet.
      * @todo This class is largely unimplemented and works just as a placeholder.
      */
-    class XLChartsheet : public XLSheetBase<XLChartsheet>
+    class XLChartsheet : public XLXmlFile
     {
         //----------------------------------------------------------------------------------------------------------------------
         //           Public Member Functions

@@ -18,6 +18,7 @@ int main()
     wbk.worksheet("Sheet1").cell(XLCellReference("A1")).value() = "Hello OpenXLSX";
     wbk.deleteSheet("MySheet01");
     wbk.cloneSheet("Sheet1", "Sheet1Clone");
+    // wbk.sheet("Sheet1").clone("Sheet1Clone");
 
     for (const auto& name : wbk.worksheetNames()) cout << name << ": " << wbk.indexOfSheet(name) << endl;
 

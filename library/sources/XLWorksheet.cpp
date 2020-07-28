@@ -70,7 +70,7 @@ namespace
  * @details The constructor initializes the member variables and calls the loadXMLData from the
  * XLAbstractXMLFile base class.
  */
-XLWorksheet::XLWorksheet(XLXmlData* xmlData) : XLSheetBase(xmlData)
+XLWorksheet::XLWorksheet(XLXmlData* xmlData) : XLXmlFile(xmlData)
 {
     // Read the dimensions of the Sheet and set data members accordingly.
     string dimensions = xmlDocument().document_element().child("dimension").attribute("ref").value();
@@ -113,16 +113,35 @@ XLWorksheet XLWorksheet::clone(const std::string& newName)
     return parentDoc().workbook().worksheet(newName);
 }
 
+std::string XLWorksheet::name() const
+{
+    return parentDoc().executeQuery(XLQuerySheetName(getRID())).sheetName();
+}
+
+void XLWorksheet::setName(const string& sheetName)
+{
+    parentDoc().executeCommand(XLCommandSetSheetName(getRID(), name(), sheetName));
+}
+
+/**
+ * @details
+ */
 XLCell XLWorksheet::cell(const string& ref)
 {
     return cell(XLCellReference(ref));
 }
 
+/**
+ * @details
+ */
 XLCell XLWorksheet::cell(const string& ref) const
 {
     return cell(XLCellReference(ref));
 }
 
+/**
+ * @details
+ */
 XLCell XLWorksheet::cell(const XLCellReference& ref)
 {
     return cell(ref.row(), ref.column());

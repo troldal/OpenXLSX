@@ -51,7 +51,7 @@ void XLSheet::setName(const std::string& name)
 /**
  * @details This method returns the m_sheetState property.
  */
-XLSheetState XLSheet::state() const
+XLSheetState XLSheet::visibility() const
 {
     auto state  = parentDoc().executeQuery(XLQuerySheetVisibility(getRID())).sheetVisibility();
     auto result = XLSheetState::Visible;
@@ -77,7 +77,7 @@ XLSheetState XLSheet::state() const
  * - If the state is set to Visible, delete the state attribute from the sheet node in the workbook.xml file, if it
  * exists.
  */
-void XLSheet::setState(XLSheetState state)
+void XLSheet::setVisibility(XLSheetState state)
 {
     auto stateString = std::string();
     switch (state) {
@@ -117,6 +117,17 @@ void XLSheet::setSelected(bool selected)
 {
     unsigned int value = (selected ? 1 : 0);
     xmlDocument().first_child().child("sheetViews").first_child().attribute("tabSelected").set_value(value);
+}
+
+/**
+ * @details
+ */
+XLSheetType XLSheet::type() const
+{
+    if (std::holds_alternative<XLWorksheet>(m_sheet))
+        return XLSheetType::Worksheet;
+    else
+        return XLSheetType::Chartsheet;
 }
 
 /**

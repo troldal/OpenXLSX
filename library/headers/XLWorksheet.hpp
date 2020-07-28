@@ -51,7 +51,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLCellValue.hpp"
 #include "XLColumn.hpp"
 #include "XLRow.hpp"
-#include "XLSheetBase.hpp"
+#include "XLXmlFile.hpp"
 
 #include <vector>
 
@@ -59,15 +59,10 @@ namespace OpenXLSX
 {
     class XLCellRange;
 
-    //======================================================================================================================
-    //========== XLWorksheet Class
-    //=========================================================================================
-    //======================================================================================================================
-
     /**
      * @brief A class encapsulating an Excel worksheet. Access to XLWorksheet objects should be via the workbook object.
      */
-    class XLWorksheet : public XLSheetBase<XLWorksheet>
+    class XLWorksheet : public XLXmlFile
     {
         friend class XLCell;
         friend class XLRow;
@@ -78,7 +73,7 @@ namespace OpenXLSX
         //----------------------------------------------------------------------------------------------------------------------
 
     public:
-        XLWorksheet() : XLSheetBase(nullptr) {};
+        XLWorksheet() : XLXmlFile(nullptr) {};
 
         /**
          * @brief Constructor
@@ -118,8 +113,30 @@ namespace OpenXLSX
          */
         XLWorksheet& operator=(XLWorksheet&& other) = default;
 
+        /**
+         * @brief Method to retrieve the name of the sheet.
+         * @return A std::string with the sheet name.
+         */
+        std::string name() const;
+
+        /**
+         * @brief Method for renaming the sheet.
+         * @param sheetName A std::string with the new name.
+         */
+        void setName(const std::string& sheetName);
+
+        /**
+         * @brief
+         * @param ref
+         * @return
+         */
         XLCell cell(const std::string& ref);
 
+        /**
+         * @brief
+         * @param ref
+         * @return
+         */
         XLCell cell(const std::string& ref) const;
 
         /**
@@ -216,7 +233,7 @@ namespace OpenXLSX
          * @brief
          * @return
          */
-        std::string xmlData() const override;
+        std::string xmlData() const;
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Protected Member Functions

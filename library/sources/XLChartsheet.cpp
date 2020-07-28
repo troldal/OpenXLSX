@@ -11,6 +11,6 @@ using namespace OpenXLSX;
 /**
  * @details
  */
-XLChartsheet::XLChartsheet(XLXmlData* xmlData) : XLSheetBase(xmlData) {}
+XLChartsheet::XLChartsheet(XLXmlData* xmlData) : XLXmlFile(xmlData) {}
 
 XLChartsheet XLChartsheet::clone(const std::string& newName) {}

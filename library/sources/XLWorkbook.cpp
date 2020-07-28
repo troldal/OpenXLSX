@@ -176,7 +176,7 @@ XLSheet XLWorkbook::sheet(uint16_t index)
  */
 XLWorksheet XLWorkbook::worksheet(const std::string& sheetName)
 {
-    return sheet(sheetName).Get<XLWorksheet>();
+    return sheet(sheetName).get<XLWorksheet>();
 }
 
 /**
@@ -184,7 +184,7 @@ XLWorksheet XLWorkbook::worksheet(const std::string& sheetName)
  */
 XLChartsheet XLWorkbook::chartsheet(const std::string& sheetName)
 {
-    return sheet(sheetName).Get<XLChartsheet>();
+    return sheet(sheetName).get<XLChartsheet>();
 }
 
 /**

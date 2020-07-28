@@ -339,6 +339,10 @@ namespace OpenXLSX
                 query.setSheetTarget(m_wbkRelationships.relationshipById(query.sheetID()).Target());
                 return query;
             }
+
+            else {
+                throw XLException("Invalid query object.");
+            }
         }
 
         /**

@@ -138,7 +138,7 @@ namespace OpenXLSX
          * @brief Method for getting the current visibility state of the sheet.
          * @return An XLSheetState enum object, with the current sheet state.
          */
-        XLSheetState state() const;
+        XLSheetState visibility() const;
 
         /**
          * @brief Method for setting the state of the sheet.
@@ -146,7 +146,7 @@ namespace OpenXLSX
          * @bug For some reason, this method doesn't work. The data is written correctly to the xml file, but the sheet
          * is not hidden when opening the file in Excel.
          */
-        void setState(XLSheetState state);
+        void setVisibility(XLSheetState state);
 
         /**
          * @brief
@@ -170,7 +170,7 @@ namespace OpenXLSX
          * @brief Method to get the type of the sheet.
          * @return An XLSheetType enum object with the sheet type.
          */
-        // XLSheetType Type() const = 0;
+        XLSheetType type() const;
 
         /**
          * @brief Method for cloning the sheet.
@@ -191,17 +191,24 @@ namespace OpenXLSX
          */
         void setIndex();
 
+        /**
+         * @brief
+         * @tparam T
+         * @return
+         */
         template<typename T>
-        T Get()
+        T get()
         {
+            static_assert(std::is_same_v<T, XLWorksheet> || std::is_same_v<T, XLChartsheet>, "Invalid sheet type.");
+
             if constexpr (std::is_same<T, XLWorksheet>::value)
                 return std::get<XLWorksheet>(m_sheet);
 
             else if constexpr (std::is_same<T, XLChartsheet>::value)
                 return std::get<XLChartsheet>(m_sheet);
-
-            else
-                throw XLException("Invalid sheet type.");
+            //
+            //            else
+            //                throw XLException("Invalid sheet type.");
         }
 
         //----------------------------------------------------------------------------------------------------------------------
