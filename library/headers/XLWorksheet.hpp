@@ -233,13 +233,8 @@ namespace OpenXLSX
          * @brief
          * @return
          */
-        std::string xmlData() const;
+        std::string xmlData() const override;
 
-        //----------------------------------------------------------------------------------------------------------------------
-        //           Protected Member Functions
-        //----------------------------------------------------------------------------------------------------------------------
-
-    protected:
         /**
          * @brief Creates a clone of the sheet and adds it to the parent XLWorkbook object.
          * @param newName The name of the cloned sheet.

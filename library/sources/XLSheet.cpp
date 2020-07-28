@@ -130,6 +130,12 @@ XLSheetType XLSheet::type() const
         return XLSheetType::Chartsheet;
 }
 
+XLSheet* XLSheet::clone(const string& newName)
+{
+    std::visit([&](auto&& arg) { arg.clone(newName); }, m_sheet);
+    return nullptr;
+}
+
 /**
  * @details
  * @todo This method is currently unimplemented.

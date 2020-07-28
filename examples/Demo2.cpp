@@ -17,8 +17,8 @@ int main()
     wbk.setSheetIndex("Sheet1", 2);    // Move Sheet1 to second place
     wbk.worksheet("Sheet1").cell(XLCellReference("A1")).value() = "Hello OpenXLSX";
     wbk.deleteSheet("MySheet01");
-    wbk.cloneSheet("Sheet1", "Sheet1Clone");
-    // wbk.sheet("Sheet1").clone("Sheet1Clone");
+    // wbk.cloneSheet("Sheet1", "Sheet1Clone");
+    wbk.sheet("Sheet1").clone("Sheet1Clone");
 
     for (const auto& name : wbk.worksheetNames()) cout << name << ": " << wbk.indexOfSheet(name) << endl;
 

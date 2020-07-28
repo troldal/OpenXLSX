@@ -262,12 +262,21 @@ void XLWorkbook::cloneSheet(const std::string& extName, const std::string& newNa
         throw XLException("Sheet named \"" + newName + "\" already exists.");
 
     // ===== Create new internal (workbook) ID for the sheet and retrieve the sheet ID for the sheet to clone.
-    auto        internalID = calculateNewSheetNumber(xmlDocument().document_element().child("sheets"));
-    std::string sheetID    = getSheetsNode().find_child_by_attribute("name", extName.c_str()).attribute("r:id").value();
+    auto internalID = calculateNewSheetNumber(xmlDocument().document_element().child("sheets"));
 
     // ===== Create xml file for new worksheet and add metadata to the workbook file.
-    parentDoc().executeCommand(XLCommandCloneSheet(sheetID, newName, "/xl/worksheets/sheet" + std::to_string(internalID) + ".xml"));
+    parentDoc().executeCommand(
+        XLCommandCloneSheet(sheetID(extName), newName, "/xl/worksheets/sheet" + std::to_string(internalID) + ".xml"));
     prepareSheetMetadata(newName, internalID);
+}
+
+/**
+ * @details
+ */
+std::string XLWorkbook::createNewSheetPath()
+{
+    auto internalID = calculateNewSheetNumber(xmlDocument().document_element().child("sheets"));
+    return "/xl/worksheets/sheet" + std::to_string(internalID) + ".xml";
 }
 
 /**

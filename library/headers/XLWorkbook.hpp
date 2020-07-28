@@ -290,6 +290,7 @@ namespace OpenXLSX
         void deleteNamedRanges();
 
     private:    // ---------- Private Member Functions ---------- //
+        std::string createNewSheetPath();
         /**
          * @brief
          * @param sheetName
