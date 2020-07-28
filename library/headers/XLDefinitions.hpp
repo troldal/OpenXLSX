@@ -46,8 +46,9 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_XLDEFINITIONS_HPP
 #define OPENXLSX_XLDEFINITIONS_HPP
 
-#include "openxlsx_export.h"
+//#include "openxlsx_export.h"
 
+// ===== Standard Library Includes ===== //
 #include <cstdint>
 
 namespace OpenXLSX

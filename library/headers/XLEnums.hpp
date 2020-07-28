@@ -5,6 +5,7 @@
 #ifndef OPENXLSX_XLCONTENTTYPEENUM_IMPL_H
 #define OPENXLSX_XLCONTENTTYPEENUM_IMPL_H
 
+// ===== OpenXLSX Includes ===== //
 #include "XLDefinitions.hpp"
 
 namespace OpenXLSX

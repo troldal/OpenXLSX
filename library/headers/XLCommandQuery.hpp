@@ -5,12 +5,14 @@
 #ifndef OPENXLSX_XLCOMMANDQUERY_HPP
 #define OPENXLSX_XLCOMMANDQUERY_HPP
 
-#include "XLEnums.hpp"
-#include "XLXmlData.hpp"
-
+// ===== Standard Library Includes ===== //
 #include <map>
 #include <string>
 #include <variant>
+
+// ===== OpenXLSX Includes ===== //
+#include "XLEnums.hpp"
+#include "XLXmlData.hpp"
 
 namespace OpenXLSX
 {

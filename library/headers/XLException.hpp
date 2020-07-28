@@ -46,9 +46,11 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_XLEXCEPTION_HPP
 #define OPENXLSX_XLEXCEPTION_HPP
 
-#include "openxlsx_export.h"
-
+// ===== Standard Library Includes ===== //
 #include <stdexcept>
+
+// ===== OpenXLSX Includes ===== //
+#include "openxlsx_export.h"
 
 namespace OpenXLSX
 {
