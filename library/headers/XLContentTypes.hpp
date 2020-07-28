@@ -43,8 +43,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXLSX_IMPL_XLCONTENTTYPES_H
-#define OPENXLSX_IMPL_XLCONTENTTYPES_H
+#ifndef OPENXLSX_XLCONTENTTYPES_HPP
+#define OPENXLSX_XLCONTENTTYPES_HPP
 
 // ===== Standard Library Includes ===== //
 #include <map>
@@ -213,4 +213,4 @@ namespace OpenXLSX
     };
 }    // namespace OpenXLSX
 
-#endif    // OPENXLSX_IMPL_XLCONTENTTYPES_H
+#endif    // OPENXLSX_XLCONTENTTYPES_HPP

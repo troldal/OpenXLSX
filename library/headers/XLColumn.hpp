@@ -43,8 +43,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXLSX_IMPL_XLCOLUMN_H
-#define OPENXLSX_IMPL_XLCOLUMN_H
+#ifndef OPENXLSX_XLCOLUMN_HPP
+#define OPENXLSX_XLCOLUMN_HPP
 
 // ===== OpenXLSX Includes ===== //
 #include "XLXmlParser.hpp"
@@ -128,4 +128,4 @@ namespace OpenXLSX
 
 }    // namespace OpenXLSX
 
-#endif    // OPENXLSX_IMPL_XLCOLUMN_H
+#endif    // OPENXLSX_XLCOLUMN_HPP

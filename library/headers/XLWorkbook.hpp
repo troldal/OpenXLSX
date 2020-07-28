@@ -43,8 +43,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXLSX_IMPL_XLWORKBOOK_H
-#define OPENXLSX_IMPL_XLWORKBOOK_H
+#ifndef OPENXLSX_XLWORKBOOK_HPP
+#define OPENXLSX_XLWORKBOOK_HPP
 
 // ===== Standard Library Includes ===== //
 #include <variant>
@@ -343,4 +343,4 @@ namespace OpenXLSX
     };
 }    // namespace OpenXLSX
 
-#endif    // OPENXLSX_IMPL_XLWORKBOOK_H
+#endif    // OPENXLSX_XLWORKBOOK_HPP

@@ -43,8 +43,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXLSX_XLCONTENTTYPEENUM_IMPL_H
-#define OPENXLSX_XLCONTENTTYPEENUM_IMPL_H
+#ifndef OPENXLSX_XLCONTENTTYPEENUM_HPP
+#define OPENXLSX_XLCONTENTTYPEENUM_HPP
 
 // ===== OpenXLSX Includes ===== //
 #include "XLDefinitions.hpp"
@@ -121,4 +121,4 @@ namespace OpenXLSX
 
 }    // namespace OpenXLSX
 
-#endif    // OPENXLSX_XLCONTENTTYPEENUM_IMPL_H
+#endif    // OPENXLSX_XLCONTENTTYPEENUM_HPP

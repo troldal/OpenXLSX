@@ -43,8 +43,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXLSX_IMPL_XLCELL_H
-#define OPENXLSX_IMPL_XLCELL_H
+#ifndef OPENXLSX_XLCELL_HPP
+#define OPENXLSX_XLCELL_HPP
 
 // ===== OpenXLSX Includes ===== //
 #include "XLCellReference.hpp"
@@ -181,4 +181,4 @@ namespace OpenXLSX
 
 }    // namespace OpenXLSX
 
-#endif    // OPENXLSX_IMPL_XLCELL_H
+#endif    // OPENXLSX_XLCELL_HPP

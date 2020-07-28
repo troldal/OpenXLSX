@@ -43,8 +43,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXLSX_IMPL_XLCELLVALUE_H
-#define OPENXLSX_IMPL_XLCELLVALUE_H
+#ifndef OPENXLSX_XLCELLVALUE_HPP
+#define OPENXLSX_XLCELLVALUE_HPP
 
 // ===== OpenXLSX Includes ===== //
 #include "XLXmlParser.hpp"

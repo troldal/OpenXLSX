@@ -43,8 +43,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXLSX_IMPL_XLCELLREFERENCE_H
-#define OPENXLSX_IMPL_XLCELLREFERENCE_H
+#ifndef OPENXLSX_XLCELLREFERENCE_HPP
+#define OPENXLSX_XLCELLREFERENCE_HPP
 
 // ===== Standard Library Includes ===== //
 #include <string>
@@ -52,11 +52,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 namespace OpenXLSX
 {
-    //======================================================================================================================
-    //========== XLCoordinates Alias
-    //=======================================================================================
-    //======================================================================================================================
-
     /**
      * @brief
      */
@@ -298,4 +293,4 @@ namespace OpenXLSX
     }
 }    // namespace OpenXLSX
 
-#endif    // OPENXLSX_IMPL_XLCELLREFERENCE_H
+#endif    // OPENXLSX_XLCELLREFERENCE_HPP

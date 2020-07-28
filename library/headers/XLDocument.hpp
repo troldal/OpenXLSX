@@ -43,8 +43,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXLSX_IMPL_XLDOCUMENT_H
-#define OPENXLSX_IMPL_XLDOCUMENT_H
+#ifndef OPENXLSX_XLDOCUMENT_HPP
+#define OPENXLSX_XLDOCUMENT_HPP
 
 // ===== Standard Library Includes ===== //
 #include <fstream>
@@ -451,4 +451,4 @@ namespace OpenXLSX
 
 }    // namespace OpenXLSX
 
-#endif    // OPENXLSX_IMPL_XLDOCUMENT_H
+#endif    // OPENXLSX_XLDOCUMENT_HPP

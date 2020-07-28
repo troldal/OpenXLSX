@@ -43,15 +43,14 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXLSX_IMPL_XLSHAREDSTRINGS_H
-#define OPENXLSX_IMPL_XLSHAREDSTRINGS_H
+#ifndef OPENXLSX_XLSHAREDSTRINGS_HPP
+#define OPENXLSX_XLSHAREDSTRINGS_HPP
 
 // ===== OpenXLSX Includes ===== //
 #include "XLXmlFile.hpp"
 
 namespace OpenXLSX
 {
-
     /**
      * @brief This class encapsulate the Excel concept of Shared Strings. In Excel, instead of havig individual strings
      * in each cell, cells have a reference to an entry in the SharedStrings register. This results in smalle file
@@ -149,4 +148,4 @@ namespace OpenXLSX
     };
 }    // namespace OpenXLSX
 
-#endif    // OPENXLSX_IMPL_XLSHAREDSTRINGS_H
+#endif    // OPENXLSX_XLSHAREDSTRINGS_HPP

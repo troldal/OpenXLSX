@@ -43,8 +43,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXLSX_IMPL_XLABSTRACTSHEET_H
-#define OPENXLSX_IMPL_XLABSTRACTSHEET_H
+#ifndef OPENXLSX_XLSHEET_HPP
+#define OPENXLSX_XLSHEET_HPP
 
 // ===== Standard Library Includes ===== //
 #include <type_traits>
@@ -548,4 +548,4 @@ namespace OpenXLSX
     };
 }    // namespace OpenXLSX
 
-#endif    // OPENXLSX_IMPL_XLABSTRACTSHEET_H
+#endif    // OPENXLSX_XLSHEET_HPP

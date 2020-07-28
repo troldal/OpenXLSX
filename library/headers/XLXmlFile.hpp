@@ -43,8 +43,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXLSX_IMPL_XLABSTRACTXMLFILE_H
-#define OPENXLSX_IMPL_XLABSTRACTXMLFILE_H
+#ifndef OPENXLSX_XLXMLFILE_HPP
+#define OPENXLSX_XLXMLFILE_HPP
 
 // ===== OpenXLSX Includes ===== //
 #include "XLXmlData.hpp"
@@ -172,4 +172,4 @@ namespace OpenXLSX
     };
 }    // namespace OpenXLSX
 
-#endif    // OPENXLSX_IMPL_XLABSTRACTXMLFILE_H
+#endif    // OPENXLSX_XLXMLFILE_HPP
