@@ -46,7 +46,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 // ===== OpenXLSX Includes ===== //
 #include "XLColumn.hpp"
 
-using namespace std;
 using namespace OpenXLSX;
 
 /**

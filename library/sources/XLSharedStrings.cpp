@@ -50,7 +50,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLDocument.hpp"
 #include "XLSharedStrings.hpp"
 
-using namespace std;
 using namespace OpenXLSX;
 
 /**
@@ -62,7 +61,7 @@ XLSharedStrings::XLSharedStrings(XLXmlData* xmlData) : XLXmlFile(xmlData) {}
 /**
  * @details Look up a string index by the string content. If the string does not exist, the returned index is -1.
  */
-int32_t XLSharedStrings::getStringIndex(const string& str) const
+int32_t XLSharedStrings::getStringIndex(const std::string& str) const
 {
     auto iter = std::find_if(xmlDocument().document_element().children().begin(),
                              xmlDocument().document_element().children().end(),
@@ -76,7 +75,7 @@ int32_t XLSharedStrings::getStringIndex(const string& str) const
 /**
  * @details
  */
-bool XLSharedStrings::stringExists(const string& str) const
+bool XLSharedStrings::stringExists(const std::string& str) const
 {
     return getStringIndex(str) >= 0;
 }
@@ -104,7 +103,7 @@ const char* XLSharedStrings::getString(uint32_t index) const
  * @details Append a string by creating a new node in the XML file and adding the string to it. The index to the
  * shared string is returned
  */
-int32_t XLSharedStrings::appendString(const string& str)
+int32_t XLSharedStrings::appendString(const std::string& str)
 {
     xmlDocument().document_element().append_child("si").append_child("t").text().set(str.c_str());
 

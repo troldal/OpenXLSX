@@ -52,7 +52,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLSharedStrings.hpp"
 
 using namespace OpenXLSX;
-using namespace std;
 
 namespace
 {
@@ -112,9 +111,10 @@ namespace
      * @details The number type (integer or floating point) is determined simply by identifying whether or not a decimal
      * point is present in the input string. If present, the number type is floating point.
      */
-    XLNumberType DetermineNumberType(const string& numberString)
+    XLNumberType DetermineNumberType(const std::string& numberString)
     {
-        if (numberString.find('.') != string::npos || numberString.find("E-") != string::npos || numberString.find("e-") != string::npos)
+        if (numberString.find('.') != std::string::npos || numberString.find("E-") != std::string::npos ||
+            numberString.find("e-") != std::string::npos)
             return XLNumberType::Float;
 
         return XLNumberType::Integer;
@@ -205,7 +205,7 @@ XLCellValue& XLCellValue::operator=(const char* stringValue)
  * @post The underlying cell xml data has been set to the value of the input parameter and the type attribute has been
  * set to 'str'
  */
-void XLCellValue::set(const string& stringValue)
+void XLCellValue::set(const std::string& stringValue)
 {
     set(stringValue.c_str());
 }

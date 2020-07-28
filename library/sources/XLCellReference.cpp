@@ -55,7 +55,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLDefinitions.hpp"
 #include "XLException.hpp"
 
-using namespace std;
 using namespace OpenXLSX;
 
 /**

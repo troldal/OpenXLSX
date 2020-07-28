@@ -45,10 +45,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== OpenXLSX Includes ===== //
 #include "XLCell.hpp"
-
 #include "XLCellRange.hpp"
 
-using namespace std;
 using namespace OpenXLSX;
 
 XLCell::XLCell() : m_cellNode(XMLNode()), m_sharedStrings(nullptr) {}

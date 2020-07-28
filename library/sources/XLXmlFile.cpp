@@ -50,7 +50,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLDocument.hpp"
 #include "XLXmlFile.hpp"
 
-using namespace std;
 using namespace OpenXLSX;
 
 /**
@@ -92,7 +91,7 @@ std::string XLXmlFile::xmlData() const
 /**
  * @details This method returns the path in the .zip file of the XML file as a std::string.
  */
-string XLXmlFile::filePath() const
+std::string XLXmlFile::filePath() const
 {
     return m_xmlData->getXmlPath();
 }

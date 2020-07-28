@@ -50,7 +50,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 // ===== OpenXLSX Includes ===== //
 #include "XLColor.hpp"
 
-using namespace std;
 using namespace OpenXLSX;
 
 /**
@@ -125,7 +124,7 @@ uint8_t XLColor::blue() const
  */
 std::string XLColor::hex() const
 {
-    stringstream str;
+    std::stringstream str;
     str << "ff";
 
     if (m_red < 16) str << "0";

@@ -51,7 +51,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLContentTypes.hpp"
 #include "XLDocument.hpp"
 
-using namespace std;
 using namespace OpenXLSX;
 
 namespace
@@ -116,7 +115,7 @@ namespace
      */
     std::string GetStringFromType(XLContentType type)
     {
-        string typeString;
+        std::string typeString;
 
         if (type == XLContentType::WorkbookMacroEnabled)
             typeString = "application/vnd.ms-excel.Sheet.macroEnabled.main+xml";
@@ -183,7 +182,7 @@ XLContentType XLContentItem::type() const
 /**
  * @details
  */
-string XLContentItem::path() const
+std::string XLContentItem::path() const
 {
     return m_contentNode.attribute("PartName").value();
 }
@@ -196,9 +195,9 @@ XLContentTypes::XLContentTypes(XLXmlData* xmlData) : XLXmlFile(xmlData) {}
 /**
  * @details
  */
-void XLContentTypes::addOverride(const string& path, XLContentType type)
+void XLContentTypes::addOverride(const std::string& path, XLContentType type)
 {
-    string typeString = GetStringFromType(type);
+    std::string typeString = GetStringFromType(type);
 
     auto node = xmlDocument().first_child().append_child("Override");
     node.append_attribute("PartName").set_value(path.c_str());
@@ -208,7 +207,7 @@ void XLContentTypes::addOverride(const string& path, XLContentType type)
 /**
  * @details
  */
-void XLContentTypes::deleteOverride(const string& path)
+void XLContentTypes::deleteOverride(const std::string& path)
 {
     xmlDocument().document_element().remove_child(xmlDocument().document_element().find_child_by_attribute("PartName", path.c_str()));
 }
@@ -229,7 +228,7 @@ XLContentItem XLContentTypes::contentItem(const std::string& path)
     return XLContentItem(xmlDocument().document_element().find_child_by_attribute("PartName", path.c_str()));
 }
 
-vector<XLContentItem> XLContentTypes::getContentItems()
+std::vector<XLContentItem> XLContentTypes::getContentItems()
 {
     std::vector<XLContentItem> result;
     for (auto item : xmlDocument().document_element().children()) {

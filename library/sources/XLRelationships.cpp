@@ -50,7 +50,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLDocument.hpp"
 #include "XLRelationships.hpp"
 
-using namespace std;
 using namespace OpenXLSX;
 
 namespace
@@ -109,7 +108,7 @@ namespace
 
     std::string GetStringFromType(XLRelationshipType type)
     {
-        string typeString;
+        std::string typeString;
 
         if (type == XLRelationshipType::ExtendedProperties)
             typeString = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties";
@@ -161,14 +160,14 @@ namespace
 
     uint32_t GetNewRelsID(XMLNode relationshipsNode)
     {
-        return stoi(string(max_element(relationshipsNode.children().begin(),
-                                       relationshipsNode.children().end(),
-                                       [](XMLNode a, XMLNode b) {
-                                           return stoi(string(a.attribute("Id").value()).substr(3)) <
-                                                  stoi(string(b.attribute("Id").value()).substr(3));
-                                       })
-                               ->attribute("Id")
-                               .value())
+        return stoi(std::string(std::max_element(relationshipsNode.children().begin(),
+                                                 relationshipsNode.children().end(),
+                                                 [](XMLNode a, XMLNode b) {
+                                                     return stoi(std::string(a.attribute("Id").value()).substr(3)) <
+                                                            stoi(std::string(b.attribute("Id").value()).substr(3));
+                                                 })
+                                    ->attribute("Id")
+                                    .value())
                         .substr(3)) +
                1;
     }
@@ -235,7 +234,7 @@ std::vector<XLRelationshipItem> XLRelationships::relationships() const
     return result;
 }
 
-void XLRelationships::deleteRelationship(const string& relID)
+void XLRelationships::deleteRelationship(const std::string& relID)
 {
     xmlDocument().document_element().remove_child(xmlDocument().document_element().find_child_by_attribute("Id", relID.c_str()));
 }
@@ -251,9 +250,9 @@ void XLRelationships::deleteRelationship(const XLRelationshipItem& item)
  */
 XLRelationshipItem XLRelationships::addRelationship(XLRelationshipType type, const std::string& target)
 {
-    string typeString = GetStringFromType(type);
+    std::string typeString = GetStringFromType(type);
 
-    string id = "rId" + to_string(GetNewRelsID(xmlDocument().document_element()));
+    std::string id = "rId" + std::to_string(GetNewRelsID(xmlDocument().document_element()));
 
     // Create new node in the .rels file
     auto node = xmlDocument().document_element().append_child("Relationship");

@@ -45,10 +45,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== OpenXLSX Includes ===== //
 #include "XLCoreProperties.hpp"
-
 #include "XLDocument.hpp"
 
-using namespace std;
 using namespace OpenXLSX;
 
 /**
@@ -81,7 +79,7 @@ bool XLCoreProperties::setProperty(const std::string& name, const std::string& v
  */
 bool XLCoreProperties::setProperty(const std::string& name, int value)
 {
-    return setProperty(name, to_string(value));
+    return setProperty(name, std::to_string(value));
 }
 
 /**
@@ -89,7 +87,7 @@ bool XLCoreProperties::setProperty(const std::string& name, int value)
  */
 bool XLCoreProperties::setProperty(const std::string& name, double value)
 {
-    return setProperty(name, to_string(value));
+    return setProperty(name, std::to_string(value));
 }
 
 /**
