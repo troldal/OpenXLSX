@@ -49,13 +49,11 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLCell.hpp"
 #include "XLCellReference.hpp"
 #include "XLCellValue.hpp"
-#include "XLChartsheet.hpp"
 #include "XLColor.hpp"
 #include "XLColumn.hpp"
 #include "XLDefinitions.hpp"
 #include "XLException.hpp"
 #include "XLRow.hpp"
-#include "XLWorksheet.hpp"
 #include "XLXmlFile.hpp"
 
 #include <type_traits>
@@ -64,6 +62,338 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 namespace OpenXLSX
 {
+    class XLCellRange;
+
+    /**
+     * @brief A class encapsulating an Excel worksheet. Access to XLWorksheet objects should be via the workbook object.
+     */
+    class XLWorksheet : public XLXmlFile
+    {
+        friend class XLCell;
+        friend class XLRow;
+        friend class XLWorkbook;
+
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Public Member Functions
+        //----------------------------------------------------------------------------------------------------------------------
+
+    public:
+        /**
+         * @brief Default constructor
+         */
+        XLWorksheet() : XLXmlFile(nullptr) {};
+
+        /**
+         * @brief Constructor
+         * @param parent A reference to the parent workbook.
+         * @param name The name of the worksheet.
+         * @param filePath The path to the worksheet .xml file.
+         * @param xmlData
+         */
+        explicit XLWorksheet(XLXmlData* xmlData);
+
+        /**
+         * @brief Copy Constructor.
+         * @note The copy constructor has been explicitly deleted.
+         */
+        XLWorksheet(const XLWorksheet& other) = default;
+
+        /**
+         * @brief Move Constructor.
+         * @note The move constructor has been explicitly deleted.
+         */
+        XLWorksheet(XLWorksheet&& other) = default;
+
+        /**
+         * @brief Destructor.
+         */
+        ~XLWorksheet() override = default;
+
+        /**
+         * @brief Copy assignment operator.
+         * @note The copy assignment operator has been explicitly deleted.
+         */
+        XLWorksheet& operator=(const XLWorksheet& other) = default;
+
+        /**
+         * @brief Move assignment operator.
+         * @note The move assignment operator has been explicitly deleted.
+         */
+        XLWorksheet& operator=(XLWorksheet&& other) = default;
+
+        /**
+         * @brief
+         * @return
+         */
+        XLSheetState visibility() const;
+
+        /**
+         * @brief
+         * @param state
+         */
+        void setVisibility(XLSheetState state);
+
+        /**
+         * @brief
+         * @return
+         */
+        XLColor color() const;
+
+        /**
+         * @brief
+         * @param color
+         */
+        void setColor(const XLColor& color);
+
+        /**
+         * @brief
+         * @return
+         */
+        uint16_t index() const;
+
+        /**
+         * @brief
+         * @param index
+         */
+        void setIndex(uint16_t index);
+
+        /**
+         * @brief Method to retrieve the name of the sheet.
+         * @return A std::string with the sheet name.
+         */
+        std::string name() const;
+
+        /**
+         * @brief Method for renaming the sheet.
+         * @param sheetName A std::string with the new name.
+         */
+        void setName(const std::string& sheetName);
+
+        /**
+         * @brief
+         * @param ref
+         * @return
+         */
+        XLCell cell(const std::string& ref);
+
+        /**
+         * @brief
+         * @param ref
+         * @return
+         */
+        XLCell cell(const std::string& ref) const;
+
+        /**
+         * @brief Get a pointer to the XLCell object for the given cell reference.
+         * @param ref An XLCellReference object with the address of the cell to get.
+         * @return A const reference to the requested XLCell object.
+         */
+        XLCell cell(const XLCellReference& ref);
+
+        /**
+         * @brief Get a pointer to the XLCell object for the given cell reference.
+         * @param ref An XLCellReference object with the address of the cell to get.
+         * @return A const reference to the requested XLCell object.
+         */
+        XLCell cell(const XLCellReference& ref) const;
+
+        /**
+         * @brief Get the cell at the given coordinates.
+         * @param rowNumber The row number (index base 1).
+         * @param columnNumber The column number (index base 1).
+         * @return A reference to the XLCell object at the given coordinates.
+         */
+        XLCell cell(uint32_t rowNumber, uint16_t columnNumber);
+
+        /**
+         * @brief Get the cell at the given coordinates.
+         * @param rowNumber The row number (index base 1).
+         * @param columnNumber The column number (index base 1).
+         * @return A const reference to the XLCell object at the given coordinates.
+         */
+        XLCell cell(uint32_t rowNumber, uint16_t columnNumber) const;
+
+        /**
+         * @brief Get a range for the area currently in use (i.e. from cell A1 to the last cell being in use).
+         * @return A const XLCellRange object with the entire range.
+         */
+        XLCellRange range() const;
+
+        /**
+         * @brief Get a range with the given coordinates.
+         * @param topLeft An XLCellReference object with the coordinates to the top left cell.
+         * @param bottomRight An XLCellReference object with the coordinates to the bottom right cell.
+         * @return A const XLCellRange object with the requested range.
+         */
+        XLCellRange range(const XLCellReference& topLeft, const XLCellReference& bottomRight) const;
+
+        /**
+         * @brief Get the row with the given row number.
+         * @param rowNumber The number of the row to retrieve.
+         * @return A pointer to the XLRow object.
+         */
+        XLRow row(uint32_t rowNumber);
+
+        /**
+         * @brief Get the row with the given row number.
+         * @param rowNumber The number of the row to retrieve.
+         * @return A const pointer to the XLRow object.
+         */
+        const XLRow* row(uint32_t rowNumber) const;
+
+        /**
+         * @brief Get the column with the given column number.
+         * @param columnNumber The number of the column to retrieve.
+         * @return A pointer to the XLColumn object.
+         */
+        XLColumn column(uint16_t columnNumber) const;
+
+        /**
+         * @brief Get an XLCellReference to the last (bottom right) cell in the worksheet.
+         * @return An XLCellReference for the last cell.
+         */
+        XLCellReference lastCell() const noexcept;
+
+        /**
+         * @brief Get the number of columns in the worksheet.
+         * @return The number of columns.
+         */
+        uint16_t columnCount() const noexcept;
+
+        /**
+         * @brief Get the number of rows in the worksheet.
+         * @return The number of rows.
+         */
+        uint32_t rowCount() const noexcept;
+
+        /**
+         * @brief
+         * @param oldName
+         * @param newName
+         */
+        void updateSheetName(const std::string& oldName, const std::string& newName);
+
+        /**
+         * @brief
+         * @return
+         */
+        std::string xmlData() const override;
+
+        /**
+         * @brief Creates a clone of the sheet and adds it to the parent XLWorkbook object.
+         * @param newName The name of the cloned sheet.
+         * @return A pointer to the newly created clone.
+         * @todo Not yet implemented.
+         */
+        void clone(const std::string& newName);
+    };
+
+    /**
+     * @brief Class representing the an Excel chartsheet.
+     * @todo This class is largely unimplemented and works just as a placeholder.
+     */
+    class XLChartsheet : public XLXmlFile
+    {
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Public Member Functions
+        //----------------------------------------------------------------------------------------------------------------------
+
+    public:
+        /**
+         * @brief
+         * @param parent
+         * @param name
+         * @param filePath
+         * @param xmlData
+         */
+        explicit XLChartsheet(XLXmlData* xmlData);
+
+        /**
+         * @brief
+         * @param other
+         */
+        XLChartsheet(const XLChartsheet& other) = default;
+
+        /**
+         * @brief
+         * @param other
+         */
+        XLChartsheet(XLChartsheet&& other) noexcept = default;
+
+        /**
+         * @brief
+         */
+        ~XLChartsheet() override = default;
+
+        /**
+         * @brief
+         * @return
+         */
+        XLChartsheet& operator=(const XLChartsheet& other) = default;
+
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
+        XLChartsheet& operator=(XLChartsheet&& other) noexcept = default;
+
+        /**
+         * @brief
+         * @return
+         */
+        XLSheetState visibility() const;
+
+        /**
+         * @brief
+         * @param state
+         */
+        void setVisibility(XLSheetState state);
+
+        /**
+         * @brief
+         * @return
+         */
+        std::string name() const;
+
+        /**
+         * @brief
+         * @param sheetName
+         */
+        void setName(const std::string& sheetName);
+
+        /**
+         * @brief
+         * @return
+         */
+        XLColor color() const;
+
+        /**
+         * @brief
+         * @param color
+         */
+        void setColor(const XLColor& color);
+
+        /**
+         * @brief
+         * @return
+         */
+        uint16_t index() const;
+
+        /**
+         * @brief
+         * @param index
+         */
+        void setIndex(uint16_t index);
+
+        /**
+         * @brief
+         * @param newName
+         * @return
+         */
+        void clone(const std::string& newName);
+    };
+
     /**
      * @brief The XLAbstractSheet is a generalized sheet class, which functions as superclass for specialized classes,
      * such as XLWorksheet. It implements functionality common to all sheet types. This is a pure abstract class,

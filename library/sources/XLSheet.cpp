@@ -4,11 +4,9 @@
 
 #include "XLSheet.hpp"
 
-#include "XLChartsheet.hpp"
 #include "XLContentTypes.hpp"
 #include "XLDocument.hpp"
 #include "XLRelationships.hpp"
-#include "XLWorksheet.hpp"
 
 using namespace OpenXLSX;
 

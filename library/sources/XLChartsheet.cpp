@@ -2,9 +2,8 @@
 // Created by Troldal on 04/10/16.
 //
 
-#include "XLChartsheet.hpp"
-
 #include "XLDocument.hpp"
+#include "XLSheet.hpp"
 
 using namespace OpenXLSX;
 

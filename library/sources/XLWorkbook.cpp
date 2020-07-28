@@ -4,10 +4,8 @@
 
 #include "XLWorkbook.hpp"
 
-#include "XLChartsheet.hpp"
 #include "XLDocument.hpp"
 #include "XLSheet.hpp"
-#include "XLWorksheet.hpp"
 
 #include <algorithm>
 #include <iterator>

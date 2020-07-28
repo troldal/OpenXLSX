@@ -5,7 +5,7 @@
 #include "XLCellRange.hpp"
 
 #include "XLCell.hpp"
-#include "XLWorksheet.hpp"
+#include "XLSheet.hpp"
 
 #include <stdexcept>
 

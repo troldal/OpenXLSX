@@ -4,8 +4,8 @@
 
 #include "XLColumn.hpp"
 
+#include "XLSheet.hpp"
 #include "XLWorkbook.hpp"
-#include "XLWorksheet.hpp"
 
 using namespace std;
 using namespace OpenXLSX;

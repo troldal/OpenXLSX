@@ -50,7 +50,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLCellRange.hpp"
 #include "XLCellReference.hpp"
 #include "XLCellValue.hpp"
-#include "XLChartsheet.hpp"
 #include "XLColumn.hpp"
 #include "XLDefinitions.hpp"
 #include "XLDocument.hpp"
@@ -58,6 +57,5 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLRow.hpp"
 #include "XLSheet.hpp"
 #include "XLWorkbook.hpp"
-#include "XLWorksheet.hpp"
 
 #endif    // OPENXLSX_OPENXLSX_HPP

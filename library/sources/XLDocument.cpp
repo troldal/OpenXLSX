@@ -5,7 +5,7 @@
 #include "XLDocument.hpp"
 
 #include "XLContentTypes.hpp"
-#include "XLWorksheet.hpp"
+#include "XLSheet.hpp"
 
 #include <variant>
 
