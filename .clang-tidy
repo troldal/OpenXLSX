@@ -10,6 +10,7 @@ Checks: >-
   -readability-braces-around-statements,
   -readability-implicit-bool-conversion,
   -readability-else-after-return,
+  -readability-convert-member-functions-to-static,
   -cppcoreguidelines-avoid-c-arrays,
   -hicpp-avoid-c-arrays,
   -hicpp-braces-around-statements,

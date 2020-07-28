@@ -120,23 +120,6 @@ namespace
     {
         return getSheetNodeByName(sheetsNode, sheetName).attribute("r:id").value();
     }
-
-    /**
-     * @brief
-     * @param sheetsNode
-     * @return
-     */
-    inline uint16_t calculateNewSheetNumber(XMLNode sheetsNode)
-    {
-        return std::max_element(
-                   sheetsNode.children().begin(),
-                   sheetsNode.children().end(),
-                   [](const XMLNode& a, const XMLNode& b) { return a.attribute("sheetId").as_uint() < b.attribute("sheetId").as_uint(); })
-                   ->attribute("sheetId")
-                   .as_uint() +
-               1;
-    }
-
 }    // namespace
 
 /**
@@ -244,7 +227,7 @@ void XLWorkbook::addWorksheet(const std::string& sheetName)
         throw XLException("Sheet named \"" + sheetName + "\" already exists.");
 
     // ===== Create new internal (workbook) ID for the sheet
-    auto internalID = calculateNewSheetNumber(xmlDocument().document_element().child("sheets"));
+    auto internalID = createInternalSheetID();
 
     // ===== Create xml file for new worksheet and add metadata to the workbook file.
     parentDoc().executeCommand(XLCommandAddWorksheet(sheetName, "/xl/worksheets/sheet" + std::to_string(internalID) + ".xml"));
@@ -255,28 +238,23 @@ void XLWorkbook::addWorksheet(const std::string& sheetName)
  * @details
  * @todo If the original sheet's tabSelected attribute is set, ensure it is un-set in the clone.
  */
-void XLWorkbook::cloneSheet(const std::string& extName, const std::string& newName)
+void XLWorkbook::cloneSheet(const std::string& existingName, const std::string& newName)
 {
-    // ===== If a sheet with the given name already exists, throw an exception.
-    if (xmlDocument().document_element().child("sheets").find_child_by_attribute("name", newName.c_str()))
-        throw XLException("Sheet named \"" + newName + "\" already exists.");
-
-    // ===== Create new internal (workbook) ID for the sheet and retrieve the sheet ID for the sheet to clone.
-    auto internalID = calculateNewSheetNumber(xmlDocument().document_element().child("sheets"));
-
-    // ===== Create xml file for new worksheet and add metadata to the workbook file.
-    parentDoc().executeCommand(
-        XLCommandCloneSheet(sheetID(extName), newName, "/xl/worksheets/sheet" + std::to_string(internalID) + ".xml"));
-    prepareSheetMetadata(newName, internalID);
+    parentDoc().executeCommand(XLCommandCloneSheet(sheetID(existingName), newName));
 }
 
 /**
  * @details
  */
-std::string XLWorkbook::createNewSheetPath()
+uint16_t XLWorkbook::createInternalSheetID()
 {
-    auto internalID = calculateNewSheetNumber(xmlDocument().document_element().child("sheets"));
-    return "/xl/worksheets/sheet" + std::to_string(internalID) + ".xml";
+    return std::max_element(
+               xmlDocument().document_element().child("sheets").children().begin(),
+               xmlDocument().document_element().child("sheets").children().end(),
+               [](const XMLNode& a, const XMLNode& b) { return a.attribute("sheetId").as_uint() < b.attribute("sheetId").as_uint(); })
+               ->attribute("sheetId")
+               .as_uint() +
+           1;
 }
 
 /**

@@ -64,17 +64,13 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 namespace OpenXLSX
 {
-    class XLWorkbook;
-
     /**
      * @brief The XLAbstractSheet is a generalized sheet class, which functions as superclass for specialized classes,
      * such as XLWorksheet. It implements functionality common to all sheet types. This is a pure abstract class,
      * so it cannot be instantiated.
      */
-    class XLSheet : public XLXmlFile
+    class XLSheet final : public XLXmlFile
     {
-        friend class XLWorkbook;
-
     public:
         /**
          * @brief The constructor. There are no default constructor, so all parameters must be provided for
@@ -105,7 +101,7 @@ namespace OpenXLSX
          * @brief The destructor
          * @note The default destructor is used, since cleanup of pointer data members is not required.
          */
-        ~XLSheet() override;
+        ~XLSheet() override = default;
 
         /**
          * @brief Assignment operator
@@ -178,18 +174,18 @@ namespace OpenXLSX
          * @return A pointer to the cloned object.
          * @note This is a pure abstract method. I.e. it is implemented in subclasses.
          */
-        XLSheet* clone(const std::string& newName);
+        void clone(const std::string& newName);
 
         /**
          * @brief Method for getting the index of the sheet.
          * @return An int with the index of the sheet.
          */
-        unsigned int index() const;
+        uint16_t index() const;
 
         /**
          * @brief Method for setting the index of the sheet. This effectively moves the sheet to a different position.
          */
-        void setIndex();
+        void setIndex(uint16_t index);
 
         /**
          * @brief

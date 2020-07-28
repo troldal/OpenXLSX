@@ -10,13 +10,11 @@
 #include "XLRelationships.hpp"
 #include "XLWorksheet.hpp"
 
-using namespace std;
 using namespace OpenXLSX;
 
 /**
  * @details The constructor begins by constructing an instance of its superclass, XLAbstractXMLFile. The default
  * sheet type is WorkSheet and the default sheet state is Visible.
- * @todo Consider to let the sheet type be determined by the subclasses.
  */
 XLSheet::XLSheet(XLXmlData* xmlData) : XLXmlFile(xmlData), m_sheet()
 {
@@ -26,12 +24,10 @@ XLSheet::XLSheet(XLXmlData* xmlData) : XLXmlFile(xmlData), m_sheet()
         m_sheet = XLChartsheet(xmlData);
 }
 
-XLSheet::~XLSheet() = default;
-
 /**
  * @details This method returns the m_sheetName property.
  */
-string XLSheet::name() const
+std::string XLSheet::name() const
 {
     return parentDoc().executeQuery(XLQuerySheetName(getRID())).sheetName();
 }
@@ -53,20 +49,7 @@ void XLSheet::setName(const std::string& name)
  */
 XLSheetState XLSheet::visibility() const
 {
-    auto state  = parentDoc().executeQuery(XLQuerySheetVisibility(getRID())).sheetVisibility();
-    auto result = XLSheetState::Visible;
-
-    if (state == "visible" || state.empty()) {
-        result = XLSheetState::Visible;
-    }
-    else if (state == "hidden") {
-        result = XLSheetState::Hidden;
-    }
-    else if (state == "veryHidden") {
-        result = XLSheetState::VeryHidden;
-    }
-
-    return result;
+    return std::visit([](auto&& arg) { return arg.visibility(); }, m_sheet);
 }
 
 /**
@@ -79,22 +62,7 @@ XLSheetState XLSheet::visibility() const
  */
 void XLSheet::setVisibility(XLSheetState state)
 {
-    auto stateString = std::string();
-    switch (state) {
-        case XLSheetState::Visible:
-            stateString = "visible";
-            break;
-
-        case XLSheetState::Hidden:
-            stateString = "hidden";
-            break;
-
-        case XLSheetState::VeryHidden:
-            stateString = "veryHidden";
-            break;
-    }
-
-    parentDoc().executeCommand(XLCommandSetSheetVisibility(getRID(), name(), stateString));
+    std::visit([&](auto&& arg) { return arg.setVisibility(state); }, m_sheet);
 }
 
 /**
@@ -102,13 +70,16 @@ void XLSheet::setVisibility(XLSheetState state)
  */
 XLColor XLSheet::color()
 {
-    return XLColor();
+    return std::visit([](auto&& arg) { return arg.color(); }, m_sheet);
 }
 
 /**
  * @details
  */
-void XLSheet::setColor(const XLColor& color) {}
+void XLSheet::setColor(const XLColor& color)
+{
+    std::visit([&](auto&& arg) { return arg.setColor(color); }, m_sheet);
+}
 
 /**
  * @details
@@ -130,23 +101,26 @@ XLSheetType XLSheet::type() const
         return XLSheetType::Chartsheet;
 }
 
-XLSheet* XLSheet::clone(const string& newName)
+/**
+ * @details
+ */
+void XLSheet::clone(const std::string& newName)
 {
     std::visit([&](auto&& arg) { arg.clone(newName); }, m_sheet);
-    return nullptr;
 }
 
 /**
  * @details
- * @todo This method is currently unimplemented.
  */
-unsigned int XLSheet::index() const
+uint16_t XLSheet::index() const
 {
-    return parentDoc().executeQuery(XLQuerySheetIndex(getRID())).sheetIndex();
+    return std::visit([](auto&& arg) { return arg.index(); }, m_sheet);
 }
 
 /**
  * @details
- * @todo This method is currently unimplemented.
  */
-void XLSheet::setIndex() {}
+void XLSheet::setIndex(uint16_t index)
+{
+    std::visit([&](auto&& arg) { arg.setIndex(index); }, m_sheet);
+}

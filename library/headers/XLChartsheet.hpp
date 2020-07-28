@@ -46,6 +46,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_IMPL_XLCHARTSHEET_H
 #define OPENXLSX_IMPL_XLCHARTSHEET_H
 
+#include "XLColor.hpp"
 #include "XLXmlFile.hpp"
 
 namespace OpenXLSX
@@ -107,10 +108,58 @@ namespace OpenXLSX
 
         /**
          * @brief
+         * @return
+         */
+        XLSheetState visibility() const;
+
+        /**
+         * @brief
+         * @param state
+         */
+        void setVisibility(XLSheetState state);
+
+        /**
+         * @brief
+         * @return
+         */
+        std::string name() const;
+
+        /**
+         * @brief
+         * @param sheetName
+         */
+        void setName(const std::string& sheetName);
+
+        /**
+         * @brief
+         * @return
+         */
+        XLColor color() const;
+
+        /**
+         * @brief
+         * @param color
+         */
+        void setColor(const XLColor& color);
+
+        /**
+         * @brief
+         * @return
+         */
+        uint16_t index() const;
+
+        /**
+         * @brief
+         * @param index
+         */
+        void setIndex(uint16_t index);
+
+        /**
+         * @brief
          * @param newName
          * @return
          */
-        XLChartsheet clone(const std::string& newName);
+        void clone(const std::string& newName);
     };
 
 }    // namespace OpenXLSX

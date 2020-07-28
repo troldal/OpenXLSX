@@ -10,7 +10,6 @@
 
 #include <algorithm>
 
-using namespace std;
 using namespace OpenXLSX;
 
 namespace
@@ -23,18 +22,14 @@ namespace
      */
     inline XMLNode getRowNode(XMLNode sheetDataNode, uint32_t rowNumber)
     {
+        // ===== If the requested node is beyond the current max node, append a new node to the end.
         auto result = XMLNode();
         if (rowNumber > sheetDataNode.last_child().attribute("r").as_ullong()) {
             result = sheetDataNode.append_child("row");
 
             result.append_attribute("r")               = rowNumber;
-            result.append_attribute("x14ac:dyDescent") = 0.2;
+            result.append_attribute("x14ac:dyDescent") = "0.2";
             result.append_attribute("spans")           = "1:1";
-
-            // TODO: Use rowNode.append_copy instead of the above;
-            //        for (auto& attribute : rowNode.previous_sibling().attributes()) {
-            //            rowNode.append_copy(attribute);
-            //        }
         }
 
         // ===== If the requested node is closest to the end, start from the end and search backwards
@@ -44,7 +39,7 @@ namespace
             if (result.attribute("r").as_ullong() < rowNumber) {
                 result                                     = sheetDataNode.insert_child_after("row", result);
                 result.append_attribute("r")               = rowNumber;
-                result.append_attribute("x14ac:dyDescent") = 0.2;
+                result.append_attribute("x14ac:dyDescent") = "0.2";
                 result.append_attribute("spans")           = "1:1";
             }
         }
@@ -56,7 +51,7 @@ namespace
             if (result.attribute("r").as_ullong() > rowNumber) {
                 result                                     = sheetDataNode.insert_child_before("row", result);
                 result.append_attribute("r")               = rowNumber;
-                result.append_attribute("x14ac:dyDescent") = 0.2;
+                result.append_attribute("x14ac:dyDescent") = "0.2";
                 result.append_attribute("spans")           = "1:1";
             }
         }
@@ -72,9 +67,9 @@ namespace
  */
 XLWorksheet::XLWorksheet(XLXmlData* xmlData) : XLXmlFile(xmlData)
 {
-    // Read the dimensions of the Sheet and set data members accordingly.
-    string dimensions = xmlDocument().document_element().child("dimension").attribute("ref").value();
-    if (dimensions.find(':') == string::npos)
+    // ===== Read the dimensions of the Sheet and set data members accordingly.
+    std::string dimensions = xmlDocument().document_element().child("dimension").attribute("ref").value();
+    if (dimensions.find(':') == std::string::npos)
         xmlDocument().document_element().child("dimension").set_value("A1");
     else
         xmlDocument().document_element().child("dimension").set_value(dimensions.substr(dimensions.find(':') + 1).c_str());
@@ -83,8 +78,8 @@ XLWorksheet::XLWorksheet(XLXmlData* xmlData) : XLXmlFile(xmlData)
     if (xmlDocument().first_child().child("cols").type() != pugi::node_null) {
         auto currentNode = xmlDocument().first_child().child("cols").first_child();
         while (currentNode != nullptr) {
-            int min = stoi(currentNode.attribute("min").value());
-            int max = stoi(currentNode.attribute("max").value());
+            int min = std::stoi(currentNode.attribute("min").value());
+            int max = std::stoi(currentNode.attribute("max").value());
             if (min != max) {
                 currentNode.attribute("min").set_value(max);
                 for (int i = min; i < max; i++) {
@@ -107,18 +102,93 @@ XLWorksheet::XLWorksheet(XLXmlData* xmlData) : XLXmlFile(xmlData)
  * @details Creates an identical clone of the worksheet. All references internally in the spreadsheet are
  * handled automatically by the clone function.
  */
-XLWorksheet XLWorksheet::clone(const std::string& newName)
+void XLWorksheet::clone(const std::string& newName)
 {
-    parentDoc().workbook().cloneSheet(name(), newName);
-    return parentDoc().workbook().worksheet(newName);
+    parentDoc().executeCommand(XLCommandCloneSheet(getRID(), newName));
 }
 
+/**
+ * @details
+ */
+XLSheetState XLWorksheet::visibility() const
+{
+    auto state  = parentDoc().executeQuery(XLQuerySheetVisibility(getRID())).sheetVisibility();
+    auto result = XLSheetState::Visible;
+
+    if (state == "visible" || state.empty()) {
+        result = XLSheetState::Visible;
+    }
+    else if (state == "hidden") {
+        result = XLSheetState::Hidden;
+    }
+    else if (state == "veryHidden") {
+        result = XLSheetState::VeryHidden;
+    }
+
+    return result;
+}
+
+/**
+ * @details
+ */
+void XLWorksheet::setVisibility(XLSheetState state)
+{
+    auto stateString = std::string();
+    switch (state) {
+        case XLSheetState::Visible:
+            stateString = "visible";
+            break;
+
+        case XLSheetState::Hidden:
+            stateString = "hidden";
+            break;
+
+        case XLSheetState::VeryHidden:
+            stateString = "veryHidden";
+            break;
+    }
+
+    parentDoc().executeCommand(XLCommandSetSheetVisibility(getRID(), name(), stateString));
+}
+
+/**
+ * @details
+ */
+XLColor XLWorksheet::color() const
+{
+    return XLColor();
+}
+
+/**
+ * @details
+ */
+void XLWorksheet::setColor(const XLColor& color) {}
+
+/**
+ * @details
+ */
+uint16_t XLWorksheet::index() const
+{
+    return parentDoc().executeQuery(XLQuerySheetIndex(getRID())).sheetIndex();
+}
+
+/**
+ * @details
+ */
+void XLWorksheet::setIndex(uint16_t index) {}
+
+/**
+ * @details
+ */
 std::string XLWorksheet::name() const
 {
     return parentDoc().executeQuery(XLQuerySheetName(getRID())).sheetName();
 }
 
-void XLWorksheet::setName(const string& sheetName)
+/**
+ * @details
+ */
+void XLWorksheet::setName(const std::string& sheetName)
 {
     parentDoc().executeCommand(XLCommandSetSheetName(getRID(), name(), sheetName));
 }
@@ -126,7 +196,7 @@ void XLWorksheet::setName(const string& sheetName)
 /**
  * @details
  */
-XLCell XLWorksheet::cell(const string& ref)
+XLCell XLWorksheet::cell(const std::string& ref)
 {
     return cell(XLCellReference(ref));
 }
@@ -134,7 +204,7 @@ XLCell XLWorksheet::cell(const string& ref)
 /**
  * @details
  */
-XLCell XLWorksheet::cell(const string& ref) const
+XLCell XLWorksheet::cell(const std::string& ref) const
 {
     return cell(XLCellReference(ref));
 }
@@ -330,9 +400,9 @@ void XLWorksheet::updateSheetName(const std::string& oldName, const std::string&
             formula = XLCell(cell, nullptr).formula();
 
             // ===== Skip if formula contains a '[' and ']' (means that the defined refers to external workbook)
-            if (formula.find('[') == string::npos && formula.find(']') == string::npos) {
+            if (formula.find('[') == std::string::npos && formula.find(']') == std::string::npos) {
                 // ===== For all instances of the old sheet name in the formula, replace with the new name.
-                while (formula.find(oldNameTemp) != string::npos) {
+                while (formula.find(oldNameTemp) != std::string::npos) {
                     formula.replace(formula.find(oldNameTemp), oldNameTemp.length(), newNameTemp);
                 }
                 XLCell(cell, nullptr).setFormula(formula);
@@ -341,6 +411,9 @@ void XLWorksheet::updateSheetName(const std::string& oldName, const std::string&
     }
 }
 
+/**
+ * @details
+ */
 std::string XLWorksheet::xmlData() const
 {
     return XLXmlFile::xmlData();

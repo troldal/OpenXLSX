@@ -164,11 +164,7 @@ namespace OpenXLSX
     class XLCommandCloneSheet
     {
     public:
-        XLCommandCloneSheet(const std::string& sheetID, const std::string& cloneName, const std::string& clonePath)
-            : m_sheetID(sheetID),
-              m_cloneName(cloneName),
-              m_clonePath(clonePath)
-        {}
+        XLCommandCloneSheet(const std::string& sheetID, const std::string& cloneName) : m_sheetID(sheetID), m_cloneName(cloneName) {}
 
         const std::string& sheetID() const
         {
@@ -180,15 +176,9 @@ namespace OpenXLSX
             return m_cloneName;
         }
 
-        const std::string& clonePath() const
-        {
-            return m_clonePath;
-        }
-
     private:
         std::string m_sheetID {};   /**< ID of the sheet to clone. */
         std::string m_cloneName {}; /**< Name of the cloned sheet. */
-        std::string m_clonePath {}; /**< Path of the cloned sheet. */
     };
 
     class XLQuerySheetName

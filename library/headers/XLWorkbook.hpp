@@ -175,11 +175,11 @@ namespace OpenXLSX
 
         /**
          * @brief Clone an existing worksheet.
-         * @param extName The name of the worksheet to clone.
+         * @param existingName The name of the worksheet to clone.
          * @param newName The name of the cloned worksheet.
          * @param index The index at which the worksheet should be inserted.
          */
-        void cloneSheet(const std::string& extName, const std::string& newName);
+        void cloneSheet(const std::string& existingName, const std::string& newName);
 
         /**
          * @brief
@@ -290,7 +290,7 @@ namespace OpenXLSX
         void deleteNamedRanges();
 
     private:    // ---------- Private Member Functions ---------- //
-        std::string createNewSheetPath();
+        uint16_t createInternalSheetID();
         /**
          * @brief
          * @param sheetName

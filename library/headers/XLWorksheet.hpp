@@ -49,6 +49,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLCell.hpp"
 #include "XLCellReference.hpp"
 #include "XLCellValue.hpp"
+#include "XLColor.hpp"
 #include "XLColumn.hpp"
 #include "XLRow.hpp"
 #include "XLXmlFile.hpp"
@@ -73,6 +74,9 @@ namespace OpenXLSX
         //----------------------------------------------------------------------------------------------------------------------
 
     public:
+        /**
+         * @brief Default constructor
+         */
         XLWorksheet() : XLXmlFile(nullptr) {};
 
         /**
@@ -112,6 +116,42 @@ namespace OpenXLSX
          * @note The move assignment operator has been explicitly deleted.
          */
         XLWorksheet& operator=(XLWorksheet&& other) = default;
+
+        /**
+         * @brief
+         * @return
+         */
+        XLSheetState visibility() const;
+
+        /**
+         * @brief
+         * @param state
+         */
+        void setVisibility(XLSheetState state);
+
+        /**
+         * @brief
+         * @return
+         */
+        XLColor color() const;
+
+        /**
+         * @brief
+         * @param color
+         */
+        void setColor(const XLColor& color);
+
+        /**
+         * @brief
+         * @return
+         */
+        uint16_t index() const;
+
+        /**
+         * @brief
+         * @param index
+         */
+        void setIndex(uint16_t index);
 
         /**
          * @brief Method to retrieve the name of the sheet.
@@ -241,7 +281,7 @@ namespace OpenXLSX
          * @return A pointer to the newly created clone.
          * @todo Not yet implemented.
          */
-        XLWorksheet clone(const std::string& newName);
+        void clone(const std::string& newName);
     };
 }    // namespace OpenXLSX
 
