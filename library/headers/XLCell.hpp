@@ -119,7 +119,6 @@ namespace OpenXLSX
          * @param range The range to be copied
          * @return A reference to the new cell object.
          * @note Copies only the cell contents (values).
-         * @todo Consider if this is better done as a free function. What should be the return value?
          */
         XLCell& operator=(const XLCellRange& range);
 

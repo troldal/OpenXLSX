@@ -106,7 +106,7 @@ namespace
  * @details The constructor initializes the member variables and calls the loadXMLData from the
  * XLAbstractXMLFile base class.
  */
-XLWorksheet::XLWorksheet(XLXmlData* xmlData) : XLXmlFile(xmlData)
+XLWorksheet::XLWorksheet(XLXmlData* xmlData) : XLSheetBase(xmlData)
 {
     // ===== Read the dimensions of the Sheet and set data members accordingly.
     std::string dimensions = xmlDocument().document_element().child("dimension").attribute("ref").value();
@@ -137,101 +137,6 @@ XLWorksheet::XLWorksheet(XLXmlData* xmlData) : XLXmlFile(xmlData)
             currentNode = currentNode.next_sibling();
         }
     }
-}
-
-/**
- * @details Creates an identical clone of the worksheet. All references internally in the spreadsheet are
- * handled automatically by the clone function.
- */
-void XLWorksheet::clone(const std::string& newName)
-{
-    parentDoc().executeCommand(XLCommandCloneSheet(getRID(), newName));
-}
-
-/**
- * @details
- */
-XLSheetState XLWorksheet::visibility() const
-{
-    auto state  = parentDoc().executeQuery(XLQuerySheetVisibility(getRID())).sheetVisibility();
-    auto result = XLSheetState::Visible;
-
-    if (state == "visible" || state.empty()) {
-        result = XLSheetState::Visible;
-    }
-    else if (state == "hidden") {
-        result = XLSheetState::Hidden;
-    }
-    else if (state == "veryHidden") {
-        result = XLSheetState::VeryHidden;
-    }
-
-    return result;
-}
-
-/**
- * @details
- */
-void XLWorksheet::setVisibility(XLSheetState state)
-{
-    auto stateString = std::string();
-    switch (state) {
-        case XLSheetState::Visible:
-            stateString = "visible";
-            break;
-
-        case XLSheetState::Hidden:
-            stateString = "hidden";
-            break;
-
-        case XLSheetState::VeryHidden:
-            stateString = "veryHidden";
-            break;
-    }
-
-    parentDoc().executeCommand(XLCommandSetSheetVisibility(getRID(), name(), stateString));
-}
-
-/**
- * @details
- */
-XLColor XLWorksheet::color() const
-{
-    return XLColor();
-}
-
-/**
- * @details
- */
-void XLWorksheet::setColor(const XLColor& color) {}
-
-/**
- * @details
- */
-uint16_t XLWorksheet::index() const
-{
-    return parentDoc().executeQuery(XLQuerySheetIndex(getRID())).sheetIndex();
-}
-
-/**
- * @details
- */
-void XLWorksheet::setIndex(uint16_t index) {}
-
-/**
- * @details
- */
-std::string XLWorksheet::name() const
-{
-    return parentDoc().executeQuery(XLQuerySheetName(getRID())).sheetName();
-}
-
-/**
- * @details
- */
-void XLWorksheet::setName(const std::string& sheetName)
-{
-    parentDoc().executeCommand(XLCommandSetSheetName(getRID(), name(), sheetName));
 }
 
 /**
@@ -450,12 +355,4 @@ void XLWorksheet::updateSheetName(const std::string& oldName, const std::string&
             }
         }
     }
-}
-
-/**
- * @details
- */
-std::string XLWorksheet::xmlData() const
-{
-    return XLXmlFile::xmlData();
 }

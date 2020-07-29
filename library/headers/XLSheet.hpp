@@ -57,6 +57,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLCellValue.hpp"
 #include "XLColor.hpp"
 #include "XLColumn.hpp"
+#include "XLCommandQuery.hpp"
 #include "XLDefinitions.hpp"
 #include "XLException.hpp"
 #include "XLRow.hpp"
@@ -64,12 +65,189 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 namespace OpenXLSX
 {
-    class XLCellRange;
+    /**
+     * @brief
+     * @tparam T
+     */
+    template<typename T>
+    class XLSheetBase : public XLXmlFile
+    {
+    public:
+        XLSheetBase() : XLXmlFile(nullptr) {};
+
+        /**
+         * @brief The constructor. There are no default constructor, so all parameters must be provided for
+         * constructing an XLAbstractSheet object. Since this is a pure abstract class, instantiation is only
+         * possible via one of the derived classes.
+         * @param parent A pointer to the parent XLDocument object.
+         * @param name The name of the new sheet.
+         * @param filepath A std::string with the relative path to the sheet file in the .xlsx package.
+         * @param xmlData
+         */
+        explicit XLSheetBase(XLXmlData* xmlData) : XLXmlFile(xmlData) {};
+
+        /**
+         * @brief The copy constructor.
+         * @param other The object to be copied.
+         * @note The default copy constructor is used, i.e. only shallow copying of pointer data members.
+         */
+        XLSheetBase(const XLSheetBase& other) = default;
+
+        /**
+         * @brief
+         * @param other
+         */
+        XLSheetBase(XLSheetBase&& other) noexcept = default;
+
+        /**
+         * @brief The destructor
+         * @note The default destructor is used, since cleanup of pointer data members is not required.
+         */
+        ~XLSheetBase() override = default;
+
+        /**
+         * @brief Assignment operator
+         * @return A reference to the new object.
+         * @note The default assignment operator is used, i.e. only shallow copying of pointer data members.
+         */
+        XLSheetBase& operator=(const XLSheetBase&) = default;
+
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
+        XLSheetBase& operator=(XLSheetBase&& other) noexcept = default;
+
+        /**
+         * @brief
+         * @return
+         */
+        XLSheetState visibility() const
+        {
+            auto state  = parentDoc().executeQuery(XLQuerySheetVisibility(getRID())).sheetVisibility();
+            auto result = XLSheetState::Visible;
+
+            if (state == "visible" || state.empty()) {
+                result = XLSheetState::Visible;
+            }
+            else if (state == "hidden") {
+                result = XLSheetState::Hidden;
+            }
+            else if (state == "veryHidden") {
+                result = XLSheetState::VeryHidden;
+            }
+
+            return result;
+        }
+
+        /**
+         * @brief
+         * @param state
+         */
+        void setVisibility(XLSheetState state)
+        {
+            auto stateString = std::string();
+            switch (state) {
+                case XLSheetState::Visible:
+                    stateString = "visible";
+                    break;
+
+                case XLSheetState::Hidden:
+                    stateString = "hidden";
+                    break;
+
+                case XLSheetState::VeryHidden:
+                    stateString = "veryHidden";
+                    break;
+            }
+
+            parentDoc().executeCommand(XLCommandSetSheetVisibility(getRID(), name(), stateString));
+        }
+
+        /**
+         * @brief
+         * @return
+         */
+        XLColor color() const
+        {
+            return XLColor();
+        }
+
+        /**
+         * @brief
+         * @param color
+         */
+        void setColor(const XLColor& color) {}
+
+        /**
+         * @brief
+         * @return
+         */
+        uint16_t index() const
+        {
+            return parentDoc().executeQuery(XLQuerySheetIndex(getRID())).sheetIndex();
+        }
+
+        /**
+         * @brief
+         * @param index
+         */
+        void setIndex(uint16_t index) {}
+
+        /**
+         * @brief Method to retrieve the name of the sheet.
+         * @return A std::string with the sheet name.
+         */
+        std::string name() const
+        {
+            return parentDoc().executeQuery(XLQuerySheetName(getRID())).sheetName();
+        }
+
+        /**
+         * @brief Method for renaming the sheet.
+         * @param name A std::string with the new name.
+         */
+        void setName(const std::string& sheetName)
+        {
+            parentDoc().executeCommand(XLCommandSetSheetName(getRID(), name(), sheetName));
+        }
+
+        /**
+         * @brief
+         * @param selected
+         */
+        void setSelected(bool selected)
+        {
+            unsigned int value = (selected ? 1 : 0);
+            xmlDocument().first_child().child("sheetViews").first_child().attribute("tabSelected").set_value(value);
+        }
+
+        /**
+         * @brief Method for cloning the sheet.
+         * @param newName A std::string with the name of the clone
+         * @return A pointer to the cloned object.
+         * @note This is a pure abstract method. I.e. it is implemented in subclasses.
+         */
+        void clone(const std::string& newName)
+        {
+            parentDoc().executeCommand(XLCommandCloneSheet(getRID(), newName));
+        }
+
+        /**
+         * @brief
+         * @return
+         */
+        std::string xmlData() const override
+        {
+            return XLXmlFile::xmlData();
+        }
+    };
 
     /**
      * @brief A class encapsulating an Excel worksheet. Access to XLWorksheet objects should be via the workbook object.
      */
-    class XLWorksheet : public XLXmlFile
+    class XLWorksheet final : public XLSheetBase<XLWorksheet>
     {
         friend class XLCell;
         friend class XLRow;
@@ -83,7 +261,7 @@ namespace OpenXLSX
         /**
          * @brief Default constructor
          */
-        XLWorksheet() : XLXmlFile(nullptr) {};
+        XLWorksheet() : XLSheetBase(nullptr) {};
 
         /**
          * @brief Constructor
@@ -122,54 +300,6 @@ namespace OpenXLSX
          * @note The move assignment operator has been explicitly deleted.
          */
         XLWorksheet& operator=(XLWorksheet&& other) = default;
-
-        /**
-         * @brief
-         * @return
-         */
-        XLSheetState visibility() const;
-
-        /**
-         * @brief
-         * @param state
-         */
-        void setVisibility(XLSheetState state);
-
-        /**
-         * @brief
-         * @return
-         */
-        XLColor color() const;
-
-        /**
-         * @brief
-         * @param color
-         */
-        void setColor(const XLColor& color);
-
-        /**
-         * @brief
-         * @return
-         */
-        uint16_t index() const;
-
-        /**
-         * @brief
-         * @param index
-         */
-        void setIndex(uint16_t index);
-
-        /**
-         * @brief Method to retrieve the name of the sheet.
-         * @return A std::string with the sheet name.
-         */
-        std::string name() const;
-
-        /**
-         * @brief Method for renaming the sheet.
-         * @param sheetName A std::string with the new name.
-         */
-        void setName(const std::string& sheetName);
 
         /**
          * @brief
@@ -274,33 +404,24 @@ namespace OpenXLSX
          * @param newName
          */
         void updateSheetName(const std::string& oldName, const std::string& newName);
-
-        /**
-         * @brief
-         * @return
-         */
-        std::string xmlData() const override;
-
-        /**
-         * @brief Creates a clone of the sheet and adds it to the parent XLWorkbook object.
-         * @param newName The name of the cloned sheet.
-         * @return A pointer to the newly created clone.
-         * @todo Not yet implemented.
-         */
-        void clone(const std::string& newName);
     };
 
     /**
      * @brief Class representing the an Excel chartsheet.
      * @todo This class is largely unimplemented and works just as a placeholder.
      */
-    class XLChartsheet : public XLXmlFile
+    class XLChartsheet final : public XLSheetBase<XLChartsheet>
     {
         //----------------------------------------------------------------------------------------------------------------------
         //           Public Member Functions
         //----------------------------------------------------------------------------------------------------------------------
 
     public:
+        /**
+         * @brief Default constructor
+         */
+        XLChartsheet() : XLSheetBase(nullptr) {};
+
         /**
          * @brief
          * @param parent
@@ -339,61 +460,6 @@ namespace OpenXLSX
          * @return
          */
         XLChartsheet& operator=(XLChartsheet&& other) noexcept = default;
-
-        /**
-         * @brief
-         * @return
-         */
-        XLSheetState visibility() const;
-
-        /**
-         * @brief
-         * @param state
-         */
-        void setVisibility(XLSheetState state);
-
-        /**
-         * @brief
-         * @return
-         */
-        std::string name() const;
-
-        /**
-         * @brief
-         * @param sheetName
-         */
-        void setName(const std::string& sheetName);
-
-        /**
-         * @brief
-         * @return
-         */
-        XLColor color() const;
-
-        /**
-         * @brief
-         * @param color
-         */
-        void setColor(const XLColor& color);
-
-        /**
-         * @brief
-         * @return
-         */
-        uint16_t index() const;
-
-        /**
-         * @brief
-         * @param index
-         */
-        void setIndex(uint16_t index);
-
-        /**
-         * @brief
-         * @param newName
-         * @return
-         */
-        void clone(const std::string& newName);
     };
 
     /**
@@ -419,7 +485,6 @@ namespace OpenXLSX
          * @brief The copy constructor.
          * @param other The object to be copied.
          * @note The default copy constructor is used, i.e. only shallow copying of pointer data members.
-         * @todo Can this method be deleted?
          */
         XLSheet(const XLSheet& other) = default;
 
@@ -439,7 +504,6 @@ namespace OpenXLSX
          * @brief Assignment operator
          * @return A reference to the new object.
          * @note The default assignment operator is used, i.e. only shallow copying of pointer data members.
-         * @todo Can this method be deleted?
          */
         XLSheet& operator=(const XLSheet& other) = default;
 
@@ -534,9 +598,6 @@ namespace OpenXLSX
 
             else if constexpr (std::is_same<T, XLChartsheet>::value)
                 return std::get<XLChartsheet>(m_sheet);
-            //
-            //            else
-            //                throw XLException("Invalid sheet type.");
         }
 
         //----------------------------------------------------------------------------------------------------------------------
