@@ -67,7 +67,7 @@ XLSheet::XLSheet(XLXmlData* xmlData) : XLXmlFile(xmlData), m_sheet()
  */
 std::string XLSheet::name() const
 {
-    return parentDoc().executeQuery(XLQuerySheetName(getRID())).sheetName();
+    return std::visit([](auto&& arg) { return arg.name(); }, m_sheet);
 }
 
 /**
@@ -79,7 +79,7 @@ std::string XLSheet::name() const
  */
 void XLSheet::setName(const std::string& name)
 {
-    parentDoc().executeCommand(XLCommandSetSheetName(getRID(), this->name(), name));
+    std::visit([&](auto&& arg) { return arg.setName(name); }, m_sheet);
 }
 
 /**
@@ -124,8 +124,7 @@ void XLSheet::setColor(const XLColor& color)
  */
 void XLSheet::setSelected(bool selected)
 {
-    unsigned int value = (selected ? 1 : 0);
-    xmlDocument().first_child().child("sheetViews").first_child().attribute("tabSelected").set_value(value);
+    std::visit([&](auto&& arg) { return arg.setSelected(selected); }, m_sheet);
 }
 
 /**

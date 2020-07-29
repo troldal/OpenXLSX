@@ -215,6 +215,15 @@ namespace OpenXLSX
 
         /**
          * @brief
+         * @return
+         */
+        bool isSelected() const
+        {
+            return xmlDocument().first_child().child("sheetViews").first_child().attribute("tabSelected").value();
+        }
+
+        /**
+         * @brief
          * @param selected
          */
         void setSelected(bool selected)
