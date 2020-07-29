@@ -241,7 +241,7 @@ void XLWorkbook::deleteSheet(const std::string& sheetName)
 {
     // ===== Determine ID and type of sheet, as well as current worksheet count.
     auto sheetID        = getSheetsNode().find_child_by_attribute("name", sheetName.c_str()).attribute("r:id").value();    // NOLINT
-    auto sheetType      = parentDoc().executeQuery(XLQuerySheetType(getRID())).sheetType();
+    auto sheetType      = parentDoc().executeQuery(XLQuerySheetType(relationshipID())).sheetType();
     auto worksheetCount = std::count_if(getSheetsNode().children().begin(), getSheetsNode().children().end(), [&](const XMLNode& item) {
         return parentDoc().executeQuery(XLQuerySheetType(item.attribute("r:id").value())).sheetType() == XLContentType::Worksheet;
     });

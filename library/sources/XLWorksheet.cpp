@@ -79,6 +79,7 @@ namespace
             while (result.attribute("r").as_ullong() > rowNumber) result = result.previous_sibling();
             if (result.attribute("r").as_ullong() < rowNumber) {
                 result                                     = sheetDataNode.insert_child_after("row", result);
+
                 result.append_attribute("r")               = rowNumber;
                 result.append_attribute("x14ac:dyDescent") = "0.2";
                 result.append_attribute("spans")           = "1:1";
@@ -91,6 +92,7 @@ namespace
             while (result.attribute("r").as_ullong() < rowNumber) result = result.next_sibling();
             if (result.attribute("r").as_ullong() > rowNumber) {
                 result                                     = sheetDataNode.insert_child_before("row", result);
+
                 result.append_attribute("r")               = rowNumber;
                 result.append_attribute("x14ac:dyDescent") = "0.2";
                 result.append_attribute("spans")           = "1:1";
@@ -99,7 +101,6 @@ namespace
 
         return result;
     }
-
 }    // namespace
 
 /**
@@ -207,7 +208,7 @@ XLCell XLWorksheet::cell(uint32_t rowNumber, uint16_t columnNumber)
         }
     }
 
-    return XLCell(cellNode, parentDoc().workbook().sharedStrings());
+    return XLCell(cellNode, parentDoc().executeQuery(XLQuerySharedStrings()).sharedStrings());
 }
 
 /**

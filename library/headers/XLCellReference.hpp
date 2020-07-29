@@ -57,11 +57,6 @@ namespace OpenXLSX
      */
     using XLCoordinates = std::pair<uint32_t, uint16_t>;
 
-    //======================================================================================================================
-    //========== XLCellReference Class
-    //=====================================================================================
-    //======================================================================================================================
-
     /**
      * @brief
      */
@@ -221,9 +216,9 @@ namespace OpenXLSX
         //           Private Member Variables
         //----------------------------------------------------------------------------------------------------------------------
     private:
-        uint32_t    m_row;         /**< The row */
-        uint16_t    m_column;      /**< The column */
-        std::string m_cellAddress; /**< The address, e.g. 'A1' */
+        uint32_t    m_row { 1 };      /**< The row */
+        uint16_t    m_column { 1 };   /**< The column */
+        std::string m_cellAddress {}; /**< The address, e.g. 'A1' */
     };
 
     /**
@@ -256,7 +251,7 @@ namespace OpenXLSX
      */
     inline bool operator<(const XLCellReference& lhs, const XLCellReference& rhs)
     {
-        return (lhs.row() < rhs.row() ? true : (lhs.row() > rhs.row() ? false : lhs.column() < rhs.column()));
+        return lhs.row() < rhs.row() || lhs.row() <= rhs.row() && lhs.column() < rhs.column();
     }
 
     /**

@@ -61,14 +61,6 @@ using namespace OpenXLSX;
 XLXmlFile::XLXmlFile(XLXmlData* xmlData) : m_xmlData(xmlData) {}
 
 /**
- * @details
- */
-XLXmlFile::operator bool() const
-{
-    return !xmlData().empty();
-}
-
-/**
  * @details This method sets the XML data with a std::string as input. The underlying XMLDocument reads the data.
  * When envoking the load_string method in PugiXML, the flag 'parse_ws_pcdata' is passed along with the default flags.
  * This will enable parsing of whitespace characters. If not set, Excel cells with only spaces will be returned as
@@ -89,11 +81,27 @@ std::string XLXmlFile::xmlData() const
 }
 
 /**
- * @details This method returns the path in the .zip file of the XML file as a std::string.
+ * @details
  */
-std::string XLXmlFile::filePath() const
+const XLDocument& XLXmlFile::parentDoc() const
 {
-    return m_xmlData->getXmlPath();
+    return *m_xmlData->getParentDoc();
+}
+
+/**
+ * @details
+ */
+XLDocument& XLXmlFile::parentDoc()
+{
+    return *m_xmlData->getParentDoc();
+}
+
+/**
+ * @details
+ */
+std::string XLXmlFile::relationshipID() const
+{
+    return m_xmlData->getXmlID();
 }
 
 /**

@@ -160,6 +160,10 @@ namespace OpenXLSX
 
     private:
         //---------- Private Member Functions ---------- //
+        /**
+         * @brief
+         * @param cellNode
+         */
         void reset(XMLNode cellNode);
 
         //---------- Private Member Variables ---------- //

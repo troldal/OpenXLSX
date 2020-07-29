@@ -125,7 +125,7 @@ namespace OpenXLSX
          */
         XLSheetState visibility() const
         {
-            auto state  = parentDoc().executeQuery(XLQuerySheetVisibility(getRID())).sheetVisibility();
+            auto state  = parentDoc().executeQuery(XLQuerySheetVisibility(relationshipID())).sheetVisibility();
             auto result = XLSheetState::Visible;
 
             if (state == "visible" || state.empty()) {
@@ -162,7 +162,7 @@ namespace OpenXLSX
                     break;
             }
 
-            parentDoc().executeCommand(XLCommandSetSheetVisibility(getRID(), name(), stateString));
+            parentDoc().executeCommand(XLCommandSetSheetVisibility(relationshipID(), name(), stateString));
         }
 
         /**
@@ -186,7 +186,7 @@ namespace OpenXLSX
          */
         uint16_t index() const
         {
-            return parentDoc().executeQuery(XLQuerySheetIndex(getRID())).sheetIndex();
+            return parentDoc().executeQuery(XLQuerySheetIndex(relationshipID())).sheetIndex();
         }
 
         /**
@@ -201,7 +201,7 @@ namespace OpenXLSX
          */
         std::string name() const
         {
-            return parentDoc().executeQuery(XLQuerySheetName(getRID())).sheetName();
+            return parentDoc().executeQuery(XLQuerySheetName(relationshipID())).sheetName();
         }
 
         /**
@@ -210,7 +210,7 @@ namespace OpenXLSX
          */
         void setName(const std::string& sheetName)
         {
-            parentDoc().executeCommand(XLCommandSetSheetName(getRID(), name(), sheetName));
+            parentDoc().executeCommand(XLCommandSetSheetName(relationshipID(), name(), sheetName));
         }
 
         /**
@@ -240,7 +240,7 @@ namespace OpenXLSX
          */
         void clone(const std::string& newName)
         {
-            parentDoc().executeCommand(XLCommandCloneSheet(getRID(), newName));
+            parentDoc().executeCommand(XLCommandCloneSheet(relationshipID(), newName));
         }
     };
 

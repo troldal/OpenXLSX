@@ -47,38 +47,42 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #define OPENXLSX_XLXMLFILE_HPP
 
 // ===== OpenXLSX Includes ===== //
-#include "XLXmlData.hpp"
+#include "XLXmlParser.hpp"
 
 namespace OpenXLSX
 {
+    class XLXmlData;
     class XLDocument;
 
     /**
-     * @brief The XLAbstractXMLFile is an pure abstract class, which provides an interface
-     * for derived classes to use. It functions as an ancestor to all classes which are represented by an .xml
-     * file in an .xlsx package
+     * @brief The XLXmlFile class provides an interface for derived classes to use.
+     * It functions as an ancestor to all classes which are represented by an .xml file in an .xlsx package.
+     * @warning The XLXmlFile class is not intended to be instantiated on it's own, but to provide an interface for
+     * derived classes. Also, it should not be used polymorphically. For that reason, the destructor is not declared virtual.
      */
     class XLXmlFile
     {
     public:    // ===== PUBLIC MEMBER FUNCTIONS
-        XLXmlFile() = default;
         /**
-         * @brief Constructor. Creates an object using the parent XLDocument object, the relative file path
-         * and a data object as input.
-         * @param parent
-         * @param filePath The path of the XML file, relative to the root.
-         * @param xmlData An std::string object with the XML data to be represented by the object.
+         * @brief Default constructor.
+         */
+        XLXmlFile() = default;
+
+        /**
+         * @brief Constructor. Creates an object based on the xmlData input.
+         * @param xmlData An XLXmlData object with the XML data to be represented by the object.
          */
         explicit XLXmlFile(XLXmlData* xmlData);
 
         /**
-         * @brief Copy constructor. Default (shallow) implementation used.
+         * @brief Copy constructor. Default implementation used.
+         * @param other The object to copy.
          */
-        XLXmlFile(const XLXmlFile&) = default;
+        XLXmlFile(const XLXmlFile& other) = default;
 
         /**
-         * @brief
-         * @param other
+         * @brief Move constructor. Default implementation used.
+         * @param other The object to move.
          */
         XLXmlFile(XLXmlFile&& other) noexcept = default;
 
@@ -88,23 +92,25 @@ namespace OpenXLSX
         ~XLXmlFile() = default;
 
         /**
-         * @brief The assignment operator. The default implementation has been used.
+         * @brief The copy assignment operator. The default implementation has been used.
+         * @param other The object to copy.
          * @return A reference to the new object.
          */
-        XLXmlFile& operator=(const XLXmlFile&) = default;
+        XLXmlFile& operator=(const XLXmlFile& other) = default;
 
         /**
-         * @brief
-         * @param other
-         * @return
+         * @brief The move assignment operator. The default implementation has been used.
+         * @param other The object to move.
+         * @return A reference to the new object.
          */
         XLXmlFile& operator=(XLXmlFile&& other) noexcept = default;
 
+    protected:    // ===== PROTECTED MEMBER FUNCTIONS
         /**
-         * @brief
-         * @return
+         * @brief Method for getting the XML data represented by the object.
+         * @return A std::string with the XML data.
          */
-        explicit operator bool() const;
+        std::string xmlData() const;
 
         /**
          * @brief Provide the XML data represented by the object.
@@ -113,62 +119,38 @@ namespace OpenXLSX
         void setXmlData(const std::string& xmlData);
 
         /**
-         * @brief Method for getting the XML data represented by the object.
-         * @return A std::string with the XML data.
+         * @brief This function returns the relationship ID (the ID used in the XLRelationships objects) for the object.
+         * @return A std::string with the ID. Not all spreadsheet objects may have a relationship ID. In those cases an empty string is
+         * returned.
          */
-        std::string xmlData() const;
+        std::string relationshipID() const;
 
         /**
-         * @brief Get the path of the current file.
-         * @return A string with the path of the file.
-         * @note This method is final, i.e. it cannot be overridden.
+         * @brief This function provides access to the parent XLDocument object.
+         * @return A reference to the parent XLDocument object.
          */
-        std::string filePath() const;
+        XLDocument& parentDoc();
 
         /**
-         * @brief
-         * @return
+         * @brief This function provides access to the parent XLDocument object.
+         * @return A const reference to the parent XLDocument object.
          */
-        XLDocument& parentDoc() const
-        {
-            return *m_xmlData->getParentDoc();
-        }
+        const XLDocument& parentDoc() const;
 
         /**
-         * @brief
-         * @return
-         */
-        XLDocument& parentDoc()
-        {
-            return *m_xmlData->getParentDoc();
-        }
-
-        /**
-         * @brief
-         * @return
-         */
-        std::string getRID() const
-        {
-            return m_xmlData->getXmlID();
-        }
-
-    protected:    // ===== PROTECTED MEMBER FUNCTIONS
-        /**
-         * @brief This method returns the underlying XMLDocument object.
-         * @return A pointer to the XMLDocument object.
-         * @note This method is final, i.e. it cannot be overridden.
+         * @brief This function provides access to the underlying XMLDocument object.
+         * @return A reference to the XMLDocument object.
          */
         XMLDocument& xmlDocument();
 
         /**
-         * @brief This method returns the underlying XMLDocument object.
-         * @return A pointer to the const XMLDocument object.
-         * @note This method is final, i.e. it cannot be overridden.
+         * @brief This function provides access to the underlying XMLDocument object.
+         * @return A const reference to the XMLDocument object.
          */
         const XMLDocument& xmlDocument() const;
 
-    private:    // ===== PRIVATE MEMBER VARIABLES
-        XLXmlData* m_xmlData { nullptr };
+    private:                              // ===== PRIVATE MEMBER VARIABLES
+        XLXmlData* m_xmlData { nullptr }; /**< The underlying XML data object. */
     };
 }    // namespace OpenXLSX
 
