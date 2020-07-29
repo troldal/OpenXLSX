@@ -103,7 +103,7 @@ namespace OpenXLSX
          * @brief The destructor
          * @note The default destructor is used, since cleanup of pointer data members is not required.
          */
-        ~XLSheetBase() override = default;
+        ~XLSheetBase() = default;
 
         /**
          * @brief Assignment operator
@@ -242,15 +242,6 @@ namespace OpenXLSX
         {
             parentDoc().executeCommand(XLCommandCloneSheet(getRID(), newName));
         }
-
-        /**
-         * @brief
-         * @return
-         */
-        std::string xmlData() const override
-        {
-            return XLXmlFile::xmlData();
-        }
     };
 
     /**
@@ -296,7 +287,7 @@ namespace OpenXLSX
         /**
          * @brief Destructor.
          */
-        ~XLWorksheet() override = default;
+        ~XLWorksheet() = default;
 
         /**
          * @brief Copy assignment operator.
@@ -455,7 +446,7 @@ namespace OpenXLSX
         /**
          * @brief
          */
-        ~XLChartsheet() override = default;
+        ~XLChartsheet() = default;
 
         /**
          * @brief
@@ -507,7 +498,7 @@ namespace OpenXLSX
          * @brief The destructor
          * @note The default destructor is used, since cleanup of pointer data members is not required.
          */
-        ~XLSheet() override = default;
+        ~XLSheet() = default;
 
         /**
          * @brief Assignment operator

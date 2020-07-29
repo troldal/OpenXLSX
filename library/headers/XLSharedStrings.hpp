@@ -74,7 +74,7 @@ namespace OpenXLSX
         /**
          * @brief Destructor
          */
-        ~XLSharedStrings() override = default;
+        ~XLSharedStrings() = default;
 
         /**
          * @brief

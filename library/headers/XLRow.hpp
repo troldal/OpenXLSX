@@ -84,7 +84,7 @@ namespace OpenXLSX
          * @brief Destructor
          * @note The destructor has a default implementation.
          */
-        virtual ~XLRow() = default;
+        ~XLRow() = default;
 
         /**
          * @brief Copy assignment operator.

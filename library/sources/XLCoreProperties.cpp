@@ -57,11 +57,6 @@ XLCoreProperties::XLCoreProperties(XLXmlData* xmlData) : XLXmlFile(xmlData) {}
 /**
  * @details
  */
-XLCoreProperties::~XLCoreProperties() = default;
-
-/**
- * @details
- */
 bool XLCoreProperties::setProperty(const std::string& name, const std::string& value)
 {
     XMLNode node;

@@ -89,7 +89,7 @@ namespace OpenXLSX
         /**
          * @brief
          */
-        ~XLAppProperties() override = default;
+        ~XLAppProperties() = default;
 
         /**
          * @brief

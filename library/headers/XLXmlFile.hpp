@@ -85,7 +85,7 @@ namespace OpenXLSX
         /**
          * @brief Destructor. Default implementation used.
          */
-        virtual ~XLXmlFile() = default;
+        ~XLXmlFile() = default;
 
         /**
          * @brief The assignment operator. The default implementation has been used.
@@ -104,7 +104,7 @@ namespace OpenXLSX
          * @brief
          * @return
          */
-        virtual explicit operator bool() const;
+        explicit operator bool() const;
 
         /**
          * @brief Provide the XML data represented by the object.
@@ -116,20 +116,20 @@ namespace OpenXLSX
          * @brief Method for getting the XML data represented by the object.
          * @return A std::string with the XML data.
          */
-        virtual std::string xmlData() const;
+        std::string xmlData() const;
 
         /**
          * @brief Get the path of the current file.
          * @return A string with the path of the file.
          * @note This method is final, i.e. it cannot be overridden.
          */
-        virtual std::string filePath() const final;
+        std::string filePath() const;
 
         /**
          * @brief
          * @return
          */
-        virtual const XLDocument& parentDoc() const final
+        XLDocument& parentDoc() const
         {
             return *m_xmlData->getParentDoc();
         }
@@ -138,7 +138,7 @@ namespace OpenXLSX
          * @brief
          * @return
          */
-        virtual XLDocument& parentDoc() final
+        XLDocument& parentDoc()
         {
             return *m_xmlData->getParentDoc();
         }
@@ -147,7 +147,7 @@ namespace OpenXLSX
          * @brief
          * @return
          */
-        virtual std::string getRID() const final
+        std::string getRID() const
         {
             return m_xmlData->getXmlID();
         }
@@ -158,14 +158,14 @@ namespace OpenXLSX
          * @return A pointer to the XMLDocument object.
          * @note This method is final, i.e. it cannot be overridden.
          */
-        virtual XMLDocument& xmlDocument() final;
+        XMLDocument& xmlDocument();
 
         /**
          * @brief This method returns the underlying XMLDocument object.
          * @return A pointer to the const XMLDocument object.
          * @note This method is final, i.e. it cannot be overridden.
          */
-        virtual const XMLDocument& xmlDocument() const final;
+        const XMLDocument& xmlDocument() const;
 
     private:    // ===== PRIVATE MEMBER VARIABLES
         XLXmlData* m_xmlData { nullptr };

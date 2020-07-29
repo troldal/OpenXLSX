@@ -149,7 +149,7 @@ namespace OpenXLSX
         /**
          * @brief Destructor
          */
-        ~XLContentTypes() override = default;
+        ~XLContentTypes() = default;
 
         /**
          * @brief

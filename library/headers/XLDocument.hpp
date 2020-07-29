@@ -112,7 +112,7 @@ namespace OpenXLSX
         /**
          * @brief Destructor
          */
-        virtual ~XLDocument();
+        ~XLDocument();
 
         /**
          * @brief

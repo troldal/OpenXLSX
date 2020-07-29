@@ -139,7 +139,7 @@ namespace OpenXLSX
          * @brief Destructor.
          * @note The destructor uses the default implementation, as no pointer data members exist.
          */
-        virtual ~XLCellValue() = default;
+        ~XLCellValue() = default;
 
         /**
          * @brief Copy assignment operator.
