@@ -54,6 +54,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <string>
 
 // ===== OpenXLSX Includes ===== //
+#include "../xml/XLXmlParser.hpp"
 #include "XLAppProperties.hpp"
 #include "XLCommandQuery.hpp"
 #include "XLCoreProperties.hpp"
@@ -64,7 +65,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLSharedStrings.hpp"
 #include "XLWorkbook.hpp"
 #include "XLXmlData.hpp"
-#include "XLXmlParser.hpp"
 #include "XLZipArchive.hpp"
 
 namespace OpenXLSX
@@ -233,7 +233,7 @@ namespace OpenXLSX
                 m_contentTypes.addOverride(command.sheetPath(), XLContentType::Worksheet);
                 m_wbkRelationships.addRelationship(XLRelationshipType::Worksheet, command.sheetPath().substr(4));
                 m_appProperties.appendSheetName(command.sheetName());
-                m_archive.AddEntry(command.sheetPath().substr(1), emptyWorksheet);
+                m_archive.addEntry(command.sheetPath().substr(1), emptyWorksheet);
                 m_data.emplace_back(
                     /* parentDoc */ this,
                     /* xmlPath   */ command.sheetPath().substr(1),
@@ -247,7 +247,7 @@ namespace OpenXLSX
             else if constexpr (std::is_same_v<Command, XLCommandDeleteSheet>) {
                 m_appProperties.deleteSheetName(command.sheetName());
                 auto sheetPath = "/xl/" + m_wbkRelationships.relationshipById(command.sheetID()).Target();
-                m_archive.DeleteEntry(sheetPath.substr(1));
+                m_archive.deleteEntry(sheetPath.substr(1));
                 m_contentTypes.deleteOverride(sheetPath);
                 m_wbkRelationships.deleteRelationship(command.sheetID());
                 m_data.erase(std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) {
@@ -265,7 +265,7 @@ namespace OpenXLSX
                     m_contentTypes.addOverride(sheetPath, XLContentType::Worksheet);
                     m_wbkRelationships.addRelationship(XLRelationshipType::Worksheet, sheetPath.substr(4));
                     m_appProperties.appendSheetName(command.cloneName());
-                    m_archive.AddEntry(sheetPath.substr(1), std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& data) {
+                    m_archive.addEntry(sheetPath.substr(1), std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& data) {
                                                                 return data.getXmlPath().substr(3) ==
                                                                        m_wbkRelationships.relationshipById(command.sheetID()).Target();
                                                             })->getRawData());
@@ -279,7 +279,7 @@ namespace OpenXLSX
                     m_contentTypes.addOverride(sheetPath, XLContentType::Chartsheet);
                     m_wbkRelationships.addRelationship(XLRelationshipType::Chartsheet, sheetPath.substr(4));
                     m_appProperties.appendSheetName(command.cloneName());
-                    m_archive.AddEntry(sheetPath.substr(1), std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& data) {
+                    m_archive.addEntry(sheetPath.substr(1), std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& data) {
                                                                 return data.getXmlPath().substr(3) ==
                                                                        m_wbkRelationships.relationshipById(command.sheetID()).Target();
                                                             })->getRawData());
@@ -439,14 +439,14 @@ namespace OpenXLSX
         std::string                  m_filePath {}; /**< The path to the original file*/
         mutable std::list<XLXmlData> m_data {};
 
-        XLRelationships   m_docRelationships; /**< A pointer to the document relationships object*/
-        XLRelationships   m_wbkRelationships; /**< A pointer to the document relationships object*/
-        XLContentTypes    m_contentTypes;     /**< A pointer to the content types object*/
-        XLAppProperties   m_appProperties;    /**< A pointer to the App properties object */
-        XLCoreProperties  m_coreProperties;   /**< A pointer to the Core properties object*/
-        XLSharedStrings   m_sharedStrings;
-        XLWorkbook        m_workbook;         /**< A pointer to the workbook object */
-        Zippy::ZipArchive m_archive;          /**<  */
+        XLRelationships  m_docRelationships; /**< A pointer to the document relationships object*/
+        XLRelationships  m_wbkRelationships; /**< A pointer to the document relationships object*/
+        XLContentTypes   m_contentTypes;     /**< A pointer to the content types object*/
+        XLAppProperties  m_appProperties;    /**< A pointer to the App properties object */
+        XLCoreProperties m_coreProperties;   /**< A pointer to the Core properties object*/
+        XLSharedStrings  m_sharedStrings;
+        XLWorkbook       m_workbook; /**< A pointer to the workbook object */
+        XLZipArchive     m_archive;  /**<  */
     };
 
 }    // namespace OpenXLSX

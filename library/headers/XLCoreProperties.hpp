@@ -52,8 +52,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <vector>
 
 // ===== OpenXLSX Includes ===== //
+#include "../xml/XLXmlParser.hpp"
 #include "XLXmlFile.hpp"
-#include "XLXmlParser.hpp"
 
 namespace OpenXLSX
 {

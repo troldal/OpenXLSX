@@ -44,7 +44,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
  */
 
 // ===== Standard Library Includes ===== //
-#include <variant>
+//#include <variant>
 
 // ===== OpenXLSX Includes ===== //
 #include "XLContentTypes.hpp"
@@ -445,10 +445,10 @@ void XLDocument::open(const std::string& fileName)
 {
     // Check if a document is already open. If yes, close it.
     // TODO: Consider throwing if a file is already open.
-    if (m_archive.IsOpen()) close();
+    if (m_archive.isOpen()) close();
 
     m_filePath = fileName;
-    m_archive.Open(m_filePath);
+    m_archive.open(m_filePath);
 
     // ===== Add and open the Relationships and [Content_Types] files for the document level.
     m_data.emplace_back(this, "[Content_Types].xml");
@@ -502,7 +502,7 @@ void XLDocument::create(const std::string& fileName)
  */
 void XLDocument::close()
 {
-    m_archive.Close();
+    m_archive.close();
     m_filePath.clear();
     m_data.clear();
 
@@ -532,8 +532,8 @@ void XLDocument::saveAs(const std::string& fileName)
     m_filePath = fileName;
 
     // ===== Add all xml items to archive and save the archive.
-    for (auto& item : m_data) m_archive.AddEntry(item.getXmlPath(), item.getRawData());
-    m_archive.Save(m_filePath);
+    for (auto& item : m_data) m_archive.addEntry(item.getXmlPath(), item.getRawData());
+    m_archive.save(m_filePath);
 }
 
 /**
@@ -777,5 +777,5 @@ const XLXmlData* XLDocument::getXmlData(const std::string& path) const
  */
 std::string XLDocument::extractXmlFromArchive(const std::string& path)
 {
-    return (m_archive.HasEntry(path) ? m_archive.GetEntry(path).GetDataAsString() : "");
+    return (m_archive.hasEntry(path) ? m_archive.getEntry(path) : "");
 }

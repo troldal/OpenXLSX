@@ -1,4 +1,13 @@
 #=======================================================================================================================
+# EXTERNAL LIBRARIES
+#   Define external libraries used by OpenXLSX. The libraries (Zippy and PugiXML) are header-only, so
+#   INTERFACE libraries should be defined.
+#=======================================================================================================================
+add_library(Zippy INTERFACE)
+target_include_directories(Zippy SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/zip/>)
+
+
+#=======================================================================================================================
 # COMPILER FEATURES
 #   Some older C++17 compilers don't support the char_conv features. If the compiler doesn't support it,
 #   a less optimal work-around will be used.
@@ -49,6 +58,7 @@ set(OPENXLSX_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/sources/XLCellReference.cpp
     ${CMAKE_CURRENT_LIST_DIR}/sources/XLXmlData.cpp
     ${CMAKE_CURRENT_LIST_DIR}/sources/XLCellIterator.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/sources/XLZipArchive.cpp
     )
 
 #=======================================================================================================================
@@ -61,14 +71,10 @@ if (${BUILD_OBJECT_LIB} AND (NOT CMAKE_GENERATOR STREQUAL Xcode))
     add_library(OpenXLSX-object OBJECT "")
     target_sources(OpenXLSX-object PRIVATE ${OPENXLSX_SOURCES})
     target_include_directories(OpenXLSX-object
-                               PRIVATE
+                               PUBLIC
                                $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
-                               $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/external>
-                               $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>     # For export header
-                               SYSTEM INTERFACE
-                               $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
-                               $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/external>
-                               $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)      # For export header
+                               $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)     # For export header
+    target_link_libraries(OpenXLSX-object PRIVATE Zippy)
     #target_compile_definitions(OpenXLSX-object PRIVATE OpenXLSX_shared_EXPORTS)
 endif ()
 
@@ -79,14 +85,10 @@ endif ()
 add_library(OpenXLSX-static STATIC "")
 target_sources(OpenXLSX-static PRIVATE ${OPENXLSX_SOURCES})
 target_include_directories(OpenXLSX-static
-                           PRIVATE
+                           PUBLIC
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
-                           $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/external>
-                           $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>     # For export header
-                           SYSTEM INTERFACE
-                           $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
-                           $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/external>
-                           $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)      # For export header
+                           $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)     # For export header
+target_link_libraries(OpenXLSX-static PRIVATE Zippy)
 target_compile_definitions(OpenXLSX-static PRIVATE OPENXLSX_STATIC_DEFINE)
 
 #=======================================================================================================================
@@ -96,14 +98,10 @@ target_compile_definitions(OpenXLSX-static PRIVATE OPENXLSX_STATIC_DEFINE)
 add_library(OpenXLSX-shared SHARED "")
 target_sources(OpenXLSX-shared PRIVATE ${OPENXLSX_SOURCES})
 target_include_directories(OpenXLSX-shared
-                           PRIVATE
+                           PUBLIC
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
-                           $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/external>
-                           $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>     # For export header
-                           SYSTEM INTERFACE
-                           $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
-                           $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/external>
-                           $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)      # For export header
+                           $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)     # For export header
+target_link_libraries(OpenXLSX-shared PRIVATE Zippy)
 
 #=======================================================================================================================
 # GENERATE EXPORT HEADER
@@ -242,6 +240,7 @@ install(
         #        OpenXLSX-object
         OpenXLSX-static
         OpenXLSX-shared
+        Zippy
         EXPORT OpenXLSXTargets
         LIBRARY
         DESTINATION ${CMAKE_INSTALL_LIBDIR}
