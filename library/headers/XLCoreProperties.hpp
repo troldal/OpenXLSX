@@ -46,22 +46,16 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_XLCOREPROPERTIES_HPP
 #define OPENXLSX_XLCOREPROPERTIES_HPP
 
-// ===== Standard Library Includes ===== //
+// ===== External Includes ===== //
 #include <map>
 #include <string>
 #include <vector>
 
 // ===== OpenXLSX Includes ===== //
-#include "../xml/XLXmlParser.hpp"
 #include "XLXmlFile.hpp"
 
 namespace OpenXLSX
 {
-    //======================================================================================================================
-    //========== XLCoreProperties Class
-    //=================================================================================
-    //======================================================================================================================
-
     /**
      * @brief
      */

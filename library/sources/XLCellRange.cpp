@@ -44,6 +44,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
  */
 
 // ===== Standard Library Includes ===== //
+#include <pugixml.hpp>
 #include <stdexcept>
 
 // ===== OpenXLSX Includes ===== //
@@ -55,8 +56,8 @@ using namespace OpenXLSX;
  * @details From the two XLCellReference objects, the constructor calculates the dimensions of the range.
  * If the range exceeds the current bounds of the spreadsheet, the spreadsheet is resized to fit.
  */
-XLCellRange::XLCellRange(XMLNode dataNode, const XLCellReference& topLeft, const XLCellReference& bottomRight)
-    : m_dataNode(dataNode),
+XLCellRange::XLCellRange(const pugi::xml_node& dataNode, const XLCellReference& topLeft, const XLCellReference& bottomRight)
+    : m_dataNode(std::make_unique<XMLNode>(dataNode)),
       m_topLeft(topLeft),
       m_bottomRight(bottomRight)
 {}

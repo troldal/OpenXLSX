@@ -45,6 +45,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== Standard Library Includes ===== //
 #include <algorithm>
+#include <pugixml.hpp>
 
 // ===== OpenXLSX Includes ===== //
 #include "XLDocument.hpp"
@@ -173,33 +174,37 @@ namespace
     }
 }    // namespace
 
+XLRelationshipItem::XLRelationshipItem() : m_relationshipNode(std::make_unique<XMLNode>()) {}
+
 /**
  * @details Constructor. Initializes the member variables for the new XLRelationshipItem object.
  */
-XLRelationshipItem::XLRelationshipItem(XMLNode node) : m_relationshipNode(node) {}
+XLRelationshipItem::XLRelationshipItem(const XMLNode& node) : m_relationshipNode(std::make_unique<XMLNode>(node)) {}
+
+XLRelationshipItem::~XLRelationshipItem() = default;
 
 /**
  * @details Returns the m_relationshipType member variable by value.
  */
-XLRelationshipType XLRelationshipItem::Type() const
+XLRelationshipType XLRelationshipItem::type() const
 {
-    return GetTypeFromString(m_relationshipNode.attribute("Type").value());
+    return GetTypeFromString(m_relationshipNode->attribute("Type").value());
 }
 
 /**
  * @details Returns the m_relationshipTarget member variable by value.
  */
-std::string XLRelationshipItem::Target() const
+std::string XLRelationshipItem::target() const
 {
-    return m_relationshipNode.attribute("Target").value();
+    return m_relationshipNode->attribute("Target").value();
 }
 
 /**
  * @details Returns the m_relationshipId member variable by value.
  */
-std::string XLRelationshipItem::Id() const
+std::string XLRelationshipItem::id() const
 {
-    return m_relationshipNode.attribute("Id").value();
+    return m_relationshipNode->attribute("Id").value();
 }
 
 /**
@@ -241,7 +246,7 @@ void XLRelationships::deleteRelationship(const std::string& relID)
 
 void XLRelationships::deleteRelationship(const XLRelationshipItem& item)
 {
-    deleteRelationship(item.Id());
+    deleteRelationship(item.id());
 }
 
 /**

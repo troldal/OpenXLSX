@@ -46,15 +46,16 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_XLXMLDATA_HPP
 #define OPENXLSX_XLXMLDATA_HPP
 
-// ===== Standard Library Includes ===== //
+// ===== External Includes ===== //
 #include <cstring>
 #include <memory>
 #include <sstream>
 #include <string>
 
 // ===== OpenXLSX Includes ===== //
-#include "../xml/XLXmlParser.hpp"
+#include "OpenXLSX-Exports.hpp"
 #include "XLEnums.hpp"
+#include "XLXmlParser.hpp"
 
 namespace OpenXLSX
 {
@@ -66,7 +67,7 @@ namespace OpenXLSX
      * they can be retrieved by other objects that encapsulates the behaviour of Excel elements, such as XLWorkbook
      * and XLWorksheet.
      */
-    class XLXmlData final
+    class OPENXLSX_EXPORT XLXmlData final
     {
     public:
         // ===== PUBLIC MEMBER FUNCTIONS ===== //
@@ -96,7 +97,7 @@ namespace OpenXLSX
          * @brief Default destructor. The XLXmlData does not manage any dynamically allocated resources, so a default
          * destructor will suffice.
          */
-        ~XLXmlData() = default;
+        ~XLXmlData();
 
         /**
          * @brief Copy constructor. The m_xmlDoc data member is a XMLDocument object, which is non-copyable. Hence,
@@ -187,11 +188,11 @@ namespace OpenXLSX
     private:
         // ===== PRIVATE MEMBER VARIABLES ===== //
 
-        XLDocument*         m_parentDoc {}; /**< A pointer to the parent XLDocument object. >*/
-        std::string         m_xmlPath {};   /**< The path of the XML data in the .xlsx zip archive. >*/
-        std::string         m_xmlID {};     /**< The relationship ID of the XML data. >*/
-        XLContentType       m_xmlType {};   /**< The type represented by the XML data. >*/
-        mutable XMLDocument m_xmlDoc {};    /**< The underlying XMLDocument object. >*/
+        XLDocument*                          m_parentDoc {}; /**< A pointer to the parent XLDocument object. >*/
+        std::string                          m_xmlPath {};   /**< The path of the XML data in the .xlsx zip archive. >*/
+        std::string                          m_xmlID {};     /**< The relationship ID of the XML data. >*/
+        XLContentType                        m_xmlType {};   /**< The type represented by the XML data. >*/
+        mutable std::unique_ptr<XMLDocument> m_xmlDoc;       /**< The underlying XMLDocument object. >*/
     };
 }    // namespace OpenXLSX
 

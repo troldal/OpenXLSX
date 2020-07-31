@@ -44,7 +44,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
  */
 
 // ===== Standard Library Includes ===== //
-//#include <variant>
+#include <pugixml.hpp>
 
 // ===== OpenXLSX Includes ===== //
 #include "XLContentTypes.hpp"
@@ -460,17 +460,17 @@ void XLDocument::open(const std::string& fileName)
     m_wbkRelationships = XLRelationships(getXmlData("xl/_rels/workbook.xml.rels"));
 
     // ===== Add remaining spreadsheet elements to the vector of XLXmlData objects.
-    for (auto item : m_contentTypes.getContentItems()) {
+    for (auto& item : m_contentTypes.getContentItems()) {
         if (item.path().substr(0, 4) == "/xl/" && !(item.path() == "/xl/workbook.xml"))
             m_data.emplace_back(/* parentDoc */ this,
                                 /* xmlPath   */ item.path().substr(1),
-                                /* xmlID     */ m_wbkRelationships.relationshipByTarget(item.path().substr(4)).Id(),
+                                /* xmlID     */ m_wbkRelationships.relationshipByTarget(item.path().substr(4)).id(),
                                 /* xmlType   */ item.type());
 
         else
             m_data.emplace_back(/* parentDoc */ this,
                                 /* xmlPath   */ item.path().substr(1),
-                                /* xmlID     */ m_docRelationships.relationshipByTarget(item.path().substr(1)).Id(),
+                                /* xmlID     */ m_docRelationships.relationshipByTarget(item.path().substr(1)).id(),
                                 /* xmlType   */ item.type());
     }
 

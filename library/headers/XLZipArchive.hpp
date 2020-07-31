@@ -5,14 +5,17 @@
 #ifndef OPENXLSX_XLZIPARCHIVE_HPP
 #define OPENXLSX_XLZIPARCHIVE_HPP
 
+// ===== OpenXLSX Includes ===== //
+#include "OpenXLSX-Exports.hpp"
+
 namespace Zippy
 {
     class ZipArchive;
-}
+}    // namespace Zippy
 
 namespace OpenXLSX
 {
-    class XLZipArchive final
+    class OPENXLSX_EXPORT XLZipArchive
     {
     public:
         XLZipArchive();

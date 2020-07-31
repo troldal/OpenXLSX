@@ -45,6 +45,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== Standard Library Includes ===== //
 #include <algorithm>
+#include <pugixml.hpp>
 
 // ===== OpenXLSX Includes ===== //
 #include "XLCellRange.hpp"
@@ -357,3 +358,8 @@ void XLWorksheet::updateSheetName(const std::string& oldName, const std::string&
         }
     }
 }
+
+/**
+ * @details
+ */
+XLChartsheet::XLChartsheet(XLXmlData* xmlData) : XLSheetBase(xmlData) {}

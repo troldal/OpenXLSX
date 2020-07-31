@@ -46,12 +46,11 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_XLWORKBOOK_HPP
 #define OPENXLSX_XLWORKBOOK_HPP
 
-// ===== Standard Library Includes ===== //
+// ===== External Includes ===== //
 #include <variant>
 #include <vector>
 
 // ===== OpenXLSX Includes ===== //
-#include "../xml/XLXmlParser.hpp"
 #include "OpenXLSX-Exports.hpp"
 #include "XLCommandQuery.hpp"
 #include "XLContentTypes.hpp"

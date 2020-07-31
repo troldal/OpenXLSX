@@ -46,7 +46,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_XLCOMMANDQUERY_HPP
 #define OPENXLSX_XLCOMMANDQUERY_HPP
 
-// ===== Standard Library Includes ===== //
+// ===== External Includes ===== //
 #include <map>
 #include <string>
 #include <variant>

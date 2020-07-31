@@ -51,10 +51,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 namespace OpenXLSX
 {
-    //==================================================================================================================
-    //========== XLWorksheet Class =====================================================================================
-    //==================================================================================================================
-
     /**
      * @brief This class is a specialization of the XLAbstractXMLFile, with the purpose of the representing the
      * document app properties in the app.xml file (docProps folder) in the .xlsx package.
@@ -110,7 +106,7 @@ namespace OpenXLSX
          * @param title
          * @return
          */
-        XMLNode addSheetName(const std::string& title);
+        XMLNode& addSheetName(const std::string& title);
 
         /**
          * @brief
@@ -130,7 +126,7 @@ namespace OpenXLSX
          * @param title
          * @return
          */
-        XMLNode sheetNameNode(const std::string& title);
+        XMLNode& sheetNameNode(const std::string& title);
 
         /**
          * @brief
@@ -165,7 +161,7 @@ namespace OpenXLSX
          * @param name
          * @return
          */
-        XMLNode property(const std::string& name) const;
+        XMLNode& property(const std::string& name) const;
 
         /**
          * @brief
@@ -178,14 +174,14 @@ namespace OpenXLSX
          * @param sheetName
          * @return
          */
-        XMLNode appendSheetName(const std::string& sheetName);
+        XMLNode& appendSheetName(const std::string& sheetName);
 
         /**
          * @brief
          * @param sheetName
          * @return
          */
-        XMLNode prependSheetName(const std::string& sheetName);
+        XMLNode& prependSheetName(const std::string& sheetName);
 
         /**
          * @brief
@@ -193,7 +189,7 @@ namespace OpenXLSX
          * @param index
          * @return
          */
-        XMLNode insertSheetName(const std::string& sheetName, unsigned int index);
+        XMLNode& insertSheetName(const std::string& sheetName, unsigned int index);
     };
 
 }    // namespace OpenXLSX

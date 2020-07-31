@@ -46,14 +46,14 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_XLRELATIONSHIPS_HPP
 #define OPENXLSX_XLRELATIONSHIPS_HPP
 
-// ===== Standard Library Includes ===== //
+// ===== External Includes ===== //
 #include <string>
 #include <vector>
 
 // ===== OpenXLSX Includes ===== //
-#include "../xml/XLXmlParser.hpp"
 #include "XLEnums.hpp"
 #include "XLXmlFile.hpp"
+#include "XLXmlParser.hpp"
 
 namespace OpenXLSX
 {
@@ -74,10 +74,15 @@ namespace OpenXLSX
     {
     public:    // ---------- Public Member Functions ---------- //
         /**
+         * @brief
+         */
+        XLRelationshipItem();
+
+        /**
          * @brief Constructor. New items should only be created through an XLRelationship object.
          * @param node An XMLNode object with the relationship item. If no input is provided, a null node is used.
          */
-        explicit XLRelationshipItem(XMLNode node = XMLNode());
+        explicit XLRelationshipItem(const XMLNode& node);
 
         /**
          * @brief Copy Constructor.
@@ -94,7 +99,7 @@ namespace OpenXLSX
         /**
          * @brief
          */
-        ~XLRelationshipItem() = default;
+        ~XLRelationshipItem();
 
         /**
          * @brief Copy assignment operator.
@@ -114,22 +119,22 @@ namespace OpenXLSX
          * @brief Get the type of the current relationship item.
          * @return An XLRelationshipType enum object, corresponding to the type.
          */
-        XLRelationshipType Type() const;
+        XLRelationshipType type() const;
 
         /**
          * @brief Get the target, i.e. the path to the XML file the relationship item refers to.
          * @return An XMLAttribute object containing the Target value.
          */
-        std::string Target() const;
+        std::string target() const;
 
         /**
          * @brief Get the id of the relationship item.
          * @return An XMLAttribute object containing the Id value.
          */
-        std::string Id() const;
+        std::string id() const;
 
-    private:                        // ---------- Private Member Variables ---------- //
-        XMLNode m_relationshipNode; /**< An XMLNode object with the relationship item */
+    private:                                         // ---------- Private Member Variables ---------- //
+        std::unique_ptr<XMLNode> m_relationshipNode; /**< An XMLNode object with the relationship item */
     };
 
     // ================================================================================

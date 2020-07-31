@@ -46,7 +46,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_XLSHEET_HPP
 #define OPENXLSX_XLSHEET_HPP
 
-// ===== Standard Library Includes ===== //
+// ===== External Includes ===== //
 #include <type_traits>
 #include <variant>
 #include <vector>
@@ -226,11 +226,7 @@ namespace OpenXLSX
          * @brief
          * @param selected
          */
-        void setSelected(bool selected)
-        {
-            unsigned int value = (selected ? 1 : 0);
-            xmlDocument().first_child().child("sheetViews").first_child().attribute("tabSelected").set_value(value);
-        }
+        void setSelected(bool selected);
 
         /**
          * @brief Method for cloning the sheet.

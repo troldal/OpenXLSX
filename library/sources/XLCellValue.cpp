@@ -45,6 +45,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== Standard Library Includes ===== //
 #include <cstring>
+#include <pugixml.hpp>
 
 // ===== OpenXLSX Includes ===== //
 #include "XLCellValue.hpp"
@@ -127,8 +128,12 @@ namespace
  * @pre The parent input parameter is a valid XLCell object.
  * @post A valid XLCellValue object has been constructed.
  */
-XLCellValue::XLCellValue(XMLNode cellNode, XLSharedStrings* sharedStrings) noexcept : m_cellNode(cellNode), m_sharedStrings(sharedStrings)
+XLCellValue::XLCellValue(const XMLNode& cellNode, XLSharedStrings* sharedStrings) noexcept
+    : m_cellNode(std::make_unique<XMLNode>(cellNode)),
+      m_sharedStrings(sharedStrings)
 {}
+
+XLCellValue::~XLCellValue() = default;
 
 /**
  * @details The copy constructor and copy assignment operator works differently for XLCellValue objects.
@@ -140,12 +145,12 @@ XLCellValue::XLCellValue(XMLNode cellNode, XLSharedStrings* sharedStrings) noexc
 XLCellValue& XLCellValue::operator=(const XLCellValue& other)
 {
     if (&other != this) {
-        if (!m_cellNode.attribute("t")) m_cellNode.append_attribute("t");
-        if (!m_cellNode.child("v")) m_cellNode.append_child("v");
+        if (!m_cellNode->attribute("t")) m_cellNode->append_attribute("t");
+        if (!m_cellNode->child("v")) m_cellNode->append_child("v");
 
-        m_cellNode.child("v").set_value(!other.m_cellNode.child("v") ? "" : other.m_cellNode.child("v").text().get());
-        m_cellNode.child("v").attribute("xml:space").set_value(other.m_cellNode.child("v").attribute("xml:space").value());
-        m_cellNode.attribute("t").set_value(!other.m_cellNode.attribute("t") ? "" : other.m_cellNode.attribute("t").value());
+        m_cellNode->child("v").set_value(!other.m_cellNode->child("v") ? "" : other.m_cellNode->child("v").text().get());
+        m_cellNode->child("v").attribute("xml:space").set_value(other.m_cellNode->child("v").attribute("xml:space").value());
+        m_cellNode->attribute("t").set_value(!other.m_cellNode->attribute("t") ? "" : other.m_cellNode->attribute("t").value());
     }
 
     return *this;
@@ -161,12 +166,12 @@ XLCellValue& XLCellValue::operator=(const XLCellValue& other)
 XLCellValue& XLCellValue::operator=(XLCellValue&& other) noexcept
 {
     if (&other != this) {
-        if (!m_cellNode.attribute("t")) m_cellNode.append_attribute("t");
-        if (!m_cellNode.child("v")) m_cellNode.append_child("v");
+        if (!m_cellNode->attribute("t")) m_cellNode->append_attribute("t");
+        if (!m_cellNode->child("v")) m_cellNode->append_child("v");
 
-        m_cellNode.child("v").set_value(!other.m_cellNode.child("v") ? "" : other.m_cellNode.child("v").text().get());
-        m_cellNode.child("v").attribute("xml:space").set_value(other.m_cellNode.child("v").attribute("xml:space").value());
-        m_cellNode.attribute("t").set_value(!other.m_cellNode.attribute("t") ? "" : other.m_cellNode.attribute("t").value());
+        m_cellNode->child("v").set_value(!other.m_cellNode->child("v") ? "" : other.m_cellNode->child("v").text().get());
+        m_cellNode->child("v").attribute("xml:space").set_value(other.m_cellNode->child("v").attribute("xml:space").value());
+        m_cellNode->attribute("t").set_value(!other.m_cellNode->attribute("t") ? "" : other.m_cellNode->attribute("t").value());
     }
 
     return *this;
@@ -218,14 +223,14 @@ void XLCellValue::set(const std::string& stringValue)
  */
 void XLCellValue::set(const char* stringValue)
 {
-    if (!m_cellNode.attribute("t")) m_cellNode.append_attribute("t");
-    if (!m_cellNode.child("v")) m_cellNode.append_child("v");
+    if (!m_cellNode->attribute("t")) m_cellNode->append_attribute("t");
+    if (!m_cellNode->child("v")) m_cellNode->append_child("v");
 
-    m_cellNode.attribute("t").set_value("str");
-    m_cellNode.child("v").text().set(stringValue);
+    m_cellNode->attribute("t").set_value("str");
+    m_cellNode->child("v").text().set(stringValue);
 
-    if (!m_cellNode.attribute("xml:space")) m_cellNode.append_attribute("xml:space");
-    m_cellNode.attribute("xml:space").set_value("preserve");
+    if (!m_cellNode->attribute("xml:space")) m_cellNode->append_attribute("xml:space");
+    m_cellNode->attribute("xml:space").set_value("preserve");
 }
 
 /**
@@ -235,8 +240,8 @@ void XLCellValue::set(const char* stringValue)
  */
 void XLCellValue::clear()
 {
-    m_cellNode.remove_child(m_cellNode.child("v"));
-    m_cellNode.remove_attribute(m_cellNode.attribute("t"));
+    m_cellNode->remove_child(m_cellNode->child("v"));
+    m_cellNode->remove_attribute(m_cellNode->attribute("t"));
 }
 
 /**
@@ -246,15 +251,15 @@ void XLCellValue::clear()
  */
 std::string XLCellValue::asString() const
 {
-    if (strcmp(m_cellNode.attribute("t").value(), "b") == 0) {
-        if (strcmp(m_cellNode.child("v").text().get(), "0") == 0) return "FALSE";
+    if (strcmp(m_cellNode->attribute("t").value(), "b") == 0) {
+        if (strcmp(m_cellNode->child("v").text().get(), "0") == 0) return "FALSE";
 
         return "TRUE";
     }
 
-    if (strcmp(m_cellNode.attribute("t").value(), "s") == 0) return m_sharedStrings->getString(m_cellNode.child("v").text().as_ullong());
+    if (strcmp(m_cellNode->attribute("t").value(), "s") == 0) return m_sharedStrings->getString(m_cellNode->child("v").text().as_ullong());
 
-    return m_cellNode.child("v").text().get();
+    return m_cellNode->child("v").text().get();
 }
 
 /**
@@ -264,7 +269,7 @@ std::string XLCellValue::asString() const
  */
 XLValueType XLCellValue::valueType() const
 {
-    switch (getCellType(m_cellNode)) {
+    switch (getCellType(*m_cellNode)) {
         case XLCellType::Empty:
             return XLValueType::Empty;
 
@@ -272,7 +277,7 @@ XLValueType XLCellValue::valueType() const
             return XLValueType::Error;
 
         case XLCellType::Number: {
-            if (DetermineNumberType(m_cellNode.child("v").text().get()) == XLNumberType::Integer) return XLValueType::Integer;
+            if (DetermineNumberType(m_cellNode->child("v").text().get()) == XLNumberType::Integer) return XLValueType::Integer;
 
             return XLValueType::Float;
         }
@@ -290,11 +295,11 @@ XLValueType XLCellValue::valueType() const
  */
 void XLCellValue::setInteger(int64_t numberValue)
 {
-    if (!m_cellNode.child("v")) m_cellNode.append_child("v");
+    if (!m_cellNode->child("v")) m_cellNode->append_child("v");
 
-    m_cellNode.remove_attribute("t");
-    m_cellNode.child("v").text().set(numberValue);
-    m_cellNode.child("v").attribute("xml:space").set_value("default");
+    m_cellNode->remove_attribute("t");
+    m_cellNode->child("v").text().set(numberValue);
+    m_cellNode->child("v").attribute("xml:space").set_value("default");
 }
 
 /**
@@ -302,12 +307,12 @@ void XLCellValue::setInteger(int64_t numberValue)
  */
 void XLCellValue::setBoolean(bool numberValue)
 {
-    if (!m_cellNode.attribute("t")) m_cellNode.append_attribute("t");
-    if (!m_cellNode.child("v")) m_cellNode.append_child("v");
+    if (!m_cellNode->attribute("t")) m_cellNode->append_attribute("t");
+    if (!m_cellNode->child("v")) m_cellNode->append_child("v");
 
-    m_cellNode.attribute("t").set_value("b");
-    m_cellNode.child("v").text().set(numberValue ? 1 : 0);
-    m_cellNode.child("v").attribute("xml:space").set_value("default");
+    m_cellNode->attribute("t").set_value("b");
+    m_cellNode->child("v").text().set(numberValue ? 1 : 0);
+    m_cellNode->child("v").attribute("xml:space").set_value("default");
 }
 
 /**
@@ -315,11 +320,11 @@ void XLCellValue::setBoolean(bool numberValue)
  */
 void XLCellValue::setFloat(double numberValue)
 {
-    if (!m_cellNode.child("v")) m_cellNode.append_child("v");
+    if (!m_cellNode->child("v")) m_cellNode->append_child("v");
 
-    m_cellNode.remove_attribute("t");
-    m_cellNode.child("v").text().set(numberValue);
-    m_cellNode.child("v").attribute("xml:space").set_value("default");
+    m_cellNode->remove_attribute("t");
+    m_cellNode->child("v").text().set(numberValue);
+    m_cellNode->child("v").attribute("xml:space").set_value("default");
 }
 
 /**
@@ -328,7 +333,7 @@ void XLCellValue::setFloat(double numberValue)
 int64_t XLCellValue::getInteger() const
 {
     if (valueType() != XLValueType::Integer) throw XLException("Cell value is not Integer");
-    return m_cellNode.child("v").text().as_llong();
+    return m_cellNode->child("v").text().as_llong();
 }
 
 /**
@@ -337,7 +342,7 @@ int64_t XLCellValue::getInteger() const
 bool XLCellValue::getBoolean() const
 {
     if (valueType() != XLValueType::Boolean) throw XLException("Cell value is not Boolean");
-    return m_cellNode.child("v").text().as_bool();
+    return m_cellNode->child("v").text().as_bool();
 }
 
 /**
@@ -346,7 +351,7 @@ bool XLCellValue::getBoolean() const
 long double XLCellValue::getFloat() const
 {
     if (valueType() != XLValueType::Float) throw XLException("Cell value is not Float");
-    return m_cellNode.child("v").text().as_double();
+    return m_cellNode->child("v").text().as_double();
 }
 
 /**
@@ -355,10 +360,10 @@ long double XLCellValue::getFloat() const
 const char* XLCellValue::getString() const
 {
     if (valueType() != XLValueType::String) throw XLException("Cell value is not String");
-    if (strcmp(m_cellNode.attribute("t").value(), "str") == 0)    // ordinary string
-        return m_cellNode.child("v").text().get();
-    if (strcmp(m_cellNode.attribute("t").value(), "s") == 0)    // shared string
-        return m_sharedStrings->getString(m_cellNode.child("v").text().as_ullong());
+    if (strcmp(m_cellNode->attribute("t").value(), "str") == 0)    // ordinary string
+        return m_cellNode->child("v").text().get();
+    if (strcmp(m_cellNode->attribute("t").value(), "s") == 0)    // shared string
+        return m_sharedStrings->getString(m_cellNode->child("v").text().as_ullong());
 
     throw XLException("Unknown string type");
 }

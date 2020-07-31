@@ -43,6 +43,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
+#include <pugixml.hpp>
+
 // ===== OpenXLSX Includes ===== //
 #include "XLColumn.hpp"
 
@@ -51,7 +53,7 @@ using namespace OpenXLSX;
 /**
  * @details Assumes each node only has data for one column.
  */
-XLColumn::XLColumn(XMLNode columnNode) : m_columnNode(columnNode) {}
+XLColumn::XLColumn(const XMLNode& columnNode) : m_columnNode(std::make_unique<XMLNode>(columnNode)) {}
 
 /**
  * @details
@@ -104,7 +106,7 @@ void XLColumn::setHidden(bool state)
 /**
  * @details
  */
-XMLNode XLColumn::columnNode() const
+XMLNode& XLColumn::columnNode() const
 {
-    return m_columnNode;
+    return *m_columnNode;
 }

@@ -43,13 +43,15 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
+#include <pugixml.hpp>
+
 // ===== OpenXLSX Includes ===== //
 #include "XLCell.hpp"
 #include "XLCellRange.hpp"
 
 using namespace OpenXLSX;
 
-XLCell::XLCell() : m_cellNode(XMLNode()), m_sharedStrings(nullptr) {}
+XLCell::XLCell() : m_cellNode(std::make_unique<XMLNode>()), m_sharedStrings(nullptr) {}
 
 /**
  * @details This constructor creates a XLCell object based on the cell XMLNode input parameter, and is
@@ -66,7 +68,12 @@ XLCell::XLCell() : m_cellNode(XMLNode()), m_sharedStrings(nullptr) {}
  *      -# If there is no type attribute but there is a value node, the cell has a number value.
  *      -# Otherwise, determine the celltype based on the type attribute.
  */
-XLCell::XLCell(XMLNode cellNode, XLSharedStrings* sharedStrings) : m_cellNode(cellNode), m_sharedStrings(sharedStrings) {}
+XLCell::XLCell(const XMLNode& cellNode, XLSharedStrings* sharedStrings)
+    : m_cellNode(std::make_unique<XMLNode>(cellNode)),
+      m_sharedStrings(sharedStrings)
+{}
+
+XLCell::~XLCell() = default;
 
 /**
  * @details This methods copies a range into a new location, with the top left cell being located in the target cell.
@@ -83,7 +90,7 @@ XLCell& XLCell::operator=(const XLCellRange& range)
 {
     auto            first = cellReference();
     XLCellReference last(first.row() + range.numRows() - 1, first.column() + range.numColumns() - 1);
-    XLCellRange     rng(m_cellNode.parent().parent(), first, last);
+    XLCellRange     rng(m_cellNode->parent().parent(), first, last);
     rng = range;
 
     return *this;
@@ -94,7 +101,7 @@ XLCell& XLCell::operator=(const XLCellRange& range)
  */
 XLValueType XLCell::valueType() const
 {
-    return XLCellValue(m_cellNode, nullptr).valueType();
+    return XLCellValue(*m_cellNode, nullptr).valueType();
 }
 
 /**
@@ -102,7 +109,7 @@ XLValueType XLCell::valueType() const
  */
 XLCellValue XLCell::value() const
 {
-    return XLCellValue(m_cellNode, m_sharedStrings);
+    return XLCellValue(*m_cellNode, m_sharedStrings);
 }
 
 /**
@@ -110,7 +117,7 @@ XLCellValue XLCell::value() const
  */
 XLCellReference XLCell::cellReference() const
 {
-    return XLCellReference(m_cellNode.attribute("r").value());
+    return XLCellReference(m_cellNode->attribute("r").value());
 }
 
 /**
@@ -118,7 +125,7 @@ XLCellReference XLCell::cellReference() const
  */
 bool XLCell::hasFormula() const
 {
-    return m_cellNode.child("f") != nullptr;
+    return m_cellNode->child("f") != nullptr;
 }
 
 /**
@@ -126,7 +133,7 @@ bool XLCell::hasFormula() const
  */
 std::string XLCell::formula() const
 {
-    return m_cellNode.child("f").text().get();
+    return m_cellNode->child("f").text().get();
 }
 
 /**
@@ -134,10 +141,10 @@ std::string XLCell::formula() const
  */
 void XLCell::setFormula(const std::string& newFormula)
 {
-    m_cellNode.child("f").text().set(newFormula.c_str());
+    m_cellNode->child("f").text().set(newFormula.c_str());
 }
 
-void XLCell::reset(XMLNode cellNode)
+void XLCell::reset(const XMLNode& cellNode)
 {
-    m_cellNode = cellNode;
+    *m_cellNode = cellNode;
 }

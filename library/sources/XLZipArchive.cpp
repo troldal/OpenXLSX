@@ -2,7 +2,7 @@
 // Created by Kenneth Balslev on 31/07/2020.
 //
 
-#include <Zippy.hpp>
+#include <zippy.hpp>
 
 #include "XLZipArchive.hpp"
 

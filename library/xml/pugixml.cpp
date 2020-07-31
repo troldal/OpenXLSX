@@ -1,1625 +1,3 @@
-// =============================================================================
-// PugiXML Configuration
-// =============================================================================
-/**
- * pugixml parser - version 1.10
- * --------------------------------------------------------
- * Copyright (C) 2006-2019, by Arseny Kapoulkine (arseny.kapoulkine@gmail.com)
- * Report bugs and download new versions at https://pugixml.org/
- *
- * This library is distributed under the MIT License. See notice at the end
- * of this file.
- *
- * This work is based on the pugxml parser, which is:
- * Copyright (C) 2003, by Kristen Wegner (kristen@tima.net)
- */
-
-#ifndef HEADER_PUGICONFIG_HPP
-#define HEADER_PUGICONFIG_HPP
-
-// Uncomment this to enable wchar_t mode
-// #define PUGIXML_WCHAR_MODE
-
-// Uncomment this to enable compact mode
-// #define PUGIXML_COMPACT
-
-// Uncomment this to disable XPath
-#define PUGIXML_NO_XPATH
-
-// Uncomment this to disable STL
-// #define PUGIXML_NO_STL
-
-// Uncomment this to disable exceptions
-// #define PUGIXML_NO_EXCEPTIONS
-
-// Set this to control attributes for public classes/functions, i.e.:
-// #define PUGIXML_API __declspec(dllexport) // to export all public symbols from DLL
-// #define PUGIXML_CLASS __declspec(dllimport) // to import all classes from DLL
-// #define PUGIXML_FUNCTION __fastcall // to set calling conventions to all public functions to fastcall
-// In absence of PUGIXML_CLASS/PUGIXML_FUNCTION definitions PUGIXML_API is used instead
-
-// Tune these constants to adjust memory-related behavior
-// #define PUGIXML_MEMORY_PAGE_SIZE 32768
-// #define PUGIXML_MEMORY_OUTPUT_STACK 10240
-// #define PUGIXML_MEMORY_XPATH_PAGE_SIZE 4096
-
-// Uncomment this to switch to header-only version
-#define PUGIXML_HEADER_ONLY
-
-// Uncomment this to enable long long support
-// #define PUGIXML_HAS_LONG_LONG
-
-#endif
-
-// =============================================================================
-// PugiXML Header
-// =============================================================================
-/**
- * Copyright (c) 2006-2019 Arseny Kapoulkine
- *
- * Permission is hereby granted, free of charge, to any person
- * obtaining a copy of this software and associated documentation
- * files (the "Software"), to deal in the Software without
- * restriction, including without limitation the rights to use,
- * copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the
- * Software is furnished to do so, subject to the following
- * conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
- * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
- * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
- * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
- * OTHER DEALINGS IN THE SOFTWARE.
- */
-
-/**
- * pugixml parser - version 1.10
- * --------------------------------------------------------
- * Copyright (C) 2006-2019, by Arseny Kapoulkine (arseny.kapoulkine@gmail.com)
- * Report bugs and download new versions at https://pugixml.org/
- *
- * This library is distributed under the MIT License. See notice at the end
- * of this file.
- *
- * This work is based on the pugxml parser, which is:
- * Copyright (C) 2003, by Kristen Wegner (kristen@tima.net)
- */
-
-#ifndef PUGIXML_VERSION
-// Define version macro; evaluates to major * 1000 + minor * 10 + patch so that it's safe to use in less-than
-// comparisons Note: pugixml used major * 100 + minor * 10 + patch format up until 1.9 (which had version identifier
-// 190); starting from pugixml 1.10, the minor version number is two digits
-#define PUGIXML_VERSION 1100
-#endif
-
-#ifndef HEADER_PUGIXML_HPP
-#define HEADER_PUGIXML_HPP
-
-// Include stddef.h for size_t and ptrdiff_t
-#include <stddef.h>
-
-// Include exception header for XPath
-#if !defined(PUGIXML_NO_XPATH) && !defined(PUGIXML_NO_EXCEPTIONS)
-#    include <exception>
-#endif
-
-// Include STL headers
-#ifndef PUGIXML_NO_STL
-#    include <iosfwd>
-#    include <iterator>
-#    include <string>
-#endif
-
-// Macro for deprecated features
-#ifndef PUGIXML_DEPRECATED
-#    if defined(__GNUC__)
-#        define PUGIXML_DEPRECATED __attribute__((deprecated))
-#    elif defined(_MSC_VER) && _MSC_VER >= 1300
-#        define PUGIXML_DEPRECATED __declspec(deprecated)
-#    else
-#        define PUGIXML_DEPRECATED
-#    endif
-#endif
-
-// If no API is defined, assume default
-#ifndef PUGIXML_API
-#    define PUGIXML_API
-#endif
-
-// If no API for classes is defined, assume default
-#ifndef PUGIXML_CLASS
-#    define PUGIXML_CLASS PUGIXML_API
-#endif
-
-// If no API for functions is defined, assume default
-#ifndef PUGIXML_FUNCTION
-#    define PUGIXML_FUNCTION PUGIXML_API
-#endif
-
-// If the platform is known to have long long support, enable long long functions
-#ifndef PUGIXML_HAS_LONG_LONG
-#    if __cplusplus >= 201103
-#        define PUGIXML_HAS_LONG_LONG
-#    elif defined(_MSC_VER) && _MSC_VER >= 1400
-#        define PUGIXML_HAS_LONG_LONG
-#    endif
-#endif
-
-// If the platform is known to have move semantics support, compile move ctor/operator implementation
-#ifndef PUGIXML_HAS_MOVE
-#    if __cplusplus >= 201103
-#        define PUGIXML_HAS_MOVE
-#    elif defined(_MSC_VER) && _MSC_VER >= 1600
-#        define PUGIXML_HAS_MOVE
-#    endif
-#endif
-
-// If C++ is 2011 or higher, add 'noexcept' specifiers
-#ifndef PUGIXML_NOEXCEPT
-#    if __cplusplus >= 201103
-#        define PUGIXML_NOEXCEPT noexcept
-#    elif defined(_MSC_VER) && _MSC_VER >= 1900
-#        define PUGIXML_NOEXCEPT noexcept
-#    else
-#        define PUGIXML_NOEXCEPT
-#    endif
-#endif
-
-// Some functions can not be noexcept in compact mode
-#ifdef PUGIXML_COMPACT
-#    define PUGIXML_NOEXCEPT_IF_NOT_COMPACT
-#else
-#    define PUGIXML_NOEXCEPT_IF_NOT_COMPACT PUGIXML_NOEXCEPT
-#endif
-
-// If C++ is 2011 or higher, add 'override' qualifiers
-#ifndef PUGIXML_OVERRIDE
-#    if __cplusplus >= 201103
-#        define PUGIXML_OVERRIDE override
-#    elif defined(_MSC_VER) && _MSC_VER >= 1700
-#        define PUGIXML_OVERRIDE override
-#    else
-#        define PUGIXML_OVERRIDE
-#    endif
-#endif
-
-// If C++ is 2011 or higher, use 'nullptr'
-#ifndef PUGIXML_NULL
-#    if __cplusplus >= 201103
-#        define PUGIXML_NULL nullptr
-#    else
-#        define PUGIXML_NULL 0
-#    endif
-#endif
-
-// Character interface macros
-#ifdef PUGIXML_WCHAR_MODE
-#    define PUGIXML_TEXT(t) L##t
-#    define PUGIXML_CHAR wchar_t
-#else
-#    define PUGIXML_TEXT(t) t
-#    define PUGIXML_CHAR char
-#endif
-
-namespace pugi
-{
-    // Character type used for all internal storage and operations; depends on PUGIXML_WCHAR_MODE
-    typedef PUGIXML_CHAR char_t;
-
-#ifndef PUGIXML_NO_STL
-    // String type used for operations that work with STL string; depends on PUGIXML_WCHAR_MODE
-    typedef std::basic_string<PUGIXML_CHAR, std::char_traits<PUGIXML_CHAR>, std::allocator<PUGIXML_CHAR>> string_t;
-#endif
-}    // namespace pugi
-
-// The PugiXML namespace
-namespace pugi
-{
-    // Tree node types
-    enum xml_node_type {
-        node_null,           // Empty (null) node handle
-        node_document,       // A document tree's absolute root
-        node_element,        // Element tag, i.e. '<node/>'
-        node_pcdata,         // Plain character data, i.e. 'text'
-        node_cdata,          // Character data, i.e. '<![CDATA[text]]>'
-        node_comment,        // Comment tag, i.e. '<!-- text -->'
-        node_pi,             // Processing instruction, i.e. '<?name?>'
-        node_declaration,    // Document declaration, i.e. '<?xml version="1.0"?>'
-        node_doctype         // Document type declaration, i.e. '<!DOCTYPE doc>'
-    };
-
-    // Parsing options
-
-    // Minimal parsing mode (equivalent to turning all other flags off).
-    // Only elements and PCDATA sections are added to the DOM tree, no text conversions are performed.
-    const unsigned int parse_minimal = 0x0000;
-
-    // This flag determines if processing instructions (node_pi) are added to the DOM tree. This flag is off by default.
-    const unsigned int parse_pi = 0x0001;
-
-    // This flag determines if comments (node_comment) are added to the DOM tree. This flag is off by default.
-    const unsigned int parse_comments = 0x0002;
-
-    // This flag determines if CDATA sections (node_cdata) are added to the DOM tree. This flag is on by default.
-    const unsigned int parse_cdata = 0x0004;
-
-    // This flag determines if plain character data (node_pcdata) that consist only of whitespace are added to the DOM
-    // tree. This flag is off by default; turning it on usually results in slower parsing and more memory consumption.
-    const unsigned int parse_ws_pcdata = 0x0008;
-
-    // This flag determines if character and entity references are expanded during parsing. This flag is on by default.
-    const unsigned int parse_escapes = 0x0010;
-
-    // This flag determines if EOL characters are normalized (converted to #xA) during parsing. This flag is on by
-    // default.
-    const unsigned int parse_eol = 0x0020;
-
-    // This flag determines if attribute values are normalized using CDATA normalization rules during parsing. This flag
-    // is on by default.
-    const unsigned int parse_wconv_attribute = 0x0040;
-
-    // This flag determines if attribute values are normalized using NMTOKENS normalization rules during parsing. This
-    // flag is off by default.
-    const unsigned int parse_wnorm_attribute = 0x0080;
-
-    // This flag determines if document declaration (node_declaration) is added to the DOM tree. This flag is off by
-    // default.
-    const unsigned int parse_declaration = 0x0100;
-
-    // This flag determines if document type declaration (node_doctype) is added to the DOM tree. This flag is off by
-    // default.
-    const unsigned int parse_doctype = 0x0200;
-
-    // This flag determines if plain character data (node_pcdata) that is the only child of the parent node and that
-    // consists only of whitespace is added to the DOM tree. This flag is off by default; turning it on may result in
-    // slower parsing and more memory consumption.
-    const unsigned int parse_ws_pcdata_single = 0x0400;
-
-    // This flag determines if leading and trailing whitespace is to be removed from plain character data. This flag is
-    // off by default.
-    const unsigned int parse_trim_pcdata = 0x0800;
-
-    // This flag determines if plain character data that does not have a parent node is added to the DOM tree, and if an
-    // empty document is a valid document. This flag is off by default.
-    const unsigned int parse_fragment = 0x1000;
-
-    // This flag determines if plain character data is be stored in the parent element's value. This significantly
-    // changes the structure of the document; this flag is only recommended for parsing documents with many PCDATA nodes
-    // in memory-constrained environments. This flag is off by default.
-    const unsigned int parse_embed_pcdata = 0x2000;
-
-    // The default parsing mode.
-    // Elements, PCDATA and CDATA sections are added to the DOM tree, character/reference entities are expanded,
-    // End-of-Line characters are normalized, attribute values are normalized using CDATA normalization rules.
-    const unsigned int parse_default = parse_cdata | parse_escapes | parse_wconv_attribute | parse_eol;
-
-    // The full parsing mode.
-    // Nodes of all types are added to the DOM tree, character/reference entities are expanded,
-    // End-of-Line characters are normalized, attribute values are normalized using CDATA normalization rules.
-    const unsigned int parse_full = parse_default | parse_pi | parse_comments | parse_declaration | parse_doctype;
-
-    // These flags determine the encoding of input data for XML document
-    enum xml_encoding {
-        encoding_auto,        // Auto-detect input encoding using BOM or < / <? detection; use UTF8 if BOM is not found
-        encoding_utf8,        // UTF8 encoding
-        encoding_utf16_le,    // Little-endian UTF16
-        encoding_utf16_be,    // Big-endian UTF16
-        encoding_utf16,       // UTF16 with native endianness
-        encoding_utf32_le,    // Little-endian UTF32
-        encoding_utf32_be,    // Big-endian UTF32
-        encoding_utf32,       // UTF32 with native endianness
-        encoding_wchar,       // The same encoding wchar_t has (either UTF16 or UTF32)
-        encoding_latin1
-    };
-
-    // Formatting flags
-
-    // Indent the nodes that are written to output stream with as many indentation strings as deep the node is in DOM
-    // tree. This flag is on by default.
-    const unsigned int format_indent = 0x01;
-
-    // Write encoding-specific BOM to the output stream. This flag is off by default.
-    const unsigned int format_write_bom = 0x02;
-
-    // Use raw output mode (no indentation and no line breaks are written). This flag is off by default.
-    const unsigned int format_raw = 0x04;
-
-    // Omit default XML declaration even if there is no declaration in the document. This flag is off by default.
-    const unsigned int format_no_declaration = 0x08;
-
-    // Don't escape attribute values and PCDATA contents. This flag is off by default.
-    const unsigned int format_no_escapes = 0x10;
-
-    // Open file using text mode in xml_document::save_file. This enables special character (i.e. new-line) conversions
-    // on some systems. This flag is off by default.
-    const unsigned int format_save_file_text = 0x20;
-
-    // Write every attribute on a new line with appropriate indentation. This flag is off by default.
-    const unsigned int format_indent_attributes = 0x40;
-
-    // Don't output empty element tags, instead writing an explicit start and end tag even if there are no children.
-    // This flag is off by default.
-    const unsigned int format_no_empty_element_tags = 0x80;
-
-    // Skip characters belonging to range [0; 32) instead of "&#xNN;" encoding. This flag is off by default.
-    const unsigned int format_skip_control_chars = 0x100;
-
-    // Use single quotes ' instead of double quotes " for enclosing attribute values. This flag is off by default.
-    const unsigned int format_attribute_single_quote = 0x200;
-
-    // The default set of formatting flags.
-    // Nodes are indented depending on their depth in DOM tree, a default declaration is output if document has none.
-    const unsigned int format_default = format_indent;
-
-    const int default_double_precision = 17;
-    const int default_float_precision  = 9;
-
-    // Forward declarations
-    struct xml_attribute_struct;
-    struct xml_node_struct;
-
-    class xml_node_iterator;
-    class xml_attribute_iterator;
-    class xml_named_node_iterator;
-
-    class xml_tree_walker;
-
-    struct xml_parse_result;
-
-    class xml_node;
-
-    class xml_text;
-
-#ifndef PUGIXML_NO_XPATH
-    class xpath_node;
-    class xpath_node_set;
-    class xpath_query;
-    class xpath_variable_set;
-#endif
-
-    // Range-based for loop support
-    template<typename It>
-    class xml_object_range
-    {
-    public:
-        typedef It const_iterator;
-        typedef It iterator;
-
-        xml_object_range(It b, It e) : _begin(b), _end(e) {}
-
-        It begin() const
-        {
-            return _begin;
-        }
-        It end() const
-        {
-            return _end;
-        }
-
-    private:
-        It _begin, _end;
-    };
-
-    // Writer interface for node printing (see xml_node::print)
-    class PUGIXML_CLASS xml_writer
-    {
-    public:
-        virtual ~xml_writer() {}
-
-        // Write memory chunk into stream/file/whatever
-        virtual void write(const void* data, size_t size) = 0;
-    };
-
-    // xml_writer implementation for FILE*
-    class PUGIXML_CLASS xml_writer_file : public xml_writer
-    {
-    public:
-        // Construct writer from a FILE* object; void* is used to avoid header dependencies on stdio
-        xml_writer_file(void* file);
-
-        virtual void write(const void* data, size_t size) PUGIXML_OVERRIDE;
-
-    private:
-        void* file;
-    };
-
-#ifndef PUGIXML_NO_STL
-    // xml_writer implementation for streams
-    class PUGIXML_CLASS xml_writer_stream : public xml_writer
-    {
-    public:
-        // Construct writer from an output stream object
-        xml_writer_stream(std::basic_ostream<char, std::char_traits<char>>& stream);
-        xml_writer_stream(std::basic_ostream<wchar_t, std::char_traits<wchar_t>>& stream);
-
-        virtual void write(const void* data, size_t size) PUGIXML_OVERRIDE;
-
-    private:
-        std::basic_ostream<char, std::char_traits<char>>*       narrow_stream;
-        std::basic_ostream<wchar_t, std::char_traits<wchar_t>>* wide_stream;
-    };
-#endif
-
-    // A light-weight handle for manipulating attributes in DOM tree
-    class PUGIXML_CLASS xml_attribute
-    {
-        friend class xml_attribute_iterator;
-        friend class xml_node;
-
-    private:
-        xml_attribute_struct* _attr;
-
-        typedef void (*unspecified_bool_type)(xml_attribute***);
-
-    public:
-        // Default constructor. Constructs an empty attribute.
-        xml_attribute();
-
-        // Constructs attribute from internal pointer
-        explicit xml_attribute(xml_attribute_struct* attr);
-
-        // Safe bool conversion operator
-        operator unspecified_bool_type() const;
-
-        // Borland C++ workaround
-        bool operator!() const;
-
-        // Comparison operators (compares wrapped attribute pointers)
-        bool operator==(const xml_attribute& r) const;
-        bool operator!=(const xml_attribute& r) const;
-        bool operator<(const xml_attribute& r) const;
-        bool operator>(const xml_attribute& r) const;
-        bool operator<=(const xml_attribute& r) const;
-        bool operator>=(const xml_attribute& r) const;
-
-        // Check if attribute is empty
-        bool empty() const;
-
-        // Get attribute name/value, or "" if attribute is empty
-        const char_t* name() const;
-        const char_t* value() const;
-
-        // Get attribute value, or the default value if attribute is empty
-        const char_t* as_string(const char_t* def = PUGIXML_TEXT("")) const;
-
-        // Get attribute value as a number, or the default value if conversion did not succeed or attribute is empty
-        int          as_int(int def = 0) const;
-        unsigned int as_uint(unsigned int def = 0) const;
-        double       as_double(double def = 0) const;
-        float        as_float(float def = 0) const;
-
-#ifdef PUGIXML_HAS_LONG_LONG
-        long long          as_llong(long long def = 0) const;
-        unsigned long long as_ullong(unsigned long long def = 0) const;
-#endif
-
-        // Get attribute value as bool (returns true if first character is in '1tTyY' set), or the default value if
-        // attribute is empty
-        bool as_bool(bool def = false) const;
-
-        // Set attribute name/value (returns false if attribute is empty or there is not enough memory)
-        bool set_name(const char_t* rhs);
-        bool set_value(const char_t* rhs);
-
-        // Set attribute value with type conversion (numbers are converted to strings, boolean is converted to
-        // "true"/"false")
-        bool set_value(int rhs);
-        bool set_value(unsigned int rhs);
-        bool set_value(long rhs);
-        bool set_value(unsigned long rhs);
-        bool set_value(double rhs);
-        bool set_value(double rhs, int precision);
-        bool set_value(float rhs);
-        bool set_value(float rhs, int precision);
-        bool set_value(bool rhs);
-
-#ifdef PUGIXML_HAS_LONG_LONG
-        bool set_value(long long rhs);
-        bool set_value(unsigned long long rhs);
-#endif
-
-        // Set attribute value (equivalent to set_value without error checking)
-        xml_attribute& operator=(const char_t* rhs);
-        xml_attribute& operator=(int rhs);
-        xml_attribute& operator=(unsigned int rhs);
-        xml_attribute& operator=(long rhs);
-        xml_attribute& operator=(unsigned long rhs);
-        xml_attribute& operator=(double rhs);
-        xml_attribute& operator=(float rhs);
-        xml_attribute& operator=(bool rhs);
-
-#ifdef PUGIXML_HAS_LONG_LONG
-        xml_attribute& operator=(long long rhs);
-        xml_attribute& operator=(unsigned long long rhs);
-#endif
-
-        // Get next/previous attribute in the attribute list of the parent node
-        xml_attribute next_attribute() const;
-        xml_attribute previous_attribute() const;
-
-        // Get hash value (unique for handles to the same object)
-        size_t hash_value() const;
-
-        // Get internal pointer
-        xml_attribute_struct* internal_object() const;
-    };
-
-#ifdef __BORLANDC__
-    // Borland C++ workaround
-    bool PUGIXML_FUNCTION operator&&(const xml_attribute& lhs, bool rhs);
-    bool PUGIXML_FUNCTION operator||(const xml_attribute& lhs, bool rhs);
-#endif
-
-    // A light-weight handle for manipulating nodes in DOM tree
-    class PUGIXML_CLASS xml_node
-    {
-        friend class xml_attribute_iterator;
-        friend class xml_node_iterator;
-        friend class xml_named_node_iterator;
-
-    protected:
-        xml_node_struct* _root;
-
-        typedef void (*unspecified_bool_type)(xml_node***);
-
-    public:
-        // Default constructor. Constructs an empty node.
-        xml_node();
-
-        // Constructs node from internal pointer
-        explicit xml_node(xml_node_struct* p);
-
-        // Safe bool conversion operator
-        operator unspecified_bool_type() const;
-
-        // Borland C++ workaround
-        bool operator!() const;
-
-        // Comparison operators (compares wrapped node pointers)
-        bool operator==(const xml_node& r) const;
-        bool operator!=(const xml_node& r) const;
-        bool operator<(const xml_node& r) const;
-        bool operator>(const xml_node& r) const;
-        bool operator<=(const xml_node& r) const;
-        bool operator>=(const xml_node& r) const;
-
-        // Check if node is empty.
-        bool empty() const;
-
-        // Get node type
-        xml_node_type type() const;
-
-        // Get node name, or "" if node is empty or it has no name
-        const char_t* name() const;
-
-        // Get node value, or "" if node is empty or it has no value
-        // Note: For <node>text</node> node.value() does not return "text"! Use child_value() or text() methods to
-        // access text inside nodes.
-        const char_t* value() const;
-
-        // Get attribute list
-        xml_attribute first_attribute() const;
-        xml_attribute last_attribute() const;
-
-        // Get children list
-        xml_node first_child() const;
-        xml_node last_child() const;
-
-        // Get next/previous sibling in the children list of the parent node
-        xml_node next_sibling() const;
-        xml_node previous_sibling() const;
-
-        // Get parent node
-        xml_node parent() const;
-
-        // Get root of DOM tree this node belongs to
-        xml_node root() const;
-
-        // Get text object for the current node
-        xml_text text() const;
-
-        // Get child, attribute or next/previous sibling with the specified name
-        xml_node      child(const char_t* name) const;
-        xml_attribute attribute(const char_t* name) const;
-        xml_node      next_sibling(const char_t* name) const;
-        xml_node      previous_sibling(const char_t* name) const;
-
-        // Get attribute, starting the search from a hint (and updating hint so that searching for a sequence of
-        // attributes is fast)
-        xml_attribute attribute(const char_t* name, xml_attribute& hint) const;
-
-        // Get child value of current node; that is, value of the first child node of type PCDATA/CDATA
-        const char_t* child_value() const;
-
-        // Get child value of child with specified name. Equivalent to child(name).child_value().
-        const char_t* child_value(const char_t* name) const;
-
-        // Set node name/value (returns false if node is empty, there is not enough memory, or node can not have
-        // name/value)
-        bool set_name(const char_t* rhs);
-        bool set_value(const char_t* rhs);
-
-        // Add attribute with specified name. Returns added attribute, or empty attribute on errors.
-        xml_attribute append_attribute(const char_t* name);
-        xml_attribute prepend_attribute(const char_t* name);
-        xml_attribute insert_attribute_after(const char_t* name, const xml_attribute& attr);
-        xml_attribute insert_attribute_before(const char_t* name, const xml_attribute& attr);
-
-        // Add a copy of the specified attribute. Returns added attribute, or empty attribute on errors.
-        xml_attribute append_copy(const xml_attribute& proto);
-        xml_attribute prepend_copy(const xml_attribute& proto);
-        xml_attribute insert_copy_after(const xml_attribute& proto, const xml_attribute& attr);
-        xml_attribute insert_copy_before(const xml_attribute& proto, const xml_attribute& attr);
-
-        // Add child node with specified type. Returns added node, or empty node on errors.
-        xml_node append_child(xml_node_type type = node_element);
-        xml_node prepend_child(xml_node_type type = node_element);
-        xml_node insert_child_after(xml_node_type type, const xml_node& node);
-        xml_node insert_child_before(xml_node_type type, const xml_node& node);
-
-        // Add child element with specified name. Returns added node, or empty node on errors.
-        xml_node append_child(const char_t* name);
-        xml_node prepend_child(const char_t* name);
-        xml_node insert_child_after(const char_t* name, const xml_node& node);
-        xml_node insert_child_before(const char_t* name, const xml_node& node);
-
-        // Add a copy of the specified node as a child. Returns added node, or empty node on errors.
-        xml_node append_copy(const xml_node& proto);
-        xml_node prepend_copy(const xml_node& proto);
-        xml_node insert_copy_after(const xml_node& proto, const xml_node& node);
-        xml_node insert_copy_before(const xml_node& proto, const xml_node& node);
-
-        // Move the specified node to become a child of this node. Returns moved node, or empty node on errors.
-        xml_node append_move(const xml_node& moved);
-        xml_node prepend_move(const xml_node& moved);
-        xml_node insert_move_after(const xml_node& moved, const xml_node& node);
-        xml_node insert_move_before(const xml_node& moved, const xml_node& node);
-
-        // Remove specified attribute
-        bool remove_attribute(const xml_attribute& a);
-        bool remove_attribute(const char_t* name);
-
-        // Remove all attributes
-        bool remove_attributes();
-
-        // Remove specified child
-        bool remove_child(const xml_node& n);
-        bool remove_child(const char_t* name);
-
-        // Remove all children
-        bool remove_children();
-
-        // Parses buffer as an XML document fragment and appends all nodes as children of the current node.
-        // Copies/converts the buffer, so it may be deleted or changed after the function returns.
-        // Note: append_buffer allocates memory that has the lifetime of the owning document; removing the appended
-        // nodes does not immediately reclaim that memory.
-        xml_parse_result
-            append_buffer(const void* contents, size_t size, unsigned int options = parse_default, xml_encoding encoding = encoding_auto);
-
-        // Find attribute using predicate. Returns first attribute for which predicate returned true.
-        template<typename Predicate>
-        xml_attribute find_attribute(Predicate pred) const
-        {
-            if (!_root) return xml_attribute();
-
-            for (xml_attribute attrib = first_attribute(); attrib; attrib = attrib.next_attribute())
-                if (pred(attrib)) return attrib;
-
-            return xml_attribute();
-        }
-
-        // Find child node using predicate. Returns first child for which predicate returned true.
-        template<typename Predicate>
-        xml_node find_child(Predicate pred) const
-        {
-            if (!_root) return xml_node();
-
-            for (xml_node node = first_child(); node; node = node.next_sibling())
-                if (pred(node)) return node;
-
-            return xml_node();
-        }
-
-        // Find node from subtree using predicate. Returns first node from subtree (depth-first), for which predicate
-        // returned true.
-        template<typename Predicate>
-        xml_node find_node(Predicate pred) const
-        {
-            if (!_root) return xml_node();
-
-            xml_node cur = first_child();
-
-            while (cur._root && cur._root != _root) {
-                if (pred(cur)) return cur;
-
-                if (cur.first_child())
-                    cur = cur.first_child();
-                else if (cur.next_sibling())
-                    cur = cur.next_sibling();
-                else {
-                    while (!cur.next_sibling() && cur._root != _root) cur = cur.parent();
-
-                    if (cur._root != _root) cur = cur.next_sibling();
-                }
-            }
-
-            return xml_node();
-        }
-
-        // Find child node by attribute name/value
-        xml_node find_child_by_attribute(const char_t* name, const char_t* attr_name, const char_t* attr_value) const;
-        xml_node find_child_by_attribute(const char_t* attr_name, const char_t* attr_value) const;
-
-#ifndef PUGIXML_NO_STL
-        // Get the absolute node path from root as a text string.
-        string_t path(char_t delimiter = '/') const;
-#endif
-
-        // Search for a node by path consisting of node names and . or .. elements.
-        xml_node first_element_by_path(const char_t* path, char_t delimiter = '/') const;
-
-        // Recursively traverse subtree with xml_tree_walker
-        bool traverse(xml_tree_walker& walker);
-
-#ifndef PUGIXML_NO_XPATH
-        // Select single node by evaluating XPath query. Returns first node from the resulting node set.
-        xpath_node select_node(const char_t* query, xpath_variable_set* variables = PUGIXML_NULL) const;
-        xpath_node select_node(const xpath_query& query) const;
-
-        // Select node set by evaluating XPath query
-        xpath_node_set select_nodes(const char_t* query, xpath_variable_set* variables = PUGIXML_NULL) const;
-        xpath_node_set select_nodes(const xpath_query& query) const;
-
-        // (deprecated: use select_node instead) Select single node by evaluating XPath query.
-        PUGIXML_DEPRECATED xpath_node select_single_node(const char_t* query, xpath_variable_set* variables = PUGIXML_NULL) const;
-        PUGIXML_DEPRECATED xpath_node select_single_node(const xpath_query& query) const;
-
-#endif
-
-        // Print subtree using a writer object
-        void print(xml_writer&   writer,
-                   const char_t* indent   = PUGIXML_TEXT("\t"),
-                   unsigned int  flags    = format_default,
-                   xml_encoding  encoding = encoding_auto,
-                   unsigned int  depth    = 0) const;
-
-#ifndef PUGIXML_NO_STL
-        // Print subtree to stream
-        void print(std::basic_ostream<char, std::char_traits<char>>& os,
-                   const char_t*                                     indent   = PUGIXML_TEXT("\t"),
-                   unsigned int                                      flags    = format_default,
-                   xml_encoding                                      encoding = encoding_auto,
-                   unsigned int                                      depth    = 0) const;
-        void print(std::basic_ostream<wchar_t, std::char_traits<wchar_t>>& os,
-                   const char_t*                                           indent = PUGIXML_TEXT("\t"),
-                   unsigned int                                            flags  = format_default,
-                   unsigned int                                            depth  = 0) const;
-#endif
-
-        // Child nodes iterators
-        typedef xml_node_iterator iterator;
-
-        iterator begin() const;
-        iterator end() const;
-
-        // Attribute iterators
-        typedef xml_attribute_iterator attribute_iterator;
-
-        attribute_iterator attributes_begin() const;
-        attribute_iterator attributes_end() const;
-
-        // Range-based for support
-        xml_object_range<xml_node_iterator>       children() const;
-        xml_object_range<xml_named_node_iterator> children(const char_t* name) const;
-        xml_object_range<xml_attribute_iterator>  attributes() const;
-
-        // Get node offset in parsed file/string (in char_t units) for debugging purposes
-        ptrdiff_t offset_debug() const;
-
-        // Get hash value (unique for handles to the same object)
-        size_t hash_value() const;
-
-        // Get internal pointer
-        xml_node_struct* internal_object() const;
-    };
-
-#ifdef __BORLANDC__
-    // Borland C++ workaround
-    bool PUGIXML_FUNCTION operator&&(const xml_node& lhs, bool rhs);
-    bool PUGIXML_FUNCTION operator||(const xml_node& lhs, bool rhs);
-#endif
-
-    // A helper for working with text inside PCDATA nodes
-    class PUGIXML_CLASS xml_text
-    {
-        friend class xml_node;
-
-        xml_node_struct* _root;
-
-        typedef void (*unspecified_bool_type)(xml_text***);
-
-        explicit xml_text(xml_node_struct* root);
-
-        xml_node_struct* _data_new();
-        xml_node_struct* _data() const;
-
-    public:
-        // Default constructor. Constructs an empty object.
-        xml_text();
-
-        // Safe bool conversion operator
-        operator unspecified_bool_type() const;
-
-        // Borland C++ workaround
-        bool operator!() const;
-
-        // Check if text object is empty
-        bool empty() const;
-
-        // Get text, or "" if object is empty
-        const char_t* get() const;
-
-        // Get text, or the default value if object is empty
-        const char_t* as_string(const char_t* def = PUGIXML_TEXT("")) const;
-
-        // Get text as a number, or the default value if conversion did not succeed or object is empty
-        int          as_int(int def = 0) const;
-        unsigned int as_uint(unsigned int def = 0) const;
-        double       as_double(double def = 0) const;
-        float        as_float(float def = 0) const;
-
-#ifdef PUGIXML_HAS_LONG_LONG
-        long long          as_llong(long long def = 0) const;
-        unsigned long long as_ullong(unsigned long long def = 0) const;
-#endif
-
-        // Get text as bool (returns true if first character is in '1tTyY' set), or the default value if object is empty
-        bool as_bool(bool def = false) const;
-
-        // Set text (returns false if object is empty or there is not enough memory)
-        bool set(const char_t* rhs);
-
-        // Set text with type conversion (numbers are converted to strings, boolean is converted to "true"/"false")
-        bool set(int rhs);
-        bool set(unsigned int rhs);
-        bool set(long rhs);
-        bool set(unsigned long rhs);
-        bool set(double rhs);
-        bool set(double rhs, int precision);
-        bool set(float rhs);
-        bool set(float rhs, int precision);
-        bool set(bool rhs);
-
-#ifdef PUGIXML_HAS_LONG_LONG
-        bool set(long long rhs);
-        bool set(unsigned long long rhs);
-#endif
-
-        // Set text (equivalent to set without error checking)
-        xml_text& operator=(const char_t* rhs);
-        xml_text& operator=(int rhs);
-        xml_text& operator=(unsigned int rhs);
-        xml_text& operator=(long rhs);
-        xml_text& operator=(unsigned long rhs);
-        xml_text& operator=(double rhs);
-        xml_text& operator=(float rhs);
-        xml_text& operator=(bool rhs);
-
-#ifdef PUGIXML_HAS_LONG_LONG
-        xml_text& operator=(long long rhs);
-        xml_text& operator=(unsigned long long rhs);
-#endif
-
-        // Get the data node (node_pcdata or node_cdata) for this object
-        xml_node data() const;
-    };
-
-#ifdef __BORLANDC__
-    // Borland C++ workaround
-    bool PUGIXML_FUNCTION operator&&(const xml_text& lhs, bool rhs);
-    bool PUGIXML_FUNCTION operator||(const xml_text& lhs, bool rhs);
-#endif
-
-    // Child node iterator (a bidirectional iterator over a collection of xml_node)
-    class PUGIXML_CLASS xml_node_iterator
-    {
-        friend class xml_node;
-
-    private:
-        mutable xml_node _wrap;
-        xml_node         _parent;
-
-        xml_node_iterator(xml_node_struct* ref, xml_node_struct* parent);
-
-    public:
-        // Iterator traits
-        typedef ptrdiff_t difference_type;
-        typedef xml_node  value_type;
-        typedef xml_node* pointer;
-        typedef xml_node& reference;
-
-#ifndef PUGIXML_NO_STL
-        typedef std::bidirectional_iterator_tag iterator_category;
-#endif
-
-        // Default constructor
-        xml_node_iterator();
-
-        // Construct an iterator which points to the specified node
-        xml_node_iterator(const xml_node& node);
-
-        // Iterator operators
-        bool operator==(const xml_node_iterator& rhs) const;
-        bool operator!=(const xml_node_iterator& rhs) const;
-
-        xml_node& operator*() const;
-        xml_node* operator->() const;
-
-        const xml_node_iterator& operator++();
-        xml_node_iterator        operator++(int);
-
-        const xml_node_iterator& operator--();
-        xml_node_iterator        operator--(int);
-    };
-
-    // Attribute iterator (a bidirectional iterator over a collection of xml_attribute)
-    class PUGIXML_CLASS xml_attribute_iterator
-    {
-        friend class xml_node;
-
-    private:
-        mutable xml_attribute _wrap;
-        xml_node              _parent;
-
-        xml_attribute_iterator(xml_attribute_struct* ref, xml_node_struct* parent);
-
-    public:
-        // Iterator traits
-        typedef ptrdiff_t      difference_type;
-        typedef xml_attribute  value_type;
-        typedef xml_attribute* pointer;
-        typedef xml_attribute& reference;
-
-#ifndef PUGIXML_NO_STL
-        typedef std::bidirectional_iterator_tag iterator_category;
-#endif
-
-        // Default constructor
-        xml_attribute_iterator();
-
-        // Construct an iterator which points to the specified attribute
-        xml_attribute_iterator(const xml_attribute& attr, const xml_node& parent);
-
-        // Iterator operators
-        bool operator==(const xml_attribute_iterator& rhs) const;
-        bool operator!=(const xml_attribute_iterator& rhs) const;
-
-        xml_attribute& operator*() const;
-        xml_attribute* operator->() const;
-
-        const xml_attribute_iterator& operator++();
-        xml_attribute_iterator        operator++(int);
-
-        const xml_attribute_iterator& operator--();
-        xml_attribute_iterator        operator--(int);
-    };
-
-    // Named node range helper
-    class PUGIXML_CLASS xml_named_node_iterator
-    {
-        friend class xml_node;
-
-    public:
-        // Iterator traits
-        typedef ptrdiff_t difference_type;
-        typedef xml_node  value_type;
-        typedef xml_node* pointer;
-        typedef xml_node& reference;
-
-#ifndef PUGIXML_NO_STL
-        typedef std::bidirectional_iterator_tag iterator_category;
-#endif
-
-        // Default constructor
-        xml_named_node_iterator();
-
-        // Construct an iterator which points to the specified node
-        xml_named_node_iterator(const xml_node& node, const char_t* name);
-
-        // Iterator operators
-        bool operator==(const xml_named_node_iterator& rhs) const;
-        bool operator!=(const xml_named_node_iterator& rhs) const;
-
-        xml_node& operator*() const;
-        xml_node* operator->() const;
-
-        const xml_named_node_iterator& operator++();
-        xml_named_node_iterator        operator++(int);
-
-        const xml_named_node_iterator& operator--();
-        xml_named_node_iterator        operator--(int);
-
-    private:
-        mutable xml_node _wrap;
-        xml_node         _parent;
-        const char_t*    _name;
-
-        xml_named_node_iterator(xml_node_struct* ref, xml_node_struct* parent, const char_t* name);
-    };
-
-    // Abstract tree walker class (see xml_node::traverse)
-    class PUGIXML_CLASS xml_tree_walker
-    {
-        friend class xml_node;
-
-    private:
-        int _depth;
-
-    protected:
-        // Get current traversal depth
-        int depth() const;
-
-    public:
-        xml_tree_walker();
-        virtual ~xml_tree_walker();
-
-        // Callback that is called when traversal begins
-        virtual bool begin(xml_node& node);
-
-        // Callback that is called for each node traversed
-        virtual bool for_each(xml_node& node) = 0;
-
-        // Callback that is called when traversal ends
-        virtual bool end(xml_node& node);
-    };
-
-    // Parsing status, returned as part of xml_parse_result object
-    enum xml_parse_status {
-        status_ok = 0,    // No error
-
-        status_file_not_found,    // File was not found during load_file()
-        status_io_error,          // Error reading from file/stream
-        status_out_of_memory,     // Could not allocate memory
-        status_internal_error,    // Internal error occurred
-
-        status_unrecognized_tag,    // Parser could not determine tag type
-
-        status_bad_pi,                  // Parsing error occurred while parsing document declaration/processing instruction
-        status_bad_comment,             // Parsing error occurred while parsing comment
-        status_bad_cdata,               // Parsing error occurred while parsing CDATA section
-        status_bad_doctype,             // Parsing error occurred while parsing document type declaration
-        status_bad_pcdata,              // Parsing error occurred while parsing PCDATA section
-        status_bad_start_element,       // Parsing error occurred while parsing start element tag
-        status_bad_attribute,           // Parsing error occurred while parsing element attribute
-        status_bad_end_element,         // Parsing error occurred while parsing end element tag
-        status_end_element_mismatch,    // There was a mismatch of start-end tags (closing tag had incorrect name, some
-                                        // tag was not closed or there was an excessive closing tag)
-
-        status_append_invalid_root,    // Unable to append nodes since root type is not node_element or node_document
-                                       // (exclusive to xml_node::append_buffer)
-
-        status_no_document_element    // Parsing resulted in a document without element nodes
-    };
-
-    // Parsing result
-    struct PUGIXML_CLASS xml_parse_result
-    {
-        // Parsing status (see xml_parse_status)
-        xml_parse_status status;
-
-        // Last parsed offset (in char_t units from start of input data)
-        ptrdiff_t offset;
-
-        // Source document encoding
-        xml_encoding encoding;
-
-        // Default constructor, initializes object to failed state
-        xml_parse_result();
-
-        // Cast to bool operator
-        operator bool() const;
-
-        // Get error description
-        const char* description() const;
-    };
-
-    // Document class (DOM tree root)
-    class PUGIXML_CLASS xml_document : public xml_node
-    {
-    private:
-        char_t* _buffer;
-
-        char _memory[192];
-
-        // Non-copyable semantics
-        xml_document(const xml_document&);
-        xml_document& operator=(const xml_document&);
-
-        void _create();
-        void _destroy();
-        void _move(xml_document& rhs) PUGIXML_NOEXCEPT_IF_NOT_COMPACT;
-
-    public:
-        // Default constructor, makes empty document
-        xml_document();
-
-        // Destructor, invalidates all node/attribute handles to this document
-        ~xml_document();
-
-#ifdef PUGIXML_HAS_MOVE
-        // Move semantics support
-        xml_document(xml_document&& rhs) PUGIXML_NOEXCEPT_IF_NOT_COMPACT;
-        xml_document& operator=(xml_document&& rhs) PUGIXML_NOEXCEPT_IF_NOT_COMPACT;
-#endif
-
-        // Removes all nodes, leaving the empty document
-        void reset();
-
-        // Removes all nodes, then copies the entire contents of the specified document
-        void reset(const xml_document& proto);
-
-#ifndef PUGIXML_NO_STL
-        // Load document from stream.
-        xml_parse_result load(std::basic_istream<char, std::char_traits<char>>& stream,
-                              unsigned int                                      options  = parse_default,
-                              xml_encoding                                      encoding = encoding_auto);
-        xml_parse_result load(std::basic_istream<wchar_t, std::char_traits<wchar_t>>& stream, unsigned int options = parse_default);
-#endif
-
-        // (deprecated: use load_string instead) Load document from zero-terminated string. No encoding conversions are
-        // applied.
-        PUGIXML_DEPRECATED xml_parse_result load(const char_t* contents, unsigned int options = parse_default);
-
-        // Load document from zero-terminated string. No encoding conversions are applied.
-        xml_parse_result load_string(const char_t* contents, unsigned int options = parse_default);
-
-        // Load document from file
-        xml_parse_result load_file(const char* path, unsigned int options = parse_default, xml_encoding encoding = encoding_auto);
-        xml_parse_result load_file(const wchar_t* path, unsigned int options = parse_default, xml_encoding encoding = encoding_auto);
-
-        // Load document from buffer. Copies/converts the buffer, so it may be deleted or changed after the function
-        // returns.
-        xml_parse_result
-            load_buffer(const void* contents, size_t size, unsigned int options = parse_default, xml_encoding encoding = encoding_auto);
-
-        // Load document from buffer, using the buffer for in-place parsing (the buffer is modified and used for storage
-        // of document data). You should ensure that buffer data will persist throughout the document's lifetime, and
-        // free the buffer memory manually once document is destroyed.
-        xml_parse_result
-            load_buffer_inplace(void* contents, size_t size, unsigned int options = parse_default, xml_encoding encoding = encoding_auto);
-
-        // Load document from buffer, using the buffer for in-place parsing (the buffer is modified and used for storage
-        // of document data). You should allocate the buffer with pugixml allocation function; document will free the
-        // buffer when it is no longer needed (you can't use it anymore).
-        xml_parse_result load_buffer_inplace_own(void*        contents,
-                                                 size_t       size,
-                                                 unsigned int options  = parse_default,
-                                                 xml_encoding encoding = encoding_auto);
-
-        // Save XML document to writer (semantics is slightly different from xml_node::print, see documentation for
-        // details).
-        void save(xml_writer&   writer,
-                  const char_t* indent   = PUGIXML_TEXT("\t"),
-                  unsigned int  flags    = format_default,
-                  xml_encoding  encoding = encoding_auto) const;
-
-#ifndef PUGIXML_NO_STL
-        // Save XML document to stream (semantics is slightly different from xml_node::print, see documentation for
-        // details).
-        void save(std::basic_ostream<char, std::char_traits<char>>& stream,
-                  const char_t*                                     indent   = PUGIXML_TEXT("\t"),
-                  unsigned int                                      flags    = format_default,
-                  xml_encoding                                      encoding = encoding_auto) const;
-        void save(std::basic_ostream<wchar_t, std::char_traits<wchar_t>>& stream,
-                  const char_t*                                           indent = PUGIXML_TEXT("\t"),
-                  unsigned int                                            flags  = format_default) const;
-#endif
-
-        // Save XML to file
-        bool save_file(const char*   path,
-                       const char_t* indent   = PUGIXML_TEXT("\t"),
-                       unsigned int  flags    = format_default,
-                       xml_encoding  encoding = encoding_auto) const;
-        bool save_file(const wchar_t* path,
-                       const char_t*  indent   = PUGIXML_TEXT("\t"),
-                       unsigned int   flags    = format_default,
-                       xml_encoding   encoding = encoding_auto) const;
-
-        // Get document element
-        xml_node document_element() const;
-    };
-
-#ifndef PUGIXML_NO_XPATH
-    // XPath query return type
-    enum xpath_value_type {
-        xpath_type_none,        // Unknown type (query failed to compile)
-        xpath_type_node_set,    // Node set (xpath_node_set)
-        xpath_type_number,      // Number
-        xpath_type_string,      // String
-        xpath_type_boolean      // Boolean
-    };
-
-    // XPath parsing result
-    struct PUGIXML_CLASS xpath_parse_result
-    {
-        // Error message (0 if no error)
-        const char* error;
-
-        // Last parsed offset (in char_t units from string start)
-        ptrdiff_t offset;
-
-        // Default constructor, initializes object to failed state
-        xpath_parse_result();
-
-        // Cast to bool operator
-        operator bool() const;
-
-        // Get error description
-        const char* description() const;
-    };
-
-    // A single XPath variable
-    class PUGIXML_CLASS xpath_variable
-    {
-        friend class xpath_variable_set;
-
-    protected:
-        xpath_value_type _type;
-        xpath_variable*  _next;
-
-        xpath_variable(xpath_value_type type);
-
-        // Non-copyable semantics
-        xpath_variable(const xpath_variable&);
-        xpath_variable& operator=(const xpath_variable&);
-
-    public:
-        // Get variable name
-        const char_t* name() const;
-
-        // Get variable type
-        xpath_value_type type() const;
-
-        // Get variable value; no type conversion is performed, default value (false, NaN, empty string, empty node set)
-        // is returned on type mismatch error
-        bool                  get_boolean() const;
-        double                get_number() const;
-        const char_t*         get_string() const;
-        const xpath_node_set& get_node_set() const;
-
-        // Set variable value; no type conversion is performed, false is returned on type mismatch error
-        bool set(bool value);
-        bool set(double value);
-        bool set(const char_t* value);
-        bool set(const xpath_node_set& value);
-    };
-
-    // A set of XPath variables
-    class PUGIXML_CLASS xpath_variable_set
-    {
-    private:
-        xpath_variable* _data[64];
-
-        void _assign(const xpath_variable_set& rhs);
-        void _swap(xpath_variable_set& rhs);
-
-        xpath_variable* _find(const char_t* name) const;
-
-        static bool _clone(xpath_variable* var, xpath_variable** out_result);
-        static void _destroy(xpath_variable* var);
-
-    public:
-        // Default constructor/destructor
-        xpath_variable_set();
-        ~xpath_variable_set();
-
-        // Copy constructor/assignment operator
-        xpath_variable_set(const xpath_variable_set& rhs);
-        xpath_variable_set& operator=(const xpath_variable_set& rhs);
-
-#    ifdef PUGIXML_HAS_MOVE
-        // Move semantics support
-        xpath_variable_set(xpath_variable_set&& rhs) PUGIXML_NOEXCEPT;
-        xpath_variable_set& operator=(xpath_variable_set&& rhs) PUGIXML_NOEXCEPT;
-#    endif
-
-        // Add a new variable or get the existing one, if the types match
-        xpath_variable* add(const char_t* name, xpath_value_type type);
-
-        // Set value of an existing variable; no type conversion is performed, false is returned if there is no such
-        // variable or if types mismatch
-        bool set(const char_t* name, bool value);
-        bool set(const char_t* name, double value);
-        bool set(const char_t* name, const char_t* value);
-        bool set(const char_t* name, const xpath_node_set& value);
-
-        // Get existing variable by name
-        xpath_variable*       get(const char_t* name);
-        const xpath_variable* get(const char_t* name) const;
-    };
-
-    // A compiled XPath query object
-    class PUGIXML_CLASS xpath_query
-    {
-    private:
-        void*              _impl;
-        xpath_parse_result _result;
-
-        typedef void (*unspecified_bool_type)(xpath_query***);
-
-        // Non-copyable semantics
-        xpath_query(const xpath_query&);
-        xpath_query& operator=(const xpath_query&);
-
-    public:
-        // Construct a compiled object from XPath expression.
-        // If PUGIXML_NO_EXCEPTIONS is not defined, throws xpath_exception on compilation errors.
-        explicit xpath_query(const char_t* query, xpath_variable_set* variables = PUGIXML_NULL);
-
-        // Constructor
-        xpath_query();
-
-        // Destructor
-        ~xpath_query();
-
-#    ifdef PUGIXML_HAS_MOVE
-        // Move semantics support
-        xpath_query(xpath_query&& rhs) PUGIXML_NOEXCEPT;
-        xpath_query& operator=(xpath_query&& rhs) PUGIXML_NOEXCEPT;
-#    endif
-
-        // Get query expression return type
-        xpath_value_type return_type() const;
-
-        // Evaluate expression as boolean value in the specified context; performs type conversion if necessary.
-        // If PUGIXML_NO_EXCEPTIONS is not defined, throws std::bad_alloc on out of memory errors.
-        bool evaluate_boolean(const xpath_node& n) const;
-
-        // Evaluate expression as double value in the specified context; performs type conversion if necessary.
-        // If PUGIXML_NO_EXCEPTIONS is not defined, throws std::bad_alloc on out of memory errors.
-        double evaluate_number(const xpath_node& n) const;
-
-#    ifndef PUGIXML_NO_STL
-        // Evaluate expression as string value in the specified context; performs type conversion if necessary.
-        // If PUGIXML_NO_EXCEPTIONS is not defined, throws std::bad_alloc on out of memory errors.
-        string_t evaluate_string(const xpath_node& n) const;
-#    endif
-
-        // Evaluate expression as string value in the specified context; performs type conversion if necessary.
-        // At most capacity characters are written to the destination buffer, full result size is returned (includes
-        // terminating zero). If PUGIXML_NO_EXCEPTIONS is not defined, throws std::bad_alloc on out of memory errors. If
-        // PUGIXML_NO_EXCEPTIONS is defined, returns empty  set instead.
-        size_t evaluate_string(char_t* buffer, size_t capacity, const xpath_node& n) const;
-
-        // Evaluate expression as node set in the specified context.
-        // If PUGIXML_NO_EXCEPTIONS is not defined, throws xpath_exception on type mismatch and std::bad_alloc on out of
-        // memory errors. If PUGIXML_NO_EXCEPTIONS is defined, returns empty node set instead.
-        xpath_node_set evaluate_node_set(const xpath_node& n) const;
-
-        // Evaluate expression as node set in the specified context.
-        // Return first node in document order, or empty node if node set is empty.
-        // If PUGIXML_NO_EXCEPTIONS is not defined, throws xpath_exception on type mismatch and std::bad_alloc on out of
-        // memory errors. If PUGIXML_NO_EXCEPTIONS is defined, returns empty node instead.
-        xpath_node evaluate_node(const xpath_node& n) const;
-
-        // Get parsing result (used to get compilation errors in PUGIXML_NO_EXCEPTIONS mode)
-        const xpath_parse_result& result() const;
-
-        // Safe bool conversion operator
-        operator unspecified_bool_type() const;
-
-        // Borland C++ workaround
-        bool operator!() const;
-    };
-
-#    ifndef PUGIXML_NO_EXCEPTIONS
-#        if defined(_MSC_VER)
-// C4275 can be ignored in Visual C++ if you are deriving
-// from a type in the Standard C++ Library
-#            pragma warning(push)
-#            pragma warning(disable : 4275)
-#        endif
-    // XPath exception class
-    class PUGIXML_CLASS xpath_exception : public std::exception
-    {
-    private:
-        xpath_parse_result _result;
-
-    public:
-        // Construct exception from parse result
-        explicit xpath_exception(const xpath_parse_result& result);
-
-        // Get error message
-        virtual const char* what() const throw() PUGIXML_OVERRIDE;
-
-        // Get parse result
-        const xpath_parse_result& result() const;
-    };
-#        if defined(_MSC_VER)
-#            pragma warning(pop)
-#        endif
-#    endif
-
-    // XPath node class (either xml_node or xml_attribute)
-    class PUGIXML_CLASS xpath_node
-    {
-    private:
-        xml_node      _node;
-        xml_attribute _attribute;
-
-        typedef void (*unspecified_bool_type)(xpath_node***);
-
-    public:
-        // Default constructor; constructs empty XPath node
-        xpath_node();
-
-        // Construct XPath node from XML node/attribute
-        xpath_node(const xml_node& node);
-        xpath_node(const xml_attribute& attribute, const xml_node& parent);
-
-        // Get node/attribute, if any
-        xml_node      node() const;
-        xml_attribute attribute() const;
-
-        // Get parent of contained node/attribute
-        xml_node parent() const;
-
-        // Safe bool conversion operator
-        operator unspecified_bool_type() const;
-
-        // Borland C++ workaround
-        bool operator!() const;
-
-        // Comparison operators
-        bool operator==(const xpath_node& n) const;
-        bool operator!=(const xpath_node& n) const;
-    };
-
-#    ifdef __BORLANDC__
-    // Borland C++ workaround
-    bool PUGIXML_FUNCTION operator&&(const xpath_node& lhs, bool rhs);
-    bool PUGIXML_FUNCTION operator||(const xpath_node& lhs, bool rhs);
-#    endif
-
-    // A fixed-size collection of XPath nodes
-    class PUGIXML_CLASS xpath_node_set
-    {
-    public:
-        // Collection type
-        enum type_t {
-            type_unsorted,         // Not ordered
-            type_sorted,           // Sorted by document order (ascending)
-            type_sorted_reverse    // Sorted by document order (descending)
-        };
-
-        // Constant iterator type
-        typedef const xpath_node* const_iterator;
-
-        // We define non-constant iterator to be the same as constant iterator so that various generic algorithms (i.e.
-        // boost foreach) work
-        typedef const xpath_node* iterator;
-
-        // Default constructor. Constructs empty set.
-        xpath_node_set();
-
-        // Constructs a set from iterator range; data is not checked for duplicates and is not sorted according to
-        // provided type, so be careful
-        xpath_node_set(const_iterator begin, const_iterator end, type_t type = type_unsorted);
-
-        // Destructor
-        ~xpath_node_set();
-
-        // Copy constructor/assignment operator
-        xpath_node_set(const xpath_node_set& ns);
-        xpath_node_set& operator=(const xpath_node_set& ns);
-
-#    ifdef PUGIXML_HAS_MOVE
-        // Move semantics support
-        xpath_node_set(xpath_node_set&& rhs) PUGIXML_NOEXCEPT;
-        xpath_node_set& operator=(xpath_node_set&& rhs) PUGIXML_NOEXCEPT;
-#    endif
-
-        // Get collection type
-        type_t type() const;
-
-        // Get collection size
-        size_t size() const;
-
-        // Indexing operator
-        const xpath_node& operator[](size_t index) const;
-
-        // Collection iterators
-        const_iterator begin() const;
-        const_iterator end() const;
-
-        // Sort the collection in ascending/descending order by document order
-        void sort(bool reverse = false);
-
-        // Get first node in the collection by document order
-        xpath_node first() const;
-
-        // Check if collection is empty
-        bool empty() const;
-
-    private:
-        type_t _type;
-
-        xpath_node _storage[1];
-
-        xpath_node* _begin;
-        xpath_node* _end;
-
-        void _assign(const_iterator begin, const_iterator end, type_t type);
-        void _move(xpath_node_set& rhs) PUGIXML_NOEXCEPT;
-    };
-#endif
-
-#ifndef PUGIXML_NO_STL
-    // Convert wide string to UTF8
-    std::basic_string<char, std::char_traits<char>, std::allocator<char>> PUGIXML_FUNCTION as_utf8(const wchar_t* str);
-    std::basic_string<char, std::char_traits<char>, std::allocator<char>>
-        PUGIXML_FUNCTION as_utf8(const std::basic_string<wchar_t, std::char_traits<wchar_t>, std::allocator<wchar_t>>& str);
-
-    // Convert UTF8 to wide string
-    std::basic_string<wchar_t, std::char_traits<wchar_t>, std::allocator<wchar_t>> PUGIXML_FUNCTION as_wide(const char* str);
-    std::basic_string<wchar_t, std::char_traits<wchar_t>, std::allocator<wchar_t>>
-        PUGIXML_FUNCTION as_wide(const std::basic_string<char, std::char_traits<char>, std::allocator<char>>& str);
-#endif
-
-    // Memory allocation function interface; returns pointer to allocated memory or NULL on failure
-    typedef void* (*allocation_function)(size_t size);
-
-    // Memory deallocation function interface
-    typedef void (*deallocation_function)(void* ptr);
-
-    // Override default memory management functions. All subsequent allocations/deallocations will be performed via
-    // supplied functions.
-    void PUGIXML_FUNCTION set_memory_management_functions(allocation_function allocate, deallocation_function deallocate);
-
-    // Get current memory management functions
-    allocation_function PUGIXML_FUNCTION   get_memory_allocation_function();
-    deallocation_function PUGIXML_FUNCTION get_memory_deallocation_function();
-}    // namespace pugi
-
-#if !defined(PUGIXML_NO_STL) && (defined(_MSC_VER) || defined(__ICC))
-namespace std
-{
-    // Workarounds for (non-standard) iterator category detection for older versions (MSVC7/IC8 and earlier)
-    std::bidirectional_iterator_tag PUGIXML_FUNCTION _Iter_cat(const pugi::xml_node_iterator&);
-    std::bidirectional_iterator_tag PUGIXML_FUNCTION _Iter_cat(const pugi::xml_attribute_iterator&);
-    std::bidirectional_iterator_tag PUGIXML_FUNCTION _Iter_cat(const pugi::xml_named_node_iterator&);
-}    // namespace std
-#endif
-
-#if !defined(PUGIXML_NO_STL) && defined(__SUNPRO_CC)
-namespace std
-{
-    // Workarounds for (non-standard) iterator category detection
-    std::bidirectional_iterator_tag PUGIXML_FUNCTION __iterator_category(const pugi::xml_node_iterator&);
-    std::bidirectional_iterator_tag PUGIXML_FUNCTION __iterator_category(const pugi::xml_attribute_iterator&);
-    std::bidirectional_iterator_tag PUGIXML_FUNCTION __iterator_category(const pugi::xml_named_node_iterator&);
-}    // namespace std
-#endif
-
-#endif
-
-// Make sure implementation is included in header-only mode
-// Use macro expansion in #include to work around QMake (QTBUG-11923)
-#if defined(PUGIXML_HEADER_ONLY) && !defined(PUGIXML_SOURCE)
-//#define PUGIXML_SOURCE "pugixml.cpp"
-//#include PUGIXML_SOURCE
-#endif
-
-// =============================================================================
-// PugiXML Implementation
-// =============================================================================
 /**
  * pugixml parser - version 1.10
  * --------------------------------------------------------
@@ -1634,163 +12,150 @@ namespace std
  */
 
 #ifndef SOURCE_PUGIXML_CPP
-#define SOURCE_PUGIXML_CPP
+#    define SOURCE_PUGIXML_CPP
 
-//#    include "XLXmlParser.hpp"
+#    include "pugixml.hpp"
 
-#include <assert.h>
-#include <limits.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#    include <assert.h>
+#    include <limits.h>
+#    include <stdio.h>
+#    include <stdlib.h>
+#    include <string.h>
 
-#ifdef PUGIXML_WCHAR_MODE
-#    include <wchar.h>
-#endif
+#    ifdef PUGIXML_WCHAR_MODE
+#        include <wchar.h>
+#    endif
 
-#ifndef PUGIXML_NO_XPATH
-#    include <float.h>
-#    include <math.h>
-#endif
+#    ifndef PUGIXML_NO_XPATH
+#        include <math.h>
+#        include <float.h>
+#    endif
 
-#ifndef PUGIXML_NO_STL
-#    include <istream>
-#    include <ostream>
-#    include <string>
-#endif
+#    ifndef PUGIXML_NO_STL
+#        include <istream>
+#        include <ostream>
+#        include <string>
+#    endif
 
 // For placement new
-#include <new>
+#    include <new>
 
-#ifdef _MSC_VER
-#    pragma warning(push)
-#    pragma warning(disable : 4127)    // conditional expression is constant
-#    pragma warning(disable : 4324)    // structure was padded due to __declspec(align())
-#    pragma warning(disable : 4702)    // unreachable code
-#    pragma warning(disable : 4996)    // this function or variable may be unsafe
-#endif
+#    ifdef _MSC_VER
+#        pragma warning(push)
+#        pragma warning(disable : 4127)    // conditional expression is constant
+#        pragma warning(disable : 4324)    // structure was padded due to __declspec(align())
+#        pragma warning(disable : 4702)    // unreachable code
+#        pragma warning(disable : 4996)    // this function or variable may be unsafe
+#    endif
 
-#if defined(_MSC_VER) && defined(__c2__)
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wdeprecated"    // this function or variable may be unsafe
-#endif
+#    if defined(_MSC_VER) && defined(__c2__)
+#        pragma clang diagnostic push
+#        pragma clang diagnostic ignored "-Wdeprecated"    // this function or variable may be unsafe
+#    endif
 
-#ifdef __INTEL_COMPILER
-#    pragma warning(disable : 177)    // function was declared but never referenced
-#    pragma warning(disable : 279)    // controlling expression is constant
-#    pragma warning(disable : 1478 1786)    // function was declared "deprecated"
-#    pragma warning(disable : 1684)    // conversion from pointer to same-sized integral type
-#endif
+#    ifdef __INTEL_COMPILER
+#        pragma warning(disable : 177)          // function was declared but never referenced
+#        pragma warning(disable : 279)          // controlling expression is constant
+#        pragma warning(disable : 1478 1786)    // function was declared "deprecated"
+#        pragma warning(disable : 1684)         // conversion from pointer to same-sized integral type
+#    endif
 
-#if defined(__BORLANDC__) && defined(PUGIXML_HEADER_ONLY)
-#    pragma warn - 8080    // symbol is declared but never used; disabling this inside push/pop bracket does not
-                           // make the warning go away
-#endif
+#    if defined(__BORLANDC__) && defined(PUGIXML_HEADER_ONLY)
+#        pragma warn - \
+            8080    // symbol is declared but never used; disabling this inside push/pop bracket does not make the warning go away
+#    endif
 
-#ifdef __BORLANDC__
-#    pragma option push
-#    pragma warn - 8008    // condition is always false
-#    pragma warn - 8066    // unreachable code
-#endif
+#    ifdef __BORLANDC__
+#        pragma option push
+#        pragma warn - 8008    // condition is always false
+#        pragma warn - 8066    // unreachable code
+#    endif
 
-#ifdef __SNC__
+#    ifdef __SNC__
 // Using diag_push/diag_pop does not disable the warnings inside templates due to a compiler bug
-#    pragma diag_suppress = 178    // function was declared but never referenced
-#    pragma diag_suppress = 237    // controlling expression is constant
-#endif
+#        pragma diag_suppress = 178    // function was declared but never referenced
+#        pragma diag_suppress = 237    // controlling expression is constant
+#    endif
 
-#ifdef __TI_COMPILER_VERSION__
-#    pragma diag_suppress 179    // function was declared but never referenced
-#endif
+#    ifdef __TI_COMPILER_VERSION__
+#        pragma diag_suppress 179    // function was declared but never referenced
+#    endif
 
 // Inlining controls
-#if defined(_MSC_VER) && _MSC_VER >= 1300
-#    define PUGI__NO_INLINE __declspec(noinline)
-#elif defined(__GNUC__)
-#    define PUGI__NO_INLINE __attribute__((noinline))
-#else
-#    define PUGI__NO_INLINE
-#endif
+#    if defined(_MSC_VER) && _MSC_VER >= 1300
+#        define PUGI__NO_INLINE __declspec(noinline)
+#    elif defined(__GNUC__)
+#        define PUGI__NO_INLINE __attribute__((noinline))
+#    else
+#        define PUGI__NO_INLINE
+#    endif
 
 // Branch weight controls
-#if defined(__GNUC__) && !defined(__c2__)
-#    define PUGI__UNLIKELY(cond) __builtin_expect(cond, 0)
-#else
-#    define PUGI__UNLIKELY(cond) (cond)
-#endif
+#    if defined(__GNUC__) && !defined(__c2__)
+#        define PUGI__UNLIKELY(cond) __builtin_expect(cond, 0)
+#    else
+#        define PUGI__UNLIKELY(cond) (cond)
+#    endif
 
 // Simple static assertion
-#define PUGI__STATIC_ASSERT(cond)                                    \
-    {                                                                \
-        static const char condition_failed[(cond) ? 1 : -1] = { 0 }; \
-        (void)condition_failed[0];                                   \
-    }
+#    define PUGI__STATIC_ASSERT(cond)                                    \
+        {                                                                \
+            static const char condition_failed[(cond) ? 1 : -1] = { 0 }; \
+            (void)condition_failed[0];                                   \
+        }
 
 // Digital Mars C++ bug workaround for passing char loaded from memory via stack
-#ifdef __DMC__
-#    define PUGI__DMC_VOLATILE volatile
-#else
-#    define PUGI__DMC_VOLATILE
-#endif
+#    ifdef __DMC__
+#        define PUGI__DMC_VOLATILE volatile
+#    else
+#        define PUGI__DMC_VOLATILE
+#    endif
 
-// Integer sanitizer workaround; we only apply this for clang since gcc8 has no_sanitize but not
-// unsigned-integer-overflow and produces "attribute directive ignored" warnings
-#if defined(__clang__) && defined(__has_attribute)
-#    if __has_attribute(no_sanitize)
-#        define PUGI__UNSIGNED_OVERFLOW __attribute__((no_sanitize("unsigned-integer-overflow")))
+// Integer sanitizer workaround; we only apply this for clang since gcc8 has no_sanitize but not unsigned-integer-overflow and produces
+// "attribute directive ignored" warnings
+#    if defined(__clang__) && defined(__has_attribute)
+#        if __has_attribute(no_sanitize)
+#            define PUGI__UNSIGNED_OVERFLOW __attribute__((no_sanitize("unsigned-integer-overflow")))
+#        else
+#            define PUGI__UNSIGNED_OVERFLOW
+#        endif
 #    else
 #        define PUGI__UNSIGNED_OVERFLOW
 #    endif
-#else
-#    define PUGI__UNSIGNED_OVERFLOW
-#endif
 
-// Borland C++ bug workaround for not defining ::memcpy depending on header include order (can't always use std::memcpy
-// because some compilers don't have it at all)
-#if defined(__BORLANDC__) && !defined(__MEM_H_USING_LIST)
+// Borland C++ bug workaround for not defining ::memcpy depending on header include order (can't always use std::memcpy because some
+// compilers don't have it at all)
+#    if defined(__BORLANDC__) && !defined(__MEM_H_USING_LIST)
 using std::memcpy;
 using std::memmove;
 using std::memset;
-#endif
+#    endif
 
-// Some MinGW/GCC versions have headers that erroneously omit LLONG_MIN/LLONG_MAX/ULLONG_MAX definitions from limits.h
-// in some configurations
-#if defined(PUGIXML_HAS_LONG_LONG) && defined(__GNUC__) && !defined(LLONG_MAX) && !defined(LLONG_MIN) && !defined(ULLONG_MAX)
-#    define LLONG_MIN (-LLONG_MAX - 1LL)
-#    define LLONG_MAX __LONG_LONG_MAX__
-#    define ULLONG_MAX (LLONG_MAX * 2ULL + 1ULL)
-#endif
+// Some MinGW/GCC versions have headers that erroneously omit LLONG_MIN/LLONG_MAX/ULLONG_MAX definitions from limits.h in some
+// configurations
+#    if defined(PUGIXML_HAS_LONG_LONG) && defined(__GNUC__) && !defined(LLONG_MAX) && !defined(LLONG_MIN) && !defined(ULLONG_MAX)
+#        define LLONG_MIN (-LLONG_MAX - 1LL)
+#        define LLONG_MAX __LONG_LONG_MAX__
+#        define ULLONG_MAX (LLONG_MAX * 2ULL + 1ULL)
+#    endif
 
 // In some environments MSVC is a compiler but the CRT lacks certain MSVC-specific features
-#if defined(_MSC_VER) && !defined(__S3E__)
-#    define PUGI__MSVC_CRT_VERSION _MSC_VER
-#endif
+#    if defined(_MSC_VER) && !defined(__S3E__)
+#        define PUGI__MSVC_CRT_VERSION _MSC_VER
+#    endif
 
-// Not all platforms have snprintf; we define a wrapper that uses snprintf if possible. This only works with buffers
-// with a known size.
-#if __cplusplus >= 201103
-#    define PUGI__SNPRINTF(buf, ...) snprintf(buf, sizeof(buf), __VA_ARGS__)
-#elif defined(PUGI__MSVC_CRT_VERSION) && PUGI__MSVC_CRT_VERSION >= 1400
-#    define PUGI__SNPRINTF(buf, ...) _snprintf_s(buf, _countof(buf), _TRUNCATE, __VA_ARGS__)
-#else
-#    define PUGI__SNPRINTF sprintf
-#endif
+// Not all platforms have snprintf; we define a wrapper that uses snprintf if possible. This only works with buffers with a known size.
+#    if __cplusplus >= 201103
+#        define PUGI__SNPRINTF(buf, ...) snprintf(buf, sizeof(buf), __VA_ARGS__)
+#    elif defined(PUGI__MSVC_CRT_VERSION) && PUGI__MSVC_CRT_VERSION >= 1400
+#        define PUGI__SNPRINTF(buf, ...) _snprintf_s(buf, _countof(buf), _TRUNCATE, __VA_ARGS__)
+#    else
+#        define PUGI__SNPRINTF sprintf
+#    endif
 
-// We put implementation details into an anonymous namespace in source mode, but have to keep it in non-anonymous
-// namespace in header-only mode to prevent binary bloat.
-#ifdef PUGIXML_HEADER_ONLY
-#    define PUGI__NS_BEGIN \
-        namespace pugi     \
-        {                  \
-            namespace impl \
-            {
-#    define PUGI__NS_END \
-        }                \
-        }
-#    define PUGI__FN inline
-#    define PUGI__FN_NO_INLINE inline
-#else
-#    if defined(_MSC_VER) && _MSC_VER < 1300    // MSVC6 seems to have an amusing bug with anonymous namespaces inside namespaces
+// We put implementation details into an anonymous namespace in source mode, but have to keep it in non-anonymous namespace in header-only
+// mode to prevent binary bloat.
+#    ifdef PUGIXML_HEADER_ONLY
 #        define PUGI__NS_BEGIN \
             namespace pugi     \
             {                  \
@@ -1799,38 +164,50 @@ using std::memset;
 #        define PUGI__NS_END \
             }                \
             }
+#        define PUGI__FN inline
+#        define PUGI__FN_NO_INLINE inline
 #    else
-#        define PUGI__NS_BEGIN \
-            namespace pugi     \
-            {                  \
-                namespace impl \
-                {              \
-                    namespace  \
+#        if defined(_MSC_VER) && _MSC_VER < 1300    // MSVC6 seems to have an amusing bug with anonymous namespaces inside namespaces
+#            define PUGI__NS_BEGIN \
+                namespace pugi     \
+                {                  \
+                    namespace impl \
                     {
-#        define PUGI__NS_END \
-            }                \
-            }                \
-            }
+#            define PUGI__NS_END \
+                }                \
+                }
+#        else
+#            define PUGI__NS_BEGIN \
+                namespace pugi     \
+                {                  \
+                    namespace impl \
+                    {              \
+                        namespace  \
+                        {
+#            define PUGI__NS_END \
+                }                \
+                }                \
+                }
+#        endif
+#        define PUGI__FN
+#        define PUGI__FN_NO_INLINE PUGI__NO_INLINE
 #    endif
-#    define PUGI__FN
-#    define PUGI__FN_NO_INLINE PUGI__NO_INLINE
-#endif
 
 // uintptr_t
-#if (defined(_MSC_VER) && _MSC_VER < 1600) || (defined(__BORLANDC__) && __BORLANDC__ < 0x561)
+#    if (defined(_MSC_VER) && _MSC_VER < 1600) || (defined(__BORLANDC__) && __BORLANDC__ < 0x561)
 namespace pugi
 {
-#    ifndef _UINTPTR_T_DEFINED
+#        ifndef _UINTPTR_T_DEFINED
     typedef size_t uintptr_t;
-#    endif
+#        endif
 
     typedef unsigned __int8  uint8_t;
     typedef unsigned __int16 uint16_t;
     typedef unsigned __int32 uint32_t;
 }    // namespace pugi
-#else
-#    include <stdint.h>
-#endif
+#    else
+#        include <stdint.h>
+#    endif
 
 // Memory allocation
 PUGI__NS_BEGIN
@@ -1868,11 +245,11 @@ PUGI__FN size_t strlength(const char_t* s)
 {
     assert(s);
 
-#ifdef PUGIXML_WCHAR_MODE
+#    ifdef PUGIXML_WCHAR_MODE
     return wcslen(s);
-#else
+#    else
     return strlen(s);
-#endif
+#    endif
 }
 
 // Compare two strings
@@ -1880,11 +257,11 @@ PUGI__FN bool strequal(const char_t* src, const char_t* dst)
 {
     assert(src && dst);
 
-#ifdef PUGIXML_WCHAR_MODE
+#    ifdef PUGIXML_WCHAR_MODE
     return wcscmp(src, dst) == 0;
-#else
+#    else
     return strcmp(src, dst) == 0;
-#endif
+#    endif
 }
 
 // Compare lhs with [rhs_begin, rhs_end)
@@ -1901,13 +278,13 @@ PUGI__FN size_t strlength_wide(const wchar_t* s)
 {
     assert(s);
 
-#ifdef PUGIXML_WCHAR_MODE
+#    ifdef PUGIXML_WCHAR_MODE
     return wcslen(s);
-#else
+#    else
     const wchar_t* end = s;
     while (*end) end++;
     return static_cast<size_t>(end - s);
-#endif
+#    endif
 }
 PUGI__NS_END
 
@@ -1937,7 +314,7 @@ struct auto_deleter
 };
 PUGI__NS_END
 
-#ifdef PUGIXML_COMPACT
+#    ifdef PUGIXML_COMPACT
 PUGI__NS_BEGIN
 class compact_hash_table
 {
@@ -2024,7 +401,7 @@ private:
 
     static PUGI__UNSIGNED_OVERFLOW unsigned int hash(const void* key)
     {
-        unsigned int h = static_cast<unsigned int>(reinterpret_cast<uintptr_t>(key) & 0xffffffff);
+        unsigned int h = static_cast<unsigned int>(reinterpret_cast<uintptr_t>(key));
 
         // MurmurHash3 32-bit finalizer
         h ^= h >> 16;
@@ -2064,14 +441,14 @@ PUGI__FN_NO_INLINE bool compact_hash_table::rehash(size_t count)
 }
 
 PUGI__NS_END
-#endif
+#    endif
 
 PUGI__NS_BEGIN
-#ifdef PUGIXML_COMPACT
+#    ifdef PUGIXML_COMPACT
 static const uintptr_t xml_memory_block_alignment = 4;
-#else
+#    else
 static const uintptr_t xml_memory_block_alignment = sizeof(void*);
-#endif
+#    endif
 
 // extra metadata bits
 static const uintptr_t xml_memory_page_contents_shared_mask = 64;
@@ -2085,19 +462,20 @@ static const uintptr_t xml_memory_page_name_allocated_or_shared_mask =
 static const uintptr_t xml_memory_page_value_allocated_or_shared_mask =
     xml_memory_page_value_allocated_mask | xml_memory_page_contents_shared_mask;
 
-#ifdef PUGIXML_COMPACT
-#    define PUGI__GETHEADER_IMPL(object, page, flags)    // unused
-#    define PUGI__GETPAGE_IMPL(header) (header).get_page()
-#else
-#    define PUGI__GETHEADER_IMPL(object, page, flags) (((reinterpret_cast<char*>(object) - reinterpret_cast<char*>(page)) << 8) | (flags))
+#    ifdef PUGIXML_COMPACT
+#        define PUGI__GETHEADER_IMPL(object, page, flags)    // unused
+#        define PUGI__GETPAGE_IMPL(header) (header).get_page()
+#    else
+#        define PUGI__GETHEADER_IMPL(object, page, flags) \
+            (((reinterpret_cast<char*>(object) - reinterpret_cast<char*>(page)) << 8) | (flags))
 // this macro casts pointers through void* to avoid 'cast increases required alignment of target type' warnings
-#    define PUGI__GETPAGE_IMPL(header)       \
-        static_cast<impl::xml_memory_page*>( \
-            const_cast<void*>(static_cast<const void*>(reinterpret_cast<const char*>(&header) - (header >> 8))))
-#endif
+#        define PUGI__GETPAGE_IMPL(header)       \
+            static_cast<impl::xml_memory_page*>( \
+                const_cast<void*>(static_cast<const void*>(reinterpret_cast<const char*>(&header) - (header >> 8))))
+#    endif
 
-#define PUGI__GETPAGE(n) PUGI__GETPAGE_IMPL((n)->header)
-#define PUGI__NODETYPE(n) static_cast<xml_node_type>((n)->header & impl::xml_memory_page_type_mask)
+#    define PUGI__GETPAGE(n) PUGI__GETPAGE_IMPL((n)->header)
+#    define PUGI__NODETYPE(n) static_cast<xml_node_type>((n)->header & impl::xml_memory_page_type_mask)
 
 struct xml_allocator;
 
@@ -2113,11 +491,11 @@ struct xml_memory_page
         result->busy_size  = 0;
         result->freed_size = 0;
 
-#ifdef PUGIXML_COMPACT
+#    ifdef PUGIXML_COMPACT
         result->compact_string_base   = 0;
         result->compact_shared_parent = 0;
         result->compact_page_marker   = 0;
-#endif
+#    endif
 
         return result;
     }
@@ -2130,19 +508,19 @@ struct xml_memory_page
     size_t busy_size;
     size_t freed_size;
 
-#ifdef PUGIXML_COMPACT
+#    ifdef PUGIXML_COMPACT
     char_t*   compact_string_base;
     void*     compact_shared_parent;
     uint32_t* compact_page_marker;
-#endif
+#    endif
 };
 
 static const size_t xml_memory_page_size =
-#ifdef PUGIXML_MEMORY_PAGE_SIZE
+#    ifdef PUGIXML_MEMORY_PAGE_SIZE
     (PUGIXML_MEMORY_PAGE_SIZE)
-#else
+#    else
     32768
-#endif
+#    endif
     - sizeof(xml_memory_page);
 
 struct xml_memory_string_header
@@ -2155,9 +533,9 @@ struct xml_allocator
 {
     xml_allocator(xml_memory_page* root) : _root(root), _busy_size(root->busy_size)
     {
-#ifdef PUGIXML_COMPACT
+#    ifdef PUGIXML_COMPACT
         _hash = 0;
-#endif
+#    endif
     }
 
     xml_memory_page* allocate_page(size_t data_size)
@@ -2197,7 +575,7 @@ struct xml_allocator
         return buf;
     }
 
-#ifdef PUGIXML_COMPACT
+#    ifdef PUGIXML_COMPACT
     void* allocate_object(size_t size, xml_memory_page*& out_page)
     {
         void* result = allocate_memory(size + sizeof(uint32_t), out_page);
@@ -2213,8 +591,8 @@ struct xml_allocator
             *marker                       = static_cast<uint32_t>(reinterpret_cast<char*>(marker) - reinterpret_cast<char*>(out_page));
             out_page->compact_page_marker = marker;
 
-            // since we don't reuse the page space until we reallocate it, we can just pretend that we freed the marker
-            // block this will make sure deallocate_memory correctly tracks the size
+            // since we don't reuse the page space until we reallocate it, we can just pretend that we freed the marker block
+            // this will make sure deallocate_memory correctly tracks the size
             out_page->freed_size += sizeof(uint32_t);
 
             return marker + 1;
@@ -2226,12 +604,12 @@ struct xml_allocator
             return result;
         }
     }
-#else
+#    else
     void* allocate_object(size_t size, xml_memory_page*& out_page)
     {
         return allocate_memory(size, out_page);
     }
-#endif
+#    endif
 
     void deallocate_memory(void* ptr, size_t size, xml_memory_page* page)
     {
@@ -2252,12 +630,12 @@ struct xml_allocator
                 page->busy_size  = 0;
                 page->freed_size = 0;
 
-#ifdef PUGIXML_COMPACT
+#    ifdef PUGIXML_COMPACT
                 // reset compact state to maximize efficiency
                 page->compact_string_base   = 0;
                 page->compact_shared_parent = 0;
                 page->compact_page_marker   = 0;
-#endif
+#    endif
 
                 _busy_size = 0;
             }
@@ -2311,9 +689,8 @@ struct xml_allocator
 
     void deallocate_string(char_t* string)
     {
-        // this function casts pointers through void* to avoid 'cast increases required alignment of target type'
-        // warnings we're guaranteed the proper (pointer-sized) alignment on the input string if it was allocated via
-        // allocate_string
+        // this function casts pointers through void* to avoid 'cast increases required alignment of target type' warnings
+        // we're guaranteed the proper (pointer-sized) alignment on the input string if it was allocated via allocate_string
 
         // get header
         xml_memory_string_header* header = static_cast<xml_memory_string_header*>(static_cast<void*>(string)) - 1;
@@ -2331,19 +708,19 @@ struct xml_allocator
 
     bool reserve()
     {
-#ifdef PUGIXML_COMPACT
+#    ifdef PUGIXML_COMPACT
         return _hash->reserve();
-#else
+#    else
         return true;
-#endif
+#    endif
     }
 
     xml_memory_page* _root;
     size_t           _busy_size;
 
-#ifdef PUGIXML_COMPACT
+#    ifdef PUGIXML_COMPACT
     compact_hash_table* _hash;
-#endif
+#    endif
 };
 
 PUGI__FN_NO_INLINE void* xml_allocator::allocate_memory_oob(size_t size, xml_memory_page*& out_page)
@@ -2383,7 +760,7 @@ PUGI__FN_NO_INLINE void* xml_allocator::allocate_memory_oob(size_t size, xml_mem
 }
 PUGI__NS_END
 
-#ifdef PUGIXML_COMPACT
+#    ifdef PUGIXML_COMPACT
 PUGI__NS_BEGIN
 static const uintptr_t compact_alignment_log2 = 2;
 static const uintptr_t compact_alignment      = 1 << compact_alignment_log2;
@@ -2656,9 +1033,9 @@ private:
     unsigned char _data;
 };
 PUGI__NS_END
-#endif
+#    endif
 
-#ifdef PUGIXML_COMPACT
+#    ifdef PUGIXML_COMPACT
 namespace pugi
 {
     struct xml_attribute_struct
@@ -2703,7 +1080,7 @@ namespace pugi
         impl::compact_pointer<xml_attribute_struct, 11, 0> first_attribute;
     };
 }    // namespace pugi
-#else
+#    else
 namespace pugi
 {
     struct xml_attribute_struct
@@ -2751,7 +1128,7 @@ namespace pugi
         xml_attribute_struct* first_attribute;
     };
 }    // namespace pugi
-#endif
+#    endif
 
 PUGI__NS_BEGIN
 struct xml_extra_buffer
@@ -2768,9 +1145,9 @@ struct xml_document_struct : public xml_node_struct, public xml_allocator
 
     xml_extra_buffer* extra_buffers;
 
-#ifdef PUGIXML_COMPACT
+#    ifdef PUGIXML_COMPACT
     compact_hash_table hash;
-#endif
+#    endif
 };
 
 template<typename Object>
@@ -3419,13 +1796,13 @@ struct wchar_decoder
     }
 };
 
-#ifdef PUGIXML_WCHAR_MODE
+#    ifdef PUGIXML_WCHAR_MODE
 PUGI__FN void convert_wchar_endian_swap(wchar_t* result, const wchar_t* data, size_t length)
 {
     for (size_t i = 0; i < length; ++i)
         result[i] = static_cast<wchar_t>(endian_swap(static_cast<wchar_selector<sizeof(wchar_t)>::type>(data[i])));
 }
-#endif
+#    endif
 PUGI__NS_END
 
 PUGI__NS_BEGIN
@@ -3440,32 +1817,23 @@ enum chartype_t {
     ct_start_symbol  = 128    // Any symbol > 127, a-z, A-Z, _, :
 };
 
-static const unsigned char chartype_table[256] = { 55,  0,   0,   0,   0,   0,   0,   0,   0,   12,  12,  0,   0,   63,  0,
-                                                   0,    // 0-15
-                                                   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-                                                   0,    // 16-31
-                                                   8,   0,   6,   0,   0,   0,   7,   6,   0,   0,   0,   0,   0,   96,  64,
-                                                   0,    // 32-47
-                                                   64,  64,  64,  64,  64,  64,  64,  64,  64,  64,  192, 0,   1,   0,   48,
-                                                   0,    // 48-63
-                                                   0,   192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192,
-                                                   192,    // 64-79
-                                                   192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 0,   0,   16,  0,
-                                                   192,    // 80-95
-                                                   0,   192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192,
-                                                   192,    // 96-111
-                                                   192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 0,   0,   0,   0,
-                                                   0,    // 112-127
+static const unsigned char chartype_table[256] = {
+    55,  0,   0,   0,   0,   0,   0,   0,   0,   12,  12,  0,   0,   63,  0,   0,      // 0-15
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,      // 16-31
+    8,   0,   6,   0,   0,   0,   7,   6,   0,   0,   0,   0,   0,   96,  64,  0,      // 32-47
+    64,  64,  64,  64,  64,  64,  64,  64,  64,  64,  192, 0,   1,   0,   48,  0,      // 48-63
+    0,   192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192,    // 64-79
+    192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 0,   0,   16,  0,   192,    // 80-95
+    0,   192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192,    // 96-111
+    192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 0,   0,   0,   0,   0,      // 112-127
 
-                                                   192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192,
-                                                   192,    // 128+
-                                                   192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192,
-                                                   192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192,
-                                                   192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192,
-                                                   192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192,
-                                                   192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192,
-                                                   192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192,
-                                                   192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192 };
+    192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192,    // 128+
+    192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192,
+    192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192,
+    192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192,
+    192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192,
+    192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192, 192
+};
 
 enum chartypex_t {
     ctx_special_pcdata = 1,    // Any symbol >= 0 and < 32 (except \t, \r, \n), &, <, >
@@ -3475,26 +1843,17 @@ enum chartypex_t {
     ctx_symbol         = 16    // Any symbol > 127, a-z, A-Z, 0-9, _, -, .
 };
 
-static const unsigned char chartypex_table[256] = { 3,  3,  3,  3,  3,  3,  3,  3,  3,  2,  2,  3,  3,  2,  3,
-                                                    3,    // 0-15
-                                                    3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,
-                                                    3,    // 16-31
-                                                    0,  0,  2,  0,  0,  0,  3,  2,  0,  0,  0,  0,  0,  16, 16,
-                                                    0,    // 32-47
-                                                    24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 0,  0,  3,  0,  1,
-                                                    0,    // 48-63
+static const unsigned char chartypex_table[256] = { 3,  3,  3,  3,  3,  3,  3,  3,  3,  2,  2,  3,  3,  2,  3,  3,    // 0-15
+                                                    3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,    // 16-31
+                                                    0,  0,  2,  0,  0,  0,  3,  2,  0,  0,  0,  0,  0,  16, 16, 0,    // 32-47
+                                                    24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 0,  0,  3,  0,  1,  0,    // 48-63
 
-                                                    0,  20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
-                                                    20,    // 64-79
-                                                    20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 0,  0,  0,  0,
-                                                    20,    // 80-95
-                                                    0,  20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
-                                                    20,    // 96-111
-                                                    20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 0,  0,  0,  0,
-                                                    0,    // 112-127
+                                                    0,  20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20,    // 64-79
+                                                    20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 0,  0,  0,  0,  20,    // 80-95
+                                                    0,  20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20,    // 96-111
+                                                    20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 0,  0,  0,  0,  0,     // 112-127
 
-                                                    20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
-                                                    20,    // 128+
+                                                    20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20,    // 128+
                                                     20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
                                                     20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
                                                     20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
@@ -3502,15 +1861,15 @@ static const unsigned char chartypex_table[256] = { 3,  3,  3,  3,  3,  3,  3,  
                                                     20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
                                                     20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20 };
 
-#ifdef PUGIXML_WCHAR_MODE
-#    define PUGI__IS_CHARTYPE_IMPL(c, ct, table) \
-        ((static_cast<unsigned int>(c) < 128 ? table[static_cast<unsigned int>(c)] : table[128]) & (ct))
-#else
-#    define PUGI__IS_CHARTYPE_IMPL(c, ct, table) (table[static_cast<unsigned char>(c)] & (ct))
-#endif
+#    ifdef PUGIXML_WCHAR_MODE
+#        define PUGI__IS_CHARTYPE_IMPL(c, ct, table) \
+            ((static_cast<unsigned int>(c) < 128 ? table[static_cast<unsigned int>(c)] : table[128]) & (ct))
+#    else
+#        define PUGI__IS_CHARTYPE_IMPL(c, ct, table) (table[static_cast<unsigned char>(c)] & (ct))
+#    endif
 
-#define PUGI__IS_CHARTYPE(c, ct) PUGI__IS_CHARTYPE_IMPL(c, ct, chartype_table)
-#define PUGI__IS_CHARTYPEX(c, ct) PUGI__IS_CHARTYPE_IMPL(c, ct, chartypex_table)
+#    define PUGI__IS_CHARTYPE(c, ct) PUGI__IS_CHARTYPE_IMPL(c, ct, chartype_table)
+#    define PUGI__IS_CHARTYPEX(c, ct) PUGI__IS_CHARTYPE_IMPL(c, ct, chartypex_table)
 
 PUGI__FN bool is_little_endian()
 {
@@ -3531,15 +1890,15 @@ PUGI__FN xml_encoding get_wchar_encoding()
 
 PUGI__FN bool parse_declaration_encoding(const uint8_t* data, size_t size, const uint8_t*& out_encoding, size_t& out_length)
 {
-#define PUGI__SCANCHAR(ch)                                      \
-    {                                                           \
-        if (offset >= size || data[offset] != ch) return false; \
-        offset++;                                               \
-    }
-#define PUGI__SCANCHARTYPE(ct)                                                 \
-    {                                                                          \
-        while (offset < size && PUGI__IS_CHARTYPE(data[offset], ct)) offset++; \
-    }
+#    define PUGI__SCANCHAR(ch)                                      \
+        {                                                           \
+            if (offset >= size || data[offset] != ch) return false; \
+            offset++;                                               \
+        }
+#    define PUGI__SCANCHARTYPE(ct)                                                 \
+        {                                                                          \
+            while (offset < size && PUGI__IS_CHARTYPE(data[offset], ct)) offset++; \
+        }
 
     // check if we have a non-empty XML declaration
     if (size < 6 || !((data[0] == '<') & (data[1] == '?') & (data[2] == 'x') & (data[3] == 'm') & (data[4] == 'l') &&
@@ -3554,8 +1913,7 @@ PUGI__FN bool parse_declaration_encoding(const uint8_t* data, size_t size, const
         if (data[i] == 'e' && data[i + 1] == 'n') {
             size_t offset = i;
 
-            // encoding follows the version field which can't contain 'en' so this has to be the encoding if XML is well
-            // formed
+            // encoding follows the version field which can't contain 'en' so this has to be the encoding if XML is well formed
             PUGI__SCANCHAR('e');
             PUGI__SCANCHAR('n');
             PUGI__SCANCHAR('c');
@@ -3591,8 +1949,8 @@ PUGI__FN bool parse_declaration_encoding(const uint8_t* data, size_t size, const
 
     return false;
 
-#undef PUGI__SCANCHAR
-#undef PUGI__SCANCHARTYPE
+#    undef PUGI__SCANCHAR
+#    undef PUGI__SCANCHARTYPE
 }
 
 PUGI__FN xml_encoding guess_buffer_encoding(const uint8_t* data, size_t size)
@@ -3615,8 +1973,7 @@ PUGI__FN xml_encoding guess_buffer_encoding(const uint8_t* data, size_t size)
     if (d0 == 0 && d1 == 0x3c && d2 == 0 && d3 == 0x3f) return encoding_utf16_be;
     if (d0 == 0x3c && d1 == 0 && d2 == 0x3f && d3 == 0) return encoding_utf16_le;
 
-    // look for utf16 < followed by node name (this may fail, but is better than utf8 since it's zero terminated so
-    // early)
+    // look for utf16 < followed by node name (this may fail, but is better than utf8 since it's zero terminated so early)
     if (d0 == 0 && d1 == 0x3c) return encoding_utf16_be;
     if (d0 == 0x3c && d1 == 0) return encoding_utf16_le;
 
@@ -3685,7 +2042,7 @@ PUGI__FN bool get_mutable_buffer(char_t*& out_buffer, size_t& out_length, const 
     return true;
 }
 
-#ifdef PUGIXML_WCHAR_MODE
+#    ifdef PUGIXML_WCHAR_MODE
 PUGI__FN bool need_endian_swap_utf(xml_encoding le, xml_encoding re)
 {
     return (le == encoding_utf16_be && re == encoding_utf16_le) || (le == encoding_utf16_le && re == encoding_utf16_be) ||
@@ -3783,7 +2140,7 @@ PUGI__FN bool
     assert(false && "Invalid encoding");    // unreachable
     return false;
 }
-#else
+#    else
 template<typename D>
 PUGI__FN bool convert_buffer_generic(char_t*& out_buffer, size_t& out_length, const void* contents, size_t size, D)
 {
@@ -3883,7 +2240,7 @@ PUGI__FN bool
     assert(false && "Invalid encoding");    // unreachable
     return false;
 }
-#endif
+#    endif
 
 PUGI__FN size_t as_utf8_begin(const wchar_t* str, size_t length)
 {
@@ -3902,7 +2259,7 @@ PUGI__FN void as_utf8_end(char* buffer, size_t size, const wchar_t* str, size_t 
     (void)!size;
 }
 
-#ifndef PUGIXML_NO_STL
+#    ifndef PUGIXML_NO_STL
 PUGI__FN std::string as_utf8_impl(const wchar_t* str, size_t length)
 {
     // first pass: get length in utf8 characters
@@ -3940,7 +2297,7 @@ PUGI__FN std::basic_string<wchar_t> as_wide_impl(const char* str, size_t size)
 
     return result;
 }
-#endif
+#    endif
 
 template<typename Header>
 inline bool strcpy_insitu_allow(size_t length, const Header& header, uintptr_t header_mask, char_t* target)
@@ -4097,11 +2454,11 @@ PUGI__FN char_t* strconv_escape(char_t* s, gap& g)
                 ++stre;
             }
 
-#ifdef PUGIXML_WCHAR_MODE
+#    ifdef PUGIXML_WCHAR_MODE
             s = reinterpret_cast<char_t*>(wchar_writer::any(reinterpret_cast<wchar_writer::value_type>(s), ucsc));
-#else
+#    else
             s = reinterpret_cast<char_t*>(utf8_writer::any(reinterpret_cast<uint8_t*>(s), ucsc));
-#endif
+#    endif
 
             g.push(s, stre - s);
             return stre;
@@ -4183,65 +2540,65 @@ PUGI__FN char_t* strconv_escape(char_t* s, gap& g)
 }
 
 // Parser utilities
-#define PUGI__ENDSWITH(c, e) ((c) == (e) || ((c) == 0 && endch == (e)))
-#define PUGI__SKIPWS()                               \
-    {                                                \
-        while (PUGI__IS_CHARTYPE(*s, ct_space)) ++s; \
-    }
-#define PUGI__OPTSET(OPT) (optmsk & (OPT))
-#define PUGI__PUSHNODE(TYPE)                                     \
-    {                                                            \
-        cursor = append_new_node(cursor, *alloc, TYPE);          \
-        if (!cursor) PUGI__THROW_ERROR(status_out_of_memory, s); \
-    }
-#define PUGI__POPNODE()          \
-    {                            \
-        cursor = cursor->parent; \
-    }
-#define PUGI__SCANFOR(X)             \
-    {                                \
-        while (*s != 0 && !(X)) ++s; \
-    }
-#define PUGI__SCANWHILE(X) \
-    {                      \
-        while (X) ++s;     \
-    }
-#define PUGI__SCANWHILE_UNROLL(X)       \
-    {                                   \
-        for (;;) {                      \
-            char_t ss = s[0];           \
-            if (PUGI__UNLIKELY(!(X))) { \
-                break;                  \
-            }                           \
-            ss = s[1];                  \
-            if (PUGI__UNLIKELY(!(X))) { \
-                s += 1;                 \
-                break;                  \
-            }                           \
-            ss = s[2];                  \
-            if (PUGI__UNLIKELY(!(X))) { \
-                s += 2;                 \
-                break;                  \
-            }                           \
-            ss = s[3];                  \
-            if (PUGI__UNLIKELY(!(X))) { \
-                s += 3;                 \
-                break;                  \
-            }                           \
-            s += 4;                     \
-        }                               \
-    }
-#define PUGI__ENDSEG() \
-    {                  \
-        ch = *s;       \
-        *s = 0;        \
-        ++s;           \
-    }
-#define PUGI__THROW_ERROR(err, m) return error_offset = m, error_status = err, static_cast<char_t*>(0)
-#define PUGI__CHECK_ERROR(err, m)               \
-    {                                           \
-        if (*s == 0) PUGI__THROW_ERROR(err, m); \
-    }
+#    define PUGI__ENDSWITH(c, e) ((c) == (e) || ((c) == 0 && endch == (e)))
+#    define PUGI__SKIPWS()                               \
+        {                                                \
+            while (PUGI__IS_CHARTYPE(*s, ct_space)) ++s; \
+        }
+#    define PUGI__OPTSET(OPT) (optmsk & (OPT))
+#    define PUGI__PUSHNODE(TYPE)                                     \
+        {                                                            \
+            cursor = append_new_node(cursor, *alloc, TYPE);          \
+            if (!cursor) PUGI__THROW_ERROR(status_out_of_memory, s); \
+        }
+#    define PUGI__POPNODE()          \
+        {                            \
+            cursor = cursor->parent; \
+        }
+#    define PUGI__SCANFOR(X)             \
+        {                                \
+            while (*s != 0 && !(X)) ++s; \
+        }
+#    define PUGI__SCANWHILE(X) \
+        {                      \
+            while (X) ++s;     \
+        }
+#    define PUGI__SCANWHILE_UNROLL(X)       \
+        {                                   \
+            for (;;) {                      \
+                char_t ss = s[0];           \
+                if (PUGI__UNLIKELY(!(X))) { \
+                    break;                  \
+                }                           \
+                ss = s[1];                  \
+                if (PUGI__UNLIKELY(!(X))) { \
+                    s += 1;                 \
+                    break;                  \
+                }                           \
+                ss = s[2];                  \
+                if (PUGI__UNLIKELY(!(X))) { \
+                    s += 2;                 \
+                    break;                  \
+                }                           \
+                ss = s[3];                  \
+                if (PUGI__UNLIKELY(!(X))) { \
+                    s += 3;                 \
+                    break;                  \
+                }                           \
+                s += 4;                     \
+            }                               \
+        }
+#    define PUGI__ENDSEG() \
+        {                  \
+            ch = *s;       \
+            *s = 0;        \
+            ++s;           \
+        }
+#    define PUGI__THROW_ERROR(err, m) return error_offset = m, error_status = err, static_cast<char_t*>(0)
+#    define PUGI__CHECK_ERROR(err, m)               \
+        {                                           \
+            if (*s == 0) PUGI__THROW_ERROR(err, m); \
+        }
 
 PUGI__FN char_t* strconv_comment(char_t* s, char_t endch)
 {
@@ -4515,8 +2872,8 @@ PUGI__FN strconv_attribute_t get_strconv_attribute(unsigned int optmask)
 {
     PUGI__STATIC_ASSERT(parse_escapes == 0x10 && parse_eol == 0x20 && parse_wconv_attribute == 0x40 && parse_wnorm_attribute == 0x80);
 
-    switch ((optmask >> 4) & 15)    // get bitmask for flags (wnorm wconv eol escapes); this simultaneously checks 4
-                                    // options from assertion above
+    switch ((optmask >> 4) &
+            15)    // get bitmask for flags (wnorm wconv eol escapes); this simultaneously checks 4 options from assertion above
     {
         case 0:
             return strconv_attribute_impl<opt_false>::parse_simple;
@@ -4838,8 +3195,7 @@ struct xml_parser
                     // replace ending ? with / so that 'element' terminates properly
                     *s = '/';
 
-                    // we exit from this function with cursor at node_declaration, which is a signal to parse() to go to
-                    // LOC_ATTRIBUTES
+                    // we exit from this function with cursor at node_declaration, which is a signal to parse() to go to LOC_ATTRIBUTES
                     s = value;
                 }
                 else {
@@ -5044,8 +3400,7 @@ LOC_ATTRIBUTES:
                 PUGI__SKIPWS();    // Eat whitespace if no genuine PCDATA here.
 
                 if (*s == '<' || !*s) {
-                    // We skipped some whitespace characters because otherwise we would take the tag branch instead of
-                    // PCDATA one
+                    // We skipped some whitespace characters because otherwise we would take the tag branch instead of PCDATA one
                     assert(mark != s);
 
                     if (!PUGI__OPTSET(parse_ws_pcdata | parse_ws_pcdata_single) || PUGI__OPTSET(parse_trim_pcdata)) {
@@ -5092,18 +3447,18 @@ LOC_ATTRIBUTES:
         return s;
     }
 
-#ifdef PUGIXML_WCHAR_MODE
+#    ifdef PUGIXML_WCHAR_MODE
     static char_t* parse_skip_bom(char_t* s)
     {
         unsigned int bom = 0xfeff;
         return (s[0] == static_cast<wchar_t>(bom)) ? s + 1 : s;
     }
-#else
+#    else
     static char_t* parse_skip_bom(char_t* s)
     {
         return (s[0] == '\xef' && s[1] == '\xbb' && s[2] == '\xbf') ? s + 3 : s;
     }
-#endif
+#    endif
 
     static bool has_element_node_siblings(xml_node_struct* node)
     {
@@ -5162,11 +3517,11 @@ LOC_ATTRIBUTES:
 // Output facilities
 PUGI__FN xml_encoding get_write_native_encoding()
 {
-#ifdef PUGIXML_WCHAR_MODE
+#    ifdef PUGIXML_WCHAR_MODE
     return get_wchar_encoding();
-#else
+#    else
     return encoding_utf8;
-#endif
+#    endif
 }
 
 PUGI__FN xml_encoding get_write_encoding(xml_encoding encoding)
@@ -5211,7 +3566,7 @@ PUGI__FN size_t convert_buffer_output_generic(typename T::value_type dest, const
     return static_cast<size_t>(end - dest) * sizeof(*dest);
 }
 
-#ifdef PUGIXML_WCHAR_MODE
+#    ifdef PUGIXML_WCHAR_MODE
 PUGI__FN size_t get_valid_length(const char_t* data, size_t length)
 {
     if (length < 1) return 0;
@@ -5259,7 +3614,7 @@ PUGI__FN size_t convert_buffer_output(char_t*       r_char,
     assert(false && "Invalid encoding");    // unreachable
     return 0;
 }
-#else
+#    else
 PUGI__FN size_t get_valid_length(const char_t* data, size_t length)
 {
     if (length < 5) return 0;
@@ -5271,8 +3626,7 @@ PUGI__FN size_t get_valid_length(const char_t* data, size_t length)
         if ((ch & 0xc0) != 0x80) return length - i;
     }
 
-    // there are four non-leading characters at the end, sequence tail is broken so might as well process the whole
-    // chunk
+    // there are four non-leading characters at the end, sequence tail is broken so might as well process the whole chunk
     return length;
 }
 
@@ -5301,7 +3655,7 @@ PUGI__FN size_t convert_buffer_output(char_t* /* r_char */,
     assert(false && "Invalid encoding");    // unreachable
     return 0;
 }
-#endif
+#    endif
 
 class xml_buffered_writer
 {
@@ -5487,11 +3841,11 @@ public:
     // utf32 maximum expansion: x1
     enum {
         bufcapacitybytes =
-#ifdef PUGIXML_MEMORY_OUTPUT_STACK
+#    ifdef PUGIXML_MEMORY_OUTPUT_STACK
             PUGIXML_MEMORY_OUTPUT_STACK
-#else
+#    else
             10240
-#endif
+#    endif
         ,
         bufcapacity = bufcapacitybytes / (sizeof(char_t) + 4)
     };
@@ -5988,9 +4342,6 @@ PUGI__FN void node_copy_tree(xml_node_struct* dn, xml_node_struct* sn)
     xml_node_struct* sit = sn->first_child;
 
     while (sit && sit != sn) {
-        // loop invariant: dit is inside the subtree rooted at dn
-        assert(dit);
-
         // when a tree is copied into one of the descendants, we need to skip that subtree to avoid an infinite loop
         if (sit != dn) {
             xml_node_struct* copy = append_new_node(dit, alloc, PUGI__NODETYPE(sit));
@@ -6015,14 +4366,9 @@ PUGI__FN void node_copy_tree(xml_node_struct* dn, xml_node_struct* sn)
 
             sit = sit->parent;
             dit = dit->parent;
-
-            // loop invariant: dit is inside the subtree rooted at dn while sit is inside sn
-            assert(sit == sn || dit);
         }
         while (sit != sn);
     }
-
-    assert(!sit || dit == dn->parent);
 }
 
 PUGI__FN void node_copy_attribute(xml_attribute_struct* da, xml_attribute_struct* sa)
@@ -6107,11 +4453,11 @@ PUGI__FN PUGI__UNSIGNED_OVERFLOW U string_to_integer(const char_t* value, U minv
 
     if (negative) {
         // Workaround for crayc++ CC-3059: Expected no overflow in routine.
-#ifdef _CRAYC
+#    ifdef _CRAYC
         return (overflow || result > ~minv + 1) ? minv : ~result + 1;
-#else
+#    else
         return (overflow || result > 0 - minv) ? minv : 0 - result;
-#endif
+#    endif
     }
     else
         return (overflow || result > maxv) ? maxv : result;
@@ -6129,20 +4475,20 @@ PUGI__FN unsigned int get_value_uint(const char_t* value)
 
 PUGI__FN double get_value_double(const char_t* value)
 {
-#ifdef PUGIXML_WCHAR_MODE
+#    ifdef PUGIXML_WCHAR_MODE
     return wcstod(value, 0);
-#else
+#    else
     return strtod(value, 0);
-#endif
+#    endif
 }
 
 PUGI__FN float get_value_float(const char_t* value)
 {
-#ifdef PUGIXML_WCHAR_MODE
+#    ifdef PUGIXML_WCHAR_MODE
     return static_cast<float>(wcstod(value, 0));
-#else
+#    else
     return static_cast<float>(strtod(value, 0));
-#endif
+#    endif
 }
 
 PUGI__FN bool get_value_bool(const char_t* value)
@@ -6154,7 +4500,7 @@ PUGI__FN bool get_value_bool(const char_t* value)
     return (first == '1' || first == 't' || first == 'T' || first == 'y' || first == 'Y');
 }
 
-#ifdef PUGIXML_HAS_LONG_LONG
+#    ifdef PUGIXML_HAS_LONG_LONG
 PUGI__FN long long get_value_llong(const char_t* value)
 {
     return string_to_integer<unsigned long long>(value, static_cast<unsigned long long>(LLONG_MIN), LLONG_MAX);
@@ -6164,7 +4510,7 @@ PUGI__FN unsigned long long get_value_ullong(const char_t* value)
 {
     return string_to_integer<unsigned long long>(value, 0, ULLONG_MAX);
 }
-#endif
+#    endif
 
 template<typename U>
 PUGI__FN PUGI__UNSIGNED_OVERFLOW char_t* integer_to_string(char_t* begin, char_t* end, U value, bool negative)
@@ -6190,7 +4536,7 @@ PUGI__FN PUGI__UNSIGNED_OVERFLOW char_t* integer_to_string(char_t* begin, char_t
 template<typename String, typename Header>
 PUGI__FN bool set_value_ascii(String& dest, Header& header, uintptr_t header_mask, char* buf)
 {
-#ifdef PUGIXML_WCHAR_MODE
+#    ifdef PUGIXML_WCHAR_MODE
     char_t wbuf[128];
     assert(strlen(buf) < sizeof(wbuf) / sizeof(wbuf[0]));
 
@@ -6198,9 +4544,9 @@ PUGI__FN bool set_value_ascii(String& dest, Header& header, uintptr_t header_mas
     for (; buf[offset]; ++offset) wbuf[offset] = buf[offset];
 
     return strcpy_insitu(dest, header, header_mask, wbuf, offset);
-#else
+#    else
     return strcpy_insitu(dest, header, header_mask, buf, strlen(buf));
-#endif
+#    endif
 }
 
 template<typename U, typename String, typename Header>
@@ -6214,19 +4560,19 @@ PUGI__FN bool set_value_integer(String& dest, Header& header, uintptr_t header_m
 }
 
 template<typename String, typename Header>
-PUGI__FN bool set_value_convert(String& dest, Header& header, uintptr_t header_mask, float value, int precision)
+PUGI__FN bool set_value_convert(String& dest, Header& header, uintptr_t header_mask, float value)
 {
     char buf[128];
-    PUGI__SNPRINTF(buf, "%.*g", precision, double(value));
+    PUGI__SNPRINTF(buf, "%.9g", double(value));
 
     return set_value_ascii(dest, header, header_mask, buf);
 }
 
 template<typename String, typename Header>
-PUGI__FN bool set_value_convert(String& dest, Header& header, uintptr_t header_mask, double value, int precision)
+PUGI__FN bool set_value_convert(String& dest, Header& header, uintptr_t header_mask, double value)
 {
     char buf[128];
-    PUGI__SNPRINTF(buf, "%.*g", precision, value);
+    PUGI__SNPRINTF(buf, "%.17g", value);
 
     return set_value_ascii(dest, header, header_mask, buf);
 }
@@ -6279,33 +4625,32 @@ PUGI__FN xml_parse_result load_buffer_impl(xml_document_struct* doc,
     return res;
 }
 
-// we need to get length of entire file to load it in memory; the only (relatively) sane way to do it is via seek/tell
-// trick
+// we need to get length of entire file to load it in memory; the only (relatively) sane way to do it is via seek/tell trick
 PUGI__FN xml_parse_status get_file_size(FILE* file, size_t& out_result)
 {
-#if defined(PUGI__MSVC_CRT_VERSION) && PUGI__MSVC_CRT_VERSION >= 1400 && !defined(_WIN32_WCE)
+#    if defined(PUGI__MSVC_CRT_VERSION) && PUGI__MSVC_CRT_VERSION >= 1400 && !defined(_WIN32_WCE)
     // there are 64-bit versions of fseek/ftell, let's use them
     typedef __int64 length_type;
 
     _fseeki64(file, 0, SEEK_END);
     length_type length = _ftelli64(file);
     _fseeki64(file, 0, SEEK_SET);
-#elif defined(__MINGW32__) && !defined(__NO_MINGW_LFS) && (!defined(__STRICT_ANSI__) || defined(__MINGW64_VERSION_MAJOR))
+#    elif defined(__MINGW32__) && !defined(__NO_MINGW_LFS) && (!defined(__STRICT_ANSI__) || defined(__MINGW64_VERSION_MAJOR))
     // there are 64-bit versions of fseek/ftell, let's use them
     typedef off64_t length_type;
 
     fseeko64(file, 0, SEEK_END);
     length_type length = ftello64(file);
     fseeko64(file, 0, SEEK_SET);
-#else
-    // if this is a 32-bit OS, long is enough; if this is a unix system, long is 64-bit, which is enough; otherwise we
-    // can't do anything anyway.
+#    else
+    // if this is a 32-bit OS, long is enough; if this is a unix system, long is 64-bit, which is enough; otherwise we can't do anything
+    // anyway.
     typedef long length_type;
 
     fseek(file, 0, SEEK_END);
     length_type length = ftell(file);
     fseek(file, 0, SEEK_SET);
-#endif
+#    endif
 
     // check for I/O errors
     if (length < 0) return status_io_error;
@@ -6325,7 +4670,7 @@ PUGI__FN xml_parse_status get_file_size(FILE* file, size_t& out_result)
 PUGI__FN size_t zero_terminate_buffer(void* buffer, size_t size, xml_encoding encoding)
 {
     // We only need to zero-terminate if encoding conversion does not do it for us
-#ifdef PUGIXML_WCHAR_MODE
+#    ifdef PUGIXML_WCHAR_MODE
     xml_encoding wchar_encoding = get_wchar_encoding();
 
     if (encoding == wchar_encoding || need_endian_swap_utf(encoding, wchar_encoding)) {
@@ -6334,12 +4679,12 @@ PUGI__FN size_t zero_terminate_buffer(void* buffer, size_t size, xml_encoding en
         static_cast<char_t*>(buffer)[length] = 0;
         return (length + 1) * sizeof(char_t);
     }
-#else
+#    else
     if (encoding == encoding_utf8) {
         static_cast<char*>(buffer)[size] = 0;
         return size + 1;
     }
-#endif
+#    endif
 
     return size;
 }
@@ -6386,7 +4731,7 @@ PUGI__FN void close_file(FILE* file)
     fclose(file);
 }
 
-#ifndef PUGIXML_NO_STL
+#    ifndef PUGIXML_NO_STL
 template<typename T>
 struct xml_stream_chunk
 {
@@ -6497,8 +4842,7 @@ PUGI__FN xml_parse_status load_stream_data_seek(std::basic_istream<T>& stream, v
 
     stream.read(static_cast<T*>(buffer.data), static_cast<std::streamsize>(read_length));
 
-    // read may set failbit | eofbit in case gcount() is less than read_length (i.e. line ending conversion), so check
-    // for other I/O errors
+    // read may set failbit | eofbit in case gcount() is less than read_length (i.e. line ending conversion), so check for other I/O errors
     if (stream.bad() || (!stream.eof() && stream.fail())) return status_io_error;
 
     // return buffer
@@ -6547,15 +4891,15 @@ PUGI__FN xml_parse_result load_stream_impl(xml_document_struct*   doc,
                             true,
                             out_buffer);
 }
-#endif
+#    endif
 
-#if defined(PUGI__MSVC_CRT_VERSION) || defined(__BORLANDC__) || \
-    (defined(__MINGW32__) && (!defined(__STRICT_ANSI__) || defined(__MINGW64_VERSION_MAJOR)))
+#    if defined(PUGI__MSVC_CRT_VERSION) || defined(__BORLANDC__) || \
+        (defined(__MINGW32__) && (!defined(__STRICT_ANSI__) || defined(__MINGW64_VERSION_MAJOR)))
 PUGI__FN FILE* open_file_wide(const wchar_t* path, const wchar_t* mode)
 {
     return _wfopen(path, mode);
 }
-#else
+#    else
 PUGI__FN char* convert_path_heap(const wchar_t* str)
 {
     assert(str);
@@ -6595,7 +4939,7 @@ PUGI__FN FILE* open_file_wide(const wchar_t* path, const wchar_t* mode)
 
     return result;
 }
-#endif
+#    endif
 
 PUGI__FN bool save_file_impl(const xml_document& doc, FILE* file, const char_t* indent, unsigned int flags, xml_encoding encoding)
 {
@@ -6634,7 +4978,7 @@ namespace pugi
         (void)!result;    // unfortunately we can't do proper error handling here
     }
 
-#ifndef PUGIXML_NO_STL
+#    ifndef PUGIXML_NO_STL
     PUGI__FN xml_writer_stream::xml_writer_stream(std::basic_ostream<char, std::char_traits<char>>& stream)
         : narrow_stream(&stream),
           wide_stream(0)
@@ -6658,7 +5002,7 @@ namespace pugi
             wide_stream->write(reinterpret_cast<const wchar_t*>(data), static_cast<std::streamsize>(size / sizeof(wchar_t)));
         }
     }
-#endif
+#    endif
 
     PUGI__FN xml_tree_walker::xml_tree_walker() : _depth(0) {}
 
@@ -6765,7 +5109,7 @@ namespace pugi
         return (_attr && _attr->value) ? impl::get_value_bool(_attr->value) : def;
     }
 
-#ifdef PUGIXML_HAS_LONG_LONG
+#    ifdef PUGIXML_HAS_LONG_LONG
     PUGI__FN long long xml_attribute::as_llong(long long def) const
     {
         return (_attr && _attr->value) ? impl::get_value_llong(_attr->value) : def;
@@ -6775,7 +5119,7 @@ namespace pugi
     {
         return (_attr && _attr->value) ? impl::get_value_ullong(_attr->value) : def;
     }
-#endif
+#    endif
 
     PUGI__FN bool xml_attribute::empty() const
     {
@@ -6850,7 +5194,7 @@ namespace pugi
         return *this;
     }
 
-#ifdef PUGIXML_HAS_LONG_LONG
+#    ifdef PUGIXML_HAS_LONG_LONG
     PUGI__FN xml_attribute& xml_attribute::operator=(long long rhs)
     {
         set_value(rhs);
@@ -6862,7 +5206,7 @@ namespace pugi
         set_value(rhs);
         return *this;
     }
-#endif
+#    endif
 
     PUGI__FN bool xml_attribute::set_name(const char_t* rhs)
     {
@@ -6914,36 +5258,14 @@ namespace pugi
     {
         if (!_attr) return false;
 
-        return impl::set_value_convert(_attr->value,
-                                       _attr->header,
-                                       impl::xml_memory_page_value_allocated_mask,
-                                       rhs,
-                                       default_double_precision);
-    }
-
-    PUGI__FN bool xml_attribute::set_value(double rhs, int precision)
-    {
-        if (!_attr) return false;
-
-        return impl::set_value_convert(_attr->value, _attr->header, impl::xml_memory_page_value_allocated_mask, rhs, precision);
+        return impl::set_value_convert(_attr->value, _attr->header, impl::xml_memory_page_value_allocated_mask, rhs);
     }
 
     PUGI__FN bool xml_attribute::set_value(float rhs)
     {
         if (!_attr) return false;
 
-        return impl::set_value_convert(_attr->value,
-                                       _attr->header,
-                                       impl::xml_memory_page_value_allocated_mask,
-                                       rhs,
-                                       default_float_precision);
-    }
-
-    PUGI__FN bool xml_attribute::set_value(float rhs, int precision)
-    {
-        if (!_attr) return false;
-
-        return impl::set_value_convert(_attr->value, _attr->header, impl::xml_memory_page_value_allocated_mask, rhs, precision);
+        return impl::set_value_convert(_attr->value, _attr->header, impl::xml_memory_page_value_allocated_mask, rhs);
     }
 
     PUGI__FN bool xml_attribute::set_value(bool rhs)
@@ -6953,7 +5275,7 @@ namespace pugi
         return impl::set_value_bool(_attr->value, _attr->header, impl::xml_memory_page_value_allocated_mask, rhs);
     }
 
-#ifdef PUGIXML_HAS_LONG_LONG
+#    ifdef PUGIXML_HAS_LONG_LONG
     PUGI__FN bool xml_attribute::set_value(long long rhs)
     {
         if (!_attr) return false;
@@ -6975,9 +5297,9 @@ namespace pugi
                                                            rhs,
                                                            false);
     }
-#endif
+#    endif
 
-#ifdef __BORLANDC__
+#    ifdef __BORLANDC__
     PUGI__FN bool operator&&(const xml_attribute& lhs, bool rhs)
     {
         return (bool)lhs && rhs;
@@ -6987,7 +5309,7 @@ namespace pugi
     {
         return (bool)lhs || rhs;
     }
-#endif
+#    endif
 
     PUGI__FN xml_node::xml_node() : _root(0) {}
 
@@ -7571,8 +5893,7 @@ namespace pugi
         impl::xml_allocator& alloc = impl::get_allocator(_root);
         if (!alloc.reserve()) return xml_node();
 
-        // disable document_buffer_order optimization since moving nodes around changes document order without changing
-        // buffer pointers
+        // disable document_buffer_order optimization since moving nodes around changes document order without changing buffer pointers
         impl::get_document(_root).header |= impl::xml_memory_page_contents_shared_mask;
 
         impl::remove_node(moved._root);
@@ -7588,8 +5909,7 @@ namespace pugi
         impl::xml_allocator& alloc = impl::get_allocator(_root);
         if (!alloc.reserve()) return xml_node();
 
-        // disable document_buffer_order optimization since moving nodes around changes document order without changing
-        // buffer pointers
+        // disable document_buffer_order optimization since moving nodes around changes document order without changing buffer pointers
         impl::get_document(_root).header |= impl::xml_memory_page_contents_shared_mask;
 
         impl::remove_node(moved._root);
@@ -7607,8 +5927,7 @@ namespace pugi
         impl::xml_allocator& alloc = impl::get_allocator(_root);
         if (!alloc.reserve()) return xml_node();
 
-        // disable document_buffer_order optimization since moving nodes around changes document order without changing
-        // buffer pointers
+        // disable document_buffer_order optimization since moving nodes around changes document order without changing buffer pointers
         impl::get_document(_root).header |= impl::xml_memory_page_contents_shared_mask;
 
         impl::remove_node(moved._root);
@@ -7626,8 +5945,7 @@ namespace pugi
         impl::xml_allocator& alloc = impl::get_allocator(_root);
         if (!alloc.reserve()) return xml_node();
 
-        // disable document_buffer_order optimization since moving nodes around changes document order without changing
-        // buffer pointers
+        // disable document_buffer_order optimization since moving nodes around changes document order without changing buffer pointers
         impl::get_document(_root).header |= impl::xml_memory_page_contents_shared_mask;
 
         impl::remove_node(moved._root);
@@ -7655,26 +5973,6 @@ namespace pugi
         return true;
     }
 
-    PUGI__FN bool xml_node::remove_attributes()
-    {
-        if (!_root) return false;
-
-        impl::xml_allocator& alloc = impl::get_allocator(_root);
-        if (!alloc.reserve()) return false;
-
-        for (xml_attribute_struct* attr = _root->first_attribute; attr;) {
-            xml_attribute_struct* next = attr->next_attribute;
-
-            impl::destroy_attribute(attr, alloc);
-
-            attr = next;
-        }
-
-        _root->first_attribute = 0;
-
-        return true;
-    }
-
     PUGI__FN bool xml_node::remove_child(const char_t* name_)
     {
         return remove_child(child(name_));
@@ -7693,26 +5991,6 @@ namespace pugi
         return true;
     }
 
-    PUGI__FN bool xml_node::remove_children()
-    {
-        if (!_root) return false;
-
-        impl::xml_allocator& alloc = impl::get_allocator(_root);
-        if (!alloc.reserve()) return false;
-
-        for (xml_node_struct* child = _root->first_child; child;) {
-            xml_node_struct* next = child->next_sibling;
-
-            impl::destroy_node(child, alloc);
-
-            child = next;
-        }
-
-        _root->first_child = 0;
-
-        return true;
-    }
-
     PUGI__FN xml_parse_result xml_node::append_buffer(const void* contents, size_t size, unsigned int options, xml_encoding encoding)
     {
         // append_buffer is only valid for elements/documents
@@ -7721,8 +5999,8 @@ namespace pugi
         // get document node
         impl::xml_document_struct* doc = &impl::get_document(_root);
 
-        // disable document_buffer_order optimization since in a document with multiple buffers comparing buffer
-        // pointers does not make sense
+        // disable document_buffer_order optimization since in a document with multiple buffers comparing buffer pointers does not make
+        // sense
         doc->header |= impl::xml_memory_page_contents_shared_mask;
 
         // get extra buffer element (we'll store the document fragment buffer there so that we can deallocate it later)
@@ -7733,21 +6011,19 @@ namespace pugi
 
         if (!extra) return impl::make_parse_result(status_out_of_memory);
 
-#ifdef PUGIXML_COMPACT
-        // align the memory block to a pointer boundary; this is required for compact mode where memory allocations are
-        // only 4b aligned note that this requires up to sizeof(void*)-1 additional memory, which the allocation above
-        // takes into account
+#    ifdef PUGIXML_COMPACT
+        // align the memory block to a pointer boundary; this is required for compact mode where memory allocations are only 4b aligned
+        // note that this requires up to sizeof(void*)-1 additional memory, which the allocation above takes into account
         extra =
             reinterpret_cast<impl::xml_extra_buffer*>((reinterpret_cast<uintptr_t>(extra) + (sizeof(void*) - 1)) & ~(sizeof(void*) - 1));
-#endif
+#    endif
 
         // add extra buffer to the list
         extra->buffer      = 0;
         extra->next        = doc->extra_buffers;
         doc->extra_buffers = extra;
 
-        // name of the root has to be NULL before parsing - otherwise closing node mismatches will not be detected at
-        // the top level
+        // name of the root has to be NULL before parsing - otherwise closing node mismatches will not be detected at the top level
         impl::name_null_sentry sentry(_root);
 
         return impl::load_buffer_impl(doc, _root, const_cast<void*>(contents), size, options, encoding, false, false, &extra->buffer);
@@ -7780,7 +6056,7 @@ namespace pugi
         return xml_node();
     }
 
-#ifndef PUGIXML_NO_STL
+#    ifndef PUGIXML_NO_STL
     PUGI__FN string_t xml_node::path(char_t delimiter) const
     {
         if (!_root) return string_t();
@@ -7810,13 +6086,19 @@ namespace pugi
 
         return result;
     }
-#endif
+#    endif
 
     PUGI__FN xml_node xml_node::first_element_by_path(const char_t* path_, char_t delimiter) const
     {
-        xml_node context = path_[0] == delimiter ? root() : *this;
+        xml_node found = *this;    // Current search context.
 
-        if (!context._root) return xml_node();
+        if (!_root || !path_[0]) return found;
+
+        if (path_[0] == delimiter) {
+            // Absolute path; e.g. '/foo/bar'
+            found = found.root();
+            ++path_;
+        }
 
         const char_t* path_segment = path_;
 
@@ -7826,18 +6108,18 @@ namespace pugi
 
         while (*path_segment_end && *path_segment_end != delimiter) ++path_segment_end;
 
-        if (path_segment == path_segment_end) return context;
+        if (path_segment == path_segment_end) return found;
 
         const char_t* next_segment = path_segment_end;
 
         while (*next_segment == delimiter) ++next_segment;
 
         if (*path_segment == '.' && path_segment + 1 == path_segment_end)
-            return context.first_element_by_path(next_segment, delimiter);
+            return found.first_element_by_path(next_segment, delimiter);
         else if (*path_segment == '.' && *(path_segment + 1) == '.' && path_segment + 2 == path_segment_end)
-            return context.parent().first_element_by_path(next_segment, delimiter);
+            return found.parent().first_element_by_path(next_segment, delimiter);
         else {
-            for (xml_node_struct* j = context._root->first_child; j; j = j->next_sibling) {
+            for (xml_node_struct* j = found._root->first_child; j; j = j->next_sibling) {
                 if (j->name && impl::strequalrange(j->name, path_segment, static_cast<size_t>(path_segment_end - path_segment))) {
                     xml_node subsearch = xml_node(j).first_element_by_path(next_segment, delimiter);
 
@@ -7911,7 +6193,7 @@ namespace pugi
         buffered_writer.flush();
     }
 
-#ifndef PUGIXML_NO_STL
+#    ifndef PUGIXML_NO_STL
     PUGI__FN void xml_node::print(std::basic_ostream<char, std::char_traits<char>>& stream,
                                   const char_t*                                     indent,
                                   unsigned int                                      flags,
@@ -7932,7 +6214,7 @@ namespace pugi
 
         print(writer, indent, flags, encoding_wchar, depth);
     }
-#endif
+#    endif
 
     PUGI__FN ptrdiff_t xml_node::offset_debug() const
     {
@@ -7967,7 +6249,7 @@ namespace pugi
         }
     }
 
-#ifdef __BORLANDC__
+#    ifdef __BORLANDC__
     PUGI__FN bool operator&&(const xml_node& lhs, bool rhs)
     {
         return (bool)lhs && rhs;
@@ -7977,7 +6259,7 @@ namespace pugi
     {
         return (bool)lhs || rhs;
     }
-#endif
+#    endif
 
     PUGI__FN xml_text::xml_text(xml_node_struct* root) : _root(root) {}
 
@@ -8070,7 +6352,7 @@ namespace pugi
         return (d && d->value) ? impl::get_value_bool(d->value) : def;
     }
 
-#ifdef PUGIXML_HAS_LONG_LONG
+#    ifdef PUGIXML_HAS_LONG_LONG
     PUGI__FN long long xml_text::as_llong(long long def) const
     {
         xml_node_struct* d = _data();
@@ -8084,7 +6366,7 @@ namespace pugi
 
         return (d && d->value) ? impl::get_value_ullong(d->value) : def;
     }
-#endif
+#    endif
 
     PUGI__FN bool xml_text::set(const char_t* rhs)
     {
@@ -8130,34 +6412,14 @@ namespace pugi
     {
         xml_node_struct* dn = _data_new();
 
-        return dn ? impl::set_value_convert(dn->value, dn->header, impl::xml_memory_page_value_allocated_mask, rhs, default_float_precision)
-                  : false;
-    }
-
-    PUGI__FN bool xml_text::set(float rhs, int precision)
-    {
-        xml_node_struct* dn = _data_new();
-
-        return dn ? impl::set_value_convert(dn->value, dn->header, impl::xml_memory_page_value_allocated_mask, rhs, precision) : false;
+        return dn ? impl::set_value_convert(dn->value, dn->header, impl::xml_memory_page_value_allocated_mask, rhs) : false;
     }
 
     PUGI__FN bool xml_text::set(double rhs)
     {
         xml_node_struct* dn = _data_new();
 
-        return dn ? impl::set_value_convert(dn->value,
-                                            dn->header,
-                                            impl::xml_memory_page_value_allocated_mask,
-                                            rhs,
-                                            default_double_precision)
-                  : false;
-    }
-
-    PUGI__FN bool xml_text::set(double rhs, int precision)
-    {
-        xml_node_struct* dn = _data_new();
-
-        return dn ? impl::set_value_convert(dn->value, dn->header, impl::xml_memory_page_value_allocated_mask, rhs, precision) : false;
+        return dn ? impl::set_value_convert(dn->value, dn->header, impl::xml_memory_page_value_allocated_mask, rhs) : false;
     }
 
     PUGI__FN bool xml_text::set(bool rhs)
@@ -8167,7 +6429,7 @@ namespace pugi
         return dn ? impl::set_value_bool(dn->value, dn->header, impl::xml_memory_page_value_allocated_mask, rhs) : false;
     }
 
-#ifdef PUGIXML_HAS_LONG_LONG
+#    ifdef PUGIXML_HAS_LONG_LONG
     PUGI__FN bool xml_text::set(long long rhs)
     {
         xml_node_struct* dn = _data_new();
@@ -8191,7 +6453,7 @@ namespace pugi
                                                                 false)
                   : false;
     }
-#endif
+#    endif
 
     PUGI__FN xml_text& xml_text::operator=(const char_t* rhs)
     {
@@ -8241,7 +6503,7 @@ namespace pugi
         return *this;
     }
 
-#ifdef PUGIXML_HAS_LONG_LONG
+#    ifdef PUGIXML_HAS_LONG_LONG
     PUGI__FN xml_text& xml_text::operator=(long long rhs)
     {
         set(rhs);
@@ -8253,14 +6515,14 @@ namespace pugi
         set(rhs);
         return *this;
     }
-#endif
+#    endif
 
     PUGI__FN xml_node xml_text::data() const
     {
         return xml_node(_data());
     }
 
-#ifdef __BORLANDC__
+#    ifdef __BORLANDC__
     PUGI__FN bool operator&&(const xml_text& lhs, bool rhs)
     {
         return (bool)lhs && rhs;
@@ -8270,7 +6532,7 @@ namespace pugi
     {
         return (bool)lhs || rhs;
     }
-#endif
+#    endif
 
     PUGI__FN xml_node_iterator::xml_node_iterator() {}
 
@@ -8523,7 +6785,7 @@ namespace pugi
         _destroy();
     }
 
-#ifdef PUGIXML_HAS_MOVE
+#    ifdef PUGIXML_HAS_MOVE
     PUGI__FN xml_document::xml_document(xml_document&& rhs) PUGIXML_NOEXCEPT_IF_NOT_COMPACT : _buffer(0)
     {
         _create();
@@ -8540,7 +6802,7 @@ namespace pugi
 
         return *this;
     }
-#endif
+#    endif
 
     PUGI__FN void xml_document::reset()
     {
@@ -8552,20 +6814,19 @@ namespace pugi
     {
         reset();
 
-        impl::node_copy_tree(_root, proto._root);
+        for (xml_node cur = proto.first_child(); cur; cur = cur.next_sibling()) append_copy(cur);
     }
 
     PUGI__FN void xml_document::_create()
     {
         assert(!_root);
 
-#ifdef PUGIXML_COMPACT
-        // space for page marker for the first page (uint32_t), rounded up to pointer size; assumes pointers are at
-        // least 32-bit
+#    ifdef PUGIXML_COMPACT
+        // space for page marker for the first page (uint32_t), rounded up to pointer size; assumes pointers are at least 32-bit
         const size_t page_offset = sizeof(void*);
-#else
+#    else
         const size_t page_offset = 0;
-#endif
+#    endif
 
         // initialize sentinel page
         PUGI__STATIC_ASSERT(sizeof(impl::xml_memory_page) + sizeof(impl::xml_document_struct) + page_offset <= sizeof(_memory));
@@ -8577,12 +6838,12 @@ namespace pugi
         page->busy_size = impl::xml_memory_page_size;
 
         // setup first page marker
-#ifdef PUGIXML_COMPACT
+#    ifdef PUGIXML_COMPACT
         // round-trip through void* to avoid 'cast increases required alignment of target type' warning
         page->compact_page_marker =
             reinterpret_cast<uint32_t*>(static_cast<void*>(reinterpret_cast<char*>(page) + sizeof(impl::xml_memory_page)));
         *page->compact_page_marker = sizeof(impl::xml_memory_page);
-#endif
+#    endif
 
         // allocate new root
         _root = new (reinterpret_cast<char*>(page) + sizeof(impl::xml_memory_page) + page_offset) impl::xml_document_struct(page);
@@ -8592,9 +6853,9 @@ namespace pugi
         page->allocator = static_cast<impl::xml_document_struct*>(_root);
 
         // setup hash table pointer in allocator
-#ifdef PUGIXML_COMPACT
+#    ifdef PUGIXML_COMPACT
         page->allocator->_hash = &static_cast<impl::xml_document_struct*>(_root)->hash;
-#endif
+#    endif
 
         // verify the document allocation
         assert(reinterpret_cast<char*>(_root) + sizeof(impl::xml_document_struct) <= _memory + sizeof(_memory));
@@ -8610,8 +6871,7 @@ namespace pugi
             _buffer = 0;
         }
 
-        // destroy extra buffers (note: no need to destroy linked list nodes, they're allocated using document
-        // allocator)
+        // destroy extra buffers (note: no need to destroy linked list nodes, they're allocated using document allocator)
         for (impl::xml_extra_buffer* extra = static_cast<impl::xml_document_struct*>(_root)->extra_buffers; extra; extra = extra->next) {
             if (extra->buffer) impl::xml_memory::deallocate(extra->buffer);
         }
@@ -8629,15 +6889,15 @@ namespace pugi
             page = next;
         }
 
-#ifdef PUGIXML_COMPACT
+#    ifdef PUGIXML_COMPACT
         // destroy hash table
         static_cast<impl::xml_document_struct*>(_root)->hash.clear();
-#endif
+#    endif
 
         _root = 0;
     }
 
-#ifdef PUGIXML_HAS_MOVE
+#    ifdef PUGIXML_HAS_MOVE
     PUGI__FN void xml_document::_move(xml_document& rhs) PUGIXML_NOEXCEPT_IF_NOT_COMPACT
     {
         impl::xml_document_struct* doc   = static_cast<impl::xml_document_struct*>(_root);
@@ -8646,7 +6906,7 @@ namespace pugi
         // save first child pointer for later; this needs hash access
         xml_node_struct* other_first_child = other->first_child;
 
-#    ifdef PUGIXML_COMPACT
+#        ifdef PUGIXML_COMPACT
         // reserve space for the hash table up front; this is the only operation that can fail
         // if it does, we have no choice but to throw (if we have exceptions)
         if (other_first_child) {
@@ -8658,14 +6918,14 @@ namespace pugi
             // normally there's just one child and its parent has a pointerless encoding but
             // we assume the worst here
             if (!other->_hash->reserve(other_children + 1)) {
-#        ifdef PUGIXML_NO_EXCEPTIONS
+#            ifdef PUGIXML_NO_EXCEPTIONS
                 return;
-#        else
+#            else
                 throw std::bad_alloc();
-#        endif
+#            endif
             }
         }
-#    endif
+#        endif
 
         // move allocation state
         doc->_root      = other->_root;
@@ -8676,15 +6936,15 @@ namespace pugi
         doc->extra_buffers = other->extra_buffers;
         _buffer            = rhs._buffer;
 
-#    ifdef PUGIXML_COMPACT
-        // move compact hash; note that the hash table can have pointers to other but they will be "inactive", similarly
-        // to nodes removed with remove_child
+#        ifdef PUGIXML_COMPACT
+        // move compact hash; note that the hash table can have pointers to other but they will be "inactive", similarly to nodes removed
+        // with remove_child
         doc->hash  = other->hash;
         doc->_hash = &doc->hash;
 
         // make sure we don't access other hash up until the end when we reinitialize other document
         other->_hash = 0;
-#    endif
+#        endif
 
         // move page structure
         impl::xml_memory_page* doc_page = PUGI__GETPAGE(doc);
@@ -8709,11 +6969,10 @@ namespace pugi
 
             page->allocator = doc;
 
-#    ifdef PUGIXML_COMPACT
-            // this automatically migrates most children between documents and prevents ->parent assignment from
-            // allocating
+#        ifdef PUGIXML_COMPACT
+            // this automatically migrates most children between documents and prevents ->parent assignment from allocating
             if (page->compact_shared_parent == other) page->compact_shared_parent = doc;
-#    endif
+#        endif
         }
 
         // move tree structure
@@ -8722,24 +6981,24 @@ namespace pugi
         doc->first_child = other_first_child;
 
         for (xml_node_struct* node = other_first_child; node; node = node->next_sibling) {
-#    ifdef PUGIXML_COMPACT
+#        ifdef PUGIXML_COMPACT
             // most children will have migrated when we reassigned compact_shared_parent
             assert(node->parent == other || node->parent == doc);
 
             node->parent = doc;
-#    else
+#        else
             assert(node->parent == other);
             node->parent = doc;
-#    endif
+#        endif
         }
 
         // reset other document
         new (other) impl::xml_document_struct(PUGI__GETPAGE(other));
         rhs._buffer = 0;
     }
-#endif
+#    endif
 
-#ifndef PUGIXML_NO_STL
+#    ifndef PUGIXML_NO_STL
     PUGI__FN xml_parse_result xml_document::load(std::basic_istream<char, std::char_traits<char>>& stream,
                                                  unsigned int                                      options,
                                                  xml_encoding                                      encoding)
@@ -8755,16 +7014,16 @@ namespace pugi
 
         return impl::load_stream_impl(static_cast<impl::xml_document_struct*>(_root), stream, options, encoding_wchar, &_buffer);
     }
-#endif
+#    endif
 
     PUGI__FN xml_parse_result xml_document::load_string(const char_t* contents, unsigned int options)
     {
         // Force native encoding (skip autodetection)
-#ifdef PUGIXML_WCHAR_MODE
+#    ifdef PUGIXML_WCHAR_MODE
         xml_encoding encoding = encoding_wchar;
-#else
+#    else
         xml_encoding encoding = encoding_utf8;
-#endif
+#    endif
 
         return load_buffer(contents, impl::strlength(contents) * sizeof(char_t), options, encoding);
     }
@@ -8848,12 +7107,12 @@ namespace pugi
 
         if ((flags & format_write_bom) && encoding != encoding_latin1) {
             // BOM always represents the codepoint U+FEFF, so just write it in native encoding
-#ifdef PUGIXML_WCHAR_MODE
+#    ifdef PUGIXML_WCHAR_MODE
             unsigned int bom = 0xfeff;
             buffered_writer.write(static_cast<wchar_t>(bom));
-#else
+#    else
             buffered_writer.write('\xef', '\xbb', '\xbf');
-#endif
+#    endif
         }
 
         if (!(flags & format_no_declaration) && !impl::has_declaration(_root)) {
@@ -8868,7 +7127,7 @@ namespace pugi
         buffered_writer.flush();
     }
 
-#ifndef PUGIXML_NO_STL
+#    ifndef PUGIXML_NO_STL
     PUGI__FN void xml_document::save(std::basic_ostream<char, std::char_traits<char>>& stream,
                                      const char_t*                                     indent,
                                      unsigned int                                      flags,
@@ -8886,7 +7145,7 @@ namespace pugi
 
         save(writer, indent, flags, encoding_wchar);
     }
-#endif
+#    endif
 
     PUGI__FN bool xml_document::save_file(const char* path_, const char_t* indent, unsigned int flags, xml_encoding encoding) const
     {
@@ -8914,7 +7173,7 @@ namespace pugi
         return xml_node();
     }
 
-#ifndef PUGIXML_NO_STL
+#    ifndef PUGIXML_NO_STL
     PUGI__FN std::string PUGIXML_FUNCTION as_utf8(const wchar_t* str)
     {
         assert(str);
@@ -8938,7 +7197,7 @@ namespace pugi
     {
         return impl::as_wide_impl(str.c_str(), str.size());
     }
-#endif
+#    endif
 
     PUGI__FN void PUGIXML_FUNCTION set_memory_management_functions(allocation_function allocate, deallocation_function deallocate)
     {
@@ -8957,7 +7216,7 @@ namespace pugi
     }
 }    // namespace pugi
 
-#if !defined(PUGIXML_NO_STL) && (defined(_MSC_VER) || defined(__ICC))
+#    if !defined(PUGIXML_NO_STL) && (defined(_MSC_VER) || defined(__ICC))
 namespace std
 {
     // Workarounds for (non-standard) iterator category detection for older versions (MSVC7/IC8 and earlier)
@@ -8976,9 +7235,9 @@ namespace std
         return std::bidirectional_iterator_tag();
     }
 }    // namespace std
-#endif
+#    endif
 
-#if !defined(PUGIXML_NO_STL) && defined(__SUNPRO_CC)
+#    if !defined(PUGIXML_NO_STL) && defined(__SUNPRO_CC)
 namespace std
 {
     // Workarounds for (non-standard) iterator category detection
@@ -8997,9 +7256,9 @@ namespace std
         return std::bidirectional_iterator_tag();
     }
 }    // namespace std
-#endif
+#    endif
 
-#ifndef PUGIXML_NO_XPATH
+#    ifndef PUGIXML_NO_XPATH
 // STL replacements
 PUGI__NS_BEGIN
 struct equal_to
@@ -9206,11 +7465,11 @@ PUGI__NS_END
 // Allocator used for AST and evaluation stacks
 PUGI__NS_BEGIN
 static const size_t xpath_memory_page_size =
-#    ifdef PUGIXML_MEMORY_XPATH_PAGE_SIZE
+#        ifdef PUGIXML_MEMORY_XPATH_PAGE_SIZE
     PUGIXML_MEMORY_XPATH_PAGE_SIZE
-#    else
+#        else
     4096
-#    endif
+#        endif
     ;
 
 static const uintptr_t xpath_memory_block_alignment = sizeof(double) > sizeof(void*) ? sizeof(double) : sizeof(void*);
@@ -9246,8 +7505,7 @@ struct xpath_allocator
             return buf;
         }
         else {
-            // make sure we have at least 1/4th of the page free after allocation to satisfy subsequent allocation
-            // requests
+            // make sure we have at least 1/4th of the page free after allocation to satisfy subsequent allocation requests
             size_t block_capacity_base = sizeof(_root->data);
             size_t block_capacity_req  = size + block_capacity_base / 4;
             size_t block_capacity      = (block_capacity_base > block_capacity_req) ? block_capacity_base : block_capacity_req;
@@ -9539,21 +7797,21 @@ PUGI__FN bool starts_with(const char_t* string, const char_t* pattern)
 
 PUGI__FN const char_t* find_char(const char_t* s, char_t c)
 {
-#    ifdef PUGIXML_WCHAR_MODE
+#        ifdef PUGIXML_WCHAR_MODE
     return wcschr(s, c);
-#    else
+#        else
     return strchr(s, c);
-#    endif
+#        endif
 }
 
 PUGI__FN const char_t* find_substring(const char_t* s, const char_t* p)
 {
-#    ifdef PUGIXML_WCHAR_MODE
+#        ifdef PUGIXML_WCHAR_MODE
     // MSVC6 wcsstr bug workaround (if s is empty it always returns 0)
     return (*p == 0) ? s : wcsstr(s, p);
-#    else
+#        else
     return strstr(s, p);
-#    endif
+#        endif
 }
 
 // Converts symbol to lower case, if it is an ASCII one
@@ -9755,7 +8013,7 @@ struct document_order_comparator
 
 PUGI__FN double gen_nan()
 {
-#    if defined(__STDC_IEC_559__) || ((FLT_RADIX - 0 == 2) && (FLT_MAX_EXP - 0 == 128) && (FLT_MANT_DIG - 0 == 24))
+#        if defined(__STDC_IEC_559__) || ((FLT_RADIX - 0 == 2) && (FLT_MAX_EXP - 0 == 128) && (FLT_MANT_DIG - 0 == 24))
     PUGI__STATIC_ASSERT(sizeof(float) == sizeof(uint32_t));
     typedef uint32_t UI;    // BCC5 workaround
     union
@@ -9765,33 +8023,33 @@ PUGI__FN double gen_nan()
     } u;
     u.i = 0x7fc00000;
     return double(u.f);
-#    else
+#        else
     // fallback
     const volatile double zero = 0.0;
     return zero / zero;
-#    endif
+#        endif
 }
 
 PUGI__FN bool is_nan(double value)
 {
-#    if defined(PUGI__MSVC_CRT_VERSION) || defined(__BORLANDC__)
+#        if defined(PUGI__MSVC_CRT_VERSION) || defined(__BORLANDC__)
     return !!_isnan(value);
-#    elif defined(fpclassify) && defined(FP_NAN)
+#        elif defined(fpclassify) && defined(FP_NAN)
     return fpclassify(value) == FP_NAN;
-#    else
+#        else
     // fallback
     const volatile double v = value;
     return v != v;
-#    endif
+#        endif
 }
 
 PUGI__FN const char_t* convert_number_to_string_special(double value)
 {
-#    if defined(PUGI__MSVC_CRT_VERSION) || defined(__BORLANDC__)
+#        if defined(PUGI__MSVC_CRT_VERSION) || defined(__BORLANDC__)
     if (_finite(value)) return (value == 0) ? PUGIXML_TEXT("0") : 0;
     if (_isnan(value)) return PUGIXML_TEXT("NaN");
     return value > 0 ? PUGIXML_TEXT("Infinity") : PUGIXML_TEXT("-Infinity");
-#    elif defined(fpclassify) && defined(FP_NAN) && defined(FP_INFINITE) && defined(FP_ZERO)
+#        elif defined(fpclassify) && defined(FP_NAN) && defined(FP_INFINITE) && defined(FP_ZERO)
     switch (fpclassify(value)) {
         case FP_NAN:
             return PUGIXML_TEXT("NaN");
@@ -9805,7 +8063,7 @@ PUGI__FN const char_t* convert_number_to_string_special(double value)
         default:
             return 0;
     }
-#    else
+#        else
     // fallback
     const volatile double v = value;
 
@@ -9813,7 +8071,7 @@ PUGI__FN const char_t* convert_number_to_string_special(double value)
     if (v != v) return PUGIXML_TEXT("NaN");
     if (v * 2 == v) return value > 0 ? PUGIXML_TEXT("Infinity") : PUGIXML_TEXT("-Infinity");
     return 0;
-#    endif
+#        endif
 }
 
 PUGI__FN bool convert_number_to_boolean(double value)
@@ -9829,7 +8087,7 @@ PUGI__FN void truncate_zeros(char* begin, char* end)
 }
 
 // gets mantissa digits in the form of 0.xxxxx with 0. implied and the exponent
-#    if defined(PUGI__MSVC_CRT_VERSION) && PUGI__MSVC_CRT_VERSION >= 1400 && !defined(_WIN32_WCE)
+#        if defined(PUGI__MSVC_CRT_VERSION) && PUGI__MSVC_CRT_VERSION >= 1400 && !defined(_WIN32_WCE)
 PUGI__FN void convert_number_to_mantissa_exponent(double value, char (&buffer)[32], char** out_mantissa, int* out_exponent)
 {
     // get base values
@@ -9843,7 +8101,7 @@ PUGI__FN void convert_number_to_mantissa_exponent(double value, char (&buffer)[3
     *out_mantissa = buffer;
     *out_exponent = exponent;
 }
-#    else
+#        else
 PUGI__FN void convert_number_to_mantissa_exponent(double value, char (&buffer)[32], char** out_mantissa, int* out_exponent)
 {
     // get a scientific notation value with IEEE DBL_DIG decimals
@@ -9871,7 +8129,7 @@ PUGI__FN void convert_number_to_mantissa_exponent(double value, char (&buffer)[3
     *out_mantissa = mantissa;
     *out_exponent = exponent;
 }
-#    endif
+#        endif
 
 PUGI__FN xpath_string convert_number_to_string(double value, xpath_allocator* alloc)
 {
@@ -9969,11 +8227,11 @@ PUGI__FN double convert_string_to_number(const char_t* string)
     if (!check_string_to_number_format(string)) return gen_nan();
 
         // parse string
-#    ifdef PUGIXML_WCHAR_MODE
+#        ifdef PUGIXML_WCHAR_MODE
     return wcstod(string, 0);
-#    else
+#        else
     return strtod(string, 0);
-#    endif
+#        endif
 }
 
 PUGI__FN bool convert_string_to_number_scratch(char_t (&buffer)[32], const char_t* begin, const char_t* end, double* out_result)
@@ -11231,7 +9489,7 @@ private:
         for (xpath_node* it = last; it != ns.end(); ++it, ++i) {
             xpath_context c(*it, i, size);
 
-            if (expr->eval_number(c, stack) == static_cast<double>(i)) {
+            if (expr->eval_number(c, stack) == i) {
                 *last++ = *it;
 
                 if (once) break;
@@ -11254,10 +9512,10 @@ private:
 
         double er = expr->eval_number(c, stack);
 
-        if (er >= 1.0 && er <= static_cast<double>(size)) {
+        if (er >= 1.0 && er <= size) {
             size_t eri = static_cast<size_t>(er);
 
-            if (er == static_cast<double>(eri)) {
+            if (er == eri) {
                 xpath_node r = last[eri - 1];
 
                 *last++ = r;
@@ -11610,8 +9868,8 @@ private:
             }
 
             case axis_preceding: {
-                // preceding:: axis does not include attribute nodes and attribute ancestors (they are the same as
-                // parent's ancestors), so we can reuse node preceding
+                // preceding:: axis does not include attribute nodes and attribute ancestors (they are the same as parent's ancestors), so
+                // we can reuse node preceding
                 step_fill(ns, p, alloc, once, v);
                 break;
             }
@@ -11658,8 +9916,8 @@ private:
             for (const xpath_node* it = s.begin(); it != s.end(); ++it) {
                 size_t size = ns.size();
 
-                // in general, all axes generate elements in a particular order, but there is no order guarantee if axis
-                // is applied to two nodes
+                // in general, all axes generate elements in a particular order, but there is no order guarantee if axis is applied to two
+                // nodes
                 if (axis != axis_self && size != 0) ns.set_type(xpath_node_set::type_unsorted);
 
                 step_fill(ns, *it, stack.result, once, v);
@@ -11672,8 +9930,7 @@ private:
         }
 
         // child, attribute and self axes always generate unique set of nodes
-        // for other axis, if the set stayed sorted, it stayed unique because the traversal algorithms do not visit the
-        // same node twice
+        // for other axis, if the set stayed sorted, it stayed unique because the traversal algorithms do not visit the same node twice
         if (axis != axis_child && axis != axis_attribute && axis != axis_self && ns.type() == xpath_node_set::type_unsorted)
             ns.remove_duplicates(stack.temp);
 
@@ -11860,34 +10117,31 @@ public:
                 assert(_rettype == _data.variable->type());
 
                 if (_rettype == xpath_type_boolean) return _data.variable->get_boolean();
-
-                // variable needs to be converted to the correct type, this is handled by the fallthrough block below
-                break;
             }
 
-            default:;
-        }
+            // fallthrough
+            default: {
+                switch (_rettype) {
+                    case xpath_type_number:
+                        return convert_number_to_boolean(eval_number(c, stack));
 
-        // none of the ast types that return the value directly matched, we need to perform type conversion
-        switch (_rettype) {
-            case xpath_type_number:
-                return convert_number_to_boolean(eval_number(c, stack));
+                    case xpath_type_string: {
+                        xpath_allocator_capture cr(stack.result);
 
-            case xpath_type_string: {
-                xpath_allocator_capture cr(stack.result);
+                        return !eval_string(c, stack).empty();
+                    }
 
-                return !eval_string(c, stack).empty();
+                    case xpath_type_node_set: {
+                        xpath_allocator_capture cr(stack.result);
+
+                        return !eval_node_set(c, stack, nodeset_eval_any).empty();
+                    }
+
+                    default:
+                        assert(false && "Wrong expression for return type boolean");    // unreachable
+                        return false;
+                }
             }
-
-            case xpath_type_node_set: {
-                xpath_allocator_capture cr(stack.result);
-
-                return !eval_node_set(c, stack, nodeset_eval_any).empty();
-            }
-
-            default:
-                assert(false && "Wrong expression for return type boolean");    // unreachable
-                return false;
         }
     }
 
@@ -11983,34 +10237,31 @@ public:
                 assert(_rettype == _data.variable->type());
 
                 if (_rettype == xpath_type_number) return _data.variable->get_number();
-
-                // variable needs to be converted to the correct type, this is handled by the fallthrough block below
-                break;
             }
 
-            default:;
-        }
+            // fallthrough
+            default: {
+                switch (_rettype) {
+                    case xpath_type_boolean:
+                        return eval_boolean(c, stack) ? 1 : 0;
 
-        // none of the ast types that return the value directly matched, we need to perform type conversion
-        switch (_rettype) {
-            case xpath_type_boolean:
-                return eval_boolean(c, stack) ? 1 : 0;
+                    case xpath_type_string: {
+                        xpath_allocator_capture cr(stack.result);
 
-            case xpath_type_string: {
-                xpath_allocator_capture cr(stack.result);
+                        return convert_string_to_number(eval_string(c, stack).c_str());
+                    }
 
-                return convert_string_to_number(eval_string(c, stack).c_str());
+                    case xpath_type_node_set: {
+                        xpath_allocator_capture cr(stack.result);
+
+                        return convert_string_to_number(eval_string(c, stack).c_str());
+                    }
+
+                    default:
+                        assert(false && "Wrong expression for return type number");    // unreachable
+                        return 0;
+                }
             }
-
-            case xpath_type_node_set: {
-                xpath_allocator_capture cr(stack.result);
-
-                return convert_string_to_number(eval_string(c, stack).c_str());
-            }
-
-            default:
-                assert(false && "Wrong expression for return type number");    // unreachable
-                return 0;
         }
     }
 
@@ -12157,7 +10408,7 @@ public:
 
                 if (is_nan(first))
                     return xpath_string();    // NaN
-                else if (first >= static_cast<double>(s_length + 1))
+                else if (first >= s_length + 1)
                     return xpath_string();
 
                 size_t pos = first < 1 ? 1 : static_cast<size_t>(first);
@@ -12182,7 +10433,7 @@ public:
 
                 if (is_nan(first) || is_nan(last))
                     return xpath_string();
-                else if (first >= static_cast<double>(s_length + 1))
+                else if (first >= s_length + 1)
                     return xpath_string();
                 else if (first >= last)
                     return xpath_string();
@@ -12190,7 +10441,7 @@ public:
                     return xpath_string();
 
                 size_t pos = first < 1 ? 1 : static_cast<size_t>(first);
-                size_t end = last >= static_cast<double>(s_length + 1) ? s_length + 1 : static_cast<size_t>(last);
+                size_t end = last >= s_length + 1 ? s_length + 1 : static_cast<size_t>(last);
 
                 assert(1 <= pos && pos <= end && end <= s_length + 1);
                 const char_t* rbegin = s.c_str() + (pos - 1);
@@ -12254,34 +10505,31 @@ public:
                 assert(_rettype == _data.variable->type());
 
                 if (_rettype == xpath_type_string) return xpath_string::from_const(_data.variable->get_string());
-
-                // variable needs to be converted to the correct type, this is handled by the fallthrough block below
-                break;
             }
 
-            default:;
-        }
+            // fallthrough
+            default: {
+                switch (_rettype) {
+                    case xpath_type_boolean:
+                        return xpath_string::from_const(eval_boolean(c, stack) ? PUGIXML_TEXT("true") : PUGIXML_TEXT("false"));
 
-        // none of the ast types that return the value directly matched, we need to perform type conversion
-        switch (_rettype) {
-            case xpath_type_boolean:
-                return xpath_string::from_const(eval_boolean(c, stack) ? PUGIXML_TEXT("true") : PUGIXML_TEXT("false"));
+                    case xpath_type_number:
+                        return convert_number_to_string(eval_number(c, stack), stack.result);
 
-            case xpath_type_number:
-                return convert_number_to_string(eval_number(c, stack), stack.result);
+                    case xpath_type_node_set: {
+                        xpath_allocator_capture cr(stack.temp);
 
-            case xpath_type_node_set: {
-                xpath_allocator_capture cr(stack.temp);
+                        xpath_stack swapped_stack = { stack.temp, stack.result };
 
-                xpath_stack swapped_stack = { stack.temp, stack.result };
+                        xpath_node_set_raw ns = eval_node_set(c, swapped_stack, nodeset_eval_first);
+                        return ns.empty() ? xpath_string() : string_value(ns.first(), stack.result);
+                    }
 
-                xpath_node_set_raw ns = eval_node_set(c, swapped_stack, nodeset_eval_first);
-                return ns.empty() ? xpath_string() : string_value(ns.first(), stack.result);
+                    default:
+                        assert(false && "Wrong expression for return type string");    // unreachable
+                        return xpath_string();
+                }
             }
-
-            default:
-                assert(false && "Wrong expression for return type string");    // unreachable
-                return xpath_string();
         }
     }
 
@@ -12398,17 +10646,13 @@ public:
 
                     return ns;
                 }
-
-                // variable needs to be converted to the correct type, this is handled by the fallthrough block below
-                break;
             }
 
-            default:;
+            // fallthrough
+            default:
+                assert(false && "Wrong expression for return type node set");    // unreachable
+                return xpath_node_set_raw();
         }
-
-        // none of the ast types that return the value directly matched, but conversions to node set are invalid
-        assert(false && "Wrong expression for return type node set");    // unreachable
-        return xpath_node_set_raw();
     }
 
     void optimize(xpath_allocator* alloc)
@@ -12480,8 +10724,9 @@ public:
         }
 
         // Use optimized path for @attr = 'value' or @attr = $value
-        if (_type == ast_op_equal && _left && _right &&    // workaround for clang static analyzer and Coverity (_left and _right are never
-                                                           // null for ast_op_equal) coverity[mixed_enums]
+        if (_type == ast_op_equal && _left &&
+            _right &&    // workaround for clang static analyzer and Coverity (_left and _right are never null for ast_op_equal)
+                         // coverity[mixed_enums]
             _left->_type == ast_step && _left->_axis == axis_attribute && _left->_test == nodetest_name && !_left->_left &&
             !_left->_right &&
             (_right->_type == ast_string_constant || (_right->_type == ast_variable && _right->_rettype == xpath_type_string)))
@@ -13129,8 +11374,8 @@ struct xpath_parser
             xpath_ast_node* n = alloc_node(ast_step_root, xpath_type_node_set);
             if (!n) return 0;
 
-            // relative location path can start from axis_attribute, dot, double_dot, multiply and string lexemes; any
-            // other lexeme means standalone root path
+            // relative location path can start from axis_attribute, dot, double_dot, multiply and string lexemes; any other lexeme means
+            // standalone root path
             lexeme_t l = _lexer.current();
 
             if (l == lex_string || l == lex_axis_attribute || l == lex_dot || l == lex_double_dot || l == lex_multiply)
@@ -13150,8 +11395,7 @@ struct xpath_parser
             return parse_relative_location_path(n);
         }
 
-        // else clause moved outside of if because of bogus warning 'control may reach end of non-void function being
-        // inlined' in gcc 4.0.1
+        // else clause moved outside of if because of bogus warning 'control may reach end of non-void function being inlined' in gcc 4.0.1
         return parse_relative_location_path(0);
     }
 
@@ -13403,14 +11647,14 @@ PUGI__FN impl::xpath_ast_node* evaluate_node_set_prepare(xpath_query_impl* impl)
     if (!impl) return 0;
 
     if (impl->root->rettype() != xpath_type_node_set) {
-#    ifdef PUGIXML_NO_EXCEPTIONS
+#        ifdef PUGIXML_NO_EXCEPTIONS
         return 0;
-#    else
+#        else
         xpath_parse_result res;
         res.error = "Expression does not evaluate to node set";
 
         throw xpath_exception(res);
-#    endif
+#        endif
     }
 
     return impl->root;
@@ -13419,7 +11663,7 @@ PUGI__NS_END
 
 namespace pugi
 {
-#    ifndef PUGIXML_NO_EXCEPTIONS
+#        ifndef PUGIXML_NO_EXCEPTIONS
     PUGI__FN xpath_exception::xpath_exception(const xpath_parse_result& result_) : _result(result_)
     {
         assert(_result.error);
@@ -13434,7 +11678,7 @@ namespace pugi
     {
         return _result;
     }
-#    endif
+#        endif
 
     PUGI__FN xpath_node::xpath_node() {}
 
@@ -13482,7 +11726,7 @@ namespace pugi
         return _node != n._node || _attribute != n._attribute;
     }
 
-#    ifdef __BORLANDC__
+#        ifdef __BORLANDC__
     PUGI__FN bool operator&&(const xpath_node& lhs, bool rhs)
     {
         return (bool)lhs && rhs;
@@ -13492,7 +11736,7 @@ namespace pugi
     {
         return (bool)lhs || rhs;
     }
-#    endif
+#        endif
 
     PUGI__FN void xpath_node_set::_assign(const_iterator begin_, const_iterator end_, type_t type_)
     {
@@ -13504,11 +11748,11 @@ namespace pugi
         xpath_node* storage = (size_ <= 1) ? _storage : static_cast<xpath_node*>(impl::xml_memory::allocate(size_ * sizeof(xpath_node)));
 
         if (!storage) {
-#    ifdef PUGIXML_NO_EXCEPTIONS
+#        ifdef PUGIXML_NO_EXCEPTIONS
             return;
-#    else
+#        else
             throw std::bad_alloc();
-#    endif
+#        endif
         }
 
         // deallocate old buffer
@@ -13522,7 +11766,7 @@ namespace pugi
         _type  = type_;
     }
 
-#    ifdef PUGIXML_HAS_MOVE
+#        ifdef PUGIXML_HAS_MOVE
     PUGI__FN void xpath_node_set::_move(xpath_node_set& rhs) PUGIXML_NOEXCEPT
     {
         _type       = rhs._type;
@@ -13534,7 +11778,7 @@ namespace pugi
         rhs._begin = rhs._storage;
         rhs._end   = rhs._storage;
     }
-#    endif
+#        endif
 
     PUGI__FN xpath_node_set::xpath_node_set() : _type(type_unsorted), _begin(_storage), _end(_storage) {}
 
@@ -13565,7 +11809,7 @@ namespace pugi
         return *this;
     }
 
-#    ifdef PUGIXML_HAS_MOVE
+#        ifdef PUGIXML_HAS_MOVE
     PUGI__FN xpath_node_set::xpath_node_set(xpath_node_set&& rhs) PUGIXML_NOEXCEPT : _type(type_unsorted), _begin(_storage), _end(_storage)
     {
         _move(rhs);
@@ -13581,7 +11825,7 @@ namespace pugi
 
         return *this;
     }
-#    endif
+#        endif
 
     PUGI__FN xpath_node_set::type_t xpath_node_set::type() const
     {
@@ -13756,7 +12000,7 @@ namespace pugi
         return *this;
     }
 
-#    ifdef PUGIXML_HAS_MOVE
+#        ifdef PUGIXML_HAS_MOVE
     PUGI__FN xpath_variable_set::xpath_variable_set(xpath_variable_set&& rhs) PUGIXML_NOEXCEPT
     {
         for (size_t i = 0; i < sizeof(_data) / sizeof(_data[0]); ++i) {
@@ -13776,7 +12020,7 @@ namespace pugi
 
         return *this;
     }
-#    endif
+#        endif
 
     PUGI__FN void xpath_variable_set::_assign(const xpath_variable_set& rhs)
     {
@@ -13907,11 +12151,11 @@ namespace pugi
         impl::xpath_query_impl* qimpl = impl::xpath_query_impl::create();
 
         if (!qimpl) {
-#    ifdef PUGIXML_NO_EXCEPTIONS
+#        ifdef PUGIXML_NO_EXCEPTIONS
             _result.error = "Out of memory";
-#    else
+#        else
             throw std::bad_alloc();
-#    endif
+#        endif
         }
         else {
             using impl::auto_deleter;    // MSVC7 workaround
@@ -13926,12 +12170,12 @@ namespace pugi
                 _result.error = 0;
             }
             else {
-#    ifdef PUGIXML_NO_EXCEPTIONS
+#        ifdef PUGIXML_NO_EXCEPTIONS
                 if (qimpl->oom) _result.error = "Out of memory";
-#    else
+#        else
                 if (qimpl->oom) throw std::bad_alloc();
                 throw xpath_exception(_result);
-#    endif
+#        endif
             }
         }
     }
@@ -13943,7 +12187,7 @@ namespace pugi
         if (_impl) impl::xpath_query_impl::destroy(static_cast<impl::xpath_query_impl*>(_impl));
     }
 
-#    ifdef PUGIXML_HAS_MOVE
+#        ifdef PUGIXML_HAS_MOVE
     PUGI__FN xpath_query::xpath_query(xpath_query&& rhs) PUGIXML_NOEXCEPT
     {
         _impl       = rhs._impl;
@@ -13965,7 +12209,7 @@ namespace pugi
 
         return *this;
     }
-#    endif
+#        endif
 
     PUGI__FN xpath_value_type xpath_query::return_type() const
     {
@@ -13984,11 +12228,11 @@ namespace pugi
         bool r = static_cast<impl::xpath_query_impl*>(_impl)->root->eval_boolean(c, sd.stack);
 
         if (sd.oom) {
-#    ifdef PUGIXML_NO_EXCEPTIONS
+#        ifdef PUGIXML_NO_EXCEPTIONS
             return false;
-#    else
+#        else
             throw std::bad_alloc();
-#    endif
+#        endif
         }
 
         return r;
@@ -14004,17 +12248,17 @@ namespace pugi
         double r = static_cast<impl::xpath_query_impl*>(_impl)->root->eval_number(c, sd.stack);
 
         if (sd.oom) {
-#    ifdef PUGIXML_NO_EXCEPTIONS
+#        ifdef PUGIXML_NO_EXCEPTIONS
             return impl::gen_nan();
-#    else
+#        else
             throw std::bad_alloc();
-#    endif
+#        endif
         }
 
         return r;
     }
 
-#    ifndef PUGIXML_NO_STL
+#        ifndef PUGIXML_NO_STL
     PUGI__FN string_t xpath_query::evaluate_string(const xpath_node& n) const
     {
         if (!_impl) return string_t();
@@ -14025,16 +12269,16 @@ namespace pugi
         impl::xpath_string r = static_cast<impl::xpath_query_impl*>(_impl)->root->eval_string(c, sd.stack);
 
         if (sd.oom) {
-#        ifdef PUGIXML_NO_EXCEPTIONS
+#            ifdef PUGIXML_NO_EXCEPTIONS
             return string_t();
-#        else
+#            else
             throw std::bad_alloc();
-#        endif
+#            endif
         }
 
         return string_t(r.c_str(), r.length());
     }
-#    endif
+#        endif
 
     PUGI__FN size_t xpath_query::evaluate_string(char_t* buffer, size_t capacity, const xpath_node& n) const
     {
@@ -14044,11 +12288,11 @@ namespace pugi
         impl::xpath_string r = _impl ? static_cast<impl::xpath_query_impl*>(_impl)->root->eval_string(c, sd.stack) : impl::xpath_string();
 
         if (sd.oom) {
-#    ifdef PUGIXML_NO_EXCEPTIONS
+#        ifdef PUGIXML_NO_EXCEPTIONS
             r = impl::xpath_string();
-#    else
+#        else
             throw std::bad_alloc();
-#    endif
+#        endif
         }
 
         size_t full_size = r.length() + 1;
@@ -14075,11 +12319,11 @@ namespace pugi
         impl::xpath_node_set_raw r = root->eval_node_set(c, sd.stack, impl::nodeset_eval_all);
 
         if (sd.oom) {
-#    ifdef PUGIXML_NO_EXCEPTIONS
+#        ifdef PUGIXML_NO_EXCEPTIONS
             return xpath_node_set();
-#    else
+#        else
             throw std::bad_alloc();
-#    endif
+#        endif
         }
 
         return xpath_node_set(r.begin(), r.end(), r.type());
@@ -14096,11 +12340,11 @@ namespace pugi
         impl::xpath_node_set_raw r = root->eval_node_set(c, sd.stack, impl::nodeset_eval_first);
 
         if (sd.oom) {
-#    ifdef PUGIXML_NO_EXCEPTIONS
+#        ifdef PUGIXML_NO_EXCEPTIONS
             return xpath_node();
-#    else
+#        else
             throw std::bad_alloc();
-#    endif
+#        endif
         }
 
         return r.first();
@@ -14157,52 +12401,52 @@ namespace pugi
     }
 }    // namespace pugi
 
-#endif
+#    endif
 
-#ifdef __BORLANDC__
-#    pragma option pop
-#endif
+#    ifdef __BORLANDC__
+#        pragma option pop
+#    endif
 
 // Intel C++ does not properly keep warning state for function templates,
 // so popping warning state at the end of translation unit leads to warnings in the middle.
-#if defined(_MSC_VER) && !defined(__INTEL_COMPILER)
-#    pragma warning(pop)
-#endif
+#    if defined(_MSC_VER) && !defined(__INTEL_COMPILER)
+#        pragma warning(pop)
+#    endif
 
-#if defined(_MSC_VER) && defined(__c2__)
-#    pragma clang diagnostic pop
-#endif
+#    if defined(_MSC_VER) && defined(__c2__)
+#        pragma clang diagnostic pop
+#    endif
 
 // Undefine all local macros (makes sure we're not leaking macros in header-only mode)
-#undef PUGI__NO_INLINE
-#undef PUGI__UNLIKELY
-#undef PUGI__STATIC_ASSERT
-#undef PUGI__DMC_VOLATILE
-#undef PUGI__UNSIGNED_OVERFLOW
-#undef PUGI__MSVC_CRT_VERSION
-#undef PUGI__SNPRINTF
-#undef PUGI__NS_BEGIN
-#undef PUGI__NS_END
-#undef PUGI__FN
-#undef PUGI__FN_NO_INLINE
-#undef PUGI__GETHEADER_IMPL
-#undef PUGI__GETPAGE_IMPL
-#undef PUGI__GETPAGE
-#undef PUGI__NODETYPE
-#undef PUGI__IS_CHARTYPE_IMPL
-#undef PUGI__IS_CHARTYPE
-#undef PUGI__IS_CHARTYPEX
-#undef PUGI__ENDSWITH
-#undef PUGI__SKIPWS
-#undef PUGI__OPTSET
-#undef PUGI__PUSHNODE
-#undef PUGI__POPNODE
-#undef PUGI__SCANFOR
-#undef PUGI__SCANWHILE
-#undef PUGI__SCANWHILE_UNROLL
-#undef PUGI__ENDSEG
-#undef PUGI__THROW_ERROR
-#undef PUGI__CHECK_ERROR
+#    undef PUGI__NO_INLINE
+#    undef PUGI__UNLIKELY
+#    undef PUGI__STATIC_ASSERT
+#    undef PUGI__DMC_VOLATILE
+#    undef PUGI__UNSIGNED_OVERFLOW
+#    undef PUGI__MSVC_CRT_VERSION
+#    undef PUGI__SNPRINTF
+#    undef PUGI__NS_BEGIN
+#    undef PUGI__NS_END
+#    undef PUGI__FN
+#    undef PUGI__FN_NO_INLINE
+#    undef PUGI__GETHEADER_IMPL
+#    undef PUGI__GETPAGE_IMPL
+#    undef PUGI__GETPAGE
+#    undef PUGI__NODETYPE
+#    undef PUGI__IS_CHARTYPE_IMPL
+#    undef PUGI__IS_CHARTYPE
+#    undef PUGI__IS_CHARTYPEX
+#    undef PUGI__ENDSWITH
+#    undef PUGI__SKIPWS
+#    undef PUGI__OPTSET
+#    undef PUGI__PUSHNODE
+#    undef PUGI__POPNODE
+#    undef PUGI__SCANFOR
+#    undef PUGI__SCANWHILE
+#    undef PUGI__SCANWHILE_UNROLL
+#    undef PUGI__ENDSEG
+#    undef PUGI__THROW_ERROR
+#    undef PUGI__CHECK_ERROR
 
 #endif
 
@@ -14230,16 +12474,3 @@ namespace pugi
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  */
-
-
-#ifndef OPENXLSX_IMPL_XLXML_H
-#define OPENXLSX_IMPL_XLXML_H
-
-namespace OpenXLSX
-{
-    using XMLNode      = pugi::xml_node;
-    using XMLAttribute = pugi::xml_attribute;
-    using XMLDocument  = pugi::xml_document;
-}    // namespace OpenXLSX
-
-#endif    // OPENXLSX_IMPL_XLXML_H

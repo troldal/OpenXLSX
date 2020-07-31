@@ -47,7 +47,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #define OPENXLSX_XLCELL_HPP
 
 // ===== OpenXLSX Includes ===== //
-#include "../xml/XLXmlParser.hpp"
 #include "XLCellReference.hpp"
 #include "XLCellValue.hpp"
 
@@ -74,7 +73,7 @@ namespace OpenXLSX
          * @param parent A pointer to the parent XLWorksheet object. Must not be nullptr.
          * @param cellNode A pointer to the XMLNode with the cell data. Must not be nullptr.
          */
-        XLCell(XMLNode cellNode, XLSharedStrings* sharedStrings);
+        XLCell(const XMLNode& cellNode, XLSharedStrings* sharedStrings);
 
         /**
          * @brief Copy constructor
@@ -95,7 +94,7 @@ namespace OpenXLSX
          * @brief Destructor
          * @note Using the default destructor
          */
-        ~XLCell() = default;
+        ~XLCell();
 
         /**
          * @brief Copy assignment operator
@@ -164,11 +163,11 @@ namespace OpenXLSX
          * @brief
          * @param cellNode
          */
-        void reset(XMLNode cellNode);
+        void reset(const XMLNode& cellNode);
 
         //---------- Private Member Variables ---------- //
-        XMLNode          m_cellNode; /**< A pointer to the root XMLNode for the cell. */
-        XLSharedStrings* m_sharedStrings;
+        std::unique_ptr<XMLNode> m_cellNode; /**< A pointer to the root XMLNode for the cell. */
+        XLSharedStrings*         m_sharedStrings;
     };
 
     /**

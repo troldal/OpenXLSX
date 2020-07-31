@@ -46,15 +46,16 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_XLCONTENTTYPES_HPP
 #define OPENXLSX_XLCONTENTTYPES_HPP
 
-// ===== Standard Library Includes ===== //
+// ===== External Includes ===== //
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
 // ===== OpenXLSX Includes ===== //
-#include "../xml/XLXmlParser.hpp"
 #include "XLEnums.hpp"
 #include "XLXmlFile.hpp"
+#include "XLXmlParser.hpp"
 
 namespace OpenXLSX
 {
@@ -72,12 +73,17 @@ namespace OpenXLSX
     public:    // ---------- Public Member Functions ---------- //
         /**
          * @brief
+         */
+        XLContentItem();
+
+        /**
+         * @brief
          * @param node
          * @param path
          * @param type
          * @return
          */
-        explicit XLContentItem(XMLNode node = XMLNode());
+        explicit XLContentItem(const XMLNode& node);
 
         /**
          * @brief
@@ -124,8 +130,8 @@ namespace OpenXLSX
          */
         std::string path() const;
 
-    private:                   // ---------- Private Member Variables ---------- //
-        XMLNode m_contentNode; /**< */
+    private:                                    // ---------- Private Member Variables ---------- //
+        std::unique_ptr<XMLNode> m_contentNode; /**< */
     };
 
     // ================================================================================

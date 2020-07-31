@@ -46,9 +46,12 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_XLCOLUMN_HPP
 #define OPENXLSX_XLCOLUMN_HPP
 
+// ===== External Includes ===== //
+#include <memory>
+
 // ===== OpenXLSX Includes ===== //
-#include "../xml/XLXmlParser.hpp"
 #include "OpenXLSX-Exports.hpp"
+#include "XLXmlParser.hpp"
 
 namespace OpenXLSX
 {
@@ -63,7 +66,7 @@ namespace OpenXLSX
          * @param parent A pointer to the parent XLWorksheet object.
          * @param columnNode A pointer to the XMLNode for the column.
          */
-        explicit XLColumn(XMLNode columnNode);
+        explicit XLColumn(const XMLNode& columnNode);
 
         /**
          * @brief Copy Constructor [deleted]
@@ -121,10 +124,10 @@ namespace OpenXLSX
          * @brief Get the XMLNode object for the column.
          * @return The XMLNode for the column
          */
-        XMLNode columnNode() const;
+        XMLNode& columnNode() const;
 
     private:
-        XMLNode m_columnNode; /**< A pointer to the XMLNode object for the column. */
+        std::unique_ptr<XMLNode> m_columnNode; /**< A pointer to the XMLNode object for the column. */
     };
 
 }    // namespace OpenXLSX

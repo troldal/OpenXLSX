@@ -45,6 +45,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== Standard Library Includes ===== //
 #include <cstring>
+#include <pugixml.hpp>
 #include <utility>
 
 // ===== OpenXLSX Includes ===== //
@@ -166,17 +167,19 @@ namespace
     }
 }    // namespace
 
+XLContentItem::XLContentItem() : m_contentNode(std::make_unique<XMLNode>()) {}
+
 /**
  * @details
  */
-XLContentItem::XLContentItem(XMLNode node) : m_contentNode(node) {}
+XLContentItem::XLContentItem(const XMLNode& node) : m_contentNode(std::make_unique<XMLNode>(node)) {}
 
 /**
  * @details
  */
 XLContentType XLContentItem::type() const
 {
-    return GetTypeFromString(m_contentNode.attribute("ContentType").value());
+    return GetTypeFromString(m_contentNode->attribute("ContentType").value());
 }
 
 /**
@@ -184,7 +187,7 @@ XLContentType XLContentItem::type() const
  */
 std::string XLContentItem::path() const
 {
-    return m_contentNode.attribute("PartName").value();
+    return m_contentNode->attribute("PartName").value();
 }
 
 /**

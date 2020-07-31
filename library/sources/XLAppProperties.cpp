@@ -45,6 +45,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== Standard Library Includes ===== //
 #include <iterator>
+#include <pugixml.hpp>
 #include <utility>
 
 // ===== OpenXLSX Includes ===== //
@@ -89,7 +90,7 @@ XLAppProperties::XLAppProperties(XLXmlData* xmlData) : XLXmlFile(xmlData) {}
 /**
  * @details
  */
-XMLNode XLAppProperties::addSheetName(const std::string& title)
+XMLNode& XLAppProperties::addSheetName(const std::string& title)
 {
     auto theNode = sheetNames(xmlDocument().document_element()).append_child("vt:lpstr");
     theNode.text().set(title.c_str());
@@ -128,7 +129,7 @@ void XLAppProperties::setSheetName(const std::string& oldTitle, const std::strin
 /**
  * @details
  */
-XMLNode XLAppProperties::sheetNameNode(const std::string& title)
+XMLNode& XLAppProperties::sheetNameNode(const std::string& title)
 {
     for (auto& sheet : sheetNames(xmlDocument().document_element()).children()) {
         if (std::string_view(sheet.child_value()) == title) {
@@ -136,7 +137,7 @@ XMLNode XLAppProperties::sheetNameNode(const std::string& title)
         }
     }
 
-    return XMLNode();
+    throw XLException("Sheet named \"" + title + "\" does not exist");
 }
 
 /**
@@ -210,7 +211,7 @@ bool XLAppProperties::setProperty(const std::string& name, const std::string& va
 /**
  * @details
  */
-XMLNode XLAppProperties::property(const std::string& name) const
+XMLNode& XLAppProperties::property(const std::string& name) const
 {
     auto property = xmlDocument().first_child().child(name.c_str());
     if (!property) xmlDocument().first_child().append_child(name.c_str());
@@ -229,7 +230,7 @@ void XLAppProperties::deleteProperty(const std::string& name)
 /**
  * @details
  */
-XMLNode XLAppProperties::appendSheetName(const std::string& sheetName)
+XMLNode& XLAppProperties::appendSheetName(const std::string& sheetName)
 {
     auto theNode = sheetNames(xmlDocument().document_element()).append_child("vt:lpstr");
     theNode.text().set(sheetName.c_str());
@@ -241,7 +242,7 @@ XMLNode XLAppProperties::appendSheetName(const std::string& sheetName)
 /**
  * @details
  */
-XMLNode XLAppProperties::prependSheetName(const std::string& sheetName)
+XMLNode& XLAppProperties::prependSheetName(const std::string& sheetName)
 {
     auto theNode = sheetNames(xmlDocument().document_element()).prepend_child("vt:lpstr");
     theNode.text().set(sheetName.c_str());
@@ -253,7 +254,7 @@ XMLNode XLAppProperties::prependSheetName(const std::string& sheetName)
 /**
  * @details
  */
-XMLNode XLAppProperties::insertSheetName(const std::string& sheetName, unsigned int index)
+XMLNode& XLAppProperties::insertSheetName(const std::string& sheetName, unsigned int index)
 {
     if (index <= 1) return prependSheetName(sheetName);
     if (index > sheetCount(xmlDocument().document_element()).as_uint()) return appendSheetName(sheetName);

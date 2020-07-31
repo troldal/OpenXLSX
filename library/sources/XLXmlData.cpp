@@ -43,9 +43,11 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
+#include <pugixml.hpp>
+
 // ===== OpenXLSX Includes ===== //
-#include "XLXmlData.hpp"
 #include "XLDocument.hpp"
+#include "XLXmlData.hpp"
 
 using namespace OpenXLSX;
 
@@ -54,14 +56,16 @@ XLXmlData::XLXmlData(OpenXLSX::XLDocument* parentDoc, const std::string& xmlPath
       m_xmlPath(xmlPath),
       m_xmlID(xmlId),
       m_xmlType(xmlType),
-      m_xmlDoc()
+      m_xmlDoc(std::make_unique<XMLDocument>())
 {
-    m_xmlDoc.reset();
+    m_xmlDoc->reset();
 }
+
+XLXmlData::~XLXmlData() = default;
 
 void XLXmlData::setRawData(const std::string& data)
 {
-    m_xmlDoc.load_string(data.c_str(), pugi::parse_default | pugi::parse_ws_pcdata);
+    m_xmlDoc->load_string(data.c_str(), pugi::parse_default | pugi::parse_ws_pcdata);
 }
 
 std::string XLXmlData::getRawData() const
@@ -98,16 +102,16 @@ XLContentType XLXmlData::getXmlType() const
 
 XMLDocument* XLXmlData::getXmlDocument()
 {
-    if (!m_xmlDoc.document_element())
-        m_xmlDoc.load_string(m_parentDoc->extractXmlFromArchive(m_xmlPath).c_str(), pugi::parse_default | pugi::parse_ws_pcdata);
+    if (!m_xmlDoc->document_element())
+        m_xmlDoc->load_string(m_parentDoc->extractXmlFromArchive(m_xmlPath).c_str(), pugi::parse_default | pugi::parse_ws_pcdata);
 
-    return &m_xmlDoc;
+    return m_xmlDoc.get();
 }
 
 const XMLDocument* XLXmlData::getXmlDocument() const
 {
-    if (!m_xmlDoc.document_element())
-        m_xmlDoc.load_string(m_parentDoc->extractXmlFromArchive(m_xmlPath).c_str(), pugi::parse_default | pugi::parse_ws_pcdata);
+    if (!m_xmlDoc->document_element())
+        m_xmlDoc->load_string(m_parentDoc->extractXmlFromArchive(m_xmlPath).c_str(), pugi::parse_default | pugi::parse_ws_pcdata);
 
-    return &m_xmlDoc;
+    return m_xmlDoc.get();
 }

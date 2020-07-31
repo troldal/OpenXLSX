@@ -46,9 +46,12 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_XLROW_HPP
 #define OPENXLSX_XLROW_HPP
 
+// ===== External Includes ===== //
+#include <memory>
+
 // ===== OpenXLSX Includes ===== //
-#include "../xml/XLXmlParser.hpp"
 #include "OpenXLSX-Exports.hpp"
+#include "XLXmlParser.hpp"
 
 namespace OpenXLSX
 {
@@ -67,7 +70,7 @@ namespace OpenXLSX
          * @param parent A pointer to the parent XLWorksheet object.
          * @param rowNode A pointer to the XMLNode object for the row.
          */
-        explicit XLRow(XMLNode rowNode);
+        explicit XLRow(const XMLNode& rowNode);
 
         /**
          * @brief Copy Constructor
@@ -151,7 +154,7 @@ namespace OpenXLSX
 
         //---------- PRIVATE MEMBER VARIABLES ----------//
     private:
-        XMLNode m_rowNode; /**< The XMLNode object for the row. */
+        std::unique_ptr<XMLNode> m_rowNode; /**< The XMLNode object for the row. */
     };
 
 }    // namespace OpenXLSX

@@ -43,9 +43,11 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
+#include <pugixml.hpp>
+
 // ===== OpenXLSX Includes ===== //
-#include "XLRow.hpp"
 #include "XLCellReference.hpp"
+#include "XLRow.hpp"
 
 using namespace OpenXLSX;
 
@@ -53,14 +55,14 @@ using namespace OpenXLSX;
  * @details Constructs a new XLRow object from information in the underlying XML file. A pointer to the corresponding
  * node in the underlying XML file must be provided.
  */
-XLRow::XLRow(XMLNode rowNode) : m_rowNode(rowNode) {}
+XLRow::XLRow(const XMLNode& rowNode) : m_rowNode(std::make_unique<XMLNode>(rowNode)) {}
 
 /**
  * @details Returns the m_height member by value.
  */
 double XLRow::height() const
 {
-    return m_rowNode.attribute("ht").as_double(15.0);
+    return m_rowNode->attribute("ht").as_double(15.0);
 }
 
 /**
@@ -70,16 +72,16 @@ double XLRow::height() const
 void XLRow::setHeight(float height)
 {
     // Set the 'ht' attribute for the Cell. If it does not exist, create it.
-    if (!m_rowNode.attribute("ht"))
-        m_rowNode.append_attribute("ht") = height;
+    if (!m_rowNode->attribute("ht"))
+        m_rowNode->append_attribute("ht") = height;
     else
-        m_rowNode.attribute("ht").set_value(height);
+        m_rowNode->attribute("ht").set_value(height);
 
     // Set the 'customHeight' attribute. If it does not exist, create it.
-    if (!m_rowNode.attribute("customHeight"))
-        m_rowNode.append_attribute("customHeight") = 1;
+    if (!m_rowNode->attribute("customHeight"))
+        m_rowNode->append_attribute("customHeight") = 1;
     else
-        m_rowNode.attribute("customHeight").set_value(1);
+        m_rowNode->attribute("customHeight").set_value(1);
 }
 
 /**
@@ -87,7 +89,7 @@ void XLRow::setHeight(float height)
  */
 float XLRow::descent() const
 {
-    return m_rowNode.attribute("x14ac:dyDescent").as_float(0.25);
+    return m_rowNode->attribute("x14ac:dyDescent").as_float(0.25);
 }
 
 /**
@@ -96,10 +98,10 @@ float XLRow::descent() const
 void XLRow::setDescent(float descent)
 {
     // Set the 'x14ac:dyDescent' attribute. If it does not exist, create it.
-    if (!m_rowNode.attribute("x14ac:dyDescent"))
-        m_rowNode.append_attribute("x14ac:dyDescent") = descent;
+    if (!m_rowNode->attribute("x14ac:dyDescent"))
+        m_rowNode->append_attribute("x14ac:dyDescent") = descent;
     else
-        m_rowNode.attribute("x14ac:dyDescent") = descent;
+        m_rowNode->attribute("x14ac:dyDescent") = descent;
 }
 
 /**
@@ -107,7 +109,7 @@ void XLRow::setDescent(float descent)
  */
 bool XLRow::isHidden() const
 {
-    return m_rowNode.attribute("hidden").as_bool(false);
+    return m_rowNode->attribute("hidden").as_bool(false);
 }
 
 /**
@@ -116,10 +118,10 @@ bool XLRow::isHidden() const
 void XLRow::setHidden(bool state)
 {
     // Set the 'hidden' attribute. If it does not exist, create it.
-    if (!m_rowNode.attribute("hidden"))
-        m_rowNode.append_attribute("hidden") = static_cast<int>(state);
+    if (!m_rowNode->attribute("hidden"))
+        m_rowNode->append_attribute("hidden") = static_cast<int>(state);
     else
-        m_rowNode.attribute("hidden").set_value(static_cast<int>(state));
+        m_rowNode->attribute("hidden").set_value(static_cast<int>(state));
 }
 
 /**
@@ -127,7 +129,7 @@ void XLRow::setHidden(bool state)
  */
 int64_t XLRow::rowNumber() const
 {
-    return m_rowNode.attribute("r").as_ullong();
+    return m_rowNode->attribute("r").as_ullong();
 }
 
 /**
@@ -135,5 +137,5 @@ int64_t XLRow::rowNumber() const
  */
 unsigned int XLRow::cellCount() const
 {
-    return XLCellReference(m_rowNode.last_child().attribute("r").value()).column();
+    return XLCellReference(m_rowNode->last_child().attribute("r").value()).column();
 }

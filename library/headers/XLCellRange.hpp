@@ -46,9 +46,12 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_XLCELLRANGE_HPP
 #define OPENXLSX_XLCELLRANGE_HPP
 
+// ===== External Includes ===== //
+#include <memory>
+
 // ===== OpenXLSX Includes ===== //
-#include "../xml/XLXmlParser.hpp"
 #include "XLCellReference.hpp"
+#include "XLXmlParser.hpp"
 
 namespace OpenXLSX
 {
@@ -70,7 +73,7 @@ namespace OpenXLSX
          * @param topLeft The first (top left) cell in the range.
          * @param bottomRight The last (bottom right) cell in the range.
          */
-        explicit XLCellRange(XMLNode dataNode, const XLCellReference& topLeft, const XLCellReference& bottomRight);
+        explicit XLCellRange(const XMLNode& dataNode, const XLCellReference& topLeft, const XLCellReference& bottomRight);
 
         /**
          * @brief Copy constructor [default].
@@ -131,8 +134,8 @@ namespace OpenXLSX
         //----------------------------------------------------------------------------------------------------------------------
 
     private:
-        XMLNode         m_dataNode;
-        XLCellReference m_topLeft;     /**< The cell reference of the first cell in the range */
+        std::unique_ptr<XMLNode> m_dataNode;
+        XLCellReference          m_topLeft;     /**< The cell reference of the first cell in the range */
         XLCellReference m_bottomRight; /**< The cell reference of the last cell in the range */
     };
 
