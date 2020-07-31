@@ -59,6 +59,11 @@ using namespace OpenXLSX;
 
 namespace
 {
+    /**
+     * @brief
+     * @param doc
+     * @return
+     */
     XMLNode sheetsNode(const XMLDocument& doc)
     {
         return doc.document_element().child("sheets");
