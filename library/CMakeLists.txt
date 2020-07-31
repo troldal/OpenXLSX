@@ -25,63 +25,6 @@ if (CHARCONV_RESULT)
 endif ()
 
 #=======================================================================================================================
-# COMPILER FLAGS
-#   Set compiler debug flags for GCC, Clang and MSVC for all targets.
-#=======================================================================================================================
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-    add_compile_options(
-            $<$<CONFIG:Debug>:-Wmisleading-indentation>
-            $<$<CONFIG:Debug>:-Wduplicated-cond>
-            $<$<CONFIG:Debug>:-Wduplicated-branches>
-            $<$<CONFIG:Debug>:-Wlogical-op>
-            $<$<CONFIG:Debug>:-Wnull-dereference>
-            $<$<CONFIG:Debug>:-Wuseless-cast>)
-
-elseif (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") OR
-("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang") OR
-("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"))
-    add_compile_options(
-            $<$<CONFIG:Debug>:-Wall>
-            $<$<CONFIG:Debug>:-Wextra>
-            $<$<CONFIG:Debug>:-Wshadow>
-            $<$<CONFIG:Debug>:-Wnon-virtual-dtor>
-            $<$<CONFIG:Debug>:-Wold-style-cast>
-            $<$<CONFIG:Debug>:-Wcast-align>
-            $<$<CONFIG:Debug>:-Wunused>
-            $<$<CONFIG:Debug>:-Woverloaded-virtual>
-            $<$<CONFIG:Debug>:-Wpedantic>
-            $<$<CONFIG:Debug>:-Wconversion>
-            $<$<CONFIG:Debug>:-Wsign-conversion>
-            $<$<CONFIG:Debug>:-Wdouble-promotion>
-            $<$<CONFIG:Debug>:-Wformat=2>
-            $<$<CONFIG:Debug>:-Weffc++>)
-
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-    target_compile_options(
-            $<$<CONFIG:Debug>:/permissive>
-            $<$<CONFIG:Debug>:/W4>
-            $<$<CONFIG:Debug>:/w14242>
-            $<$<CONFIG:Debug>:/w14254>
-            $<$<CONFIG:Debug>:/w14263>
-            $<$<CONFIG:Debug>:/w14265>
-            $<$<CONFIG:Debug>:/w14287>
-            $<$<CONFIG:Debug>:/we4289>
-            $<$<CONFIG:Debug>:/w14296>
-            $<$<CONFIG:Debug>:/w14311>
-            $<$<CONFIG:Debug>:/w14545>
-            $<$<CONFIG:Debug>:/w14546>
-            $<$<CONFIG:Debug>:/w14547>
-            $<$<CONFIG:Debug>:/w14549>
-            $<$<CONFIG:Debug>:/w14555>
-            $<$<CONFIG:Debug>:/w14619>
-            $<$<CONFIG:Debug>:/w14640>
-            $<$<CONFIG:Debug>:/w14826>
-            $<$<CONFIG:Debug>:/w14905>
-            $<$<CONFIG:Debug>:/w14906>
-            $<$<CONFIG:Debug>:/w14928>)
-endif ()
-
-#=======================================================================================================================
 # PROJECT FILES
 #   List of project source files
 #=======================================================================================================================
@@ -120,9 +63,11 @@ if (${BUILD_OBJECT_LIB} AND (NOT CMAKE_GENERATOR STREQUAL Xcode))
     target_include_directories(OpenXLSX-object
                                PRIVATE
                                $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
+                               $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/external>
                                $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>     # For export header
                                SYSTEM INTERFACE
                                $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
+                               $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/external>
                                $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)      # For export header
     #target_compile_definitions(OpenXLSX-object PRIVATE OpenXLSX_shared_EXPORTS)
 endif ()
@@ -136,9 +81,11 @@ target_sources(OpenXLSX-static PRIVATE ${OPENXLSX_SOURCES})
 target_include_directories(OpenXLSX-static
                            PRIVATE
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
+                           $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/external>
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>     # For export header
                            SYSTEM INTERFACE
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
+                           $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/external>
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)      # For export header
 target_compile_definitions(OpenXLSX-static PRIVATE OPENXLSX_STATIC_DEFINE)
 
@@ -151,9 +98,11 @@ target_sources(OpenXLSX-shared PRIVATE ${OPENXLSX_SOURCES})
 target_include_directories(OpenXLSX-shared
                            PRIVATE
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
+                           $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/external>
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>     # For export header
                            SYSTEM INTERFACE
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
+                           $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/external>
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)      # For export header
 
 #=======================================================================================================================
@@ -166,6 +115,79 @@ generate_export_header(OpenXLSX-shared
                        EXPORT_FILE_NAME OpenXLSX-Exports.hpp
                        EXPORT_MACRO_NAME OPENXLSX_EXPORT
                        NO_EXPORT_MACRO_NAME OPENXLSX_HIDDEN)
+
+#=======================================================================================================================
+# COMPILER FLAGS
+#   Set compiler debug flags for GCC, Clang and MSVC.
+#=======================================================================================================================
+list(APPEND OPENXLSX_DEBUG_FLAGS_GNU
+     "-Wmisleading-indentation"
+     "-Wduplicated-cond"
+     "-Wduplicated-branches"
+     "-Wlogical-op"
+     "-Wnull-dereference"
+     "-Wuseless-cast")
+list(APPEND OPENXLSX_DEBUG_FLAGS_GNUCLANG
+     "-Wall"
+     "-Wextra"
+     "-Wshadow"
+     "-Wnon-virtual-dtor"
+     "-Wold-style-cast"
+     "-Wcast-align"
+     "-Wunused"
+     "-Woverloaded-virtual"
+     "-Wpedantic"
+     "-Wconversion"
+     "-Wsign-conversion"
+     "-Wdouble-promotion"
+     "-Wformat=2"
+     "-Weffc++")
+list(APPEND OPENXLSX_DEBUG_FLAGS_MSVC
+     "/permissive"
+     "/W4"
+     "/w14242"
+     "/w14254"
+     "/w14263"
+     "/w14265"
+     "/w14287"
+     "/we4289"
+     "/w14296"
+     "/w14311"
+     "/w14545"
+     "/w14546"
+     "/w14547"
+     "/w14549"
+     "/w14555"
+     "/w14619"
+     "/w14640"
+     "/w14826"
+     "/w14905"
+     "/w14906"
+     "/w14928")
+
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    target_compile_options(OpenXLSX-shared PRIVATE $<$<CONFIG:Debug>:${OPENXLSX_DEBUG_FLAGS_GNU}>)
+    target_compile_options(OpenXLSX-static PRIVATE $<$<CONFIG:Debug>:${OPENXLSX_DEBUG_FLAGS_GNU}>)
+    if (${BUILD_OBJECT_LIB} AND (NOT CMAKE_GENERATOR STREQUAL Xcode))
+        target_compile_options(OpenXLSX-object PRIVATE $<$<CONFIG:Debug>:${OPENXLSX_DEBUG_FLAGS_GNU}>)
+    endif ()
+
+elseif (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") OR
+("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang") OR
+("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"))
+    target_compile_options(OpenXLSX-shared PRIVATE $<$<CONFIG:Debug>:${OPENXLSX_DEBUG_FLAGS_GNUCLANG}>)
+    target_compile_options(OpenXLSX-static PRIVATE $<$<CONFIG:Debug>:${OPENXLSX_DEBUG_FLAGS_GNUCLANG}>)
+    if (${BUILD_OBJECT_LIB} AND (NOT CMAKE_GENERATOR STREQUAL Xcode))
+        target_compile_options(OpenXLSX-object PRIVATE $<$<CONFIG:Debug>:${OPENXLSX_DEBUG_FLAGS_GNUCLANG}>)
+    endif ()
+
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+    target_compile_options(OpenXLSX-shared PRIVATE $<$<CONFIG:Debug>:${OPENXLSX_DEBUG_FLAGS_MSVC}>)
+    target_compile_options(OpenXLSX-static PRIVATE $<$<CONFIG:Debug>:${OPENXLSX_DEBUG_FLAGS_MSVC}>)
+    if (${BUILD_OBJECT_LIB} AND (NOT CMAKE_GENERATOR STREQUAL Xcode))
+        target_compile_options(OpenXLSX-object PRIVATE $<$<CONFIG:Debug>:${OPENXLSX_DEBUG_FLAGS_MSVC}>)
+    endif ()
+endif ()
 
 #=======================================================================================================================
 # Enable Link-Time Optimization
