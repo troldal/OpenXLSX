@@ -1,14 +1,7 @@
-#target_compile_definitions(Zippy INTERFACE MINIZ_HEADER_FILE_ONLY)
-
 #=======================================================================================================================
-# Define library targets
-#=======================================================================================================================
-add_library(OpenXLSX-objs OBJECT "")
-add_library(OpenXLSX-static STATIC "")
-add_library(OpenXLSX-shared SHARED "")
-
-#=======================================================================================================================
-# Feature Checks
+# COMPILER FEATURES
+#   Some older C++17 compilers don't support the char_conv features. If the compiler doesn't support it,
+#   a less optimal work-around will be used.
 #=======================================================================================================================
 include(CheckCXXSourceCompiles)
 check_cxx_source_compiles("
@@ -28,69 +21,69 @@ check_cxx_source_compiles("
                           }" CHARCONV_RESULT)
 
 if (CHARCONV_RESULT)
-    target_compile_definitions(OpenXLSX-objs PRIVATE CHARCONV_ENABLED)
+    add_compile_definitions(CHARCONV_ENABLED)
 endif ()
 
 #=======================================================================================================================
-# Set compiler flags
+# COMPILER FLAGS
+#   Set compiler debug flags for GCC, Clang and MSVC for all targets.
 #=======================================================================================================================
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-        #target_compile_options(OpenXLSX PRIVATE -Wlifetime)
-    elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-        target_compile_options(OpenXLSX-objs PRIVATE
-                -Wmisleading-indentation
-                -Wduplicated-cond
-                -Wduplicated-branches
-                -Wlogical-op
-                -Wnull-dereference
-                -Wuseless-cast)
-    elseif (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") OR ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"))
-        target_compile_options(OpenXLSX-objs PRIVATE
-                -Wall
-                -Wextra
-                -Wshadow
-                -Wnon-virtual-dtor
-                -Wold-style-cast
-                -Wcast-align
-                -Wunused
-                -Woverloaded-virtual
-                -Wpedantic
-                -Wconversion
-                -Wsign-conversion
-                -Wdouble-promotion
-                -Wformat=2
-                -Weffc++)
-    elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
-        # using Intel C++
-    elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-        target_compile_options(OpenXLSX-objs PRIVATE
-                /permissive
-                /W4
-                /w14242
-                /w14254
-                /w14263
-                /w14265
-                /w14287
-                /we4289
-                /w14296
-                /w14311
-                /w14545
-                /w14546
-                /w14547
-                /w14549
-                /w14555
-                /w14619
-                /w14640
-                /w14826
-                /w14905
-                /w14906
-                /w14928)
-    endif ()
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    add_compile_options(
+            $<$<CONFIG:Debug>:-Wmisleading-indentation>
+            $<$<CONFIG:Debug>:-Wduplicated-cond>
+            $<$<CONFIG:Debug>:-Wduplicated-branches>
+            $<$<CONFIG:Debug>:-Wlogical-op>
+            $<$<CONFIG:Debug>:-Wnull-dereference>
+            $<$<CONFIG:Debug>:-Wuseless-cast>)
+
+elseif (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") OR
+("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang") OR
+("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"))
+    add_compile_options(
+            $<$<CONFIG:Debug>:-Wall>
+            $<$<CONFIG:Debug>:-Wextra>
+            $<$<CONFIG:Debug>:-Wshadow>
+            $<$<CONFIG:Debug>:-Wnon-virtual-dtor>
+            $<$<CONFIG:Debug>:-Wold-style-cast>
+            $<$<CONFIG:Debug>:-Wcast-align>
+            $<$<CONFIG:Debug>:-Wunused>
+            $<$<CONFIG:Debug>:-Woverloaded-virtual>
+            $<$<CONFIG:Debug>:-Wpedantic>
+            $<$<CONFIG:Debug>:-Wconversion>
+            $<$<CONFIG:Debug>:-Wsign-conversion>
+            $<$<CONFIG:Debug>:-Wdouble-promotion>
+            $<$<CONFIG:Debug>:-Wformat=2>
+            $<$<CONFIG:Debug>:-Weffc++>)
+
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+    target_compile_options(
+            $<$<CONFIG:Debug>:/permissive>
+            $<$<CONFIG:Debug>:/W4>
+            $<$<CONFIG:Debug>:/w14242>
+            $<$<CONFIG:Debug>:/w14254>
+            $<$<CONFIG:Debug>:/w14263>
+            $<$<CONFIG:Debug>:/w14265>
+            $<$<CONFIG:Debug>:/w14287>
+            $<$<CONFIG:Debug>:/we4289>
+            $<$<CONFIG:Debug>:/w14296>
+            $<$<CONFIG:Debug>:/w14311>
+            $<$<CONFIG:Debug>:/w14545>
+            $<$<CONFIG:Debug>:/w14546>
+            $<$<CONFIG:Debug>:/w14547>
+            $<$<CONFIG:Debug>:/w14549>
+            $<$<CONFIG:Debug>:/w14555>
+            $<$<CONFIG:Debug>:/w14619>
+            $<$<CONFIG:Debug>:/w14640>
+            $<$<CONFIG:Debug>:/w14826>
+            $<$<CONFIG:Debug>:/w14905>
+            $<$<CONFIG:Debug>:/w14906>
+            $<$<CONFIG:Debug>:/w14928>)
 endif ()
 
 #=======================================================================================================================
-# Find project files
+# PROJECT FILES
+#   List of project source files
 #=======================================================================================================================
 set(OPENXLSX_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLXmlFile.cpp
@@ -117,41 +110,63 @@ set(OPENXLSX_SOURCES
         )
 
 #=======================================================================================================================
-# Generate object library
+# OBJECT LIBRARY
+#   Define the object library.
+#   Object provide a simpler way of integrating a library into an application. However, not all build systems (e.g.
+#   Xcode) play nice with object libraries. Therefore, an object library will only be built if supported.
 #=======================================================================================================================
-target_sources(OpenXLSX-objs
+if (${BUILD_OBJECT_LIB})
+    add_library(OpenXLSX-object OBJECT "")
+    target_sources(OpenXLSX-object PRIVATE ${OPENXLSX_SOURCES})
+    target_include_directories(OpenXLSX-object
+            PRIVATE
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>     # For export header
+            SYSTEM INTERFACE
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)      # For export header
+    #target_compile_definitions(OpenXLSX-object PRIVATE OpenXLSX_shared_EXPORTS)
+endif ()
+
+#=======================================================================================================================
+# STATIC LIBRARY
+#   Define the static library
+#=======================================================================================================================
+add_library(OpenXLSX-static STATIC "")
+target_sources(OpenXLSX-static PRIVATE ${OPENXLSX_SOURCES})
+target_include_directories(OpenXLSX-static
         PRIVATE
-        ${OPENXLSX_SOURCES})
-target_include_directories(OpenXLSX-objs
-        PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>      # For export header
-        )
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>     # For export header
+        SYSTEM INTERFACE
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)      # For export header
+target_compile_definitions(OpenXLSX-static PRIVATE OPENXLSX_STATIC_DEFINE)
 
-target_compile_definitions(OpenXLSX-objs
+#=======================================================================================================================
+# SHARED LIBRARY
+#   Define the shared library
+#=======================================================================================================================
+add_library(OpenXLSX-shared SHARED "")
+target_sources(OpenXLSX-shared PRIVATE ${OPENXLSX_SOURCES})
+target_include_directories(OpenXLSX-shared
         PRIVATE
-        OpenXLSX_shared_EXPORTS
-        )
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>     # For export header
+        SYSTEM INTERFACE
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)      # For export header
 
 #=======================================================================================================================
-# Generate static library
+# GENERATE EXPORT HEADER
+#   Generate preprocessor definitions for setting symbol visibility.
 #=======================================================================================================================
-target_link_libraries(OpenXLSX-static
-        PUBLIC
-        OpenXLSX-objs
-        )
-target_compile_definitions(OpenXLSX-static
-        PRIVATE
-        OPENXLSX_STATIC_DEFINE
-        )
-
-#=======================================================================================================================
-# Generate shared library
-#=======================================================================================================================
-target_link_libraries(OpenXLSX-shared
-        PUBLIC
-        OpenXLSX-objs
-        )
+include(GenerateExportHeader)
+generate_export_header(OpenXLSX-shared
+        BASE_NAME openxlsx
+        EXPORT_FILE_NAME OpenXLSX-Exports.hpp
+        EXPORT_MACRO_NAME OPENXLSX_EXPORT
+        NO_EXPORT_MACRO_NAME OPENXLSX_HIDDEN)
 
 #=======================================================================================================================
 # Enable Link-Time Optimization
@@ -171,26 +186,15 @@ endif ()
 #=======================================================================================================================
 if (ENABLE_COVERAGE AND CMAKE_BUILD_TYPE STREQUAL "Debug")
     if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" AND NOT WIN32)
-        target_compile_options(OpenXLSX-objs PRIVATE -fprofile-instr-generate -fcoverage-mapping)
-        target_link_options(OpenXLSX-objs PRIVATE -fprofile-instr-generate)
-        #Uncomment in case of linker errors
-        #link_libraries(clang_rt.profile-x86_64)
+        target_compile_options(OpenXLSX-shared PRIVATE -fprofile-instr-generate -fcoverage-mapping)
+        target_link_options(OpenXLSX-shared PRIVATE -fprofile-instr-generate)
     elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-        target_compile_options(OpenXLSX-objs PRIVATE --coverage)
-        target_link_options(OpenXLSX-objs PRIVATE --coverage)
-        #Uncomment in case of linker errors
-        #link_libraries(gcov)
+        target_compile_options(OpenXLSX-shared PRIVATE --coverage)
+        target_link_options(OpenXLSX-shared PRIVATE --coverage)
     endif ()
 endif ()
 
-#=======================================================================================================================
-# Generate shared library export header with compiler-specific keywords
-#=======================================================================================================================
-include(GenerateExportHeader)
-generate_export_header(OpenXLSX-shared
-        BASE_NAME openxlsx
-        EXPORT_FILE_NAME openxlsx_export.h
-        )
+
 
 #=======================================================================================================================
 # Install
@@ -215,7 +219,7 @@ install(
 # Targets
 install(
         TARGETS
-        OpenXLSX-objs
+        #        OpenXLSX-object
         OpenXLSX-static
         OpenXLSX-shared
         EXPORT OpenXLSXTargets

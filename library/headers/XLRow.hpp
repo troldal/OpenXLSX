@@ -47,6 +47,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #define OPENXLSX_XLROW_HPP
 
 // ===== OpenXLSX Includes ===== //
+#include "OpenXLSX-Exports.hpp"
 #include "XLXmlParser.hpp"
 
 namespace OpenXLSX
@@ -57,7 +58,7 @@ namespace OpenXLSX
      * @brief The XLRow class represent a row in an Excel spreadsheet. Using XLRow objects, various row formatting
      * options can be set and modified.
      */
-    class XLRow
+    class OPENXLSX_EXPORT XLRow
     {
         //---------- PUBLIC MEMBER FUNCTIONS ----------//
     public:

@@ -49,12 +49,15 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 // ===== Standard Library Includes ===== //
 #include <string>
 
+// ===== OpenXLSX Includes ===== //
+#include "OpenXLSX-Exports.hpp"
+
 namespace OpenXLSX
 {
     /**
      * @brief
      */
-    class XLColor
+    class OPENXLSX_EXPORT XLColor
     {
         //----------------------------------------------------------------------------------------------------------------------
         //           Public Member Functions

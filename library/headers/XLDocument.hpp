@@ -75,7 +75,7 @@ namespace OpenXLSX
      * closing and saving the document.\n<b><em>The XLDocument is the entrypoint for clients
      * using the RapidXLSX library.</em></b>
      */
-    class XLDocument final
+    class OPENXLSX_EXPORT XLDocument final
     {
         //----- Friends
         friend class XLXmlFile;

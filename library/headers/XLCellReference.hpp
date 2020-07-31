@@ -50,6 +50,9 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <string>
 #include <utility>
 
+// ===== OpenXLSX Includes ===== //
+#include "OpenXLSX-Exports.hpp"
+
 namespace OpenXLSX
 {
     /**
@@ -60,7 +63,7 @@ namespace OpenXLSX
     /**
      * @brief
      */
-    class XLCellReference final
+    class OPENXLSX_EXPORT XLCellReference final
     {
         friend bool operator==(const XLCellReference& lhs, const XLCellReference& rhs);
         friend bool operator!=(const XLCellReference& lhs, const XLCellReference& rhs);

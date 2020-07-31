@@ -56,7 +56,7 @@ namespace OpenXLSX
      * @brief This class encapsulates the concept of a cell range, i.e. a square area
      * (or subset) of cells in a spreadsheet.
      */
-    class XLCellRange
+    class OPENXLSX_EXPORT XLCellRange
     {
         //----------------------------------------------------------------------------------------------------------------------
         //           Public Member Functions

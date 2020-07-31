@@ -247,7 +247,7 @@ namespace OpenXLSX
     /**
      * @brief A class encapsulating an Excel worksheet. Access to XLWorksheet objects should be via the workbook object.
      */
-    class XLWorksheet final : public XLSheetBase<XLWorksheet>
+    class OPENXLSX_EXPORT XLWorksheet final : public XLSheetBase<XLWorksheet>
     {
         friend class XLCell;
         friend class XLRow;

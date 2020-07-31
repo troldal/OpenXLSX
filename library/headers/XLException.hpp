@@ -50,16 +50,14 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <stdexcept>
 
 // ===== OpenXLSX Includes ===== //
-#include "openxlsx_export.h"
+#include "OpenXLSX-Exports.hpp"
 
 namespace OpenXLSX
 {
-    class OPENXLSX_EXPORT XLException : public std::runtime_error
+    class XLException : public std::runtime_error
     {
     public:
-        inline explicit XLException(const std::string& err) : runtime_error(err) {}
-
-        inline ~XLException() override = default;
+        inline explicit XLException(const std::string& err) : std::runtime_error(err) {}
     };
 
 }    // namespace OpenXLSX

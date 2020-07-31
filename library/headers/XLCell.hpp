@@ -59,7 +59,7 @@ namespace OpenXLSX
     /**
      * @brief An implementation class encapsulating the properties and behaviours of a spreadsheet cell.
      */
-    class XLCell
+    class OPENXLSX_EXPORT XLCell
     {
         friend class XLCellValue;
         friend bool operator==(const XLCell& lhs, const XLCell& rhs);

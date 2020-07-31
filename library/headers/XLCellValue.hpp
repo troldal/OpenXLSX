@@ -47,6 +47,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #define OPENXLSX_XLCELLVALUE_HPP
 
 // ===== OpenXLSX Includes ===== //
+#include "OpenXLSX-Exports.hpp"
 #include "XLXmlParser.hpp"
 
 namespace OpenXLSX
@@ -106,7 +107,7 @@ namespace OpenXLSX
      * The only member variable is a reference to the parent XLCell object. All functionality works by manipulating
      * the parent cell through the reference.
      */
-    class XLCellValue
+    class OPENXLSX_EXPORT XLCellValue
     {
     public:
         //---------- PUBLIC MEMBER FUNCTIONS ----------//

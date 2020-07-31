@@ -47,6 +47,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #define OPENXLSX_XLCOLUMN_HPP
 
 // ===== OpenXLSX Includes ===== //
+#include "OpenXLSX-Exports.hpp"
 #include "XLXmlParser.hpp"
 
 namespace OpenXLSX
@@ -54,7 +55,7 @@ namespace OpenXLSX
     /**
      * @brief
      */
-    class XLColumn
+    class OPENXLSX_EXPORT XLColumn
     {
     public:
         /**
