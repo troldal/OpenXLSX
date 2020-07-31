@@ -86,28 +86,27 @@ endif ()
 #   List of project source files
 #=======================================================================================================================
 set(OPENXLSX_SOURCES
-        ${CMAKE_CURRENT_LIST_DIR}/sources/XLXmlFile.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/sources/XLAppProperties.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/sources/XLContentTypes.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/sources/XLCoreProperties.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/sources/XLDocument.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/sources/XLRelationships.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/sources/XLSharedStrings.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/sources/XLWorkbook.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/sources/XLChartsheet.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/sources/XLColumn.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/sources/XLColor.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/sources/XLRow.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/sources/XLSheet.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/sources/XLWorksheet.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/sources/XLCell.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/sources/XLCellRange.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/sources/XLCellValue.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/sources/XLCellReference.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/sources/XLXmlParser.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/sources/XLXmlData.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/sources/XLCellIterator.cpp
-        )
+    ${CMAKE_CURRENT_LIST_DIR}/sources/XLXmlFile.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/sources/XLAppProperties.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/sources/XLContentTypes.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/sources/XLCoreProperties.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/sources/XLDocument.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/sources/XLRelationships.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/sources/XLSharedStrings.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/sources/XLWorkbook.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/sources/XLChartsheet.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/sources/XLColumn.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/sources/XLColor.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/sources/XLRow.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/sources/XLSheet.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/sources/XLWorksheet.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/sources/XLCell.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/sources/XLCellRange.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/sources/XLCellValue.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/sources/XLCellReference.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/sources/XLXmlData.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/sources/XLCellIterator.cpp
+    )
 
 #=======================================================================================================================
 # OBJECT LIBRARY
@@ -115,16 +114,16 @@ set(OPENXLSX_SOURCES
 #   Object provide a simpler way of integrating a library into an application. However, not all build systems (e.g.
 #   Xcode) play nice with object libraries. Therefore, an object library will only be built if supported.
 #=======================================================================================================================
-if (${BUILD_OBJECT_LIB})
+if (${BUILD_OBJECT_LIB} AND (NOT CMAKE_GENERATOR STREQUAL Xcode))
     add_library(OpenXLSX-object OBJECT "")
     target_sources(OpenXLSX-object PRIVATE ${OPENXLSX_SOURCES})
     target_include_directories(OpenXLSX-object
-            PRIVATE
-            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
-            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>     # For export header
-            SYSTEM INTERFACE
-            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
-            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)      # For export header
+                               PRIVATE
+                               $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
+                               $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>     # For export header
+                               SYSTEM INTERFACE
+                               $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
+                               $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)      # For export header
     #target_compile_definitions(OpenXLSX-object PRIVATE OpenXLSX_shared_EXPORTS)
 endif ()
 
@@ -135,12 +134,12 @@ endif ()
 add_library(OpenXLSX-static STATIC "")
 target_sources(OpenXLSX-static PRIVATE ${OPENXLSX_SOURCES})
 target_include_directories(OpenXLSX-static
-        PRIVATE
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>     # For export header
-        SYSTEM INTERFACE
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)      # For export header
+                           PRIVATE
+                           $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
+                           $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>     # For export header
+                           SYSTEM INTERFACE
+                           $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
+                           $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)      # For export header
 target_compile_definitions(OpenXLSX-static PRIVATE OPENXLSX_STATIC_DEFINE)
 
 #=======================================================================================================================
@@ -150,12 +149,12 @@ target_compile_definitions(OpenXLSX-static PRIVATE OPENXLSX_STATIC_DEFINE)
 add_library(OpenXLSX-shared SHARED "")
 target_sources(OpenXLSX-shared PRIVATE ${OPENXLSX_SOURCES})
 target_include_directories(OpenXLSX-shared
-        PRIVATE
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>     # For export header
-        SYSTEM INTERFACE
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)      # For export header
+                           PRIVATE
+                           $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
+                           $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>     # For export header
+                           SYSTEM INTERFACE
+                           $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
+                           $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)      # For export header
 
 #=======================================================================================================================
 # GENERATE EXPORT HEADER
@@ -163,10 +162,10 @@ target_include_directories(OpenXLSX-shared
 #=======================================================================================================================
 include(GenerateExportHeader)
 generate_export_header(OpenXLSX-shared
-        BASE_NAME openxlsx
-        EXPORT_FILE_NAME OpenXLSX-Exports.hpp
-        EXPORT_MACRO_NAME OPENXLSX_EXPORT
-        NO_EXPORT_MACRO_NAME OPENXLSX_HIDDEN)
+                       BASE_NAME openxlsx
+                       EXPORT_FILE_NAME OpenXLSX-Exports.hpp
+                       EXPORT_MACRO_NAME OPENXLSX_EXPORT
+                       NO_EXPORT_MACRO_NAME OPENXLSX_HIDDEN)
 
 #=======================================================================================================================
 # Enable Link-Time Optimization
@@ -193,7 +192,6 @@ if (ENABLE_COVERAGE AND CMAKE_BUILD_TYPE STREQUAL "Debug")
         target_link_options(OpenXLSX-shared PRIVATE --coverage)
     endif ()
 endif ()
-
 
 
 #=======================================================================================================================
@@ -251,9 +249,9 @@ install(
 
 # Package configuration
 configure_file(OpenXLSXConfig.cmake
-        "${CMAKE_CURRENT_BINARY_DIR}/OpenXLSX/OpenXLSXConfig.cmake"
-        COPYONLY
-        )
+               "${CMAKE_CURRENT_BINARY_DIR}/OpenXLSX/OpenXLSXConfig.cmake"
+               COPYONLY
+               )
 
 # Package export targets
 export(

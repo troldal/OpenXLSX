@@ -27,7 +27,7 @@ set(IGNORE_ME ${CMAKE_C_COMPILER})
 # Add build options
 #=======================================================================================================================
 option(CREATE_DOCS "Build library documentation (requires Doxygen and Graphviz/Dot to be installed)" ON)
-option(BUILD_OBJECT_LIB "Build object library (not available in Xcode)" OFF)
+option(BUILD_OBJECT_LIB "Build object library (not available in Xcode)" ON)
 option(BUILD_SAMPLES "Build sample programs" ON)
 option(BUILD_TESTS "Build and run library tests" ON)
 option(BUILD_BENCHMARKS "Build and run library benchmarks" ON)
