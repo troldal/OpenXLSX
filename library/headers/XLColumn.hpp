@@ -71,7 +71,7 @@ namespace OpenXLSX
         /**
          * @brief Copy Constructor [deleted]
          */
-        XLColumn(const XLColumn& other) = default;
+        XLColumn(const XLColumn& other);
 
         /**
          * @brief Move Constructor
@@ -87,7 +87,7 @@ namespace OpenXLSX
         /**
          * @brief Copy assignment operator [deleted]
          */
-        XLColumn& operator=(const XLColumn& other) = default;
+        XLColumn& operator=(const XLColumn& other);
 
         /**
          * @brief

@@ -88,7 +88,7 @@ namespace OpenXLSX
          * @brief Copy Constructor.
          * @param other Object to be copied.
          */
-        XLRelationshipItem(const XLRelationshipItem& other) = default;
+        XLRelationshipItem(const XLRelationshipItem& other);
 
         /**
          * @brief Move Constructor.
@@ -106,7 +106,7 @@ namespace OpenXLSX
          * @param other Right hand side of assignment operation.
          * @return A reference to the lhs object.
          */
-        XLRelationshipItem& operator=(const XLRelationshipItem& other) = default;
+        XLRelationshipItem& operator=(const XLRelationshipItem& other);
 
         /**
          * @brief Move assignment operator.

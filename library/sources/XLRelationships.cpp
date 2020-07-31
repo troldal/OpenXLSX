@@ -161,16 +161,16 @@ namespace
 
     uint32_t GetNewRelsID(XMLNode relationshipsNode)
     {
-        return stoi(std::string(std::max_element(relationshipsNode.children().begin(),
-                                                 relationshipsNode.children().end(),
-                                                 [](XMLNode a, XMLNode b) {
-                                                     return stoi(std::string(a.attribute("Id").value()).substr(3)) <
-                                                            stoi(std::string(b.attribute("Id").value()).substr(3));
-                                                 })
-                                    ->attribute("Id")
-                                    .value())
-                        .substr(3)) +
-               1;
+        return static_cast<uint32_t>(stoi(std::string(std::max_element(relationshipsNode.children().begin(),
+                                                                       relationshipsNode.children().end(),
+                                                                       [](XMLNode a, XMLNode b) {
+                                                                           return stoi(std::string(a.attribute("Id").value()).substr(3)) <
+                                                                                  stoi(std::string(b.attribute("Id").value()).substr(3));
+                                                                       })
+                                                          ->attribute("Id")
+                                                          .value())
+                                              .substr(3)) +
+                                     1);
     }
 }    // namespace
 
@@ -182,6 +182,16 @@ XLRelationshipItem::XLRelationshipItem() : m_relationshipNode(std::make_unique<X
 XLRelationshipItem::XLRelationshipItem(const XMLNode& node) : m_relationshipNode(std::make_unique<XMLNode>(node)) {}
 
 XLRelationshipItem::~XLRelationshipItem() = default;
+
+XLRelationshipItem::XLRelationshipItem(const XLRelationshipItem& other)
+    : m_relationshipNode(std::make_unique<XMLNode>(*other.m_relationshipNode))
+{}
+
+XLRelationshipItem& XLRelationshipItem::operator=(const XLRelationshipItem& other)
+{
+    if (&other != this) *m_relationshipNode = *other.m_relationshipNode;
+    return *this;
+}
 
 /**
  * @details Returns the m_relationshipType member variable by value.

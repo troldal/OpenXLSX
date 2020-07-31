@@ -254,7 +254,7 @@ namespace OpenXLSX
      */
     inline bool operator<(const XLCellReference& lhs, const XLCellReference& rhs)
     {
-        return lhs.row() < rhs.row() || lhs.row() <= rhs.row() && lhs.column() < rhs.column();
+        return lhs.row() < rhs.row() || (lhs.row() <= rhs.row() && lhs.column() < rhs.column());
     }
 
     /**

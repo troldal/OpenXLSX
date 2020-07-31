@@ -62,6 +62,12 @@ XLCellRange::XLCellRange(const pugi::xml_node& dataNode, const XLCellReference& 
       m_bottomRight(bottomRight)
 {}
 
+XLCellRange::XLCellRange(const XLCellRange& other)
+    : m_dataNode(std::make_unique<XMLNode>(*other.m_dataNode)),
+      m_topLeft(other.m_topLeft),
+      m_bottomRight(other.m_bottomRight)
+{}
+
 /**
  * @details Assign (copy) the contents of one range to another.
  * @todo Currently copies only values. Consider copying styles etc. as well

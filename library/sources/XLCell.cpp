@@ -75,6 +75,18 @@ XLCell::XLCell(const XMLNode& cellNode, XLSharedStrings* sharedStrings)
 
 XLCell::~XLCell() = default;
 
+XLCell::XLCell(const XLCell& other) : m_cellNode(std::make_unique<XMLNode>(*other.m_cellNode)), m_sharedStrings(other.m_sharedStrings) {}
+
+XLCell& XLCell::operator=(const XLCell& other)
+{
+    if (&other != this) {
+        *m_cellNode     = *other.m_cellNode;
+        m_sharedStrings = other.m_sharedStrings;
+    }
+
+    return *this;
+}
+
 /**
  * @details This methods copies a range into a new location, with the top left cell being located in the target cell.
  * The copying is done in the following way:

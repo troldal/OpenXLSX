@@ -568,13 +568,13 @@ std::string XLDocument::property(XLProperty prop) const
 {
     switch (prop) {
         case XLProperty::Application:
-            return m_appProperties.property("Application").text().get();
+            return m_appProperties.property("Application");
         case XLProperty::AppVersion:
-            return m_appProperties.property("AppVersion").text().get();
+            return m_appProperties.property("AppVersion");
         case XLProperty::Category:
             return m_coreProperties.property("cp:category");
         case XLProperty::Company:
-            return m_appProperties.property("Company").text().get();
+            return m_appProperties.property("Company");
         case XLProperty::CreationDate:
             return m_coreProperties.property("dcterms:created");
         case XLProperty::Creator:
@@ -582,11 +582,11 @@ std::string XLDocument::property(XLProperty prop) const
         case XLProperty::Description:
             return m_coreProperties.property("dc:description");
         case XLProperty::DocSecurity:
-            return m_appProperties.property("DocSecurity").text().get();
+            return m_appProperties.property("DocSecurity");
         case XLProperty::HyperlinkBase:
-            return m_appProperties.property("HyperlinkBase").text().get();
+            return m_appProperties.property("HyperlinkBase");
         case XLProperty::HyperlinksChanged:
-            return m_appProperties.property("HyperlinksChanged").text().get();
+            return m_appProperties.property("HyperlinksChanged");
         case XLProperty::Keywords:
             return m_coreProperties.property("cp:keywords");
         case XLProperty::LastModifiedBy:
@@ -594,15 +594,15 @@ std::string XLDocument::property(XLProperty prop) const
         case XLProperty::LastPrinted:
             return m_coreProperties.property("cp:lastPrinted");
         case XLProperty::LinksUpToDate:
-            return m_appProperties.property("LinksUpToDate").text().get();
+            return m_appProperties.property("LinksUpToDate");
         case XLProperty::Manager:
-            return m_appProperties.property("Manager").text().get();
+            return m_appProperties.property("Manager");
         case XLProperty::ModificationDate:
             return m_coreProperties.property("dcterms:modified");
         case XLProperty::ScaleCrop:
-            return m_appProperties.property("ScaleCrop").text().get();
+            return m_appProperties.property("ScaleCrop");
         case XLProperty::SharedDoc:
-            return m_appProperties.property("SharedDoc").text().get();
+            return m_appProperties.property("SharedDoc");
         case XLProperty::Subject:
             return m_coreProperties.property("dc:subject");
         case XLProperty::Title:

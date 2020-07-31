@@ -55,6 +55,14 @@ using namespace OpenXLSX;
  */
 XLColumn::XLColumn(const XMLNode& columnNode) : m_columnNode(std::make_unique<XMLNode>(columnNode)) {}
 
+XLColumn::XLColumn(const XLColumn& other) : m_columnNode(std::make_unique<XMLNode>(*other.m_columnNode)) {}
+
+XLColumn& XLColumn::operator=(const XLColumn& other)
+{
+    if (&other != this) *m_columnNode = *other.m_columnNode;
+    return *this;
+}
+
 /**
  * @details
  */

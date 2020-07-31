@@ -39,7 +39,7 @@ namespace OpenXLSX
         bool hasEntry(const std::string& entryName);
 
     private:
-        std::unique_ptr<Zippy::ZipArchive> m_archive;
+        std::shared_ptr<Zippy::ZipArchive> m_archive;
     };
 }    // namespace OpenXLSX
 #endif    // OPENXLSX_XLZIPARCHIVE_HPP

@@ -129,7 +129,7 @@ namespace OpenXLSX
          * @param other object to be copied.
          * @note The default copy constructor has been used.
          */
-        XLCellValue(const XLCellValue& other) = default;
+        XLCellValue(const XLCellValue& other);
 
         /**
          * @brief Move constructor.

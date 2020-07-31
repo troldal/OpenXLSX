@@ -57,6 +57,14 @@ using namespace OpenXLSX;
  */
 XLRow::XLRow(const XMLNode& rowNode) : m_rowNode(std::make_unique<XMLNode>(rowNode)) {}
 
+XLRow::XLRow(const XLRow& other) : m_rowNode(std::make_unique<XMLNode>(*other.m_rowNode)) {}
+
+XLRow& XLRow::operator=(const XLRow& other)
+{
+    if (&other != this) *m_rowNode = *other.m_rowNode;
+    return *this;
+}
+
 /**
  * @details Returns the m_height member by value.
  */
@@ -129,7 +137,7 @@ void XLRow::setHidden(bool state)
  */
 int64_t XLRow::rowNumber() const
 {
-    return m_rowNode->attribute("r").as_ullong();
+    return static_cast<int64_t>(m_rowNode->attribute("r").as_ullong());
 }
 
 /**

@@ -3,10 +3,10 @@
 #   Define external libraries used by OpenXLSX. The libraries (Zippy and PugiXML) are header-only, so
 #   INTERFACE libraries should be defined.
 #=======================================================================================================================
-add_library(Zippy INTERFACE)
+add_library(Zippy INTERFACE IMPORTED)
 target_include_directories(Zippy SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/zip/>)
 
-add_library(PugiXML INTERFACE)
+add_library(PugiXML INTERFACE IMPORTED)
 target_include_directories(PugiXML SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/xml/>)
 
 #=======================================================================================================================
@@ -241,8 +241,8 @@ install(
         #        OpenXLSX-object
         OpenXLSX-static
         OpenXLSX-shared
-        Zippy
-        PugiXML
+        #        Zippy
+        #        PugiXML
         EXPORT OpenXLSXTargets
         LIBRARY
         DESTINATION ${CMAKE_INSTALL_LIBDIR}

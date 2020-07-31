@@ -80,7 +80,7 @@ namespace OpenXLSX
          * @param other The range object to be copied.
          * @note This implements the default copy constructor, i.e. memberwise copying.
          */
-        XLCellRange(const XLCellRange& other) = default;
+        XLCellRange(const XLCellRange& other);
 
         /**
          * @brief Move constructor [default].

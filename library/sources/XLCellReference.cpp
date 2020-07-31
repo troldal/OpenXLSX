@@ -189,7 +189,7 @@ std::string XLCellReference::rowAsString(uint32_t row)
 #ifdef CHARCONV_ENABLED
     std::array<char, 7> str {};
     auto*               p = std::to_chars(str.data(), str.data() + str.size(), row).ptr;
-    return std::string(str.data(), p - str.data());
+    return std::string(str.data(), static_cast<uint16_t>(p - str.data()));
 #else
     std::string result;
     while (row != 0) {
@@ -251,8 +251,8 @@ uint16_t XLCellReference::columnAsNumber(const std::string& column)
 {
     uint16_t result = 0;
 
-    for (int32_t i = column.size() - 1, j = 0; i >= 0; --i, ++j) {
-        result += (column[i] - asciiOffset) * std::pow(alphabetSize, j);
+    for (uint64_t i = column.size() - 1, j = 0; i >= 0; --i, ++j) {
+        result += static_cast<uint16_t>((column[i] - asciiOffset) * std::pow(alphabetSize, j));
     }
 
     return result;
@@ -263,7 +263,7 @@ uint16_t XLCellReference::columnAsNumber(const std::string& column)
  */
 XLCoordinates XLCellReference::coordinatesFromAddress(const std::string& address)
 {
-    int letterCount = 0;
+    uint64_t letterCount = 0;
     for (auto letter : address) {
         if (letter >= 65)
             ++letterCount;
@@ -271,7 +271,7 @@ XLCoordinates XLCellReference::coordinatesFromAddress(const std::string& address
             break;
     }
 
-    int numberCount = address.size() - letterCount;
+    auto numberCount = address.size() - letterCount;
 
     return std::make_pair(rowAsNumber(address.substr(letterCount, numberCount)), columnAsNumber(address.substr(0, letterCount)));
 }

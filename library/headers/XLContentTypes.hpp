@@ -95,7 +95,7 @@ namespace OpenXLSX
          * @param other
          * @return
          */
-        XLContentItem(const XLContentItem& other) = default;
+        XLContentItem(const XLContentItem& other);
 
         /**
          * @brief
@@ -109,7 +109,7 @@ namespace OpenXLSX
          * @param other
          * @return
          */
-        XLContentItem& operator=(const XLContentItem& other) = default;
+        XLContentItem& operator=(const XLContentItem& other);
 
         /**
          * @brief

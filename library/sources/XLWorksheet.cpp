@@ -141,6 +141,17 @@ XLWorksheet::XLWorksheet(XLXmlData* xmlData) : XLSheetBase(xmlData)
     }
 }
 
+bool XLWorksheet::isSelected_impl() const
+{
+    return xmlDocument().first_child().child("sheetViews").first_child().attribute("tabSelected").value();
+}
+
+void XLWorksheet::setSelected_impl(bool selected)
+{
+    unsigned int value = (selected ? 1 : 0);
+    xmlDocument().first_child().child("sheetViews").first_child().attribute("tabSelected").set_value(value);
+}
+
 /**
  * @details
  */
@@ -254,14 +265,6 @@ XLRow XLWorksheet::row(uint32_t rowNumber)
 }
 
 /**
- * @details
- */
-const XLRow* XLWorksheet::row(uint32_t rowNumber) const
-{
-    return nullptr;
-}
-
-/**
  * @details Get the XLColumn object corresponding to the given column number. In the underlying XML data structure,
  * column nodes do not hold any cell data. Columns are used solely to hold data regarding column formatting.
  */
@@ -319,7 +322,7 @@ uint16_t XLWorksheet::columnCount() const noexcept
  */
 uint32_t XLWorksheet::rowCount() const noexcept
 {
-    return xmlDocument().document_element().child("sheetData").last_child().attribute("r").as_ullong();
+    return static_cast<uint32_t>(xmlDocument().document_element().child("sheetData").last_child().attribute("r").as_ullong());
 }
 
 /**
@@ -363,3 +366,14 @@ void XLWorksheet::updateSheetName(const std::string& oldName, const std::string&
  * @details
  */
 XLChartsheet::XLChartsheet(XLXmlData* xmlData) : XLSheetBase(xmlData) {}
+
+bool XLChartsheet::isSelected_impl() const
+{
+    return xmlDocument().first_child().child("sheetViews").first_child().attribute("tabSelected").value();
+}
+
+void XLChartsheet::setSelected_impl(bool selected)
+{
+    unsigned int value = (selected ? 1 : 0);
+    xmlDocument().first_child().child("sheetViews").first_child().attribute("tabSelected").set_value(value);
+}

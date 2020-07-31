@@ -70,7 +70,7 @@ int32_t XLSharedStrings::getStringIndex(const std::string& str) const
 
     return iter == xmlDocument().document_element().children().end()
                ? -1
-               : std::distance(xmlDocument().document_element().children().begin(), iter);
+               : static_cast<int32_t>(std::distance(xmlDocument().document_element().children().begin(), iter));
 }
 
 /**
@@ -108,7 +108,8 @@ int32_t XLSharedStrings::appendString(const std::string& str)
 {
     xmlDocument().document_element().append_child("si").append_child("t").text().set(str.c_str());
 
-    return std::distance(xmlDocument().document_element().children().begin(), xmlDocument().document_element().children().end()) - 1;
+    return static_cast<int32_t>(
+        std::distance(xmlDocument().document_element().children().begin(), xmlDocument().document_element().children().end()) - 1);
 }
 
 /**

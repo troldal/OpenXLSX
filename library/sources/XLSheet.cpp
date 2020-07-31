@@ -52,13 +52,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 using namespace OpenXLSX;
 
-template<typename T>
-void XLSheetBase<T>::setSelected(bool selected)
-{
-    unsigned int value = (selected ? 1 : 0);
-    xmlDocument().first_child().child("sheetViews").first_child().attribute("tabSelected").set_value(value);
-}
-
 /**
  * @details The constructor begins by constructing an instance of its superclass, XLAbstractXMLFile. The default
  * sheet type is WorkSheet and the default sheet state is Visible.

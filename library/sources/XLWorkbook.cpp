@@ -57,112 +57,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 using namespace OpenXLSX;
 
-namespace
-{
-    /**
-     * @brief
-     * @param sheetsNode
-     * @param sheetRID
-     * @return
-     */
-    inline XMLNode getSheetNodeByRID(XMLNode sheetsNode, const std::string& sheetRID)
-    {
-        return sheetsNode.find_child_by_attribute("r:id", sheetRID.c_str());
-    }
-
-    /**
-     * @brief
-     * @param sheetsNode
-     * @param sheetID
-     * @return
-     */
-    inline XMLNode getSheetNodeByID(XMLNode sheetsNode, uint16_t sheetID)
-    {
-        return sheetsNode.find_child_by_attribute("sheetId", std::to_string(sheetID).c_str());
-    }
-
-    /**
-     * @brief
-     * @param sheetsNode
-     * @param sheetName
-     * @return
-     */
-    inline XMLNode getSheetNodeByName(XMLNode sheetsNode, const std::string& sheetName)
-    {
-        return sheetsNode.find_child_by_attribute("name", sheetName.c_str());
-    }
-
-    /**
-     * @brief
-     * @param sheetsNode
-     * @param sheetRID
-     * @return
-     */
-    inline uint16_t getSheetIndexByRID(XMLNode sheetsNode, const std::string& sheetRID)
-    {
-        auto sheetNode = getSheetNodeByRID(sheetsNode, sheetRID);
-        if (!sheetsNode) throw XLException("Sheet does not exist");
-
-        for (auto iter = sheetsNode.children().begin(); iter != sheetsNode.children().end(); ++iter)
-            if (*iter == sheetNode) return std::distance(sheetNode.children().begin(), iter);
-        throw XLException("Sheet with rID \"" + sheetRID + "\" does not exist.");
-    }
-
-    /**
-     * @brief
-     * @param sheetsNode
-     * @param sheetID
-     * @return
-     */
-    inline uint16_t getSheetIndexByID(XMLNode sheetsNode, uint16_t sheetID)
-    {
-        auto sheetNode = getSheetNodeByID(sheetsNode, sheetID);
-        if (!sheetsNode) throw XLException("Sheet does not exist");
-
-        for (auto iter = sheetsNode.children().begin(); iter != sheetsNode.children().end(); ++iter)
-            if (*iter == sheetNode) return std::distance(sheetNode.children().begin(), iter);
-        throw XLException("Sheet with ID \"" + std::to_string(sheetID) + "\" does not exist.");
-    }
-
-    /**
-     * @brief
-     * @param sheetsNode
-     * @param sheetName
-     * @return
-     */
-    inline uint16_t getSheetIndexByName(XMLNode sheetsNode, const std::string& sheetName)
-    {
-        auto sheetNode = getSheetNodeByName(sheetsNode, sheetName);
-        if (!sheetsNode) throw XLException("Sheet does not exist");
-
-        for (auto iter = sheetsNode.children().begin(); iter != sheetsNode.children().end(); ++iter)
-            if (*iter == sheetNode) return std::distance(sheetNode.children().begin(), iter);
-        throw XLException("Sheet with name \"" + sheetName + "\" does not exist.");
-    }
-
-    /**
-     * @brief
-     * @param sheetsNode
-     * @param sheetRID
-     * @return
-     */
-    inline std::string getSheetNameByRID(XMLNode sheetsNode, const std::string& sheetRID)
-    {
-        return getSheetNodeByRID(sheetsNode, sheetRID).attribute("name").value();
-    }
-
-    /**
-     * @brief
-     * @param sheetsNode
-     * @param sheetName
-     * @return
-     */
-    inline std::string getSheetRIDByName(XMLNode sheetsNode, const std::string& sheetName)
-    {
-        return getSheetNodeByName(sheetsNode, sheetName).attribute("r:id").value();
-    }
-}    // namespace
-
 /**
  * @details The constructor initializes the member variables and calls the loadXMLData from the
  * XLAbstractXMLFile base class.
@@ -289,13 +183,14 @@ void XLWorkbook::cloneSheet(const std::string& existingName, const std::string& 
  */
 uint16_t XLWorkbook::createInternalSheetID()
 {
-    return std::max_element(
-               xmlDocument().document_element().child("sheets").children().begin(),
-               xmlDocument().document_element().child("sheets").children().end(),
-               [](const XMLNode& a, const XMLNode& b) { return a.attribute("sheetId").as_uint() < b.attribute("sheetId").as_uint(); })
-               ->attribute("sheetId")
-               .as_uint() +
-           1;
+    return static_cast<uint16_t>(std::max_element(xmlDocument().document_element().child("sheets").children().begin(),
+                                                  xmlDocument().document_element().child("sheets").children().end(),
+                                                  [](const XMLNode& a, const XMLNode& b) {
+                                                      return a.attribute("sheetId").as_uint() < b.attribute("sheetId").as_uint();
+                                                  })
+                                     ->attribute("sheetId")
+                                     .as_uint() +
+                                 1);
 }
 
 /**
@@ -398,7 +293,7 @@ void XLWorkbook::setSheetIndex(const std::string& sheetName, unsigned int index)
         getSheetsNode().append_move(getSheetsNode().find_child_by_attribute("name", sheetName.c_str()));
     else {
         auto currentSheet = getSheetsNode().first_child();
-        for (auto i = 1; i < index; ++i) currentSheet = currentSheet.next_sibling();
+        for (unsigned int i = 1; i < index; ++i) currentSheet = currentSheet.next_sibling();
         getSheetsNode().insert_move_before(getSheetsNode().find_child_by_attribute("name", sheetName.c_str()), currentSheet);
     }
 
@@ -461,7 +356,7 @@ XLSheetType XLWorkbook::typeOfSheet(unsigned int index) const
  */
 unsigned int XLWorkbook::sheetCount() const
 {
-    return std::distance(getSheetsNode().children().begin(), getSheetsNode().children().end());
+    return static_cast<unsigned int>(std::distance(getSheetsNode().children().begin(), getSheetsNode().children().end()));
 }
 
 /**
@@ -469,7 +364,7 @@ unsigned int XLWorkbook::sheetCount() const
  */
 unsigned int XLWorkbook::worksheetCount() const
 {
-    return worksheetNames().size();
+    return static_cast<unsigned int>(worksheetNames().size());
 }
 
 /**
@@ -477,7 +372,7 @@ unsigned int XLWorkbook::worksheetCount() const
  */
 unsigned int XLWorkbook::chartsheetCount() const
 {
-    return chartsheetNames().size();
+    return static_cast<unsigned int>(chartsheetNames().size());
 }
 
 /**

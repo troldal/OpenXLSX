@@ -106,7 +106,7 @@ namespace OpenXLSX
          * @param title
          * @return
          */
-        XMLNode& addSheetName(const std::string& title);
+        void addSheetName(const std::string& title);
 
         /**
          * @brief
@@ -161,7 +161,7 @@ namespace OpenXLSX
          * @param name
          * @return
          */
-        XMLNode& property(const std::string& name) const;
+        std::string property(const std::string& name) const;
 
         /**
          * @brief
@@ -174,14 +174,14 @@ namespace OpenXLSX
          * @param sheetName
          * @return
          */
-        XMLNode& appendSheetName(const std::string& sheetName);
+        void appendSheetName(const std::string& sheetName);
 
         /**
          * @brief
          * @param sheetName
          * @return
          */
-        XMLNode& prependSheetName(const std::string& sheetName);
+        void prependSheetName(const std::string& sheetName);
 
         /**
          * @brief
@@ -189,7 +189,7 @@ namespace OpenXLSX
          * @param index
          * @return
          */
-        XMLNode& insertSheetName(const std::string& sheetName, unsigned int index);
+        void insertSheetName(const std::string& sheetName, unsigned int index);
     };
 
 }    // namespace OpenXLSX

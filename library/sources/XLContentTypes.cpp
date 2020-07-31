@@ -174,6 +174,14 @@ XLContentItem::XLContentItem() : m_contentNode(std::make_unique<XMLNode>()) {}
  */
 XLContentItem::XLContentItem(const XMLNode& node) : m_contentNode(std::make_unique<XMLNode>(node)) {}
 
+XLContentItem::XLContentItem(const XLContentItem& other) : m_contentNode(std::make_unique<XMLNode>(*other.m_contentNode)) {}
+
+XLContentItem& XLContentItem::operator=(const XLContentItem& other)
+{
+    if (&other != this) *m_contentNode = *other.m_contentNode;
+    return *this;
+}
+
 /**
  * @details
  */

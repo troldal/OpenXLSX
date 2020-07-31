@@ -76,7 +76,7 @@ namespace OpenXLSX
          * @brief Copy Constructor
          * @note The copy constructor is explicitly deleted
          */
-        XLRow(const XLRow& other) = default;
+        XLRow(const XLRow& other);
 
         /**
          * @brief Move Constructor
@@ -94,7 +94,7 @@ namespace OpenXLSX
          * @brief Copy assignment operator.
          * @note The copy assignment operator is explicitly deleted.
          */
-        XLRow& operator=(const XLRow& other) = default;
+        XLRow& operator=(const XLRow& other);
 
         /**
          * @brief Move assignment operator.

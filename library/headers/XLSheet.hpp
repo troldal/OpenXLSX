@@ -52,6 +52,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <vector>
 
 // ===== OpenXLSX Includes ===== //
+#include "OpenXLSX-Exports.hpp"
 #include "XLCell.hpp"
 #include "XLCellReference.hpp"
 #include "XLCellValue.hpp"
@@ -70,7 +71,7 @@ namespace OpenXLSX
      * @tparam T
      */
     template<typename T>
-    class XLSheetBase : public XLXmlFile
+    class OPENXLSX_EXPORT XLSheetBase : public XLXmlFile
     {
     public:
         XLSheetBase() : XLXmlFile(nullptr) {};
@@ -219,14 +220,17 @@ namespace OpenXLSX
          */
         bool isSelected() const
         {
-            return xmlDocument().first_child().child("sheetViews").first_child().attribute("tabSelected").value();
+            return static_cast<const T&>(*this).isSelected_impl();
         }
 
         /**
          * @brief
          * @param selected
          */
-        void setSelected(bool selected);
+        void setSelected(bool selected)
+        {
+            static_cast<T&>(*this).setSelected_impl(selected);
+        }
 
         /**
          * @brief Method for cloning the sheet.
@@ -248,6 +252,7 @@ namespace OpenXLSX
         friend class XLCell;
         friend class XLRow;
         friend class XLWorkbook;
+        friend class XLSheetBase<XLWorksheet>;
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Public Member Functions
@@ -363,13 +368,6 @@ namespace OpenXLSX
         XLRow row(uint32_t rowNumber);
 
         /**
-         * @brief Get the row with the given row number.
-         * @param rowNumber The number of the row to retrieve.
-         * @return A const pointer to the XLRow object.
-         */
-        const XLRow* row(uint32_t rowNumber) const;
-
-        /**
          * @brief Get the column with the given column number.
          * @param columnNumber The number of the column to retrieve.
          * @return A pointer to the XLColumn object.
@@ -400,14 +398,29 @@ namespace OpenXLSX
          * @param newName
          */
         void updateSheetName(const std::string& oldName, const std::string& newName);
+
+    private:
+        /**
+         * @brief
+         * @return
+         */
+        bool isSelected_impl() const;
+
+        /**
+         * @brief
+         * @param selected
+         */
+        void setSelected_impl(bool selected);
     };
 
     /**
      * @brief Class representing the an Excel chartsheet.
      * @todo This class is largely unimplemented and works just as a placeholder.
      */
-    class XLChartsheet final : public XLSheetBase<XLChartsheet>
+    class OPENXLSX_EXPORT XLChartsheet final : public XLSheetBase<XLChartsheet>
     {
+        friend class XLSheetBase<XLChartsheet>;
+
         //----------------------------------------------------------------------------------------------------------------------
         //           Public Member Functions
         //----------------------------------------------------------------------------------------------------------------------
@@ -456,6 +469,19 @@ namespace OpenXLSX
          * @return
          */
         XLChartsheet& operator=(XLChartsheet&& other) noexcept = default;
+
+    private:
+        /**
+         * @brief
+         * @return
+         */
+        bool isSelected_impl() const;
+
+        /**
+         * @brief
+         * @param selected
+         */
+        void setSelected_impl(bool selected);
     };
 
     /**
@@ -463,7 +489,7 @@ namespace OpenXLSX
      * such as XLWorksheet. It implements functionality common to all sheet types. This is a pure abstract class,
      * so it cannot be instantiated.
      */
-    class XLSheet final : public XLXmlFile
+    class OPENXLSX_EXPORT XLSheet final : public XLXmlFile
     {
     public:
         /**

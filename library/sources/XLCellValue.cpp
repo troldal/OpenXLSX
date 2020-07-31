@@ -75,7 +75,7 @@ namespace
         }
 
         // ===== If a Type attribute is not present, but a value node is, the cell contains a number.
-        if ((!cellNode.attribute("t") || strcmp(cellNode.attribute("t").value(), "n") == 0 && cellNode.child("v") != nullptr)) {
+        if ((!cellNode.attribute("t") || (strcmp(cellNode.attribute("t").value(), "n") == 0 && cellNode.child("v") != nullptr))) {
             return XLCellType::Number;
         }
 
@@ -134,6 +134,11 @@ XLCellValue::XLCellValue(const XMLNode& cellNode, XLSharedStrings* sharedStrings
 {}
 
 XLCellValue::~XLCellValue() = default;
+
+XLCellValue::XLCellValue(const XLCellValue& other)
+    : m_cellNode(std::make_unique<XMLNode>(*other.m_cellNode)),
+      m_sharedStrings(other.m_sharedStrings)
+{}
 
 /**
  * @details The copy constructor and copy assignment operator works differently for XLCellValue objects.
@@ -257,7 +262,8 @@ std::string XLCellValue::asString() const
         return "TRUE";
     }
 
-    if (strcmp(m_cellNode->attribute("t").value(), "s") == 0) return m_sharedStrings->getString(m_cellNode->child("v").text().as_ullong());
+    if (strcmp(m_cellNode->attribute("t").value(), "s") == 0)
+        return m_sharedStrings->getString(static_cast<uint32_t>(m_cellNode->child("v").text().as_ullong()));
 
     return m_cellNode->child("v").text().get();
 }
@@ -351,7 +357,7 @@ bool XLCellValue::getBoolean() const
 long double XLCellValue::getFloat() const
 {
     if (valueType() != XLValueType::Float) throw XLException("Cell value is not Float");
-    return m_cellNode->child("v").text().as_double();
+    return static_cast<long double>(m_cellNode->child("v").text().as_double());
 }
 
 /**
@@ -363,7 +369,7 @@ const char* XLCellValue::getString() const
     if (strcmp(m_cellNode->attribute("t").value(), "str") == 0)    // ordinary string
         return m_cellNode->child("v").text().get();
     if (strcmp(m_cellNode->attribute("t").value(), "s") == 0)    // shared string
-        return m_sharedStrings->getString(m_cellNode->child("v").text().as_ullong());
+        return m_sharedStrings->getString(static_cast<uint32_t>(m_cellNode->child("v").text().as_ullong()));
 
     throw XLException("Unknown string type");
 }
