@@ -57,6 +57,14 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 using namespace OpenXLSX;
 
+namespace
+{
+    XMLNode sheetsNode(const XMLDocument& doc)
+    {
+        return doc.document_element().child("sheets");
+    }
+}    // namespace
+
 /**
  * @details The constructor initializes the member variables and calls the loadXMLData from the
  * XLAbstractXMLFile base class.
@@ -86,7 +94,8 @@ XLSheet XLWorkbook::sheet(const std::string& sheetName)
 XLSheet XLWorkbook::sheet(uint16_t index)
 {
     if (index < 1 || index > sheetCount()) throw XLException("Sheet index is out of bounds");
-    return sheet(std::vector<XMLNode>(getSheetsNode().begin(), getSheetsNode().end())[index - 1].attribute("name").as_string());
+    return sheet(
+        std::vector<XMLNode>(sheetsNode(xmlDocument()).begin(), sheetsNode(xmlDocument()).end())[index - 1].attribute("name").as_string());
 }
 
 /**
@@ -135,11 +144,12 @@ void XLWorkbook::deleteNamedRanges()
 void XLWorkbook::deleteSheet(const std::string& sheetName)
 {
     // ===== Determine ID and type of sheet, as well as current worksheet count.
-    auto sheetID        = getSheetsNode().find_child_by_attribute("name", sheetName.c_str()).attribute("r:id").value();    // NOLINT
-    auto sheetType      = parentDoc().executeQuery(XLQuerySheetType(relationshipID())).sheetType();
-    auto worksheetCount = std::count_if(getSheetsNode().children().begin(), getSheetsNode().children().end(), [&](const XMLNode& item) {
-        return parentDoc().executeQuery(XLQuerySheetType(item.attribute("r:id").value())).sheetType() == XLContentType::Worksheet;
-    });
+    auto sheetID   = sheetsNode(xmlDocument()).find_child_by_attribute("name", sheetName.c_str()).attribute("r:id").value();    // NOLINT
+    auto sheetType = parentDoc().executeQuery(XLQuerySheetType(relationshipID())).sheetType();
+    auto worksheetCount =
+        std::count_if(sheetsNode(xmlDocument()).children().begin(), sheetsNode(xmlDocument()).children().end(), [&](const XMLNode& item) {
+            return parentDoc().executeQuery(XLQuerySheetType(item.attribute("r:id").value())).sheetType() == XLContentType::Worksheet;
+        });
 
     // ===== If this is the last worksheet in the workbook, throw an exception.
     if (worksheetCount == 1 && sheetType == XLContentType::Worksheet)
@@ -147,7 +157,7 @@ void XLWorkbook::deleteSheet(const std::string& sheetName)
 
     // ===== Delete the sheet data as well as the sheet node from Workbook.xml
     parentDoc().executeCommand(XLCommandDeleteSheet(sheetID, sheetName));
-    getSheetsNode().remove_child(getSheetsNode().find_child_by_attribute("name", sheetName.c_str()));
+    sheetsNode(xmlDocument()).remove_child(sheetsNode(xmlDocument()).find_child_by_attribute("name", sheetName.c_str()));
 
     // TODO: The 'activeSheet' property may need to be updated.
 }
@@ -223,22 +233,13 @@ std::string XLWorkbook::sheetVisibility(const std::string& sheetID) const
 void XLWorkbook::prepareSheetMetadata(const std::string& sheetName, uint16_t internalID)
 {
     // ===== Add new child node to the "sheets" node.
-    auto node = getSheetsNode().append_child("sheet");
+    auto node = sheetsNode(xmlDocument()).append_child("sheet");
 
     // ===== append the required attributes to the newly created sheet node.
     std::string sheetPath            = "/xl/worksheets/sheet" + std::to_string(internalID) + ".xml";
     node.append_attribute("name")    = sheetName.c_str();
     node.append_attribute("sheetId") = std::to_string(internalID).c_str();
     node.append_attribute("r:id")    = parentDoc().executeQuery(XLQuerySheetRelsID(sheetPath)).sheetID().c_str();
-}
-
-/**
- * @details
- * @todo Consider putting this in an anonymous namespace.
- */
-XMLNode XLWorkbook::getSheetsNode() const
-{
-    return xmlDocument().first_child().child("sheets");
 }
 
 /**
@@ -288,13 +289,14 @@ void XLWorkbook::setSheetIndex(const std::string& sheetName, unsigned int index)
 
     // ===== Modify the node in the XML file
     if (index <= 1)
-        getSheetsNode().prepend_move(getSheetsNode().find_child_by_attribute("name", sheetName.c_str()));
+        sheetsNode(xmlDocument()).prepend_move(sheetsNode(xmlDocument()).find_child_by_attribute("name", sheetName.c_str()));
     else if (index >= sheetCount())
-        getSheetsNode().append_move(getSheetsNode().find_child_by_attribute("name", sheetName.c_str()));
+        sheetsNode(xmlDocument()).append_move(sheetsNode(xmlDocument()).find_child_by_attribute("name", sheetName.c_str()));
     else {
-        auto currentSheet = getSheetsNode().first_child();
+        auto currentSheet = sheetsNode(xmlDocument()).first_child();
         for (unsigned int i = 1; i < index; ++i) currentSheet = currentSheet.next_sibling();
-        getSheetsNode().insert_move_before(getSheetsNode().find_child_by_attribute("name", sheetName.c_str()), currentSheet);
+        sheetsNode(xmlDocument())
+            .insert_move_before(sheetsNode(xmlDocument()).find_child_by_attribute("name", sheetName.c_str()), currentSheet);
     }
 
     // ===== Updated defined names with worksheet scopes.
@@ -320,7 +322,7 @@ unsigned int XLWorkbook::indexOfSheet(const std::string& sheetName) const
 {
     // ===== Iterate through sheet nodes. When a match is found, return the index;
     unsigned int index = 1;
-    for (auto& sheet : getSheetsNode().children()) {
+    for (auto& sheet : sheetsNode(xmlDocument()).children()) {
         if (sheetName == sheet.attribute("name").value()) return index;
         index++;
     }
@@ -347,7 +349,8 @@ XLSheetType XLWorkbook::typeOfSheet(const std::string& sheetName) const
  */
 XLSheetType XLWorkbook::typeOfSheet(unsigned int index) const
 {
-    std::string name = std::vector<XMLNode>(getSheetsNode().begin(), getSheetsNode().end())[index - 1].attribute("name").as_string();
+    std::string name =
+        std::vector<XMLNode>(sheetsNode(xmlDocument()).begin(), sheetsNode(xmlDocument()).end())[index - 1].attribute("name").as_string();
     return typeOfSheet(name);
 }
 
@@ -356,7 +359,8 @@ XLSheetType XLWorkbook::typeOfSheet(unsigned int index) const
  */
 unsigned int XLWorkbook::sheetCount() const
 {
-    return static_cast<unsigned int>(std::distance(getSheetsNode().children().begin(), getSheetsNode().children().end()));
+    return static_cast<unsigned int>(
+        std::distance(sheetsNode(xmlDocument()).children().begin(), sheetsNode(xmlDocument()).children().end()));
 }
 
 /**
@@ -382,7 +386,7 @@ std::vector<std::string> XLWorkbook::sheetNames() const
 {
     std::vector<std::string> results;
 
-    for (const auto& item : getSheetsNode().children()) results.emplace_back(item.attribute("name").value());
+    for (const auto& item : sheetsNode(xmlDocument()).children()) results.emplace_back(item.attribute("name").value());
 
     return results;
 }
@@ -394,7 +398,7 @@ std::vector<std::string> XLWorkbook::worksheetNames() const
 {
     std::vector<std::string> results;
 
-    for (const auto& item : getSheetsNode().children()) {
+    for (const auto& item : sheetsNode(xmlDocument()).children()) {
         if (parentDoc().executeQuery(XLQuerySheetType(item.attribute("r:id").value())).sheetType() == XLContentType::Worksheet)
             results.emplace_back(item.attribute("name").value());
     }
@@ -409,7 +413,7 @@ std::vector<std::string> XLWorkbook::chartsheetNames() const
 {
     std::vector<std::string> results;
 
-    for (const auto& item : getSheetsNode().children()) {
+    for (const auto& item : sheetsNode(xmlDocument()).children()) {
         if (parentDoc().executeQuery(XLQuerySheetType(item.attribute("r:id").value())).sheetType() == XLContentType::Chartsheet)
             results.emplace_back(item.attribute("name").value());
     }

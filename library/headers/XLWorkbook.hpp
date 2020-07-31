@@ -323,12 +323,6 @@ namespace OpenXLSX
 
         /**
          * @brief
-         * @return
-         */
-        XMLNode getSheetsNode() const;
-
-        /**
-         * @brief
          * @param sheetRID
          * @param newName
          */

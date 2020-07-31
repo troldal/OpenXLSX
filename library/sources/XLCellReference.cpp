@@ -251,7 +251,7 @@ uint16_t XLCellReference::columnAsNumber(const std::string& column)
 {
     uint16_t result = 0;
 
-    for (uint64_t i = column.size() - 1, j = 0; i >= 0; --i, ++j) {
+    for (int16_t i = static_cast<int16_t>(column.size() - 1), j = 0; i >= 0; --i, ++j) {
         result += static_cast<uint16_t>((column[i] - asciiOffset) * std::pow(alphabetSize, j));
     }
 

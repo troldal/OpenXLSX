@@ -127,20 +127,6 @@ void XLAppProperties::setSheetName(const std::string& oldTitle, const std::strin
 /**
  * @details
  */
-XMLNode& XLAppProperties::sheetNameNode(const std::string& title)
-{
-    for (auto& sheet : sheetNames(xmlDocument().document_element()).children()) {
-        if (std::string_view(sheet.child_value()) == title) {
-            return sheet;
-        }
-    }
-
-    throw XLException("Sheet named \"" + title + "\" does not exist");
-}
-
-/**
- * @details
- */
 void XLAppProperties::addHeadingPair(const std::string& name, int value)
 {
     for (auto& item : headingPairsCategories(xmlDocument().document_element()).children()) {

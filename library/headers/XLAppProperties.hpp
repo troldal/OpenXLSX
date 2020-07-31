@@ -123,13 +123,6 @@ namespace OpenXLSX
 
         /**
          * @brief
-         * @param title
-         * @return
-         */
-        XMLNode& sheetNameNode(const std::string& title);
-
-        /**
-         * @brief
          * @param name
          * @param value
          */
