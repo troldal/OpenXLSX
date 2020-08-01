@@ -1,3 +1,4 @@
+#include <OpenXLSX-Exports.hpp>
 #include <OpenXLSX.hpp>
 #include <iomanip>
 #include <iostream>

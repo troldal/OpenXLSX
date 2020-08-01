@@ -47,6 +47,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #define OPENXLSX_XLXMLFILE_HPP
 
 // ===== OpenXLSX Includes ===== //
+#include "OpenXLSX-Exports.hpp"
 #include "XLXmlParser.hpp"
 
 namespace OpenXLSX
@@ -60,7 +61,7 @@ namespace OpenXLSX
      * @warning The XLXmlFile class is not intended to be instantiated on it's own, but to provide an interface for
      * derived classes. Also, it should not be used polymorphically. For that reason, the destructor is not declared virtual.
      */
-    class XLXmlFile
+    class OPENXLSX_EXPORT XLXmlFile
     {
     public:    // ===== PUBLIC MEMBER FUNCTIONS
         /**

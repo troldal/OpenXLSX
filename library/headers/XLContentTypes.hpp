@@ -53,6 +53,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <vector>
 
 // ===== OpenXLSX Includes ===== //
+#include "OpenXLSX-Exports.hpp"
 #include "XLEnums.hpp"
 #include "XLXmlFile.hpp"
 #include "XLXmlParser.hpp"
@@ -66,7 +67,7 @@ namespace OpenXLSX
     /**
      * @brief
      */
-    class XLContentItem
+    class OPENXLSX_EXPORT XLContentItem
     {
         friend class XLContentTypes;
 

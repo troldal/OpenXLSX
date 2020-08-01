@@ -51,6 +51,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <vector>
 
 // ===== OpenXLSX Includes ===== //
+#include "OpenXLSX-Exports.hpp"
 #include "XLEnums.hpp"
 #include "XLXmlFile.hpp"
 #include "XLXmlParser.hpp"
@@ -70,7 +71,7 @@ namespace OpenXLSX
     /**
      * @brief An encapsulation of a relationship item, i.e. an XML file in the document, its type and an ID number.
      */
-    class XLRelationshipItem
+    class OPENXLSX_EXPORT XLRelationshipItem
     {
     public:    // ---------- Public Member Functions ---------- //
         /**

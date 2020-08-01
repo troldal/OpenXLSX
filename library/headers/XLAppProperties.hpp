@@ -47,6 +47,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #define OPENXLSX_XLAPPPROPERTIES_HPP
 
 // ===== OpenXLSX Includes ===== //
+#include "OpenXLSX-Exports.hpp"
 #include "XLXmlFile.hpp"
 
 namespace OpenXLSX
@@ -55,7 +56,7 @@ namespace OpenXLSX
      * @brief This class is a specialization of the XLAbstractXMLFile, with the purpose of the representing the
      * document app properties in the app.xml file (docProps folder) in the .xlsx package.
      */
-    class XLAppProperties : public XLXmlFile
+    class OPENXLSX_EXPORT XLAppProperties : public XLXmlFile
     {
         //--------------------------------------------------------------------------------------------------------------
         //           Public Member Functions

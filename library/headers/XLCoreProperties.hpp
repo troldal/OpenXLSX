@@ -52,6 +52,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <vector>
 
 // ===== OpenXLSX Includes ===== //
+#include "OpenXLSX-Exports.hpp"
 #include "XLXmlFile.hpp"
 
 namespace OpenXLSX
@@ -59,7 +60,7 @@ namespace OpenXLSX
     /**
      * @brief
      */
-    class XLCoreProperties : public XLXmlFile
+    class OPENXLSX_EXPORT XLCoreProperties : public XLXmlFile
     {
         //----------------------------------------------------------------------------------------------------------------------
         //           Public Member Functions
