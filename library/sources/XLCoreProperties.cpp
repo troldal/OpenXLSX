@@ -45,7 +45,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 #include <pugixml.hpp>
 
-// ===== OpenXLSX Includes ===== //
+// ===== External Includes ===== //
 #include "XLCoreProperties.hpp"
 #include "XLDocument.hpp"
 

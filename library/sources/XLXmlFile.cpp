@@ -43,8 +43,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-// ===== Standard Library Includes ===== //
-#include <utility>
+// ===== External Includes ===== //
 #include <pugixml.hpp>
 
 // ===== OpenXLSX Includes ===== //

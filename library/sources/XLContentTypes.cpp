@@ -43,10 +43,9 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-// ===== Standard Library Includes ===== //
+// ===== External Includes ===== //
 #include <cstring>
 #include <pugixml.hpp>
-#include <utility>
 
 // ===== OpenXLSX Includes ===== //
 #include "XLContentTypes.hpp"
