@@ -24,6 +24,13 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(IGNORE_ME ${CMAKE_C_COMPILER})
 
 #=======================================================================================================================
+# Output Directories.
+#=======================================================================================================================
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/output)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/output)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/output)
+
+#=======================================================================================================================
 # Add build options
 #=======================================================================================================================
 option(CREATE_DOCS "Build library documentation (requires Doxygen and Graphviz/Dot to be installed)" ON)

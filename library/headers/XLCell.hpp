@@ -47,6 +47,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #define OPENXLSX_XLCELL_HPP
 
 // ===== OpenXLSX Includes ===== //
+#include "OpenXLSX-Exports.hpp"
 #include "XLCellReference.hpp"
 #include "XLCellValue.hpp"
 

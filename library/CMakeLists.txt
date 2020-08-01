@@ -238,24 +238,15 @@ install(
 
 # Targets
 install(
-        TARGETS
-        #        OpenXLSX-object
-        OpenXLSX-static
-        OpenXLSX-shared
-        #        Zippy
-        #        PugiXML
+        TARGETS OpenXLSX-static OpenXLSX-shared
         EXPORT OpenXLSXTargets
-        LIBRARY
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         COMPONENT lib
-        ARCHIVE
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
         COMPONENT lib
-        RUNTIME
-        DESTINATION ${CMAKE_INSTALL_BINDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
         COMPONENT bin
-        INCLUDES
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/OpenXLSX
+        INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/OpenXLSX
 )
 
 # Package version
