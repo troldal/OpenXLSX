@@ -47,6 +47,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #define OPENXLSX_XLSHAREDSTRINGS_HPP
 
 // ===== OpenXLSX Includes ===== //
+#include "OpenXLSX-Exports.hpp"
 #include "XLXmlFile.hpp"
 
 namespace OpenXLSX
@@ -56,7 +57,7 @@ namespace OpenXLSX
      * in each cell, cells have a reference to an entry in the SharedStrings register. This results in smalle file
      * sizes, as repeated strings are referenced easily.
      */
-    class XLSharedStrings : public XLXmlFile
+    class OPENXLSX_EXPORT XLSharedStrings : public XLXmlFile
     {
         //----------------------------------------------------------------------------------------------------------------------
         //           Public Member Functions
@@ -74,7 +75,7 @@ namespace OpenXLSX
         /**
          * @brief Destructor
          */
-        ~XLSharedStrings() = default;
+        ~XLSharedStrings();
 
         /**
          * @brief

@@ -109,7 +109,7 @@ namespace OpenXLSX
          * @brief Destructor
          * @note Default destructor specified
          */
-        ~XLWorkbook() = default;
+        ~XLWorkbook();
 
         /**
          * @brief Copy assignment operator.

@@ -76,6 +76,8 @@ namespace
  */
 XLWorkbook::XLWorkbook(XLXmlData* xmlData) : XLXmlFile(xmlData) {}
 
+XLWorkbook::~XLWorkbook() = default;
+
 /**
  * @details
  */

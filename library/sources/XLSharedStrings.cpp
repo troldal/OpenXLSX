@@ -59,6 +59,8 @@ using namespace OpenXLSX;
  */
 XLSharedStrings::XLSharedStrings(XLXmlData* xmlData) : XLXmlFile(xmlData) {}
 
+XLSharedStrings::~XLSharedStrings() = default;
+
 /**
  * @details Look up a string index by the string content. If the string does not exist, the returned index is -1.
  */

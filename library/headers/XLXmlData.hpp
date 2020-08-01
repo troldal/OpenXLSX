@@ -63,7 +63,7 @@ namespace OpenXLSX
 
     /**
      * @brief The XLXmlData class encapsulates the properties and behaviour of the .xml files in an .xlsx file zip
-     * package. Objects othe XLXmlData type are intended to be stored centrally in an XLDocument object, from where
+     * package. Objects of the XLXmlData type are intended to be stored centrally in an XLDocument object, from where
      * they can be retrieved by other objects that encapsulates the behaviour of Excel elements, such as XLWorkbook
      * and XLWorksheet.
      */

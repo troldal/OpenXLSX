@@ -181,6 +181,7 @@ elseif (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") OR
     endif ()
 
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+    string(REGEX REPLACE "/W[3|4]" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
     target_compile_options(OpenXLSX-shared PRIVATE $<$<CONFIG:Debug>:${OPENXLSX_DEBUG_FLAGS_MSVC}>)
     target_compile_options(OpenXLSX-static PRIVATE $<$<CONFIG:Debug>:${OPENXLSX_DEBUG_FLAGS_MSVC}>)
     if (${BUILD_OBJECT_LIB} AND (NOT CMAKE_GENERATOR STREQUAL Xcode))

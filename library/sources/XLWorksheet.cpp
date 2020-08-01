@@ -233,6 +233,7 @@ XLCell XLWorksheet::cell(uint32_t rowNumber, uint16_t columnNumber) const
     //        throw XLException("Row " + to_string(rowNumber) + " does not exist!");
     //
     //    return Row(rowNumber)->Cell(columnNumber);
+        return XLCell();
 }
 
 /**

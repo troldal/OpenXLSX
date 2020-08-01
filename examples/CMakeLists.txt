@@ -2,7 +2,7 @@
 # Define Demo1 target
 #=======================================================================================================================
 add_executable(Demo1 Demo1.cpp)
-target_link_libraries(Demo1 PRIVATE OpenXLSX-static)
+target_link_libraries(Demo1 PRIVATE OpenXLSX-shared)
 
 #=======================================================================================================================
 # Define Demo2 target
