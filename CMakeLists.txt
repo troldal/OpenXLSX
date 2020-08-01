@@ -1,10 +1,9 @@
 #=======================================================================================================================
 # Preamble
 #=======================================================================================================================
-cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
-project(OpenXLSX)
-set(OPENXLSX_DEPENDENCIES ${CMAKE_CURRENT_BINARY_DIR}/dependencies)
-set(OPENXLSX_INSTALLDIR ${CMAKE_CURRENT_BINARY_DIR}/install)
+cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
+project(OpenXLSX VERSION 0.1.0 LANGUAGES CXX)
+set(CMAKE_DEBUG_POSTFIX d)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN YES)
 
@@ -22,15 +21,17 @@ set(PROJECT_DESCRIPTION "A C++17 library for reading, writing and modifying Exce
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+set(IGNORE_ME ${CMAKE_C_COMPILER})
 
 #=======================================================================================================================
 # Add build options
 #=======================================================================================================================
-option(STATIC "Set to ON to build a static library instance of a shared library" OFF)
 option(CREATE_DOCS "Build library documentation (requires Doxygen and Graphviz/Dot to be installed)" ON)
 option(BUILD_SAMPLES "Build sample programs" ON)
 option(BUILD_TESTS "Build and run library tests" ON)
 option(BUILD_BENCHMARKS "Build and run library benchmarks" ON)
+option(ENABLE_COVERAGE "Enable GCC/Clang code coverage in Debug build (tests, benchmarks and samples will NOT build
+when this is enabled!)" OFF)
 
 #=======================================================================================================================
 # Add project subdirectories
@@ -43,23 +44,13 @@ endif()
 
 if(${BUILD_SAMPLES})
     add_subdirectory(examples)
-    add_dependencies(Demo1 OpenXLSX)
 endif()
 
 if(${BUILD_TESTS})
     add_subdirectory(tests)
-    add_dependencies(InterfaceTest OpenXLSX)
 endif()
 
 if(${BUILD_BENCHMARKS})
     add_subdirectory(benchmark)
-    add_dependencies(Benchmark OpenXLSX)
 endif()
-
-
-
-
-
-
-
 
