@@ -12,7 +12,9 @@
 #include <string>
 #include <vector>
 
+#ifdef _WIN32
 #include <direct.h>
+#endif
 
 namespace
 {
