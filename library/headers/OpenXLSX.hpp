@@ -51,7 +51,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLCellReference.hpp"
 #include "XLCellValue.hpp"
 #include "XLColumn.hpp"
-#include "XLDefinitions.hpp"
 #include "XLDocument.hpp"
 #include "XLException.hpp"
 #include "XLRow.hpp"

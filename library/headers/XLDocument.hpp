@@ -58,9 +58,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "OpenXLSX-Exports.hpp"
 #include "XLAppProperties.hpp"
 #include "XLCommandQuery.hpp"
+#include "XLContentTypes.hpp"
 #include "XLCoreProperties.hpp"
-#include "XLDefinitions.hpp"
-#include "XLEnums.hpp"
 #include "XLException.hpp"
 #include "XLRelationships.hpp"
 #include "XLSharedStrings.hpp"
@@ -70,6 +69,33 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 namespace OpenXLSX
 {
+    /**
+     * @brief The XLDocumentProperties class is an enumeration of the possible properties (metadata) that can be set
+     * for a XLDocument object (and .xlsx file)
+     */
+    enum class XLProperty {
+        Title,
+        Subject,
+        Creator,
+        Keywords,
+        Description,
+        LastModifiedBy,
+        LastPrinted,
+        CreationDate,
+        ModificationDate,
+        Category,
+        Application,
+        DocSecurity,
+        ScaleCrop,
+        Manager,
+        Company,
+        LinksUpToDate,
+        SharedDoc,
+        HyperlinkBase,
+        HyperlinksChanged,
+        AppVersion
+    };
+
     /**
      * @brief This class encapsulates the concept of an excel file. It is different from the XLWorkbook, in that an
      * XLDocument holds an XLWorkbook together with its metadata, as well as methods for opening,

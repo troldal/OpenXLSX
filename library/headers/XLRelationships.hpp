@@ -52,7 +52,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
-#include "XLEnums.hpp"
 #include "XLXmlFile.hpp"
 #include "XLXmlParser.hpp"
 
@@ -64,9 +63,35 @@ namespace OpenXLSX
 
     class XLRelationshipItem;
 
-    // ================================================================================
-    // XLRelationshipItem Class
-    // ================================================================================
+    /**
+     * @brief An enum of the possible relationship (or XML document) types used in relationship (.rels) XML files.
+     */
+    enum class XLRelationshipType {
+        CoreProperties,
+        ExtendedProperties,
+        CustomProperties,
+        Workbook,
+        Worksheet,
+        Chartsheet,
+        Dialogsheet,
+        Macrosheet,
+        CalculationChain,
+        ExternalLink,
+        ExternalLinkPath,
+        Theme,
+        Styles,
+        Chart,
+        ChartStyle,
+        ChartColorStyle,
+        Image,
+        Drawing,
+        VMLDrawing,
+        SharedStrings,
+        PrinterSettings,
+        VBAProject,
+        ControlProperties,
+        Unknown
+    };
 
     /**
      * @brief An encapsulation of a relationship item, i.e. an XML file in the document, its type and an ID number.

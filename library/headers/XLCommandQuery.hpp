@@ -52,7 +52,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <variant>
 
 // ===== OpenXLSX Includes ===== //
-#include "XLEnums.hpp"
 #include "XLXmlData.hpp"
 
 namespace OpenXLSX

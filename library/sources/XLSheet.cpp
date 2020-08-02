@@ -133,17 +133,6 @@ void XLSheet::setSelected(bool selected)
 /**
  * @details
  */
-XLSheetType XLSheet::type() const
-{
-    if (std::holds_alternative<XLWorksheet>(m_sheet))
-        return XLSheetType::Worksheet;
-    else
-        return XLSheetType::Chartsheet;
-}
-
-/**
- * @details
- */
 void XLSheet::clone(const std::string& newName)
 {
     std::visit([&](auto&& arg) { arg.clone(newName); }, m_sheet);

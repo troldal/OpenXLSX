@@ -59,13 +59,17 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLColor.hpp"
 #include "XLColumn.hpp"
 #include "XLCommandQuery.hpp"
-#include "XLDefinitions.hpp"
 #include "XLException.hpp"
 #include "XLRow.hpp"
 #include "XLXmlFile.hpp"
 
 namespace OpenXLSX
 {
+    /**
+     * @brief The XLSheetState is an enumeration of the possible (visibility) states, e.g. Visible or Hidden.
+     */
+    enum class XLSheetState { Visible, Hidden, VeryHidden };
+
     /**
      * @brief
      * @tparam T
@@ -584,7 +588,11 @@ namespace OpenXLSX
          * @brief Method to get the type of the sheet.
          * @return An XLSheetType enum object with the sheet type.
          */
-        XLSheetType type() const;
+        template<typename SheetType>
+        bool isType() const
+        {
+            return std::holds_alternative<SheetType>(m_sheet);
+        }
 
         /**
          * @brief Method for cloning the sheet.

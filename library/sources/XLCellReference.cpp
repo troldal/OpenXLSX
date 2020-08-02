@@ -52,10 +52,17 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== OpenXLSX Includes ===== //
 #include "XLCellReference.hpp"
-#include "XLDefinitions.hpp"
 #include "XLException.hpp"
 
 using namespace OpenXLSX;
+
+constexpr uint32_t maxRows = 1048576;
+
+constexpr uint16_t maxCols = 16'384;
+
+    constexpr uint8_t alphabetSize = 26;
+
+constexpr uint8_t asciiOffset = 64;
 
 /**
  * @details The constructor creates a new XLCellReference from a string, e.g. 'A1'. If there's no input,

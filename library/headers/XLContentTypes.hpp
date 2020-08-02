@@ -54,15 +54,38 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
-#include "XLEnums.hpp"
 #include "XLXmlFile.hpp"
 #include "XLXmlParser.hpp"
 
 namespace OpenXLSX
 {
-    // ================================================================================
-    // XLContentItem Class
-    // ================================================================================
+    /**
+     * @brief
+     */
+    enum class XLContentType {
+        Workbook,
+        WorkbookMacroEnabled,
+        Worksheet,
+        Chartsheet,
+        ExternalLink,
+        Theme,
+        Styles,
+        SharedStrings,
+        Drawing,
+        Chart,
+        ChartStyle,
+        ChartColorStyle,
+        ControlProperties,
+        CalculationChain,
+        VBAProject,
+        CoreProperties,
+        ExtendedProperties,
+        CustomProperties,
+        Comments,
+        Table,
+        VMLDrawing,
+        Unknown
+    };
 
     /**
      * @brief

@@ -54,7 +54,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "OpenXLSX-Exports.hpp"
 #include "XLCommandQuery.hpp"
 #include "XLContentTypes.hpp"
-#include "XLEnums.hpp"
 #include "XLException.hpp"
 #include "XLRelationships.hpp"
 #include "XLXmlFile.hpp"
@@ -68,6 +67,12 @@ namespace OpenXLSX
     class XLWorksheet;
 
     class XLChartsheet;
+
+    /**
+     * @brief The XLSheetType class is an enumeration of the available sheet types, e.g. Worksheet (ordinary
+     * spreadsheets), and Chartsheet (sheets with only a chart).
+     */
+    enum class XLSheetType { Worksheet, Chartsheet, DialogSheet, MacroSheet };
 
     /**
      * @brief This class encapsulates the concept of a Workbook. It provides access to the individual sheets
