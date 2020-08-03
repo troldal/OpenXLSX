@@ -314,25 +314,11 @@ namespace OpenXLSX
         XLCell cell(const std::string& ref);
 
         /**
-         * @brief
-         * @param ref
-         * @return
-         */
-        XLCell cell(const std::string& ref) const;
-
-        /**
          * @brief Get a pointer to the XLCell object for the given cell reference.
          * @param ref An XLCellReference object with the address of the cell to get.
          * @return A const reference to the requested XLCell object.
          */
         XLCell cell(const XLCellReference& ref);
-
-        /**
-         * @brief Get a pointer to the XLCell object for the given cell reference.
-         * @param ref An XLCellReference object with the address of the cell to get.
-         * @return A const reference to the requested XLCell object.
-         */
-        XLCell cell(const XLCellReference& ref) const;
 
         /**
          * @brief Get the cell at the given coordinates.
@@ -341,14 +327,6 @@ namespace OpenXLSX
          * @return A reference to the XLCell object at the given coordinates.
          */
         XLCell cell(uint32_t rowNumber, uint16_t columnNumber);
-
-        /**
-         * @brief Get the cell at the given coordinates.
-         * @param rowNumber The row number (index base 1).
-         * @param columnNumber The column number (index base 1).
-         * @return A const reference to the XLCell object at the given coordinates.
-         */
-        XLCell cell(uint32_t rowNumber, uint16_t columnNumber) const;
 
         /**
          * @brief Get a range for the area currently in use (i.e. from cell A1 to the last cell being in use).

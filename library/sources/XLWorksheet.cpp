@@ -57,10 +57,7 @@ using namespace OpenXLSX;
 namespace
 {
     /**
-     * @brief
-     * @param sheetDataNode
-     * @param rowNumber
-     * @return
+     * @details
      */
     inline XMLNode getRowNode(XMLNode sheetDataNode, uint32_t rowNumber)
     {
@@ -79,7 +76,7 @@ namespace
             result = sheetDataNode.last_child();
             while (result.attribute("r").as_ullong() > rowNumber) result = result.previous_sibling();
             if (result.attribute("r").as_ullong() < rowNumber) {
-                result                                     = sheetDataNode.insert_child_after("row", result);
+                result = sheetDataNode.insert_child_after("row", result);
 
                 result.append_attribute("r")               = rowNumber;
                 result.append_attribute("x14ac:dyDescent") = "0.2";
@@ -92,7 +89,7 @@ namespace
             result = sheetDataNode.first_child();
             while (result.attribute("r").as_ullong() < rowNumber) result = result.next_sibling();
             if (result.attribute("r").as_ullong() > rowNumber) {
-                result                                     = sheetDataNode.insert_child_before("row", result);
+                result = sheetDataNode.insert_child_before("row", result);
 
                 result.append_attribute("r")               = rowNumber;
                 result.append_attribute("x14ac:dyDescent") = "0.2";
@@ -105,8 +102,9 @@ namespace
 }    // namespace
 
 /**
- * @details The constructor initializes the member variables and calls the loadXMLData from the
- * XLAbstractXMLFile base class.
+ * @details The constructor does som e slight reconfiguration of the XML file, in order to make parsing easier.
+ * For example, columns with identical formatting are by default grouped under the same node. However, this makes it more difficult to
+ * parse, so the constructor reconfigures it so each column has it's own formatting.
  */
 XLWorksheet::XLWorksheet(XLXmlData* xmlData) : XLSheetBase(xmlData)
 {
@@ -141,11 +139,17 @@ XLWorksheet::XLWorksheet(XLXmlData* xmlData) : XLSheetBase(xmlData)
     }
 }
 
+/**
+ * @details
+ */
 bool XLWorksheet::isSelected_impl() const
 {
     return xmlDocument().first_child().child("sheetViews").first_child().attribute("tabSelected").value();
 }
 
+/**
+ * @details
+ */
 void XLWorksheet::setSelected_impl(bool selected)
 {
     unsigned int value = (selected ? 1 : 0);
@@ -163,23 +167,7 @@ XLCell XLWorksheet::cell(const std::string& ref)
 /**
  * @details
  */
-XLCell XLWorksheet::cell(const std::string& ref) const
-{
-    return cell(XLCellReference(ref));
-}
-
-/**
- * @details
- */
 XLCell XLWorksheet::cell(const XLCellReference& ref)
-{
-    return cell(ref.row(), ref.column());
-}
-
-/**
- * @details
- */
-XLCell XLWorksheet::cell(const XLCellReference& ref) const
 {
     return cell(ref.row(), ref.column());
 }
@@ -225,20 +213,6 @@ XLCell XLWorksheet::cell(uint32_t rowNumber, uint16_t columnNumber)
 
 /**
  * @details
- * @throw XLException if rowNumber exceeds rowCount
- */
-XLCell XLWorksheet::cell(uint32_t rowNumber, uint16_t columnNumber) const
-{
-    //    if (rowNumber > RowCount())
-    //        throw XLException("Row " + to_string(rowNumber) + " does not exist!");
-    //
-    //    return Row(rowNumber)->Cell(columnNumber);
-        return XLCell();
-}
-
-/**
- * @brief
- * @return
  * @todo The returned object is not const.
  */
 XLCellRange XLWorksheet::range() const
@@ -368,11 +342,17 @@ void XLWorksheet::updateSheetName(const std::string& oldName, const std::string&
  */
 XLChartsheet::XLChartsheet(XLXmlData* xmlData) : XLSheetBase(xmlData) {}
 
+/**
+ * @details
+ */
 bool XLChartsheet::isSelected_impl() const
 {
     return xmlDocument().first_child().child("sheetViews").first_child().attribute("tabSelected").value();
 }
 
+/**
+ * @details
+ */
 void XLChartsheet::setSelected_impl(bool selected)
 {
     unsigned int value = (selected ? 1 : 0);

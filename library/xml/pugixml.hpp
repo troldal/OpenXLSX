@@ -34,8 +34,8 @@
 
 // Include STL headers
 #    ifndef PUGIXML_NO_STL
-#        include <iterator>
 #        include <iosfwd>
+#        include <iterator>
 #        include <string>
 #    endif
 

@@ -27,8 +27,8 @@
 #    endif
 
 #    ifndef PUGIXML_NO_XPATH
-#        include <math.h>
 #        include <float.h>
+#        include <math.h>
 #    endif
 
 #    ifndef PUGIXML_NO_STL
@@ -10724,9 +10724,8 @@ public:
         }
 
         // Use optimized path for @attr = 'value' or @attr = $value
-        if (_type == ast_op_equal && _left &&
-            _right &&    // workaround for clang static analyzer and Coverity (_left and _right are never null for ast_op_equal)
-                         // coverity[mixed_enums]
+        if (_type == ast_op_equal && _left && _right &&    // workaround for clang static analyzer and Coverity (_left and _right are never
+                                                           // null for ast_op_equal) coverity[mixed_enums]
             _left->_type == ast_step && _left->_axis == axis_attribute && _left->_test == nodetest_name && !_left->_left &&
             !_left->_right &&
             (_right->_type == ast_string_constant || (_right->_type == ast_variable && _right->_rettype == xpath_type_string)))

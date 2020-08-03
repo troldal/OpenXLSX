@@ -67,7 +67,10 @@ namespace OpenXLSX
     public:
         //---------- Public Member Functions ----------//
 
-        explicit XLCell();
+        /**
+         * @brief Default constructor. Constructs a null object.
+         */
+        XLCell();
 
         /**
          * @brief Constructor
@@ -121,6 +124,8 @@ namespace OpenXLSX
          * @note Copies only the cell contents (values).
          */
         XLCell& operator=(const XLCellRange& range);
+
+        explicit operator bool() const;
 
         /**
          * @brief Get a reference to the XLCellValue object for the cell.

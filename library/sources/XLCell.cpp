@@ -52,7 +52,10 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 using namespace OpenXLSX;
 
-XLCell::XLCell() : m_cellNode(std::make_unique<XMLNode>()), m_sharedStrings(nullptr) {}
+/**
+ * @details
+ */
+XLCell::XLCell() : m_cellNode(nullptr), m_sharedStrings(nullptr) {}
 
 /**
  * @details This constructor creates a XLCell object based on the cell XMLNode input parameter, and is
@@ -74,10 +77,19 @@ XLCell::XLCell(const XMLNode& cellNode, XLSharedStrings* sharedStrings)
       m_sharedStrings(sharedStrings)
 {}
 
+/**
+ * @details
+ */
 XLCell::~XLCell() = default;
 
+/**
+ * @details
+ */
 XLCell::XLCell(const XLCell& other) : m_cellNode(std::make_unique<XMLNode>(*other.m_cellNode)), m_sharedStrings(other.m_sharedStrings) {}
 
+/**
+ * @details
+ */
 XLCell& XLCell::operator=(const XLCell& other)
 {
     if (&other != this) {
@@ -107,6 +119,14 @@ XLCell& XLCell::operator=(const XLCellRange& range)
     rng = range;
 
     return *this;
+}
+
+/**
+ * @details
+ */
+XLCell::operator bool() const
+{
+    return m_cellNode && *m_cellNode;
 }
 
 /**
@@ -157,6 +177,9 @@ void XLCell::setFormula(const std::string& newFormula)
     m_cellNode->child("f").text().set(newFormula.c_str());
 }
 
+/**
+ * @details
+ */
 void XLCell::reset(const XMLNode& cellNode)
 {
     *m_cellNode = cellNode;

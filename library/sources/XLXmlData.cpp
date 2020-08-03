@@ -52,6 +52,9 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 using namespace OpenXLSX;
 
+/**
+ * @details
+ */
 XLXmlData::XLXmlData(OpenXLSX::XLDocument* parentDoc, const std::string& xmlPath, const std::string& xmlId, OpenXLSX::XLContentType xmlType)
     : m_parentDoc(parentDoc),
       m_xmlPath(xmlPath),
@@ -62,13 +65,22 @@ XLXmlData::XLXmlData(OpenXLSX::XLDocument* parentDoc, const std::string& xmlPath
     m_xmlDoc->reset();
 }
 
+/**
+ * @details
+ */
 XLXmlData::~XLXmlData() = default;
 
+/**
+ * @details
+ */
 void XLXmlData::setRawData(const std::string& data)
 {
     m_xmlDoc->load_string(data.c_str(), pugi::parse_default | pugi::parse_ws_pcdata);
 }
 
+/**
+ * @details
+ */
 std::string XLXmlData::getRawData() const
 {
     std::ostringstream ostr;
@@ -76,31 +88,49 @@ std::string XLXmlData::getRawData() const
     return ostr.str();
 }
 
+/**
+ * @details
+ */
 XLDocument* XLXmlData::getParentDoc()
 {
     return m_parentDoc;
 }
 
+/**
+ * @details
+ */
 const XLDocument* XLXmlData::getParentDoc() const
 {
     return m_parentDoc;
 }
 
+/**
+ * @details
+ */
 std::string XLXmlData::getXmlPath() const
 {
     return m_xmlPath;
 }
 
+/**
+ * @details
+ */
 std::string XLXmlData::getXmlID() const
 {
     return m_xmlID;
 }
 
+/**
+ * @details
+ */
 XLContentType XLXmlData::getXmlType() const
 {
     return m_xmlType;
 }
 
+/**
+ * @details
+ */
 XMLDocument* XLXmlData::getXmlDocument()
 {
     if (!m_xmlDoc->document_element())
@@ -109,6 +139,9 @@ XMLDocument* XLXmlData::getXmlDocument()
     return m_xmlDoc.get();
 }
 
+/**
+ * @details
+ */
 const XMLDocument* XLXmlData::getXmlDocument() const
 {
     if (!m_xmlDoc->document_element())

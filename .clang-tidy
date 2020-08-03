@@ -15,6 +15,7 @@ Checks: >-
   -hicpp-avoid-c-arrays,
   -hicpp-braces-around-statements,
   -google-readability-braces-around-statements
+  -bugprone-infinite-loop
 
 WarningsAsErrors: '*'
 HeaderFilterRegex: ''
