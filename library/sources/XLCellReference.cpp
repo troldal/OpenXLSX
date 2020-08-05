@@ -93,6 +93,64 @@ XLCellReference::XLCellReference(uint32_t row, const std::string& column)
       m_cellAddress(column + rowAsString(row))
 {}
 
+// * @details
+// */
+// XLCellReference& XLCellReference::operator++()
+//{
+//    if (m_column < maxCols) {
+//        ++m_column;
+//    }
+//    else if (m_column == maxCols && m_row < maxRows) {
+//        m_column = 1;
+//        ++m_row;
+//    }
+//    else if (m_column == maxCols && m_row == maxRows) {
+//        m_column = 1;
+//        m_row = 1;
+//    }
+//
+//    return *this;
+//}
+//
+///**
+// * @details
+// */
+// XLCellReference XLCellReference::operator++(int) // NOLINT
+//{
+//    auto oldRef(*this);
+//    ++(*this);
+//    return oldRef;
+//}
+//
+///**
+// * @details
+// */
+// XLCellReference& XLCellReference::operator--()
+//{
+//    if (m_column > 1) {
+//        --m_column;
+//    }
+//    else if (m_column == 1 && m_row > 1) {
+//        m_column = maxCols;
+//        --m_row;
+//    }
+//    else if (m_column == 1 && m_row == 1) {
+//        m_column = maxCols;
+//        m_row = maxRows;
+//    }
+//    return *this;
+//}
+//
+///**
+// * @details
+// */
+// XLCellReference XLCellReference::operator--(int) // NOLINT
+//{
+//    auto oldRef(*this);
+//    --(*this);
+//    return oldRef;
+//}
+
 /**
  * @details Returns the m_row property.
  */

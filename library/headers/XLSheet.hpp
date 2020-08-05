@@ -332,7 +332,7 @@ namespace OpenXLSX
          * @brief Get a range for the area currently in use (i.e. from cell A1 to the last cell being in use).
          * @return A const XLCellRange object with the entire range.
          */
-        XLCellRange range() const;
+        XLCellRange range();
 
         /**
          * @brief Get a range with the given coordinates.
@@ -340,7 +340,7 @@ namespace OpenXLSX
          * @param bottomRight An XLCellReference object with the coordinates to the bottom right cell.
          * @return A const XLCellRange object with the requested range.
          */
-        XLCellRange range(const XLCellReference& topLeft, const XLCellReference& bottomRight) const;
+        XLCellRange range(const XLCellReference& topLeft, const XLCellReference& bottomRight);
 
         /**
          * @brief Get the row with the given row number.

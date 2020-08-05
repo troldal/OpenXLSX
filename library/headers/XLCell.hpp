@@ -62,6 +62,7 @@ namespace OpenXLSX
     class OPENXLSX_EXPORT XLCell
     {
         friend class XLCellValue;
+        friend class XLCellIterator;
         friend bool operator==(const XLCell& lhs, const XLCell& rhs);
 
     public:
@@ -125,6 +126,10 @@ namespace OpenXLSX
          */
         XLCell& operator=(const XLCellRange& range);
 
+        /**
+         * @brief
+         * @return
+         */
         explicit operator bool() const;
 
         /**

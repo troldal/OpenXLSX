@@ -63,7 +63,7 @@ namespace
     {
         // ===== If the requested node is beyond the current max node, append a new node to the end.
         auto result = XMLNode();
-        if (rowNumber > sheetDataNode.last_child().attribute("r").as_ullong()) {
+        if (!sheetDataNode.last_child() || rowNumber > sheetDataNode.last_child().attribute("r").as_ullong()) {
             result = sheetDataNode.append_child("row");
 
             result.append_attribute("r")               = rowNumber;
@@ -215,7 +215,7 @@ XLCell XLWorksheet::cell(uint32_t rowNumber, uint16_t columnNumber)
  * @details
  * @todo The returned object is not const.
  */
-XLCellRange XLWorksheet::range() const
+XLCellRange XLWorksheet::range()
 {
     return range(XLCellReference("A1"), lastCell());
 }
@@ -223,9 +223,12 @@ XLCellRange XLWorksheet::range() const
 /**
  * @details
  */
-XLCellRange XLWorksheet::range(const XLCellReference& topLeft, const XLCellReference& bottomRight) const
+XLCellRange XLWorksheet::range(const XLCellReference& topLeft, const XLCellReference& bottomRight)
 {
-    return XLCellRange(xmlDocument().first_child().child("sheetData"), topLeft, bottomRight);
+    return XLCellRange(xmlDocument().first_child().child("sheetData"),
+                       topLeft,
+                       bottomRight,
+                       parentDoc().executeQuery(XLQuerySharedStrings()).sharedStrings());
 }
 
 /**

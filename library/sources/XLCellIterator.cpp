@@ -43,5 +43,214 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
+// ===== External Includes ===== //
+#include <pugixml.hpp>
+
 // ===== OpenXLSX Includes ===== //
 #include "XLCellIterator.hpp"
+#include "XLCellRange.hpp"
+#include "XLCellReference.hpp"
+#include "XLException.hpp"
+
+using namespace OpenXLSX;
+
+namespace
+{
+    /**
+     * @details
+     */
+    inline XMLNode getRowNode(XMLNode sheetDataNode, uint32_t rowNumber)
+    {
+        // ===== If the requested node is beyond the current max node, append a new node to the end.
+        auto result = XMLNode();
+        if (!sheetDataNode.last_child() || rowNumber > sheetDataNode.last_child().attribute("r").as_ullong()) {
+            result = sheetDataNode.append_child("row");
+
+            result.append_attribute("r")               = rowNumber;
+            result.append_attribute("x14ac:dyDescent") = "0.2";
+            result.append_attribute("spans")           = "1:1";
+        }
+
+        // ===== If the requested node is closest to the end, start from the end and search backwards
+        else if (sheetDataNode.last_child().attribute("r").as_ullong() - rowNumber < rowNumber) {
+            result = sheetDataNode.last_child();
+            while (result.attribute("r").as_ullong() > rowNumber) result = result.previous_sibling();
+            if (result.attribute("r").as_ullong() < rowNumber) {
+                result = sheetDataNode.insert_child_after("row", result);
+
+                result.append_attribute("r")               = rowNumber;
+                result.append_attribute("x14ac:dyDescent") = "0.2";
+                result.append_attribute("spans")           = "1:1";
+            }
+        }
+
+        // ===== Otherwise, start from the beginning
+        else {
+            result = sheetDataNode.first_child();
+            while (result.attribute("r").as_ullong() < rowNumber) result = result.next_sibling();
+            if (result.attribute("r").as_ullong() > rowNumber) {
+                result = sheetDataNode.insert_child_before("row", result);
+
+                result.append_attribute("r")               = rowNumber;
+                result.append_attribute("x14ac:dyDescent") = "0.2";
+                result.append_attribute("spans")           = "1:1";
+            }
+        }
+
+        return result;
+    }
+
+    inline XMLNode getCellNode(XMLNode rowNode, uint16_t columnNumber)
+    {
+        auto cellNode = XMLNode();
+        auto cellRef  = XLCellReference(rowNode.attribute("r").as_uint(), columnNumber);
+        // auto rowNode  = getRowNode(*m_dataNode, m_topLeft.row());
+
+        // ===== If there are no cells in the current row, or the requested cell is beyond the last cell in the row...
+        if (rowNode.last_child().empty() || XLCellReference(rowNode.last_child().attribute("r").value()).column() < columnNumber) {
+            // if (rowNode.last_child().empty() ||
+            // XLCellReference::CoordinatesFromAddress(rowNode.last_child().attribute("r").value()).second < columnNumber) {
+            rowNode.append_child("c").append_attribute("r").set_value(cellRef.address().c_str());
+            cellNode = rowNode.last_child();
+        }
+        // ===== If the requested node is closest to the end, start from the end and search backwards...
+        else if (XLCellReference(rowNode.last_child().attribute("r").value()).column() - columnNumber < columnNumber) {
+            cellNode = rowNode.last_child();
+            while (XLCellReference(cellNode.attribute("r").value()).column() > columnNumber) cellNode = cellNode.previous_sibling();
+            if (XLCellReference(cellNode.attribute("r").value()).column() < columnNumber) {
+                cellNode = rowNode.insert_child_after("c", cellNode);
+                cellNode.append_attribute("r").set_value(cellRef.address().c_str());
+            }
+        }
+        // ===== Otherwise, start from the beginning
+        else {
+            cellNode = rowNode.first_child();
+            while (XLCellReference(cellNode.attribute("r").value()).column() < columnNumber) cellNode = cellNode.next_sibling();
+            if (XLCellReference(cellNode.attribute("r").value()).column() > columnNumber) {
+                cellNode = rowNode.insert_child_before("c", cellNode);
+                cellNode.append_attribute("r").set_value(cellRef.address().c_str());
+            }
+        }
+        return cellNode;
+    }
+
+}    // namespace
+
+/**
+ * @details
+ */
+XLCellIterator::XLCellIterator(const XLCellRange& cellRange, XLIteratorLocation loc)
+    : m_dataNode(std::make_unique<XMLNode>(*cellRange.m_dataNode)),
+      m_topLeft(cellRange.m_topLeft),
+      m_bottomRight(cellRange.m_bottomRight),
+      m_currentCell(),
+      m_sharedStrings(cellRange.m_sharedStrings)
+{
+    if (loc == XLIteratorLocation::End)
+        m_currentCell = XLCell();
+    else {
+        m_currentCell = XLCell(getCellNode(getRowNode(*m_dataNode, m_topLeft.row()), m_topLeft.column()), m_sharedStrings);
+    }
+}
+
+XLCellIterator::~XLCellIterator() = default;
+
+/**
+ * @details
+ */
+XLCellIterator::XLCellIterator(const XLCellIterator& other)
+    : m_dataNode(std::make_unique<XMLNode>(*other.m_dataNode)),
+      m_topLeft(other.m_topLeft),
+      m_bottomRight(other.m_bottomRight),
+      m_currentCell(other.m_currentCell),
+      m_sharedStrings(other.m_sharedStrings)
+{}
+
+/**
+ * @details
+ */
+XLCellIterator& XLCellIterator::operator=(const XLCellIterator& other)
+{
+    if (&other != this) {
+        *m_dataNode     = *other.m_dataNode;
+        m_topLeft       = other.m_topLeft;
+        m_bottomRight   = other.m_bottomRight;
+        m_currentCell   = other.m_currentCell;
+        m_sharedStrings = other.m_sharedStrings;
+    }
+
+    return *this;
+}
+
+/**
+ * @details
+ */
+XLCellIterator& XLCellIterator::operator++()
+{
+    auto ref = m_currentCell.cellReference();
+
+    if (ref.column() < m_bottomRight.column())
+        ref = XLCellReference(ref.row(), ref.column() + 1);
+    else if (ref.column() == m_bottomRight.column())
+        ref = XLCellReference(ref.row() + 1, m_topLeft.column());
+
+    if (ref > m_bottomRight)
+        m_currentCell = XLCell();
+    else if (ref.row() == m_currentCell.cellReference().row()) {
+        auto node = m_currentCell.m_cellNode->next_sibling();
+        if (!node || XLCellReference(node.attribute("r").value()) != ref) {
+            node = m_currentCell.m_cellNode->parent().insert_child_after("c", *m_currentCell.m_cellNode);
+            node.append_attribute("r").set_value(ref.address().c_str());
+        }
+        m_currentCell = XLCell(node, m_sharedStrings);
+    }
+    else if (ref.row() > m_currentCell.cellReference().row()) {
+        m_currentCell = XLCell(getCellNode(getRowNode(*m_dataNode, ref.row()), ref.column()), m_sharedStrings);
+    }
+    else
+        throw XLException("An internal error occured");
+
+    return *this;
+}
+
+/**
+ * @details
+ */
+XLCellIterator XLCellIterator::operator++(int)    // NOLINT
+{
+    auto oldIter(*this);
+    ++(*this);
+    return oldIter;
+}
+
+/**
+ * @details
+ */
+XLCell& XLCellIterator::operator*()
+{
+    return m_currentCell;
+}
+
+/**
+ * @details
+ */
+XLCellIterator::pointer XLCellIterator::operator->()
+{
+    return &m_currentCell;
+}
+
+/**
+ * @details
+ */
+bool XLCellIterator::operator==(const XLCellIterator& rhs)
+{
+    return m_currentCell == rhs.m_currentCell;
+}
+
+/**
+ * @details
+ */
+bool XLCellIterator::operator!=(const XLCellIterator& rhs)
+{
+    return !(m_currentCell == rhs.m_currentCell);
+}

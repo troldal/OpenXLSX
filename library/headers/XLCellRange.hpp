@@ -51,6 +51,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
+#include "XLCell.hpp"
+#include "XLCellIterator.hpp"
 #include "XLCellReference.hpp"
 #include "XLXmlParser.hpp"
 
@@ -62,6 +64,8 @@ namespace OpenXLSX
      */
     class OPENXLSX_EXPORT XLCellRange
     {
+        friend class XLCellIterator;
+
         //----------------------------------------------------------------------------------------------------------------------
         //           Public Member Functions
         //----------------------------------------------------------------------------------------------------------------------
@@ -74,7 +78,10 @@ namespace OpenXLSX
          * @param topLeft The first (top left) cell in the range.
          * @param bottomRight The last (bottom right) cell in the range.
          */
-        explicit XLCellRange(const XMLNode& dataNode, const XLCellReference& topLeft, const XLCellReference& bottomRight);
+        explicit XLCellRange(const XMLNode&         dataNode,
+                             const XLCellReference& topLeft,
+                             const XLCellReference& bottomRight,
+                             XLSharedStrings*       sharedStrings);
 
         /**
          * @brief Copy constructor [default].
@@ -94,7 +101,7 @@ namespace OpenXLSX
          * @brief Destructor [default]
          * @note This implements the default destructor.
          */
-        ~XLCellRange() = default;
+        ~XLCellRange();
 
         /**
          * @brief The copy assignment operator [default]
@@ -125,6 +132,12 @@ namespace OpenXLSX
          */
         uint16_t numColumns() const;
 
+        XLCellIterator begin();
+
+        XLCellIterator end();
+
+        // XLCell cell(uint32_t rowNumber, uint16_t columnNumber);
+
         /**
          * @brief
          */
@@ -135,7 +148,17 @@ namespace OpenXLSX
         //----------------------------------------------------------------------------------------------------------------------
 
     private:
-        std::unique_ptr<XMLNode> m_dataNode;
+        std::unique_ptr<XMLNode> m_dataNode;    /**< */
+        XLCellReference          m_topLeft;     /**< The cell reference of the first cell in the range */
+        XLCellReference          m_bottomRight; /**< The cell reference of the last cell in the range */
+        XLSharedStrings*         m_sharedStrings;
+    };
+
+    class XLCellNodeProxy
+    {
+    public:
+    private:
+        std::unique_ptr<XMLNode> m_cellNode;
         XLCellReference          m_topLeft;     /**< The cell reference of the first cell in the range */
         XLCellReference          m_bottomRight; /**< The cell reference of the last cell in the range */
     };

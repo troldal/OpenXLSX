@@ -115,7 +115,7 @@ XLCell& XLCell::operator=(const XLCellRange& range)
 {
     auto            first = cellReference();
     XLCellReference last(first.row() + range.numRows() - 1, first.column() + range.numColumns() - 1);
-    XLCellRange     rng(m_cellNode->parent().parent(), first, last);
+    XLCellRange     rng(m_cellNode->parent().parent(), first, last, nullptr);
     rng = range;
 
     return *this;

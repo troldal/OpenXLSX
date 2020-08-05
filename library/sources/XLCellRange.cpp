@@ -56,10 +56,14 @@ using namespace OpenXLSX;
  * @details From the two XLCellReference objects, the constructor calculates the dimensions of the range.
  * If the range exceeds the current bounds of the spreadsheet, the spreadsheet is resized to fit.
  */
-XLCellRange::XLCellRange(const pugi::xml_node& dataNode, const XLCellReference& topLeft, const XLCellReference& bottomRight)
+XLCellRange::XLCellRange(const XMLNode&         dataNode,
+                         const XLCellReference& topLeft,
+                         const XLCellReference& bottomRight,
+                         XLSharedStrings*       sharedStrings)
     : m_dataNode(std::make_unique<XMLNode>(dataNode)),
       m_topLeft(topLeft),
-      m_bottomRight(bottomRight)
+      m_bottomRight(bottomRight),
+      m_sharedStrings(sharedStrings)
 {}
 
 XLCellRange::XLCellRange(const XLCellRange& other)
@@ -68,6 +72,8 @@ XLCellRange::XLCellRange(const XLCellRange& other)
       m_bottomRight(other.m_bottomRight)
 {}
 
+XLCellRange::~XLCellRange() = default;
+
 /**
  * @details Assign (copy) the contents of one range to another.
  * @todo Currently copies only values. Consider copying styles etc. as well
@@ -75,19 +81,9 @@ XLCellRange::XLCellRange(const XLCellRange& other)
 XLCellRange& XLCellRange::operator=(const XLCellRange& other)
 {
     if (&other != this) {
-        //        if (other.NumRows() != NumRows() || other.NumColumns() != NumColumns())
-        //            throw range_error("Ranges must be of same size and shape!");
-        //
-        //        for (uint32_t r = 1; r <= NumRows(); ++r) {
-        //            for (uint16_t c = 1; c <= NumColumns(); ++c) {
-        //                if (other.Cell(r, c) == XLCell()) {
-        //                    Cell(r, c).Value().Clear();
-        //                }
-        //                else {
-        //                    Cell(r, c).Value() = other.Cell(r, c).Value();
-        //                }
-        //            }
-        //        }
+        *m_dataNode   = *other.m_dataNode;
+        m_topLeft     = other.m_topLeft;
+        m_bottomRight = other.m_bottomRight;
     }
 
     return *this;
@@ -109,6 +105,27 @@ uint16_t XLCellRange::numColumns() const
     return m_bottomRight.column() + 1 - m_topLeft.column();
 }
 
+XLCellIterator XLCellRange::begin()
+{
+    return XLCellIterator(*this, XLIteratorLocation::Begin);
+}
+
+XLCellIterator XLCellRange::end()
+{
+    return XLCellIterator(*this, XLIteratorLocation::End);
+}
+
+///**
+// * @details
+// */
+// XLCell XLCellRange::cell(uint32_t rowNumber, uint16_t columnNumber)
+//{
+//    return nullptr;
+//}
+
+/**
+ * @details
+ */
 void XLCellRange::clear()
 {
     //    for (uint32_t row = 1; row <= NumRows(); row++) {

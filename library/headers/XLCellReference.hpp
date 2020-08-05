@@ -130,6 +130,30 @@ namespace OpenXLSX
          */
         XLCellReference& operator=(XLCellReference&& other) noexcept = default;
 
+        //        /**
+        //         * @brief
+        //         * @return
+        //         */
+        //        XLCellReference& operator++();
+        //
+        //        /**
+        //         * @brief
+        //         * @return
+        //         */
+        //        XLCellReference operator++(int); // NOLINT
+        //
+        //        /**
+        //         * @brief
+        //         * @return
+        //         */
+        //        XLCellReference& operator--();
+        //
+        //        /**
+        //         * @brief
+        //         * @return
+        //         */
+        //        XLCellReference operator--(int); // NOLINT
+
         /**
          * @brief Get the row number of the XLCellReference.
          * @return The row.
