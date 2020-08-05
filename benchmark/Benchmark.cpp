@@ -50,7 +50,7 @@ static void BM_WriteMatrix(benchmark::State& state)
     auto arange = wks.range(XLCellReference("A1"), XLCellReference(state.range(0), state.range(0)));
 
     for (auto _ : state) {
-        for (auto iter = arange.begin(); iter != arange.end(); ++iter) iter->value() = "OpenXLSX";
+        for (auto& cell : arange) cell.value() = "OpenXLSX";
     }
 
     state.SetItemsProcessed(state.range(0) * state.range(0));
