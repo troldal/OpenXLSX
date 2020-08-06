@@ -70,7 +70,7 @@ static void BM_WriteColumns(benchmark::State& state)
     XLDocument doc;
     doc.create("./benchmark.xlsx");
     auto wks    = doc.workbook().worksheet("Sheet1");
-    auto arange = wks.range(XLCellReference("A1"), XLCellReference(1048575, state.range(0)));
+    auto arange = wks.range(XLCellReference("A1"), XLCellReference(1048576, state.range(0)));
 
     for (auto _ : state)
         for (auto& cell : arange) cell.value() = 8;
