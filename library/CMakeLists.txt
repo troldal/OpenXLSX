@@ -51,7 +51,6 @@ set(OPENXLSX_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/sources/XLColor.cpp
     ${CMAKE_CURRENT_LIST_DIR}/sources/XLRow.cpp
     ${CMAKE_CURRENT_LIST_DIR}/sources/XLSheet.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/sources/XLWorksheet.cpp
     ${CMAKE_CURRENT_LIST_DIR}/sources/XLCell.cpp
     ${CMAKE_CURRENT_LIST_DIR}/sources/XLCellRange.cpp
     ${CMAKE_CURRENT_LIST_DIR}/sources/XLCellValue.cpp
@@ -72,6 +71,7 @@ if (${BUILD_OBJECT_LIB} AND (NOT CMAKE_GENERATOR STREQUAL Xcode))
     target_sources(OpenXLSX-object PRIVATE ${OPENXLSX_SOURCES})
     target_include_directories(OpenXLSX-object
                                PUBLIC
+                               $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
                                $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
                                $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)     # For export header
     target_link_libraries(OpenXLSX-object PRIVATE Zippy PugiXML)
@@ -86,6 +86,7 @@ add_library(OpenXLSX-static STATIC "")
 target_sources(OpenXLSX-static PRIVATE ${OPENXLSX_SOURCES})
 target_include_directories(OpenXLSX-static
                            PUBLIC
+                           $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)     # For export header
 target_link_libraries(OpenXLSX-static PRIVATE Zippy PugiXML)
@@ -99,6 +100,7 @@ add_library(OpenXLSX-shared SHARED "")
 target_sources(OpenXLSX-shared PRIVATE ${OPENXLSX_SOURCES})
 target_include_directories(OpenXLSX-shared
                            PUBLIC
+                           $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)     # For export header
 target_link_libraries(OpenXLSX-shared PRIVATE Zippy PugiXML)
