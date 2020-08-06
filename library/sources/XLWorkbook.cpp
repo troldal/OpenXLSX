@@ -302,10 +302,16 @@ void XLWorkbook::setSheetIndex(const std::string& sheetName, unsigned int index)
     else if (index >= sheetCount())
         sheetsNode(xmlDocument()).append_move(sheetsNode(xmlDocument()).find_child_by_attribute("name", sheetName.c_str()));
     else {
-        auto currentSheet = sheetsNode(xmlDocument()).first_child();
-        for (unsigned int i = 1; i < index; ++i) currentSheet = currentSheet.next_sibling();
-        sheetsNode(xmlDocument())
-            .insert_move_before(sheetsNode(xmlDocument()).find_child_by_attribute("name", sheetName.c_str()), currentSheet);
+        auto vec           = std::vector<XMLNode>(sheetsNode(xmlDocument()).children().begin(), sheetsNode(xmlDocument()).children().end());
+        auto existingSheet = vec[index - 1];
+        if (indexOfSheet(sheetName) < index) {
+            sheetsNode(xmlDocument())
+                .insert_move_after(sheetsNode(xmlDocument()).find_child_by_attribute("name", sheetName.c_str()), existingSheet);
+        }
+        else if (indexOfSheet(sheetName) > index) {
+            sheetsNode(xmlDocument())
+                .insert_move_before(sheetsNode(xmlDocument()).find_child_by_attribute("name", sheetName.c_str()), existingSheet);
+        }
     }
 
     // ===== Updated defined names with worksheet scopes.

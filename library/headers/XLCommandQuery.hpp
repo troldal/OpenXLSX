@@ -144,6 +144,25 @@ namespace OpenXLSX
         std::string m_sheetColor {};
     };
 
+    class XLCommandSetSheetIndex
+    {
+    public:
+        XLCommandSetSheetIndex(const std::string& sheetID, uint16_t sheetIndex) : m_sheetID(sheetID), m_sheetIndex(sheetIndex) {}
+
+        const std::string& sheetID() const
+        {
+            return m_sheetID;
+        }
+        const uint16_t sheetIndex() const
+        {
+            return m_sheetIndex;
+        }
+
+    private:
+        std::string m_sheetID {};
+        uint16_t    m_sheetIndex {};
+    };
+
     class XLCommandAddWorksheet
     {
     public:

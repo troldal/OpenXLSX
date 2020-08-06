@@ -240,6 +240,11 @@ namespace OpenXLSX
             else if constexpr (std::is_same_v<Command, XLCommandSetSheetColor>) {
             }
 
+            else if constexpr (std::is_same_v<Command, XLCommandSetSheetIndex>) {
+                auto sheetName = executeQuery(XLQuerySheetName(command.sheetID())).sheetName();
+                m_workbook.setSheetIndex(sheetName, command.sheetIndex());
+            }
+
             else if constexpr (std::is_same_v<Command, XLCommandAddWorksheet>) {
                 std::string emptyWorksheet {
                     "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"

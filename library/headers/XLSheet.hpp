@@ -198,7 +198,10 @@ namespace OpenXLSX
          * @brief
          * @param index
          */
-        void setIndex(uint16_t index) {}
+        void setIndex(uint16_t index)
+        {
+            parentDoc().executeCommand(XLCommandSetSheetIndex(relationshipID(), index));
+        }
 
         /**
          * @brief Method to retrieve the name of the sheet.

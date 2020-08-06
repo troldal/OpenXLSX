@@ -10,11 +10,12 @@ int main()
     doc.create("./MyTest.xlsx");
     auto wbk = doc.workbook();
 
-    wbk.addWorksheet("MySheet01");     // Append new sheet
-    wbk.addWorksheet("MySheet02");     // Prepend new sheet
-    wbk.addWorksheet("MySheet03");     // Prepend new sheet
-    wbk.addWorksheet("MySheet04");     // Insert new sheet
-    wbk.setSheetIndex("Sheet1", 2);    // Move Sheet1 to second place
+    wbk.addWorksheet("MySheet01");    // Append new sheet
+    wbk.addWorksheet("MySheet02");    // Prepend new sheet
+    wbk.addWorksheet("MySheet03");    // Prepend new sheet
+    wbk.addWorksheet("MySheet04");    // Insert new sheet
+    wbk.worksheet("Sheet1").setIndex(3);
+    //    wbk.setSheetIndex("Sheet1", 3);    // Move Sheet1 to second place
     wbk.worksheet("Sheet1").cell(XLCellReference("A1")).value() = "Hello OpenXLSX";
     wbk.deleteSheet("MySheet01");
     // wbk.cloneSheet("Sheet1", "Sheet1Clone");
