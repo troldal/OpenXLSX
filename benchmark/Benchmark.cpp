@@ -73,7 +73,7 @@ static void BM_WriteColumns(benchmark::State& state)
     auto arange = wks.range(XLCellReference("A1"), XLCellReference(1048575, state.range(0)));
 
     for (auto _ : state)
-        for (auto& cell : arange) cell.value() = "OpenXLSX";
+        for (auto& cell : arange) cell.value() = 8;
 
     state.SetItemsProcessed(1048576 * state.range(0));
     state.counters["items"] = state.items_processed();
