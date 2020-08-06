@@ -58,6 +58,8 @@ XLColumn::XLColumn(const XMLNode& columnNode) : m_columnNode(std::make_unique<XM
 
 XLColumn::XLColumn(const XLColumn& other) : m_columnNode(std::make_unique<XMLNode>(*other.m_columnNode)) {}
 
+XLColumn::~XLColumn() = default;
+
 XLColumn& XLColumn::operator=(const XLColumn& other)
 {
     if (&other != this) *m_columnNode = *other.m_columnNode;

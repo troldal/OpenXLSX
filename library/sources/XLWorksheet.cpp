@@ -139,6 +139,8 @@ XLWorksheet::XLWorksheet(XLXmlData* xmlData) : XLSheetBase(xmlData)
     }
 }
 
+XLWorksheet::~XLWorksheet() = default;
+
 /**
  * @details
  */
@@ -344,6 +346,8 @@ void XLWorksheet::updateSheetName(const std::string& oldName, const std::string&
  * @details
  */
 XLChartsheet::XLChartsheet(XLXmlData* xmlData) : XLSheetBase(xmlData) {}
+
+XLChartsheet::~XLChartsheet() = default;
 
 /**
  * @details

@@ -90,7 +90,7 @@ namespace OpenXLSX
         /**
          * @brief Destructor. Default implementation used.
          */
-        ~XLXmlFile() = default;
+        ~XLXmlFile();
 
         /**
          * @brief The copy assignment operator. The default implementation has been used.

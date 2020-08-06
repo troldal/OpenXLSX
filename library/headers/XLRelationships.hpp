@@ -184,7 +184,7 @@ namespace OpenXLSX
         /**
          * @brief Destructor
          */
-        ~XLRelationships() = default;
+        ~XLRelationships();
 
         /**
          * @brief

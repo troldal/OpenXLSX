@@ -56,6 +56,8 @@ using namespace OpenXLSX;
  */
 XLCoreProperties::XLCoreProperties(XLXmlData* xmlData) : XLXmlFile(xmlData) {}
 
+XLCoreProperties::~XLCoreProperties() = default;
+
 /**
  * @details
  */

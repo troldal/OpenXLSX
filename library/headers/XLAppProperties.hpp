@@ -86,7 +86,7 @@ namespace OpenXLSX
         /**
          * @brief
          */
-        ~XLAppProperties() = default;
+        ~XLAppProperties();
 
         /**
          * @brief

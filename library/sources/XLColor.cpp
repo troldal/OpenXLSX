@@ -65,6 +65,8 @@ XLColor::XLColor(const std::string& hexCode) : m_red(0), m_green(0), m_blue(0)
     color(hexCode);
 }
 
+XLColor::~XLColor() = default;
+
 /**
  * @details
  */

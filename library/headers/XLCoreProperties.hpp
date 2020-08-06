@@ -91,7 +91,7 @@ namespace OpenXLSX
         /**
          * @brief
          */
-        ~XLCoreProperties() = default;
+        ~XLCoreProperties();
 
         /**
          * @brief

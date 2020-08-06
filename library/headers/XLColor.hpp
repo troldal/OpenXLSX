@@ -87,7 +87,7 @@ namespace OpenXLSX
         /**
          * @brief
          */
-        ~XLColor() = default;
+        ~XLColor();
 
         /**
          * @brief

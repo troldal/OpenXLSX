@@ -222,6 +222,8 @@ std::string XLRelationshipItem::id() const
  */
 XLRelationships::XLRelationships(XLXmlData* xmlData) : XLXmlFile(xmlData) {}
 
+XLRelationships::~XLRelationships() = default;
+
 /**
  * @details Returns the XLRelationshipItem with the given ID, by looking it up in the m_relationships map.
  */

@@ -292,7 +292,7 @@ namespace OpenXLSX
         /**
          * @brief Destructor.
          */
-        ~XLWorksheet() = default;
+        ~XLWorksheet();
 
         /**
          * @brief Copy assignment operator.
@@ -437,7 +437,7 @@ namespace OpenXLSX
         /**
          * @brief
          */
-        ~XLChartsheet() = default;
+        ~XLChartsheet();
 
         /**
          * @brief

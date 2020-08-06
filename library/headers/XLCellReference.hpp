@@ -114,7 +114,7 @@ namespace OpenXLSX
         /**
          * @brief Destructor. Default implementation used.
          */
-        ~XLCellReference() = default;
+        ~XLCellReference();
 
         /**
          * @brief Assignment operator.

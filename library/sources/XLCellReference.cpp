@@ -93,6 +93,8 @@ XLCellReference::XLCellReference(uint32_t row, const std::string& column)
       m_cellAddress(column + rowAsString(row))
 {}
 
+XLCellReference::~XLCellReference() = default;
+
 // * @details
 // */
 // XLCellReference& XLCellReference::operator++()

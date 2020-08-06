@@ -82,7 +82,7 @@ namespace OpenXLSX
         /**
          * @brief Destructor
          */
-        ~XLColumn() = default;
+        ~XLColumn();
 
         /**
          * @brief Copy assignment operator [deleted]

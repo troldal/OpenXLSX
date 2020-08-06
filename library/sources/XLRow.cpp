@@ -60,6 +60,8 @@ XLRow::XLRow(const XMLNode& rowNode) : m_rowNode(std::make_unique<XMLNode>(rowNo
 
 XLRow::XLRow(const XLRow& other) : m_rowNode(std::make_unique<XMLNode>(*other.m_rowNode)) {}
 
+XLRow::~XLRow() = default;
+
 XLRow& XLRow::operator=(const XLRow& other)
 {
     if (&other != this) *m_rowNode = *other.m_rowNode;

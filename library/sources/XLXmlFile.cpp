@@ -60,6 +60,8 @@ using namespace OpenXLSX;
  */
 XLXmlFile::XLXmlFile(XLXmlData* xmlData) : m_xmlData(xmlData) {}
 
+XLXmlFile::~XLXmlFile() = default;
+
 /**
  * @details This method sets the XML data with a std::string as input. The underlying XMLDocument reads the data.
  * When envoking the load_string method in PugiXML, the flag 'parse_ws_pcdata' is passed along with the default flags.

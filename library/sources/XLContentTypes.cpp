@@ -175,6 +175,8 @@ XLContentItem::XLContentItem(const XMLNode& node) : m_contentNode(std::make_uniq
 
 XLContentItem::XLContentItem(const XLContentItem& other) : m_contentNode(std::make_unique<XMLNode>(*other.m_contentNode)) {}
 
+XLContentItem::~XLContentItem() = default;
+
 XLContentItem& XLContentItem::operator=(const XLContentItem& other)
 {
     if (&other != this) *m_contentNode = *other.m_contentNode;
@@ -201,6 +203,8 @@ std::string XLContentItem::path() const
  * @details
  */
 XLContentTypes::XLContentTypes(XLXmlData* xmlData) : XLXmlFile(xmlData) {}
+
+XLContentTypes::~XLContentTypes() = default;
 
 /**
  * @details

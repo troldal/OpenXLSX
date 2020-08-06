@@ -112,7 +112,7 @@ namespace OpenXLSX
         /**
          * @brief
          */
-        ~XLContentItem() = default;
+        ~XLContentItem();
 
         /**
          * @brief
@@ -179,7 +179,7 @@ namespace OpenXLSX
         /**
          * @brief Destructor
          */
-        ~XLContentTypes() = default;
+        ~XLContentTypes();
 
         /**
          * @brief

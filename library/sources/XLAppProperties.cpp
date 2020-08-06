@@ -86,6 +86,8 @@ namespace
  */
 XLAppProperties::XLAppProperties(XLXmlData* xmlData) : XLXmlFile(xmlData) {}
 
+XLAppProperties::~XLAppProperties() = default;
+
 /**
  * @details
  */
