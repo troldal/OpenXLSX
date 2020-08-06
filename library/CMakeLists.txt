@@ -163,7 +163,8 @@ list(APPEND OPENXLSX_DEBUG_FLAGS_MSVC
      "/w14826"
      "/w14905"
      "/w14906"
-     "/w14928")
+     "/w14928"
+     "/wd4251")
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     target_compile_options(OpenXLSX-shared PRIVATE $<$<CONFIG:Debug>:${OPENXLSX_DEBUG_FLAGS_GNU}>)
