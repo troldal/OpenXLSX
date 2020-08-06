@@ -153,7 +153,7 @@ XLCellValue& XLCellValue::operator=(const XLCellValue& other)
         if (!m_cellNode->attribute("t")) m_cellNode->append_attribute("t");
         if (!m_cellNode->child("v")) m_cellNode->append_child("v");
 
-        m_cellNode->child("v").set_value(!other.m_cellNode->child("v") ? "" : other.m_cellNode->child("v").text().get());
+        m_cellNode->child("v").text().set(!other.m_cellNode->child("v") ? "" : other.m_cellNode->child("v").text().get());
         m_cellNode->child("v").attribute("xml:space").set_value(other.m_cellNode->child("v").attribute("xml:space").value());
         m_cellNode->attribute("t").set_value(!other.m_cellNode->attribute("t") ? "" : other.m_cellNode->attribute("t").value());
     }
@@ -174,7 +174,7 @@ XLCellValue& XLCellValue::operator=(XLCellValue&& other) noexcept
         if (!m_cellNode->attribute("t")) m_cellNode->append_attribute("t");
         if (!m_cellNode->child("v")) m_cellNode->append_child("v");
 
-        m_cellNode->child("v").set_value(!other.m_cellNode->child("v") ? "" : other.m_cellNode->child("v").text().get());
+        m_cellNode->child("v").text().set(!other.m_cellNode->child("v") ? "" : other.m_cellNode->child("v").text().get());
         m_cellNode->child("v").attribute("xml:space").set_value(other.m_cellNode->child("v").attribute("xml:space").value());
         m_cellNode->attribute("t").set_value(!other.m_cellNode->attribute("t") ? "" : other.m_cellNode->attribute("t").value());
     }
