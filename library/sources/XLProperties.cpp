@@ -43,13 +43,11 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-// ===== External Includes ===== //
-#include <iterator>
 #include <pugixml.hpp>
 
-// ===== OpenXLSX Includes ===== //
-#include "XLAppProperties.hpp"
+// ===== External Includes ===== //
 #include "XLDocument.hpp"
+#include "XLProperties.hpp"
 
 using namespace OpenXLSX;
 
@@ -84,8 +82,71 @@ namespace
 /**
  * @details
  */
+XLProperties::XLProperties(XLXmlData* xmlData) : XLXmlFile(xmlData) {}
+
+XLProperties::~XLProperties() = default;
+
+/**
+ * @details
+ */
+bool XLProperties::setProperty(const std::string& name, const std::string& value)
+{
+    XMLNode node;
+    if (xmlDocument().first_child().child(name.c_str()) != nullptr)
+        node = xmlDocument().first_child().child(name.c_str());
+    else
+        node = xmlDocument().first_child().prepend_child(name.c_str());
+
+    node.text().set(value.c_str());
+    return true;
+}
+
+/**
+ * @details
+ */
+bool XLProperties::setProperty(const std::string& name, int value)
+{
+    return setProperty(name, std::to_string(value));
+}
+
+/**
+ * @details
+ */
+bool XLProperties::setProperty(const std::string& name, double value)
+{
+    return setProperty(name, std::to_string(value));
+}
+
+/**
+ * @details
+ */
+std::string XLProperties::property(const std::string& name) const
+{
+    auto property = xmlDocument().first_child().child(name.c_str());
+    if (!property) {
+        property = xmlDocument().first_child().append_child(name.c_str());
+    }
+
+    return property.text().get();
+}
+
+/**
+ * @details
+ */
+void XLProperties::deleteProperty(const std::string& name)
+{
+    auto property = xmlDocument().first_child().child(name.c_str());
+    if (property != nullptr) xmlDocument().first_child().remove_child(property);
+}
+
+/**
+ * @details
+ */
 XLAppProperties::XLAppProperties(XLXmlData* xmlData) : XLXmlFile(xmlData) {}
 
+/**
+ * @details
+ */
 XLAppProperties::~XLAppProperties() = default;
 
 /**

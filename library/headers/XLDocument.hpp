@@ -56,11 +56,10 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
-#include "XLAppProperties.hpp"
 #include "XLCommandQuery.hpp"
 #include "XLContentTypes.hpp"
-#include "XLCoreProperties.hpp"
 #include "XLException.hpp"
+#include "XLProperties.hpp"
 #include "XLRelationships.hpp"
 #include "XLSharedStrings.hpp"
 #include "XLWorkbook.hpp"
@@ -466,14 +465,14 @@ namespace OpenXLSX
         std::string                  m_filePath {}; /**< The path to the original file*/
         mutable std::list<XLXmlData> m_data {};
 
-        XLRelationships  m_docRelationships; /**< A pointer to the document relationships object*/
-        XLRelationships  m_wbkRelationships; /**< A pointer to the document relationships object*/
-        XLContentTypes   m_contentTypes;     /**< A pointer to the content types object*/
-        XLAppProperties  m_appProperties;    /**< A pointer to the App properties object */
-        XLCoreProperties m_coreProperties;   /**< A pointer to the Core properties object*/
-        XLSharedStrings  m_sharedStrings;
-        XLWorkbook       m_workbook; /**< A pointer to the workbook object */
-        XLZipArchive     m_archive;  /**<  */
+        XLRelationships m_docRelationships; /**< A pointer to the document relationships object*/
+        XLRelationships m_wbkRelationships; /**< A pointer to the document relationships object*/
+        XLContentTypes  m_contentTypes;     /**< A pointer to the content types object*/
+        XLAppProperties m_appProperties;    /**< A pointer to the App properties object */
+        XLProperties    m_coreProperties;   /**< A pointer to the Core properties object*/
+        XLSharedStrings m_sharedStrings;
+        XLWorkbook      m_workbook; /**< A pointer to the workbook object */
+        XLZipArchive    m_archive;  /**<  */
     };
 
 }    // namespace OpenXLSX

@@ -475,7 +475,7 @@ void XLDocument::open(const std::string& fileName)
     }
 
     // ===== Open the workbook and document property items
-    m_coreProperties = XLCoreProperties(getXmlData("docProps/core.xml"));
+    m_coreProperties = XLProperties(getXmlData("docProps/core.xml"));
     m_appProperties  = XLAppProperties(getXmlData("docProps/app.xml"));
     m_sharedStrings  = XLSharedStrings(getXmlData("xl/sharedStrings.xml"));
     m_workbook       = XLWorkbook(getXmlData("xl/workbook.xml"));
@@ -510,7 +510,7 @@ void XLDocument::close()
     m_docRelationships = XLRelationships();
     m_contentTypes     = XLContentTypes();
     m_appProperties    = XLAppProperties();
-    m_coreProperties   = XLCoreProperties();
+    m_coreProperties   = XLProperties();
     m_workbook         = XLWorkbook();
 }
 

@@ -43,8 +43,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXLSX_XLCOREPROPERTIES_HPP
-#define OPENXLSX_XLCOREPROPERTIES_HPP
+#ifndef OPENXLSX_XLPROPERTIES_HPP
+#define OPENXLSX_XLPROPERTIES_HPP
 
 // ===== External Includes ===== //
 #include <map>
@@ -60,52 +60,52 @@ namespace OpenXLSX
     /**
      * @brief
      */
-    class OPENXLSX_EXPORT XLCoreProperties : public XLXmlFile
+    class OPENXLSX_EXPORT XLProperties : public XLXmlFile
     {
         //----------------------------------------------------------------------------------------------------------------------
         //           Public Member Functions
         //----------------------------------------------------------------------------------------------------------------------
 
     public:
-        XLCoreProperties() = default;
+        XLProperties() = default;
         /**
          * @brief
          * @param parent
          * @param xmlData
          * @return
          */
-        explicit XLCoreProperties(XLXmlData* xmlData);
+        explicit XLProperties(XLXmlData* xmlData);
 
         /**
          * @brief
          * @param other
          */
-        XLCoreProperties(const XLCoreProperties& other) = default;
+        XLProperties(const XLProperties& other) = default;
 
         /**
          * @brief
          * @param other
          */
-        XLCoreProperties(XLCoreProperties&& other) noexcept = default;
+        XLProperties(XLProperties&& other) noexcept = default;
 
         /**
          * @brief
          */
-        ~XLCoreProperties();
-
-        /**
-         * @brief
-         * @param other
-         * @return
-         */
-        XLCoreProperties& operator=(const XLCoreProperties& other) = default;
+        ~XLProperties();
 
         /**
          * @brief
          * @param other
          * @return
          */
-        XLCoreProperties& operator=(XLCoreProperties&& other) = default;
+        XLProperties& operator=(const XLProperties& other) = default;
+
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
+        XLProperties& operator=(XLProperties&& other) = default;
 
         /**
          * @brief
@@ -148,6 +148,141 @@ namespace OpenXLSX
         //           Protected Member Functions
         //----------------------------------------------------------------------------------------------------------------------
     };
+
+    /**
+     * @brief This class is a specialization of the XLAbstractXMLFile, with the purpose of the representing the
+     * document app properties in the app.xml file (docProps folder) in the .xlsx package.
+     */
+    class OPENXLSX_EXPORT XLAppProperties : public XLXmlFile
+    {
+        //--------------------------------------------------------------------------------------------------------------
+        //           Public Member Functions
+        //--------------------------------------------------------------------------------------------------------------
+
+    public:
+        XLAppProperties() = default;
+        /**
+         * @brief
+         * @param parent
+         * @param xmlData
+         */
+        explicit XLAppProperties(XLXmlData* xmlData);
+
+        /**
+         * @brief
+         * @param other
+         */
+        XLAppProperties(const XLAppProperties& other) = default;
+
+        /**
+         * @brief
+         * @param other
+         */
+        XLAppProperties(XLAppProperties&& other) noexcept = default;
+
+        /**
+         * @brief
+         */
+        ~XLAppProperties();
+
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
+        XLAppProperties& operator=(const XLAppProperties& other) = default;
+
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
+        XLAppProperties& operator=(XLAppProperties&& other) noexcept = default;
+
+        /**
+         * @brief
+         * @param title
+         * @return
+         */
+        void addSheetName(const std::string& title);
+
+        /**
+         * @brief
+         * @param title
+         */
+        void deleteSheetName(const std::string& title);
+
+        /**
+         * @brief
+         * @param oldTitle
+         * @param newTitle
+         */
+        void setSheetName(const std::string& oldTitle, const std::string& newTitle);
+
+        /**
+         * @brief
+         * @param name
+         * @param value
+         */
+        void addHeadingPair(const std::string& name, int value);
+
+        /**
+         * @brief
+         * @param name
+         */
+        void deleteHeadingPair(const std::string& name);
+
+        /**
+         * @brief
+         * @param name
+         * @param newValue
+         */
+        void setHeadingPair(const std::string& name, int newValue);
+
+        /**
+         * @brief
+         * @param name
+         * @param value
+         * @return
+         */
+        bool setProperty(const std::string& name, const std::string& value);
+
+        /**
+         * @brief
+         * @param name
+         * @return
+         */
+        std::string property(const std::string& name) const;
+
+        /**
+         * @brief
+         * @param name
+         */
+        void deleteProperty(const std::string& name);
+
+        /**
+         * @brief
+         * @param sheetName
+         * @return
+         */
+        void appendSheetName(const std::string& sheetName);
+
+        /**
+         * @brief
+         * @param sheetName
+         * @return
+         */
+        void prependSheetName(const std::string& sheetName);
+
+        /**
+         * @brief
+         * @param sheetName
+         * @param index
+         * @return
+         */
+        void insertSheetName(const std::string& sheetName, unsigned int index);
+    };
+
 }    // namespace OpenXLSX
 
-#endif    // OPENXLSX_XLCOREPROPERTIES_HPP
+#endif    // OPENXLSX_XLPROPERTIES_HPP

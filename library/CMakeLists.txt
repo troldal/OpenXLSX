@@ -41,9 +41,8 @@ endif ()
 #=======================================================================================================================
 set(OPENXLSX_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/sources/XLXmlFile.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/sources/XLAppProperties.cpp
     ${CMAKE_CURRENT_LIST_DIR}/sources/XLContentTypes.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/sources/XLCoreProperties.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/sources/XLProperties.cpp
     ${CMAKE_CURRENT_LIST_DIR}/sources/XLDocument.cpp
     ${CMAKE_CURRENT_LIST_DIR}/sources/XLRelationships.cpp
     ${CMAKE_CURRENT_LIST_DIR}/sources/XLSharedStrings.cpp
