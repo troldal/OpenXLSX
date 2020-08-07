@@ -66,11 +66,25 @@ namespace OpenXLSX
     public:
         /**
          * @brief
+         */
+        XLColor() = default;
+
+        /**
+         * @brief
+         * @param alpha
          * @param red
          * @param green
          * @param blue
          */
-        explicit XLColor(uint8_t red = 0, uint8_t green = 0, uint8_t blue = 0);
+        XLColor(uint8_t alpha, uint8_t red, uint8_t green, uint8_t blue);
+
+        /**
+         * @brief
+         * @param red
+         * @param green
+         * @param blue
+         */
+        XLColor(uint8_t red, uint8_t green, uint8_t blue);
 
         /**
          * @brief
@@ -86,6 +100,12 @@ namespace OpenXLSX
 
         /**
          * @brief
+         * @param other
+         */
+        XLColor(XLColor&& other) noexcept = default;
+
+        /**
+         * @brief
          */
         ~XLColor();
 
@@ -98,17 +118,33 @@ namespace OpenXLSX
 
         /**
          * @brief
+         * @param other
+         * @return
+         */
+        XLColor& operator=(XLColor&& other) noexcept = default;
+
+        /**
+         * @brief
+         * @param alpha
          * @param red
          * @param green
          * @param blue
          */
-        void setColor(uint8_t red = 0, uint8_t green = 0, uint8_t blue = 0);
+        void set(uint8_t alpha, uint8_t red, uint8_t green, uint8_t blue);
+
+        /**
+         * @brief
+         * @param red
+         * @param green
+         * @param blue
+         */
+        void set(uint8_t red = 0, uint8_t green = 0, uint8_t blue = 0);
 
         /**
          * @brief
          * @param hexCode
          */
-        void color(const std::string& hexCode);
+        void set(const std::string& hexCode);
 
         /**
          * @brief
@@ -139,11 +175,13 @@ namespace OpenXLSX
         //----------------------------------------------------------------------------------------------------------------------
 
     private:
-        uint8_t m_red;
+        uint8_t m_alpha { 255 };
 
-        uint8_t m_green;
+        uint8_t m_red { 0 };
 
-        uint8_t m_blue;
+        uint8_t m_green { 0 };
+
+        uint8_t m_blue { 0 };
     };
 
 }    // namespace OpenXLSX

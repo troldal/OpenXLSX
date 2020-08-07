@@ -183,7 +183,10 @@ namespace OpenXLSX
          * @brief
          * @param color
          */
-        void setColor(const XLColor& color) {}
+        void setColor(const XLColor& color)
+        {
+            static_cast<T&>(*this).setColor_impl(color);
+        }
 
         /**
          * @brief
@@ -387,6 +390,12 @@ namespace OpenXLSX
     private:
         /**
          * @brief
+         * @param color
+         */
+        void setColor_impl(XLColor color);
+
+        /**
+         * @brief
          * @return
          */
         bool isSelected_impl() const;
@@ -456,6 +465,12 @@ namespace OpenXLSX
         XLChartsheet& operator=(XLChartsheet&& other) noexcept = default;
 
     private:
+        /**
+         * @brief
+         * @param color
+         */
+        void setColor_impl(XLColor color);
+
         /**
          * @brief
          * @return

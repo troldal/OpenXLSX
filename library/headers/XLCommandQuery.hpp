@@ -153,7 +153,7 @@ namespace OpenXLSX
         {
             return m_sheetID;
         }
-        const uint16_t sheetIndex() const
+        uint16_t sheetIndex() const
         {
             return m_sheetIndex;
         }

@@ -275,7 +275,7 @@ namespace OpenXLSX
          * @param oldName
          * @param newName
          */
-        void updateSheetName(const std::string& oldName, const std::string& newName);
+        void updateSheetReferences(const std::string& oldName, const std::string& newName);
 
         /**
          * @brief

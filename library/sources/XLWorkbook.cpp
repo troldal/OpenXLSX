@@ -258,7 +258,7 @@ void XLWorkbook::setSheetName(const std::string& sheetRID, const std::string& ne
 {
     auto sheetName = xmlDocument().document_element().child("sheets").find_child_by_attribute("r:id", sheetRID.c_str()).attribute("name");
 
-    updateSheetName(sheetName.value(), newName);
+    updateSheetReferences(sheetName.value(), newName);
     sheetName.set_value(newName.c_str());
 }
 
@@ -468,37 +468,37 @@ bool XLWorkbook::chartsheetExists(const std::string& sheetName) const
  * @todo Currently, this function only searches through defined names. Consider using this function to update the
  * actual sheet name as well.
  */
-void XLWorkbook::updateSheetName(const std::string& oldName, const std::string& newName)
+void XLWorkbook::updateSheetReferences(const std::string& oldName, const std::string& newName)
 {
-    //    for (auto& sheet : m_sheets) {
-    //        if (sheet.sheetType == XLSheetType::WorkSheet)
-    //            Worksheet(sheet.sheetNode.attribute("name").value())->UpdateSheetName(oldName, newName);
-    //    }
-    //
-    //    // ===== Set up temporary variables
-    //    std::string oldNameTemp = oldName;
-    //    std::string newNameTemp = newName;
-    //    std::string formula;
-    //
-    //    // ===== If the sheet name contains spaces, it should be enclosed in single quotes (')
-    //    if (oldName.find(' ') != std::string::npos) oldNameTemp = "\'" + oldName + "\'";
-    //    if (newName.find(' ') != std::string::npos) newNameTemp = "\'" + newName + "\'";
-    //
-    //    // ===== Ensure only sheet names are replaced (references to sheets always ends with a '!')
-    //    oldNameTemp += '!';
-    //    newNameTemp += '!';
-    //
-    //    // ===== Iterate through all defined names
-    //    for (auto& definedName : XmlDocument()->document_element().child("definedNames").children()) {
-    //        formula = definedName.text().get();
-    //
-    //        // ===== Skip if formula contains a '[' and ']' (means that the defined refers to external workbook)
-    //        if (formula.find('[') == string::npos && formula.find(']') == string::npos) {
-    //            // ===== For all instances of the old sheet name in the formula, replace with the new name.
-    //            while (formula.find(oldNameTemp) != string::npos) {
-    //                formula.replace(formula.find(oldNameTemp), oldNameTemp.length(), newNameTemp);
-    //            }
-    //            definedName.text().set(formula.c_str());
+    //        for (auto& sheet : m_sheets) {
+    //            if (sheet.sheetType == XLSheetType::WorkSheet)
+    //                Worksheet(sheet.sheetNode.attribute("name").value())->UpdateSheetName(oldName, newName);
     //        }
-    //    }
+
+    // ===== Set up temporary variables
+    std::string oldNameTemp = oldName;
+    std::string newNameTemp = newName;
+    std::string formula;
+
+    // ===== If the sheet name contains spaces, it should be enclosed in single quotes (')
+    if (oldName.find(' ') != std::string::npos) oldNameTemp = "\'" + oldName + "\'";
+    if (newName.find(' ') != std::string::npos) newNameTemp = "\'" + newName + "\'";
+
+    // ===== Ensure only sheet names are replaced (references to sheets always ends with a '!')
+    oldNameTemp += '!';
+    newNameTemp += '!';
+
+    // ===== Iterate through all defined names
+    for (auto& definedName : xmlDocument().document_element().child("definedNames").children()) {
+        formula = definedName.text().get();
+
+        // ===== Skip if formula contains a '[' and ']' (means that the defined refers to external workbook)
+        if (formula.find('[') == std::string::npos && formula.find(']') == std::string::npos) {
+            // ===== For all instances of the old sheet name in the formula, replace with the new name.
+            while (formula.find(oldNameTemp) != std::string::npos) {
+                formula.replace(formula.find(oldNameTemp), oldNameTemp.length(), newNameTemp);
+            }
+            definedName.text().set(formula.c_str());
+        }
+    }
 }

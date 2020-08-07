@@ -20,6 +20,7 @@ int main()
     wbk.deleteSheet("MySheet01");
     // wbk.cloneSheet("Sheet1", "Sheet1Clone");
     wbk.sheet("Sheet1").get<XLWorksheet>().clone("Sheet1Clone");
+    wbk.sheet("Sheet1Clone").setColor(XLColor(0, 253, 106, 2));
 
     for (const auto& name : wbk.worksheetNames()) cout << name << ": " << wbk.indexOfSheet(name) << endl;
 

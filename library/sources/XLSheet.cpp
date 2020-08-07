@@ -243,6 +243,19 @@ XLWorksheet::XLWorksheet(XLXmlData* xmlData) : XLSheetBase(xmlData)
 
 XLWorksheet::~XLWorksheet() = default;
 
+void XLWorksheet::setColor_impl(XLColor color)
+{
+    if (!xmlDocument().document_element().child("sheetPr")) xmlDocument().document_element().prepend_child("sheetPr");
+
+    if (!xmlDocument().document_element().child("sheetPr").child("tabColor"))
+        xmlDocument().document_element().child("sheetPr").prepend_child("tabColor");
+
+    auto colorNode = xmlDocument().document_element().child("sheetPr").child("tabColor");
+    for (auto attr : colorNode.attributes()) colorNode.remove_attribute(attr);
+
+    colorNode.prepend_attribute("rgb").set_value(color.hex().c_str());
+}
+
 /**
  * @details
  */
@@ -450,6 +463,19 @@ void XLWorksheet::updateSheetName(const std::string& oldName, const std::string&
 XLChartsheet::XLChartsheet(XLXmlData* xmlData) : XLSheetBase(xmlData) {}
 
 XLChartsheet::~XLChartsheet() = default;
+
+void XLChartsheet::setColor_impl(XLColor color)
+{
+    if (!xmlDocument().document_element().child("sheetPr")) xmlDocument().document_element().prepend_child("sheetPr");
+
+    if (!xmlDocument().document_element().child("sheetPr").child("tabColor"))
+        xmlDocument().document_element().child("sheetPr").prepend_child("tabColor");
+
+    auto colorNode = xmlDocument().document_element().child("sheetPr").child("tabColor");
+    for (auto attr : colorNode.attributes()) colorNode.remove_attribute(attr);
+
+    colorNode.prepend_attribute("rgb").set_value(color.hex().c_str());
+}
 
 /**
  * @details
