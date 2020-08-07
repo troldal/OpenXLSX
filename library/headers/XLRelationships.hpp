@@ -170,7 +170,7 @@ namespace OpenXLSX
     /**
      * @brief An encapsulation of relationship files (.rels files) in an Excel document package.
      */
-    class XLRelationships : public XLXmlFile
+    class OPENXLSX_EXPORT XLRelationships : public XLXmlFile
     {
     public:    // ---------- Public Member Functions ---------- //
         XLRelationships() = default;

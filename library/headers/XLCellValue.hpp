@@ -307,7 +307,7 @@ namespace OpenXLSX
 
         //---------- PRIVATE MEMBER VARIABLES ----------//
 
-        std::unique_ptr<XMLNode> m_cellNode {};
+        std::unique_ptr<XMLNode> m_cellNode;
         XLSharedStrings*         m_sharedStrings;
     };
 

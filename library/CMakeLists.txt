@@ -123,7 +123,7 @@ generate_export_header(OpenXLSX-shared
 list(APPEND OPENXLSX_DEBUG_FLAGS_GNU
      "-Wmisleading-indentation"
      "-Wduplicated-cond"
-     "-Wduplicated-branches"
+#     "-Wduplicated-branches"
      "-Wlogical-op"
      "-Wnull-dereference"
      "-Wuseless-cast")

@@ -133,8 +133,14 @@ XLCellValue::XLCellValue(const XMLNode& cellNode, XLSharedStrings* sharedStrings
       m_sharedStrings(sharedStrings)
 {}
 
+/**
+ * @details
+ */
 XLCellValue::~XLCellValue() = default;
 
+/**
+ * @details
+ */
 XLCellValue::XLCellValue(const XLCellValue& other)
     : m_cellNode(std::make_unique<XMLNode>(*other.m_cellNode)),
       m_sharedStrings(other.m_sharedStrings)
