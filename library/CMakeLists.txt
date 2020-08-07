@@ -58,6 +58,7 @@ set(OPENXLSX_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/sources/XLXmlData.cpp
     ${CMAKE_CURRENT_LIST_DIR}/sources/XLCellIterator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/sources/XLZipArchive.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/sources/XLException.cpp
     )
 
 #=======================================================================================================================
@@ -75,7 +76,7 @@ if (${BUILD_OBJECT_LIB} AND (NOT CMAKE_GENERATOR STREQUAL Xcode))
                                $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
                                $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)     # For export header
     target_link_libraries(OpenXLSX-object PRIVATE Zippy PugiXML)
-    #target_compile_definitions(OpenXLSX-object PRIVATE OpenXLSX_shared_EXPORTS)
+    target_compile_definitions(OpenXLSX-object PRIVATE OpenXLSX_shared_EXPORTS)
 endif ()
 
 #=======================================================================================================================
@@ -141,7 +142,8 @@ list(APPEND OPENXLSX_DEBUG_FLAGS_GNUCLANG
      "-Wsign-conversion"
      "-Wdouble-promotion"
      "-Wformat=2"
-     "-Weffc++")
+     "-Weffc++"
+     "-Wno-unknown-pragmas")
 list(APPEND OPENXLSX_DEBUG_FLAGS_MSVC
      "/permissive"
      "/W4"
@@ -164,7 +166,12 @@ list(APPEND OPENXLSX_DEBUG_FLAGS_MSVC
      "/w14905"
      "/w14906"
      "/w14928"
-     "/wd4251")
+     "/wd4251"
+     "/wd4275")
+
+list(APPEND OPENXLSX_RELEASE_FLAGS_MSVC
+        "/wd4251"
+        "/wd4275")
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     target_compile_options(OpenXLSX-shared PRIVATE $<$<CONFIG:Debug>:${OPENXLSX_DEBUG_FLAGS_GNU}>)
@@ -186,8 +193,11 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     string(REGEX REPLACE "/W[3|4]" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
     target_compile_options(OpenXLSX-shared PRIVATE $<$<CONFIG:Debug>:${OPENXLSX_DEBUG_FLAGS_MSVC}>)
     target_compile_options(OpenXLSX-static PRIVATE $<$<CONFIG:Debug>:${OPENXLSX_DEBUG_FLAGS_MSVC}>)
+    target_compile_options(OpenXLSX-shared PRIVATE $<$<CONFIG:Release>:${OPENXLSX_RELEASE_FLAGS_MSVC}>)
+    target_compile_options(OpenXLSX-static PRIVATE $<$<CONFIG:Release>:${OPENXLSX_RELEASE_FLAGS_MSVC}>)
     if (${BUILD_OBJECT_LIB} AND (NOT CMAKE_GENERATOR STREQUAL Xcode))
         target_compile_options(OpenXLSX-object PRIVATE $<$<CONFIG:Debug>:${OPENXLSX_DEBUG_FLAGS_MSVC}>)
+        target_compile_options(OpenXLSX-object PRIVATE $<$<CONFIG:Release>:${OPENXLSX_RELEASE_FLAGS_MSVC}>)
     endif ()
 endif ()
 

@@ -46,6 +46,10 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_XLCELLVALUE_HPP
 #define OPENXLSX_XLCELLVALUE_HPP
 
+#pragma warning(push)
+#pragma warning(disable: 4251)
+#pragma warning(disable: 4275)
+
 // ===== External Includes ===== //
 #include <memory>
 
@@ -389,7 +393,7 @@ namespace OpenXLSX
             return getBoolean();
         }
         else {
-            return getInteger();
+            return static_cast<T>(getInteger());
         }
     }
 
@@ -402,7 +406,7 @@ namespace OpenXLSX
     template<typename T, typename std::enable_if<std::is_floating_point<T>::value, long double>::type*>
     T XLCellValue::get()
     {
-        return getFloat();
+        return static_cast<T>(getFloat());
     }
 
     /**
@@ -418,4 +422,5 @@ namespace OpenXLSX
     }
 }    // namespace OpenXLSX
 
+#pragma warning(pop)
 #endif    // OPENXLSX_XLCELLVALUE_HPP

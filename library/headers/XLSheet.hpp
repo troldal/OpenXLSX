@@ -46,6 +46,10 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_XLSHEET_HPP
 #define OPENXLSX_XLSHEET_HPP
 
+#pragma warning(push)
+#pragma warning(disable: 4251)
+#pragma warning(disable: 4275)
+
 // ===== External Includes ===== //
 #include <type_traits>
 #include <variant>
@@ -635,4 +639,5 @@ namespace OpenXLSX
     };
 }    // namespace OpenXLSX
 
+#pragma warning(pop)
 #endif    // OPENXLSX_XLSHEET_HPP

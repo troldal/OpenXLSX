@@ -2,6 +2,9 @@
 // Created by Kenneth Balslev on 19/06/2020.
 //
 
+#pragma warning(push)
+#pragma warning(disable: 4244)
+
 #include <benchmark/benchmark.h>
 #include <OpenXLSX.hpp>
 
@@ -105,3 +108,5 @@ BENCHMARK(BM_WriteColumns)->RangeMultiplier(2)->Range(1, 1 << 8)->Unit(benchmark
 //}
 //
 // BENCHMARK(BM_WriteRows)->RangeMultiplier(2)->Range(8, 8 << 7)->Unit(benchmark::kMillisecond);
+
+#pragma warning(pop)

@@ -46,6 +46,10 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_XLZIPARCHIVE_HPP
 #define OPENXLSX_XLZIPARCHIVE_HPP
 
+#pragma warning(push)
+#pragma warning(disable: 4251)
+#pragma warning(disable: 4275)
+
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
 
@@ -152,4 +156,6 @@ namespace OpenXLSX
         std::shared_ptr<Zippy::ZipArchive> m_archive; /**< */
     };
 }    // namespace OpenXLSX
+
+#pragma warning(pop)
 #endif    // OPENXLSX_XLZIPARCHIVE_HPP

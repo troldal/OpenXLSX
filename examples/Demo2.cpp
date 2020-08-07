@@ -28,7 +28,7 @@ int main()
 
     wbk.worksheet("Sheet1").setName("BLAH");
 
-    for (auto iter = 1; iter <= wbk.sheetCount(); ++iter) {
+    for (uint32_t iter = 1; iter <= wbk.sheetCount(); ++iter) {
         cout << iter << ": " << wbk.sheet(iter).name() << endl;
     }
 

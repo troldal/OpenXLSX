@@ -43,38 +43,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXLSX_XLEXCEPTION_HPP
-#define OPENXLSX_XLEXCEPTION_HPP
+#include "XLException.hpp"
 
-#pragma warning(push)
-#pragma warning(disable: 4251)
-#pragma warning(disable: 4275)
+OpenXLSX::XLException::XLException(const std::string& err) : runtime_error(err) {}
 
-// ===== External Includes ===== //
-#include <stdexcept>
-
-// ===== OpenXLSX Includes ===== //
-#include "OpenXLSX-Exports.hpp"
-
-namespace OpenXLSX
-{
-    class OPENXLSX_EXPORT XLException : public std::runtime_error
-    {
-    public:
-        explicit XLException(const std::string& err);
-
-        XLException(const XLException& other) = default;
-
-        XLException(XLException&& other) noexcept = default;
-
-        ~XLException() override;
-
-        XLException& operator=(const XLException& other) = default;
-
-        XLException& operator=(XLException&& other) noexcept = default;
-    };
-
-}    // namespace OpenXLSX
-
-#pragma warning(pop)
-#endif    // OPENXLSX_XLEXCEPTION_HPP
+OpenXLSX::XLException::~XLException() = default;
