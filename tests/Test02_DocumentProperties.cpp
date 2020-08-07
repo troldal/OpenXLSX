@@ -3,12 +3,12 @@
 //
 
 #include "catch.hpp"
-#include <fstream>
 #include <OpenXLSX.hpp>
+#include <fstream>
 
-#include <iostream>
-#include <iomanip>
 #include <ctime>
+#include <iomanip>
+#include <iostream>
 #include <sstream>
 
 using namespace OpenXLSX;
@@ -18,26 +18,27 @@ using namespace OpenXLSX;
  *
  * @details
  */
-TEST_CASE("C++ Interface Test 02: Testing of Document Properties") {
-
+TEST_CASE("C++ Interface Test 02: Testing of Document Properties")
+{
     XLDocument  doc;
     std::string file = "./TestDocumentProperties.xlsx";
     doc.open(file);
 
     /**
- * @brief
- *
- * @details
- */
-    SECTION("Test 02A: GetProperty") {
+     * @brief
+     *
+     * @details
+     */
+    SECTION("Test 02A: GetProperty")
+    {
         REQUIRE(doc.property(XLProperty::Title).empty());
     }
 
-/**
- * @brief
- *
- * @details
- */
+    /**
+     * @brief
+     *
+     * @details
+     */
     SECTION("Test 02B: Test SetProperty - Title")
     {
         doc.setProperty(XLProperty::Title, "TitleTest");
@@ -48,10 +49,10 @@ TEST_CASE("C++ Interface Test 02: Testing of Document Properties") {
     }
 
     /**
- * @brief
- *
- * @details
- */
+     * @brief
+     *
+     * @details
+     */
     SECTION("Test 02C: Test SetProperty - Title (Duplicate)")
     {
         doc.setProperty(XLProperty::Title, "TitleTest");
@@ -62,10 +63,10 @@ TEST_CASE("C++ Interface Test 02: Testing of Document Properties") {
     }
 
     /**
- * @brief
- *
- * @details
- */
+     * @brief
+     *
+     * @details
+     */
     SECTION("Test 02D: Test SetProperty - Subject")
     {
         doc.setProperty(XLProperty::Subject, "SubjectTest");
@@ -76,10 +77,10 @@ TEST_CASE("C++ Interface Test 02: Testing of Document Properties") {
     }
 
     /**
- * @brief
- *
- * @details
- */
+     * @brief
+     *
+     * @details
+     */
     SECTION("Test 02E: Test SetProperty - Creator")
     {
         doc.setProperty(XLProperty::Creator, "CreatorTest");
@@ -90,10 +91,10 @@ TEST_CASE("C++ Interface Test 02: Testing of Document Properties") {
     }
 
     /**
- * @brief
- *
- * @details
- */
+     * @brief
+     *
+     * @details
+     */
     SECTION("Test 02F: Test SetProperty - Keywords")
     {
         doc.setProperty(XLProperty::Keywords, "A, B, C");
@@ -104,10 +105,10 @@ TEST_CASE("C++ Interface Test 02: Testing of Document Properties") {
     }
 
     /**
- * @brief
- *
- * @details
- */
+     * @brief
+     *
+     * @details
+     */
     SECTION("Test 02G: Test SetProperty - Description")
     {
         doc.setProperty(XLProperty::Description, "DescriptionTest");
@@ -118,10 +119,10 @@ TEST_CASE("C++ Interface Test 02: Testing of Document Properties") {
     }
 
     /**
- * @brief
- *
- * @details
- */
+     * @brief
+     *
+     * @details
+     */
     SECTION("Test 02H: Test SetProperty - LastModifiedBy")
     {
         doc.setProperty(XLProperty::LastModifiedBy, "LastModifiedByTest");
@@ -132,10 +133,10 @@ TEST_CASE("C++ Interface Test 02: Testing of Document Properties") {
     }
 
     /**
- * @brief
- *
- * @details
- */
+     * @brief
+     *
+     * @details
+     */
     SECTION("Test 02I: Test SetProperty - LastPrinted")
     {
         std::time_t t  = std::time(nullptr);
@@ -153,10 +154,10 @@ TEST_CASE("C++ Interface Test 02: Testing of Document Properties") {
     }
 
     /**
- * @brief
- *
- * @details
- */
+     * @brief
+     *
+     * @details
+     */
     SECTION("Test 02J: Test SetProperty - CreationDate")
     {
         std::time_t t  = std::time(nullptr);
@@ -174,10 +175,10 @@ TEST_CASE("C++ Interface Test 02: Testing of Document Properties") {
     }
 
     /**
- * @brief
- *
- * @details
- */
+     * @brief
+     *
+     * @details
+     */
     SECTION("Test 02K: Test SetProperty - ModificationDate")
     {
         std::time_t t  = std::time(nullptr);
@@ -195,10 +196,10 @@ TEST_CASE("C++ Interface Test 02: Testing of Document Properties") {
     }
 
     /**
- * @brief
- *
- * @details
- */
+     * @brief
+     *
+     * @details
+     */
     SECTION("Test 02L: Test SetProperty - Category")
     {
         doc.setProperty(XLProperty::Category, "CategoryTest");
@@ -209,10 +210,10 @@ TEST_CASE("C++ Interface Test 02: Testing of Document Properties") {
     }
 
     /**
- * @brief
- *
- * @details
- */
+     * @brief
+     *
+     * @details
+     */
     SECTION("Test 02M: Test SetProperty - Application")
     {
         doc.setProperty(XLProperty::Application, "ApplicationTest");
@@ -223,10 +224,10 @@ TEST_CASE("C++ Interface Test 02: Testing of Document Properties") {
     }
 
     /**
- * @brief
- *
- * @details
- */
+     * @brief
+     *
+     * @details
+     */
     SECTION("Test 02N: Test SetProperty - DocSecurity")
     {
         doc.setProperty(XLProperty::DocSecurity, "4");
@@ -237,10 +238,10 @@ TEST_CASE("C++ Interface Test 02: Testing of Document Properties") {
     }
 
     /**
- * @brief
- *
- * @details
- */
+     * @brief
+     *
+     * @details
+     */
     SECTION("Test 02O: Test SetProperty - ScaleCrop")
     {
         doc.setProperty(XLProperty::ScaleCrop, "false");
@@ -251,10 +252,10 @@ TEST_CASE("C++ Interface Test 02: Testing of Document Properties") {
     }
 
     /**
- * @brief
- *
- * @details
- */
+     * @brief
+     *
+     * @details
+     */
     SECTION("Test 02P: Test SetProperty - Manager")
     {
         doc.setProperty(XLProperty::Manager, "ManagerTest");
@@ -265,10 +266,10 @@ TEST_CASE("C++ Interface Test 02: Testing of Document Properties") {
     }
 
     /**
- * @brief
- *
- * @details
- */
+     * @brief
+     *
+     * @details
+     */
     SECTION("Test 02Q: Test SetProperty - Company")
     {
         doc.setProperty(XLProperty::Company, "CompanyTest");
@@ -279,10 +280,10 @@ TEST_CASE("C++ Interface Test 02: Testing of Document Properties") {
     }
 
     /**
- * @brief
- *
- * @details
- */
+     * @brief
+     *
+     * @details
+     */
     SECTION("Test 02R: Test SetProperty - LinksUpToDate")
     {
         doc.setProperty(XLProperty::LinksUpToDate, "false");
@@ -293,10 +294,10 @@ TEST_CASE("C++ Interface Test 02: Testing of Document Properties") {
     }
 
     /**
- * @brief
- *
- * @details
- */
+     * @brief
+     *
+     * @details
+     */
     SECTION("Test 02S: Test SetProperty - SharedDoc")
     {
         doc.setProperty(XLProperty::SharedDoc, "false");
@@ -307,10 +308,10 @@ TEST_CASE("C++ Interface Test 02: Testing of Document Properties") {
     }
 
     /**
- * @brief
- *
- * @details
- */
+     * @brief
+     *
+     * @details
+     */
     SECTION("Test 02T: Test SetProperty - HyperlinkBase")
     {
         doc.setProperty(XLProperty::HyperlinkBase, "HyperlinkBaseTest");
@@ -321,10 +322,10 @@ TEST_CASE("C++ Interface Test 02: Testing of Document Properties") {
     }
 
     /**
-* @brief
-*
-* @details
-*/
+     * @brief
+     *
+     * @details
+     */
     SECTION("Test 02U: Test SetProperty - HyperlinksChanged")
     {
         doc.setProperty(XLProperty::HyperlinksChanged, "false");
@@ -335,10 +336,10 @@ TEST_CASE("C++ Interface Test 02: Testing of Document Properties") {
     }
 
     /**
- * @brief
- *
- * @details
- */
+     * @brief
+     *
+     * @details
+     */
     SECTION("Test 02V: Test SetProperty - AppVersion")
     {
         doc.setProperty(XLProperty::AppVersion, "12.0300");
@@ -349,10 +350,10 @@ TEST_CASE("C++ Interface Test 02: Testing of Document Properties") {
     }
 
     /**
- * @brief
- *
- * @details
- */
+     * @brief
+     *
+     * @details
+     */
     SECTION("DeleteProperty - Keywords")
     {
         doc.deleteProperty(XLProperty::Keywords);

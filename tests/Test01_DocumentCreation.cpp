@@ -3,8 +3,8 @@
 //
 
 #include "catch.hpp"
-#include <fstream>
 #include <OpenXLSX.hpp>
+#include <fstream>
 
 using namespace OpenXLSX;
 
@@ -12,18 +12,18 @@ using namespace OpenXLSX;
  * @brief The purpose of this test case is to test the creation of XLDocument objects. Each section section
  * tests document creation using a different method. In addition, saving, closing and copying is tested.
  */
-TEST_CASE("C++ Interface Test 01: Creation of Excel Documents") {
-
+TEST_CASE("C++ Interface Test 01: Creation of Excel Documents")
+{
     std::string file    = "./TestDocumentCreation.xlsx";
     std::string newfile = "./TestDocumentCreationNew.xlsx";
 
-/**
- * @test Create new document using the CreateDocument method.
- *
- * @details Creates an empty document and creates the excel file using the CreateDocument() member function.
- * Success is tested by checking if the file have been created on disk and that the DocumentName member function
- * returns the correct file name.
- */
+    /**
+     * @test Create new document using the CreateDocument method.
+     *
+     * @details Creates an empty document and creates the excel file using the CreateDocument() member function.
+     * Success is tested by checking if the file have been created on disk and that the DocumentName member function
+     * returns the correct file name.
+     */
     SECTION("Section 01A: Create new using CreateDocument()")
     {
         XLDocument doc;
@@ -34,11 +34,11 @@ TEST_CASE("C++ Interface Test 01: Creation of Excel Documents") {
     }
 
     /**
- * @brief Open an existing document using the constructor.
- *
- * @details Opens an existing document by passing the file name to the constructor.
- * Success is tested by checking that the DocumentName member function returns the correct file name.
- */
+     * @brief Open an existing document using the constructor.
+     *
+     * @details Opens an existing document by passing the file name to the constructor.
+     * Success is tested by checking that the DocumentName member function returns the correct file name.
+     */
     SECTION("Section 01B: Open existing using Constructor")
     {
         XLDocument doc(file);
@@ -73,10 +73,10 @@ TEST_CASE("C++ Interface Test 01: Creation of Excel Documents") {
     }
 
     /**
- * @brief
- *
- * @details
- */
+     * @brief
+     *
+     * @details
+     */
     SECTION("Section 01E: Save document using SaveDocumentAs()")
     {
         XLDocument doc(file);
@@ -88,10 +88,10 @@ TEST_CASE("C++ Interface Test 01: Creation of Excel Documents") {
     }
 
     /**
- * @brief
- *
- * @details
- */
+     * @brief
+     *
+     * @details
+     */
     SECTION("Section 01F: Copy construction")
     {
         XLDocument doc(file);
@@ -101,10 +101,10 @@ TEST_CASE("C++ Interface Test 01: Creation of Excel Documents") {
     }
 
     /**
- * @brief
- *
- * @details
- */
+     * @brief
+     *
+     * @details
+     */
     SECTION("Section 01G: Copy assignment")
     {
         XLDocument doc(file);
@@ -115,10 +115,10 @@ TEST_CASE("C++ Interface Test 01: Creation of Excel Documents") {
     }
 
     /**
- * @brief
- *
- * @details
- */
+     * @brief
+     *
+     * @details
+     */
     SECTION("Section 01H: Move construction")
     {
         XLDocument doc(file);
@@ -129,10 +129,10 @@ TEST_CASE("C++ Interface Test 01: Creation of Excel Documents") {
     }
 
     /**
- * @brief
- *
- * @details
- */
+     * @brief
+     *
+     * @details
+     */
     SECTION("Section 01I: Move assignment")
     {
         XLDocument doc(file);
@@ -144,10 +144,10 @@ TEST_CASE("C++ Interface Test 01: Creation of Excel Documents") {
     }
 
     /**
- * @brief
- *
- * @details
- */
+     * @brief
+     *
+     * @details
+     */
     SECTION("Section 01J: Close and Reopen")
     {
         XLDocument doc;
@@ -160,10 +160,10 @@ TEST_CASE("C++ Interface Test 01: Creation of Excel Documents") {
     }
 
     /**
- * @brief
- *
- * @details
- */
+     * @brief
+     *
+     * @details
+     */
     SECTION("Section 01K: Reopen without closing")
     {
         XLDocument doc;
@@ -174,10 +174,10 @@ TEST_CASE("C++ Interface Test 01: Creation of Excel Documents") {
     }
 
     /**
- * @brief
- *
- * @details
- */
+     * @brief
+     *
+     * @details
+     */
     SECTION("Section 01L: Open document as const")
     {
         const XLDocument doc(file);

@@ -2,9 +2,9 @@
 // Created by Troldal on 2019-01-12.
 //
 
+#include <OpenXLSX.hpp>
 #include <catch.hpp>
 #include <fstream>
-#include <OpenXLSX.hpp>
 
 using namespace OpenXLSX;
 
@@ -34,10 +34,10 @@ TEST_CASE("C++ Interface Test 03: Testing of XLWorkbook objects")
     }
 
     /**
- * @brief
- *
- * @details
- */
+     * @brief
+     *
+     * @details
+     */
     SECTION("Test 02B: IndexOfSheet()")
     {
         REQUIRE(mwbk.indexOfSheet("Sheet1") == 1);
@@ -45,10 +45,10 @@ TEST_CASE("C++ Interface Test 03: Testing of XLWorkbook objects")
     }
 
     /**
- * @brief
- *
- * @details
- */
+     * @brief
+     *
+     * @details
+     */
     SECTION("Test 02C: WorksheetCount()")
     {
         REQUIRE(mwbk.worksheetCount() == 1);
@@ -56,10 +56,10 @@ TEST_CASE("C++ Interface Test 03: Testing of XLWorkbook objects")
     }
 
     /**
- * @brief
- *
- * @details
- */
+     * @brief
+     *
+     * @details
+     */
     SECTION("Test 02D: ChartsheetCount()")
     {
         REQUIRE(mwbk.chartsheetCount() == 0);
@@ -67,10 +67,10 @@ TEST_CASE("C++ Interface Test 03: Testing of XLWorkbook objects")
     }
 
     /**
- * @brief
- *
- * @details
- */
+     * @brief
+     *
+     * @details
+     */
     SECTION("Test 02E: SheetExists()")
     {
         REQUIRE(mwbk.sheetExists("Sheet1"));
@@ -78,10 +78,10 @@ TEST_CASE("C++ Interface Test 03: Testing of XLWorkbook objects")
     }
 
     /**
- * @brief
- *
- * @details
- */
+     * @brief
+     *
+     * @details
+     */
     SECTION("Test 02F: WorksheetExists()")
     {
         REQUIRE(mwbk.worksheetExists("Sheet1"));
@@ -89,10 +89,10 @@ TEST_CASE("C++ Interface Test 03: Testing of XLWorkbook objects")
     }
 
     /**
- * @brief
- *
- * @details
- */
+     * @brief
+     *
+     * @details
+     */
     SECTION("Test 02G: ChartsheetExists()")
     {
         REQUIRE(!mwbk.chartsheetExists("Sheet1"));
@@ -100,10 +100,10 @@ TEST_CASE("C++ Interface Test 03: Testing of XLWorkbook objects")
     }
 
     /**
- * @brief
- *
- * @details
- */
+     * @brief
+     *
+     * @details
+     */
     SECTION("Test 02H: AddWorksheet()")
     {
         REQUIRE(!mwbk.sheetExists("MySheet"));
@@ -116,10 +116,10 @@ TEST_CASE("C++ Interface Test 03: Testing of XLWorkbook objects")
     }
 
     /**
- * @brief
- *
- * @details
- */
+     * @brief
+     *
+     * @details
+     */
     SECTION("Test 02I: CloneWorksheet()")
     {
         REQUIRE(!mwbk.sheetExists("MyClonedSheet"));
@@ -132,10 +132,10 @@ TEST_CASE("C++ Interface Test 03: Testing of XLWorkbook objects")
     }
 
     /**
- * @brief
- *
- * @details
- */
+     * @brief
+     *
+     * @details
+     */
     SECTION("Test 02J: AddChartsheet()")
     {
         REQUIRE(!mwbk.sheetExists("MyChartSheet"));
@@ -148,10 +148,10 @@ TEST_CASE("C++ Interface Test 03: Testing of XLWorkbook objects")
     }
 
     /**
- * @brief
- *
- * @details
- */
+     * @brief
+     *
+     * @details
+     */
     SECTION("Test 02K: MoveSheet()")
     {
         REQUIRE(mwbk.indexOfSheet("MyClonedSheet") == 3);
@@ -164,10 +164,10 @@ TEST_CASE("C++ Interface Test 03: Testing of XLWorkbook objects")
     }
 
     /**
- * @brief
- *
- * @details
- */
+     * @brief
+     *
+     * @details
+     */
     SECTION("Test 02L: Copy construction and assignment")
     {
         REQUIRE(mwbk.sheetExists("MySheet"));
@@ -182,10 +182,10 @@ TEST_CASE("C++ Interface Test 03: Testing of XLWorkbook objects")
     }
 
     /**
- * @brief
- *
- * @details
- */
+     * @brief
+     *
+     * @details
+     */
     SECTION("Test 02N: DeleteSheet()")
     {
         REQUIRE(mwbk.sheetExists("MySheet"));

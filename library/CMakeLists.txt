@@ -58,7 +58,7 @@ set(OPENXLSX_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/sources/XLXmlData.cpp
     ${CMAKE_CURRENT_LIST_DIR}/sources/XLCellIterator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/sources/XLZipArchive.cpp
-        )
+    )
 
 #=======================================================================================================================
 # OBJECT LIBRARY
@@ -123,7 +123,7 @@ generate_export_header(OpenXLSX-shared
 list(APPEND OPENXLSX_DEBUG_FLAGS_GNU
      "-Wmisleading-indentation"
      "-Wduplicated-cond"
-#     "-Wduplicated-branches"
+     #     "-Wduplicated-branches"
      "-Wlogical-op"
      "-Wnull-dereference"
      "-Wuseless-cast")
@@ -169,8 +169,8 @@ list(APPEND OPENXLSX_DEBUG_FLAGS_MSVC
      "/wd4275")
 
 list(APPEND OPENXLSX_RELEASE_FLAGS_MSVC
-        "/wd4251"
-        "/wd4275")
+     "/wd4251"
+     "/wd4275")
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     target_compile_options(OpenXLSX-shared PRIVATE $<$<CONFIG:Debug>:${OPENXLSX_DEBUG_FLAGS_GNU}>)

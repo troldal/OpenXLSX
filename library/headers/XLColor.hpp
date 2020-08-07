@@ -46,6 +46,10 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_XLCOLOR_HPP
 #define OPENXLSX_XLCOLOR_HPP
 
+#pragma warning(push)
+#pragma warning(disable : 4251)
+#pragma warning(disable : 4275)
+
 // ===== External Includes ===== //
 #include <string>
 
@@ -186,4 +190,5 @@ namespace OpenXLSX
 
 }    // namespace OpenXLSX
 
+#pragma warning(pop)
 #endif    // OPENXLSX_XLCOLOR_HPP

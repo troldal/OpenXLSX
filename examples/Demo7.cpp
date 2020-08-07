@@ -1,6 +1,6 @@
-#include <iostream>
-#include <iomanip>
 #include <OpenXLSX.hpp>
+#include <iomanip>
+#include <iostream>
 
 using namespace std;
 using namespace OpenXLSX;

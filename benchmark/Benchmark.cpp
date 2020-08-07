@@ -3,10 +3,10 @@
 //
 
 #pragma warning(push)
-#pragma warning(disable: 4244)
+#pragma warning(disable : 4244)
 
-#include <benchmark/benchmark.h>
 #include <OpenXLSX.hpp>
+#include <benchmark/benchmark.h>
 
 using namespace OpenXLSX;
 
@@ -14,7 +14,7 @@ using namespace OpenXLSX;
 // * @brief
 // * @param state
 // */
-//static void BM_CreateCellReference(benchmark::State& state) {
+// static void BM_CreateCellReference(benchmark::State& state) {
 //
 //    auto cellRef = XLCellReference();
 //
@@ -24,13 +24,13 @@ using namespace OpenXLSX;
 //
 //}
 
-//BENCHMARK(BM_CreateCellReference);
+// BENCHMARK(BM_CreateCellReference);
 
 ///**
 // * @brief
 // * @param state
 // */
-//static void BM_GetCellCoordinates(benchmark::State& state) {
+// static void BM_GetCellCoordinates(benchmark::State& state) {
 //
 //    auto coordinates = XLCellReference::CoordinatesFromAddress("A1");
 //

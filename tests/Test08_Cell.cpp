@@ -50,14 +50,15 @@ TEST_CASE("Test 08: Testing of XLCell/XLCellValue objects")
         REQUIRE(wks.cell(4, 4).valueType() == XLValueType::Boolean);
     }
 
-    SECTION("CellValue (Empty)") {
+    SECTION("CellValue (Empty)")
+    {
         REQUIRE(wks.cell(5, 5).valueType() == XLValueType::Empty);
     }
 
-    SECTION("CellRange") {
+    SECTION("CellRange")
+    {
         auto rng               = wks.range(XLCellReference(5, 5), XLCellReference(7, 9));
-        rng.Cell(1, 1).
-                Value() = "Range";
+        rng.Cell(1, 1).Value() = "Range";
         REQUIRE(wks.cell(XLCellReference(5, 5)).value().get<std::string>() == "Range");
         REQUIRE(rng.numRows() == 3);
         REQUIRE(rng.numColumns() == 5);

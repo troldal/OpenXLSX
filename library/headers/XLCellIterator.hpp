@@ -47,8 +47,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #define OPENXLSX_XLCELLITERATOR_HPP
 
 #pragma warning(push)
-#pragma warning(disable: 4251)
-#pragma warning(disable: 4275)
+#pragma warning(disable : 4251)
+#pragma warning(disable : 4275)
 
 #include "OpenXLSX-Exports.hpp"
 #include "XLCell.hpp"

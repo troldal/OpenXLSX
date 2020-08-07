@@ -7,19 +7,22 @@
 
 using namespace OpenXLSX;
 
-TEST_CASE("Test 07: Testing of XLCellReference objects") {
-
+TEST_CASE("Test 07: Testing of XLCellReference objects")
+{
     XLCellReference ref(3, 3);
 
-    SECTION("Address") {
+    SECTION("Address")
+    {
         REQUIRE(ref.address() == "C3");
     }
 
-    SECTION("Column") {
+    SECTION("Column")
+    {
         REQUIRE(ref.column() == 3);
     }
 
-    SECTION("Row") {
+    SECTION("Row")
+    {
         REQUIRE(ref.row() == 3);
     }
 

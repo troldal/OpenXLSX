@@ -25,8 +25,8 @@ void PrepareDocument(std::string name)
     doc.close();
 }
 
-int main(int argc,
-         char* argv[]) {
+int main(int argc, char* argv[])
+{
     // Global Setup
     XLDocument doc;
 
@@ -52,4 +52,4 @@ int main(int argc,
     return result;
 }
 
-#endif //OPENXLSX_TESTMAIN_H
+#endif    // OPENXLSX_TESTMAIN_H
