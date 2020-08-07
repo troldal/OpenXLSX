@@ -58,8 +58,7 @@ set(OPENXLSX_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/sources/XLXmlData.cpp
     ${CMAKE_CURRENT_LIST_DIR}/sources/XLCellIterator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/sources/XLZipArchive.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/sources/XLException.cpp
-    )
+        )
 
 #=======================================================================================================================
 # OBJECT LIBRARY
@@ -208,7 +207,6 @@ if (CMAKE_BUILD_TYPE STREQUAL "Release")
     include(CheckIPOSupported)
     check_ipo_supported(RESULT result OUTPUT output)
     if (result)
-        set_property(TARGET OpenXLSX-static PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
         set_property(TARGET OpenXLSX-shared PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
     endif ()
 endif ()

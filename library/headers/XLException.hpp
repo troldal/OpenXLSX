@@ -61,17 +61,8 @@ namespace OpenXLSX
     class OPENXLSX_EXPORT XLException : public std::runtime_error
     {
     public:
-        explicit XLException(const std::string& err);
+        inline explicit XLException(const std::string& err) : runtime_error(err) {};
 
-        XLException(const XLException& other) = default;
-
-        XLException(XLException&& other) noexcept = default;
-
-        ~XLException() override;
-
-        XLException& operator=(const XLException& other) = default;
-
-        XLException& operator=(XLException&& other) noexcept = default;
     };
 
 }    // namespace OpenXLSX
