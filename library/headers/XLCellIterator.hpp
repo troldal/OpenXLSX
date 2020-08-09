@@ -72,8 +72,8 @@ namespace OpenXLSX
 
         /**
          * @brief
-         * @param cellRef
          * @param cellRange
+         * @param loc
          */
         explicit XLCellIterator(const XLCellRange& cellRange, XLIteratorLocation loc);
 
@@ -116,7 +116,6 @@ namespace OpenXLSX
 
         /**
          * @brief
-         * @param junk
          * @return
          */
         XLCellIterator operator++(int);    // NOLINT

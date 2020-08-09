@@ -78,9 +78,9 @@ namespace OpenXLSX
         XLCell();
 
         /**
-         * @brief Constructor
-         * @param parent A pointer to the parent XLWorksheet object. Must not be nullptr.
-         * @param cellNode A pointer to the XMLNode with the cell data. Must not be nullptr.
+         * @brief
+         * @param cellNode
+         * @param sharedStrings
          */
         XLCell(const XMLNode& cellNode, XLSharedStrings* sharedStrings);
 

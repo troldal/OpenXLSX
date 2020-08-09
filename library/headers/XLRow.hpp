@@ -70,9 +70,8 @@ namespace OpenXLSX
         //---------- PUBLIC MEMBER FUNCTIONS ----------//
     public:
         /**
-         * @brief Constructor
-         * @param parent A pointer to the parent XLWorksheet object.
-         * @param rowNode A pointer to the XMLNode object for the row.
+         * @brief
+         * @param rowNode
          */
         explicit XLRow(const XMLNode& rowNode);
 

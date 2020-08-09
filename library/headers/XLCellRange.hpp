@@ -76,11 +76,11 @@ namespace OpenXLSX
 
     public:
         /**
-         * @brief Constructor
-         * @param dataNode A pointer to the parent spreadsheet, i.e. the sheet from which the range refers. Must not be
-         * nullptr.
-         * @param topLeft The first (top left) cell in the range.
-         * @param bottomRight The last (bottom right) cell in the range.
+         * @brief
+         * @param dataNode
+         * @param topLeft
+         * @param bottomRight
+         * @param sharedStrings
          */
         explicit XLCellRange(const XMLNode&         dataNode,
                              const XLCellReference& topLeft,

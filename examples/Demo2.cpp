@@ -6,31 +6,54 @@ using namespace OpenXLSX;
 
 int main()
 {
+    cout << "********************************************************************************\n";
+    cout << "DEMO PROGRAM #02: Sheet Handling\n";
+    cout << "********************************************************************************\n";
+
     XLDocument doc;
-    doc.create("./MyTest.xlsx");
+    doc.create("./Demo02.xlsx");
     auto wbk = doc.workbook();
 
-    wbk.addWorksheet("MySheet01");    // Append new sheet
-    wbk.addWorksheet("MySheet02");    // Prepend new sheet
-    wbk.addWorksheet("MySheet03");    // Prepend new sheet
-    wbk.addWorksheet("MySheet04");    // Insert new sheet
-    wbk.worksheet("Sheet1").setIndex(3);
-    //    wbk.setSheetIndex("Sheet1", 3);    // Move Sheet1 to second place
-    wbk.worksheet("Sheet1").cell(XLCellReference("A1")).value() = "Hello OpenXLSX";
-    wbk.deleteSheet("MySheet01");
-    // wbk.cloneSheet("Sheet1", "Sheet1Clone");
-    wbk.sheet("Sheet1").get<XLWorksheet>().clone("Sheet1Clone");
-    wbk.sheet("Sheet1Clone").setColor(XLColor(0, 253, 106, 2));
+    cout << "\nSheets in workbook:\n";
+    for (const auto& name : wbk.worksheetNames()) cout << wbk.indexOfSheet(name) << " : " << name << "\n";
 
-    for (const auto& name : wbk.worksheetNames()) cout << name << ": " << wbk.indexOfSheet(name) << endl;
+    cout << "\nAdding new sheet 'MySheet01'\n";
+    wbk.addWorksheet("MySheet01");
 
-    cout << endl;
+    cout << "Adding new sheet 'MySheet02'\n";
+    wbk.addWorksheet("MySheet02");
 
-    wbk.worksheet("Sheet1").setName("BLAH");
+    cout << "Cloning sheet 'Sheet1' to new sheet 'MySheet03'\n";
+    wbk.sheet("Sheet1").get<XLWorksheet>().clone("MySheet03");
 
-    for (uint32_t iter = 1; iter <= wbk.sheetCount(); ++iter) {
-        cout << iter << ": " << wbk.sheet(iter).name() << endl;
-    }
+    cout << "Cloning sheet 'MySheet01' to new sheet 'MySheet04'\n";
+    wbk.cloneSheet("MySheet01", "MySheet04");
+
+    cout << "\nSheets in workbook:\n";
+    for (const auto& name : wbk.worksheetNames()) cout << wbk.indexOfSheet(name) << " : " << name << "\n";
+
+    cout << "\nDeleting sheet 'Sheet1'\n";
+    wbk.deleteSheet("Sheet1");
+
+    cout << "Moving sheet 'MySheet04' to index 1\n";
+    wbk.worksheet("MySheet04").setIndex(1);
+
+    cout << "Moving sheet 'MySheet03' to index 2\n";
+    wbk.worksheet("MySheet03").setIndex(2);
+
+    cout << "Moving sheet 'MySheet02' to index 3\n";
+    wbk.worksheet("MySheet02").setIndex(3);
+
+    cout << "Moving sheet 'MySheet01' to index 4\n";
+    wbk.worksheet("MySheet01").setIndex(4);
+
+    cout << "\nSheets in workbook:\n";
+    for (const auto& name : wbk.worksheetNames()) cout << wbk.indexOfSheet(name) << " : " << name << "\n";
+
+    wbk.sheet("MySheet01").setColor(XLColor(0, 0, 0));
+    wbk.sheet("MySheet02").setColor(XLColor(255, 0, 0));
+    wbk.sheet("MySheet03").setColor(XLColor(0, 255, 0));
+    wbk.sheet("MySheet04").setColor(XLColor(0, 0, 255));
 
     doc.save();
 

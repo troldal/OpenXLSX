@@ -177,11 +177,14 @@ namespace OpenXLSX
     class OPENXLSX_EXPORT XLRelationships : public XLXmlFile
     {
     public:    // ---------- Public Member Functions ---------- //
-        XLRelationships() = default;
         /**
-         * @brief Constructor
-         * @param parent A pointer to the parent XLDocument object.
-         * @param xmlData The (relative) path to the relationship file.
+         * @brief
+         */
+        XLRelationships() = default;
+
+        /**
+         * @brief
+         * @param xmlData
          */
         explicit XLRelationships(XLXmlData* xmlData);
 

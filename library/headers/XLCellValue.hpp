@@ -120,8 +120,9 @@ namespace OpenXLSX
         //---------- PUBLIC MEMBER FUNCTIONS ----------//
 
         /**
-         * @brief Constructor
-         * @param cellNode A reference to the parent XLCell object.
+         * @brief
+         * @param cellNode
+         * @param sharedStrings
          */
         explicit XLCellValue(const XMLNode& cellNode, XLSharedStrings* sharedStrings) noexcept;
 

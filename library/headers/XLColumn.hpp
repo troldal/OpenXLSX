@@ -67,7 +67,6 @@ namespace OpenXLSX
     public:
         /**
          * @brief Constructor
-         * @param parent A pointer to the parent XLWorksheet object.
          * @param columnNode A pointer to the XMLNode for the column.
          */
         explicit XLColumn(const XMLNode& columnNode);

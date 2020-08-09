@@ -71,12 +71,14 @@ namespace OpenXLSX
         //----------------------------------------------------------------------------------------------------------------------
 
     public:
-        XLProperties() = default;
         /**
          * @brief
-         * @param parent
+         */
+        XLProperties() = default;
+
+        /**
+         * @brief
          * @param xmlData
-         * @return
          */
         explicit XLProperties(XLXmlData* xmlData);
 
@@ -164,10 +166,13 @@ namespace OpenXLSX
         //--------------------------------------------------------------------------------------------------------------
 
     public:
-        XLAppProperties() = default;
         /**
          * @brief
-         * @param parent
+         */
+        XLAppProperties() = default;
+
+        /**
+         * @brief
          * @param xmlData
          */
         explicit XLAppProperties(XLXmlData* xmlData);

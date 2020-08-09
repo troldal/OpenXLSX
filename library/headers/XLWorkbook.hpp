@@ -175,23 +175,21 @@ namespace OpenXLSX
         void deleteSheet(const std::string& sheetName);
 
         /**
-         * @brief Add a new worksheet to the workbook, with the given name and index.
-         * @param sheetName The name of the worksheet.
-         * @param index The index at which the worksheet should be inserted.
-         * @bug Method does not check that another sheet with same name exists.
+         * @brief
+         * @param sheetName
          */
         void addWorksheet(const std::string& sheetName);
 
         /**
-         * @brief Clone an existing worksheet.
-         * @param existingName The name of the worksheet to clone.
-         * @param newName The name of the cloned worksheet.
-         * @param index The index at which the worksheet should be inserted.
+         * @brief
+         * @param existingName
+         * @param newName
          */
         void cloneSheet(const std::string& existingName, const std::string& newName);
 
         /**
          * @brief
+         * @param sheetName
          * @param index
          */
         void setSheetIndex(const std::string& sheetName, unsigned int index);
@@ -322,11 +320,9 @@ namespace OpenXLSX
         std::string sheetVisibility(const std::string& sheetID) const;
 
         /**
-         * @brief Helper function to create a new XML file to hold the data for a new worksheet.
-         * @param sheetName The name of the new worksheet.
-         * @param index The index at which to insert the new worksheet.
-         * @return A reference to the XLRelationshipItem corresponding to the worksheet file
-         * @todo Consider having this as a static function in the XLWorksheet class.
+         * @brief
+         * @param sheetName
+         * @param internalID
          */
         void prepareSheetMetadata(const std::string& sheetName, uint16_t internalID);
 

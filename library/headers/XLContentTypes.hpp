@@ -107,9 +107,6 @@ namespace OpenXLSX
         /**
          * @brief
          * @param node
-         * @param path
-         * @param type
-         * @return
          */
         explicit XLContentItem(const XMLNode& node);
 
@@ -172,10 +169,13 @@ namespace OpenXLSX
     class OPENXLSX_EXPORT XLContentTypes : public XLXmlFile
     {
     public:    // ---------- Public Member Functions ---------- //
-        XLContentTypes() = default;
         /**
-         *
-         * @param parent
+         * @brief
+         */
+        XLContentTypes() = default;
+
+        /**
+         * @brief
          * @param xmlData
          */
         explicit XLContentTypes(XLXmlData* xmlData);

@@ -16,7 +16,7 @@ target_include_directories(Catch SYSTEM INTERFACE ${CMAKE_CURRENT_BINARY_DIR}/_d
 #=======================================================================================================================
 # Define TEST target
 #=======================================================================================================================
-add_executable(InterfaceTest "")
+add_executable(InterfaceTest EXCLUDE_FROM_ALL "")
 target_sources(InterfaceTest
                PRIVATE
                Test00_Main.cpp

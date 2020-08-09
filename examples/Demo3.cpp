@@ -1,6 +1,4 @@
 #include <OpenXLSX.hpp>
-#include <chrono>
-#include <iomanip>
 #include <iostream>
 
 using namespace std;
@@ -8,19 +6,56 @@ using namespace OpenXLSX;
 
 int main()
 {
-    XLDocument doc;
-    doc.open("./Names.xlsx");
-    auto wbk = doc.workbook();
-    auto wks = wbk.worksheet("Long Sheet Name");
+    cout << "********************************************************************************\n";
+    cout << "DEMO PROGRAM #03: Unicode\n";
+    cout << "********************************************************************************\n";
 
-    wks.setName("Even Longer Sheet Name");
-    wbk.worksheet("Sheet1").setName("NewName");
-    wbk.worksheet("Sheet2").setName("Number Two");
-    wbk.worksheet("Sheet3").setName("Number Three");
-    wbk.MoveSheet("NewName", 4);
-    wbk.deleteSheet("Number Three");
+    XLDocument doc1;
+    doc1.create("./Demo03.xlsx");
+    auto wks1 = doc1.workbook().worksheet("Sheet1");
 
-    doc.saveAs("Names2.xlsx");
+    wks1.cell(XLCellReference("A1")).value() = "안녕하세요 세계!";
+    wks1.cell(XLCellReference("A2")).value() = "你好，世界!";
+    wks1.cell(XLCellReference("A3")).value() = "こんにちは世界";
+    wks1.cell(XLCellReference("A4")).value() = "नमस्ते दुनिया!";
+    wks1.cell(XLCellReference("A5")).value() = "Привет, мир!";
+    wks1.cell(XLCellReference("A6")).value() = "Γειά σου Κόσμε!";
+
+    doc1.save();
+    doc1.close();
+
+    XLDocument doc2;
+    doc2.open("./Demo03.xlsx");
+    auto wks2 = doc2.workbook().worksheet("Sheet1");
+
+    cout << "Cell A1 (Korean)  : " << wks2.cell(XLCellReference("A1")).value().get<std::string>() << endl;
+    cout << "Cell A2 (Chinese) : " << wks2.cell(XLCellReference("A2")).value().get<std::string>() << endl;
+    cout << "Cell A3 (Japanese): " << wks2.cell(XLCellReference("A3")).value().get<std::string>() << endl;
+    cout << "Cell A4 (Hindi)   : " << wks2.cell(XLCellReference("A4")).value().get<std::string>() << endl;
+    cout << "Cell A5 (Russian) : " << wks2.cell(XLCellReference("A5")).value().get<std::string>() << endl;
+    cout << "Cell A6 (Greek)   : " << wks2.cell(XLCellReference("A6")).value().get<std::string>() << endl;
+
+    std::ofstream file("./Demo03.txt");
+    file << wks2.cell(XLCellReference("A1")).value().get<std::string>() << "\n";
+    file << wks2.cell(XLCellReference("A2")).value().get<std::string>() << "\n";
+    file << wks2.cell(XLCellReference("A3")).value().get<std::string>() << "\n";
+    file << wks2.cell(XLCellReference("A4")).value().get<std::string>() << "\n";
+    file << wks2.cell(XLCellReference("A5")).value().get<std::string>() << "\n";
+    file << wks2.cell(XLCellReference("A6")).value().get<std::string>() << "\n";
+    file.close();
+
+    cout << "\nNOTE: If you are using a Windows terminal, the above output will look like gibberish,\n"
+            "because the Windows terminal does not support UTF-8 at the moment. To view to output,\n"
+            "open the Demo03.xlsx file in Excel, or the Demo03.txt file in a UTF-8 enabled text editor.\n\n";
+
+    doc2.close();
+
+    cout << "Creating file with unicode name.";
+    XLDocument doc3;
+    doc3.create("./スプレッドシート.xlsx");
+    doc3.close();
+    doc3.open("./スプレッドシート.xlsx");
+    doc3.close();
 
     return 0;
 }

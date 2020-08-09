@@ -222,7 +222,7 @@ namespace OpenXLSX
 
         /**
          * @brief Delete the property from the document
-         * @param propertyName The property to delete from the document
+         * @param theProperty The property to delete from the document
          */
         void deleteProperty(XLProperty theProperty);
 

@@ -82,15 +82,15 @@ namespace OpenXLSX
     class OPENXLSX_EXPORT XLSheetBase : public XLXmlFile
     {
     public:
+        /**
+         * @brief
+         */
         XLSheetBase() : XLXmlFile(nullptr) {};
 
         /**
          * @brief The constructor. There are no default constructor, so all parameters must be provided for
          * constructing an XLAbstractSheet object. Since this is a pure abstract class, instantiation is only
          * possible via one of the derived classes.
-         * @param parent A pointer to the parent XLDocument object.
-         * @param name The name of the new sheet.
-         * @param filepath A std::string with the relative path to the sheet file in the .xlsx package.
          * @param xmlData
          */
         explicit XLSheetBase(XLXmlData* xmlData) : XLXmlFile(xmlData) {};
@@ -221,7 +221,7 @@ namespace OpenXLSX
 
         /**
          * @brief Method for renaming the sheet.
-         * @param name A std::string with the new name.
+         * @param sheetName A std::string with the new name.
          */
         void setName(const std::string& sheetName)
         {
@@ -279,10 +279,7 @@ namespace OpenXLSX
         XLWorksheet() : XLSheetBase(nullptr) {};
 
         /**
-         * @brief Constructor
-         * @param parent A reference to the parent workbook.
-         * @param name The name of the worksheet.
-         * @param filePath The path to the worksheet .xml file.
+         * @brief
          * @param xmlData
          */
         explicit XLWorksheet(XLXmlData* xmlData);
@@ -431,9 +428,6 @@ namespace OpenXLSX
 
         /**
          * @brief
-         * @param parent
-         * @param name
-         * @param filePath
          * @param xmlData
          */
         explicit XLChartsheet(XLXmlData* xmlData);
@@ -500,9 +494,6 @@ namespace OpenXLSX
          * @brief The constructor. There are no default constructor, so all parameters must be provided for
          * constructing an XLAbstractSheet object. Since this is a pure abstract class, instantiation is only
          * possible via one of the derived classes.
-         * @param parent A pointer to the parent XLDocument object.
-         * @param name The name of the new sheet.
-         * @param filepath A std::string with the relative path to the sheet file in the .xlsx package.
          * @param xmlData
          */
         explicit XLSheet(XLXmlData* xmlData);

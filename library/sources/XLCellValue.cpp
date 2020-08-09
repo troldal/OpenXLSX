@@ -156,12 +156,14 @@ XLCellValue::XLCellValue(const XLCellValue& other)
 XLCellValue& XLCellValue::operator=(const XLCellValue& other)
 {
     if (&other != this) {
-        if (!m_cellNode->attribute("t")) m_cellNode->append_attribute("t");
-        if (!m_cellNode->child("v")) m_cellNode->append_child("v");
+        for (auto& attribute : m_cellNode->attributes())
+            if (std::string_view(attribute.name()) != "r") m_cellNode->remove_attribute(attribute);
 
-        m_cellNode->child("v").text().set(!other.m_cellNode->child("v") ? "" : other.m_cellNode->child("v").text().get());
-        m_cellNode->child("v").attribute("xml:space").set_value(other.m_cellNode->child("v").attribute("xml:space").value());
-        m_cellNode->attribute("t").set_value(!other.m_cellNode->attribute("t") ? "" : other.m_cellNode->attribute("t").value());
+        for (auto& attribute : other.m_cellNode->attributes())
+            if (std::string_view(attribute.name()) != "r") m_cellNode->append_copy(attribute);
+
+        m_cellNode->remove_child(m_cellNode->child("v"));
+        m_cellNode->append_copy(other.m_cellNode->child("v"));
     }
 
     return *this;
@@ -177,12 +179,14 @@ XLCellValue& XLCellValue::operator=(const XLCellValue& other)
 XLCellValue& XLCellValue::operator=(XLCellValue&& other) noexcept
 {
     if (&other != this) {
-        if (!m_cellNode->attribute("t")) m_cellNode->append_attribute("t");
-        if (!m_cellNode->child("v")) m_cellNode->append_child("v");
+        for (auto& attribute : m_cellNode->attributes())
+            if (std::string_view(attribute.name()) != "r") m_cellNode->remove_attribute(attribute);
 
-        m_cellNode->child("v").text().set(!other.m_cellNode->child("v") ? "" : other.m_cellNode->child("v").text().get());
-        m_cellNode->child("v").attribute("xml:space").set_value(other.m_cellNode->child("v").attribute("xml:space").value());
-        m_cellNode->attribute("t").set_value(!other.m_cellNode->attribute("t") ? "" : other.m_cellNode->attribute("t").value());
+        for (auto& attribute : other.m_cellNode->attributes())
+            if (std::string_view(attribute.name()) != "r") m_cellNode->append_copy(attribute);
+
+        m_cellNode->remove_child(m_cellNode->child("v"));
+        m_cellNode->append_copy(other.m_cellNode->child("v"));
     }
 
     return *this;
@@ -240,8 +244,11 @@ void XLCellValue::set(const char* stringValue)
     m_cellNode->attribute("t").set_value("str");
     m_cellNode->child("v").text().set(stringValue);
 
-    if (!m_cellNode->attribute("xml:space")) m_cellNode->append_attribute("xml:space");
-    m_cellNode->attribute("xml:space").set_value("preserve");
+    auto s = std::string_view(stringValue);
+    if (s.front() == ' ' || s.back() == ' ') {
+        if (!m_cellNode->attribute("xml:space")) m_cellNode->append_attribute("xml:space");
+        m_cellNode->attribute("xml:space").set_value("preserve");
+    }
 }
 
 /**
@@ -311,7 +318,8 @@ void XLCellValue::setInteger(int64_t numberValue)
 
     m_cellNode->remove_attribute("t");
     m_cellNode->child("v").text().set(numberValue);
-    m_cellNode->child("v").attribute("xml:space").set_value("default");
+    m_cellNode->child("v").remove_attribute(m_cellNode->child("v").attribute("xml:space"));
+    //    m_cellNode->child("v").attribute("xml:space").set_value("default");
 }
 
 /**
@@ -324,7 +332,8 @@ void XLCellValue::setBoolean(bool numberValue)
 
     m_cellNode->attribute("t").set_value("b");
     m_cellNode->child("v").text().set(numberValue ? 1 : 0);
-    m_cellNode->child("v").attribute("xml:space").set_value("default");
+    m_cellNode->child("v").remove_attribute(m_cellNode->child("v").attribute("xml:space"));
+    //    m_cellNode->child("v").attribute("xml:space").set_value("default");
 }
 
 /**
@@ -336,7 +345,8 @@ void XLCellValue::setFloat(double numberValue)
 
     m_cellNode->remove_attribute("t");
     m_cellNode->child("v").text().set(numberValue);
-    m_cellNode->child("v").attribute("xml:space").set_value("default");
+    m_cellNode->child("v").remove_attribute(m_cellNode->child("v").attribute("xml:space"));
+    //    m_cellNode->child("v").attribute("xml:space").set_value("default");
 }
 
 /**

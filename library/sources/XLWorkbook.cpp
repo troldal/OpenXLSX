@@ -285,9 +285,9 @@ void XLWorkbook::setSheetVisibility(const std::string& sheetRID, const std::stri
 void XLWorkbook::setSheetIndex(const std::string& sheetName, unsigned int index)
 {
     // ===== Check that the input is valid
-    if (index < 1 || index > std::distance(xmlDocument().document_element().child("sheets").children().begin(),
-                                           xmlDocument().document_element().child("sheets").children().end()))
-        throw XLException("Invalid sheet index");
+    //    if (index < 1 || index > std::distance(xmlDocument().document_element().child("sheets").children().begin(),
+    //                                           xmlDocument().document_element().child("sheets").children().end()))
+    //        throw XLException("Invalid sheet index");
 
     // ===== If the new index is equal to the current, don't do anything
     if (index == std::distance(xmlDocument().document_element().child("sheets").children().begin(),
