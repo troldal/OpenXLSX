@@ -1,6 +1,6 @@
 BSD 3-Clause License
 
-Copyright (c) 2019, Kenneth Troldal Balslev
+Copyright (c) 2020, Kenneth Troldal Balslev
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
