@@ -122,7 +122,7 @@ namespace OpenXLSX
          * @return A reference to the new object.
          * @note This implements the default move assignment operator.
          */
-        XLCellRange& operator=(XLCellRange&& other) = default;
+        XLCellRange& operator=(XLCellRange&& other) noexcept;
 
         /**
          * @brief Get the number of rows in the range.

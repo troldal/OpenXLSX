@@ -50,7 +50,7 @@ int main()
 
     doc2.close();
 
-    cout << "Creating file with unicode name.";
+    cout << "Creating file with unicode name.\n";
     XLDocument doc3;
     doc3.create("./スプレッドシート.xlsx");
     doc3.close();

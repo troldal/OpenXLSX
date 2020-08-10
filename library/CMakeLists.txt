@@ -8,6 +8,9 @@ target_include_directories(Zippy SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CURR
 
 add_library(PugiXML INTERFACE IMPORTED)
 target_include_directories(PugiXML SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/xml/>)
+if (${ENABLE_COMPACT_MODE})
+    target_compile_definitions(PugiXML INTERFACE PUGIXML_COMPACT)
+endif ()
 
 #=======================================================================================================================
 # COMPILER FEATURES

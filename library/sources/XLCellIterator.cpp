@@ -189,6 +189,7 @@ XLCellIterator& XLCellIterator::operator++()
 {
     auto ref = m_currentCell.cellReference();
 
+    // ===== Determine the cell reference for the next cell.
     if (ref.column() < m_bottomRight.column())
         ref = XLCellReference(ref.row(), ref.column() + 1);
     else if (ref.column() == m_bottomRight.column())
@@ -196,7 +197,7 @@ XLCellIterator& XLCellIterator::operator++()
 
     if (ref > m_bottomRight)
         m_currentCell = XLCell();
-    else if (ref.row() == m_currentCell.cellReference().row()) {
+    else if (ref > m_bottomRight || ref.row() == m_currentCell.cellReference().row()) {
         auto node = m_currentCell.m_cellNode->next_sibling();
         if (!node || XLCellReference(node.attribute("r").value()) != ref) {
             node = m_currentCell.m_cellNode->parent().insert_child_after("c", *m_currentCell.m_cellNode);
@@ -205,7 +206,14 @@ XLCellIterator& XLCellIterator::operator++()
         m_currentCell = XLCell(node, m_sharedStrings);
     }
     else if (ref.row() > m_currentCell.cellReference().row()) {
-        m_currentCell = XLCell(getCellNode(getRowNode(*m_dataNode, ref.row()), ref.column()), m_sharedStrings);
+        auto rowNode = m_currentCell.m_cellNode->parent().next_sibling();
+        if (!rowNode || rowNode.attribute("r").as_ullong() != ref.row()) {
+            rowNode = m_currentCell.m_cellNode->parent().parent().insert_child_after("row", m_currentCell.m_cellNode->parent());
+            rowNode.append_attribute("r").set_value(ref.row());
+            // getRowNode(*m_dataNode, ref.row());
+        }
+
+        m_currentCell = XLCell(getCellNode(rowNode, ref.column()), m_sharedStrings);
     }
     else
         throw XLException("An internal error occured");

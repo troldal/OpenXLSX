@@ -90,6 +90,22 @@ XLCellRange& XLCellRange::operator=(const XLCellRange& other)
 }
 
 /**
+ * @brief
+ * @param other
+ * @return
+ */
+XLCellRange& XLCellRange::operator=(XLCellRange&& other) noexcept
+{
+    if (&other != this) {
+        *m_dataNode   = *other.m_dataNode;
+        m_topLeft     = other.m_topLeft;
+        m_bottomRight = other.m_bottomRight;
+    }
+
+    return *this;
+}
+
+/**
  * @details Returns the m_rows property.
  */
 uint32_t XLCellRange::numRows() const
