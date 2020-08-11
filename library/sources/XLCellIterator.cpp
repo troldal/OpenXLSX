@@ -262,3 +262,17 @@ bool XLCellIterator::operator!=(const XLCellIterator& rhs)
 {
     return !(m_currentCell == rhs.m_currentCell);
 }
+
+/**
+ * @details
+ * @todo This implementation is rather ineffecient. Consider an alternative implementation.
+ */
+uint64_t XLCellIterator::distance(const XLCellIterator& last)
+{
+    uint64_t result = 0;
+    while (*this != last) {
+        ++result;
+        ++(*this);
+    }
+    return result;
+}

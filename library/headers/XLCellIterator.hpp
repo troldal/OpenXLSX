@@ -50,6 +50,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #pragma warning(disable : 4251)
 #pragma warning(disable : 4275)
 
+#include <algorithm>
+
 #include "OpenXLSX-Exports.hpp"
 #include "XLCell.hpp"
 #include "XLCellReference.hpp"
@@ -146,6 +148,8 @@ namespace OpenXLSX
          */
         bool operator!=(const XLCellIterator& rhs);
 
+        uint64_t distance(const XLCellIterator& last);
+
     private:
         std::unique_ptr<XMLNode> m_dataNode;
         XLCellReference          m_topLeft;     /**< The cell reference of the first cell in the range */
@@ -155,6 +159,17 @@ namespace OpenXLSX
     };
 
 }    // namespace OpenXLSX
+
+namespace std
+{
+    using OpenXLSX::XLCellIterator;
+    template<>
+    inline typename std::iterator_traits<XLCellIterator>::difference_type distance<XLCellIterator>(XLCellIterator first,
+                                                                                                   XLCellIterator last)
+    {
+        return first.distance(last);
+    }
+}    // namespace std
 
 #pragma warning(pop)
 #endif    // OPENXLSX_XLCELLITERATOR_HPP
