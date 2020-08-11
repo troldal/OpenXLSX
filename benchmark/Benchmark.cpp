@@ -7,62 +7,9 @@
 
 #include <OpenXLSX.hpp>
 #include <benchmark/benchmark.h>
+#include <numeric>
 
 using namespace OpenXLSX;
-
-///**
-// * @brief
-// * @param state
-// */
-// static void BM_CreateCellReference(benchmark::State& state) {
-//
-//    auto cellRef = XLCellReference();
-//
-//    for (auto _ : state) {
-//        cellRef = XLCellReference("A1");
-//    }
-//
-//}
-
-// BENCHMARK(BM_CreateCellReference);
-
-///**
-// * @brief
-// * @param state
-// */
-// static void BM_GetCellCoordinates(benchmark::State& state) {
-//
-//    auto coordinates = XLCellReference::CoordinatesFromAddress("A1");
-//
-//    for (auto _ : state) {
-//        coordinates = XLCellReference::CoordinatesFromAddress("A1");
-//    }
-//}
-//
-// BENCHMARK(BM_GetCellCoordinates);
-
-///**
-// * @brief
-// * @param state
-// */
-// static void BM_WriteMatrix(benchmark::State& state)
-//{
-//    XLDocument doc;
-//    doc.create("./benchmark.xlsx");
-//    auto wks    = doc.workbook().worksheet("Sheet1");
-//    auto arange = wks.range(XLCellReference("A1"), XLCellReference(state.range(0), state.range(0)));
-//
-//    for (auto _ : state)
-//        for (auto& cell : arange) cell.value() = "OpenXLSX";
-//
-//    state.SetItemsProcessed(state.range(0) * state.range(0));
-//    state.counters["items"] = state.items_processed();
-//
-//    doc.save();
-//    doc.close();
-//}
-//
-// BENCHMARK(BM_WriteMatrix)->RangeMultiplier(2)->Range(8, 8 << 9)->Unit(benchmark::kMillisecond);
 
 /**
  * @brief
@@ -81,32 +28,36 @@ static void BM_WriteColumns(benchmark::State& state)
     state.SetItemsProcessed(1048576 * state.range(0));
     state.counters["items"] = state.items_processed();
 
-    doc.saveAs("benchmark_out.xlsx");
+    doc.saveAs("./benchmark_out_" + std::to_string(state.range(0)) + ".xlsx");
     doc.close();
 }
 
-BENCHMARK(BM_WriteColumns)->RangeMultiplier(2)->Range(1, 1 << 8)->Unit(benchmark::kMillisecond);
-//
-///**
-// * @brief
-// * @param state
-// */
-// static void BM_WriteRows(benchmark::State& state) {
-//    XLDocument doc;
-//    doc.create("./benchmark.xlsx");
-//    auto wks = doc.workbook().worksheet("Sheet1");
-//    auto arange = wks.range(XLCellReference("A1"), XLCellReference(state.range(0), 16383));
-//
-//    for (auto _ : state)
-//        for (auto& cell : arange) cell.value() = "OpenXLSX";
-//
-//    state.SetItemsProcessed(16384 * state.range(0));
-//    state.counters["items"] = state.items_processed();
-//
-//    doc.save();
-//    doc.close();
-//}
-//
-// BENCHMARK(BM_WriteRows)->RangeMultiplier(2)->Range(8, 8 << 7)->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_WriteColumns)->RangeMultiplier(2)->Range(1, 1 << 4)->Unit(benchmark::kMillisecond);
+
+/**
+ * @brief
+ * @param state
+ */
+static void BM_ReadColumns(benchmark::State& state)
+{
+    XLDocument doc;
+    doc.open("./benchmark_out_" + std::to_string(state.range(0)) + ".xlsx");
+    auto     wks = doc.workbook().worksheet("Sheet1");
+    auto     rng = wks.range(XLCellReference("A1"), XLCellReference(1048576, state.range(0)));
+    uint64_t result;
+
+    for (auto _ : state) {
+        result = std::accumulate(rng.begin(), rng.end(), 0, [](uint64_t a, XLCell& b) { return a + b.value().get<uint64_t>(); });
+        benchmark::DoNotOptimize(result);
+        benchmark::ClobberMemory();
+    }
+
+    state.SetItemsProcessed(1048576 * state.range(0));
+    state.counters["items"] = state.items_processed();
+
+    doc.close();
+}
+
+BENCHMARK(BM_ReadColumns)->RangeMultiplier(2)->Range(1, 1 << 4)->Unit(benchmark::kMillisecond);
 
 #pragma warning(pop)
