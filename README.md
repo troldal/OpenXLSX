@@ -88,6 +88,22 @@ The maximum allowable file size for a file in an archive (i.e. en entry in a .zi
 The 4 GB limitation is only related to a single entry in an archive, not the total archive size. That means that if an archive holds multiple entries with a size of 4GB, miniz can still handle it. For OpenXLSX, this means that a workbook with several large worksheets can still be opened.
 
 ### Memory Usage
+OpenXLSX uses the PugiXML library for parsing and manipulating .xml files in .xlsx archive. PugiXML is a DOM parser, which reads the entire .xml document into memory. That makes parsing and manipulation incredibly fast.
+
+However, all choices have consequences, and using a DOM parser can also demand a lot of memory. For small spreadsheets, it shouldn't be a problem, but if you need to manipulate large spreadsheets, you may need a lot of memory.
+
+The table below gives an indication of how many columns of data can be handled by OpenXLSX (assuming 1,048,576 rows):
+
+|           | Columns |
+|:----------|:--------|
+| 8 GB RAM  | 8-16    |
+| 16 GB RAM | 32-64   |
+| 32 GB RAM | 128-256 |
+Your milage may vary. The performance of OpenXLSX will depend on the type of data in the spreadsheet.
+
+Note also that it is recommended to use OpenXLSX in 64-bit mode. While it can easily be used in 32-bit mode, it can only access 4 GB of RAM, which will severely limit the usefulness when handling large spreadsheets.
+
+If memory consumption is an issue for you, you can build the OpenXLSX library in compact mode (look for the ENABLE_COMPACT_MODE in the CMakeLists.txt file), which will enable PugiXML's compact mode. OpenXLSX will then use less memory, but also run slower. See further details in the PugiXML documentation [here](https://pugixml.org/docs/manual.html#dom.memory.compact). A test case run on Linux VM with 8 GB RAM revealed that OpenXLSX could handle a worksheet with 1,048,576 rows x 32 columns in compact mode, versus 1,048,576 rows x 16 columns in default mode.
 
 ### Unicode
   All string manipulations and usage in OpenXLSX uses the C++ std::string, which is encoding agnostic, but can easily be used for UTF-8 encoding. Also, Excel uses UTF-8 encoding internally (actually, it might be possible to use other encodings, but I'm not sure about that).
