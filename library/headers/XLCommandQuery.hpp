@@ -167,6 +167,10 @@ namespace OpenXLSX
         uint16_t    m_sheetIndex {};
     };
 
+    class XLCommandAddSharedStrings
+    {
+    };
+
     class XLCommandAddWorksheet
     {
     public:

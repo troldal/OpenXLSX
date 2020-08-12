@@ -23,7 +23,7 @@ static void BM_WriteColumns(benchmark::State& state)
     auto arange = wks.range(XLCellReference("A1"), XLCellReference(1048576, state.range(0)));
 
     for (auto _ : state)
-        for (auto& cell : arange) cell.value() = 1;
+        for (auto& cell : arange) cell.value() = 123456;
 
     state.SetItemsProcessed(1048576 * state.range(0));
     state.counters["items"] = state.items_processed();
@@ -32,7 +32,7 @@ static void BM_WriteColumns(benchmark::State& state)
     doc.close();
 }
 
-BENCHMARK(BM_WriteColumns)->RangeMultiplier(2)->Range(1, 1 << 4)->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_WriteColumns)->RangeMultiplier(2)->Range(1, 1 << 10)->Unit(benchmark::kMillisecond);
 
 /**
  * @brief
@@ -58,6 +58,6 @@ static void BM_ReadColumns(benchmark::State& state)
     doc.close();
 }
 
-BENCHMARK(BM_ReadColumns)->RangeMultiplier(2)->Range(1, 1 << 4)->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_ReadColumns)->RangeMultiplier(2)->Range(1, 1 << 7)->Unit(benchmark::kMillisecond);
 
 #pragma warning(pop)

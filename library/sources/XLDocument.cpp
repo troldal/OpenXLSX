@@ -459,6 +459,8 @@ void XLDocument::open(const std::string& fileName)
     m_docRelationships = XLRelationships(getXmlData("_rels/.rels"));
     m_wbkRelationships = XLRelationships(getXmlData("xl/_rels/workbook.xml.rels"));
 
+    if (!m_archive.hasEntry("xl/sharedStrings.xml")) executeCommand(XLCommandAddSharedStrings());
+
     // ===== Add remaining spreadsheet elements to the vector of XLXmlData objects.
     for (auto& item : m_contentTypes.getContentItems()) {
         if (item.path().substr(0, 4) == "/xl/" && !(item.path() == "/xl/workbook.xml"))

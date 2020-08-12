@@ -69,6 +69,7 @@ these libraries are included in the repository, i.e. it's not necessary to downl
   - Read/write/modify cell contents
   - Copy cells and cell ranges
   - Copy worksheets
+  - Ranges and Iterators
 
   Features related to formatting, plots and figures have not been implemented, and are not planned to be in the near future.
 
@@ -77,14 +78,23 @@ these libraries are included in the repository, i.e. it's not necessary to downl
 ### Performance
 
 
-### Caveats
+## Caveats
 
+### File Size
+An .xlsx file is essentially a bunch of .xml files in a .zip archive. Internally, OpenXLSX uses the miniz library to compress/decompress the .zip archive, and it turns out that miniz has an upper limit regarding the file sizes it can handle.
 
+The maximum allowable file size for a file in an archive (i.e. en entry in a .zip archive, not the archive itself) is 4 GB (uncompressed). Usually, the largest file in an .xlsx file/archive, will be the .xml files holding the worksheet data. I.e., the worksheet data may not exceed 4 GB. What that translates to in terms of rows and columns depend a lot on the type of data, but 1,048,576 rows x 128 columns filled with 4-digit integers will take up approx. 4 GB. The size of the compressed archive also depends on the data held in the worksheet, as well as the compression algorithm used, but a workbook with a single worksheet of 4 GB will usually have a compressed size of 300-350 MB.
 
-## Unicode
-  All string manipulations and usage in OpenXLSX uses the C++ std::string, which uses UTF-8 encoding. Also, Excel uses UTF-8 encoding internally (actually, it might be possible to use other encodings, but I'm not sure about that). 
+The 4 GB limitation is only related to a single entry in an archive, not the total archive size. That means that if an archive holds multiple entries with a size of 4GB, miniz can still handle it. For OpenXLSX, this means that a workbook with several large worksheets can still be opened.
+
+### Memory Usage
+
+### Unicode
+  All string manipulations and usage in OpenXLSX uses the C++ std::string, which is encoding agnostic, but can easily be used for UTF-8 encoding. Also, Excel uses UTF-8 encoding internally (actually, it might be possible to use other encodings, but I'm not sure about that).
   
-  For the above reason, if you work with other text encodings, you have to convert to/from UTF-8 yourself. There are a number of options (e.g. std::codecvt or Boost.Locale). I will also suggest that you see James McNellis' presentation at [CppCon 2014](https://youtu.be/n0GK-9f4dl8).
+  For the above reason, **if you work with other text encodings, you have to convert to/from UTF-8 yourself**. There are a number of options (e.g. Boost.Nowide or Boost.Text). I will also suggest that you watch James McNellis' presentation at [CppCon 2014](https://youtu.be/n0GK-9f4dl8), and read [Joel Spolsky's blog](https://www.joelonsoftware.com/2003/10/08/the-absolute-minimum-every-software-developer-absolutely-positively-must-know-about-unicode-and-character-sets-no-excuses/).
+
+  Note also that while UTF-8 is well supported on Linux and MacOS, support on Windows is more limited. For example, output of non-ASCII characters (e.g. Chinese or Japanese characters) to the terminal window will look like gibberish.
   
 ## Example Programs
 

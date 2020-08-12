@@ -167,7 +167,7 @@ namespace std
     inline typename std::iterator_traits<XLCellIterator>::difference_type distance<XLCellIterator>(XLCellIterator first,
                                                                                                    XLCellIterator last)
     {
-        return first.distance(last);
+        return static_cast<typename std::iterator_traits<XLCellIterator>::difference_type>(first.distance(last));
     }
 }    // namespace std
 

@@ -249,6 +249,20 @@ namespace OpenXLSX
                 m_workbook.setSheetIndex(sheetName, command.sheetIndex());
             }
 
+            else if constexpr (std::is_same_v<Command, XLCommandAddSharedStrings>) {
+                std::string sharedStrings {
+                    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                    "<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"1\" uniqueCount=\"1\">\n"
+                    "  <si>\n"
+                    "    <t/>\n"
+                    "  </si>\n"
+                    "</sst>"
+                };
+                m_contentTypes.addOverride("/xl/sharedStrings.xml", XLContentType::SharedStrings);
+                m_wbkRelationships.addRelationship(XLRelationshipType::SharedStrings, "sharedStrings.xml");
+                m_archive.addEntry("xl/sharedStrings.xml", sharedStrings);
+            }
+
             else if constexpr (std::is_same_v<Command, XLCommandAddWorksheet>) {
                 std::string emptyWorksheet {
                     "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
