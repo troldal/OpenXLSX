@@ -46,21 +46,28 @@ The ambition is that OpenXLSX should be able to read, write, create and modify E
 these libraries are included in the repository, i.e. it's not necessary to download and build separately.
 
 ## Compatibility
-  OpenXLSX can be built and run on the following platforms/compilers:
+  OpenXLSX has been tested on the following platforms/compilers. Note that a '-' doesn't mean that OpenXLSX doesn't work; it just means that it hasn't been tested:
 
-| Platform\Compiler | GCC | Clang | MSVC |
-|:------------------|:----|:------|:-----|
-| Windows           |     |       |      |
-| MacOS             |     |       |      |
-| Linux             |     |       |      |
+|         | GCC | Clang | MSVC |
+|:--------|:----|:------|:-----|
+| Windows | N/A | -     | +    |
+| MinGW   | +   | +     | N/A  |
+| MSYS    | +   | -     | N/A  |
+| Cygwin  | -   | -     | N/A  |
+| MacOS   | +   | +     | N/A  |
+| Linux   | +   | +     | N/A  |
 
+The following compiler versions should be able to compile OpenXLSX without errors:
 
-  - Linux (GCC/Clang)
-  - MacOS (GCC/Clang/Xcode)
-  - Windows (MinGW/Clang/MSVC)
+  - GCC: Version 7
+  - Clang: Version 8
+  - MSVC: Visual Studio 2019
 
-  Building on Windows using MSYS or Cygwin has not been tested.
-  Building using the Intel compiler has not been tested.
+Clang 7 should be able to compile OpenXLSX, but apparently there is a bug in the implementation of std::variant, which causes compiler errors.
+
+Visual Studio 2017 should also work, but hasn't been tested.
+
+## Build Instructions
 
 ## Current Status
  OpenXLSX is still work i progress. The following is a list of features which have been implemented and should be working properly:
@@ -75,7 +82,10 @@ these libraries are included in the repository, i.e. it's not necessary to downl
 
   It should be noted, that creating const XLDocument objects, is currently not working!
 
-### Performance
+## Performance
+
+The table below is the output from a benchmark (using the Google Benchmark library), which shows that read/write access can be done at a rate of around 2,000,000 cells per second. Floating point numbers are somewhat lower, due to conversion to/from strings in the .xml file.
+
 ```
 Run on (16 X 2300 MHz CPU s)
 CPU Caches:

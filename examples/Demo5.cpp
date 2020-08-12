@@ -1,9 +1,7 @@
 #include <OpenXLSX.hpp>
-#include <algorithm>
-#include <iomanip>
 #include <iostream>
+#include <numeric>
 #include <random>
-#include <vector>
 
 using namespace std;
 using namespace OpenXLSX;

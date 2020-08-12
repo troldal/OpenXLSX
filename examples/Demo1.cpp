@@ -1,5 +1,4 @@
 #include <OpenXLSX.hpp>
-#include <iomanip>
 #include <iostream>
 
 using namespace std;

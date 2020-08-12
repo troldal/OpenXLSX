@@ -44,6 +44,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
  */
 
 // ===== External Includes ===== //
+#include <charconv>
 #include <cstring>
 #include <pugixml.hpp>
 
@@ -346,7 +347,6 @@ void XLCellValue::setFloat(double numberValue)
     m_cellNode->remove_attribute("t");
     m_cellNode->child("v").text().set(numberValue);
     m_cellNode->child("v").remove_attribute(m_cellNode->child("v").attribute("xml:space"));
-    //    m_cellNode->child("v").attribute("xml:space").set_value("default");
 }
 
 /**
