@@ -76,7 +76,26 @@ these libraries are included in the repository, i.e. it's not necessary to downl
   It should be noted, that creating const XLDocument objects, is currently not working!
 
 ### Performance
-
+```
+Run on (16 X 2300 MHz CPU s)
+CPU Caches:
+  L1 Data 32 KiB (x8)
+  L1 Instruction 32 KiB (x8)
+  L2 Unified 256 KiB (x8)
+  L3 Unified 16384 KiB (x1)
+Load Average: 3.14, 2.14, 1.80
+---------------------------------------------------------------------------
+Benchmark                 Time             CPU   Iterations UserCounters...
+---------------------------------------------------------------------------
+BM_WriteStrings        3959 ms         3959 ms            1 items=8.38861M items_per_second=2.1189M/s
+BM_WriteIntegers       3605 ms         3604 ms            1 items=8.38861M items_per_second=2.32744M/s
+BM_WriteFloats         6601 ms         6600 ms            1 items=8.38861M items_per_second=1.27092M/s
+BM_WriteBools          3714 ms         3714 ms            1 items=8.38861M items_per_second=2.25893M/s
+BM_ReadStrings         3707 ms         3707 ms            1 items=8.38861M items_per_second=2.26303M/s
+BM_ReadIntegers        3487 ms         3486 ms            1 items=8.38861M items_per_second=2.40618M/s
+BM_ReadFloats          5930 ms         5929 ms            1 items=8.38861M items_per_second=1.4148M/s
+BM_ReadBools           3489 ms         3489 ms            1 items=8.38861M items_per_second=2.40448M/s
+```
 
 ## Caveats
 
