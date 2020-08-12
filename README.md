@@ -99,6 +99,7 @@ The table below gives an indication of how many columns of data can be handled b
 | 8 GB RAM  | 8-16    |
 | 16 GB RAM | 32-64   |
 | 32 GB RAM | 128-256 |
+
 Your milage may vary. The performance of OpenXLSX will depend on the type of data in the spreadsheet.
 
 Note also that it is recommended to use OpenXLSX in 64-bit mode. While it can easily be used in 32-bit mode, it can only access 4 GB of RAM, which will severely limit the usefulness when handling large spreadsheets.
