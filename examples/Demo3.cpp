@@ -35,14 +35,6 @@ int main()
     cout << "Cell A5 (Russian) : " << wks2.cell(XLCellReference("A5")).value().get<std::string>() << endl;
     cout << "Cell A6 (Greek)   : " << wks2.cell(XLCellReference("A6")).value().get<std::string>() << endl;
 
-    std::ofstream file("./Demo03.txt");
-    file << wks2.cell(XLCellReference("A1")).value().get<std::string>() << "\n";
-    file << wks2.cell(XLCellReference("A2")).value().get<std::string>() << "\n";
-    file << wks2.cell(XLCellReference("A3")).value().get<std::string>() << "\n";
-    file << wks2.cell(XLCellReference("A4")).value().get<std::string>() << "\n";
-    file << wks2.cell(XLCellReference("A5")).value().get<std::string>() << "\n";
-    file << wks2.cell(XLCellReference("A6")).value().get<std::string>() << "\n";
-    file.close();
 
     cout << "\nNOTE: If you are using a Windows terminal, the above output will look like gibberish,\n"
             "because the Windows terminal does not support UTF-8 at the moment. To view to output,\n"

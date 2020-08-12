@@ -1,6 +1,20 @@
 # OpenXLSX
 OpenXLSX is a C++ library for reading, writing, creating and modifying Microsoft Excel® files, with the .xlsx format.
 
+## Table of Contents
+
+- [New in version 0.2.0](#new-in-version-020)
+- [Motivation](#motivation)
+- [Compatibility](#compatibility)
+- [Build Instructions](#build-instructions)
+- [Current Status](#current-status)
+- [Performance](#performance)
+- [Caveats](#caveats)
+  - [File Size](#file-size)
+  - [Memory Usage](#memory-usage)
+  - [Unicode](#unicode)
+- [Example Programs](#example-programs)
+
 ## New in version 0.2.0
 The internal architecture of OpenXLSX has been significantly re-designed since the previous version. The reason is that the library was turning into a big ball of mud, and it was increasingly difficult to add features and fix bugs. With the new architecture, it will (hopefully) be easier to manage and to add new features.
 
@@ -68,6 +82,19 @@ Clang 7 should be able to compile OpenXLSX, but apparently there is a bug in the
 Visual Studio 2017 should also work, but hasn't been tested.
 
 ## Build Instructions
+OpenXLSX uses CMake as the build system. If you use GNU makefiles (e.g. on Linux, MacOS, MinGW or MSYS), you can build OpenXLSX from the commandline by navigating to the root of the OpenXLSX repository, and then execute the following commands:
+```
+mkdir build
+cd build
+cmake ..
+make
+```
+
+Depending on your system, you may need to supply cmake with additional commands. Also, if you use MinGW, you may need to run 'mingw32-make' instead of 'make'.
+
+If you use an IDE, such as Visual Studio or Xcode, you can supply cmake with a -G flag, followed by which build system you need. See CMake documentation for details.
+
+If you wish, you can also use the CMake GUI application.
 
 ## Current Status
  OpenXLSX is still work i progress. The following is a list of features which have been implemented and should be working properly:
@@ -143,7 +170,7 @@ If memory consumption is an issue for you, you can build the OpenXLSX library in
   Note also that while UTF-8 is well supported on Linux and MacOS, support on Windows is more limited. For example, output of non-ASCII characters (e.g. Chinese or Japanese characters) to the terminal window will look like gibberish.
   
 ## Example Programs
-
+The following example programs illustrates the key features of OpenXLSX. The source code is included in the 'examples' directory in the OpenXLSX repository.
 
 ### Basic Usage
   
@@ -210,6 +237,303 @@ int main()
     return 0;
 }
   ```  
+
+### Sheet Handling
+
+```cpp
+#include <OpenXLSX.hpp>
+#include <iostream>
+
+using namespace std;
+using namespace OpenXLSX;
+
+int main()
+{
+    cout << "********************************************************************************\n";
+    cout << "DEMO PROGRAM #02: Sheet Handling\n";
+    cout << "********************************************************************************\n";
+
+    XLDocument doc;
+    doc.create("./Demo02.xlsx");
+    auto wbk = doc.workbook();
+
+    cout << "\nSheets in workbook:\n";
+    for (const auto& name : wbk.worksheetNames()) cout << wbk.indexOfSheet(name) << " : " << name << "\n";
+
+    cout << "\nAdding new sheet 'MySheet01'\n";
+    wbk.addWorksheet("MySheet01");
+
+    cout << "Adding new sheet 'MySheet02'\n";
+    wbk.addWorksheet("MySheet02");
+
+    cout << "Cloning sheet 'Sheet1' to new sheet 'MySheet03'\n";
+    wbk.sheet("Sheet1").get<XLWorksheet>().clone("MySheet03");
+
+    cout << "Cloning sheet 'MySheet01' to new sheet 'MySheet04'\n";
+    wbk.cloneSheet("MySheet01", "MySheet04");
+
+    cout << "\nSheets in workbook:\n";
+    for (const auto& name : wbk.worksheetNames()) cout << wbk.indexOfSheet(name) << " : " << name << "\n";
+
+    cout << "\nDeleting sheet 'Sheet1'\n";
+    wbk.deleteSheet("Sheet1");
+
+    cout << "Moving sheet 'MySheet04' to index 1\n";
+    wbk.worksheet("MySheet04").setIndex(1);
+
+    cout << "Moving sheet 'MySheet03' to index 2\n";
+    wbk.worksheet("MySheet03").setIndex(2);
+
+    cout << "Moving sheet 'MySheet02' to index 3\n";
+    wbk.worksheet("MySheet02").setIndex(3);
+
+    cout << "Moving sheet 'MySheet01' to index 4\n";
+    wbk.worksheet("MySheet01").setIndex(4);
+
+    cout << "\nSheets in workbook:\n";
+    for (const auto& name : wbk.worksheetNames()) cout << wbk.indexOfSheet(name) << " : " << name << "\n";
+
+    wbk.sheet("MySheet01").setColor(XLColor(0, 0, 0));
+    wbk.sheet("MySheet02").setColor(XLColor(255, 0, 0));
+    wbk.sheet("MySheet03").setColor(XLColor(0, 255, 0));
+    wbk.sheet("MySheet04").setColor(XLColor(0, 0, 255));
+
+    doc.save();
+
+    return 0;
+}
+```
+
+### Unicode
+```cpp
+#include <OpenXLSX.hpp>
+#include <iostream>
+
+using namespace std;
+using namespace OpenXLSX;
+
+int main()
+{
+    cout << "********************************************************************************\n";
+    cout << "DEMO PROGRAM #03: Unicode\n";
+    cout << "********************************************************************************\n";
+
+    XLDocument doc1;
+    doc1.create("./Demo03.xlsx");
+    auto wks1 = doc1.workbook().worksheet("Sheet1");
+
+    wks1.cell(XLCellReference("A1")).value() = "안녕하세요 세계!";
+    wks1.cell(XLCellReference("A2")).value() = "你好，世界!";
+    wks1.cell(XLCellReference("A3")).value() = "こんにちは世界";
+    wks1.cell(XLCellReference("A4")).value() = "नमस्ते दुनिया!";
+    wks1.cell(XLCellReference("A5")).value() = "Привет, мир!";
+    wks1.cell(XLCellReference("A6")).value() = "Γειά σου Κόσμε!";
+
+    doc1.save();
+    doc1.close();
+
+    XLDocument doc2;
+    doc2.open("./Demo03.xlsx");
+    auto wks2 = doc2.workbook().worksheet("Sheet1");
+
+    cout << "Cell A1 (Korean)  : " << wks2.cell(XLCellReference("A1")).value().get<std::string>() << endl;
+    cout << "Cell A2 (Chinese) : " << wks2.cell(XLCellReference("A2")).value().get<std::string>() << endl;
+    cout << "Cell A3 (Japanese): " << wks2.cell(XLCellReference("A3")).value().get<std::string>() << endl;
+    cout << "Cell A4 (Hindi)   : " << wks2.cell(XLCellReference("A4")).value().get<std::string>() << endl;
+    cout << "Cell A5 (Russian) : " << wks2.cell(XLCellReference("A5")).value().get<std::string>() << endl;
+    cout << "Cell A6 (Greek)   : " << wks2.cell(XLCellReference("A6")).value().get<std::string>() << endl;
+
+
+    cout << "\nNOTE: If you are using a Windows terminal, the above output will look like gibberish,\n"
+            "because the Windows terminal does not support UTF-8 at the moment. To view to output,\n"
+            "open the Demo03.xlsx file in Excel, or the Demo03.txt file in a UTF-8 enabled text editor.\n\n";
+
+    doc2.close();
+
+    cout << "Creating file with unicode name.\n";
+    XLDocument doc3;
+    doc3.create("./スプレッドシート.xlsx");
+    doc3.close();
+    doc3.open("./スプレッドシート.xlsx");
+    doc3.close();
+
+    return 0;
+}
+```
+
+### Number Formats
+```cpp
+#iclude <OpenXLSX.hpp>
+#include <iostream>
+
+using namespace std;
+using namespace OpenXLSX;
+
+int main()
+{
+    cout << "********************************************************************************\n";
+    cout << "DEMO PROGRAM #04: Number Formats\n";
+    cout << "********************************************************************************\n";
+
+    XLDocument doc1;
+    doc1.create("./Demo04.xlsx");
+    auto wks1 = doc1.workbook().worksheet("Sheet1");
+
+    wks1.cell("A1").value() = 0.01;
+    wks1.cell("B1").value() = 0.02;
+    wks1.cell("C1").value() = 0.03;
+    wks1.cell("A2").value() = 0.001;
+    wks1.cell("B2").value() = 0.002;
+    wks1.cell("C2").value() = 0.003;
+    wks1.cell("A3").value() = 1e-4;
+    wks1.cell("B3").value() = 2e-4;
+    wks1.cell("C3").value() = 3e-4;
+
+    wks1.cell("A4").value() = 1;
+    wks1.cell("B4").value() = 2;
+    wks1.cell("C4").value() = 3;
+    wks1.cell("A5").value() = 845287496;
+    wks1.cell("B5").value() = 175397487;
+    wks1.cell("C5").value() = 973853975;
+    wks1.cell("A6").value() = 2e10;
+    wks1.cell("B6").value() = 3e11;
+    wks1.cell("C6").value() = 4e12;
+
+    doc1.save();
+    doc1.close();
+
+    XLDocument doc2;
+    doc2.open("./Demo04.xlsx");
+    auto wks2 = doc2.workbook().worksheet("Sheet1");
+
+    auto PrintCell = [](const XLCell& cell) {
+        cout << "Cell type is ";
+
+        switch (cell.valueType()) {
+            case XLValueType::Empty:à
+                cout << "XLValueType::Empty";
+                break;
+
+            case XLValueType::Float:
+                cout << "XLValueType::Float and the value is " << cell.value().get<double>() << endl;
+                break;
+
+            case XLValueType::Integer:
+                cout << "XLValueType::Integer and the value is " << cell.value().get<int64_t>() << endl;
+                break;
+
+            default:
+                cout << "Unknown";
+        }
+    };
+
+    cout << "Cell A1: ";
+    PrintCell(wks2.cell("A1"));
+
+    cout << "Cell B1: ";
+    PrintCell(wks2.cell("B1"));
+
+    cout << "Cell C1: ";
+    PrintCell(wks2.cell("C1"));
+
+    cout << "Cell A2: ";
+    PrintCell(wks2.cell("A2"));
+
+    cout << "Cell B2: ";
+    PrintCell(wks2.cell("B2"));
+
+    cout << "Cell C2: ";
+    PrintCell(wks2.cell("C2"));
+
+    cout << "Cell A3: ";
+    PrintCell(wks2.cell("A3"));
+
+    cout << "Cell B3: ";
+    PrintCell(wks2.cell("B3"));
+
+    cout << "Cell C3: ";
+    PrintCell(wks2.cell("C3"));
+
+    cout << "Cell A4: ";
+    PrintCell(wks2.cell("A4"));
+
+    cout << "Cell B4: ";
+    PrintCell(wks2.cell("B4"));
+
+    cout << "Cell C4: ";
+    PrintCell(wks2.cell("C4"));
+
+    cout << "Cell A5: ";
+    PrintCell(wks2.cell("A5"));
+
+    cout << "Cell B5: ";
+    PrintCell(wks2.cell("B5"));
+
+    cout << "Cell C5: ";
+    PrintCell(wks2.cell("C5"));
+
+    cout << "Cell A6: ";
+    PrintCell(wks2.cell("A6"));
+
+    cout << "Cell B6: ";
+    PrintCell(wks2.cell("B6"));
+
+    cout << "Cell C6: ";
+    PrintCell(wks2.cell("C6"));
+
+    doc2.close();
+
+    return 0;
+}
+```
+
+### Ranges and Iterators
+```cpp
+#include <OpenXLSX.hpp>
+#include <iostream>
+#include <numeric>
+#include <random>
+
+using namespace std;
+using namespace OpenXLSX;
+
+int main()
+{
+    cout << "********************************************************************************\n";
+    cout << "DEMO PROGRAM #05: Ranges and Iterators\n";
+    cout << "********************************************************************************\n";
+
+    cout << "\nGenerating spreadsheet (1,048,576 rows x 8 columns) ..." << endl;
+    XLDocument doc;
+    doc.create("./Demo05.xlsx");
+    auto wks = doc.workbook().worksheet("Sheet1");
+    auto rng = wks.range(XLCellReference("A1"), XLCellReference(1048576, 8));
+
+    std::random_device                 rand_dev;
+    std::mt19937                       generator(rand_dev());
+    std::uniform_int_distribution<int> distr(0, 99);
+
+    for (auto& cell : rng) cell.value() = distr(generator);
+
+    cout << "Saving spreadsheet (1,048,576 rows x 8 columns) ..." << endl;
+    doc.save();
+    doc.close();
+
+    cout << "Re-opening spreadsheet (1,048,576 rows x 8 columns) ..." << endl;
+    doc.open("./Demo05.xlsx");
+    wks = doc.workbook().worksheet("Sheet1");
+    rng = wks.range(XLCellReference("A1"), XLCellReference(1048576, 8));
+
+    cout << "Reading data from spreadsheet (1,048,576 rows x 8 columns) ..." << endl;
+    cout << "Cell count: " << std::distance(rng.begin(), rng.end()) << endl;
+    cout << "Sum of cell values: "
+         << accumulate(rng.begin(), rng.end(), 0, [](uint64_t a, XLCell& b) { return a + b.value().get<uint64_t>(); });
+
+    doc.close();
+
+    return 0;
+}
+```
 
 ## Credits
 
