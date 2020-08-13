@@ -66,7 +66,7 @@ these libraries are included in the repository, i.e. it's not necessary to downl
 |:--------|:----|:------|:-----|
 | Windows | N/A | -     | +    |
 | MinGW   | +   | +     | N/A  |
-| MSYS    | +   | -     | N/A  |
+| MSYS    | +   | N/A   | N/A  |
 | Cygwin  | -   | -     | N/A  |
 | MacOS   | +   | +     | N/A  |
 | Linux   | +   | +     | N/A  |
@@ -90,7 +90,7 @@ cmake ..
 make
 ```
 
-Depending on your system, you may need to supply cmake with additional commands. Also, if you use MinGW, you may need to run 'mingw32-make' instead of 'make'.
+Depending on your system, you may need to supply cmake with additional commands. Also, if you use MinGW makefiles, you may need to run 'mingw32-make' instead of 'make'.
 
 If you use an IDE, such as Visual Studio or Xcode, you can supply cmake with a -G flag, followed by which build system you need. See CMake documentation for details.
 
@@ -168,6 +168,8 @@ If memory consumption is an issue for you, you can build the OpenXLSX library in
   For the above reason, **if you work with other text encodings, you have to convert to/from UTF-8 yourself**. There are a number of options (e.g. Boost.Nowide or Boost.Text). I will also suggest that you watch James McNellis' presentation at [CppCon 2014](https://youtu.be/n0GK-9f4dl8), and read [Joel Spolsky's blog](https://www.joelonsoftware.com/2003/10/08/the-absolute-minimum-every-software-developer-absolutely-positively-must-know-about-unicode-and-character-sets-no-excuses/).
 
   Note also that while UTF-8 is well supported on Linux and MacOS, support on Windows is more limited. For example, output of non-ASCII characters (e.g. Chinese or Japanese characters) to the terminal window will look like gibberish.
+
+  If you need to work with excel files with **non-ASCII filenames** on Windows, you can do so by setting the option ENABLE_UNICODE_FILENAMES to ON in the CMakeLists.txt. This should only be enabled if you really need it, as it makes OpenXLSX produce a copy of the file, with an ASCII name, and the rename it when saving the file. This can make opening/saving operations quite lengthy, so if you don't need it, don't turn it on. Note also that this is only required on Windows, as most other operating systems can handle non-ASCII filenames easily.
   
 ## Example Programs
 The following example programs illustrates the key features of OpenXLSX. The source code is included in the 'examples' directory in the OpenXLSX repository.
@@ -223,6 +225,9 @@ int main()
 
             case XLValueType::Integer:
                 return "integer";
+                
+            default:
+                return "";    
         }
     };
 
@@ -330,6 +335,7 @@ int main()
     wks1.cell(XLCellReference("A6")).value() = "Γειά σου Κόσμε!";
 
     doc1.save();
+    doc1.saveAs("./スプレッドシート.xlsx");
     doc1.close();
 
     XLDocument doc2;
@@ -346,16 +352,9 @@ int main()
 
     cout << "\nNOTE: If you are using a Windows terminal, the above output will look like gibberish,\n"
             "because the Windows terminal does not support UTF-8 at the moment. To view to output,\n"
-            "open the Demo03.xlsx file in Excel, or the Demo03.txt file in a UTF-8 enabled text editor.\n\n";
+            "open the Demo03.xlsx file in Excel.\n\n";
 
     doc2.close();
-
-    cout << "Creating file with unicode name.\n";
-    XLDocument doc3;
-    doc3.create("./スプレッドシート.xlsx");
-    doc3.close();
-    doc3.open("./スプレッドシート.xlsx");
-    doc3.close();
 
     return 0;
 }
