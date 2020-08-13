@@ -4,13 +4,16 @@
 #   INTERFACE libraries should be defined.
 #=======================================================================================================================
 add_library(Zippy INTERFACE IMPORTED)
-target_include_directories(Zippy SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/zip/>)
+target_include_directories(Zippy SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/external/zippy/>)
 
 add_library(PugiXML INTERFACE IMPORTED)
-target_include_directories(PugiXML SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/xml/>)
+target_include_directories(PugiXML SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/external/pugixml/>)
 if (${ENABLE_COMPACT_MODE})
     target_compile_definitions(PugiXML INTERFACE PUGIXML_COMPACT)
 endif ()
+
+add_library(NoWide INTERFACE IMPORTED)
+target_include_directories(NoWide SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/external/nowide/>)
 
 #=======================================================================================================================
 # COMPILER FEATURES
@@ -77,7 +80,7 @@ if (${BUILD_OBJECT_LIB} AND (NOT CMAKE_GENERATOR STREQUAL Xcode))
                                $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
                                $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
                                $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)     # For export header
-    target_link_libraries(OpenXLSX-object PRIVATE Zippy PugiXML)
+    target_link_libraries(OpenXLSX-object PRIVATE Zippy PugiXML NoWide)
     target_compile_definitions(OpenXLSX-object PRIVATE OpenXLSX_shared_EXPORTS)
 endif ()
 
@@ -92,7 +95,7 @@ target_include_directories(OpenXLSX-static
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)     # For export header
-target_link_libraries(OpenXLSX-static PRIVATE Zippy PugiXML)
+target_link_libraries(OpenXLSX-static PRIVATE Zippy PugiXML NoWide)
 target_compile_definitions(OpenXLSX-static PRIVATE OPENXLSX_STATIC_DEFINE)
 
 #=======================================================================================================================
@@ -106,7 +109,7 @@ target_include_directories(OpenXLSX-shared
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)     # For export header
-target_link_libraries(OpenXLSX-shared PRIVATE Zippy PugiXML)
+target_link_libraries(OpenXLSX-shared PRIVATE Zippy PugiXML NoWide)
 
 #=======================================================================================================================
 # GENERATE EXPORT HEADER

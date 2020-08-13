@@ -46,6 +46,10 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 // ===== External Includes ===== //
 #include <pugixml.hpp>
 
+#include <cstdio>
+#include <nowide/fstream.hpp>
+#include <random>
+
 // ===== OpenXLSX Includes ===== //
 #include "XLContentTypes.hpp"
 #include "XLDocument.hpp"
@@ -447,7 +451,32 @@ void XLDocument::open(const std::string& fileName)
     // TODO: Consider throwing if a file is already open.
     if (m_archive.isOpen()) close();
 
+#ifdef _WIN32
+    auto randomName = []() {
+        std::string letters = "abcdefghijklmnopqrstuvwxyz0123456789";
+
+        std::random_device                 rand_dev;
+        std::mt19937                       generator(rand_dev());
+        std::uniform_int_distribution<int> distr(0, letters.size() - 1);
+
+        std::string result;
+        for (int i = 0; i < 9; ++i) {    // NOLINT
+            result += letters[distr(generator)];
+        }
+
+        return result + ".tmp";
+    }();
+    nowide::ifstream orig(fileName, std::ios::binary);
+    std::ofstream    copy(randomName, std::ios::binary);
+    copy << orig.rdbuf();
+    orig.close();
+    copy.close();
+    m_filePath = randomName;
+    m_tempPath = fileName;
+#else
     m_filePath = fileName;
+#endif
+
     m_archive.open(m_filePath);
 
     // ===== Add and open the Relationships and [Content_Types] files for the document level.
@@ -489,7 +518,7 @@ void XLDocument::open(const std::string& fileName)
 void XLDocument::create(const std::string& fileName)
 {
     // ===== Create a temporary output file stream.
-    std::ofstream outfile(fileName, std::ios::binary);
+    nowide::ofstream outfile(fileName, std::ios::binary);
 
     // ===== Stream the binary data for an empty workbook to the output file.
     // ===== Casting, in particular reinterpret_cast, is discouraged, but in this case it is unfortunately unavoidable.
@@ -521,7 +550,11 @@ void XLDocument::close()
  */
 void XLDocument::save()
 {
+#ifdef _WIN32
+    saveAs(m_tempPath)
+#else
     saveAs(m_filePath);
+#endif
 }
 
 /**
@@ -531,11 +564,22 @@ void XLDocument::save()
  */
 void XLDocument::saveAs(const std::string& fileName)
 {
+#ifdef _WIN32
+    m_tempPath = fileName;
+
+    // ===== Add all xml items to archive and save the archive.
+    for (auto& item : m_data) m_archive.addEntry(item.getXmlPath(), item.getRawData());
+    m_archive.save(m_filePath);
+
+    std::remove(fileName.c_str());
+    std::rename(m_filePath.c_str(), fileName.c_str());
+#else
     m_filePath = fileName;
 
     // ===== Add all xml items to archive and save the archive.
     for (auto& item : m_data) m_archive.addEntry(item.getXmlPath(), item.getRawData());
     m_archive.save(m_filePath);
+#endif
 }
 
 /**

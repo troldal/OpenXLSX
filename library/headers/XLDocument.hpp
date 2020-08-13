@@ -485,17 +485,20 @@ namespace OpenXLSX
         //----------------------------------------------------------------------------------------------------------------------
 
     private:
+#ifdef _WIN32
+        std::string m_tempPath {}; /**<  */
+#endif
         std::string                  m_filePath {}; /**< The path to the original file*/
-        mutable std::list<XLXmlData> m_data {};
+        mutable std::list<XLXmlData> m_data {};     /**<  */
 
         XLRelationships m_docRelationships; /**< A pointer to the document relationships object*/
         XLRelationships m_wbkRelationships; /**< A pointer to the document relationships object*/
         XLContentTypes  m_contentTypes;     /**< A pointer to the content types object*/
         XLAppProperties m_appProperties;    /**< A pointer to the App properties object */
         XLProperties    m_coreProperties;   /**< A pointer to the Core properties object*/
-        XLSharedStrings m_sharedStrings;
-        XLWorkbook      m_workbook; /**< A pointer to the workbook object */
-        XLZipArchive    m_archive;  /**<  */
+        XLSharedStrings m_sharedStrings;    /**<  */
+        XLWorkbook      m_workbook;         /**< A pointer to the workbook object */
+        XLZipArchive    m_archive;          /**<  */
     };
 
 }    // namespace OpenXLSX
