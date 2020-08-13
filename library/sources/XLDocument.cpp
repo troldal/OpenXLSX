@@ -582,7 +582,6 @@ void XLDocument::saveAs(const std::string& fileName)
     copy << orig.rdbuf();
     orig.close();
     copy.close();
-
 #else
     m_filePath = fileName;
 
