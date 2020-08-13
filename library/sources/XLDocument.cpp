@@ -451,7 +451,7 @@ void XLDocument::open(const std::string& fileName)
     // TODO: Consider throwing if a file is already open.
     if (m_archive.isOpen()) close();
 
-#if defined (_WIN32) && (UNICODE_FILENAMES_ENABLED)
+#if defined(_WIN32) && (UNICODE_FILENAMES_ENABLED)
     auto randomName = []() {
         std::string letters = "abcdefghijklmnopqrstuvwxyz0123456789";
 
@@ -534,7 +534,7 @@ void XLDocument::create(const std::string& fileName)
 void XLDocument::close()
 {
     m_archive.close();
-#if defined (_WIN32) && (UNICODE_FILENAMES_ENABLED)
+#if defined(_WIN32) && (UNICODE_FILENAMES_ENABLED)
     std::remove(m_filePath.c_str());
     m_realPath.clear();
 #endif
@@ -547,7 +547,6 @@ void XLDocument::close()
     m_appProperties    = XLAppProperties();
     m_coreProperties   = XLProperties();
     m_workbook         = XLWorkbook();
-
 }
 
 /**
@@ -555,7 +554,7 @@ void XLDocument::close()
  */
 void XLDocument::save()
 {
-#if defined (_WIN32) && (UNICODE_FILENAMES_ENABLED)
+#if defined(_WIN32) && (UNICODE_FILENAMES_ENABLED)
     saveAs(m_realPath);
 #else
     saveAs(m_filePath);
@@ -569,7 +568,7 @@ void XLDocument::save()
  */
 void XLDocument::saveAs(const std::string& fileName)
 {
-#if defined (_WIN32) && (UNICODE_FILENAMES_ENABLED)
+#if defined(_WIN32) && (UNICODE_FILENAMES_ENABLED)
     m_realPath = fileName;
 
     // ===== Add all xml items to archive and save the archive.

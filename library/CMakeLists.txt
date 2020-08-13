@@ -15,9 +15,9 @@ endif ()
 add_library(NoWide INTERFACE IMPORTED)
 target_include_directories(NoWide SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/external/nowide/>)
 
-if(${ENABLE_UNICODE_FILENAMES})
+if (${ENABLE_UNICODE_FILENAMES})
     add_compile_definitions(UNICODE_FILENAMES_ENABLED)
-endif()
+endif ()
 
 
 #=======================================================================================================================

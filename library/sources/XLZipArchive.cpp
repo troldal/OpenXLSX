@@ -66,7 +66,7 @@ XLZipArchive::~XLZipArchive() = default;
  */
 bool OpenXLSX::XLZipArchive::isOpen()
 {
-        return m_archive->IsOpen();
+    return m_archive->IsOpen();
 }
 
 /**

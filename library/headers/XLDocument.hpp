@@ -485,8 +485,6 @@ namespace OpenXLSX
         //----------------------------------------------------------------------------------------------------------------------
 
     private:
-
-
         std::string                  m_filePath {}; /**< The path to the original file*/
         std::string                  m_realPath {}; /**<  */
         mutable std::list<XLXmlData> m_data {};     /**<  */

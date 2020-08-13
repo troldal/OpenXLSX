@@ -87,7 +87,8 @@ XLCell::~XLCell() = default;
  */
 XLCell::XLCell(const XLCell& other)
     : m_cellNode(other.m_cellNode ? std::make_unique<XMLNode>(*other.m_cellNode) : nullptr),
-      m_sharedStrings(other.m_sharedStrings) {}
+      m_sharedStrings(other.m_sharedStrings)
+{}
 
 /**
  * @details
