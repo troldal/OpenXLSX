@@ -485,10 +485,10 @@ namespace OpenXLSX
         //----------------------------------------------------------------------------------------------------------------------
 
     private:
-#ifdef _WIN32
-        std::string m_tempPath {}; /**<  */
-#endif
+
+
         std::string                  m_filePath {}; /**< The path to the original file*/
+        std::string                  m_realPath {}; /**<  */
         mutable std::list<XLXmlData> m_data {};     /**<  */
 
         XLRelationships m_docRelationships; /**< A pointer to the document relationships object*/

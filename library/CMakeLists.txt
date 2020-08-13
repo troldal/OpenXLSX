@@ -15,6 +15,11 @@ endif ()
 add_library(NoWide INTERFACE IMPORTED)
 target_include_directories(NoWide SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/external/nowide/>)
 
+if(${ENABLE_UNICODE_FILENAMES})
+    add_compile_definitions(UNICODE_FILENAMES_ENABLED)
+endif()
+
+
 #=======================================================================================================================
 # COMPILER FEATURES
 #   Some older C++17 compilers don't support the char_conv features. If the compiler doesn't support it,
@@ -65,6 +70,7 @@ set(OPENXLSX_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/sources/XLCellIterator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/sources/XLZipArchive.cpp
     )
+
 
 #=======================================================================================================================
 # OBJECT LIBRARY

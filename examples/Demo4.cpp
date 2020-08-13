@@ -46,7 +46,7 @@ int main()
 
         switch (cell.valueType()) {
             case XLValueType::Empty:
-                à cout << "XLValueType::Empty";
+                cout << "XLValueType::Empty";
                 break;
 
             case XLValueType::Float:

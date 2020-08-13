@@ -45,6 +45,9 @@ int main()
 
             case XLValueType::Integer:
                 return "integer";
+
+            default:
+                return "";
         }
     };
 

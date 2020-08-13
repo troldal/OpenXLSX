@@ -54,7 +54,7 @@ using namespace OpenXLSX;
 /**
  * @details
  */
-OpenXLSX::XLZipArchive::XLZipArchive() : m_archive(std::make_unique<Zippy::ZipArchive>()) {}
+OpenXLSX::XLZipArchive::XLZipArchive() : m_archive(std::make_shared<Zippy::ZipArchive>()) {}
 
 /**
  * @details
@@ -66,7 +66,7 @@ XLZipArchive::~XLZipArchive() = default;
  */
 bool OpenXLSX::XLZipArchive::isOpen()
 {
-    return m_archive->IsOpen();
+        return m_archive->IsOpen();
 }
 
 /**

@@ -11,7 +11,7 @@
 #    include <nowide/config.hpp>
 #    ifdef NOWIDE_MSVC
 #        pragma warning(push)
-#        pragma warning(disable : 4275 4251 4231 4660)
+#        pragma warning(disable : 4242 4619 4275 4251 4231 4660)
 #    endif
 #    include <stdexcept>
 

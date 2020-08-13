@@ -22,6 +22,7 @@ int main()
     wks1.cell(XLCellReference("A6")).value() = "Γειά σου Κόσμε!";
 
     doc1.save();
+    doc1.saveAs("./スプレッドシート.xlsx");
     doc1.close();
 
     XLDocument doc2;
@@ -38,16 +39,9 @@ int main()
 
     cout << "\nNOTE: If you are using a Windows terminal, the above output will look like gibberish,\n"
             "because the Windows terminal does not support UTF-8 at the moment. To view to output,\n"
-            "open the Demo03.xlsx file in Excel, or the Demo03.txt file in a UTF-8 enabled text editor.\n\n";
+            "open the Demo03.xlsx file in Excel.\n\n";
 
     doc2.close();
-
-    cout << "Creating file with unicode name.\n";
-    XLDocument doc3;
-    doc3.create("./スプレッドシート.xlsx");
-    doc3.close();
-    doc3.open("./スプレッドシート.xlsx");
-    doc3.close();
 
     return 0;
 }

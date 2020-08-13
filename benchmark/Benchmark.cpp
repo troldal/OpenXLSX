@@ -113,7 +113,7 @@ static void BM_ReadStrings(benchmark::State& state)
     doc.open("./benchmark_strings.xlsx");
     auto     wks = doc.workbook().worksheet("Sheet1");
     auto     rng = wks.range(XLCellReference("A1"), XLCellReference(1048576, 8));
-    uint64_t result;
+    uint64_t result {};
 
     for (auto _ : state) {
         result =
