@@ -1,38 +1,63 @@
-#include <iostream>
-#include <iomanip>
 #include <OpenXLSX.hpp>
+#include <iostream>
 
 using namespace std;
 using namespace OpenXLSX;
 
-int main() {
+int main()
+{
+    cout << "********************************************************************************\n";
+    cout << "DEMO PROGRAM #01: Basic Usage\n";
+    cout << "********************************************************************************\n";
 
     XLDocument doc;
-    doc.CreateDocument("./MyTest.xlsx");
-    auto wks = doc.Workbook().Worksheet("Sheet1");
+    doc.create("./Demo01.xlsx");
+    auto wks = doc.workbook().worksheet("Sheet1");
 
-    wks.Cell("A1").Value() = 3.14159;
-    wks.Cell("B1").Value() = 42;
-    wks.Cell("C1").Value() = "  Hello OpenXLSX!  ";
-    wks.Cell("D1").Value() = true;
-    wks.Cell("E1").Value() = wks.Cell("C1").Value();
+    wks.cell(XLCellReference("A1")).value() = 3.14159;
+    wks.cell(XLCellReference("B1")).value() = 42;
+    wks.cell(XLCellReference("C1")).value() = "  Hello OpenXLSX!  ";
+    wks.cell(XLCellReference("D1")).value() = true;
+    wks.cell(XLCellReference("E1")).value() = wks.cell(XLCellReference("C1")).value();
 
-    auto A1 = wks.Cell("A1").Value().Get<double>();
-    auto B1 = wks.Cell("B1").Value().Get<unsigned int>();
-    auto C1 = wks.Cell("C1").Value().Get<std::string>();
-    auto D1 = wks.Cell("D1").Value().Get<bool>();
-    auto E1 = wks.Cell("E1").Value().Get<std::string>();
+    auto A1 = wks.cell(XLCellReference("A1")).value();
+    auto B1 = wks.cell(XLCellReference("B1")).value();
+    auto C1 = wks.cell(XLCellReference("C1")).value();
+    auto D1 = wks.cell(XLCellReference("D1")).value();
+    auto E1 = wks.cell(XLCellReference("E1")).value();
 
-    auto val = wks.Cell("E1").Value();
-    cout << val.Get<std::string>() << endl;
+    auto valueTypeAsString = [](OpenXLSX::XLValueType type) {
+        switch (type) {
+            case XLValueType::String:
+                return "string";
 
-    cout << "Cell A1: " << A1 << endl;
-    cout << "Cell B1: " << B1 << endl;
-    cout << "Cell C1: " << C1 << endl;
-    cout << "Cell D1: " << D1 << endl;
-    cout << "Cell E1: " << E1 << endl;
+            case XLValueType::Boolean:
+                return "boolean";
 
-    doc.SaveDocument();
+            case XLValueType::Empty:
+                return "empty";
+
+            case XLValueType::Error:
+                return "error";
+
+            case XLValueType::Float:
+                return "float";
+
+            case XLValueType::Integer:
+                return "integer";
+
+            default:
+                return "";
+        }
+    };
+
+    cout << "Cell A1: (" << valueTypeAsString(A1.valueType()) << ") " << A1.get<double>() << endl;
+    cout << "Cell B1: (" << valueTypeAsString(B1.valueType()) << ") " << B1.get<int>() << endl;
+    cout << "Cell C1: (" << valueTypeAsString(C1.valueType()) << ") " << C1.get<std::string>() << endl;
+    cout << "Cell D1: (" << valueTypeAsString(D1.valueType()) << ") " << D1.get<bool>() << endl;
+    cout << "Cell E1: (" << valueTypeAsString(E1.valueType()) << ") " << E1.get<std::string_view>() << endl;
+
+    doc.save();
 
     return 0;
 }

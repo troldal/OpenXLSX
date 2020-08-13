@@ -7,169 +7,66 @@
 
 using namespace OpenXLSX;
 
-TEST_CASE("Test 08: Testing of XLCell/XLCellValue objects") {
-
+TEST_CASE("Test 08: Testing of XLCell/XLCellValue objects")
+{
     XLDocument doc;
-    doc.OpenDocument("./TestCell.xlsx");
-    auto wbk = doc.Workbook();
-    auto wks = wbk.Worksheet("Sheet1");
+    doc.open("./TestCell.xlsx");
+    auto wbk = doc.workbook();
+    auto wks = wbk.worksheet("Sheet1");
 
-    SECTION("CellValue (String)") {
-        wks.Cell("A1").
-                Value() = "Hello OpenXLSX!";
-        REQUIRE(wks
-                        .Cell("A1").
-                        Value()
-                        .
-                                Get<std::string>()
-                        == "Hello OpenXLSX!");
-        REQUIRE(wks
-                        .Cell(1, 1).
-                        Value()
-                        .
-                                Get<std::string>()
-                        == "Hello OpenXLSX!");
-        REQUIRE(wks
-                        .
-                                Cell(XLCellReference(1, 1)
-                                    ).
-                                Value()
-                        .
-                                Get<std::string>()
-                        == "Hello OpenXLSX!");
-        REQUIRE(wks
-                        .Cell(1, 1).
-                ValueType()
-                        == XLValueType::String);
+    SECTION("CellValue (String)")
+    {
+        wks.cell("A1").value() = "Hello OpenXLSX!";
+        REQUIRE(wks.cell("A1").value().get<std::string>() == "Hello OpenXLSX!");
+        REQUIRE(wks.cell(1, 1).value().get<std::string>() == "Hello OpenXLSX!");
+        REQUIRE(wks.cell(XLCellReference(1, 1)).value().get<std::string>() == "Hello OpenXLSX!");
+        REQUIRE(wks.cell(1, 1).valueType() == XLValueType::String);
     }
 
-    SECTION("CellValue (Integer)") {
-        wks.Cell("B2").
-                Value() = 42;
-        REQUIRE(wks
-                        .Cell("B2").
-                        Value()
-                        .
-                                Get<int>()
-                        == 42);
-        REQUIRE(wks
-                        .Cell(2, 2).
-                        Value()
-                        .
-                                Get<int>()
-                        == 42);
-        REQUIRE(wks
-                        .
-                                Cell(XLCellReference(2, 2)
-                                    ).
-                                Value()
-                        .
-                                Get<int>()
-                        == 42);
-        REQUIRE(wks
-                        .Cell(2, 2).
-                ValueType()
-                        == XLValueType::Integer);
+    SECTION("CellValue (Integer)")
+    {
+        wks.cell("B2").value() = 42;
+        REQUIRE(wks.cell("B2").value().get<int>() == 42);
+        REQUIRE(wks.cell(2, 2).value().get<int>() == 42);
+        REQUIRE(wks.cell(XLCellReference(2, 2)).value().get<int>() == 42);
+        REQUIRE(wks.cell(2, 2).valueType() == XLValueType::Integer);
     }
 
-    SECTION("CellValue (Float)") {
-        wks.Cell("C3").
-                Value() = 3.14159;
-        REQUIRE(wks
-                        .Cell("C3").
-                        Value()
-                        .
-                                Get<double>()
-                        == 3.14159);
-        REQUIRE(wks
-                        .Cell(3, 3).
-                        Value()
-                        .
-                                Get<double>()
-                        == 3.14159);
-        REQUIRE(wks
-                        .
-                                Cell(XLCellReference(3, 3)
-                                    ).
-                                Value()
-                        .
-                                Get<double>()
-                        == 3.14159);
-        REQUIRE(wks
-                        .Cell(3, 3).
-                ValueType()
-                        == XLValueType::Float);
+    SECTION("CellValue (Float)")
+    {
+        wks.cell("C3").value() = 3.14159;
+        REQUIRE(wks.cell("C3").value().get<double>() == 3.14159);
+        REQUIRE(wks.cell(3, 3).value().get<double>() == 3.14159);
+        REQUIRE(wks.cell(XLCellReference(3, 3)).value().get<double>() == 3.14159);
+        REQUIRE(wks.cell(3, 3).valueType() == XLValueType::Float);
     }
 
-    SECTION("CellValue (Boolean)") {
-        wks.Cell("D4").
-                Value() = true;
-        REQUIRE(wks
-                        .Cell("D4").
-                        Value()
-                        .
-                                Get<bool>()
-                        == true);
-        REQUIRE(wks
-                        .Cell(4, 4).
-                        Value()
-                        .
-                                Get<bool>()
-                        == true);
-        REQUIRE(wks
-                        .
-                                Cell(XLCellReference(4, 4)
-                                    ).
-                                Value()
-                        .
-                                Get<bool>()
-                        == true);
-        REQUIRE(wks
-                        .Cell(4, 4).
-                ValueType()
-                        == XLValueType::Boolean);
+    SECTION("CellValue (Boolean)")
+    {
+        wks.cell("D4").value() = true;
+        REQUIRE(wks.cell("D4").value().get<bool>() == true);
+        REQUIRE(wks.cell(4, 4).value().get<bool>() == true);
+        REQUIRE(wks.cell(XLCellReference(4, 4)).value().get<bool>() == true);
+        REQUIRE(wks.cell(4, 4).valueType() == XLValueType::Boolean);
     }
 
-    SECTION("CellValue (Empty)") {
-        REQUIRE(wks
-                        .Cell(5, 5).
-                ValueType()
-                        == XLValueType::Empty);
+    SECTION("CellValue (Empty)")
+    {
+        REQUIRE(wks.cell(5, 5).valueType() == XLValueType::Empty);
     }
 
-    SECTION("CellRange") {
-        auto rng = wks.Range(XLCellReference(5, 5), XLCellReference(7, 9));
-        rng.Cell(1, 1).
-                Value() = "Range";
-        REQUIRE(wks
-                        .
-                                Cell(XLCellReference(5, 5)
-                                    ).
-                                Value()
-                        .
-                                Get<std::string>()
-                        == "Range");
-        REQUIRE(rng
-                        .
-                                NumRows()
-                        == 3);
-        REQUIRE(rng
-                        .
-                                NumColumns()
-                        == 5);
+    SECTION("CellRange")
+    {
+        auto rng               = wks.range(XLCellReference(5, 5), XLCellReference(7, 9));
+        rng.Cell(1, 1).Value() = "Range";
+        REQUIRE(wks.cell(XLCellReference(5, 5)).value().get<std::string>() == "Range");
+        REQUIRE(rng.numRows() == 3);
+        REQUIRE(rng.numColumns() == 5);
 
         rng.Transpose(true);
-        REQUIRE(rng
-                        .
-                                NumRows()
-                        == 5);
-        REQUIRE(rng
-                        .
-                                NumColumns()
-                        == 3);
+        REQUIRE(rng.numRows() == 5);
+        REQUIRE(rng.numColumns() == 3);
     }
 
-    doc.
-               SaveDocument();
-
+    doc.save();
 }

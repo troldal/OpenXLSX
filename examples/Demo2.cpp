@@ -1,35 +1,61 @@
-#include <iostream>
-#include <chrono>
-#include <iomanip>
 #include <OpenXLSX.hpp>
+#include <iostream>
 
 using namespace std;
 using namespace OpenXLSX;
 
-int main() {
+int main()
+{
+    cout << "********************************************************************************\n";
+    cout << "DEMO PROGRAM #02: Sheet Handling\n";
+    cout << "********************************************************************************\n";
 
     XLDocument doc;
-    doc.CreateDocument("./MyTest.xlsx");
-    auto wbk = doc.Workbook();
+    doc.create("./Demo02.xlsx");
+    auto wbk = doc.workbook();
 
-    wbk.AddWorksheet("MySheet01");    // Append new sheet
-    wbk.AddWorksheet("MySheet02", 1); // Prepend new sheet
-    wbk.AddWorksheet("MySheet03", 1); // Prepend new sheet
-    wbk.AddWorksheet("MySheet04", 2); // Insert new sheet
-    wbk.MoveSheet("Sheet1", 2);       // Move Sheet1 to second place
-    wbk.DeleteSheet("MySheet01");
+    cout << "\nSheets in workbook:\n";
+    for (const auto& name : wbk.worksheetNames()) cout << wbk.indexOfSheet(name) << " : " << name << "\n";
 
-    wbk.Worksheet("Sheet1").Row(1);
+    cout << "\nAdding new sheet 'MySheet01'\n";
+    wbk.addWorksheet("MySheet01");
 
-    for (const auto& name : wbk.WorksheetNames())
-        cout << name << ": " << wbk.IndexOfSheet(name) << endl;
+    cout << "Adding new sheet 'MySheet02'\n";
+    wbk.addWorksheet("MySheet02");
 
-    cout << endl;
+    cout << "Cloning sheet 'Sheet1' to new sheet 'MySheet03'\n";
+    wbk.sheet("Sheet1").get<XLWorksheet>().clone("MySheet03");
 
-    for (auto iter = 1; iter <= wbk.SheetCount(); ++iter)
-        cout << iter << ": " << wbk.Sheet(iter).Name() << endl;
+    cout << "Cloning sheet 'MySheet01' to new sheet 'MySheet04'\n";
+    wbk.cloneSheet("MySheet01", "MySheet04");
 
-    doc.SaveDocument();
+    cout << "\nSheets in workbook:\n";
+    for (const auto& name : wbk.worksheetNames()) cout << wbk.indexOfSheet(name) << " : " << name << "\n";
+
+    cout << "\nDeleting sheet 'Sheet1'\n";
+    wbk.deleteSheet("Sheet1");
+
+    cout << "Moving sheet 'MySheet04' to index 1\n";
+    wbk.worksheet("MySheet04").setIndex(1);
+
+    cout << "Moving sheet 'MySheet03' to index 2\n";
+    wbk.worksheet("MySheet03").setIndex(2);
+
+    cout << "Moving sheet 'MySheet02' to index 3\n";
+    wbk.worksheet("MySheet02").setIndex(3);
+
+    cout << "Moving sheet 'MySheet01' to index 4\n";
+    wbk.worksheet("MySheet01").setIndex(4);
+
+    cout << "\nSheets in workbook:\n";
+    for (const auto& name : wbk.worksheetNames()) cout << wbk.indexOfSheet(name) << " : " << name << "\n";
+
+    wbk.sheet("MySheet01").setColor(XLColor(0, 0, 0));
+    wbk.sheet("MySheet02").setColor(XLColor(255, 0, 0));
+    wbk.sheet("MySheet03").setColor(XLColor(0, 255, 0));
+    wbk.sheet("MySheet04").setColor(XLColor(0, 0, 255));
+
+    doc.save();
 
     return 0;
 }

@@ -16,17 +16,17 @@
 
 using namespace OpenXLSX;
 
-void PrepareDocument(std::string name) {
-
+void PrepareDocument(std::string name)
+{
     XLDocument doc;
     std::remove(name.c_str());
-    doc.CreateDocument(name);
-    doc.SaveDocument();
-    doc.CloseDocument();
+    doc.create(name);
+    doc.save();
+    doc.close();
 }
 
-int main(int argc,
-         char* argv[]) {
+int main(int argc, char* argv[])
+{
     // Global Setup
     XLDocument doc;
 
@@ -52,4 +52,4 @@ int main(int argc,
     return result;
 }
 
-#endif //OPENXLSX_TESTMAIN_H
+#endif    // OPENXLSX_TESTMAIN_H

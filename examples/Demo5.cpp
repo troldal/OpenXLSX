@@ -1,67 +1,44 @@
-#include <iostream>
 #include <OpenXLSX.hpp>
+#include <iostream>
+#include <numeric>
+#include <random>
 
 using namespace std;
 using namespace OpenXLSX;
 
-int main() {
+int main()
+{
+    cout << "********************************************************************************\n";
+    cout << "DEMO PROGRAM #05: Ranges and Iterators\n";
+    cout << "********************************************************************************\n";
 
-    XLDocument doc1;
-    doc1.CreateDocument("./NumberTest.xlsx");
-    auto wks1 = doc1.Workbook().Worksheet("Sheet1");
+    cout << "\nGenerating spreadsheet (1,048,576 rows x 8 columns) ..." << endl;
+    XLDocument doc;
+    doc.create("./Demo05.xlsx");
+    auto wks = doc.workbook().worksheet("Sheet1");
+    auto rng = wks.range(XLCellReference("A1"), XLCellReference(1048576, 8));
 
-    wks1.Cell("A1").Value() = 0.01;
-    wks1.Cell("B1").Value() = 0.02;
-    wks1.Cell("C1").Value() = 0.03;
-    wks1.Cell("A2").Value() = 0.001;
-    wks1.Cell("B2").Value() = 0.002;
-    wks1.Cell("C2").Value() = 0.003;
+    std::random_device                 rand_dev;
+    std::mt19937                       generator(rand_dev());
+    std::uniform_int_distribution<int> distr(0, 99);
 
-    doc1.SaveDocument();
-    doc1.CloseDocument();
+    for (auto& cell : rng) cell.value() = distr(generator);
 
-    XLDocument doc2;
-    doc2.OpenDocument("./NumberTest.xlsx");
-    auto wks2 = doc2.Workbook().Worksheet("Sheet1");
+    cout << "Saving spreadsheet (1,048,576 rows x 8 columns) ..." << endl;
+    doc.save();
+    doc.close();
 
-    cout << "Cell A1: " << wks2.Cell("A1").Value().Get<double>() << endl;
-    cout << "Cell B1: " << wks2.Cell("B1").Value().Get<double>() << endl;
-    cout << "Cell C1: " << wks2.Cell("C1").Value().Get<double>() << endl;
-    cout << "Cell A2: " << wks2.Cell("A2").Value().Get<double>() << endl;
-    cout << "Cell B2: " << wks2.Cell("B2").Value().Get<double>() << endl;
-    cout << "Cell C2: " << wks2.Cell("C2").Value().Get<double>() << endl;
+    cout << "Re-opening spreadsheet (1,048,576 rows x 8 columns) ..." << endl;
+    doc.open("./Demo05.xlsx");
+    wks = doc.workbook().worksheet("Sheet1");
+    rng = wks.range(XLCellReference("A1"), XLCellReference(1048576, 8));
 
-    auto PrintCell = [](const XLCell& cell) {
+    cout << "Reading data from spreadsheet (1,048,576 rows x 8 columns) ..." << endl;
+    cout << "Cell count: " << std::distance(rng.begin(), rng.end()) << endl;
+    cout << "Sum of cell values: "
+         << accumulate(rng.begin(), rng.end(), 0, [](uint64_t a, XLCell& b) { return a + b.value().get<uint64_t>(); });
 
-        cout << "Cell type is ";
-
-        switch (cell.ValueType()) {
-            case XLValueType::Empty:
-                cout << "XLValueType::Empty";
-                break;
-
-            case XLValueType::Float:
-                cout << "XLValueType::Float and the value is " << cell.Value().Get<float>() << endl;
-                break;
-
-            case XLValueType::Integer:
-                cout << "XLValueType::Integer and the value is " << cell.Value().Get<int>() << endl;
-                break;
-
-            default:
-                cout << "Unknown";
-        }
-
-    };
-
-    PrintCell(wks2.Cell("A1"));
-    PrintCell(wks2.Cell("B1"));
-    PrintCell(wks2.Cell("C1"));
-    PrintCell(wks2.Cell("A2"));
-    PrintCell(wks2.Cell("B2"));
-    PrintCell(wks2.Cell("C2"));
-
-    doc2.CloseDocument();
+    doc.close();
 
     return 0;
 }

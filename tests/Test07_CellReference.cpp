@@ -7,53 +7,36 @@
 
 using namespace OpenXLSX;
 
-TEST_CASE("Test 07: Testing of XLCellReference objects") {
-
+TEST_CASE("Test 07: Testing of XLCellReference objects")
+{
     XLCellReference ref(3, 3);
 
-    SECTION("Address") {
-        REQUIRE(ref
-                        .
-                                Address()
-                        == "C3");
+    SECTION("Address")
+    {
+        REQUIRE(ref.address() == "C3");
     }
 
-    SECTION("Column") {
-        REQUIRE(ref
-                        .
-                                Column()
-                        == 3);
+    SECTION("Column")
+    {
+        REQUIRE(ref.column() == 3);
     }
 
-    SECTION("Row") {
-        REQUIRE(ref
-                        .
-                                Row()
-                        == 3);
+    SECTION("Row")
+    {
+        REQUIRE(ref.row() == 3);
     }
 
-    SECTION("SetAddress") {
-        ref.SetAddress("A4");
-        REQUIRE(ref
-                        .
-                                Address()
-                        == "A4");
-        REQUIRE(ref
-                        .
-                                Row()
-                        == 4);
-        REQUIRE(ref
-                        .
-                                Column()
-                        == 1);
+    SECTION("SetAddress")
+    {
+        ref.setAddress("A4");
+        REQUIRE(ref.address() == "A4");
+        REQUIRE(ref.row() == 4);
+        REQUIRE(ref.column() == 1);
     }
 
-    SECTION("SetRowAndColumn") {
-        ref.SetRowAndColumn(2, 5);
-        REQUIRE(ref
-                        .
-                                Address()
-                        == "E2");
+    SECTION("SetRowAndColumn")
+    {
+        ref.setRowAndColumn(2, 5);
+        REQUIRE(ref.address() == "E2");
     }
-
 }
