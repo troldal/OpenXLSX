@@ -56,6 +56,7 @@ The ambition is that OpenXLSX should be able to read, write, create and modify E
 
  - PugiXML
  - Zippy (C++ wrapper around miniz)
+ - Boost.Nowide (for opening files with non-ASCII names on Windows)
 
 these libraries are included in the repository, i.e. it's not necessary to download and build separately.
 

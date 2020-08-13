@@ -44,11 +44,12 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
  */
 
 // ===== External Includes ===== //
-#include <pugixml.hpp>
-
-#include <cstdio>
 #include <nowide/fstream.hpp>
-#include <random>
+#include <pugixml.hpp>
+#if defined(_WIN32) && (UNICODE_FILENAMES_ENABLED)
+#    include <cstdio>
+#    include <random>
+#endif
 
 // ===== OpenXLSX Includes ===== //
 #include "XLContentTypes.hpp"
