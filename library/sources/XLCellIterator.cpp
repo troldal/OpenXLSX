@@ -166,6 +166,8 @@ XLCellIterator::XLCellIterator(const XLCellIterator& other)
       m_sharedStrings(other.m_sharedStrings)
 {}
 
+XLCellIterator::XLCellIterator(XLCellIterator&& other) noexcept = default;
+
 /**
  * @details
  */

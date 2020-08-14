@@ -97,7 +97,7 @@ namespace OpenXLSX
          * @param other The XLCell object to be moved
          * @note The move constructor has been deleted, as it makes no sense to move a cell.
          */
-        XLCell(XLCell&& other) noexcept = default;
+        XLCell(XLCell&& other) noexcept;
 
         /**
          * @brief Destructor

@@ -77,6 +77,8 @@ XLCell::XLCell(const XMLNode& cellNode, XLSharedStrings* sharedStrings)
       m_sharedStrings(sharedStrings)
 {}
 
+XLCell::XLCell(XLCell&& other) noexcept = default;
+
 /**
  * @details
  */

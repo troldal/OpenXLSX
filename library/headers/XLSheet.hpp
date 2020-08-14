@@ -63,6 +63,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLColor.hpp"
 #include "XLColumn.hpp"
 #include "XLCommandQuery.hpp"
+#include "XLDocument.hpp"
 #include "XLException.hpp"
 #include "XLRow.hpp"
 #include "XLXmlFile.hpp"
@@ -532,18 +533,6 @@ namespace OpenXLSX
         XLSheet& operator=(XLSheet&& other) noexcept = default;
 
         /**
-         * @brief Method to retrieve the name of the sheet.
-         * @return A std::string with the sheet name.
-         */
-        std::string name() const;
-
-        /**
-         * @brief Method for renaming the sheet.
-         * @param name A std::string with the new name.
-         */
-        void setName(const std::string& name);
-
-        /**
          * @brief Method for getting the current visibility state of the sheet.
          * @return An XLSheetState enum object, with the current sheet state.
          */
@@ -570,6 +559,29 @@ namespace OpenXLSX
         void setColor(const XLColor& color);
 
         /**
+         * @brief Method for getting the index of the sheet.
+         * @return An int with the index of the sheet.
+         */
+        uint16_t index() const;
+
+        /**
+         * @brief Method for setting the index of the sheet. This effectively moves the sheet to a different position.
+         */
+        void setIndex(uint16_t index);
+
+        /**
+         * @brief Method to retrieve the name of the sheet.
+         * @return A std::string with the sheet name.
+         */
+        std::string name() const;
+
+        /**
+         * @brief Method for renaming the sheet.
+         * @param name A std::string with the new name.
+         */
+        void setName(const std::string& name);
+
+        /**
          * @brief
          * @param selected
          */
@@ -592,17 +604,6 @@ namespace OpenXLSX
          * @note This is a pure abstract method. I.e. it is implemented in subclasses.
          */
         void clone(const std::string& newName);
-
-        /**
-         * @brief Method for getting the index of the sheet.
-         * @return An int with the index of the sheet.
-         */
-        uint16_t index() const;
-
-        /**
-         * @brief Method for setting the index of the sheet. This effectively moves the sheet to a different position.
-         */
-        void setIndex(uint16_t index);
 
         /**
          * @brief

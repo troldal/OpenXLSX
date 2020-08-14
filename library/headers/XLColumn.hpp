@@ -80,7 +80,7 @@ namespace OpenXLSX
          * @brief Move Constructor
          * @note The move constructor has been explicitly deleted.
          */
-        XLColumn(XLColumn&& other) noexcept = default;
+        XLColumn(XLColumn&& other) noexcept;
 
         /**
          * @brief Destructor

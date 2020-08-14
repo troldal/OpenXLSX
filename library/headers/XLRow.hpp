@@ -85,7 +85,7 @@ namespace OpenXLSX
          * @brief Move Constructor
          * @note The move constructor has been explicitly deleted.
          */
-        XLRow(XLRow&& other) noexcept = default;
+        XLRow(XLRow&& other) noexcept;
 
         /**
          * @brief Destructor

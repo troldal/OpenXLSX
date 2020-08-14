@@ -94,7 +94,7 @@ namespace OpenXLSX
          * @brief
          * @param other
          */
-        XLCellIterator(XLCellIterator&& other) noexcept = default;
+        XLCellIterator(XLCellIterator&& other) noexcept;
 
         /**
          * @brief

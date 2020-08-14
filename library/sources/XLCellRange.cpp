@@ -72,6 +72,8 @@ XLCellRange::XLCellRange(const XLCellRange& other)
       m_bottomRight(other.m_bottomRight)
 {}
 
+XLCellRange::XLCellRange(XLCellRange&& other) noexcept = default;
+
 XLCellRange::~XLCellRange() = default;
 
 /**
