@@ -8,3 +8,9 @@
 # Visual Studio
 .vs/
 out/
+
+# other
+*.so
+*.dylib
+*.a
+*.xlsx
