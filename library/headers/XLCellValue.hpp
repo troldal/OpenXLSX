@@ -221,6 +221,14 @@ namespace OpenXLSX
         void set(T stringValue);
 
         /**
+         * @brief
+         * @tparam T
+         * @param value
+         */
+        template<typename T, typename std::enable_if<std::is_same<T, XLCellValue>::value, T>::type* = nullptr>
+        void set(T value);
+
+        /**
          * @brief Get integer value.
          * @tparam T The integer type to get.
          */
@@ -240,6 +248,14 @@ namespace OpenXLSX
          */
         template<typename T,
                  typename std::enable_if<std::is_constructible<T, char*>::value && !std::is_same<T, bool>::value, char*>::type* = nullptr>
+        T get();
+
+        /**
+         * @brief
+         * @tparam T
+         * @return
+         */
+        template<typename T, typename std::enable_if<std::is_same<T, XLCellValue>::value, long double>::type* = nullptr>
         T get();
 
         /**
@@ -409,6 +425,17 @@ namespace OpenXLSX
     }
 
     /**
+     * @details
+     * @pre
+     * @post
+     */
+    template<typename T, typename std::enable_if<std::is_same<T, XLCellValue>::value, T>::type*>
+    void XLCellValue::set(T value)
+    {
+        *this = value;
+    }
+
+    /**
      * @details This is a template function for all integer-type parameters. It has been implemented using the
      * std::enable_if template function which will SFINAE out any non-integer types. Bools are handled as a special
      * case using the 'if constexpr' construct.
@@ -448,6 +475,17 @@ namespace OpenXLSX
     T XLCellValue::get()
     {
         return T(getString());
+    }
+
+    /**
+     * @details
+     * @pre
+     * @post
+     */
+    template<typename T, typename std::enable_if<std::is_same<T, XLCellValue>::value, long double>::type*>
+    T XLCellValue::get()
+    {
+        return *this;
     }
 }    // namespace OpenXLSX
 
