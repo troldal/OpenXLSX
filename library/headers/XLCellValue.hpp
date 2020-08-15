@@ -167,10 +167,11 @@ namespace OpenXLSX
         XLCellValue& operator=(XLCellValue&& other) noexcept;
 
         /**
-         * @brief Assignment operator
-         * @tparam T The integer type to assign
-         * @param numberValue The integer value to assign to the XLCellValue object.
-         * @return A reference to the current object, with the new value.
+         * @brief
+         * @tparam T
+         * @param numberValue
+         * @param stringValue
+         * @return
          */
         template<typename T, typename std::enable_if<std::is_integral<T>::value, int64_t>::type* = nullptr>
         XLCellValue& operator=(T numberValue);
@@ -189,19 +190,15 @@ namespace OpenXLSX
          * @param stringValue A char* string to assign to the XLCellValue object.
          * @return A reference to the current object, with the new value.
          */
-        XLCellValue& operator=(const char* stringValue);
-
-        /**
-         * @brief Assignment operator.
-         * @param stringValue A std::string to assign to the XLCellValue object.
-         * @return A reference to the current object, with the new value.
-         */
-        XLCellValue& operator=(const std::string& stringValue);
+        template<typename T,
+                 typename std::enable_if<!std::is_same<T, bool>::value && std::is_constructible<T, const char*>::value, T>::type* = nullptr>
+        XLCellValue& operator=(T stringValue);
 
         /**
          * @brief Set the object to an integer value.
          * @tparam T The integer type to assign.
          * @param numberValue The integer value to assign.
+         * @param stringValue
          */
         template<typename T, typename std::enable_if<std::is_integral<T>::value, int64_t>::type* = nullptr>
         void set(T numberValue);
@@ -215,16 +212,13 @@ namespace OpenXLSX
         void set(T numberValue);
 
         /**
-         * @brief Set the object to a string value.
-         * @param stringValue A char* string to assign.
+         * @brief
+         * @tparam T
+         * @param stringValue
          */
-        void set(const char* stringValue);
-
-        /**
-         * @brief Set the object to a string value.
-         * @param stringValue A std::string_view to assign.
-         */
-        void set(const std::string& stringValue);
+        template<typename T,
+                 typename std::enable_if<!std::is_same<T, bool>::value && std::is_constructible<T, const char*>::value, T>::type* = nullptr>
+        void set(T stringValue);
 
         /**
          * @brief Get integer value.
@@ -285,6 +279,12 @@ namespace OpenXLSX
          * @param numberValue
          */
         void setFloat(double numberValue);
+
+        /**
+         * @brief
+         * @param stringValue
+         */
+        void setString(const char* stringValue);
 
         /**
          * @brief
@@ -351,6 +351,18 @@ namespace OpenXLSX
     }
 
     /**
+     * @details
+     * @pre
+     * @post
+     */
+    template<typename T, typename std::enable_if<!std::is_same<T, bool>::value && std::is_constructible<T, const char*>::value, T>::type*>
+    XLCellValue& XLCellValue::operator=(T stringValue)
+    {
+        set(stringValue);
+        return *this;
+    }
+
+    /**
      * @details This is a template function for all integer-type parameters. It has been implemented using the
      * std::enable_if template function which will SFINAE out any non-integer types. Bools are handled as a special
      * case using the 'if constexpr' construct.
@@ -378,6 +390,22 @@ namespace OpenXLSX
     void XLCellValue::set(T numberValue)
     {
         setFloat(numberValue);
+    }
+
+    /**
+     * @details
+     * @pre
+     * @post
+     */
+    template<typename T, typename std::enable_if<!std::is_same<T, bool>::value && std::is_constructible<T, const char*>::value, T>::type*>
+    void XLCellValue::set(T stringValue)
+    {
+        if constexpr (std::is_same<const char*, typename std::remove_reference<typename std::remove_cv<T>::type>::type>::value)
+            setString(stringValue);
+        else if constexpr (std::is_same<std::string_view, T>::value)
+            setString(std::string(stringValue).c_str());
+        else
+            setString(stringValue.c_str());
     }
 
     /**

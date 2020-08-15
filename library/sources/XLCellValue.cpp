@@ -193,65 +193,6 @@ XLCellValue& XLCellValue::operator=(XLCellValue&& other) noexcept
 }
 
 /**
- * @details The assignment operator taking a std::string object as a parameter, calls the corresponding Set method
- * and returns the resulting object.
- * @pre The XLCellValue object and the stringValue parameter are both valid.
- * @post The underlying cell xml data has been set to the value of the input parameter and the type attribute has been
- * set to 'str'
- */
-XLCellValue& XLCellValue::operator=(const std::string& stringValue)
-{
-    set(stringValue);
-    return *this;
-}
-
-/**
- * @details The assignment operator taking a char* string as a parameter, calls the corresponding Set method
- * and returns the resulting object.
- * @pre The XLCellValue object and the stringValue parameter are both valid.
- * @post The underlying cell xml data has been set to the value of the input parameter and the type attribute has been
- * set to 'str'
- */
-XLCellValue& XLCellValue::operator=(const char* stringValue)
-{
-    set(stringValue);
-    return *this;
-}
-
-/**
- * @details If the value type is already a String, the value will be set to the new value. Otherwise, the m_value
- * member variable will be set to an XLString object with the given value.
- * @pre The XLCellValue object and the stringValue parameter are both valid.
- * @post The underlying cell xml data has been set to the value of the input parameter and the type attribute has been
- * set to 'str'
- */
-void XLCellValue::set(const std::string& stringValue)
-{
-    set(stringValue.c_str());
-}
-
-/**
- * @details Converts the char* parameter to a std::string and calls the corresponding Set method.
- * @pre The XLCellValue object and the stringValue parameter are both valid.
- * @post The underlying cell xml data has been set to the value of the input parameter and the type attribute has been
- * set to 'str'
- */
-void XLCellValue::set(const char* stringValue)
-{
-    if (!m_cellNode->attribute("t")) m_cellNode->append_attribute("t");
-    if (!m_cellNode->child("v")) m_cellNode->append_child("v");
-
-    m_cellNode->attribute("t").set_value("str");
-    m_cellNode->child("v").text().set(stringValue);
-
-    auto s = std::string_view(stringValue);
-    if (s.front() == ' ' || s.back() == ' ') {
-        if (!m_cellNode->attribute("xml:space")) m_cellNode->append_attribute("xml:space");
-        m_cellNode->attribute("xml:space").set_value("preserve");
-    }
-}
-
-/**
  * @details Deletes the value node and type attribute if they exists.
  * @pre The parent XLCell object is valid and has a corresponding node in the underlying XML file.
  * @post The value node and the type attribute in the underlying xml data has been deleted.
@@ -346,6 +287,21 @@ void XLCellValue::setFloat(double numberValue)
     m_cellNode->remove_attribute("t");
     m_cellNode->child("v").text().set(numberValue);
     m_cellNode->child("v").remove_attribute(m_cellNode->child("v").attribute("xml:space"));
+}
+
+void XLCellValue::setString(const char* stringValue)
+{
+    if (!m_cellNode->attribute("t")) m_cellNode->append_attribute("t");
+    if (!m_cellNode->child("v")) m_cellNode->append_child("v");
+
+    m_cellNode->attribute("t").set_value("str");
+    m_cellNode->child("v").text().set(stringValue);
+
+    auto s = std::string_view(stringValue);
+    if (s.front() == ' ' || s.back() == ' ') {
+        if (!m_cellNode->attribute("xml:space")) m_cellNode->append_attribute("xml:space");
+        m_cellNode->attribute("xml:space").set_value("preserve");
+    }
 }
 
 /**
