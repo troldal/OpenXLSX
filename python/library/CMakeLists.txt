@@ -28,7 +28,7 @@ set_target_properties(pyOpenXLSX PROPERTIES OUTPUT_NAME OpenXLSX)
 get_property(pyOpenXLSXSuffix TARGET pyOpenXLSX PROPERTY SUFFIX)
 add_custom_command(TARGET pyOpenXLSX POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:pyOpenXLSX>
-                   ${CMAKE_CURRENT_LIST_DIR}/examples/OpenXLSX${pyOpenXLSXSuffix}
+                   ${CMAKE_CURRENT_LIST_DIR}/../examples/OpenXLSX${pyOpenXLSXSuffix}
                    )
 
 

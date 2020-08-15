@@ -53,8 +53,10 @@ void init_XLCellRange(py::module &m) {
     py::class_<XLCellRange>(m, "XLCellRange")
         .def("numRows", &XLCellRange::numRows, "Get the row count for the range.")
         .def("numColumns", &XLCellRange::numColumns, "Get the column count for the range.")
-        .def("begin", &XLCellRange::begin)
-        .def("end", &XLCellRange::end)
+        .def(
+            "__iter__",
+            [](XLCellRange& range) { return py::make_iterator(range.begin(), range.end()); },
+            py::keep_alive<0, 1>() /* Essential: keep object alive while iterator exists */)
         .def("clear", &XLCellRange::clear, "Clear the contents of the range.");
 }
 

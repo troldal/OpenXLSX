@@ -6,9 +6,8 @@ import os
 from distutils.command.build_py import build_py
 from distutils.command.install_headers import install_headers
 
-from setuptools import setup
-
 from pybind11 import __version__
+from setuptools import setup
 
 package_data = [
     'include/pybind11/detail/class.h',

@@ -97,6 +97,9 @@ If you use an IDE, such as Visual Studio or Xcode, you can supply cmake with a -
 
 If you wish, you can also use the CMake GUI application.
 
+## Python Interface
+A Python interface has been developed for OpenXLSX. You can find instructions in the Python folder.
+
 ## Current Status
  OpenXLSX is still work i progress. The following is a list of features which have been implemented and should be working properly:
 

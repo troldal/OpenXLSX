@@ -66,5 +66,5 @@ if(${BUILD_BENCHMARKS})
 endif()
 
 if(${BUILD_PYTHON_MODULE})
-    add_subdirectory(python)
+    add_subdirectory(python/library)
 endif()
