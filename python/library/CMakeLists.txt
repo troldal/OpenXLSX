@@ -1,7 +1,12 @@
 #=======================================================================================================================
 # Define Benchmark targets
 #=======================================================================================================================
-set(PYBIND11_CPP_STANDARD -std=c++1z)
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+    set(PYBIND11_CPP_STANDARD /std:c++17)
+else()
+    set(PYBIND11_CPP_STANDARD -std=c++1z)
+endif()
+
 add_subdirectory(pybind11)
 
 set(PYOPENXLSX_SOURCES

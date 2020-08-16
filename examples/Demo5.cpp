@@ -1,3 +1,6 @@
+#pragma warning(push)
+#pragma warning(disable : 4244)
+
 #include <OpenXLSX.hpp>
 #include <iostream>
 #include <numeric>
@@ -42,3 +45,5 @@ int main()
 
     return 0;
 }
+
+#pragma warning(pop)
