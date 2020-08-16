@@ -6,6 +6,7 @@ project(OpenXLSX VERSION 0.2.0 LANGUAGES CXX)
 set(CMAKE_DEBUG_POSTFIX d)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN YES)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 #=======================================================================================================================
 # Set project metadata
