@@ -52,16 +52,36 @@ using namespace OpenXLSX;
 void init_XLColor(py::module& m)
 {
     py::class_<XLColor>(m, "XLColor")
-        .def(py::init<>())
-        .def(py::init<uint8_t, uint8_t, uint8_t, uint8_t>())
-        .def(py::init<uint8_t, uint8_t, uint8_t>())
-        .def(py::init<const std::string&>())
-        .def("set", py::overload_cast<uint8_t, uint8_t, uint8_t, uint8_t>(&XLColor::set))
-        .def("set", py::overload_cast<uint8_t, uint8_t, uint8_t>(&XLColor::set))
-        .def("set", py::overload_cast<const std::string&>(&XLColor::set))
-        .def("red", &XLColor::alpha)
-        .def("red", &XLColor::red)
-        .def("green", &XLColor::green)
-        .def("blue", &XLColor::blue)
-        .def("blue", &XLColor::hex);
+        .def(py::init<>(), "Create an empty color object.")
+        .def(py::init<uint8_t, uint8_t, uint8_t, uint8_t>(),
+             "Create a color object with the given values.",
+             py::arg("alpha"),
+             py::arg("red"),
+             py::arg("green"),
+             py::arg("blue"))
+        .def(py::init<uint8_t, uint8_t, uint8_t>(),
+             "Create a color object with the given values.",
+             py::arg("red"),
+             py::arg("green"),
+             py::arg("blue"))
+        .def(py::init<const std::string&>(), "Create a color object with the given hex code.", py::arg("hexCode"))
+        .def("set",
+             py::overload_cast<uint8_t, uint8_t, uint8_t, uint8_t>(&XLColor::set),
+             "Set the color with the given values.",
+             py::arg("alpha"),
+             py::arg("red"),
+             py::arg("green"),
+             py::arg("blue"))
+        .def("set",
+             py::overload_cast<uint8_t, uint8_t, uint8_t>(&XLColor::set),
+             "Set the color with the given values.",
+             py::arg("red"),
+             py::arg("green"),
+             py::arg("blue"))
+        .def("set", py::overload_cast<const std::string&>(&XLColor::set), "Set the color with the given hex code.", py::arg("hexCode"))
+        .def("red", &XLColor::alpha, "Get the alpha value of the color.")
+        .def("red", &XLColor::red, "Get the red color value for the color object.")
+        .def("green", &XLColor::green, "Get the green color value for the color object.")
+        .def("blue", &XLColor::blue, "Get the blue color value for the color object.")
+        .def("blue", &XLColor::hex, "Get the hex code for the color object.");
 }

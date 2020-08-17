@@ -51,16 +51,26 @@ using namespace OpenXLSX;
 
 void init_XLCellReference(py::module &m) {
     py::class_<XLCellReference>(m, "XLCellReference")
-        .def(py::init<>())
-        .def(py::init<const std::string&>())
-        .def(py::init<uint32_t, uint16_t>())
-        .def(py::init<uint32_t, const std::string&>())
-        .def("row", &XLCellReference::row)
-        .def("setRow", &XLCellReference::setRow)
-        .def("column", &XLCellReference::column)
-        .def("setColumn", &XLCellReference::setColumn)
-        .def("setRowAndColumn", &XLCellReference::setRowAndColumn)
-        .def("address", &XLCellReference::address)
-        .def("setAddress", &XLCellReference::setAddress);
+        .def(py::init<>(), "Create an empty XLCellRange object.")
+        .def(py::init<const std::string&>(), "Create a XLCellReference object with the given address.", py::arg("cellAddress"))
+        .def(py::init<uint32_t, uint16_t>(),
+             "Create a XLCellReference object with the given coordinates.",
+             py::arg("row"),
+             py::arg("column"))
+        .def(py::init<uint32_t, const std::string&>(),
+             "Create a XLCellReference object with the given coordinates.",
+             py::arg("row"),
+             py::arg("column"))
+        .def("row", &XLCellReference::row, "Get the row number for the cell reference.")
+        .def("setRow", &XLCellReference::setRow, "Set the row number for the cell reference.", py::arg("rowNumber"))
+        .def("column", &XLCellReference::column, "Get the column number for the cell reference.")
+        .def("setColumn", &XLCellReference::setColumn, "Set the column number for the cell reference.", py::arg("columnNumber"))
+        .def("setRowAndColumn",
+             &XLCellReference::setRowAndColumn,
+             "Set row and column for the cell reference.",
+             py::arg("row"),
+             py::arg("column"))
+        .def("address", &XLCellReference::address, "Get the address of the cell reference.")
+        .def("setAddress", &XLCellReference::setAddress, "Set the address of the cell reference.", py::arg("address"));
 }
 

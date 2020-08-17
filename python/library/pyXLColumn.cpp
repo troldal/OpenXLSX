@@ -52,8 +52,8 @@ using namespace OpenXLSX;
 void init_XLColumn(py::module& m)
 {
     py::class_<XLColumn>(m, "XLColumn")
-        .def("width", &XLColumn::width)
-        .def("setWidth", &XLColumn::setWidth)
-        .def("isHidden", &XLColumn::isHidden)
-        .def("setHidden", &XLColumn::setHidden);
+        .def("width", &XLColumn::width, "Get the width of the column")
+        .def("setWidth", &XLColumn::setWidth, "Set the width of the column", py::arg("width"))
+        .def("isHidden", &XLColumn::isHidden, "Determine if the column is hidden.")
+        .def("setHidden", &XLColumn::setHidden, "Set the 'hidden' state of the column", py::arg("state"));
 }

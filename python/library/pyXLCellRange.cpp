@@ -56,7 +56,7 @@ void init_XLCellRange(py::module &m) {
         .def(
             "__iter__",
             [](XLCellRange& range) { return py::make_iterator(range.begin(), range.end()); },
-            py::keep_alive<0, 1>() /* Essential: keep object alive while iterator exists */)
+            py::keep_alive<0, 1>())
         .def("clear", &XLCellRange::clear, "Clear the contents of the range.");
 }
 

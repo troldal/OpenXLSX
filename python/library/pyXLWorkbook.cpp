@@ -61,24 +61,41 @@ void init_XLSheetType(py::module &m) {
 
 void init_XLWorkbook(py::module &m) {
     py::class_<XLWorkbook>(m, "XLWorkbook")
-        .def("sheet", py::overload_cast<uint16_t>(&XLWorkbook::sheet))
-        .def("sheet", py::overload_cast<const std::string&>(&XLWorkbook::sheet))
-        .def("worksheet", &XLWorkbook::worksheet)
-        .def("chartsheet", &XLWorkbook::chartsheet)
-        .def("deleteSheet", &XLWorkbook::deleteSheet)
-        .def("addWorksheet", &XLWorkbook::addWorksheet)
-        .def("cloneSheet", &XLWorkbook::cloneSheet)
-        .def("setSheetIndex", &XLWorkbook::setSheetIndex)
-        .def("typeOfSheet", py::overload_cast<unsigned int>(&XLWorkbook::typeOfSheet, py::const_))
-        .def("typeOfSheet", py::overload_cast<const std::string&>(&XLWorkbook::typeOfSheet, py::const_))
-        .def("sheetCount", &XLWorkbook::sheetCount)
-        .def("worksheetCount", &XLWorkbook::worksheetCount)
-        .def("chartsheetCount", &XLWorkbook::chartsheetCount)
-        .def("sheetNames", &XLWorkbook::sheetNames)
-        .def("worksheetNames", &XLWorkbook::worksheetNames)
-        .def("chartsheetNames", &XLWorkbook::chartsheetNames)
-        .def("sheetExists", &XLWorkbook::sheetExists)
-        .def("worksheetExists", &XLWorkbook::worksheetExists)
-        .def("chartsheetExists", &XLWorkbook::chartsheetExists)
-        .def("deleteNamedRanges", &XLWorkbook::deleteNamedRanges);
+        .def("sheet", py::overload_cast<uint16_t>(&XLWorkbook::sheet), "Get the sheet at the given index.", py::arg("index"))
+        .def("sheet", py::overload_cast<const std::string&>(&XLWorkbook::sheet), "Get the sheet with the given name.", py::arg("name"))
+        .def("worksheet", &XLWorkbook::worksheet, "Get the worksheet with the given name.", py::arg("name"))
+        .def("chartsheet", &XLWorkbook::chartsheet, "Get the chartsheet with the given name.", py::arg("name"))
+        .def("deleteSheet", &XLWorkbook::deleteSheet, "Delete the sheet with the given name.", py::arg("name"))
+        .def("addWorksheet", &XLWorkbook::addWorksheet, "Add a new worksheet with the given name.", py::arg("name"))
+        .def("cloneSheet", &XLWorkbook::cloneSheet, "Clone the sheet with the given name.", py::arg("existingName"), py::arg("newName"))
+        .def("setSheetIndex",
+             &XLWorkbook::setSheetIndex,
+             "Set the index of the sheet with the given name.",
+             py::arg("name"),
+             py::arg("index"))
+        .def("indexOfSheet", &XLWorkbook::indexOfSheet, "Get the index of the sheet with the given name.", py::arg("name"))
+        .def("typeOfSheet",
+             py::overload_cast<unsigned int>(&XLWorkbook::typeOfSheet, py::const_),
+             "Get the type of sheet with the given index.",
+             py::arg("index"))
+        .def("typeOfSheet",
+             py::overload_cast<const std::string&>(&XLWorkbook::typeOfSheet, py::const_),
+             "Get the type of sheet with the given name.",
+             py::arg("name"))
+        .def("sheetCount", &XLWorkbook::sheetCount, "Get the total sheet count.")
+        .def("worksheetCount", &XLWorkbook::worksheetCount, "Get the worksheet count.")
+        .def("chartsheetCount", &XLWorkbook::chartsheetCount, "Get the chartsheet count.")
+        .def("sheetNames", &XLWorkbook::sheetNames, "Get all the sheet names.")
+        .def("worksheetNames", &XLWorkbook::worksheetNames, "Get the worksheet names.")
+        .def("chartsheetNames", &XLWorkbook::chartsheetNames, "Get the chartsheet names.")
+        .def("sheetExists", &XLWorkbook::sheetExists, "Determine if a sheet with the given name exists in the workbook.", py::arg("name"))
+        .def("worksheetExists",
+             &XLWorkbook::worksheetExists,
+             "Determine if a worksheet with the given name exists in the workbook.",
+             py::arg("name"))
+        .def("chartsheetExists",
+             &XLWorkbook::chartsheetExists,
+             "Determine if a chartsheet with the given name exists in the workbook.",
+             py::arg("name"))
+        .def("deleteNamedRanges", &XLWorkbook::deleteNamedRanges, "Delete all named ranges in the workbook.");
 }

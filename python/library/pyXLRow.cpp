@@ -52,12 +52,12 @@ using namespace OpenXLSX;
 void init_XLRow(py::module& m)
 {
     py::class_<XLRow>(m, "XLRow")
-        .def("height", &XLRow::height)
-        .def("setHeight", &XLRow::setHeight)
-        .def("descent", &XLRow::descent)
-        .def("setDescent", &XLRow::setDescent)
-        .def("isHidden", &XLRow::isHidden)
-        .def("setHidden", &XLRow::setHidden)
-        .def("rowNumber", &XLRow::rowNumber)
-        .def("cellCount", &XLRow::cellCount);
+        .def("height", &XLRow::height, "Get the height of the row.")
+        .def("setHeight", &XLRow::setHeight, "Set the height of the row.", py::arg("height"))
+        .def("descent", &XLRow::descent, "Get the 'descent' value of the row.")
+        .def("setDescent", &XLRow::setDescent, "Set the 'descent' value for the row.", py::arg("descent"))
+        .def("isHidden", &XLRow::isHidden, "Determine if the row is hidden.")
+        .def("setHidden", &XLRow::setHidden, "Set the 'hidden' state for the row", py::arg("state"))
+        .def("rowNumber", &XLRow::rowNumber, "Get the row number for the row.")
+        .def("cellCount", &XLRow::cellCount, "Get the cell count for the row.");
 }

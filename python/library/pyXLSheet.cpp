@@ -61,61 +61,79 @@ void init_XLSheetState(py::module &m) {
 
 void init_XLWorksheet(py::module &m) {
     py::class_<XLWorksheet>(m, "XLWorksheet")
-        .def("visibility", &XLWorksheet::visibility)
-        .def("setVisibility", &XLWorksheet::setVisibility)
-        .def("color", &XLWorksheet::color)
-        .def("setColor", &XLWorksheet::setColor)
-        .def("index", &XLWorksheet::setIndex)
-        .def("setIndex", &XLWorksheet::setIndex)
-        .def("name", &XLWorksheet::name)
-        .def("setName", &XLWorksheet::setName)
-        .def("isSelected", &XLWorksheet::isSelected)
-        .def("setSelected", &XLWorksheet::setSelected)
-        .def("clone", &XLWorksheet::clone)
-        .def("cell", py::overload_cast<const std::string&>(&XLWorksheet::cell))
-        .def("cell", py::overload_cast<const XLCellReference &>(&XLWorksheet::cell))
-        .def("cell", py::overload_cast<uint32_t, uint16_t>(&XLWorksheet::cell))
-        .def("range", py::overload_cast<>(&XLWorksheet::range))
-        .def("range", py::overload_cast<const XLCellReference&, const XLCellReference&>(&XLWorksheet::range))
-        .def("row", &XLWorksheet::row)
-        .def("column", &XLWorksheet::column)
-        .def("lastCell", &XLWorksheet::lastCell)
-        .def("columnCount", &XLWorksheet::columnCount)
-        .def("rowCount", &XLWorksheet::rowCount)
-        ;
+        .def("visibility", &XLWorksheet::visibility, "Get the visibility state for the sheet.")
+        .def("setVisibility", &XLWorksheet::setVisibility, "Set the visibility state for the sheet.", py::arg("visibility"))
+        .def("color", &XLWorksheet::color, "Get the color of the sheet.")
+        .def("setColor", &XLWorksheet::setColor, "Set the color of the sheet.", py::arg("color"))
+        .def("index", &XLWorksheet::index, "Get the index of the sheet.")
+        .def("setIndex", &XLWorksheet::setIndex, "Set the index of the sheet.", py::arg("index"))
+        .def("name", &XLWorksheet::name, "Get the name of the sheet.")
+        .def("setName", &XLWorksheet::setName, "Set the name of the sheet.", py::arg("name"))
+        .def("isSelected", &XLWorksheet::isSelected, "Determine if the sheet is currently selected in the workbook.")
+        .def("setSelected", &XLWorksheet::setSelected, "Set the 'selected' state for the sheet.", py::arg("selected"))
+        .def("clone", &XLWorksheet::clone, "Clone the sheet.", py::arg("newName"))
+        .def("cell", py::overload_cast<const std::string&>(&XLWorksheet::cell), "Get the cell with the given address.", py::arg("address"))
+        .def("cell",
+             py::overload_cast<const XLCellReference&>(&XLWorksheet::cell),
+             "Get the cell with the given reference.",
+             py::arg("reference"))
+        .def("cell",
+             py::overload_cast<uint32_t, uint16_t>(&XLWorksheet::cell),
+             "Get the cell with the given coordinates",
+             py::arg("row"),
+             py::arg("column"))
+        .def("range", py::overload_cast<>(&XLWorksheet::range), "Get a range object for the range of cells currently in use.")
+        .def("range",
+             py::overload_cast<const XLCellReference&, const XLCellReference&>(&XLWorksheet::range),
+             "Get a range object with the given coordinates.",
+             py::arg("topLeft"),
+             py::arg("bottomRight"))
+        .def("row", &XLWorksheet::row, "Get the row object for the given row number..", py::arg("rowNumber"))
+        .def("column", &XLWorksheet::column, "Get the column object for the given column number.", py::arg("columnNumber"))
+        .def("columnCount", &XLWorksheet::columnCount, "Get the number of columns in the worksheet.")
+        .def("rowCount", &XLWorksheet::rowCount, "Get the number of rows in the worksheet.");
 }
 
 void init_XLChartsheet(py::module &m) {
     py::class_<XLChartsheet>(m, "XLChartsheet")
-        .def("visibility", &XLChartsheet::visibility)
-        .def("setVisibility", &XLChartsheet::setVisibility)
-        .def("color", &XLChartsheet::color)
-        .def("setColor", &XLChartsheet::setColor)
-        .def("index", &XLChartsheet::setIndex)
-        .def("setIndex", &XLChartsheet::setIndex)
-        .def("name", &XLChartsheet::name)
-        .def("setName", &XLChartsheet::setName)
-        .def("isSelected", &XLChartsheet::isSelected)
-        .def("setSelected", &XLChartsheet::setSelected)
-        .def("clone", &XLChartsheet::clone)
-        ;
+        .def("visibility", &XLChartsheet::visibility, "Get the visibility state for the sheet.")
+        .def("setVisibility", &XLChartsheet::setVisibility, "Set the visibility state for the sheet.", py::arg("visibility"))
+        .def("color", &XLChartsheet::color, "Get the color of the sheet.")
+        .def("setColor", &XLChartsheet::setColor, "Set the color of the sheet.", py::arg("color"))
+        .def("index", &XLChartsheet::index, "Get the index of the sheet.")
+        .def("setIndex", &XLChartsheet::setIndex, "Set the index of the sheet.", py::arg("index"))
+        .def("name", &XLChartsheet::name, "Get the name of the sheet.")
+        .def("setName", &XLChartsheet::setName, "Set the name of the sheet.", py::arg("name"))
+        .def("isSelected", &XLChartsheet::isSelected, "Determine if the sheet is currently selected in the workbook.")
+        .def("setSelected", &XLChartsheet::setSelected, "Set the 'selected' state for the sheet.", py::arg("selected"))
+        .def("clone", &XLChartsheet::clone, "Clone the sheet.", py::arg("newName"));
 }
 
 void init_XLSheet(py::module &m) {
     py::class_<XLSheet>(m, "XLSheet")
-        .def("visibility", &XLSheet::visibility)
-        .def("setVisibility", &XLSheet::setVisibility)
-        .def("color", &XLSheet::color)
-        .def("setColor", &XLSheet::setColor)
-        .def("index", &XLSheet::setIndex)
-        .def("setIndex", &XLSheet::setIndex)
-        .def("name", &XLSheet::name)
-        .def("setName", &XLSheet::setName)
-        .def("setSelected", &XLSheet::setSelected)
-        .def("isWorksheet", &XLSheet::isType<XLWorksheet>)
-        .def("isChartsheet", &XLSheet::isType<XLChartsheet>)
-        .def("clone", &XLSheet::clone)
-        .def("worksheet", &XLSheet::get<XLWorksheet>)
-        .def("chartsheet", &XLSheet::get<XLChartsheet>)
-        ;
+        .def("visibility", &XLSheet::visibility, "Get the visibility state for the sheet.")
+        .def("setVisibility", &XLSheet::setVisibility, "Set the visibility state for the sheet.", py::arg("visibility"))
+        .def("color", &XLSheet::color, "Get the color of the sheet.")
+        .def("setColor", &XLSheet::setColor, "Set the color of the sheet.", py::arg("color"))
+        .def("index", &XLSheet::index, "Get the index of the sheet.")
+        .def("setIndex", &XLSheet::setIndex, "Set the index of the sheet.", py::arg("index"))
+        .def("name", &XLSheet::name, "Get the name of the sheet.")
+        .def("setName", &XLSheet::setName, "Set the name of the sheet.", py::arg("name"))
+        .def("setSelected", &XLSheet::setSelected, "Set the 'selected' state for the sheet.", py::arg("selected"))
+        .def("clone", &XLSheet::clone, "Clone the sheet.", py::arg("newName"))
+        .def(
+            "getType",
+            [](const XLSheet& sheet) {
+                if (sheet.isType<XLWorksheet>())
+                    return XLSheetType::Worksheet;
+                else
+                    return XLSheetType::Chartsheet;
+            },
+            "Get the underlying sheet type (worksheet or chartsheet).")
+        //        .def("isWorksheet", &XLSheet::isType<XLWorksheet>,
+        //            "Determine if the sheet is of type worksheet.")
+        //        .def("isChartsheet", &XLSheet::isType<XLChartsheet>,
+        //            "Determine if the sheet is of type chartsheet.")
+        .def("worksheet", &XLSheet::get<XLWorksheet>, "Get the underlying worksheet object.")
+        .def("chartsheet", &XLSheet::get<XLChartsheet>, "Get the underlying chartsheet object.");
 }

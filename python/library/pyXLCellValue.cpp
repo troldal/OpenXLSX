@@ -62,14 +62,19 @@ void init_XLValueType(py::module &m) {
 
 void init_XLCellValue(py::module &m) {
     py::class_<XLCellValue>(m, "XLCellValue")
-        .def_property("integerValue", &XLCellValue::get<int64_t>, &XLCellValue::set<int64_t>)
-        .def_property("floatValue", &XLCellValue::get<long double>, &XLCellValue::set<long double>)
-        .def_property("booleanValue", &XLCellValue::get<bool>, &XLCellValue::set<bool>)
-        .def_property("stringValue", &XLCellValue::get<const std::string>, &XLCellValue::set<const std::string>)
-        .def_property("value", &XLCellValue::get<XLCellValue>, &XLCellValue::set<XLCellValue>)
-        .def("asString", &XLCellValue::asString)
-        .def("clear", &XLCellValue::clear)
-        .def("valueType", &XLCellValue::valueType)
-        ;
+        .def_property("integerValue", &XLCellValue::get<int64_t>, &XLCellValue::set<int64_t>, "Get or set the cell value as an integer.")
+        .def_property("floatValue",
+                      &XLCellValue::get<long double>,
+                      &XLCellValue::set<long double>,
+                      "Get or set the cell value as a floating point value.")
+        .def_property("booleanValue", &XLCellValue::get<bool>, &XLCellValue::set<bool>, "Get or set the cell value as a boolean.")
+        .def_property("stringValue",
+                      &XLCellValue::get<const std::string>,
+                      &XLCellValue::set<const std::string>,
+                      "Get or set the cell value as a string.")
+        .def_property("value", &XLCellValue::get<XLCellValue>, &XLCellValue::set<XLCellValue>, "Get or set the cell value object.")
+        .def("asString", &XLCellValue::asString, "Get the cell value as a string, regardless of the underlying value.")
+        .def("clear", &XLCellValue::clear, "Clear the cell value.")
+        .def("valueType", &XLCellValue::valueType, "Get the value type of the cell.");
 }
 

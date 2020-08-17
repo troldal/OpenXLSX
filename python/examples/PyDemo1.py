@@ -8,7 +8,7 @@ doc = XLDocument()
 doc.create('Demo1.xlsx')
 wks = doc.workbook().worksheet('Sheet1')
 
-wks.cell(XLCellReference('A1')).value().floatValue = 3.14159
+wks.cell('A1').value().floatValue = 3.14159
 wks.cell(XLCellReference('B1')).value().integerValue = 42
 wks.cell(XLCellReference('C1')).value().stringValue = '   Hello OpenXLSX!   '
 wks.cell(XLCellReference('D1')).value().booleanValue = True
