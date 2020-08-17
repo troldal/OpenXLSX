@@ -121,8 +121,8 @@ void init_XLSheet(py::module &m) {
         .def("setName", &XLSheet::setName, "Set the name of the sheet.", py::arg("name"))
         .def("setSelected", &XLSheet::setSelected, "Set the 'selected' state for the sheet.", py::arg("selected"))
         .def("clone", &XLSheet::clone, "Clone the sheet.", py::arg("newName"))
-        .def(
-            "getType",
+        .def_property_readonly(
+            "type",
             [](const XLSheet& sheet) {
                 if (sheet.isType<XLWorksheet>())
                     return XLSheetType::Worksheet;
