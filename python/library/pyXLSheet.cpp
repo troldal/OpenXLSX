@@ -15,7 +15,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
             MM
            _MM_
 
-  Copyright (c) 2018, Kenneth Troldal Balslev
+  Copyright (c) 2020, Kenneth Troldal Balslev
 
   All rights reserved.
 
@@ -130,10 +130,6 @@ void init_XLSheet(py::module &m) {
                     return XLSheetType::Chartsheet;
             },
             "Get the underlying sheet type (worksheet or chartsheet).")
-        //        .def("isWorksheet", &XLSheet::isType<XLWorksheet>,
-        //            "Determine if the sheet is of type worksheet.")
-        //        .def("isChartsheet", &XLSheet::isType<XLChartsheet>,
-        //            "Determine if the sheet is of type chartsheet.")
         .def("worksheet", &XLSheet::get<XLWorksheet>, "Get the underlying worksheet object.")
         .def("chartsheet", &XLSheet::get<XLChartsheet>, "Get the underlying chartsheet object.");
 }

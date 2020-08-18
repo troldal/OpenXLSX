@@ -150,5 +150,8 @@ int64_t XLRow::rowNumber() const
  */
 unsigned int XLRow::cellCount() const
 {
-    return XLCellReference(m_rowNode->last_child().attribute("r").value()).column();
+    if (!m_rowNode->last_child())
+        return 0;
+    else
+        return XLCellReference(m_rowNode->last_child().attribute("r").value()).column();
 }

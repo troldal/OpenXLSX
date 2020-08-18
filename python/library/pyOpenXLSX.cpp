@@ -15,7 +15,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
             MM
            _MM_
 
-  Copyright (c) 2018, Kenneth Troldal Balslev
+  Copyright (c) 2020, Kenneth Troldal Balslev
 
   All rights reserved.
 

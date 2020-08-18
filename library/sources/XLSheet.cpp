@@ -68,8 +68,6 @@ namespace
             result = sheetDataNode.append_child("row");
 
             result.append_attribute("r") = rowNumber;
-            //            result.append_attribute("x14ac:dyDescent") = "0.2";
-            //            result.append_attribute("spans")           = "1:1";
         }
 
         // ===== If the requested node is closest to the end, start from the end and search backwards
@@ -80,8 +78,6 @@ namespace
                 result = sheetDataNode.insert_child_after("row", result);
 
                 result.append_attribute("r") = rowNumber;
-                //                result.append_attribute("x14ac:dyDescent") = "0.2";
-                //                result.append_attribute("spans")           = "1:1";
             }
         }
 
@@ -93,8 +89,6 @@ namespace
                 result = sheetDataNode.insert_child_before("row", result);
 
                 result.append_attribute("r") = rowNumber;
-                //                result.append_attribute("x14ac:dyDescent") = "0.2";
-                //                result.append_attribute("spans")           = "1:1";
             }
         }
 
