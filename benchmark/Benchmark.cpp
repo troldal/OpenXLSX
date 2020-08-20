@@ -26,7 +26,7 @@ static void BM_WriteStrings(benchmark::State& state)    // NOLINT
     auto arange = wks.range(XLCellReference("A1"), XLCellReference(rows, columns));
 
     for (auto _ : state)    // NOLINT
-        for (auto& cell : arange) cell.value() = "OpenXLSX";
+        for (auto& cell : arange) cell = "OpenXLSX";
 
     state.SetItemsProcessed(rows * columns);
     state.counters["items"] = state.items_processed();
@@ -49,7 +49,7 @@ static void BM_WriteIntegers(benchmark::State& state)    // NOLINT
     auto arange = wks.range(XLCellReference("A1"), XLCellReference(rows, columns));
 
     for (auto _ : state)    // NOLINT
-        for (auto& cell : arange) cell.value() = 42;
+        for (auto& cell : arange) cell = 42;
 
     state.SetItemsProcessed(rows * columns);
     state.counters["items"] = state.items_processed();
@@ -72,7 +72,7 @@ static void BM_WriteFloats(benchmark::State& state)    // NOLINT
     auto arange = wks.range(XLCellReference("A1"), XLCellReference(rows, columns));
 
     for (auto _ : state)    // NOLINT
-        for (auto& cell : arange) cell.value() = 3.14;
+        for (auto& cell : arange) cell = 3.14;
 
     state.SetItemsProcessed(rows * columns);
     state.counters["items"] = state.items_processed();
@@ -95,7 +95,7 @@ static void BM_WriteBools(benchmark::State& state)    // NOLINT
     auto arange = wks.range(XLCellReference("A1"), XLCellReference(rows, columns));
 
     for (auto _ : state)    // NOLINT
-        for (auto& cell : arange) cell.value() = true;
+        for (auto& cell : arange) cell = true;
 
     state.SetItemsProcessed(rows * columns);
     state.counters["items"] = state.items_processed();

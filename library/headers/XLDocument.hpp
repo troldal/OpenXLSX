@@ -221,6 +221,12 @@ namespace OpenXLSX
         void setProperty(XLProperty prop, const std::string& value);
 
         /**
+         * @brief
+         * @return
+         */
+        explicit operator bool() const;
+
+        /**
          * @brief Delete the property from the document
          * @param theProperty The property to delete from the document
          */
@@ -489,14 +495,14 @@ namespace OpenXLSX
         std::string                  m_realPath {}; /**<  */
         mutable std::list<XLXmlData> m_data {};     /**<  */
 
-        XLRelationships m_docRelationships; /**< A pointer to the document relationships object*/
-        XLRelationships m_wbkRelationships; /**< A pointer to the document relationships object*/
-        XLContentTypes  m_contentTypes;     /**< A pointer to the content types object*/
-        XLAppProperties m_appProperties;    /**< A pointer to the App properties object */
-        XLProperties    m_coreProperties;   /**< A pointer to the Core properties object*/
-        XLSharedStrings m_sharedStrings;    /**<  */
-        XLWorkbook      m_workbook;         /**< A pointer to the workbook object */
-        XLZipArchive    m_archive;          /**<  */
+        XLRelationships m_docRelationships {}; /**< A pointer to the document relationships object*/
+        XLRelationships m_wbkRelationships {}; /**< A pointer to the document relationships object*/
+        XLContentTypes  m_contentTypes {};     /**< A pointer to the content types object*/
+        XLAppProperties m_appProperties {};    /**< A pointer to the App properties object */
+        XLProperties    m_coreProperties {};   /**< A pointer to the Core properties object*/
+        XLSharedStrings m_sharedStrings {};    /**<  */
+        XLWorkbook      m_workbook {};         /**< A pointer to the workbook object */
+        XLZipArchive    m_archive {};          /**<  */
     };
 
 }    // namespace OpenXLSX

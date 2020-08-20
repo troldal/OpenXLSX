@@ -15,7 +15,7 @@ wks = doc.workbook().worksheet('Sheet1')
 rng = wks.range(XLCellReference('A1'), XLCellReference(1048576, 8))
 
 for cell in rng:
-    cell.value().integerValue = random.randint(0, 99)
+    cell.integerValue = random.randint(0, 99)
 
 print('Saving spreadsheet (1,048,576 rows x 8 columns) ...')
 doc.save()
@@ -33,7 +33,7 @@ for cell in rng:
     count += 1
 print('Cell count:', count)
 for cell in rng:
-    sum += cell.value().integerValue
+    sum += cell.integerValue
 print('Sum of cell values:', sum)
 
 doc.close()

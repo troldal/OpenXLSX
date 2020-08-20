@@ -94,11 +94,19 @@ bool XLSharedStrings::stringExists(uint32_t index) const
 
 /**
  * @details
+ * @pre
+ * @post
+ * @throws
  */
 const char* XLSharedStrings::getString(uint32_t index) const
 {
+    auto element = xmlDocument().document_element().first_child();
+    for (uint32_t current = 1; current < index; ++current) {
+    }
+
     auto iter = xmlDocument().document_element().children().begin();
     std::advance(iter, index);
+
     return iter->first_child().text().get();
 }
 

@@ -534,7 +534,7 @@ void XLDocument::create(const std::string& fileName)
  */
 void XLDocument::close()
 {
-    m_archive.close();
+    if (m_archive) m_archive.close();
 #if defined(_WIN32) && (UNICODE_FILENAMES_ENABLED)
     std::remove(m_filePath.c_str());
     m_realPath.clear();
@@ -805,6 +805,14 @@ void XLDocument::setProperty(XLProperty prop, const std::string& value)
 void XLDocument::deleteProperty(XLProperty theProperty)
 {
     setProperty(theProperty, "");
+}
+
+/**
+ * @details
+ */
+XLDocument::operator bool() const
+{
+    return !!m_archive;
 }
 
 /**

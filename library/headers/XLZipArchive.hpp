@@ -106,6 +106,12 @@ namespace OpenXLSX
          * @brief
          * @return
          */
+        explicit operator bool() const;
+
+        /**
+         * @brief
+         * @return
+         */
         bool isOpen();
 
         /**

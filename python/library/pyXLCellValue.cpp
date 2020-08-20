@@ -43,8 +43,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#include <pybind11/pybind11.h>
 #include <XLCellValue.hpp>
+#include <pybind11/pybind11.h>
 
 namespace py = pybind11;
 using namespace OpenXLSX;
@@ -64,16 +64,17 @@ void init_XLCellValue(py::module &m) {
     py::class_<XLCellValue>(m, "XLCellValue")
         .def_property("integerValue", &XLCellValue::get<int64_t>, &XLCellValue::set<int64_t>, "Get or set the cell value as an integer.")
         .def_property("floatValue",
-                      &XLCellValue::get<long double>,
-                      &XLCellValue::set<long double>,
+                      &XLCellValue::get<double>,
+                      &XLCellValue::set<double>,
                       "Get or set the cell value as a floating point value.")
         .def_property("booleanValue", &XLCellValue::get<bool>, &XLCellValue::set<bool>, "Get or set the cell value as a boolean.")
         .def_property("stringValue",
                       &XLCellValue::get<const std::string>,
                       &XLCellValue::set<const std::string>,
                       "Get or set the cell value as a string.")
-        .def_property("value", &XLCellValue::get<XLCellValue>, &XLCellValue::set<XLCellValue>, "Get or set the cell value object.")
-        .def("asString", &XLCellValue::asString, "Get the cell value as a string, regardless of the underlying value.")
+        //        .def_property("value", &XLCellValueElement::get<XLCellValueElement>, &XLCellValueElement::set<XLCellValueElement>, "Get or
+        //        set the cell value object.") .def("asString", &XLCellValueElement::asString, "Get the cell value as a string, regardless
+        //        of the underlying value.")
         .def("clear", &XLCellValue::clear, "Clear the cell value.")
         .def("valueType", &XLCellValue::valueType, "Get the value type of the cell.");
 }

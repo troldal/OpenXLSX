@@ -14,11 +14,11 @@ int main()
     doc.create("./Demo01.xlsx");
     auto wks = doc.workbook().worksheet("Sheet1");
 
-    wks.cell(XLCellReference("A1")).value() = 3.14159;
-    wks.cell(XLCellReference("B1")).value() = 42;
-    wks.cell(XLCellReference("C1")).value() = "  Hello OpenXLSX!  ";
-    wks.cell(XLCellReference("D1")).value() = true;
-    wks.cell(XLCellReference("E1")).value() = wks.cell(XLCellReference("C1")).value();
+    wks.cell(XLCellReference("A1")) = 3.14159;
+    wks.cell(XLCellReference("B1")) = 42;
+    wks.cell(XLCellReference("C1")) = "  Hello OpenXLSX!  ";
+    wks.cell(XLCellReference("D1")) = true;
+    wks.cell(XLCellReference("E1")) = wks.cell(XLCellReference("C1")).value();
 
     auto A1 = wks.cell(XLCellReference("A1")).value();
     auto B1 = wks.cell(XLCellReference("B1")).value();
@@ -52,7 +52,7 @@ int main()
     };
 
     cout << "Cell A1: (" << valueTypeAsString(A1.valueType()) << ") " << A1.get<double>() << endl;
-    cout << "Cell B1: (" << valueTypeAsString(B1.valueType()) << ") " << B1.get<int>() << endl;
+    cout << "Cell B1: (" << valueTypeAsString(B1.valueType()) << ") " << B1.get<int64_t>() << endl;
     cout << "Cell C1: (" << valueTypeAsString(C1.valueType()) << ") " << C1.get<std::string>() << endl;
     cout << "Cell D1: (" << valueTypeAsString(D1.valueType()) << ") " << D1.get<bool>() << endl;
     cout << "Cell E1: (" << valueTypeAsString(E1.valueType()) << ") " << E1.get<std::string_view>() << endl;

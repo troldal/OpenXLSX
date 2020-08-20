@@ -14,25 +14,25 @@ int main()
     doc1.create("./Demo04.xlsx");
     auto wks1 = doc1.workbook().worksheet("Sheet1");
 
-    wks1.cell("A1").value() = 0.01;
-    wks1.cell("B1").value() = 0.02;
-    wks1.cell("C1").value() = 0.03;
-    wks1.cell("A2").value() = 0.001;
-    wks1.cell("B2").value() = 0.002;
-    wks1.cell("C2").value() = 0.003;
-    wks1.cell("A3").value() = 1e-4;
-    wks1.cell("B3").value() = 2e-4;
-    wks1.cell("C3").value() = 3e-4;
+    wks1.cell("A1") = 0.01;
+    wks1.cell("B1") = 0.02;
+    wks1.cell("C1") = 0.03;
+    wks1.cell("A2") = 0.001;
+    wks1.cell("B2") = 0.002;
+    wks1.cell("C2") = 0.003;
+    wks1.cell("A3") = 1e-4;
+    wks1.cell("B3") = 2e-4;
+    wks1.cell("C3") = 3e-4;
 
-    wks1.cell("A4").value() = 1;
-    wks1.cell("B4").value() = 2;
-    wks1.cell("C4").value() = 3;
-    wks1.cell("A5").value() = 845287496;
-    wks1.cell("B5").value() = 175397487;
-    wks1.cell("C5").value() = 973853975;
-    wks1.cell("A6").value() = 2e10;
-    wks1.cell("B6").value() = 3e11;
-    wks1.cell("C6").value() = 4e12;
+    wks1.cell("A4") = 1;
+    wks1.cell("B4") = 2;
+    wks1.cell("C4") = 3;
+    wks1.cell("A5") = 845287496;
+    wks1.cell("B5") = 175397487;
+    wks1.cell("C5") = 973853975;
+    wks1.cell("A6") = 2e10;
+    wks1.cell("B6") = 3e11;
+    wks1.cell("C6") = 4e12;
 
     doc1.save();
     doc1.close();
@@ -46,7 +46,7 @@ int main()
 
         switch (cell.valueType()) {
             case XLValueType::Empty:
-                cout << "XLValueType::Empty";
+                cout << "XLValueType::Empty" << endl;
                 break;
 
             case XLValueType::Float:

@@ -50,10 +50,13 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #pragma warning(disable : 4251)
 #pragma warning(disable : 4275)
 
+#include <memory>
+
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
 #include "XLCellReference.hpp"
 #include "XLCellValue.hpp"
+#include "XLException.hpp"
 
 namespace OpenXLSX
 {
@@ -121,6 +124,36 @@ namespace OpenXLSX
          */
         XLCell& operator=(XLCell&& other) noexcept = default;
 
+        template<typename T, typename std::enable_if<std::is_integral<T>::value, int64_t>::type* = nullptr>
+        XLCell& operator=(T numberValue);
+
+        template<typename T, typename std::enable_if<std::is_floating_point<T>::value, long double>::type* = nullptr>
+        XLCell& operator=(T numberValue);
+
+        template<typename T,
+                 typename std::enable_if<!std::is_same<T, XLCellValue>::value && !std::is_same<T, bool>::value &&
+                                             std::is_constructible<T, const char*>::value,
+                                         T>::type* = nullptr>
+        XLCell& operator=(T stringValue);
+
+        template<typename T, typename std::enable_if<std::is_same<T, XLCellValue>::value, T>::type* = nullptr>
+        XLCell& operator=(T value);
+
+        template<typename T, typename std::enable_if<std::is_integral<T>::value, int64_t>::type* = nullptr>
+        void setValue(T numberValue);
+
+        template<typename T, typename std::enable_if<std::is_floating_point<T>::value, long double>::type* = nullptr>
+        void setValue(T numberValue);
+
+        template<typename T,
+                 typename std::enable_if<!std::is_same<T, XLCellValue>::value && !std::is_same<T, bool>::value &&
+                                             std::is_constructible<T, const char*>::value,
+                                         T>::type* = nullptr>
+        void setValue(T stringValue);
+
+        template<typename T>
+        T getValue();
+
         /**
          * @brief This copy assignment operators takes a range as the argument. The purpose is to copy the range to a
          * new location, with the target cell being the top left cell in the range.
@@ -174,6 +207,31 @@ namespace OpenXLSX
 
     private:
         //---------- Private Member Functions ---------- //
+
+        /**
+         * @brief
+         * @param numberValue
+         */
+        void setInteger(int64_t numberValue);
+
+        /**
+         * @brief
+         * @param numberValue
+         */
+        void setBoolean(bool numberValue);
+
+        /**
+         * @brief
+         * @param numberValue
+         */
+        void setFloat(double numberValue);
+
+        /**
+         * @brief
+         * @param stringValue
+         */
+        void setString(const char* stringValue);
+
         /**
          * @brief
          * @param cellNode
@@ -194,6 +252,93 @@ namespace OpenXLSX
     inline bool operator==(const XLCell& lhs, const XLCell& rhs)
     {
         return lhs.m_cellNode == rhs.m_cellNode;
+    }
+
+    template<typename T, typename std::enable_if<std::is_integral<T>::value, int64_t>::type*>
+    XLCell& XLCell::operator=(T numberValue)
+    {
+        if constexpr (std::is_same<T, bool>::value) {    // if bool
+            setBoolean(numberValue);
+        }
+        else {    // if not bool
+            setInteger(numberValue);
+        }
+
+        return *this;
+    }
+
+    template<typename T, typename std::enable_if<std::is_floating_point<T>::value, long double>::type*>
+    XLCell& XLCell::operator=(T numberValue)
+    {
+        setFloat(numberValue);
+        return *this;
+    }
+
+    template<typename T,
+             typename std::enable_if<!std::is_same<T, XLCellValue>::value && !std::is_same<T, bool>::value &&
+                                         std::is_constructible<T, const char*>::value,
+                                     T>::type*>
+    XLCell& XLCell::operator=(T stringValue)
+    {
+        if constexpr (std::is_same<const char*, typename std::remove_reference<typename std::remove_cv<T>::type>::type>::value)
+            setString(stringValue);
+        else if constexpr (std::is_same<std::string_view, T>::value)
+            setString(std::string(stringValue).c_str());
+        else
+            setString(stringValue.c_str());
+        return *this;
+    }
+
+    template<typename T, typename std::enable_if<std::is_same<T, XLCellValue>::value, T>::type*>
+    XLCell& XLCell::operator=(T value)
+    {
+        switch (value.valueType()) {
+            case XLValueType::Boolean:
+                setBoolean(value.template get<bool>());
+                break;
+            case XLValueType::Integer:
+                setInteger(value.template get<int64_t>());
+                break;
+            case XLValueType::Float:
+                setInteger(value.template get<double>());
+                break;
+            case XLValueType::String:
+                setString(value.template get<std::string>().c_str());
+                break;
+            case XLValueType::Empty:
+                break;
+            default:
+                break;
+        }
+
+        return *this;
+    }
+
+    template<typename T, typename std::enable_if<std::is_integral<T>::value, int64_t>::type*>
+    void XLCell::setValue(T numberValue)
+    {
+        *this = numberValue;
+    }
+
+    template<typename T, typename std::enable_if<std::is_floating_point<T>::value, long double>::type*>
+    void XLCell::setValue(T numberValue)
+    {
+        *this = numberValue;
+    }
+
+    template<typename T,
+             typename std::enable_if<!std::is_same<T, XLCellValue>::value && !std::is_same<T, bool>::value &&
+                                         std::is_constructible<T, const char*>::value,
+                                     T>::type*>
+    void XLCell::setValue(T stringValue)
+    {
+        *this = stringValue;
+    }
+
+    template<typename T>
+    T XLCell::getValue()
+    {
+        return this->value().get<T>();
     }
 
 }    // namespace OpenXLSX
