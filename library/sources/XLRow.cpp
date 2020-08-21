@@ -71,7 +71,7 @@ XLRow& XLRow::operator=(const XLRow& other)
 }
 
 /**
- * @details Returns the m_height member by value.
+ * @details Returns the m_height member by getValue.
  */
 double XLRow::height() const
 {
@@ -79,7 +79,7 @@ double XLRow::height() const
 }
 
 /**
- * @details Set the height of the row. This is done by setting the value of the 'ht' attribute and setting the
+ * @details Set the height of the row. This is done by setting the getValue of the 'ht' attribute and setting the
  * 'customHeight' attribute to true.
  */
 void XLRow::setHeight(float height)
@@ -98,7 +98,7 @@ void XLRow::setHeight(float height)
 }
 
 /**
- * @details Return the m_descent member by value.
+ * @details Return the m_descent member by getValue.
  */
 float XLRow::descent() const
 {

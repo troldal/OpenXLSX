@@ -153,13 +153,13 @@ namespace OpenXLSX
 
         /**
          * @brief Get the target, i.e. the path to the XML file the relationship item refers to.
-         * @return An XMLAttribute object containing the Target value.
+         * @return An XMLAttribute object containing the Target getValue.
          */
         std::string target() const;
 
         /**
          * @brief Get the id of the relationship item.
-         * @return An XMLAttribute object containing the Id value.
+         * @return An XMLAttribute object containing the Id getValue.
          */
         std::string id() const;
 

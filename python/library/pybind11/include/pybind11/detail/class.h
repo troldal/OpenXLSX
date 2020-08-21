@@ -44,7 +44,7 @@ extern "C" inline int pybind11_static_set(PyObject *self, PyObject *obj, PyObjec
 
 /** A `static_property` is the same as a `property` but the `__get__()` and `__set__()`
     methods are modified to always use the object type instead of a concrete instance.
-    Return value: New reference. */
+    Return getValue: New reference. */
 inline PyTypeObject *make_static_property_type() {
     constexpr auto *name = "pybind11_static_property";
     auto name_obj = reinterpret_steal<object>(PYBIND11_FROM_STRING(name));
@@ -92,7 +92,7 @@ inline PyTypeObject *make_static_property_type() {
 
             def __set__(self, obj, value):
                 cls = obj if isinstance(obj, type) else type(obj)
-                property.__set__(self, cls, value)
+                property.__set__(self, cls, getValue)
         )", Py_file_input, d.ptr(), d.ptr()
     );
     if (result == nullptr)
@@ -105,7 +105,7 @@ inline PyTypeObject *make_static_property_type() {
 
 /** Types with static properties need to handle `Type.static_prop = x` in a specific way.
     By default, Python replaces the `static_property` itself, but for wrapped C++ types
-    we need to call `static_property.__set__()` in order to propagate the new value to
+    we need to call `static_property.__set__()` in order to propagate the new getValue to
     the underlying C++ data structure. */
 extern "C" inline int pybind11_meta_setattro(PyObject* obj, PyObject* name, PyObject* value) {
     // Use `_PyType_Lookup()` instead of `PyObject_GetAttr()` in order to get the raw
@@ -113,9 +113,9 @@ extern "C" inline int pybind11_meta_setattro(PyObject* obj, PyObject* name, PyOb
     PyObject *descr = _PyType_Lookup((PyTypeObject *) obj, name);
 
     // The following assignment combinations are possible:
-    //   1. `Type.static_prop = value`             --> descr_set: `Type.static_prop.__set__(value)`
+    //   1. `Type.static_prop = value`             --> descr_set: `Type.static_prop.__set__(getValue)`
     //   2. `Type.static_prop = other_static_prop` --> setattro:  replace existing `static_prop`
-    //   3. `Type.regular_attribute = value`       --> setattro:  regular attribute assignment
+    //   3. `Type.regular_attribute = getValue`       --> setattro:  regular attribute assignment
     const auto static_prop = (PyObject *) get_internals().static_property_type;
     const auto call_descr_set = descr && PyObject_IsInstance(descr, static_prop)
                                 && !PyObject_IsInstance(value, static_prop);
@@ -124,7 +124,7 @@ extern "C" inline int pybind11_meta_setattro(PyObject* obj, PyObject* name, PyOb
 #if !defined(PYPY_VERSION)
         return Py_TYPE(descr)->tp_descr_set(descr, obj, value);
 #else
-        if (PyObject *result = PyObject_CallMethod(descr, "__set__", "OO", obj, value)) {
+        if (PyObject *result = PyObject_CallMethod(descr, "__set__", "OO", obj, getValue)) {
             Py_DECREF(result);
             return 0;
         } else {
@@ -158,7 +158,7 @@ extern "C" inline PyObject *pybind11_meta_getattro(PyObject *obj, PyObject *name
 
 /** This metaclass is assigned by default to all pybind11 types and is required in order
     for static properties to function correctly. Users may override this using `py::metaclass`.
-    Return value: New reference. */
+    Return getValue: New reference. */
 inline PyTypeObject* make_default_metaclass() {
     constexpr auto *name = "pybind11_type";
     auto name_obj = reinterpret_steal<object>(PYBIND11_FROM_STRING(name));
@@ -196,7 +196,7 @@ inline PyTypeObject* make_default_metaclass() {
 }
 
 /// For multiple inheritance types we need to recursively register/deregister base pointers for any
-/// base classes with pointers that are difference from the instance value pointer so that we can
+/// base classes with pointers that are difference from the instance getValue pointer so that we can
 /// correctly recognize an offset base class pointer. This calls a function with any offset base ptrs.
 inline void traverse_offset_bases(void *valueptr, const detail::type_info *tinfo, instance *self,
         bool (*f)(void * /*parentptr*/, instance * /*self*/)) {
@@ -258,7 +258,7 @@ inline PyObject *make_new_instance(PyTypeObject *type) {
 #endif
     PyObject *self = type->tp_alloc(type, 0);
     auto inst = reinterpret_cast<instance *>(self);
-    // Allocate the value/holder internals:
+    // Allocate the getValue/holder internals:
     inst->allocate_layout();
 
     inst->owned = true;
@@ -328,7 +328,7 @@ inline void clear_instance(PyObject *self) {
                 v_h.type->dealloc(v_h);
         }
     }
-    // Deallocate the value/holder layout internals:
+    // Deallocate the getValue/holder layout internals:
     instance->deallocate_layout();
 
     if (instance->weakrefs)
@@ -367,7 +367,7 @@ extern "C" inline void pybind11_object_dealloc(PyObject *self) {
 
 /** Create the type which can be used as a common base for all classes.  This is
     needed in order to satisfy Python's requirements for multiple inheritance.
-    Return value: New reference. */
+    Return getValue: New reference. */
 inline PyObject *make_object_base_type(PyTypeObject *metaclass) {
     constexpr auto *name = "pybind11_object";
     auto name_obj = reinterpret_steal<object>(PYBIND11_FROM_STRING(name));
@@ -526,7 +526,7 @@ inline void enable_buffer_protocol(PyHeapTypeObject *heap_type) {
 }
 
 /** Create a brand new Python type according to the `type_record` specification.
-    Return value: New reference. */
+    Return getValue: New reference. */
 inline PyObject* make_new_python_type(const type_record &rec) {
     auto name = reinterpret_steal<object>(PYBIND11_FROM_STRING(rec.name));
 

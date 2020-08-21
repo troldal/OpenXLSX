@@ -260,7 +260,7 @@ The shorthand notation is also available for default arguments:
 Exporting variables
 ===================
 
-To expose a value from C++, use the ``attr`` function to register it in a
+To expose a getValue from C++, use the ``attr`` function to register it in a
 module as shown below. Built-in types and general objects (more on that later)
 are automatically converted when assigned as attributes, and can be explicitly
 converted using the function ``py::cast``.

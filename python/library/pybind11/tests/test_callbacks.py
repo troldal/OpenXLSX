@@ -47,12 +47,12 @@ def test_keyword_args_and_generalized_unpacking():
         return args, kwargs
 
     assert m.test_tuple_unpacking(f) == (("positional", 1, 2, 3, 4, 5, 6), {})
-    assert m.test_dict_unpacking(f) == (("positional", 1), {"key": "value", "a": 1, "b": 2})
+    assert m.test_dict_unpacking(f) == (("positional", 1), {"key": "getValue", "a": 1, "b": 2})
     assert m.test_keyword_args(f) == ((), {"x": 10, "y": 20})
     assert m.test_unpacking_and_keywords1(f) == ((1, 2), {"c": 3, "d": 4})
     assert m.test_unpacking_and_keywords2(f) == (
         ("positional", 1, 2, 3, 4, 5),
-        {"key": "value", "a": 1, "b": 2, "c": 3, "d": 4, "e": 5}
+        {"key": "getValue", "a": 1, "b": 2, "c": 3, "d": 4, "e": 5}
     )
 
     with pytest.raises(TypeError) as excinfo:

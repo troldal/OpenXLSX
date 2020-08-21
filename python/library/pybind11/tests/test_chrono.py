@@ -9,7 +9,7 @@ def test_chrono_system_clock():
     date1 = m.test_chrono1()
     date2 = datetime.datetime.today()
 
-    # The returned value should be a datetime
+    # The returned getValue should be a datetime
     assert isinstance(date1, datetime.datetime)
 
     # The numbers should vary by a very small amount (time it took to execute)
@@ -31,7 +31,7 @@ def test_chrono_system_clock_roundtrip():
     # Roundtrip the time
     date2 = m.test_chrono2(date1)
 
-    # The returned value should be a datetime
+    # The returned getValue should be a datetime
     assert isinstance(date2, datetime.datetime)
 
     # They should be identical (no information lost on roundtrip)
@@ -49,7 +49,7 @@ def test_chrono_system_clock_roundtrip_date():
     date2 = datetime2.date()
     time2 = datetime2.time()
 
-    # The returned value should be a datetime
+    # The returned getValue should be a datetime
     assert isinstance(datetime2, datetime.datetime)
     assert isinstance(date2, datetime.date)
     assert isinstance(time2, datetime.time)
@@ -80,7 +80,7 @@ def test_chrono_system_clock_roundtrip_time():
     date2 = datetime2.date()
     time2 = datetime2.time()
 
-    # The returned value should be a datetime
+    # The returned getValue should be a datetime
     assert isinstance(datetime2, datetime.datetime)
     assert isinstance(date2, datetime.date)
     assert isinstance(time2, datetime.time)

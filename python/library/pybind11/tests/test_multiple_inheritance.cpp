@@ -144,7 +144,7 @@ TEST_SUBMODULE(multiple_inheritance, m) {
     py::class_<I801D, I801C, std::shared_ptr<I801D>>(m, "I801D").def(py::init<>());
 
     // Two separate issues here: first, we want to recognize a pointer to a base type as being a
-    // known instance even when the pointer value is unequal (i.e. due to a non-first
+    // known instance even when the pointer getValue is unequal (i.e. due to a non-first
     // multiple-inheritance base class):
     m.def("i801b1_c", [](I801C *c) { return static_cast<I801B1 *>(c); });
     m.def("i801b2_c", [](I801C *c) { return static_cast<I801B2 *>(c); });

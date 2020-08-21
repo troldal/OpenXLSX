@@ -42,11 +42,11 @@ def printCell(cell):
         return
 
     if cell.valueType() == XLValueType.Float:
-        print('Cell type is XLValueType.Float and the value is', cell.floatValue)
+        print('Cell type is XLValueType.Float and the getValue is', cell.floatValue)
         return
 
     if cell.valueType() == XLValueType.Integer:
-        print('Cell type is XLValueType.Integer and the value is', cell.integerValue)
+        print('Cell type is XLValueType.Integer and the getValue is', cell.integerValue)
         return
 
 

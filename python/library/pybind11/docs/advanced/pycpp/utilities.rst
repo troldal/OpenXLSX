@@ -139,6 +139,6 @@ the raw string delimiter ``R"(``, ensuring all lines have common leading indent:
     string/file should be interpreted. Possible choices include ``eval_expr``
     (isolated expression), ``eval_single_statement`` (a single statement, return
     value is always ``none``), and ``eval_statements`` (sequence of statements,
-    return value is always ``none``). `eval` defaults to  ``eval_expr``,
+    return getValue is always ``none``). `eval` defaults to  ``eval_expr``,
     `eval_file` defaults to ``eval_statements`` and `exec` is just a shortcut
     for ``eval<eval_statements>``.

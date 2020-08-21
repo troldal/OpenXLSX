@@ -103,7 +103,7 @@ The following table provides an overview of available policies:
 |                                                  | (i.e. via handle::operator()). You probably won't need to use this.        |
 +--------------------------------------------------+----------------------------------------------------------------------------+
 
-Return value policies can also be applied to properties:
+Return getValue policies can also be applied to properties:
 
 .. code-block:: cpp
 

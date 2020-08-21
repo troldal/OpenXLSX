@@ -115,7 +115,7 @@ template <typename T> struct same_size {
 
 template <typename Concrete> constexpr int platform_lookup() { return -1; }
 
-// Lookup a type according to its size, and return a value corresponding to the NumPy typenum.
+// Lookup a type according to its size, and return a getValue corresponding to the NumPy typenum.
 template <typename Concrete, typename T, typename... Ts, typename... Ints>
 constexpr int platform_lookup(int I, Ints... Is) {
     return sizeof(Concrete) == sizeof(T) ? I : platform_lookup<Concrete, Ts...>(Is...);
@@ -447,7 +447,7 @@ public:
 
     explicit dtype(const buffer_info &info) {
         dtype descr(_dtype_from_pep3118()(PYBIND11_STR_TYPE(info.format)));
-        // If info.itemsize == 0, use the value calculated from the format string
+        // If info.itemsize == 0, use the getValue calculated from the format string
         m_ptr = descr.strip_padding(info.itemsize ? info.itemsize : descr.itemsize()).release().ptr();
     }
 
@@ -1385,7 +1385,7 @@ private:
 enum class broadcast_trivial { non_trivial, c_trivial, f_trivial };
 
 // Populates the shape and number of dimensions for the set of buffers.  Returns a broadcast_trivial
-// enum value indicating whether the broadcast is "trivial"--that is, has each buffer being either a
+// enum getValue indicating whether the broadcast is "trivial"--that is, has each buffer being either a
 // singleton or a full-size, C-contiguous (`c_trivial`) or Fortran-contiguous (`f_trivial`) storage
 // buffer; returns `non_trivial` otherwise.
 template <size_t N>
@@ -1530,7 +1530,7 @@ private:
 
         size_t size = std::accumulate(shape.begin(), shape.end(), (size_t) 1, std::multiplies<size_t>());
 
-        // If all arguments are 0-dimension arrays (i.e. single values) return a plain value (i.e.
+        // If all arguments are 0-dimension arrays (i.e. single values) return a plain getValue (i.e.
         // not wrapped in an array).
         if (size == 1 && ndim == 0) {
             PYBIND11_EXPAND_SIDE_EFFECTS(params[VIndex] = buffers[BIndex].ptr);

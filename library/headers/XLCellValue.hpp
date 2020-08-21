@@ -62,17 +62,28 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 namespace OpenXLSX
 {
+    /**
+     * @brief
+     */
     enum class XLValueType { Empty, Boolean, Integer, Float, Error, String };
 
+    /**
+     * @brief
+     */
     class OPENXLSX_EXPORT XLCellValue
     {
+        friend bool operator==(const XLCellValue& lhs, const XLCellValue& rhs);
+        friend bool operator!=(const XLCellValue& lhs, const XLCellValue& rhs);
+        friend bool operator<(const XLCellValue& lhs, const XLCellValue& rhs);
+        friend bool operator>(const XLCellValue& lhs, const XLCellValue& rhs);
+        friend bool operator<=(const XLCellValue& lhs, const XLCellValue& rhs);
+        friend bool operator>=(const XLCellValue& lhs, const XLCellValue& rhs);
+
     public:
         /**
          * @brief
          */
-        XLCellValue() = default;
-
-        XLCellValue(const XMLNode& cellNode, const XLSharedStrings& sharedStrings);
+        XLCellValue();
 
         /**
          * @brief
@@ -86,18 +97,32 @@ namespace OpenXLSX
          * @brief
          * @param other
          */
-        XLCellValue(const XLCellValue& other) = default;
+        XLCellValue(const XLCellValue& other);
 
         /**
          * @brief
          * @param other
          */
-        XLCellValue(XLCellValue&& other) noexcept = default;
+        XLCellValue(XLCellValue&& other) noexcept;
 
         /**
          * @brief
          */
-        ~XLCellValue() = default;
+        ~XLCellValue();
+
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
+        XLCellValue& operator=(const XLCellValue& other);
+
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
+        XLCellValue& operator=(XLCellValue&& other) noexcept;
 
         /**
          * @brief
@@ -108,22 +133,13 @@ namespace OpenXLSX
         template<typename T>
         XLCellValue& operator=(T value);
 
+        /**
+         * @brief
+         * @tparam T
+         * @param value
+         */
         template<typename T>
         void set(T value);
-
-        /**
-         * @brief
-         * @param other
-         * @return
-         */
-        XLCellValue& operator=(const XLCellValue& other) = default;
-
-        /**
-         * @brief
-         * @param other
-         * @return
-         */
-        XLCellValue& operator=(XLCellValue&& other) noexcept = default;
 
         /**
          * @brief
@@ -153,111 +169,91 @@ namespace OpenXLSX
         /**
          * @brief
          */
-        void clear()
-        {
-            m_type  = XLValueType::Empty;
-            m_value = "";
-        }
+        XLCellValue& clear();
 
         /**
          * @brief
          * @return
          */
-        XLValueType valueType() const
-        {
-            return m_type;
-        }
+        XLCellValue& setError();
+
+        /**
+         * @brief
+         * @return
+         */
+        XLValueType type() const;
 
     private:
-        XLValueType                                      m_type { XLValueType::Empty };
+        XLValueType                                      m_type { XLValueType::Empty }; /**< */
         std::variant<std::string, int64_t, double, bool> m_value { "" }; /**< */
     };
 
+#include "impl/XLCellValue.inl"
+
     /**
-     * @details
-     * @pre
-     * @post
+     * @brief
+     * @param lhs
+     * @param rhs
+     * @return
      */
-    template<typename T>
-    XLCellValue::XLCellValue(T value) : m_value(value)
+    inline bool operator==(const XLCellValue& lhs, const XLCellValue& rhs)
     {
-        if constexpr (std::is_integral_v<T> && std::is_same_v<T, bool>)
-            m_type = XLValueType::Boolean;
-        else if constexpr (std::is_integral_v<T> && !std::is_same_v<T, bool>)
-            m_type = XLValueType::Integer;
-        else if constexpr (std::is_floating_point_v<T>)
-            m_type = XLValueType::Float;
-        else if constexpr (std::is_constructible_v<T, char*> && !std::is_same_v<T, bool>)
-            m_type = XLValueType::String;
-        else
-            m_type = XLValueType::Error;
+        return lhs.m_value == rhs.m_value;
     }
 
     /**
-     * @details
-     * @pre
-     * @post
+     * @brief
+     * @param lhs
+     * @param rhs
+     * @return
      */
-    template<typename T>
-    XLCellValue& XLCellValue::operator=(T value)
+    inline bool operator!=(const XLCellValue& lhs, const XLCellValue& rhs)
     {
-        if constexpr (std::is_integral_v<T> && std::is_same_v<T, bool>)
-            m_type = XLValueType::Boolean;
-        else if constexpr (std::is_integral_v<T> && !std::is_same_v<T, bool>)
-            m_type = XLValueType::Integer;
-        else if constexpr (std::is_floating_point_v<T>)
-            m_type = XLValueType::Float;
-        else if constexpr (std::is_constructible_v<T, char*> && !std::is_same_v<T, bool>)
-            m_type = XLValueType::String;
-        else
-            m_type = XLValueType::Error;
-
-        m_value = value;
-        return *this;
-    }
-
-    template<typename T>
-    void XLCellValue::set(T value)
-    {
-        *this = value;
+        return lhs.m_value != rhs.m_value;
     }
 
     /**
-     * @details
-     * @pre
-     * @post
+     * @brief
+     * @param lhs
+     * @param rhs
+     * @return
      */
-    template<typename T, typename std::enable_if<std::is_integral<T>::value, int64_t>::type*>
-    T XLCellValue::get()
+    inline bool operator<(const XLCellValue& lhs, const XLCellValue& rhs)
     {
-        if constexpr (std::is_same<T, bool>::value) {
-            return std::get<bool>(m_value);
-        }
-        else {
-            return static_cast<T>(std::get<int64_t>(m_value));
-        }
+        return lhs.m_value < rhs.m_value;
     }
 
     /**
-     * @details
-     * @pre
-     * @post
+     * @brief
+     * @param lhs
+     * @param rhs
+     * @return
      */
-    template<typename T, typename std::enable_if<std::is_floating_point<T>::value, long double>::type*>
-    T XLCellValue::get()
+    inline bool operator>(const XLCellValue& lhs, const XLCellValue& rhs)
     {
-        return static_cast<T>(std::get<double>(m_value));
+        return lhs.m_value > rhs.m_value;
     }
 
     /**
-     * @details
-     * @pre
-     * @post
+     * @brief
+     * @param lhs
+     * @param rhs
+     * @return
      */
-    template<typename T, typename std::enable_if<std::is_constructible<T, char*>::value && !std::is_same<T, bool>::value, char*>::type*>
-    T XLCellValue::get()
+    inline bool operator<=(const XLCellValue& lhs, const XLCellValue& rhs)
     {
-        return std::get<std::string>(m_value).c_str();
+        return lhs.m_value <= rhs.m_value;
+    }
+
+    /**
+     * @brief
+     * @param lhs
+     * @param rhs
+     * @return
+     */
+    inline bool operator>=(const XLCellValue& lhs, const XLCellValue& rhs)
+    {
+        return lhs.m_value >= rhs.m_value;
     }
 
 }    // namespace OpenXLSX

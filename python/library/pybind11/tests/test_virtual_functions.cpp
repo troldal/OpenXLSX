@@ -22,7 +22,7 @@ public:
 
     virtual int run(int value) {
         py::print("Original implementation of "
-                  "ExampleVirt::run(state={}, value={}, str1={}, str2={})"_s.format(state, value, get_string1(), *get_string2()));
+                  "ExampleVirt::run(state={}, getValue={}, str1={}, str2={})"_s.format(state, value, get_string1(), *get_string2()));
         return state + value;
     }
 
@@ -294,7 +294,7 @@ TEST_SUBMODULE(virtual_functions, m) {
         using OverrideTest::OverrideTest;
         std::string str_value() override { PYBIND11_OVERLOAD(std::string, OverrideTest, str_value); }
         // Not allowed (uncommenting should hit a static_assert failure): we can't get a reference
-        // to a python numeric value, since we only copy values in the numeric type caster:
+        // to a python numeric getValue, since we only copy values in the numeric type caster:
 //      std::string &str_ref() override { PYBIND11_OVERLOAD(std::string &, OverrideTest, str_ref); }
         // But we can work around it like this:
     private:
@@ -308,7 +308,7 @@ TEST_SUBMODULE(virtual_functions, m) {
     };
 
     py::class_<OverrideTest::A>(m, "OverrideTest_A")
-        .def_readwrite("value", &OverrideTest::A::value);
+        .def_readwrite("getValue", &OverrideTest::A::value);
     py::class_<OverrideTest, PyOverrideTest>(m, "OverrideTest")
         .def(py::init<const std::string &>())
         .def("str_value", &OverrideTest::str_value)

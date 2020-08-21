@@ -173,7 +173,7 @@ namespace OpenXLSX
 
         /**
          * @brief Retrieve the type represented by the XML data.
-         * @return A XLContentType value representing the type.
+         * @return A XLContentType getValue representing the type.
          */
         XLContentType getXmlType() const;
 

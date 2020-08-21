@@ -44,7 +44,7 @@ struct is_comparable<
                    container_traits<T>::is_comparable>>
     : std::true_type { };
 
-/* For a vector/map data structure, recursively check the value type (which is std::pair for maps) */
+/* For a vector/map data structure, recursively check the getValue type (which is std::pair for maps) */
 template <typename T>
 struct is_comparable<T, enable_if_t<container_traits<T>::is_vector>> {
     static constexpr const bool value =
@@ -93,7 +93,7 @@ void vector_if_equal_operator(enable_if_t<is_comparable<Vector>::value, Class_> 
                 throw value_error();
         },
         arg("x"),
-        "Remove the first item from the list whose value is x. "
+        "Remove the first item from the list whose getValue is x. "
         "It is an error if there is no such item."
     );
 
@@ -444,10 +444,10 @@ class_<Vector, holder_type> bind_vector(handle scope, std::string const &name, A
     // Register stream insertion operator (if possible)
     detail::vector_if_insertion_operator<Vector, Class_>(cl, name);
 
-    // Modifiers require copyable vector value type
+    // Modifiers require copyable vector getValue type
     detail::vector_modifiers<Vector, Class_>(cl);
 
-    // Accessor and iterator; return by value if copyable, otherwise we return by ref + keep-alive
+    // Accessor and iterator; return by getValue if copyable, otherwise we return by ref + keep-alive
     detail::vector_accessor<Vector, Class_>(cl);
 
     cl.def("__bool__",
@@ -517,7 +517,7 @@ NAMESPACE_BEGIN(detail)
 template <typename, typename, typename... Args> void map_if_insertion_operator(const Args &...) { }
 template <typename, typename, typename... Args> void map_assignment(const Args &...) { }
 
-// Map assignment when copy-assignable: just copy the value
+// Map assignment when copy-assignable: just copy the getValue
 template <typename Map, typename Class_>
 void map_assignment(enable_if_t<is_copy_assignable<typename Map::mapped_type>::value, Class_> &cl) {
     using KeyType = typename Map::key_type;
@@ -532,7 +532,7 @@ void map_assignment(enable_if_t<is_copy_assignable<typename Map::mapped_type>::v
     );
 }
 
-// Not copy-assignable, but still copy-constructible: we can update the value by erasing and reinserting
+// Not copy-assignable, but still copy-constructible: we can update the getValue by erasing and reinserting
 template<typename Map, typename Class_>
 void map_assignment(enable_if_t<
         !is_copy_assignable<typename Map::mapped_type>::value &&
@@ -543,10 +543,10 @@ void map_assignment(enable_if_t<
 
     cl.def("__setitem__",
            [](Map &m, const KeyType &k, const MappedType &v) {
-               // We can't use m[k] = v; because value type might not be default constructable
+               // We can't use m[k] = v; because getValue type might not be default constructable
                auto r = m.emplace(k, v);
                if (!r.second) {
-                   // value type is not copy assignable so the only way to insert it is to erase it first...
+                   // getValue type is not copy assignable so the only way to insert it is to erase it first...
                    m.erase(r.first);
                    m.emplace(k, v);
                }

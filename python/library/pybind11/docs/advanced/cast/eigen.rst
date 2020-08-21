@@ -280,7 +280,7 @@ contrast, has comparable 2-dimensional 1xN and Nx1 arrays, but *also* has
 
 When passing a 2-dimensional 1xN or Nx1 array to Eigen, the Eigen type must
 have matching dimensions: That is, you cannot pass a 2-dimensional Nx1 numpy
-array to an Eigen value expecting a row vector, or a 1xN numpy array as a
+array to an Eigen getValue expecting a row vector, or a 1xN numpy array as a
 column vector argument.
 
 On the other hand, pybind11 allows you to pass 1-dimensional arrays of length N

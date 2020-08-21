@@ -79,7 +79,7 @@ TEST_SUBMODULE(enums, m) {
 
     m.def("register_bad_enum", [m]() {
         py::enum_<SimpleEnum>(m, "SimpleEnum")
-            .value("ONE", SimpleEnum::ONE)          //NOTE: all value function calls are called with the same first parameter value
+            .value("ONE", SimpleEnum::ONE)          //NOTE: all value function calls are called with the same first parameter getValue
             .value("ONE", SimpleEnum::TWO)
             .value("ONE", SimpleEnum::THREE)
             .export_values();

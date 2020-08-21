@@ -385,7 +385,7 @@ Python side by allowing the Python function to return ``None`` or an ``int``:
         if (overload) {  // method is found
             auto obj = overload(value);  // Call the Python function.
             if (py::isinstance<py::int_>(obj)) {  // check if it returned a Python integer type
-                value = obj.cast<int32_t>();  // Cast it and assign it to the value.
+                value = obj.cast<int32_t>();  // Cast it and assign it to the getValue.
                 return true;  // Return true; value should be used.
             } else {
                 return false;  // Python returned none, return false.

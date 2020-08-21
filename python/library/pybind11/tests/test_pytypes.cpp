@@ -14,7 +14,7 @@ TEST_SUBMODULE(pytypes, m) {
     // test_list
     m.def("get_list", []() {
         py::list list;
-        list.append("value");
+        list.append("getValue");
         py::print("Entry at position 0:", list[0]);
         list[0] = py::str("overwritten");
         list.insert(0, "inserted-0");
@@ -47,10 +47,10 @@ TEST_SUBMODULE(pytypes, m) {
     });
 
     // test_dict
-    m.def("get_dict", []() { return py::dict("key"_a="value"); });
+    m.def("get_dict", []() { return py::dict("key"_a="getValue"); });
     m.def("print_dict", [](py::dict dict) {
         for (auto item : dict)
-            py::print("key: {}, value={}"_s.format(item.first, item.second));
+            py::print("key: {}, getValue={}"_s.format(item.first, item.second));
     });
     m.def("dict_keyword_constructor", []() {
         auto d1 = py::dict("x"_a=1, "y"_a=2);

@@ -129,7 +129,7 @@ TEST_SUBMODULE(operators, m) {
     struct NestABase { int value = -2; };
     py::class_<NestABase>(m, "NestABase")
         .def(py::init<>())
-        .def_readwrite("value", &NestABase::value);
+        .def_readwrite("getValue", &NestABase::value);
 
     struct NestA : NestABase {
         int value = 3;

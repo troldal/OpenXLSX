@@ -194,7 +194,7 @@ XLRelationshipItem& XLRelationshipItem::operator=(const XLRelationshipItem& othe
 }
 
 /**
- * @details Returns the m_relationshipType member variable by value.
+ * @details Returns the m_relationshipType member variable by getValue.
  */
 XLRelationshipType XLRelationshipItem::type() const
 {
@@ -202,7 +202,7 @@ XLRelationshipType XLRelationshipItem::type() const
 }
 
 /**
- * @details Returns the m_relationshipTarget member variable by value.
+ * @details Returns the m_relationshipTarget member variable by getValue.
  */
 std::string XLRelationshipItem::target() const
 {
@@ -210,7 +210,7 @@ std::string XLRelationshipItem::target() const
 }
 
 /**
- * @details Returns the m_relationshipId member variable by value.
+ * @details Returns the m_relationshipId member variable by getValue.
  */
 std::string XLRelationshipItem::id() const
 {

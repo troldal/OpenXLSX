@@ -120,7 +120,7 @@ std::string XLSheet::name() const
  * @details This method sets the name of the sheet to a new name, in the following way:
  * - Set the m_sheetName property to the new name.
  * - In the sheet node in the workbook.xml file, set the name attribute to the new name.
- * - Set the value of the title node in the app.xml file to the new name
+ * - Set the getValue of the title node in the app.xml file to the new name
  * - Set the m_isModified property to true.
  */
 void XLSheet::setName(const std::string& name)
@@ -137,10 +137,10 @@ XLSheetState XLSheet::visibility() const
 }
 
 /**
- * @details This method sets the visibility state of the sheet to a new value, in the following manner:
- * - Set the m_sheetState to the new value.
+ * @details This method sets the visibility state of the sheet to a new getValue, in the following manner:
+ * - Set the m_sheetState to the new getValue.
  * - If the state is set to Hidden or VeryHidden, create a state attribute in the sheet node in the workbook.xml file
- * (if it doesn't exist already) and set the value to the new state.
+ * (if it doesn't exist already) and set the getValue to the new state.
  * - If the state is set to Visible, delete the state attribute from the sheet node in the workbook.xml file, if it
  * exists.
  */
@@ -296,7 +296,7 @@ XLCell XLWorksheet::cell(uint32_t rowNumber, uint16_t columnNumber)
     // ===== If there are no cells in the current row, or the requested cell is beyond the last cell in the row...
     if (rowNode.last_child().empty() || XLCellReference(rowNode.last_child().attribute("r").value()).column() < columnNumber) {
         // if (rowNode.last_child().empty() ||
-        // XLCellReference::CoordinatesFromAddress(rowNode.last_child().attribute("r").value()).second < columnNumber) {
+        // XLCellReference::CoordinatesFromAddress(rowNode.last_child().attribute("r").getValue()).second < columnNumber) {
         rowNode.append_child("c").append_attribute("r").set_value(cellRef.address().c_str());
         cellNode = rowNode.last_child();
     }
@@ -384,8 +384,8 @@ XLColumn XLWorksheet::column(uint16_t columnNumber) const
 }
 
 /**
- * @details Returns the value of the m_lastCell member variable.
- * @pre The m_lastCell member variable must have a valid value.
+ * @details Returns the getValue of the m_lastCell member variable.
+ * @pre The m_lastCell member variable must have a valid getValue.
  * @post The object must remain unmodified.
  */
 XLCellReference XLWorksheet::lastCell() const noexcept
@@ -395,7 +395,7 @@ XLCellReference XLWorksheet::lastCell() const noexcept
 }
 
 /**
- * @details Returns the column() value from the last (bottom right) cell of the worksheet.
+ * @details Returns the column() getValue from the last (bottom right) cell of the worksheet.
  * @pre LastCell() must return a valid XLCellReference object, which accurately represents the worksheet size.
  * @post Object must remain unmodified.
  */
@@ -405,7 +405,7 @@ uint16_t XLWorksheet::columnCount() const noexcept
 }
 
 /**
- * @details Returns the row() value from the last (bottom right) cell of the worksheet.
+ * @details Returns the row() getValue from the last (bottom right) cell of the worksheet.
  * @pre LastCell() must return a valid XLCellReference object, which accurately represents the worksheet size.
  * @post Object must remain unmodified.
  */

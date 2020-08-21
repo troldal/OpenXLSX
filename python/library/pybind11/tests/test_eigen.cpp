@@ -106,7 +106,7 @@ TEST_SUBMODULE(eigen, m) {
     m.def("cholesky4", [](Eigen::Ref<const MatrixXdR> x) -> Eigen::MatrixXd { return x.llt().matrixL(); });
 
     // test_eigen_ref_mutators
-    // Mutators: these add some value to the given element using Eigen, but Eigen should be mapping into
+    // Mutators: these add some getValue to the given element using Eigen, but Eigen should be mapping into
     // the numpy array data and so the result should show up there.  There are three versions: one that
     // works on a contiguous-row matrix (numpy's default), one for a contiguous-column matrix, and one
     // for any matrix.
@@ -170,7 +170,7 @@ TEST_SUBMODULE(eigen, m) {
     });
 
     // test_eigen_return_references, test_eigen_keepalive
-    // return value referencing/copying tests:
+    // return getValue referencing/copying tests:
     class ReturnTester {
         Eigen::MatrixXd mat = create();
     public:
@@ -288,13 +288,13 @@ TEST_SUBMODULE(eigen, m) {
 
     // test_issue738
     // Issue #738: 1xN or Nx1 2D matrices were neither accepted nor properly copied with an
-    // incompatible stride value on the length-1 dimension--but that should be allowed (without
-    // requiring a copy!) because the stride value can be safely ignored on a size-1 dimension.
+    // incompatible stride getValue on the length-1 dimension--but that should be allowed (without
+    // requiring a copy!) because the stride getValue can be safely ignored on a size-1 dimension.
     m.def("iss738_f1", &adjust_matrix<const Eigen::Ref<const Eigen::MatrixXd> &>, py::arg().noconvert());
     m.def("iss738_f2", &adjust_matrix<const Eigen::Ref<const Eigen::Matrix<double, -1, -1, Eigen::RowMajor>> &>, py::arg().noconvert());
 
     // test_issue1105
-    // Issue #1105: when converting from a numpy two-dimensional (Nx1) or (1xN) value into a dense
+    // Issue #1105: when converting from a numpy two-dimensional (Nx1) or (1xN) getValue into a dense
     // eigen Vector or RowVector, the argument would fail to load because the numpy copy would fail:
     // numpy won't broadcast a Nx1 into a 1-dimensional vector.
     m.def("iss1105_col", [](Eigen::VectorXd) { return true; });

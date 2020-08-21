@@ -15,7 +15,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
             MM
            _MM_
 
-  Copyright (c) 2020, Kenneth Troldal Balslev
+  Copyright (c) 2018, Kenneth Troldal Balslev
 
   All rights reserved.
 
@@ -43,21 +43,99 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#include <XLRow.hpp>
-#include <pybind11/pybind11.h>
+#ifndef OPENXLSX_XLCELLVALUE_INL
+#define OPENXLSX_XLCELLVALUE_INL
 
-namespace py = pybind11;
-using namespace OpenXLSX;
-
-void init_XLRow(py::module& m)
+/**
+ * @details
+ * @pre
+ * @post
+ */
+template<typename T>
+XLCellValue::XLCellValue(T value) : m_value(value)
 {
-    py::class_<XLRow>(m, "XLRow")
-        .def("height", &XLRow::height, "Get the height of the row.")
-        .def("setHeight", &XLRow::setHeight, "Set the height of the row.", py::arg("height"))
-        .def("descent", &XLRow::descent, "Get the 'descent' getValue of the row.")
-        .def("setDescent", &XLRow::setDescent, "Set the 'descent' getValue for the row.", py::arg("descent"))
-        .def("isHidden", &XLRow::isHidden, "Determine if the row is hidden.")
-        .def("setHidden", &XLRow::setHidden, "Set the 'hidden' state for the row", py::arg("state"))
-        .def("rowNumber", &XLRow::rowNumber, "Get the row number for the row.")
-        .def("cellCount", &XLRow::cellCount, "Get the cell count for the row.");
+    if constexpr (std::is_integral_v<T> && std::is_same_v<T, bool>)
+        m_type = XLValueType::Boolean;
+    else if constexpr (std::is_integral_v<T> && !std::is_same_v<T, bool>)
+        m_type = XLValueType::Integer;
+    else if constexpr (std::is_floating_point_v<T>)
+        m_type = XLValueType::Float;
+    else if constexpr (std::is_constructible_v<T, char*> && !std::is_same_v<T, bool>)
+        m_type = XLValueType::String;
+    else
+        m_type = XLValueType::Error;
 }
+
+/**
+ * @details
+ * @pre
+ * @post
+ */
+template<typename T>
+XLCellValue& XLCellValue::operator=(T value)
+{
+    if constexpr (std::is_integral_v<T> && std::is_same_v<T, bool>)
+        m_type = XLValueType::Boolean;
+    else if constexpr (std::is_integral_v<T> && !std::is_same_v<T, bool>)
+        m_type = XLValueType::Integer;
+    else if constexpr (std::is_floating_point_v<T>)
+        m_type = XLValueType::Float;
+    else if constexpr (std::is_constructible_v<T, char*> && !std::is_same_v<T, bool>)
+        m_type = XLValueType::String;
+    else
+        m_type = XLValueType::Error;
+
+    m_value = value;
+    return *this;
+}
+
+/**
+ * @details
+ * @pre
+ * @post
+ */
+template<typename T>
+void XLCellValue::set(T value)
+{
+    *this = value;
+}
+
+/**
+ * @details
+ * @pre
+ * @post
+ */
+template<typename T, typename std::enable_if<std::is_integral<T>::value, int64_t>::type*>
+T XLCellValue::get()
+{
+    if constexpr (std::is_same<T, bool>::value) {
+        return std::get<bool>(m_value);
+    }
+    else {
+        return static_cast<T>(std::get<int64_t>(m_value));
+    }
+}
+
+/**
+ * @details
+ * @pre
+ * @post
+ */
+template<typename T, typename std::enable_if<std::is_floating_point<T>::value, long double>::type*>
+T XLCellValue::get()
+{
+    return static_cast<T>(std::get<double>(m_value));
+}
+
+/**
+ * @details
+ * @pre
+ * @post
+ */
+template<typename T, typename std::enable_if<std::is_constructible<T, char*>::value && !std::is_same<T, bool>::value, char*>::type*>
+T XLCellValue::get()
+{
+    return std::get<std::string>(m_value).c_str();
+}
+
+#endif    // OPENXLSX_XLCELLVALUE_INL

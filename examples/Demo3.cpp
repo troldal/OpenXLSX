@@ -14,12 +14,12 @@ int main()
     doc1.create("./Demo03.xlsx");
     auto wks1 = doc1.workbook().worksheet("Sheet1");
 
-    wks1.cell(XLCellReference("A1")) = "안녕하세요 세계!";
-    wks1.cell(XLCellReference("A2")) = "你好，世界!";
-    wks1.cell(XLCellReference("A3")) = "こんにちは世界";
-    wks1.cell(XLCellReference("A4")) = "नमस्ते दुनिया!";
-    wks1.cell(XLCellReference("A5")) = "Привет, мир!";
-    wks1.cell(XLCellReference("A6")) = "Γειά σου Κόσμε!";
+    wks1.cell(XLCellReference("A1")).value() = "안녕하세요 세계!";
+    wks1.cell(XLCellReference("A2")).value() = "你好，世界!";
+    wks1.cell(XLCellReference("A3")).value() = "こんにちは世界";
+    wks1.cell(XLCellReference("A4")).value() = "नमस्ते दुनिया!";
+    wks1.cell(XLCellReference("A5")).value() = "Привет, мир!";
+    wks1.cell(XLCellReference("A6")).value() = "Γειά σου Κόσμε!";
 
     doc1.save();
     doc1.saveAs("./スプレッドシート.xlsx");

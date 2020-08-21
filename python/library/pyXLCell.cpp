@@ -51,19 +51,19 @@ using namespace OpenXLSX;
 
 void init_XLCell(py::module &m) {
     py::class_<XLCell>(m, "XLCell")
-        .def_property("integerValue", &XLCell::getValue<int64_t>, &XLCell::setValue<int64_t>, "Get or set the cell value as an integer.")
+        .def_property("integerValue", &XLCell::getValue<int64_t>, &XLCell::setValue<int64_t>, "Get or set the cell getValue as an integer.")
         .def_property("floatValue",
                       &XLCell::getValue<double>,
                       &XLCell::setValue<double>,
-                      "Get or set the cell value as a floating point value.")
-        .def_property("booleanValue", &XLCell::getValue<bool>, &XLCell::setValue<bool>, "Get or set the cell value as a boolean.")
+                      "Get or set the cell value as a floating point getValue.")
+        .def_property("booleanValue", &XLCell::getValue<bool>, &XLCell::setValue<bool>, "Get or set the cell getValue as a boolean.")
         .def_property("stringValue",
                       &XLCell::getValue<const std::string>,
                       &XLCell::setValue<const std::string>,
-                      "Get or set the cell value as a string.")
-        .def_property("value", &XLCell::value, &XLCell::operator=<XLCellValue>, "Get or set the cell value object.")
-        //        .def("value", &XLCell::value, "Get the value object for the cell.")
-        .def("valueType", &XLCell::valueType, "Get the value type for the cell.")
+                      "Get or set the cell getValue as a string.")
+        .def_property("getValue", &XLCell::getValue, &XLCell::operator=<XLCellValue>, "Get or set the cell getValue object.")
+        //        .def("value", &XLCell::value, "Get the getValue object for the cell.")
+        .def("valueType", &XLCell::valueType, "Get the getValue type for the cell.")
         .def("cellReference", &XLCell::cellReference, "Get the reference object for the cell")
         .def("hasFormula", &XLCell::hasFormula, "Boolean for determining if the cell has a formula or not.")
         .def("formula", &XLCell::formula, "Get the formula object for the cell")

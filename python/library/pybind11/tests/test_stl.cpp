@@ -78,9 +78,9 @@ TEST_SUBMODULE(stl, m) {
     });
 
     // test_map
-    m.def("cast_map", []() { return std::map<std::string, std::string>{{"key", "value"}}; });
+    m.def("cast_map", []() { return std::map<std::string, std::string>{{"key", "getValue"}}; });
     m.def("load_map", [](const std::map<std::string, std::string> &map) {
-        return map.at("key") == "value" && map.at("key2") == "value2";
+        return map.at("key") == "getValue" && map.at("key2") == "value2";
     });
 
     // test_set
@@ -134,7 +134,7 @@ TEST_SUBMODULE(stl, m) {
         std::list<Value> move_list() const { return {{0}, {1}, {2}}; }
     };
     py::class_<MoveOutContainer::Value>(m, "MoveOutContainerValue")
-        .def_readonly("value", &MoveOutContainer::Value::value);
+        .def_readonly("getValue", &MoveOutContainer::Value::value);
     py::class_<MoveOutContainer>(m, "MoveOutContainer")
         .def(py::init<>())
         .def_property_readonly("move_list", &MoveOutContainer::move_list);

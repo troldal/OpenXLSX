@@ -55,7 +55,22 @@ using namespace OpenXLSX;
 /**
  * @details
  */
-XLCell::XLCell() : m_cellNode(nullptr), m_sharedStrings(nullptr) {}
+XLCell::XLCellValueProxy::XLCellValueProxy(XLCell* cell) : m_cell(cell) {}
+XLCell::XLCellValueProxy::~XLCellValueProxy() = default;
+XLCell::XLCellValueProxy::XLCellValueProxy(const XLCell::XLCellValueProxy& other) = default;
+XLCell::XLCellValueProxy::XLCellValueProxy(XLCell::XLCellValueProxy&& other) noexcept = default;
+XLCell::XLCellValueProxy& XLCell::XLCellValueProxy::operator=(const XLCell::XLCellValueProxy& other) = default;
+XLCell::XLCellValueProxy& XLCell::XLCellValueProxy::operator=(XLCell::XLCellValueProxy&& other) noexcept = default;
+
+XLCell::XLCellValueProxy::operator XLCellValue()
+{
+    return m_cell->getValue();
+}
+
+/**
+ * @details
+ */
+XLCell::XLCell() : m_cellNode(nullptr), m_sharedStrings(nullptr), m_valueProxy(XLCellValueProxy(this)) {}
 
 /**
  * @details This constructor creates a XLCell object based on the cell XMLNode input parameter, and is
@@ -64,20 +79,37 @@ XLCell::XLCell() : m_cellNode(nullptr), m_sharedStrings(nullptr) {}
  * from a XLCellReference parameter.
  * The initialization algorithm is as follows:
  *  -# Is the parameter a nullptr? If yes, throw a invalid_argument exception.
- *  -# Read the formula and value child nodes. These may be nullptr, if the cell is empty.
+ *  -# Read the formula and getValue child nodes. These may be nullptr, if the cell is empty.
  *  -# Read the address, type and style attributes to the cellNode. The type attribute may be nullptr
- *  -# set the m_cellReference property using the value of the m_addressAttribute.
+ *  -# set the m_cellReference property using the getValue of the m_addressAttribute.
  *  -# Set the cell type, using the previous information:
- *      -# If there is no type attribute and no value node, the cell is empty.
- *      -# If there is no type attribute but there is a value node, the cell has a number value.
+ *      -# If there is no type attribute and no getValue node, the cell is empty.
+ *      -# If there is no type attribute but there is a value node, the cell has a number getValue.
  *      -# Otherwise, determine the celltype based on the type attribute.
  */
 XLCell::XLCell(const XMLNode& cellNode, XLSharedStrings* sharedStrings)
     : m_cellNode(std::make_unique<XMLNode>(cellNode)),
-      m_sharedStrings(sharedStrings)
+      m_sharedStrings(sharedStrings),
+      m_valueProxy(XLCellValueProxy(this))
 {}
 
-XLCell::XLCell(XLCell&& other) noexcept = default;
+/**
+ * @details
+ */
+XLCell::XLCell(const XLCell& other)
+    : m_cellNode(other.m_cellNode ? std::make_unique<XMLNode>(*other.m_cellNode) : nullptr),
+      m_sharedStrings(other.m_sharedStrings),
+      m_valueProxy(XLCellValueProxy(this))
+{}
+
+/**
+ * @details
+ */
+XLCell::XLCell(XLCell&& other) noexcept
+    : m_cellNode(std::move(other.m_cellNode)),
+      m_sharedStrings(other.m_sharedStrings),
+      m_valueProxy(XLCellValueProxy(this))
+{}
 
 /**
  * @details
@@ -87,19 +119,26 @@ XLCell::~XLCell() = default;
 /**
  * @details
  */
-XLCell::XLCell(const XLCell& other)
-    : m_cellNode(other.m_cellNode ? std::make_unique<XMLNode>(*other.m_cellNode) : nullptr),
-      m_sharedStrings(other.m_sharedStrings)
-{}
+XLCell& XLCell::operator=(const XLCell& other)
+{
+    if (&other != this) {
+        m_cellNode      = other.m_cellNode ? std::make_unique<XMLNode>(*other.m_cellNode) : nullptr;
+        m_sharedStrings = other.m_sharedStrings;
+        m_valueProxy    = XLCellValueProxy(this);
+    }
+
+    return *this;
+}
 
 /**
  * @details
  */
-XLCell& XLCell::operator=(const XLCell& other)
+XLCell& XLCell::operator=(XLCell&& other) noexcept
 {
     if (&other != this) {
-        *m_cellNode     = *other.m_cellNode;
+        m_cellNode      = std::move(other.m_cellNode);
         m_sharedStrings = other.m_sharedStrings;
+        m_valueProxy    = XLCellValueProxy(this);
     }
 
     return *this;
@@ -139,10 +178,10 @@ XLCell::operator bool() const
  */
 XLValueType XLCell::valueType() const
 {
-    // ===== If neither a Type attribute or a value node is present, the cell is empty.
+    // ===== If neither a Type attribute or a getValue node is present, the cell is empty.
     if (!m_cellNode->attribute("t") && !m_cellNode->child("v")) return XLValueType::Empty;
 
-    // ===== If a Type attribute is not present, but a value node is, the cell contains a number.
+    // ===== If a Type attribute is not present, but a getValue node is, the cell contains a number.
     else if ((!m_cellNode->attribute("t") || (strcmp(m_cellNode->attribute("t").value(), "n") == 0 && m_cellNode->child("v") != nullptr))) {
         std::string numberString = m_cellNode->child("v").text().get();
         if (numberString.find('.') != std::string::npos || numberString.find("E-") != std::string::npos ||
@@ -176,9 +215,45 @@ XLValueType XLCell::valueType() const
 /**
  * @details
  */
-XLCellValue XLCell::value() const
+XLCell::XLCellValueProxy& XLCell::value()
 {
-    return XLCellValue(*m_cellNode, *m_sharedStrings);
+    return m_valueProxy;
+}
+
+const XLCell::XLCellValueProxy& XLCell::value() const
+{
+    return m_valueProxy;
+}
+
+/**
+ * @details
+ */
+XLCellValue XLCell::getValue() const
+{
+    switch (valueType()) {
+        case XLValueType::Empty:
+            return XLCellValue().clear();
+
+        case XLValueType::Float:
+            return XLCellValue(m_cellNode->child("v").text().as_double());
+
+        case XLValueType::Integer:
+            return XLCellValue(m_cellNode->child("v").text().as_llong());
+
+        case XLValueType::String:
+            if (strcmp(m_cellNode->attribute("t").value(), "s") == 0)
+                return XLCellValue(m_sharedStrings->getString(static_cast<uint32_t>(m_cellNode->child("v").text().as_ullong())));
+            else if (strcmp(m_cellNode->attribute("t").value(), "str") == 0)
+                return XLCellValue(m_cellNode->child("v").text().get());
+            else
+                throw XLException("Unknown string type");
+
+        case XLValueType::Boolean:
+            return XLCellValue(m_cellNode->child("v").text().as_bool());
+
+        default:
+            return XLCellValue().setError();
+    }
 }
 
 /**
@@ -210,6 +285,8 @@ std::string XLCell::formula() const
  * @pre
  * @post
  */
+
+
 void XLCell::setFormula(const std::string& newFormula)
 {
     m_cellNode->child("f").text().set(newFormula.c_str());
@@ -278,12 +355,4 @@ void XLCell::setString(const char* stringValue)
     }
 }
 
-/**
- * @details
- * @pre
- * @post
- */
-void XLCell::reset(const XMLNode& cellNode)
-{
-    *m_cellNode = cellNode;
-}
+

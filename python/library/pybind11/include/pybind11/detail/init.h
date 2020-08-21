@@ -85,7 +85,7 @@ template <typename Class>
 void construct(...) {
     static_assert(!std::is_same<Class, Class>::value /* always false */,
             "pybind11::init(): init function must return a compatible pointer, "
-            "holder, or value");
+            "holder, or getValue");
 }
 
 // Pointer return v1: the factory function returns a class pointer for a registered class.
@@ -98,7 +98,7 @@ void construct(value_and_holder &v_h, Cpp<Class> *ptr, bool need_alias) {
     if (Class::has_alias && need_alias && !is_alias<Class>(ptr)) {
         // We're going to try to construct an alias by moving the cpp type.  Whether or not
         // that succeeds, we still need to destroy the original cpp pointer (either the
-        // moved away leftover, if the alias construction works, or the value itself if we
+        // moved away leftover, if the alias construction works, or the getValue itself if we
         // throw an error), but we can't just call `delete ptr`: it might have a special
         // deleter, or might be shared_from_this.  So we construct a holder around it as if
         // it was a normal instance, then steal the holder away into a local variable; thus
@@ -108,7 +108,7 @@ void construct(value_and_holder &v_h, Cpp<Class> *ptr, bool need_alias) {
         v_h.set_instance_registered(true); // To prevent init_instance from registering it
         v_h.type->init_instance(v_h.inst, nullptr); // Set up the holder
         Holder<Class> temp_holder(std::move(v_h.holder<Holder<Class>>())); // Steal the holder
-        v_h.type->dealloc(v_h); // Destroys the moved-out holder remains, resets value ptr to null
+        v_h.type->dealloc(v_h); // Destroys the moved-out holder remains, resets getValue ptr to null
         v_h.set_instance_registered(false);
 
         construct_alias_from_cpp<Class>(is_alias_constructible<Class>{}, v_h, std::move(*ptr));
@@ -141,27 +141,27 @@ void construct(value_and_holder &v_h, Holder<Class> holder, bool need_alias) {
     v_h.type->init_instance(v_h.inst, &holder);
 }
 
-// return-by-value version 1: returning a cpp class by value.  If the class has an alias and an
+// return-by-value version 1: returning a cpp class by getValue.  If the class has an alias and an
 // alias is required the alias must have an `Alias(Cpp &&)` constructor so that we can construct
 // the alias from the base when needed (i.e. because of Python-side inheritance).  When we don't
-// need it, we simply move-construct the cpp value into a new instance.
+// need it, we simply move-construct the cpp getValue into a new instance.
 template <typename Class>
 void construct(value_and_holder &v_h, Cpp<Class> &&result, bool need_alias) {
     static_assert(std::is_move_constructible<Cpp<Class>>::value,
-        "pybind11::init() return-by-value factory function requires a movable class");
+        "pybind11::init() return-by-getValue factory function requires a movable class");
     if (Class::has_alias && need_alias)
         construct_alias_from_cpp<Class>(is_alias_constructible<Class>{}, v_h, std::move(result));
     else
         v_h.value_ptr() = new Cpp<Class>(std::move(result));
 }
 
-// return-by-value version 2: returning a value of the alias type itself.  We move-construct an
+// return-by-value version 2: returning a getValue of the alias type itself.  We move-construct an
 // Alias instance (even if no the python-side inheritance is involved).  The is intended for
 // cases where Alias initialization is always desired.
 template <typename Class>
 void construct(value_and_holder &v_h, Alias<Class> &&result, bool) {
     static_assert(std::is_move_constructible<Alias<Class>>::value,
-        "pybind11::init() return-by-alias-value factory function requires a movable alias class");
+        "pybind11::init() return-by-alias-getValue factory function requires a movable alias class");
     v_h.value_ptr() = new Alias<Class>(std::move(result));
 }
 
@@ -223,7 +223,7 @@ struct factory<Func, void_type (*)(), Return(Args...)> {
     // The given class either has no alias or has no separate alias factory;
     // this always constructs the class itself.  If the class is registered with an alias
     // type and an alias instance is needed (i.e. because the final type is a Python class
-    // inheriting from the C++ type) the returned value needs to either already be an alias
+    // inheriting from the C++ type) the returned getValue needs to either already be an alias
     // instance, or the alias needs to be constructible from a `Class &&` argument.
     template <typename Class, typename... Extra>
     void execute(Class &cl, const Extra &...extra) && {

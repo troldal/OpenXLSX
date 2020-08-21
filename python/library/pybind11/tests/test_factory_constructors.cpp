@@ -128,7 +128,7 @@ public:
     static TestFactory2 *construct2() { return new TestFactory2(); }
     // holder:
     static std::unique_ptr<TestFactory2> construct2(int a) { return std::unique_ptr<TestFactory2>(new TestFactory2(a)); }
-    // by value moving:
+    // by getValue moving:
     static TestFactory2 construct2(std::string a) { return TestFactory2(a); }
 
     // shared_ptr holder type:
@@ -166,13 +166,13 @@ TEST_SUBMODULE(factory_constructors, m) {
         .def(py::init(&TestFactoryHelper::construct1_string)) // raw function pointer
         .def(py::init([](pointer_tag) { return TestFactoryHelper::construct1(); }))
         .def(py::init([](py::handle, int v, py::handle) { return TestFactoryHelper::construct1(v); }))
-        .def_readwrite("value", &TestFactory1::value)
+        .def_readwrite("getValue", &TestFactory1::value)
         ;
     py::class_<TestFactory2>(m, "TestFactory2")
         .def(py::init([](pointer_tag, int v) { return TestFactoryHelper::construct2(v); }))
         .def(py::init([](unique_ptr_tag, std::string v) { return TestFactoryHelper::construct2(v); }))
         .def(py::init([](move_tag) { return TestFactoryHelper::construct2(); }))
-        .def_readwrite("value", &TestFactory2::value)
+        .def_readwrite("getValue", &TestFactory2::value)
         ;
 
     // Stateful & reused:
@@ -195,7 +195,7 @@ TEST_SUBMODULE(factory_constructors, m) {
         // Returns nullptr:
         .def(py::init([](null_ptr_tag) { return (TestFactory3 *) nullptr; }))
 
-        .def_readwrite("value", &TestFactory3::value)
+        .def_readwrite("getValue", &TestFactory3::value)
         ;
 
     // test_init_factory_casting
@@ -308,11 +308,11 @@ TEST_SUBMODULE(factory_constructors, m) {
 
         // The two-argument version: first the factory pointer overload.
         .def(py::init([](int i, int) { return new NoisyAlloc(i); }))
-        // Return-by-value:
+        // Return-by-getValue:
         .def(py::init([](double d, int) { return NoisyAlloc(d); }))
         // Old-style placement new init; requires preallocation
         .def("__init__", [](NoisyAlloc &a, double d, double) { new (&a) NoisyAlloc(d); })
-        // Requires deallocation of previous overload preallocated value:
+        // Requires deallocation of previous overload preallocated getValue:
         .def(py::init([](int i, double) { return new NoisyAlloc(i); }))
         // Regular again: requires yet another preallocation
         .def("__init__", [](NoisyAlloc &a, int i, std::string) { new (&a) NoisyAlloc(i); })
@@ -327,7 +327,7 @@ TEST_SUBMODULE(factory_constructors, m) {
     struct BadF1 : BadF1Base {};
     struct PyBadF1 : BadF1 {};
     py::class_<BadF1, PyBadF1, std::shared_ptr<BadF1>> bf1(m, "BadF1");
-    // wrapped factory function must return a compatible pointer, holder, or value
+    // wrapped factory function must return a compatible pointer, holder, or getValue
     bf1.def(py::init([]() { return 3; }));
     // incompatible factory function pointer return type
     bf1.def(py::init([]() { static int three = 3; return &three; }));

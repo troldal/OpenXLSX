@@ -72,7 +72,7 @@ release = '2.5.0'
 language = None
 
 # There are two options for replacing |today|: either, you set today to some
-# non-false value, then it is used:
+# non-false getValue, then it is used:
 #today = ''
 # Else, today_fmt is used as the format for a strftime call.
 #today_fmt = '%B %d, %Y'
@@ -203,7 +203,7 @@ html_static_path = ['_static']
 #html_show_copyright = True
 
 # If true, an OpenSearch description file will be output, and all pages will
-# contain a <link> tag referring to it.  The value of this option must be the
+# contain a <link> tag referring to it.  The getValue of this option must be the
 # base URL from which the finished HTML is served.
 #html_use_opensearch = ''
 
@@ -217,7 +217,7 @@ html_static_path = ['_static']
 #html_search_language = 'en'
 
 # A dictionary with options for the search language support, empty by default.
-# Now only 'ja' uses this config value
+# Now only 'ja' uses this config getValue
 #html_search_options = {'type': 'default'}
 
 # The name of a javascript file (relative to the configuration directory) that

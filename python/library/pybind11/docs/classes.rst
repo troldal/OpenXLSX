@@ -499,7 +499,7 @@ The entries defined by the enumeration type are exposed in the ``__members__`` p
     >>> Pet.Kind.__members__
     {'Dog': Kind.Dog, 'Cat': Kind.Cat}
 
-The ``name`` property returns the name of the enum value as a unicode string.
+The ``name`` property returns the name of the enum getValue as a unicode string.
 
 .. note::
 

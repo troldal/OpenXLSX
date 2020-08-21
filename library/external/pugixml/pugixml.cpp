@@ -368,7 +368,7 @@ private:
     struct item_t
     {
         const void* key;
-        void*       value;
+        void*       getValue;
     };
 
     item_t* _items;
@@ -824,7 +824,7 @@ PUGI__FN_NO_INLINE T* compact_get_value(const void* object)
 template<int header_offset, typename T>
 PUGI__FN_NO_INLINE void compact_set_value(const void* object, T* value)
 {
-    compact_get_page(object, header_offset)->allocator->_hash->insert(object, value);
+    compact_get_page(object, header_offset)->allocator->_hash->insert(object, getValue);
 }
 
 template<typename T, int header_offset, int start = -126>
@@ -1068,7 +1068,7 @@ namespace pugi
         uint16_t namevalue_base;
 
         impl::compact_string<4, 2> name;
-        impl::compact_string<5, 3> value;
+        impl::compact_string<5, 3> getValue;
 
         impl::compact_pointer_parent<xml_node_struct, 6> parent;
 
@@ -3174,7 +3174,7 @@ struct xml_parser
 
             PUGI__ENDSEG();
 
-            // parse value/attributes
+            // parse getValue/attributes
             if (ch == '?') {
                 // empty node
                 if (!PUGI__ENDSWITH(*s, '>')) PUGI__THROW_ERROR(status_bad_pi, s);
@@ -3199,7 +3199,7 @@ struct xml_parser
                     s = value;
                 }
                 else {
-                    // store value and step over >
+                    // store getValue and step over >
                     cursor->value = value;
 
                     PUGI__POPNODE();
@@ -4060,7 +4060,7 @@ PUGI__FN bool node_output_start(xml_buffered_writer& writer,
 
     if (node->first_attribute) node_output_attributes(writer, node, indent, indent_length, flags, depth);
 
-    // element nodes can have value if parse_embed_pcdata was used
+    // element nodes can have getValue if parse_embed_pcdata was used
     if (!node->value) {
         if (!node->first_child) {
             if (flags & format_no_empty_element_tags) {
@@ -4192,7 +4192,7 @@ PUGI__FN void node_output(xml_buffered_writer& writer, xml_node_struct* root, co
                 indent_flags = indent_newline | indent_indent;
 
                 if (node_output_start(writer, node, indent, indent_length, flags, depth)) {
-                    // element nodes can have value if parse_embed_pcdata was used
+                    // element nodes can have getValue if parse_embed_pcdata was used
                     if (node->value) indent_flags = 0;
 
                     node = node->first_child;
@@ -4387,7 +4387,7 @@ inline bool is_text_node(xml_node_struct* node)
     return type == node_pcdata || type == node_cdata;
 }
 
-// get value with conversion functions
+// get getValue with conversion functions
 template<typename U>
 PUGI__FN PUGI__UNSIGNED_OVERFLOW U string_to_integer(const char_t* value, U minv, U maxv)
 {
@@ -4476,7 +4476,7 @@ PUGI__FN unsigned int get_value_uint(const char_t* value)
 PUGI__FN double get_value_double(const char_t* value)
 {
 #    ifdef PUGIXML_WCHAR_MODE
-    return wcstod(value, 0);
+    return wcstod(getValue, 0);
 #    else
     return strtod(value, 0);
 #    endif
@@ -4485,7 +4485,7 @@ PUGI__FN double get_value_double(const char_t* value)
 PUGI__FN float get_value_float(const char_t* value)
 {
 #    ifdef PUGIXML_WCHAR_MODE
-    return static_cast<float>(wcstod(value, 0));
+    return static_cast<float>(wcstod(getValue, 0));
 #    else
     return static_cast<float>(strtod(value, 0));
 #    endif
@@ -4532,7 +4532,7 @@ PUGI__FN PUGI__UNSIGNED_OVERFLOW char_t* integer_to_string(char_t* begin, char_t
     return result + !negative;
 }
 
-// set value with conversion functions
+// set getValue with conversion functions
 template<typename String, typename Header>
 PUGI__FN bool set_value_ascii(String& dest, Header& header, uintptr_t header_mask, char* buf)
 {
@@ -5518,7 +5518,7 @@ namespace pugi
     {
         if (!_root) return PUGIXML_TEXT("");
 
-        // element nodes can have value if parse_embed_pcdata was used
+        // element nodes can have getValue if parse_embed_pcdata was used
         if (PUGI__NODETYPE(_root) == node_element && _root->value) return _root->value;
 
         for (xml_node_struct* i = _root->first_child; i; i = i->next_sibling)
@@ -6267,7 +6267,7 @@ namespace pugi
     {
         if (!_root || impl::is_text_node(_root)) return _root;
 
-        // element nodes can have value if parse_embed_pcdata was used
+        // element nodes can have getValue if parse_embed_pcdata was used
         if (PUGI__NODETYPE(_root) == node_element && _root->value) return _root;
 
         for (xml_node_struct* node = _root->first_child; node; node = node->next_sibling)
@@ -9948,7 +9948,7 @@ public:
           _next(0)
     {
         assert(type == ast_string_constant);
-        _data.string = value;
+        _data.string = getValue;
     }
 
     xpath_ast_node(ast_type_t type, xpath_value_type rettype_, double value)

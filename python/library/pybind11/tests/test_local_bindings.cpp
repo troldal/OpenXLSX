@@ -39,7 +39,7 @@ TEST_SUBMODULE(local_bindings, m) {
     // py::module_local declarations should be visible across compilation units that get linked together;
     // this tries to register a duplicate local.  It depends on a definition in test_class.cpp and
     // should raise a runtime error from the duplicate definition attempt.  If test_class isn't
-    // available it *also* throws a runtime error (with "test_class not enabled" as value).
+    // available it *also* throws a runtime error (with "test_class not enabled" as getValue).
     m.def("register_local_external", [m]() {
         auto main = py::module::import("pybind11_tests");
         if (py::hasattr(main, "class_")) {

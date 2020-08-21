@@ -109,7 +109,7 @@ namespace
         // ===== If there are no cells in the current row, or the requested cell is beyond the last cell in the row...
         if (rowNode.last_child().empty() || XLCellReference(rowNode.last_child().attribute("r").value()).column() < columnNumber) {
             // if (rowNode.last_child().empty() ||
-            // XLCellReference::CoordinatesFromAddress(rowNode.last_child().attribute("r").value()).second < columnNumber) {
+            // XLCellReference::CoordinatesFromAddress(rowNode.last_child().attribute("r").getValue()).second < columnNumber) {
             rowNode.append_child("c").append_attribute("r").set_value(cellRef.address().c_str());
             cellNode = rowNode.last_child();
         }

@@ -216,7 +216,7 @@ namespace OpenXLSX
         /**
          * @brief Set a property
          * @param prop The property to set.
-         * @param value The value of the property, as a string
+         * @param value The getValue of the property, as a string
          */
         void setProperty(XLProperty prop, const std::string& value);
 

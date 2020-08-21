@@ -133,7 +133,7 @@ def test_init_factory_casting():
 
 
 def test_init_factory_alias():
-    """Tests py::init_factory() wrapper with value conversions and alias types"""
+    """Tests py::init_factory() wrapper with getValue conversions and alias types"""
 
     cstats = [m.TestFactory6.get_cstats(), m.TestFactory6.get_alias_cstats()]
     cstats[0].alive()  # force gc
@@ -175,12 +175,12 @@ def test_init_factory_alias():
         def get(self):
             return -5 + m.TestFactory6.get(self)
 
-    # Return Class by value, moved into new alias:
+    # Return Class by getValue, moved into new alias:
     z = MyTest(tag.base, 123)
     assert z.get() == 118
     assert z.has_alias()
 
-    # Return alias by value, moved into new alias:
+    # Return alias by getValue, moved into new alias:
     y = MyTest(tag.alias, "why hello!")
     assert y.get() == 5
     assert y.has_alias()
@@ -242,7 +242,7 @@ def test_init_factory_dual():
     assert not d1.has_alias()
     assert d2.has_alias()
 
-    # Both return an alias; the second multiplies the value by 10:
+    # Both return an alias; the second multiplies the getValue by 10:
     e1 = TestFactory7(tag.alias, tag.pointer, 9)
     e2 = PythFactory7(tag.alias, tag.pointer, 10)
     assert e1.get() == 9
@@ -331,7 +331,7 @@ def strip_comments(s):
 
 
 def test_reallocations(capture, msg):
-    """When the constructor is overloaded, previous overloads can require a preallocated value.
+    """When the constructor is overloaded, previous overloads can require a preallocated getValue.
     This test makes sure that such preallocated values only happen when they might be necessary,
     and that they are deallocated properly"""
 
@@ -373,7 +373,7 @@ def test_reallocations(capture, msg):
         create_and_destroy(2.5, 3)
     assert msg(capture) == strip_comments("""
         NoisyAlloc(double 2.5)  # construction (local func variable: operator_new not called)
-        noisy new               # return-by-value "new" part 1: allocation
+        noisy new               # return-by-getValue "new" part 1: allocation
         ~NoisyAlloc()           # moved-away local func variable destruction
         ---
         ~NoisyAlloc()  # Destructor

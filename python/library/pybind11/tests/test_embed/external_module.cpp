@@ -15,7 +15,7 @@ PYBIND11_MODULE(external_module, m) {
 
     py::class_<A>(m, "A")
         .def(py::init<int>())
-        .def_readwrite("value", &A::v);
+        .def_readwrite("getValue", &A::v);
 
     m.def("internals_at", []() {
         return reinterpret_cast<uintptr_t>(&py::detail::get_internals());

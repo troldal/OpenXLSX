@@ -10,8 +10,9 @@ target_include_directories(Catch SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CURR
 add_executable(OpenXLSXTests EXCLUDE_FROM_ALL "")
 target_sources(OpenXLSXTests
                PRIVATE
-               mainTest.cpp
-               documentTest.cpp
+               main.cpp
+               testXLDocument.cpp
+               testXLCellValue.cpp
                )
 
 target_link_libraries(OpenXLSXTests

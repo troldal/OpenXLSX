@@ -96,7 +96,7 @@ template <bool EigenRowMajor> struct EigenConformable {
 
     template <typename props> bool stride_compatible() const {
         // To have compatible strides, we need (on both dimensions) one of fully dynamic strides,
-        // matching strides, or a dimension size of 1 (in which case the stride value is irrelevant)
+        // matching strides, or a dimension size of 1 (in which case the stride getValue is irrelevant)
         return
             !negativestrides &&
             (props::inner_stride == Eigen::Dynamic || props::inner_stride == stride.inner() ||
@@ -160,7 +160,7 @@ template <typename Type_> struct EigenProps {
         }
 
         // Otherwise we're storing an n-vector.  Only one of the strides will be used, but whichever
-        // is used, we want the (single) numpy stride value.
+        // is used, we want the (single) numpy stride getValue.
         const EigenIndex n = a.shape(0),
               stride = a.strides(0) / static_cast<ssize_t>(sizeof(Scalar));
 
@@ -313,7 +313,7 @@ private:
 
 public:
 
-    // Normal returned non-reference, non-const value:
+    // Normal returned non-reference, non-const getValue:
     static handle cast(Type &&src, return_value_policy /* policy */, handle parent) {
         return cast_impl(&src, return_value_policy::move, parent);
     }

@@ -10,7 +10,7 @@
 
 #define CATCH_CONFIG_RUNNER
 
-#include "catch.hpp"
+#include <catch.hpp>
 #include <OpenXLSX.hpp>
 #include <cstdio>
 

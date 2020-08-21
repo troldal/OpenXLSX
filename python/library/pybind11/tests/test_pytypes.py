@@ -15,7 +15,7 @@ def test_list(capture, doc):
         lst.append("value2")
         m.print_list(lst)
     assert capture.unordered == """
-        Entry at position 0: value
+        Entry at position 0: getValue
         list item 0: inserted-0
         list item 1: overwritten
         list item 2: inserted-2
@@ -50,14 +50,14 @@ def test_set(capture, doc):
 
 def test_dict(capture, doc):
     d = m.get_dict()
-    assert d == {"key": "value"}
+    assert d == {"key": "getValue"}
 
     with capture:
         d["key2"] = "value2"
         m.print_dict(d)
     assert capture.unordered == """
         key: key, value=value
-        key: key2, value=value2
+        key: key2, getValue=value2
     """
 
     assert not m.dict_contains({}, 42)

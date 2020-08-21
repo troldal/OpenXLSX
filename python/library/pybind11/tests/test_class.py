@@ -32,9 +32,9 @@ def test_docstrings(doc):
     assert doc(UserType.get_value) == """
         get_value(self: m.UserType) -> int
 
-        Get value using a method
+        Get getValue using a method
     """
-    assert doc(UserType.value) == "Get/set value using a property"
+    assert doc(UserType.value) == "Get/set getValue using a property"
 
     assert doc(m.NoConstructor.new_instance) == """
         new_instance() -> m.class_.NoConstructor
@@ -271,7 +271,7 @@ def test_error_after_conversions():
     with pytest.raises(TypeError) as exc_info:
         m.test_error_after_conversions("hello")
     assert str(exc_info.value).startswith(
-        "Unable to convert function return value to a Python type!")
+        "Unable to convert function return getValue to a Python type!")
 
 
 def test_aligned():

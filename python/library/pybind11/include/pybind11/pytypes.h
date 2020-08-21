@@ -461,7 +461,7 @@ inline handle get_function(handle value) {
 }
 
 // Helper aliases/functions to support implicit casting of values given to python accessors/methods.
-// When given a pyobject, this simply returns the pyobject as-is; for other C++ type, the value goes
+// When given a pyobject, this simply returns the pyobject as-is; for other C++ type, the getValue goes
 // through pybind11::cast(obj) to convert it to an `object`.
 template <typename T, enable_if_t<is_pyobject<T>::value, int> = 0>
 auto object_or_cast(T &&o) -> decltype(std::forward<T>(o)) { return std::forward<T>(o); }
@@ -817,7 +817,7 @@ NAMESPACE_END(detail)
     Caveat: copying an iterator does not (and cannot) clone the internal
     state of the Python iterable. This also applies to the post-increment
     operator. This iterator should only be used to retrieve the current
-    value using ``operator*()``.
+    getValue using ``operator*()``.
 \endrst */
 class iterator : public object {
 public:
@@ -851,7 +851,7 @@ public:
     pointer operator->() const { operator*(); return &value; }
 
     /** \rst
-         The value which marks the end of the iteration. ``it == iterator::sentinel()``
+         The getValue which marks the end of the iteration. ``it == iterator::sentinel()``
          is equivalent to catching ``StopIteration`` in Python.
 
          .. code-block:: cpp
@@ -1032,7 +1032,7 @@ public:
     operator bool() const { return m_ptr && PyLong_AsLong(m_ptr) != 0; }
 
 private:
-    /// Return the truth value of an object -- always returns a new reference
+    /// Return the truth getValue of an object -- always returns a new reference
     static PyObject *raw_bool(PyObject *op) {
         const auto value = PyObject_IsTrue(op);
         if (value == -1) return nullptr;
@@ -1041,9 +1041,9 @@ private:
 };
 
 NAMESPACE_BEGIN(detail)
-// Converts a value to the given unsigned type.  If an error occurs, you get back (Unsigned) -1;
-// otherwise you get back the unsigned long or unsigned long long value cast to (Unsigned).
-// (The distinction is critically important when casting a returned -1 error value to some other
+// Converts a getValue to the given unsigned type.  If an error occurs, you get back (Unsigned) -1;
+// otherwise you get back the unsigned long or unsigned long long getValue cast to (Unsigned).
+// (The distinction is critically important when casting a returned -1 error getValue to some other
 // unsigned type: (A)-1 != (B)-1 when A and B are unsigned types of different sizes).
 template <typename Unsigned>
 Unsigned as_unsigned(PyObject *o) {

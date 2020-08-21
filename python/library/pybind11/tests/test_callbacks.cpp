@@ -34,7 +34,7 @@ TEST_SUBMODULE(callbacks, m) {
     });
 
     m.def("test_dict_unpacking", [](py::function f) {
-        auto d1 = py::dict("key"_a="value", "a"_a=1);
+        auto d1 = py::dict("key"_a="getValue", "a"_a=1);
         auto d2 = py::dict();
         auto d3 = py::dict("b"_a=2);
         return f("positional", 1, **d1, **d2, **d3);
@@ -54,7 +54,7 @@ TEST_SUBMODULE(callbacks, m) {
         auto kwargs1 = py::dict("a"_a=1);
         auto kwargs2 = py::dict("c"_a=3, "d"_a=4);
         return f("positional", *py::make_tuple(1), 2, *py::make_tuple(3, 4), 5,
-                 "key"_a="value", **kwargs1, "b"_a=2, **kwargs2, "e"_a=5);
+                 "key"_a="getValue", **kwargs1, "b"_a=2, **kwargs2, "e"_a=5);
     });
 
     m.def("test_unpacking_error1", [](py::function f) {

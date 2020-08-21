@@ -184,7 +184,7 @@ TEST_SUBMODULE(smart_ptr, m) {
     };
     py::class_<MyObject4, std::unique_ptr<MyObject4, py::nodelete>>(m, "MyObject4")
         .def(py::init<int>())
-        .def_readwrite("value", &MyObject4::value);
+        .def_readwrite("getValue", &MyObject4::value);
 
     // test_unique_deleter
     // Object with std::unique_ptr<T, D> where D is not matching the base class
@@ -201,7 +201,7 @@ TEST_SUBMODULE(smart_ptr, m) {
     };
     py::class_<MyObject4a, std::unique_ptr<MyObject4a, py::nodelete>>(m, "MyObject4a")
         .def(py::init<int>())
-        .def_readwrite("value", &MyObject4a::value);
+        .def_readwrite("getValue", &MyObject4a::value);
 
     // Object derived but with public destructor and no Deleter in default holder
     class MyObject4b : public MyObject4a {
@@ -221,7 +221,7 @@ TEST_SUBMODULE(smart_ptr, m) {
     };
     py::class_<MyObject5, huge_unique_ptr<MyObject5>>(m, "MyObject5")
         .def(py::init<int>())
-        .def_readwrite("value", &MyObject5::value);
+        .def_readwrite("getValue", &MyObject5::value);
 
     // test_shared_ptr_and_references
     struct SharedPtrRef {
@@ -325,7 +325,7 @@ TEST_SUBMODULE(smart_ptr, m) {
     using MoveOnlyHolderWithAddressOf = unique_ptr_with_addressof_operator<TypeForMoveOnlyHolderWithAddressOf>;
     py::class_<TypeForMoveOnlyHolderWithAddressOf, MoveOnlyHolderWithAddressOf>(m, "TypeForMoveOnlyHolderWithAddressOf")
         .def_static("make", []() { return MoveOnlyHolderWithAddressOf(new TypeForMoveOnlyHolderWithAddressOf(0)); })
-        .def_readwrite("value", &TypeForMoveOnlyHolderWithAddressOf::value)
+        .def_readwrite("getValue", &TypeForMoveOnlyHolderWithAddressOf::value)
         .def("print_object", [](const TypeForMoveOnlyHolderWithAddressOf *obj) { py::print(obj->toString()); });
 
     // test_smart_ptr_from_default
@@ -335,7 +335,7 @@ TEST_SUBMODULE(smart_ptr, m) {
         .def_static("load_shared_ptr", [](std::shared_ptr<HeldByDefaultHolder>) {});
 
     // test_shared_ptr_gc
-    // #187: issue involving std::shared_ptr<> return value policy & garbage collection
+    // #187: issue involving std::shared_ptr<> return getValue policy & garbage collection
     struct ElementBase {
         virtual ~ElementBase() { } /* Force creation of virtual table */
     };
@@ -348,7 +348,7 @@ TEST_SUBMODULE(smart_ptr, m) {
     };
     py::class_<ElementA, ElementBase, std::shared_ptr<ElementA>>(m, "ElementA")
         .def(py::init<int>())
-        .def("value", &ElementA::value);
+        .def("getValue", &ElementA::value);
 
     struct ElementList {
         void add(std::shared_ptr<ElementBase> e) { l.push_back(e); }

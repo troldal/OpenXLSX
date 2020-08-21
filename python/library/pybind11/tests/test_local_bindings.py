@@ -74,7 +74,7 @@ def test_stl_bind_local():
     v2.append(cm.LocalType(1))
     v2.append(cm.LocalType(2))
 
-    # Cross module value loading:
+    # Cross module getValue loading:
     v1.append(cm.LocalType(3))
     v2.append(m.LocalType(3))
 

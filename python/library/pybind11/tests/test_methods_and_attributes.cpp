@@ -1,6 +1,6 @@
 /*
     tests/test_methods_and_attributes.cpp -- constructors, deconstructors, attribute access,
-    __str__, argument and return value conventions
+    __str__, argument and return getValue conventions
 
     Copyright (c) 2016 Wenzel Jakob <wenzel.jakob@epfl.ch>
 
@@ -25,31 +25,31 @@ public:
     ~ExampleMandA() { print_destroyed(this); }
 
     std::string toString() {
-        return "ExampleMandA[value=" + std::to_string(value) + "]";
+        return "ExampleMandA[getValue=" + std::to_string(value) + "]";
     }
 
     void operator=(const ExampleMandA &e) { print_copy_assigned(this); value = e.value; }
     void operator=(ExampleMandA &&e) { print_move_assigned(this); value = e.value; }
 
-    void add1(ExampleMandA other) { value += other.value; }         // passing by value
+    void add1(ExampleMandA other) { value += other.value; }         // passing by getValue
     void add2(ExampleMandA &other) { value += other.value; }        // passing by reference
     void add3(const ExampleMandA &other) { value += other.value; }  // passing by const reference
     void add4(ExampleMandA *other) { value += other->value; }       // passing by pointer
     void add5(const ExampleMandA *other) { value += other->value; } // passing by const pointer
 
-    void add6(int other) { value += other; }                        // passing by value
+    void add6(int other) { value += other; }                        // passing by getValue
     void add7(int &other) { value += other; }                       // passing by reference
     void add8(const int &other) { value += other; }                 // passing by const reference
     void add9(int *other) { value += *other; }                      // passing by pointer
     void add10(const int *other) { value += *other; }               // passing by const pointer
 
-    ExampleMandA self1() { return *this; }                          // return by value
+    ExampleMandA self1() { return *this; }                          // return by getValue
     ExampleMandA &self2() { return *this; }                         // return by reference
     const ExampleMandA &self3() { return *this; }                   // return by const reference
     ExampleMandA *self4() { return this; }                          // return by pointer
     const ExampleMandA *self5() { return this; }                    // return by const pointer
 
-    int internal1() { return value; }                               // return by value
+    int internal1() { return value; }                               // return by getValue
     int &internal2() { return value; }                              // return by reference
     const int &internal3() { return value; }                        // return by const reference
     int *internal4() { return &value; }                             // return by pointer
@@ -117,7 +117,7 @@ public:
     bool load(handle src, bool convert) {
         value.arg = "loading ArgInspector1 argument " +
             std::string(convert ? "WITH" : "WITHOUT") + " conversion allowed.  "
-            "Argument value = " + (std::string) str(src);
+            "Argument getValue = " + (std::string) str(src);
         return true;
     }
 
@@ -132,7 +132,7 @@ public:
     bool load(handle src, bool convert) {
         value.arg = "loading ArgInspector2 argument " +
             std::string(convert ? "WITH" : "WITHOUT") + " conversion allowed.  "
-            "Argument value = " + (std::string) str(src);
+            "Argument getValue = " + (std::string) str(src);
         return true;
     }
 
@@ -274,7 +274,7 @@ TEST_SUBMODULE(methods_and_attributes, m) {
                 .def       ("overload_mixed2", static_cast<py::str (ExampleMandA::*)(int, int)>(&ExampleMandA::overloaded));
         })
         .def("__str__", &ExampleMandA::toString)
-        .def_readwrite("value", &ExampleMandA::value);
+        .def_readwrite("getValue", &ExampleMandA::value);
 
     // test_copy_method
     // Issue #443: can't call copied methods in Python 3
@@ -435,8 +435,8 @@ TEST_SUBMODULE(methods_and_attributes, m) {
         .def_readwrite("rw_value", &RegisteredDerived::rw_value)
         .def_readonly("ro_value", &RegisteredDerived::ro_value)
         // These should trigger a static_assert if uncommented
-        //.def_readwrite("fails", &UserType::value) // should trigger a static_assert if uncommented
-        //.def_readonly("fails", &UserType::value) // should trigger a static_assert if uncommented
+        //.def_readwrite("fails", &UserType::getValue) // should trigger a static_assert if uncommented
+        //.def_readonly("fails", &UserType::getValue) // should trigger a static_assert if uncommented
         .def_property("rw_value_prop", &RegisteredDerived::get_int, &RegisteredDerived::set_int)
         .def_property_readonly("ro_value_prop", &RegisteredDerived::get_double)
         // This one is in the registered class:

@@ -41,7 +41,7 @@ Here is an example of the binding code for one class:
         ...
     }
 
-The Boost.Python version looks almost identical except that a return value
+The Boost.Python version looks almost identical except that a return getValue
 policy had to be specified as an argument to ``def()``. For both libraries,
 compilation was done with
 

@@ -25,7 +25,7 @@ int main()
     std::mt19937                       generator(rand_dev());
     std::uniform_int_distribution<int> distr(0, 99);
 
-    for (auto& cell : rng) cell = distr(generator);
+    for (auto& cell : rng) cell.value() = distr(generator);
 
     cout << "Saving spreadsheet (1,048,576 rows x 8 columns) ..." << endl;
     doc.save();

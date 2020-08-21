@@ -26,7 +26,7 @@ static void BM_WriteStrings(benchmark::State& state)    // NOLINT
     auto arange = wks.range(XLCellReference("A1"), XLCellReference(rows, columns));
 
     for (auto _ : state)    // NOLINT
-        for (auto& cell : arange) cell = "OpenXLSX";
+        for (auto& cell : arange) cell.value() = "OpenXLSX";
 
     state.SetItemsProcessed(rows * columns);
     state.counters["items"] = state.items_processed();
@@ -49,7 +49,7 @@ static void BM_WriteIntegers(benchmark::State& state)    // NOLINT
     auto arange = wks.range(XLCellReference("A1"), XLCellReference(rows, columns));
 
     for (auto _ : state)    // NOLINT
-        for (auto& cell : arange) cell = 42;
+        for (auto& cell : arange) cell.value() = 42;
 
     state.SetItemsProcessed(rows * columns);
     state.counters["items"] = state.items_processed();
@@ -72,7 +72,7 @@ static void BM_WriteFloats(benchmark::State& state)    // NOLINT
     auto arange = wks.range(XLCellReference("A1"), XLCellReference(rows, columns));
 
     for (auto _ : state)    // NOLINT
-        for (auto& cell : arange) cell = 3.14;
+        for (auto& cell : arange) cell.value() = 3.14;
 
     state.SetItemsProcessed(rows * columns);
     state.counters["items"] = state.items_processed();
@@ -95,7 +95,7 @@ static void BM_WriteBools(benchmark::State& state)    // NOLINT
     auto arange = wks.range(XLCellReference("A1"), XLCellReference(rows, columns));
 
     for (auto _ : state)    // NOLINT
-        for (auto& cell : arange) cell = true;
+        for (auto& cell : arange) cell.value() = true;
 
     state.SetItemsProcessed(rows * columns);
     state.counters["items"] = state.items_processed();
@@ -120,7 +120,7 @@ static void BM_ReadStrings(benchmark::State& state)    // NOLINT
 
     for (auto _ : state) {    // NOLINT
         result =
-            std::accumulate(rng.begin(), rng.end(), 0, [](uint64_t a, XLCell& b) { return a + b.value().get<std::string_view>().size(); });
+            std::accumulate(rng.begin(), rng.end(), 0, [](uint64_t a, XLCell& b) { return a + b.getValue().get<std::string_view>().size(); });
         benchmark::DoNotOptimize(result);
         benchmark::ClobberMemory();
     }
@@ -146,7 +146,7 @@ static void BM_ReadIntegers(benchmark::State& state)    // NOLINT
     uint64_t result = 0;
 
     for (auto _ : state) {    // NOLINT
-        result = std::accumulate(rng.begin(), rng.end(), 0, [](uint64_t a, XLCell& b) { return a + b.value().get<uint64_t>(); });
+        result = std::accumulate(rng.begin(), rng.end(), 0, [](uint64_t a, XLCell& b) { return a + b.getValue().get<uint64_t>(); });
         benchmark::DoNotOptimize(result);
         benchmark::ClobberMemory();
     }
@@ -172,7 +172,7 @@ static void BM_ReadFloats(benchmark::State& state)    // NOLINT
     long double result = 0;
 
     for (auto _ : state) {    // NOLINT
-        result = std::accumulate(rng.begin(), rng.end(), 0, [](uint64_t a, XLCell& b) { return a + b.value().get<double>(); });
+        result = std::accumulate(rng.begin(), rng.end(), 0, [](uint64_t a, XLCell& b) { return a + b.getValue().get<double>(); });
         benchmark::DoNotOptimize(result);
         benchmark::ClobberMemory();
     }
@@ -198,7 +198,7 @@ static void BM_ReadBools(benchmark::State& state)    // NOLINT
     uint64_t result = 0;
 
     for (auto _ : state) {    // NOLINT
-        result = std::accumulate(rng.begin(), rng.end(), 0, [](uint64_t a, XLCell& b) { return a + b.value().get<bool>(); });
+        result = std::accumulate(rng.begin(), rng.end(), 0, [](uint64_t a, XLCell& b) { return a + b.getValue().get<bool>(); });
         benchmark::DoNotOptimize(result);
         benchmark::ClobberMemory();
     }
