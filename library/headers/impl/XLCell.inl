@@ -51,8 +51,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
  * @pre
  * @post
  */
-template<typename T,
-    typename std::enable_if<std::is_integral<T>::value, int64_t>::type*>
+template<typename T, typename std::enable_if<std::is_integral<T>::value, int64_t>::type*>
 XLCell& XLCell::XLCellValueProxy::operator=(T numberValue)
 {
     if constexpr (std::is_same<T, bool>::value) {    // if bool
@@ -70,8 +69,7 @@ XLCell& XLCell::XLCellValueProxy::operator=(T numberValue)
  * @pre
  * @post
  */
-template<typename T,
-    typename std::enable_if<std::is_floating_point<T>::value, long double>::type*>
+template<typename T, typename std::enable_if<std::is_floating_point<T>::value, long double>::type*>
 XLCell& XLCell::XLCellValueProxy::operator=(T numberValue)
 {
     m_cell->setFloat(numberValue);
@@ -84,8 +82,9 @@ XLCell& XLCell::XLCellValueProxy::operator=(T numberValue)
  * @post
  */
 template<typename T,
-    typename std::enable_if<!std::is_same<T, XLCellValue>::value && !std::is_same<T, bool>::value &&
-        std::is_constructible<T, const char*>::value, T>::type*>
+         typename std::enable_if<!std::is_same<T, XLCellValue>::value && !std::is_same<T, bool>::value &&
+                                     std::is_constructible<T, const char*>::value,
+                                 T>::type*>
 XLCell& XLCell::XLCellValueProxy::operator=(T stringValue)
 {
     if constexpr (std::is_same<const char*, typename std::remove_reference<typename std::remove_cv<T>::type>::type>::value)
@@ -155,9 +154,9 @@ void XLCell::XLCellValueProxy::set(T numberValue)
  * @post
  */
 template<typename T,
-    typename std::enable_if<!std::is_same<T, XLCellValue>::value && !std::is_same<T, bool>::value &&
-        std::is_constructible<T, const char*>::value,
-                            T>::type*>
+         typename std::enable_if<!std::is_same<T, XLCellValue>::value && !std::is_same<T, bool>::value &&
+                                     std::is_constructible<T, const char*>::value,
+                                 T>::type*>
 void XLCell::XLCellValueProxy::set(T stringValue)
 {
     *this = stringValue;
@@ -169,7 +168,8 @@ void XLCell::XLCellValueProxy::set(T stringValue)
  * @post
  */
 template<typename T>
-T XLCell::XLCellValueProxy::get() const {
+T XLCell::XLCellValueProxy::get() const
+{
     return m_cell->getValue().get<T>();
 }
 
@@ -183,6 +183,5 @@ inline bool operator==(const XLCell& lhs, const XLCell& rhs)
 {
     return lhs.m_cellNode == rhs.m_cellNode;
 }
-
 
 #endif    // OPENXLSX_XLCELL_INL

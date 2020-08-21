@@ -56,8 +56,8 @@ using namespace OpenXLSX;
  * @details
  */
 XLCell::XLCellValueProxy::XLCellValueProxy(XLCell* cell) : m_cell(cell) {}
-XLCell::XLCellValueProxy::~XLCellValueProxy() = default;
-XLCell::XLCellValueProxy::XLCellValueProxy(const XLCell::XLCellValueProxy& other) = default;
+XLCell::XLCellValueProxy::~XLCellValueProxy()                                         = default;
+XLCell::XLCellValueProxy::XLCellValueProxy(const XLCell::XLCellValueProxy& other)     = default;
 XLCell::XLCellValueProxy::XLCellValueProxy(XLCell::XLCellValueProxy&& other) noexcept = default;
 XLCell::XLCellValueProxy& XLCell::XLCellValueProxy::operator=(const XLCell::XLCellValueProxy& other) = default;
 XLCell::XLCellValueProxy& XLCell::XLCellValueProxy::operator=(XLCell::XLCellValueProxy&& other) noexcept = default;
@@ -286,7 +286,6 @@ std::string XLCell::formula() const
  * @post
  */
 
-
 void XLCell::setFormula(const std::string& newFormula)
 {
     m_cellNode->child("f").text().set(newFormula.c_str());
@@ -354,5 +353,3 @@ void XLCell::setString(const char* stringValue)
         m_cellNode->attribute("xml:space").set_value("preserve");
     }
 }
-
-

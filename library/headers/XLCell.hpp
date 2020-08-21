@@ -114,10 +114,9 @@ namespace OpenXLSX
             template<typename T>
             T get() const;
 
-            operator XLCellValue(); // NOLINT
+            operator XLCellValue();    // NOLINT
 
         private:
-
             XLCellValueProxy(const XLCellValueProxy& other);
 
             XLCellValueProxy(XLCellValueProxy&& other) noexcept;
@@ -272,8 +271,8 @@ namespace OpenXLSX
         void setString(const char* stringValue);
 
         //---------- Private Member Variables ---------- //
-        std::unique_ptr<XMLNode> m_cellNode; /**< A pointer to the root XMLNode for the cell. */
-        XLSharedStrings*         m_sharedStrings; /**< */
+        std::unique_ptr<XMLNode> m_cellNode;            /**< A pointer to the root XMLNode for the cell. */
+        XLSharedStrings*         m_sharedStrings;       /**< */
         XLCellValueProxy         m_valueProxy { this }; /**< */
     };
 

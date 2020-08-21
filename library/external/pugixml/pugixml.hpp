@@ -198,9 +198,9 @@ namespace pugi
     // is a valid document. This flag is off by default.
     const unsigned int parse_fragment = 0x1000;
 
-    // This flag determines if plain character data is be stored in the parent element's getValue. This significantly changes the structure of
-    // the document; this flag is only recommended for parsing documents with many PCDATA nodes in memory-constrained environments.
-    // This flag is off by default.
+    // This flag determines if plain character data is be stored in the parent element's getValue. This significantly changes the structure
+    // of the document; this flag is only recommended for parsing documents with many PCDATA nodes in memory-constrained environments. This
+    // flag is off by default.
     const unsigned int parse_embed_pcdata = 0x2000;
 
     // The default parsing mode.
@@ -501,7 +501,8 @@ namespace pugi
         const char_t* name() const;
 
         // Get node getValue, or "" if node is empty or it has no value
-        // Note: For <node>text</node> node.getValue() does not return "text"! Use child_value() or text() methods to access text inside nodes.
+        // Note: For <node>text</node> node.getValue() does not return "text"! Use child_value() or text() methods to access text inside
+        // nodes.
         const char_t* value() const;
 
         // Get attribute list

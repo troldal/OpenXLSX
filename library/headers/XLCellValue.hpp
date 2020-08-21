@@ -185,7 +185,7 @@ namespace OpenXLSX
 
     private:
         XLValueType                                      m_type { XLValueType::Empty }; /**< */
-        std::variant<std::string, int64_t, double, bool> m_value { "" }; /**< */
+        std::variant<std::string, int64_t, double, bool> m_value { "" };                /**< */
     };
 
 #include "impl/XLCellValue.inl"

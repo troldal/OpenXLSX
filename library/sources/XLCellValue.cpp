@@ -6,10 +6,10 @@
 #include "XLException.hpp"
 #include <pugixml.hpp>
 
-OpenXLSX::XLCellValue::XLCellValue() = default;
-OpenXLSX::XLCellValue::XLCellValue(const OpenXLSX::XLCellValue& other) = default;
+OpenXLSX::XLCellValue::XLCellValue()                                       = default;
+OpenXLSX::XLCellValue::XLCellValue(const OpenXLSX::XLCellValue& other)     = default;
 OpenXLSX::XLCellValue::XLCellValue(OpenXLSX::XLCellValue&& other) noexcept = default;
-OpenXLSX::XLCellValue::~XLCellValue() = default;
+OpenXLSX::XLCellValue::~XLCellValue()                                      = default;
 OpenXLSX::XLCellValue& OpenXLSX::XLCellValue::operator=(const OpenXLSX::XLCellValue& other) = default;
 OpenXLSX::XLCellValue& OpenXLSX::XLCellValue::operator=(OpenXLSX::XLCellValue&& other) noexcept = default;
 
