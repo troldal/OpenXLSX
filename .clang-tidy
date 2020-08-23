@@ -2,6 +2,7 @@
 Checks: >-
   *,
   -llvmlibc-*,
+  -llvm-header-guard,
   -fuchsia-*,
   -modernize-use-trailing-return-type,
   -modernize-use-nodiscard,

@@ -55,10 +55,9 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
 #include "XLCellReference.hpp"
-#include "XLCellValue.hpp"
 #include "XLCellValueProxy.hpp"
-#include "XLException.hpp"
 
+// ========== CLASS AND ENUM TYPE DEFINITIONS ========== //
 namespace OpenXLSX
 {
     class XLCellRange;
@@ -153,18 +152,6 @@ namespace OpenXLSX
         const XLCellValueProxy& value() const;
 
         /**
-         * @brief Get a reference to the XLCellValue object for the cell.
-         * @return A reference to an XLCellValue object.
-         */
-        XLCellValue getValue() const;
-
-        /**
-         * @brief
-         * @return
-         */
-        XLValueType valueType() const;
-
-        /**
          * @brief get the XLCellReference object for the cell.
          * @return A reference to the cells' XLCellReference object.
          */
@@ -189,38 +176,16 @@ namespace OpenXLSX
         void setFormula(const std::string& newFormula);
 
     private:
-        //---------- Private Member Functions ---------- //
-
-        /**
-         * @brief
-         * @param numberValue
-         */
-        void setInteger(int64_t numberValue);
-
-        /**
-         * @brief
-         * @param numberValue
-         */
-        void setBoolean(bool numberValue);
-
-        /**
-         * @brief
-         * @param numberValue
-         */
-        void setFloat(double numberValue);
-
-        /**
-         * @brief
-         * @param stringValue
-         */
-        void setString(const char* stringValue);
-
         //---------- Private Member Variables ---------- //
-        std::unique_ptr<XMLNode> m_cellNode;            /**< A pointer to the root XMLNode for the cell. */
-        XLSharedStrings*         m_sharedStrings;       /**< */
-        XLCellValueProxy         m_valueProxy { this }; /**< */
+        std::unique_ptr<XMLNode> m_cellNode;      /**< A pointer to the root XMLNode for the cell. */
+        XLSharedStrings*         m_sharedStrings; /**< */
+        XLCellValueProxy         m_valueProxy;    /**< */
     };
 
+}  // namespace OpenXLSX
+
+// ========== FRIEND FUNCTION IMPLEMENTATIONS ========== //
+namespace OpenXLSX {
     /**
      * @brief
      * @param lhs

@@ -62,10 +62,13 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
 #include "XLCellValue.hpp"
+#include "XLRowValuesProxy.hpp"
 #include "XLXmlParser.hpp"
 
 namespace OpenXLSX
 {
+    class XLSharedStrings;
+
     //========== XLRow Class ========== //
 
     /**
@@ -75,6 +78,7 @@ namespace OpenXLSX
     class OPENXLSX_EXPORT XLRow
     {
         friend class XLRowIterator;
+        friend class XLRowValuesProxy;
         friend bool operator==(const XLRow& lhs, const XLRow& rhs);
 
         //---------- PUBLIC MEMBER FUNCTIONS ----------//
@@ -162,7 +166,7 @@ namespace OpenXLSX
          * @brief
          * @return
          */
-        int64_t rowNumber() const;
+        uint64_t rowNumber() const;
 
         /**
          * @brief Get the number of cells in the row.
@@ -170,21 +174,15 @@ namespace OpenXLSX
          */
         unsigned int cellCount() const;
 
-        void setValues(const std::vector<XLCellValue>& values);
-        void setValues(const std::deque<XLCellValue>& values);
-        void setValues(const std::list<XLCellValue>& values);
-        void setValues(const std::forward_list<XLCellValue>& values);
-        void setValues(const std::set<XLCellValue>& values);
-        void setValues(const std::multiset<XLCellValue>& values);
-        void setValues(const std::unordered_set<XLCellValue>& values);
-        void setValues(const std::unordered_multiset<XLCellValue>& values);
+        XLRowValuesProxy& values();
 
-        std::vector<XLCellValue> getValues(uint16_t numCells = 0);
+        const XLRowValuesProxy& values() const;
 
         //---------- PRIVATE MEMBER VARIABLES ----------//
     private:
-        std::unique_ptr<XMLNode> m_rowNode; /**< The XMLNode object for the row. */
-        XLSharedStrings*         m_sharedStrings;
+        std::unique_ptr<XMLNode> m_rowNode;        /**< The XMLNode object for the row. */
+        XLSharedStrings*         m_sharedStrings;  /**< */
+        XLRowValuesProxy         m_rowValuesProxy; /**< */
     };
 
     /**

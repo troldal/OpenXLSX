@@ -32,7 +32,8 @@ int main()
         writeValues.emplace_back(distr(generator));
         writeValues.emplace_back(distr(generator));
         writeValues.emplace_back(distr(generator));
-        row.setValues(writeValues);
+
+        row.values() = writeValues;
     }
 
     cout << "Saving spreadsheet (1,048,576 rows x 8 columns) ..." << endl;
@@ -49,7 +50,7 @@ int main()
     cout << "Reading data from spreadsheet (1,048,576 rows x 8 columns) ..." << endl;
 
     for (auto& row : wks.rows()) {
-        readValues = row.getValues(8);
+        readValues = row.values();
         count += std::count_if(readValues.begin(), readValues.end(), [](const XLCellValue& v) {
                return v.type() != XLValueType::Empty;
         });
@@ -57,7 +58,7 @@ int main()
     cout << "Cell count: " << count << endl;
 
     for (auto& row : wks.rows()) {
-        readValues = row.getValues(8);
+        readValues = row.values();
         sum += std::accumulate(readValues.begin(),
                                readValues.end(),
                                   0,

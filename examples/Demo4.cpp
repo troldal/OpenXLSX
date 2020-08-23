@@ -44,7 +44,7 @@ int main()
     auto PrintCell = [](const XLCell& cell) {
         cout << "Cell type is ";
 
-        switch (cell.valueType()) {
+        switch (cell.value().type()) {
             case XLValueType::Empty:
                 cout << "XLValueType::Empty" << endl;
                 break;

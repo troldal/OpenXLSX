@@ -26,36 +26,11 @@ int main()
     XLCellValue D1 = wks.cell(XLCellReference("D1")).value();
     XLCellValue E1 = wks.cell(XLCellReference("E1")).value();
 
-    auto valueTypeAsString = [](OpenXLSX::XLValueType type) {
-        switch (type) {
-            case XLValueType::String:
-                return "string";
-
-            case XLValueType::Boolean:
-                return "boolean";
-
-            case XLValueType::Empty:
-                return "empty";
-
-            case XLValueType::Error:
-                return "error";
-
-            case XLValueType::Float:
-                return "float";
-
-            case XLValueType::Integer:
-                return "integer";
-
-            default:
-                return "";
-        }
-    };
-
-    cout << "Cell A1: (" << valueTypeAsString(A1.type()) << ") " << A1.get<double>() << endl;
-    cout << "Cell B1: (" << valueTypeAsString(B1.type()) << ") " << B1.get<int64_t>() << endl;
-    cout << "Cell C1: (" << valueTypeAsString(C1.type()) << ") " << C1.get<std::string>() << endl;
-    cout << "Cell D1: (" << valueTypeAsString(D1.type()) << ") " << D1.get<bool>() << endl;
-    cout << "Cell E1: (" << valueTypeAsString(E1.type()) << ") " << E1.get<std::string_view>() << endl;
+    cout << "Cell A1: (" << A1.typeAsString() << ") " << A1.get<double>() << endl;
+    cout << "Cell B1: (" << B1.typeAsString() << ") " << B1.get<int64_t>() << endl;
+    cout << "Cell C1: (" << C1.typeAsString() << ") " << C1.get<std::string>() << endl;
+    cout << "Cell D1: (" << D1.typeAsString() << ") " << D1.get<bool>() << endl;
+    cout << "Cell E1: (" << E1.typeAsString() << ") " << E1.get<std::string_view>() << endl;
 
     doc.save();
 

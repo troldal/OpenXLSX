@@ -28,8 +28,7 @@ static void BM_WriteStrings(benchmark::State& state)    // NOLINT
     std::vector<XLCellValue> values(columns, "OpenXLSX");
 
     for (auto _ : state)    // NOLINT
-        for (auto& row : wks.rows())
-            row.setValues(values);
+        for (auto& row : wks.rows()) row.values() = values;
 
     state.SetItemsProcessed(rows * columns);
     state.counters["items"] = state.items_processed();
@@ -53,8 +52,7 @@ static void BM_WriteIntegers(benchmark::State& state)    // NOLINT
     std::vector<XLCellValue> values(columns, 42);
 
     for (auto _ : state)    // NOLINT
-        for (auto& row : wks.rows())
-            row.setValues(values);
+        for (auto& row : wks.rows()) row.values() = values;
 
     state.SetItemsProcessed(rows * columns);
     state.counters["items"] = state.items_processed();
@@ -78,8 +76,7 @@ static void BM_WriteFloats(benchmark::State& state)    // NOLINT
     std::vector<XLCellValue> values(columns, 3.14);
 
     for (auto _ : state)    // NOLINT
-        for (auto& row : wks.rows())
-            row.setValues(values);
+        for (auto& row : wks.rows()) row.values() = values;
 
     state.SetItemsProcessed(rows * columns);
     state.counters["items"] = state.items_processed();
@@ -103,8 +100,7 @@ static void BM_WriteBools(benchmark::State& state)    // NOLINT
     std::vector<XLCellValue> values(columns, true);
 
     for (auto _ : state)    // NOLINT
-        for (auto& row : wks.rows())
-            row.setValues(values);
+        for (auto& row : wks.rows()) row.values() = values;
 
     state.SetItemsProcessed(rows * columns);
     state.counters["items"] = state.items_processed();
@@ -129,7 +125,7 @@ static void BM_ReadStrings(benchmark::State& state)    // NOLINT
 
     for (auto _ : state) {    // NOLINT
         for (auto& row : wks.rows()) {
-            values = row.getValues(columns);
+            values = row.values();
             result += std::count_if(values.begin(), values.end(), [](const XLCellValue& v) {
                 return v.type() != XLValueType::Empty;
             });
@@ -160,7 +156,7 @@ static void BM_ReadIntegers(benchmark::State& state)    // NOLINT
 
     for (auto _ : state) {    // NOLINT
         for (auto& row : wks.rows()) {
-            values = row.getValues(columns);
+            values = row.values();
             result += std::accumulate(values.begin(),
                                       values.end(),
                                       0,
@@ -193,7 +189,7 @@ static void BM_ReadFloats(benchmark::State& state)    // NOLINT
 
     for (auto _ : state) {    // NOLINT
         for (auto& row : wks.rows()) {
-            values = row.getValues(columns);
+            values = row.values();
             result += std::accumulate(values.begin(),
                                       values.end(),
                                       0,
@@ -226,7 +222,7 @@ static void BM_ReadBools(benchmark::State& state)    // NOLINT
 
     for (auto _ : state) {    // NOLINT
         for (auto& row : wks.rows()) {
-            values = row.getValues(columns);
+            values = row.values();
             result += std::accumulate(values.begin(),
                                       values.end(),
                                       0,

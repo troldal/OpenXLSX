@@ -50,39 +50,9 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 // ===== OpenXLSX Includes ===== //
 #include "XLCell.hpp"
 #include "XLCellReference.hpp"
-#include "XLCellValue.hpp"
 #include "XLRow.hpp"
 
 using namespace OpenXLSX;
-
-namespace
-{
-    template<typename T>
-    void setValues2(const T& values, uint32_t rowNumber, XMLNode* rowNode, XLSharedStrings* sharedStrings)
-    {
-        // ===== Find or create the first cell node
-        auto curNode = rowNode->first_child();
-        if (!curNode || XLCellReference(curNode.attribute("r").value()).column() != 1) {
-            curNode = rowNode->append_child("c");
-            curNode.append_attribute("r").set_value(XLCellReference(rowNumber, 1).address().c_str());
-        }
-
-        auto     prevNode = XMLNode();
-        uint16_t col      = 1;
-        for (const auto& value : values) {
-            if (!curNode || XLCellReference(curNode.attribute("r").value()).column() != col) {
-                curNode = rowNode->insert_child_after("c", prevNode);
-                curNode.append_attribute("r").set_value(XLCellReference(rowNumber, col).address().c_str());
-            }
-
-            XLCell(curNode, sharedStrings).value() = value;
-
-            prevNode = curNode;
-            curNode  = curNode.next_sibling();
-            ++col;
-        }
-    }
-}    // namespace
 
 namespace OpenXLSX
 {
@@ -94,7 +64,7 @@ namespace OpenXLSX
  * @pre
  * @post
  */
-XLRow::XLRow() : m_rowNode(nullptr), m_sharedStrings(nullptr) {}
+XLRow::XLRow() : m_rowNode(nullptr), m_sharedStrings(nullptr), m_rowValuesProxy(this, m_rowNode.get()) {}
 
 /**
  * @details Constructs a new XLRow object from information in the underlying XML file. A pointer to the corresponding
@@ -104,7 +74,8 @@ XLRow::XLRow() : m_rowNode(nullptr), m_sharedStrings(nullptr) {}
  */
 XLRow::XLRow(const XMLNode& rowNode, XLSharedStrings* sharedStrings)
     : m_rowNode(std::make_unique<XMLNode>(rowNode)),
-      m_sharedStrings(sharedStrings)
+      m_sharedStrings(sharedStrings),
+      m_rowValuesProxy(this, m_rowNode.get())
 {}
 
 /**
@@ -112,14 +83,22 @@ XLRow::XLRow(const XMLNode& rowNode, XLSharedStrings* sharedStrings)
  * @pre
  * @post
  */
-XLRow::XLRow(const XLRow& other) : m_rowNode(std::make_unique<XMLNode>(*other.m_rowNode)), m_sharedStrings(other.m_sharedStrings) {}
+XLRow::XLRow(const XLRow& other)
+    : m_rowNode(other.m_rowNode ? std::make_unique<XMLNode>(*other.m_rowNode) : nullptr),
+      m_sharedStrings(other.m_sharedStrings),
+      m_rowValuesProxy(this, m_rowNode.get())
+{}
 
 /**
  * @details
  * @pre
  * @post
  */
-XLRow::XLRow(XLRow&& other) noexcept = default;
+XLRow::XLRow(XLRow&& other) noexcept
+    : m_rowNode(std::move(other.m_rowNode)),
+      m_sharedStrings(other.m_sharedStrings),
+      m_rowValuesProxy(this, m_rowNode.get())
+{}
 
 /**
  * @details
@@ -136,8 +115,10 @@ XLRow::~XLRow() = default;
 XLRow& XLRow::operator=(const XLRow& other)
 {
     if (&other != this) {
-        *m_rowNode      = *other.m_rowNode;
+        m_rowNode      = other.m_rowNode ? std::make_unique<XMLNode>(*other.m_rowNode) : nullptr;
         m_sharedStrings = other.m_sharedStrings;
+        m_rowValuesProxy = XLRowValuesProxy(this, m_rowNode.get());
+
     }
     return *this;
 }
@@ -147,7 +128,16 @@ XLRow& XLRow::operator=(const XLRow& other)
  * @pre
  * @post
  */
-XLRow& XLRow::operator=(XLRow&& other) noexcept = default;
+XLRow& XLRow::operator=(XLRow&& other) noexcept
+{
+    if (&other != this) {
+        m_rowNode      = std::move(other.m_rowNode);
+        m_sharedStrings = other.m_sharedStrings;
+        m_rowValuesProxy = XLRowValuesProxy(this, m_rowNode.get());
+
+    }
+    return *this;
+}
 
 /**
  * @details Returns the m_height member by getValue.
@@ -233,9 +223,9 @@ void XLRow::setHidden(bool state)
  * @pre
  * @post
  */
-int64_t XLRow::rowNumber() const
+uint64_t XLRow::rowNumber() const
 {
-    return static_cast<int64_t>(m_rowNode->attribute("r").as_ullong());
+    return static_cast<uint64_t>(m_rowNode->attribute("r").as_ullong());
 }
 
 /**
@@ -256,37 +246,9 @@ unsigned int XLRow::cellCount() const
  * @pre
  * @post
  */
-void XLRow::setValues(const std::vector<XLCellValue>& values)
+XLRowValuesProxy& XLRow::values()
 {
-    setValues2(values, rowNumber(), m_rowNode.get(), m_sharedStrings);
-}
-void XLRow::setValues(const std::deque<XLCellValue>& values)
-{
-    setValues2(values, rowNumber(), m_rowNode.get(), m_sharedStrings);
-}
-void XLRow::setValues(const std::list<XLCellValue>& values)
-{
-    setValues2(values, rowNumber(), m_rowNode.get(), m_sharedStrings);
-}
-void XLRow::setValues(const std::forward_list<XLCellValue>& values)
-{
-    setValues2(values, rowNumber(), m_rowNode.get(), m_sharedStrings);
-}
-void XLRow::setValues(const std::set<XLCellValue>& values)
-{
-    setValues2(values, rowNumber(), m_rowNode.get(), m_sharedStrings);
-}
-void XLRow::setValues(const std::multiset<XLCellValue>& values)
-{
-    setValues2(values, rowNumber(), m_rowNode.get(), m_sharedStrings);
-}
-void XLRow::setValues(const std::unordered_set<XLCellValue>& values)
-{
-    setValues2(values, rowNumber(), m_rowNode.get(), m_sharedStrings);
-}
-void XLRow::setValues(const std::unordered_multiset<XLCellValue>& values)
-{
-    setValues2(values, rowNumber(), m_rowNode.get(), m_sharedStrings);
+    return m_rowValuesProxy;
 }
 
 /**
@@ -294,14 +256,7 @@ void XLRow::setValues(const std::unordered_multiset<XLCellValue>& values)
  * @pre
  * @post
  */
-std::vector<XLCellValue> XLRow::getValues(uint16_t numCells)
+const XLRowValuesProxy& XLRow::values() const
 {
-    std::vector<XLCellValue> result(numCells);
-
-    for (auto& node : m_rowNode->children()) {
-        if (XLCellReference(node.attribute("r").value()).column() > numCells) break;
-        result[XLCellReference(node.attribute("r").value()).column() - 1] = XLCell(node, m_sharedStrings).value();
-    }
-
-    return result;
+    return m_rowValuesProxy;
 }

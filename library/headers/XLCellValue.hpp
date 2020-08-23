@@ -58,16 +58,15 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
-//#include "XLCellValueProxy.hpp"
-#include "XLSharedStrings.hpp"
-#include "XLXmlParser.hpp"
 
+// ========== CLASS AND ENUM TYPE DEFINITIONS ========== //
 namespace OpenXLSX
 {
+    //---------- Forward Declarations ----------//
     class XLCellValueProxy;
 
     /**
-     * @brief
+     * @brief Enum defining the valid value types for a an Excel spreadsheet cell.
      */
     enum class XLValueType { Empty, Boolean, Integer, Float, Error, String };
 
@@ -76,17 +75,21 @@ namespace OpenXLSX
      */
     class OPENXLSX_EXPORT XLCellValue
     {
+        //---------- Friend Declarations ----------//
+
         friend bool          operator==(const XLCellValue& lhs, const XLCellValue& rhs);
         friend bool          operator!=(const XLCellValue& lhs, const XLCellValue& rhs);
         friend bool          operator<(const XLCellValue& lhs, const XLCellValue& rhs);
         friend bool          operator>(const XLCellValue& lhs, const XLCellValue& rhs);
         friend bool          operator<=(const XLCellValue& lhs, const XLCellValue& rhs);
         friend bool          operator>=(const XLCellValue& lhs, const XLCellValue& rhs);
-        friend std::ostream& operator<<(std::ostream& os, const XLCellValue& p);
+        friend std::ostream& operator<<(std::ostream& os, const XLCellValue& value);
 
     public:
+        //---------- Public Member Functions ----------//
+
         /**
-         * @brief
+         * @brief Default constructor
          */
         XLCellValue();
 
@@ -96,9 +99,13 @@ namespace OpenXLSX
          * @param value
          */
         template<typename T>
-        XLCellValue(T value);
+        XLCellValue(T value);    // NOLINT
 
-        XLCellValue(const XLCellValueProxy& proxy);
+        /**
+         * @brief
+         * @param proxy
+         */
+        XLCellValue(const XLCellValueProxy& proxy);    // NOLINT
 
         /**
          * @brief
@@ -113,7 +120,7 @@ namespace OpenXLSX
         XLCellValue(XLCellValue&& other) noexcept;
 
         /**
-         * @brief
+         * @brief Destructor
          */
         ~XLCellValue();
 
@@ -140,20 +147,59 @@ namespace OpenXLSX
         template<typename T, typename std::enable_if<std::is_integral<T>::value, int64_t>::type* = nullptr>
         XLCellValue& operator=(T value);
 
+        /**
+         * @brief
+         * @tparam T
+         * @param value
+         * @return
+         */
         template<typename T, typename std::enable_if<std::is_floating_point<T>::value, long double>::type* = nullptr>
-        XLCellValue& operator=(T value);
-
-        template<typename T,
-                 typename std::enable_if<std::is_constructible<T, char*>::value && !std::is_same<T, bool>::value, char*>::type* = nullptr>
         XLCellValue& operator=(T value);
 
         /**
          * @brief
          * @tparam T
          * @param value
+         * @return
          */
-        template<typename T>
-        void set(T value);
+        template<typename T,
+                 typename std::enable_if<std::is_constructible<T, char*>::value && !std::is_same<T, bool>::value, char*>::type* = nullptr>
+        XLCellValue& operator=(T value);
+
+//        /**
+//         * @brief
+//         * @tparam T
+//         * @param value
+//         */
+//        template<typename T>
+//        void set(T value);
+
+        /**
+         * @brief
+         * @tparam T
+         * @param numberValue
+         */
+        template<typename T, typename std::enable_if<std::is_integral<T>::value, int64_t>::type* = nullptr>
+        void set(T numberValue);
+
+        /**
+         * @brief
+         * @tparam T
+         * @param numberValue
+         */
+        template<typename T, typename std::enable_if<std::is_floating_point<T>::value, long double>::type* = nullptr>
+        void set(T numberValue);
+
+        /**
+         * @brief
+         * @tparam T
+         * @param stringValue
+         */
+        template<typename T,
+            typename std::enable_if<!std::is_same<T, XLCellValue>::value && !std::is_same<T, bool>::value &&
+                std::is_constructible<T, const char*>::value,
+                                    T>::type* = nullptr>
+        void set(T stringValue);
 
         /**
          * @brief
@@ -173,17 +219,17 @@ namespace OpenXLSX
 
         /**
          * @brief
-         */
-        XLCellValue& clear();
-
-        /**
-         * @brief
          * @tparam T
          * @return
          */
         template<typename T,
                  typename std::enable_if<std::is_constructible<T, char*>::value && !std::is_same<T, bool>::value, char*>::type* = nullptr>
         T get() const;
+
+        /**
+         * @brief
+         */
+        XLCellValue& clear();
 
         /**
          * @brief
@@ -197,10 +243,23 @@ namespace OpenXLSX
          */
         XLValueType type() const;
 
+        /**
+         * @brief
+         * @return
+         */
+        std::string typeAsString() const;
+
     private:
-        XLValueType                                      m_type { XLValueType::Empty }; /**< */
+        //---------- Private Member Variables ---------- //
+
         std::variant<std::string, int64_t, double, bool> m_value { "" };                /**< */
+        XLValueType                                      m_type { XLValueType::Empty }; /**< */
     };
+
+}  // namespace OpenXLSX
+
+// ========== TEMPLATE MEMBER IMPLEMENTATIONS ========== //
+namespace OpenXLSX{
 
     /**
      * @details
@@ -265,15 +324,47 @@ namespace OpenXLSX
         return *this;
     }
 
+//    /**
+//     * @details
+//     * @pre
+//     * @post
+//     */
+//    template<typename T>
+//    void XLCellValue::set(T value)
+//    {
+//        *this = value;
+//    }
+
     /**
-     * @details
-     * @pre
-     * @post
+     * @brief
+     * @tparam T
+     * @param numberValue
      */
-    template<typename T>
-    void XLCellValue::set(T value)
-    {
-        *this = value;
+    template<typename T, typename std::enable_if<std::is_integral<T>::value, int64_t>::type*>
+    void XLCellValue::set(T numberValue) {
+        *this = numberValue;
+    }
+
+    /**
+     * @brief
+     * @tparam T
+     * @param numberValue
+     */
+    template<typename T, typename std::enable_if<std::is_floating_point<T>::value, long double>::type*>
+    void XLCellValue::set(T numberValue) {
+        *this = numberValue;
+    }
+
+    /**
+     * @brief
+     * @tparam T
+     * @param stringValue
+     */
+    template<typename T,
+        typename std::enable_if<!std::is_same<T, XLCellValue>::value && !std::is_same<T, bool>::value &&
+            std::is_constructible<T, const char*>::value,T>::type*>
+    void XLCellValue::set(T stringValue) {
+        *this = stringValue;
     }
 
     /**
@@ -313,6 +404,11 @@ namespace OpenXLSX
     {
         return std::get<std::string>(m_value).c_str();
     }
+
+}  // namespace OpenXLSX
+
+// ========== FRIEND FUNCTION IMPLEMENTATIONS ========== //
+namespace OpenXLSX {
 
     /**
      * @brief
@@ -380,6 +476,12 @@ namespace OpenXLSX
         return lhs.m_value >= rhs.m_value;
     }
 
+    /**
+     * @brief
+     * @param os
+     * @param value
+     * @return
+     */
     inline std::ostream& operator<<(std::ostream& os, const XLCellValue& value)
     {
         switch (value.type()) {
