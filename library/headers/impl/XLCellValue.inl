@@ -66,25 +66,51 @@ XLCellValue::XLCellValue(T value) : m_value(value)
         m_type = XLValueType::Error;
 }
 
-/**
- * @details
- * @pre
- * @post
- */
-template<typename T>
-XLCellValue& XLCellValue::operator=(T value)
-{
+///**
+// * @details
+// * @pre
+// * @post
+// */
+//template<typename T>
+//XLCellValue& XLCellValue::operator=(T value)
+//{
+//    if constexpr (std::is_integral_v<T> && std::is_same_v<T, bool>)
+//        m_type = XLValueType::Boolean;
+//    else if constexpr (std::is_integral_v<T> && !std::is_same_v<T, bool>)
+//        m_type = XLValueType::Integer;
+//    else if constexpr (std::is_floating_point_v<T>)
+//        m_type = XLValueType::Float;
+//    else if constexpr (std::is_constructible_v<T, char*> && !std::is_same_v<T, bool>)
+//        m_type = XLValueType::String;
+//    else
+//        m_type = XLValueType::Error;
+//
+//    m_value = value;
+//    return *this;
+//}
+
+template<typename T, typename std::enable_if<std::is_integral<T>::value, int64_t>::type*>
+XLCellValue& XLCellValue::operator=(T value) {
     if constexpr (std::is_integral_v<T> && std::is_same_v<T, bool>)
         m_type = XLValueType::Boolean;
-    else if constexpr (std::is_integral_v<T> && !std::is_same_v<T, bool>)
-        m_type = XLValueType::Integer;
-    else if constexpr (std::is_floating_point_v<T>)
-        m_type = XLValueType::Float;
-    else if constexpr (std::is_constructible_v<T, char*> && !std::is_same_v<T, bool>)
-        m_type = XLValueType::String;
     else
-        m_type = XLValueType::Error;
+        m_type = XLValueType::Integer;
 
+    m_value = value;
+    return *this;
+}
+
+template<typename T, typename std::enable_if<std::is_floating_point<T>::value, long double>::type*>
+XLCellValue& XLCellValue::operator=(T value) {
+    m_type = XLValueType::Float;
+    m_value = value;
+    return *this;
+}
+
+template<typename T,
+    typename std::enable_if<std::is_constructible<T, char*>::value && !std::is_same<T, bool>::value, char*>::type*>
+XLCellValue& XLCellValue::operator=(T value) {
+    m_type = XLValueType::String;
     m_value = value;
     return *this;
 }
@@ -106,7 +132,7 @@ void XLCellValue::set(T value)
  * @post
  */
 template<typename T, typename std::enable_if<std::is_integral<T>::value, int64_t>::type*>
-T XLCellValue::get()
+T XLCellValue::get() const
 {
     if constexpr (std::is_same<T, bool>::value) {
         return std::get<bool>(m_value);
@@ -122,7 +148,7 @@ T XLCellValue::get()
  * @post
  */
 template<typename T, typename std::enable_if<std::is_floating_point<T>::value, long double>::type*>
-T XLCellValue::get()
+T XLCellValue::get() const
 {
     return static_cast<T>(std::get<double>(m_value));
 }
@@ -133,7 +159,7 @@ T XLCellValue::get()
  * @post
  */
 template<typename T, typename std::enable_if<std::is_constructible<T, char*>::value && !std::is_same<T, bool>::value, char*>::type*>
-T XLCellValue::get()
+T XLCellValue::get() const
 {
     return std::get<std::string>(m_value).c_str();
 }

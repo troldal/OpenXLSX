@@ -56,6 +56,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "OpenXLSX-Exports.hpp"
 #include "XLCellReference.hpp"
 #include "XLCellValue.hpp"
+#include "XLCellValueProxy.hpp"
 #include "XLException.hpp"
 
 namespace OpenXLSX
@@ -69,64 +70,8 @@ namespace OpenXLSX
     class OPENXLSX_EXPORT XLCell
     {
         friend class XLCellIterator;
+        friend class XLCellValueProxy;
         friend bool operator==(const XLCell& lhs, const XLCell& rhs);
-
-    private:
-        /**
-         * @brief
-         */
-        class XLCellValueProxy
-        {
-            friend class XLCell;
-
-        public:
-            explicit XLCellValueProxy(XLCell* cell);
-
-            ~XLCellValueProxy();
-
-            template<typename T, typename std::enable_if<std::is_integral<T>::value, int64_t>::type* = nullptr>
-            XLCell& operator=(T numberValue);    // NOLINT
-
-            template<typename T, typename std::enable_if<std::is_floating_point<T>::value, long double>::type* = nullptr>
-            XLCell& operator=(T numberValue);    // NOLINT
-
-            template<typename T,
-                     typename std::enable_if<!std::is_same<T, XLCellValue>::value && !std::is_same<T, bool>::value &&
-                                                 std::is_constructible<T, const char*>::value,
-                                             T>::type* = nullptr>
-            XLCell& operator=(T stringValue);    // NOLINT
-
-            template<typename T, typename std::enable_if<std::is_same<T, XLCellValue>::value, T>::type* = nullptr>
-            XLCell& operator=(T value);    // NOLINT
-
-            template<typename T, typename std::enable_if<std::is_integral<T>::value, int64_t>::type* = nullptr>
-            void set(T numberValue);
-
-            template<typename T, typename std::enable_if<std::is_floating_point<T>::value, long double>::type* = nullptr>
-            void set(T numberValue);
-
-            template<typename T,
-                     typename std::enable_if<!std::is_same<T, XLCellValue>::value && !std::is_same<T, bool>::value &&
-                                                 std::is_constructible<T, const char*>::value,
-                                             T>::type* = nullptr>
-            void set(T stringValue);
-
-            template<typename T>
-            T get() const;
-
-            operator XLCellValue();    // NOLINT
-
-        private:
-            XLCellValueProxy(const XLCellValueProxy& other);
-
-            XLCellValueProxy(XLCellValueProxy&& other) noexcept;
-
-            XLCellValueProxy& operator=(const XLCellValueProxy& other);
-
-            XLCellValueProxy& operator=(XLCellValueProxy&& other) noexcept;
-
-            XLCell* m_cell;
-        };
 
     public:
         //---------- Public Member Functions ----------//
@@ -276,7 +221,16 @@ namespace OpenXLSX
         XLCellValueProxy         m_valueProxy { this }; /**< */
     };
 
-#include "impl/XLCell.inl"
+    /**
+     * @brief
+     * @param lhs
+     * @param rhs
+     * @return
+     */
+    inline bool operator==(const XLCell& lhs, const XLCell& rhs)
+    {
+        return lhs.m_cellNode == rhs.m_cellNode;
+    }
 
 }    // namespace OpenXLSX
 

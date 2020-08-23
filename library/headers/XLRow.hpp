@@ -52,9 +52,16 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== External Includes ===== //
 #include <memory>
+#include <vector>
+#include <deque>
+#include <list>
+#include <forward_list>
+#include <set>
+#include <unordered_set>
 
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
+#include "XLCellValue.hpp"
 #include "XLXmlParser.hpp"
 
 namespace OpenXLSX
@@ -67,13 +74,22 @@ namespace OpenXLSX
      */
     class OPENXLSX_EXPORT XLRow
     {
+        friend class XLRowIterator;
+        friend bool operator==(const XLRow& lhs, const XLRow& rhs);
+
         //---------- PUBLIC MEMBER FUNCTIONS ----------//
     public:
+
+        /**
+         * @brief
+         */
+        XLRow();
+
         /**
          * @brief
          * @param rowNode
          */
-        explicit XLRow(const XMLNode& rowNode);
+        XLRow(const XMLNode& rowNode, XLSharedStrings* sharedStrings);
 
         /**
          * @brief Copy Constructor
@@ -103,7 +119,7 @@ namespace OpenXLSX
          * @brief Move assignment operator.
          * @note The move assignment operator has been explicitly deleted.
          */
-        XLRow& operator=(XLRow&& other) noexcept = default;
+        XLRow& operator=(XLRow&& other) noexcept;
 
         /**
          * @brief Get the height of the row.
@@ -155,10 +171,35 @@ namespace OpenXLSX
          */
         unsigned int cellCount() const;
 
+        void setValues(const std::vector<XLCellValue>& values);
+        void setValues(const std::deque<XLCellValue>& values);
+        void setValues(const std::list<XLCellValue>& values);
+        void setValues(const std::forward_list<XLCellValue>& values);
+        void setValues(const std::set<XLCellValue>& values);
+        void setValues(const std::multiset<XLCellValue>& values);
+        void setValues(const std::unordered_set<XLCellValue>& values);
+        void setValues(const std::unordered_multiset<XLCellValue>& values);
+
+        std::vector<XLCellValue> getValues(uint16_t numCells = 0);
+
         //---------- PRIVATE MEMBER VARIABLES ----------//
     private:
+
+
         std::unique_ptr<XMLNode> m_rowNode; /**< The XMLNode object for the row. */
+        XLSharedStrings* m_sharedStrings;
     };
+
+    /**
+     * @brief
+     * @param lhs
+     * @param rhs
+     * @return
+     */
+    inline bool operator==(const XLRow& lhs, const XLRow& rhs)
+    {
+        return lhs.m_rowNode == rhs.m_rowNode;
+    }
 
 }    // namespace OpenXLSX
 

@@ -18,7 +18,7 @@ int main()
     wks.cell(XLCellReference("B1")).value() = 42;
     wks.cell(XLCellReference("C1")).value() = "  Hello OpenXLSX!  ";
     wks.cell(XLCellReference("D1")).value() = true;
-    wks.cell(XLCellReference("E1")).value() = wks.cell(XLCellReference("C1")).getValue();
+    wks.cell(XLCellReference("E1")).value() = wks.cell(XLCellReference("C1")).value();
 
     XLCellValue A1 = wks.cell(XLCellReference("A1")).value();
     XLCellValue B1 = wks.cell(XLCellReference("B1")).value();

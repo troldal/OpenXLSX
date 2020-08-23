@@ -52,20 +52,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 using namespace OpenXLSX;
 
-/**
- * @details
- */
-XLCell::XLCellValueProxy::XLCellValueProxy(XLCell* cell) : m_cell(cell) {}
-XLCell::XLCellValueProxy::~XLCellValueProxy()                                         = default;
-XLCell::XLCellValueProxy::XLCellValueProxy(const XLCell::XLCellValueProxy& other)     = default;
-XLCell::XLCellValueProxy::XLCellValueProxy(XLCell::XLCellValueProxy&& other) noexcept = default;
-XLCell::XLCellValueProxy& XLCell::XLCellValueProxy::operator=(const XLCell::XLCellValueProxy& other) = default;
-XLCell::XLCellValueProxy& XLCell::XLCellValueProxy::operator=(XLCell::XLCellValueProxy&& other) noexcept = default;
-
-XLCell::XLCellValueProxy::operator XLCellValue()
-{
-    return m_cell->getValue();
-}
 
 /**
  * @details
@@ -210,19 +196,6 @@ XLValueType XLCell::valueType() const
     // ===== Otherwise, the cell contains an error.
     else
         return XLValueType::Error;    // the m_typeAttribute has the ValueAsString "e"
-}
-
-/**
- * @details
- */
-XLCell::XLCellValueProxy& XLCell::value()
-{
-    return m_valueProxy;
-}
-
-const XLCell::XLCellValueProxy& XLCell::value() const
-{
-    return m_valueProxy;
 }
 
 /**

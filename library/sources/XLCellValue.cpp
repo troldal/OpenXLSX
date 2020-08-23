@@ -3,31 +3,36 @@
 //
 
 #include "XLCellValue.hpp"
+#include "XLCellValueProxy.hpp"
 #include "XLException.hpp"
 #include <pugixml.hpp>
 
-OpenXLSX::XLCellValue::XLCellValue()                                       = default;
-OpenXLSX::XLCellValue::XLCellValue(const OpenXLSX::XLCellValue& other)     = default;
-OpenXLSX::XLCellValue::XLCellValue(OpenXLSX::XLCellValue&& other) noexcept = default;
-OpenXLSX::XLCellValue::~XLCellValue()                                      = default;
-OpenXLSX::XLCellValue& OpenXLSX::XLCellValue::operator=(const OpenXLSX::XLCellValue& other) = default;
-OpenXLSX::XLCellValue& OpenXLSX::XLCellValue::operator=(OpenXLSX::XLCellValue&& other) noexcept = default;
+using namespace OpenXLSX;
 
-OpenXLSX::XLCellValue& OpenXLSX::XLCellValue::clear()
+XLCellValue::XLCellValue()                                       = default;
+XLCellValue::XLCellValue(const OpenXLSX::XLCellValue& other)     = default;
+XLCellValue::XLCellValue(OpenXLSX::XLCellValue&& other) noexcept = default;
+XLCellValue::~XLCellValue()                                      = default;
+XLCellValue& OpenXLSX::XLCellValue::operator=(const OpenXLSX::XLCellValue& other) = default;
+XLCellValue& OpenXLSX::XLCellValue::operator=(OpenXLSX::XLCellValue&& other) noexcept = default;
+
+XLCellValue::XLCellValue(const XLCellValueProxy& proxy) : XLCellValue(proxy.getValue()) {}
+
+XLCellValue& XLCellValue::clear()
 {
     m_type  = XLValueType::Empty;
     m_value = "";
     return *this;
 }
 
-OpenXLSX::XLCellValue& OpenXLSX::XLCellValue::setError()
+XLCellValue& XLCellValue::setError()
 {
     m_type  = XLValueType::Error;
     m_value = "";
     return *this;
 }
 
-OpenXLSX::XLValueType OpenXLSX::XLCellValue::type() const
+XLValueType XLCellValue::type() const
 {
     return m_type;
 }

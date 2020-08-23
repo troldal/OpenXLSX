@@ -45,33 +45,120 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== External Includes ===== //
 #include <pugixml.hpp>
+#include <vector>
 
 // ===== OpenXLSX Includes ===== //
+#include "XLCell.hpp"
 #include "XLCellReference.hpp"
+#include "XLCellValue.hpp"
 #include "XLRow.hpp"
 
 using namespace OpenXLSX;
 
+namespace {
+
+    template <typename T>
+    void setValues2(const T& values, uint32_t rowNumber, XMLNode* rowNode, XLSharedStrings* sharedStrings) {
+
+        // ===== Find or create the first cell node
+        auto curNode = rowNode->first_child();
+        if (!curNode || XLCellReference(curNode.attribute("r").value()).column() != 1 ) {
+            curNode = rowNode->append_child("c");
+            curNode.append_attribute("r").set_value(XLCellReference(rowNumber, 1).address().c_str());
+        }
+
+        auto prevNode = XMLNode();
+        uint16_t col = 1;
+        for (const auto& value : values) {
+            if (!curNode || XLCellReference(curNode.attribute("r").value()).column() != col ) {
+                curNode = rowNode->insert_child_after("c", prevNode);
+                curNode.append_attribute("r").set_value(XLCellReference(rowNumber, col).address().c_str());
+            }
+
+            XLCell(curNode, sharedStrings).value() = value;
+
+            prevNode = curNode;
+            curNode  = curNode.next_sibling();
+            ++col;
+        }
+    }
+}
+
+namespace OpenXLSX {
+    XMLNode getCellNode(XMLNode rowNode, uint16_t columnNumber);
+}
+
+/**
+ * @details
+ * @pre
+ * @post
+ */
+XLRow::XLRow()
+    : m_rowNode(nullptr),
+      m_sharedStrings(nullptr)
+{}
+
 /**
  * @details Constructs a new XLRow object from information in the underlying XML file. A pointer to the corresponding
  * node in the underlying XML file must be provided.
+ * @pre
+ * @post
  */
-XLRow::XLRow(const XMLNode& rowNode) : m_rowNode(std::make_unique<XMLNode>(rowNode)) {}
+XLRow::XLRow(const XMLNode& rowNode, XLSharedStrings* sharedStrings)
+    : m_rowNode(std::make_unique<XMLNode>(rowNode)),
+      m_sharedStrings(sharedStrings)
+{}
 
-XLRow::XLRow(const XLRow& other) : m_rowNode(std::make_unique<XMLNode>(*other.m_rowNode)) {}
+/**
+ * @details
+ * @pre
+ * @post
+ */
+XLRow::XLRow(const XLRow& other)
+    : m_rowNode(std::make_unique<XMLNode>(*other.m_rowNode)) ,
+      m_sharedStrings(other.m_sharedStrings)
 
+{}
+
+/**
+ * @details
+ * @pre
+ * @post
+ */
 XLRow::XLRow(XLRow&& other) noexcept = default;
 
+/**
+ * @details
+ * @pre
+ * @post
+ */
 XLRow::~XLRow() = default;
 
+/**
+ * @details
+ * @pre
+ * @post
+ */
 XLRow& XLRow::operator=(const XLRow& other)
 {
-    if (&other != this) *m_rowNode = *other.m_rowNode;
+    if (&other != this) {
+        *m_rowNode = *other.m_rowNode;
+        m_sharedStrings = other.m_sharedStrings;
+    }
     return *this;
 }
 
 /**
+ * @details
+ * @pre
+ * @post
+ */
+XLRow& XLRow::operator=(XLRow&& other) noexcept = default;
+
+/**
  * @details Returns the m_height member by getValue.
+ * @pre
+ * @post
  */
 double XLRow::height() const
 {
@@ -81,6 +168,8 @@ double XLRow::height() const
 /**
  * @details Set the height of the row. This is done by setting the getValue of the 'ht' attribute and setting the
  * 'customHeight' attribute to true.
+ * @pre
+ * @post
  */
 void XLRow::setHeight(float height)
 {
@@ -99,6 +188,8 @@ void XLRow::setHeight(float height)
 
 /**
  * @details Return the m_descent member by getValue.
+ * @pre
+ * @post
  */
 float XLRow::descent() const
 {
@@ -107,6 +198,8 @@ float XLRow::descent() const
 
 /**
  * @details Set the descent by setting the 'x14ac:dyDescent' attribute in the XML file
+ * @pre
+ * @post
  */
 void XLRow::setDescent(float descent)
 {
@@ -119,6 +212,8 @@ void XLRow::setDescent(float descent)
 
 /**
  * @details Determine if the row is hidden or not.
+ * @pre
+ * @post
  */
 bool XLRow::isHidden() const
 {
@@ -127,6 +222,8 @@ bool XLRow::isHidden() const
 
 /**
  * @details Set the hidden state by setting the 'hidden' attribute to true or false.
+ * @pre
+ * @post
  */
 void XLRow::setHidden(bool state)
 {
@@ -139,6 +236,8 @@ void XLRow::setHidden(bool state)
 
 /**
  * @details
+ * @pre
+ * @post
  */
 int64_t XLRow::rowNumber() const
 {
@@ -147,6 +246,8 @@ int64_t XLRow::rowNumber() const
 
 /**
  * @details Get the number of cells in the row, by returning the size of the m_cells vector.
+ * @pre
+ * @post
  */
 unsigned int XLRow::cellCount() const
 {
@@ -154,4 +255,36 @@ unsigned int XLRow::cellCount() const
         return 0;
     else
         return XLCellReference(m_rowNode->last_child().attribute("r").value()).column();
+}
+
+/**
+ * @details
+ * @pre
+ * @post
+ */
+void XLRow::setValues(const std::vector<XLCellValue>& values) {setValues2(values, rowNumber(), m_rowNode.get(), m_sharedStrings);}
+void XLRow::setValues(const std::deque<XLCellValue>& values) {setValues2(values, rowNumber(), m_rowNode.get(), m_sharedStrings);}
+void XLRow::setValues(const std::list<XLCellValue>& values) {setValues2(values, rowNumber(), m_rowNode.get(), m_sharedStrings);}
+void XLRow::setValues(const std::forward_list<XLCellValue>& values) {setValues2(values, rowNumber(), m_rowNode.get(), m_sharedStrings);}
+void XLRow::setValues(const std::set<XLCellValue>& values) {setValues2(values, rowNumber(), m_rowNode.get(), m_sharedStrings);}
+void XLRow::setValues(const std::multiset<XLCellValue>& values) {setValues2(values, rowNumber(), m_rowNode.get(), m_sharedStrings);}
+void XLRow::setValues(const std::unordered_set<XLCellValue>& values) {setValues2(values, rowNumber(), m_rowNode.get(), m_sharedStrings);}
+void XLRow::setValues(const std::unordered_multiset<XLCellValue>& values) {setValues2(values, rowNumber(), m_rowNode.get(),
+               m_sharedStrings);}
+
+/**
+ * @details
+ * @pre
+ * @post
+ */
+std::vector<XLCellValue> XLRow::getValues(uint16_t numCells)
+{
+    std::vector<XLCellValue> result(numCells);
+
+    for (auto& node : m_rowNode->children()) {
+        if (XLCellReference(node.attribute("r").value()).column() > numCells) break;
+        result[XLCellReference(node.attribute("r").value()).column() - 1] = XLCell(node, m_sharedStrings).value();
+    }
+
+    return result;
 }

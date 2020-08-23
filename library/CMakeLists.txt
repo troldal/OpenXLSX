@@ -61,11 +61,15 @@ set(OPENXLSX_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/sources/XLColumn.cpp
     ${CMAKE_CURRENT_LIST_DIR}/sources/XLColor.cpp
     ${CMAKE_CURRENT_LIST_DIR}/sources/XLRow.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/sources/XLRowRange.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/sources/XLRowIterator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/sources/XLSheet.cpp
     ${CMAKE_CURRENT_LIST_DIR}/sources/XLCell.cpp
     ${CMAKE_CURRENT_LIST_DIR}/sources/XLCellRange.cpp
     ${CMAKE_CURRENT_LIST_DIR}/sources/XLCellValue.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/sources/XLCellValueProxy.cpp
     ${CMAKE_CURRENT_LIST_DIR}/sources/XLCellReference.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/sources/XLUtils.cpp
     ${CMAKE_CURRENT_LIST_DIR}/sources/XLXmlData.cpp
     ${CMAKE_CURRENT_LIST_DIR}/sources/XLCellIterator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/sources/XLZipArchive.cpp

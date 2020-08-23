@@ -55,46 +55,9 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 using namespace OpenXLSX;
 
-namespace
-{
-    /**
-     * @details
-     */
-    inline XMLNode getRowNode(XMLNode sheetDataNode, uint32_t rowNumber)
-    {
-        // ===== If the requested node is beyond the current max node, append a new node to the end.
-        auto result = XMLNode();
-        if (!sheetDataNode.last_child() || rowNumber > sheetDataNode.last_child().attribute("r").as_ullong()) {
-            result = sheetDataNode.append_child("row");
-
-            result.append_attribute("r") = rowNumber;
-        }
-
-        // ===== If the requested node is closest to the end, start from the end and search backwards
-        else if (sheetDataNode.last_child().attribute("r").as_ullong() - rowNumber < rowNumber) {
-            result = sheetDataNode.last_child();
-            while (result.attribute("r").as_ullong() > rowNumber) result = result.previous_sibling();
-            if (result.attribute("r").as_ullong() < rowNumber) {
-                result = sheetDataNode.insert_child_after("row", result);
-
-                result.append_attribute("r") = rowNumber;
-            }
-        }
-
-        // ===== Otherwise, start from the beginning
-        else {
-            result = sheetDataNode.first_child();
-            while (result.attribute("r").as_ullong() < rowNumber) result = result.next_sibling();
-            if (result.attribute("r").as_ullong() > rowNumber) {
-                result = sheetDataNode.insert_child_before("row", result);
-
-                result.append_attribute("r") = rowNumber;
-            }
-        }
-
-        return result;
-    }
-}    // namespace
+namespace OpenXLSX {
+    XMLNode getRowNode(XMLNode sheetDataNode, uint32_t rowNumber);
+} // namespace OpenXLSX
 
 /**
  * @details The constructor begins by constructing an instance of its superclass, XLAbstractXMLFile. The default
@@ -342,6 +305,28 @@ XLCellRange XLWorksheet::range(const XLCellReference& topLeft, const XLCellRefer
                        parentDoc().executeQuery(XLQuerySharedStrings()).sharedStrings());
 }
 
+XLRowRange XLWorksheet::rows()
+{
+    return XLRowRange(xmlDocument().first_child().child("sheetData"),
+                      1,
+                      1048576,
+                      parentDoc().executeQuery(XLQuerySharedStrings()).sharedStrings());
+}
+XLRowRange XLWorksheet::rows(uint32_t rowCount)
+{
+    return XLRowRange(xmlDocument().first_child().child("sheetData"),
+                      1,
+                      rowCount,
+                      parentDoc().executeQuery(XLQuerySharedStrings()).sharedStrings());
+}
+XLRowRange XLWorksheet::rows(uint32_t firstRow, uint32_t lastRow)
+{
+    return XLRowRange(xmlDocument().first_child().child("sheetData"),
+                      firstRow,
+                      lastRow,
+                      parentDoc().executeQuery(XLQuerySharedStrings()).sharedStrings());
+}
+
 /**
  * @details Get the XLRow object corresponding to the given row number. In the XML file, all cell data are stored under
  * the corresponding row, and all rows have to be ordered in ascending order. If a row have no data, there may not be a
@@ -350,7 +335,8 @@ XLCellRange XLWorksheet::range(const XLCellReference& topLeft, const XLCellRefer
  */
 XLRow XLWorksheet::row(uint32_t rowNumber)
 {
-    return XLRow(getRowNode(xmlDocument().first_child().child("sheetData"), rowNumber));
+    return XLRow(getRowNode(xmlDocument().first_child().child("sheetData"), rowNumber),
+                 parentDoc().executeQuery(XLQuerySharedStrings()).sharedStrings());
 }
 
 /**

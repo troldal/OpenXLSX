@@ -53,16 +53,13 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <algorithm>
 
 #include "OpenXLSX-Exports.hpp"
+#include "XLIterator.hpp"
 #include "XLCell.hpp"
 #include "XLCellReference.hpp"
 #include "XLXmlParser.hpp"
 
 namespace OpenXLSX
 {
-    enum class XLIteratorDirection { Forward, Reverse };
-
-    enum class XLIteratorLocation { Begin, End };
-
     class OPENXLSX_EXPORT XLCellIterator
     {
     public:
@@ -108,7 +105,7 @@ namespace OpenXLSX
          * @param other
          * @return
          */
-        XLCellIterator& operator=(XLCellIterator&& other) noexcept = default;
+        XLCellIterator& operator=(XLCellIterator&& other) noexcept;
 
         /**
          * @brief

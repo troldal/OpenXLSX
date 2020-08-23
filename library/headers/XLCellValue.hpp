@@ -54,14 +54,18 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <cstdint>
 #include <string>
 #include <variant>
+#include <iostream>
 
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
+//#include "XLCellValueProxy.hpp"
 #include "XLSharedStrings.hpp"
 #include "XLXmlParser.hpp"
 
 namespace OpenXLSX
 {
+    class XLCellValueProxy;
+
     /**
      * @brief
      */
@@ -78,6 +82,7 @@ namespace OpenXLSX
         friend bool operator>(const XLCellValue& lhs, const XLCellValue& rhs);
         friend bool operator<=(const XLCellValue& lhs, const XLCellValue& rhs);
         friend bool operator>=(const XLCellValue& lhs, const XLCellValue& rhs);
+        friend std::ostream & operator<<(std::ostream &os, const XLCellValue& p);
 
     public:
         /**
@@ -91,7 +96,9 @@ namespace OpenXLSX
          * @param value
          */
         template<typename T>
-        explicit XLCellValue(T value);
+        XLCellValue(T value);
+
+        XLCellValue(const XLCellValueProxy& proxy);
 
         /**
          * @brief
@@ -130,7 +137,14 @@ namespace OpenXLSX
          * @param value
          * @return
          */
-        template<typename T>
+        template<typename T, typename std::enable_if<std::is_integral<T>::value, int64_t>::type* = nullptr>
+        XLCellValue& operator=(T value);
+
+        template<typename T, typename std::enable_if<std::is_floating_point<T>::value, long double>::type* = nullptr>
+        XLCellValue& operator=(T value);
+
+        template<typename T,
+            typename std::enable_if<std::is_constructible<T, char*>::value && !std::is_same<T, bool>::value, char*>::type* = nullptr>
         XLCellValue& operator=(T value);
 
         /**
@@ -147,7 +161,7 @@ namespace OpenXLSX
          * @return
          */
         template<typename T, typename std::enable_if<std::is_integral<T>::value, int64_t>::type* = nullptr>
-        T get();
+        T get() const;
 
         /**
          * @brief
@@ -155,7 +169,12 @@ namespace OpenXLSX
          * @return
          */
         template<typename T, typename std::enable_if<std::is_floating_point<T>::value, long double>::type* = nullptr>
-        T get();
+        T get() const;
+
+        /**
+         * @brief
+         */
+        XLCellValue& clear();
 
         /**
          * @brief
@@ -163,13 +182,8 @@ namespace OpenXLSX
          * @return
          */
         template<typename T,
-                 typename std::enable_if<std::is_constructible<T, char*>::value && !std::is_same<T, bool>::value, char*>::type* = nullptr>
-        T get();
-
-        /**
-         * @brief
-         */
-        XLCellValue& clear();
+            typename std::enable_if<std::is_constructible<T, char*>::value && !std::is_same<T, bool>::value, char*>::type* = nullptr>
+        T get() const;
 
         /**
          * @brief
@@ -256,6 +270,23 @@ namespace OpenXLSX
         return lhs.m_value >= rhs.m_value;
     }
 
+    inline std::ostream & operator<<(std::ostream &os, const XLCellValue& value)
+    {
+        switch (value.type()) {
+            case XLValueType::Empty:
+                return os << "";
+            case XLValueType::Boolean:
+                return os << value.get<bool>();
+            case XLValueType::Integer:
+                return os << value.get<int64_t>();
+            case XLValueType::Float:
+                return os << value.get<double>();
+            case XLValueType::String:
+                return os << value.get<std::string_view>();
+            default:
+                return os << "";
+        }
+    }
 }    // namespace OpenXLSX
 
 #pragma warning(pop)

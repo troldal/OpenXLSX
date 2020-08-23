@@ -8,6 +8,7 @@
 #include <OpenXLSX.hpp>
 #include <benchmark/benchmark.h>
 #include <numeric>
+#include <cstdint>
 
 using namespace OpenXLSX;
 
@@ -23,10 +24,12 @@ static void BM_WriteStrings(benchmark::State& state)    // NOLINT
     XLDocument doc;
     doc.create("./benchmark_strings.xlsx");
     auto wks    = doc.workbook().worksheet("Sheet1");
-    auto arange = wks.range(XLCellReference("A1"), XLCellReference(rows, columns));
+
+    std::vector<XLCellValue> values(columns, "OpenXLSX");
 
     for (auto _ : state)    // NOLINT
-        for (auto& cell : arange) cell.value() = "OpenXLSX";
+        for (auto& row : wks.rows())
+            row.setValues(values);
 
     state.SetItemsProcessed(rows * columns);
     state.counters["items"] = state.items_processed();
@@ -46,10 +49,12 @@ static void BM_WriteIntegers(benchmark::State& state)    // NOLINT
     XLDocument doc;
     doc.create("./benchmark_integers.xlsx");
     auto wks    = doc.workbook().worksheet("Sheet1");
-    auto arange = wks.range(XLCellReference("A1"), XLCellReference(rows, columns));
+
+    std::vector<XLCellValue> values(columns, 42);
 
     for (auto _ : state)    // NOLINT
-        for (auto& cell : arange) cell.value() = 42;
+        for (auto& row : wks.rows())
+            row.setValues(values);
 
     state.SetItemsProcessed(rows * columns);
     state.counters["items"] = state.items_processed();
@@ -69,10 +74,12 @@ static void BM_WriteFloats(benchmark::State& state)    // NOLINT
     XLDocument doc;
     doc.create("./benchmark_floats.xlsx");
     auto wks    = doc.workbook().worksheet("Sheet1");
-    auto arange = wks.range(XLCellReference("A1"), XLCellReference(rows, columns));
+
+    std::vector<XLCellValue> values(columns, 3.14);
 
     for (auto _ : state)    // NOLINT
-        for (auto& cell : arange) cell.value() = 3.14;
+        for (auto& row : wks.rows())
+            row.setValues(values);
 
     state.SetItemsProcessed(rows * columns);
     state.counters["items"] = state.items_processed();
@@ -92,10 +99,12 @@ static void BM_WriteBools(benchmark::State& state)    // NOLINT
     XLDocument doc;
     doc.create("./benchmark_bools.xlsx");
     auto wks    = doc.workbook().worksheet("Sheet1");
-    auto arange = wks.range(XLCellReference("A1"), XLCellReference(rows, columns));
+
+    std::vector<XLCellValue> values(columns, true);
 
     for (auto _ : state)    // NOLINT
-        for (auto& cell : arange) cell.value() = true;
+        for (auto& row : wks.rows())
+            row.setValues(values);
 
     state.SetItemsProcessed(rows * columns);
     state.counters["items"] = state.items_processed();
@@ -115,12 +124,16 @@ static void BM_ReadStrings(benchmark::State& state)    // NOLINT
     XLDocument doc;
     doc.open("./benchmark_strings.xlsx");
     auto     wks    = doc.workbook().worksheet("Sheet1");
-    auto     rng    = wks.range(XLCellReference("A1"), XLCellReference(rows, columns));
     uint64_t result = 0;
+    std::vector<XLCellValue> values;
 
     for (auto _ : state) {    // NOLINT
-        result =
-            std::accumulate(rng.begin(), rng.end(), 0, [](uint64_t a, XLCell& b) { return a + b.getValue().get<std::string_view>().size(); });
+        for (auto& row : wks.rows()) {
+            values = row.getValues(columns);
+            result += std::count_if(values.begin(), values.end(), [](const XLCellValue& v) {
+                return v.type() != XLValueType::Empty;
+            });
+        }
         benchmark::DoNotOptimize(result);
         benchmark::ClobberMemory();
     }
@@ -142,11 +155,18 @@ static void BM_ReadIntegers(benchmark::State& state)    // NOLINT
     XLDocument doc;
     doc.open("./benchmark_integers.xlsx");
     auto     wks    = doc.workbook().worksheet("Sheet1");
-    auto     rng    = wks.range(XLCellReference("A1"), XLCellReference(rows, columns));
     uint64_t result = 0;
+    std::vector<XLCellValue> values;
 
     for (auto _ : state) {    // NOLINT
-        result = std::accumulate(rng.begin(), rng.end(), 0, [](uint64_t a, XLCell& b) { return a + b.getValue().get<uint64_t>(); });
+        for (auto& row : wks.rows()) {
+            values = row.getValues(columns);
+            result += std::accumulate(values.begin(),
+                                      values.end(),
+                                      0,
+                                      [](uint64_t a, XLCellValue& b) { return a + b.get<uint64_t>(); });
+        }
+
         benchmark::DoNotOptimize(result);
         benchmark::ClobberMemory();
     }
@@ -168,11 +188,18 @@ static void BM_ReadFloats(benchmark::State& state)    // NOLINT
     XLDocument doc;
     doc.open("./benchmark_floats.xlsx");
     auto        wks    = doc.workbook().worksheet("Sheet1");
-    auto        rng    = wks.range(XLCellReference("A1"), XLCellReference(rows, columns));
     long double result = 0;
+    std::vector<XLCellValue> values;
 
     for (auto _ : state) {    // NOLINT
-        result = std::accumulate(rng.begin(), rng.end(), 0, [](uint64_t a, XLCell& b) { return a + b.getValue().get<double>(); });
+        for (auto& row : wks.rows()) {
+            values = row.getValues(columns);
+            result += std::accumulate(values.begin(),
+                                      values.end(),
+                                      0,
+                                      [](uint64_t a, XLCellValue& b) { return a + b.get<double>(); });
+        }
+
         benchmark::DoNotOptimize(result);
         benchmark::ClobberMemory();
     }
@@ -194,11 +221,18 @@ static void BM_ReadBools(benchmark::State& state)    // NOLINT
     XLDocument doc;
     doc.open("./benchmark_bools.xlsx");
     auto     wks    = doc.workbook().worksheet("Sheet1");
-    auto     rng    = wks.range(XLCellReference("A1"), XLCellReference(rows, columns));
     uint64_t result = 0;
+    std::vector<XLCellValue> values;
 
     for (auto _ : state) {    // NOLINT
-        result = std::accumulate(rng.begin(), rng.end(), 0, [](uint64_t a, XLCell& b) { return a + b.getValue().get<bool>(); });
+        for (auto& row : wks.rows()) {
+            values = row.getValues(columns);
+            result += std::accumulate(values.begin(),
+                                      values.end(),
+                                      0,
+                                      [](uint64_t a, XLCellValue& b) { return a + b.get<bool>(); });
+        }
+
         benchmark::DoNotOptimize(result);
         benchmark::ClobberMemory();
     }

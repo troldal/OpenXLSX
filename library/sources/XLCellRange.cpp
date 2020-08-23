@@ -55,6 +55,8 @@ using namespace OpenXLSX;
 /**
  * @details From the two XLCellReference objects, the constructor calculates the dimensions of the range.
  * If the range exceeds the current bounds of the spreadsheet, the spreadsheet is resized to fit.
+ * @pre
+ * @post
  */
 XLCellRange::XLCellRange(const XMLNode&         dataNode,
                          const XLCellReference& topLeft,
@@ -66,19 +68,36 @@ XLCellRange::XLCellRange(const XMLNode&         dataNode,
       m_sharedStrings(sharedStrings)
 {}
 
+/**
+ * @details
+ * @pre
+ * @post
+ */
 XLCellRange::XLCellRange(const XLCellRange& other)
     : m_dataNode(std::make_unique<XMLNode>(*other.m_dataNode)),
       m_topLeft(other.m_topLeft),
-      m_bottomRight(other.m_bottomRight)
+      m_bottomRight(other.m_bottomRight),
+      m_sharedStrings(other.m_sharedStrings)
 {}
 
+/**
+ * @details
+ * @pre
+ * @post
+ */
 XLCellRange::XLCellRange(XLCellRange&& other) noexcept = default;
 
+/**
+ * @details
+ * @pre
+ * @post
+ */
 XLCellRange::~XLCellRange() = default;
 
 /**
- * @details Assign (copy) the contents of one range to another.
- * @todo Currently copies only values. Consider copying styles etc. as well
+ * @details
+ * @pre
+ * @post
  */
 XLCellRange& XLCellRange::operator=(const XLCellRange& other)
 {
@@ -86,15 +105,16 @@ XLCellRange& XLCellRange::operator=(const XLCellRange& other)
         *m_dataNode   = *other.m_dataNode;
         m_topLeft     = other.m_topLeft;
         m_bottomRight = other.m_bottomRight;
+        m_sharedStrings = other.m_sharedStrings;
     }
 
     return *this;
 }
 
 /**
- * @brief
- * @param other
- * @return
+ * @details
+ * @pre
+ * @post
  */
 XLCellRange& XLCellRange::operator=(XLCellRange&& other) noexcept
 {
@@ -102,13 +122,16 @@ XLCellRange& XLCellRange::operator=(XLCellRange&& other) noexcept
         *m_dataNode   = *other.m_dataNode;
         m_topLeft     = other.m_topLeft;
         m_bottomRight = other.m_bottomRight;
+        m_sharedStrings = other.m_sharedStrings;
     }
 
     return *this;
 }
 
 /**
- * @details Returns the m_rows property.
+ * @details
+ * @pre
+ * @post
  */
 uint32_t XLCellRange::numRows() const
 {
@@ -116,33 +139,39 @@ uint32_t XLCellRange::numRows() const
 }
 
 /**
- * @details Returns the m_columns property.
+ * @details
+ * @pre
+ * @post
  */
 uint16_t XLCellRange::numColumns() const
 {
     return m_bottomRight.column() + 1 - m_topLeft.column();
 }
 
+/**
+ * @details
+ * @pre
+ * @post
+ */
 XLCellIterator XLCellRange::begin()
 {
     return XLCellIterator(*this, XLIteratorLocation::Begin);
 }
 
+/**
+ * @details
+ * @pre
+ * @post
+ */
 XLCellIterator XLCellRange::end()
 {
     return XLCellIterator(*this, XLIteratorLocation::End);
 }
 
-///**
-// * @details
-// */
-// XLCell XLCellRange::cell(uint32_t rowNumber, uint16_t columnNumber)
-//{
-//    return nullptr;
-//}
-
 /**
  * @details
+ * @pre
+ * @post
  */
 void XLCellRange::clear()
 {
