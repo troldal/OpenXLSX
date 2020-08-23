@@ -4,9 +4,9 @@
 
 #include <pugixml.hpp>
 
+#include "XLException.hpp"
 #include "XLRowIterator.hpp"
 #include "XLRowRange.hpp"
-#include "XLException.hpp"
 
 using namespace OpenXLSX;
 
@@ -70,9 +70,9 @@ XLRowIterator& XLRowIterator::operator=(const XLRowIterator& other)
 {
     if (&other != this) {
         *m_dataNode     = *other.m_dataNode;
-        m_firstRow       = other.m_firstRow;
-        m_lastRow   = other.m_lastRow;
-        m_currentRow   = other.m_currentRow;
+        m_firstRow      = other.m_firstRow;
+        m_lastRow       = other.m_lastRow;
+        m_currentRow    = other.m_currentRow;
         m_sharedStrings = other.m_sharedStrings;
     }
 
@@ -94,7 +94,7 @@ XLRowIterator& XLRowIterator::operator=(XLRowIterator&& other) noexcept = defaul
 XLRowIterator& XLRowIterator::operator++()
 {
     auto rowNumber = m_currentRow.rowNumber() + 1;
-    auto rowNode = m_currentRow.m_rowNode->next_sibling();
+    auto rowNode   = m_currentRow.m_rowNode->next_sibling();
 
     if (rowNumber > m_lastRow)
         m_currentRow = XLRow();
@@ -107,38 +107,38 @@ XLRowIterator& XLRowIterator::operator++()
 
     else
         m_currentRow = XLRow(rowNode, m_sharedStrings);
-//        throw XLException("An internal error occured");
+    //        throw XLException("An internal error occured");
 
-//    auto ref = m_currentCell.cellReference();
-//
-//    // ===== Determine the cell reference for the next cell.
-//    if (ref.column() < m_bottomRight.column())
-//        ref = XLCellReference(ref.row(), ref.column() + 1);
-//    else if (ref.column() == m_bottomRight.column())
-//        ref = XLCellReference(ref.row() + 1, m_topLeft.column());
-//
-//    if (ref > m_bottomRight)
-//        m_currentCell = XLCell();
-//    else if (ref > m_bottomRight || ref.row() == m_currentCell.cellReference().row()) {
-//        auto node = m_currentCell.m_cellNode->next_sibling();
-//        if (!node || XLCellReference(node.attribute("r").value()) != ref) {
-//            node = m_currentCell.m_cellNode->parent().insert_child_after("c", *m_currentCell.m_cellNode);
-//            node.append_attribute("r").set_value(ref.address().c_str());
-//        }
-//        m_currentCell = XLCell(node, m_sharedStrings);
-//    }
-//    else if (ref.row() > m_currentCell.cellReference().row()) {
-//        auto rowNode = m_currentCell.m_cellNode->parent().next_sibling();
-//        if (!rowNode || rowNode.attribute("r").as_ullong() != ref.row()) {
-//            rowNode = m_currentCell.m_cellNode->parent().parent().insert_child_after("row", m_currentCell.m_cellNode->parent());
-//            rowNode.append_attribute("r").set_value(ref.row());
-//            // getRowNode(*m_dataNode, ref.row());
-//        }
-//
-//        m_currentCell = XLCell(getCellNode(rowNode, ref.column()), m_sharedStrings);
-//    }
-//    else
-//        throw XLException("An internal error occured");
+    //    auto ref = m_currentCell.cellReference();
+    //
+    //    // ===== Determine the cell reference for the next cell.
+    //    if (ref.column() < m_bottomRight.column())
+    //        ref = XLCellReference(ref.row(), ref.column() + 1);
+    //    else if (ref.column() == m_bottomRight.column())
+    //        ref = XLCellReference(ref.row() + 1, m_topLeft.column());
+    //
+    //    if (ref > m_bottomRight)
+    //        m_currentCell = XLCell();
+    //    else if (ref > m_bottomRight || ref.row() == m_currentCell.cellReference().row()) {
+    //        auto node = m_currentCell.m_cellNode->next_sibling();
+    //        if (!node || XLCellReference(node.attribute("r").value()) != ref) {
+    //            node = m_currentCell.m_cellNode->parent().insert_child_after("c", *m_currentCell.m_cellNode);
+    //            node.append_attribute("r").set_value(ref.address().c_str());
+    //        }
+    //        m_currentCell = XLCell(node, m_sharedStrings);
+    //    }
+    //    else if (ref.row() > m_currentCell.cellReference().row()) {
+    //        auto rowNode = m_currentCell.m_cellNode->parent().next_sibling();
+    //        if (!rowNode || rowNode.attribute("r").as_ullong() != ref.row()) {
+    //            rowNode = m_currentCell.m_cellNode->parent().parent().insert_child_after("row", m_currentCell.m_cellNode->parent());
+    //            rowNode.append_attribute("r").set_value(ref.row());
+    //            // getRowNode(*m_dataNode, ref.row());
+    //        }
+    //
+    //        m_currentCell = XLCell(getCellNode(rowNode, ref.column()), m_sharedStrings);
+    //    }
+    //    else
+    //        throw XLException("An internal error occured");
 
     return *this;
 }
@@ -148,7 +148,7 @@ XLRowIterator& XLRowIterator::operator++()
  * @pre
  * @post
  */
-XLRowIterator XLRowIterator::operator++(int) //NOLINT
+XLRowIterator XLRowIterator::operator++(int)    // NOLINT
 {
     auto oldIter(*this);
     ++(*this);

@@ -4,13 +4,13 @@
 
 #include <pugixml.hpp>
 
-#include "XLXmlParser.hpp"
 #include "XLCellReference.hpp"
+#include "XLXmlParser.hpp"
 
 namespace OpenXLSX
 {
     /**
- * @details
+     * @details
      */
     XMLNode getRowNode(XMLNode sheetDataNode, uint32_t rowNumber)
     {
@@ -86,4 +86,4 @@ namespace OpenXLSX
         }
         return cellNode;
     }
-}
+}    // namespace OpenXLSX

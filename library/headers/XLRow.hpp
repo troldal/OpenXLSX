@@ -51,13 +51,13 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #pragma warning(disable : 4275)
 
 // ===== External Includes ===== //
-#include <memory>
-#include <vector>
 #include <deque>
-#include <list>
 #include <forward_list>
+#include <list>
+#include <memory>
 #include <set>
 #include <unordered_set>
+#include <vector>
 
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
@@ -79,7 +79,6 @@ namespace OpenXLSX
 
         //---------- PUBLIC MEMBER FUNCTIONS ----------//
     public:
-
         /**
          * @brief
          */
@@ -184,10 +183,8 @@ namespace OpenXLSX
 
         //---------- PRIVATE MEMBER VARIABLES ----------//
     private:
-
-
         std::unique_ptr<XMLNode> m_rowNode; /**< The XMLNode object for the row. */
-        XLSharedStrings* m_sharedStrings;
+        XLSharedStrings*         m_sharedStrings;
     };
 
     /**

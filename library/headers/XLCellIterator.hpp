@@ -53,9 +53,9 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <algorithm>
 
 #include "OpenXLSX-Exports.hpp"
-#include "XLIterator.hpp"
 #include "XLCell.hpp"
 #include "XLCellReference.hpp"
+#include "XLIterator.hpp"
 #include "XLXmlParser.hpp"
 
 namespace OpenXLSX

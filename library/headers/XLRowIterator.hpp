@@ -5,7 +5,6 @@
 #ifndef OPENXLSX_XLROWITERATOR_HPP
 #define OPENXLSX_XLROWITERATOR_HPP
 
-
 #pragma warning(push)
 #pragma warning(disable : 4251)
 #pragma warning(disable : 4275)
@@ -109,11 +108,11 @@ namespace OpenXLSX
         bool operator!=(const XLRowIterator& rhs);
 
     private:
-        std::unique_ptr<XMLNode> m_dataNode;      /**< */
-        uint32_t                 m_firstRow {1};      /**< The cell reference of the first cell in the range */
-        uint32_t                 m_lastRow {1048576};       /**< The cell reference of the last cell in the range */
-        XLRow                    m_currentRow;    /**< */
-        XLSharedStrings*         m_sharedStrings { nullptr}; /**< */
+        std::unique_ptr<XMLNode> m_dataNode;                  /**< */
+        uint32_t                 m_firstRow { 1 };            /**< The cell reference of the first cell in the range */
+        uint32_t                 m_lastRow { 1048576 };       /**< The cell reference of the last cell in the range */
+        XLRow                    m_currentRow;                /**< */
+        XLSharedStrings*         m_sharedStrings { nullptr }; /**< */
     };
 
 }    // namespace OpenXLSX

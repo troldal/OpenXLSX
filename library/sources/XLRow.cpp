@@ -55,22 +55,22 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 using namespace OpenXLSX;
 
-namespace {
-
-    template <typename T>
-    void setValues2(const T& values, uint32_t rowNumber, XMLNode* rowNode, XLSharedStrings* sharedStrings) {
-
+namespace
+{
+    template<typename T>
+    void setValues2(const T& values, uint32_t rowNumber, XMLNode* rowNode, XLSharedStrings* sharedStrings)
+    {
         // ===== Find or create the first cell node
         auto curNode = rowNode->first_child();
-        if (!curNode || XLCellReference(curNode.attribute("r").value()).column() != 1 ) {
+        if (!curNode || XLCellReference(curNode.attribute("r").value()).column() != 1) {
             curNode = rowNode->append_child("c");
             curNode.append_attribute("r").set_value(XLCellReference(rowNumber, 1).address().c_str());
         }
 
-        auto prevNode = XMLNode();
-        uint16_t col = 1;
+        auto     prevNode = XMLNode();
+        uint16_t col      = 1;
         for (const auto& value : values) {
-            if (!curNode || XLCellReference(curNode.attribute("r").value()).column() != col ) {
+            if (!curNode || XLCellReference(curNode.attribute("r").value()).column() != col) {
                 curNode = rowNode->insert_child_after("c", prevNode);
                 curNode.append_attribute("r").set_value(XLCellReference(rowNumber, col).address().c_str());
             }
@@ -82,9 +82,10 @@ namespace {
             ++col;
         }
     }
-}
+}    // namespace
 
-namespace OpenXLSX {
+namespace OpenXLSX
+{
     XMLNode getCellNode(XMLNode rowNode, uint16_t columnNumber);
 }
 
@@ -93,10 +94,7 @@ namespace OpenXLSX {
  * @pre
  * @post
  */
-XLRow::XLRow()
-    : m_rowNode(nullptr),
-      m_sharedStrings(nullptr)
-{}
+XLRow::XLRow() : m_rowNode(nullptr), m_sharedStrings(nullptr) {}
 
 /**
  * @details Constructs a new XLRow object from information in the underlying XML file. A pointer to the corresponding
@@ -114,11 +112,7 @@ XLRow::XLRow(const XMLNode& rowNode, XLSharedStrings* sharedStrings)
  * @pre
  * @post
  */
-XLRow::XLRow(const XLRow& other)
-    : m_rowNode(std::make_unique<XMLNode>(*other.m_rowNode)) ,
-      m_sharedStrings(other.m_sharedStrings)
-
-{}
+XLRow::XLRow(const XLRow& other) : m_rowNode(std::make_unique<XMLNode>(*other.m_rowNode)), m_sharedStrings(other.m_sharedStrings) {}
 
 /**
  * @details
@@ -142,7 +136,7 @@ XLRow::~XLRow() = default;
 XLRow& XLRow::operator=(const XLRow& other)
 {
     if (&other != this) {
-        *m_rowNode = *other.m_rowNode;
+        *m_rowNode      = *other.m_rowNode;
         m_sharedStrings = other.m_sharedStrings;
     }
     return *this;
@@ -262,15 +256,38 @@ unsigned int XLRow::cellCount() const
  * @pre
  * @post
  */
-void XLRow::setValues(const std::vector<XLCellValue>& values) {setValues2(values, rowNumber(), m_rowNode.get(), m_sharedStrings);}
-void XLRow::setValues(const std::deque<XLCellValue>& values) {setValues2(values, rowNumber(), m_rowNode.get(), m_sharedStrings);}
-void XLRow::setValues(const std::list<XLCellValue>& values) {setValues2(values, rowNumber(), m_rowNode.get(), m_sharedStrings);}
-void XLRow::setValues(const std::forward_list<XLCellValue>& values) {setValues2(values, rowNumber(), m_rowNode.get(), m_sharedStrings);}
-void XLRow::setValues(const std::set<XLCellValue>& values) {setValues2(values, rowNumber(), m_rowNode.get(), m_sharedStrings);}
-void XLRow::setValues(const std::multiset<XLCellValue>& values) {setValues2(values, rowNumber(), m_rowNode.get(), m_sharedStrings);}
-void XLRow::setValues(const std::unordered_set<XLCellValue>& values) {setValues2(values, rowNumber(), m_rowNode.get(), m_sharedStrings);}
-void XLRow::setValues(const std::unordered_multiset<XLCellValue>& values) {setValues2(values, rowNumber(), m_rowNode.get(),
-               m_sharedStrings);}
+void XLRow::setValues(const std::vector<XLCellValue>& values)
+{
+    setValues2(values, rowNumber(), m_rowNode.get(), m_sharedStrings);
+}
+void XLRow::setValues(const std::deque<XLCellValue>& values)
+{
+    setValues2(values, rowNumber(), m_rowNode.get(), m_sharedStrings);
+}
+void XLRow::setValues(const std::list<XLCellValue>& values)
+{
+    setValues2(values, rowNumber(), m_rowNode.get(), m_sharedStrings);
+}
+void XLRow::setValues(const std::forward_list<XLCellValue>& values)
+{
+    setValues2(values, rowNumber(), m_rowNode.get(), m_sharedStrings);
+}
+void XLRow::setValues(const std::set<XLCellValue>& values)
+{
+    setValues2(values, rowNumber(), m_rowNode.get(), m_sharedStrings);
+}
+void XLRow::setValues(const std::multiset<XLCellValue>& values)
+{
+    setValues2(values, rowNumber(), m_rowNode.get(), m_sharedStrings);
+}
+void XLRow::setValues(const std::unordered_set<XLCellValue>& values)
+{
+    setValues2(values, rowNumber(), m_rowNode.get(), m_sharedStrings);
+}
+void XLRow::setValues(const std::unordered_multiset<XLCellValue>& values)
+{
+    setValues2(values, rowNumber(), m_rowNode.get(), m_sharedStrings);
+}
 
 /**
  * @details

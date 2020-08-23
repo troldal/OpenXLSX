@@ -55,9 +55,10 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 using namespace OpenXLSX;
 
-namespace OpenXLSX {
+namespace OpenXLSX
+{
     XMLNode getRowNode(XMLNode sheetDataNode, uint32_t rowNumber);
-} // namespace OpenXLSX
+}    // namespace OpenXLSX
 
 /**
  * @details The constructor begins by constructing an instance of its superclass, XLAbstractXMLFile. The default

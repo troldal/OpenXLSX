@@ -32,7 +32,6 @@ namespace OpenXLSX
         //----------------------------------------------------------------------------------------------------------------------
 
     public:
-
         /**
          * @brief
          * @param dataNode
@@ -107,6 +106,5 @@ namespace OpenXLSX
         XLSharedStrings*         m_sharedStrings { nullptr }; /**< */
     };
 }    // namespace OpenXLSX
-
 
 #endif    // OPENXLSX_XLROWRANGE_HPP

@@ -2,8 +2,8 @@
 // Created by Kenneth Balslev on 22/08/2020.
 //
 
-#include <pugixml.hpp>
 #include "XLRowRange.hpp"
+#include <pugixml.hpp>
 
 using namespace OpenXLSX;
 
@@ -12,10 +12,7 @@ using namespace OpenXLSX;
  * @pre
  * @post
  */
-XLRowRange::XLRowRange(const XMLNode& dataNode,
-                                 uint32_t first,
-                                 uint32_t last,
-                                 OpenXLSX::XLSharedStrings* sharedStrings)
+XLRowRange::XLRowRange(const XMLNode& dataNode, uint32_t first, uint32_t last, OpenXLSX::XLSharedStrings* sharedStrings)
     : m_dataNode(std::make_unique<XMLNode>(dataNode)),
       m_firstRow(first),
       m_lastRow(last),
@@ -56,9 +53,9 @@ XLRowRange::~XLRowRange() = default;
 XLRowRange& XLRowRange::operator=(const XLRowRange& other)
 {
     if (&other != this) {
-        *m_dataNode   = *other.m_dataNode;
-        m_firstRow     = other.m_firstRow;
-        m_lastRow = other.m_lastRow;
+        *m_dataNode     = *other.m_dataNode;
+        m_firstRow      = other.m_firstRow;
+        m_lastRow       = other.m_lastRow;
         m_sharedStrings = other.m_sharedStrings;
     }
 
@@ -73,9 +70,9 @@ XLRowRange& XLRowRange::operator=(const XLRowRange& other)
 XLRowRange& XLRowRange::operator=(XLRowRange&& other) noexcept
 {
     if (&other != this) {
-        *m_dataNode   = *other.m_dataNode;
-        m_firstRow     = other.m_firstRow;
-        m_lastRow = other.m_lastRow;
+        *m_dataNode     = *other.m_dataNode;
+        m_firstRow      = other.m_firstRow;
+        m_lastRow       = other.m_lastRow;
         m_sharedStrings = other.m_sharedStrings;
     }
 

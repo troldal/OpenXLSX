@@ -52,7 +52,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 using namespace OpenXLSX;
 
-
 /**
  * @details
  */

@@ -58,7 +58,7 @@ namespace OpenXLSX
 {
     XMLNode getRowNode(XMLNode sheetDataNode, uint32_t rowNumber);
     XMLNode getCellNode(XMLNode rowNode, uint16_t columnNumber);
-}
+}    // namespace OpenXLSX
 
 /**
  * @details

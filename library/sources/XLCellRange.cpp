@@ -102,9 +102,9 @@ XLCellRange::~XLCellRange() = default;
 XLCellRange& XLCellRange::operator=(const XLCellRange& other)
 {
     if (&other != this) {
-        *m_dataNode   = *other.m_dataNode;
-        m_topLeft     = other.m_topLeft;
-        m_bottomRight = other.m_bottomRight;
+        *m_dataNode     = *other.m_dataNode;
+        m_topLeft       = other.m_topLeft;
+        m_bottomRight   = other.m_bottomRight;
         m_sharedStrings = other.m_sharedStrings;
     }
 
@@ -119,9 +119,9 @@ XLCellRange& XLCellRange::operator=(const XLCellRange& other)
 XLCellRange& XLCellRange::operator=(XLCellRange&& other) noexcept
 {
     if (&other != this) {
-        *m_dataNode   = *other.m_dataNode;
-        m_topLeft     = other.m_topLeft;
-        m_bottomRight = other.m_bottomRight;
+        *m_dataNode     = *other.m_dataNode;
+        m_topLeft       = other.m_topLeft;
+        m_bottomRight   = other.m_bottomRight;
         m_sharedStrings = other.m_sharedStrings;
     }
 
