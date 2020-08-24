@@ -66,7 +66,6 @@ set(OPENXLSX_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/sources/XLCell.cpp
     ${CMAKE_CURRENT_LIST_DIR}/sources/XLCellRange.cpp
     ${CMAKE_CURRENT_LIST_DIR}/sources/XLCellValue.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/sources/XLCellValueProxy.cpp
     ${CMAKE_CURRENT_LIST_DIR}/sources/XLCellReference.cpp
     ${CMAKE_CURRENT_LIST_DIR}/sources/XLUtils.cpp
     ${CMAKE_CURRENT_LIST_DIR}/sources/XLXmlData.cpp
