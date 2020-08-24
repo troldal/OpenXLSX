@@ -51,26 +51,15 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #pragma warning(disable : 4275)
 
 // ===== External Includes ===== //
-#include <deque>
-#include <forward_list>
-#include <list>
-#include <memory>
-#include <set>
-#include <unordered_set>
-#include <vector>
 
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
-#include "XLCellValue.hpp"
-#include "XLRowDataRange.hpp"
-#include "XLRowValuesProxy.hpp"
-#include "XLXmlParser.hpp"
+#include "XLRowDataProxy.hpp"
 
+// ========== CLASS AND ENUM TYPE DEFINITIONS ========== //
 namespace OpenXLSX
 {
-    class XLSharedStrings;
-
-    //========== XLRow Class ========== //
+    class XLRowRange;
 
     /**
      * @brief The XLRow class represent a row in an Excel spreadsheet. Using XLRow objects, various row formatting
@@ -79,8 +68,9 @@ namespace OpenXLSX
     class OPENXLSX_EXPORT XLRow
     {
         friend class XLRowIterator;
-        friend class XLRowValuesProxy;
+        friend class XLRowDataProxy;
         friend bool operator==(const XLRow& lhs, const XLRow& rhs);
+        friend bool operator!=(const XLRow& lhs, const XLRow& rhs);
 
         //---------- PUBLIC MEMBER FUNCTIONS ----------//
     public:
@@ -179,15 +169,13 @@ namespace OpenXLSX
          * @brief
          * @return
          */
-        XLRowValuesProxy& values();
+        XLRowDataProxy& values();
 
         /**
          * @brief
          * @return
          */
-        const XLRowValuesProxy& values() const;
-
-
+        const XLRowDataProxy& values() const;
 
         XLRowDataRange cells() const;
 
@@ -196,12 +184,12 @@ namespace OpenXLSX
         XLRowDataRange cells(uint16_t firstCell, uint16_t lastCell) const;
 
         template<typename T>
-        T values() const {
-            T result;
+        T values() const
+        {
+            T    result;
             auto dst = std::back_inserter(result);
 
-            for (const auto& cell : cells())
-                dst = cell.value();
+            for (const auto& cell : cells()) dst = cell.value();
 
             return result;
         }
@@ -210,9 +198,196 @@ namespace OpenXLSX
     private:
         std::unique_ptr<XMLNode> m_rowNode;        /**< The XMLNode object for the row. */
         XLSharedStrings*         m_sharedStrings;  /**< */
-        XLRowValuesProxy         m_rowValuesProxy; /**< */
+        XLRowDataProxy           m_rowValuesProxy; /**< */
     };
 
+    /**
+     * @brief
+     */
+    class OPENXLSX_EXPORT XLRowIterator
+    {
+    public:
+        using iterator_category = std::forward_iterator_tag;
+        using value_type        = XLRow;
+        using difference_type   = int64_t;
+        using pointer           = XLRow*;
+        using reference         = XLRow&;
+
+        /**
+         * @brief
+         * @param cellRange
+         * @param loc
+         */
+        explicit XLRowIterator(const XLRowRange& rowRange, XLIteratorLocation loc);
+
+        /**
+         * @brief
+         */
+        ~XLRowIterator();
+
+        /**
+         * @brief
+         * @param other
+         */
+        XLRowIterator(const XLRowIterator& other);
+
+        /**
+         * @brief
+         * @param other
+         */
+        XLRowIterator(XLRowIterator&& other) noexcept;
+
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
+        XLRowIterator& operator=(const XLRowIterator& other);
+
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
+        XLRowIterator& operator=(XLRowIterator&& other) noexcept;
+
+        /**
+         * @brief
+         * @return
+         */
+        XLRowIterator& operator++();
+
+        /**
+         * @brief
+         * @return
+         */
+        XLRowIterator operator++(int);    // NOLINT
+
+        /**
+         * @brief
+         * @return
+         */
+        reference operator*();
+
+        /**
+         * @brief
+         * @return
+         */
+        pointer operator->();
+
+        /**
+         * @brief
+         * @param rhs
+         * @return
+         */
+        bool operator==(const XLRowIterator& rhs);
+
+        /**
+         * @brief
+         * @param rhs
+         * @return
+         */
+        bool operator!=(const XLRowIterator& rhs);
+
+    private:
+        std::unique_ptr<XMLNode> m_dataNode;                  /**< */
+        uint32_t                 m_firstRow { 1 };            /**< The cell reference of the first cell in the range */
+        uint32_t                 m_lastRow { 1048576 };       /**< The cell reference of the last cell in the range */
+        XLRow                    m_currentRow;                /**< */
+        XLSharedStrings*         m_sharedStrings { nullptr }; /**< */
+    };
+
+    /**
+     * @brief
+     */
+    class OPENXLSX_EXPORT XLRowRange
+    {
+        friend class XLRowIterator;
+
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Public Member Functions
+        //----------------------------------------------------------------------------------------------------------------------
+
+    public:
+        /**
+         * @brief
+         * @param dataNode
+         * @param first
+         * @param last
+         * @param sharedStrings
+         */
+        explicit XLRowRange(const XMLNode& dataNode, uint32_t first, uint32_t last, XLSharedStrings* sharedStrings);
+
+        /**
+         * @brief
+         * @param other
+         */
+        XLRowRange(const XLRowRange& other);
+
+        /**
+         * @brief
+         * @param other
+         */
+        XLRowRange(XLRowRange&& other) noexcept;
+
+        /**
+         * @brief
+         */
+        ~XLRowRange();
+
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
+        XLRowRange& operator=(const XLRowRange& other);
+
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
+        XLRowRange& operator=(XLRowRange&& other) noexcept;
+
+        /**
+         * @brief
+         * @return
+         */
+        uint32_t rowCount() const;
+
+        /**
+         * @brief
+         * @return
+         */
+        XLRowIterator begin();
+
+        /**
+         * @brief
+         * @return
+         */
+        XLRowIterator end();
+
+        /**
+         * @brief
+         */
+        void clear();
+
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Private Member Variables
+        //----------------------------------------------------------------------------------------------------------------------
+
+    private:
+        std::unique_ptr<XMLNode> m_dataNode;                  /**< */
+        uint32_t                 m_firstRow;                  /**< The cell reference of the first cell in the range */
+        uint32_t                 m_lastRow;                   /**< The cell reference of the last cell in the range */
+        XLSharedStrings*         m_sharedStrings { nullptr }; /**< */
+    };
+
+}    // namespace OpenXLSX
+
+// ========== FRIEND FUNCTION IMPLEMENTATIONS ========== //
+namespace OpenXLSX
+{
     /**
      * @brief
      * @param lhs
@@ -222,6 +397,17 @@ namespace OpenXLSX
     inline bool operator==(const XLRow& lhs, const XLRow& rhs)
     {
         return lhs.m_rowNode == rhs.m_rowNode;
+    }
+
+    /**
+     * @brief
+     * @param lhs
+     * @param rhs
+     * @return
+     */
+    inline bool operator!=(const XLRow& lhs, const XLRow& rhs)
+    {
+        return !(lhs.m_rowNode == rhs.m_rowNode);
     }
 
 }    // namespace OpenXLSX

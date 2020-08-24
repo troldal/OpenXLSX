@@ -1,6 +1,7 @@
 #include <OpenXLSX.hpp>
 #include <iostream>
 #include <random>
+#include <deque>
 
 using namespace std;
 using namespace OpenXLSX;

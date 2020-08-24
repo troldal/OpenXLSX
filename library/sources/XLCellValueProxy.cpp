@@ -91,7 +91,7 @@ XLCellValueProxy& XLCellValueProxy::clear()
  */
 XLCellValueProxy& XLCellValueProxy::setError()
 {
-    if(!m_cellNode->attribute("t")) m_cellNode->append_attribute("t");
+    if (!m_cellNode->attribute("t")) m_cellNode->append_attribute("t");
     m_cellNode->attribute("t").set_value("e");
     m_cellNode->remove_attribute(" xml:space");
     m_cellNode->remove_child("v");

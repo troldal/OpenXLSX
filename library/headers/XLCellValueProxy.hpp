@@ -174,7 +174,7 @@ namespace OpenXLSX
          * @return
          */
         template<typename T,
-            typename std::enable_if<std::is_constructible<T, char*>::value && !std::is_same<T, bool>::value, char*>::type* = nullptr>
+                 typename std::enable_if<std::is_constructible<T, char*>::value && !std::is_same<T, bool>::value, char*>::type* = nullptr>
         T get() const;
 
         /**
@@ -271,10 +271,11 @@ namespace OpenXLSX
         XLCell*  m_cell;     /**< */
         XMLNode* m_cellNode; /**< */
     };
-}  // namespace OpenXLSX
+}    // namespace OpenXLSX
 
 // ========== TEMPLATE MEMBER IMPLEMENTATIONS ========== //
-namespace OpenXLSX {
+namespace OpenXLSX
+{
     /**
      * @details
      * @pre
@@ -397,7 +398,8 @@ namespace OpenXLSX {
      * @return
      */
     template<typename T, typename std::enable_if<std::is_integral<T>::value, int64_t>::type*>
-    T XLCellValueProxy::get() const {
+    T XLCellValueProxy::get() const
+    {
         return getValue().get<T>();
     }
 
@@ -407,7 +409,8 @@ namespace OpenXLSX {
      * @return
      */
     template<typename T, typename std::enable_if<std::is_floating_point<T>::value, long double>::type*>
-    T XLCellValueProxy::get() const {
+    T XLCellValueProxy::get() const
+    {
         return getValue().get<T>();
     }
 
@@ -416,9 +419,9 @@ namespace OpenXLSX {
      * @tparam T
      * @return
      */
-    template<typename T,
-        typename std::enable_if<std::is_constructible<T, char*>::value && !std::is_same<T, bool>::value, char*>::type*>
-    T XLCellValueProxy::get() const {
+    template<typename T, typename std::enable_if<std::is_constructible<T, char*>::value && !std::is_same<T, bool>::value, char*>::type*>
+    T XLCellValueProxy::get() const
+    {
         return getValue().get<T>();
     }
 

@@ -6,11 +6,11 @@
 #include <pugixml.hpp>
 
 // ===== OpenXLSX Includes ===== //
-#include "XLRowValuesProxy.hpp"
-#include "XLSharedStrings.hpp"
-#include "XLCellReference.hpp"
 #include "XLCell.hpp"
+#include "XLCellReference.hpp"
 #include "XLRow.hpp"
+#include "XLRowDataProxy.hpp"
+#include "XLSharedStrings.hpp"
 
 using namespace OpenXLSX;
 
@@ -48,14 +48,14 @@ namespace
  * @pre
  * @post
  */
-XLRowValuesProxy::~XLRowValuesProxy() = default;
+XLRowDataProxy::~XLRowDataProxy() = default;
 
 /**
  * @details
  * @pre
  * @post
  */
-XLRowValuesProxy& XLRowValuesProxy::operator=(const XLRowValuesProxy& other)
+XLRowDataProxy& XLRowDataProxy::operator=(const XLRowDataProxy& other)
 {
     if (&other != this) {
         *this = other.getValues();
@@ -69,35 +69,35 @@ XLRowValuesProxy& XLRowValuesProxy::operator=(const XLRowValuesProxy& other)
  * @pre
  * @post
  */
-XLRowValuesProxy::XLRowValuesProxy(XLRow* row, XMLNode* rowNode) : m_row(row), m_rowNode(rowNode){}
+XLRowDataProxy::XLRowDataProxy(XLRow* row, XMLNode* rowNode) : m_row(row), m_rowNode(rowNode) {}
 
 /**
  * @details
  * @pre
  * @post
  */
-XLRowValuesProxy::XLRowValuesProxy(const XLRowValuesProxy& other) = default;
+XLRowDataProxy::XLRowDataProxy(const XLRowDataProxy& other) = default;
 
 /**
  * @details
  * @pre
  * @post
  */
-XLRowValuesProxy::XLRowValuesProxy(XLRowValuesProxy&& other) noexcept = default;
+XLRowDataProxy::XLRowDataProxy(XLRowDataProxy&& other) noexcept = default;
 
 /**
  * @details
  * @pre
  * @post
  */
-XLRowValuesProxy& XLRowValuesProxy::operator=(XLRowValuesProxy&& other) noexcept = default;
+XLRowDataProxy& XLRowDataProxy::operator=(XLRowDataProxy&& other) noexcept = default;
 
 /**
  * @details
  * @pre
  * @post
  */
-XLRowValuesProxy& XLRowValuesProxy::operator=(const std::vector<XLCellValue>& values)
+XLRowDataProxy& XLRowDataProxy::operator=(const std::vector<XLCellValue>& values)
 {
     setValues(values, m_row->rowNumber(), m_rowNode, m_row->m_sharedStrings);
     return *this;
@@ -108,7 +108,7 @@ XLRowValuesProxy& XLRowValuesProxy::operator=(const std::vector<XLCellValue>& va
  * @pre
  * @post
  */
-XLRowValuesProxy::operator std::vector<XLCellValue>()
+XLRowDataProxy::operator std::vector<XLCellValue>()
 {
     return getValues();
 }
@@ -118,9 +118,9 @@ XLRowValuesProxy::operator std::vector<XLCellValue>()
  * @pre
  * @post
  */
-std::vector<XLCellValue> XLRowValuesProxy::getValues() const
+std::vector<XLCellValue> XLRowDataProxy::getValues() const
 {
-    auto numCells = XLCellReference(m_rowNode->last_child().attribute("r").value()).column();
+    auto                     numCells = XLCellReference(m_rowNode->last_child().attribute("r").value()).column();
     std::vector<XLCellValue> result(numCells);
 
     for (auto& node : m_rowNode->children()) {

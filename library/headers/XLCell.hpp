@@ -183,10 +183,11 @@ namespace OpenXLSX
         XLCellValueProxy         m_valueProxy;    /**< */
     };
 
-}  // namespace OpenXLSX
+}    // namespace OpenXLSX
 
 // ========== FRIEND FUNCTION IMPLEMENTATIONS ========== //
-namespace OpenXLSX {
+namespace OpenXLSX
+{
     /**
      * @brief
      * @param lhs

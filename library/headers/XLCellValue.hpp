@@ -167,13 +167,13 @@ namespace OpenXLSX
                  typename std::enable_if<std::is_constructible<T, char*>::value && !std::is_same<T, bool>::value, char*>::type* = nullptr>
         XLCellValue& operator=(T value);
 
-//        /**
-//         * @brief
-//         * @tparam T
-//         * @param value
-//         */
-//        template<typename T>
-//        void set(T value);
+        //        /**
+        //         * @brief
+        //         * @tparam T
+        //         * @param value
+        //         */
+        //        template<typename T>
+        //        void set(T value);
 
         /**
          * @brief
@@ -197,9 +197,9 @@ namespace OpenXLSX
          * @param stringValue
          */
         template<typename T,
-            typename std::enable_if<!std::is_same<T, XLCellValue>::value && !std::is_same<T, bool>::value &&
-                std::is_constructible<T, const char*>::value,
-                                    T>::type* = nullptr>
+                 typename std::enable_if<!std::is_same<T, XLCellValue>::value && !std::is_same<T, bool>::value &&
+                                             std::is_constructible<T, const char*>::value,
+                                         T>::type* = nullptr>
         void set(T stringValue);
 
         /**
@@ -257,11 +257,11 @@ namespace OpenXLSX
         XLValueType                                      m_type { XLValueType::Empty }; /**< */
     };
 
-}  // namespace OpenXLSX
+}    // namespace OpenXLSX
 
 // ========== TEMPLATE MEMBER IMPLEMENTATIONS ========== //
-namespace OpenXLSX{
-
+namespace OpenXLSX
+{
     /**
      * @details
      * @pre
@@ -325,16 +325,16 @@ namespace OpenXLSX{
         return *this;
     }
 
-//    /**
-//     * @details
-//     * @pre
-//     * @post
-//     */
-//    template<typename T>
-//    void XLCellValue::set(T value)
-//    {
-//        *this = value;
-//    }
+    //    /**
+    //     * @details
+    //     * @pre
+    //     * @post
+    //     */
+    //    template<typename T>
+    //    void XLCellValue::set(T value)
+    //    {
+    //        *this = value;
+    //    }
 
     /**
      * @brief
@@ -342,7 +342,8 @@ namespace OpenXLSX{
      * @param numberValue
      */
     template<typename T, typename std::enable_if<std::is_integral<T>::value, int64_t>::type*>
-    void XLCellValue::set(T numberValue) {
+    void XLCellValue::set(T numberValue)
+    {
         *this = numberValue;
     }
 
@@ -352,7 +353,8 @@ namespace OpenXLSX{
      * @param numberValue
      */
     template<typename T, typename std::enable_if<std::is_floating_point<T>::value, long double>::type*>
-    void XLCellValue::set(T numberValue) {
+    void XLCellValue::set(T numberValue)
+    {
         *this = numberValue;
     }
 
@@ -362,9 +364,11 @@ namespace OpenXLSX{
      * @param stringValue
      */
     template<typename T,
-        typename std::enable_if<!std::is_same<T, XLCellValue>::value && !std::is_same<T, bool>::value &&
-            std::is_constructible<T, const char*>::value,T>::type*>
-    void XLCellValue::set(T stringValue) {
+             typename std::enable_if<!std::is_same<T, XLCellValue>::value && !std::is_same<T, bool>::value &&
+                                         std::is_constructible<T, const char*>::value,
+                                     T>::type*>
+    void XLCellValue::set(T stringValue)
+    {
         *this = stringValue;
     }
 
@@ -406,11 +410,11 @@ namespace OpenXLSX{
         return std::get<std::string>(m_value).c_str();
     }
 
-}  // namespace OpenXLSX
+}    // namespace OpenXLSX
 
 // ========== FRIEND FUNCTION IMPLEMENTATIONS ========== //
-namespace OpenXLSX {
-
+namespace OpenXLSX
+{
     /**
      * @brief
      * @param lhs
@@ -502,15 +506,17 @@ namespace OpenXLSX {
     }
 }    // namespace OpenXLSX
 
-namespace std {
+namespace std
+{
     template<>
-    struct hash<OpenXLSX::XLCellValue> {
+    struct hash<OpenXLSX::XLCellValue>
+    {
         std::size_t operator()(const OpenXLSX::XLCellValue& value) const noexcept
         {
-            return std::hash<std::variant<std::string, int64_t, double, bool> >{}(value.m_value);
+            return std::hash<std::variant<std::string, int64_t, double, bool>> {}(value.m_value);
         }
     };
-}
+}    // namespace std
 
 #pragma warning(pop)
 #endif    // OPENXLSX_XLCELLVALUE_HPP
