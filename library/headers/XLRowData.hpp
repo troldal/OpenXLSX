@@ -227,10 +227,10 @@ namespace OpenXLSX
         XLRowDataProxy& operator=(const std::vector<XLCellValue>& values);
 
         template<typename T,
-            typename std::enable_if<!std::is_same_v<T, XLRowDataProxy> &&
-                std::is_base_of_v<typename std::forward_iterator_tag,
-                                  typename std::iterator_traits<typename T::iterator>::iterator_category>,
-                                    T>::type* = nullptr>
+                 typename std::enable_if<!std::is_same_v<T, XLRowDataProxy> &&
+                                             std::is_base_of_v<typename std::forward_iterator_tag,
+                                                               typename std::iterator_traits<typename T::iterator>::iterator_category>,
+                                         T>::type* = nullptr>
         XLRowDataProxy& operator=(const T& values);
 
         /**
@@ -286,10 +286,10 @@ namespace OpenXLSX
 namespace OpenXLSX
 {
     template<typename T,
-        typename std::enable_if<!std::is_same_v<T, XLRowDataProxy> &&
-            std::is_base_of_v<typename std::forward_iterator_tag,
-                              typename std::iterator_traits<typename T::iterator>::iterator_category>,
-                                T>::type*>
+             typename std::enable_if<!std::is_same_v<T, XLRowDataProxy> &&
+                                         std::is_base_of_v<typename std::forward_iterator_tag,
+                                                           typename std::iterator_traits<typename T::iterator>::iterator_category>,
+                                     T>::type*>
     XLRowDataProxy& XLRowDataProxy::operator=(const T& values)
     {
         auto range = XLRowDataRange(*m_rowNode, 1, 16384, nullptr);

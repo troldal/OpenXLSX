@@ -260,8 +260,8 @@ namespace OpenXLSX
     };
 
     /**
- * @brief
- */
+     * @brief
+     */
     class OPENXLSX_EXPORT XLCellValueProxy
     {
         friend class XLCell;
@@ -307,9 +307,9 @@ namespace OpenXLSX
          * @return
          */
         template<typename T,
-            typename std::enable_if<!std::is_same<T, XLCellValue>::value && !std::is_same<T, bool>::value &&
-                std::is_constructible<T, const char*>::value,
-                                    T>::type* = nullptr>
+                 typename std::enable_if<!std::is_same<T, XLCellValue>::value && !std::is_same<T, bool>::value &&
+                                             std::is_constructible<T, const char*>::value,
+                                         T>::type* = nullptr>
         XLCellValueProxy& operator=(T stringValue);    // NOLINT
 
         /**
@@ -343,9 +343,9 @@ namespace OpenXLSX
          * @param stringValue
          */
         template<typename T,
-            typename std::enable_if<!std::is_same<T, XLCellValue>::value && !std::is_same<T, bool>::value &&
-                std::is_constructible<T, const char*>::value,
-                                    T>::type* = nullptr>
+                 typename std::enable_if<!std::is_same<T, XLCellValue>::value && !std::is_same<T, bool>::value &&
+                                             std::is_constructible<T, const char*>::value,
+                                         T>::type* = nullptr>
         void set(T stringValue);
 
         /**
@@ -370,7 +370,7 @@ namespace OpenXLSX
          * @return
          */
         template<typename T,
-            typename std::enable_if<std::is_constructible<T, char*>::value && !std::is_same<T, bool>::value, char*>::type* = nullptr>
+                 typename std::enable_if<std::is_constructible<T, char*>::value && !std::is_same<T, bool>::value, char*>::type* = nullptr>
         T get() const;
 
         /**
@@ -467,7 +467,6 @@ namespace OpenXLSX
         XLCell*  m_cell;     /**< */
         XMLNode* m_cellNode; /**< */
     };
-
 
 }    // namespace OpenXLSX
 
@@ -663,9 +662,9 @@ namespace OpenXLSX
      * @post
      */
     template<typename T,
-        typename std::enable_if<!std::is_same<T, XLCellValue>::value && !std::is_same<T, bool>::value &&
-            std::is_constructible<T, const char*>::value,
-                                T>::type*>
+             typename std::enable_if<!std::is_same<T, XLCellValue>::value && !std::is_same<T, bool>::value &&
+                                         std::is_constructible<T, const char*>::value,
+                                     T>::type*>
     XLCellValueProxy& XLCellValueProxy::operator=(T stringValue)
     {
         if constexpr (std::is_same<const char*, typename std::remove_reference<typename std::remove_cv<T>::type>::type>::value)
@@ -735,9 +734,9 @@ namespace OpenXLSX
      * @post
      */
     template<typename T,
-        typename std::enable_if<!std::is_same<T, XLCellValue>::value && !std::is_same<T, bool>::value &&
-            std::is_constructible<T, const char*>::value,
-                                T>::type*>
+             typename std::enable_if<!std::is_same<T, XLCellValue>::value && !std::is_same<T, bool>::value &&
+                                         std::is_constructible<T, const char*>::value,
+                                     T>::type*>
     void XLCellValueProxy::set(T stringValue)
     {
         *this = stringValue;
@@ -871,7 +870,6 @@ namespace OpenXLSX
         }
     }
 }    // namespace OpenXLSX
-
 
 namespace std
 {

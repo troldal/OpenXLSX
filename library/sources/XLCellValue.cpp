@@ -214,7 +214,7 @@ XLValueType XLCellValueProxy::type() const
     // ===== If neither a Type attribute or a getValue node is present, the cell is empty.
     if (!m_cellNode->attribute("t") && !m_cellNode->child("v")) return XLValueType::Empty;
 
-        // ===== If a Type attribute is not present, but a getValue node is, the cell contains a number.
+    // ===== If a Type attribute is not present, but a getValue node is, the cell contains a number.
     else if ((!m_cellNode->attribute("t") || (strcmp(m_cellNode->attribute("t").value(), "n") == 0 && m_cellNode->child("v") != nullptr))) {
         std::string numberString = m_cellNode->child("v").text().get();
         if (numberString.find('.') != std::string::npos || numberString.find("E-") != std::string::npos ||
@@ -224,23 +224,23 @@ XLValueType XLCellValueProxy::type() const
             return XLValueType::Integer;
     }
 
-        // ===== If the cell is of type "s", the cell contains a shared string.
+    // ===== If the cell is of type "s", the cell contains a shared string.
     else if (m_cellNode->attribute("t") != nullptr && strcmp(m_cellNode->attribute("t").value(), "s") == 0)
         return XLValueType::String;    // NOLINT
 
-        // ===== If the cell is of type "inlineStr", the cell contains an inline string.
+    // ===== If the cell is of type "inlineStr", the cell contains an inline string.
     else if (m_cellNode->attribute("t") != nullptr && strcmp(m_cellNode->attribute("t").value(), "inlineStr") == 0)
         return XLValueType::String;
 
-        // ===== If the cell is of type "str", the cell contains an ordinary string.
+    // ===== If the cell is of type "str", the cell contains an ordinary string.
     else if (m_cellNode->attribute("t") != nullptr && strcmp(m_cellNode->attribute("t").value(), "str") == 0)
         return XLValueType::String;
 
-        // ===== If the cell is of type "b", the cell contains a boolean.
+    // ===== If the cell is of type "b", the cell contains a boolean.
     else if (m_cellNode->attribute("t") != nullptr && strcmp(m_cellNode->attribute("t").value(), "b") == 0)
         return XLValueType::Boolean;
 
-        // ===== Otherwise, the cell contains an error.
+    // ===== Otherwise, the cell contains an error.
     else
         return XLValueType::Error;    // the m_typeAttribute has the ValueAsString "e"
 }
