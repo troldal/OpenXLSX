@@ -20,7 +20,7 @@ int main()
     std::mt19937                       generator(rand_dev());
     std::uniform_int_distribution<int> distr(0, 99);
 
-    std::vector<XLCellValue> writeValues;
+    std::deque<XLCellValue> writeValues;
 
     for (auto& row : wks.rows()) {
         writeValues.clear();
@@ -45,12 +45,12 @@ int main()
     wks = doc.workbook().worksheet("Sheet1");
     uint64_t sum = 0;
     uint64_t count = 0;
-    std::vector<XLCellValue> readValues;
+//    std::vector<XLCellValue> readValues;
 
     cout << "Reading data from spreadsheet (1,048,576 rows x 8 columns) ..." << endl;
 
     for (auto& row : wks.rows()) {
-        readValues = row.values();
+        auto readValues = row.values<std::deque<XLCellValue>>();
         count += std::count_if(readValues.begin(), readValues.end(), [](const XLCellValue& v) {
                return v.type() != XLValueType::Empty;
         });
@@ -58,7 +58,7 @@ int main()
     cout << "Cell count: " << count << endl;
 
     for (auto& row : wks.rows()) {
-        readValues = row.values();
+        auto readValues = row.values<std::deque<XLCellValue>>();
         sum += std::accumulate(readValues.begin(),
                                readValues.end(),
                                   0,

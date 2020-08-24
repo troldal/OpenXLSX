@@ -306,6 +306,11 @@ XLCellRange XLWorksheet::range(const XLCellReference& topLeft, const XLCellRefer
                        parentDoc().executeQuery(XLQuerySharedStrings()).sharedStrings());
 }
 
+/**
+ * @details
+ * @pre
+ * @post
+ */
 XLRowRange XLWorksheet::rows()
 {
     return XLRowRange(xmlDocument().first_child().child("sheetData"),
@@ -313,6 +318,12 @@ XLRowRange XLWorksheet::rows()
                       1048576,
                       parentDoc().executeQuery(XLQuerySharedStrings()).sharedStrings());
 }
+
+/**
+ * @details
+ * @pre
+ * @post
+ */
 XLRowRange XLWorksheet::rows(uint32_t rowCount)
 {
     return XLRowRange(xmlDocument().first_child().child("sheetData"),
@@ -320,6 +331,12 @@ XLRowRange XLWorksheet::rows(uint32_t rowCount)
                       rowCount,
                       parentDoc().executeQuery(XLQuerySharedStrings()).sharedStrings());
 }
+
+/**
+ * @details
+ * @pre
+ * @post
+ */
 XLRowRange XLWorksheet::rows(uint32_t firstRow, uint32_t lastRow)
 {
     return XLRowRange(xmlDocument().first_child().child("sheetData"),

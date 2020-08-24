@@ -11,12 +11,14 @@
 
 // ===== External Includes ===== //
 #include <type_traits>
+#include <iterator>
 #include <vector>
 
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
 #include "XLXmlParser.hpp"
 #include "XLCellValue.hpp"
+#include "XLRowDataRange.hpp"
 
 // ========== CLASS AND ENUM TYPE DEFINITIONS ========== //
 namespace OpenXLSX
@@ -50,6 +52,11 @@ namespace OpenXLSX
          * @return
          */
         XLRowValuesProxy& operator=(const std::vector<XLCellValue>& values);
+
+        template<typename T,
+                 typename std::enable_if<!std::is_same_v<T, XLRowValuesProxy> && std::is_base_of_v<typename std::forward_iterator_tag,
+                                                                                                   typename std::iterator_traits<typename T::iterator>::iterator_category>, T>::type* = nullptr>
+        XLRowValuesProxy& operator=(const T& values);
 
         /**
          * @brief
@@ -99,7 +106,30 @@ namespace OpenXLSX
 
     };
 
-}
+}  // namespace OpenXLSX
+
+namespace OpenXLSX {
+
+    template<typename T,
+        typename std::enable_if<!std::is_same_v<T, XLRowValuesProxy> && std::is_base_of_v<typename std::forward_iterator_tag,
+                                                                                          typename std::iterator_traits<typename T::iterator>::iterator_category>, T>::type*>
+    XLRowValuesProxy& XLRowValuesProxy::operator=(const T& values) {
+
+        auto range = XLRowDataRange(*m_rowNode,1,16384,nullptr);
+
+        auto dst = range.begin();
+        auto src = values.begin();
+
+        while (true) {
+            dst->value() = *src;
+            ++src;
+            if (src == values.end()) break;
+            ++dst;
+        }
+
+        return *this;
+    }
+}  // namespace OpenXLSX
 
 #pragma warning(pop)
 #endif    // OPENXLSX_XLROWVALUESPROXY_HPP

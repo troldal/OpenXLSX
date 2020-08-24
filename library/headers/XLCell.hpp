@@ -70,6 +70,7 @@ namespace OpenXLSX
     {
         friend class XLCellIterator;
         friend class XLCellValueProxy;
+        friend class XLRowDataIterator;
         friend bool operator==(const XLCell& lhs, const XLCell& rhs);
 
     public:

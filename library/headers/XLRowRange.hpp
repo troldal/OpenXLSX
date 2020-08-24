@@ -107,4 +107,5 @@ namespace OpenXLSX
     };
 }    // namespace OpenXLSX
 
+#pragma warning(pop)
 #endif    // OPENXLSX_XLROWRANGE_HPP

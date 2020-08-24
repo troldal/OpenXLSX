@@ -1,9 +1,9 @@
 //
-// Created by Kenneth Balslev on 22/08/2020.
+// Created by Kenneth Balslev on 24/08/2020.
 //
 
-#ifndef OPENXLSX_XLROWITERATOR_HPP
-#define OPENXLSX_XLROWITERATOR_HPP
+#ifndef OPENXLSX_XLROWDATAITERATOR_HPP
+#define OPENXLSX_XLROWDATAITERATOR_HPP
 
 #pragma warning(push)
 #pragma warning(disable : 4251)
@@ -14,72 +14,72 @@
 
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
+#include "XLCell.hpp"
 #include "XLIterator.hpp"
-#include "XLRow.hpp"
 #include "XLXmlParser.hpp"
 
 namespace OpenXLSX
 {
-    class XLRowRange;
+    class XLRowDataRange;
 
-    class OPENXLSX_EXPORT XLRowIterator
+    class OPENXLSX_EXPORT XLRowDataIterator
     {
     public:
         using iterator_category = std::forward_iterator_tag;
-        using value_type        = XLRow;
+        using value_type        = XLCell;
         using difference_type   = int64_t;
-        using pointer           = XLRow*;
-        using reference         = XLRow&;
+        using pointer           = XLCell*;
+        using reference         = XLCell&;
 
         /**
          * @brief
          * @param cellRange
          * @param loc
          */
-        explicit XLRowIterator(const XLRowRange& rowRange, XLIteratorLocation loc);
+        explicit XLRowDataIterator(const XLRowDataRange& rowDataRange, XLIteratorLocation loc);
 
         /**
          * @brief
          */
-        ~XLRowIterator();
-
-        /**
-         * @brief
-         * @param other
-         */
-        XLRowIterator(const XLRowIterator& other);
+        ~XLRowDataIterator();
 
         /**
          * @brief
          * @param other
          */
-        XLRowIterator(XLRowIterator&& other) noexcept;
+        XLRowDataIterator(const XLRowDataIterator& other);
 
         /**
          * @brief
          * @param other
-         * @return
          */
-        XLRowIterator& operator=(const XLRowIterator& other);
+        XLRowDataIterator(XLRowDataIterator&& other) noexcept;
 
         /**
          * @brief
          * @param other
          * @return
          */
-        XLRowIterator& operator=(XLRowIterator&& other) noexcept;
+        XLRowDataIterator& operator=(const XLRowDataIterator& other);
+
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
+        XLRowDataIterator& operator=(XLRowDataIterator&& other) noexcept;
 
         /**
          * @brief
          * @return
          */
-        XLRowIterator& operator++();
+        XLRowDataIterator& operator++();
 
         /**
          * @brief
          * @return
          */
-        XLRowIterator operator++(int);    // NOLINT
+        XLRowDataIterator operator++(int);    // NOLINT
 
         /**
          * @brief
@@ -98,24 +98,24 @@ namespace OpenXLSX
          * @param rhs
          * @return
          */
-        bool operator==(const XLRowIterator& rhs);
+        bool operator==(const XLRowDataIterator& rhs);
 
         /**
          * @brief
          * @param rhs
          * @return
          */
-        bool operator!=(const XLRowIterator& rhs);
+        bool operator!=(const XLRowDataIterator& rhs);
 
     private:
-        std::unique_ptr<XMLNode> m_dataNode;                  /**< */
-        uint32_t                 m_firstRow { 1 };            /**< The cell reference of the first cell in the range */
-        uint32_t                 m_lastRow { 1048576 };       /**< The cell reference of the last cell in the range */
-        XLRow                    m_currentRow;                /**< */
+        std::unique_ptr<XMLNode> m_rowNode;                  /**< */
+        uint16_t                 m_firstCol { 1 };            /**< The cell reference of the first cell in the range */
+        uint16_t                 m_lastCol { 16384 };       /**< The cell reference of the last cell in the range */
+        XLCell                   m_currentCell;                /**< */
         XLSharedStrings*         m_sharedStrings { nullptr }; /**< */
     };
 
-}    // namespace OpenXLSX
+}
 
 #pragma warning(pop)
-#endif    // OPENXLSX_XLROWITERATOR_HPP
+#endif    // OPENXLSX_XLROWDATAITERATOR_HPP

@@ -62,6 +62,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
 #include "XLCellValue.hpp"
+#include "XLRowDataRange.hpp"
 #include "XLRowValuesProxy.hpp"
 #include "XLXmlParser.hpp"
 
@@ -174,9 +175,36 @@ namespace OpenXLSX
          */
         unsigned int cellCount() const;
 
+        /**
+         * @brief
+         * @return
+         */
         XLRowValuesProxy& values();
 
+        /**
+         * @brief
+         * @return
+         */
         const XLRowValuesProxy& values() const;
+
+
+
+        XLRowDataRange cells() const;
+
+        XLRowDataRange cells(uint16_t cellCount) const;
+
+        XLRowDataRange cells(uint16_t firstCell, uint16_t lastCell) const;
+
+        template<typename T>
+        T values() const {
+            T result;
+            auto dst = std::back_inserter(result);
+
+            for (const auto& cell : cells())
+                dst = cell.value();
+
+            return result;
+        }
 
         //---------- PRIVATE MEMBER VARIABLES ----------//
     private:

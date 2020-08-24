@@ -89,11 +89,21 @@ uint32_t XLRowRange::rowCount() const
     return m_lastRow - m_firstRow + 1;
 }
 
+/**
+ * @details
+ * @pre
+ * @post
+ */
 XLRowIterator XLRowRange::begin()
 {
     return XLRowIterator(*this, XLIteratorLocation::Begin);
 }
 
+/**
+ * @details
+ * @pre
+ * @post
+ */
 XLRowIterator XLRowRange::end()
 {
     return XLRowIterator(*this, XLIteratorLocation::End);

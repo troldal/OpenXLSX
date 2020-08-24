@@ -260,3 +260,42 @@ const XLRowValuesProxy& XLRow::values() const
 {
     return m_rowValuesProxy;
 }
+
+/**
+ * @details
+ * @pre
+ * @post
+ */
+XLRowDataRange XLRow::cells() const
+{
+    return XLRowDataRange(*m_rowNode,
+                          1,
+                          XLCellReference(m_rowNode->last_child().attribute("r").value()).column(),
+                          m_sharedStrings);
+}
+
+/**
+ * @details
+ * @pre
+ * @post
+ */
+XLRowDataRange XLRow::cells(uint16_t cellCount) const
+{
+    return XLRowDataRange(*m_rowNode,
+                          1,
+                          cellCount,
+                          m_sharedStrings);
+}
+
+/**
+ * @details
+ * @pre
+ * @post
+ */
+XLRowDataRange XLRow::cells(uint16_t firstCell, uint16_t lastCell) const
+{
+    return XLRowDataRange(*m_rowNode,
+                          firstCell,
+                          lastCell,
+                          m_sharedStrings);
+}

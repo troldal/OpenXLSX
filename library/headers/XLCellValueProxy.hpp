@@ -66,7 +66,7 @@ namespace OpenXLSX
     /**
      * @brief
      */
-    class XLCellValueProxy
+    class OPENXLSX_EXPORT XLCellValueProxy
     {
         friend class XLCell;
         friend class XLCellValue;

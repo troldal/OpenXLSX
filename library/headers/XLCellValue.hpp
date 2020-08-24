@@ -84,6 +84,7 @@ namespace OpenXLSX
         friend bool          operator<=(const XLCellValue& lhs, const XLCellValue& rhs);
         friend bool          operator>=(const XLCellValue& lhs, const XLCellValue& rhs);
         friend std::ostream& operator<<(std::ostream& os, const XLCellValue& value);
+        friend std::hash<OpenXLSX::XLCellValue>;
 
     public:
         //---------- Public Member Functions ----------//
@@ -500,6 +501,16 @@ namespace OpenXLSX {
         }
     }
 }    // namespace OpenXLSX
+
+namespace std {
+    template<>
+    struct hash<OpenXLSX::XLCellValue> {
+        std::size_t operator()(const OpenXLSX::XLCellValue& value) const noexcept
+        {
+            return std::hash<std::variant<std::string, int64_t, double, bool> >{}(value.m_value);
+        }
+    };
+}
 
 #pragma warning(pop)
 #endif    // OPENXLSX_XLCELLVALUE_HPP
