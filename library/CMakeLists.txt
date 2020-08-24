@@ -61,7 +61,6 @@ set(OPENXLSX_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/sources/XLColumn.cpp
     ${CMAKE_CURRENT_LIST_DIR}/sources/XLColor.cpp
     ${CMAKE_CURRENT_LIST_DIR}/sources/XLRow.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/sources/XLRowDataProxy.cpp
     ${CMAKE_CURRENT_LIST_DIR}/sources/XLRowData.cpp
     ${CMAKE_CURRENT_LIST_DIR}/sources/XLSheet.cpp
     ${CMAKE_CURRENT_LIST_DIR}/sources/XLCell.cpp

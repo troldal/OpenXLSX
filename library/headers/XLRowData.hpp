@@ -11,6 +11,7 @@
 
 // ===== External Includes ===== //
 #include <memory>
+#include <vector>
 
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
@@ -21,6 +22,7 @@
 // ========== CLASS AND ENUM TYPE DEFINITIONS ========== //
 namespace OpenXLSX
 {
+    class XLRow;
     class XLRowDataRange;
 
     /**
@@ -197,6 +199,113 @@ namespace OpenXLSX
         XLSharedStrings*         m_sharedStrings { nullptr }; /**< */
     };
 
+    /**
+     * @brief
+     */
+    class OPENXLSX_EXPORT XLRowDataProxy
+    {
+        friend class XLRow;
+
+    public:
+        /**
+         * @brief
+         */
+        ~XLRowDataProxy();
+
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
+        XLRowDataProxy& operator=(const XLRowDataProxy& other);
+
+        /**
+         * @brief
+         * @param values
+         * @return
+         */
+        XLRowDataProxy& operator=(const std::vector<XLCellValue>& values);
+
+        template<typename T,
+            typename std::enable_if<!std::is_same_v<T, XLRowDataProxy> &&
+                std::is_base_of_v<typename std::forward_iterator_tag,
+                                  typename std::iterator_traits<typename T::iterator>::iterator_category>,
+                                    T>::type* = nullptr>
+        XLRowDataProxy& operator=(const T& values);
+
+        /**
+         * @brief
+         * @return
+         */
+        operator std::vector<XLCellValue>();    // NOLINT
+
+    private:
+        //---------- Private Member Functions ---------- //
+
+        /**
+         * @brief
+         * @param row
+         * @param rowNode
+         */
+        XLRowDataProxy(XLRow* row, XMLNode* rowNode);
+
+        /**
+         * @brief
+         * @param other
+         */
+        XLRowDataProxy(const XLRowDataProxy& other);
+
+        /**
+         * @brief
+         * @param other
+         */
+        XLRowDataProxy(XLRowDataProxy&& other) noexcept;
+
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
+        XLRowDataProxy& operator=(XLRowDataProxy&& other) noexcept;
+
+        /**
+         * @brief
+         * @return
+         */
+        std::vector<XLCellValue> getValues() const;
+
+        //---------- Private Member Variables ---------- //
+
+        XLRow*   m_row;     /**< */
+        XMLNode* m_rowNode; /**< */
+    };
+
+}    // namespace OpenXLSX
+
+// ========== TEMPLATE MEMBER IMPLEMENTATIONS ========== //
+namespace OpenXLSX
+{
+    template<typename T,
+        typename std::enable_if<!std::is_same_v<T, XLRowDataProxy> &&
+            std::is_base_of_v<typename std::forward_iterator_tag,
+                              typename std::iterator_traits<typename T::iterator>::iterator_category>,
+                                T>::type*>
+    XLRowDataProxy& XLRowDataProxy::operator=(const T& values)
+    {
+        auto range = XLRowDataRange(*m_rowNode, 1, 16384, nullptr);
+
+        auto dst = range.begin();
+        auto src = values.begin();
+
+        while (true) {
+            dst->value() = *src;
+            ++src;
+            if (src == values.end()) break;
+            ++dst;
+        }
+
+        return *this;
+    }
 }    // namespace OpenXLSX
 
 #pragma warning(pop)
