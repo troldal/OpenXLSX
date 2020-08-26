@@ -7,13 +7,13 @@
 
 #include <OpenXLSX.hpp>
 #include <benchmark/benchmark.h>
-#include <numeric>
 #include <cstdint>
+#include <numeric>
 
 using namespace OpenXLSX;
 
-constexpr uint64_t rows    = 1048576;
-constexpr uint8_t  columns = 8;
+constexpr uint64_t rowCount = 1048576;
+constexpr uint8_t  colCount = 8;
 
 /**
  * @brief
@@ -23,14 +23,14 @@ static void BM_WriteStrings(benchmark::State& state)    // NOLINT
 {
     XLDocument doc;
     doc.create("./benchmark_strings.xlsx");
-    auto wks    = doc.workbook().worksheet("Sheet1");
+    auto wks = doc.workbook().worksheet("Sheet1");
 
-    std::vector<XLCellValue> values(columns, "OpenXLSX");
+    std::vector<XLCellValue> values(colCount, "OpenXLSX");
 
     for (auto _ : state)    // NOLINT
-        for (auto& row : wks.rows()) row.values() = values;
+        for (auto& row : wks.rows(rowCount)) row.values() = values;
 
-    state.SetItemsProcessed(rows * columns);
+    state.SetItemsProcessed(rowCount * colCount);
     state.counters["items"] = state.items_processed();
 
     doc.save();
@@ -49,12 +49,12 @@ static void BM_WriteIntegers(benchmark::State& state)    // NOLINT
     doc.create("./benchmark_integers.xlsx");
     auto wks    = doc.workbook().worksheet("Sheet1");
 
-    std::vector<XLCellValue> values(columns, 42);
+    std::vector<XLCellValue> values(colCount, 42);
 
     for (auto _ : state)    // NOLINT
-        for (auto& row : wks.rows()) row.values() = values;
+        for (auto& row : wks.rows(rowCount)) row.values() = values;
 
-    state.SetItemsProcessed(rows * columns);
+    state.SetItemsProcessed(rowCount * colCount);
     state.counters["items"] = state.items_processed();
 
     doc.save();
@@ -73,12 +73,12 @@ static void BM_WriteFloats(benchmark::State& state)    // NOLINT
     doc.create("./benchmark_floats.xlsx");
     auto wks    = doc.workbook().worksheet("Sheet1");
 
-    std::vector<XLCellValue> values(columns, 3.14);
+    std::vector<XLCellValue> values(colCount, 3.14);
 
     for (auto _ : state)    // NOLINT
-        for (auto& row : wks.rows()) row.values() = values;
+        for (auto& row : wks.rows(rowCount)) row.values() = values;
 
-    state.SetItemsProcessed(rows * columns);
+    state.SetItemsProcessed(rowCount * colCount);
     state.counters["items"] = state.items_processed();
 
     doc.save();
@@ -97,12 +97,12 @@ static void BM_WriteBools(benchmark::State& state)    // NOLINT
     doc.create("./benchmark_bools.xlsx");
     auto wks    = doc.workbook().worksheet("Sheet1");
 
-    std::vector<XLCellValue> values(columns, true);
+    std::vector<XLCellValue> values(colCount, true);
 
     for (auto _ : state)    // NOLINT
-        for (auto& row : wks.rows()) row.values() = values;
+        for (auto& row : wks.rows(rowCount)) row.values() = values;
 
-    state.SetItemsProcessed(rows * columns);
+    state.SetItemsProcessed(rowCount * colCount);
     state.counters["items"] = state.items_processed();
 
     doc.save();
@@ -134,7 +134,7 @@ static void BM_ReadStrings(benchmark::State& state)    // NOLINT
         benchmark::ClobberMemory();
     }
 
-    state.SetItemsProcessed(rows * columns);
+    state.SetItemsProcessed(rowCount * colCount);
     state.counters["items"] = state.items_processed();
 
     doc.close();
@@ -167,7 +167,7 @@ static void BM_ReadIntegers(benchmark::State& state)    // NOLINT
         benchmark::ClobberMemory();
     }
 
-    state.SetItemsProcessed(rows * columns);
+    state.SetItemsProcessed(rowCount * colCount);
     state.counters["items"] = state.items_processed();
 
     doc.close();
@@ -200,7 +200,7 @@ static void BM_ReadFloats(benchmark::State& state)    // NOLINT
         benchmark::ClobberMemory();
     }
 
-    state.SetItemsProcessed(rows * columns);
+    state.SetItemsProcessed(rowCount * colCount);
     state.counters["items"] = state.items_processed();
 
     doc.close();
@@ -233,7 +233,7 @@ static void BM_ReadBools(benchmark::State& state)    // NOLINT
         benchmark::ClobberMemory();
     }
 
-    state.SetItemsProcessed(rows * columns);
+    state.SetItemsProcessed(rowCount * colCount);
     state.counters["items"] = state.items_processed();
 
     doc.close();

@@ -25,8 +25,8 @@ using MatrixXdR = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::R
 // Sets/resets a testing reference matrix to have values of 10*r + c, where r and c are the
 // (1-based) row/column number.
 template <typename M> void reset_ref(M &x) {
-    for (int i = 0; i < x.rows(); i++) for (int j = 0; j < x.cols(); j++)
-        x(i, j) = 11 + 10*i + j;
+    for (int i = 0; i < x.rowCount(); i++)
+        for (int j = 0; j < x.cols(); j++) x(i, j) = 11 + 10 * i + j;
 }
 
 // Returns a static, column-major matrix
@@ -135,28 +135,30 @@ TEST_SUBMODULE(eigen, m) {
 
     // Increments and returns ref to (same) matrix
     m.def("incr_matrix", [](Eigen::Ref<Eigen::MatrixXd> m, double v) {
-        m += Eigen::MatrixXd::Constant(m.rows(), m.cols(), v);
-        return m;
+            m += Eigen::MatrixXd::Constant(m.rowCount(), m.cols(), v);
+            return m;
     }, py::return_value_policy::reference);
 
     // Same, but accepts a matrix of any strides
     m.def("incr_matrix_any", [](py::EigenDRef<Eigen::MatrixXd> m, double v) {
-        m += Eigen::MatrixXd::Constant(m.rows(), m.cols(), v);
-        return m;
+            m += Eigen::MatrixXd::Constant(m.rowCount(), m.cols(), v);
+            return m;
     }, py::return_value_policy::reference);
 
     // Returns an eigen slice of even rows
     m.def("even_rows", [](py::EigenDRef<Eigen::MatrixXd> m) {
-        return py::EigenDMap<Eigen::MatrixXd>(
-                m.data(), (m.rows() + 1) / 2, m.cols(),
-                py::EigenDStride(m.outerStride(), 2 * m.innerStride()));
+        return py::EigenDMap<Eigen::MatrixXd>(m.data(),
+                                                  (m.rowCount() + 1) / 2,
+                                                  m.cols(),
+                                                  py::EigenDStride(m.outerStride(), 2 * m.innerStride()));
     }, py::return_value_policy::reference);
 
     // Returns an eigen slice of even columns
     m.def("even_cols", [](py::EigenDRef<Eigen::MatrixXd> m) {
-        return py::EigenDMap<Eigen::MatrixXd>(
-                m.data(), m.rows(), (m.cols() + 1) / 2,
-                py::EigenDStride(2 * m.outerStride(), m.innerStride()));
+        return py::EigenDMap<Eigen::MatrixXd>(m.data(),
+                                                  m.rowCount(),
+                                                  (m.cols() + 1) / 2,
+                                                  py::EigenDStride(2 * m.outerStride(), m.innerStride()));
     }, py::return_value_policy::reference);
 
     // Returns diagonals: a vector-like object with an inner stride != 1
@@ -304,8 +306,8 @@ TEST_SUBMODULE(eigen, m) {
     // Make sure named arguments are working properly:
     m.def("matrix_multiply", [](const py::EigenDRef<const Eigen::MatrixXd> A, const py::EigenDRef<const Eigen::MatrixXd> B)
             -> Eigen::MatrixXd {
-        if (A.cols() != B.rows()) throw std::domain_error("Nonconformable matrices!");
-        return A * B;
+            if (A.cols() != B.rowCount()) throw std::domain_error("Nonconformable matrices!");
+            return A * B;
     }, py::arg("A"), py::arg("B"));
 
     // test_custom_operator_new

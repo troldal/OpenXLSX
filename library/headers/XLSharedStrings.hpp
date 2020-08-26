@@ -50,6 +50,9 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #pragma warning(disable : 4251)
 #pragma warning(disable : 4275)
 
+#include <string>
+#include <vector>
+
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
 #include "XLXmlFile.hpp"
@@ -153,6 +156,9 @@ namespace OpenXLSX
          * the contents of the string, but keeps the XMLNode holding the string.
          */
         void clearString(int index);
+
+    private:
+        std::vector<std::string> m_stringCache {};
     };
 }    // namespace OpenXLSX
 

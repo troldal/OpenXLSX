@@ -52,15 +52,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLCellReference.hpp"
 #include "XLRow.hpp"
 
-namespace OpenXLSX
-{
-    XMLNode getRowNode(XMLNode sheetDataNode, uint32_t rowNumber);
-}
-
-namespace OpenXLSX
-{
-    XMLNode getCellNode(XMLNode rowNode, uint16_t columnNumber);
-}
+#include "utilities/XLUtilities.hpp"
 
 // ========== XLRow  ======================================================== //
 namespace OpenXLSX
@@ -70,7 +62,7 @@ namespace OpenXLSX
      * @pre
      * @post
      */
-    XLRow::XLRow() : m_rowNode(nullptr), m_sharedStrings(nullptr), m_rowValuesProxy(this, m_rowNode.get()) {}
+    XLRow::XLRow() : m_rowNode(nullptr), m_sharedStrings(nullptr), m_rowDataProxy(this, m_rowNode.get()) {}
 
     /**
      * @details Constructs a new XLRow object from information in the underlying XML file. A pointer to the corresponding
@@ -81,7 +73,7 @@ namespace OpenXLSX
     XLRow::XLRow(const XMLNode& rowNode, XLSharedStrings* sharedStrings)
         : m_rowNode(std::make_unique<XMLNode>(rowNode)),
           m_sharedStrings(sharedStrings),
-          m_rowValuesProxy(this, m_rowNode.get())
+          m_rowDataProxy(this, m_rowNode.get())
     {}
 
     /**
@@ -92,7 +84,7 @@ namespace OpenXLSX
     XLRow::XLRow(const XLRow& other)
         : m_rowNode(other.m_rowNode ? std::make_unique<XMLNode>(*other.m_rowNode) : nullptr),
           m_sharedStrings(other.m_sharedStrings),
-          m_rowValuesProxy(this, m_rowNode.get())
+          m_rowDataProxy(this, m_rowNode.get())
     {}
 
     /**
@@ -103,7 +95,7 @@ namespace OpenXLSX
     XLRow::XLRow(XLRow&& other) noexcept
         : m_rowNode(std::move(other.m_rowNode)),
           m_sharedStrings(other.m_sharedStrings),
-          m_rowValuesProxy(this, m_rowNode.get())
+          m_rowDataProxy(this, m_rowNode.get())
     {}
 
     /**
@@ -123,7 +115,7 @@ namespace OpenXLSX
         if (&other != this) {
             m_rowNode        = other.m_rowNode ? std::make_unique<XMLNode>(*other.m_rowNode) : nullptr;
             m_sharedStrings  = other.m_sharedStrings;
-            m_rowValuesProxy = XLRowDataProxy(this, m_rowNode.get());
+            m_rowDataProxy   = XLRowDataProxy(this, m_rowNode.get());
         }
         return *this;
     }
@@ -138,7 +130,7 @@ namespace OpenXLSX
         if (&other != this) {
             m_rowNode        = std::move(other.m_rowNode);
             m_sharedStrings  = other.m_sharedStrings;
-            m_rowValuesProxy = XLRowDataProxy(this, m_rowNode.get());
+            m_rowDataProxy   = XLRowDataProxy(this, m_rowNode.get());
         }
         return *this;
     }
@@ -252,7 +244,7 @@ namespace OpenXLSX
      */
     XLRowDataProxy& XLRow::values()
     {
-        return m_rowValuesProxy;
+        return m_rowDataProxy;
     }
 
     /**
@@ -262,7 +254,7 @@ namespace OpenXLSX
      */
     const XLRowDataProxy& XLRow::values() const
     {
-        return m_rowValuesProxy;
+        return m_rowDataProxy;
     }
 
     /**
@@ -446,6 +438,17 @@ namespace OpenXLSX
     {
         return !(m_currentRow == rhs.m_currentRow);
     }
+
+    /**
+     * @details
+     * @pre
+     * @post
+     */
+    XLRowIterator::operator bool() const
+    {
+        return false;
+    }
+
 }    // namespace OpenXLSX
 
 // ========== XLRowRange  =================================================== //
@@ -511,17 +514,7 @@ namespace OpenXLSX
      * @pre
      * @post
      */
-    XLRowRange& XLRowRange::operator=(XLRowRange&& other) noexcept
-    {
-        if (&other != this) {
-            *m_dataNode     = *other.m_dataNode;
-            m_firstRow      = other.m_firstRow;
-            m_lastRow       = other.m_lastRow;
-            m_sharedStrings = other.m_sharedStrings;
-        }
-
-        return *this;
-    }
+    XLRowRange& XLRowRange::operator=(XLRowRange&& other) noexcept = default;
 
     /**
      * @details
@@ -557,6 +550,7 @@ namespace OpenXLSX
      * @details
      * @pre
      * @post
+     * @todo Not yet implemented!
      */
     void XLRowRange::clear() {}
 

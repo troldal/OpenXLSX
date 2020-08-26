@@ -113,12 +113,15 @@ namespace OpenXLSX
          */
         bool operator!=(const XLRowDataIterator& rhs);
 
+        /**
+         * @brief
+         * @return
+         */
+        explicit operator bool() const;
+
     private:
-        std::unique_ptr<XMLNode> m_rowNode;                   /**< */
-        uint16_t                 m_firstCol { 1 };            /**< The cell reference of the first cell in the range */
-        uint16_t                 m_lastCol { 16384 };         /**< The cell reference of the last cell in the range */
-        XLCell                   m_currentCell;               /**< */
-        XLSharedStrings*         m_sharedStrings { nullptr }; /**< */
+        std::unique_ptr<XLRowDataRange> m_dataRange;   /**< */
+        XLCell                          m_currentCell; /**< */
     };
 
     /**
@@ -194,8 +197,8 @@ namespace OpenXLSX
 
     private:
         std::unique_ptr<XMLNode> m_rowNode;                   /**< */
-        uint16_t                 m_firstCol;                  /**< The cell reference of the first cell in the range */
-        uint16_t                 m_lastCol;                   /**< The cell reference of the last cell in the range */
+        uint16_t                 m_firstCol { 1 };            /**< The cell reference of the first cell in the range */
+        uint16_t                 m_lastCol { 1 };             /**< The cell reference of the last cell in the range */
         XLSharedStrings*         m_sharedStrings { nullptr }; /**< */
     };
 
@@ -276,8 +279,8 @@ namespace OpenXLSX
 
         //---------- Private Member Variables ---------- //
 
-        XLRow*   m_row;     /**< */
-        XMLNode* m_rowNode; /**< */
+        XLRow*   m_row { nullptr };     /**< */
+        XMLNode* m_rowNode { nullptr }; /**< */
     };
 
 }    // namespace OpenXLSX

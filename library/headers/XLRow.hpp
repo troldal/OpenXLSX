@@ -50,8 +50,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #pragma warning(disable : 4251)
 #pragma warning(disable : 4275)
 
-// ===== External Includes ===== //
-
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
 #include "XLRowData.hpp"
@@ -71,6 +69,10 @@ namespace OpenXLSX
         friend class XLRowDataProxy;
         friend bool operator==(const XLRow& lhs, const XLRow& rhs);
         friend bool operator!=(const XLRow& lhs, const XLRow& rhs);
+        friend bool operator<(const XLRow& lhs, const XLRow& rhs);
+        friend bool operator>(const XLRow& lhs, const XLRow& rhs);
+        friend bool operator<=(const XLRow& lhs, const XLRow& rhs);
+        friend bool operator>=(const XLRow& lhs, const XLRow& rhs);
 
         //---------- PUBLIC MEMBER FUNCTIONS ----------//
     public:
@@ -177,28 +179,35 @@ namespace OpenXLSX
          */
         const XLRowDataProxy& values() const;
 
+        /**
+         * @brief
+         * @return
+         */
         XLRowDataRange cells() const;
 
+        /**
+         * @brief
+         * @param cellCount
+         * @return
+         */
         XLRowDataRange cells(uint16_t cellCount) const;
 
+        /**
+         * @brief
+         * @param firstCell
+         * @param lastCell
+         * @return
+         */
         XLRowDataRange cells(uint16_t firstCell, uint16_t lastCell) const;
 
         template<typename T>
-        T values() const
-        {
-            T    result;
-            auto dst = std::back_inserter(result);
-
-            for (const auto& cell : cells()) dst = cell.value();
-
-            return result;
-        }
+        T values() const;
 
         //---------- PRIVATE MEMBER VARIABLES ----------//
     private:
-        std::unique_ptr<XMLNode> m_rowNode;        /**< The XMLNode object for the row. */
-        XLSharedStrings*         m_sharedStrings;  /**< */
-        XLRowDataProxy           m_rowValuesProxy; /**< */
+        std::unique_ptr<XMLNode> m_rowNode;       /**< The XMLNode object for the row. */
+        XLSharedStrings*         m_sharedStrings; /**< */
+        XLRowDataProxy           m_rowDataProxy;  /**< */
     };
 
     /**
@@ -289,10 +298,16 @@ namespace OpenXLSX
          */
         bool operator!=(const XLRowIterator& rhs);
 
+        /**
+         * @brief
+         * @return
+         */
+        explicit operator bool() const;
+
     private:
         std::unique_ptr<XMLNode> m_dataNode;                  /**< */
         uint32_t                 m_firstRow { 1 };            /**< The cell reference of the first cell in the range */
-        uint32_t                 m_lastRow { 1048576 };       /**< The cell reference of the last cell in the range */
+        uint32_t                 m_lastRow { 1 };             /**< The cell reference of the last cell in the range */
         XLRow                    m_currentRow;                /**< */
         XLSharedStrings*         m_sharedStrings { nullptr }; /**< */
     };
@@ -385,6 +400,21 @@ namespace OpenXLSX
 
 }    // namespace OpenXLSX
 
+// ========== TEMPLATE MEMBER IMPLEMENTATIONS ========== //
+namespace OpenXLSX
+{
+    template<typename T>
+    T XLRow::values() const
+    {
+        T    result;
+        auto dst = std::back_inserter(result);
+
+        for (const auto& cell : cells()) dst = cell.value();
+
+        return result;
+    }
+}    // namespace OpenXLSX
+
 // ========== FRIEND FUNCTION IMPLEMENTATIONS ========== //
 namespace OpenXLSX
 {
@@ -408,6 +438,50 @@ namespace OpenXLSX
     inline bool operator!=(const XLRow& lhs, const XLRow& rhs)
     {
         return !(lhs.m_rowNode == rhs.m_rowNode);
+    }
+
+    /**
+     * @brief
+     * @param lhs
+     * @param rhs
+     * @return
+     */
+    inline bool operator<(const XLRow& lhs, const XLRow& rhs)
+    {
+        return lhs.rowNumber() < rhs.rowNumber();
+    }
+
+    /**
+     * @brief
+     * @param lhs
+     * @param rhs
+     * @return
+     */
+    inline bool operator>(const XLRow& lhs, const XLRow& rhs)
+    {
+        return (rhs < lhs);
+    }
+
+    /**
+     * @brief
+     * @param lhs
+     * @param rhs
+     * @return
+     */
+    inline bool operator<=(const XLRow& lhs, const XLRow& rhs)
+    {
+        return !(lhs > rhs);
+    }
+
+    /**
+     * @brief
+     * @param lhs
+     * @param rhs
+     * @return
+     */
+    inline bool operator>=(const XLRow& lhs, const XLRow& rhs)
+    {
+        return !(lhs < rhs);
     }
 
 }    // namespace OpenXLSX

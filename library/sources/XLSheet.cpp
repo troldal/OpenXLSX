@@ -315,7 +315,9 @@ XLRowRange XLWorksheet::rows()
 {
     return XLRowRange(xmlDocument().first_child().child("sheetData"),
                       1,
-                      1048576,
+                      (xmlDocument().first_child().child("sheetData").last_child()
+                           ? xmlDocument().first_child().child("sheetData").last_child().attribute("r").as_ullong()
+                           : 1),
                       parentDoc().executeQuery(XLQuerySharedStrings()).sharedStrings());
 }
 

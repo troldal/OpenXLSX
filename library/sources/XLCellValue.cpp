@@ -321,14 +321,21 @@ void XLCellValueProxy::setString(const char* stringValue)
     if (!m_cellNode->attribute("t")) m_cellNode->append_attribute("t");
     if (!m_cellNode->child("v")) m_cellNode->append_child("v");
 
-    m_cellNode->attribute("t").set_value("str");
-    m_cellNode->child("v").text().set(stringValue);
+    m_cellNode->attribute("t").set_value("s");
 
-    auto s = std::string_view(stringValue);
-    if (s.front() == ' ' || s.back() == ' ') {
-        if (!m_cellNode->attribute("xml:space")) m_cellNode->append_attribute("xml:space");
-        m_cellNode->attribute("xml:space").set_value("preserve");
-    }
+    auto index = (m_cell->m_sharedStrings->stringExists(stringValue) ? m_cell->m_sharedStrings->getStringIndex(stringValue)
+                                                                     : m_cell->m_sharedStrings->appendString(stringValue));
+
+    m_cellNode->child("v").text().set(index);
+
+    //    m_cellNode->attribute("t").set_value("str");
+    //    m_cellNode->child("v").text().set(stringValue);
+    //
+    //    auto s = std::string_view(stringValue);
+    //    if (s.front() == ' ' || s.back() == ' ') {
+    //        if (!m_cellNode->attribute("xml:space")) m_cellNode->append_attribute("xml:space");
+    //        m_cellNode->attribute("xml:space").set_value("preserve");
+    //    }
 }
 
 /**

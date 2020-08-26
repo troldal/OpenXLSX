@@ -1,6 +1,9 @@
 //
-// Created by Kenneth Balslev on 21/08/2020.
+// Created by Kenneth Balslev on 24/08/2020.
 //
+
+#ifndef OPENXLSX_XLUTILITIES_HPP
+#define OPENXLSX_XLUTILITIES_HPP
 
 #include <pugixml.hpp>
 
@@ -12,7 +15,7 @@ namespace OpenXLSX
     /**
      * @details
      */
-    XMLNode getRowNode(XMLNode sheetDataNode, uint32_t rowNumber)
+    inline XMLNode getRowNode(XMLNode sheetDataNode, uint32_t rowNumber)
     {
         // ===== If the requested node is beyond the current max node, append a new node to the end.
         auto result = XMLNode();
@@ -53,7 +56,7 @@ namespace OpenXLSX
         return result;
     }
 
-    XMLNode getCellNode(XMLNode rowNode, uint16_t columnNumber)
+    inline XMLNode getCellNode(XMLNode rowNode, uint16_t columnNumber)
     {
         auto cellNode = XMLNode();
         auto cellRef  = XLCellReference(rowNode.attribute("r").as_uint(), columnNumber);
@@ -87,3 +90,5 @@ namespace OpenXLSX
         return cellNode;
     }
 }    // namespace OpenXLSX
+
+#endif    // OPENXLSX_XLUTILITIES_HPP

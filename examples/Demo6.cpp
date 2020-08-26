@@ -23,7 +23,7 @@ int main()
 
     std::deque<XLCellValue> writeValues;
 
-    for (auto& row : wks.rows()) {
+    for (auto& row : wks.rows(1 '048' 576)) {
         writeValues.clear();
         writeValues.emplace_back(distr(generator));
         writeValues.emplace_back(distr(generator));
