@@ -72,6 +72,7 @@ namespace OpenXLSX
         friend class XLCellValueProxy;
         friend class XLRowDataIterator;
         friend bool operator==(const XLCell& lhs, const XLCell& rhs);
+        friend bool operator!=(const XLCell& lhs, const XLCell& rhs);
 
     public:
         //---------- Public Member Functions ----------//
@@ -197,6 +198,17 @@ namespace OpenXLSX
     inline bool operator==(const XLCell& lhs, const XLCell& rhs)
     {
         return lhs.m_cellNode == rhs.m_cellNode;
+    }
+
+    /**
+     * @brief
+     * @param lhs
+     * @param rhs
+     * @return
+     */
+    inline bool operator!=(const XLCell& lhs, const XLCell& rhs)
+    {
+        return !(lhs.m_cellNode == rhs.m_cellNode);
     }
 
 }    // namespace OpenXLSX
