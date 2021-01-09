@@ -225,7 +225,7 @@ install(
 
 # Install export header
 install(
-        FILES ${CMAKE_CURRENT_BINARY_DIR}/openxlsx_export.h
+        FILES ${CMAKE_CURRENT_BINARY_DIR}/OpenXLSX-Exports.hpp
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/openxlsx
 )
 
