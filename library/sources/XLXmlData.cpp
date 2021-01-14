@@ -51,6 +51,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLXmlData.hpp"
 
 using namespace OpenXLSX;
+const unsigned int parse_options = (pugi::parse_default & ~pugi::parse_eol) | pugi::parse_ws_pcdata | pugi::parse_declaration;
 
 /**
  * @details
@@ -75,7 +76,7 @@ XLXmlData::~XLXmlData() = default;
  */
 void XLXmlData::setRawData(const std::string& data)
 {
-    m_xmlDoc->load_string(data.c_str(), pugi::parse_default | pugi::parse_ws_pcdata);
+    m_xmlDoc->load_string(data.c_str(), parse_options);
 }
 
 /**
@@ -134,7 +135,7 @@ XLContentType XLXmlData::getXmlType() const
 XMLDocument* XLXmlData::getXmlDocument()
 {
     if (!m_xmlDoc->document_element())
-        m_xmlDoc->load_string(m_parentDoc->extractXmlFromArchive(m_xmlPath).c_str(), pugi::parse_default | pugi::parse_ws_pcdata);
+        m_xmlDoc->load_string(m_parentDoc->extractXmlFromArchive(m_xmlPath).c_str(), parse_options);
 
     return m_xmlDoc.get();
 }
@@ -145,7 +146,7 @@ XMLDocument* XLXmlData::getXmlDocument()
 const XMLDocument* XLXmlData::getXmlDocument() const
 {
     if (!m_xmlDoc->document_element())
-        m_xmlDoc->load_string(m_parentDoc->extractXmlFromArchive(m_xmlPath).c_str(), pugi::parse_default | pugi::parse_ws_pcdata);
+        m_xmlDoc->load_string(m_parentDoc->extractXmlFromArchive(m_xmlPath).c_str(), parse_options);
 
     return m_xmlDoc.get();
 }
