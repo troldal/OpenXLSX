@@ -4208,6 +4208,16 @@ PUGI__FN void node_output(xml_buffered_writer& writer, xml_node_struct* root, co
                     continue;
                 }
             }
+            else if (PUGI__NODETYPE(node) == node_declaration) {
+                node_output_simple(writer, node, flags);
+
+                if ((flags & format_declaration_indent) == 0) {
+                    writer.write('\r', '\n');
+                }
+                else {
+                    indent_flags = indent_newline | indent_indent;
+                }
+            }
             else {
                 node_output_simple(writer, node, flags);
 
