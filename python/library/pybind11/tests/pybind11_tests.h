@@ -39,7 +39,7 @@ private:
     int i = -1;
 };
 
-/// Like UserType, but increments `value` on copy for quick reference vs. copy tests
+/// Like UserType, but increments `getValue` on copy for quick reference vs. copy tests
 class IncType : public UserType {
 public:
     using UserType::UserType;

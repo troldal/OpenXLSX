@@ -33,7 +33,7 @@ TEST_SUBMODULE(pickling, m) {
 
     py::class_<Pickleable>(m, "Pickleable")
         .def(py::init<std::string>())
-        .def("value", &Pickleable::value)
+        .def("getValue", &Pickleable::value)
         .def("extra1", &Pickleable::extra1)
         .def("extra2", &Pickleable::extra2)
         .def("setExtra1", &Pickleable::setExtra1)
@@ -89,11 +89,11 @@ TEST_SUBMODULE(pickling, m) {
 
     py::class_<PickleableWithDict>(m, "PickleableWithDict", py::dynamic_attr())
         .def(py::init<std::string>())
-        .def_readwrite("value", &PickleableWithDict::value)
+        .def_readwrite("getValue", &PickleableWithDict::value)
         .def_readwrite("extra", &PickleableWithDict::extra)
         .def("__getstate__", [](py::object self) {
             /* Also include __dict__ in state */
-            return py::make_tuple(self.attr("value"), self.attr("extra"), self.attr("__dict__"));
+            return py::make_tuple(self.attr("getValue"), self.attr("extra"), self.attr("__dict__"));
         })
         .def("__setstate__", [](py::object self, py::tuple t) {
             if (t.size() != 3)
@@ -113,7 +113,7 @@ TEST_SUBMODULE(pickling, m) {
         .def(py::init<std::string>())
         .def(py::pickle(
             [](py::object self) {
-                return py::make_tuple(self.attr("value"), self.attr("extra"), self.attr("__dict__"));
+                return py::make_tuple(self.attr("getValue"), self.attr("extra"), self.attr("__dict__"));
             },
             [](const py::tuple &t) {
                 if (t.size() != 3)

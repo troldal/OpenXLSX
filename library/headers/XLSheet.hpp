@@ -59,7 +59,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "OpenXLSX-Exports.hpp"
 #include "XLCell.hpp"
 #include "XLCellReference.hpp"
-#include "XLCellValue.hpp"
 #include "XLColor.hpp"
 #include "XLColumn.hpp"
 #include "XLCommandQuery.hpp"
@@ -349,6 +348,12 @@ namespace OpenXLSX
          * @return A const XLCellRange object with the requested range.
          */
         XLCellRange range(const XLCellReference& topLeft, const XLCellReference& bottomRight);
+
+        XLRowRange rows();
+
+        XLRowRange rows(uint32_t rowCount);
+
+        XLRowRange rows(uint32_t firstRow, uint32_t lastRow);
 
         /**
          * @brief Get the row with the given row number.

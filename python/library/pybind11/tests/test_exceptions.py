@@ -26,11 +26,11 @@ def test_cross_module_exceptions():
 
     with pytest.raises(ValueError) as excinfo:
         cm.raise_value_error()
-    assert str(excinfo.value) == "My value error"
+    assert str(excinfo.value) == "My getValue error"
 
     with pytest.raises(ValueError) as excinfo:
         cm.throw_pybind_value_error()
-    assert str(excinfo.value) == "pybind11 value error"
+    assert str(excinfo.value) == "pybind11 getValue error"
 
     with pytest.raises(TypeError) as excinfo:
         cm.throw_pybind_type_error()

@@ -57,7 +57,7 @@ template <typename T, typename U>
 using forwarded_type = conditional_t<
     std::is_lvalue_reference<T>::value, remove_reference_t<U> &, remove_reference_t<U> &&>;
 
-/// Forwards a value U as rvalue or lvalue according to whether T is rvalue or lvalue; typically
+/// Forwards a getValue U as rvalue or lvalue according to whether T is rvalue or lvalue; typically
 /// used for forwarding a container's elements.
 template <typename T, typename U>
 forwarded_type<T, U> forward_like(U &&u) {
@@ -274,7 +274,7 @@ template<typename T> struct optional_caster {
         if (!src) {
             return false;
         } else if (src.is_none()) {
-            return true;  // default-constructed value is already empty
+            return true;  // default-constructed getValue is already empty
         }
         value_conv inner_caster;
         if (!inner_caster.load(src, convert))

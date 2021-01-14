@@ -55,7 +55,7 @@ using namespace OpenXLSX;
 /**
  * @details
  */
-XLCell::XLCell() : m_cellNode(nullptr), m_sharedStrings(nullptr) {}
+XLCell::XLCell() : m_cellNode(nullptr), m_sharedStrings(nullptr), m_valueProxy(XLCellValueProxy(this, m_cellNode.get())) {}
 
 /**
  * @details This constructor creates a XLCell object based on the cell XMLNode input parameter, and is
@@ -64,20 +64,37 @@ XLCell::XLCell() : m_cellNode(nullptr), m_sharedStrings(nullptr) {}
  * from a XLCellReference parameter.
  * The initialization algorithm is as follows:
  *  -# Is the parameter a nullptr? If yes, throw a invalid_argument exception.
- *  -# Read the formula and value child nodes. These may be nullptr, if the cell is empty.
+ *  -# Read the formula and getValue child nodes. These may be nullptr, if the cell is empty.
  *  -# Read the address, type and style attributes to the cellNode. The type attribute may be nullptr
- *  -# set the m_cellReference property using the value of the m_addressAttribute.
+ *  -# set the m_cellReference property using the getValue of the m_addressAttribute.
  *  -# Set the cell type, using the previous information:
- *      -# If there is no type attribute and no value node, the cell is empty.
- *      -# If there is no type attribute but there is a value node, the cell has a number value.
+ *      -# If there is no type attribute and no getValue node, the cell is empty.
+ *      -# If there is no type attribute but there is a value node, the cell has a number getValue.
  *      -# Otherwise, determine the celltype based on the type attribute.
  */
 XLCell::XLCell(const XMLNode& cellNode, XLSharedStrings* sharedStrings)
     : m_cellNode(std::make_unique<XMLNode>(cellNode)),
-      m_sharedStrings(sharedStrings)
+      m_sharedStrings(sharedStrings),
+      m_valueProxy(XLCellValueProxy(this, m_cellNode.get()))
 {}
 
-XLCell::XLCell(XLCell&& other) noexcept = default;
+/**
+ * @details
+ */
+XLCell::XLCell(const XLCell& other)
+    : m_cellNode(other.m_cellNode ? std::make_unique<XMLNode>(*other.m_cellNode) : nullptr),
+      m_sharedStrings(other.m_sharedStrings),
+      m_valueProxy(XLCellValueProxy(this, m_cellNode.get()))
+{}
+
+/**
+ * @details
+ */
+XLCell::XLCell(XLCell&& other) noexcept
+    : m_cellNode(std::move(other.m_cellNode)),
+      m_sharedStrings(other.m_sharedStrings),
+      m_valueProxy(XLCellValueProxy(this, m_cellNode.get()))
+{}
 
 /**
  * @details
@@ -87,19 +104,26 @@ XLCell::~XLCell() = default;
 /**
  * @details
  */
-XLCell::XLCell(const XLCell& other)
-    : m_cellNode(other.m_cellNode ? std::make_unique<XMLNode>(*other.m_cellNode) : nullptr),
-      m_sharedStrings(other.m_sharedStrings)
-{}
+XLCell& XLCell::operator=(const XLCell& other)
+{
+    if (&other != this) {
+        m_cellNode      = other.m_cellNode ? std::make_unique<XMLNode>(*other.m_cellNode) : nullptr;
+        m_sharedStrings = other.m_sharedStrings;
+        m_valueProxy    = XLCellValueProxy(this, m_cellNode.get());
+    }
+
+    return *this;
+}
 
 /**
  * @details
  */
-XLCell& XLCell::operator=(const XLCell& other)
+XLCell& XLCell::operator=(XLCell&& other) noexcept
 {
     if (&other != this) {
-        *m_cellNode     = *other.m_cellNode;
+        m_cellNode      = std::move(other.m_cellNode);
         m_sharedStrings = other.m_sharedStrings;
+        m_valueProxy    = XLCellValueProxy(this, m_cellNode.get());
     }
 
     return *this;
@@ -135,22 +159,6 @@ XLCell::operator bool() const
 }
 
 /**
- * @details
- */
-XLValueType XLCell::valueType() const
-{
-    return XLCellValue(*m_cellNode, nullptr).valueType();
-}
-
-/**
- * @details
- */
-XLCellValue XLCell::value() const
-{
-    return XLCellValue(*m_cellNode, m_sharedStrings);
-}
-
-/**
  * @details This function returns a const reference to the cellReference property.
  */
 XLCellReference XLCell::cellReference() const
@@ -176,6 +184,8 @@ std::string XLCell::formula() const
 
 /**
  * @details
+ * @pre
+ * @post
  */
 void XLCell::setFormula(const std::string& newFormula)
 {
@@ -184,8 +194,20 @@ void XLCell::setFormula(const std::string& newFormula)
 
 /**
  * @details
+ * @pre
+ * @post
  */
-void XLCell::reset(const XMLNode& cellNode)
+XLCellValueProxy& XLCell::value()
 {
-    *m_cellNode = cellNode;
+    return m_valueProxy;
+}
+
+/**
+ * @details
+ * @pre
+ * @post
+ */
+const XLCellValueProxy& XLCell::value() const
+{
+    return m_valueProxy;
 }

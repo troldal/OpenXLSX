@@ -38,7 +38,7 @@ exceptions:
 |                                      | ``__setitem__``, etc.)               |
 +--------------------------------------+--------------------------------------+
 | :class:`pybind11::value_error`       | ``ValueError`` (used to indicate     |
-|                                      | wrong value passed in                |
+|                                      | wrong getValue passed in                |
 |                                      | ``container.remove(...)``)           |
 +--------------------------------------+--------------------------------------+
 | :class:`pybind11::key_error`         | ``KeyError`` (used to indicate out   |

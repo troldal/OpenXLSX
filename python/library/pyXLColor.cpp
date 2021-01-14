@@ -79,9 +79,9 @@ void init_XLColor(py::module& m)
              py::arg("green"),
              py::arg("blue"))
         .def("set", py::overload_cast<const std::string&>(&XLColor::set), "Set the color with the given hex code.", py::arg("hexCode"))
-        .def("red", &XLColor::alpha, "Get the alpha value of the color.")
-        .def("red", &XLColor::red, "Get the red color value for the color object.")
-        .def("green", &XLColor::green, "Get the green color value for the color object.")
-        .def("blue", &XLColor::blue, "Get the blue color value for the color object.")
+        .def("red", &XLColor::alpha, "Get the alpha getValue of the color.")
+        .def("red", &XLColor::red, "Get the red color getValue for the color object.")
+        .def("green", &XLColor::green, "Get the green color getValue for the color object.")
+        .def("blue", &XLColor::blue, "Get the blue color getValue for the color object.")
         .def("blue", &XLColor::hex, "Get the hex code for the color object.");
 }

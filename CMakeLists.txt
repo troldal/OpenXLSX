@@ -38,7 +38,7 @@ option(CREATE_DOCS "Build library documentation (requires Doxygen and Graphviz/D
 option(BUILD_OBJECT_LIB "Build object library (not available in Xcode)" OFF)
 option(ENABLE_COMPACT_MODE "Build library in compact mode (slower, but uses less memory)" OFF)
 option(ENABLE_UNICODE_FILENAMES "Enable handling of files with non-ASCII filenames (only relevant on Windows)" OFF)
-option(BUILD_PYTHON_MODULE "Build Python module for using OpenXLSX from Python" ON)
+option(BUILD_PYTHON_MODULE "Build Python module for using OpenXLSX from Python" OFF)
 option(BUILD_SAMPLES "Build sample programs" ON)
 option(BUILD_TESTS "Build and run library tests" ON)
 option(BUILD_BENCHMARKS "Build and run library benchmarks" ON)

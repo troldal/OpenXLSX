@@ -198,9 +198,9 @@ namespace pugi
     // is a valid document. This flag is off by default.
     const unsigned int parse_fragment = 0x1000;
 
-    // This flag determines if plain character data is be stored in the parent element's value. This significantly changes the structure of
-    // the document; this flag is only recommended for parsing documents with many PCDATA nodes in memory-constrained environments.
-    // This flag is off by default.
+    // This flag determines if plain character data is be stored in the parent element's getValue. This significantly changes the structure
+    // of the document; this flag is only recommended for parsing documents with many PCDATA nodes in memory-constrained environments. This
+    // flag is off by default.
     const unsigned int parse_embed_pcdata = 0x2000;
 
     // The default parsing mode.
@@ -261,6 +261,9 @@ namespace pugi
 
     // Use single quotes ' instead of double quotes " for enclosing attribute values. This flag is off by default.
     const unsigned int format_attribute_single_quote = 0x200;
+
+    // Indent the declaration nodes that are written to output stream. This flag is off by default.
+    const unsigned int format_declaration_indent = 0x400;
 
     // The default set of formatting flags.
     // Nodes are indented depending on their depth in DOM tree, a default declaration is output if document has none.
@@ -387,14 +390,14 @@ namespace pugi
         // Check if attribute is empty
         bool empty() const;
 
-        // Get attribute name/value, or "" if attribute is empty
+        // Get attribute name/getValue, or "" if attribute is empty
         const char_t* name() const;
         const char_t* value() const;
 
-        // Get attribute value, or the default value if attribute is empty
+        // Get attribute value, or the default getValue if attribute is empty
         const char_t* as_string(const char_t* def = PUGIXML_TEXT("")) const;
 
-        // Get attribute value as a number, or the default value if conversion did not succeed or attribute is empty
+        // Get attribute value as a number, or the default getValue if conversion did not succeed or attribute is empty
         int          as_int(int def = 0) const;
         unsigned int as_uint(unsigned int def = 0) const;
         double       as_double(double def = 0) const;
@@ -405,14 +408,14 @@ namespace pugi
         unsigned long long as_ullong(unsigned long long def = 0) const;
 #    endif
 
-        // Get attribute value as bool (returns true if first character is in '1tTyY' set), or the default value if attribute is empty
+        // Get attribute value as bool (returns true if first character is in '1tTyY' set), or the default getValue if attribute is empty
         bool as_bool(bool def = false) const;
 
-        // Set attribute name/value (returns false if attribute is empty or there is not enough memory)
+        // Set attribute name/getValue (returns false if attribute is empty or there is not enough memory)
         bool set_name(const char_t* rhs);
         bool set_value(const char_t* rhs);
 
-        // Set attribute value with type conversion (numbers are converted to strings, boolean is converted to "true"/"false")
+        // Set attribute getValue with type conversion (numbers are converted to strings, boolean is converted to "true"/"false")
         bool set_value(int rhs);
         bool set_value(unsigned int rhs);
         bool set_value(long rhs);
@@ -426,7 +429,7 @@ namespace pugi
         bool set_value(unsigned long long rhs);
 #    endif
 
-        // Set attribute value (equivalent to set_value without error checking)
+        // Set attribute getValue (equivalent to set_value without error checking)
         xml_attribute& operator=(const char_t* rhs);
         xml_attribute& operator=(int rhs);
         xml_attribute& operator=(unsigned int rhs);
@@ -445,7 +448,7 @@ namespace pugi
         xml_attribute next_attribute() const;
         xml_attribute previous_attribute() const;
 
-        // Get hash value (unique for handles to the same object)
+        // Get hash getValue (unique for handles to the same object)
         size_t hash_value() const;
 
         // Get internal pointer
@@ -500,8 +503,9 @@ namespace pugi
         // Get node name, or "" if node is empty or it has no name
         const char_t* name() const;
 
-        // Get node value, or "" if node is empty or it has no value
-        // Note: For <node>text</node> node.value() does not return "text"! Use child_value() or text() methods to access text inside nodes.
+        // Get node getValue, or "" if node is empty or it has no value
+        // Note: For <node>text</node> node.getValue() does not return "text"! Use child_value() or text() methods to access text inside
+        // nodes.
         const char_t* value() const;
 
         // Get attribute list
@@ -534,13 +538,13 @@ namespace pugi
         // Get attribute, starting the search from a hint (and updating hint so that searching for a sequence of attributes is fast)
         xml_attribute attribute(const char_t* name, xml_attribute& hint) const;
 
-        // Get child value of current node; that is, value of the first child node of type PCDATA/CDATA
+        // Get child getValue of current node; that is, value of the first child node of type PCDATA/CDATA
         const char_t* child_value() const;
 
-        // Get child value of child with specified name. Equivalent to child(name).child_value().
+        // Get child getValue of child with specified name. Equivalent to child(name).child_value().
         const char_t* child_value(const char_t* name) const;
 
-        // Set node name/value (returns false if node is empty, there is not enough memory, or node can not have name/value)
+        // Set node name/getValue (returns false if node is empty, there is not enough memory, or node can not have name/value)
         bool set_name(const char_t* rhs);
         bool set_value(const char_t* rhs);
 
@@ -644,7 +648,7 @@ namespace pugi
             return xml_node();
         }
 
-        // Find child node by attribute name/value
+        // Find child node by attribute name/getValue
         xml_node find_child_by_attribute(const char_t* name, const char_t* attr_name, const char_t* attr_value) const;
         xml_node find_child_by_attribute(const char_t* attr_name, const char_t* attr_value) const;
 
@@ -714,7 +718,7 @@ namespace pugi
         // Get node offset in parsed file/string (in char_t units) for debugging purposes
         ptrdiff_t offset_debug() const;
 
-        // Get hash value (unique for handles to the same object)
+        // Get hash getValue (unique for handles to the same object)
         size_t hash_value() const;
 
         // Get internal pointer
@@ -757,10 +761,10 @@ namespace pugi
         // Get text, or "" if object is empty
         const char_t* get() const;
 
-        // Get text, or the default value if object is empty
+        // Get text, or the default getValue if object is empty
         const char_t* as_string(const char_t* def = PUGIXML_TEXT("")) const;
 
-        // Get text as a number, or the default value if conversion did not succeed or object is empty
+        // Get text as a number, or the default getValue if conversion did not succeed or object is empty
         int          as_int(int def = 0) const;
         unsigned int as_uint(unsigned int def = 0) const;
         double       as_double(double def = 0) const;
@@ -771,7 +775,7 @@ namespace pugi
         unsigned long long as_ullong(unsigned long long def = 0) const;
 #    endif
 
-        // Get text as bool (returns true if first character is in '1tTyY' set), or the default value if object is empty
+        // Get text as bool (returns true if first character is in '1tTyY' set), or the default getValue if object is empty
         bool as_bool(bool def = false) const;
 
         // Set text (returns false if object is empty or there is not enough memory)
@@ -1183,7 +1187,7 @@ namespace pugi
         bool set(bool value);
         bool set(double value);
         bool set(const char_t* value);
-        bool set(const xpath_node_set& value);
+        bool set(const xpath_node_set& getValue);
     };
 
     // A set of XPath variables

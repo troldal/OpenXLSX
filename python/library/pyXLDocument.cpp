@@ -88,7 +88,7 @@ void init_XLDocument(py::module &m) {
         .def("path", &XLDocument::path, "Get the Excel file path.")
         .def("workbook", &XLDocument::workbook, "Get the workbook object.")
         .def("property", &XLDocument::property, "Get the specified document property.", py::arg("property"))
-        .def("setProperty", &XLDocument::setProperty, "Set the given property.", py::arg("property"), py::arg("value"))
+        .def("setProperty", &XLDocument::setProperty, "Set the given property.", py::arg("property"), py::arg("getValue"))
         .def("deleteProperty", &XLDocument::deleteProperty, "Delete the given property", py::arg("property"));
 }
 

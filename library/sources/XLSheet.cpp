@@ -55,46 +55,10 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 using namespace OpenXLSX;
 
-namespace
+namespace OpenXLSX
 {
-    /**
-     * @details
-     */
-    inline XMLNode getRowNode(XMLNode sheetDataNode, uint32_t rowNumber)
-    {
-        // ===== If the requested node is beyond the current max node, append a new node to the end.
-        auto result = XMLNode();
-        if (!sheetDataNode.last_child() || rowNumber > sheetDataNode.last_child().attribute("r").as_ullong()) {
-            result = sheetDataNode.append_child("row");
-
-            result.append_attribute("r") = rowNumber;
-        }
-
-        // ===== If the requested node is closest to the end, start from the end and search backwards
-        else if (sheetDataNode.last_child().attribute("r").as_ullong() - rowNumber < rowNumber) {
-            result = sheetDataNode.last_child();
-            while (result.attribute("r").as_ullong() > rowNumber) result = result.previous_sibling();
-            if (result.attribute("r").as_ullong() < rowNumber) {
-                result = sheetDataNode.insert_child_after("row", result);
-
-                result.append_attribute("r") = rowNumber;
-            }
-        }
-
-        // ===== Otherwise, start from the beginning
-        else {
-            result = sheetDataNode.first_child();
-            while (result.attribute("r").as_ullong() < rowNumber) result = result.next_sibling();
-            if (result.attribute("r").as_ullong() > rowNumber) {
-                result = sheetDataNode.insert_child_before("row", result);
-
-                result.append_attribute("r") = rowNumber;
-            }
-        }
-
-        return result;
-    }
-}    // namespace
+    XMLNode getRowNode(XMLNode sheetDataNode, uint32_t rowNumber);
+}    // namespace OpenXLSX
 
 /**
  * @details The constructor begins by constructing an instance of its superclass, XLAbstractXMLFile. The default
@@ -120,7 +84,7 @@ std::string XLSheet::name() const
  * @details This method sets the name of the sheet to a new name, in the following way:
  * - Set the m_sheetName property to the new name.
  * - In the sheet node in the workbook.xml file, set the name attribute to the new name.
- * - Set the value of the title node in the app.xml file to the new name
+ * - Set the getValue of the title node in the app.xml file to the new name
  * - Set the m_isModified property to true.
  */
 void XLSheet::setName(const std::string& name)
@@ -137,10 +101,10 @@ XLSheetState XLSheet::visibility() const
 }
 
 /**
- * @details This method sets the visibility state of the sheet to a new value, in the following manner:
- * - Set the m_sheetState to the new value.
+ * @details This method sets the visibility state of the sheet to a new getValue, in the following manner:
+ * - Set the m_sheetState to the new getValue.
  * - If the state is set to Hidden or VeryHidden, create a state attribute in the sheet node in the workbook.xml file
- * (if it doesn't exist already) and set the value to the new state.
+ * (if it doesn't exist already) and set the getValue to the new state.
  * - If the state is set to Visible, delete the state attribute from the sheet node in the workbook.xml file, if it
  * exists.
  */
@@ -291,12 +255,12 @@ XLCell XLWorksheet::cell(uint32_t rowNumber, uint16_t columnNumber)
 {
     auto cellNode = XMLNode();
     auto cellRef  = XLCellReference(rowNumber, columnNumber);
-    auto rowNode  = getRowNode(xmlDocument().first_child().child("sheetData"), rowNumber);
+    auto rowNode  = getRowNode(xmlDocument().document_element().child("sheetData"), rowNumber);
 
     // ===== If there are no cells in the current row, or the requested cell is beyond the last cell in the row...
     if (rowNode.last_child().empty() || XLCellReference(rowNode.last_child().attribute("r").value()).column() < columnNumber) {
         // if (rowNode.last_child().empty() ||
-        // XLCellReference::CoordinatesFromAddress(rowNode.last_child().attribute("r").value()).second < columnNumber) {
+        // XLCellReference::CoordinatesFromAddress(rowNode.last_child().attribute("r").getValue()).second < columnNumber) {
         rowNode.append_child("c").append_attribute("r").set_value(cellRef.address().c_str());
         cellNode = rowNode.last_child();
     }
@@ -343,6 +307,47 @@ XLCellRange XLWorksheet::range(const XLCellReference& topLeft, const XLCellRefer
 }
 
 /**
+ * @details
+ * @pre
+ * @post
+ */
+XLRowRange XLWorksheet::rows()
+{
+    return XLRowRange(xmlDocument().first_child().child("sheetData"),
+                      1,
+                      (xmlDocument().first_child().child("sheetData").last_child()
+                           ? xmlDocument().first_child().child("sheetData").last_child().attribute("r").as_ullong()
+                           : 1),
+                      parentDoc().executeQuery(XLQuerySharedStrings()).sharedStrings());
+}
+
+/**
+ * @details
+ * @pre
+ * @post
+ */
+XLRowRange XLWorksheet::rows(uint32_t rowCount)
+{
+    return XLRowRange(xmlDocument().first_child().child("sheetData"),
+                      1,
+                      rowCount,
+                      parentDoc().executeQuery(XLQuerySharedStrings()).sharedStrings());
+}
+
+/**
+ * @details
+ * @pre
+ * @post
+ */
+XLRowRange XLWorksheet::rows(uint32_t firstRow, uint32_t lastRow)
+{
+    return XLRowRange(xmlDocument().first_child().child("sheetData"),
+                      firstRow,
+                      lastRow,
+                      parentDoc().executeQuery(XLQuerySharedStrings()).sharedStrings());
+}
+
+/**
  * @details Get the XLRow object corresponding to the given row number. In the XML file, all cell data are stored under
  * the corresponding row, and all rows have to be ordered in ascending order. If a row have no data, there may not be a
  * node for that row. In RapidXLSX,the vector with all rows are initialized to a fixed size (the maximum size),
@@ -350,7 +355,8 @@ XLCellRange XLWorksheet::range(const XLCellReference& topLeft, const XLCellRefer
  */
 XLRow XLWorksheet::row(uint32_t rowNumber)
 {
-    return XLRow(getRowNode(xmlDocument().first_child().child("sheetData"), rowNumber));
+    return XLRow(getRowNode(xmlDocument().first_child().child("sheetData"), rowNumber),
+                 parentDoc().executeQuery(XLQuerySharedStrings()).sharedStrings());
 }
 
 /**
@@ -384,8 +390,8 @@ XLColumn XLWorksheet::column(uint16_t columnNumber) const
 }
 
 /**
- * @details Returns the value of the m_lastCell member variable.
- * @pre The m_lastCell member variable must have a valid value.
+ * @details Returns the getValue of the m_lastCell member variable.
+ * @pre The m_lastCell member variable must have a valid getValue.
  * @post The object must remain unmodified.
  */
 XLCellReference XLWorksheet::lastCell() const noexcept
@@ -395,7 +401,7 @@ XLCellReference XLWorksheet::lastCell() const noexcept
 }
 
 /**
- * @details Returns the column() value from the last (bottom right) cell of the worksheet.
+ * @details Returns the column() getValue from the last (bottom right) cell of the worksheet.
  * @pre LastCell() must return a valid XLCellReference object, which accurately represents the worksheet size.
  * @post Object must remain unmodified.
  */
@@ -405,7 +411,7 @@ uint16_t XLWorksheet::columnCount() const noexcept
 }
 
 /**
- * @details Returns the row() value from the last (bottom right) cell of the worksheet.
+ * @details Returns the row() getValue from the last (bottom right) cell of the worksheet.
  * @pre LastCell() must return a valid XLCellReference object, which accurately represents the worksheet size.
  * @post Object must remain unmodified.
  */

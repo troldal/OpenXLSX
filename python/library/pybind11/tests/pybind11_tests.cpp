@@ -76,9 +76,9 @@ PYBIND11_MODULE(pybind11_tests, m) {
     py::class_<UserType>(m, "UserType", "A `py::class_` type for testing")
         .def(py::init<>())
         .def(py::init<int>())
-        .def("get_value", &UserType::value, "Get value using a method")
-        .def("set_value", &UserType::set, "Set value using a method")
-        .def_property("value", &UserType::value, &UserType::set, "Get/set value using a property")
+        .def("get_value", &UserType::value, "Get getValue using a method")
+        .def("set_value", &UserType::set, "Set getValue using a method")
+        .def_property("getValue", &UserType::value, &UserType::set, "Get/set getValue using a property")
         .def("__repr__", [](const UserType& u) { return "UserType({})"_s.format(u.value()); });
 
     py::class_<IncType, UserType>(m, "IncType")

@@ -122,7 +122,7 @@ available.  To override this, the standard flag can be given explicitly in
 
 Note that this and all other configuration variables must be set **before** the
 call to ``add_subdirectory`` or ``find_package``. The variables can also be set
-when calling CMake from the command line using the ``-D<variable>=<value>`` flag.
+when calling CMake from the command line using the ``-D<variable>=<getValue>`` flag.
 
 The target Python version can be selected by setting ``PYBIND11_PYTHON_VERSION``
 or an exact Python installation can be specified with ``PYTHON_EXECUTABLE``.

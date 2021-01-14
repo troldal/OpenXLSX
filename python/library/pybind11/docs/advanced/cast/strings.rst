@@ -51,7 +51,7 @@ everywhere <http://utf8everywhere.org/>`_.
     Some terminal emulators do not support UTF-8 or emoji fonts and may not
     display the example above correctly.
 
-The results are the same whether the C++ function accepts arguments by value or
+The results are the same whether the C++ function accepts arguments by getValue or
 reference, and whether or not ``const`` is used.
 
 Passing bytes to C++

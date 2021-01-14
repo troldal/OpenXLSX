@@ -44,17 +44,17 @@ int main()
     auto PrintCell = [](const XLCell& cell) {
         cout << "Cell type is ";
 
-        switch (cell.valueType()) {
+        switch (cell.value().type()) {
             case XLValueType::Empty:
-                cout << "XLValueType::Empty";
+                cout << "XLValueType::Empty" << endl;
                 break;
 
             case XLValueType::Float:
-                cout << "XLValueType::Float and the value is " << cell.value().get<double>() << endl;
+                cout << "XLValueType::Float and the getValue is " << cell.value().get<double>() << endl;
                 break;
 
             case XLValueType::Integer:
-                cout << "XLValueType::Integer and the value is " << cell.value().get<int64_t>() << endl;
+                cout << "XLValueType::Integer and the getValue is " << cell.value().get<int64_t>() << endl;
                 break;
 
             default:

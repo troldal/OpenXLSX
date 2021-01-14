@@ -39,7 +39,7 @@ int main()
     cout << "Reading data from spreadsheet (1,048,576 rows x 8 columns) ..." << endl;
     cout << "Cell count: " << std::distance(rng.begin(), rng.end()) << endl;
     cout << "Sum of cell values: "
-         << accumulate(rng.begin(), rng.end(), 0, [](uint64_t a, XLCell& b) { return a + b.value().get<uint64_t>(); });
+         << accumulate(rng.begin(), rng.end(), 0, [](uint64_t a, XLCell& b) { return a + b.value().get<int64_t>(); });
 
     doc.close();
 

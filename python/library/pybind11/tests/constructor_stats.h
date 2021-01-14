@@ -36,7 +36,7 @@ Each of these will print an appropriate message such as:
     ### MyClass @ 0x27fa780 destroyed
 
 You can also include extra arguments (such as the 100, 200 in the output above, coming from the
-value constructor) for all of the above methods which will be included in the output.
+getValue constructor) for all of the above methods which will be included in the output.
 
 For testing, each of these also keeps track the created instances and allows you to check how many
 of the various constructors have been invoked from the Python side via code such as:
@@ -73,7 +73,7 @@ inspection/testing in python) by using the functions with `print_` replaced with
 class ConstructorStats {
 protected:
     std::unordered_map<void*, int> _instances; // Need a map rather than set because members can shared address with parents
-    std::list<std::string> _values; // Used to track values (e.g. of value constructors)
+    std::list<std::string> _values; // Used to track values (e.g. of getValue constructors)
 public:
     int default_constructions = 0;
     int copy_constructions = 0;

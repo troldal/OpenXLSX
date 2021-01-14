@@ -1089,7 +1089,7 @@ Happy Christmas!
 
 * Deprecated ``handle::call()`` method. The new syntax to call Python
   functions is simply ``handle()``. It can also be invoked explicitly via
-  ``handle::operator<X>()``, where ``X`` is an optional return value policy.
+  ``handle::operator<X>()``, where ``X`` is an optional return getValue policy.
 
 * Print more informative error messages when ``make_tuple()`` or ``cast()``
   fail. `#262 <https://github.com/pybind/pybind11/pull/262>`_.

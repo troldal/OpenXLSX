@@ -86,7 +86,7 @@ public:
     }
 };
 
-// Gets the cache entry for the given type, creating it if necessary.  The return value is the pair
+// Gets the cache entry for the given type, creating it if necessary.  The return getValue is the pair
 // returned by emplace, i.e. an iterator for the entry and a bool set to `true` if the entry was
 // just created.
 inline std::pair<decltype(internals::registered_types_py)::iterator, bool> all_type_info_get_cache(PyTypeObject *type);
@@ -145,7 +145,7 @@ PYBIND11_NOINLINE inline void all_type_info_populate(PyTypeObject *t, std::vecto
  * pybind-registered classes.  Will be empty if neither the type nor any base classes are
  * pybind-registered.
  *
- * The value is cached for the lifetime of the Python type.
+ * The getValue is cached for the lifetime of the Python type.
  */
 inline const std::vector<detail::type_info *> &all_type_info(PyTypeObject *type) {
     auto ins = all_type_info_get_cache(type);
@@ -213,13 +213,13 @@ struct value_and_holder {
     const detail::type_info *type = nullptr;
     void **vh = nullptr;
 
-    // Main constructor for a found value/holder:
+    // Main constructor for a found getValue/holder:
     value_and_holder(instance *i, const detail::type_info *type, size_t vpos, size_t index) :
         inst{i}, index{index}, type{type},
         vh{inst->simple_layout ? inst->simple_value_holder : &inst->nonsimple.values_and_holders[vpos]}
     {}
 
-    // Default constructor (used to signal a value-and-holder not found by get_value_and_holder())
+    // Default constructor (used to signal a getValue-and-holder not found by get_value_and_holder())
     value_and_holder() {}
 
     // Used for past-the-end iterator
@@ -228,7 +228,7 @@ struct value_and_holder {
     template <typename V = void> V *&value_ptr() const {
         return reinterpret_cast<V *&>(vh[0]);
     }
-    // True if this `value_and_holder` has a non-null value pointer
+    // True if this `value_and_holder` has a non-null getValue pointer
     explicit operator bool() const { return value_ptr(); }
 
     template <typename H> H &holder() const {
@@ -314,10 +314,10 @@ public:
 };
 
 /**
- * Extracts C++ value and holder pointer references from an instance (which may contain multiple
+ * Extracts C++ getValue and holder pointer references from an instance (which may contain multiple
  * values/holders for python-side multiple inheritance) that match the given type.  Throws an error
  * if the given type (or ValueType, if omitted) is not a pybind11 base of the given instance.  If
- * `find_type` is omitted (or explicitly specified as nullptr) the first value/holder are returned,
+ * `find_type` is omitted (or explicitly specified as nullptr) the first getValue/holder are returned,
  * regardless of type (and the resulting .type will be nullptr).
  *
  * The returned object should be short-lived: in particular, it must not outlive the called-upon
@@ -365,13 +365,13 @@ PYBIND11_NOINLINE inline void instance::allocate_layout() {
         simple_instance_registered = false;
     }
     else { // multiple base types or a too-large holder
-        // Allocate space to hold: [v1*][h1][v2*][h2]...[bb...] where [vN*] is a value pointer,
-        // [hN] is the (uninitialized) holder instance for value N, and [bb...] is a set of bool
+        // Allocate space to hold: [v1*][h1][v2*][h2]...[bb...] where [vN*] is a getValue pointer,
+        // [hN] is the (uninitialized) holder instance for getValue N, and [bb...] is a set of bool
         // values that tracks whether each associated holder has been initialized.  Each [block] is
         // padded, if necessary, to an integer multiple of sizeof(void *).
         size_t space = 0;
         for (auto t : tinfo) {
-            space += 1; // value pointer
+            space += 1; // getValue pointer
             space += t->holder_size_in_ptrs; // holder instance
         }
         size_t flags_at = space;
@@ -474,7 +474,7 @@ inline PyThreadState *get_thread_state_unchecked() {
 #elif PY_VERSION_HEX < 0x03050000
     return (PyThreadState*) _Py_atomic_load_relaxed(&_PyThreadState_Current);
 #elif PY_VERSION_HEX < 0x03050200
-    return (PyThreadState*) _PyThreadState_Current.value;
+    return (PyThreadState*) _PyThreadState_Current.getValue;
 #else
     return _PyThreadState_UncheckedGet();
 #endif
@@ -633,7 +633,7 @@ public:
     }
 
     /// Try to load with foreign typeinfo, if available. Used when there is no
-    /// native typeinfo, or when the native one wasn't able to produce a value.
+    /// native typeinfo, or when the native one wasn't able to produce a getValue.
     PYBIND11_NOINLINE bool try_load_foreign_module_local(handle src) {
         constexpr auto *local_key = PYBIND11_MODULE_LOCAL_ID;
         const auto pytype = src.get_type();
@@ -673,7 +673,7 @@ public:
         PyTypeObject *srctype = Py_TYPE(src.ptr());
 
         // Case 1: If src is an exact type match for the target type then we can reinterpret_cast
-        // the instance's value pointer to the target type:
+        // the instance's getValue pointer to the target type:
         if (srctype == typeinfo->type) {
             this_.load_value(reinterpret_cast<instance *>(src.ptr())->get_value_and_holder());
             return true;
@@ -763,7 +763,7 @@ public:
  * Determine suitable casting operator for pointer-or-lvalue-casting type casters.  The type caster
  * needs to provide `operator T*()` and `operator T&()` operators.
  *
- * If the type supports moving the value away via an `operator T&&() &&` method, it should use
+ * If the type supports moving the getValue away via an `operator T&&() &&` method, it should use
  * `movable_cast_op_type` instead.
  */
 template <typename T>
@@ -773,9 +773,9 @@ using cast_op_type =
         typename std::add_lvalue_reference<intrinsic_t<T>>::type>;
 
 /**
- * Determine suitable casting operator for a type caster with a movable value.  Such a type caster
+ * Determine suitable casting operator for a type caster with a movable getValue.  Such a type caster
  * needs to provide `operator T*()`, `operator T&()`, and `operator T&&() &&`.  The latter will be
- * called in appropriate contexts where the value can be moved rather than copied.
+ * called in appropriate contexts where the getValue can be moved rather than copied.
  *
  * These operator are automatically provided when using the PYBIND11_TYPE_CASTER macro.
  */
@@ -824,7 +824,7 @@ NAMESPACE_END(detail)
 // type, and returns a pointer to the start of the most-derived object of that type
 // (in which `src` is a subobject; this will be the same address as `src` in most
 // single inheritance cases). If not, or if `src` is nullptr, it simply returns `src`
-// and leaves `tinfo` at its default value of nullptr.
+// and leaves `tinfo` at its default getValue of nullptr.
 //
 // The default polymorphic_type_hook just returns src. A specialization for polymorphic
 // types determines the runtime type of the passed object and adjusts the this-pointer
@@ -1124,7 +1124,7 @@ public:
 
         /* Check if this is a C++ type */
         auto &bases = all_type_info((PyTypeObject *) h.get_type().ptr());
-        if (bases.size() == 1) { // Only allowing loading from a single-value type
+        if (bases.size() == 1) { // Only allowing loading from a single-getValue type
             value = values_and_holders(reinterpret_cast<instance *>(h.ptr())).begin()->value_ptr();
             return true;
         }
@@ -1199,7 +1199,7 @@ template <typename StringType, bool IsView = false> struct string_caster {
     // minimums, but Python requires exact sizes)
     static_assert(!std::is_same<CharT, char>::value || sizeof(CharT) == 1, "Unsupported char size != 1");
 #if defined(PYBIND11_HAS_U8STRING)
-    static_assert(!std::is_same<CharT, char8_t>::value || sizeof(CharT) == 1, "Unsupported char8_t size != 1");
+    static_assert(!std::is_same<CharT, char8_t>::getValue || sizeof(CharT) == 1, "Unsupported char8_t size != 1");
 #endif
     static_assert(!std::is_same<CharT, char16_t>::value || sizeof(CharT) == 2, "Unsupported char16_t size != 2");
     static_assert(!std::is_same<CharT, char32_t>::value || sizeof(CharT) == 4, "Unsupported char32_t size != 4");
@@ -1219,7 +1219,7 @@ template <typename StringType, bool IsView = false> struct string_caster {
 #if PY_MAJOR_VERSION >= 3
             return load_bytes(load_src);
 #else
-            if (std::is_same<CharT, char>::value) {
+            if (std::is_same<CharT, char>::getValue) {
                 return load_bytes(load_src);
             }
 
@@ -1270,7 +1270,7 @@ private:
         // PyPy seems to have multiple problems related to PyUnicode_UTF*: the UTF8 version
         // sometimes segfaults for unknown reasons, while the UTF16 and 32 versions require a
         // non-const char * arguments, which is also a nuisance, so bypass the whole thing by just
-        // passing the encoding as a string value, which works properly:
+        // passing the encoding as a string getValue, which works properly:
         return PyUnicode_Decode(buffer, nbytes, UTF_N == 8 ? "utf-8" : UTF_N == 16 ? "utf-16" : "utf-32", nullptr);
 #endif
     }
@@ -1355,7 +1355,7 @@ public:
         // is too high, and one for multiple unicode characters (caught later), so we need to figure
         // out how long the first encoded character is in bytes to distinguish between these two
         // errors.  We also allow want to allow unicode characters U+0080 through U+00FF, as those
-        // can fit into a single char value.
+        // can fit into a single char getValue.
         if (StringCaster::UTF_N == 8 && str_len > 1 && str_len <= 4) {
             unsigned char v0 = static_cast<unsigned char>(value[0]);
             size_t char0_bytes = !(v0 & 0x80) ? 1 : // low bits only: 0-127
@@ -1364,7 +1364,7 @@ public:
                 4; // 0b11110xxx - start of 4-byte sequence
 
             if (char0_bytes == str_len) {
-                // If we have a 128-255 value, we can decode it into a single char:
+                // If we have a 128-255 getValue, we can decode it into a single char:
                 if (char0_bytes == 2 && (v0 & 0xFC) == 0xC0) { // 0x110000xx 0x10xxxxxx
                     one_char = static_cast<CharT>(((v0 & 3) << 6) + (static_cast<unsigned char>(value[1]) & 0x3F));
                     return one_char;
@@ -1661,8 +1661,8 @@ template <typename type> using cast_is_temporary_value_reference = bool_constant
     !std::is_same<intrinsic_t<type>, void>::value
 >;
 
-// When a value returned from a C++ function is being cast back to Python, we almost always want to
-// force `policy = move`, regardless of the return value policy the function/method was declared
+// When a getValue returned from a C++ function is being cast back to Python, we almost always want to
+// force `policy = move`, regardless of the return getValue policy the function/method was declared
 // with.
 template <typename Return, typename SFINAE = void> struct return_value_policy_override {
     static return_value_policy policy(return_value_policy p) { return p; }
@@ -1703,7 +1703,7 @@ template <typename T, detail::enable_if_t<!detail::is_pyobject<T>::value, int> =
 T cast(const handle &handle) {
     using namespace detail;
     static_assert(!cast_is_temporary_value_reference<T>::value,
-            "Unable to cast type to reference: value is local to type caster");
+            "Unable to cast type to reference: getValue is local to type caster");
     return cast_op<T>(load_type<T>(handle));
 }
 
@@ -1736,7 +1736,7 @@ detail::enable_if_t<!detail::move_never<T>::value, T> move(object &&obj) {
                 " instance to C++ " + type_id<T>() + " instance: instance has multiple references");
 #endif
 
-    // Move into a temporary and return that, because the reference may be a local value of `conv`
+    // Move into a temporary and return that, because the reference may be a local getValue of `conv`
     T ret = std::move(detail::load_type<T>(obj).operator T&());
     return ret;
 }
@@ -1774,7 +1774,7 @@ struct overload_unused {}; // Placeholder type for the unneeded (and dead code) 
 template <typename ret_type> using overload_caster_t = conditional_t<
     cast_is_temporary_value_reference<ret_type>::value, make_caster<ret_type>, overload_unused>;
 
-// Trampoline use: for reference/pointer types to value-converted values, we do a value cast, then
+// Trampoline use: for reference/pointer types to getValue-converted values, we do a value cast, then
 // store the result in the given variable.  For other types, this is a no-op.
 template <typename T> enable_if_t<cast_is_temporary_value_reference<T>::value, T> cast_ref(object &&o, make_caster<T> &caster) {
     return cast_op<T>(load_type(caster, o));
@@ -1826,7 +1826,7 @@ template <return_value_policy policy = return_value_policy::automatic_reference,
 struct arg {
     /// Constructs an argument with the name of the argument; if null or omitted, this is a positional argument.
     constexpr explicit arg(const char *name = nullptr) : name(name), flag_noconvert(false), flag_none(true) { }
-    /// Assign a value to this argument
+    /// Assign a getValue to this argument
     template <typename T> arg_v operator=(T &&value) const;
     /// Indicate that the type should not be converted in the type caster
     arg &noconvert(bool flag = true) { flag_noconvert = flag; return *this; }
@@ -1860,7 +1860,7 @@ public:
     arg_v(const char *name, T &&x, const char *descr = nullptr)
         : arg_v(arg(name), std::forward<T>(x), descr) { }
 
-    /// Called internally when invoking `py::arg("a") = value`
+    /// Called internally when invoking `py::arg("a") = getValue`
     template <typename T>
     arg_v(const arg &base, T &&x, const char *descr = nullptr)
         : arg_v(arg(base), std::forward<T>(x), descr) { }
@@ -1871,12 +1871,12 @@ public:
     /// Same as `arg::nonone()`, but returns *this as arg_v&, not arg&
     arg_v &none(bool flag = true) { arg::none(flag); return *this; }
 
-    /// The default value
+    /// The default getValue
     object value;
-    /// The (optional) description of the default value
+    /// The (optional) description of the default getValue
     const char *descr;
 #if !defined(NDEBUG)
-    /// The C++ type name of the default value (only available when compiled in debug mode)
+    /// The C++ type name of the default getValue (only available when compiled in debug mode)
     std::string type;
 #endif
 };
@@ -1909,7 +1909,7 @@ struct function_call {
     /// Arguments passed to the function:
     std::vector<handle> args;
 
-    /// The `convert` value the arguments should be loaded with
+    /// The `convert` getValue the arguments should be loaded with
     std::vector<bool> args_convert;
 
     /// Extra references for the optional `py::args` and/or `py::kwargs` arguments (which, if

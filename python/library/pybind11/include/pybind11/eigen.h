@@ -96,7 +96,7 @@ template <bool EigenRowMajor> struct EigenConformable {
 
     template <typename props> bool stride_compatible() const {
         // To have compatible strides, we need (on both dimensions) one of fully dynamic strides,
-        // matching strides, or a dimension size of 1 (in which case the stride value is irrelevant)
+        // matching strides, or a dimension size of 1 (in which case the stride getValue is irrelevant)
         return
             !negativestrides &&
             (props::inner_stride == Eigen::Dynamic || props::inner_stride == stride.inner() ||
@@ -160,7 +160,7 @@ template <typename Type_> struct EigenProps {
         }
 
         // Otherwise we're storing an n-vector.  Only one of the strides will be used, but whichever
-        // is used, we want the (single) numpy stride value.
+        // is used, we want the (single) numpy stride getValue.
         const EigenIndex n = a.shape(0),
               stride = a.strides(0) / static_cast<ssize_t>(sizeof(Scalar));
 
@@ -216,8 +216,7 @@ template <typename props> handle eigen_array_cast(typename props::Type const &sr
     if (props::vector)
         a = array({ src.size() }, { elem_size * src.innerStride() }, src.data(), base);
     else
-        a = array({ src.rows(), src.cols() }, { elem_size * src.rowStride(), elem_size * src.colStride() },
-                  src.data(), base);
+        a = array({ src.rowCount(), src.cols() }, { elem_size * src.rowStride(), elem_size * src.colStride() }, src.data(), base);
 
     if (!writeable)
         array_proxy(a.ptr())->flags &= ~detail::npy_api::NPY_ARRAY_WRITEABLE_;
@@ -313,7 +312,7 @@ private:
 
 public:
 
-    // Normal returned non-reference, non-const value:
+    // Normal returned non-reference, non-const getValue:
     static handle cast(Type &&src, return_value_policy /* policy */, handle parent) {
         return cast_impl(&src, return_value_policy::move, parent);
     }
@@ -463,7 +462,7 @@ public:
         }
 
         ref.reset();
-        map.reset(new MapType(data(copy_or_ref), fits.rows, fits.cols, make_stride(fits.stride.outer(), fits.stride.inner())));
+        map.reset(new MapType(data(copy_or_ref), fits.rowCount, fits.cols, make_stride(fits.stride.outer(), fits.stride.inner())));
         ref.reset(new Type(*map));
 
         return true;
@@ -584,13 +583,11 @@ struct type_caster<Type, enable_if_t<is_eigen_sparse<Type>::value>> {
             rowMajor ? "csr_matrix" : "csc_matrix");
 
         array data(src.nonZeros(), src.valuePtr());
-        array outerIndices((rowMajor ? src.rows() : src.cols()) + 1, src.outerIndexPtr());
+        array outerIndices((rowMajor ? src.rowCount() : src.cols()) + 1, src.outerIndexPtr());
         array innerIndices(src.nonZeros(), src.innerIndexPtr());
 
         return matrix_type(
-            std::make_tuple(data, innerIndices, outerIndices),
-            std::make_pair(src.rows(), src.cols())
-        ).release();
+            std::make_tuple(data, innerIndices, outerIndices), std::make_pair(src.rowCount(), src.cols())).release();
     }
 
     PYBIND11_TYPE_CASTER(Type, _<(Type::IsRowMajor) != 0>("scipy.sparse.csr_matrix[", "scipy.sparse.csc_matrix[")

@@ -137,7 +137,7 @@ TEST_SUBMODULE(buffers, m) {
     };
     py::class_<Buffer>(m, "Buffer", py::buffer_protocol())
         .def(py::init<>())
-        .def_readwrite("value", &Buffer::value)
+        .def_readwrite("getValue", &Buffer::value)
         .def_buffer(&Buffer::get_buffer_info);
 
 
@@ -157,13 +157,13 @@ TEST_SUBMODULE(buffers, m) {
     };
     py::class_<ConstBuffer>(m, "ConstBuffer", py::buffer_protocol())
         .def(py::init<>())
-        .def_property("value", &ConstBuffer::get_value, &ConstBuffer::set_value)
+        .def_property("getValue", &ConstBuffer::get_value, &ConstBuffer::set_value)
         .def_buffer(&ConstBuffer::get_buffer_info);
 
     struct DerivedBuffer : public Buffer { };
     py::class_<DerivedBuffer>(m, "DerivedBuffer", py::buffer_protocol())
         .def(py::init<>())
-        .def_readwrite("value", (int32_t DerivedBuffer::*) &DerivedBuffer::value)
+        .def_readwrite("getValue", (int32_t DerivedBuffer::*) &DerivedBuffer::value)
         .def_buffer(&DerivedBuffer::get_buffer_info);
 
     struct BufferReadOnly {
@@ -188,7 +188,7 @@ TEST_SUBMODULE(buffers, m) {
     };
     py::class_<BufferReadOnlySelect>(m, "BufferReadOnlySelect", py::buffer_protocol())
         .def(py::init<>())
-        .def_readwrite("value", &BufferReadOnlySelect::value)
+        .def_readwrite("getValue", &BufferReadOnlySelect::value)
         .def_readwrite("readonly", &BufferReadOnlySelect::readonly)
         .def_buffer(&BufferReadOnlySelect::get_buffer_info);
 

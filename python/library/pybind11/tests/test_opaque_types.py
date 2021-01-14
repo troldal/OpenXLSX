@@ -43,4 +43,4 @@ def test_pointers(msg):
 
     ptr = m.return_unique_ptr()
     assert "StringList" in repr(ptr)
-    assert m.print_opaque_list(ptr) == "Opaque list: [some value]"
+    assert m.print_opaque_list(ptr) == "Opaque list: [some getValue]"

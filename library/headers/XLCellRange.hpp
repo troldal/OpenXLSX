@@ -136,11 +136,17 @@ namespace OpenXLSX
          */
         uint16_t numColumns() const;
 
+        /**
+         * @brief
+         * @return
+         */
         XLCellIterator begin();
 
+        /**
+         * @brief
+         * @return
+         */
         XLCellIterator end();
-
-        // XLCell cell(uint32_t rowNumber, uint16_t columnNumber);
 
         /**
          * @brief

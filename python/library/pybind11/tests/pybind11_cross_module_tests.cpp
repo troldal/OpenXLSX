@@ -26,8 +26,8 @@ PYBIND11_MODULE(pybind11_cross_module_tests, m) {
 
     // test_exceptions.py
     m.def("raise_runtime_error", []() { PyErr_SetString(PyExc_RuntimeError, "My runtime error"); throw py::error_already_set(); });
-    m.def("raise_value_error", []() { PyErr_SetString(PyExc_ValueError, "My value error"); throw py::error_already_set(); });
-    m.def("throw_pybind_value_error", []() { throw py::value_error("pybind11 value error"); });
+    m.def("raise_value_error", []() { PyErr_SetString(PyExc_ValueError, "My getValue error"); throw py::error_already_set(); });
+    m.def("throw_pybind_value_error", []() { throw py::value_error("pybind11 getValue error"); });
     m.def("throw_pybind_type_error", []() { throw py::type_error("pybind11 type error"); });
     m.def("throw_stop_iteration", []() { throw py::stop_iteration(); });
 

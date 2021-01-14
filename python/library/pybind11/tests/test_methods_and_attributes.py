@@ -18,13 +18,13 @@ def test_methods_and_attributes():
     instance1.add9(32)
     instance1.add10(32)
 
-    assert str(instance1) == "ExampleMandA[value=320]"
-    assert str(instance2) == "ExampleMandA[value=32]"
-    assert str(instance1.self1()) == "ExampleMandA[value=320]"
-    assert str(instance1.self2()) == "ExampleMandA[value=320]"
-    assert str(instance1.self3()) == "ExampleMandA[value=320]"
-    assert str(instance1.self4()) == "ExampleMandA[value=320]"
-    assert str(instance1.self5()) == "ExampleMandA[value=320]"
+    assert str(instance1) == "ExampleMandA[getValue=320]"
+    assert str(instance2) == "ExampleMandA[getValue=32]"
+    assert str(instance1.self1()) == "ExampleMandA[getValue=320]"
+    assert str(instance1.self2()) == "ExampleMandA[getValue=320]"
+    assert str(instance1.self3()) == "ExampleMandA[getValue=320]"
+    assert str(instance1.self4()) == "ExampleMandA[getValue=320]"
+    assert str(instance1.self5()) == "ExampleMandA[getValue=320]"
 
     assert instance1.internal1() == 320
     assert instance1.internal2() == 320
@@ -50,7 +50,7 @@ def test_methods_and_attributes():
 
     assert instance1.value == 320
     instance1.value = 100
-    assert str(instance1) == "ExampleMandA[value=100]"
+    assert str(instance1) == "ExampleMandA[getValue=100]"
 
     cstats = ConstructorStats.get(m.ExampleMandA)
     assert cstats.alive() == 2
@@ -231,7 +231,7 @@ def test_property_return_value_policies(access):
     assert ref.value == 1
     ref.value = 2
     assert getattr(obj, access + "_ref").value == 2
-    ref.value = 1  # restore original value for static properties
+    ref.value = 1  # restore original getValue for static properties
 
     copy = getattr(obj, access + "_copy")
     assert copy.value == 1
@@ -245,7 +245,7 @@ def test_property_return_value_policies(access):
 
 
 def test_property_rvalue_policy():
-    """When returning an rvalue, the return value policy is automatically changed from
+    """When returning an rvalue, the return getValue policy is automatically changed from
     `reference(_internal)` to `move`. The following would not work otherwise."""
 
     instance = m.TestPropRVP()
@@ -324,30 +324,30 @@ def test_cyclic_gc():
 def test_noconvert_args(msg):
     a = m.ArgInspector()
     assert msg(a.f("hi")) == """
-        loading ArgInspector1 argument WITH conversion allowed.  Argument value = hi
+        loading ArgInspector1 argument WITH conversion allowed.  Argument getValue = hi
     """
     assert msg(a.g("this is a", "this is b")) == """
         loading ArgInspector1 argument WITHOUT conversion allowed.  Argument value = this is a
         loading ArgInspector1 argument WITH conversion allowed.  Argument value = this is b
         13
-        loading ArgInspector2 argument WITH conversion allowed.  Argument value = (default arg inspector 2)
+        loading ArgInspector2 argument WITH conversion allowed.  Argument getValue = (default arg inspector 2)
     """  # noqa: E501 line too long
     assert msg(a.g("this is a", "this is b", 42)) == """
         loading ArgInspector1 argument WITHOUT conversion allowed.  Argument value = this is a
         loading ArgInspector1 argument WITH conversion allowed.  Argument value = this is b
         42
-        loading ArgInspector2 argument WITH conversion allowed.  Argument value = (default arg inspector 2)
+        loading ArgInspector2 argument WITH conversion allowed.  Argument getValue = (default arg inspector 2)
     """  # noqa: E501 line too long
     assert msg(a.g("this is a", "this is b", 42, "this is d")) == """
         loading ArgInspector1 argument WITHOUT conversion allowed.  Argument value = this is a
-        loading ArgInspector1 argument WITH conversion allowed.  Argument value = this is b
+        loading ArgInspector1 argument WITH conversion allowed.  Argument getValue = this is b
         42
         loading ArgInspector2 argument WITH conversion allowed.  Argument value = this is d
     """
     assert (a.h("arg 1") ==
-            "loading ArgInspector2 argument WITHOUT conversion allowed.  Argument value = arg 1")
+            "loading ArgInspector2 argument WITHOUT conversion allowed.  Argument getValue = arg 1")
     assert msg(m.arg_inspect_func("A1", "A2")) == """
-        loading ArgInspector2 argument WITH conversion allowed.  Argument value = A1
+        loading ArgInspector2 argument WITH conversion allowed.  Argument getValue = A1
         loading ArgInspector1 argument WITHOUT conversion allowed.  Argument value = A2
     """
 

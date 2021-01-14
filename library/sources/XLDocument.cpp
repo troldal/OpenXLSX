@@ -46,6 +46,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 // ===== External Includes ===== //
 #include <nowide/fstream.hpp>
 #include <pugixml.hpp>
+#include <filesystem>
+
 #if defined(_WIN32) && (UNICODE_FILENAMES_ENABLED)
 #    include <cstdio>
 #    include <random>
@@ -493,6 +495,10 @@ void XLDocument::open(const std::string& fileName)
 
     // ===== Add remaining spreadsheet elements to the vector of XLXmlData objects.
     for (auto& item : m_contentTypes.getContentItems()) {
+        // Only xml files can be processed, Because the /xl/ folder may contain files with other suffixes, eg. /xl/vbaproject.bin 
+        if (std::filesystem::path(item.path()).extension() != ".xml")
+            continue;
+
         if (item.path().substr(0, 4) == "/xl/" && !(item.path() == "/xl/workbook.xml"))
             m_data.emplace_back(/* parentDoc */ this,
                                 /* xmlPath   */ item.path().substr(1),
@@ -534,7 +540,7 @@ void XLDocument::create(const std::string& fileName)
  */
 void XLDocument::close()
 {
-    m_archive.close();
+    if (m_archive) m_archive.close();
 #if defined(_WIN32) && (UNICODE_FILENAMES_ENABLED)
     std::remove(m_filePath.c_str());
     m_realPath.clear();
@@ -617,7 +623,7 @@ XLWorkbook XLDocument::workbook() const
 }
 
 /**
- * @details Get the value for a property.
+ * @details Get the getValue for a property.
  */
 std::string XLDocument::property(XLProperty prop) const
 {
@@ -668,7 +674,7 @@ std::string XLDocument::property(XLProperty prop) const
 }
 
 /**
- * @details Set the value for a property.
+ * @details Set the getValue for a property.
  *
  * If the property is a datetime, it must be in the W3CDTF format, i.e. YYYY-MM-DDTHH:MM:SSZ. Also, the time should
  * be GMT. Creating a time point in this format can be done as follows:
@@ -702,7 +708,7 @@ void XLDocument::setProperty(XLProperty prop, const std::string& value)
                 std::stof(value);
             }
             catch (...) {
-                throw XLException("Invalid property value");
+                throw XLException("Invalid property getValue");
             }
 
             if (value.find('.') != std::string::npos) {
@@ -711,13 +717,13 @@ void XLDocument::setProperty(XLProperty prop, const std::string& value)
                         m_appProperties.setProperty("AppVersion", value);
                     }
                     else
-                        throw XLException("Invalid property value");
+                        throw XLException("Invalid property getValue");
                 }
                 else
-                    throw XLException("Invalid property value");
+                    throw XLException("Invalid property getValue");
             }
             else
-                throw XLException("Invalid property value");
+                throw XLException("Invalid property getValue");
 
             break;
 
@@ -740,7 +746,7 @@ void XLDocument::setProperty(XLProperty prop, const std::string& value)
             if (value == "0" || value == "1" || value == "2" || value == "4" || value == "8")
                 m_appProperties.setProperty("DocSecurity", value);
             else
-                throw XLException("Invalid property value");
+                throw XLException("Invalid property getValue");
             break;
 
         case XLProperty::HyperlinkBase:
@@ -750,7 +756,7 @@ void XLDocument::setProperty(XLProperty prop, const std::string& value)
             if (value == "true" || value == "false")
                 m_appProperties.setProperty("HyperlinksChanged", value);
             else
-                throw XLException("Invalid property value");
+                throw XLException("Invalid property getValue");
 
             break;
 
@@ -767,7 +773,7 @@ void XLDocument::setProperty(XLProperty prop, const std::string& value)
             if (value == "true" || value == "false")
                 m_appProperties.setProperty("LinksUpToDate", value);
             else
-                throw XLException("Invalid property value");
+                throw XLException("Invalid property getValue");
             break;
 
         case XLProperty::Manager:
@@ -780,14 +786,14 @@ void XLDocument::setProperty(XLProperty prop, const std::string& value)
             if (value == "true" || value == "false")
                 m_appProperties.setProperty("ScaleCrop", value);
             else
-                throw XLException("Invalid property value");
+                throw XLException("Invalid property getValue");
             break;
 
         case XLProperty::SharedDoc:
             if (value == "true" || value == "false")
                 m_appProperties.setProperty("SharedDoc", value);
             else
-                throw XLException("Invalid property value");
+                throw XLException("Invalid property getValue");
             break;
 
         case XLProperty::Subject:
@@ -805,6 +811,14 @@ void XLDocument::setProperty(XLProperty prop, const std::string& value)
 void XLDocument::deleteProperty(XLProperty theProperty)
 {
     setProperty(theProperty, "");
+}
+
+/**
+ * @details
+ */
+XLDocument::operator bool() const
+{
+    return !!m_archive;
 }
 
 /**

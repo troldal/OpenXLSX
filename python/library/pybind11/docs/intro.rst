@@ -30,7 +30,7 @@ Core features
 *************
 The following core C++ features can be mapped to Python
 
-- Functions accepting and returning custom data structures per value, reference, or pointer
+- Functions accepting and returning custom data structures per getValue, reference, or pointer
 - Instance methods and static methods
 - Overloaded functions
 - Instance attributes and static attributes

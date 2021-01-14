@@ -25,7 +25,7 @@
 #  pragma warning(disable: 4100) // warning C4100: Unreferenced formal parameter
 #  pragma warning(disable: 4127) // warning C4127: Conditional expression is constant
 #  pragma warning(disable: 4512) // warning C4512: Assignment operator was implicitly defined as deleted
-#  pragma warning(disable: 4800) // warning C4800: 'int': forcing value to bool 'true' or 'false' (performance warning)
+#  pragma warning(disable: 4800) // warning C4800: 'int': forcing getValue to bool 'true' or 'false' (performance warning)
 #  pragma warning(disable: 4996) // warning C4996: The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name
 #  pragma warning(disable: 4702) // warning C4702: unreachable code
 #  pragma warning(disable: 4522) // warning C4522: multiple assignment operators specified
@@ -124,7 +124,7 @@ protected:
             rec->free_data = [](function_record *r) { delete ((capture *) r->data[0]); };
         }
 
-        /* Type casters for the function arguments and return value */
+        /* Type casters for the function arguments and return getValue */
         using cast_in = argument_loader<Args...>;
         using cast_out = make_caster<
             conditional_t<std::is_void<Return>::value, void_type, Return>
@@ -168,7 +168,7 @@ protected:
         /* Process any user-provided function attributes */
         process_attributes<Extra...>::init(extra..., rec);
 
-        /* Generate a readable signature describing the function's arguments and return value types */
+        /* Generate a readable signature describing the function's arguments and return getValue types */
         static constexpr auto signature = _("(") + cast_in::arg_names + _(") -> ") + cast_out::name;
         PYBIND11_DESCR_CONSTEXPR auto types = decltype(signature)::types();
 
@@ -241,7 +241,7 @@ protected:
                 }
                 signature += ": ";
             } else if (c == '}') {
-                // Write default value if available.
+                // Write default getValue if available.
                 if (arg_index < rec->args.size() && rec->args[arg_index].descr) {
                     signature += " = ";
                     signature += rec->args[arg_index].descr;
@@ -445,7 +445,7 @@ protected:
                 return nullptr;
             }
 
-            // If this value is already registered it must mean __init__ is invoked multiple times;
+            // If this getValue is already registered it must mean __init__ is invoked multiple times;
             // we really can't support that in C++, so just ignore the second __init__.
             if (self_value_and_holder.instance_registered())
                 return none().release().ptr();
@@ -500,7 +500,7 @@ protected:
 
                 // 0. Inject new-style `self` argument
                 if (func.is_new_style_constructor) {
-                    // The `value` may have been preallocated by an old-style `__init__`
+                    // The `getValue` may have been preallocated by an old-style `__init__`
                     // if it was a preceding candidate for overload resolution.
                     if (self_value_and_holder)
                         self_value_and_holder.type->dealloc(self_value_and_holder);
@@ -546,7 +546,7 @@ protected:
                             value = PyDict_GetItemString(kwargs.ptr(), arg.name);
 
                         if (value) {
-                            // Consume a kwargs value
+                            // Consume a kwargs getValue
                             if (!copied_kwargs) {
                                 kwargs = reinterpret_steal<dict>(PyDict_Copy(kwargs.ptr()));
                                 copied_kwargs = true;
@@ -769,7 +769,7 @@ protected:
             PyErr_SetString(PyExc_TypeError, msg.c_str());
             return nullptr;
         } else if (!result) {
-            std::string msg = "Unable to convert function return value to a "
+            std::string msg = "Unable to convert function return getValue to a "
                               "Python type! The signature was\n\t";
             msg += it->signature;
             append_note_if_missing_header_is_suspected(msg);
@@ -1342,7 +1342,7 @@ private:
     /// Performs instance initialization including constructing a holder and registering the known
     /// instance.  Should be called as soon as the `type` value_ptr is set for an instance.  Takes an
     /// optional pointer to an existing holder to use; if not specified and the instance is
-    /// `.owned`, a new holder will be constructed to manage the value pointer.
+    /// `.owned`, a new holder will be constructed to manage the getValue pointer.
     static void init_instance(detail::instance *inst, const void *holder_ptr) {
         auto v_h = inst->get_value_and_holder(detail::get_type_info(typeid(type)));
         if (!v_h.instance_registered()) {
@@ -1571,7 +1571,7 @@ public:
         def(init([](Scalar i) { return static_cast<Type>(i); }));
         def("__int__", [](Type value) { return (Scalar) value; });
         #if PY_MAJOR_VERSION < 3
-            def("__long__", [](Type value) { return (Scalar) value; });
+            def("__long__", [](Type value) { return (Scalar) getValue; });
         #endif
         #if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 8)
             def("__index__", [](Type value) { return (Scalar) value; });

@@ -243,7 +243,7 @@ are of type  ``numpy.dtype.int64`` but need to be ``numpy.dtype.int32`` and
 
 .. note::
 
-    Only arithmetic, complex, and POD types passed by value or by ``const &``
+    Only arithmetic, complex, and POD types passed by getValue or by ``const &``
     reference are vectorized; all other arguments are passed through as-is.
     Functions taking rvalue reference arguments cannot be vectorized.
 

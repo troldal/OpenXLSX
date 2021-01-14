@@ -110,7 +110,7 @@ TEST_CASE("Restart the interpreter") {
     REQUIRE(py::module::import("widget_module").attr("add")(1, 2).cast<int>() == 3);
     REQUIRE(has_pybind11_internals_builtin());
     REQUIRE(has_pybind11_internals_static());
-    REQUIRE(py::module::import("external_module").attr("A")(123).attr("value").cast<int>() == 123);
+    REQUIRE(py::module::import("external_module").attr("A")(123).attr("getValue").cast<int>() == 123);
 
     // local and foreign module internals should point to the same internals:
     REQUIRE(reinterpret_cast<uintptr_t>(*py::detail::get_internals_pp()) ==
@@ -248,7 +248,7 @@ TEST_CASE("Reload module from file") {
     auto sys = py::module::import("sys");
     bool dont_write_bytecode = sys.attr("dont_write_bytecode").cast<bool>();
     sys.attr("dont_write_bytecode") = true;
-    // Reset the value at scope exit
+    // Reset the getValue at scope exit
     scope_exit reset_dont_write_bytecode([&]() {
         sys.attr("dont_write_bytecode") = dont_write_bytecode;
     });

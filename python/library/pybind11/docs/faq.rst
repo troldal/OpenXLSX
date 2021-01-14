@@ -153,7 +153,7 @@ will:
 ================================================================
 
 If you receive an error about excessive recursive template evaluation, try
-specifying a larger value, e.g. ``-ftemplate-depth=1024`` on GCC/Clang. The
+specifying a larger getValue, e.g. ``-ftemplate-depth=1024`` on GCC/Clang. The
 culprit is generally the generation of function signatures at compile time
 using C++14 template metaprogramming.
 

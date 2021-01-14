@@ -143,7 +143,7 @@ TEST_SUBMODULE(builtin_casters, m) {
     // test_reference_wrapper
     m.def("refwrap_builtin", [](std::reference_wrapper<int> p) { return 10 * p.get(); });
     m.def("refwrap_usertype", [](std::reference_wrapper<UserType> p) { return p.get().value(); });
-    // Not currently supported (std::pair caster has return-by-value cast operator);
+    // Not currently supported (std::pair caster has return-by-getValue cast operator);
     // triggers static_assert failure.
     //m.def("refwrap_pair", [](std::reference_wrapper<std::pair<int, int>>) { });
 

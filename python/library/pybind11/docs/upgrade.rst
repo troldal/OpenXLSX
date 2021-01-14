@@ -89,7 +89,7 @@ way to get and set object state. See :ref:`pickling` for details.
             [](py::tuple t) { // __setstate__, note: no `self` argument
                 return new Foo(t[0].cast<std::string>(), ...);
                 // or: return std::make_unique<Foo>(...); // return by holder
-                // or: return Foo(...); // return by value (move constructor)
+                // or: return Foo(...); // return by getValue (move constructor)
             }
         ));
 

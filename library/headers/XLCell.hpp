@@ -50,11 +50,14 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #pragma warning(disable : 4251)
 #pragma warning(disable : 4275)
 
+#include <memory>
+
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
 #include "XLCellReference.hpp"
 #include "XLCellValue.hpp"
 
+// ========== CLASS AND ENUM TYPE DEFINITIONS ========== //
 namespace OpenXLSX
 {
     class XLCellRange;
@@ -65,9 +68,11 @@ namespace OpenXLSX
      */
     class OPENXLSX_EXPORT XLCell
     {
-        friend class XLCellValue;
         friend class XLCellIterator;
+        friend class XLCellValueProxy;
+        friend class XLRowDataIterator;
         friend bool operator==(const XLCell& lhs, const XLCell& rhs);
+        friend bool operator!=(const XLCell& lhs, const XLCell& rhs);
 
     public:
         //---------- Public Member Functions ----------//
@@ -88,7 +93,7 @@ namespace OpenXLSX
          * @brief Copy constructor
          * @param other The XLCell object to be copied.
          * @note The copy constructor has been deleted, as it makes no sense to copy a cell. If the objective is to
-         * copy the value, create the the target object and then use the copy assignment operator.
+         * copy the getValue, create the the target object and then use the copy assignment operator.
          */
         XLCell(const XLCell& other);
 
@@ -119,7 +124,7 @@ namespace OpenXLSX
          * @return A reference to the new object
          * @note The move assignment constructor has been deleted, as it makes no sense to move a cell.
          */
-        XLCell& operator=(XLCell&& other) noexcept = default;
+        XLCell& operator=(XLCell&& other) noexcept;
 
         /**
          * @brief This copy assignment operators takes a range as the argument. The purpose is to copy the range to a
@@ -137,16 +142,16 @@ namespace OpenXLSX
         explicit operator bool() const;
 
         /**
-         * @brief Get a reference to the XLCellValue object for the cell.
-         * @return A reference to an XLCellValue object.
+         * @brief
+         * @return
          */
-        XLCellValue value() const;
+        XLCellValueProxy& value();
 
         /**
          * @brief
          * @return
          */
-        XLValueType valueType() const;
+        const XLCellValueProxy& value() const;
 
         /**
          * @brief get the XLCellReference object for the cell.
@@ -173,18 +178,17 @@ namespace OpenXLSX
         void setFormula(const std::string& newFormula);
 
     private:
-        //---------- Private Member Functions ---------- //
-        /**
-         * @brief
-         * @param cellNode
-         */
-        void reset(const XMLNode& cellNode);
-
         //---------- Private Member Variables ---------- //
-        std::unique_ptr<XMLNode> m_cellNode; /**< A pointer to the root XMLNode for the cell. */
-        XLSharedStrings*         m_sharedStrings;
+        std::unique_ptr<XMLNode> m_cellNode;      /**< A pointer to the root XMLNode for the cell. */
+        XLSharedStrings*         m_sharedStrings; /**< */
+        XLCellValueProxy         m_valueProxy;    /**< */
     };
 
+}    // namespace OpenXLSX
+
+// ========== FRIEND FUNCTION IMPLEMENTATIONS ========== //
+namespace OpenXLSX
+{
     /**
      * @brief
      * @param lhs
@@ -194,6 +198,17 @@ namespace OpenXLSX
     inline bool operator==(const XLCell& lhs, const XLCell& rhs)
     {
         return lhs.m_cellNode == rhs.m_cellNode;
+    }
+
+    /**
+     * @brief
+     * @param lhs
+     * @param rhs
+     * @return
+     */
+    inline bool operator!=(const XLCell& lhs, const XLCell& rhs)
+    {
+        return !(lhs.m_cellNode == rhs.m_cellNode);
     }
 
 }    // namespace OpenXLSX

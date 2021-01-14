@@ -82,7 +82,7 @@ TEST_SUBMODULE(stl_binders, m) {
 
     py::class_<E_nc>(m, "ENC")
         .def(py::init<int>())
-        .def_readwrite("value", &E_nc::value);
+        .def_readwrite("getValue", &E_nc::value);
 
     // test_noncopyable_containers
     py::bind_vector<std::vector<E_nc>>(m, "VectorENC");

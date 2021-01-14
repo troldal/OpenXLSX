@@ -28,7 +28,7 @@ it with the value 10.
 The example below is more involved: it takes a function of signature ``int -> int``
 and returns another function of the same kind. The return value is a stateful
 lambda function, which stores the value ``f`` in the capture object and adds 1 to
-its return value upon execution.
+its return getValue upon execution.
 
 .. code-block:: cpp
 

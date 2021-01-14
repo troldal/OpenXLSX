@@ -209,7 +209,7 @@
 
 #if PY_VERSION_HEX >= 0x03050000 && PY_VERSION_HEX < 0x03050200
 extern "C" {
-    struct _Py_atomic_address { void *value; };
+    struct _Py_atomic_address { void *getValue; };
     PyAPI_DATA(_Py_atomic_address) _PyThreadState_Current;
 }
 #endif
@@ -311,15 +311,15 @@ using size_t  = std::size_t;
 
 /// Approach used to cast a previously unknown C++ instance into a Python object
 enum class return_value_policy : uint8_t {
-    /** This is the default return value policy, which falls back to the policy
-        return_value_policy::take_ownership when the return value is a pointer.
+    /** This is the default return getValue policy, which falls back to the policy
+        return_value_policy::take_ownership when the return getValue is a pointer.
         Otherwise, it uses return_value::move or return_value::copy for rvalue
         and lvalue references, respectively. See below for a description of what
         all of these different policies do. */
     automatic = 0,
 
     /** As above, but use policy return_value_policy::reference when the return
-        value is a pointer. This is the default conversion policy for function
+        getValue is a pointer. This is the default conversion policy for function
         arguments when calling Python functions manually from C++ code (i.e. via
         handle::operator()). You probably won't need to use this. */
     automatic_reference,
@@ -335,7 +335,7 @@ enum class return_value_policy : uint8_t {
         instances are decoupled. */
     copy,
 
-    /** Use std::move to move the return value contents into a new instance
+    /** Use std::move to move the return getValue contents into a new instance
         that will be owned by Python. This policy is comparably safe because the
         lifetimes of the two instances (move source and destination) are
         decoupled. */
@@ -352,7 +352,7 @@ enum class return_value_policy : uint8_t {
         object without taking ownership similar to the above
         return_value_policy::reference policy. In contrast to that policy, the
         function or property’s implicit this argument (called the parent) is
-        considered to be the the owner of the return value (the child).
+        considered to be the the owner of the return getValue (the child).
         pybind11 then couples the lifetime of the parent to the child via a
         reference relationship that ensures that the parent cannot be garbage
         collected while Python is still using the child. More advanced
@@ -402,7 +402,7 @@ struct instance {
     /// If true, the pointer is owned which means we're free to manage it with a holder.
     bool owned : 1;
     /**
-     * An instance has two possible value/holder layouts.
+     * An instance has two possible getValue/holder layouts.
      *
      * Simple layout (when this flag is true), means the `simple_value_holder` is set with a pointer
      * and the holder object governing that pointer, i.e. [val1*][holder].  This layout is applied
@@ -414,14 +414,14 @@ struct instance {
      * (which is typically the size of two pointers), or when multiple inheritance is used on the
      * python side.  Non-simple layout allocates the required amount of memory to have multiple
      * bound C++ classes as parents.  Under this layout, `nonsimple.values_and_holders` is set to a
-     * pointer to allocated space of the required space to hold a sequence of value pointers and
+     * pointer to allocated space of the required space to hold a sequence of getValue pointers and
      * holders followed `status`, a set of bit flags (1 byte each), i.e.
      * [val1*][holder1][val2*][holder2]...[bb...]  where each [block] is rounded up to a multiple of
      * `sizeof(void *)`.  `nonsimple.status` is, for convenience, a pointer to the
      * beginning of the [bb...] block (but not independently allocated).
      *
      * Status bits indicate whether the associated holder is constructed (&
-     * status_holder_constructed) and whether the value pointer is registered (&
+     * status_holder_constructed) and whether the getValue pointer is registered (&
      * status_instance_registered) in `registered_instances`.
      */
     bool simple_layout : 1;
@@ -487,14 +487,14 @@ template <typename T> struct negation : bool_constant<!T::value> { };
 template <typename...> struct void_t_impl { using type = void; };
 template <typename... Ts> using void_t = typename void_t_impl<Ts...>::type;
 
-/// Compile-time all/any/none of that check the boolean value of all template types
+/// Compile-time all/any/none of that check the boolean getValue of all template types
 #if defined(__cpp_fold_expressions) && !(defined(_MSC_VER) && (_MSC_VER < 1916))
 template <class... Ts> using all_of = bool_constant<(Ts::value && ...)>;
 template <class... Ts> using any_of = bool_constant<(Ts::value || ...)>;
 #elif !defined(_MSC_VER)
 template <bool...> struct bools {};
 template <class... Ts> using all_of = std::is_same<
-    bools<Ts::value..., true>,
+    bools<Ts::getValue..., true>,
     bools<true, Ts::value...>>;
 template <class... Ts> using any_of = negation<all_of<negation<Ts>...>>;
 #else
@@ -585,7 +585,7 @@ using exactly_one_t = typename exactly_one<Predicate, Default, Ts...>::type;
 template <typename T, typename... /*Us*/> struct deferred_type { using type = T; };
 template <typename T, typename... Us> using deferred_t = typename deferred_type<T, Us...>::type;
 
-/// Like is_base_of, but requires a strict base (i.e. `is_strict_base_of<T, T>::value == false`,
+/// Like is_base_of, but requires a strict base (i.e. `is_strict_base_of<T, T>::getValue == false`,
 /// unlike `std::is_base_of`)
 template <typename Base, typename Derived> using is_strict_base_of = bool_constant<
     std::is_base_of<Base, Derived>::value && !std::is_same<Base, Derived>::value>;
@@ -718,7 +718,7 @@ template <typename T> struct format_descriptor<T, detail::enable_if_t<std::is_ar
 #if !defined(PYBIND11_CPP17)
 
 template <typename T> constexpr const char format_descriptor<
-    T, detail::enable_if_t<std::is_arithmetic<T>::value>>::value[2];
+    T, detail::enable_if_t<std::is_arithmetic<T>::value>>::getValue[2];
 
 #endif
 
@@ -769,7 +769,7 @@ static constexpr auto const_ = std::true_type{};
 
 #if !defined(PYBIND11_CPP14) // no overload_cast: providing something that static_assert-fails:
 template <typename... Args> struct overload_cast {
-    static_assert(detail::deferred_t<std::false_type, Args...>::value,
+    static_assert(detail::deferred_t<std::false_type, Args...>::getValue,
                   "pybind11::overload_cast<...> requires compiling in C++14 mode");
 };
 #endif // overload_cast

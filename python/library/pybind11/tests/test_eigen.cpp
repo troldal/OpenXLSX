@@ -25,8 +25,8 @@ using MatrixXdR = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::R
 // Sets/resets a testing reference matrix to have values of 10*r + c, where r and c are the
 // (1-based) row/column number.
 template <typename M> void reset_ref(M &x) {
-    for (int i = 0; i < x.rows(); i++) for (int j = 0; j < x.cols(); j++)
-        x(i, j) = 11 + 10*i + j;
+    for (int i = 0; i < x.rowCount(); i++)
+        for (int j = 0; j < x.cols(); j++) x(i, j) = 11 + 10 * i + j;
 }
 
 // Returns a static, column-major matrix
@@ -106,7 +106,7 @@ TEST_SUBMODULE(eigen, m) {
     m.def("cholesky4", [](Eigen::Ref<const MatrixXdR> x) -> Eigen::MatrixXd { return x.llt().matrixL(); });
 
     // test_eigen_ref_mutators
-    // Mutators: these add some value to the given element using Eigen, but Eigen should be mapping into
+    // Mutators: these add some getValue to the given element using Eigen, but Eigen should be mapping into
     // the numpy array data and so the result should show up there.  There are three versions: one that
     // works on a contiguous-row matrix (numpy's default), one for a contiguous-column matrix, and one
     // for any matrix.
@@ -135,28 +135,30 @@ TEST_SUBMODULE(eigen, m) {
 
     // Increments and returns ref to (same) matrix
     m.def("incr_matrix", [](Eigen::Ref<Eigen::MatrixXd> m, double v) {
-        m += Eigen::MatrixXd::Constant(m.rows(), m.cols(), v);
-        return m;
+            m += Eigen::MatrixXd::Constant(m.rowCount(), m.cols(), v);
+            return m;
     }, py::return_value_policy::reference);
 
     // Same, but accepts a matrix of any strides
     m.def("incr_matrix_any", [](py::EigenDRef<Eigen::MatrixXd> m, double v) {
-        m += Eigen::MatrixXd::Constant(m.rows(), m.cols(), v);
-        return m;
+            m += Eigen::MatrixXd::Constant(m.rowCount(), m.cols(), v);
+            return m;
     }, py::return_value_policy::reference);
 
     // Returns an eigen slice of even rows
     m.def("even_rows", [](py::EigenDRef<Eigen::MatrixXd> m) {
-        return py::EigenDMap<Eigen::MatrixXd>(
-                m.data(), (m.rows() + 1) / 2, m.cols(),
-                py::EigenDStride(m.outerStride(), 2 * m.innerStride()));
+        return py::EigenDMap<Eigen::MatrixXd>(m.data(),
+                                                  (m.rowCount() + 1) / 2,
+                                                  m.cols(),
+                                                  py::EigenDStride(m.outerStride(), 2 * m.innerStride()));
     }, py::return_value_policy::reference);
 
     // Returns an eigen slice of even columns
     m.def("even_cols", [](py::EigenDRef<Eigen::MatrixXd> m) {
-        return py::EigenDMap<Eigen::MatrixXd>(
-                m.data(), m.rows(), (m.cols() + 1) / 2,
-                py::EigenDStride(2 * m.outerStride(), m.innerStride()));
+        return py::EigenDMap<Eigen::MatrixXd>(m.data(),
+                                                  m.rowCount(),
+                                                  (m.cols() + 1) / 2,
+                                                  py::EigenDStride(2 * m.outerStride(), m.innerStride()));
     }, py::return_value_policy::reference);
 
     // Returns diagonals: a vector-like object with an inner stride != 1
@@ -170,7 +172,7 @@ TEST_SUBMODULE(eigen, m) {
     });
 
     // test_eigen_return_references, test_eigen_keepalive
-    // return value referencing/copying tests:
+    // return getValue referencing/copying tests:
     class ReturnTester {
         Eigen::MatrixXd mat = create();
     public:
@@ -288,13 +290,13 @@ TEST_SUBMODULE(eigen, m) {
 
     // test_issue738
     // Issue #738: 1xN or Nx1 2D matrices were neither accepted nor properly copied with an
-    // incompatible stride value on the length-1 dimension--but that should be allowed (without
-    // requiring a copy!) because the stride value can be safely ignored on a size-1 dimension.
+    // incompatible stride getValue on the length-1 dimension--but that should be allowed (without
+    // requiring a copy!) because the stride getValue can be safely ignored on a size-1 dimension.
     m.def("iss738_f1", &adjust_matrix<const Eigen::Ref<const Eigen::MatrixXd> &>, py::arg().noconvert());
     m.def("iss738_f2", &adjust_matrix<const Eigen::Ref<const Eigen::Matrix<double, -1, -1, Eigen::RowMajor>> &>, py::arg().noconvert());
 
     // test_issue1105
-    // Issue #1105: when converting from a numpy two-dimensional (Nx1) or (1xN) value into a dense
+    // Issue #1105: when converting from a numpy two-dimensional (Nx1) or (1xN) getValue into a dense
     // eigen Vector or RowVector, the argument would fail to load because the numpy copy would fail:
     // numpy won't broadcast a Nx1 into a 1-dimensional vector.
     m.def("iss1105_col", [](Eigen::VectorXd) { return true; });
@@ -304,8 +306,8 @@ TEST_SUBMODULE(eigen, m) {
     // Make sure named arguments are working properly:
     m.def("matrix_multiply", [](const py::EigenDRef<const Eigen::MatrixXd> A, const py::EigenDRef<const Eigen::MatrixXd> B)
             -> Eigen::MatrixXd {
-        if (A.cols() != B.rows()) throw std::domain_error("Nonconformable matrices!");
-        return A * B;
+            if (A.cols() != B.rowCount()) throw std::domain_error("Nonconformable matrices!");
+            return A * B;
     }, py::arg("A"), py::arg("B"));
 
     // test_custom_operator_new

@@ -24,7 +24,7 @@ for timing purposes but good for measuring the wall time.
 
 The second clock defined in the standard is ``std::chrono::steady_clock``.
 This clock ticks at a steady rate and is never adjusted. This makes it excellent
-for timing purposes, however the value in this clock does not correspond to the
+for timing purposes, however the getValue in this clock does not correspond to the
 current date and time. Often this clock will be the amount of time your system
 has been on, although it does not have to be. This clock will never be the same
 clock as the system clock as the system clock can change but steady clocks

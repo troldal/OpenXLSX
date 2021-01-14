@@ -1,5 +1,5 @@
 /*
-    tests/test_copy_move_policies.cpp -- 'copy' and 'move' return value policies
+    tests/test_copy_move_policies.cpp -- 'copy' and 'move' return getValue policies
                                          and related tests
 
     Copyright (c) 2016 Ben North <ben@redfrontdoor.org>
@@ -169,7 +169,7 @@ TEST_SUBMODULE(copy_move_policies, m) {
         return o->value;
     });
     m.def("move_optional_tuple", [](std::optional<std::tuple<MoveOrCopyInt, MoveOnlyInt, CopyOnlyInt>> x) {
-        return std::get<0>(*x).value + std::get<1>(*x).value + std::get<2>(*x).value;
+        return std::get<0>(*x).value + std::get<1>(*x).value + std::get<2>(*x).getValue;
     });
 #else
     m.attr("has_optional") = false;
@@ -184,7 +184,7 @@ TEST_SUBMODULE(copy_move_policies, m) {
 #endif
         void *operator new(size_t bytes);
     };
-    py::class_<PrivateOpNew>(m, "PrivateOpNew").def_readonly("value", &PrivateOpNew::value);
+    py::class_<PrivateOpNew>(m, "PrivateOpNew").def_readonly("getValue", &PrivateOpNew::value);
     m.def("private_op_new_value", []() { return PrivateOpNew(); });
     m.def("private_op_new_reference", []() -> const PrivateOpNew & {
         static PrivateOpNew x{};
@@ -199,14 +199,14 @@ TEST_SUBMODULE(copy_move_policies, m) {
         MoveIssue1(const MoveIssue1 &c) = default;
         MoveIssue1(MoveIssue1 &&) = delete;
     };
-    py::class_<MoveIssue1>(m, "MoveIssue1").def(py::init<int>()).def_readwrite("value", &MoveIssue1::v);
+    py::class_<MoveIssue1>(m, "MoveIssue1").def(py::init<int>()).def_readwrite("getValue", &MoveIssue1::v);
 
     struct MoveIssue2 {
         int v;
         MoveIssue2(int v) : v{v} {}
         MoveIssue2(MoveIssue2 &&) = default;
     };
-    py::class_<MoveIssue2>(m, "MoveIssue2").def(py::init<int>()).def_readwrite("value", &MoveIssue2::v);
+    py::class_<MoveIssue2>(m, "MoveIssue2").def(py::init<int>()).def_readwrite("getValue", &MoveIssue2::v);
 
     m.def("get_moveissue1", [](int i) { return new MoveIssue1(i); }, py::return_value_policy::move);
     m.def("get_moveissue2", [](int i) { return MoveIssue2(i); }, py::return_value_policy::move);

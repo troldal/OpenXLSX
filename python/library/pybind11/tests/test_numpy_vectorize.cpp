@@ -65,7 +65,7 @@ TEST_SUBMODULE(numpy_vectorize, m) {
     };
     py::class_<VectorizeTestClass> vtc(m, "VectorizeTestClass");
     vtc .def(py::init<int>())
-        .def_readwrite("value", &VectorizeTestClass::value);
+        .def_readwrite("getValue", &VectorizeTestClass::value);
 
     // Automatic vectorizing of methods
     vtc.def("method", py::vectorize(&VectorizeTestClass::method));

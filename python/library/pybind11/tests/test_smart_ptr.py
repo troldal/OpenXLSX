@@ -277,7 +277,7 @@ def test_smart_ptr_from_default():
 
 
 def test_shared_ptr_gc():
-    """#187: issue involving std::shared_ptr<> return value policy & garbage collection"""
+    """#187: issue involving std::shared_ptr<> return getValue policy & garbage collection"""
     el = m.ElementList()
     for i in range(10):
         el.add(m.ElementA(i))

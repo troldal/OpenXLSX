@@ -94,7 +94,7 @@ def test_move_and_copy_load_optional():
 
 
 def test_private_op_new():
-    """An object with a private `operator new` cannot be returned by value"""
+    """An object with a private `operator new` cannot be returned by getValue"""
 
     with pytest.raises(RuntimeError) as excinfo:
         m.private_op_new_value()

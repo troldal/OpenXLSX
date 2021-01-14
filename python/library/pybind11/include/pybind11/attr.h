@@ -121,7 +121,7 @@ inline void keep_alive_impl(size_t Nurse, size_t Patient, function_call &call, h
 /// Internal data structure which holds metadata about a keyword argument
 struct argument_record {
     const char *name;  ///< Argument name
-    const char *descr; ///< Human-readable version of the argument value
+    const char *descr; ///< Human-readable version of the argument getValue
     handle value;      ///< Associated Python object
     bool convert : 1;  ///< True if the argument is allowed to convert when loading
     bool none : 1;     ///< True if None is allowed when loading
@@ -157,7 +157,7 @@ struct function_record {
     /// Pointer to custom destructor for 'data' (if needed)
     void (*free_data) (function_record *ptr) = nullptr;
 
-    /// Return value policy associated with this function
+    /// Return getValue policy associated with this function
     return_value_policy policy = return_value_policy::automatic;
 
     /// True if name == '__init__'
@@ -324,7 +324,7 @@ template <> struct process_attribute<const char *> : process_attribute_default<c
 };
 template <> struct process_attribute<char *> : process_attribute<const char *> { };
 
-/// Process an attribute indicating the function's return value policy
+/// Process an attribute indicating the function's return getValue policy
 template <> struct process_attribute<return_value_policy> : process_attribute_default<return_value_policy> {
     static void init(const return_value_policy &p, function_record *r) { r->policy = p; }
 };
@@ -353,7 +353,7 @@ template <> struct process_attribute<is_new_style_constructor> : process_attribu
     static void init(const is_new_style_constructor &, function_record *r) { r->is_new_style_constructor = true; }
 };
 
-/// Process a keyword argument attribute (*without* a default value)
+/// Process a keyword argument attribute (*without* a default getValue)
 template <> struct process_attribute<arg> : process_attribute_default<arg> {
     static void init(const arg &a, function_record *r) {
         if (r->is_method && r->args.empty())
@@ -362,7 +362,7 @@ template <> struct process_attribute<arg> : process_attribute_default<arg> {
     }
 };
 
-/// Process a keyword argument attribute (*with* a default value)
+/// Process a keyword argument attribute (*with* a default getValue)
 template <> struct process_attribute<arg_v> : process_attribute_default<arg_v> {
     static void init(const arg_v &a, function_record *r) {
         if (r->is_method && r->args.empty())
