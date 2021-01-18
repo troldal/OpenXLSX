@@ -51,7 +51,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLXmlData.hpp"
 
 using namespace OpenXLSX;
-const unsigned int parse_options = (pugi::parse_default & ~pugi::parse_eol) | pugi::parse_ws_pcdata | pugi::parse_declaration;
+const unsigned int parse_options = (pugi::parse_default & ~pugi::parse_eol) | pugi::parse_ws_pcdata | pugi::parse_declaration | pugi::parse_fragment;
 
 /**
  * @details
