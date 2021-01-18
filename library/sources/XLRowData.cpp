@@ -179,8 +179,6 @@ namespace OpenXLSX
     {
         if (m_currentCol >= m_dataRange->m_lastCol)
             m_currentCell = XLCell();
-        else {
-            if (!m_cellNode) }
 
         return m_currentCell;
     }

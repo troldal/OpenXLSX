@@ -255,7 +255,7 @@ XLCell XLWorksheet::cell(uint32_t rowNumber, uint16_t columnNumber)
 {
     auto cellNode = XMLNode();
     auto cellRef  = XLCellReference(rowNumber, columnNumber);
-    auto rowNode  = getRowNode(xmlDocument().first_child().child("sheetData"), rowNumber);
+    auto rowNode  = getRowNode(xmlDocument().document_element().child("sheetData"), rowNumber);
 
     // ===== If there are no cells in the current row, or the requested cell is beyond the last cell in the row...
     if (rowNode.last_child().empty() || XLCellReference(rowNode.last_child().attribute("r").value()).column() < columnNumber) {
