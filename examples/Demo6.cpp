@@ -11,9 +11,9 @@ int main()
     cout << "********************************************************************************\n";
 
     XLDocument doc;
-    doc.open("/Users/troldal/Desktop/test.xlsx");
+    doc.open("/path/to/test.xlsx");
     doc.resetCalcChain();
-    doc.saveAs("/Users/troldal/Desktop/test2.xlsx");
+    doc.saveAs("/path/to/test2.xlsx");
     doc.close();
 
     return 0;
