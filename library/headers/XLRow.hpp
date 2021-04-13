@@ -409,7 +409,13 @@ namespace OpenXLSX
         T    result;
         auto dst = std::back_inserter(result);
 
-        for (const auto& cell : cells()) dst = cell.value();
+//        for (const auto& cell : cells()) *dst = cell.value();
+
+        auto cls = cells();
+        for (auto iter = cls.begin(); iter != cls.end(); ++iter) {
+            *dst = iter->value();
+        }
+
 
         return result;
     }

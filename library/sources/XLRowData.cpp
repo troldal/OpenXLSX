@@ -128,15 +128,26 @@ namespace OpenXLSX
     XLRowDataIterator& XLRowDataIterator::operator++()
     {
         ++m_currentCol;
+
+        // ===== Compute cellreference
         auto cellRef = XLCellReference(m_dataRange->m_rowNode->attribute("r").as_ullong(), m_currentCol);
 
+        // ===== If the current m_cellNode reference is empty, find the next cell node in the row that is greater than
+        // ===== or equal to the cell refecence.
         if (!m_cellNode) {
             *m_cellNode = m_dataRange->m_rowNode->find_child(
                 [&](const XMLNode& node) { return XLCellReference(node.attribute("r").value()) >= cellRef; });
-            if (*m_cellNode && XLCellReference(m_cellNode->attribute("r").value()) > cellRef) *m_cellNode = m_cellNode->previous_sibling();
+
+            // TODO: Check the logic here!
+            if (*m_cellNode && XLCellReference(m_cellNode->attribute("r").value()) > cellRef)
+                *m_cellNode = m_cellNode->previous_sibling();
         }
+
+
         else {
-            if (XLCellReference(m_cellNode->next_sibling().attribute("r").value()) == cellRef) *m_cellNode = m_cellNode->next_sibling();
+            // TODO: Check the logic here!
+            if (XLCellReference(m_cellNode->next_sibling().attribute("r").value()) == cellRef)
+                *m_cellNode = m_cellNode->next_sibling();
         }
 
         //        auto cellNumber = m_currentCell.cellReference().column() + 1;
@@ -179,8 +190,8 @@ namespace OpenXLSX
     {
         if (m_currentCol >= m_dataRange->m_lastCol)
             m_currentCell = XLCell();
-        else {
-            if (!m_cellNode) }
+//        else {
+//            if (!m_cellNode) }
 
         return m_currentCell;
     }
@@ -337,6 +348,7 @@ namespace OpenXLSX
      * @details
      * @pre
      * @post
+     * @todo To be implemented
      */
     void XLRowDataRange::clear() {}
 }    // namespace OpenXLSX
@@ -403,7 +415,7 @@ namespace OpenXLSX
         // ===== Find or create the first cell node
         auto curNode = m_rowNode->first_child();
         if (!curNode || XLCellReference(curNode.attribute("r").value()).column() != 1) {
-            curNode = m_rowNode->append_child("c");
+            curNode = m_rowNode->append_child("c"); // TODO: Should it be prepended?
             curNode.append_attribute("r").set_value(XLCellReference(m_row->rowNumber(), 1).address().c_str());
         }
 
