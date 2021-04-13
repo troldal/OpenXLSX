@@ -616,6 +616,10 @@ XLWorkbook XLDocument::workbook() const
     return m_workbook;
 }
 
+void XLDocument::resetCalcChain() {
+    executeCommand(XLCommandResetCalcChain());
+}
+
 /**
  * @details Get the value for a property.
  */

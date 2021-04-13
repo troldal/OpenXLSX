@@ -206,6 +206,8 @@ namespace OpenXLSX
          */
         XLWorkbook workbook() const;
 
+        void resetCalcChain();
+
         /**
          * @brief Get the requested document property.
          * @param prop The name of the property to get.
@@ -247,6 +249,13 @@ namespace OpenXLSX
             else if constexpr (std::is_same_v<Command, XLCommandSetSheetIndex>) {
                 auto sheetName = executeQuery(XLQuerySheetName(command.sheetID())).sheetName();
                 m_workbook.setSheetIndex(sheetName, command.sheetIndex());
+            }
+
+            else if constexpr (std::is_same_v<Command, XLCommandResetCalcChain>) {
+                m_archive.deleteEntry("xl/calcChain.xml");
+                m_data.erase(std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) {
+                       return item.getXmlPath() == "xl/calcChain.xml";
+                }));
             }
 
             else if constexpr (std::is_same_v<Command, XLCommandAddSharedStrings>) {
