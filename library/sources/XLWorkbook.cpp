@@ -502,3 +502,19 @@ void XLWorkbook::updateSheetReferences(const std::string& oldName, const std::st
         }
     }
 }
+
+void XLWorkbook::setFullCalculationOnLoad()
+{
+    auto calcPr = xmlDocument().document_element().child("calcPr");
+
+    auto getOrCreateAttribute = [&calcPr](const char * attributeName)
+    {
+        auto attr = calcPr.attribute(attributeName);
+        if (!attr)
+            attr = calcPr.append_attribute(attributeName);
+        return attr;
+    };
+
+    getOrCreateAttribute("forceFullCalc").set_value(true);
+    getOrCreateAttribute("fullCalcOnLoad").set_value(true);
+}
