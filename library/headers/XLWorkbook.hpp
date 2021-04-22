@@ -296,6 +296,11 @@ namespace OpenXLSX
          */
         void deleteNamedRanges();
 
+        /**
+         * @brief set a flag to force full calculation upon loading the file in Excel
+         */
+        void setFullCalculationOnLoad();
+
     private:    // ---------- Private Member Functions ---------- //
         uint16_t createInternalSheetID();
         /**
@@ -339,6 +344,8 @@ namespace OpenXLSX
          * @param state
          */
         void setSheetVisibility(const std::string& sheetRID, const std::string& state);
+
+
     };
 }    // namespace OpenXLSX
 
