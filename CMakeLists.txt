@@ -2,6 +2,9 @@
 # Preamble
 #=======================================================================================================================
 cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
+set(OPENXLSX_MAJOR_VERSION 0)
+set(OPENXLSX_MINOR_VERSION 2)
+set(OPENXLSX_MICRO_VERSION 0)
 project(OpenXLSX VERSION 0.2.0 LANGUAGES CXX)
 set(CMAKE_DEBUG_POSTFIX d)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)

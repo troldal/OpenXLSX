@@ -253,7 +253,18 @@ install(
 
 # Install export header
 install(
-        FILES ${CMAKE_CURRENT_BINARY_DIR}/openxlsx_export.h
+        FILES ${CMAKE_CURRENT_BINARY_DIR}/OpenXLSX-Exports.hpp
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/openxlsx
+)
+
+file(GLOB OPENXLSX_HEADER_LIST ${CMAKE_CURRENT_LIST_DIR}/headers/*.hpp)
+install(
+        FILES ${OPENXLSX_HEADER_LIST}
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/openxlsx/headers
+)
+
+install(
+        FILES ${CMAKE_CURRENT_LIST_DIR}/OpenXLSX.hpp
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/openxlsx
 )
 
@@ -269,6 +280,9 @@ install(
         COMPONENT bin
         INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/OpenXLSX
 )
+
+set_target_properties(OpenXLSX-shared PROPERTIES FOLDER libs VERSION ${OPENXLSX_MAJOR_VERSION}.${OPENXLSX_MINOR_VERSION}.${OPENXLSX_MICRO_VERSION} SOVERSION ${OPENXLSX_MAJOR_VERSION})
+set_target_properties(OpenXLSX-static PROPERTIES FOLDER libs VERSION ${OPENXLSX_MAJOR_VERSION}.${OPENXLSX_MINOR_VERSION}.${OPENXLSX_MICRO_VERSION} SOVERSION ${OPENXLSX_MAJOR_VERSION})
 
 # Package version
 write_basic_package_version_file(
