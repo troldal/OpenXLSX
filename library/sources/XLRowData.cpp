@@ -133,7 +133,7 @@ namespace OpenXLSX
         auto cellRef = XLCellReference(m_dataRange->m_rowNode->attribute("r").as_ullong(), m_currentCol);
 
         // ===== If the current m_cellNode reference is empty, find the next cell node in the row that is greater than
-        // ===== or equal to the cell refecence.
+        // ===== or equal to the cell reference.
         if (!m_cellNode) {
             *m_cellNode = m_dataRange->m_rowNode->find_child(
                 [&](const XMLNode& node) { return XLCellReference(node.attribute("r").value()) >= cellRef; });
@@ -146,26 +146,26 @@ namespace OpenXLSX
 
         else {
             // TODO: Check the logic here!
-            if (XLCellReference(m_cellNode->next_sibling().attribute("r").value()) == cellRef)
-                *m_cellNode = m_cellNode->next_sibling();
+//            if (XLCellReference(m_cellNode->next_sibling().attribute("r").value()) == cellRef)
+//                *m_cellNode = m_cellNode->next_sibling();
+//        }
+
+            auto cellNumber = m_currentCell.cellReference().column() + 1;
+            auto cellNode   = m_currentCell.m_cellNode->next_sibling();
+
+            if (cellNumber > m_dataRange->m_lastCol)
+                m_currentCell = XLCell();
+
+            else if (!cellNode || XLCellReference(cellNode.attribute("r").value()).column() != cellNumber) {
+                cellNode = m_dataRange->m_rowNode->insert_child_after("c", *m_currentCell.m_cellNode);
+                cellNode.append_attribute("r").set_value(
+                    XLCellReference(m_dataRange->m_rowNode->attribute("r").as_ullong(), cellNumber).address().c_str());
+                m_currentCell = XLCell(cellNode, m_dataRange->m_sharedStrings);
+            }
+
+            else
+                m_currentCell = XLCell(cellNode, m_dataRange->m_sharedStrings);
         }
-
-        //        auto cellNumber = m_currentCell.cellReference().column() + 1;
-        //        auto cellNode   = m_currentCell.m_cellNode->next_sibling();
-        //
-        //        if (cellNumber > m_dataRange->m_lastCol)
-        //            m_currentCell = XLCell();
-        //
-        //        else if (!cellNode || XLCellReference(cellNode.attribute("r").value()).column() != cellNumber) {
-        //            cellNode = m_dataRange->m_rowNode->insert_child_after("c", *m_currentCell.m_cellNode);
-        //            cellNode.append_attribute("r").set_value(
-        //                XLCellReference(m_dataRange->m_rowNode->attribute("r").as_ullong(), cellNumber).address().c_str());
-        //            m_currentCell = XLCell(cellNode, m_dataRange->m_sharedStrings);
-        //        }
-        //
-        //        else
-        //            m_currentCell = XLCell(cellNode, m_dataRange->m_sharedStrings);
-
         return *this;
     }
 

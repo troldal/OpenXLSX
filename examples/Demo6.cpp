@@ -23,8 +23,8 @@ int main()
 
     std::vector<XLCellValue> writeValues;
 
-//    for (auto& row : wks.rows(1'048'576)) {
-    for (auto& row : wks.rows(10)) {
+    for (auto& row : wks.rows(1'048'576)) {
+//    for (auto& row : wks.rows(10)) {
         writeValues.clear();
         writeValues.emplace_back(distr(generator));
         writeValues.emplace_back(distr(generator));
@@ -47,12 +47,12 @@ int main()
     wks = doc.workbook().worksheet("Sheet1");
     uint64_t sum = 0;
     uint64_t count = 0;
-//    std::vector<XLCellValue> readValues;
+    std::vector<XLCellValue> readValues;
 
     cout << "Reading data from spreadsheet (1,048,576 rows x 8 columns) ..." << endl;
 
     for (auto& row : wks.rows()) {
-        auto readValues = row.values<std::vector<XLCellValue>>();
+        readValues = row.values<std::vector<XLCellValue>>();
         count += std::count_if(readValues.begin(), readValues.end(), [](const XLCellValue& v) {
                return v.type() != XLValueType::Empty;
         });

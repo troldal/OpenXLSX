@@ -413,6 +413,8 @@ namespace OpenXLSX
 
         auto cls = cells();
         for (auto iter = cls.begin(); iter != cls.end(); ++iter) {
+//            XLCellValue val = iter->value();
+//            std::cout << val.template get<int>() << std::endl;
             *dst = iter->value();
         }
 
