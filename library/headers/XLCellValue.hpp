@@ -248,7 +248,7 @@ namespace OpenXLSX
     private:
         //---------- Private Member Variables ---------- //
 
-        std::variant<std::string, int64_t, double, bool> m_value { "" };            /**< The value contained in the cell. */
+        std::variant<const char*, int64_t, double, bool> m_value { "" };            /**< The value contained in the cell. */
         XLValueType                                      m_type { XLValueType::Empty }; /**< The value type of the cell. */
     };
 
@@ -486,7 +486,7 @@ namespace OpenXLSX
         else if constexpr (std::is_integral_v<T> && !std::is_same_v<T, bool>)
             m_type = XLValueType::Integer;
 
-        // ===== If the argument is a string type (i.e. is consructible from *char),
+        // ===== If the argument is a string type (i.e. is constructable from *char),
         // ===== set the m_type attribute to String.
         else if constexpr (std::is_constructible_v<T, char*> && !std::is_same_v<T, bool>)
             m_type = XLValueType::String;
@@ -645,7 +645,7 @@ namespace OpenXLSX
     template<typename T, typename std::enable_if<std::is_constructible<T, char*>::value && !std::is_same<T, bool>::value, char*>::type*>
     T XLCellValue::get() const
     {
-        return std::get<std::string>(m_value).c_str();
+        return std::get<const char*>(m_value);
     }
 
 }    // namespace OpenXLSX
@@ -722,10 +722,9 @@ namespace OpenXLSX
                 setFloat(value.template get<double>());
                 break;
             case XLValueType::String:
-                setString(value.template get<std::string>().c_str());
+                setString(value.template get<const char*>());
                 break;
             case XLValueType::Empty:
-                break;
             default:
                 break;
         }
@@ -905,7 +904,7 @@ namespace std
     {
         std::size_t operator()(const OpenXLSX::XLCellValue& value) const noexcept
         {
-            return std::hash<std::variant<std::string, int64_t, double, bool>> {}(value.m_value);
+            return std::hash<std::variant<const char*, int64_t, double, bool>> {}(value.m_value);
         }
     };
 }    // namespace std

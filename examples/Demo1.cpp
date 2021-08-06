@@ -26,11 +26,17 @@ int main()
     XLCellValue D1 = wks.cell(XLCellReference("D1")).value();
     XLCellValue E1 = wks.cell(XLCellReference("E1")).value();
 
+    wks.cell(XLCellReference("A1")).value().set(2.71828);
+    wks.cell(XLCellReference("B1")).value() = 648;
+    wks.cell(XLCellReference("C1")).value() = "  Hello again, OpenXLSX!  ";
+    wks.cell(XLCellReference("D1")).value() = false;
+    wks.cell(XLCellReference("E1")).value() = wks.cell(XLCellReference("C1")).value();
+
     cout << "Cell A1: (" << A1.typeAsString() << ") " << A1.get<double>() << endl;
     cout << "Cell B1: (" << B1.typeAsString() << ") " << B1.get<int64_t>() << endl;
     cout << "Cell C1: (" << C1.typeAsString() << ") " << C1.get<std::string>() << endl;
     cout << "Cell D1: (" << D1.typeAsString() << ") " << D1.get<bool>() << endl;
-    cout << "Cell E1: (" << E1.typeAsString() << ") " << E1.get<std::string_view>() << endl;
+    cout << "Cell E1: (" << E1.typeAsString() << ") " << E1.get<std::string_view>() << endl << endl;
 
     cout << "Cell A1: (" << A1.typeAsString() << ") " << wks.cell(XLCellReference("A1")).value().get<double>() << endl;
     cout << "Cell B1: (" << B1.typeAsString() << ") " << wks.cell(XLCellReference("B1")).value().get<int64_t>() << endl;

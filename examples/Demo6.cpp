@@ -23,8 +23,8 @@ int main()
 
     std::vector<XLCellValue> writeValues;
 
-//    for (auto& row : wks.rows(1'048'576)) {
-    for (auto& row : wks.rows(10)) {
+    for (auto& row : wks.rows(1'048'576)) {
+//    for (auto& row : wks.rows(10)) {
         writeValues.clear();
         writeValues.emplace_back(distr(generator));
         writeValues.emplace_back(distr(generator));

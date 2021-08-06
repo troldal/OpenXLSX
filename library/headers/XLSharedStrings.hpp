@@ -51,7 +51,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #pragma warning(disable : 4275)
 
 #include <string>
-#include <vector>
+#include <deque>
 
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
@@ -158,7 +158,7 @@ namespace OpenXLSX
         void clearString(int index);
 
     private:
-        std::vector<std::string> m_stringCache {};
+        std::deque<std::string> m_stringCache {}; /** < Each string must have an unchanging memory address; hence the use of std::deque */
     };
 }    // namespace OpenXLSX
 
