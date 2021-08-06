@@ -406,13 +406,20 @@ namespace OpenXLSX
     template<typename T>
     T XLRow::values() const
     {
+
+        auto val = values().getValues();
         T    result;
         auto dst = std::back_inserter(result);
 
-        for (const auto& cell : cells()) {
-//            std::cout << cell.value().get<int>() << std::endl;
-            *dst = cell.value();
-        }
+        for (const auto& cellValue : val)
+            *dst = cellValue;
+
+
+//
+//        for (const auto& cell : cells()) {
+////            std::cout << cell.value().get<int>() << std::endl;
+//            *dst = cell.value();
+//        }
 
 //        auto cls = cells();
 //        for (auto iter = cls.begin(); iter != cls.end(); ++iter) {
