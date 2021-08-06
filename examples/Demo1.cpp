@@ -32,6 +32,12 @@ int main()
     cout << "Cell D1: (" << D1.typeAsString() << ") " << D1.get<bool>() << endl;
     cout << "Cell E1: (" << E1.typeAsString() << ") " << E1.get<std::string_view>() << endl;
 
+    cout << "Cell A1: (" << A1.typeAsString() << ") " << wks.cell(XLCellReference("A1")).value().get<double>() << endl;
+    cout << "Cell B1: (" << B1.typeAsString() << ") " << wks.cell(XLCellReference("B1")).value().get<int64_t>() << endl;
+    cout << "Cell C1: (" << C1.typeAsString() << ") " << wks.cell(XLCellReference("C1")).value().get<std::string>() << endl;
+    cout << "Cell D1: (" << D1.typeAsString() << ") " << wks.cell(XLCellReference("D1")).value().get<bool>() << endl;
+    cout << "Cell E1: (" << E1.typeAsString() << ") " << wks.cell(XLCellReference("E1")).value().get<std::string_view>() << endl;
+
     doc.save();
 
     return 0;

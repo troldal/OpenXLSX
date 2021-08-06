@@ -14,56 +14,59 @@
 using namespace OpenXLSX;
 
 /**
- * @details
+ * @details Constructor. Default implementation has been used.
  * @pre
  * @post
  */
 XLCellValue::XLCellValue() = default;
 
 /**
- * @details
- * @pre
- * @post
+ * @details Copy constructor. The default implementation will be used.
+ * @pre The object to be copied must be valid.
+ * @post A valid copy is constructed.
  */
 XLCellValue::XLCellValue(const OpenXLSX::XLCellValue& other) = default;
 
 /**
- * @details
- * @pre
- * @post
+ * @details Move constructor. The default implementation will be used.
+ * @pre The object to be copied must be valid.
+ * @post A valid copy is constructed.
  */
 XLCellValue::XLCellValue(OpenXLSX::XLCellValue&& other) noexcept = default;
 
 /**
- * @details
- * @pre
- * @post
+ * @details Destructor. The default implementation will be used
+ * @pre None.
+ * @post The object is destructed.
  */
 XLCellValue::~XLCellValue() = default;
 
 /**
- * @details
- * @pre
- * @post
+ * @details Copy assignment operator. The default implementation will be used.
+ * @pre The object to be copied must be a valid object.
+ * @post A the copied-to object is valid.
  */
 XLCellValue& OpenXLSX::XLCellValue::operator=(const OpenXLSX::XLCellValue& other) = default;
 
 /**
- * @details
- * @pre
- * @post
+ * @details Move assignment operator. The default implementation will be used.
+ * @pre The object to be moved must be a valid object.
+ * @post The moved-to object is valid.
  */
 XLCellValue& OpenXLSX::XLCellValue::operator=(OpenXLSX::XLCellValue&& other) noexcept = default;
 
 /**
- * @details
- * @pre
- * @post
+ * @details Constructor taking a XLCellValueProxy object as argument. The object is constructed by extracting the value
+ * from the proxy object, and constructing the XLCellValue object from that.
+ * @pre The argument must be a valid XLCellValueProxy object, i.e. the getValue() method must return a valid value.
+ * @post A valid XLCellValue object is created.
+ * @todo: Can the XLCellValueProxy object be invalid?
  */
 XLCellValue::XLCellValue(const XLCellValueProxy& proxy) : XLCellValue(proxy.getValue()) {}
 
 /**
- * @details
+ * @details Clears the contents of the XLCellValue object. Setting the value to an empty string is not sufficient
+ * (as an empty string is still a valid string). The m_type variable must also be set to XLValueType::Empty.
  * @pre
  * @post
  */
@@ -75,7 +78,7 @@ XLCellValue& XLCellValue::clear()
 }
 
 /**
- * @details
+ * @details Sets the value type to XLValueType::Error. The value will be set to an empty string.
  * @pre
  * @post
  */
@@ -87,7 +90,7 @@ XLCellValue& XLCellValue::setError()
 }
 
 /**
- * @details
+ * @details Get the value type of the current object.
  * @pre
  * @post
  */
@@ -97,7 +100,7 @@ XLValueType XLCellValue::type() const
 }
 
 /**
- * @details
+ * @details Get the value type of the current object, as a string representation
  * @pre
  * @post
  */
@@ -120,35 +123,43 @@ std::string XLCellValue::typeAsString() const
 }
 
 /**
- * @details
- * @pre
- * @post
+ * @details Constructor
+ * @pre The cell and cellNode pointers must not be nullptr and must point to valid objects.
+ * @post A valid XLCellValueProxy has been created.
  */
-XLCellValueProxy::XLCellValueProxy(XLCell* cell, XMLNode* cellNode) : m_cell(cell), m_cellNode(cellNode) {}
+XLCellValueProxy::XLCellValueProxy(XLCell* cell, XMLNode* cellNode)
+    : m_cell(cell), m_cellNode(cellNode)
+{
+    assert(cell);
+    assert(cellNode);
+    assert(!cellNode->empty());
+}
 
 /**
- * @details
+ * @details Destructor. Default implementation has been used.
  * @pre
  * @post
  */
 XLCellValueProxy::~XLCellValueProxy() = default;
 
 /**
- * @details
+ * @details Copy constructor. Default implementation has been used.
  * @pre
  * @post
  */
 XLCellValueProxy::XLCellValueProxy(const XLCellValueProxy& other) = default;
 
 /**
- * @details
+ * @details Move constructor. Default implementation has been used.
  * @pre
  * @post
  */
 XLCellValueProxy::XLCellValueProxy(XLCellValueProxy&& other) noexcept = default;
 
 /**
- * @details
+ * @details Copy assignment operator. The function is implemented in terms of the templated
+ * value assignment operators, i.e. it is the XLCellValue that is that is copied,
+ * not the object itself.
  * @pre
  * @post
  */
@@ -162,14 +173,14 @@ XLCellValueProxy& XLCellValueProxy::operator=(const XLCellValueProxy& other)
 }
 
 /**
- * @details
+ * @details Move assignment operator. Default implementation has been used.
  * @pre
  * @post
  */
 XLCellValueProxy& XLCellValueProxy::operator=(XLCellValueProxy&& other) noexcept = default;
 
 /**
- * @details
+ * @details Implicitly convert the XLCellValueProxy object to a XLCellValue object.
  * @pre
  * @post
  */
@@ -179,42 +190,67 @@ XLCellValueProxy::operator XLCellValue()
 }
 
 /**
- * @details
- * @pre
- * @post
+ * @details Clear the contents of the cell. This removes all children of the cell node.
+ * @pre The m_cellNode must not be null, and must point to a valid XML cell node object.
+ * @post The cell node must be valid, but empty.
  */
 XLCellValueProxy& XLCellValueProxy::clear()
 {
+    // ===== Check that the m_cellNode is valid.
+    assert(m_cellNode);
+    assert(!m_cellNode->empty());
+
+    // ===== Remove the type attribute
     m_cellNode->remove_attribute("t");
+
+    // ===== Disable space preservation (only relevant for strings).
     m_cellNode->remove_attribute(" xml:space");
+
+    // ===== Remove the value node.
     m_cellNode->remove_child("v");
     return *this;
 }
 /**
- * @details
- * @pre
- * @post
+ * @details Set the cell value to a error state. This will remove all children and attributes, except
+ * the type attribute, which is set to "e"
+ * @pre The m_cellNode must not be null, and must point to a valid XML cell node object.
+ * @post The cell node must be valid.
  */
 XLCellValueProxy& XLCellValueProxy::setError()
 {
+    // ===== Check that the m_cellNode is valid.
+    assert(m_cellNode);
+    assert(!m_cellNode->empty());
+
+    // ===== If the cell node doesn't have a type attribute, create it.
     if (!m_cellNode->attribute("t")) m_cellNode->append_attribute("t");
+
+    // ===== Set the type to "e", i.e. error
     m_cellNode->attribute("t").set_value("e");
+
+    // ===== Disable space preservation (only relevant for strings).
     m_cellNode->remove_attribute(" xml:space");
+
+    // ===== Remove the value node.
     m_cellNode->remove_child("v");
     return *this;
 }
 
 /**
- * @details
- * @pre
- * @post
+ * @details Get the value type for the cell.
+ * @pre The m_cellNode must not be null, and must point to a valid XML cell node object.
+ * @post No change should be made.
  */
 XLValueType XLCellValueProxy::type() const
 {
+    // ===== Check that the m_cellNode is valid.
+    assert(m_cellNode);
+    assert(!m_cellNode->empty());
+
     // ===== If neither a Type attribute or a getValue node is present, the cell is empty.
     if (!m_cellNode->attribute("t") && !m_cellNode->child("v")) return XLValueType::Empty;
 
-    // ===== If a Type attribute is not present, but a getValue node is, the cell contains a number.
+    // ===== If a Type attribute is not present, but a value node is, the cell contains a number.
     else if ((!m_cellNode->attribute("t") || (strcmp(m_cellNode->attribute("t").value(), "n") == 0 && m_cellNode->child("v") != nullptr))) {
         std::string numberString = m_cellNode->child("v").text().get();
         if (numberString.find('.') != std::string::npos || numberString.find("E-") != std::string::npos ||
@@ -246,7 +282,7 @@ XLValueType XLCellValueProxy::type() const
 }
 
 /**
- * @details
+ * @details Get the value type of the current object, as a string representation.
  * @pre
  * @post
  */
@@ -269,65 +305,114 @@ std::string XLCellValueProxy::typeAsString() const
 }
 
 /**
- * @details
- * @pre
- * @post
+ * @details Set cell to an integer value. This is private helper function for setting the cell value
+ * directly in the underlying XML file.
+ * @pre The m_cellNode must not be null, and must point to a valid XMLNode object.
+ * @post The underlying XMLNode has been updated correctly, representing an integer value.
  */
 void XLCellValueProxy::setInteger(int64_t numberValue)
 {
+    // ===== Check that the m_cellNode is valid.
+    assert(m_cellNode);
+    assert(!m_cellNode->empty());
+
+    // ===== If the cell node doesn't have a value child node, create it.
     if (!m_cellNode->child("v")) m_cellNode->append_child("v");
 
+    // ===== The type ("t") attribute is not required for number values.
     m_cellNode->remove_attribute("t");
+
+    // ===== Set the text of the value node.
     m_cellNode->child("v").text().set(numberValue);
+
+    // ===== Disable space preservation (only relevant for strings).
     m_cellNode->child("v").remove_attribute(m_cellNode->child("v").attribute("xml:space"));
 }
 
 /**
- * @details
- * @pre
- * @post
+ * @details Set the cell to a bool value. This is private helper function for setting the cell value
+ * directly in the underlying XML file.
+ * @pre The m_cellNode must not be null, and must point to a valid XMLNode object.
+ * @post The underlying XMLNode has been updated correctly, representing an bool value.
  */
 void XLCellValueProxy::setBoolean(bool numberValue)
 {
+    // ===== Check that the m_cellNode is valid.
+    assert(m_cellNode);
+    assert(!m_cellNode->empty());
+
+    // ===== If the cell node doesn't have a type child node, create it.
     if (!m_cellNode->attribute("t")) m_cellNode->append_attribute("t");
+
+    // ===== If the cell node doesn't have a value child node, create it.
     if (!m_cellNode->child("v")) m_cellNode->append_child("v");
 
+    // ===== Set the type attribute.
     m_cellNode->attribute("t").set_value("b");
+
+    // ===== Set the text of the value node.
     m_cellNode->child("v").text().set(numberValue ? 1 : 0);
+
+    // ===== Disable space preservation (only relevant for strings).
     m_cellNode->child("v").remove_attribute(m_cellNode->child("v").attribute("xml:space"));
 }
 
 /**
- * @details
- * @pre
- * @post
+ * @details Set the cell to a floating point value. This is private helper function for setting the cell value
+ * directly in the underlying XML file.
+ * @pre The m_cellNode must not be null, and must point to a valid XMLNode object.
+ * @post The underlying XMLNode has been updated correctly, representing a floating point value.
  */
 void XLCellValueProxy::setFloat(double numberValue)
 {
+    // ===== Check that the m_cellNode is valid.
+    assert(m_cellNode);
+    assert(!m_cellNode->empty());
+
+    // ===== If the cell node doesn't have a value child node, create it.
     if (!m_cellNode->child("v")) m_cellNode->append_child("v");
 
+    // ===== The type ("t") attribute is not required for number values.
     m_cellNode->remove_attribute("t");
+
+    // ===== Set the text of the value node.
     m_cellNode->child("v").text().set(numberValue);
+
+    // ===== Disable space preservation (only relevant for strings).
     m_cellNode->child("v").remove_attribute(m_cellNode->child("v").attribute("xml:space"));
 }
 
 /**
- * @details
- * @pre
- * @post
+ * @details Set the cell to a string value. This is private helper function for setting the cell value
+ * directly in the underlying XML file.
+ * @pre The m_cellNode must not be null, and must point to a valid XMLNode object.
+ * @post The underlying XMLNode has been updated correctly, representing a string value.
  */
 void XLCellValueProxy::setString(const char* stringValue)
 {
+    // ===== Check that the m_cellNode is valid.
+    assert(m_cellNode);
+    assert(!m_cellNode->empty());
+
+    // ===== If the cell node doesn't have a type child node, create it.
     if (!m_cellNode->attribute("t")) m_cellNode->append_attribute("t");
+
+    // ===== If the cell node doesn't have a value child node, create it.
     if (!m_cellNode->child("v")) m_cellNode->append_child("v");
 
+    // ===== Set the type attribute.
     m_cellNode->attribute("t").set_value("s");
 
-    auto index = (m_cell->m_sharedStrings->stringExists(stringValue) ? m_cell->m_sharedStrings->getStringIndex(stringValue)
-                                                                     : m_cell->m_sharedStrings->appendString(stringValue));
+    // ===== Get or create the index in the XLSharedStrings object.
+    auto index =
+        (m_cell->m_sharedStrings->stringExists(stringValue)
+             ? m_cell->m_sharedStrings->getStringIndex(stringValue)
+             : m_cell->m_sharedStrings->appendString(stringValue));
 
+    // ===== Set the text of the value node.
     m_cellNode->child("v").text().set(index);
 
+    // IMPLEMENTATION FOR EMBEDDED STRINGS:
     //    m_cellNode->attribute("t").set_value("str");
     //    m_cellNode->child("v").text().set(stringValue);
     //
@@ -339,12 +424,17 @@ void XLCellValueProxy::setString(const char* stringValue)
 }
 
 /**
- * @details
- * @pre
- * @post
+ * @details Get a copy of the XLCellValue object for the cell. This is private helper function for returning an
+ * XLCellValue object corresponding to the cell value.
+ * @pre The m_cellNode must not be null, and must point to a valid XMLNode object.
+ * @post No changes should be made.
  */
 XLCellValue XLCellValueProxy::getValue() const
 {
+    // ===== Check that the m_cellNode is valid.
+    assert(m_cellNode);
+    assert(!m_cellNode->empty());
+
     switch (type()) {
         case XLValueType::Empty:
             return XLCellValue().clear();
