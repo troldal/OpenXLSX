@@ -12,9 +12,6 @@ if (${ENABLE_COMPACT_MODE})
     target_compile_definitions(PugiXML INTERFACE PUGIXML_COMPACT)
 endif ()
 
-add_library(NoWide INTERFACE IMPORTED)
-target_include_directories(NoWide SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/external/nowide/>)
-
 if (${ENABLE_UNICODE_FILENAMES})
     add_compile_definitions(UNICODE_FILENAMES_ENABLED)
 endif ()
@@ -86,7 +83,7 @@ if (${BUILD_OBJECT_LIB} AND (NOT CMAKE_GENERATOR STREQUAL Xcode))
                                $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
                                $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
                                $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)     # For export header
-    target_link_libraries(OpenXLSX-object PRIVATE Zippy PugiXML NoWide)
+    target_link_libraries(OpenXLSX-object PRIVATE Zippy PugiXML)
     target_compile_definitions(OpenXLSX-object PRIVATE OpenXLSX_shared_EXPORTS)
 endif ()
 
@@ -101,7 +98,7 @@ target_include_directories(OpenXLSX-static
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)     # For export header
-target_link_libraries(OpenXLSX-static PRIVATE Zippy PugiXML NoWide)
+target_link_libraries(OpenXLSX-static PRIVATE Zippy PugiXML)
 target_compile_definitions(OpenXLSX-static PRIVATE OPENXLSX_STATIC_DEFINE)
 
 #=======================================================================================================================
@@ -115,7 +112,7 @@ target_include_directories(OpenXLSX-shared
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)     # For export header
-target_link_libraries(OpenXLSX-shared PRIVATE Zippy PugiXML NoWide)
+target_link_libraries(OpenXLSX-shared PRIVATE Zippy PugiXML)
 
 #=======================================================================================================================
 # GENERATE EXPORT HEADER

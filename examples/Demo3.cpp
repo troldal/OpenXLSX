@@ -26,7 +26,7 @@ int main()
     doc1.close();
 
     XLDocument doc2;
-    doc2.open("./Demo03.xlsx");
+    doc2.open("./スプレッドシート.xlsx");
     auto wks2 = doc2.workbook().worksheet("Sheet1");
 
     cout << "Cell A1 (Korean)  : " << wks2.cell(XLCellReference("A1")).value().get<std::string>() << endl;
