@@ -567,10 +567,20 @@ void XLDocument::create(const std::string& fileName)
         }
         *it=L'\0';
     };
-    auto fileName_w = new wchar_t[fileName.length()*2+2];
-    utf8_16(fileName.c_str(), fileName_w);
-    std::ofstream outfile(fileName_w, std::ios::binary);
-    delete [] fileName_w;
+    std::ofstream outfile;
+    if(fileName.length() < 256u)//very likely
+    {
+        wchar_t fileName_w[256];
+        utf8_16(fileName.c_str(), fileName_w);
+        outfile.open(fileName_w, std::ios::binary);
+    }
+    else
+    {
+        wchar_t *fileName_w = new wchar_t[fileName.length()+1];
+        utf8_16(fileName.c_str(), fileName_w);
+        outfile.open(fileName_w, std::ios::binary);
+        delete[] fileName_w;
+    }
 #endif
 
     // ===== Stream the binary data for an empty workbook to the output file.

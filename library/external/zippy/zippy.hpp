@@ -4602,6 +4602,93 @@ common_exit:
         }
         *it=L'\0';
     }
+    
+#   include <string.h>
+    /* Assume pFilename is UTF-8 encoded; covert it to UTF-16 and use wide Win32 API. */
+    static FILE* mz_fopen(const char* pFilename, const char* pMode)
+    {
+        wchar_t pMode_w[8];
+        size_t s = 0;
+        /* Valid pMode only contains ASCII characters; its length should be less than 7 */
+        while(*pMode&&s<7)
+            pMode_w[s++]=(wchar_t)(*pMode++);
+        pMode_w[s] = L'\0';
+        s = strlen(pFilename);/* reuse variable s*/
+        if(s < 256u)/*very likely*/
+        {
+            wchar_t pFilename_w[256];
+            mz_utf8_16(pFilename, pFilename_w);
+            return _wfopen(pFilename_w, pMode_w);
+        }
+        else
+        {
+            wchar_t *pFilename_w = (wchar_t*)MZ_MALLOC(s*2+2);
+            if(pFilename_w != NULL)
+            {
+                FILE* pFile;
+                mz_utf8_16(pFilename, pFilename_w);
+                pFile = _wfopen(pFilename_w, pMode_w);
+                MZ_FREE(pFilename_w);
+                return pFile;
+            }
+            else/* unlikely */
+                return fopen(pFilename, pMode);
+        }
+    }
+    static FILE* mz_freopen(const char* pPath, const char* pMode, FILE* pStream)
+    {
+        wchar_t pMode_w[8];
+        size_t s = 0;
+        /* Valid pMode only contains ASCII characters; its length should be less than 7 */
+        while(*pMode&&s<7)
+            pMode_w[s++]=(wchar_t)(*pMode++);
+        pMode_w[s] = L'\0';
+        s = strlen(pPath);
+        if(s < 256u)
+        {
+            wchar_t pPath_w[256];
+            mz_utf8_16(pPath, pPath_w);
+            return _wfreopen(pPath_w, pMode_w, pStream);
+        }
+        else
+        {
+            wchar_t *pPath_w = (wchar_t*)MZ_MALLOC(s*2+2);
+            if( pPath_w != NULL)
+            {
+                FILE *pFile;
+                mz_utf8_16(pPath, pPath_w);
+                pFile = _wfreopen(pPath_w, pMode_w, pStream);
+                MZ_FREE(pPath_w);
+                return pFile;
+            }
+            else
+                return freopen(pPath, pMode, pStream);
+        }
+    }
+    static int mz_remove(const char* pFilename)
+    {
+        size_t s = strlen(pFilename);
+        if(s < 256u)
+        {
+            wchar_t pFilename_w[256];
+            mz_utf8_16(pFilename, pFilename_w);
+            return _wremove(pFilename_w);
+        }
+        else
+        {
+            wchar_t *pFilename_w = (wchar_t*)MZ_MALLOC(strlen(pFilename)*2+2);
+            if(pFilename_w != NULL)
+            {
+                int r;
+                mz_utf8_16(pFilename, pFilename_w);
+                r = _wremove(pFilename_w);
+                MZ_FREE(pFilename_w);
+                return r;
+            }
+            else
+                return remove(pFilename);
+        }
+    }
 #endif/*  _WIN32 */
 
 #ifndef MINIZ_NO_ARCHIVE_APIS
@@ -4620,53 +4707,10 @@ common_exit:
 #        include <sys/stat.h>
 
 #        if defined(_MSC_VER) || defined(__MINGW64__)
-#            include <string.h>
-#            include <stdlib.h>
-    /* Assume pFilename is UTF-8 encoded; covert it to UTF-16 and use wide Win32 API. */
-    static FILE* mz_fopen(const char* pFilename, const char* pMode)
-    {
-        wchar_t *pFilename_w, pMode_w[8];
-        size_t s = 0;
-        FILE* pFile;
-        pFilename_w = (wchar_t*)malloc(strlen(pFilename)*2+2);
-        //Valid pMode contains only ASCII characters; its length should be less than 7
-        while(*pMode&&s<7)
-            pMode_w[s++]=(wchar_t)(*pMode++);
-        pMode_w[s] = L'\0';
-        mz_utf8_16(pFilename, pFilename_w);
-        pFile = _wfopen(pFilename_w, pMode_w);
-        free(pFilename_w);
-        return pFile;
-    }
-    static FILE* mz_freopen(const char* pPath, const char* pMode, FILE* pStream)
-    {
-        wchar_t *pPath_w, pMode_w[8];
-        size_t s = 0;
-        FILE* pFile;
-        pPath_w = (wchar_t*)malloc(strlen(pPath)*2+2);
-        //Valid pMode contains only ASCII characters; its length should be less than 7
-        while(*pMode&&s<7)
-            pMode_w[s++]=(wchar_t)(*pMode++);
-        pMode_w[s] = L'\0';
-        mz_utf8_16(pPath, pPath_w);
-        pFile = _wfreopen(pPath_w, pMode_w, pStream);
-        free(pPath_w);
-        return pFile;
-    }
-    static int mz_remove(const char* pFilename)
-    {
-        wchar_t *pFilename_w;
-        int r;
-        pFilename_w = (wchar_t*)malloc(strlen(pFilename)*2+2);
-        mz_utf8_16(pFilename, pFilename_w);
-        r = _wremove(pFilename_w);
-        free(pFilename_w);
-        return r;
-    }
 #            ifndef MINIZ_NO_TIME
 #                include <sys/utime.h>
 #            endif
-#            define MZ_FOPEN mz_fopen
+#            define MZ_FOPEN(f, m) mz_fopen(f, m)
 #            define MZ_FCLOSE fclose
 #            define MZ_FREAD fread
 #            define MZ_FWRITE fwrite
@@ -4675,13 +4719,13 @@ common_exit:
 #            define MZ_FILE_STAT_STRUCT _stat
 #            define MZ_FILE_STAT _stat
 #            define MZ_FFLUSH fflush
-#            define MZ_FREOPEN mz_freopen
+#            define MZ_FREOPEN(f, m, s) mz_freopen(f, m, s)
 #            define MZ_DELETE_FILE mz_remove
 #        elif defined(__MINGW32__)
 #            ifndef MINIZ_NO_TIME
 #                include <sys/utime.h>
 #            endif
-#            define MZ_FOPEN(f, m) fopen(f, m)
+#            define MZ_FOPEN(f, m) mz_fopen(f, m)
 #            define MZ_FCLOSE fclose
 #            define MZ_FREAD fread
 #            define MZ_FWRITE fwrite
@@ -4690,8 +4734,8 @@ common_exit:
 #            define MZ_FILE_STAT_STRUCT _stat
 #            define MZ_FILE_STAT _stat
 #            define MZ_FFLUSH fflush
-#            define MZ_FREOPEN(f, m, s) freopen(f, m, s)
-#            define MZ_DELETE_FILE remove
+#            define MZ_FREOPEN(f, m, s) mz_freopen(f, m, s)
+#            define MZ_DELETE_FILE mz_remove
 #        elif defined(__TINYC__)
 #            ifndef MINIZ_NO_TIME
 #                include <sys/utime.h>
@@ -10496,10 +10540,20 @@ namespace Zippy
         {
             // ===== Open file stream
 #ifdef _WIN32
-            wchar_t *fileName_w=new wchar_t[fileName.length()*2+2];
-            mz_utf8_16(fileName.c_str(), fileName_w);
-            std::ifstream f(fileName_w);
-            delete [] fileName_w;
+            std::ifstream f;
+            if(fileName.length() < 256u)//very likely
+            {
+                wchar_t fileName_w[256];
+                mz_utf8_16(fileName.c_str(), fileName_w);
+                f.open(fileName_w);
+            }
+            else
+            {
+                wchar_t *fileName_w=new wchar_t[fileName.length()+1];
+                mz_utf8_16(fileName.c_str(), fileName_w);
+                f.open(fileName_w);
+                delete[] fileName_w;
+            }       
 #else
             std::ifstream f(fileName.c_str());
 #endif
@@ -10888,12 +10942,23 @@ namespace Zippy
             Close();
             MZ_DELETE_FILE(filename.c_str());
 #ifdef _WIN32
-			auto tempPath_w = new wchar_t[tempPath.length()*2+2], filename_w = new wchar_t[filename.length()*2+2];
-			mz_utf8_16(tempPath.c_str(), tempPath_w);
-			mz_utf8_16(filename.c_str(), filename_w);
-			_wrename(tempPath_w, filename_w);
-			delete[] tempPath_w;
-			delete[] filename_w;
+            if(tempPath.length()<256u && filename.length()<256u)//very likely
+            {
+                wchar_t tempPath_w[256], filename_w[256];
+                mz_utf8_16(tempPath.c_str(), tempPath_w);
+                mz_utf8_16(filename.c_str(), filename_w);
+                _wrename(tempPath_w, filename_w);
+            }
+            else
+            {
+                wchar_t *tempPath_w = new wchar_t[tempPath.length()+1],
+                    *filename_w = new wchar_t[filename.length()+1];
+                mz_utf8_16(tempPath.c_str(), tempPath_w);
+                mz_utf8_16(filename.c_str(), filename_w);
+                _wrename(tempPath_w, filename_w);
+                delete[] tempPath_w;
+                delete[] filename_w;
+            }
 #else
             std::rename(tempPath.c_str(), filename.c_str());
 #endif
@@ -10979,10 +11044,20 @@ namespace Zippy
             else {
 #ifdef _WIN32
                 std::string fullFileName = dest + "/" + entry.Filename();
-                wchar_t *fullFileName_w=new wchar_t[fullFileName.length()*2+2];
-                mz_utf8_16(fullFileName.c_str(), fullFileName_w);
-                std::ofstream output(fullFileName_w, std::ios::binary);
-                delete [] fullFileName_w;
+				std::ofstream output;
+				if(fullFileName.length() < 256u)//very likely
+				{
+					wchar_t fullFileName_w[256];
+					mz_utf8_16(fullFileName.c_str(), fullFileName_w);
+					output.open(fullFileName_w, std::ios::binary);
+				}
+				else
+				{
+					wchar_t *fullFileName_w=new wchar_t[fullFileName.length()+1];
+					mz_utf8_16(fullFileName.c_str(), fullFileName_w);
+					output.open(fullFileName_w, std::ios::binary);
+					delete[] fullFileName_w;
+				}
 #else
                 std::ofstream output(dest + "/" + entry.Filename(), std::ios::binary);
 #endif
