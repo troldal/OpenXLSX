@@ -412,26 +412,25 @@ namespace OpenXLSX
      */
     XLRowDataProxy& XLRowDataProxy::operator=(const std::vector<XLCellValue>& values)
     {
-        // ===== Find or create the first cell node
-        auto curNode = m_rowNode->first_child();
-        if (!curNode || XLCellReference(curNode.attribute("r").value()).column() != 1) {
-            curNode = m_rowNode->append_child("c"); // TODO: Should it be prepended?
-            curNode.append_attribute("r").set_value(XLCellReference(m_row->rowNumber(), 1).address().c_str());
+        // ===== Mark cell nodes for deletion
+        std::vector<XMLNode> toBeDeleted;
+        for (auto cellNode : m_rowNode->children()) {
+            if (XLCellReference(cellNode.attribute("r").value()).column() <= values.size())
+                toBeDeleted.emplace_back(cellNode);
         }
 
-        auto     prevNode = XMLNode();
-        uint16_t col      = 1;
-        for (const auto& value : values) {
-            if (!curNode || XLCellReference(curNode.attribute("r").value()).column() != col) {
-                curNode = m_rowNode->insert_child_after("c", prevNode);
-                curNode.append_attribute("r").set_value(XLCellReference(m_row->rowNumber(), col).address().c_str());
-            }
+        // ===== Delete selected cell nodes
+        for (auto cellNode : toBeDeleted)
+            m_rowNode->remove_child(cellNode);
 
-            XLCell(curNode, m_row->m_sharedStrings).value() = value;
-
-            prevNode = curNode;
-            curNode  = curNode.next_sibling();
-            ++col;
+        // ===== prepend new cell nodes to current row node
+        auto curNode = XMLNode();
+        auto colNo      = values.size();
+        for (auto value = values.rbegin(); value != values.rend(); ++value) {
+            curNode = m_rowNode->prepend_child("c");
+            curNode.append_attribute("r").set_value(XLCellReference(m_row->rowNumber(), colNo).address().c_str());
+            XLCell(curNode, m_row->m_sharedStrings).value() = *value;
+            --colNo;
         }
 
         return *this;
