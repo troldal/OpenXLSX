@@ -231,6 +231,12 @@ namespace OpenXLSX
          */
         XLRowDataProxy& operator=(const std::vector<XLCellValue>& values);
 
+        /**
+         * @brief
+         * @tparam T
+         * @param values
+         * @return
+         */
         template<typename T,
                  typename std::enable_if<!std::is_same_v<T, XLRowDataProxy> &&
                                              std::is_base_of_v<typename std::forward_iterator_tag,

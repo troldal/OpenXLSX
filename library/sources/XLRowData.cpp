@@ -370,6 +370,7 @@ namespace OpenXLSX
      */
     XLRowDataProxy& XLRowDataProxy::operator=(const XLRowDataProxy& other)
     {
+        // TODO: Consider implementing this a copy-and-swap
         if (&other != this) {
             *this = other.getValues();
         }
@@ -456,6 +457,7 @@ namespace OpenXLSX
         auto numCells = XLCellReference(m_rowNode->last_child().attribute("r").value()).column();
 
         std::vector<XLCellValue> result(numCells);
+
         for (auto& node : m_rowNode->children()) {
             if (XLCellReference(node.attribute("r").value()).column() > numCells) break;
             result[XLCellReference(node.attribute("r").value()).column() - 1] = XLCell(node, m_row->m_sharedStrings).value();
