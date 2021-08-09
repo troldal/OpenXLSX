@@ -1,7 +1,7 @@
 /**
- * pugixml parser - version 1.10
+ * pugixml parser - version 1.11
  * --------------------------------------------------------
- * Copyright (C) 2006-2019, by Arseny Kapoulkine (arseny.kapoulkine@gmail.com)
+ * Copyright (C) 2006-2020, by Arseny Kapoulkine (arseny.kapoulkine@gmail.com)
  * Report bugs and download new versions at https://pugixml.org/
  *
  * This library is distributed under the MIT License. See notice at the end
@@ -12,7 +12,7 @@
  */
 
 #ifndef HEADER_PUGICONFIG_HPP
-#    define HEADER_PUGICONFIG_HPP
+#define HEADER_PUGICONFIG_HPP
 
 // Uncomment this to enable wchar_t mode
 // #define PUGIXML_WCHAR_MODE
@@ -21,7 +21,7 @@
 // #define PUGIXML_COMPACT
 
 // Uncomment this to disable XPath
-#    define PUGIXML_NO_XPATH
+#define PUGIXML_NO_XPATH
 
 // Uncomment this to disable STL
 // #define PUGIXML_NO_STL
@@ -40,8 +40,11 @@
 // #define PUGIXML_MEMORY_OUTPUT_STACK 10240
 // #define PUGIXML_MEMORY_XPATH_PAGE_SIZE 4096
 
+// Tune this constant to adjust max nesting for XPath queries
+// #define PUGIXML_XPATH_DEPTH_LIMIT 1024
+
 // Uncomment this to switch to header-only version
-#    define PUGIXML_HEADER_ONLY
+#define PUGIXML_HEADER_ONLY
 
 // Uncomment this to enable long long support
 // #define PUGIXML_HAS_LONG_LONG
@@ -49,7 +52,7 @@
 #endif
 
 /**
- * Copyright (c) 2006-2019 Arseny Kapoulkine
+ * Copyright (c) 2006-2020 Arseny Kapoulkine
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
