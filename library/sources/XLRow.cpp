@@ -286,6 +286,15 @@ namespace OpenXLSX
     {
         return XLRowDataRange(*m_rowNode, firstCell, lastCell, m_sharedStrings);
     }
+
+    /**
+     * @details
+     * @pre
+     * @post
+     */
+    void XLRow::clear() {
+        m_rowNode->remove_children();
+    }
 }    // namespace OpenXLSX
 
 // ========== XLRowIterator  ================================================ //

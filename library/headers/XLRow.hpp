@@ -200,8 +200,18 @@ namespace OpenXLSX
          */
         XLRowDataRange cells(uint16_t firstCell, uint16_t lastCell) const;
 
+        /**
+         * @brief
+         * @tparam T
+         * @return
+         */
         template<typename T>
         T values() const;
+
+        /**
+         * @brief
+         */
+        void clear();
 
         //---------- PRIVATE MEMBER VARIABLES ----------//
     private:
