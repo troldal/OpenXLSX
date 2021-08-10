@@ -62,12 +62,12 @@ namespace OpenXLSX
      * @post
      */
     XLRowDataIterator::XLRowDataIterator(const XLRowDataRange& rowDataRange, XLIteratorLocation loc)
-        : m_dataRange(std::make_unique<XLRowDataRange>(rowDataRange)),
-          m_currentCell(loc == XLIteratorLocation::End
-                            ? XLCell()
-                            : XLCell(getCellNode(*m_dataRange->m_rowNode, m_dataRange->m_firstCol), m_dataRange->m_sharedStrings)),
-          m_currentCol(loc == XLIteratorLocation::End ? m_dataRange->m_lastCol : m_dataRange->m_firstCol),
-          m_cellNode(std::make_unique<XMLNode>(nullptr))
+    : m_dataRange(std::make_unique<XLRowDataRange>(rowDataRange)),
+    m_currentCell(loc == XLIteratorLocation::End
+    ? XLCell()
+    : XLCell(getCellNode(*m_dataRange->m_rowNode, m_dataRange->m_firstCol), m_dataRange->m_sharedStrings)),
+    m_currentCol(loc == XLIteratorLocation::End ? m_dataRange->m_lastCol : m_dataRange->m_firstCol),
+    m_cellNode(std::make_unique<XMLNode>(nullptr))
     {}
 
     /**
@@ -83,10 +83,10 @@ namespace OpenXLSX
      * @post
      */
     XLRowDataIterator::XLRowDataIterator(const XLRowDataIterator& other)
-        : m_dataRange(std::make_unique<XLRowDataRange>(*other.m_dataRange)),
-          m_currentCell(other.m_currentCell),
-          m_currentCol(other.m_currentCol),
-          m_cellNode(std::make_unique<XMLNode>(*other.m_cellNode))
+    : m_dataRange(std::make_unique<XLRowDataRange>(*other.m_dataRange)),
+    m_currentCell(other.m_currentCell),
+    m_currentCol(other.m_currentCol),
+    m_cellNode(std::make_unique<XMLNode>(*other.m_cellNode))
     {}
 
     /**
@@ -102,7 +102,7 @@ namespace OpenXLSX
      * @post
      */
     XLRowDataIterator& XLRowDataIterator::operator=(const XLRowDataIterator& other)
-    {
+        {
         if (&other != this) {
             *m_dataRange  = *other.m_dataRange;
             m_currentCell = other.m_currentCell;
@@ -111,130 +111,130 @@ namespace OpenXLSX
         }
 
         return *this;
-    }
-
-    /**
-     * @details
-     * @pre
-     * @post
-     */
-    XLRowDataIterator& XLRowDataIterator::operator=(XLRowDataIterator&& other) noexcept = default;
-
-    /**
-     * @details
-     * @pre
-     * @post
-     */
-    XLRowDataIterator& XLRowDataIterator::operator++()
-    {
-        ++m_currentCol;
-
-        // ===== Compute cellreference
-        auto cellRef = XLCellReference(m_dataRange->m_rowNode->attribute("r").as_ullong(), m_currentCol);
-
-        // ===== If the current m_cellNode reference is empty, find the next cell node in the row that is greater than
-        // ===== or equal to the cell reference.
-        if (!m_cellNode) {
-            *m_cellNode = m_dataRange->m_rowNode->find_child(
-                [&](const XMLNode& node) { return XLCellReference(node.attribute("r").value()) >= cellRef; });
-
-            // TODO: Check the logic here!
-            if (*m_cellNode && XLCellReference(m_cellNode->attribute("r").value()) > cellRef)
-                *m_cellNode = m_cellNode->previous_sibling();
         }
 
+        /**
+         * @details
+         * @pre
+         * @post
+         */
+        XLRowDataIterator& XLRowDataIterator::operator=(XLRowDataIterator&& other) noexcept = default;
 
-        else {
-            // TODO: Check the logic here!
-//            if (XLCellReference(m_cellNode->next_sibling().attribute("r").value()) == cellRef)
-//                *m_cellNode = m_cellNode->next_sibling();
-//        }
+        /**
+         * @details
+         * @pre
+         * @post
+         */
+        XLRowDataIterator& XLRowDataIterator::operator++()
+        {
+            ++m_currentCol;
 
-            auto cellNumber = m_currentCell.cellReference().column() + 1;
-            auto cellNode   = m_currentCell.m_cellNode->next_sibling();
+            // ===== Compute cellreference
+            auto cellRef = XLCellReference(m_dataRange->m_rowNode->attribute("r").as_ullong(), m_currentCol);
 
-            if (cellNumber > m_dataRange->m_lastCol)
-                m_currentCell = XLCell();
+            // ===== If the current m_cellNode reference is empty, find the next cell node in the row that is greater than
+            // ===== or equal to the cell reference.
+            if (!m_cellNode) {
+                *m_cellNode = m_dataRange->m_rowNode->find_child(
+                    [&](const XMLNode& node) { return XLCellReference(node.attribute("r").value()) >= cellRef; });
 
-            else if (!cellNode || XLCellReference(cellNode.attribute("r").value()).column() != cellNumber) {
-                cellNode = m_dataRange->m_rowNode->insert_child_after("c", *m_currentCell.m_cellNode);
-                cellNode.append_attribute("r").set_value(
-                    XLCellReference(m_dataRange->m_rowNode->attribute("r").as_ullong(), cellNumber).address().c_str());
-                m_currentCell = XLCell(cellNode, m_dataRange->m_sharedStrings);
+                // TODO: Check the logic here!
+                if (*m_cellNode && XLCellReference(m_cellNode->attribute("r").value()) > cellRef)
+                    *m_cellNode = m_cellNode->previous_sibling();
             }
 
-            else
-                m_currentCell = XLCell(cellNode, m_dataRange->m_sharedStrings);
+
+            else {
+                // TODO: Check the logic here!
+                //            if (XLCellReference(m_cellNode->next_sibling().attribute("r").value()) == cellRef)
+                //                *m_cellNode = m_cellNode->next_sibling();
+                //        }
+
+                auto cellNumber = m_currentCell.cellReference().column() + 1;
+                auto cellNode   = m_currentCell.m_cellNode->next_sibling();
+
+                if (cellNumber > m_dataRange->m_lastCol)
+                    m_currentCell = XLCell();
+
+                else if (!cellNode || XLCellReference(cellNode.attribute("r").value()).column() != cellNumber) {
+                    cellNode = m_dataRange->m_rowNode->insert_child_after("c", *m_currentCell.m_cellNode);
+                    cellNode.append_attribute("r").set_value(
+                        XLCellReference(m_dataRange->m_rowNode->attribute("r").as_ullong(), cellNumber).address().c_str());
+                    m_currentCell = XLCell(cellNode, m_dataRange->m_sharedStrings);
+                }
+
+                else
+                    m_currentCell = XLCell(cellNode, m_dataRange->m_sharedStrings);
+            }
+            return *this;
         }
-        return *this;
-    }
 
-    /**
-     * @details
-     * @pre
-     * @post
-     */
-    XLRowDataIterator XLRowDataIterator::operator++(int)    // NOLINT
-    {
-        auto oldIter(*this);
-        ++(*this);
-        return oldIter;
-    }
+        /**
+         * @details
+         * @pre
+         * @post
+         */
+        XLRowDataIterator XLRowDataIterator::operator++(int)    // NOLINT
+        {
+            auto oldIter(*this);
+            ++(*this);
+            return oldIter;
+        }
 
-    /**
-     * @details
-     * @pre
-     * @post
-     */
-    XLCell& XLRowDataIterator::operator*()
-    {
-        if (m_currentCol >= m_dataRange->m_lastCol)
-            m_currentCell = XLCell();
-//        else {
-//            if (!m_cellNode) }
+        /**
+         * @details
+         * @pre
+         * @post
+         */
+        XLCell& XLRowDataIterator::operator*()
+        {
+            if (m_currentCol >= m_dataRange->m_lastCol)
+                m_currentCell = XLCell();
+            //        else {
+            //            if (!m_cellNode) }
 
-        return m_currentCell;
-    }
+            return m_currentCell;
+        }
 
-    /**
-     * @details
-     * @pre
-     * @post
-     */
-    XLRowDataIterator::pointer XLRowDataIterator::operator->()
-    {
-        return &m_currentCell;
-    }
+        /**
+         * @details
+         * @pre
+         * @post
+         */
+        XLRowDataIterator::pointer XLRowDataIterator::operator->()
+        {
+            return &m_currentCell;
+        }
 
-    /**
-     * @details
-     * @pre
-     * @post
-     */
-    bool XLRowDataIterator::operator==(const XLRowDataIterator& rhs)
-    {
-        return m_currentCell == rhs.m_currentCell;
-    }
+        /**
+         * @details
+         * @pre
+         * @post
+         */
+        bool XLRowDataIterator::operator==(const XLRowDataIterator& rhs)
+        {
+            return m_currentCell == rhs.m_currentCell;
+        }
 
-    /**
-     * @details
-     * @pre
-     * @post
-     */
-    bool XLRowDataIterator::operator!=(const XLRowDataIterator& rhs)
-    {
-        return !(m_currentCell == rhs.m_currentCell);
-    }
+        /**
+         * @details
+         * @pre
+         * @post
+         */
+        bool XLRowDataIterator::operator!=(const XLRowDataIterator& rhs)
+        {
+            return !(m_currentCell == rhs.m_currentCell);
+        }
 
-    /**
-     * @details
-     * @pre
-     * @post
-     */
-    XLRowDataIterator::operator bool() const
-    {
-        return false;
-    }
+        /**
+         * @details
+         * @pre
+         * @post
+         */
+        XLRowDataIterator::operator bool() const
+        {
+            return false;
+        }
 
 }    // namespace OpenXLSX
 
@@ -247,10 +247,10 @@ namespace OpenXLSX
      * @post
      */
     XLRowDataRange::XLRowDataRange(const XMLNode& rowNode, uint16_t firstColumn, uint16_t lastColumn, XLSharedStrings* sharedStrings)
-        : m_rowNode(std::make_unique<XMLNode>(rowNode)),
-          m_firstCol(firstColumn),
-          m_lastCol(lastColumn),
-          m_sharedStrings(sharedStrings)
+    : m_rowNode(std::make_unique<XMLNode>(rowNode)),
+    m_firstCol(firstColumn),
+    m_lastCol(lastColumn),
+    m_sharedStrings(sharedStrings)
     {}
 
     /**
@@ -259,10 +259,10 @@ namespace OpenXLSX
      * @post
      */
     XLRowDataRange::XLRowDataRange(const XLRowDataRange& other)
-        : m_rowNode(std::make_unique<XMLNode>(*other.m_rowNode)),
-          m_firstCol(other.m_firstCol),
-          m_lastCol(other.m_lastCol),
-          m_sharedStrings(other.m_sharedStrings)
+    : m_rowNode(std::make_unique<XMLNode>(*other.m_rowNode)),
+    m_firstCol(other.m_firstCol),
+    m_lastCol(other.m_lastCol),
+    m_sharedStrings(other.m_sharedStrings)
 
     {}
 
@@ -286,7 +286,7 @@ namespace OpenXLSX
      * @post
      */
     XLRowDataRange& XLRowDataRange::operator=(const XLRowDataRange& other)
-    {
+        {
         if (&other != this) {
             *m_rowNode      = *other.m_rowNode;
             m_firstCol      = other.m_firstCol;
@@ -295,62 +295,55 @@ namespace OpenXLSX
         }
 
         return *this;
-    }
-
-    /**
-     * @details
-     * @pre
-     * @post
-     */
-    XLRowDataRange& XLRowDataRange::operator=(XLRowDataRange&& other) noexcept
-    {
-        if (&other != this) {
-            *m_rowNode      = *other.m_rowNode;
-            m_firstCol      = other.m_firstCol;
-            m_lastCol       = other.m_lastCol;
-            m_sharedStrings = other.m_sharedStrings;
         }
 
-        return *this;
-    }
+        /**
+         * @details
+         * @pre
+         * @post
+         */
+        XLRowDataRange& XLRowDataRange::operator=(XLRowDataRange&& other) noexcept
+            {
+            if (&other != this) {
+                *m_rowNode      = *other.m_rowNode;
+                m_firstCol      = other.m_firstCol;
+                m_lastCol       = other.m_lastCol;
+                m_sharedStrings = other.m_sharedStrings;
+            }
 
-    /**
-     * @details
-     * @pre
-     * @post
-     */
-    uint16_t XLRowDataRange::cellCount() const
-    {
-        return m_lastCol - m_firstCol + 1;
-    }
+            return *this;
+            }
 
-    /**
-     * @details
-     * @pre
-     * @post
-     */
-    XLRowDataIterator XLRowDataRange::begin()
-    {
-        return XLRowDataIterator(*this, XLIteratorLocation::Begin);
-    }
+            /**
+             * @details
+             * @pre
+             * @post
+             */
+            uint16_t XLRowDataRange::cellCount() const
+            {
+                return m_lastCol - m_firstCol + 1;
+            }
 
-    /**
-     * @details
-     * @pre
-     * @post
-     */
-    XLRowDataIterator XLRowDataRange::end()
-    {
-        return XLRowDataIterator(*this, XLIteratorLocation::End);
-    }
+            /**
+             * @details
+             * @pre
+             * @post
+             */
+            XLRowDataIterator XLRowDataRange::begin()
+            {
+                return XLRowDataIterator(*this, XLIteratorLocation::Begin);
+            }
 
-    /**
-     * @details
-     * @pre
-     * @post
-     * @todo To be implemented
-     */
-    void XLRowDataRange::clear() {}
+            /**
+             * @details
+             * @pre
+             * @post
+             */
+            XLRowDataIterator XLRowDataRange::end()
+            {
+                return XLRowDataIterator(*this, XLIteratorLocation::End);
+            }
+
 }    // namespace OpenXLSX
 
 // ========== XLRowDataProxy  =============================================== //
@@ -369,101 +362,109 @@ namespace OpenXLSX
      * @post
      */
     XLRowDataProxy& XLRowDataProxy::operator=(const XLRowDataProxy& other)
-    {
+        {
         // TODO: Consider implementing this a copy-and-swap
         if (&other != this) {
             *this = other.getValues();
         }
 
         return *this;
-    }
-
-    /**
-     * @details
-     * @pre
-     * @post
-     */
-    XLRowDataProxy::XLRowDataProxy(XLRow* row, XMLNode* rowNode) : m_row(row), m_rowNode(rowNode) {}
-
-    /**
-     * @details
-     * @pre
-     * @post
-     */
-    XLRowDataProxy::XLRowDataProxy(const XLRowDataProxy& other) = default;
-
-    /**
-     * @details
-     * @pre
-     * @post
-     */
-    XLRowDataProxy::XLRowDataProxy(XLRowDataProxy&& other) noexcept = default;
-
-    /**
-     * @details
-     * @pre
-     * @post
-     */
-    XLRowDataProxy& XLRowDataProxy::operator=(XLRowDataProxy&& other) noexcept = default;
-
-    /**
-     * @details
-     * @pre
-     * @post
-     */
-    XLRowDataProxy& XLRowDataProxy::operator=(const std::vector<XLCellValue>& values)
-    {
-        // ===== Mark cell nodes for deletion
-        std::vector<XMLNode> toBeDeleted;
-        for (auto cellNode : m_rowNode->children()) {
-            if (XLCellReference(cellNode.attribute("r").value()).column() <= values.size())
-                toBeDeleted.emplace_back(cellNode);
         }
 
-        // ===== Delete selected cell nodes
-        for (auto cellNode : toBeDeleted)
-            m_rowNode->remove_child(cellNode);
+        /**
+         * @details
+         * @pre
+         * @post
+         */
+        XLRowDataProxy::XLRowDataProxy(XLRow* row, XMLNode* rowNode) : m_row(row), m_rowNode(rowNode) {}
 
-        // ===== prepend new cell nodes to current row node
-        auto curNode = XMLNode();
-        auto colNo      = values.size();
-        for (auto value = values.rbegin(); value != values.rend(); ++value) {
-            curNode = m_rowNode->prepend_child("c");
-            curNode.append_attribute("r").set_value(XLCellReference(m_row->rowNumber(), colNo).address().c_str());
-            XLCell(curNode, m_row->m_sharedStrings).value() = *value;
-            --colNo;
-        }
+        /**
+         * @details
+         * @pre
+         * @post
+         */
+        XLRowDataProxy::XLRowDataProxy(const XLRowDataProxy& other) = default;
 
-        return *this;
-    }
+        /**
+         * @details
+         * @pre
+         * @post
+         */
+        XLRowDataProxy::XLRowDataProxy(XLRowDataProxy&& other) noexcept = default;
 
-    /**
-     * @details
-     * @pre
-     * @post
-     */
-    XLRowDataProxy::operator std::vector<XLCellValue>()
-    {
-        return getValues();
-    }
+        /**
+         * @details
+         * @pre
+         * @post
+         */
+        XLRowDataProxy& XLRowDataProxy::operator=(XLRowDataProxy&& other) noexcept = default;
 
-    /**
-     * @details
-     * @pre
-     * @post
-     */
-    std::vector<XLCellValue> XLRowDataProxy::getValues() const
-    {
-        auto numCells = XLCellReference(m_rowNode->last_child().attribute("r").value()).column();
+        /**
+         * @details
+         * @pre
+         * @post
+         */
+        XLRowDataProxy& XLRowDataProxy::operator=(const std::vector<XLCellValue>& values)
+            {
+            // ===== Mark cell nodes for deletion
+            std::vector<XMLNode> toBeDeleted;
+            for (auto cellNode : m_rowNode->children()) {
+                if (XLCellReference(cellNode.attribute("r").value()).column() <= values.size())
+                    toBeDeleted.emplace_back(cellNode);
+            }
 
-        std::vector<XLCellValue> result(numCells);
+            // ===== Delete selected cell nodes
+            for (auto cellNode : toBeDeleted)
+                m_rowNode->remove_child(cellNode);
 
-        for (auto& node : m_rowNode->children()) {
-            if (XLCellReference(node.attribute("r").value()).column() > numCells) break;
-            result[XLCellReference(node.attribute("r").value()).column() - 1] = XLCell(node, m_row->m_sharedStrings).value();
-        }
+            // ===== prepend new cell nodes to current row node
+            auto curNode = XMLNode();
+            auto colNo      = values.size();
+            for (auto value = values.rbegin(); value != values.rend(); ++value) {
+                curNode = m_rowNode->prepend_child("c");
+                curNode.append_attribute("r").set_value(XLCellReference(m_row->rowNumber(), colNo).address().c_str());
+                XLCell(curNode, m_row->m_sharedStrings).value() = *value;
+                --colNo;
+            }
 
-        return result;
-    }
+            return *this;
+            }
+
+            /**
+             * @details This function simply calls the getValues() function, which returns a std::vector of XLCellValues as required.
+             * @pre
+             * @post
+             */
+            XLRowDataProxy::operator std::vector<XLCellValue>()
+            {
+                return getValues();
+            }
+
+            /**
+             * @details Iterates through the cell values (if any) for the current row, and copies them to an output container.
+             * @pre
+             * @post
+             */
+            std::vector<XLCellValue> XLRowDataProxy::getValues() const
+            {
+                // ===== Determine the number of cells in the current row. Create a std::vector of the same size.
+                auto numCells = (m_rowNode->last_child() == XMLNode() ? 0 : XLCellReference(m_rowNode->last_child().attribute("r").value()).column());
+                std::vector<XLCellValue> result(numCells);
+
+                // ===== If there are one or more cells in the current row, iterate through them and add the value to the container.
+                if (numCells > 0) {
+                    for (auto& node : m_rowNode->children()) {
+                        //if (XLCellReference(node.attribute("r").value()).column() > numCells) break; //TODO: Is this check needed?
+                        result[XLCellReference(node.attribute("r").value()).column() - 1] = XLCell(node, m_row->m_sharedStrings).value();
+                    }
+                }
+
+                // ===== Return the resulting container.
+                return result;
+            }
+
+            void XLRowDataProxy::clear() {
+                m_rowNode->remove_children();
+            }
 
 }    // namespace OpenXLSX

@@ -29,267 +29,267 @@ namespace OpenXLSX
      * @brief
      */
     class OPENXLSX_EXPORT XLRowDataIterator
-    {
-    public:
-        using iterator_category = std::forward_iterator_tag;
-        using value_type        = XLCell;
-        using difference_type   = int64_t;
-        using pointer           = XLCell*;
-        using reference         = XLCell&;
+        {
+        public:
+            using iterator_category = std::forward_iterator_tag;
+            using value_type        = XLCell;
+            using difference_type   = int64_t;
+            using pointer           = XLCell*;
+            using reference         = XLCell&;
 
-        /**
-         * @brief
-         * @param cellRange
-         * @param loc
-         */
-        XLRowDataIterator(const XLRowDataRange& rowDataRange, XLIteratorLocation loc);
+            /**
+             * @brief
+             * @param cellRange
+             * @param loc
+             */
+            XLRowDataIterator(const XLRowDataRange& rowDataRange, XLIteratorLocation loc);
 
-        /**
-         * @brief
-         */
-        ~XLRowDataIterator();
+            /**
+             * @brief
+             */
+            ~XLRowDataIterator();
 
-        /**
-         * @brief
-         * @param other
-         */
-        XLRowDataIterator(const XLRowDataIterator& other);
+            /**
+             * @brief
+             * @param other
+             */
+            XLRowDataIterator(const XLRowDataIterator& other);
 
-        /**
-         * @brief
-         * @param other
-         */
-        XLRowDataIterator(XLRowDataIterator&& other) noexcept;
+            /**
+             * @brief
+             * @param other
+             */
+            XLRowDataIterator(XLRowDataIterator&& other) noexcept;
 
-        /**
-         * @brief
-         * @param other
-         * @return
-         */
-        XLRowDataIterator& operator=(const XLRowDataIterator& other);
+            /**
+             * @brief
+             * @param other
+             * @return
+             */
+            XLRowDataIterator& operator=(const XLRowDataIterator& other);
 
-        /**
-         * @brief
-         * @param other
-         * @return
-         */
-        XLRowDataIterator& operator=(XLRowDataIterator&& other) noexcept;
+            /**
+             * @brief
+             * @param other
+             * @return
+             */
+            XLRowDataIterator& operator=(XLRowDataIterator&& other) noexcept;
 
-        /**
-         * @brief
-         * @return
-         */
-        XLRowDataIterator& operator++();
+            /**
+             * @brief
+             * @return
+             */
+            XLRowDataIterator& operator++();
 
-        /**
-         * @brief
-         * @return
-         */
-        XLRowDataIterator operator++(int);    // NOLINT
+            /**
+             * @brief
+             * @return
+             */
+            XLRowDataIterator operator++(int);    // NOLINT
 
-        /**
-         * @brief
-         * @return
-         */
-        reference operator*();
+            /**
+             * @brief
+             * @return
+             */
+            reference operator*();
 
-        /**
-         * @brief
-         * @return
-         */
-        pointer operator->();
+            /**
+             * @brief
+             * @return
+             */
+            pointer operator->();
 
-        /**
-         * @brief
-         * @param rhs
-         * @return
-         */
-        bool operator==(const XLRowDataIterator& rhs);
+            /**
+             * @brief
+             * @param rhs
+             * @return
+             */
+            bool operator==(const XLRowDataIterator& rhs);
 
-        /**
-         * @brief
-         * @param rhs
-         * @return
-         */
-        bool operator!=(const XLRowDataIterator& rhs);
+            /**
+             * @brief
+             * @param rhs
+             * @return
+             */
+            bool operator!=(const XLRowDataIterator& rhs);
 
-        /**
-         * @brief
-         * @return
-         */
-        explicit operator bool() const;
+            /**
+             * @brief
+             * @return
+             */
+            explicit operator bool() const;
 
-    private:
-        std::unique_ptr<XLRowDataRange> m_dataRange;   /**< */
-        XLCell                          m_currentCell; /**< */
-        uint16_t                        m_currentCol;  /**< */
-        std::unique_ptr<XMLNode>        m_cellNode;    /**< */
-    };
+        private:
+            std::unique_ptr<XLRowDataRange> m_dataRange;   /**< */
+            XLCell                          m_currentCell; /**< */
+            uint16_t                        m_currentCol;  /**< */
+            std::unique_ptr<XMLNode>        m_cellNode;    /**< */
+        };
 
     /**
      * @brief
      */
     class OPENXLSX_EXPORT XLRowDataRange
-    {
+        {
         friend class XLRowDataIterator;
 
-    public:
-        /**
-         * @brief
-         * @param dataNode
-         * @param first
-         * @param last
-         * @param sharedStrings
-         */
-        explicit XLRowDataRange(const XMLNode& rowNode, uint16_t firstColumn, uint16_t lastColumn, XLSharedStrings* sharedStrings);
+        public:
+            /**
+             * @brief
+             * @param dataNode
+             * @param first
+             * @param last
+             * @param sharedStrings
+             */
+            explicit XLRowDataRange(const XMLNode& rowNode, uint16_t firstColumn, uint16_t lastColumn, XLSharedStrings* sharedStrings);
 
-        /**
-         * @brief
-         * @param other
-         */
-        XLRowDataRange(const XLRowDataRange& other);
+            /**
+             * @brief
+             * @param other
+             */
+            XLRowDataRange(const XLRowDataRange& other);
 
-        /**
-         * @brief
-         * @param other
-         */
-        XLRowDataRange(XLRowDataRange&& other) noexcept;
+            /**
+             * @brief
+             * @param other
+             */
+            XLRowDataRange(XLRowDataRange&& other) noexcept;
 
-        /**
-         * @brief
-         */
-        ~XLRowDataRange();
+            /**
+             * @brief
+             */
+            ~XLRowDataRange();
 
-        /**
-         * @brief
-         * @param other
-         * @return
-         */
-        XLRowDataRange& operator=(const XLRowDataRange& other);
+            /**
+             * @brief
+             * @param other
+             * @return
+             */
+            XLRowDataRange& operator=(const XLRowDataRange& other);
 
-        /**
-         * @brief
-         * @param other
-         * @return
-         */
-        XLRowDataRange& operator=(XLRowDataRange&& other) noexcept;
+            /**
+             * @brief
+             * @param other
+             * @return
+             */
+            XLRowDataRange& operator=(XLRowDataRange&& other) noexcept;
 
-        /**
-         * @brief
-         * @return
-         */
-        uint16_t cellCount() const;
+            /**
+             * @brief
+             * @return
+             */
+            uint16_t cellCount() const;
 
-        /**
-         * @brief
-         * @return
-         */
-        XLRowDataIterator begin();
+            /**
+             * @brief
+             * @return
+             */
+            XLRowDataIterator begin();
 
-        /**
-         * @brief
-         * @return
-         */
-        XLRowDataIterator end();
+            /**
+             * @brief
+             * @return
+             */
+            XLRowDataIterator end();
 
-        /**
-         * @brief
-         */
-        void clear();
-
-    private:
-        std::unique_ptr<XMLNode> m_rowNode;                   /**< */
-        uint16_t                 m_firstCol { 1 };            /**< The cell reference of the first cell in the range */
-        uint16_t                 m_lastCol { 1 };             /**< The cell reference of the last cell in the range */
-        XLSharedStrings*         m_sharedStrings { nullptr }; /**< */
-    };
+        private:
+            std::unique_ptr<XMLNode> m_rowNode;                   /**< */
+            uint16_t                 m_firstCol { 1 };            /**< The cell reference of the first cell in the range */
+            uint16_t                 m_lastCol { 1 };             /**< The cell reference of the last cell in the range */
+            XLSharedStrings*         m_sharedStrings { nullptr }; /**< */
+        };
 
     /**
      * @brief
      */
     class OPENXLSX_EXPORT XLRowDataProxy
-    {
+        {
         friend class XLRow;
 
-    public:
-        /**
-         * @brief
-         */
-        ~XLRowDataProxy();
+        public:
+            /**
+             * @brief
+             */
+            ~XLRowDataProxy();
 
-        /**
-         * @brief
-         * @param other
-         * @return
-         */
-        XLRowDataProxy& operator=(const XLRowDataProxy& other);
+            /**
+             * @brief
+             * @param other
+             * @return
+             */
+            XLRowDataProxy& operator=(const XLRowDataProxy& other);
 
-        /**
-         * @brief
-         * @param values
-         * @return
-         */
-        XLRowDataProxy& operator=(const std::vector<XLCellValue>& values);
+            /**
+             * @brief
+             * @param values
+             * @return
+             */
+            XLRowDataProxy& operator=(const std::vector<XLCellValue>& values);
 
-        /**
-         * @brief
-         * @tparam T
-         * @param values
-         * @return
-         */
-        template<typename T,
-                 typename std::enable_if<!std::is_same_v<T, XLRowDataProxy> &&
-                                             std::is_base_of_v<typename std::forward_iterator_tag,
-                                                               typename std::iterator_traits<typename T::iterator>::iterator_category>,
-                                         T>::type* = nullptr>
-        XLRowDataProxy& operator=(const T& values);
+            /**
+             * @brief
+             * @tparam T
+             * @param values
+             * @return
+             */
+            template<typename T,
+                typename std::enable_if<!std::is_same_v<T, XLRowDataProxy> &&
+                std::is_base_of_v<typename std::forward_iterator_tag,
+                typename std::iterator_traits<typename T::iterator>::iterator_category>,
+                T>::type* = nullptr>
+                    XLRowDataProxy& operator=(const T& values);
 
-        /**
-         * @brief
-         * @return
-         */
-        operator std::vector<XLCellValue>();    // NOLINT
+            /**
+             * @brief Implicit conversion to std::vector of XLCellValues.
+             * @return A std::vector of XLCellValues.
+             */
+            operator std::vector<XLCellValue>();    // NOLINT
 
-    private:
-        //---------- Private Member Functions ---------- //
+            /**
+             * @brief Clears all values for the current row.
+             */
+            void clear();
 
-        /**
-         * @brief
-         * @param row
-         * @param rowNode
-         */
-        XLRowDataProxy(XLRow* row, XMLNode* rowNode);
+        private:
+            //---------- Private Member Functions ---------- //
 
-        /**
-         * @brief
-         * @param other
-         */
-        XLRowDataProxy(const XLRowDataProxy& other);
+            /**
+             * @brief
+             * @param row
+             * @param rowNode
+             */
+            XLRowDataProxy(XLRow* row, XMLNode* rowNode);
 
-        /**
-         * @brief
-         * @param other
-         */
-        XLRowDataProxy(XLRowDataProxy&& other) noexcept;
+            /**
+             * @brief
+             * @param other
+             */
+            XLRowDataProxy(const XLRowDataProxy& other);
 
-        /**
-         * @brief
-         * @param other
-         * @return
-         */
-        XLRowDataProxy& operator=(XLRowDataProxy&& other) noexcept;
+            /**
+             * @brief
+             * @param other
+             */
+            XLRowDataProxy(XLRowDataProxy&& other) noexcept;
 
-        /**
-         * @brief
-         * @return
-         */
-        std::vector<XLCellValue> getValues() const;
+            /**
+             * @brief
+             * @param other
+             * @return
+             */
+            XLRowDataProxy& operator=(XLRowDataProxy&& other) noexcept;
 
-        //---------- Private Member Variables ---------- //
+            /**
+             * @brief
+             * @return
+             */
+            std::vector<XLCellValue> getValues() const;
 
-        XLRow*   m_row { nullptr };     /**< */
-        XMLNode* m_rowNode { nullptr }; /**< */
-    };
+            //---------- Private Member Variables ---------- //
+
+            XLRow*   m_row { nullptr };     /**< */
+            XMLNode* m_rowNode { nullptr }; /**< */
+        };
 
 }    // namespace OpenXLSX
 
@@ -297,26 +297,26 @@ namespace OpenXLSX
 namespace OpenXLSX
 {
     template<typename T,
-             typename std::enable_if<!std::is_same_v<T, XLRowDataProxy> &&
-                                         std::is_base_of_v<typename std::forward_iterator_tag,
-                                                           typename std::iterator_traits<typename T::iterator>::iterator_category>,
-                                     T>::type*>
-    XLRowDataProxy& XLRowDataProxy::operator=(const T& values)
-    {
-        auto range = XLRowDataRange(*m_rowNode, 1, 16384, nullptr);
+        typename std::enable_if<!std::is_same_v<T, XLRowDataProxy> &&
+        std::is_base_of_v<typename std::forward_iterator_tag,
+        typename std::iterator_traits<typename T::iterator>::iterator_category>,
+        T>::type*>
+        XLRowDataProxy& XLRowDataProxy::operator=(const T& values)
+            {
+            auto range = XLRowDataRange(*m_rowNode, 1, 16384, nullptr);
 
-        auto dst = range.begin();
-        auto src = values.begin();
+            auto dst = range.begin();
+            auto src = values.begin();
 
-        while (true) {
-            dst->value() = *src;
-            ++src;
-            if (src == values.end()) break;
-            ++dst;
-        }
+            while (true) {
+                dst->value() = *src;
+                ++src;
+                if (src == values.end()) break;
+                ++dst;
+            }
 
-        return *this;
-    }
+            return *this;
+            }
 }    // namespace OpenXLSX
 
 #pragma warning(pop)
