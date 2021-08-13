@@ -121,9 +121,8 @@ namespace OpenXLSX
 
         private:
             std::unique_ptr<XLRowDataRange> m_dataRange;   /**< */
-            XLCell                          m_currentCell; /**< */
-            uint16_t                        m_currentCol;  /**< */
             std::unique_ptr<XMLNode>        m_cellNode;    /**< */
+            XLCell                          m_currentCell; /**< */
         };
 
     /**

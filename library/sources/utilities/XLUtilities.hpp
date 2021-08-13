@@ -56,16 +56,20 @@ namespace OpenXLSX
         return result;
     }
 
+    /**
+     * @brief Retrieve the xml node representing the cell at the given row and column. If the node doesn't
+     * exist, it will be created.
+     * @param rowNode The row node under which to find the cell.
+     * @param columnNumber The column at which to find the cell.
+     * @return The xml node representing the requested cell.
+     */
     inline XMLNode getCellNode(XMLNode rowNode, uint16_t columnNumber)
     {
         auto cellNode = XMLNode();
         auto cellRef  = XLCellReference(rowNode.attribute("r").as_uint(), columnNumber);
-        // auto rowNode  = getRowNode(*m_dataNode, m_topLeft.row());
 
         // ===== If there are no cells in the current row, or the requested cell is beyond the last cell in the row...
         if (rowNode.last_child().empty() || XLCellReference(rowNode.last_child().attribute("r").value()).column() < columnNumber) {
-            // if (rowNode.last_child().empty() ||
-            // XLCellReference::CoordinatesFromAddress(rowNode.last_child().attribute("r").getValue()).second < columnNumber) {
             rowNode.append_child("c").append_attribute("r").set_value(cellRef.address().c_str());
             cellNode = rowNode.last_child();
         }

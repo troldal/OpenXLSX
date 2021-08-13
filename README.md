@@ -206,18 +206,18 @@ CPU Caches:
   L1 Instruction 32 KiB (x8)
   L2 Unified 256 KiB (x8)
   L3 Unified 16384 KiB (x1)
-Load Average: 3.14, 2.14, 1.80
+Load Average: 2.46, 2.25, 2.19
 ---------------------------------------------------------------------------
 Benchmark                 Time             CPU   Iterations UserCounters...
 ---------------------------------------------------------------------------
-BM_WriteStrings        3959 ms         3959 ms            1 items=8.38861M items_per_second=2.1189M/s
-BM_WriteIntegers       3605 ms         3604 ms            1 items=8.38861M items_per_second=2.32744M/s
-BM_WriteFloats         6601 ms         6600 ms            1 items=8.38861M items_per_second=1.27092M/s
-BM_WriteBools          3714 ms         3714 ms            1 items=8.38861M items_per_second=2.25893M/s
-BM_ReadStrings         3707 ms         3707 ms            1 items=8.38861M items_per_second=2.26303M/s
-BM_ReadIntegers        3487 ms         3486 ms            1 items=8.38861M items_per_second=2.40618M/s
-BM_ReadFloats          5930 ms         5929 ms            1 items=8.38861M items_per_second=1.4148M/s
-BM_ReadBools           3489 ms         3489 ms            1 items=8.38861M items_per_second=2.40448M/s
+BM_WriteStrings        2484 ms         2482 ms            1 items=8.38861M items_per_second=3.37956M/s
+BM_WriteIntegers       1949 ms         1949 ms            1 items=8.38861M items_per_second=4.30485M/s
+BM_WriteFloats         4720 ms         4719 ms            1 items=8.38861M items_per_second=1.77767M/s
+BM_WriteBools          2167 ms         2166 ms            1 items=8.38861M items_per_second=3.87247M/s
+BM_ReadStrings         1883 ms         1882 ms            1 items=8.38861M items_per_second=4.45776M/s
+BM_ReadIntegers        1641 ms         1641 ms            1 items=8.38861M items_per_second=5.11252M/s
+BM_ReadFloats          4173 ms         4172 ms            1 items=8.38861M items_per_second=2.01078M/s
+BM_ReadBools           1898 ms         1898 ms            1 items=8.38861M items_per_second=4.4205M/s
 ```
 
 ## Caveats

@@ -36,7 +36,7 @@ int main()
         writeValues.emplace_back(distr(generator));
 
         row.values() = writeValues;
-        row.values().clear();
+//        row.values().clear();
     }
 
     cout << "Saving spreadsheet (1,048,576 rows x 8 columns) ..." << endl;

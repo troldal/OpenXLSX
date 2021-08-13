@@ -63,11 +63,10 @@ namespace OpenXLSX
      */
     XLRowDataIterator::XLRowDataIterator(const XLRowDataRange& rowDataRange, XLIteratorLocation loc)
         : m_dataRange(std::make_unique<XLRowDataRange>(rowDataRange)),
+          m_cellNode(std::make_unique<XMLNode>(getCellNode(*m_dataRange->m_rowNode, m_dataRange->m_firstCol))),
           m_currentCell(loc == XLIteratorLocation::End
                             ? XLCell()
-                            : XLCell(getCellNode(*m_dataRange->m_rowNode, m_dataRange->m_firstCol), m_dataRange->m_sharedStrings)),
-          m_currentCol(loc == XLIteratorLocation::End ? m_dataRange->m_lastCol : m_dataRange->m_firstCol),
-          m_cellNode(std::make_unique<XMLNode>(nullptr))
+                            : XLCell(*m_cellNode, m_dataRange->m_sharedStrings))
     {}
 
     /**
@@ -85,7 +84,6 @@ namespace OpenXLSX
     XLRowDataIterator::XLRowDataIterator(const XLRowDataIterator& other)
         : m_dataRange(std::make_unique<XLRowDataRange>(*other.m_dataRange)),
           m_currentCell(other.m_currentCell),
-          m_currentCol(other.m_currentCol),
           m_cellNode(std::make_unique<XMLNode>(*other.m_cellNode))
     {}
 
@@ -104,10 +102,8 @@ namespace OpenXLSX
     XLRowDataIterator& XLRowDataIterator::operator=(const XLRowDataIterator& other)
     {
         if (&other != this) {
-            *m_dataRange  = *other.m_dataRange;
-            m_currentCell = other.m_currentCell;
-            m_currentCol  = other.m_currentCol;
-            *m_cellNode   = *other.m_cellNode;
+            XLRowDataIterator temp = other;
+            std::swap(temp, *this);
         }
 
         return *this;
@@ -127,34 +123,16 @@ namespace OpenXLSX
      */
     XLRowDataIterator& XLRowDataIterator::operator++()
     {
-        ++m_currentCol;
-
-        // ===== Compute cellreference
-        auto cellRef = XLCellReference(m_dataRange->m_rowNode->attribute("r").as_ullong(), m_currentCol);
-
-        // ===== If the current m_cellNode reference is empty, find the next cell node in the row that is greater than
-        // ===== or equal to the cell reference.
-        if (!m_cellNode) {
-            *m_cellNode = m_dataRange->m_rowNode->find_child(
-                [&](const XMLNode& node) { return XLCellReference(node.attribute("r").value()) >= cellRef; });
-
-            // TODO: Check the logic here!
-            if (*m_cellNode && XLCellReference(m_cellNode->attribute("r").value()) > cellRef) *m_cellNode = m_cellNode->previous_sibling();
-        }
-
-        else {
-            // TODO: Check the logic here!
-            //            if (XLCellReference(m_cellNode->next_sibling().attribute("r").value()) == cellRef)
-            //                *m_cellNode = m_cellNode->next_sibling();
-            //        }
-
             auto cellNumber = m_currentCell.cellReference().column() + 1;
             auto cellNode   = m_currentCell.m_cellNode->next_sibling();
 
+            // ===== If the cellNumber exceeds the last column in the range has been reached, and the m_currentCell
+            // ===== is set to an empty XLCell, indicating the end of the range has been reached.
             if (cellNumber > m_dataRange->m_lastCol)
                 m_currentCell = XLCell();
 
-            else if (!cellNode || XLCellReference(cellNode.attribute("r").value()).column() != cellNumber) {
+            // ======
+            else if (XLCellReference(cellNode.attribute("r").value()).column() != cellNumber) {
                 cellNode = m_dataRange->m_rowNode->insert_child_after("c", *m_currentCell.m_cellNode);
                 cellNode.append_attribute("r").set_value(
                     XLCellReference(m_dataRange->m_rowNode->attribute("r").as_ullong(), cellNumber).address().c_str());
@@ -163,7 +141,7 @@ namespace OpenXLSX
 
             else
                 m_currentCell = XLCell(cellNode, m_dataRange->m_sharedStrings);
-        }
+
         return *this;
     }
 
@@ -186,10 +164,6 @@ namespace OpenXLSX
      */
     XLCell& XLRowDataIterator::operator*()
     {
-        if (m_currentCol >= m_dataRange->m_lastCol) m_currentCell = XLCell();
-        //        else {
-        //            if (!m_cellNode) }
-
         return m_currentCell;
     }
 
@@ -227,6 +201,7 @@ namespace OpenXLSX
      * @details
      * @pre
      * @post
+     * @todo To be implemented.
      */
     XLRowDataIterator::operator bool() const
     {
