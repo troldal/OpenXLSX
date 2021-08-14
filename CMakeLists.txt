@@ -35,7 +35,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/output)
 # Add build options
 #=======================================================================================================================
 option(CREATE_DOCS "Build library documentation (requires Doxygen and Graphviz/Dot to be installed)" ON)
-option(BUILD_OBJECT_LIB "Build object library (not available in Xcode)" OFF)
 option(ENABLE_COMPACT_MODE "Build library in compact mode (slower, but uses less memory)" OFF)
 option(ENABLE_UNICODE_FILENAMES "Enable handling of files with non-ASCII filenames (only relevant on Windows)" OFF)
 option(BUILD_PYTHON_MODULE "Build Python module for using OpenXLSX from Python" OFF)

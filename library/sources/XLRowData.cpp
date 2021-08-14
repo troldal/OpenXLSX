@@ -45,7 +45,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== External Includes ===== //
 #include <algorithm>
-#include <pugixml.hpp>
+#include <cassert>
 
 // ===== OpenXLSX Includes ===== //
 #include "XLCell.hpp"
@@ -57,8 +57,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 namespace OpenXLSX
 {
     /**
-     * @details
-     * @pre
+     * @details Constructor.
+     * @pre The given range and location are both valid.
      * @post
      */
     XLRowDataIterator::XLRowDataIterator(const XLRowDataRange& rowDataRange, XLIteratorLocation loc)
@@ -70,14 +70,14 @@ namespace OpenXLSX
     {}
 
     /**
-     * @details
+     * @details Destructor. Default implementation.
      * @pre
      * @post
      */
     XLRowDataIterator::~XLRowDataIterator() = default;
 
     /**
-     * @details
+     * @details Copy constructor. Trivial implementation with deep copy of pointer members.
      * @pre
      * @post
      */
@@ -88,14 +88,14 @@ namespace OpenXLSX
     {}
 
     /**
-     * @details
+     * @details Move constructor. Default implementation.
      * @pre
      * @post
      */
     XLRowDataIterator::XLRowDataIterator(XLRowDataIterator&& other) noexcept = default;    // NOLINT
 
     /**
-     * @details
+     * @details Copy assignment operator. Implemented using copy-and-swap idiom.
      * @pre
      * @post
      */
@@ -110,43 +110,48 @@ namespace OpenXLSX
     }
 
     /**
-     * @details
+     * @details Move assignment operator. Default implementation.
      * @pre
      * @post
      */
     XLRowDataIterator& XLRowDataIterator::operator=(XLRowDataIterator&& other) noexcept = default;
 
     /**
-     * @details
+     * @details Pre-increment operator. Advances the iterator one element.
      * @pre
      * @post
      */
     XLRowDataIterator& XLRowDataIterator::operator++()
     {
-            auto cellNumber = m_currentCell.cellReference().column() + 1;
-            auto cellNode   = m_currentCell.m_cellNode->next_sibling();
+        // ===== Compute the column number, and move the m_cellNode to the next sibling.
+        auto cellNumber = m_currentCell.cellReference().column() + 1;
+        auto cellNode   = m_currentCell.m_cellNode->next_sibling();
 
-            // ===== If the cellNumber exceeds the last column in the range has been reached, and the m_currentCell
-            // ===== is set to an empty XLCell, indicating the end of the range has been reached.
-            if (cellNumber > m_dataRange->m_lastCol)
-                m_currentCell = XLCell();
+        // ===== If the cellNumber exceeds the last column in the range has been reached, and the m_currentCell
+        // ===== is set to an empty XLCell, indicating the end of the range has been reached.
+        if (cellNumber > m_dataRange->m_lastCol)
+            m_currentCell = XLCell();
 
-            // ======
-            else if (XLCellReference(cellNode.attribute("r").value()).column() != cellNumber) {
-                cellNode = m_dataRange->m_rowNode->insert_child_after("c", *m_currentCell.m_cellNode);
-                cellNode.append_attribute("r").set_value(
-                    XLCellReference(m_dataRange->m_rowNode->attribute("r").as_ullong(), cellNumber).address().c_str());
-                m_currentCell = XLCell(cellNode, m_dataRange->m_sharedStrings);
-            }
+        // ====== If the m_cellNode is null (i.e. no more children in the current row node) or the column number of the cell node
+        // ====== is higher than the computed column number, then insert the node.
+        else if (m_cellNode->empty() || XLCellReference(cellNode.attribute("r").value()).column() > cellNumber) {
+            cellNode = m_dataRange->m_rowNode->insert_child_after("c", *m_currentCell.m_cellNode);
+            cellNode.append_attribute("r").set_value(
+                XLCellReference(m_dataRange->m_rowNode->attribute("r").as_ullong(), cellNumber).address().c_str());
+            m_currentCell = XLCell(cellNode, m_dataRange->m_sharedStrings);
+        }
 
-            else
-                m_currentCell = XLCell(cellNode, m_dataRange->m_sharedStrings);
+        // ===== Otherwise, the cell node and the column number match.
+        else {
+            assert(XLCellReference(cellNode.attribute("r").value()).column() == cellNumber);
+            m_currentCell = XLCell(cellNode, m_dataRange->m_sharedStrings);
+        }
 
         return *this;
     }
 
     /**
-     * @details
+     * @details Post-increment operator. Implemented in terms of the pre-increment operator.
      * @pre
      * @post
      */
@@ -158,7 +163,7 @@ namespace OpenXLSX
     }
 
     /**
-     * @details
+     * @details Dereferencing operator.
      * @pre
      * @post
      */
@@ -168,7 +173,7 @@ namespace OpenXLSX
     }
 
     /**
-     * @details
+     * @details Arrow operator.
      * @pre
      * @post
      */
@@ -178,7 +183,7 @@ namespace OpenXLSX
     }
 
     /**
-     * @details
+     * @details Equality comparison operator.
      * @pre
      * @post
      */
@@ -188,24 +193,13 @@ namespace OpenXLSX
     }
 
     /**
-     * @details
+     * @details Non-equality comparison operator.
      * @pre
      * @post
      */
     bool XLRowDataIterator::operator!=(const XLRowDataIterator& rhs)
     {
         return !(m_currentCell == rhs.m_currentCell);
-    }
-
-    /**
-     * @details
-     * @pre
-     * @post
-     * @todo To be implemented.
-     */
-    XLRowDataIterator::operator bool() const
-    {
-        return false;
     }
 
 }    // namespace OpenXLSX

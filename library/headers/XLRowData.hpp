@@ -26,10 +26,13 @@ namespace OpenXLSX
     class XLRowDataRange;
 
     /**
-     * @brief
+     * @brief This class encapsilates a (non-const) iterator, for iterating over the cells in a row.
+     * @todo Consider implementing a const iterator also
      */
     class OPENXLSX_EXPORT XLRowDataIterator
         {
+            friend class XLRowDataRange;
+
         public:
             using iterator_category = std::forward_iterator_tag;
             using value_type        = XLCell;
@@ -38,91 +41,86 @@ namespace OpenXLSX
             using reference         = XLCell&;
 
             /**
-             * @brief
-             * @param cellRange
-             * @param loc
-             */
-            XLRowDataIterator(const XLRowDataRange& rowDataRange, XLIteratorLocation loc);
-
-            /**
-             * @brief
+             * @brief Destructor.
              */
             ~XLRowDataIterator();
 
             /**
-             * @brief
-             * @param other
+             * @brief Copy constructor.
+             * @param other Object to be copied.
              */
             XLRowDataIterator(const XLRowDataIterator& other);
 
             /**
-             * @brief
-             * @param other
+             * @brief Move constructor.
+             * @param other Object to be moved.
              */
             XLRowDataIterator(XLRowDataIterator&& other) noexcept;
 
             /**
-             * @brief
-             * @param other
-             * @return
+             * @brief Copy assignment operator.
+             * @param other Object to be copied.
+             * @return Reference to the copied-to object.
              */
             XLRowDataIterator& operator=(const XLRowDataIterator& other);
 
             /**
-             * @brief
-             * @param other
-             * @return
+             * @brief Move assignment operator.
+             * @param other Object to be moved.
+             * @return Reference to the moved-to object.
              */
             XLRowDataIterator& operator=(XLRowDataIterator&& other) noexcept;
 
             /**
-             * @brief
-             * @return
+             * @brief Pre-increment of the iterator.
+             * @return Reference to the iterator object.
              */
             XLRowDataIterator& operator++();
 
             /**
-             * @brief
-             * @return
+             * @brief Post-increment of the iterator.
+             * @return Reference to the iterator object.
              */
             XLRowDataIterator operator++(int);    // NOLINT
 
             /**
-             * @brief
-             * @return
+             * @brief Dereferencing operator.
+             * @return Reference to the object pointed to by the iterator.
              */
             reference operator*();
 
             /**
-             * @brief
-             * @return
+             * @brief Arrow operator.
+             * @return Pointer to the object pointed to by the iterator.
              */
             pointer operator->();
 
             /**
-             * @brief
-             * @param rhs
-             * @return
+             * @brief Equality operator.
+             * @param rhs XLRowDataIterator to compare to.
+             * @return true if equal, otherwise false.
              */
             bool operator==(const XLRowDataIterator& rhs);
 
             /**
-             * @brief
-             * @param rhs
-             * @return
+             * @brief Non-equality operator.
+             * @param rhs XLRowDataIterator to compare to.
+             * @return false if equal, otherwise true.
              */
             bool operator!=(const XLRowDataIterator& rhs);
 
-            /**
-             * @brief
-             * @return
-             */
-            explicit operator bool() const;
-
         private:
-            std::unique_ptr<XLRowDataRange> m_dataRange;   /**< */
-            std::unique_ptr<XMLNode>        m_cellNode;    /**< */
-            XLCell                          m_currentCell; /**< */
+
+            /**
+             * @brief Constructor.
+             * @param cellRange The range to iterate over.
+             * @param loc The location of the iterator (begin or end).
+             */
+            XLRowDataIterator(const XLRowDataRange& rowDataRange, XLIteratorLocation loc);
+
+            std::unique_ptr<XLRowDataRange> m_dataRange;   /**< A pointer to the range to iterate over. */
+            std::unique_ptr<XMLNode>        m_cellNode;    /**< The XML node representing the cell currently pointed at. */
+            XLCell                          m_currentCell; /**< The XLCell currently pointed at. */
         };
 
     /**
