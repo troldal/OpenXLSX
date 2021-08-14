@@ -64,9 +64,7 @@ namespace OpenXLSX
     XLRowDataIterator::XLRowDataIterator(const XLRowDataRange& rowDataRange, XLIteratorLocation loc)
         : m_dataRange(std::make_unique<XLRowDataRange>(rowDataRange)),
           m_cellNode(std::make_unique<XMLNode>(getCellNode(*m_dataRange->m_rowNode, m_dataRange->m_firstCol))),
-          m_currentCell(loc == XLIteratorLocation::End
-                            ? XLCell()
-                            : XLCell(*m_cellNode, m_dataRange->m_sharedStrings))
+          m_currentCell(loc == XLIteratorLocation::End ? XLCell() : XLCell(*m_cellNode, m_dataRange->m_sharedStrings))
     {}
 
     /**
@@ -129,8 +127,7 @@ namespace OpenXLSX
 
         // ===== If the cellNumber exceeds the last column in the range has been reached, and the m_currentCell
         // ===== is set to an empty XLCell, indicating the end of the range has been reached.
-        if (cellNumber > m_dataRange->m_lastCol)
-            m_currentCell = XLCell();
+        if (cellNumber > m_dataRange->m_lastCol) m_currentCell = XLCell();
 
         // ====== If the m_cellNode is null (i.e. no more children in the current row node) or the column number of the cell node
         // ====== is higher than the computed column number, then insert the node.
@@ -286,7 +283,7 @@ namespace OpenXLSX
      */
     XLRowDataIterator XLRowDataRange::begin()
     {
-        return XLRowDataIterator{*this, XLIteratorLocation::Begin};
+        return XLRowDataIterator { *this, XLIteratorLocation::Begin };
     }
 
     /**
@@ -296,7 +293,7 @@ namespace OpenXLSX
      */
     XLRowDataIterator XLRowDataRange::end()
     {
-        return XLRowDataIterator{*this, XLIteratorLocation::End};
+        return XLRowDataIterator { *this, XLIteratorLocation::End };
     }
 
 }    // namespace OpenXLSX
