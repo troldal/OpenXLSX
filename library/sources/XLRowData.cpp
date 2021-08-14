@@ -211,6 +211,7 @@ namespace OpenXLSX
      * @details
      * @pre
      * @post
+     * @todo Ensure that lastColumn is >= firstColumn
      */
     XLRowDataRange::XLRowDataRange(const XMLNode& rowNode, uint16_t firstColumn, uint16_t lastColumn, XLSharedStrings* sharedStrings)
         : m_rowNode(std::make_unique<XMLNode>(rowNode)),
@@ -254,10 +255,8 @@ namespace OpenXLSX
     XLRowDataRange& XLRowDataRange::operator=(const XLRowDataRange& other)
     {
         if (&other != this) {
-            *m_rowNode      = *other.m_rowNode;
-            m_firstCol      = other.m_firstCol;
-            m_lastCol       = other.m_lastCol;
-            m_sharedStrings = other.m_sharedStrings;
+            XLRowDataRange temp(other);
+            std::swap(temp, *this);
         }
 
         return *this;
@@ -268,24 +267,14 @@ namespace OpenXLSX
      * @pre
      * @post
      */
-    XLRowDataRange& XLRowDataRange::operator=(XLRowDataRange&& other) noexcept
-    {
-        if (&other != this) {
-            *m_rowNode      = *other.m_rowNode;
-            m_firstCol      = other.m_firstCol;
-            m_lastCol       = other.m_lastCol;
-            m_sharedStrings = other.m_sharedStrings;
-        }
-
-        return *this;
-    }
+    XLRowDataRange& XLRowDataRange::operator=(XLRowDataRange&& other) noexcept = default;
 
     /**
      * @details
      * @pre
      * @post
      */
-    uint16_t XLRowDataRange::cellCount() const
+    uint16_t XLRowDataRange::size() const
     {
         return m_lastCol - m_firstCol + 1;
     }
@@ -297,7 +286,7 @@ namespace OpenXLSX
      */
     XLRowDataIterator XLRowDataRange::begin()
     {
-        return XLRowDataIterator(*this, XLIteratorLocation::Begin);
+        return XLRowDataIterator{*this, XLIteratorLocation::Begin};
     }
 
     /**
@@ -307,7 +296,7 @@ namespace OpenXLSX
      */
     XLRowDataIterator XLRowDataRange::end()
     {
-        return XLRowDataIterator(*this, XLIteratorLocation::End);
+        return XLRowDataIterator{*this, XLIteratorLocation::End};
     }
 
 }    // namespace OpenXLSX

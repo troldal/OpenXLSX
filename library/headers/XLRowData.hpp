@@ -129,16 +129,9 @@ namespace OpenXLSX
     class OPENXLSX_EXPORT XLRowDataRange
         {
         friend class XLRowDataIterator;
+        friend class XLRow;
 
         public:
-            /**
-             * @brief
-             * @param dataNode
-             * @param first
-             * @param last
-             * @param sharedStrings
-             */
-            explicit XLRowDataRange(const XMLNode& rowNode, uint16_t firstColumn, uint16_t lastColumn, XLSharedStrings* sharedStrings);
 
             /**
              * @brief
@@ -175,7 +168,7 @@ namespace OpenXLSX
              * @brief
              * @return
              */
-            uint16_t cellCount() const;
+            uint16_t size() const;
 
             /**
              * @brief
@@ -190,6 +183,17 @@ namespace OpenXLSX
             XLRowDataIterator end();
 
         private:
+
+            /**
+             * @brief
+             * @param rowNode
+             * @param firstColumn
+             * @param lastColumn
+             * @param sharedStrings
+             */
+            explicit XLRowDataRange(const XMLNode& rowNode, uint16_t firstColumn, uint16_t lastColumn, XLSharedStrings* sharedStrings);
+
+
             std::unique_ptr<XMLNode> m_rowNode;                   /**< */
             uint16_t                 m_firstCol { 1 };            /**< The cell reference of the first cell in the range */
             uint16_t                 m_lastCol { 1 };             /**< The cell reference of the last cell in the range */
