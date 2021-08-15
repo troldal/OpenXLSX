@@ -16,6 +16,7 @@
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
 #include "XLCell.hpp"
+#include "XLConstants.hpp"
 #include "XLIterator.hpp"
 #include "XLXmlParser.hpp"
 
@@ -128,6 +129,7 @@ namespace OpenXLSX
     class OPENXLSX_EXPORT XLRowDataRange
     {
         friend class XLRowDataIterator;
+        friend class XLRowDataProxy;
         friend class XLRow;
 
     public:
@@ -197,7 +199,8 @@ namespace OpenXLSX
     };
 
     /**
-     * @brief
+     * @brief The XLRowDataProxy is used as a proxy object when getting or setting row data. The class facilitates easy conversion
+     * to/from containers.
      */
     class OPENXLSX_EXPORT XLRowDataProxy
     {
@@ -205,29 +208,29 @@ namespace OpenXLSX
 
     public:
         /**
-         * @brief
+         * @brief Destructor
          */
         ~XLRowDataProxy();
 
         /**
-         * @brief
-         * @param other
-         * @return
+         * @brief Copy assignment operator.
+         * @param other Object to be copied.
+         * @return A reference to the copied-to object.
          */
         XLRowDataProxy& operator=(const XLRowDataProxy& other);
 
         /**
-         * @brief
-         * @param values
-         * @return
+         * @brief Assignment operator taking a std::vector of XLCellValues as an argument.
+         * @param values A std::vector of XLCellValues representing the values to be assigned.
+         * @return A reference to the copied-to object.
          */
         XLRowDataProxy& operator=(const std::vector<XLCellValue>& values);
 
         /**
-         * @brief
-         * @tparam T
-         * @param values
-         * @return
+         * @brief Templated assignment operator taking any container supporting forward iterators, holding XLCellValues.
+         * @tparam T The container type (will be auto deducted by the compiler).
+         * @param values The container of XLCellValues representing the values to be assigned.
+         * @return A reference to the copied-to object.
          */
         template<typename T,
                  typename std::enable_if<!std::is_same_v<T, XLRowDataProxy> &&
@@ -239,6 +242,7 @@ namespace OpenXLSX
         /**
          * @brief Implicit conversion to std::vector of XLCellValues.
          * @return A std::vector of XLCellValues.
+         * @todo Consider providing implicit conversion to other containers.
          */
         operator std::vector<XLCellValue>();    // NOLINT
 
@@ -251,41 +255,44 @@ namespace OpenXLSX
         //---------- Private Member Functions ---------- //
 
         /**
-         * @brief
-         * @param row
-         * @param rowNode
+         * @brief Constructor.
+         * @param row Pointer to the parent XLRow object.
+         * @param rowNode Pointer to the underlying XML node representing the row.
          */
         XLRowDataProxy(XLRow* row, XMLNode* rowNode);
 
         /**
-         * @brief
-         * @param other
+         * @brief Copy constructor.
+         * @param other Object to be copied.
+         * @note The copy constructor is private in order to prevent use of the auto keyword in client code.
          */
         XLRowDataProxy(const XLRowDataProxy& other);
 
         /**
-         * @brief
-         * @param other
+         * @brief Move constructor.
+         * @param other Object to be moved.
+         * @note Made private, as move construction should only be allowed when the parent object is moved. Disallowed for client code.
          */
         XLRowDataProxy(XLRowDataProxy&& other) noexcept;
 
         /**
-         * @brief
-         * @param other
-         * @return
+         * @brief Move assignment operator.
+         * @param other Object to be moved.
+         * @return Reference to the moved-to object.
+         * @note Made private, as move assignment is disallowed for client code.
          */
         XLRowDataProxy& operator=(XLRowDataProxy&& other) noexcept;
 
         /**
-         * @brief
-         * @return
+         * @brief Get the cell values for the row.
+         * @return A std::vector of XLCellValues.
          */
         std::vector<XLCellValue> getValues() const;
 
         //---------- Private Member Variables ---------- //
 
-        XLRow*   m_row { nullptr };     /**< */
-        XMLNode* m_rowNode { nullptr }; /**< */
+        XLRow*   m_row { nullptr };     /**< Pointer to the parent XLRow object. */
+        XMLNode* m_rowNode { nullptr }; /**< Pointer the the XML node representing the row. */
     };
 
 }    // namespace OpenXLSX
@@ -300,7 +307,7 @@ namespace OpenXLSX
                                      T>::type*>
     XLRowDataProxy& XLRowDataProxy::operator=(const T& values)
     {
-        auto range = XLRowDataRange(*m_rowNode, 1, 16384, nullptr);
+        auto range = XLRowDataRange(*m_rowNode, 1, MAX_COLS, nullptr);
 
         auto dst = range.begin();
         auto src = values.begin();

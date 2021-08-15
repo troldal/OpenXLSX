@@ -12,7 +12,7 @@ if (${ENABLE_COMPACT_MODE})
     target_compile_definitions(PugiXML INTERFACE PUGIXML_COMPACT)
 endif ()
 
-add_library(NoWide INTERFACE IMPORTED)
+add_library(NoWide INTERFACE IMPORTED headers/XLConstants.hpp)
 target_include_directories(NoWide SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/external/nowide/>)
 
 if (${ENABLE_UNICODE_FILENAMES})
