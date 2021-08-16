@@ -64,6 +64,12 @@ namespace OpenXLSX
         inline explicit XLException(const std::string& err) : runtime_error(err) {};
     };
 
+    class OPENXLSX_EXPORT XLOverflowError : public XLException
+    {
+    public:
+        inline explicit XLOverflowError(const std::string& err) : XLException(err) {};
+    };
+
 }    // namespace OpenXLSX
 
 #pragma warning(pop)

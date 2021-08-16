@@ -17,6 +17,7 @@
 #include "OpenXLSX-Exports.hpp"
 #include "XLCell.hpp"
 #include "XLConstants.hpp"
+#include "XLException.hpp"
 #include "XLIterator.hpp"
 #include "XLXmlParser.hpp"
 
@@ -289,6 +290,12 @@ namespace OpenXLSX
          */
         std::vector<XLCellValue> getValues() const;
 
+        /**
+         * @brief Helper function for getting a pointer to the shared strings repository.
+         * @return A pointer to an XLSharedStrings object.
+         */
+        XLSharedStrings* getSharedStrings() const;
+
         //---------- Private Member Variables ---------- //
 
         XLRow*   m_row { nullptr };     /**< Pointer to the parent XLRow object. */
@@ -300,6 +307,12 @@ namespace OpenXLSX
 // ========== TEMPLATE MEMBER IMPLEMENTATIONS ========== //
 namespace OpenXLSX
 {
+    /**
+     * @details Templated assignment operator taking any container supporting forward iterators, holding XLCellValues.
+     * @pre
+     * @post
+     * @throws XLOverflowError if size of container exceeds maximum number of columns.
+     */
     template<typename T,
              typename std::enable_if<!std::is_same_v<T, XLRowDataProxy> &&
                                          std::is_base_of_v<typename std::forward_iterator_tag,
@@ -307,8 +320,10 @@ namespace OpenXLSX
                                      T>::type*>
     XLRowDataProxy& XLRowDataProxy::operator=(const T& values)
     {
-        auto range = XLRowDataRange(*m_rowNode, 1, MAX_COLS, nullptr);
+        if (values.size() > MAX_COLS) throw XLOverflowError("Container size exceeds maximum number of columns.");
+        if (values.size() == 0) return *this;
 
+        auto range = XLRowDataRange(*m_rowNode, 1, values.size(), getSharedStrings());
         auto dst = range.begin();
         auto src = values.begin();
 

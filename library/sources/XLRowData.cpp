@@ -131,7 +131,10 @@ namespace OpenXLSX
 
         // ====== If the m_cellNode is null (i.e. no more children in the current row node) or the column number of the cell node
         // ====== is higher than the computed column number, then insert the node.
-        else if (m_cellNode->empty() || XLCellReference(cellNode.attribute("r").value()).column() > cellNumber) {
+        // TODO: When checking for > cellNumber rather than != cellNumber, m_cellNode->empty() fails. Why?
+        // TODO: Apparently only fails when assigning containers with POD values, rather XLCellValues.
+        //else if (m_cellNode->empty() || XLCellReference(cellNode.attribute("r").value()).column() > cellNumber) {
+        else if (m_cellNode->empty() || XLCellReference(cellNode.attribute("r").value()).column() != cellNumber) {
             cellNode = m_dataRange->m_rowNode->insert_child_after("c", *m_currentCell.m_cellNode);
             cellNode.append_attribute("r").set_value(
                 XLCellReference(m_dataRange->m_rowNode->attribute("r").as_ullong(), cellNumber).address().c_str());
@@ -208,14 +211,19 @@ namespace OpenXLSX
      * @details
      * @pre
      * @post
-     * @todo Ensure that lastColumn is >= firstColumn
      */
     XLRowDataRange::XLRowDataRange(const XMLNode& rowNode, uint16_t firstColumn, uint16_t lastColumn, XLSharedStrings* sharedStrings)
         : m_rowNode(std::make_unique<XMLNode>(rowNode)),
           m_firstCol(firstColumn),
           m_lastCol(lastColumn),
           m_sharedStrings(sharedStrings)
-    {}
+    {
+        if (lastColumn < firstColumn) {
+            m_firstCol = 1;
+            m_lastCol = 1;
+            throw XLOverflowError("lastColumn is less than firstColumn.");
+        }
+    }
 
     /**
      * @details
@@ -412,6 +420,22 @@ namespace OpenXLSX
         return result;
     }
 
+    /**
+     * @details The function returns a pointer to an XLSharedStrings object embedded in the m_row member.
+     * This is required because the XLRow class internals is not visible in the header file.
+     * @pre
+     * @post
+     */
+    XLSharedStrings* XLRowDataProxy::getSharedStrings() const
+    {
+        return m_row->m_sharedStrings;
+    }
+
+    /**
+     * @details
+     * @pre
+     * @post
+     */
     void XLRowDataProxy::clear()
     {
         m_rowNode->remove_children();
