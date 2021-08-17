@@ -9,6 +9,8 @@
 #include <benchmark/benchmark.h>
 #include <cstdint>
 #include <numeric>
+#include <deque>
+#include <list>
 
 using namespace OpenXLSX;
 
@@ -25,7 +27,7 @@ static void BM_WriteStrings(benchmark::State& state)    // NOLINT
     doc.create("./benchmark_strings.xlsx");
     auto wks = doc.workbook().worksheet("Sheet1");
 
-    std::vector<XLCellValue> values(colCount, "OpenXLSX");
+    std::deque<XLCellValue> values(colCount, "OpenXLSX");
 
     for (auto _ : state)    // NOLINT
         for (auto& row : wks.rows(rowCount)) row.values() = values;
@@ -121,13 +123,14 @@ static void BM_ReadStrings(benchmark::State& state)    // NOLINT
     doc.open("./benchmark_strings.xlsx");
     auto     wks    = doc.workbook().worksheet("Sheet1");
     uint64_t result = 0;
-    std::vector<XLCellValue> values;
+    std::vector<std::string> values;
 
     for (auto _ : state) {    // NOLINT
         for (auto& row : wks.rows()) {
-            values = row.values();
-            result += std::count_if(values.begin(), values.end(), [](const XLCellValue& v) {
-                return v.type() != XLValueType::Empty;
+            values = std::vector<std::string>(row.values());
+            result += std::count_if(values.begin(), values.end(), [](const std::string& v) {
+//                return v.type() != XLValueType::Empty;
+                return !v.empty();
             });
         }
         benchmark::DoNotOptimize(result);
@@ -161,6 +164,7 @@ static void BM_ReadIntegers(benchmark::State& state)    // NOLINT
                                       values.end(),
                                       0,
                                       [](uint64_t a, XLCellValue& b) { return a + b.get<uint64_t>(); });
+
         }
 
         benchmark::DoNotOptimize(result);
@@ -194,6 +198,7 @@ static void BM_ReadFloats(benchmark::State& state)    // NOLINT
                                       values.end(),
                                       0,
                                       [](uint64_t a, XLCellValue& b) { return a + b.get<double>(); });
+
         }
 
         benchmark::DoNotOptimize(result);

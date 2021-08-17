@@ -10,6 +10,8 @@
 #pragma warning(disable : 4275)
 
 // ===== External Includes ===== //
+#include <deque>
+#include <list>
 #include <memory>
 #include <vector>
 
@@ -225,7 +227,11 @@ namespace OpenXLSX
          * @param values A std::vector of XLCellValues representing the values to be assigned.
          * @return A reference to the copied-to object.
          */
-        XLRowDataProxy& operator=(const std::vector<XLCellValue>& values);
+        // XLRowDataProxy& operator=(const std::vector<XLCellValue>& values);
+
+
+         XLRowDataProxy& operator=(const std::vector<bool>& values);
+
 
         /**
          * @brief Templated assignment operator taking any container supporting forward iterators, holding XLCellValues.
@@ -235,17 +241,60 @@ namespace OpenXLSX
          */
         template<typename T,
                  typename std::enable_if<!std::is_same_v<T, XLRowDataProxy> &&
-                                             std::is_base_of_v<typename std::forward_iterator_tag,
-                                                               typename std::iterator_traits<typename T::iterator>::iterator_category>,
+                                             std::is_base_of_v<typename std::bidirectional_iterator_tag,
+                                                               typename std::iterator_traits<typename T::iterator>::iterator_category> &&
+                                             !std::is_same_v<typename T::value_type, XLCellValue>,
                                          T>::type* = nullptr>
         XLRowDataProxy& operator=(const T& values);
 
         /**
+         * @brief
+         * @tparam T
+         * @param values
+         * @return
+         */
+        template<typename T,
+                 typename std::enable_if<!std::is_same_v<T, XLRowDataProxy> &&
+                                             std::is_base_of_v<typename std::bidirectional_iterator_tag,
+                                                               typename std::iterator_traits<typename T::iterator>::iterator_category> &&
+                                             std::is_same_v<typename T::value_type, XLCellValue>,
+                                         T>::type* = nullptr>
+        XLRowDataProxy& operator=(const T& values);
+
+
+        /**
          * @brief Implicit conversion to std::vector of XLCellValues.
          * @return A std::vector of XLCellValues.
-         * @todo Consider providing implicit conversion to other containers.
          */
-        operator std::vector<XLCellValue>();    // NOLINT
+        operator std::vector<XLCellValue>() const;    // NOLINT
+
+        /**
+         * @brief
+         * @return
+         */
+        operator std::deque<XLCellValue>() const;    // NOLINT
+
+        /**
+         * @brief
+         * @return
+         */
+        operator std::list<XLCellValue>() const; // NOLINT
+
+        /**
+         * @brief
+         * @tparam Container
+         * @return
+         */
+        template<
+            typename Container,
+            typename std::enable_if<!std::is_same_v<Container, XLRowDataProxy> &&
+                                        std::is_base_of_v<typename std::bidirectional_iterator_tag,
+                                                          typename std::iterator_traits<typename Container::iterator>::iterator_category>,
+                                    Container>::type* = nullptr>
+        explicit operator Container()
+        {
+            return convertContainer<Container>();
+        }
 
         /**
          * @brief Clears all values for the current row.
@@ -296,6 +345,43 @@ namespace OpenXLSX
          */
         XLSharedStrings* getSharedStrings() const;
 
+        /**
+         * @brief
+         * @param count
+         */
+        void deleteCellValues(uint16_t count);
+
+        /**
+         * @brief
+         * @param value
+         * @param col
+         */
+        void prependCellValue(const XLCellValue& value, uint16_t col);
+
+        /**
+         * @brief
+         * @tparam Container
+         * @return
+         */
+        template<
+            typename Container,
+            typename std::enable_if<!std::is_same_v<Container, XLRowDataProxy> &&
+                                        std::is_base_of_v<typename std::bidirectional_iterator_tag,
+                                                          typename std::iterator_traits<typename Container::iterator>::iterator_category>,
+                                    Container>::type* = nullptr>
+        Container convertContainer() const
+        {
+            Container c;
+            auto      it = std::inserter(c, c.end());
+            for (const auto& v : getValues()) {
+                if constexpr (std::is_same_v<typename Container::value_type, XLCellValue>)
+                    *it++ = v;
+                else
+                    *it++ = v.get<typename Container::value_type>();
+            }
+            return c;
+        }
+
         //---------- Private Member Variables ---------- //
 
         XLRow*   m_row { nullptr };     /**< Pointer to the parent XLRow object. */
@@ -308,15 +394,45 @@ namespace OpenXLSX
 namespace OpenXLSX
 {
     /**
-     * @details Templated assignment operator taking any container supporting forward iterators, holding XLCellValues.
+     * @details
      * @pre
      * @post
      * @throws XLOverflowError if size of container exceeds maximum number of columns.
      */
     template<typename T,
              typename std::enable_if<!std::is_same_v<T, XLRowDataProxy> &&
-                                         std::is_base_of_v<typename std::forward_iterator_tag,
-                                                           typename std::iterator_traits<typename T::iterator>::iterator_category>,
+                                         std::is_base_of_v<typename std::bidirectional_iterator_tag,
+                                                           typename std::iterator_traits<typename T::iterator>::iterator_category> &&
+                                         std::is_same_v<typename T::value_type, XLCellValue>,
+                                     T>::type*>
+    XLRowDataProxy& XLRowDataProxy::operator=(const T& values)
+    {
+        if (values.size() > MAX_COLS) throw XLOverflowError("Container size exceeds maximum number of columns.");
+        if (values.size() == 0) return *this;
+
+        deleteCellValues(values.size());
+
+        // ===== prepend new cell nodes to current row node
+        auto colNo = values.size();
+        for (auto value = values.rbegin(); value != values.rend(); ++value) {    // NOLINT
+            prependCellValue(*value, colNo);
+            --colNo;
+        }
+
+        return *this;
+    }
+
+    /**
+     * @details Templated assignment operator taking any container supporting forward iterators, holding POD values.
+     * @pre
+     * @post
+     * @throws XLOverflowError if size of container exceeds maximum number of columns.
+     */
+    template<typename T,
+             typename std::enable_if<!std::is_same_v<T, XLRowDataProxy> &&
+                                         std::is_base_of_v<typename std::bidirectional_iterator_tag,
+                                                           typename std::iterator_traits<typename T::iterator>::iterator_category> &&
+                                         !std::is_same_v<typename T::value_type, XLCellValue>,
                                      T>::type*>
     XLRowDataProxy& XLRowDataProxy::operator=(const T& values)
     {
@@ -324,8 +440,8 @@ namespace OpenXLSX
         if (values.size() == 0) return *this;
 
         auto range = XLRowDataRange(*m_rowNode, 1, values.size(), getSharedStrings());
-        auto dst = range.begin();
-        auto src = values.begin();
+        auto dst   = range.begin();
+        auto src   = values.begin();
 
         while (true) {
             dst->value() = *src;
@@ -336,6 +452,7 @@ namespace OpenXLSX
 
         return *this;
     }
+
 }    // namespace OpenXLSX
 
 #pragma warning(pop)

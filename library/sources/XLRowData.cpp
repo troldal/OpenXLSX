@@ -133,7 +133,7 @@ namespace OpenXLSX
         // ====== is higher than the computed column number, then insert the node.
         // TODO: When checking for > cellNumber rather than != cellNumber, m_cellNode->empty() fails. Why?
         // TODO: Apparently only fails when assigning containers with POD values, rather XLCellValues.
-        //else if (m_cellNode->empty() || XLCellReference(cellNode.attribute("r").value()).column() > cellNumber) {
+        // else if (m_cellNode->empty() || XLCellReference(cellNode.attribute("r").value()).column() > cellNumber) {
         else if (m_cellNode->empty() || XLCellReference(cellNode.attribute("r").value()).column() != cellNumber) {
             cellNode = m_dataRange->m_rowNode->insert_child_after("c", *m_currentCell.m_cellNode);
             cellNode.append_attribute("r").set_value(
@@ -220,7 +220,7 @@ namespace OpenXLSX
     {
         if (lastColumn < firstColumn) {
             m_firstCol = 1;
-            m_lastCol = 1;
+            m_lastCol  = 1;
             throw XLOverflowError("lastColumn is less than firstColumn.");
         }
     }
@@ -359,43 +359,82 @@ namespace OpenXLSX
      */
     XLRowDataProxy& XLRowDataProxy::operator=(XLRowDataProxy&& other) noexcept = default;
 
-    /**
-     * @details
-     * @pre
-     * @post
-     */
-    XLRowDataProxy& XLRowDataProxy::operator=(const std::vector<XLCellValue>& values)
+    XLRowDataProxy& XLRowDataProxy::operator=(const std::vector<bool>& values)
     {
-        // ===== Mark cell nodes for deletion
-        std::vector<XMLNode> toBeDeleted;
-        for (auto cellNode : m_rowNode->children()) {
-            if (XLCellReference(cellNode.attribute("r").value()).column() <= values.size()) toBeDeleted.emplace_back(cellNode);
-        }
+        if (values.size() > MAX_COLS) throw XLOverflowError("Container size exceeds maximum number of columns.");
+        if (values.empty()) return *this;
 
-        // ===== Delete selected cell nodes
-        for (auto cellNode : toBeDeleted) m_rowNode->remove_child(cellNode);
+        auto range = XLRowDataRange(*m_rowNode, 1, values.size(), getSharedStrings());
+        auto dst   = range.begin();
+        auto src   = values.begin();
 
-        // ===== prepend new cell nodes to current row node
-        auto curNode = XMLNode();
-        auto colNo   = values.size();
-        for (auto value = values.rbegin(); value != values.rend(); ++value) {    // NOLINT
-            curNode = m_rowNode->prepend_child("c");
-            curNode.append_attribute("r").set_value(XLCellReference(m_row->rowNumber(), colNo).address().c_str());
-            XLCell(curNode, m_row->m_sharedStrings).value() = *value;
-            --colNo;
+        while (true) {
+            dst->value() = static_cast<bool>(*src);
+            ++src;
+            if (src == values.end()) break;
+            ++dst;
         }
 
         return *this;
     }
 
     /**
+     * @details
+     * @pre
+     * @post
+     */
+    //    XLRowDataProxy& XLRowDataProxy::operator=(const std::vector<XLCellValue>& values)
+    //    {
+    //        // ===== Mark cell nodes for deletion
+    //        std::vector<XMLNode> toBeDeleted;
+    //        for (auto cellNode : m_rowNode->children()) {
+    //            if (XLCellReference(cellNode.attribute("r").value()).column() <= values.size()) toBeDeleted.emplace_back(cellNode);
+    //        }
+    //
+    //        // ===== Delete selected cell nodes
+    //        for (auto cellNode : toBeDeleted) m_rowNode->remove_child(cellNode);
+    //
+    //        // ===== prepend new cell nodes to current row node
+    //        auto curNode = XMLNode();
+    //        auto colNo   = values.size();
+    //        for (auto value = values.rbegin(); value != values.rend(); ++value) {    // NOLINT
+    //            curNode = m_rowNode->prepend_child("c");
+    //            curNode.append_attribute("r").set_value(XLCellReference(m_row->rowNumber(), colNo).address().c_str());
+    //            XLCell(curNode, m_row->m_sharedStrings).value() = *value;
+    //            --colNo;
+    //        }
+    //
+    //        return *this;
+    //    }
+
+    /**
      * @details This function simply calls the getValues() function, which returns a std::vector of XLCellValues as required.
      * @pre
      * @post
      */
-    XLRowDataProxy::operator std::vector<XLCellValue>()
+    XLRowDataProxy::operator std::vector<XLCellValue>() const
     {
         return getValues();
+    }
+
+    /**
+     * @details
+     * @pre
+     * @post
+     */
+    XLRowDataProxy::operator std::deque<XLCellValue>() const
+    {
+        return convertContainer<std::deque<XLCellValue>>();
+    }
+
+    /**
+     * @details
+     * @pre
+     * @post
+     */
+    XLRowDataProxy::operator std::list<XLCellValue>() const
+    {
+        return convertContainer<std::list<XLCellValue>>();
     }
 
     /**
@@ -429,6 +468,25 @@ namespace OpenXLSX
     XLSharedStrings* XLRowDataProxy::getSharedStrings() const
     {
         return m_row->m_sharedStrings;
+    }
+
+    void XLRowDataProxy::deleteCellValues(uint16_t count)
+    {
+        // ===== Mark cell nodes for deletion
+        std::vector<XMLNode> toBeDeleted;
+        for (auto cellNode : m_rowNode->children()) {
+            if (XLCellReference(cellNode.attribute("r").value()).column() <= count) toBeDeleted.emplace_back(cellNode);
+        }
+
+        // ===== Delete selected cell nodes
+        for (auto cellNode : toBeDeleted) m_rowNode->remove_child(cellNode);
+    }
+
+    void XLRowDataProxy::prependCellValue(const XLCellValue& value, uint16_t col)
+    {
+        auto curNode = m_rowNode->prepend_child("c");
+        curNode.append_attribute("r").set_value(XLCellReference(m_row->rowNumber(), col).address().c_str());
+        XLCell(curNode, m_row->m_sharedStrings).value() = value;
     }
 
     /**
