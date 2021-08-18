@@ -21,7 +21,7 @@ int main()
     std::mt19937                       generator(rand_dev());
     std::uniform_int_distribution<int> distr(0, 99);
 
-    std::vector<int> writeValues;
+    std::vector<XLCellValue> writeValues;
 
     for (auto& row : wks.rows(1'048'576)) {
         //    for (auto& row : wks.rows(10)) {

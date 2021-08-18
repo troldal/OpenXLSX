@@ -310,20 +310,20 @@ namespace OpenXLSX
 namespace OpenXLSX
 {
     /**
-     * @details
+     * @details Destructor. Default implementation.
      * @pre
      * @post
      */
     XLRowDataProxy::~XLRowDataProxy() = default;
 
     /**
-     * @details
+     * @details Copy constructor. This is not a 'true' copy constructor, as it is the row values that will
+     * be copied, not the XLRowDataProxy member variables (pointers to the XLRow and row node objects).
      * @pre
      * @post
      */
     XLRowDataProxy& XLRowDataProxy::operator=(const XLRowDataProxy& other)
     {
-        // TODO: Consider implementing this a copy-and-swap
         if (&other != this) {
             *this = other.getValues();
         }
@@ -332,33 +332,72 @@ namespace OpenXLSX
     }
 
     /**
-     * @details
+     * @details Constructor
      * @pre
      * @post
      */
     XLRowDataProxy::XLRowDataProxy(XLRow* row, XMLNode* rowNode) : m_row(row), m_rowNode(rowNode) {}
 
     /**
-     * @details
+     * @details Copy constructor. Default implementation.
      * @pre
      * @post
      */
     XLRowDataProxy::XLRowDataProxy(const XLRowDataProxy& other) = default;
 
     /**
-     * @details
+     * @details Move constructor. Default implementation.
      * @pre
      * @post
      */
     XLRowDataProxy::XLRowDataProxy(XLRowDataProxy&& other) noexcept = default;
 
     /**
-     * @details
+     * @details Move assignment operator. Default implementation.
      * @pre
      * @post
      */
     XLRowDataProxy& XLRowDataProxy::operator=(XLRowDataProxy&& other) noexcept = default;
 
+    /**
+     * @details Assignment operator taking a std::vector of XLCellValue objects as an argument. Other container types
+     * and/or value types will be handled by the templated operator=. However, because assigning a std::vector of
+     * XLCellValue object is the most common case, this case is handled separately fo higher performance.
+     * @pre
+     * @post
+     */
+    XLRowDataProxy& XLRowDataProxy::operator=(const std::vector<XLCellValue>& values)
+    {
+        // ===== Mark cell nodes for deletion
+        std::vector<XMLNode> toBeDeleted;
+        for (auto cellNode : m_rowNode->children()) {
+            if (XLCellReference(cellNode.attribute("r").value()).column() <= values.size()) toBeDeleted.emplace_back(cellNode);
+        }
+
+        // ===== Delete selected cell nodes
+        for (auto cellNode : toBeDeleted) m_rowNode->remove_child(cellNode);
+
+        // ===== prepend new cell nodes to current row node
+        auto curNode = XMLNode();
+        auto colNo   = values.size();
+        for (auto value = values.rbegin(); value != values.rend(); ++value) {    // NOLINT
+            curNode = m_rowNode->prepend_child("c");
+            curNode.append_attribute("r").set_value(XLCellReference(m_row->rowNumber(), colNo).address().c_str());
+            XLCell(curNode, m_row->m_sharedStrings).value() = *value;
+            --colNo;
+        }
+
+        return *this;
+    }
+
+    /**
+     * @details Assignment operator taking a std::vector of bool values as an argument. Under most circumstances,
+     * one of the templated assignment operators should do the job. However, because std::vector<bool> is handled
+     * differently than other value types, some compilers don't play well with using std::vector<bool> in a
+     * template function. Therefore this edge case is handled separately.
+     * @pre
+     * @post
+     */
     XLRowDataProxy& XLRowDataProxy::operator=(const std::vector<bool>& values)
     {
         if (values.size() > MAX_COLS) throw XLOverflowError("Container size exceeds maximum number of columns.");
@@ -379,35 +418,6 @@ namespace OpenXLSX
     }
 
     /**
-     * @details
-     * @pre
-     * @post
-     */
-    //    XLRowDataProxy& XLRowDataProxy::operator=(const std::vector<XLCellValue>& values)
-    //    {
-    //        // ===== Mark cell nodes for deletion
-    //        std::vector<XMLNode> toBeDeleted;
-    //        for (auto cellNode : m_rowNode->children()) {
-    //            if (XLCellReference(cellNode.attribute("r").value()).column() <= values.size()) toBeDeleted.emplace_back(cellNode);
-    //        }
-    //
-    //        // ===== Delete selected cell nodes
-    //        for (auto cellNode : toBeDeleted) m_rowNode->remove_child(cellNode);
-    //
-    //        // ===== prepend new cell nodes to current row node
-    //        auto curNode = XMLNode();
-    //        auto colNo   = values.size();
-    //        for (auto value = values.rbegin(); value != values.rend(); ++value) {    // NOLINT
-    //            curNode = m_rowNode->prepend_child("c");
-    //            curNode.append_attribute("r").set_value(XLCellReference(m_row->rowNumber(), colNo).address().c_str());
-    //            XLCell(curNode, m_row->m_sharedStrings).value() = *value;
-    //            --colNo;
-    //        }
-    //
-    //        return *this;
-    //    }
-
-    /**
      * @details This function simply calls the getValues() function, which returns a std::vector of XLCellValues as required.
      * @pre
      * @post
@@ -418,7 +428,7 @@ namespace OpenXLSX
     }
 
     /**
-     * @details
+     * @details Calls the convertContainer convenience function with a std::deque of XLCellValues as an argument.
      * @pre
      * @post
      */
@@ -428,7 +438,7 @@ namespace OpenXLSX
     }
 
     /**
-     * @details
+     * @details Calls the convertContainer convenience function with a std::list of XLCellValues as an argument.
      * @pre
      * @post
      */
@@ -438,7 +448,7 @@ namespace OpenXLSX
     }
 
     /**
-     * @details Iterates through the cell values (if any) for the current row, and copies them to an output container.
+     * @details Iterates through the cell values (if any) for the current row, and copies them to an output std::vector of XLCellValues.
      * @pre
      * @post
      */
@@ -470,6 +480,12 @@ namespace OpenXLSX
         return m_row->m_sharedStrings;
     }
 
+    /**
+     * @details The deleteCellValues is a convenience function used solely by the templated operator= function.
+     * The purpose of a separate function is to keep details of xml_node out of the header file.
+     * @pre
+     * @post
+     */
     void XLRowDataProxy::deleteCellValues(uint16_t count)
     {
         // ===== Mark cell nodes for deletion
@@ -482,6 +498,13 @@ namespace OpenXLSX
         for (auto cellNode : toBeDeleted) m_rowNode->remove_child(cellNode);
     }
 
+    /**
+     * @details The prependCellValue is a convenience function used solely by the templated operator= function.
+     * The purpose of a separate function is to keep details of xml_node out of the header file.
+     * Note that no checking on the column number is made.
+     * @pre
+     * @post
+     */
     void XLRowDataProxy::prependCellValue(const XLCellValue& value, uint16_t col)
     {
         auto curNode = m_rowNode->prepend_child("c");
