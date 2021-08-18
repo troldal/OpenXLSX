@@ -4689,6 +4689,30 @@ common_exit:
                 return remove(pFilename);
         }
     }
+	static int mz_stat(const char *path, struct _stat *buffer)
+	{
+		size_t s = strlen(path);
+		if(s < 256u)
+		{
+			wchar_t path_w[256];
+			mz_utf8_16(path, path_w);
+			return _wstat(path_w, buffer);
+		}
+		else
+		{
+			wchar_t *path_w = (wchar_t*)MZ_MALLOC(s*2+2);
+			if(path_w != NULL)
+			{
+				int r;
+				mz_utf8_16(path, path_w);
+				r = _wstat(path_w, buffer);
+				MZ_FREE(path_w);
+				return r;
+			}
+			else
+				return _stat(path, buffer);
+		}
+	}
 #endif/*  _WIN32 */
 
 #ifndef MINIZ_NO_ARCHIVE_APIS
@@ -4717,7 +4741,7 @@ common_exit:
 #            define MZ_FTELL64 _ftelli64
 #            define MZ_FSEEK64 _fseeki64
 #            define MZ_FILE_STAT_STRUCT _stat
-#            define MZ_FILE_STAT _stat
+#            define MZ_FILE_STAT mz_stat
 #            define MZ_FFLUSH fflush
 #            define MZ_FREOPEN(f, m, s) mz_freopen(f, m, s)
 #            define MZ_DELETE_FILE mz_remove
@@ -4732,7 +4756,7 @@ common_exit:
 #            define MZ_FTELL64 ftello64
 #            define MZ_FSEEK64 fseeko64
 #            define MZ_FILE_STAT_STRUCT _stat
-#            define MZ_FILE_STAT _stat
+#            define MZ_FILE_STAT mz_stat
 #            define MZ_FFLUSH fflush
 #            define MZ_FREOPEN(f, m, s) mz_freopen(f, m, s)
 #            define MZ_DELETE_FILE mz_remove
