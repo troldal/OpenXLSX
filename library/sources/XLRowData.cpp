@@ -208,7 +208,8 @@ namespace OpenXLSX
 namespace OpenXLSX
 {
     /**
-     * @details
+     * @details Constructor. Trivial implementation.
+     * @throws If firstColumn > than lastColumn, an XLOverflowError will be thrown.
      * @pre
      * @post
      */
@@ -226,7 +227,7 @@ namespace OpenXLSX
     }
 
     /**
-     * @details
+     * @details Copy constructor. Trivial implementation.
      * @pre
      * @post
      */
@@ -239,21 +240,21 @@ namespace OpenXLSX
     {}
 
     /**
-     * @details
+     * @details Move constructor. Default implementation.
      * @pre
      * @post
      */
     XLRowDataRange::XLRowDataRange(XLRowDataRange&& other) noexcept = default;
 
     /**
-     * @details
+     * @details Destructor. Default implementation.
      * @pre
      * @post
      */
     XLRowDataRange::~XLRowDataRange() = default;
 
     /**
-     * @details
+     * @details Copy assignment operator. Implemented in terms of copy-and-swap.
      * @pre
      * @post
      */
@@ -268,14 +269,14 @@ namespace OpenXLSX
     }
 
     /**
-     * @details
+     * @details Move assignment operator. Default implementation.
      * @pre
      * @post
      */
     XLRowDataRange& XLRowDataRange::operator=(XLRowDataRange&& other) noexcept = default;
 
     /**
-     * @details
+     * @details Calculates the size (number of cells) in the range.
      * @pre
      * @post
      */
@@ -285,7 +286,7 @@ namespace OpenXLSX
     }
 
     /**
-     * @details
+     * @details Get an iterator to the first cell in the range.
      * @pre
      * @post
      */
@@ -295,7 +296,7 @@ namespace OpenXLSX
     }
 
     /**
-     * @details
+     * @details Get an iterator to (one past) the last cell in the range.
      * @pre
      * @post
      */

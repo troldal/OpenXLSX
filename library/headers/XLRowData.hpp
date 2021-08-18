@@ -227,7 +227,7 @@ namespace OpenXLSX
          * @param values A std::vector of XLCellValues representing the values to be assigned.
          * @return A reference to the copied-to object.
          */
-         XLRowDataProxy& operator=(const std::vector<XLCellValue>& values);
+        XLRowDataProxy& operator=(const std::vector<XLCellValue>& values);
 
         /**
          * @brief Assignment operator taking a std::vector of bool values as an argument.
@@ -402,10 +402,8 @@ namespace OpenXLSX
             Container c;
             auto      it = std::inserter(c, c.end());
             for (const auto& v : getValues()) {
-
                 // ===== If the value_type of the container is XLCellValue, the value can be assigned directly.
-                if constexpr (std::is_same_v<typename Container::value_type, XLCellValue>)
-                    *it++ = v;
+                if constexpr (std::is_same_v<typename Container::value_type, XLCellValue>) *it++ = v;
 
                 // ===== If the value_type is something else, the underlying value has to be extracted from the XLCellValue object.
                 // ===== Note that if the type contained in the XLCellValue object does not match the value_type, a bad_variant_access
