@@ -71,9 +71,9 @@ namespace OpenXLSX
      * @post
      */
     XLRow::XLRow(const XMLNode& rowNode, XLSharedStrings* sharedStrings)
-    : m_rowNode(std::make_unique<XMLNode>(rowNode)),
-    m_sharedStrings(sharedStrings),
-    m_rowDataProxy(this, m_rowNode.get())
+        : m_rowNode(std::make_unique<XMLNode>(rowNode)),
+          m_sharedStrings(sharedStrings),
+          m_rowDataProxy(this, m_rowNode.get())
     {}
 
     /**
@@ -82,9 +82,9 @@ namespace OpenXLSX
      * @post
      */
     XLRow::XLRow(const XLRow& other)
-    : m_rowNode(other.m_rowNode ? std::make_unique<XMLNode>(*other.m_rowNode) : nullptr),
-    m_sharedStrings(other.m_sharedStrings),
-    m_rowDataProxy(this, m_rowNode.get())
+        : m_rowNode(other.m_rowNode ? std::make_unique<XMLNode>(*other.m_rowNode) : nullptr),
+          m_sharedStrings(other.m_sharedStrings),
+          m_rowDataProxy(this, m_rowNode.get())
     {}
 
     /**
@@ -93,9 +93,9 @@ namespace OpenXLSX
      * @post
      */
     XLRow::XLRow(XLRow&& other) noexcept
-    : m_rowNode(std::move(other.m_rowNode)),
-    m_sharedStrings(other.m_sharedStrings),
-    m_rowDataProxy(this, m_rowNode.get())
+        : m_rowNode(std::move(other.m_rowNode)),
+          m_sharedStrings(other.m_sharedStrings),
+          m_rowDataProxy(this, m_rowNode.get())
     {}
 
     /**
@@ -111,182 +111,181 @@ namespace OpenXLSX
      * @post
      */
     XLRow& XLRow::operator=(const XLRow& other)
-        {
+    {
         if (&other != this) {
-            m_rowNode        = other.m_rowNode ? std::make_unique<XMLNode>(*other.m_rowNode) : nullptr;
-            m_sharedStrings  = other.m_sharedStrings;
-            m_rowDataProxy   = XLRowDataProxy(this, m_rowNode.get());
+            m_rowNode       = other.m_rowNode ? std::make_unique<XMLNode>(*other.m_rowNode) : nullptr;
+            m_sharedStrings = other.m_sharedStrings;
+            m_rowDataProxy  = XLRowDataProxy(this, m_rowNode.get());
         }
         return *this;
+    }
+
+    /**
+     * @details
+     * @pre
+     * @post
+     */
+    XLRow& XLRow::operator=(XLRow&& other) noexcept
+    {
+        if (&other != this) {
+            m_rowNode       = std::move(other.m_rowNode);
+            m_sharedStrings = other.m_sharedStrings;
+            m_rowDataProxy  = XLRowDataProxy(this, m_rowNode.get());
         }
+        return *this;
+    }
 
-        /**
-         * @details
-         * @pre
-         * @post
-         */
-        XLRow& XLRow::operator=(XLRow&& other) noexcept
-            {
-            if (&other != this) {
-                m_rowNode        = std::move(other.m_rowNode);
-                m_sharedStrings  = other.m_sharedStrings;
-                m_rowDataProxy   = XLRowDataProxy(this, m_rowNode.get());
-            }
-            return *this;
-            }
+    /**
+     * @details Returns the m_height member by getValue.
+     * @pre
+     * @post
+     */
+    double XLRow::height() const
+    {
+        return m_rowNode->attribute("ht").as_double(15.0);
+    }
 
-            /**
-             * @details Returns the m_height member by getValue.
-             * @pre
-             * @post
-             */
-            double XLRow::height() const
-            {
-                return m_rowNode->attribute("ht").as_double(15.0);
-            }
+    /**
+     * @details Set the height of the row. This is done by setting the getValue of the 'ht' attribute and setting the
+     * 'customHeight' attribute to true.
+     * @pre
+     * @post
+     */
+    void XLRow::setHeight(float height)
+    {
+        // Set the 'ht' attribute for the Cell. If it does not exist, create it.
+        if (!m_rowNode->attribute("ht"))
+            m_rowNode->append_attribute("ht") = height;
+        else
+            m_rowNode->attribute("ht").set_value(height);
 
-            /**
-             * @details Set the height of the row. This is done by setting the getValue of the 'ht' attribute and setting the
-             * 'customHeight' attribute to true.
-             * @pre
-             * @post
-             */
-            void XLRow::setHeight(float height)
-            {
-                // Set the 'ht' attribute for the Cell. If it does not exist, create it.
-                if (!m_rowNode->attribute("ht"))
-                    m_rowNode->append_attribute("ht") = height;
-                else
-                    m_rowNode->attribute("ht").set_value(height);
+        // Set the 'customHeight' attribute. If it does not exist, create it.
+        if (!m_rowNode->attribute("customHeight"))
+            m_rowNode->append_attribute("customHeight") = 1;
+        else
+            m_rowNode->attribute("customHeight").set_value(1);
+    }
 
-                // Set the 'customHeight' attribute. If it does not exist, create it.
-                if (!m_rowNode->attribute("customHeight"))
-                    m_rowNode->append_attribute("customHeight") = 1;
-                else
-                    m_rowNode->attribute("customHeight").set_value(1);
-            }
+    /**
+     * @details Return the m_descent member by getValue.
+     * @pre
+     * @post
+     */
+    float XLRow::descent() const
+    {
+        return m_rowNode->attribute("x14ac:dyDescent").as_float(0.25);
+    }
 
-            /**
-             * @details Return the m_descent member by getValue.
-             * @pre
-             * @post
-             */
-            float XLRow::descent() const
-            {
-                return m_rowNode->attribute("x14ac:dyDescent").as_float(0.25);
-            }
+    /**
+     * @details Set the descent by setting the 'x14ac:dyDescent' attribute in the XML file
+     * @pre
+     * @post
+     */
+    void XLRow::setDescent(float descent)
+    {
+        // Set the 'x14ac:dyDescent' attribute. If it does not exist, create it.
+        if (!m_rowNode->attribute("x14ac:dyDescent"))
+            m_rowNode->append_attribute("x14ac:dyDescent") = descent;
+        else
+            m_rowNode->attribute("x14ac:dyDescent") = descent;
+    }
 
-            /**
-             * @details Set the descent by setting the 'x14ac:dyDescent' attribute in the XML file
-             * @pre
-             * @post
-             */
-            void XLRow::setDescent(float descent)
-            {
-                // Set the 'x14ac:dyDescent' attribute. If it does not exist, create it.
-                if (!m_rowNode->attribute("x14ac:dyDescent"))
-                    m_rowNode->append_attribute("x14ac:dyDescent") = descent;
-                else
-                    m_rowNode->attribute("x14ac:dyDescent") = descent;
-            }
+    /**
+     * @details Determine if the row is hidden or not.
+     * @pre
+     * @post
+     */
+    bool XLRow::isHidden() const
+    {
+        return m_rowNode->attribute("hidden").as_bool(false);
+    }
 
-            /**
-             * @details Determine if the row is hidden or not.
-             * @pre
-             * @post
-             */
-            bool XLRow::isHidden() const
-            {
-                return m_rowNode->attribute("hidden").as_bool(false);
-            }
+    /**
+     * @details Set the hidden state by setting the 'hidden' attribute to true or false.
+     * @pre
+     * @post
+     */
+    void XLRow::setHidden(bool state)
+    {
+        // Set the 'hidden' attribute. If it does not exist, create it.
+        if (!m_rowNode->attribute("hidden"))
+            m_rowNode->append_attribute("hidden") = static_cast<int>(state);
+        else
+            m_rowNode->attribute("hidden").set_value(static_cast<int>(state));
+    }
 
-            /**
-             * @details Set the hidden state by setting the 'hidden' attribute to true or false.
-             * @pre
-             * @post
-             */
-            void XLRow::setHidden(bool state)
-            {
-                // Set the 'hidden' attribute. If it does not exist, create it.
-                if (!m_rowNode->attribute("hidden"))
-                    m_rowNode->append_attribute("hidden") = static_cast<int>(state);
-                else
-                    m_rowNode->attribute("hidden").set_value(static_cast<int>(state));
-            }
+    /**
+     * @details
+     * @pre
+     * @post
+     */
+    uint64_t XLRow::rowNumber() const
+    {
+        return static_cast<uint64_t>(m_rowNode->attribute("r").as_ullong());
+    }
 
-            /**
-             * @details
-             * @pre
-             * @post
-             */
-            uint64_t XLRow::rowNumber() const
-            {
-                return static_cast<uint64_t>(m_rowNode->attribute("r").as_ullong());
-            }
+    /**
+     * @details Get the number of cells in the row, by returning the size of the m_cells vector.
+     * @pre
+     * @post
+     */
+    unsigned int XLRow::cellCount() const
+    {
+        if (!m_rowNode->last_child())
+            return 0;
+        else
+            return XLCellReference(m_rowNode->last_child().attribute("r").value()).column();
+    }
 
-            /**
-             * @details Get the number of cells in the row, by returning the size of the m_cells vector.
-             * @pre
-             * @post
-             */
-            unsigned int XLRow::cellCount() const
-            {
-                if (!m_rowNode->last_child())
-                    return 0;
-                else
-                    return XLCellReference(m_rowNode->last_child().attribute("r").value()).column();
-            }
+    /**
+     * @details
+     * @pre
+     * @post
+     */
+    XLRowDataProxy& XLRow::values()
+    {
+        return m_rowDataProxy;
+    }
 
-            /**
-             * @details
-             * @pre
-             * @post
-             */
-            XLRowDataProxy& XLRow::values()
-            {
-                return m_rowDataProxy;
-            }
+    /**
+     * @details
+     * @pre
+     * @post
+     */
+    const XLRowDataProxy& XLRow::values() const
+    {
+        return m_rowDataProxy;
+    }
 
-            /**
-             * @details
-             * @pre
-             * @post
-             */
-            const XLRowDataProxy& XLRow::values() const
-            {
-                return m_rowDataProxy;
-            }
+    /**
+     * @details
+     * @pre
+     * @post
+     */
+    XLRowDataRange XLRow::cells() const
+    {
+        return XLRowDataRange(*m_rowNode, 1, XLCellReference(m_rowNode->last_child().attribute("r").value()).column(), m_sharedStrings);
+    }
 
-            /**
-             * @details
-             * @pre
-             * @post
-             */
-            XLRowDataRange XLRow::cells() const
-            {
-                return XLRowDataRange(*m_rowNode, 1, XLCellReference(m_rowNode->last_child().attribute("r").value()).column(), m_sharedStrings);
-            }
+    /**
+     * @details
+     * @pre
+     * @post
+     */
+    XLRowDataRange XLRow::cells(uint16_t cellCount) const
+    {
+        return XLRowDataRange(*m_rowNode, 1, cellCount, m_sharedStrings);
+    }
 
-            /**
-             * @details
-             * @pre
-             * @post
-             */
-            XLRowDataRange XLRow::cells(uint16_t cellCount) const
-            {
-                return XLRowDataRange(*m_rowNode, 1, cellCount, m_sharedStrings);
-            }
-
-            /**
-             * @details
-             * @pre
-             * @post
-             */
-            XLRowDataRange XLRow::cells(uint16_t firstCell, uint16_t lastCell) const
-            {
-                return XLRowDataRange(*m_rowNode, firstCell, lastCell, m_sharedStrings);
-            }
-
+    /**
+     * @details
+     * @pre
+     * @post
+     */
+    XLRowDataRange XLRow::cells(uint16_t firstCell, uint16_t lastCell) const
+    {
+        return XLRowDataRange(*m_rowNode, firstCell, lastCell, m_sharedStrings);
+    }
 
 }    // namespace OpenXLSX
 
@@ -299,11 +298,11 @@ namespace OpenXLSX
      * @post
      */
     XLRowIterator::XLRowIterator(const XLRowRange& rowRange, XLIteratorLocation loc)
-    : m_dataNode(std::make_unique<XMLNode>(*rowRange.m_dataNode)),
-    m_firstRow(rowRange.m_firstRow),
-    m_lastRow(rowRange.m_lastRow),
-    m_currentRow(),
-    m_sharedStrings(rowRange.m_sharedStrings)
+        : m_dataNode(std::make_unique<XMLNode>(*rowRange.m_dataNode)),
+          m_firstRow(rowRange.m_firstRow),
+          m_lastRow(rowRange.m_lastRow),
+          m_currentRow(),
+          m_sharedStrings(rowRange.m_sharedStrings)
     {
         if (loc == XLIteratorLocation::End)
             m_currentRow = XLRow();
@@ -325,11 +324,11 @@ namespace OpenXLSX
      * @post
      */
     XLRowIterator::XLRowIterator(const XLRowIterator& other)
-    : m_dataNode(std::make_unique<XMLNode>(*other.m_dataNode)),
-    m_firstRow(other.m_firstRow),
-    m_lastRow(other.m_lastRow),
-    m_currentRow(other.m_currentRow),
-    m_sharedStrings(other.m_sharedStrings)
+        : m_dataNode(std::make_unique<XMLNode>(*other.m_dataNode)),
+          m_firstRow(other.m_firstRow),
+          m_lastRow(other.m_lastRow),
+          m_currentRow(other.m_currentRow),
+          m_sharedStrings(other.m_sharedStrings)
     {}
 
     /**
@@ -345,7 +344,7 @@ namespace OpenXLSX
      * @post
      */
     XLRowIterator& XLRowIterator::operator=(const XLRowIterator& other)
-        {
+    {
         if (&other != this) {
             *m_dataNode     = *other.m_dataNode;
             m_firstRow      = other.m_firstRow;
@@ -355,101 +354,101 @@ namespace OpenXLSX
         }
 
         return *this;
+    }
+
+    /**
+     * @details
+     * @pre
+     * @post
+     */
+    XLRowIterator& XLRowIterator::operator=(XLRowIterator&& other) noexcept = default;
+
+    /**
+     * @details
+     * @pre
+     * @post
+     */
+    XLRowIterator& XLRowIterator::operator++()
+    {
+        auto rowNumber = m_currentRow.rowNumber() + 1;
+        auto rowNode   = m_currentRow.m_rowNode->next_sibling();
+
+        if (rowNumber > m_lastRow)
+            m_currentRow = XLRow();
+
+        else if (!rowNode || rowNode.attribute("r").as_ullong() != rowNumber) {
+            rowNode = m_dataNode->insert_child_after("row", *m_currentRow.m_rowNode);
+            rowNode.append_attribute("r").set_value(rowNumber);
+            m_currentRow = XLRow(rowNode, m_sharedStrings);
         }
 
-        /**
-         * @details
-         * @pre
-         * @post
-         */
-        XLRowIterator& XLRowIterator::operator=(XLRowIterator&& other) noexcept = default;
+        else
+            m_currentRow = XLRow(rowNode, m_sharedStrings);
 
-        /**
-         * @details
-         * @pre
-         * @post
-         */
-        XLRowIterator& XLRowIterator::operator++()
-        {
-            auto rowNumber = m_currentRow.rowNumber() + 1;
-            auto rowNode   = m_currentRow.m_rowNode->next_sibling();
+        return *this;
+    }
 
-            if (rowNumber > m_lastRow)
-                m_currentRow = XLRow();
+    /**
+     * @details
+     * @pre
+     * @post
+     */
+    XLRowIterator XLRowIterator::operator++(int)    // NOLINT
+    {
+        auto oldIter(*this);
+        ++(*this);
+        return oldIter;
+    }
 
-            else if (!rowNode || rowNode.attribute("r").as_ullong() != rowNumber) {
-                rowNode = m_dataNode->insert_child_after("row", *m_currentRow.m_rowNode);
-                rowNode.append_attribute("r").set_value(rowNumber);
-                m_currentRow = XLRow(rowNode, m_sharedStrings);
-            }
+    /**
+     * @details
+     * @pre
+     * @post
+     */
+    XLRow& XLRowIterator::operator*()
+    {
+        return m_currentRow;
+    }
 
-            else
-                m_currentRow = XLRow(rowNode, m_sharedStrings);
+    /**
+     * @details
+     * @pre
+     * @post
+     */
+    XLRowIterator::pointer XLRowIterator::operator->()
+    {
+        return &m_currentRow;
+    }
 
-            return *this;
-        }
+    /**
+     * @details
+     * @pre
+     * @post
+     */
+    bool XLRowIterator::operator==(const XLRowIterator& rhs)
+    {
+        return m_currentRow == rhs.m_currentRow;
+    }
 
-        /**
-         * @details
-         * @pre
-         * @post
-         */
-        XLRowIterator XLRowIterator::operator++(int)    // NOLINT
-        {
-            auto oldIter(*this);
-            ++(*this);
-            return oldIter;
-        }
+    /**
+     * @details
+     * @pre
+     * @post
+     */
+    bool XLRowIterator::operator!=(const XLRowIterator& rhs)
+    {
+        return !(m_currentRow == rhs.m_currentRow);
+    }
 
-        /**
-         * @details
-         * @pre
-         * @post
-         */
-        XLRow& XLRowIterator::operator*()
-        {
-            return m_currentRow;
-        }
-
-        /**
-         * @details
-         * @pre
-         * @post
-         */
-        XLRowIterator::pointer XLRowIterator::operator->()
-        {
-            return &m_currentRow;
-        }
-
-        /**
-         * @details
-         * @pre
-         * @post
-         */
-        bool XLRowIterator::operator==(const XLRowIterator& rhs)
-        {
-            return m_currentRow == rhs.m_currentRow;
-        }
-
-        /**
-         * @details
-         * @pre
-         * @post
-         */
-        bool XLRowIterator::operator!=(const XLRowIterator& rhs)
-        {
-            return !(m_currentRow == rhs.m_currentRow);
-        }
-
-        /**
-         * @details
-         * @pre
-         * @post
-         */
-        XLRowIterator::operator bool() const
-        {
-            return false;
-        }
+    /**
+     * @details
+     * @pre
+     * @post
+     */
+    XLRowIterator::operator bool() const
+    {
+        return false;
+    }
 
 }    // namespace OpenXLSX
 
@@ -462,10 +461,10 @@ namespace OpenXLSX
      * @post
      */
     XLRowRange::XLRowRange(const XMLNode& dataNode, uint32_t first, uint32_t last, OpenXLSX::XLSharedStrings* sharedStrings)
-    : m_dataNode(std::make_unique<XMLNode>(dataNode)),
-    m_firstRow(first),
-    m_lastRow(last),
-    m_sharedStrings(sharedStrings)
+        : m_dataNode(std::make_unique<XMLNode>(dataNode)),
+          m_firstRow(first),
+          m_lastRow(last),
+          m_sharedStrings(sharedStrings)
     {}
 
     /**
@@ -474,10 +473,10 @@ namespace OpenXLSX
      * @post
      */
     XLRowRange::XLRowRange(const XLRowRange& other)
-    : m_dataNode(std::make_unique<XMLNode>(*other.m_dataNode)),
-    m_firstRow(other.m_firstRow),
-    m_lastRow(other.m_lastRow),
-    m_sharedStrings(other.m_sharedStrings)
+        : m_dataNode(std::make_unique<XMLNode>(*other.m_dataNode)),
+          m_firstRow(other.m_firstRow),
+          m_lastRow(other.m_lastRow),
+          m_sharedStrings(other.m_sharedStrings)
     {}
 
     /**
@@ -500,7 +499,7 @@ namespace OpenXLSX
      * @post
      */
     XLRowRange& XLRowRange::operator=(const XLRowRange& other)
-        {
+    {
         if (&other != this) {
             *m_dataNode     = *other.m_dataNode;
             m_firstRow      = other.m_firstRow;
@@ -509,51 +508,51 @@ namespace OpenXLSX
         }
 
         return *this;
-        }
+    }
 
-        /**
-         * @details
-         * @pre
-         * @post
-         */
-        XLRowRange& XLRowRange::operator=(XLRowRange&& other) noexcept = default;
+    /**
+     * @details
+     * @pre
+     * @post
+     */
+    XLRowRange& XLRowRange::operator=(XLRowRange&& other) noexcept = default;
 
-        /**
-         * @details
-         * @pre
-         * @post
-         */
-        uint32_t XLRowRange::rowCount() const
-        {
-            return m_lastRow - m_firstRow + 1;
-        }
+    /**
+     * @details
+     * @pre
+     * @post
+     */
+    uint32_t XLRowRange::rowCount() const
+    {
+        return m_lastRow - m_firstRow + 1;
+    }
 
-        /**
-         * @details
-         * @pre
-         * @post
-         */
-        XLRowIterator XLRowRange::begin()
-        {
-            return XLRowIterator(*this, XLIteratorLocation::Begin);
-        }
+    /**
+     * @details
+     * @pre
+     * @post
+     */
+    XLRowIterator XLRowRange::begin()
+    {
+        return XLRowIterator(*this, XLIteratorLocation::Begin);
+    }
 
-        /**
-         * @details
-         * @pre
-         * @post
-         */
-        XLRowIterator XLRowRange::end()
-        {
-            return XLRowIterator(*this, XLIteratorLocation::End);
-        }
+    /**
+     * @details
+     * @pre
+     * @post
+     */
+    XLRowIterator XLRowRange::end()
+    {
+        return XLRowIterator(*this, XLIteratorLocation::End);
+    }
 
-        /**
-         * @details
-         * @pre
-         * @post
-         * @todo Not yet implemented!
-         */
-        void XLRowRange::clear() {}
+    /**
+     * @details
+     * @pre
+     * @post
+     * @todo Not yet implemented!
+     */
+    void XLRowRange::clear() {}
 
 }    // namespace OpenXLSX
