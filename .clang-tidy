@@ -20,7 +20,8 @@ Checks: >-
   -bugprone-infinite-loop,
   -abseil-string-find-startswith,
   -abseil-string-find-str-contains,
-  -altera-unroll-loops
+  -altera-unroll-loops,
+  -cppcoreguidelines-pro-bounds-array-to-pointer-decay
 
 WarningsAsErrors: '*'
 HeaderFilterRegex: ''
