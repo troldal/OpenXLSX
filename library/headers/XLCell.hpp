@@ -132,6 +132,7 @@ namespace OpenXLSX
          * @param range The range to be copied
          * @return A reference to the new cell object.
          * @note Copies only the cell contents (values).
+         * @todo Consider moving this function to the XLCellValueProxy class. It would make more sense there.
          */
         XLCell& operator=(const XLCellRange& range);
 

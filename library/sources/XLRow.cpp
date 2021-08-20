@@ -88,7 +88,8 @@ namespace OpenXLSX
     {}
 
     /**
-     * @details
+     * @details Because the m_rowDataProxy variable is tied to an exact XLRow object, the move operation is
+     * not a 'pure' move, as a new XLRowDataProxy has to be constructed.
      * @pre
      * @post
      */
@@ -113,15 +114,15 @@ namespace OpenXLSX
     XLRow& XLRow::operator=(const XLRow& other)
     {
         if (&other != this) {
-            m_rowNode       = other.m_rowNode ? std::make_unique<XMLNode>(*other.m_rowNode) : nullptr;
-            m_sharedStrings = other.m_sharedStrings;
-            m_rowDataProxy  = XLRowDataProxy(this, m_rowNode.get());
+            auto temp = XLRow(other);
+            std::swap(*this, temp);
         }
         return *this;
     }
 
     /**
-     * @details
+     * @details Because the m_rowDataProxy variable is tied to an exact XLRow object, the move operation is
+     * not a 'pure' move, as a new XLRowDataProxy has to be constructed.
      * @pre
      * @post
      */
@@ -346,11 +347,8 @@ namespace OpenXLSX
     XLRowIterator& XLRowIterator::operator=(const XLRowIterator& other)
     {
         if (&other != this) {
-            *m_dataNode     = *other.m_dataNode;
-            m_firstRow      = other.m_firstRow;
-            m_lastRow       = other.m_lastRow;
-            m_currentRow    = other.m_currentRow;
-            m_sharedStrings = other.m_sharedStrings;
+            auto temp = XLRowIterator(other);
+            std::swap(*this, temp);
         }
 
         return *this;
@@ -501,10 +499,8 @@ namespace OpenXLSX
     XLRowRange& XLRowRange::operator=(const XLRowRange& other)
     {
         if (&other != this) {
-            *m_dataNode     = *other.m_dataNode;
-            m_firstRow      = other.m_firstRow;
-            m_lastRow       = other.m_lastRow;
-            m_sharedStrings = other.m_sharedStrings;
+            auto temp = XLRowRange(other);
+            std::swap(*this, temp);
         }
 
         return *this;
@@ -546,13 +542,5 @@ namespace OpenXLSX
     {
         return XLRowIterator(*this, XLIteratorLocation::End);
     }
-
-    /**
-     * @details
-     * @pre
-     * @post
-     * @todo Not yet implemented!
-     */
-    void XLRowRange::clear() {}
 
 }    // namespace OpenXLSX

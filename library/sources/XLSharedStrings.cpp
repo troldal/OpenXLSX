@@ -138,7 +138,7 @@ int32_t XLSharedStrings::appendString(const std::string& str)
 void XLSharedStrings::clearString(int index)
 {
     m_stringCache[index] = "";
-    auto iter = xmlDocument().document_element().children().begin();
+    auto iter            = xmlDocument().document_element().children().begin();
     std::advance(iter, index);
     iter->text().set("");
 }

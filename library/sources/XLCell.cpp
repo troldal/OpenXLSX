@@ -62,15 +62,6 @@ XLCell::XLCell() : m_cellNode(nullptr), m_sharedStrings(nullptr), m_valueProxy(X
  * intended for use when the corresponding cell XMLNode already exist.
  * If a cell XMLNode does not exist (i.e., the cell is empty), use the relevant constructor to create an XLCell
  * from a XLCellReference parameter.
- * The initialization algorithm is as follows:
- *  -# Is the parameter a nullptr? If yes, throw a invalid_argument exception.
- *  -# Read the formula and getValue child nodes. These may be nullptr, if the cell is empty.
- *  -# Read the address, type and style attributes to the cellNode. The type attribute may be nullptr
- *  -# set the m_cellReference property using the getValue of the m_addressAttribute.
- *  -# Set the cell type, using the previous information:
- *      -# If there is no type attribute and no getValue node, the cell is empty.
- *      -# If there is no type attribute but there is a value node, the cell has a number getValue.
- *      -# Otherwise, determine the celltype based on the type attribute.
  */
 XLCell::XLCell(const XMLNode& cellNode, XLSharedStrings* sharedStrings)
     : m_cellNode(std::make_unique<XMLNode>(cellNode)),

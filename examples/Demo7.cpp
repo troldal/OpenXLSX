@@ -1,8 +1,8 @@
 #include <OpenXLSX.hpp>
-#include <iostream>
-#include <random>
 #include <deque>
+#include <iostream>
 #include <list>
+#include <random>
 
 using namespace std;
 using namespace OpenXLSX;
@@ -18,10 +18,10 @@ int main()
     doc.create("./Demo07.xlsx");
     auto wks = doc.workbook().worksheet("Sheet1");
 
-    wks.row(1).values() = std::vector<int>{1,2,3,4,5,6,7,8};
-    wks.row(2).values() = std::vector<double>{1.1, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7, 8.8};
-    wks.row(3).values() = std::vector<bool>{true, false, true, false, true, false, true, false};
-    wks.row(4).values() = std::vector<std::string>{"A", "B", "C", "D", "E", "F", "G", "H"};
+    wks.row(1).values() = std::vector<int> { 1, 2, 3, 4, 5, 6, 7, 8 };
+    wks.row(2).values() = std::vector<double> { 1.1, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7, 8.8 };
+    wks.row(3).values() = std::vector<bool> { true, false, true, false, true, false, true, false };
+    wks.row(4).values() = std::vector<std::string> { "A", "B", "C", "D", "E", "F", "G", "H" };
 
     cout << "Saving spreadsheet ..." << endl;
     doc.save();
@@ -33,7 +33,8 @@ int main()
 
     cout << "Conversion to std::vector<XLCellValue> ..." << endl;
     for (auto& row : wks.rows()) {
-        for (auto& value : std::vector<XLCellValue>(row.values())) {
+        //        for (auto& value : std::vector<XLCellValue>(row.values())) {
+        for (auto& value : row.values<std::vector<XLCellValue>>()) {
             cout << value << " ";
         }
         cout << endl;
@@ -66,7 +67,8 @@ int main()
     cout << endl;
 
     cout << endl << "Conversion to std::deque<[int, double, bool, std::string]> ..." << endl;
-    for (auto& value : std::deque<int>(wks.row(1).values())) cout << value << " ";
+    //    for (auto& value : std::deque<int>(wks.row(1).values())) cout << value << " ";
+    for (auto& value : wks.row(1).values<std::deque<int>>()) cout << value << " ";
     cout << endl;
     for (auto& value : std::deque<double>(wks.row(2).values())) cout << value << " ";
     cout << endl;

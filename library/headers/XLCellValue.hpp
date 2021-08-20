@@ -356,7 +356,8 @@ namespace OpenXLSX
         template<typename T,
                  typename std::enable_if<std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_constructible_v<T, const char*> ||
                                          std::is_same_v<T, XLCellValue>>::type* = nullptr>
-        void set(T value) {
+        void set(T value)
+        {
             *this = value;
         }
 
@@ -368,7 +369,8 @@ namespace OpenXLSX
         template<typename T,
                  typename std::enable_if<std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_constructible_v<T, char*>>::type* =
                      nullptr>
-        T get() const {
+        T get() const
+        {
             return getValue().get<T>();
         }
 

@@ -437,21 +437,21 @@ XLCellValue XLCellValueProxy::getValue() const
             return XLCellValue().clear();
 
         case XLValueType::Float:
-            return XLCellValue{ m_cellNode->child("v").text().as_double() };
+            return XLCellValue { m_cellNode->child("v").text().as_double() };
 
         case XLValueType::Integer:
-            return XLCellValue{ m_cellNode->child("v").text().as_llong() };
+            return XLCellValue { m_cellNode->child("v").text().as_llong() };
 
         case XLValueType::String:
             if (strcmp(m_cellNode->attribute("t").value(), "s") == 0)
-                return XLCellValue{ m_cell->m_sharedStrings->getString(static_cast<uint32_t>(m_cellNode->child("v").text().as_ullong())) };
+                return XLCellValue { m_cell->m_sharedStrings->getString(static_cast<uint32_t>(m_cellNode->child("v").text().as_ullong())) };
             else if (strcmp(m_cellNode->attribute("t").value(), "str") == 0)
-                return XLCellValue{ m_cellNode->child("v").text().get() };
+                return XLCellValue { m_cellNode->child("v").text().get() };
             else
                 throw XLException("Unknown string type");
 
         case XLValueType::Boolean:
-            return XLCellValue{ m_cellNode->child("v").text().as_bool() };
+            return XLCellValue { m_cellNode->child("v").text().as_bool() };
 
         default:
             return XLCellValue().setError();

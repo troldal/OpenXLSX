@@ -315,7 +315,7 @@ namespace OpenXLSX
                                         std::is_base_of_v<typename std::bidirectional_iterator_tag,
                                                           typename std::iterator_traits<typename Container::iterator>::iterator_category>,
                                     Container>::type* = nullptr>
-        explicit operator Container()
+        explicit operator Container() const
         {
             return convertContainer<Container>();
         }
