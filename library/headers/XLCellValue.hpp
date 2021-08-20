@@ -109,25 +109,33 @@ namespace OpenXLSX
         {
 
             // ===== If the argument is a bool, set the m_type attribute to Boolean.
-            if constexpr (std::is_integral_v<T> && std::is_same_v<T, bool>) m_type = XLValueType::Boolean;
+            if constexpr (std::is_integral_v<T> && std::is_same_v<T, bool>) {
+                m_type = XLValueType::Boolean;
+                m_value = value;
+            }
 
             // ===== If the argument is an integral type, set the m_type attribute to Integer.
-            else if constexpr (std::is_integral_v<T> && !std::is_same_v<T, bool>)
+            else if constexpr (std::is_integral_v<T> && !std::is_same_v<T, bool>) {
                 m_type = XLValueType::Integer;
+                m_value = int64_t(value);
+            }
 
             // ===== If the argument is a string type (i.e. is constructable from *char),
             // ===== set the m_type attribute to String.
-            else if constexpr (std::is_constructible_v<T, char*> && !std::is_same_v<T, bool>)
+            else if constexpr (std::is_constructible_v<T, char*> && !std::is_same_v<T, bool>) {
                 m_type = XLValueType::String;
+                m_value = value;
+            }
 
             // ===== If the argument is a floating point type, set the m_type attribute to Float.
             // ===== If not, a static_assert will result in compilation error.
             else {
                 static_assert(std::is_floating_point_v<T>, "Invalid argument for constructing XLCellValue object");
                 m_type = XLValueType::Float;
+                m_value = value;
             }
 
-            m_value = value;
+
         }
 
         /**
