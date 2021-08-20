@@ -2,6 +2,7 @@
 #include <iostream>
 #include <random>
 #include <deque>
+#include <numeric>
 
 using namespace std;
 using namespace OpenXLSX;

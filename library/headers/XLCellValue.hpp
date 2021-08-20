@@ -105,8 +105,8 @@ namespace OpenXLSX
         template<typename T,
                  typename std::enable_if<std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_constructible_v<T, char*>>::type* =
                      nullptr>
-        XLCellValue(T value)
-        {    // NOLINT
+        XLCellValue(T value) // NOLINT
+        {
 
             // ===== If the argument is a bool, set the m_type attribute to Boolean.
             if constexpr (std::is_integral_v<T> && std::is_same_v<T, bool>) m_type = XLValueType::Boolean;
