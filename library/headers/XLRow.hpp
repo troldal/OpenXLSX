@@ -82,8 +82,9 @@ namespace OpenXLSX
         XLRow();
 
         /**
-         * @brief Constructor
+         * @brief
          * @param rowNode
+         * @param sharedStrings
          */
         XLRow(const XMLNode& rowNode, XLSharedStrings* sharedStrings);
 
@@ -232,7 +233,7 @@ namespace OpenXLSX
 
         /**
          * @brief
-         * @param cellRange
+         * @param rowRange
          * @param loc
          */
         explicit XLRowIterator(const XLRowRange& rowRange, XLIteratorLocation loc);

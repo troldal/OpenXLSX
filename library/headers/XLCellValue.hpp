@@ -308,7 +308,7 @@ namespace OpenXLSX
         /**
          * @brief Templated assignment operator
          * @tparam T The type of numberValue assigned to the object.
-         * @param numberValue The value.
+         * @param value The value.
          * @return A reference to the current object.
          */
         template<typename T,
@@ -361,7 +361,7 @@ namespace OpenXLSX
         /**
          * @brief
          * @tparam T
-         * @param numberValue
+         * @param value
          */
         template<typename T,
                  typename std::enable_if<std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_constructible_v<T, const char*> ||

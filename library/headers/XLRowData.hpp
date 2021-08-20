@@ -116,7 +116,7 @@ namespace OpenXLSX
     private:
         /**
          * @brief Constructor.
-         * @param cellRange The range to iterate over.
+         * @param rowDataRange The range to iterate over.
          * @param loc The location of the iterator (begin or end).
          */
         XLRowDataIterator(const XLRowDataRange& rowDataRange, XLIteratorLocation loc);

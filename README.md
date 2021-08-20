@@ -16,6 +16,7 @@ Microsoft Excel® files, with the .xlsx format.
   - [File Size](#file-size)
   - [Memory Usage](#memory-usage)
   - [Unicode](#unicode)
+- [Reference Guide](#reference-guide)
 - [Example Programs](#example-programs)
 
 ## New in version 0.3.0
@@ -315,6 +316,10 @@ and the rename it when saving the file. This can make opening/saving
 operations quite lengthy, so if you don't need it, don't turn it on.
 Note also that this is only required on Windows, as most other operating
 systems can handle non-ASCII filenames easily.
+
+## Reference Guide
+
+### Cells and cellvalues
 
 ## Example Programs
 
