@@ -135,7 +135,6 @@ namespace OpenXLSX
                 m_value = value;
             }
 
-
         }
 
         /**

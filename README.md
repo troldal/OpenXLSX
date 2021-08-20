@@ -5,6 +5,7 @@ Microsoft Excel® files, with the .xlsx format.
 
 ## Table of Contents
 
+- [New in version 0.3.0](#new-in-version-030)
 - [New in version 0.2.0](#new-in-version-020)
 - [Motivation](#motivation)
 - [Compatibility](#compatibility)
@@ -16,6 +17,8 @@ Microsoft Excel® files, with the .xlsx format.
   - [Memory Usage](#memory-usage)
   - [Unicode](#unicode)
 - [Example Programs](#example-programs)
+
+## New in version 0.3.0
 
 ## New in version 0.2.0
 
@@ -34,7 +37,7 @@ should be easy to update:
   means that when requesting a certain worksheet from a workbook, the
   resulting worksheet is not returned as a pointer, but as an object
   that supports both copying and moving.
-* The distingction between interface objects and implementation objects
+* The distinction between interface objects and implementation objects
   are now gone, as it made it very difficult to manage changes. It was
   an attempt to implement the pimpl idiom, but it wasn't very effective.
   In the future, I may try to implement pimpl again, but only if it can
