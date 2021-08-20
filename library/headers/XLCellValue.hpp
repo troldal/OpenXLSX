@@ -107,7 +107,6 @@ namespace OpenXLSX
                      nullptr>
         XLCellValue(T value) // NOLINT
         {
-
             // ===== If the argument is a bool, set the m_type attribute to Boolean.
             if constexpr (std::is_integral_v<T> && std::is_same_v<T, bool>) {
                 m_type = XLValueType::Boolean;
@@ -124,7 +123,12 @@ namespace OpenXLSX
             // ===== set the m_type attribute to String.
             else if constexpr (std::is_constructible_v<T, char*> && !std::is_same_v<T, bool>) {
                 m_type = XLValueType::String;
-                m_value = value;
+                if constexpr (std::is_same<const char*, typename std::remove_reference<typename std::remove_cv<T>::type>::type>::value)
+                    m_value = value;
+                else if constexpr (std::is_same<std::string_view, T>::value)
+                    m_value = std::string(value).c_str();
+                else
+                    m_value = value.c_str();
             }
 
             // ===== If the argument is a floating point type, set the m_type attribute to Float.
@@ -132,9 +136,8 @@ namespace OpenXLSX
             else {
                 static_assert(std::is_floating_point_v<T>, "Invalid argument for constructing XLCellValue object");
                 m_type = XLValueType::Float;
-                m_value = value;
+                m_value = double(value);
             }
-
         }
 
         /**
