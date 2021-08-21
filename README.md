@@ -428,7 +428,7 @@ point types, c-strings, std::string_view and any string type with a `c_str()` me
 ```cpp
 cell.value() = 42;
 cell.value() = "Hello, OpenXLSX!";
-cell.value() = 43.14159;
+cell.value() = 3.14159;
 cell.value() = false;
 cell.value() = XLCellValue(123);
 ```
