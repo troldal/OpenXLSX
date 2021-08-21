@@ -318,8 +318,134 @@ Note also that this is only required on Windows, as most other operating
 systems can handle non-ASCII filenames easily.
 
 ## Reference Guide
+This section will contain the user reference for usage of OpenXLSX.
+HOLD
 
-### Cells and cellvalues
+### Access to spreadsheet cells
+The whole point of OpenXLSX is to access the individual cell values of a spreadsheet. This section describes how to 
+access individual cells, as well as cell ranges, for reading and writing.
+
+#### XLCellReference class
+The most common way of addressing cells in an Excel spreadsheet is by using the A1 notation, i.e. the columns are 
+represented by letters and the rows are represented by numbers. However, it is also possible to use the so-called 
+R1C1 notation, where both rows and columns are represented by numbers.
+
+The XLCellReference class encapsulates the concept of a cell address, and can be used to convert between different 
+notations. It is also used as an input parameter on XLWorksheet objects to retrieve specific cells.
+
+The most common way of creating an XLCellReference object is to call the constructor with a string with the cell 
+address in A1 notation, like this:
+
+```cpp
+auto cellRef = XLCellReference("B2");
+```
+It is also possible to create an XLCellReference object by providing the row and column coordinates of the cell, 
+like this:
+```cpp
+auto cellRef = XLCellReference(2,2);
+```
+
+If the default constructor is called (i.e. no input parameters), the resulting object will refer to cell A1.
+
+If you have an XLCellReference object, you can get the row/column number or the address using the `row()`, `column()
+`, or `address()` member functions. Similarly, the object can be modified using the `setRow()`, `setColumn()
+`, or `setAddress()` member functions:
+
+```cpp
+uint16_t row = cellRef.row();            // Get the row number
+uint32_t column = cellRef.column();      // Get the column number
+std::string address = cellRef.address(); // Get the cell address
+
+cellRef.setRow(3);        // Set the row number;
+cellRef.setColumn(5);     // Set the column number;
+cellRef.setAddress("E3"); // Set the cell address;
+```
+
+#### XLCell class
+An object of the XLCell class represents a cell in a spreadsheet. The XLCell class itself doesn't do much, as it can 
+mostly be considered a container of various cell properties, such as the cell value, cell formulas (not yet 
+implemented), and cell formatting (not yet implemented).
+
+An XLCell object can be retrieved via the `cell()` member function of the XLWorksheet class. This method takes an 
+XLCellReference object, or alternatively a string with the cell address, as a parameter.
+
+#### XLCellValue and XLCellValueProxy classes
+As mentioned previously, an object of the XLCell class doesn't contain the actual cell value. Instead, the value is 
+contained in an XLCellValue object. XLCellValue is essentially a wrapper around a std::variant object, with some 
+handy functionality for conversion and assignment.
+
+An XLCellValue object has no knowledge about the cell it belongs to; it is simply a value that can passed around or 
+stored in a container. Hence, assigning a new value to an XLCellValue object does **not** change the value of any 
+cells in the spreadsheet.
+
+The XLCellValue class has a templated constructor that can take any integer value (including booleans), any floating 
+point value, and any string type with a `c_str()` method for getting a c-string. It is also possible to construct an 
+XLCellValue object from raw c-strings and from std::string_view objects, although it doesn't have a `c_str()` member 
+function. The copy assignment operator works in the same manner.
+
+For conversion in the other direction, the XLCellValue class provides a templated `get()` function, for converting 
+to a basic type. Similar to construction, the template parameter can be any integer type, and floating point type, 
+and any type that can be constructed from c-strings. For example:
+
+```c++
+auto val1 = cellValue.get<int>();
+auto val2 = cellValue.get<double>();
+auto val3 = cellValue.get<bool>();
+auto val4 = cellValue.get<std::string>();
+```
+
+Note, however, that if the value contained in the XLCellValue object cannot be converted to the template parameter 
+type (e.g. if the XLCellValue object contains a string, and the template parameter is int), then an XLValueTypeError 
+will be thrown.
+
+In addition to the `get()` function, the XLCellValue class has a templated explicit conversion operator, that can 
+perform explicit conversion, using the the same rules as above. For example:
+
+```cpp
+auto val1 = static_cast<int>(cellValue);
+auto val2 = double(cellValue);
+```
+
+The XLCell class has a `value()` member function, and one would think that it returns the XLCellValue object for 
+that cell. And it does...sort of. The `value()` member function actually returns a reference to an XLCellValueProxy 
+object. This objects serves as a placeholder that facilitates conversion to an XLCellValue object, as well as 
+assignment of a value to a cell. Whereas assigning a new value to an XLCellValue object does not modify the 
+spreadsheet in any way, assigning a value to a XLCellValueProxy object, will.
+
+This is probably better illustrated by example:
+
+```cpp
+XLCellValue val = cell.value();
+```
+While the `value()` member function returns a reference to a XLCellValueProxy object, this will be implicitly 
+converted to an XLCellValue object. In addition, the XLCellValueProxy class supports the same conversion options as 
+XLCellValue.
+
+But the XLCellValueProxy class also supports assignment operations, that will modify the cell value in the 
+underlying spreadsheet. Assignment can be done with XLCellValue objects, any integer type, booleans, any floating 
+point types, c-strings, std::string_view and any string type with a `c_str()` member function. For example:
+
+```cpp
+cell.value() = 42;
+cell.value() = "Hello, OpenXLSX!";
+cell.value() = 43.14159;
+cell.value() = false;
+cell.value() = XLCellValue(123);
+```
+
+The benefit of this approach is, that we can have XLCellValue objects that uses value semantics, i.e. contains no 
+pointers to the underlying spreadsheet, and that can be copied around, while at the same time can use the same `value
+()` member function to assign a new value to the underlying XLCell object. 
+
+This approach works seamlessly...almost. There is one drawback, and that is that it is not possible to use the auto 
+keyword:
+```cpp
+auto val = cell.value(); // Error!
+```
+Using the auto keyword would invoke the copy constructor of the XLCellValueProxy object, which is undesired. 
+Therefore the copy constructor has been made private, and the code above will therefore not compile. Using auto& 
+instead would compile, but would not be of any use.
+
 
 ## Example Programs
 

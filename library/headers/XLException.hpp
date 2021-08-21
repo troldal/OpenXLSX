@@ -85,6 +85,15 @@ namespace OpenXLSX
         inline explicit XLValueTypeError(const std::string& err) : XLException(err) {};
     };
 
+    /**
+     * @brief
+     */
+    class OPENXLSX_EXPORT XLCellAddressError : public XLException
+    {
+    public:
+        inline explicit XLCellAddressError(const std::string& err) : XLException(err) {};
+    };
+
 }    // namespace OpenXLSX
 
 #pragma warning(pop)

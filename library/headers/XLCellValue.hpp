@@ -101,6 +101,7 @@ namespace OpenXLSX
          * @brief A templated constructor. Any value convertible to a valid cell value can be used as argument.
          * @tparam T The type of the argument (will be automatically deduced).
          * @param value The value.
+         * @todo Consider changing the enable_if statement to check for objects with a .c_str() member function.
          */
         template<typename T,
                  typename std::enable_if<std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_constructible_v<T, char*>>::type* =
@@ -375,6 +376,7 @@ namespace OpenXLSX
          * @brief
          * @tparam T
          * @return
+         * @todo Is an explicit conversion operator needed as well?
          */
         template<typename T,
                  typename std::enable_if<std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_constructible_v<T, char*>>::type* =

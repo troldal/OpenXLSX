@@ -52,15 +52,12 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== OpenXLSX Includes ===== //
 #include "XLCellReference.hpp"
+#include "XLConstants.hpp"
 #include "XLException.hpp"
 
 using namespace OpenXLSX;
 
-constexpr uint32_t maxRows = 1048576;
-
-constexpr uint16_t maxCols = 16'384;
-
-    constexpr uint8_t alphabetSize = 26;
+constexpr uint8_t alphabetSize = 26;
 
 constexpr uint8_t asciiOffset = 64;
 
@@ -68,7 +65,7 @@ constexpr uint8_t asciiOffset = 64;
  * @details The constructor creates a new XLCellReference from a string, e.g. 'A1'. If there's no input,
  * the default reference will be cell A1.
  */
-XLCellReference::XLCellReference(const std::string& cellAddress) : m_row(1), m_column(1), m_cellAddress("A1")
+XLCellReference::XLCellReference(const std::string& cellAddress)
 {
     if (!cellAddress.empty()) setAddress(cellAddress);
 }
@@ -169,8 +166,8 @@ void XLCellReference::setRow(uint32_t row)
 {
     if (row < 1)
         m_row = 1;
-    else if (row > maxRows)
-        m_row = maxRows;
+    else if (row > MAX_ROWS)
+        m_row = MAX_ROWS;
     else
         m_row = row;
 
@@ -193,8 +190,8 @@ void XLCellReference::setColumn(uint16_t column)
 {
     if (column < 1)
         m_column = 1;
-    else if (column > maxCols)
-        m_column = maxCols;
+    else if (column > MAX_COLS)
+        m_column = MAX_COLS;
     else
         m_column = column;
 
@@ -209,15 +206,15 @@ void XLCellReference::setRowAndColumn(uint32_t row, uint16_t column)
 {
     if (row < 1)
         m_row = 1;
-    else if (row > maxRows)
-        m_row = maxRows;
+    else if (row > MAX_ROWS)
+        m_row = MAX_ROWS;
     else
         m_row = row;
 
     if (column < 1)
         m_column = 1;
-    else if (column > maxCols)
-        m_column = maxCols;
+    else if (column > MAX_COLS)
+        m_column = MAX_COLS;
     else
         m_column = column;
 
@@ -327,6 +324,7 @@ uint16_t XLCellReference::columnAsNumber(const std::string& column)
 
 /**
  * @details Helper method for calculating the coordinates from the cell address.
+ * @todo Consider checking if the given address is valid.
  */
 XLCoordinates XLCellReference::coordinatesFromAddress(const std::string& address)
 {
@@ -339,6 +337,9 @@ XLCoordinates XLCellReference::coordinatesFromAddress(const std::string& address
     }
 
     auto numberCount = address.size() - letterCount;
+
+//    if (letterCount == 0 || letterCount > 3 || numberCount < 1 || numberCount > 7)
+//        throw XLCellAddressError("Cell reference is invalid");
 
     return std::make_pair(rowAsNumber(address.substr(letterCount, numberCount)), columnAsNumber(address.substr(0, letterCount)));
 }
