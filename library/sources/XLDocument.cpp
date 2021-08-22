@@ -596,7 +596,7 @@ void XLDocument::create(const std::string& fileName)
  */
 void XLDocument::close()
 {
-    m_archive.close();
+    if (m_archive) m_archive.close();
     m_filePath.clear();
     m_data.clear();
 
