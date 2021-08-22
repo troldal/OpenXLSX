@@ -44,12 +44,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
  */
 
 // ===== External Includes ===== //
-#include <nowide/fstream.hpp>
 #include <pugixml.hpp>
-#if defined(_WIN32) && (UNICODE_FILENAMES_ENABLED)
-#    include <cstdio>
-#    include <random>
-#endif
 
 // ===== OpenXLSX Includes ===== //
 #include "XLContentTypes.hpp"
@@ -451,33 +446,7 @@ void XLDocument::open(const std::string& fileName)
     // Check if a document is already open. If yes, close it.
     // TODO: Consider throwing if a file is already open.
     if (m_archive.isOpen()) close();
-
-#if defined(_WIN32) && (UNICODE_FILENAMES_ENABLED)
-    auto randomName = []() {
-        std::string letters = "abcdefghijklmnopqrstuvwxyz0123456789";
-
-        std::random_device                 rand_dev;
-        std::mt19937                       generator(rand_dev());
-        std::uniform_int_distribution<int> distr(0, letters.size() - 1);
-
-        std::string result;
-        for (int i = 0; i < 9; ++i) {    // NOLINT
-            result += letters[distr(generator)];
-        }
-
-        return result + ".tmp";
-    }();
-    nowide::ifstream orig(fileName, std::ios::binary);
-    nowide::ofstream copy(randomName, std::ios::binary);
-    copy << orig.rdbuf();
-    orig.close();
-    copy.close();
-    m_filePath = randomName;
-    m_realPath = fileName;
-#else
     m_filePath = fileName;
-#endif
-
     m_archive.open(m_filePath);
 
     // ===== Add and open the Relationships and [Content_Types] files for the document level.
@@ -518,8 +487,101 @@ void XLDocument::open(const std::string& fileName)
  */
 void XLDocument::create(const std::string& fileName)
 {
+#ifndef _WIN32
     // ===== Create a temporary output file stream.
-    nowide::ofstream outfile(fileName, std::ios::binary);
+    std::ofstream outfile(fileName, std::ios::binary);
+#else
+    auto utf8_16=[](const char* u8_str, wchar_t* u16_str)
+    {
+        const unsigned char *pu = (const unsigned char*)u8_str;
+        wchar_t *it = u16_str, tmp;
+        const wchar_t invalid = 0xFFFDu;
+        while(*pu)
+        {
+            if(*pu<0x80u)
+                *it++ = (wchar_t)(*pu++);
+            else if(*pu<0xC2u)
+                *it++ = invalid, ++pu;
+            else if(*pu<0xE0u)
+            {
+                /* uint32 is faster than uint16 */
+                uint32_t ch = *pu++&0x1Fu;
+                tmp = *pu;
+                if(0x80u<=tmp&&tmp<0xC0u)
+                    ++pu, *it++ = (wchar_t)(ch<<6 | tmp&0x3Fu);
+                else *it++ = invalid;
+            }
+            else if(*pu<0xF0u)
+            {
+                uint32_t ch = *pu++&0x0Fu;
+                tmp = *pu;
+                if(0x80u<=tmp&&tmp<0xC0u)
+                {
+                    ++pu, ch = ch<<6 | tmp&0x3Fu;
+                    tmp = *pu;
+                    if(0x80u<=tmp&&tmp<=0xC0u)
+                    {
+                        ++pu, ch = ch<<6 | tmp&0x3Fu;
+                        /* isolated surrogate pair */
+                        if(0xD800u<=ch&&ch<0xE000u)
+                            *it++ = invalid;
+                        else
+                            *it++ = (wchar_t)ch;
+                    }
+                    else *it++ = invalid;
+                }
+                else *it++ = invalid;
+            }
+            else if(*pu<0xF8u)
+            {
+                uint32_t ch = *pu&0x0Fu;
+                tmp = *pu;
+                if(0x80u<=tmp&&tmp<0xC0u)
+                {
+                    ++pu, ch = ch<<6 | tmp&0x3Fu;
+                    tmp = *pu;
+                    if(0x80u<=tmp&&tmp<0xC0u)
+                    {
+                        ++pu, ch = ch<<6 | tmp&0x3Fu;
+                        tmp = *pu;
+                        if(0x80u<=tmp&&tmp<=0xC0u)
+                        {
+                            ++pu, ch = ch<<6 | tmp&0x3Fu;
+                            if(ch>=0x110000u)
+                                *it++ = invalid;
+                            else
+                            {
+                                ch -= 0x10000u;
+                                *it++ = (wchar_t)(0xD800u | ch>>10);
+                                *it++ = (wchar_t)(0xDC00u | ch&0x3FFu);
+                            }
+                        }
+                        else *it++ = invalid;
+                    }
+                    else *it++ = invalid;
+                }
+                else *it++ = invalid;
+            }
+            else
+                *it++ = invalid, ++pu;
+        }
+        *it=L'\0';
+    };
+    std::ofstream outfile;
+    if(fileName.length() < 256u)//very likely
+    {
+        wchar_t fileName_w[256];
+        utf8_16(fileName.c_str(), fileName_w);
+        outfile.open(fileName_w, std::ios::binary);
+    }
+    else
+    {
+        wchar_t *fileName_w = new wchar_t[fileName.length()+1];
+        utf8_16(fileName.c_str(), fileName_w);
+        outfile.open(fileName_w, std::ios::binary);
+        delete[] fileName_w;
+    }
+#endif
 
     // ===== Stream the binary data for an empty workbook to the output file.
     // ===== Casting, in particular reinterpret_cast, is discouraged, but in this case it is unfortunately unavoidable.
@@ -534,11 +596,7 @@ void XLDocument::create(const std::string& fileName)
  */
 void XLDocument::close()
 {
-    if (m_archive) m_archive.close();
-#if defined(_WIN32) && (UNICODE_FILENAMES_ENABLED)
-    std::remove(m_filePath.c_str());
-    m_realPath.clear();
-#endif
+    m_archive.close();
     m_filePath.clear();
     m_data.clear();
 
@@ -555,11 +613,7 @@ void XLDocument::close()
  */
 void XLDocument::save()
 {
-#if defined(_WIN32) && (UNICODE_FILENAMES_ENABLED)
-    saveAs(m_realPath);
-#else
     saveAs(m_filePath);
-#endif
 }
 
 /**
@@ -569,26 +623,11 @@ void XLDocument::save()
  */
 void XLDocument::saveAs(const std::string& fileName)
 {
-#if defined(_WIN32) && (UNICODE_FILENAMES_ENABLED)
-    m_realPath = fileName;
-
-    // ===== Add all xml items to archive and save the archive.
-    for (auto& item : m_data) m_archive.addEntry(item.getXmlPath(), item.getRawData());
-    m_archive.save(m_filePath);
-
-    std::remove(m_realPath.c_str());
-    nowide::ifstream orig(m_filePath, std::ios::binary);
-    nowide::ofstream copy(m_realPath, std::ios::binary);
-    copy << orig.rdbuf();
-    orig.close();
-    copy.close();
-#else
     m_filePath = fileName;
 
     // ===== Add all xml items to archive and save the archive.
     for (auto& item : m_data) m_archive.addEntry(item.getXmlPath(), item.getRawData());
     m_archive.save(m_filePath);
-#endif
 }
 
 /**
@@ -621,7 +660,7 @@ void XLDocument::resetCalcChain() {
 }
 
 /**
- * @details Get the getValue for a property.
+ * @details Get the value for a property.
  */
 std::string XLDocument::property(XLProperty prop) const
 {
@@ -672,7 +711,7 @@ std::string XLDocument::property(XLProperty prop) const
 }
 
 /**
- * @details Set the getValue for a property.
+ * @details Set the value for a property.
  *
  * If the property is a datetime, it must be in the W3CDTF format, i.e. YYYY-MM-DDTHH:MM:SSZ. Also, the time should
  * be GMT. Creating a time point in this format can be done as follows:
@@ -706,7 +745,7 @@ void XLDocument::setProperty(XLProperty prop, const std::string& value)
                 std::stof(value);
             }
             catch (...) {
-                throw XLException("Invalid property getValue");
+                throw XLException("Invalid property value");
             }
 
             if (value.find('.') != std::string::npos) {
@@ -715,13 +754,13 @@ void XLDocument::setProperty(XLProperty prop, const std::string& value)
                         m_appProperties.setProperty("AppVersion", value);
                     }
                     else
-                        throw XLException("Invalid property getValue");
+                        throw XLException("Invalid property value");
                 }
                 else
-                    throw XLException("Invalid property getValue");
+                    throw XLException("Invalid property value");
             }
             else
-                throw XLException("Invalid property getValue");
+                throw XLException("Invalid property value");
 
             break;
 
@@ -744,7 +783,7 @@ void XLDocument::setProperty(XLProperty prop, const std::string& value)
             if (value == "0" || value == "1" || value == "2" || value == "4" || value == "8")
                 m_appProperties.setProperty("DocSecurity", value);
             else
-                throw XLException("Invalid property getValue");
+                throw XLException("Invalid property value");
             break;
 
         case XLProperty::HyperlinkBase:
@@ -754,7 +793,7 @@ void XLDocument::setProperty(XLProperty prop, const std::string& value)
             if (value == "true" || value == "false")
                 m_appProperties.setProperty("HyperlinksChanged", value);
             else
-                throw XLException("Invalid property getValue");
+                throw XLException("Invalid property value");
 
             break;
 
@@ -771,7 +810,7 @@ void XLDocument::setProperty(XLProperty prop, const std::string& value)
             if (value == "true" || value == "false")
                 m_appProperties.setProperty("LinksUpToDate", value);
             else
-                throw XLException("Invalid property getValue");
+                throw XLException("Invalid property value");
             break;
 
         case XLProperty::Manager:
@@ -784,14 +823,14 @@ void XLDocument::setProperty(XLProperty prop, const std::string& value)
             if (value == "true" || value == "false")
                 m_appProperties.setProperty("ScaleCrop", value);
             else
-                throw XLException("Invalid property getValue");
+                throw XLException("Invalid property value");
             break;
 
         case XLProperty::SharedDoc:
             if (value == "true" || value == "false")
                 m_appProperties.setProperty("SharedDoc", value);
             else
-                throw XLException("Invalid property getValue");
+                throw XLException("Invalid property value");
             break;
 
         case XLProperty::Subject:

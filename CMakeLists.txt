@@ -39,12 +39,12 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/output)
 #=======================================================================================================================
 option(CREATE_DOCS "Build library documentation (requires Doxygen and Graphviz/Dot to be installed)" ON)
 option(ENABLE_COMPACT_MODE "Build library in compact mode (slower, but uses less memory)" OFF)
-option(ENABLE_UNICODE_FILENAMES "Enable handling of files with non-ASCII filenames (only relevant on Windows)" OFF)
-option(BUILD_PYTHON_MODULE "Build Python module for using OpenXLSX from Python" OFF)
+option(ENABLE_UNICODE_FILENAMES "[Deprecated] Now, OpenXLSX is always capable to handle files with non-ASCII filenames (even on Windows)" OFF)
 option(BUILD_SAMPLES "Build sample programs" ON)
 option(BUILD_TESTS "Build and run library tests" ON)
 option(BUILD_BENCHMARKS "Build and run library benchmarks" ON)
-option(ENABLE_COVERAGE "Enable GCC/Clang code coverage in Debug build (tests, benchmarks and samples will NOT build when this is enabled!)" OFF)
+option(ENABLE_COVERAGE "Enable GCC/Clang code coverage in Debug build (tests, benchmarks and samples will NOT build
+when this is enabled!)" OFF)
 
 #=======================================================================================================================
 # Add project subdirectories
@@ -67,6 +67,3 @@ if(${BUILD_BENCHMARKS})
     add_subdirectory(benchmark)
 endif()
 
-if(${BUILD_PYTHON_MODULE})
-    add_subdirectory(python/library)
-endif()
