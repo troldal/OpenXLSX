@@ -8,6 +8,7 @@ target_include_directories(Zippy SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CURR
 
 add_library(PugiXML INTERFACE IMPORTED)
 target_include_directories(PugiXML SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/external/pugixml/>)
+
 if (${ENABLE_COMPACT_MODE})
     target_compile_definitions(PugiXML INTERFACE PUGIXML_COMPACT)
 endif ()
@@ -48,44 +49,27 @@ endif ()
 #   List of project source files
 #=======================================================================================================================
 set(OPENXLSX_SOURCES
-    ${CMAKE_CURRENT_LIST_DIR}/sources/XLXmlFile.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/sources/XLContentTypes.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/sources/XLProperties.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/sources/XLDocument.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/sources/XLRelationships.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/sources/XLSharedStrings.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/sources/XLWorkbook.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/sources/XLColumn.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/sources/XLColor.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/sources/XLRow.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/sources/XLSheet.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/sources/XLCell.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/sources/XLCellRange.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/sources/XLCellValue.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/sources/XLCellReference.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/sources/XLXmlData.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/sources/XLCellIterator.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/sources/XLZipArchive.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLCell.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLCellIterator.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLCellRange.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLCellReference.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLCellValue.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLColor.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLColumn.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLContentTypes.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLDocument.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLProperties.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLRelationships.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLRow.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLRowData.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLSharedStrings.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLSheet.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLWorkbook.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLXmlData.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLXmlFile.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLZipArchive.cpp
     )
 
-
-#=======================================================================================================================
-# OBJECT LIBRARY
-#   Define the object library.
-#   Object provide a simpler way of integrating a library into an application. However, not all build systems (e.g.
-#   Xcode) play nice with object libraries. Therefore, an object library will only be built if supported.
-#=======================================================================================================================
-if (${BUILD_OBJECT_LIB} AND (NOT CMAKE_GENERATOR STREQUAL Xcode))
-    add_library(OpenXLSX-object OBJECT "")
-    target_sources(OpenXLSX-object PRIVATE ${OPENXLSX_SOURCES})
-    target_include_directories(OpenXLSX-object
-                               PUBLIC
-                               $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
-                               $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
-                               $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)     # For export header
-    target_link_libraries(OpenXLSX-object PRIVATE Zippy PugiXML)
-    target_compile_definitions(OpenXLSX-object PRIVATE OpenXLSX_shared_EXPORTS)
-endif ()
 
 #=======================================================================================================================
 # STATIC LIBRARY
@@ -183,18 +167,12 @@ list(APPEND OPENXLSX_RELEASE_FLAGS_MSVC
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     target_compile_options(OpenXLSX-shared PRIVATE $<$<CONFIG:Debug>:${OPENXLSX_DEBUG_FLAGS_GNU}>)
     target_compile_options(OpenXLSX-static PRIVATE $<$<CONFIG:Debug>:${OPENXLSX_DEBUG_FLAGS_GNU}>)
-    if (${BUILD_OBJECT_LIB} AND (NOT CMAKE_GENERATOR STREQUAL Xcode))
-        target_compile_options(OpenXLSX-object PRIVATE $<$<CONFIG:Debug>:${OPENXLSX_DEBUG_FLAGS_GNU}>)
-    endif ()
 
 elseif (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") OR
 ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang") OR
 ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"))
     target_compile_options(OpenXLSX-shared PRIVATE $<$<CONFIG:Debug>:${OPENXLSX_DEBUG_FLAGS_GNUCLANG}>)
     target_compile_options(OpenXLSX-static PRIVATE $<$<CONFIG:Debug>:${OPENXLSX_DEBUG_FLAGS_GNUCLANG}>)
-    if (${BUILD_OBJECT_LIB} AND (NOT CMAKE_GENERATOR STREQUAL Xcode))
-        target_compile_options(OpenXLSX-object PRIVATE $<$<CONFIG:Debug>:${OPENXLSX_DEBUG_FLAGS_GNUCLANG}>)
-    endif ()
 
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     string(REGEX REPLACE "/W[3|4]" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
@@ -202,10 +180,6 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     target_compile_options(OpenXLSX-static PRIVATE $<$<CONFIG:Debug>:${OPENXLSX_DEBUG_FLAGS_MSVC}>)
     target_compile_options(OpenXLSX-shared PRIVATE $<$<CONFIG:Release>:${OPENXLSX_RELEASE_FLAGS_MSVC}>)
     target_compile_options(OpenXLSX-static PRIVATE $<$<CONFIG:Release>:${OPENXLSX_RELEASE_FLAGS_MSVC}>)
-    if (${BUILD_OBJECT_LIB} AND (NOT CMAKE_GENERATOR STREQUAL Xcode))
-        target_compile_options(OpenXLSX-object PRIVATE $<$<CONFIG:Debug>:${OPENXLSX_DEBUG_FLAGS_MSVC}>)
-        target_compile_options(OpenXLSX-object PRIVATE $<$<CONFIG:Release>:${OPENXLSX_RELEASE_FLAGS_MSVC}>)
-    endif ()
 endif ()
 
 #=======================================================================================================================
