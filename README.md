@@ -5,9 +5,8 @@ Microsoft Excel® files, with the .xlsx format.
 
 ## Table of Contents
 
-- [New in version 0.3.0](#new-in-version-030)
-- [New in version 0.2.0](#new-in-version-020)
 - [Motivation](#motivation)
+- [Ambition](#ambition)
 - [Compatibility](#compatibility)
 - [Build Instructions](#build-instructions)
 - [Current Status](#current-status)
@@ -18,39 +17,7 @@ Microsoft Excel® files, with the .xlsx format.
   - [Unicode](#unicode)
 - [Reference Guide](#reference-guide)
 - [Example Programs](#example-programs)
-
-## New in version 0.3.0
-
-## New in version 0.2.0
-
-The internal architecture of OpenXLSX has been significantly re-designed
-since the previous version. The reason is that the library was turning
-into a big ball of mud, and it was increasingly difficult to add
-features and fix bugs. With the new architecture, it will (hopefully) be
-easier to manage and to add new features.
-
-Due to the re-design of the architecture, there are a few changes to the
-public interface. These changes, however, are not significant, and it
-should be easy to update:
-
-* All internal objects are now handled as values rather than pointers,
-  similar to the approach taken in the underlying PugiXML library. This
-  means that when requesting a certain worksheet from a workbook, the
-  resulting worksheet is not returned as a pointer, but as an object
-  that supports both copying and moving.
-* The distinction between interface objects and implementation objects
-  are now gone, as it made it very difficult to manage changes. It was
-  an attempt to implement the pimpl idiom, but it wasn't very effective.
-  In the future, I may try to implement pimpl again, but only if it can
-  be done in a simpler way.
-* All member functions have been renamed to begin wtih a small letter
-  (camelCase), i.e. the member function WorksheetCount() is renamed to
-  worksheetCount(). This was done mostly for cosmetic reasons.
-
-I realise that these changes may cause problems for some users. Because
-of that, the previous version of OpenXLSX can be found in the "legacy"
-branch of this repository. However, I strongly recommend that you
-transition to the new version instead.
+- [Changes](#changes)
 
 ## Motivation
 
@@ -321,11 +288,16 @@ systems can handle non-ASCII filenames easily.
 This section will contain the user reference for usage of OpenXLSX.
 HOLD
 
-### Access to spreadsheet cells
-The whole point of OpenXLSX is to access the individual cell values of a spreadsheet. This section describes how to 
-access individual cells, as well as cell ranges, for reading and writing.
+### XLDocument class
+HOLD
 
-#### XLCellReference class
+### XLWorkbook class
+HOLD
+
+### XLWorksheet class
+HOLD
+
+### XLCellReference class
 The most common way of addressing cells in an Excel spreadsheet is by using the A1 notation, i.e. the columns are 
 represented by letters and the rows are represented by numbers. However, it is also possible to use the so-called 
 R1C1 notation, where both rows and columns are represented by numbers.
@@ -361,7 +333,7 @@ cellRef.setColumn(5);     // Set the column number;
 cellRef.setAddress("E3"); // Set the cell address;
 ```
 
-#### XLCell class
+### XLCell class
 An object of the XLCell class represents a cell in a spreadsheet. The XLCell class itself doesn't do much, as it can 
 mostly be considered a container of various cell properties, such as the cell value, cell formulas (not yet 
 implemented), and cell formatting (not yet implemented).
@@ -369,7 +341,7 @@ implemented), and cell formatting (not yet implemented).
 An XLCell object can be retrieved via the `cell()` member function of the XLWorksheet class. This method takes an 
 XLCellReference object, or alternatively a string with the cell address, as a parameter.
 
-#### XLCellValue and XLCellValueProxy classes
+### XLCellValue and XLCellValueProxy classes
 As mentioned previously, an object of the XLCell class doesn't contain the actual cell value. Instead, the value is 
 contained in an XLCellValue object. XLCellValue is essentially a wrapper around a std::variant object, with some 
 handy functionality for conversion and assignment.
@@ -446,6 +418,11 @@ Using the auto keyword would invoke the copy constructor of the XLCellValueProxy
 Therefore the copy constructor has been made private, and the code above will therefore not compile. Using auto& 
 instead would compile, but would not be of any use.
 
+### XLRow class
+HOLD
+
+### XLRowData and XLRowDataProxy classes
+HOLD
 
 ## Example Programs
 
@@ -454,10 +431,10 @@ The source code is included in the 'examples' directory in the OpenXLSX
 repository.
 
 ### Basic Usage
-
+This example program illustrates simple usage, such as assigning values to spreadsheet cells, and retrieving cell 
+values as XLCellValue objects.
 ```cpp
 #include <OpenXLSX.hpp>
-#include <iomanip>
 #include <iostream>
 
 using namespace std;
@@ -465,60 +442,37 @@ using namespace OpenXLSX;
 
 int main()
 {
-  cout << "********************************************************************************\n";
-  cout << "DEMO PROGRAM #01: Basic Usage\n";
-  cout << "********************************************************************************\n";
+    cout << "********************************************************************************\n";
+    cout << "DEMO PROGRAM #01: Basic Usage\n";
+    cout << "********************************************************************************\n";
 
-  XLDocument doc;
-  doc.create("./Demo01.xlsx");
-  auto wks = doc.workbook().worksheet("Sheet1");
+    XLDocument doc;
+    doc.create("./Demo01.xlsx");
+    auto wks = doc.workbook().worksheet("Sheet1");
 
-  wks.cell(XLCellReference("A1")).value() = 3.14159;
-  wks.cell(XLCellReference("B1")).value() = 42;
-  wks.cell(XLCellReference("C1")).value() = "  Hello OpenXLSX!  ";
-  wks.cell(XLCellReference("D1")).value() = true;
-  wks.cell(XLCellReference("E1")).value() = wks.cell(XLCellReference("C1")).value();
+    // Here an address string is used in the .cell member function, but an XLCellReference object can
+    // also be used. For example, for the cell at 'A1', XLCellReference{1,1} can be usedas an argument.
+    wks.cell("A1").value().set(3.14159);
+    wks.cell("B1").value() = 42;
+    wks.cell("C1").value() = "  Hello OpenXLSX!  ";
+    wks.cell("D1").value() = true;
+    wks.cell("E1").value() = wks.cell(XLCellReference("C1")).value();
 
-  auto A1 = wks.cell(XLCellReference("A1")).value();
-  auto B1 = wks.cell(XLCellReference("B1")).value();
-  auto C1 = wks.cell(XLCellReference("C1")).value();
-  auto D1 = wks.cell(XLCellReference("D1")).value();
-  auto E1 = wks.cell(XLCellReference("E1")).value();
+    XLCellValue A1 = wks.cell("A1").value();
+    XLCellValue B1 = wks.cell("B1").value();
+    XLCellValue C1 = wks.cell("C1").value();
+    XLCellValue D1 = wks.cell("D1").value();
+    XLCellValue E1 = wks.cell("E1").value();
 
-  auto valueTypeAsString = [](OpenXLSX::XLValueType type) {
-      switch (type) {
-          case XLValueType::String:
-              return "string";
+    cout << "Cell A1: (" << A1.typeAsString() << ") " << A1.get<double>() << endl;
+    cout << "Cell B1: (" << B1.typeAsString() << ") " << B1.get<int64_t>() << endl;
+    cout << "Cell C1: (" << C1.typeAsString() << ") " << C1.get<std::string>() << endl;
+    cout << "Cell D1: (" << D1.typeAsString() << ") " << D1.get<bool>() << endl;
+    cout << "Cell E1: (" << E1.typeAsString() << ") " << E1.get<std::string_view>() << endl << endl;
+    
+    doc.save();
 
-          case XLValueType::Boolean:
-              return "boolean";
-
-          case XLValueType::Empty:
-              return "empty";
-
-          case XLValueType::Error:
-              return "error";
-
-          case XLValueType::Float:
-              return "float";
-
-          case XLValueType::Integer:
-              return "integer";
-              
-          default:
-              return "";    
-      }
-  };
-
-  cout << "Cell A1: (" << valueTypeAsString(A1.valueType()) << ") " << A1.get<double>() << endl;
-  cout << "Cell B1: (" << valueTypeAsString(B1.valueType()) << ") " << B1.get<int>() << endl;
-  cout << "Cell C1: (" << valueTypeAsString(C1.valueType()) << ") " << C1.get<std::string>() << endl;
-  cout << "Cell D1: (" << valueTypeAsString(D1.valueType()) << ") " << D1.get<bool>() << endl;
-  cout << "Cell E1: (" << valueTypeAsString(E1.valueType()) << ") " << E1.get<std::string_view>() << endl;
-
-  doc.save();
-
-  return 0;
+    return 0;
 }
 ```
 
@@ -815,6 +769,42 @@ int main()
     return 0;
 }
 ```
+
+## Changes
+
+### New in version 0.3.0
+HOLD
+
+### New in version 0.2.0
+
+The internal architecture of OpenXLSX has been significantly re-designed
+since the previous version. The reason is that the library was turning
+into a big ball of mud, and it was increasingly difficult to add
+features and fix bugs. With the new architecture, it will (hopefully) be
+easier to manage and to add new features.
+
+Due to the re-design of the architecture, there are a few changes to the
+public interface. These changes, however, are not significant, and it
+should be easy to update:
+
+* All internal objects are now handled as values rather than pointers,
+  similar to the approach taken in the underlying PugiXML library. This
+  means that when requesting a certain worksheet from a workbook, the
+  resulting worksheet is not returned as a pointer, but as an object
+  that supports both copying and moving.
+* The distinction between interface objects and implementation objects
+  are now gone, as it made it very difficult to manage changes. It was
+  an attempt to implement the pimpl idiom, but it wasn't very effective.
+  In the future, I may try to implement pimpl again, but only if it can
+  be done in a simpler way.
+* All member functions have been renamed to begin wtih a small letter
+  (camelCase), i.e. the member function WorksheetCount() is renamed to
+  worksheetCount(). This was done mostly for cosmetic reasons.
+
+I realise that these changes may cause problems for some users. Because
+of that, the previous version of OpenXLSX can be found in the "legacy"
+branch of this repository. However, I strongly recommend that you
+transition to the new version instead.
 
 ## Credits
 
