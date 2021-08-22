@@ -4602,7 +4602,7 @@ common_exit:
         }
         *it=L'\0';
     }
-    
+    #        include <sys/stat.h>
 #   include <string.h>
     /* Assume pFilename is UTF-8 encoded; covert it to UTF-16 and use wide Win32 API. */
     static FILE* mz_fopen(const char* pFilename, const char* pMode)
