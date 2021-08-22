@@ -58,10 +58,40 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 namespace OpenXLSX
 {
+    /**
+     * @brief
+     */
     class OPENXLSX_EXPORT XLException : public std::runtime_error
     {
     public:
         inline explicit XLException(const std::string& err) : runtime_error(err) {};
+    };
+
+    /**
+     * @brief
+     */
+    class OPENXLSX_EXPORT XLOverflowError : public XLException
+    {
+    public:
+        inline explicit XLOverflowError(const std::string& err) : XLException(err) {};
+    };
+
+    /**
+     * @brief
+     */
+    class OPENXLSX_EXPORT XLValueTypeError : public XLException
+    {
+    public:
+        inline explicit XLValueTypeError(const std::string& err) : XLException(err) {};
+    };
+
+    /**
+     * @brief
+     */
+    class OPENXLSX_EXPORT XLCellAddressError : public XLException
+    {
+    public:
+        inline explicit XLCellAddressError(const std::string& err) : XLException(err) {};
     };
 
 }    // namespace OpenXLSX

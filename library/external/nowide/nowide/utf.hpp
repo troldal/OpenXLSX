@@ -139,7 +139,7 @@ namespace nowide
             /// Returns the iterator past the last written code unit.
             ///
             template<typename Iterator>
-            static Iterator encode(code_point value, Iterator out);
+            static Iterator encode(code_point getValue, Iterator out);
             ///
             /// Decodes valid UTF sequence that is pointed by p into code point.
             ///

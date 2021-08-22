@@ -50,6 +50,9 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #pragma warning(disable : 4251)
 #pragma warning(disable : 4275)
 
+#include <deque>
+#include <string>
+
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
 #include "XLXmlFile.hpp"
@@ -153,6 +156,9 @@ namespace OpenXLSX
          * the contents of the string, but keeps the XMLNode holding the string.
          */
         void clearString(int index);
+
+    private:
+        std::deque<std::string> m_stringCache {}; /** < Each string must have an unchanging memory address; hence the use of std::deque */
     };
 }    // namespace OpenXLSX
 

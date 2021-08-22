@@ -154,6 +154,12 @@ namespace OpenXLSX
          * @brief
          * @return
          */
+        uint8_t alpha() const;
+
+        /**
+         * @brief
+         * @return
+         */
         uint8_t red() const;
 
         /**

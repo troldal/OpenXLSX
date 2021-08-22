@@ -232,11 +232,11 @@ namespace
         inline void mz_free(void* p);
 
 #define MZ_ADLER32_INIT (1)
-        /* mz_adler32() returns the initial adler-32 value to use when called with ptr==NULL. */
+        /* mz_adler32() returns the initial adler-32 getValue to use when called with ptr==NULL. */
         inline mz_ulong mz_adler32(mz_ulong adler, const unsigned char* ptr, size_t buf_len);
 
 #define MZ_CRC32_INIT (0)
-        /* mz_crc32() returns the initial CRC-32 value to use when called with ptr==NULL. */
+        /* mz_crc32() returns the initial CRC-32 getValue to use when called with ptr==NULL. */
         inline mz_ulong mz_crc32(mz_ulong crc, const unsigned char* ptr, size_t buf_len);
 
         /* Compression strategies. */
@@ -9825,8 +9825,8 @@ namespace Zippy
              */
             explicit ZipEntry(const ZipEntryInfo& info) : m_EntryInfo(info)
             {
-                // ===== Call GetNewIndex to update the index counter with the value in the ZipEntryInfo object.
-                GetNewIndex(info.m_file_index);    // The return value is deliberately not used.
+                // ===== Call GetNewIndex to update the index counter with the getValue in the ZipEntryInfo object.
+                GetNewIndex(info.m_file_index);    // The return getValue is deliberately not used.
             }
 
             /**
@@ -10073,13 +10073,13 @@ namespace Zippy
                 // ===== Set up a static index counter (set to zero the first time the function is executed)
                 static uint32_t index { 0 };
 
-                // ===== If the input value is larger than the current index value, set the index equal to the input.
+                // ===== If the input value is larger than the current index getValue, set the index equal to the input.
                 if (latestIndex > index) {
                     index = latestIndex;
                     return index;
                 }
 
-                // ===== Increment the index and return the value.
+                // ===== Increment the index and return the getValue.
                 return ++index;
             }
 

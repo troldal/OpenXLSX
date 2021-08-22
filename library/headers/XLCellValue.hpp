@@ -51,377 +51,543 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #pragma warning(disable : 4275)
 
 // ===== External Includes ===== //
-#include <memory>
+#include <cstdint>
+#include <iostream>
+#include <string>
+#include <variant>
 
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
+#include "XLException.hpp"
 #include "XLXmlParser.hpp"
 
+// ========== CLASS AND ENUM TYPE DEFINITIONS ========== //
 namespace OpenXLSX
 {
+    //---------- Forward Declarations ----------//
+    class XLCellValueProxy;
     class XLCell;
-    class XLSharedStrings;
 
     /**
-     * @brief The XLValueType class is an enumeration of the possible cell value types.
+     * @brief Enum defining the valid value types for a an Excel spreadsheet cell.
      */
     enum class XLValueType { Empty, Boolean, Integer, Float, Error, String };
 
     /**
-     * @brief The XLCellValue class represents the concept of a cell value. This can be in the form of a number
-     * (an integer or a float), a string, a boolean or no value (empty).
-     * @details The XLCellValue class encapsulates the concept of a cell value, i.e. the string, number, boolean or
-     * empty value that a cell can contain. Other cell contents, such as formatting or formulas, are handled by separate
-     * classes.
-     *
-     * ## Usage ##
-     * An XLCellValue object is not created directly by the user, but rather accessed and/or modified through the XLCell
-     * interface (the Value() member function).
-     * The value can be set either through the Set() member function or the operator=(). Both have been overloaded to
-     take
-     * any integer or floating point value, bool value or string value (either std::string or char* string). In order to
-     * set the cell value to empty, use the Clear() member function.
-     *
-     * To get the current value of an XLCellValue object, use the Get<>() member function. The Get<>() member function
-     is a
-     * template function, taking the value return type as template argument. It has been overloaded to take any integer
-     * or floating point type, bool type or string type that can be constructed from a char* string (e.g. std::string or
-     * std::string_view). It is also possible to get the value as a std::string, regardless of the valuetype, using the
-     * AsString() member function.
-     *
-     * ## Example ##
-     * Here follows an example that sets the value and the prints it to std::cout:
-     * ```cpp
-     * // Code to create document/workbool/worksheet...
-     *
-     * wks->Cell("A1")->Value() = 3.14159;
-     * wks->Cell("B1")->Value() = 42;
-     * wks->Cell("C1")->Value() = "Hello OpenXLSX!";
-     * wks->Cell("D1")->Value() = true;
-
-     * auto A1 = wks->Cell("A1")->Value().Get<double>();
-     * auto B1 = wks->Cell("B1")->Value().Get<int>();
-     * auto C1 = wks->Cell("C1")->Value().Get<std::string>();
-     * auto D1 = wks->Cell("D1")->Value().Get<bool>();
-
-     * cout << "Cell A1: " << A1 << endl;
-     * cout << "Cell B1: " << B1 << endl;
-     * cout << "Cell C1: " << C1 << endl;
-     * cout << "Cell D1: " << D1 << endl;
-     * ```
-     *
-     * ## Developer Notes ##
-     * The only member variable is a reference to the parent XLCell object. All functionality works by manipulating
-     * the parent cell through the reference.
+     * @brief Class encapsulating a cell value.
      */
     class OPENXLSX_EXPORT XLCellValue
     {
+        //---------- Friend Declarations ----------//
+
+        friend bool          operator==(const XLCellValue& lhs, const XLCellValue& rhs);
+        friend bool          operator!=(const XLCellValue& lhs, const XLCellValue& rhs);
+        friend bool          operator<(const XLCellValue& lhs, const XLCellValue& rhs);
+        friend bool          operator>(const XLCellValue& lhs, const XLCellValue& rhs);
+        friend bool          operator<=(const XLCellValue& lhs, const XLCellValue& rhs);
+        friend bool          operator>=(const XLCellValue& lhs, const XLCellValue& rhs);
+        friend std::ostream& operator<<(std::ostream& os, const XLCellValue& value);
+        friend std::hash<OpenXLSX::XLCellValue>;
+
     public:
-        //---------- PUBLIC MEMBER FUNCTIONS ----------//
+        //---------- Public Member Functions ----------//
 
         /**
-         * @brief
-         * @param cellNode
-         * @param sharedStrings
+         * @brief Default constructor
          */
-        explicit XLCellValue(const XMLNode& cellNode, XLSharedStrings* sharedStrings) noexcept;
+        XLCellValue();
+
+        /**
+         * @brief A templated constructor. Any value convertible to a valid cell value can be used as argument.
+         * @tparam T The type of the argument (will be automatically deduced).
+         * @param value The value.
+         * @todo Consider changing the enable_if statement to check for objects with a .c_str() member function.
+         */
+        template<typename T,
+                 typename std::enable_if<std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_constructible_v<T, char*>>::type* =
+                     nullptr>
+        XLCellValue(T value) // NOLINT
+        {
+            // ===== If the argument is a bool, set the m_type attribute to Boolean.
+            if constexpr (std::is_integral_v<T> && std::is_same_v<T, bool>) {
+                m_type = XLValueType::Boolean;
+                m_value = value;
+            }
+
+            // ===== If the argument is an integral type, set the m_type attribute to Integer.
+            else if constexpr (std::is_integral_v<T> && !std::is_same_v<T, bool>) {
+                m_type = XLValueType::Integer;
+                m_value = int64_t(value);
+            }
+
+            // ===== If the argument is a string type (i.e. is constructable from *char),
+            // ===== set the m_type attribute to String.
+            else if constexpr (std::is_constructible_v<T, char*> && !std::is_same_v<T, bool>) {
+                m_type = XLValueType::String;
+                if constexpr (std::is_same<const char*, typename std::remove_reference<typename std::remove_cv<T>::type>::type>::value)
+                    m_value = value;
+                else if constexpr (std::is_same<std::string_view, T>::value)
+                    m_value = std::string(value).c_str();
+                else
+                    m_value = value.c_str();
+            }
+
+            // ===== If the argument is a floating point type, set the m_type attribute to Float.
+            // ===== If not, a static_assert will result in compilation error.
+            else {
+                static_assert(std::is_floating_point_v<T>, "Invalid argument for constructing XLCellValue object");
+                m_type = XLValueType::Float;
+                m_value = double(value);
+            }
+        }
+
+        /**
+         * @brief Constructor taking a XLCellValueProxy object as argument.
+         * @param proxy The XLCellValueProxy object.
+         */
+        XLCellValue(const XLCellValueProxy& proxy);    // NOLINT
 
         /**
          * @brief Copy constructor.
-         * @details The copy constructor and copy assignment operator works differently for XLCellValue objects.
-         * The copy constructor creates an exact copy of the object, with the same parent XLCell object. The copy
-         * assignment operator only copies the underlying cell value and type attribute to the target object.
-         * @param other object to be copied.
-         * @note The default copy constructor has been used.
+         * @param other The object to be copied.
          */
         XLCellValue(const XLCellValue& other);
 
         /**
          * @brief Move constructor.
-         * @param other the object to be moved.
-         * @note The move constructor has been explicitly deleted. Move will not be allowed, as an XLCellValue must
-         * always remain valid. Moving will invalidate the source object.
+         * @param other The object to be moved.
          */
-        XLCellValue(XLCellValue&& other) noexcept = delete;
+        XLCellValue(XLCellValue&& other) noexcept;
 
         /**
-         * @brief Destructor.
-         * @note The destructor uses the default implementation, as no pointer data members exist.
+         * @brief Destructor
          */
         ~XLCellValue();
 
         /**
          * @brief Copy assignment operator.
-         * @param other the object to copy values from.
-         * @return A reference to the current object, with the new value.
+         * @param other Object to be copied.
+         * @return Reference to the copied-to object.
          */
         XLCellValue& operator=(const XLCellValue& other);
 
         /**
          * @brief Move assignment operator.
-         * @param other The object to be moved.
-         * @return A reference to the current object, with the new value.
-         * @note The move assignment operator has been explicitly deleted. Move will not be allowed, as an XLCellValue
-         * must always remain valid. Moving will invalidate the source object.
+         * @param other Object to be moved.
+         * @return Reference to the moved-to object.
          */
         XLCellValue& operator=(XLCellValue&& other) noexcept;
 
         /**
-         * @brief Assignment operator
-         * @tparam T The integer type to assign
-         * @param numberValue The integer value to assign to the XLCellValue object.
-         * @return A reference to the current object, with the new value.
-         */
-        template<typename T, typename std::enable_if<std::is_integral<T>::value, int64_t>::type* = nullptr>
-        XLCellValue& operator=(T numberValue);
-
-        /**
-         * @brief Assignment operator.
-         * @tparam T the floating point type to assign.
-         * @param numberValue The floating point value to assign to the XLCellValue object.
-         * @return A reference to the current object, with the new value.
-         */
-        template<typename T, typename std::enable_if<std::is_floating_point<T>::value, long double>::type* = nullptr>
-        XLCellValue& operator=(T numberValue);
-
-        /**
-         * @brief Assignment operator.
-         * @param stringValue A char* string to assign to the XLCellValue object.
-         * @return A reference to the current object, with the new value.
-         */
-        XLCellValue& operator=(const char* stringValue);
-
-        /**
-         * @brief Assignment operator.
-         * @param stringValue A std::string to assign to the XLCellValue object.
-         * @return A reference to the current object, with the new value.
-         */
-        XLCellValue& operator=(const std::string& stringValue);
-
-        /**
-         * @brief Set the object to an integer value.
-         * @tparam T The integer type to assign.
-         * @param numberValue The integer value to assign.
-         */
-        template<typename T, typename std::enable_if<std::is_integral<T>::value, int64_t>::type* = nullptr>
-        void set(T numberValue);
-
-        /**
-         * @brief Set the object to a floating point value.
-         * @tparam T The floating point type to assign.
-         * @param numberValue The floating point value to assign.
-         */
-        template<typename T, typename std::enable_if<std::is_floating_point<T>::value, long double>::type* = nullptr>
-        void set(T numberValue);
-
-        /**
-         * @brief Set the object to a string value.
-         * @param stringValue A char* string to assign.
-         */
-        void set(const char* stringValue);
-
-        /**
-         * @brief Set the object to a string value.
-         * @param stringValue A std::string_view to assign.
-         */
-        void set(const std::string& stringValue);
-
-        /**
-         * @brief Get integer value.
-         * @tparam T The integer type to get.
-         */
-        template<typename T, typename std::enable_if<std::is_integral<T>::value, int64_t>::type* = nullptr>
-        T get();
-
-        /**
-         * @brief Get floating point value.
-         * @tparam T The floating point type to get.
-         */
-        template<typename T, typename std::enable_if<std::is_floating_point<T>::value, long double>::type* = nullptr>
-        T get();
-
-        /**
-         * @brief Get string value.
-         * @tparam T The string type to get.
+         * @brief Templated copy assignment operator.
+         * @tparam T The type of the value argument.
+         * @param value The value.
+         * @return A reference to the assigned-to object.
          */
         template<typename T,
-                 typename std::enable_if<std::is_constructible<T, char*>::value && !std::is_same<T, bool>::value, char*>::type* = nullptr>
-        T get();
+                 typename std::enable_if<std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_constructible_v<T, char*>>::type* =
+                     nullptr>
+        XLCellValue& operator=(T value)
+        {
+            // ===== Implemented using copy-and-swap.
+            XLCellValue temp(value);
+            std::swap(*this, temp);
+            return *this;
+        }
 
         /**
-         * @brief Get the value of the object as a string, regardless of the value type.
-         * @return The value as a string.
+         * @brief Templated setter for integral and bool types.
+         * @tparam T The type of the value argument.
+         * @param numberValue The value
          */
-        std::string asString() const;
+        template<typename T,
+                 typename std::enable_if<std::is_same_v<T, XLCellValue> || std::is_integral_v<T> || std::is_floating_point_v<T> ||
+                                         std::is_constructible_v<T, char*>>::type* = nullptr>
+        void set(T numberValue)
+        {
+            // ===== Implemented using the assignment operator.
+            *this = numberValue;
+        }
 
         /**
-         * @brief Clear the cell value.
+         * @brief Templated getter.
+         * @tparam T The type of the value to be returned.
+         * @return The value as a type T object.
+         * @throws XLValueTypeError if the XLCellValue object does not contain a compatible type.
          */
-        void clear();
+        template<typename T,
+                 typename std::enable_if<std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_constructible_v<T, char*>>::type* =
+                     nullptr>
+        T get() const
+        {
+            try {
+                if constexpr (std::is_integral_v<T> && std::is_same_v<T, bool>) return std::get<bool>(m_value);
+
+                if constexpr (std::is_integral_v<T> && !std::is_same_v<T, bool>) return static_cast<T>(std::get<int64_t>(m_value));
+
+                if constexpr (std::is_floating_point_v<T>) return static_cast<T>(std::get<double>(m_value));
+
+                if constexpr (std::is_constructible_v<T, char*> && !std::is_same_v<T, bool>) return std::get<const char*>(m_value);
+            }
+
+            catch (const std::bad_variant_access& e) {
+                throw XLValueTypeError("XLCellValue object does not contain the requested type.");
+            }
+        }
 
         /**
-         * @brief Get the value type of the cell.
-         * @return An XLValueType object with the value type.
+         * @brief Explicit conversion operator for easy conversion to supported types.
+         * @tparam T The type to cast to.
+         * @return The XLCellValue object cast to requested type.
+         * @throws XLValueTypeError if the XLCellValue object does not contain a compatible type.
          */
-        XLValueType valueType() const;
+        template<typename T,
+                 typename std::enable_if<std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_constructible_v<T, char*>>::type* =
+                     nullptr>
+        explicit operator T() const
+        {
+            return this->get<T>();
+        }
+
+        /**
+         * @brief Clears the contents of the XLCellValue object.
+         * @return Returns a reference to the current object.
+         */
+        XLCellValue& clear();
+
+        /**
+         * @brief Sets the value type to XLValueType::Error.
+         * @return Returns a reference to the current object.
+         */
+        XLCellValue& setError();
+
+        /**
+         * @brief Get the value type of the current object.
+         * @return An XLValueType for the current object.
+         */
+        XLValueType type() const;
+
+        /**
+         * @brief Get the value type of the current object, as a string representation
+         * @return A std::string representation of the value type.
+         */
+        std::string typeAsString() const;
 
     private:
-        //---------- PRIVATE MEMBER FUNCTIONS ----------//
+        //---------- Private Member Variables ---------- //
+
+        std::variant<const char*, int64_t, double, bool> m_value { "" };                /**< The value contained in the cell. */
+        XLValueType                                      m_type { XLValueType::Empty }; /**< The value type of the cell. */
+    };
+
+    /**
+     * @brief The XLCellValueProxy class is used for proxy (or placeholder) objects for XLCellValue objects.
+     * @details The XLCellValueProxy class is used for proxy (or placeholder) objects for XLCellValue objects.
+     * The purpose is to enable implicit conversion during assignment operations. XLCellValueProxy objects
+     * can not be constructed manually by the user, only through XLCell objects.
+     */
+    class OPENXLSX_EXPORT XLCellValueProxy
+    {
+        friend class XLCell;
+        friend class XLCellValue;
+
+    public:
+        //---------- Public Member Functions ----------//
+
+        /**
+         * @brief Destructor
+         */
+        ~XLCellValueProxy();
+
+        /**
+         * @brief Copy assignment operator.
+         * @param other XLCellValueProxy object to be copied.
+         * @return A reference to the current object.
+         */
+        XLCellValueProxy& operator=(const XLCellValueProxy& other);
+
+        /**
+         * @brief Templated assignment operator
+         * @tparam T The type of numberValue assigned to the object.
+         * @param value The value.
+         * @return A reference to the current object.
+         */
+        template<typename T,
+                 typename std::enable_if<std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_constructible_v<T, const char*> ||
+                                         std::is_same_v<T, XLCellValue>>::type* = nullptr>
+        XLCellValueProxy& operator=(T value)
+        {    // NOLINT
+
+            if constexpr (std::is_integral_v<T> && std::is_same_v<T, bool>)    // if bool
+                setBoolean(value);
+
+            else if constexpr (std::is_integral_v<T> && !std::is_same_v<T, bool>)    // if integer
+                setInteger(value);
+
+            else if constexpr (std::is_floating_point_v<T>)    // if floating point
+                setFloat(value);
+
+            else if constexpr (std::is_constructible_v<T, const char*> && !std::is_same_v<T, bool> && !std::is_same_v<T, XLCellValue>) {
+                if constexpr (std::is_same<const char*, typename std::remove_reference<typename std::remove_cv<T>::type>::type>::value)
+                    setString(value);
+                else if constexpr (std::is_same<std::string_view, T>::value)
+                    setString(std::string(value).c_str());
+                else
+                    setString(value.c_str());
+            }
+
+            if constexpr (std::is_same_v<T, XLCellValue>) {
+                switch (value.type()) {
+                    case XLValueType::Boolean:
+                        setBoolean(value.template get<bool>());
+                        break;
+                    case XLValueType::Integer:
+                        setInteger(value.template get<int64_t>());
+                        break;
+                    case XLValueType::Float:
+                        setFloat(value.template get<double>());
+                        break;
+                    case XLValueType::String:
+                        setString(value.template get<const char*>());
+                        break;
+                    case XLValueType::Empty:
+                    default:
+                        break;
+                }
+            }
+
+            return *this;
+        }
 
         /**
          * @brief
-         * @param numberValue
+         * @tparam T
+         * @param value
+         */
+        template<typename T,
+                 typename std::enable_if<std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_constructible_v<T, const char*> ||
+                                         std::is_same_v<T, XLCellValue>>::type* = nullptr>
+        void set(T value)
+        {
+            *this = value;
+        }
+
+        /**
+         * @brief
+         * @tparam T
+         * @return
+         * @todo Is an explicit conversion operator needed as well?
+         */
+        template<typename T,
+                 typename std::enable_if<std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_constructible_v<T, char*>>::type* =
+                     nullptr>
+        T get() const
+        {
+            return getValue().get<T>();
+        }
+
+        /**
+         * @brief Clear the contents of the cell.
+         * @return A reference to the current object.
+         */
+        XLCellValueProxy& clear();
+
+        /**
+         * @brief Set the cell value to a error state.
+         * @return A reference to the current object.
+         */
+        XLCellValueProxy& setError();
+
+        /**
+         * @brief Get the value type for the cell.
+         * @return An XLCellValue corresponding to the cell value.
+         */
+        XLValueType type() const;
+
+        /**
+         * @brief Get the value type of the current object, as a string representation
+         * @return A std::string representation of the value type.
+         */
+        std::string typeAsString() const;
+
+        /**
+         * @brief Implicitly convert the XLCellValueProxy object to a XLCellValue object.
+         * @return An XLCellValue object, corresponding to the cell value.
+         */
+        operator XLCellValue();    // NOLINT
+
+    private:
+        //---------- Private Member Functions ---------- //
+
+        /**
+         * @brief Constructor
+         * @param cell Pointer to the parent XLCell object.
+         * @param cellNode Pointer to the corresponding XMLNode object.
+         */
+        XLCellValueProxy(XLCell* cell, XMLNode* cellNode);
+
+        /**
+         * @brief Copy constructor
+         * @param other Object to be copied.
+         */
+        XLCellValueProxy(const XLCellValueProxy& other);
+
+        /**
+         * @brief Move constructor
+         * @param other Object to be moved.
+         */
+        XLCellValueProxy(XLCellValueProxy&& other) noexcept;
+
+        /**
+         * @brief Move assignment operator
+         * @param other Object to be moved
+         * @return Reference to moved-to pbject.
+         */
+        XLCellValueProxy& operator=(XLCellValueProxy&& other) noexcept;
+
+        /**
+         * @brief Set cell to an integer value.
+         * @param numberValue The value to be set.
          */
         void setInteger(int64_t numberValue);
 
         /**
-         * @brief
-         * @param numberValue
+         * @brief Set the cell to a bool value.
+         * @param numberValue The value to be set.
          */
         void setBoolean(bool numberValue);
 
         /**
-         * @brief
-         * @param numberValue
+         * @brief Set the cell to a floating point value.
+         * @param numberValue The value to be set.
          */
         void setFloat(double numberValue);
 
         /**
-         * @brief
-         * @return
+         * @brief Set the cell to a string value.
+         * @param stringValue The value to be set.
          */
-        int64_t getInteger() const;
+        void setString(const char* stringValue);
 
         /**
-         * @brief
-         * @return
+         * @brief Get a copy of the XLCellValue object for the cell.
+         * @return An XLCellValue object.
          */
-        bool getBoolean() const;
+        XLCellValue getValue() const;
 
-        /**
-         * @brief
-         * @return
-         */
-        long double getFloat() const;
+        //---------- Private Member Variables ---------- //
 
-        /**
-         * @brief
-         * @return
-         */
-        const char* getString() const;
-
-        //---------- PRIVATE MEMBER VARIABLES ----------//
-
-        std::unique_ptr<XMLNode> m_cellNode;
-        XLSharedStrings*         m_sharedStrings;
+        XLCell*  m_cell;     /**< Pointer to the owning XLCell object. */
+        XMLNode* m_cellNode; /**< Pointer to corresponding XML cell node. */
     };
 
-    //----------------------------------------------------------------------------------------------------------------------
-    //           Implementation of Template Member Functions
-    //----------------------------------------------------------------------------------------------------------------------
+}    // namespace OpenXLSX
 
+// ========== FRIEND FUNCTION IMPLEMENTATIONS ========== //
+namespace OpenXLSX
+{
     /**
-     * @details This is a template assignment operator for all integer-type parameters. The function calls the Set
-     * template function and returns *this. It has been implemented using the std::enable_if template function which
-     * wil SFINAE out any non-integer types.
-     * @pre The input parameter, the XLCellValue object and the underlying xml object are valid.
-     * @post The underlying xml object has been modified to hold the value of the input parameter and the type attribute
-     * has been set accordingly.
+     * @brief
+     * @param lhs
+     * @param rhs
+     * @return
      */
-    template<typename T, typename std::enable_if<std::is_integral<T>::value, int64_t>::type*>
-    XLCellValue& XLCellValue::operator=(T numberValue)
+    inline bool operator==(const XLCellValue& lhs, const XLCellValue& rhs)
     {
-        set(numberValue);
-        return *this;
+        return lhs.m_value == rhs.m_value;
     }
 
     /**
-     * @details This is a template assignment operator for all floating point-type paremeters. The function calls the
-     * Set() template function and returns *this. It has been implemented using the std::enable_if template function
-     * which wil SFINAE out any non-floating point types.
-     * @pre The input parameter, the XLCellValue object and the underlying xml object are valid.
-     * @post The underlying xml object has been modified to hold the value of the input parameter and the type attribute
-     * has been set accordingly.
+     * @brief
+     * @param lhs
+     * @param rhs
+     * @return
      */
-    template<typename T, typename std::enable_if<std::is_floating_point<T>::value, long double>::type*>
-    XLCellValue& XLCellValue::operator=(T numberValue)
+    inline bool operator!=(const XLCellValue& lhs, const XLCellValue& rhs)
     {
-        set(numberValue);
-        return *this;
+        return lhs.m_value != rhs.m_value;
     }
 
     /**
-     * @details This is a template function for all integer-type parameters. It has been implemented using the
-     * std::enable_if template function which will SFINAE out any non-integer types. Bools are handled as a special
-     * case using the 'if constexpr' construct.
-     * @pre
-     * @post
+     * @brief
+     * @param lhs
+     * @param rhs
+     * @return
      */
-    template<typename T, typename std::enable_if<std::is_integral<T>::value, int64_t>::type*>
-    void XLCellValue::set(T numberValue)
+    inline bool operator<(const XLCellValue& lhs, const XLCellValue& rhs)
     {
-        if constexpr (std::is_same<T, bool>::value) {    // if bool
-            setBoolean(numberValue);
+        return lhs.m_value < rhs.m_value;
+    }
+
+    /**
+     * @brief
+     * @param lhs
+     * @param rhs
+     * @return
+     */
+    inline bool operator>(const XLCellValue& lhs, const XLCellValue& rhs)
+    {
+        return lhs.m_value > rhs.m_value;
+    }
+
+    /**
+     * @brief
+     * @param lhs
+     * @param rhs
+     * @return
+     */
+    inline bool operator<=(const XLCellValue& lhs, const XLCellValue& rhs)
+    {
+        return lhs.m_value <= rhs.m_value;
+    }
+
+    /**
+     * @brief
+     * @param lhs
+     * @param rhs
+     * @return
+     */
+    inline bool operator>=(const XLCellValue& lhs, const XLCellValue& rhs)
+    {
+        return lhs.m_value >= rhs.m_value;
+    }
+
+    /**
+     * @brief
+     * @param os
+     * @param value
+     * @return
+     */
+    inline std::ostream& operator<<(std::ostream& os, const XLCellValue& value)
+    {
+        switch (value.type()) {
+            case XLValueType::Empty:
+                return os << "";
+            case XLValueType::Boolean:
+                return os << value.get<bool>();
+            case XLValueType::Integer:
+                return os << value.get<int64_t>();
+            case XLValueType::Float:
+                return os << value.get<double>();
+            case XLValueType::String:
+                return os << value.get<std::string_view>();
+            default:
+                return os << "";
         }
-        else {    // if not bool
-            setInteger(numberValue);
-        }
-    }
-
-    /**
-     * @details This is a template function for all floating point-type parameters. It has been implemented using the
-     * std::enable_if template function which will SFINAE out any non-floating point types.
-     * @pre
-     * @post
-     */
-    template<typename T, typename std::enable_if<std::is_floating_point<T>::value, long double>::type*>
-    void XLCellValue::set(T numberValue)
-    {
-        setFloat(numberValue);
-    }
-
-    /**
-     * @details This is a template function for all integer-type parameters. It has been implemented using the
-     * std::enable_if template function which will SFINAE out any non-integer types. Bools are handled as a special
-     * case using the 'if constexpr' construct.
-     * @pre
-     * @post
-     */
-    template<typename T, typename std::enable_if<std::is_integral<T>::value, int64_t>::type*>
-    T XLCellValue::get()
-    {
-        if constexpr (std::is_same<T, bool>::value) {
-            return getBoolean();
-        }
-        else {
-            return static_cast<T>(getInteger());
-        }
-    }
-
-    /**
-     * @details This is a template function for all floating point-type parameters. It has been implemented using the
-     * std::enable_if template function which will SFINAE out any non-floating point types.
-     * @pre
-     * @post
-     */
-    template<typename T, typename std::enable_if<std::is_floating_point<T>::value, long double>::type*>
-    T XLCellValue::get()
-    {
-        return static_cast<T>(getFloat());
-    }
-
-    /**
-     * @details This is a template function for all types that can be constructed from a char* string, including
-     * std::string and std::string_view. All other types are SFINAE'd out using std::enable_if.
-     * @pre
-     * @post
-     */
-    template<typename T, typename std::enable_if<std::is_constructible<T, char*>::value && !std::is_same<T, bool>::value, char*>::type*>
-    T XLCellValue::get()
-    {
-        return T(getString());
     }
 }    // namespace OpenXLSX
+
+namespace std
+{
+    template<>
+    struct hash<OpenXLSX::XLCellValue>
+    {
+        std::size_t operator()(const OpenXLSX::XLCellValue& value) const noexcept
+        {
+            return std::hash<std::variant<const char*, int64_t, double, bool>> {}(value.m_value);
+        }
+    };
+}    // namespace std
 
 #pragma warning(pop)
 #endif    // OPENXLSX_XLCELLVALUE_HPP

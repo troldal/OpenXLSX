@@ -72,7 +72,7 @@ namespace nowide
                 return 0;
         }
         wstackstring wval;
-        if (!wval.convert(value)) return -1;
+        if (!wval.convert(getValue)) return -1;
         if (SetEnvironmentVariableW(name.c_str(), wval.c_str())) return 0;
         return -1;
     }

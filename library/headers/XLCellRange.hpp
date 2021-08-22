@@ -99,7 +99,7 @@ namespace OpenXLSX
          * @param other The range object to be moved.
          * @note This implements the default move constructor, i.e. memberwise move.
          */
-        XLCellRange(XLCellRange&& other) = default;
+        XLCellRange(XLCellRange&& other) noexcept;
 
         /**
          * @brief Destructor [default]
@@ -136,11 +136,17 @@ namespace OpenXLSX
          */
         uint16_t numColumns() const;
 
+        /**
+         * @brief
+         * @return
+         */
         XLCellIterator begin();
 
+        /**
+         * @brief
+         * @return
+         */
         XLCellIterator end();
-
-        // XLCell cell(uint32_t rowNumber, uint16_t columnNumber);
 
         /**
          * @brief
@@ -155,18 +161,8 @@ namespace OpenXLSX
         std::unique_ptr<XMLNode> m_dataNode;    /**< */
         XLCellReference          m_topLeft;     /**< The cell reference of the first cell in the range */
         XLCellReference          m_bottomRight; /**< The cell reference of the last cell in the range */
-        XLSharedStrings*         m_sharedStrings;
+        XLSharedStrings*         m_sharedStrings { nullptr };
     };
-
-    class XLCellNodeProxy
-    {
-    public:
-    private:
-        std::unique_ptr<XMLNode> m_cellNode;
-        XLCellReference          m_topLeft;     /**< The cell reference of the first cell in the range */
-        XLCellReference          m_bottomRight; /**< The cell reference of the last cell in the range */
-    };
-
 }    // namespace OpenXLSX
 
 #pragma warning(pop)

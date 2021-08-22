@@ -118,6 +118,14 @@ void XLColor::set(const std::string& hexCode)
 /**
  * @details
  */
+uint8_t XLColor::alpha() const
+{
+    return m_alpha;
+}
+
+/**
+ * @details
+ */
 uint8_t XLColor::red() const
 {
     return m_red;

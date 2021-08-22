@@ -27,4 +27,3 @@ target_compile_definitions(OpenXLSXBenchmark-static PRIVATE OPENXLSX_STATIC_DEFI
 # ===== Target using shared library ===== #
 add_executable(OpenXLSXBenchmark-shared EXCLUDE_FROM_ALL Benchmark.cpp)
 target_link_libraries(OpenXLSXBenchmark-shared PRIVATE benchmark benchmark_main OpenXLSX-shared)
-

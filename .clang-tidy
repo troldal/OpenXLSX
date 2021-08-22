@@ -2,6 +2,7 @@
 Checks: >-
   *,
   -llvmlibc-*,
+  -llvm-header-guard,
   -fuchsia-*,
   -modernize-use-trailing-return-type,
   -modernize-use-nodiscard,
@@ -16,7 +17,11 @@ Checks: >-
   -hicpp-braces-around-statements,
   -google-readability-braces-around-statements,
   -google-build-using-namespace,
-  -bugprone-infinite-loop
+  -bugprone-infinite-loop,
+  -abseil-string-find-startswith,
+  -abseil-string-find-str-contains,
+  -altera-unroll-loops,
+  -cppcoreguidelines-pro-bounds-array-to-pointer-decay
 
 WarningsAsErrors: '*'
 HeaderFilterRegex: ''

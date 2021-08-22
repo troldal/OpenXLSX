@@ -212,9 +212,9 @@ namespace OpenXLSX
         XLContentTypes& operator=(XLContentTypes&& other) noexcept = default;
 
         /**
-         * @brief Add a new override key/value pair to the data store.
+         * @brief Add a new override key/getValue pair to the data store.
          * @param path The key
-         * @param type The value
+         * @param type The getValue
          */
         void addOverride(const std::string& path, XLContentType type);
 

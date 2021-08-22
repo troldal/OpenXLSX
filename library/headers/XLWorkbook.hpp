@@ -76,7 +76,7 @@ namespace OpenXLSX
      * @brief The XLSheetType class is an enumeration of the available sheet types, e.g. Worksheet (ordinary
      * spreadsheets), and Chartsheet (sheets with only a chart).
      */
-    enum class XLSheetType { Worksheet, Chartsheet, DialogSheet, MacroSheet };
+    enum class XLSheetType { Worksheet, Chartsheet, Dialogsheet, Macrosheet };
 
     /**
      * @brief This class encapsulates the concept of a Workbook. It provides access to the individual sheets

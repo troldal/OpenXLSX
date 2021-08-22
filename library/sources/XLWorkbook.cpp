@@ -472,7 +472,7 @@ void XLWorkbook::updateSheetReferences(const std::string& oldName, const std::st
 {
     //        for (auto& sheet : m_sheets) {
     //            if (sheet.sheetType == XLSheetType::WorkSheet)
-    //                Worksheet(sheet.sheetNode.attribute("name").value())->UpdateSheetName(oldName, newName);
+    //                Worksheet(sheet.sheetNode.attribute("name").getValue())->UpdateSheetName(oldName, newName);
     //        }
 
     // ===== Set up temporary variables

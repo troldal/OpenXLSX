@@ -87,21 +87,21 @@ namespace OpenXLSX
          * @details The constructor creates a new XLCellReference from a string, e.g. 'A1'. If there's no input,
          * the default reference will be cell A1.
          */
-        explicit XLCellReference(const std::string& cellAddress = "");
+        XLCellReference(const std::string& cellAddress = ""); // NOLINT
 
         /**
          * @brief Constructor taking the cell coordinates as arguments.
          * @param row The row number of the cell.
          * @param column The column number of the cell.
          */
-        explicit XLCellReference(uint32_t row, uint16_t column);
+        XLCellReference(uint32_t row, uint16_t column);
 
         /**
          * @brief Constructor taking the row number and the column letter as arguments.
          * @param row The row number of the cell.
          * @param column The column letter of the cell.
          */
-        explicit XLCellReference(uint32_t row, const std::string& column);
+        XLCellReference(uint32_t row, const std::string& column);
 
         /**
          * @brief Copy constructor
@@ -133,30 +133,6 @@ namespace OpenXLSX
          * @return
          */
         XLCellReference& operator=(XLCellReference&& other) noexcept = default;
-
-        //        /**
-        //         * @brief
-        //         * @return
-        //         */
-        //        XLCellReference& operator++();
-        //
-        //        /**
-        //         * @brief
-        //         * @return
-        //         */
-        //        XLCellReference operator++(int); // NOLINT
-        //
-        //        /**
-        //         * @brief
-        //         * @return
-        //         */
-        //        XLCellReference& operator--();
-        //
-        //        /**
-        //         * @brief
-        //         * @return
-        //         */
-        //        XLCellReference operator--(int); // NOLINT
 
         /**
          * @brief Get the row number of the XLCellReference.
@@ -249,7 +225,7 @@ namespace OpenXLSX
     private:
         uint32_t    m_row { 1 };      /**< The row */
         uint16_t    m_column { 1 };   /**< The column */
-        std::string m_cellAddress {}; /**< The address, e.g. 'A1' */
+        std::string m_cellAddress {"A1"}; /**< The address, e.g. 'A1' */
     };
 
     /**
