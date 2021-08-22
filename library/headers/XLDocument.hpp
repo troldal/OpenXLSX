@@ -259,9 +259,11 @@ namespace OpenXLSX
 
             else if constexpr (std::is_same_v<Command, XLCommandResetCalcChain>) {
                 m_archive.deleteEntry("xl/calcChain.xml");
-                m_data.erase(std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) {
-                       return item.getXmlPath() == "xl/calcChain.xml";
-                }));
+                auto item = std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) {
+                    return item.getXmlPath() == "xl/calcChain.xml";
+                });
+
+                if (item != m_data.end()) m_data.erase(item);
             }
 
             else if constexpr (std::is_same_v<Command, XLCommandAddSharedStrings>) {

@@ -46,3 +46,10 @@ target_compile_definitions(Demo6 PRIVATE OPENXLSX_STATIC_DEFINE)
 add_executable(Demo7 Demo7.cpp)
 target_link_libraries(Demo7 PRIVATE OpenXLSX-static)
 target_compile_definitions(Demo7 PRIVATE OPENXLSX_STATIC_DEFINE)
+
+#=======================================================================================================================
+# Define Demo8 target
+#=======================================================================================================================
+add_executable(Demo8 Demo8.cpp)
+target_link_libraries(Demo8 PRIVATE OpenXLSX-static)
+target_compile_definitions(Demo8 PRIVATE OPENXLSX_STATIC_DEFINE)
