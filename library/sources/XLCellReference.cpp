@@ -244,9 +244,6 @@ void XLCellReference::setAddress(const std::string& address)
 
 /**
  * @details
- *
- * @todo Find out why std::to_chars causes a linker error when using LLVM/Clang. As a workaround, a custom conversion
- * algorithm has been implemented for clang (std::to_string is too slow!)
  */
 std::string XLCellReference::rowAsString(uint32_t row)
 {
