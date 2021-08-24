@@ -4526,6 +4526,7 @@ common_exit:
 #ifdef _WIN32
     /* convert UTF-8 to UTF-16 */
     /* TODO: The current implementation is ugly, and may be slow.*/
+    // MODIFICATION BY: WCIofQMandRA (Required by OpenXLSX)
     static void mz_utf8_16(const char* u8_str, wchar_t* u16_str)
     {
         const unsigned char* pu      = (const unsigned char*)u8_str;
@@ -4711,26 +4712,42 @@ common_exit:
 #    else
 
 #        include <sys/stat.h>
-
+        // MODIFICATION BY: WCIofQMandRA (Required by OpenXLSX)
 #        if defined(_MSC_VER) || defined(__MINGW64__)
+    // static FILE* mz_fopen(const char* pFilename, const char* pMode) //OpenXLSX
+    //{
+    //     FILE* pFile = fopen(pFilename, pMode);
+    //     return pFile;
+    // }
+    // static FILE* mz_freopen(const char* pPath, const char* pMode, FILE* pStream)
+    //{
+    //     FILE* pFile = freopen(pPath, pMode, pStream);
+    //     if (!pFile) return NULL;
+    //     return pFile;
+    // }
 #            ifndef MINIZ_NO_TIME
 #                include <sys/utime.h>
 #            endif
-#            define MZ_FOPEN(f, m) mz_fopen(f, m)
+//#            define MZ_FOPEN mz_fopen
+#            define MZ_FOPEN(f, m) mz_fopen(f, m)    // OpenXLSX
 #            define MZ_FCLOSE fclose
 #            define MZ_FREAD fread
 #            define MZ_FWRITE fwrite
 #            define MZ_FTELL64 _ftelli64
 #            define MZ_FSEEK64 _fseeki64
 #            define MZ_FILE_STAT_STRUCT _stat
+//#            define MZ_FILE_STAT _stat
 #            define MZ_FILE_STAT mz_stat
 #            define MZ_FFLUSH fflush
+//#            define MZ_FREOPEN mz_freopen // OpenXLSX
+//#            define MZ_DELETE_FILE remove // OpenXLSX
 #            define MZ_FREOPEN(f, m, s) mz_freopen(f, m, s)
 #            define MZ_DELETE_FILE mz_remove
 #        elif defined(__MINGW32__)
 #            ifndef MINIZ_NO_TIME
 #                include <sys/utime.h>
 #            endif
+//#            define MZ_FOPEN(f, m) fopen(f, m) // OpenXLSX
 #            define MZ_FOPEN(f, m) mz_fopen(f, m)
 #            define MZ_FCLOSE fclose
 #            define MZ_FREAD fread
@@ -4738,8 +4755,11 @@ common_exit:
 #            define MZ_FTELL64 ftello64
 #            define MZ_FSEEK64 fseeko64
 #            define MZ_FILE_STAT_STRUCT _stat
+//#            define MZ_FILE_STAT _stat // OpenXLSX
 #            define MZ_FILE_STAT mz_stat
 #            define MZ_FFLUSH fflush
+//#            define MZ_FREOPEN(f, m, s) freopen(f, m, s) // OpenXLSX
+//#            define MZ_DELETE_FILE remove // OpenXLSX
 #            define MZ_FREOPEN(f, m, s) mz_freopen(f, m, s)
 #            define MZ_DELETE_FILE mz_remove
 #        elif defined(__TINYC__)
@@ -10946,6 +10966,7 @@ namespace Zippy
 
             // ===== Close the current archive, delete the file with input filename (if it exists), rename the temporary and call Open.
             Close();
+            //std::remove(filename.c_str());
             MZ_DELETE_FILE(filename.c_str());
 #ifdef _WIN32
             if(tempPath.length()<256u && filename.length()<256u)//very likely
