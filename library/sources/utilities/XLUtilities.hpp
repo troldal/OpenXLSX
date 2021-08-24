@@ -5,8 +5,8 @@
 #ifndef OPENXLSX_XLUTILITIES_HPP
 #define OPENXLSX_XLUTILITIES_HPP
 
-#include <pugixml.hpp>
 #include <fstream>
+#include <pugixml.hpp>
 
 #include "XLCellReference.hpp"
 #include "XLXmlParser.hpp"
@@ -95,99 +95,107 @@ namespace OpenXLSX
         return cellNode;
     }
 
-    inline std::ofstream getOutFileStreamWindows(const std::string& fileName) {
-        auto utf8_16=[](const char* u8_str, wchar_t* u16_str) //NOLINT
-            {
-            const unsigned char *pu = (const unsigned char*)u8_str;
-            wchar_t *it = u16_str, tmp;
-            const wchar_t invalid = 0xFFFDu;
-            while(*pu)
-            {
-                if(*pu<0x80u)
+    /**
+     * @brief This function returns a std::ofstream with the given filename (must be UTF-8). However, implementation details depends on the
+     * platform. If the platform is Windows, the filename has to be converted to a wide string (UTF-16 on windows); otherwise. the filename
+     * string is used as is.
+     * @param fileName A UTF-8 string with the filename
+     * @return A std::ofstream
+     * @note The UTF8->UTF16 conversion was implemented by WCIofQMandRA.
+     * @todo Consider replacing the conversion algorithm by 3rd party library, such as miniutf.
+     */
+    inline std::ofstream getOutFileStream(const std::string& fileName)
+    {
+#ifdef _WIN32
+        auto utf8_16 = [](const char* u8_str, wchar_t* u16_str)    // NOLINT
+        {
+            const unsigned char* pu      = (const unsigned char*)u8_str;
+            wchar_t *            it      = u16_str, tmp;
+            const wchar_t        invalid = 0xFFFDu;
+            while (*pu) {
+                if (*pu < 0x80u)
                     *it++ = (wchar_t)(*pu++);
-                else if(*pu<0xC2u)
+                else if (*pu < 0xC2u)
                     *it++ = invalid, ++pu;
-                else if(*pu<0xE0u)
-                {
+                else if (*pu < 0xE0u) {
                     /* uint32 is faster than uint16 */
-                    uint32_t ch = *pu++&0x1Fu;
-                    tmp = *pu;
-                    if(0x80u<=tmp&&tmp<0xC0u)
-                        ++pu, *it++ = (wchar_t)(ch<<6 | tmp&0x3Fu);
-                    else *it++ = invalid;
+                    uint32_t ch = *pu++ & 0x1Fu;
+                    tmp         = *pu;
+                    if (0x80u <= tmp && tmp < 0xC0u)
+                        ++pu, *it++ = (wchar_t)(ch << 6 | tmp & 0x3Fu);
+                    else
+                        *it++ = invalid;
                 }
-                else if(*pu<0xF0u)
-                {
-                    uint32_t ch = *pu++&0x0Fu;
-                    tmp = *pu;
-                    if(0x80u<=tmp&&tmp<0xC0u)
-                    {
-                        ++pu, ch = ch<<6 | tmp&0x3Fu;
+                else if (*pu < 0xF0u) {
+                    uint32_t ch = *pu++ & 0x0Fu;
+                    tmp         = *pu;
+                    if (0x80u <= tmp && tmp < 0xC0u) {
+                        ++pu, ch = ch << 6 | tmp & 0x3Fu;
                         tmp = *pu;
-                        if(0x80u<=tmp&&tmp<=0xC0u)
-                        {
-                            ++pu, ch = ch<<6 | tmp&0x3Fu;
+                        if (0x80u <= tmp && tmp <= 0xC0u) {
+                            ++pu, ch = ch << 6 | tmp & 0x3Fu;
                             /* isolated surrogate pair */
-                            if(0xD800u<=ch&&ch<0xE000u)
+                            if (0xD800u <= ch && ch < 0xE000u)
                                 *it++ = invalid;
                             else
                                 *it++ = (wchar_t)ch;
                         }
-                        else *it++ = invalid;
+                        else
+                            *it++ = invalid;
                     }
-                    else *it++ = invalid;
+                    else
+                        *it++ = invalid;
                 }
-                else if(*pu<0xF8u)
-                {
-                    uint32_t ch = *pu&0x0Fu;
-                    tmp = *pu;
-                    if(0x80u<=tmp&&tmp<0xC0u)
-                    {
-                        ++pu, ch = ch<<6 | tmp&0x3Fu;
+                else if (*pu < 0xF8u) {
+                    uint32_t ch = *pu & 0x0Fu;
+                    tmp         = *pu;
+                    if (0x80u <= tmp && tmp < 0xC0u) {
+                        ++pu, ch = ch << 6 | tmp & 0x3Fu;
                         tmp = *pu;
-                        if(0x80u<=tmp&&tmp<0xC0u)
-                        {
-                            ++pu, ch = ch<<6 | tmp&0x3Fu;
+                        if (0x80u <= tmp && tmp < 0xC0u) {
+                            ++pu, ch = ch << 6 | tmp & 0x3Fu;
                             tmp = *pu;
-                            if(0x80u<=tmp&&tmp<=0xC0u)
-                            {
-                                ++pu, ch = ch<<6 | tmp&0x3Fu;
-                                if(ch>=0x110000u)
+                            if (0x80u <= tmp && tmp <= 0xC0u) {
+                                ++pu, ch = ch << 6 | tmp & 0x3Fu;
+                                if (ch >= 0x110000u)
                                     *it++ = invalid;
-                                else
-                                {
+                                else {
                                     ch -= 0x10000u;
-                                    *it++ = (wchar_t)(0xD800u | ch>>10);
-                                    *it++ = (wchar_t)(0xDC00u | ch&0x3FFu);
+                                    *it++ = (wchar_t)(0xD800u | ch >> 10);
+                                    *it++ = (wchar_t)(0xDC00u | ch & 0x3FFu);
                                 }
                             }
-                            else *it++ = invalid;
+                            else
+                                *it++ = invalid;
                         }
-                        else *it++ = invalid;
+                        else
+                            *it++ = invalid;
                     }
-                    else *it++ = invalid;
+                    else
+                        *it++ = invalid;
                 }
                 else
                     *it++ = invalid, ++pu;
             }
-            *it=L'\0';
-            };
+            *it = L'\0';
+        };
+
         std::ofstream outfile;
-        #ifdef _WIN32
-        if(fileName.length() < 256u)//very likely
-            {
+        if (fileName.length() < 256u)    // very likely
+        {
             wchar_t fileName_w[256];
             utf8_16(fileName.c_str(), fileName_w);
             outfile.open(fileName_w, std::ios::binary);
-            }
-        else
-        {
-            wchar_t *fileName_w = new wchar_t[fileName.length()+1];
+        }
+        else {
+            wchar_t* fileName_w = new wchar_t[fileName.length() + 1];
             utf8_16(fileName.c_str(), fileName_w);
             outfile.open(fileName_w, std::ios::binary);
             delete[] fileName_w;
         }
-        #endif
+#else
+        std::ofstream outfile(fileName, std::ios::binary);
+#endif
         return outfile;
     }
 
