@@ -4528,134 +4528,122 @@ common_exit:
     /* TODO: The current implementation is ugly, and may be slow.*/
     static void mz_utf8_16(const char* u8_str, wchar_t* u16_str)
     {
-        const unsigned char *pu = (const unsigned char*)u8_str;
-        wchar_t *it = u16_str, tmp;
-        const wchar_t invalid = 0xFFFDu;
-        while(*pu)
-        {
-            if(*pu<0x80u)
+        const unsigned char* pu      = (const unsigned char*)u8_str;
+        wchar_t *            it      = u16_str, tmp;
+        const wchar_t        invalid = 0xFFFDu;
+        while (*pu) {
+            if (*pu < 0x80u)
                 *it++ = (wchar_t)(*pu++);
-            else if(*pu<0xC2u)
+            else if (*pu < 0xC2u)
                 *it++ = invalid, ++pu;
-            else if(*pu<0xE0u)
-            {
+            else if (*pu < 0xE0u) {
                 /* uint32 is faster than uint16 */
-                uint32_t ch = *pu++&0x1Fu;
-                tmp = *pu;
-                if(0x80u<=tmp&&tmp<0xC0u)
-                    ++pu, *it++ = (wchar_t)(ch<<6 | tmp&0x3Fu);
-                else *it++ = invalid;
+                uint32_t ch = *pu++ & 0x1Fu;
+                tmp         = *pu;
+                if (0x80u <= tmp && tmp < 0xC0u)
+                    ++pu, *it++ = (wchar_t)(ch << 6 | tmp & 0x3Fu);
+                else
+                    *it++ = invalid;
             }
-            else if(*pu<0xF0u)
-            {
-                uint32_t ch = *pu++&0x0Fu;
-                tmp = *pu;
-                if(0x80u<=tmp&&tmp<0xC0u)
-                {
-                    ++pu, ch = ch<<6 | tmp&0x3Fu;
+            else if (*pu < 0xF0u) {
+                uint32_t ch = *pu++ & 0x0Fu;
+                tmp         = *pu;
+                if (0x80u <= tmp && tmp < 0xC0u) {
+                    ++pu, ch = ch << 6 | tmp & 0x3Fu;
                     tmp = *pu;
-                    if(0x80u<=tmp&&tmp<=0xC0u)
-                    {
-                        ++pu, ch = ch<<6 | tmp&0x3Fu;
+                    if (0x80u <= tmp && tmp <= 0xC0u) {
+                        ++pu, ch = ch << 6 | tmp & 0x3Fu;
                         /* isolated surrogate pair */
-                        if(0xD800u<=ch&&ch<0xE000u)
+                        if (0xD800u <= ch && ch < 0xE000u)
                             *it++ = invalid;
                         else
                             *it++ = (wchar_t)ch;
                     }
-                    else *it++ = invalid;
+                    else
+                        *it++ = invalid;
                 }
-                else *it++ = invalid;
+                else
+                    *it++ = invalid;
             }
-            else if(*pu<0xF8u)
-            {
-                uint32_t ch = *pu&0x0Fu;
-                tmp = *pu;
-                if(0x80u<=tmp&&tmp<0xC0u)
-                {
-                    ++pu, ch = ch<<6 | tmp&0x3Fu;
+            else if (*pu < 0xF8u) {
+                uint32_t ch = *pu & 0x0Fu;
+                tmp         = *pu;
+                if (0x80u <= tmp && tmp < 0xC0u) {
+                    ++pu, ch = ch << 6 | tmp & 0x3Fu;
                     tmp = *pu;
-                    if(0x80u<=tmp&&tmp<0xC0u)
-                    {
-                        ++pu, ch = ch<<6 | tmp&0x3Fu;
+                    if (0x80u <= tmp && tmp < 0xC0u) {
+                        ++pu, ch = ch << 6 | tmp & 0x3Fu;
                         tmp = *pu;
-                        if(0x80u<=tmp&&tmp<=0xC0u)
-                        {
-                            ++pu, ch = ch<<6 | tmp&0x3Fu;
-                            if(ch>=0x110000u)
+                        if (0x80u <= tmp && tmp <= 0xC0u) {
+                            ++pu, ch = ch << 6 | tmp & 0x3Fu;
+                            if (ch >= 0x110000u)
                                 *it++ = invalid;
-                            else
-                            {
+                            else {
                                 ch -= 0x10000u;
-                                *it++ = (wchar_t)(0xD800u | ch>>10);
-                                *it++ = (wchar_t)(0xDC00u | ch&0x3FFu);
+                                *it++ = (wchar_t)(0xD800u | ch >> 10);
+                                *it++ = (wchar_t)(0xDC00u | ch & 0x3FFu);
                             }
                         }
-                        else *it++ = invalid;
+                        else
+                            *it++ = invalid;
                     }
-                    else *it++ = invalid;
+                    else
+                        *it++ = invalid;
                 }
-                else *it++ = invalid;
+                else
+                    *it++ = invalid;
             }
             else
                 *it++ = invalid, ++pu;
         }
-        *it=L'\0';
+        *it = L'\0';
     }
-    #        include <sys/stat.h>
-#   include <string.h>
+#    include <string.h>
+#    include <sys/stat.h>
     /* Assume pFilename is UTF-8 encoded; covert it to UTF-16 and use wide Win32 API. */
     static FILE* mz_fopen(const char* pFilename, const char* pMode)
     {
         wchar_t pMode_w[8];
-        size_t s = 0;
+        size_t  s = 0;
         /* Valid pMode only contains ASCII characters; its length should be less than 7 */
-        while(*pMode&&s<7)
-            pMode_w[s++]=(wchar_t)(*pMode++);
+        while (*pMode && s < 7) pMode_w[s++] = (wchar_t)(*pMode++);
         pMode_w[s] = L'\0';
-        s = strlen(pFilename);/* reuse variable s*/
-        if(s < 256u)/*very likely*/
-        {
+        s          = strlen(pFilename); /* reuse variable s*/
+        if (s < 256u) /*very likely*/ {
             wchar_t pFilename_w[256];
             mz_utf8_16(pFilename, pFilename_w);
             return _wfopen(pFilename_w, pMode_w);
         }
-        else
-        {
-            wchar_t *pFilename_w = (wchar_t*)MZ_MALLOC(s*2+2);
-            if(pFilename_w != NULL)
-            {
+        else {
+            wchar_t* pFilename_w = (wchar_t*)MZ_MALLOC(s * 2 + 2);
+            if (pFilename_w != NULL) {
                 FILE* pFile;
                 mz_utf8_16(pFilename, pFilename_w);
                 pFile = _wfopen(pFilename_w, pMode_w);
                 MZ_FREE(pFilename_w);
                 return pFile;
             }
-            else/* unlikely */
+            else /* unlikely */
                 return fopen(pFilename, pMode);
         }
     }
     static FILE* mz_freopen(const char* pPath, const char* pMode, FILE* pStream)
     {
         wchar_t pMode_w[8];
-        size_t s = 0;
+        size_t  s = 0;
         /* Valid pMode only contains ASCII characters; its length should be less than 7 */
-        while(*pMode&&s<7)
-            pMode_w[s++]=(wchar_t)(*pMode++);
+        while (*pMode && s < 7) pMode_w[s++] = (wchar_t)(*pMode++);
         pMode_w[s] = L'\0';
-        s = strlen(pPath);
-        if(s < 256u)
-        {
+        s          = strlen(pPath);
+        if (s < 256u) {
             wchar_t pPath_w[256];
             mz_utf8_16(pPath, pPath_w);
             return _wfreopen(pPath_w, pMode_w, pStream);
         }
-        else
-        {
-            wchar_t *pPath_w = (wchar_t*)MZ_MALLOC(s*2+2);
-            if( pPath_w != NULL)
-            {
-                FILE *pFile;
+        else {
+            wchar_t* pPath_w = (wchar_t*)MZ_MALLOC(s * 2 + 2);
+            if (pPath_w != NULL) {
+                FILE* pFile;
                 mz_utf8_16(pPath, pPath_w);
                 pFile = _wfreopen(pPath_w, pMode_w, pStream);
                 MZ_FREE(pPath_w);
@@ -4668,17 +4656,14 @@ common_exit:
     static int mz_remove(const char* pFilename)
     {
         size_t s = strlen(pFilename);
-        if(s < 256u)
-        {
+        if (s < 256u) {
             wchar_t pFilename_w[256];
             mz_utf8_16(pFilename, pFilename_w);
             return _wremove(pFilename_w);
         }
-        else
-        {
-            wchar_t *pFilename_w = (wchar_t*)MZ_MALLOC(strlen(pFilename)*2+2);
-            if(pFilename_w != NULL)
-            {
+        else {
+            wchar_t* pFilename_w = (wchar_t*)MZ_MALLOC(strlen(pFilename) * 2 + 2);
+            if (pFilename_w != NULL) {
                 int r;
                 mz_utf8_16(pFilename, pFilename_w);
                 r = _wremove(pFilename_w);
@@ -4689,31 +4674,28 @@ common_exit:
                 return remove(pFilename);
         }
     }
-	static int mz_stat(const char *path, struct _stat *buffer)
-	{
-		size_t s = strlen(path);
-		if(s < 256u)
-		{
-			wchar_t path_w[256];
-			mz_utf8_16(path, path_w);
-			return _wstat(path_w, buffer);
-		}
-		else
-		{
-			wchar_t *path_w = (wchar_t*)MZ_MALLOC(s*2+2);
-			if(path_w != NULL)
-			{
-				int r;
-				mz_utf8_16(path, path_w);
-				r = _wstat(path_w, buffer);
-				MZ_FREE(path_w);
-				return r;
-			}
-			else
-				return _stat(path, buffer);
-		}
-	}
-#endif/*  _WIN32 */
+    static int mz_stat(const char* path, struct _stat* buffer)
+    {
+        size_t s = strlen(path);
+        if (s < 256u) {
+            wchar_t path_w[256];
+            mz_utf8_16(path, path_w);
+            return _wstat(path_w, buffer);
+        }
+        else {
+            wchar_t* path_w = (wchar_t*)MZ_MALLOC(s * 2 + 2);
+            if (path_w != NULL) {
+                int r;
+                mz_utf8_16(path, path_w);
+                r = _wstat(path_w, buffer);
+                MZ_FREE(path_w);
+                return r;
+            }
+            else
+                return _stat(path, buffer);
+        }
+    }
+#endif /*  _WIN32 */
 
 #ifndef MINIZ_NO_ARCHIVE_APIS
 
