@@ -653,7 +653,7 @@ void XLDocument::setProperty(XLProperty prop, const std::string& value)
                 std::stof(value);
             }
             catch (...) {
-                throw XLException("Invalid property value");
+                throw XLPropertyError("Invalid property value");
             }
 
             if (value.find('.') != std::string::npos) {
@@ -662,13 +662,13 @@ void XLDocument::setProperty(XLProperty prop, const std::string& value)
                         m_appProperties.setProperty("AppVersion", value);
                     }
                     else
-                        throw XLException("Invalid property value");
+                        throw XLPropertyError("Invalid property value");
                 }
                 else
-                    throw XLException("Invalid property value");
+                    throw XLPropertyError("Invalid property value");
             }
             else
-                throw XLException("Invalid property value");
+                throw XLPropertyError("Invalid property value");
 
             break;
 
@@ -691,7 +691,7 @@ void XLDocument::setProperty(XLProperty prop, const std::string& value)
             if (value == "0" || value == "1" || value == "2" || value == "4" || value == "8")
                 m_appProperties.setProperty("DocSecurity", value);
             else
-                throw XLException("Invalid property value");
+                throw XLPropertyError("Invalid property value");
             break;
 
         case XLProperty::HyperlinkBase:
@@ -701,7 +701,7 @@ void XLDocument::setProperty(XLProperty prop, const std::string& value)
             if (value == "true" || value == "false")
                 m_appProperties.setProperty("HyperlinksChanged", value);
             else
-                throw XLException("Invalid property value");
+                throw XLPropertyError("Invalid property value");
 
             break;
 
@@ -718,7 +718,7 @@ void XLDocument::setProperty(XLProperty prop, const std::string& value)
             if (value == "true" || value == "false")
                 m_appProperties.setProperty("LinksUpToDate", value);
             else
-                throw XLException("Invalid property value");
+                throw XLPropertyError("Invalid property value");
             break;
 
         case XLProperty::Manager:
@@ -731,14 +731,14 @@ void XLDocument::setProperty(XLProperty prop, const std::string& value)
             if (value == "true" || value == "false")
                 m_appProperties.setProperty("ScaleCrop", value);
             else
-                throw XLException("Invalid property value");
+                throw XLPropertyError("Invalid property value");
             break;
 
         case XLProperty::SharedDoc:
             if (value == "true" || value == "false")
                 m_appProperties.setProperty("SharedDoc", value);
             else
-                throw XLException("Invalid property value");
+                throw XLPropertyError("Invalid property value");
             break;
 
         case XLProperty::Subject:
@@ -772,7 +772,7 @@ XLDocument::operator bool() const
 XLXmlData* XLDocument::getXmlData(const std::string& path)
 {
     auto result = std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) { return item.getXmlPath() == path; });
-    if (result == m_data.end()) throw XLException("Path does not exist in zip archive.");
+    if (result == m_data.end()) throw XLInternalError("Path does not exist in zip archive.");
     return &*result;
 }
 
@@ -782,7 +782,7 @@ XLXmlData* XLDocument::getXmlData(const std::string& path)
 const XLXmlData* XLDocument::getXmlData(const std::string& path) const
 {
     auto result = std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) { return item.getXmlPath() == path; });
-    if (result == m_data.end()) throw XLException("Path does not exist in zip archive.");
+    if (result == m_data.end()) throw XLInternalError("Path does not exist in zip archive.");
     return &*result;
 }
 

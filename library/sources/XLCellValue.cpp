@@ -448,7 +448,7 @@ XLCellValue XLCellValueProxy::getValue() const
             else if (strcmp(m_cellNode->attribute("t").value(), "str") == 0)
                 return XLCellValue { m_cellNode->child("v").text().get() };
             else
-                throw XLException("Unknown string type");
+                throw XLInternalError("Unknown string type");
 
         case XLValueType::Boolean:
             return XLCellValue { m_cellNode->child("v").text().as_bool() };

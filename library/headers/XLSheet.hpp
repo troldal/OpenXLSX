@@ -349,11 +349,11 @@ namespace OpenXLSX
          */
         XLCellRange range(const XLCellReference& topLeft, const XLCellReference& bottomRight);
 
-        XLRowRange rows();
+        XLRowRange rows() const;
 
-        XLRowRange rows(uint32_t rowCount);
+        XLRowRange rows(uint32_t rowCount) const;
 
-        XLRowRange rows(uint32_t firstRow, uint32_t lastRow);
+        XLRowRange rows(uint32_t firstRow, uint32_t lastRow) const;
 
         /**
          * @brief Get the row with the given row number.

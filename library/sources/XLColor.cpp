@@ -102,7 +102,7 @@ void XLColor::set(uint8_t red, uint8_t green, uint8_t blue)
  */
 void XLColor::set(const std::string& hexCode)
 {
-    if (hexCode.size() > 8) throw XLException("Invalid color code");
+    if (hexCode.size() > 8) throw XLInputError("Invalid color code");
 
     std::string alpha = hexCode.substr(0, 2);
     std::string red   = hexCode.substr(2, 2);

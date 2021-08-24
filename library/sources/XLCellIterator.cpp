@@ -147,7 +147,7 @@ XLCellIterator& XLCellIterator::operator++()
         m_currentCell = XLCell(getCellNode(rowNode, ref.column()), m_sharedStrings);
     }
     else
-        throw XLException("An internal error occured");
+        throw XLInternalError("An internal error occured");
 
     return *this;
 }

@@ -325,7 +325,7 @@ namespace OpenXLSX
                 auto internalID = m_workbook.createInternalSheetID();
                 auto sheetPath  = "/xl/worksheets/sheet" + std::to_string(internalID) + ".xml";
                 if (m_workbook.sheetExists(command.cloneName()))
-                    throw XLException("Sheet named \"" + command.cloneName() + "\" already exists.");
+                    throw XLInternalError("Sheet named \"" + command.cloneName() + "\" already exists.");
 
                 if (m_wbkRelationships.relationshipById(command.sheetID()).type() == XLRelationshipType::Worksheet) {
                     m_contentTypes.addOverride(sheetPath, XLContentType::Worksheet);
@@ -360,7 +360,7 @@ namespace OpenXLSX
             }
 
             else {
-                throw XLException("Invalid command object.");
+                throw XLInternalError("Invalid command object.");
             }
         }
 
@@ -411,8 +411,14 @@ namespace OpenXLSX
                 return query;
             }
 
+            // TODO: This requires m_sharedStrings to be mutable. Is there a way around that?
+            else if constexpr (std::is_same_v<Query, XLQuerySharedStrings>) {
+                query.setSharedStrings(&m_sharedStrings);
+                return query;
+            }
+
             else {
-                throw XLException("Invalid query object.");
+                throw XLInternalError("Invalid query object.");
             }
         }
 
@@ -454,20 +460,19 @@ namespace OpenXLSX
             }
 
             else if constexpr (std::is_same_v<Query, XLQuerySharedStrings>) {
-                query.setSharedStrings(&m_sharedStrings);
-                return query;
+                return static_cast<const XLDocument&>(*this).executeQuery(query);
             }
 
             else if constexpr (std::is_same_v<Query, XLQueryXmlData>) {
                 auto result =
                     std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) { return item.getXmlPath() == query.xmlPath(); });
-                if (result == m_data.end()) throw XLException("Path does not exist in zip archive.");
+                if (result == m_data.end()) throw XLInternalError("Path does not exist in zip archive.");
                 query.setXmlData(&*result);
                 return query;
             }
 
             else {
-                throw XLException("Invalid query object.");
+                throw XLInternalError("Invalid query object.");
             }
         }
 
@@ -511,7 +516,7 @@ namespace OpenXLSX
         XLContentTypes  m_contentTypes {};     /**< A pointer to the content types object*/
         XLAppProperties m_appProperties {};    /**< A pointer to the App properties object */
         XLProperties    m_coreProperties {};   /**< A pointer to the Core properties object*/
-        XLSharedStrings m_sharedStrings {};    /**<  */
+        mutable XLSharedStrings m_sharedStrings {};    /**<  */
         XLWorkbook      m_workbook {};         /**< A pointer to the workbook object */
         XLZipArchive    m_archive {};          /**<  */
     };

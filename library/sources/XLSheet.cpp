@@ -311,7 +311,7 @@ XLCellRange XLWorksheet::range(const XLCellReference& topLeft, const XLCellRefer
  * @pre
  * @post
  */
-XLRowRange XLWorksheet::rows()
+XLRowRange XLWorksheet::rows() const
 {
     return XLRowRange(xmlDocument().first_child().child("sheetData"),
                       1,
@@ -326,7 +326,7 @@ XLRowRange XLWorksheet::rows()
  * @pre
  * @post
  */
-XLRowRange XLWorksheet::rows(uint32_t rowCount)
+XLRowRange XLWorksheet::rows(uint32_t rowCount) const
 {
     return XLRowRange(xmlDocument().first_child().child("sheetData"),
                       1,
@@ -339,7 +339,7 @@ XLRowRange XLWorksheet::rows(uint32_t rowCount)
  * @pre
  * @post
  */
-XLRowRange XLWorksheet::rows(uint32_t firstRow, uint32_t lastRow)
+XLRowRange XLWorksheet::rows(uint32_t firstRow, uint32_t lastRow) const
 {
     return XLRowRange(xmlDocument().first_child().child("sheetData"),
                       firstRow,
@@ -407,7 +407,13 @@ XLCellReference XLWorksheet::lastCell() const noexcept
  */
 uint16_t XLWorksheet::columnCount() const noexcept
 {
-    return lastCell().column();
+//    return lastCell().column();
+        std::vector<int16_t> counts;
+        for (const auto& row : rows()) {
+            counts.emplace_back(row.cellCount());
+        }
+
+        return *std::max_element(counts.begin(), counts.end());
 }
 
 /**

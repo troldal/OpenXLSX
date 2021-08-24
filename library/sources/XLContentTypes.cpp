@@ -160,7 +160,7 @@ namespace
         else if (type == XLContentType::VMLDrawing)
             typeString = "application/vnd.openxmlformats-officedocument.vmlDrawing";
         else
-            throw XLException("Unknown ContentType");
+            throw XLInternalError("Unknown ContentType");
 
         return typeString;
     }

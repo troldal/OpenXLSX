@@ -87,7 +87,7 @@ XLSheet XLWorkbook::sheet(const std::string& sheetName)
 {
     // ===== First determine if the sheet exists.
     if (xmlDocument().document_element().child("sheets").find_child_by_attribute("name", sheetName.c_str()) == nullptr)
-        throw XLException("Sheet \"" + sheetName + "\" does not exist");
+        throw XLInputError("Sheet \"" + sheetName + "\" does not exist");
 
     // ===== Find the sheet data corresponding to the sheet with the requested name
     std::string xmlID =
@@ -102,7 +102,7 @@ XLSheet XLWorkbook::sheet(const std::string& sheetName)
  */
 XLSheet XLWorkbook::sheet(uint16_t index)
 {
-    if (index < 1 || index > sheetCount()) throw XLException("Sheet index is out of bounds");
+    if (index < 1 || index > sheetCount()) throw XLInputError("Sheet index is out of bounds");
     return sheet(
         std::vector<XMLNode>(sheetsNode(xmlDocument()).begin(), sheetsNode(xmlDocument()).end())[index - 1].attribute("name").as_string());
 }
@@ -162,7 +162,7 @@ void XLWorkbook::deleteSheet(const std::string& sheetName)
 
     // ===== If this is the last worksheet in the workbook, throw an exception.
     if (worksheetCount == 1 && sheetType == XLContentType::Worksheet)
-        throw XLException("Invalid operation. There must be at least one worksheet in the workbook.");
+        throw XLInputError("Invalid operation. There must be at least one worksheet in the workbook.");
 
     // ===== Delete the sheet data as well as the sheet node from Workbook.xml
     parentDoc().executeCommand(XLCommandDeleteSheet(sheetID, sheetName));
@@ -178,7 +178,7 @@ void XLWorkbook::addWorksheet(const std::string& sheetName)
 {
     // ===== If a sheet with the given name already exists, throw an exception.
     if (xmlDocument().document_element().child("sheets").find_child_by_attribute("name", sheetName.c_str()))
-        throw XLException("Sheet named \"" + sheetName + "\" already exists.");
+        throw XLInputError("Sheet named \"" + sheetName + "\" already exists.");
 
     // ===== Create new internal (workbook) ID for the sheet
     auto internalID = createInternalSheetID();
@@ -343,7 +343,7 @@ unsigned int XLWorkbook::indexOfSheet(const std::string& sheetName) const
     }
 
     // ===== If a match is not found, throw an exception.
-    throw XLException("Sheet does not exist");
+    throw XLInputError("Sheet does not exist");
 }
 
 /**
@@ -351,7 +351,7 @@ unsigned int XLWorkbook::indexOfSheet(const std::string& sheetName) const
  */
 XLSheetType XLWorkbook::typeOfSheet(const std::string& sheetName) const
 {
-    if (!sheetExists(sheetName)) throw XLException("Sheet with name \"" + sheetName + "\" doesn't exist.");
+    if (!sheetExists(sheetName)) throw XLInputError("Sheet with name \"" + sheetName + "\" doesn't exist.");
 
     if (worksheetExists(sheetName))
         return XLSheetType::Worksheet;

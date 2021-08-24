@@ -154,7 +154,7 @@ namespace
         else if (type == XLRelationshipType::ControlProperties)
             typeString = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/ctrlProp";
         else
-            throw XLException("RelationshipType not recognized!");
+            throw XLInternalError("RelationshipType not recognized!");
 
         return typeString;
     }
