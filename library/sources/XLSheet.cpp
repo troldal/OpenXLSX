@@ -57,6 +57,7 @@ using namespace OpenXLSX;
 
 namespace OpenXLSX
 {
+    // Forward declaration. Implementation is in the XLUtilities.hpp file
     XMLNode getRowNode(XMLNode sheetDataNode, uint32_t rowNumber);
 }    // namespace OpenXLSX
 
@@ -159,6 +160,22 @@ uint16_t XLSheet::index() const
 void XLSheet::setIndex(uint16_t index)
 {
     std::visit([&](auto&& arg) { arg.setIndex(index); }, m_sheet);
+}
+
+/**
+ * @details
+ */
+XLSheet::operator XLWorksheet() const
+{
+    return this->get<XLWorksheet>();
+}
+
+/**
+ * @details
+ */
+XLSheet::operator XLChartsheet() const
+{
+    return this->get<XLChartsheet>();
 }
 
 /**

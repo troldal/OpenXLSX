@@ -98,28 +98,37 @@ namespace OpenXLSX
      * @brief
      */
     class OPENXLSX_EXPORT XLInputError : public XLException
-        {
-        public:
-            inline explicit XLInputError(const std::string& err) : XLException(err) {};
-        };
+    {
+    public:
+        inline explicit XLInputError(const std::string& err) : XLException(err) {};
+    };
 
     /**
-    * @brief
-    */
+     * @brief
+     */
     class OPENXLSX_EXPORT XLInternalError : public XLException
-        {
-        public:
-            inline explicit XLInternalError(const std::string& err) : XLException(err) {};
-        };
+    {
+    public:
+        inline explicit XLInternalError(const std::string& err) : XLException(err) {};
+    };
 
     /**
-        * @brief
-        */
+     * @brief
+     */
     class OPENXLSX_EXPORT XLPropertyError : public XLException
-        {
-        public:
-            inline explicit XLPropertyError(const std::string& err) : XLException(err) {};
-        };
+    {
+    public:
+        inline explicit XLPropertyError(const std::string& err) : XLException(err) {};
+    };
+
+    /**
+     * @brief
+     */
+    class OPENXLSX_EXPORT XLSheetError : public XLException
+    {
+    public:
+        inline explicit XLSheetError(const std::string& err) : XLException(err) {};
+    };
 
 }    // namespace OpenXLSX
 

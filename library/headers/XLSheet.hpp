@@ -75,15 +75,18 @@ namespace OpenXLSX
     enum class XLSheetState { Visible, Hidden, VeryHidden };
 
     /**
-     * @brief
-     * @tparam T
+     * @brief The XLSheetBase class is the base class for the XLWorksheet and XLChartsheet classes. However,
+     * it is not a base class in the traditional sense. Rather, it provides common functionality that is
+     * inherited via the CRTP (Curiously Recurring Template Pattern) pattern.
+     * @tparam T Type that will inherit functionality. Restricted to types XLWorksheet and XLChartsheet.
      */
-    template<typename T>
+    template<typename T,
+             typename std::enable_if<std::is_same_v<T, XLWorksheet> || std::is_same_v<T, XLChartsheet>>::type* = nullptr>
     class OPENXLSX_EXPORT XLSheetBase : public XLXmlFile
     {
     public:
         /**
-         * @brief
+         * @brief Constructor
          */
         XLSheetBase() : XLXmlFile(nullptr) {};
 
@@ -177,6 +180,7 @@ namespace OpenXLSX
         /**
          * @brief
          * @return
+         * @todo To be implemented.
          */
         XLColor color() const
         {
@@ -633,16 +637,33 @@ namespace OpenXLSX
          */
         template<typename T,
                  typename std::enable_if<std::is_same_v<T, XLWorksheet> || std::is_same_v<T, XLChartsheet>>::type* = nullptr>
-        T get()
+        T get() const
         {
             //static_assert(std::is_same_v<T, XLWorksheet> || std::is_same_v<T, XLChartsheet>, "Invalid sheet type.");
+            try {
+                if constexpr (std::is_same<T, XLWorksheet>::value)
+                    return std::get<XLWorksheet>(m_sheet);
 
-            if constexpr (std::is_same<T, XLWorksheet>::value)
-                return std::get<XLWorksheet>(m_sheet);
+                else if constexpr (std::is_same<T, XLChartsheet>::value)
+                    return std::get<XLChartsheet>(m_sheet);
+            }
 
-            else if constexpr (std::is_same<T, XLChartsheet>::value)
-                return std::get<XLChartsheet>(m_sheet);
+            catch (const std::bad_variant_access&) {
+                throw XLSheetError("XLSheet object does not contain the requested sheet type.");
+            }
         }
+
+        /**
+         * @brief
+         * @return
+         */
+        operator XLWorksheet() const; // NOLINT
+
+        /**
+         * @brief
+         * @return
+         */
+        operator XLChartsheet() const; // NOLINT
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Private Member Variables
