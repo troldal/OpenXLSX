@@ -349,10 +349,25 @@ namespace OpenXLSX
          */
         XLCellRange range(const XLCellReference& topLeft, const XLCellReference& bottomRight);
 
+        /**
+         * @brief
+         * @return
+         */
         XLRowRange rows() const;
 
+        /**
+         * @brief
+         * @param rowCount
+         * @return
+         */
         XLRowRange rows(uint32_t rowCount) const;
 
+        /**
+         * @brief 
+         * @param firstRow
+         * @param lastRow
+         * @return
+         */
         XLRowRange rows(uint32_t firstRow, uint32_t lastRow) const;
 
         /**
@@ -596,7 +611,8 @@ namespace OpenXLSX
          * @brief Method to get the type of the sheet.
          * @return An XLSheetType enum object with the sheet type.
          */
-        template<typename SheetType>
+        template<typename SheetType,
+            typename std::enable_if<std::is_same_v<SheetType, XLWorksheet> || std::is_same_v<SheetType, XLChartsheet>>::type* = nullptr>
         bool isType() const
         {
             return std::holds_alternative<SheetType>(m_sheet);
@@ -615,10 +631,11 @@ namespace OpenXLSX
          * @tparam T
          * @return
          */
-        template<typename T>
+        template<typename T,
+                 typename std::enable_if<std::is_same_v<T, XLWorksheet> || std::is_same_v<T, XLChartsheet>>::type* = nullptr>
         T get()
         {
-            static_assert(std::is_same_v<T, XLWorksheet> || std::is_same_v<T, XLChartsheet>, "Invalid sheet type.");
+            //static_assert(std::is_same_v<T, XLWorksheet> || std::is_same_v<T, XLChartsheet>, "Invalid sheet type.");
 
             if constexpr (std::is_same<T, XLWorksheet>::value)
                 return std::get<XLWorksheet>(m_sheet);

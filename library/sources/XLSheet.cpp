@@ -199,8 +199,14 @@ XLWorksheet::XLWorksheet(XLXmlData* xmlData) : XLSheetBase(xmlData)
     }
 }
 
+/**
+ * @details
+ */
 XLWorksheet::~XLWorksheet() = default;
 
+/**
+ * @details
+ */
 void XLWorksheet::setColor_impl(XLColor color)
 {
     if (!xmlDocument().document_element().child("sheetPr")) xmlDocument().document_element().prepend_child("sheetPr");
@@ -468,8 +474,14 @@ void XLWorksheet::updateSheetName(const std::string& oldName, const std::string&
  */
 XLChartsheet::XLChartsheet(XLXmlData* xmlData) : XLSheetBase(xmlData) {}
 
+/**
+ * @details
+ */
 XLChartsheet::~XLChartsheet() = default;
 
+/**
+ * @details
+ */
 void XLChartsheet::setColor_impl(XLColor color)
 {
     if (!xmlDocument().document_element().child("sheetPr")) xmlDocument().document_element().prepend_child("sheetPr");
