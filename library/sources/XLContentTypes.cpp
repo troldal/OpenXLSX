@@ -120,11 +120,11 @@ namespace
         if (type == XLContentType::WorkbookMacroEnabled)
             typeString = "application/vnd.ms-excel.Sheet.macroEnabled.main+xml";
         else if (type == XLContentType::Workbook)
-            typeString = "application/vnd.openxmlformats-officedocument.spreadsheetml.Sheet.main+xml";
+            typeString = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml";
         else if (type == XLContentType::Worksheet)
-            typeString = "application/vnd.openxmlformats-officedocument.spreadsheetml.Worksheet+xml";
+            typeString = "application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml";
         else if (type == XLContentType::Chartsheet)
-            typeString = "application/vnd.openxmlformats-officedocument.spreadsheetml.Chartsheet+xml";
+            typeString = "application/vnd.openxmlformats-officedocument.spreadsheetml.chartsheet+xml";
         else if (type == XLContentType::ExternalLink)
             typeString = "application/vnd.openxmlformats-officedocument.spreadsheetml.externalLink+xml";
         else if (type == XLContentType::Theme)
@@ -132,7 +132,7 @@ namespace
         else if (type == XLContentType::Styles)
             typeString = "application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml";
         else if (type == XLContentType::SharedStrings)
-            typeString = "application/vnd.openxmlformats-officedocument.spreadsheetml.SharedStrings+xml";
+            typeString = "application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml";
         else if (type == XLContentType::Drawing)
             typeString = "application/vnd.openxmlformats-officedocument.drawing+xml";
         else if (type == XLContentType::Chart)

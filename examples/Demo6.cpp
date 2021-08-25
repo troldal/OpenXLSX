@@ -41,6 +41,7 @@ int main()
     }
 
     cout << "Saving spreadsheet (1,048,576 rows x 8 columns) ..." << endl;
+    cout << wks.lastCell().address() << endl;
     doc.save();
     doc.close();
 

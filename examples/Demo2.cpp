@@ -23,6 +23,11 @@ int main()
     cout << "Adding new sheet 'MySheet02'\n";
     wbk.addWorksheet("MySheet02");
 
+    doc.save();
+    doc.close();
+    doc.open("./Demo02.xlsx");
+    wbk = doc.workbook();
+
     cout << "Cloning sheet 'Sheet1' to new sheet 'MySheet03'\n";
     wbk.sheet("Sheet1").get<XLWorksheet>().clone("MySheet03");
 

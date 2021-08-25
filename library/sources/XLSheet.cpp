@@ -59,22 +59,50 @@ namespace OpenXLSX
 {
     // Forward declaration. Implementation is in the XLUtilities.hpp file
     XMLNode getRowNode(XMLNode sheetDataNode, uint32_t rowNumber);
+
+    void setTabColor(const XMLDocument& xmlDocument, const XLColor& color) {
+
+        if (!xmlDocument.document_element().child("sheetPr")) xmlDocument.document_element().prepend_child("sheetPr");
+
+        if (!xmlDocument.document_element().child("sheetPr").child("tabColor"))
+            xmlDocument.document_element().child("sheetPr").prepend_child("tabColor");
+
+        auto colorNode = xmlDocument.document_element().child("sheetPr").child("tabColor");
+        for (auto attr : colorNode.attributes()) colorNode.remove_attribute(attr);
+
+        colorNode.prepend_attribute("rgb").set_value(color.hex().c_str());
+    }
+
+    void setTabSelected(const XMLDocument& xmlDocument, bool selected) {
+        unsigned int value = (selected ? 1 : 0);
+        xmlDocument.first_child().child("sheetViews").first_child().attribute("tabSelected").set_value(value);
+    }
+
+    bool tabIsSelected(const XMLDocument& xmlDocument) {
+        return xmlDocument.first_child().child("sheetViews").first_child().attribute("tabSelected").value();
+    }
+
 }    // namespace OpenXLSX
+
+// ========== XLSheet Member Functions
 
 /**
  * @details The constructor begins by constructing an instance of its superclass, XLAbstractXMLFile. The default
  * sheet type is WorkSheet and the default sheet state is Visible.
  */
-XLSheet::XLSheet(XLXmlData* xmlData) : XLXmlFile(xmlData), m_sheet()
+XLSheet::XLSheet(XLXmlData* xmlData) : XLXmlFile(xmlData)
 {
     if (xmlData->getXmlType() == XLContentType::Worksheet)
         m_sheet = XLWorksheet(xmlData);
-    else
+    else if (xmlData->getXmlType() == XLContentType::Chartsheet)
         m_sheet = XLChartsheet(xmlData);
+    else
+        throw XLInternalError("Invalid XML data.");
 }
 
 /**
- * @details This method returns the m_sheetName property.
+ * @details This method uses visitor pattern to return the name() member variable of the underlying
+ * sheet object (XLWorksheet or XLChartsheet).
  */
 std::string XLSheet::name() const
 {
@@ -82,11 +110,8 @@ std::string XLSheet::name() const
 }
 
 /**
- * @details This method sets the name of the sheet to a new name, in the following way:
- * - Set the m_sheetName property to the new name.
- * - In the sheet node in the workbook.xml file, set the name attribute to the new name.
- * - Set the getValue of the title node in the app.xml file to the new name
- * - Set the m_isModified property to true.
+ * @details This method sets the name of the sheet to a new name, by calling the setName()
+ * member function of the underlying sheet object (XLWorksheet or XLChartsheet).
  */
 void XLSheet::setName(const std::string& name)
 {
@@ -94,7 +119,8 @@ void XLSheet::setName(const std::string& name)
 }
 
 /**
- * @details This method returns the m_sheetState property.
+ * @details This method uses visitor pattern to return the visibility() member variable of the underlying
+ * sheet object (XLWorksheet or XLChartsheet).
  */
 XLSheetState XLSheet::visibility() const
 {
@@ -102,12 +128,8 @@ XLSheetState XLSheet::visibility() const
 }
 
 /**
- * @details This method sets the visibility state of the sheet to a new getValue, in the following manner:
- * - Set the m_sheetState to the new getValue.
- * - If the state is set to Hidden or VeryHidden, create a state attribute in the sheet node in the workbook.xml file
- * (if it doesn't exist already) and set the getValue to the new state.
- * - If the state is set to Visible, delete the state attribute from the sheet node in the workbook.xml file, if it
- * exists.
+* @details This method sets the visibility state of the sheet, by calling the setVisibility()
+* member function of the underlying sheet object (XLWorksheet or XLChartsheet).
  */
 void XLSheet::setVisibility(XLSheetState state)
 {
@@ -115,15 +137,17 @@ void XLSheet::setVisibility(XLSheetState state)
 }
 
 /**
- * @details
+* @details This method uses visitor pattern to return the color() member variable of the underlying
+* sheet object (XLWorksheet or XLChartsheet).
  */
-XLColor XLSheet::color()
+XLColor XLSheet::color() const
 {
     return std::visit([](auto&& arg) { return arg.color(); }, m_sheet);
 }
 
 /**
- * @details
+* @details This method sets the color of the sheet, by calling the setColor()
+* member function of the underlying sheet object (XLWorksheet or XLChartsheet).
  */
 void XLSheet::setColor(const XLColor& color)
 {
@@ -131,7 +155,8 @@ void XLSheet::setColor(const XLColor& color)
 }
 
 /**
- * @details
+* @details This method sets the selection state of the sheet, by calling the setSelected()
+* member function of the underlying sheet object (XLWorksheet or XLChartsheet).
  */
 void XLSheet::setSelected(bool selected)
 {
@@ -139,7 +164,8 @@ void XLSheet::setSelected(bool selected)
 }
 
 /**
- * @details
+ * @details Clones the sheet by calling the clone() method in the underlying sheet object
+ * (XLWorksheet or XLChartsheet), using the visitor pattern.
  */
 void XLSheet::clone(const std::string& newName)
 {
@@ -147,7 +173,8 @@ void XLSheet::clone(const std::string& newName)
 }
 
 /**
- * @details
+ * @details Get the index of the sheet, by calling the index() method in the underlying
+ * sheet object (XLWorksheet or XLChartsheet), using the visitor pattern.
  */
 uint16_t XLSheet::index() const
 {
@@ -155,7 +182,8 @@ uint16_t XLSheet::index() const
 }
 
 /**
- * @details
+* @details This method sets the index of the sheet (i.e. move the sheet), by calling the setIndex()
+* member function of the underlying sheet object (XLWorksheet or XLChartsheet).
  */
 void XLSheet::setIndex(uint16_t index)
 {
@@ -163,7 +191,8 @@ void XLSheet::setIndex(uint16_t index)
 }
 
 /**
- * @details
+ * @details Implicit conversion operator to XLWorksheet. Calls the get<>() member function, with XLWorksheet as
+ * the template argument.
  */
 XLSheet::operator XLWorksheet() const
 {
@@ -171,15 +200,19 @@ XLSheet::operator XLWorksheet() const
 }
 
 /**
- * @details
+* @details Implicit conversion operator to XLChartsheet. Calls the get<>() member function, with XLChartsheet as
+* the template argument.
  */
 XLSheet::operator XLChartsheet() const
 {
     return this->get<XLChartsheet>();
 }
 
+
+// ========== XLWorksheet Member Functions
+
 /**
- * @details The constructor does som e slight reconfiguration of the XML file, in order to make parsing easier.
+ * @details The constructor does some slight reconfiguration of the XML file, in order to make parsing easier.
  * For example, columns with identical formatting are by default grouped under the same node. However, this makes it more difficult to
  * parse, so the constructor reconfigures it so each column has it's own formatting.
  */
@@ -224,17 +257,9 @@ XLWorksheet::~XLWorksheet() = default;
 /**
  * @details
  */
-void XLWorksheet::setColor_impl(XLColor color)
+void XLWorksheet::setColor_impl(const XLColor& color)
 {
-    if (!xmlDocument().document_element().child("sheetPr")) xmlDocument().document_element().prepend_child("sheetPr");
-
-    if (!xmlDocument().document_element().child("sheetPr").child("tabColor"))
-        xmlDocument().document_element().child("sheetPr").prepend_child("tabColor");
-
-    auto colorNode = xmlDocument().document_element().child("sheetPr").child("tabColor");
-    for (auto attr : colorNode.attributes()) colorNode.remove_attribute(attr);
-
-    colorNode.prepend_attribute("rgb").set_value(color.hex().c_str());
+    setTabColor(xmlDocument(), color);
 }
 
 /**
@@ -242,7 +267,7 @@ void XLWorksheet::setColor_impl(XLColor color)
  */
 bool XLWorksheet::isSelected_impl() const
 {
-    return xmlDocument().first_child().child("sheetViews").first_child().attribute("tabSelected").value();
+    return tabIsSelected(xmlDocument());
 }
 
 /**
@@ -250,14 +275,13 @@ bool XLWorksheet::isSelected_impl() const
  */
 void XLWorksheet::setSelected_impl(bool selected)
 {
-    unsigned int value = (selected ? 1 : 0);
-    xmlDocument().first_child().child("sheetViews").first_child().attribute("tabSelected").set_value(value);
+    setTabSelected(xmlDocument(), selected);
 }
 
 /**
  * @details
  */
-XLCell XLWorksheet::cell(const std::string& ref)
+XLCell XLWorksheet::cell(const std::string& ref) const
 {
     return cell(XLCellReference(ref));
 }
@@ -265,7 +289,7 @@ XLCell XLWorksheet::cell(const std::string& ref)
 /**
  * @details
  */
-XLCell XLWorksheet::cell(const XLCellReference& ref)
+XLCell XLWorksheet::cell(const XLCellReference& ref) const
 {
     return cell(ref.row(), ref.column());
 }
@@ -274,7 +298,7 @@ XLCell XLWorksheet::cell(const XLCellReference& ref)
  * @details This function returns a pointer to an XLCell object in the worksheet. This particular overload
  * also serves as the main function, called by the other overloads.
  */
-XLCell XLWorksheet::cell(uint32_t rowNumber, uint16_t columnNumber)
+XLCell XLWorksheet::cell(uint32_t rowNumber, uint16_t columnNumber) const
 {
     auto cellNode = XMLNode();
     auto cellRef  = XLCellReference(rowNumber, columnNumber);
@@ -313,7 +337,7 @@ XLCell XLWorksheet::cell(uint32_t rowNumber, uint16_t columnNumber)
  * @details
  * @todo The returned object is not const.
  */
-XLCellRange XLWorksheet::range()
+XLCellRange XLWorksheet::range() const
 {
     return range(XLCellReference("A1"), lastCell());
 }
@@ -321,7 +345,7 @@ XLCellRange XLWorksheet::range()
 /**
  * @details
  */
-XLCellRange XLWorksheet::range(const XLCellReference& topLeft, const XLCellReference& bottomRight)
+XLCellRange XLWorksheet::range(const XLCellReference& topLeft, const XLCellReference& bottomRight) const
 {
     return XLCellRange(xmlDocument().first_child().child("sheetData"),
                        topLeft,
@@ -373,13 +397,12 @@ XLRowRange XLWorksheet::rows(uint32_t firstRow, uint32_t lastRow) const
 /**
  * @details Get the XLRow object corresponding to the given row number. In the XML file, all cell data are stored under
  * the corresponding row, and all rows have to be ordered in ascending order. If a row have no data, there may not be a
- * node for that row. In RapidXLSX,the vector with all rows are initialized to a fixed size (the maximum size),
- * but most elements will be nullptr.
+ * node for that row.
  */
-XLRow XLWorksheet::row(uint32_t rowNumber)
+XLRow XLWorksheet::row(uint32_t rowNumber) const
 {
-    return XLRow(getRowNode(xmlDocument().first_child().child("sheetData"), rowNumber),
-                 parentDoc().executeQuery(XLQuerySharedStrings()).sharedStrings());
+    return XLRow{getRowNode(xmlDocument().first_child().child("sheetData"), rowNumber),
+                 parentDoc().executeQuery(XLQuerySharedStrings()).sharedStrings()};
 }
 
 /**
@@ -413,24 +436,18 @@ XLColumn XLWorksheet::column(uint16_t columnNumber) const
 }
 
 /**
- * @details Returns the getValue of the m_lastCell member variable.
- * @pre The m_lastCell member variable must have a valid getValue.
- * @post The object must remain unmodified.
+ * @details Returns an XLCellReference to the last cell using rowCount() and columnCount() methods.
  */
 XLCellReference XLWorksheet::lastCell() const noexcept
 {
-    std::string dim = xmlDocument().document_element().child("dimension").value();
-    return XLCellReference(dim.substr(dim.find(':') + 1));
+        return {rowCount(), columnCount()};
 }
 
 /**
- * @details Returns the column() getValue from the last (bottom right) cell of the worksheet.
- * @pre LastCell() must return a valid XLCellReference object, which accurately represents the worksheet size.
- * @post Object must remain unmodified.
+ * @details Iterates through the rows and finds the maximum number of cells.
  */
 uint16_t XLWorksheet::columnCount() const noexcept
 {
-//    return lastCell().column();
         std::vector<int16_t> counts;
         for (const auto& row : rows()) {
             counts.emplace_back(row.cellCount());
@@ -440,9 +457,7 @@ uint16_t XLWorksheet::columnCount() const noexcept
 }
 
 /**
- * @details Returns the row() getValue from the last (bottom right) cell of the worksheet.
- * @pre LastCell() must return a valid XLCellReference object, which accurately represents the worksheet size.
- * @post Object must remain unmodified.
+ * @details Finds the last row (node) and returns the row number.
  */
 uint32_t XLWorksheet::rowCount() const noexcept
 {
@@ -487,44 +502,35 @@ void XLWorksheet::updateSheetName(const std::string& oldName, const std::string&
 }
 
 /**
- * @details
+ * @details Constructor
  */
 XLChartsheet::XLChartsheet(XLXmlData* xmlData) : XLSheetBase(xmlData) {}
 
 /**
- * @details
+ * @details Destructor. Default implementation used.
  */
 XLChartsheet::~XLChartsheet() = default;
 
 /**
- * @details
+ * @details Calls the setTabColor() free function.
  */
-void XLChartsheet::setColor_impl(XLColor color)
+void XLChartsheet::setColor_impl(const XLColor& color)
 {
-    if (!xmlDocument().document_element().child("sheetPr")) xmlDocument().document_element().prepend_child("sheetPr");
-
-    if (!xmlDocument().document_element().child("sheetPr").child("tabColor"))
-        xmlDocument().document_element().child("sheetPr").prepend_child("tabColor");
-
-    auto colorNode = xmlDocument().document_element().child("sheetPr").child("tabColor");
-    for (auto attr : colorNode.attributes()) colorNode.remove_attribute(attr);
-
-    colorNode.prepend_attribute("rgb").set_value(color.hex().c_str());
+    setTabColor(xmlDocument(), color);
 }
 
 /**
- * @details
+ * @details Calls the tabIsSelected() free function.
  */
 bool XLChartsheet::isSelected_impl() const
 {
-    return xmlDocument().first_child().child("sheetViews").first_child().attribute("tabSelected").value();
+    return tabIsSelected(xmlDocument());
 }
 
 /**
- * @details
+ * @details Calls the setTabSelected() free function.
  */
 void XLChartsheet::setSelected_impl(bool selected)
 {
-    unsigned int value = (selected ? 1 : 0);
-    xmlDocument().first_child().child("sheetViews").first_child().attribute("tabSelected").set_value(value);
+    setTabSelected(xmlDocument(), selected);
 }
