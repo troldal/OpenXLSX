@@ -60,6 +60,11 @@ namespace OpenXLSX
     // Forward declaration. Implementation is in the XLUtilities.hpp file
     XMLNode getRowNode(XMLNode sheetDataNode, uint32_t rowNumber);
 
+    /**
+     * @brief Function for setting tab color.
+     * @param xmlDocument XMLDocument object
+     * @param color Thr color to set
+     */
     void setTabColor(const XMLDocument& xmlDocument, const XLColor& color) {
 
         if (!xmlDocument.document_element().child("sheetPr")) xmlDocument.document_element().prepend_child("sheetPr");
@@ -73,11 +78,21 @@ namespace OpenXLSX
         colorNode.prepend_attribute("rgb").set_value(color.hex().c_str());
     }
 
+    /**
+     * @brief Function for checking if the tab is selected.
+     * @param xmlDocument
+     * @param selected
+     */
     void setTabSelected(const XMLDocument& xmlDocument, bool selected) {
         unsigned int value = (selected ? 1 : 0);
         xmlDocument.first_child().child("sheetViews").first_child().attribute("tabSelected").set_value(value);
     }
 
+    /**
+     * @brief Set the tab selected property to true.
+     * @param xmlDocument
+     * @return
+     */
     bool tabIsSelected(const XMLDocument& xmlDocument) {
         return xmlDocument.first_child().child("sheetViews").first_child().attribute("tabSelected").value();
     }
@@ -250,7 +265,7 @@ XLWorksheet::XLWorksheet(XLXmlData* xmlData) : XLSheetBase(xmlData)
 }
 
 /**
- * @details
+ * @details Destructor. Default implementation.
  */
 XLWorksheet::~XLWorksheet() = default;
 
@@ -335,7 +350,6 @@ XLCell XLWorksheet::cell(uint32_t rowNumber, uint16_t columnNumber) const
 
 /**
  * @details
- * @todo The returned object is not const.
  */
 XLCellRange XLWorksheet::range() const
 {
