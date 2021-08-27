@@ -142,12 +142,6 @@ namespace OpenXLSX
         }
 
         /**
-         * @brief Constructor taking a XLCellValueProxy object as argument.
-         * @param proxy The XLCellValueProxy object.
-         */
-        XLCellValue(const XLCellValueProxy& proxy);    // NOLINT
-
-        /**
          * @brief Copy constructor.
          * @param other The object to be copied.
          */

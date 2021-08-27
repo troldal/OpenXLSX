@@ -13,27 +13,12 @@ target_sources(OpenXLSXTests
                main.cpp
                testXLDocument.cpp
                testXLCellValue.cpp
+               testXLCellValueProxy.cpp
                )
 
 target_link_libraries(OpenXLSXTests
                       PRIVATE
-                      OpenXLSX-shared
+                      OpenXLSX-static
                       Catch
                       )
-
-#=======================================================================================================================
-# Enable code coverage
-#=======================================================================================================================
-#if (ENABLE_COVERAGE AND CMAKE_BUILD_TYPE STREQUAL "Debug")
-#    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" AND NOT WIN32)
-#        target_compile_options(OpenXLSXTests PRIVATE -fprofile-instr-generate -fcoverage-mapping)
-#        target_link_options(OpenXLSXTests PRIVATE -fprofile-instr-generate)
-#        #Uncomment in case of linker errors
-#        #link_libraries(clang_rt.profile-x86_64)
-#    elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-#        target_compile_options(OpenXLSXTests PRIVATE --coverage)
-#        target_link_options(OpenXLSXTests PRIVATE --coverage)
-#        #Uncomment in case of linker errors
-#        #link_libraries(gcov)
-#    endif ()
-#endif ()
+target_compile_definitions(OpenXLSXTests PRIVATE OPENXLSX_STATIC_DEFINE)

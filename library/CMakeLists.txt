@@ -193,21 +193,6 @@ if (CMAKE_BUILD_TYPE STREQUAL "Release")
     endif ()
 endif ()
 
-
-#=======================================================================================================================
-# Enable code coverage
-#=======================================================================================================================
-if (ENABLE_COVERAGE AND CMAKE_BUILD_TYPE STREQUAL "Debug")
-    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" AND NOT WIN32)
-        target_compile_options(OpenXLSX-shared PRIVATE -fprofile-instr-generate -fcoverage-mapping)
-        target_link_options(OpenXLSX-shared PRIVATE -fprofile-instr-generate)
-    elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-        target_compile_options(OpenXLSX-shared PRIVATE --coverage)
-        target_link_options(OpenXLSX-shared PRIVATE --coverage)
-    endif ()
-endif ()
-
-
 #=======================================================================================================================
 # Install
 #=======================================================================================================================

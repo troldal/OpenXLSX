@@ -43,8 +43,6 @@ option(ENABLE_UNICODE_FILENAMES "[Deprecated] Now, OpenXLSX is always capable to
 option(BUILD_SAMPLES "Build sample programs" ON)
 option(BUILD_TESTS "Build and run library tests" ON)
 option(BUILD_BENCHMARKS "Build and run library benchmarks" ON)
-option(ENABLE_COVERAGE "Enable GCC/Clang code coverage in Debug build (tests, benchmarks and samples will NOT build
-when this is enabled!)" OFF)
 
 #=======================================================================================================================
 # Add project subdirectories

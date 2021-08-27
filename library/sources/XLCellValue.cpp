@@ -56,15 +56,6 @@ XLCellValue& OpenXLSX::XLCellValue::operator=(const OpenXLSX::XLCellValue& other
 XLCellValue& OpenXLSX::XLCellValue::operator=(OpenXLSX::XLCellValue&& other) noexcept = default;
 
 /**
- * @details Constructor taking a XLCellValueProxy object as argument. The object is constructed by extracting the value
- * from the proxy object, and constructing the XLCellValue object from that.
- * @pre The argument must be a valid XLCellValueProxy object, i.e. the getValue() method must return a valid value.
- * @post A valid XLCellValue object is created.
- * @todo: Can the XLCellValueProxy object be invalid?
- */
-XLCellValue::XLCellValue(const XLCellValueProxy& proxy) : XLCellValue(proxy.getValue()) {}
-
-/**
  * @details Clears the contents of the XLCellValue object. Setting the value to an empty string is not sufficient
  * (as an empty string is still a valid string). The m_type variable must also be set to XLValueType::Empty.
  * @pre
