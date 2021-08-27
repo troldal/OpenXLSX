@@ -103,6 +103,24 @@ TEST_CASE("XLCellValueProxy Tests", "[XLCellValue]")
         REQUIRE_THROWS(value.get<int>());
         REQUIRE_THROWS(value.get<double>());
         REQUIRE(value.get<bool>() == true);
+
+        wks.cell("A1").value().setError();
+        value = wks.cell("A1").value();
+        REQUIRE(value.type() == XLValueType::Error);
+        REQUIRE(value.typeAsString() == "error");
+        REQUIRE(value.get<std::string>().empty());
+        REQUIRE_THROWS(value.get<int>());
+        REQUIRE_THROWS(value.get<double>());
+        REQUIRE_THROWS(value.get<bool>());
+
+        wks.cell("A1").value().clear();
+        value = wks.cell("A1").value();
+        REQUIRE(value.type() == XLValueType::Empty);
+        REQUIRE(value.typeAsString() == "empty");
+        REQUIRE(value.get<std::string>().empty());
+        REQUIRE_THROWS(value.get<int>());
+        REQUIRE_THROWS(value.get<double>());
+        REQUIRE_THROWS(value.get<bool>());
     }
 
     SECTION("XLCellValueProxy copy assignment")
@@ -114,12 +132,106 @@ TEST_CASE("XLCellValueProxy Tests", "[XLCellValue]")
 
         wks.cell("A1").value() = "Hello OpenXLSX!";
         wks.cell("A2").value() = wks.cell("A1").value();
-
         REQUIRE(wks.cell("A2").value().type() == XLValueType::String);
         REQUIRE(wks.cell("A2").value().typeAsString() == "string");
         REQUIRE(wks.cell("A2").value().get<std::string>() == "Hello OpenXLSX!");
         REQUIRE_THROWS(wks.cell("A2").value().get<int>());
         REQUIRE_THROWS(wks.cell("A2").value().get<double>());
         REQUIRE_THROWS(wks.cell("A2").value().get<bool>());
+
+        wks.cell("A1").value() = 3.14159;
+        wks.cell("A2").value() = wks.cell("A1").value();
+        REQUIRE(wks.cell("A2").value().type() == XLValueType::Float);
+        REQUIRE(wks.cell("A2").value().typeAsString() == "float");
+        REQUIRE_THROWS(wks.cell("A2").value().get<std::string>());
+        REQUIRE_THROWS(wks.cell("A2").value().get<int>());
+        REQUIRE(wks.cell("A2").value().get<double>() == 3.14159);
+        REQUIRE_THROWS(wks.cell("A2").value().get<bool>());
+
+        wks.cell("A1").value() = 42;
+        wks.cell("A2").value() = wks.cell("A1").value();
+        REQUIRE(wks.cell("A2").value().type() == XLValueType::Integer);
+        REQUIRE(wks.cell("A2").value().typeAsString() == "integer");
+        REQUIRE_THROWS(wks.cell("A2").value().get<std::string>());
+        REQUIRE(wks.cell("A2").value().get<int>() == 42);
+        REQUIRE_THROWS(wks.cell("A2").value().get<double>());
+        REQUIRE_THROWS(wks.cell("A2").value().get<bool>());
+
+        wks.cell("A1").value() = true;
+        wks.cell("A2").value() = wks.cell("A1").value();
+        REQUIRE(wks.cell("A2").value().type() == XLValueType::Boolean);
+        REQUIRE(wks.cell("A2").value().typeAsString() == "boolean");
+        REQUIRE_THROWS(wks.cell("A2").value().get<std::string>());
+        REQUIRE_THROWS(wks.cell("A2").value().get<int>());
+        REQUIRE_THROWS(wks.cell("A2").value().get<double>());
+        REQUIRE(wks.cell("A2").value().get<bool>() == true);
+
+        wks.cell("A1").value().setError();
+        wks.cell("A2").value() = wks.cell("A1").value();
+        REQUIRE(wks.cell("A2").value().type() == XLValueType::Error);
+        REQUIRE(wks.cell("A2").value().typeAsString() == "error");
+        REQUIRE(wks.cell("A2").value().get<std::string>().empty());
+        REQUIRE_THROWS(wks.cell("A2").value().get<int>());
+        REQUIRE_THROWS(wks.cell("A2").value().get<double>());
+        REQUIRE_THROWS(wks.cell("A2").value().get<bool>());
+
+        wks.cell("A1").value().clear();
+        wks.cell("A2").value() = wks.cell("A1").value();
+        REQUIRE(wks.cell("A2").value().type() == XLValueType::Empty);
+        REQUIRE(wks.cell("A2").value().typeAsString() == "empty");
+        REQUIRE(wks.cell("A2").value().get<std::string>().empty());
+        REQUIRE_THROWS(wks.cell("A2").value().get<int>());
+        REQUIRE_THROWS(wks.cell("A2").value().get<double>());
+        REQUIRE_THROWS(wks.cell("A2").value().get<bool>());
+
+    }
+
+    SECTION("XLCellValueProxy set functions")
+    {
+        XLCellValue value;
+        XLDocument doc;
+        doc.create("./testXLCellValueProxy.xlsx");
+        XLWorksheet wks = doc.workbook().sheet(1);
+
+        wks.cell("A2").value().set("Hello OpenXLSX!");
+        REQUIRE(wks.cell("A2").value().type() == XLValueType::String);
+        REQUIRE(wks.cell("A2").value().typeAsString() == "string");
+        REQUIRE(wks.cell("A2").value().get<std::string>() == "Hello OpenXLSX!");
+        REQUIRE_THROWS(wks.cell("A2").value().get<int>());
+        REQUIRE_THROWS(wks.cell("A2").value().get<double>());
+        REQUIRE_THROWS(wks.cell("A2").value().get<bool>());
+
+        wks.cell("A2").value().set(3.14159);
+        REQUIRE(wks.cell("A2").value().type() == XLValueType::Float);
+        REQUIRE(wks.cell("A2").value().typeAsString() == "float");
+        REQUIRE_THROWS(wks.cell("A2").value().get<std::string>());
+        REQUIRE_THROWS(wks.cell("A2").value().get<int>());
+        REQUIRE(wks.cell("A2").value().get<double>() == 3.14159);
+        REQUIRE_THROWS(wks.cell("A2").value().get<bool>());
+
+        wks.cell("A2").value().set(42);
+        REQUIRE(wks.cell("A2").value().type() == XLValueType::Integer);
+        REQUIRE(wks.cell("A2").value().typeAsString() == "integer");
+        REQUIRE_THROWS(wks.cell("A2").value().get<std::string>());
+        REQUIRE(wks.cell("A2").value().get<int>() == 42);
+        REQUIRE_THROWS(wks.cell("A2").value().get<double>());
+        REQUIRE_THROWS(wks.cell("A2").value().get<bool>());
+
+        wks.cell("A2").value().set(true);
+        REQUIRE(wks.cell("A2").value().type() == XLValueType::Boolean);
+        REQUIRE(wks.cell("A2").value().typeAsString() == "boolean");
+        REQUIRE_THROWS(wks.cell("A2").value().get<std::string>());
+        REQUIRE_THROWS(wks.cell("A2").value().get<int>());
+        REQUIRE_THROWS(wks.cell("A2").value().get<double>());
+        REQUIRE(wks.cell("A2").value().get<bool>() == true);
+
+        wks.cell("A2").value().setError();
+        REQUIRE(wks.cell("A2").value().type() == XLValueType::Error);
+        REQUIRE(wks.cell("A2").value().typeAsString() == "error");
+        REQUIRE(wks.cell("A2").value().get<std::string>().empty());
+        REQUIRE_THROWS(wks.cell("A2").value().get<int>());
+        REQUIRE_THROWS(wks.cell("A2").value().get<double>());
+        REQUIRE_THROWS(wks.cell("A2").value().get<bool>());
+
     }
 }

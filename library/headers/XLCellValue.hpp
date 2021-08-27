@@ -80,6 +80,7 @@ namespace OpenXLSX
     {
         //---------- Friend Declarations ----------//
 
+        // TODO: Consider template functions to compare to ints, floats etc.
         friend bool          operator==(const XLCellValue& lhs, const XLCellValue& rhs);
         friend bool          operator!=(const XLCellValue& lhs, const XLCellValue& rhs);
         friend bool          operator<(const XLCellValue& lhs, const XLCellValue& rhs);
@@ -345,7 +346,10 @@ namespace OpenXLSX
                         setString(value.template get<const char*>());
                         break;
                     case XLValueType::Empty:
+                        clear();
+                        break;
                     default:
+                        setError();
                         break;
                 }
             }

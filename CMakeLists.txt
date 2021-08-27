@@ -39,7 +39,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/output)
 #=======================================================================================================================
 option(CREATE_DOCS "Build library documentation (requires Doxygen and Graphviz/Dot to be installed)" ON)
 option(ENABLE_COMPACT_MODE "Build library in compact mode (slower, but uses less memory)" OFF)
-option(ENABLE_UNICODE_FILENAMES "[Deprecated] Now, OpenXLSX is always capable to handle files with non-ASCII filenames (even on Windows)" OFF)
 option(BUILD_SAMPLES "Build sample programs" ON)
 option(BUILD_TESTS "Build and run library tests" ON)
 option(BUILD_BENCHMARKS "Build and run library benchmarks" ON)

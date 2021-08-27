@@ -121,8 +121,8 @@ std::string XLCellValue::typeAsString() const
 XLCellValueProxy::XLCellValueProxy(XLCell* cell, XMLNode* cellNode) : m_cell(cell), m_cellNode(cellNode)
 {
     assert(cell);                  // NOLINT
-    assert(cellNode);              // NOLINT
-    assert(!cellNode->empty());    // NOLINT
+//    assert(cellNode);              // NOLINT
+//    assert(!cellNode->empty());    // NOLINT
 }
 
 /**
@@ -217,6 +217,9 @@ XLCellValueProxy& XLCellValueProxy::setError()
 
     // ===== Set the type to "e", i.e. error
     m_cellNode->attribute("t").set_value("e");
+
+    // ===== Remove the value node, if it exists
+    m_cellNode->remove_child("v");
 
     // ===== Disable space preservation (only relevant for strings).
     m_cellNode->remove_attribute(" xml:space");

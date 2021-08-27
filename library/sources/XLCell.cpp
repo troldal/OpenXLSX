@@ -98,9 +98,9 @@ XLCell::~XLCell() = default;
 XLCell& XLCell::operator=(const XLCell& other)
 {
     if (&other != this) {
-        m_cellNode      = other.m_cellNode ? std::make_unique<XMLNode>(*other.m_cellNode) : nullptr;
-        m_sharedStrings = other.m_sharedStrings;
-        m_valueProxy    = XLCellValueProxy(this, m_cellNode.get());
+    XLCell temp = other;
+    std::swap(*this, temp);
+
     }
 
     return *this;
@@ -154,6 +154,7 @@ XLCell::operator bool() const
  */
 XLCellReference XLCell::cellReference() const
 {
+    if (!*this) throw XLInternalError("XLCell object has not been properly initiated.");
     return XLCellReference(m_cellNode->attribute("r").value());
 }
 
@@ -162,6 +163,7 @@ XLCellReference XLCell::cellReference() const
  */
 bool XLCell::hasFormula() const
 {
+    if (!*this) return false;
     return m_cellNode->child("f") != nullptr;
 }
 
@@ -170,6 +172,7 @@ bool XLCell::hasFormula() const
  */
 std::string XLCell::formula() const
 {
+    if (!*this) throw XLInternalError("XLCell object has not been properly initiated.");
     return m_cellNode->child("f").text().get();
 }
 
@@ -180,6 +183,7 @@ std::string XLCell::formula() const
  */
 void XLCell::setFormula(const std::string& newFormula)
 {
+    if (!*this) throw XLInternalError("XLCell object has not been properly initiated.");
     m_cellNode->child("f").text().set(newFormula.c_str());
 }
 
@@ -190,6 +194,7 @@ void XLCell::setFormula(const std::string& newFormula)
  */
 XLCellValueProxy& XLCell::value()
 {
+    if (!*this) throw XLInternalError("XLCell object has not been properly initiated.");
     return m_valueProxy;
 }
 
@@ -200,5 +205,6 @@ XLCellValueProxy& XLCell::value()
  */
 const XLCellValueProxy& XLCell::value() const
 {
+    if (!*this) throw XLInternalError("XLCell object has not been properly initiated.");
     return m_valueProxy;
 }

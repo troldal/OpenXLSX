@@ -15,7 +15,8 @@ int main()
 
     cout << "\nGenerating spreadsheet (1,048,576 rows x 8 columns) ..." << endl;
     XLDocument doc;
-    doc.create("./電子表格.xlsx");
+    std::string path = "./電子表格.xlsx";
+    doc.create(path);
     auto wks = doc.workbook().worksheet("Sheet1");
 
     std::random_device                 rand_dev;
@@ -45,7 +46,7 @@ int main()
     doc.close();
 
     cout << "Re-opening spreadsheet (1,048,576 rows x 8 columns) ..." << endl;
-    doc.open("./電子表格.xlsx");
+    doc.open(path);
     wks = doc.workbook().worksheet("Sheet1");
     uint64_t sum = 0;
     uint64_t count = 0;

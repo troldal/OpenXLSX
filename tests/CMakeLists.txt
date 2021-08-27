@@ -12,6 +12,7 @@ target_sources(OpenXLSXTests
                PRIVATE
                main.cpp
                testXLDocument.cpp
+               testXLCell.cpp
                testXLCellValue.cpp
                testXLCellValueProxy.cpp
                )

@@ -275,15 +275,6 @@ on Windows is more limited. For example, output of non-ASCII characters
 (e.g. Chinese or Japanese characters) to the terminal window will look
 like gibberish.
 
-If you need to work with excel files with **non-ASCII filenames** on
-Windows, you can do so by setting the option ENABLE_UNICODE_FILENAMES to
-ON in the CMakeLists.txt. This should only be enabled if you really need
-it, as it makes OpenXLSX produce a copy of the file, with an ASCII name,
-and the rename it when saving the file. This can make opening/saving
-operations quite lengthy, so if you don't need it, don't turn it on.
-Note also that this is only required on Windows, as most other operating
-systems can handle non-ASCII filenames easily.
-
 ## Reference Guide
 This section will contain the user reference for usage of OpenXLSX.
 HOLD

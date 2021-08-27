@@ -13,11 +13,6 @@ if (${ENABLE_COMPACT_MODE})
     target_compile_definitions(PugiXML INTERFACE PUGIXML_COMPACT)
 endif ()
 
-if (${ENABLE_UNICODE_FILENAMES})
-    add_compile_definitions(UNICODE_FILENAMES_ENABLED)
-endif ()
-
-
 #=======================================================================================================================
 # COMPILER FEATURES
 #   Some older C++17 compilers don't support the char_conv features. If the compiler doesn't support it,
