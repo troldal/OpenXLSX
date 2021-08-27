@@ -270,10 +270,17 @@ McNellis' presentation at [CppCon 2014](https://youtu.be/n0GK-9f4dl8),
 and read
 [Joel Spolsky's blog](https://www.joelonsoftware.com/2003/10/08/the-absolute-minimum-every-software-developer-absolutely-positively-must-know-about-unicode-and-character-sets-no-excuses/).
 
-Note also that while UTF-8 is well supported on Linux and MacOS, support
-on Windows is more limited. For example, output of non-ASCII characters
-(e.g. Chinese or Japanese characters) to the terminal window will look
-like gibberish.
+Unicode on Windows is particularly challenging. While UTF-8 is well 
+supported on Linux and MacOS, support on Windows is more limited. For example, 
+output of non-ASCII characters (e.g. Chinese or Japanese characters) to the 
+terminal window will look like gibberish. Sometimes you also have to be mindful 
+of the text encoding of the source files themselves. Some users have had problems
+with OpenXLSX crashing when opening/creating .xlsx files with non-ASCII 
+filenames, where it turned out that the source code for the test program
+was in a non-UTF-8 encoding, and hence the input string to OpenXLSX was also
+non-UTF-8. To stay sane, I recommend that source code files are always 
+in UTF-8 files; all IDE's I know of can handle source code files in UTF-8 
+encoding. Welcome to the wonderful world of unicode on Windows 🤮
 
 ## Reference Guide
 This section will contain the user reference for usage of OpenXLSX.
