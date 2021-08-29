@@ -4573,7 +4573,7 @@ common_exit:
 #            ifndef MINIZ_NO_TIME
 #                include <sys/utime.h>
 #            endif
-#            define MZ_FOPEN(f, m) fopen(f, m)
+#            define MZ_FOPEN(f, m) nowide::fopen(f, m)
 #            define MZ_FCLOSE fclose
 #            define MZ_FREAD fread
 #            define MZ_FWRITE fwrite
@@ -4582,13 +4582,13 @@ common_exit:
 #            define MZ_FILE_STAT_STRUCT _stat
 #            define MZ_FILE_STAT _stat
 #            define MZ_FFLUSH fflush
-#            define MZ_FREOPEN(f, m, s) freopen(f, m, s)
-#            define MZ_DELETE_FILE remove
+#            define MZ_FREOPEN(f, m, s) nowide::freopen(f, m, s)
+#            define MZ_DELETE_FILE nowide::remove
 #        elif defined(__TINYC__)
 #            ifndef MINIZ_NO_TIME
 #                include <sys/utime.h>
 #            endif
-#            define MZ_FOPEN(f, m) fopen(f, m)
+#            define MZ_FOPEN(f, m) nowide::fopen(f, m)
 #            define MZ_FCLOSE fclose
 #            define MZ_FREAD fread
 #            define MZ_FWRITE fwrite
@@ -4597,8 +4597,8 @@ common_exit:
 #            define MZ_FILE_STAT_STRUCT stat
 #            define MZ_FILE_STAT stat
 #            define MZ_FFLUSH fflush
-#            define MZ_FREOPEN(f, m, s) freopen(f, m, s)
-#            define MZ_DELETE_FILE remove
+#            define MZ_FREOPEN(f, m, s) nowide::freopen(f, m, s)
+#            define MZ_DELETE_FILE nowide::remove
 #        elif defined(__GNUC__) && _LARGEFILE64_SOURCE
 #            ifndef MINIZ_NO_TIME
 #                include <utime.h>
@@ -4638,7 +4638,7 @@ common_exit:
 #            ifndef MINIZ_NO_TIME
 #                include <utime.h>
 #            endif
-#            define MZ_FOPEN(f, m) fopen(f, m)
+#            define MZ_FOPEN(f, m) nowide::fopen(f, m)
 #            define MZ_FCLOSE fclose
 #            define MZ_FREAD fread
 #            define MZ_FWRITE fwrite
@@ -4652,8 +4652,8 @@ common_exit:
 #            define MZ_FILE_STAT_STRUCT stat
 #            define MZ_FILE_STAT stat
 #            define MZ_FFLUSH fflush
-#            define MZ_FREOPEN(f, m, s) freopen(f, m, s)
-#            define MZ_DELETE_FILE remove
+#            define MZ_FREOPEN(f, m, s) nowide::freopen(f, m, s)
+#            define MZ_DELETE_FILE nowide::remove
 #        endif /* #ifdef _MSC_VER */
 #    endif /* #ifdef MINIZ_NO_STDIO */
 
