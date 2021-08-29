@@ -38,9 +38,11 @@ int main()
     nowide::cout << "Cell A6 (Greek)   : " << wks2.cell(XLCellReference("A6")).value().get<std::string>() << std::endl;
 
 
-    nowide::cout << "\nNOTE: If you are using a Windows terminal, the above output will look like gibberish,\n"
-            "because the Windows terminal does not support UTF-8 at the moment. To view to output,\n"
-            "open the Demo03.xlsx file in Excel.\n\n";
+    nowide::cout << "\nNOTE: If you are using a Windows terminal, the above output may look like gibberish,\n"
+                    "because the Windows terminal does not support UTF-8 at the moment. To view to output,\n"
+                    "you can use the overloaded 'cout' in the boost::nowide library (as in this sample program).\n"
+                    "This will require a UTF-8 enabled font in the terminal. Lucinda Console supports some\n"
+                    "non-ASCII scripts, such as Cyrillic and Greek. NSimSun supports some asian scripts.\n\n";
 
     doc2.close();
 

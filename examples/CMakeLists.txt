@@ -1,4 +1,4 @@
-add_subdirectory(external/nowide)
+add_subdirectory(external/nowide EXCLUDE_FROM_ALL)
 
 #=======================================================================================================================
 # Define Demo1 target

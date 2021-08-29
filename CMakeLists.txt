@@ -25,7 +25,7 @@ set(PROJECT_DESCRIPTION "A C++17 library for reading, writing and modifying Exce
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-set(IGNORE_ME ${CMAKE_C_COMPILER})
+set(IGNORE_ME ${CMAKE_C_COMPILER}) # Suppress CMake warning message
 
 #=======================================================================================================================
 # Output Directories.

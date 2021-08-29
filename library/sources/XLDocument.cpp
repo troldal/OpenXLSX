@@ -452,31 +452,7 @@ void XLDocument::open(const std::string& fileName)
     // Check if a document is already open. If yes, close it.
     // TODO: Consider throwing if a file is already open.
     if (m_archive.isOpen()) close();
-#if defined(_WIN32) && (UNICODE_FILENAMES_ENABLED)
-    auto randomName = []() {
-        std::string letters = "abcdefghijklmnopqrstuvwxyz0123456789";
-
-        std::random_device                 rand_dev;
-        std::mt19937                       generator(rand_dev());
-        std::uniform_int_distribution<int> distr(0, letters.size() - 1);
-
-        std::string result;
-        for (int i = 0; i < 9; ++i) {    // NOLINT
-            result += letters[distr(generator)];
-        }
-
-        return result + ".tmp";
-    }();
-    nowide::ifstream orig(fileName, std::ios::binary);
-    nowide::ofstream copy(randomName, std::ios::binary);
-    copy << orig.rdbuf();
-    orig.close();
-    copy.close();
-    m_filePath = randomName;
-    m_realPath = fileName;
-#else
     m_filePath = fileName;
-#endif
     m_archive.open(m_filePath);
 
     // ===== Add and open the Relationships and [Content_Types] files for the document level.
@@ -519,7 +495,6 @@ void XLDocument::create(const std::string& fileName)
 {
     // ===== Create a temporary output file stream.
     nowide::ofstream outfile(fileName, std::ios::binary);
-//    auto outfile = getOutFileStream(fileName);
 
     // ===== Stream the binary data for an empty workbook to the output file.
     // ===== Casting, in particular reinterpret_cast, is discouraged, but in this case it is unfortunately unavoidable.
@@ -593,6 +568,9 @@ XLWorkbook XLDocument::workbook() const
     return m_workbook;
 }
 
+/**
+ * @brief
+ */
 void XLDocument::resetCalcChain() {
     executeCommand(XLCommandResetCalcChain());
 }
