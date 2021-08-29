@@ -1,14 +1,15 @@
 #include <OpenXLSX.hpp>
 #include <iostream>
+#include <nowide/iostream.hpp>
 
-using namespace std;
+//using namespace std;
 using namespace OpenXLSX;
 
 int main()
 {
-    cout << "********************************************************************************\n";
-    cout << "DEMO PROGRAM #03: Unicode\n";
-    cout << "********************************************************************************\n";
+    nowide::cout << "********************************************************************************\n";
+    nowide::cout << "DEMO PROGRAM #03: Unicode\n";
+    nowide::cout << "********************************************************************************\n";
 
     XLDocument doc1;
     doc1.create("./Demo03.xlsx");
@@ -22,22 +23,22 @@ int main()
     wks1.cell(XLCellReference("A6")).value() = "Γειά σου Κόσμε!";
 
     doc1.save();
-    doc1.saveAs("./スプレッドシート.xlsx");
+    doc1.saveAs("./Таблица.xlsx");
     doc1.close();
 
     XLDocument doc2;
-    doc2.open("./スプレッドシート.xlsx");
+    doc2.open("./Таблица.xlsx");
     auto wks2 = doc2.workbook().worksheet("Sheet1");
 
-    cout << "Cell A1 (Korean)  : " << wks2.cell(XLCellReference("A1")).value().get<std::string>() << endl;
-    cout << "Cell A2 (Chinese) : " << wks2.cell(XLCellReference("A2")).value().get<std::string>() << endl;
-    cout << "Cell A3 (Japanese): " << wks2.cell(XLCellReference("A3")).value().get<std::string>() << endl;
-    cout << "Cell A4 (Hindi)   : " << wks2.cell(XLCellReference("A4")).value().get<std::string>() << endl;
-    cout << "Cell A5 (Russian) : " << wks2.cell(XLCellReference("A5")).value().get<std::string>() << endl;
-    cout << "Cell A6 (Greek)   : " << wks2.cell(XLCellReference("A6")).value().get<std::string>() << endl;
+    nowide::cout << "Cell A1 (Korean)  : " << wks2.cell(XLCellReference("A1")).value().get<std::string>() << std::endl;
+    nowide::cout << "Cell A2 (Chinese) : " << wks2.cell(XLCellReference("A2")).value().get<std::string>() << std::endl;
+    nowide::cout << "Cell A3 (Japanese): " << wks2.cell(XLCellReference("A3")).value().get<std::string>() << std::endl;
+    nowide::cout << "Cell A4 (Hindi)   : " << wks2.cell(XLCellReference("A4")).value().get<std::string>() << std::endl;
+    nowide::cout << "Cell A5 (Russian) : " << wks2.cell(XLCellReference("A5")).value().get<std::string>() << std::endl;
+    nowide::cout << "Cell A6 (Greek)   : " << wks2.cell(XLCellReference("A6")).value().get<std::string>() << std::endl;
 
 
-    cout << "\nNOTE: If you are using a Windows terminal, the above output will look like gibberish,\n"
+    nowide::cout << "\nNOTE: If you are using a Windows terminal, the above output will look like gibberish,\n"
             "because the Windows terminal does not support UTF-8 at the moment. To view to output,\n"
             "open the Demo03.xlsx file in Excel.\n\n";
 

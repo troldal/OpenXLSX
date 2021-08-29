@@ -4546,12 +4546,12 @@ common_exit:
 #        if defined(_MSC_VER) || defined(__MINGW64__)
     static FILE* mz_fopen(const char* pFilename, const char* pMode)
     {
-        FILE* pFile = fopen(pFilename, pMode);
+        FILE* pFile = nowide::fopen(pFilename, pMode);
         return pFile;
     }
     static FILE* mz_freopen(const char* pPath, const char* pMode, FILE* pStream)
     {
-        FILE* pFile = freopen(pPath, pMode, pStream);
+        FILE* pFile = nowide::freopen(pPath, pMode, pStream);
         if (!pFile) return NULL;
         return pFile;
     }
@@ -10772,8 +10772,8 @@ namespace Zippy
 
             // ===== Close the current archive, delete the file with input filename (if it exists), rename the temporary and call Open.
             Close();
-            std::remove(filename.c_str());
-            std::rename(tempPath.c_str(), filename.c_str());
+            nowide::remove(filename.c_str());
+            nowide::rename(tempPath.c_str(), filename.c_str());
             Open(filename);
         }
 

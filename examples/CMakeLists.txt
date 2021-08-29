@@ -1,3 +1,5 @@
+add_subdirectory(external/nowide)
+
 #=======================================================================================================================
 # Define Demo1 target
 #=======================================================================================================================
@@ -16,7 +18,7 @@ target_compile_definitions(Demo2 PRIVATE OPENXLSX_STATIC_DEFINE)
 # Define Demo3 target
 #=======================================================================================================================
 add_executable(Demo3 Demo3.cpp)
-target_link_libraries(Demo3 PRIVATE OpenXLSX-static)
+target_link_libraries(Demo3 PRIVATE OpenXLSX-static nowide::nowide)
 target_compile_definitions(Demo3 PRIVATE OPENXLSX_STATIC_DEFINE)
 
 #=======================================================================================================================
