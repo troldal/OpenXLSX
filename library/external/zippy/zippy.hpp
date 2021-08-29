@@ -27,6 +27,8 @@
 #    include <direct.h>
 #endif
 
+#include <nowide/cstdio.hpp>
+
 namespace
 {
     /* miniz.c 2.0.8 - public domain deflate/inflate, zlib-subset, ZIP reading/writing/appending, PNG writing
@@ -171,6 +173,9 @@ namespace
        callbacks to the zlib and archive API's, and a few stand-alone helper API's which don't provide custom user
        functions (such as tdefl_compress_mem_to_heap() and tinfl_decompress_mem_to_heap()) won't work. */
     /*#define MINIZ_NO_MALLOC */
+
+
+
 
 #if defined(__TINYC__) && (defined(__linux) || defined(__linux__))
     /* TODO: Work around "error: include file 'sys\utime.h' when compiling with tcc on Linux */
@@ -4523,181 +4528,6 @@ common_exit:
      *
      **************************************************************************/
 
-#ifdef _WIN32
-    /* convert UTF-8 to UTF-16 */
-    /* TODO: The current implementation is ugly, and may be slow.*/
-    // MODIFICATION BY: WCIofQMandRA (Required by OpenXLSX)
-    static void mz_utf8_16(const char* u8_str, wchar_t* u16_str)
-    {
-        const unsigned char* pu      = (const unsigned char*)u8_str;
-        wchar_t *            it      = u16_str, tmp;
-        const wchar_t        invalid = 0xFFFDu;
-        while (*pu) {
-            if (*pu < 0x80u)
-                *it++ = (wchar_t)(*pu++);
-            else if (*pu < 0xC2u)
-                *it++ = invalid, ++pu;
-            else if (*pu < 0xE0u) {
-                /* uint32 is faster than uint16 */
-                uint32_t ch = *pu++ & 0x1Fu;
-                tmp         = *pu;
-                if (0x80u <= tmp && tmp < 0xC0u)
-                    ++pu, *it++ = (wchar_t)(ch << 6 | tmp & 0x3Fu);
-                else
-                    *it++ = invalid;
-            }
-            else if (*pu < 0xF0u) {
-                uint32_t ch = *pu++ & 0x0Fu;
-                tmp         = *pu;
-                if (0x80u <= tmp && tmp < 0xC0u) {
-                    ++pu, ch = ch << 6 | tmp & 0x3Fu;
-                    tmp = *pu;
-                    if (0x80u <= tmp && tmp <= 0xC0u) {
-                        ++pu, ch = ch << 6 | tmp & 0x3Fu;
-                        /* isolated surrogate pair */
-                        if (0xD800u <= ch && ch < 0xE000u)
-                            *it++ = invalid;
-                        else
-                            *it++ = (wchar_t)ch;
-                    }
-                    else
-                        *it++ = invalid;
-                }
-                else
-                    *it++ = invalid;
-            }
-            else if (*pu < 0xF8u) {
-                uint32_t ch = *pu & 0x0Fu;
-                tmp         = *pu;
-                if (0x80u <= tmp && tmp < 0xC0u) {
-                    ++pu, ch = ch << 6 | tmp & 0x3Fu;
-                    tmp = *pu;
-                    if (0x80u <= tmp && tmp < 0xC0u) {
-                        ++pu, ch = ch << 6 | tmp & 0x3Fu;
-                        tmp = *pu;
-                        if (0x80u <= tmp && tmp <= 0xC0u) {
-                            ++pu, ch = ch << 6 | tmp & 0x3Fu;
-                            if (ch >= 0x110000u)
-                                *it++ = invalid;
-                            else {
-                                ch -= 0x10000u;
-                                *it++ = (wchar_t)(0xD800u | ch >> 10);
-                                *it++ = (wchar_t)(0xDC00u | ch & 0x3FFu);
-                            }
-                        }
-                        else
-                            *it++ = invalid;
-                    }
-                    else
-                        *it++ = invalid;
-                }
-                else
-                    *it++ = invalid;
-            }
-            else
-                *it++ = invalid, ++pu;
-        }
-        *it = L'\0';
-    }
-#    include <string.h>
-#    include <sys/stat.h>
-    /* Assume pFilename is UTF-8 encoded; covert it to UTF-16 and use wide Win32 API. */
-    static FILE* mz_fopen(const char* pFilename, const char* pMode)
-    {
-        wchar_t pMode_w[8];
-        size_t  s = 0;
-        /* Valid pMode only contains ASCII characters; its length should be less than 7 */
-        while (*pMode && s < 7) pMode_w[s++] = (wchar_t)(*pMode++);
-        pMode_w[s] = L'\0';
-        s          = strlen(pFilename); /* reuse variable s*/
-        if (s < 256u) /*very likely*/ {
-            wchar_t pFilename_w[256];
-            mz_utf8_16(pFilename, pFilename_w);
-            return _wfopen(pFilename_w, pMode_w);
-        }
-        else {
-            wchar_t* pFilename_w = (wchar_t*)MZ_MALLOC(s * 2 + 2);
-            if (pFilename_w != NULL) {
-                FILE* pFile;
-                mz_utf8_16(pFilename, pFilename_w);
-                pFile = _wfopen(pFilename_w, pMode_w);
-                MZ_FREE(pFilename_w);
-                return pFile;
-            }
-            else /* unlikely */
-                return fopen(pFilename, pMode);
-        }
-    }
-    static FILE* mz_freopen(const char* pPath, const char* pMode, FILE* pStream)
-    {
-        wchar_t pMode_w[8];
-        size_t  s = 0;
-        /* Valid pMode only contains ASCII characters; its length should be less than 7 */
-        while (*pMode && s < 7) pMode_w[s++] = (wchar_t)(*pMode++);
-        pMode_w[s] = L'\0';
-        s          = strlen(pPath);
-        if (s < 256u) {
-            wchar_t pPath_w[256];
-            mz_utf8_16(pPath, pPath_w);
-            return _wfreopen(pPath_w, pMode_w, pStream);
-        }
-        else {
-            wchar_t* pPath_w = (wchar_t*)MZ_MALLOC(s * 2 + 2);
-            if (pPath_w != NULL) {
-                FILE* pFile;
-                mz_utf8_16(pPath, pPath_w);
-                pFile = _wfreopen(pPath_w, pMode_w, pStream);
-                MZ_FREE(pPath_w);
-                return pFile;
-            }
-            else
-                return freopen(pPath, pMode, pStream);
-        }
-    }
-    static int mz_remove(const char* pFilename)
-    {
-        size_t s = strlen(pFilename);
-        if (s < 256u) {
-            wchar_t pFilename_w[256];
-            mz_utf8_16(pFilename, pFilename_w);
-            return _wremove(pFilename_w);
-        }
-        else {
-            wchar_t* pFilename_w = (wchar_t*)MZ_MALLOC(strlen(pFilename) * 2 + 2);
-            if (pFilename_w != NULL) {
-                int r;
-                mz_utf8_16(pFilename, pFilename_w);
-                r = _wremove(pFilename_w);
-                MZ_FREE(pFilename_w);
-                return r;
-            }
-            else
-                return remove(pFilename);
-        }
-    }
-    static int mz_stat(const char* path, struct _stat* buffer)
-    {
-        size_t s = strlen(path);
-        if (s < 256u) {
-            wchar_t path_w[256];
-            mz_utf8_16(path, path_w);
-            return _wstat(path_w, buffer);
-        }
-        else {
-            wchar_t* path_w = (wchar_t*)MZ_MALLOC(s * 2 + 2);
-            if (path_w != NULL) {
-                int r;
-                mz_utf8_16(path, path_w);
-                r = _wstat(path_w, buffer);
-                MZ_FREE(path_w);
-                return r;
-            }
-            else
-                return _stat(path, buffer);
-        }
-    }
-#endif /*  _WIN32 */
-
 #ifndef MINIZ_NO_ARCHIVE_APIS
 
 #    ifdef __cplusplus
@@ -4712,56 +4542,48 @@ common_exit:
 #    else
 
 #        include <sys/stat.h>
-        // MODIFICATION BY: WCIofQMandRA (Required by OpenXLSX)
+
 #        if defined(_MSC_VER) || defined(__MINGW64__)
-    // static FILE* mz_fopen(const char* pFilename, const char* pMode) //OpenXLSX
-    //{
-    //     FILE* pFile = fopen(pFilename, pMode);
-    //     return pFile;
-    // }
-    // static FILE* mz_freopen(const char* pPath, const char* pMode, FILE* pStream)
-    //{
-    //     FILE* pFile = freopen(pPath, pMode, pStream);
-    //     if (!pFile) return NULL;
-    //     return pFile;
-    // }
+    static FILE* mz_fopen(const char* pFilename, const char* pMode)
+    {
+        FILE* pFile = fopen(pFilename, pMode);
+        return pFile;
+    }
+    static FILE* mz_freopen(const char* pPath, const char* pMode, FILE* pStream)
+    {
+        FILE* pFile = freopen(pPath, pMode, pStream);
+        if (!pFile) return NULL;
+        return pFile;
+    }
 #            ifndef MINIZ_NO_TIME
 #                include <sys/utime.h>
 #            endif
-//#            define MZ_FOPEN mz_fopen
-#            define MZ_FOPEN(f, m) mz_fopen(f, m)    // OpenXLSX
+#            define MZ_FOPEN mz_fopen
 #            define MZ_FCLOSE fclose
 #            define MZ_FREAD fread
 #            define MZ_FWRITE fwrite
 #            define MZ_FTELL64 _ftelli64
 #            define MZ_FSEEK64 _fseeki64
 #            define MZ_FILE_STAT_STRUCT _stat
-//#            define MZ_FILE_STAT _stat
-#            define MZ_FILE_STAT mz_stat
+#            define MZ_FILE_STAT _stat
 #            define MZ_FFLUSH fflush
-//#            define MZ_FREOPEN mz_freopen // OpenXLSX
-//#            define MZ_DELETE_FILE remove // OpenXLSX
-#            define MZ_FREOPEN(f, m, s) mz_freopen(f, m, s)
-#            define MZ_DELETE_FILE mz_remove
+#            define MZ_FREOPEN mz_freopen
+#            define MZ_DELETE_FILE remove
 #        elif defined(__MINGW32__)
 #            ifndef MINIZ_NO_TIME
 #                include <sys/utime.h>
 #            endif
-//#            define MZ_FOPEN(f, m) fopen(f, m) // OpenXLSX
-#            define MZ_FOPEN(f, m) mz_fopen(f, m)
+#            define MZ_FOPEN(f, m) fopen(f, m)
 #            define MZ_FCLOSE fclose
 #            define MZ_FREAD fread
 #            define MZ_FWRITE fwrite
 #            define MZ_FTELL64 ftello64
 #            define MZ_FSEEK64 fseeko64
 #            define MZ_FILE_STAT_STRUCT _stat
-//#            define MZ_FILE_STAT _stat // OpenXLSX
-#            define MZ_FILE_STAT mz_stat
+#            define MZ_FILE_STAT _stat
 #            define MZ_FFLUSH fflush
-//#            define MZ_FREOPEN(f, m, s) freopen(f, m, s) // OpenXLSX
-//#            define MZ_DELETE_FILE remove // OpenXLSX
-#            define MZ_FREOPEN(f, m, s) mz_freopen(f, m, s)
-#            define MZ_DELETE_FILE mz_remove
+#            define MZ_FREOPEN(f, m, s) freopen(f, m, s)
+#            define MZ_DELETE_FILE remove
 #        elif defined(__TINYC__)
 #            ifndef MINIZ_NO_TIME
 #                include <sys/utime.h>
@@ -4798,7 +4620,8 @@ common_exit:
 #                include <utime.h>
 
 #            endif
-#            define MZ_FOPEN(f, m) fopen(f, m)
+
+#            define MZ_FOPEN(f, m) nowide::fopen(f, m)
 #            define MZ_FCLOSE fclose
 #            define MZ_FREAD fread
 #            define MZ_FWRITE fwrite
@@ -4807,8 +4630,8 @@ common_exit:
 #            define MZ_FILE_STAT_STRUCT stat
 #            define MZ_FILE_STAT stat
 #            define MZ_FFLUSH fflush
-#            define MZ_FREOPEN(p, m, s) freopen(p, m, s)
-#            define MZ_DELETE_FILE remove
+#            define MZ_FREOPEN(p, m, s) nowide::freopen(p, m, s)
+#            define MZ_DELETE_FILE nowide::remove
 
 #        else
 #            pragma message("Using fopen, ftello, fseeko, stat() etc. path for file I/O - this path may not support large files.")
@@ -9141,10 +8964,10 @@ handle_failure:
                 if ((pSource_zip->m_pState->m_zip64) || (found_zip64_ext_data_in_ldir)) {
                     /* src is zip64, dest must be zip64 */
 
-                    /* name            uint32_t's */
-                    /* id                1 (optional in zip64?) */
-                    /* crc            1 */
-                    /* comp_size    2 */
+                    /* name			uint32_t's */
+                    /* id				1 (optional in zip64?) */
+                    /* crc			1 */
+                    /* comp_size	2 */
                     /* uncomp_size 2 */
                     if (pSource_zip->m_pRead(pSource_zip->m_pIO_opaque, cur_src_file_ofs, pBuf, (sizeof(mz_uint32) * 6)) !=
                         (sizeof(mz_uint32) * 6)) {
@@ -10565,24 +10388,7 @@ namespace Zippy
         explicit ZipArchive(const std::string& fileName) : m_ArchivePath(fileName)
         {
             // ===== Open file stream
-#ifdef _WIN32
-            std::ifstream f;
-            if(fileName.length() < 256u)//very likely
-            {
-                wchar_t fileName_w[256];
-                mz_utf8_16(fileName.c_str(), fileName_w);
-                f.open(fileName_w);
-            }
-            else
-            {
-                wchar_t *fileName_w=new wchar_t[fileName.length()+1];
-                mz_utf8_16(fileName.c_str(), fileName_w);
-                f.open(fileName_w);
-                delete[] fileName_w;
-            }       
-#else
             std::ifstream f(fileName.c_str());
-#endif
 
             // ===== If successful, continue to open the file.
             if (f.good()) {
@@ -10966,29 +10772,8 @@ namespace Zippy
 
             // ===== Close the current archive, delete the file with input filename (if it exists), rename the temporary and call Open.
             Close();
-            //std::remove(filename.c_str());
-            MZ_DELETE_FILE(filename.c_str());
-#ifdef _WIN32
-            if(tempPath.length()<256u && filename.length()<256u)//very likely
-            {
-                wchar_t tempPath_w[256], filename_w[256];
-                mz_utf8_16(tempPath.c_str(), tempPath_w);
-                mz_utf8_16(filename.c_str(), filename_w);
-                _wrename(tempPath_w, filename_w);
-            }
-            else
-            {
-                wchar_t *tempPath_w = new wchar_t[tempPath.length()+1],
-                    *filename_w = new wchar_t[filename.length()+1];
-                mz_utf8_16(tempPath.c_str(), tempPath_w);
-                mz_utf8_16(filename.c_str(), filename_w);
-                _wrename(tempPath_w, filename_w);
-                delete[] tempPath_w;
-                delete[] filename_w;
-            }
-#else
+            std::remove(filename.c_str());
             std::rename(tempPath.c_str(), filename.c_str());
-#endif
             Open(filename);
         }
 
@@ -11069,25 +10854,7 @@ namespace Zippy
 
             // ===== If the entry is a file, stream the entry data to a file.
             else {
-#ifdef _WIN32
-                std::string fullFileName = dest + "/" + entry.Filename();
-				std::ofstream output;
-				if(fullFileName.length() < 256u)//very likely
-				{
-					wchar_t fullFileName_w[256];
-					mz_utf8_16(fullFileName.c_str(), fullFileName_w);
-					output.open(fullFileName_w, std::ios::binary);
-				}
-				else
-				{
-					wchar_t *fullFileName_w=new wchar_t[fullFileName.length()+1];
-					mz_utf8_16(fullFileName.c_str(), fullFileName_w);
-					output.open(fullFileName_w, std::ios::binary);
-					delete[] fullFileName_w;
-				}
-#else
                 std::ofstream output(dest + "/" + entry.Filename(), std::ios::binary);
-#endif
                 for (auto ch : entry.GetData()) {
                     output << static_cast<unsigned char>(ch);
                 }

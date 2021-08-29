@@ -3,6 +3,9 @@
 #   Define external libraries used by OpenXLSX. The libraries (Zippy and PugiXML) are header-only, so
 #   INTERFACE libraries should be defined.
 #=======================================================================================================================
+add_library(NoWide INTERFACE IMPORTED)
+target_include_directories(NoWide SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/external/nowide/>)
+
 add_library(Zippy INTERFACE IMPORTED)
 target_include_directories(Zippy SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/external/zippy/>)
 
@@ -79,7 +82,7 @@ target_include_directories(OpenXLSX-static
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)     # For export header
-target_link_libraries(OpenXLSX-static PRIVATE Zippy PugiXML)
+target_link_libraries(OpenXLSX-static PRIVATE Zippy PugiXML NoWide)
 target_compile_definitions(OpenXLSX-static PRIVATE OPENXLSX_STATIC_DEFINE)
 
 #=======================================================================================================================
@@ -93,7 +96,7 @@ target_include_directories(OpenXLSX-shared
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)     # For export header
-target_link_libraries(OpenXLSX-shared PRIVATE Zippy PugiXML)
+target_link_libraries(OpenXLSX-shared PRIVATE Zippy PugiXML NoWide)
 
 #=======================================================================================================================
 # GENERATE EXPORT HEADER
