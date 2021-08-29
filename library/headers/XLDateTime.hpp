@@ -43,94 +43,34 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXLSX_XLFORMULA_HPP
-#define OPENXLSX_XLFORMULA_HPP
+
+#ifndef OPENXLSX_XLDATETIME_HPP
+#define OPENXLSX_XLDATETIME_HPP
 
 #pragma warning(push)
 #pragma warning(disable : 4251)
 #pragma warning(disable : 4275)
 
 // ===== External Includes ===== //
-#include <cstdint>
-#include <iostream>
-#include <string>
-#include <variant>
 
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
 #include "XLException.hpp"
-#include "XLXmlParser.hpp"
 
 // ========== CLASS AND ENUM TYPE DEFINITIONS ========== //
 namespace OpenXLSX
 {
-    class OPENXLSX_EXPORT XLFormula
-    {
-    public:
-        XLFormula();
-
-        template<typename T,
-                 typename std::enable_if<std::is_constructible_v<T, char*>>::type* = nullptr>
-        explicit XLFormula(T formula) {
-
-            if constexpr (std::is_same_v<T, const char *>)
-                m_formulaString = formula;
-            else
-                m_formulaString = formula.c_str();
-        }
-
-        XLFormula(const XLFormula& other);
-
-        XLFormula(XLFormula&& other) noexcept;
-
-        ~XLFormula();
-
-        XLFormula& operator=(const XLFormula& other);
-
-        XLFormula& operator=(XLFormula&& other) noexcept;
-
-        template<typename T,
-                 typename std::enable_if<std::is_constructible_v<T, char*>>::type* = nullptr>
-        XLFormula& operator=(T formula) {
-            XLFormula temp(formula);
-            std::swap(*this, temp);
-            return *this;
-        }
-
-        template<typename T,
-                 typename std::enable_if<std::is_constructible_v<T, char*>>::type* = nullptr>
-        void set(T formula) {
-            *this = formula;
-        }
-
-        const std::string& get() const;
-
-        template<typename T,
-                 typename std::enable_if<std::is_constructible_v<T, const char*>>::type* = nullptr>
-        explicit operator T() const {
-            return m_formulaString.c_str();
-        }
-
-        XLFormula& clear();
-
-    private:
-        std::string m_formulaString;
-    };
-
-    class OPENXLSX_EXPORT XLFormulaProxy
+    class OPENXLSX_EXPORT XLDateTime
     {
     public:
 
 
+
     private:
+        double m_serial;
 
 
-        //---------- Private Member Variables ---------- //
-        XLCell*  m_cell;     /**< Pointer to the owning XLCell object. */
-        XMLNode* m_cellNode; /**< Pointer to corresponding XML cell node. */
     };
-
-
 } // namespace OpenXLSX
 
-#endif    // OPENXLSX_XLFORMULA_HPP
+#endif    // OPENXLSX_XLDATETIME_HPP

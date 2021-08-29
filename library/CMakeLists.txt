@@ -52,6 +52,7 @@ set(OPENXLSX_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLColor.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLColumn.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLContentTypes.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLDateTime.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLDocument.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLFormula.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLProperties.cpp

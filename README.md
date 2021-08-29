@@ -258,6 +258,13 @@ worksheet with 1,048,576 rows x 32 columns in compact mode, versus
 
 ### Unicode
 
+By far the most questions I get about OpenXLSX on Github, is related to Unicode.
+It is apparently (and understandably) a source of great confusion for many people.
+
+Early on, I decided that OpenXLSX should focus on the Excel part, and not be a 
+text encoding/conversion utility also. Therefore, **all text input/output to 
+OpenXLSX MUST be in UTF-8 encoding**... Otherwise it won't work as expected.
+
 All string manipulations and usage in OpenXLSX uses the C++ std::string,
 which is encoding agnostic, but can easily be used for UTF-8 encoding.
 Also, Excel uses UTF-8 encoding internally (actually, it might be
