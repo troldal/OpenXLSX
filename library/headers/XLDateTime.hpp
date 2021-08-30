@@ -64,28 +64,69 @@ namespace OpenXLSX
     class OPENXLSX_EXPORT XLDateTime
     {
     public:
+
+        /**
+         * @brief Constructor.
+         */
         XLDateTime();
 
-        XLDateTime(double serial);
+        /**
+         * @brief Constructor taking an Excel time point serial number as an argument.
+         * @param serial Excel time point serial number.
+         */
+        explicit XLDateTime(double serial);
 
-        XLDateTime(const std::tm& timepoint);
+        /**
+         * @brief Constructor taking a std::tm struct as an argument.
+         * @param timepoint A std::tm struct.
+         */
+        explicit XLDateTime(const std::tm& timepoint);
 
+        /**
+         * @brief Copy constructor.
+         * @param other Object to be copied.
+         */
         XLDateTime(const XLDateTime& other);
 
+        /**
+         * @brief Move constructor.
+         * @param other Object to be moved.
+         */
         XLDateTime(XLDateTime&& other) noexcept;
 
+        /**
+         * @brief Destructor
+         */
+        ~XLDateTime();
+
+        /**
+         * @brief Copy assignment operator.
+         * @param other Object to be copied.
+         * @return Reference to the copied-to object.
+         */
         XLDateTime& operator=(const XLDateTime& other);
 
+        /**
+         * @brief Move assignment operator.
+         * @param other Object to be moved.
+         * @return Reference to the moved-to object.
+         */
         XLDateTime& operator=(XLDateTime&& other) noexcept;
 
+        /**
+         * @brief Get the date/time in the form of an Excel date/time serial number.
+         * @return A double with the serial number.
+         */
         double serial() const;
 
+        /**
+         * @brief Get the date/time in the form of a std::tm struct.
+         * @return A std::tm struct with the time point.
+         */
         std::tm timepoint() const;
 
-        int test(int year) const;
-
     private:
-        double m_serial {1.0};
+        double m_serial {1.0}; /**<  */
 
 
     };

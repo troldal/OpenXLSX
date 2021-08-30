@@ -263,7 +263,11 @@ It is apparently (and understandably) a source of great confusion for many peopl
 
 Early on, I decided that OpenXLSX should focus on the Excel part, and not be a 
 text encoding/conversion utility also. Therefore, **all text input/output to 
-OpenXLSX MUST be in UTF-8 encoding**... Otherwise it won't work as expected.
+OpenXLSX MUST be in UTF-8 encoding**... Otherwise it won't work as expected. 
+It may also be necessary that the source code files are saved in UTF-8 format. 
+If, for example, a source file is saved in UTF-16 format, then any string literals
+will also be in UTF-16. So if you have any hard-coded string literals in your source
+code, then the source file **must** also be saved in UTF-8 format.
 
 All string manipulations and usage in OpenXLSX uses the C++ std::string,
 which is encoding agnostic, but can easily be used for UTF-8 encoding.
@@ -272,15 +276,15 @@ possible to use other encodings, but I'm not sure about that).
 
 For the above reason, **if you work with other text encodings, you have
 to convert to/from UTF-8 yourself**. There are a number of options (e.g.
-Boost.Nowide or Boost.Text). I will also suggest that you watch James
-McNellis' presentation at [CppCon 2014](https://youtu.be/n0GK-9f4dl8),
-and read
-[Joel Spolsky's blog](https://www.joelonsoftware.com/2003/10/08/the-absolute-minimum-every-software-developer-absolutely-positively-must-know-about-unicode-and-character-sets-no-excuses/).
+Boost.Nowide or Boost.Text). Internally, OpenXLSX uses Boose.Nowide; it has a number
+of handy features for opening files and converting between std::string and std::wstring
+etc. I will also suggest that you watch James McNellis' presentation at [CppCon 2014](https://youtu.be/n0GK-9f4dl8),
+and read [Joel Spolsky's blog](https://www.joelonsoftware.com/2003/10/08/the-absolute-minimum-every-software-developer-absolutely-positively-must-know-about-unicode-and-character-sets-no-excuses/).
 
 Unicode on Windows is particularly challenging. While UTF-8 is well 
 supported on Linux and MacOS, support on Windows is more limited. For example, 
 output of non-ASCII characters (e.g. Chinese or Japanese characters) to the 
-terminal window will look like gibberish. Sometimes you also have to be mindful 
+terminal window will look like gibberish. As mentioned, sometimes you also have to be mindful 
 of the text encoding of the source files themselves. Some users have had problems
 with OpenXLSX crashing when opening/creating .xlsx files with non-ASCII 
 filenames, where it turned out that the source code for the test program

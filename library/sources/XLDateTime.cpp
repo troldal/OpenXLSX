@@ -8,6 +8,11 @@
 
 namespace {
 
+    /**
+     * @brief
+     * @param year
+     * @return
+     */
     bool isLeapYear(int year) {
 
         if (year == 1900) return true;
@@ -16,6 +21,12 @@ namespace {
         return false;
     }
 
+    /**
+     * @brief
+     * @param month
+     * @param year
+     * @return
+     */
     int daysInMonth(int month, int year) {
         switch (month) {
             case 1:
@@ -44,7 +55,6 @@ namespace {
                 return 31;
             default:
                 return 0;
-                //throw OpenXLSX::XLException("Invalid month. Cannot be higher than 12");
         }
     }
 
@@ -52,13 +62,22 @@ namespace {
 
 namespace OpenXLSX
 {
+    /**
+     * @details Conctructor. Default implementation.
+     */
     XLDateTime::XLDateTime() = default;
 
-    XLDateTime::XLDateTime(double serial) : m_serial(serial) {}
+    /**
+     * @details
+     */
+    XLDateTime::XLDateTime(double serial) : m_serial(serial) {
+        if (serial < 1.0) throw XLDateTimeError("Excel date/time serial number is invalid (must be >= 1.0.");
+    }
 
+    /**
+     * @details
+     */
     XLDateTime::XLDateTime(const tm& timepoint) {
-
-        m_serial = 1;
 
         for (int i = 0; i < timepoint.tm_year; ++i) {
             m_serial += (isLeapYear(1900 + i) ? 366 : 365);
@@ -68,28 +87,51 @@ namespace OpenXLSX
             m_serial += daysInMonth(i + 1, timepoint.tm_year + 1900);
         }
 
-        m_serial += timepoint.tm_mday;
+        m_serial += timepoint.tm_mday - 1;
 
         uint32_t seconds = timepoint.tm_hour * 3600 + timepoint.tm_min * 60 + timepoint.tm_sec;
         m_serial += seconds / 86400.0;
     }
 
+    /**
+     * @details Copy constructor. Default implementation.
+     */
     XLDateTime::XLDateTime(const XLDateTime& other) = default;
 
+    /**
+     * @details Move constructor. Default implementation.
+     */
     XLDateTime::XLDateTime(XLDateTime&& other) noexcept = default;
 
+    /**
+     * @details Destructor. Default implementation.
+     */
+    XLDateTime::~XLDateTime() = default;
+
+    /**
+     * @details Copy assignment operator. Default implementation.
+     */
     XLDateTime& XLDateTime::operator=(const XLDateTime& other) = default;
 
+    /**
+     * @details Move assignment operator. Default implementation.
+     */
     XLDateTime& XLDateTime::operator=(XLDateTime&& other) noexcept = default;
 
+    /**
+     * @details
+     */
     double XLDateTime::serial() const
     {
         return m_serial;
     }
 
+    /**
+     * @details
+     */
     std::tm XLDateTime::timepoint() const
     {
-        std::tm tp;
+        std::tm tp {};
         tp.tm_year = 0;
         tp.tm_mon = 0;
         tp.tm_mday = 0;
@@ -123,18 +165,7 @@ namespace OpenXLSX
 
         tp.tm_sec = static_cast<int>(serial * 24 * 60 * 60);
 
-        std::cout << tp.tm_year  + 1900 << std::endl;
-        std::cout << tp.tm_mon << std::endl;
-        std::cout << tp.tm_mday << std::endl;
-        std::cout << tp.tm_hour << std::endl;
-        std::cout << tp.tm_min << std::endl;
-        std::cout << tp.tm_sec << std::endl;
-
         return tp;
     }
 
-    int XLDateTime::test(int year) const
-    {
-        return (isLeapYear(year) ? 366 : 365);
-    }
 }
