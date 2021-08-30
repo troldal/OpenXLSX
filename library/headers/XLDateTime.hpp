@@ -52,6 +52,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #pragma warning(disable : 4275)
 
 // ===== External Includes ===== //
+#include <ctime>
 
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
@@ -63,11 +64,28 @@ namespace OpenXLSX
     class OPENXLSX_EXPORT XLDateTime
     {
     public:
+        XLDateTime();
 
+        XLDateTime(double serial);
 
+        XLDateTime(const std::tm& timepoint);
+
+        XLDateTime(const XLDateTime& other);
+
+        XLDateTime(XLDateTime&& other) noexcept;
+
+        XLDateTime& operator=(const XLDateTime& other);
+
+        XLDateTime& operator=(XLDateTime&& other) noexcept;
+
+        double serial() const;
+
+        std::tm timepoint() const;
+
+        int test(int year) const;
 
     private:
-        double m_serial;
+        double m_serial {1.0};
 
 
     };

@@ -15,6 +15,7 @@ target_sources(OpenXLSXTests
                testXLCell.cpp
                testXLCellValue.cpp
                testXLCellValueProxy.cpp
+               testXLDateTime.cpp
                testXLFormula.cpp
                )
 
