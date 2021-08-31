@@ -58,6 +58,16 @@ namespace {
         }
     }
 
+    /**
+     * @brief
+     * @param serial
+     * @return
+     */
+    int dayOfWeek(double serial) {
+        auto day = static_cast<int32_t>(serial) % 7;
+        return (day == 0 ? 6 : day - 1);
+    }
+
 } // namespace
 
 namespace OpenXLSX
@@ -68,28 +78,44 @@ namespace OpenXLSX
     XLDateTime::XLDateTime() = default;
 
     /**
-     * @details
+     * @details Constructor taking an Excel date/time serial number as an argument.
      */
     XLDateTime::XLDateTime(double serial) : m_serial(serial) {
         if (serial < 1.0) throw XLDateTimeError("Excel date/time serial number is invalid (must be >= 1.0.");
     }
 
     /**
-     * @details
+     * @details Constructor taking a std::tm object as an argument.
      */
-    XLDateTime::XLDateTime(const tm& timepoint) {
+    XLDateTime::XLDateTime(const std::tm& timepoint) {
 
+        // ===== Check validity of tm struct.
+        // ===== Only year, month and day of the month are checked. Other variables are ignored.
+        if (timepoint.tm_year < 0)
+            throw XLDateTimeError("Invalid year. Must be >= 0.");
+        if (timepoint.tm_mon < 0 || timepoint.tm_mon > 11)
+            throw XLDateTimeError("Invalid month. Must be >= 0 or <= 11.");
+        if (timepoint.tm_mday <= 0 || timepoint.tm_mday > daysInMonth(timepoint.tm_mon + 1, timepoint.tm_year + 1900))
+            throw XLDateTimeError("Invalid day. Must be >= 1 or <= total days in the month.");
+
+        // ===== Count the number of days for full years past 1900
         for (int i = 0; i < timepoint.tm_year; ++i) {
             m_serial += (isLeapYear(1900 + i) ? 366 : 365);
         }
 
+        // ===== Count the number of days for full months of the last year
         for (int i = 0; i < timepoint.tm_mon; ++i) {
             m_serial += daysInMonth(i + 1, timepoint.tm_year + 1900);
         }
 
+        // ===== Add the number of days of the month, minus one.
+        // ===== (The reason for the 'minus one' is that unlike the other fields in the struct,
+        // ===== tm_day represents the date of a month, whereas the other fields typically
+        // ===== represents the number of whole units since the start).
         m_serial += timepoint.tm_mday - 1;
 
-        uint32_t seconds = timepoint.tm_hour * 3600 + timepoint.tm_min * 60 + timepoint.tm_sec;
+        // ===== Convert hour, minute and second to fraction of a full day.
+        int32_t seconds = timepoint.tm_hour * 3600 + timepoint.tm_min * 60 + timepoint.tm_sec;
         m_serial += seconds / 86400.0;
     }
 
@@ -121,51 +147,93 @@ namespace OpenXLSX
     /**
      * @details
      */
+    XLDateTime& XLDateTime::operator=(double serial)
+    {
+        XLDateTime temp(serial);
+        std::swap(*this, temp);
+        return *this;
+    }
+
+    /**
+     * @details
+     */
+    XLDateTime& XLDateTime::operator=(const std::tm& timepoint)
+    {
+        XLDateTime temp(timepoint);
+        std::swap(*this, temp);
+        return *this;
+    }
+
+    /**
+     * @details
+     */
+    XLDateTime::operator std::tm() const
+    {
+        return tm();
+    }
+
+    /**
+     * @details Get the time point as an Excel date/time serial number.
+     */
     double XLDateTime::serial() const
     {
         return m_serial;
     }
 
     /**
-     * @details
+     * @details Get the time point as a std::tm object.
      */
-    std::tm XLDateTime::timepoint() const
+    std::tm XLDateTime::tm() const
     {
-        std::tm tp {};
-        tp.tm_year = 0;
-        tp.tm_mon = 0;
-        tp.tm_mday = 0;
-        tp.tm_hour = 0;
-        tp.tm_min = 0;
-        tp.tm_sec = 0;
+        // ===== Create and initialize the resulting object.
+        std::tm result {};
+        result.tm_year = 0;
+        result.tm_mon = 0;
+        result.tm_mday = 0;
+        result.tm_wday = 0;
+        result.tm_yday = 0;
+        result.tm_hour = 0;
+        result.tm_min = 0;
+        result.tm_sec = 0;
+        result.tm_isdst = -1;
         double serial = m_serial;
 
+        // ===== Count the number of whole years since 1900.
         while (true) {
-            auto days = (isLeapYear(tp.tm_year + 1900) ? 366 : 365);
+            auto days = (isLeapYear(result.tm_year + 1900) ? 366 : 365);
             if (days > serial) break;
             serial -= days;
-            ++tp.tm_year;
+            ++result.tm_year;
         }
 
+        // ===== Calculate the day of the year, and the day of the week
+        result.tm_yday = static_cast<int>(serial);
+        result.tm_wday = dayOfWeek(m_serial);
+
+        // ===== Count the number of whole months in the year.
         while (true) {
-            auto days = daysInMonth(tp.tm_mon + 1, 1900 + tp.tm_year);
+            auto days = daysInMonth(result.tm_mon + 1, 1900 + result.tm_year);
             if (days > serial) break;
             serial -= days;
-            ++tp.tm_mon;
+            ++result.tm_mon;
         }
 
-        tp.tm_mday = static_cast<int>(serial);
-        serial -= tp.tm_mday;
+        // ===== Calculate the number of days.
+        result.tm_mday = static_cast<int>(serial);
+        serial -= result.tm_mday;
 
-        tp.tm_hour = static_cast<int>(serial * 24);
-        serial -= (tp.tm_hour / 24.0);
+        // ===== Calculate the number of hours.
+        result.tm_hour = static_cast<int>(serial * 24);
+        serial -= (result.tm_hour / 24.0);
 
-        tp.tm_min = static_cast<int>(serial * 24 * 60);
-        serial -= (tp.tm_min / (24.0 * 60.0));
+        // ===== Calculate the number of minutes.
+        result.tm_min = static_cast<int>(serial * 24 * 60);
+        serial -= (result.tm_min / (24.0 * 60.0));
 
-        tp.tm_sec = static_cast<int>(serial * 24 * 60 * 60);
+        // ===== Calculate the number of seconds.
+        result.tm_sec = static_cast<int>(serial * 24 * 60 * 60);
 
-        return tp;
+        return result;
     }
 
-}
+} // namespace OpenXLSX

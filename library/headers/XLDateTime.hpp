@@ -114,6 +114,38 @@ namespace OpenXLSX
         XLDateTime& operator=(XLDateTime&& other) noexcept;
 
         /**
+         * @brief Assignment operator taking an Excel date/time serial number as an argument.
+         * @param serial A floating point value with the serial number.
+         * @return Reference to the copied-to object.
+         */
+        XLDateTime& operator=(double serial);
+
+        /**
+         * @brief Assignment operator taking a std::tm object as an argument.
+         * @param timepoint std::tm object with the time point
+         * @return Reference to the copied-to object.
+         */
+        XLDateTime& operator=(const std::tm& timepoint);
+
+        /**
+         * @brief Implicit conversion to Excel date/time serial number (any floating point type).
+         * @tparam T Type to convert to (any floating point type).
+         * @return Excel date/time serial number.
+         */
+        template<typename T,
+                 typename std::enable_if<std::is_floating_point_v<T> >::type* = nullptr>
+        operator T() const // NOLINT
+        {
+            return serial();
+        }
+
+        /**
+         * @brief Implicit conversion to std::tm object.
+         * @return std::tm object.
+         */
+        operator std::tm() const; // NOLINT
+
+        /**
          * @brief Get the date/time in the form of an Excel date/time serial number.
          * @return A double with the serial number.
          */
@@ -123,7 +155,7 @@ namespace OpenXLSX
          * @brief Get the date/time in the form of a std::tm struct.
          * @return A std::tm struct with the time point.
          */
-        std::tm timepoint() const;
+        std::tm tm() const;
 
     private:
         double m_serial {1.0}; /**<  */
