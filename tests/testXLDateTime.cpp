@@ -15,9 +15,8 @@ TEST_CASE("XLDateTime Tests", "[XLFormula]")
     SECTION("Conversion")
     {
         XLDateTime dt1(1.5);
-        XLDateTime dt2(dt1.timepoint());
+        XLDateTime dt2(dt1.tm());
         REQUIRE(dt2.serial() == Approx(1.5));
-
     }
 }
 
