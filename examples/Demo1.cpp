@@ -71,7 +71,7 @@ int main()
     // other cell properties of the target cell remain unchanged.
     wks.cell("E1").value() = wks.cell(XLCellReference("C1")).value();
     XLCellValue E1 = wks.cell("E1").value();
-    cout << "Cell F1: (" << E1.typeAsString() << ") " << E1.get<std::string_view>() << endl << endl;
+    cout << "Cell E1: (" << E1.typeAsString() << ") " << E1.get<std::string_view>() << endl << endl;
 
     // Date/time values is a special case. In Excel, date/time values are essentially just a
     // 64-bit floating point value, that is rendered as a date/time string using special
@@ -108,7 +108,7 @@ int main()
 
     // Using the .tm() method, the corresponding std::tm object can be retrieved.
     auto tmo = result.tm();
-    cout << "Cell E1: (" << F1.typeAsString() << ") " << std::asctime(&tmo);
+    cout << "Cell F1: (" << F1.typeAsString() << ") " << std::asctime(&tmo);
 
     doc.save();
 
