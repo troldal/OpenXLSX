@@ -222,7 +222,7 @@ namespace OpenXLSX
      */
     uint64_t XLRow::rowNumber() const
     {
-        return static_cast<uint64_t>(m_rowNode->attribute("r").as_ullong());
+        return m_rowNode->attribute("r").as_ullong();
     }
 
     /**

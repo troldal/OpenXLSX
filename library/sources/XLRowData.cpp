@@ -409,7 +409,7 @@ namespace OpenXLSX
         auto src   = values.begin();
 
         while (true) {
-            dst->value() = static_cast<bool>(*src);
+            dst->value() = bool(*src);
             ++src;
             if (src == values.end()) break;
             ++dst;
