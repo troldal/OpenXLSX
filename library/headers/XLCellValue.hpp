@@ -248,7 +248,7 @@ namespace OpenXLSX
         template<typename T,
                  typename std::enable_if<std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_constructible_v<T, char*> ||
                      std::is_same_v<T, XLDateTime> >::type* = nullptr>
-        explicit operator T() const
+        operator T() const
         {
             return this->get<T>();
         }
@@ -425,6 +425,19 @@ namespace OpenXLSX
          * @return An XLCellValue object, corresponding to the cell value.
          */
         operator XLCellValue();    // NOLINT
+
+        /**
+         * @brief
+         * @tparam T
+         * @return
+         */
+        template<typename T,
+                 typename std::enable_if<std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_constructible_v<T, char*> ||
+                                         std::is_same_v<T, XLDateTime> >::type* = nullptr>
+        operator T() const
+        {
+            return getValue().get<T>();
+        }
 
     private:
         //---------- Private Member Functions ---------- //
