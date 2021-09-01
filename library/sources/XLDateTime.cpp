@@ -207,7 +207,7 @@ namespace OpenXLSX
         }
 
         // ===== Calculate the day of the year, and the day of the week
-        result.tm_yday = static_cast<int>(serial);
+        result.tm_yday = static_cast<int>(serial) - 1;
         result.tm_wday = dayOfWeek(m_serial);
 
         // ===== Count the number of whole months in the year.
