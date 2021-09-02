@@ -501,7 +501,7 @@ void XLWorksheet::updateSheetName(const std::string& oldName, const std::string&
         for (auto& cell : row.children()) {
             if (!XLCell(cell, nullptr).hasFormula()) continue;
 
-            formula = XLCell(cell, nullptr).formula();
+            formula = XLCell(cell, nullptr).formula().get();
 
             // ===== Skip if formula contains a '[' and ']' (means that the defined refers to external workbook)
             if (formula.find('[') == std::string::npos && formula.find(']') == std::string::npos) {
@@ -509,7 +509,7 @@ void XLWorksheet::updateSheetName(const std::string& oldName, const std::string&
                 while (formula.find(oldNameTemp) != std::string::npos) {
                     formula.replace(formula.find(oldNameTemp), oldNameTemp.length(), newNameTemp);
                 }
-                XLCell(cell, nullptr).setFormula(formula);
+                XLCell(cell, nullptr).formula() = formula;
             }
         }
     }

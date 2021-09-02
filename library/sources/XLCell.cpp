@@ -55,7 +55,10 @@ using namespace OpenXLSX;
 /**
  * @details
  */
-XLCell::XLCell() : m_cellNode(nullptr), m_sharedStrings(nullptr), m_valueProxy(XLCellValueProxy(this, m_cellNode.get())) {}
+XLCell::XLCell() : m_cellNode(nullptr),
+                   m_sharedStrings(nullptr),
+                   m_valueProxy(XLCellValueProxy(this, m_cellNode.get())),
+                   m_formulaProxy(XLFormulaProxy(this, m_cellNode.get())){}
 
 /**
  * @details This constructor creates a XLCell object based on the cell XMLNode input parameter, and is
@@ -66,7 +69,8 @@ XLCell::XLCell() : m_cellNode(nullptr), m_sharedStrings(nullptr), m_valueProxy(X
 XLCell::XLCell(const XMLNode& cellNode, XLSharedStrings* sharedStrings)
     : m_cellNode(std::make_unique<XMLNode>(cellNode)),
       m_sharedStrings(sharedStrings),
-      m_valueProxy(XLCellValueProxy(this, m_cellNode.get()))
+      m_valueProxy(XLCellValueProxy(this, m_cellNode.get())),
+      m_formulaProxy(XLFormulaProxy(this, m_cellNode.get()))
 {}
 
 /**
@@ -75,7 +79,8 @@ XLCell::XLCell(const XMLNode& cellNode, XLSharedStrings* sharedStrings)
 XLCell::XLCell(const XLCell& other)
     : m_cellNode(other.m_cellNode ? std::make_unique<XMLNode>(*other.m_cellNode) : nullptr),
       m_sharedStrings(other.m_sharedStrings),
-      m_valueProxy(XLCellValueProxy(this, m_cellNode.get()))
+      m_valueProxy(XLCellValueProxy(this, m_cellNode.get())),
+      m_formulaProxy(XLFormulaProxy(this, m_cellNode.get()))
 {}
 
 /**
@@ -84,7 +89,8 @@ XLCell::XLCell(const XLCell& other)
 XLCell::XLCell(XLCell&& other) noexcept
     : m_cellNode(std::move(other.m_cellNode)),
       m_sharedStrings(other.m_sharedStrings),
-      m_valueProxy(XLCellValueProxy(this, m_cellNode.get()))
+      m_valueProxy(XLCellValueProxy(this, m_cellNode.get())),
+      m_formulaProxy(XLFormulaProxy(this, m_cellNode.get()))
 {}
 
 /**
@@ -167,25 +173,37 @@ bool XLCell::hasFormula() const
     return m_cellNode->child("f") != nullptr;
 }
 
+XLFormulaProxy& XLCell::formula()
+{
+    if (!*this) throw XLInternalError("XLCell object has not been properly initiated.");
+    return m_formulaProxy;
+}
+
+const XLFormulaProxy& XLCell::formula() const
+{
+    if (!*this) throw XLInternalError("XLCell object has not been properly initiated.");
+    return m_formulaProxy;
+}
+
 /**
  * @details
  */
-std::string XLCell::formula() const
-{
-    if (!*this) throw XLInternalError("XLCell object has not been properly initiated.");
-    return m_cellNode->child("f").text().get();
-}
+//std::string XLCell::formula() const
+//{
+//    if (!*this) throw XLInternalError("XLCell object has not been properly initiated.");
+//    return m_cellNode->child("f").text().get();
+//}
 
 /**
  * @details
  * @pre
  * @post
  */
-void XLCell::setFormula(const std::string& newFormula)
-{
-    if (!*this) throw XLInternalError("XLCell object has not been properly initiated.");
-    m_cellNode->child("f").text().set(newFormula.c_str());
-}
+//void XLCell::setFormula(const std::string& newFormula)
+//{
+//    if (!*this) throw XLInternalError("XLCell object has not been properly initiated.");
+//    m_cellNode->child("f").text().set(newFormula.c_str());
+//}
 
 /**
  * @details

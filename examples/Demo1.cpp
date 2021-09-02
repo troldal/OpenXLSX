@@ -110,6 +110,8 @@ int main()
     auto tmo = result.tm();
     cout << "Cell F1: (" << F1.typeAsString() << ") " << std::asctime(&tmo);
 
+    wks.cell("A2").formula() = "SQRT(2)";
+
     doc.save();
 
     return 0;

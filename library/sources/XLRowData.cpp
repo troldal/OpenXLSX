@@ -81,8 +81,8 @@ namespace OpenXLSX
      */
     XLRowDataIterator::XLRowDataIterator(const XLRowDataIterator& other)
         : m_dataRange(std::make_unique<XLRowDataRange>(*other.m_dataRange)),
-          m_currentCell(other.m_currentCell),
-          m_cellNode(std::make_unique<XMLNode>(*other.m_cellNode))
+          m_cellNode(std::make_unique<XMLNode>(*other.m_cellNode)),
+          m_currentCell(other.m_currentCell)
     {}
 
     /**
@@ -409,7 +409,7 @@ namespace OpenXLSX
         auto src   = values.begin();
 
         while (true) {
-            dst->value() = bool(*src);
+            dst->value() = static_cast<bool>(*src);
             ++src;
             if (src == values.end()) break;
             ++dst;

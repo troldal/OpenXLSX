@@ -58,18 +58,39 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
-#include "XLCell.hpp"
 #include "XLException.hpp"
 #include "XLXmlParser.hpp"
 
 // ========== CLASS AND ENUM TYPE DEFINITIONS ========== //
 namespace OpenXLSX
 {
+    //---------- Forward Declarations ----------//
+    class XLFormulaProxy;
+    class XLCell;
+
+    /**
+     * @brief
+     */
     class OPENXLSX_EXPORT XLFormula
     {
+        //---------- Friend Declarations ----------//
+
+        friend bool          operator==(const XLFormula& lhs, const XLFormula& rhs);
+        friend bool          operator!=(const XLFormula& lhs, const XLFormula& rhs);
+        friend std::ostream& operator<<(std::ostream& os, const XLFormula& value);
+
     public:
+
+        /**
+         * @brief
+         */
         XLFormula();
 
+        /**
+         * @brief
+         * @tparam T
+         * @param formula
+         */
         template<typename T,
                  typename std::enable_if<std::is_constructible_v<T, char*>>::type* = nullptr>
         explicit XLFormula(T formula) {
@@ -80,16 +101,43 @@ namespace OpenXLSX
                 m_formulaString = formula.c_str();
         }
 
+        /**
+         * @brief
+         * @param other
+         */
         XLFormula(const XLFormula& other);
 
+        /**
+         * @brief
+         * @param other
+         */
         XLFormula(XLFormula&& other) noexcept;
 
+        /**
+         * @brief
+         */
         ~XLFormula();
 
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
         XLFormula& operator=(const XLFormula& other);
 
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
         XLFormula& operator=(XLFormula&& other) noexcept;
 
+        /**
+         * @brief
+         * @tparam T
+         * @param formula
+         * @return
+         */
         template<typename T,
                  typename std::enable_if<std::is_constructible_v<T, char*>>::type* = nullptr>
         XLFormula& operator=(T formula) {
@@ -98,40 +146,207 @@ namespace OpenXLSX
             return *this;
         }
 
+        /**
+         * @brief
+         * @tparam T
+         * @param formula
+         */
         template<typename T,
                  typename std::enable_if<std::is_constructible_v<T, char*>>::type* = nullptr>
         void set(T formula) {
             *this = formula;
         }
 
-        const std::string& get() const;
+        /**
+         * @brief
+         * @return
+         */
+        std::string get() const;
 
+        /**
+         * @brief
+         * @tparam T
+         * @return
+         */
         template<typename T,
                  typename std::enable_if<std::is_constructible_v<T, const char*>>::type* = nullptr>
-        explicit operator T() const {
+        operator T() const {
             return m_formulaString.c_str();
         }
 
+        /**
+         * @brief
+         * @return
+         */
         XLFormula& clear();
 
     private:
-        std::string m_formulaString;
+        std::string m_formulaString; /**< */
     };
 
+    /**
+     * @brief
+     */
     class OPENXLSX_EXPORT XLFormulaProxy
     {
+        friend class XLCell;
+        friend class XLFormula;
+
     public:
 
+        /**
+         * @brief
+         */
+        ~XLFormulaProxy();
+
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
+        XLFormulaProxy& operator=(const XLFormulaProxy& other);
+
+        /**
+         * @brief
+         * @tparam T
+         * @param formula
+         * @return
+         */
+        template<typename T,
+                 typename std::enable_if<std::is_same_v<T, XLFormula> || std::is_constructible_v<T, const char*>>::type* = nullptr>
+        XLFormulaProxy& operator=(T formula) {
+
+            if constexpr (std::is_same_v<T, XLFormula>)
+                setFormulaString(formula.get().c_str());
+            else if constexpr (std::is_same_v<T, const char*>)
+                setFormulaString(formula);
+            else
+                setFormulaString(formula.c_str());
+
+            return *this;
+        }
+
+        /**
+         * @brief
+         * @tparam T
+         * @param formula
+         */
+        template<typename T,
+                 typename std::enable_if<std::is_constructible_v<T, char*>>::type* = nullptr>
+        void set(T formula) {
+            *this = formula;
+        }
+
+        /**
+         * @brief
+         * @return
+         */
+        std::string get() const;
+
+        /**
+         * @brief
+         * @tparam T
+         * @return
+         */
+        template<typename T,
+                 typename std::enable_if<std::is_constructible_v<T, const char*>>::type* = nullptr>
+        operator T() const {
+            return get().c_str();
+        }
+
+        /**
+         * @brief
+         * @return
+         */
+        XLFormulaProxy& clear();
+
+        /**
+         * @brief
+         * @return
+         */
+        operator XLFormula();    // NOLINT
 
     private:
 
+        /**
+         * @brief
+         * @param cell
+         * @param cellNode
+         */
+        XLFormulaProxy(XLCell* cell, XMLNode* cellNode);
+
+        /**
+         * @brief
+         * @param other
+         */
+        XLFormulaProxy(const XLFormulaProxy& other);
+
+        /**
+         * @brief
+         * @param other
+         */
+        XLFormulaProxy(XLFormulaProxy&& other) noexcept;
+
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
+        XLFormulaProxy& operator=(XLFormulaProxy&& other) noexcept;
+
+        /**
+         * @brief
+         * @param formulaString
+         */
+        void setFormulaString(const char* formulaString);
+
+        /**
+         * @brief
+         * @return
+         */
+        XLFormula getFormula() const;
 
         //---------- Private Member Variables ---------- //
         XLCell*  m_cell;     /**< Pointer to the owning XLCell object. */
         XMLNode* m_cellNode; /**< Pointer to corresponding XML cell node. */
     };
-
-
 } // namespace OpenXLSX
+
+// ========== FRIEND FUNCTION IMPLEMENTATIONS ========== //
+namespace OpenXLSX
+{
+    /**
+     * @brief
+     * @param lhs
+     * @param rhs
+     * @return
+     */
+    inline bool operator==(const XLFormula& lhs, const XLFormula& rhs)
+    {
+        return lhs.m_formulaString == rhs.m_formulaString;
+    }
+
+    /**
+     * @brief
+     * @param lhs
+     * @param rhs
+     * @return
+     */
+    inline bool operator!=(const XLFormula& lhs, const XLFormula& rhs)
+    {
+        return lhs.m_formulaString != rhs.m_formulaString;
+    }
+
+    /**
+     * @brief
+     * @param os
+     * @param value
+     * @return
+     */
+    inline std::ostream& operator<<(std::ostream& os, const XLFormula& value)
+    {
+        return os << value.m_formulaString;
+    }
+}    // namespace OpenXLSX
 
 #endif    // OPENXLSX_XLFORMULA_HPP

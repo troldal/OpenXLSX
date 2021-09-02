@@ -56,6 +56,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "OpenXLSX-Exports.hpp"
 #include "XLCellReference.hpp"
 #include "XLCellValue.hpp"
+#include "XLFormula.hpp"
 
 // ========== CLASS AND ENUM TYPE DEFINITIONS ========== //
 namespace OpenXLSX
@@ -170,19 +171,24 @@ namespace OpenXLSX
          * @brief
          * @return
          */
-        std::string formula() const;
+//        std::string formula() const;
+
+        XLFormulaProxy& formula();
+
+        const XLFormulaProxy& formula() const;
 
         /**
          * @brief
          * @param newFormula
          */
-        void setFormula(const std::string& newFormula);
+//        void setFormula(const std::string& newFormula);
 
     private:
         //---------- Private Member Variables ---------- //
         std::unique_ptr<XMLNode> m_cellNode;      /**< A pointer to the root XMLNode for the cell. */
         XLSharedStrings*         m_sharedStrings; /**< */
         XLCellValueProxy         m_valueProxy;    /**< */
+        XLFormulaProxy           m_formulaProxy; /**< */
     };
 
 }    // namespace OpenXLSX

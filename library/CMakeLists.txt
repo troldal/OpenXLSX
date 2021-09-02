@@ -118,8 +118,7 @@ list(APPEND OPENXLSX_DEBUG_FLAGS_GNU
      "-Wduplicated-cond"
      "-Wduplicated-branches"
      "-Wlogical-op"
-     "-Wnull-dereference"
-     "-Wuseless-cast")
+     "-Wnull-dereference")
 list(APPEND OPENXLSX_DEBUG_FLAGS_GNUCLANG
      "-Wall"
      "-Wextra"
