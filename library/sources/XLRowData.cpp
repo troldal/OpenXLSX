@@ -461,7 +461,7 @@ namespace OpenXLSX
         // ===== Determine the number of cells in the current row. Create a std::vector of the same size.
         auto numCells =
             (m_rowNode->last_child() == XMLNode() ? 0 : XLCellReference(m_rowNode->last_child().attribute("r").value()).column());
-        std::vector<XLCellValue> result(static_cast<unsigned long>(numCells));
+        std::vector<XLCellValue> result(static_cast<uint64_t>(numCells));
 
         // ===== If there are one or more cells in the current row, iterate through them and add the value to the container.
         if (numCells > 0) {
