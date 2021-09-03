@@ -69,7 +69,12 @@ namespace OpenXLSX
     class XLCell;
 
     /**
-     * @brief
+     * @brief The XLFormula class encapsulates the concept of an Excel formula. The class is essentially
+     * a wrapper around a std::string.
+     * @warning This class currently only supports simple formulas. Array formulas and shared formulas are
+     * not supported. Unfortunately, many spreadsheets have shared formulas, so this class is probably
+     * best used for adding formulas, not reading them from an existing spreadsheet.
+     * @todo Enable handling of shared and array formulas.
      */
     class OPENXLSX_EXPORT XLFormula
     {
@@ -82,19 +87,20 @@ namespace OpenXLSX
     public:
 
         /**
-         * @brief
+         * @brief Constructor
          */
         XLFormula();
 
         /**
-         * @brief
-         * @tparam T
-         * @param formula
+         * @brief Constructor, taking a string-type argument
+         * @tparam T Type of argument used. Must be string-type.
+         * @param formula The formula to initialize the object with.
          */
         template<typename T,
                  typename std::enable_if<std::is_constructible_v<T, char*>>::type* = nullptr>
         explicit XLFormula(T formula) {
 
+            // ===== If the argument is a const char *, use the argument directly; otherwise, assume it has a .c_str() function.
             if constexpr (std::is_same_v<T, const char *>)
                 m_formulaString = formula;
             else
@@ -102,41 +108,41 @@ namespace OpenXLSX
         }
 
         /**
-         * @brief
-         * @param other
+         * @brief Copy constructor.
+         * @param other Object to be copied.
          */
         XLFormula(const XLFormula& other);
 
         /**
-         * @brief
-         * @param other
+         * @brief Move constructor.
+         * @param other Object to be moved.
          */
         XLFormula(XLFormula&& other) noexcept;
 
         /**
-         * @brief
+         * @brief Destructor.
          */
         ~XLFormula();
 
         /**
-         * @brief
-         * @param other
-         * @return
+         * @brief Copy assignment operator.
+         * @param other Object to be copied.
+         * @return Reference to copied-to object.
          */
         XLFormula& operator=(const XLFormula& other);
 
         /**
-         * @brief
-         * @param other
-         * @return
+         * @brief Move assignment operator.
+         * @param other Object to be moved.
+         * @return Reference to moved-to object.
          */
         XLFormula& operator=(XLFormula&& other) noexcept;
 
         /**
-         * @brief
-         * @tparam T
-         * @param formula
-         * @return
+         * @brief Templated assignment operator, taking a string-type object as an argument.
+         * @tparam T Type of argument (only string-types are allowed).
+         * @param formula String containing the formula.
+         * @return Reference to the assigned-to object.
          */
         template<typename T,
                  typename std::enable_if<std::is_constructible_v<T, char*>>::type* = nullptr>
@@ -147,9 +153,9 @@ namespace OpenXLSX
         }
 
         /**
-         * @brief
-         * @tparam T
-         * @param formula
+         * @brief Templated setter function, taking a string-type object as an argument.
+         * @tparam T Type of argument (only string-types are allowed).
+         * @param formula String containing the formula.
          */
         template<typename T,
                  typename std::enable_if<std::is_constructible_v<T, char*>>::type* = nullptr>
@@ -158,15 +164,15 @@ namespace OpenXLSX
         }
 
         /**
-         * @brief
-         * @return
+         * @brief Get the forumla as a std::string.
+         * @return A std::string with the formula.
          */
         std::string get() const;
 
         /**
-         * @brief
-         * @tparam T
-         * @return
+         * @brief Templated conversion operator, for converting object to a string-type object.
+         * @tparam T Type to convert to.
+         * @return The formula as the desired string-type.
          */
         template<typename T,
                  typename std::enable_if<std::is_constructible_v<T, const char*>>::type* = nullptr>
@@ -175,17 +181,18 @@ namespace OpenXLSX
         }
 
         /**
-         * @brief
-         * @return
+         * @brief Clear the formula.
+         * @return Return a reference to the cleared object.
          */
         XLFormula& clear();
 
     private:
-        std::string m_formulaString; /**< */
+        std::string m_formulaString; /**< A std::string, holding the formula string.*/
     };
 
     /**
-     * @brief
+     * @brief The XLFormulaProxy serves as a placeholder for XLFormula objects. This enable
+     * getting and setting formulas through the same interface.
      */
     class OPENXLSX_EXPORT XLFormulaProxy
     {
@@ -195,22 +202,22 @@ namespace OpenXLSX
     public:
 
         /**
-         * @brief
+         * @brief Destructor
          */
         ~XLFormulaProxy();
 
         /**
-         * @brief
-         * @param other
-         * @return
+         * @brief Copy assignment operator.
+         * @param other Object to be copied.
+         * @return A reference to the copied-to object.
          */
         XLFormulaProxy& operator=(const XLFormulaProxy& other);
 
         /**
-         * @brief
-         * @tparam T
-         * @param formula
-         * @return
+         * @brief Templated assignment operator, taking a string-type argument.
+         * @tparam T Type of argument.
+         * @param formula The formula string to be assigned.
+         * @return A reference to the copied-to object.
          */
         template<typename T,
                  typename std::enable_if<std::is_same_v<T, XLFormula> || std::is_constructible_v<T, const char*>>::type* = nullptr>
@@ -227,9 +234,9 @@ namespace OpenXLSX
         }
 
         /**
-         * @brief
-         * @tparam T
-         * @param formula
+         * @brief Templated setter, taking a string-type argument.
+         * @tparam T Type of argument.
+         * @param formula The formula string to be assigned.
          */
         template<typename T,
                  typename std::enable_if<std::is_constructible_v<T, char*>>::type* = nullptr>
@@ -238,15 +245,15 @@ namespace OpenXLSX
         }
 
         /**
-         * @brief
-         * @return
+         * @brief Get the forumla as a std::string.
+         * @return A std::string with the formula.
          */
         std::string get() const;
 
         /**
-         * @brief
-         * @tparam T
-         * @return
+         * @brief Templated conversion operator, for converting object to a string-type object.
+         * @tparam T Type to convert to.
+         * @return The formula as the desired string-type.
          */
         template<typename T,
                  typename std::enable_if<std::is_constructible_v<T, const char*>>::type* = nullptr>
@@ -255,54 +262,55 @@ namespace OpenXLSX
         }
 
         /**
-         * @brief
-         * @return
+         * @brief Clear the formula.
+         * @return Return a reference to the cleared object.
          */
         XLFormulaProxy& clear();
 
         /**
-         * @brief
-         * @return
+         * @brief Implicit conversion to XLFormula object.
+         * @return Returns the corresponding XLFormula object.
          */
         operator XLFormula();    // NOLINT
 
     private:
 
         /**
-         * @brief
-         * @param cell
-         * @param cellNode
+         * @brief Constructor, taking pointers to the cell and cell node objects.
+         * @param cell Pointer to the associated cell object.
+         * @param cellNode Pointer to the associated cell node object.
          */
         XLFormulaProxy(XLCell* cell, XMLNode* cellNode);
 
         /**
-         * @brief
-         * @param other
+         * @brief Copy constructor.
+         * @param other Object to be copied.
          */
         XLFormulaProxy(const XLFormulaProxy& other);
 
         /**
-         * @brief
-         * @param other
+         * @brief Move constructor.
+         * @param other Object to be moved.
          */
         XLFormulaProxy(XLFormulaProxy&& other) noexcept;
 
         /**
-         * @brief
-         * @param other
-         * @return
+         * @brief Move assignment operator.
+         * @param other Object to be moved.
+         * @return A reference to the moved-to object.
          */
         XLFormulaProxy& operator=(XLFormulaProxy&& other) noexcept;
 
         /**
-         * @brief
-         * @param formulaString
+         * @brief Set the formula to the given string.
+         * @param formulaString String holding the formula.
          */
         void setFormulaString(const char* formulaString);
 
         /**
-         * @brief
-         * @return
+         * @brief Get the underlying XLFormula object.
+         * @return A XLFormula object.
+         * @throw XLFormulaError if the formula is of 'shared' or 'array' types.
          */
         XLFormula getFormula() const;
 

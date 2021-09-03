@@ -374,10 +374,12 @@ XLCellRange XLWorksheet::range(const XLCellReference& topLeft, const XLCellRefer
  */
 XLRowRange XLWorksheet::rows() const
 {
-    return XLRowRange(xmlDocument().first_child().child("sheetData"),
+
+    auto sheetDataNode = xmlDocument().first_child().child("sheetData");
+    return XLRowRange(sheetDataNode,
                       1,
-                      (xmlDocument().first_child().child("sheetData").last_child()
-                           ? xmlDocument().first_child().child("sheetData").last_child().attribute("r").as_ullong()
+                      (sheetDataNode.last_child()
+                           ? static_cast<uint32_t>(sheetDataNode.last_child().attribute("r").as_ullong())
                            : 1),
                       parentDoc().executeQuery(XLQuerySharedStrings()).sharedStrings());
 }
@@ -467,7 +469,7 @@ uint16_t XLWorksheet::columnCount() const noexcept
             counts.emplace_back(row.cellCount());
         }
 
-        return *std::max_element(counts.begin(), counts.end());
+        return static_cast<uint16_t>(*std::max_element(counts.begin(), counts.end()));
 }
 
 /**

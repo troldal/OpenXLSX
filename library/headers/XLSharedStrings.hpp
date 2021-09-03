@@ -155,7 +155,7 @@ namespace OpenXLSX
          * shared string indices for the cells in the spreadsheet. Instead use this member functions, which clears
          * the contents of the string, but keeps the XMLNode holding the string.
          */
-        void clearString(int index);
+        void clearString(unsigned long index);
 
     private:
         std::deque<std::string> m_stringCache {}; /** < Each string must have an unchanging memory address; hence the use of std::deque */

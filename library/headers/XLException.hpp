@@ -139,6 +139,15 @@ namespace OpenXLSX
         inline explicit XLDateTimeError(const std::string& err) : XLException(err) {};
     };
 
+    /**
+     * @brief
+     */
+    class OPENXLSX_EXPORT XLFormulaError : public XLException
+    {
+    public:
+        inline explicit XLFormulaError(const std::string& err) : XLException(err) {};
+    };
+
 }    // namespace OpenXLSX
 
 #pragma warning(pop)

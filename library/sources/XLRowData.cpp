@@ -137,7 +137,9 @@ namespace OpenXLSX
         else if (m_cellNode->empty() || XLCellReference(cellNode.attribute("r").value()).column() != cellNumber) {
             cellNode = m_dataRange->m_rowNode->insert_child_after("c", *m_currentCell.m_cellNode);
             cellNode.append_attribute("r").set_value(
-                XLCellReference(m_dataRange->m_rowNode->attribute("r").as_ullong(), cellNumber).address().c_str());
+                XLCellReference(
+                    static_cast<uint32_t>(m_dataRange->m_rowNode->attribute("r").as_ullong()),
+                                static_cast<uint16_t>(cellNumber)).address().c_str());
             m_currentCell = XLCell(cellNode, m_dataRange->m_sharedStrings);
         }
 
@@ -383,7 +385,8 @@ namespace OpenXLSX
         auto colNo   = values.size();
         for (auto value = values.rbegin(); value != values.rend(); ++value) {    // NOLINT
             curNode = m_rowNode->prepend_child("c");
-            curNode.append_attribute("r").set_value(XLCellReference(m_row->rowNumber(), colNo).address().c_str());
+            curNode.append_attribute("r").set_value(XLCellReference(static_cast<uint32_t>(m_row->rowNumber()),
+                                                                    static_cast<uint16_t>(colNo)).address().c_str());
             XLCell(curNode, m_row->m_sharedStrings).value() = *value;
             --colNo;
         }
@@ -404,7 +407,7 @@ namespace OpenXLSX
         if (values.size() > MAX_COLS) throw XLOverflowError("Container size exceeds maximum number of columns.");
         if (values.empty()) return *this;
 
-        auto range = XLRowDataRange(*m_rowNode, 1, values.size(), getSharedStrings());
+        auto range = XLRowDataRange(*m_rowNode, 1, static_cast<uint16_t>(values.size()), getSharedStrings());
         auto dst   = range.begin();
         auto src   = values.begin();
 
@@ -458,7 +461,7 @@ namespace OpenXLSX
         // ===== Determine the number of cells in the current row. Create a std::vector of the same size.
         auto numCells =
             (m_rowNode->last_child() == XMLNode() ? 0 : XLCellReference(m_rowNode->last_child().attribute("r").value()).column());
-        std::vector<XLCellValue> result(numCells);
+        std::vector<XLCellValue> result(static_cast<unsigned long>(numCells));
 
         // ===== If there are one or more cells in the current row, iterate through them and add the value to the container.
         if (numCells > 0) {
@@ -509,7 +512,7 @@ namespace OpenXLSX
     void XLRowDataProxy::prependCellValue(const XLCellValue& value, uint16_t col)
     {
         auto curNode = m_rowNode->prepend_child("c");
-        curNode.append_attribute("r").set_value(XLCellReference(m_row->rowNumber(), col).address().c_str());
+        curNode.append_attribute("r").set_value(XLCellReference(static_cast<uint32_t>(m_row->rowNumber()), col).address().c_str());
         XLCell(curNode, m_row->m_sharedStrings).value() = value;
     }
 

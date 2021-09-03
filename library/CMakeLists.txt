@@ -130,7 +130,6 @@ list(APPEND OPENXLSX_DEBUG_FLAGS_GNUCLANG
      "-Woverloaded-virtual"
      "-Wpedantic"
      "-Wconversion"
-     "-Wsign-conversion"
      "-Wdouble-promotion"
      "-Wformat=2"
      "-Weffc++"

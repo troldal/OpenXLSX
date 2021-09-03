@@ -135,7 +135,7 @@ int32_t XLSharedStrings::appendString(const std::string& str)
  * @details Clear the string at the given index. This will affect the entire spreadsheet; everywhere the shared string
  * is used, it will be erased.
  */
-void XLSharedStrings::clearString(int index)
+void XLSharedStrings::clearString(unsigned long index)
 {
     m_stringCache[index] = "";
     auto iter            = xmlDocument().document_element().children().begin();
