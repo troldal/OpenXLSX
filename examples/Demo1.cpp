@@ -17,6 +17,10 @@ int main()
     doc.create("./Demo01.xlsx");
     auto wks = doc.workbook().worksheet("Sheet1");
 
+    auto cell = wks.cell(1,1);
+    cell.value() = 1;
+    cout << cell.value().get<int>() << endl;
+
     // The individual cells can be accessed by using the .cell() method on the worksheet object.
     // The .cell() method can take the celladdress as a string, or alternatively take a XLCellReference
     // object. By using an XLCellReference object, the cells can be accessed by row/column coordinates.
@@ -109,8 +113,6 @@ int main()
     // Using the .tm() method, the corresponding std::tm object can be retrieved.
     auto tmo = result.tm();
     cout << "Cell F1: (" << F1.typeAsString() << ") " << std::asctime(&tmo);
-
-    wks.cell("A2").formula() = "SQRT(2)";
 
     doc.save();
 

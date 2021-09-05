@@ -503,6 +503,9 @@ void XLWorkbook::updateSheetReferences(const std::string& oldName, const std::st
     }
 }
 
+/**
+ * @details
+ */
 void XLWorkbook::setFullCalculationOnLoad()
 {
     auto calcPr = xmlDocument().document_element().child("calcPr");

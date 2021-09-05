@@ -13,7 +13,7 @@ int main()
 
     XLDocument doc;
     doc.open("./Demo01.xlsx");
-    doc.resetCalcChain();
+    doc.workbook().setFullCalculationOnLoad();
     doc.saveAs("./Demo01_CalcReset.xlsx");
     doc.close();
 

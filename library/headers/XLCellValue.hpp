@@ -468,6 +468,9 @@ namespace OpenXLSX
          */
         XLCellValueProxy& operator=(XLCellValueProxy&& other) noexcept;
 
+
+
+
         /**
          * @brief Set cell to an integer value.
          * @param numberValue The value to be set.

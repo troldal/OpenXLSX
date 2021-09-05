@@ -206,8 +206,6 @@ namespace OpenXLSX
          */
         XLWorkbook workbook() const;
 
-        void resetCalcChain();
-
         /**
          * @brief Get the requested document property.
          * @param prop The name of the property to get.

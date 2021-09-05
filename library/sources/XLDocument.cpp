@@ -569,13 +569,6 @@ XLWorkbook XLDocument::workbook() const
 }
 
 /**
- * @brief
- */
-void XLDocument::resetCalcChain() {
-    executeCommand(XLCommandResetCalcChain());
-}
-
-/**
  * @details Get the value for a property.
  */
 std::string XLDocument::property(XLProperty prop) const

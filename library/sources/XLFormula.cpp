@@ -138,6 +138,7 @@ void XLFormulaProxy::setFormulaString(const char* formulaString) {
 
     // ===== If the cell node doesn't have a value child node, create it.
     if (!m_cellNode->child("f")) m_cellNode->append_child("f");
+    if (!m_cellNode->child("v")) m_cellNode->append_child("v");
 
     // ===== Remove the type and shared index attributes, if they exists.
     m_cellNode->child("f").remove_attribute("t");
@@ -145,6 +146,7 @@ void XLFormulaProxy::setFormulaString(const char* formulaString) {
 
     // ===== Set the text of the value node.
     m_cellNode->child("f").text().set(formulaString);
+    m_cellNode->child("v").text().set(0);
 }
 
 /**
