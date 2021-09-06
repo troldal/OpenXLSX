@@ -119,25 +119,83 @@ Visual Studio 2017 should also work, but hasn't been tested.
 
 ## Build Instructions
 
-OpenXLSX uses CMake as the build system. If you use GNU makefiles (e.g.
-on Linux, MacOS, MinGW or MSYS), you can build OpenXLSX from the
-commandline by navigating to the root of the OpenXLSX repository, and
-then execute the following commands:
+### Integrating into a CMake project structure
+
+OpenXLSX uses CMake as the build system. By far the easiest way to use OpenXLSX
+in your own project, is to use CMake yourself, and then add the entire
+OpenXLSX source tree as a subdirectory to the source tree of your own project.
+Several IDE's support CMake projects, most notably Visual Studio 2019, JetBrains
+CLion, and Qt Creator. If using Visual Studio, you have to specifically select
+'CMake project' when creating a new project.
+
+By using the `add_subdirectory()` command in the CMakeLists.txt file, you can get 
+access to the headers and library files of OpenXLSX. OpenXLSX can generate two
+targets; a shared library (OpenXLSX-shared) and a static library (OpenXLSX-static).
+You cn use them like so:
+
+```cmake
+cmake_minimum_required(VERSION 3.15)
+project(MyProject)
+
+set(CMAKE_CXX_STANDARD 17)
+
+add_subdirectory(OpenXLSX)
+
+add_executable(MyProject main.cpp)
+target_link_libraries(MyProject OpenXLSX-shared)
+# Or if you prefer a static library:
+#target_link_libraries(MyProject OpenXLSX-static)
+```
+
+Using the above, you should be able to compile and run the following code:
+
+```cpp
+#include <OpenXLSX.hpp>
+
+using namespace OpenXLSX;
+
+int main() {
+
+    XLDocument doc;
+    doc.create("Spreadsheet.xlsx");
+    auto wks = doc.workbook().worksheet("Sheet1");
+
+    wks.cell("A1").value() = "Hello, OpenXLSX!";
+
+    doc.save();
+
+    return 0;
+}
+```
+
+On some Windows, you may have to manually move the shared library 
+(OpenXLSX-shared) to the location of the MyProject executable in order to run it.
+
+### Building as a separate library
+
+If you wish to produce the OpenXLSX binaries and include them in your project
+yourself, it can be done using CMake from the command line.
+
+From the command line, navigate the root of the OpenXLSX source tree, and
+execute the following commands to build the shared and static libraries:
 
 ```
 mkdir build
 cd build
 cmake ..
-make
+cmake --build . --target OpenXLSX-shared --config Release
+cmake --build . --target OpenXLSX-shared --config Release
 ```
 
-Depending on your system, you may need to supply cmake with additional
-commands. Also, if you use MinGW makefiles, you may need to run
-'mingw32-make' instead of 'make'.
+If you want to select a specific tool chain, you can do so by adding a
+-G flag to line 3 above, followed by the name of the compiler toolchain
+you want to use. For example, if you want to use Visual Studio 2019, you
+can write:
+```
+cmake -G "Visual Studio 16 2019" ..
+```
 
-If you use an IDE, such as Visual Studio or Xcode, you can supply cmake
-with a -G flag, followed by which build system you need. See CMake
-documentation for details.
+For other toolchains, see the CMake documentation for details.
 
 If you wish, you can also use the CMake GUI application.
 
