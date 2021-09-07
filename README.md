@@ -118,20 +118,22 @@ bug in the implementation of std::variant, which causes compiler errors.
 Visual Studio 2017 should also work, but hasn't been tested.
 
 ## Build Instructions
+OpenXLSX uses CMake as the build system (or build system generator, to be exact).
+Therefore, you must install CMake first, in order to build OpenXLSX. You can find
+installation instructions on www.cmake.org.
+
+If you use CMake for your own project, you can add the OpenXLSX source tree as a
+subdirectory to your own project. Alternatively, you can use CMake to generate
+make files or project files for a toolchain of your choice.
+
+Both methods are described in the following.
 
 ### Integrating into a CMake project structure
 
-OpenXLSX uses CMake as the build system. By far the easiest way to use OpenXLSX
-in your own project, is to use CMake yourself, and then add the entire
-OpenXLSX source tree as a subdirectory to the source tree of your own project.
-Several IDE's support CMake projects, most notably Visual Studio 2019, JetBrains
-CLion, and Qt Creator. If using Visual Studio, you have to specifically select
-'CMake project' when creating a new project.
+By far the easiest way to use OpenXLSX in your own project, is to use CMake yourself, and then add the entire OpenXLSX source tree as a subdirectory to the source tree of your own project. Several IDE's support CMake projects, most notably Visual Studio 2019, JetBrains CLion, and Qt Creator. If using Visual Studio, you have to specifically select 'CMake project' when creating a new project.
 
-By using the `add_subdirectory()` command in the CMakeLists.txt file, you can get 
-access to the headers and library files of OpenXLSX. OpenXLSX can generate two
-targets; a shared library (OpenXLSX-shared) and a static library (OpenXLSX-static).
-You cn use them like so:
+By using the `add_subdirectory()` command in the CMakeLists.txt file for your project, you can get access to the 
+headers and library files of OpenXLSX. OpenXLSX can generate two targets; a shared library (OpenXLSX-shared) and a static library (OpenXLSX-static). You can use them like so:
 
 ```cmake
 cmake_minimum_required(VERSION 3.15)
@@ -147,7 +149,8 @@ target_link_libraries(MyProject OpenXLSX-shared)
 #target_link_libraries(MyProject OpenXLSX-static)
 ```
 
-Using the above, you should be able to compile and run the following code:
+Using the above, you should be able to compile and run the following code, which will generate a new Excel file 
+named 'Spreadsheet.xlsx':
 
 ```cpp
 #include <OpenXLSX.hpp>
@@ -168,36 +171,32 @@ int main() {
 }
 ```
 
-On some Windows, you may have to manually move the shared library 
-(OpenXLSX-shared) to the location of the MyProject executable in order to run it.
+On Windows, you may have to manually move the shared library (OpenXLSX-shared) to the same location as the MyProject executable in order to run it.
 
 ### Building as a separate library
 
-If you wish to produce the OpenXLSX binaries and include them in your project
-yourself, it can be done using CMake from the command line.
+If you wish to produce the OpenXLSX binaries and include them in your project yourself, it can be done using CMake and a compiler toolchain of your choice.
 
-From the command line, navigate the root of the OpenXLSX source tree, and
-execute the following commands to build the shared and static libraries:
+From the command line, navigate the root of the OpenXLSX source tree, and execute the following commands:
 
 ```
 mkdir build
 cd build
 cmake ..
+```
+
+The last command will configure the project. This will configure the project using the default toolchain. If you 
+want to specify the toolchain, type `cmake -G "<toolchain>" ..` with `<toolchain>` being the toolchain you wish to 
+use, for example "Unix Makefiles", "Ninja", "Xcode", or "Visual Studio 16 2019". See the CMake documentation for 
+details.
+
+Finally, you can build the library using the command:
+
+```
 cmake --build . --target OpenXLSX-shared --config Release
-cmake --build . --target OpenXLSX-shared --config Release
 ```
 
-If you want to select a specific tool chain, you can do so by adding a
--G flag to line 3 above, followed by the name of the compiler toolchain
-you want to use. For example, if you want to use Visual Studio 2019, you
-can write:
-```
-cmake -G "Visual Studio 16 2019" ..
-```
-
-For other toolchains, see the CMake documentation for details.
-
-If you wish, you can also use the CMake GUI application.
+You can change the `--target` and `--config` arguments to whatever you wish to use.
 
 ## Python Interface
 
