@@ -207,29 +207,29 @@ endif ()
 # Some basic stuff we'll need in this section
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
-set(ConfigPackageLocation ${CMAKE_INSTALL_LIBDIR}/cmake/openxlsx)
+set(ConfigPackageLocation ${CMAKE_INSTALL_LIBDIR}/cmake/OpenXLSX)
 
 # Install interface headers
 install(
         FILES ${OPENXLSX_CXX_INTERFACE_HEADERS}
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/openxlsx/${dir}
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/OpenXLSX/${dir}
 )
 
 # Install export header
 install(
         FILES ${CMAKE_CURRENT_BINARY_DIR}/OpenXLSX-Exports.hpp
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/openxlsx/headers
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/OpenXLSX/headers
 )
 
 file(GLOB OPENXLSX_HEADER_LIST ${CMAKE_CURRENT_LIST_DIR}/headers/*.hpp)
 install(
         FILES ${OPENXLSX_HEADER_LIST}
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/openxlsx/headers
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/OpenXLSX/headers
 )
 
 install(
         FILES ${CMAKE_CURRENT_LIST_DIR}/OpenXLSX.hpp
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/openxlsx
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/OpenXLSX
 )
 
 # Targets
