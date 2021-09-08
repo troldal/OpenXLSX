@@ -76,13 +76,18 @@ set(OPENXLSX_SOURCES
 #   Define the static library
 #=======================================================================================================================
 add_library(OpenXLSX-static STATIC "")
+add_library(OpenXLSX::OpenXLSX-static ALIAS OpenXLSX-static)
 target_sources(OpenXLSX-static PRIVATE ${OPENXLSX_SOURCES})
 target_include_directories(OpenXLSX-static
                            PUBLIC
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)     # For export header
-target_link_libraries(OpenXLSX-static PRIVATE Zippy PugiXML NoWide)
+target_link_libraries(OpenXLSX-static
+        PRIVATE
+        $<BUILD_INTERFACE:Zippy>
+        $<BUILD_INTERFACE:PugiXML>
+        $<BUILD_INTERFACE:NoWide>)
 target_compile_definitions(OpenXLSX-static PRIVATE OPENXLSX_STATIC_DEFINE)
 
 #=======================================================================================================================
@@ -90,13 +95,18 @@ target_compile_definitions(OpenXLSX-static PRIVATE OPENXLSX_STATIC_DEFINE)
 #   Define the shared library
 #=======================================================================================================================
 add_library(OpenXLSX-shared SHARED "")
+add_library(OpenXLSX::OpenXLSX-shared ALIAS OpenXLSX-shared)
 target_sources(OpenXLSX-shared PRIVATE ${OPENXLSX_SOURCES})
 target_include_directories(OpenXLSX-shared
                            PUBLIC
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)     # For export header
-target_link_libraries(OpenXLSX-shared PRIVATE Zippy PugiXML NoWide)
+target_link_libraries(OpenXLSX-shared
+        PRIVATE
+        $<BUILD_INTERFACE:Zippy>
+        $<BUILD_INTERFACE:PugiXML>
+        $<BUILD_INTERFACE:NoWide>)
 
 #=======================================================================================================================
 # GENERATE EXPORT HEADER
