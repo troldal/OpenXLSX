@@ -14,9 +14,9 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 #=======================================================================================================================
 # Set project metadata
 #=======================================================================================================================
-set(PROJECT_VENDOR "Kenneth Troldal Balslev")
-set(PROJECT_CONTACT "kenneth.balslev@gmail.com")
-set(PROJECT_URL "https://github.com/troldal/OpenXLSX")
+set(OPENXLSX_PROJECT_VENDOR "Kenneth Troldal Balslev")
+set(OPENXLSX_PROJECT_CONTACT "kenneth.balslev@gmail.com")
+set(OPENXLSX_PROJECT_URL "https://github.com/troldal/OpenXLSX")
 set(PROJECT_DESCRIPTION "A C++17 library for reading, writing and modifying Excel spreadsheets")
 
 #=======================================================================================================================
@@ -38,30 +38,31 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/output)
 #=======================================================================================================================
 # Add build options
 #=======================================================================================================================
-option(CREATE_DOCS "Build library documentation (requires Doxygen and Graphviz/Dot to be installed)" ON)
-option(ENABLE_COMPACT_MODE "Build library in compact mode (slower, but uses less memory)" OFF)
-option(BUILD_SAMPLES "Build sample programs" ON)
-option(BUILD_TESTS "Build and run library tests" ON)
-option(BUILD_BENCHMARKS "Build and run library benchmarks" ON)
+option(OPENXLSX_CREATE_DOCS "Build library documentation (requires Doxygen and Graphviz/Dot to be installed)" OFF)
+option(OPENXLSX_COMPACT_MODE "Build library in compact mode (slower, but uses less memory)" OFF)
+option(OPENXLSX_BUILD_SAMPLES "Build sample programs" ON)
+option(OPENXLSX_BUILD_TESTS "Build and run library tests" OFF)
+option(OPENXLSX_BUILD_BENCHMARKS "Build and run library benchmarks" OFF)
+set(OPENXLSX_LIBRARY_TYPE "STATIC" CACHE STRING "Set the library type to SHARED or STATIC")
 
 #=======================================================================================================================
 # Add project subdirectories
 #=======================================================================================================================
 add_subdirectory(library)
 
-if(${CREATE_DOCS})
+if(${OPENXLSX_CREATE_DOCS})
     add_subdirectory(doxy)
 endif()
 
-if(${BUILD_SAMPLES})
+if(${OPENXLSX_BUILD_SAMPLES})
     add_subdirectory(examples)
 endif()
 
-if(${BUILD_TESTS})
+if(${OPENXLSX_BUILD_TESTS})
     add_subdirectory(tests)
 endif()
 
-if(${BUILD_BENCHMARKS})
+if(${OPENXLSX_BUILD_BENCHMARKS})
     add_subdirectory(benchmark)
 endif()
 
