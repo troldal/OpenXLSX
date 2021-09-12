@@ -1,4 +1,47 @@
 #=======================================================================================================================
+# Preamble
+#=======================================================================================================================
+cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
+set(OPENXLSX_MAJOR_VERSION 0)
+set(OPENXLSX_MINOR_VERSION 3)
+set(OPENXLSX_MICRO_VERSION 1)
+project(OpenXLSX.Library VERSION 0.3.1 LANGUAGES CXX)
+set(CMAKE_DEBUG_POSTFIX d)
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+set(CMAKE_VISIBILITY_INLINES_HIDDEN YES)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+#=======================================================================================================================
+# Set project metadata
+#=======================================================================================================================
+set(OPENXLSX_PROJECT_VENDOR "Kenneth Troldal Balslev")
+set(OPENXLSX_PROJECT_CONTACT "kenneth.balslev@gmail.com")
+set(OPENXLSX_PROJECT_URL "https://github.com/troldal/OpenXLSX")
+set(PROJECT_DESCRIPTION "A C++17 library for reading, writing and modifying Excel spreadsheets")
+
+#=======================================================================================================================
+# Set C/C++ compiler version
+#=======================================================================================================================
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(IGNORE_ME ${CMAKE_C_COMPILER}) # Suppress CMake warning message
+
+#=======================================================================================================================
+# Output Directories.
+#=======================================================================================================================
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/output)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/output)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/output)
+#set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_LIST_DIR}/stage)
+
+#=======================================================================================================================
+# Add build options
+#=======================================================================================================================
+option(OPENXLSX_COMPACT_MODE "Build library in compact mode (slower, but uses less memory)" OFF)
+set(OPENXLSX_LIBRARY_TYPE "SHARED" CACHE STRING "Set the library type to SHARED or STATIC")
+
+#=======================================================================================================================
 # EXTERNAL LIBRARIES
 #   Define external libraries used by OpenXLSX. The libraries (Zippy, PugiXML, and NoWide) are header-only, so
 #   INTERFACE libraries should be defined.
@@ -68,7 +111,7 @@ set(OPENXLSX_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLXmlData.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLXmlFile.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLZipArchive.cpp
-    )
+        )
 
 
 #=======================================================================================================================
@@ -122,17 +165,15 @@ if (${OPENXLSX_LIBRARY_TYPE} STREQUAL "SHARED")
             $<BUILD_INTERFACE:NoWide>)
 
     # Enable Link-Time Optimization (LTO)
-    if (CMAKE_BUILD_TYPE STREQUAL "Release")
-        include(CheckIPOSupported)
-        check_ipo_supported(RESULT result OUTPUT output)
-        if (result)
-            set_property(TARGET OpenXLSX PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
-        endif ()
+    include(CheckIPOSupported)
+    check_ipo_supported(RESULT result OUTPUT output)
+    if (result)
+        set_property(TARGET OpenXLSX PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
     endif ()
 
 endif()
 
-# Generate export header (automatic; for shared library)
+# Generate export header
 include(GenerateExportHeader)
 generate_export_header(OpenXLSX
         BASE_NAME openxlsx
@@ -145,53 +186,53 @@ generate_export_header(OpenXLSX
 #   Set compiler debug flags for GCC, Clang and MSVC.
 #=======================================================================================================================
 list(APPEND OPENXLSX_DEBUG_FLAGS_GNU
-     "-Wmisleading-indentation"
-     "-Wduplicated-cond"
-     "-Wduplicated-branches"
-     "-Wlogical-op"
-     "-Wnull-dereference")
+        "-Wmisleading-indentation"
+        "-Wduplicated-cond"
+        "-Wduplicated-branches"
+        "-Wlogical-op"
+        "-Wnull-dereference")
 list(APPEND OPENXLSX_DEBUG_FLAGS_GNUCLANG
-     "-Wall"
-     "-Wextra"
-     "-Wshadow"
-     "-Wnon-virtual-dtor"
-     "-Wold-style-cast"
-     "-Wcast-align"
-     "-Wunused"
-     "-Woverloaded-virtual"
-     "-Wpedantic"
-     "-Wconversion"
-     "-Wdouble-promotion"
-     "-Wformat=2"
-     "-Weffc++"
-     "-Wno-unknown-pragmas")
+        "-Wall"
+        "-Wextra"
+        "-Wshadow"
+        "-Wnon-virtual-dtor"
+        "-Wold-style-cast"
+        "-Wcast-align"
+        "-Wunused"
+        "-Woverloaded-virtual"
+        "-Wpedantic"
+        "-Wconversion"
+        "-Wdouble-promotion"
+        "-Wformat=2"
+        "-Weffc++"
+        "-Wno-unknown-pragmas")
 list(APPEND OPENXLSX_DEBUG_FLAGS_MSVC
-     "/permissive"
-     "/W4"
-     "/w14242"
-     "/w14254"
-     "/w14263"
-     "/w14265"
-     "/w14287"
-     "/we4289"
-     "/w14296"
-     "/w14311"
-     "/w14545"
-     "/w14546"
-     "/w14547"
-     "/w14549"
-     "/w14555"
-     "/w14619"
-     "/w14640"
-     "/w14826"
-     "/w14905"
-     "/w14906"
-     "/w14928"
-     "/wd4251"
-     "/wd4275")
+        "/permissive"
+        "/W4"
+        "/w14242"
+        "/w14254"
+        "/w14263"
+        "/w14265"
+        "/w14287"
+        "/we4289"
+        "/w14296"
+        "/w14311"
+        "/w14545"
+        "/w14546"
+        "/w14547"
+        "/w14549"
+        "/w14555"
+        "/w14619"
+        "/w14640"
+        "/w14826"
+        "/w14905"
+        "/w14906"
+        "/w14928"
+        "/wd4251"
+        "/wd4275")
 list(APPEND OPENXLSX_RELEASE_FLAGS_MSVC
-     "/wd4251"
-     "/wd4275")
+        "/wd4251"
+        "/wd4275")
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     target_compile_options(OpenXLSX PRIVATE $<$<CONFIG:Debug>:${OPENXLSX_DEBUG_FLAGS_GNU}>)
@@ -268,9 +309,9 @@ install(
 
 # Package configuration
 configure_file(OpenXLSXConfig.cmake
-               "${CMAKE_CURRENT_BINARY_DIR}/OpenXLSX/OpenXLSXConfig.cmake"
-               COPYONLY
-               )
+        "${CMAKE_CURRENT_BINARY_DIR}/OpenXLSX/OpenXLSXConfig.cmake"
+        COPYONLY
+        )
 
 # Package export targets
 export(

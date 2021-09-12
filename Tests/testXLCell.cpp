@@ -18,7 +18,7 @@ TEST_CASE("XLCell Tests", "[XLCell]")
         REQUIRE_THROWS(cell.cellReference());
         REQUIRE_FALSE(cell.hasFormula());
         REQUIRE_THROWS(cell.formula());
-        REQUIRE_THROWS(cell.setFormula("=1+1"));
+        REQUIRE_THROWS(cell.formula().set("=1+1"));
         REQUIRE_THROWS(cell.value());
 
     }
@@ -114,10 +114,10 @@ TEST_CASE("XLCell Tests", "[XLCell]")
         doc.create("./testXLCell.xlsx");
         XLWorksheet wks = doc.workbook().sheet(1);
         auto cell = wks.cell("A1");
-        cell.setFormula("=1+1");
+        cell.formula().set("=1+1");
 
         REQUIRE(cell.hasFormula());
-        REQUIRE(cell.formula() == "=1+1");
+        REQUIRE(cell.formula().get() == "=1+1");
 
 
 

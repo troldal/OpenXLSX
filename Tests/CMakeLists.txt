@@ -1,4 +1,10 @@
 #=======================================================================================================================
+# Preamble
+#=======================================================================================================================
+cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
+project(OpenXLSX.Tests)
+
+#=======================================================================================================================
 # Download and define Catch2 library target
 #=======================================================================================================================
 add_library(Catch INTERFACE IMPORTED)
@@ -21,7 +27,6 @@ target_sources(OpenXLSXTests
 
 target_link_libraries(OpenXLSXTests
                       PRIVATE
-                      OpenXLSX-static
+                      OpenXLSX::OpenXLSX
                       Catch
                       )
-target_compile_definitions(OpenXLSXTests PRIVATE OPENXLSX_STATIC_DEFINE)

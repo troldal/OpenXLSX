@@ -1,10 +1,17 @@
+#=======================================================================================================================
+# Preamble
+#=======================================================================================================================
+cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
+project(OpenXLSX.Documentation)
+
+
 # check if Doxygen is installed
 find_package(Doxygen)
 if (DOXYGEN_FOUND)
     # set input and output files
     set(DOXYGEN_IN ${CMAKE_CURRENT_LIST_DIR}/Doxyfile.in)
     set(DOXYGEN_OUT ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
-    set(DOXYGEN_SOURCE ${CMAKE_CURRENT_LIST_DIR}/../library/headers)
+    set(DOXYGEN_SOURCE ${CMAKE_CURRENT_LIST_DIR}/../OpenXLSX/headers)
     set(DOXYGEN_QUIET YES)
 
     # request to configure the file
