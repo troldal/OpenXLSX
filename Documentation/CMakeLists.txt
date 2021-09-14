@@ -4,7 +4,9 @@
 cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
 project(OpenXLSX.Documentation)
 
-
+#=======================================================================================================================
+# Set up Doxygen API documentation
+#=======================================================================================================================
 # check if Doxygen is installed
 find_package(Doxygen)
 if (DOXYGEN_FOUND)
