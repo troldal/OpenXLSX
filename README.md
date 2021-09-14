@@ -118,22 +118,33 @@ bug in the implementation of std::variant, which causes compiler errors.
 Visual Studio 2017 should also work, but hasn't been tested.
 
 ## Build Instructions
-OpenXLSX uses CMake as the build system (or build system generator, to be exact).
-Therefore, you must install CMake first, in order to build OpenXLSX. You can find
-installation instructions on www.cmake.org.
+OpenXLSX uses CMake as the build system (or build system generator, to be exact). Therefore, you must install CMake first, in order to build OpenXLSX. You can find installation instructions on www.cmake.org.
 
-If you use CMake for your own project, you can add the OpenXLSX source tree as a
-subdirectory to your own project. Alternatively, you can use CMake to generate
-make files or project files for a toolchain of your choice.
-
-Both methods are described in the following.
+The OpenXLSX library is located in the OpenXLSX subdirectory to this repo. The OpenXLSX subdirectory is a 
+self-contained CMake project; if you use CMake for your own project, you can add the OpenXLSX folder as a subdirectory 
+to your own project. Alternatively, you can use CMake to generate make files or project files for a toolchain of your choice. Both methods are described in the following.
 
 ### Integrating into a CMake project structure
 
-By far the easiest way to use OpenXLSX in your own project, is to use CMake yourself, and then add the entire OpenXLSX source tree as a subdirectory to the source tree of your own project. Several IDE's support CMake projects, most notably Visual Studio 2019, JetBrains CLion, and Qt Creator. If using Visual Studio, you have to specifically select 'CMake project' when creating a new project.
+By far the easiest way to use OpenXLSX in your own project, is to use CMake yourself, and then add the OpenXLSX 
+folder as a subdirectory to the source tree of your own project. Several IDE's support CMake projects, most notably 
+Visual Studio 2019, JetBrains CLion, and Qt Creator. If using Visual Studio, you have to specifically select 'CMake project' when creating a new project.
+
+The main benefit of including the OpenXLSX library as a source subfolder, is that there is no need to locate the 
+library and header files specifically; CMake will take care of that for you. Also, the library will be build using 
+the same configuration (Debug, Release etc.) as your project. In particular, this a benefit on Windows, where is it 
+not possible to use Release libraries in a Debug project (and vice versa) when STL objects are being passed through 
+the library interface, as they are in OpenXLSX. When including the OpenXLSX source, this will not be a problem.
 
 By using the `add_subdirectory()` command in the CMakeLists.txt file for your project, you can get access to the 
-headers and library files of OpenXLSX. OpenXLSX can generate two targets; a shared library (OpenXLSX-shared) and a static library (OpenXLSX-static). You can use them like so:
+headers and library files of OpenXLSX. OpenXLSX can generate either a shared library or a static library. By default 
+it will produce a shared library, but you can change that in the OpenXLSX CMakeLists.txt file. The library is 
+located in a namespace called OpenXLSX; hence the full name of the library is `OpenXLSX::OpenXLSX`.
+
+Th following snippet is a minimum CMakeLists.txt file for your own project, that includes OpenXLSX as a subdirectory.
+Note that the output location of the binaries are set to a common directory. On Linux and MacOS, this is not really 
+required, but on Windows, this will make your life easier, as you would otherwise have to copy the OpenXLSX shared 
+library file to the location of your executable in order to run.
 
 ```cmake
 cmake_minimum_required(VERSION 3.15)
@@ -141,12 +152,15 @@ project(MyProject)
 
 set(CMAKE_CXX_STANDARD 17)
 
+# Set the build output location to a common directory
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/output)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/output)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/output)
+
 add_subdirectory(OpenXLSX)
 
 add_executable(MyProject main.cpp)
-target_link_libraries(MyProject OpenXLSX-shared)
-# Or if you prefer a static library:
-#target_link_libraries(MyProject OpenXLSX-static)
+target_link_libraries(MyProject OpenXLSX::OpenXLSX)
 ```
 
 Using the above, you should be able to compile and run the following code, which will generate a new Excel file 
@@ -171,13 +185,12 @@ int main() {
 }
 ```
 
-On Windows, you may have to manually move the shared library (OpenXLSX-shared) to the same location as the MyProject executable in order to run it.
-
 ### Building as a separate library
 
 If you wish to produce the OpenXLSX binaries and include them in your project yourself, it can be done using CMake and a compiler toolchain of your choice.
 
-From the command line, navigate the root of the OpenXLSX source tree, and execute the following commands:
+From the command line, navigate the OpenXLSX subdirectory of the project root, and execute the following 
+commands:
 
 ```
 mkdir build
@@ -198,10 +211,27 @@ cmake --build . --target OpenXLSX-shared --config Release
 
 You can change the `--target` and `--config` arguments to whatever you wish to use.
 
+When built, you can install it using the following command:
+
+```
+cmake --install .
+```
+
+This command will install the library and header files to the default location on your platform (usually /usr/local/ 
+on Linux and MacOS, and C:\Program Files on Windows). You can set a different location using the --prefix argument. 
+
+Note that depending on the platform, it may not be possible to install both debug and release libraries. On Linux 
+and MacOS, this is not a big issue, as release libraries can be used for both debug and release executables. Not so 
+for Windows, where the configuration of the library must be the same as for the executable linking to it. For that 
+reason, on Windows, it is much easier to just include the OpenXLSX source folder as a subdirectory to your CMake 
+project; it will save you a lot of headaches.
+
 ## Python Interface
 
 A Python interface has been developed for OpenXLSX. You can find
-instructions in the Python folder.
+instructions in the Python folder. 
+
+HOLD: Not updated recently.
 
 ## Current Status
 
