@@ -1,50 +1,79 @@
 #include <OpenXLSX.hpp>
 #include <iostream>
-#include <nowide/iostream.hpp>
 
-//using namespace std;
+using namespace std;
 using namespace OpenXLSX;
+
+void printWorkbook(const XLWorkbook& wb) {
+    cout << "\nSheets in workbook:\n";
+    for (const auto& name : wb.worksheetNames()) cout << wb.indexOfSheet(name) << " : " << name << "\n";
+}
 
 int main()
 {
-    nowide::cout << "********************************************************************************\n";
-    nowide::cout << "DEMO PROGRAM #03: Unicode\n";
-    nowide::cout << "********************************************************************************\n";
+    cout << "********************************************************************************\n";
+    cout << "DEMO PROGRAM #03: Sheet Handling\n";
+    cout << "********************************************************************************\n";
 
-    XLDocument doc1;
-    doc1.create("./Demo03.xlsx");
-    auto wks1 = doc1.workbook().worksheet("Sheet1");
+    // OpenXLSX can be used to create and delete sheets in a workbook, as well as re-ordering of sheets.
+    // This example illustrates how this can be done. Please note that at the moment, chartsheets can only
+    // be renamed and deleted, not created or manipulated.
 
-    wks1.cell(XLCellReference("A1")).value() = "안녕하세요 세계!";
-    wks1.cell(XLCellReference("A2")).value() = "你好，世界!";
-    wks1.cell(XLCellReference("A3")).value() = "こんにちは世界";
-    wks1.cell(XLCellReference("A4")).value() = "नमस्ते दुनिया!";
-    wks1.cell(XLCellReference("A5")).value() = "Привет, мир!";
-    wks1.cell(XLCellReference("A6")).value() = "Γειά σου Κόσμε!";
+    // First, create a new document and store the workbook object in a variable. Print the sheet names.
+    XLDocument doc;
+    doc.create("./Demo03.xlsx");
+    auto wbk = doc.workbook();
+    printWorkbook(wbk);
 
-    doc1.save();
-    doc1.saveAs("./Таблица.xlsx");
-    doc1.close();
+    // Add two new worksheets. The 'addWorksheet' method takes the name of the new sheet as an argument,
+    // and appends the new workdheet at the end.
+    // Only worksheets can be added; there is no 'addChartsheet' method.
+    wbk.addWorksheet("Sheet2");
+    wbk.addWorksheet("Sheet3");
+    printWorkbook(wbk);
 
-    XLDocument doc2;
-    doc2.open("./Таблица.xlsx");
-    auto wks2 = doc2.workbook().worksheet("Sheet1");
+    // OpenXLSX provides three different classes to handle workbook sheets: XLSheet, XLWorksheet, and
+    // XLChartsheet. As you might have guessed, XLWorksheet and XLChartsheet represents worksheets
+    // and chartsheets, respectively. XLChartsheet only has a limited set of functionality.
+    // XLSheet, on the other hand, is basically a std::variant that can hold either an XLWorksheet,
+    // or an XLChartsheet object. XLSheet has a limited set of functions that are common to
+    // both XLWorksheet and XLChartsheet objects, such as 'clone()' or 'setIndex()'. XLSheet is
+    // not a parent class to either XLWorksheet or XLChartsheet, and therefore cannot be used
+    // polymorphically.
 
-    nowide::cout << "Cell A1 (Korean)  : " << wks2.cell(XLCellReference("A1")).value().get<std::string>() << std::endl;
-    nowide::cout << "Cell A2 (Chinese) : " << wks2.cell(XLCellReference("A2")).value().get<std::string>() << std::endl;
-    nowide::cout << "Cell A3 (Japanese): " << wks2.cell(XLCellReference("A3")).value().get<std::string>() << std::endl;
-    nowide::cout << "Cell A4 (Hindi)   : " << wks2.cell(XLCellReference("A4")).value().get<std::string>() << std::endl;
-    nowide::cout << "Cell A5 (Russian) : " << wks2.cell(XLCellReference("A5")).value().get<std::string>() << std::endl;
-    nowide::cout << "Cell A6 (Greek)   : " << wks2.cell(XLCellReference("A6")).value().get<std::string>() << std::endl;
+    // From an XLSheet object you can retreive the contained XLWorksheet or XLChartsheet object by
+    // using the 'get<>()' function:
+    auto s1 = wbk.sheet("Sheet2").get<XLWorksheet>();
 
+    // Alternatively, you can retrieve the contained object, by using implicit conversion:
+    XLWorksheet s2 = wbk.sheet("Sheet2");
 
-    nowide::cout << "\nNOTE: If you are using a Windows terminal, the above output may look like gibberish,\n"
-                    "because the Windows terminal does not support UTF-8 at the moment. To view to output,\n"
-                    "you can use the overloaded 'cout' in the boost::nowide library (as in this sample program).\n"
-                    "This will require a UTF-8 enabled font in the terminal. Lucinda Console supports some\n"
-                    "non-ASCII scripts, such as Cyrillic and Greek. NSimSun supports some asian scripts.\n\n";
+    // Existing sheets can be cloned by calling the 'clone' method on the individual sheet,
+    // or by calling the 'cloneSheet' method from the XLWorkbook object. If the latter is
+    // chosen, both the name of the sheet to be cloned, as well as the name of the new
+    // sheet must be provided.
+    // In principle, chartsheets can also be cloned, but the results may not be as expected.
+    wbk.sheet("Sheet1").clone("Sheet4");
+    wbk.cloneSheet("Sheet2", "Sheet5");
+    printWorkbook(wbk);
 
-    doc2.close();
+    // The sheets in the workbook can be reordered by calling the 'setIndex' method on the
+    // individual sheets (or worksheets/chartsheets).
+    wbk.deleteSheet("Sheet1");
+    wbk.worksheet("Sheet5").setIndex(1);
+    wbk.worksheet("Sheet4").setIndex(2);
+    wbk.worksheet("Sheet3").setIndex(3);
+    wbk.worksheet("Sheet2").setIndex(4);
+    printWorkbook(wbk);
+
+    // The color of each sheet tab can be set using the 'setColor' method for a
+    // sheet, and passing an XLColor object as an argument.
+    wbk.sheet("Sheet2").setColor(XLColor(0, 0, 0));
+    wbk.sheet("Sheet3").setColor(XLColor(255, 0, 0));
+    wbk.sheet("Sheet4").setColor(XLColor(0, 255, 0));
+    wbk.sheet("Sheet5").setColor(XLColor(0, 0, 255));
+
+    doc.save();
 
     return 0;
 }

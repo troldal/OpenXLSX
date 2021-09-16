@@ -15,6 +15,14 @@ int main()
     cout << "DEMO PROGRAM #05: Ranges and Iterators\n";
     cout << "********************************************************************************\n";
 
+    // With OpenXLSX, a range of cells can be defined, in order to iterate through the
+    // cells in the range. A range is a quardratic region of cells in a worksheet.
+    // A range can be defined using the 'range()' method on an XLWorksheet object. This function
+    // takes two XLCellReferences: the cell in the upper left corner of the range, and the cell
+    // in the lower right corner.
+    // The resulting XLCellRange objects provides 'begin()' and 'end()' (returning iterators),
+    // so that the object can be used in a range-based for-loop.
+
     cout << "\nGenerating spreadsheet (1,048,576 rows x 8 columns) ..." << endl;
     XLDocument doc;
     doc.create("./Demo05.xlsx");

@@ -10,6 +10,9 @@ int main()
     cout << "DEMO PROGRAM #01: Basic Usage\n";
     cout << "********************************************************************************\n";
 
+    // This example program illustrates basic usage of OpenXLSX, for example creation of a new workbook, and read/write
+    // of cell values.
+
 
     // First, create a new document and access the sheet named 'Sheet1'.
     // New documents contain a single worksheet named 'Sheet1'

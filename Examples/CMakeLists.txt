@@ -25,16 +25,16 @@ target_link_libraries(Demo2 PRIVATE OpenXLSX::OpenXLSX)
 # Define Demo3 target
 #=======================================================================================================================
 add_executable(Demo3 Demo3.cpp)
-target_link_libraries(Demo3 PRIVATE OpenXLSX::OpenXLSX nowide::nowide)
+target_link_libraries(Demo3 PRIVATE OpenXLSX::OpenXLSX)
 
 #=======================================================================================================================
 # Define Demo4 target
 #=======================================================================================================================
 add_executable(Demo4 Demo4.cpp)
-target_link_libraries(Demo4 PRIVATE OpenXLSX::OpenXLSX)
+target_link_libraries(Demo4 PRIVATE OpenXLSX::OpenXLSX nowide::nowide)
 
 #=======================================================================================================================
-# Define Demo5 target
+# Define Demo9 target
 #=======================================================================================================================
 add_executable(Demo5 Demo5.cpp)
 target_link_libraries(Demo5 PRIVATE OpenXLSX::OpenXLSX)
@@ -57,8 +57,3 @@ target_link_libraries(Demo7 PRIVATE OpenXLSX::OpenXLSX)
 add_executable(Demo8 Demo8.cpp)
 target_link_libraries(Demo8 PRIVATE OpenXLSX::OpenXLSX)
 
-#=======================================================================================================================
-# Define Demo9 target
-#=======================================================================================================================
-add_executable(Demo9 Demo9.cpp)
-target_link_libraries(Demo9 PRIVATE OpenXLSX::OpenXLSX)

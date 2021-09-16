@@ -70,7 +70,7 @@ namespace
 
     inline XMLNode sheetNames(XMLNode docNode)
     {
-        return docNode.child("TitleOfParts").first_child();
+        return docNode.child("TitlesOfParts").first_child();
     }
 
     inline XMLAttribute sheetCount(XMLNode docNode)
@@ -178,7 +178,7 @@ void XLAppProperties::deleteSheetName(const std::string& title)
  */
 void XLAppProperties::setSheetName(const std::string& oldTitle, const std::string& newTitle)
 {
-    for (auto& iter : sheetNames(xmlDocument().document_element()).children()) {
+    for (auto& iter : sheetNames(xmlDocument().document_element())) {
         if (iter.child_value() == oldTitle) {
             iter.text().set(newTitle.c_str());
             return;

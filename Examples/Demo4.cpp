@@ -1,122 +1,69 @@
 #include <OpenXLSX.hpp>
 #include <iostream>
+#include <nowide/iostream.hpp>
 
-using namespace std;
+//using namespace std;
 using namespace OpenXLSX;
 
 int main()
 {
-    cout << "********************************************************************************\n";
-    cout << "DEMO PROGRAM #04: Number Formats\n";
-    cout << "********************************************************************************\n";
+    nowide::cout << "********************************************************************************\n";
+    nowide::cout << "DEMO PROGRAM #04: Unicode\n";
+    nowide::cout << "********************************************************************************\n";
 
+    // Unicode can be a real pain in the neck. While UTF-8 encoding has become the de facto standard
+    // encoding on Linux, MacOS and the internet, some systems use other encodings, most notably
+    // Windows which use UTF-16.
+    // OpenXLSX is based on UTF-8. That means that all text input and output MUST be in UTF-8 format.
+    // On Linux and MacOS, this will work out of the box because UTF-8 is baked into those systems.
+    // On Windows, on the other hand, input and output must be converted to UTF-8 first. This includes
+    // input strings that are hard-coded into your program. To stay sane, it is recommended that
+    // all your source code files are in UTF-8 encoding. All major compilers and IDEs on windows
+    // support UTF-8 encoded source files.
+    // To convert input/output manually, you can use the Windows API, or 3rd party libraries, such
+    // as boost.nowide.
+    // In this example boost.nowide is used, as it provides some handy functionality that enables
+    // console input/output with implicit conversion to/from UTF-8 on Windows.
+
+    // First, create a new document and access the sheet named 'Sheet1'.
+    // Then rename the worksheet to 'Простыня'.
     XLDocument doc1;
     doc1.create("./Demo04.xlsx");
     auto wks1 = doc1.workbook().worksheet("Sheet1");
+    wks1.setName("Простыня");
 
-    wks1.cell("A1").value() = 0.01;
-    wks1.cell("B1").value() = 0.02;
-    wks1.cell("C1").value() = 0.03;
-    wks1.cell("A2").value() = 0.001;
-    wks1.cell("B2").value() = 0.002;
-    wks1.cell("C2").value() = 0.003;
-    wks1.cell("A3").value() = 1e-4;
-    wks1.cell("B3").value() = 2e-4;
-    wks1.cell("C3").value() = 3e-4;
+    // Cell values can be set to any Unicode string using the normat value assignment methods.
+    wks1.cell(XLCellReference("A1")).value() = "안녕하세요 세계!";
+    wks1.cell(XLCellReference("A2")).value() = "你好，世界!";
+    wks1.cell(XLCellReference("A3")).value() = "こんにちは世界";
+    wks1.cell(XLCellReference("A4")).value() = "नमस्ते दुनिया!";
+    wks1.cell(XLCellReference("A5")).value() = "Привет, мир!";
+    wks1.cell(XLCellReference("A6")).value() = "Γειά σου Κόσμε!";
 
-    wks1.cell("A4").value() = 1;
-    wks1.cell("B4").value() = 2;
-    wks1.cell("C4").value() = 3;
-    wks1.cell("A5").value() = 845287496;
-    wks1.cell("B5").value() = 175397487;
-    wks1.cell("C5").value() = 973853975;
-    wks1.cell("A6").value() = 2e10;
-    wks1.cell("B6").value() = 3e11;
-    wks1.cell("C6").value() = 4e12;
-
+    // Workbooks can also be saved and loaded with Unicode names
     doc1.save();
+    doc1.saveAs("./スプレッドシート.xlsx");
     doc1.close();
 
-    XLDocument doc2;
-    doc2.open("./Demo04.xlsx");
-    auto wks2 = doc2.workbook().worksheet("Sheet1");
+    doc1.open("./スプレッドシート.xlsx");
+    wks1 = doc1.workbook().worksheet("Простыня");
 
-    auto PrintCell = [](const XLCell& cell) {
-        cout << "Cell type is ";
+    // The nowide::cout object is a drop-in replacement of the std::cout that enables console output of UTF-8, even on Windows.
+    nowide::cout << "Cell A1 (Korean)  : " << wks1.cell(XLCellReference("A1")).value().get<std::string>() << std::endl;
+    nowide::cout << "Cell A2 (Chinese) : " << wks1.cell(XLCellReference("A2")).value().get<std::string>() << std::endl;
+    nowide::cout << "Cell A3 (Japanese): " << wks1.cell(XLCellReference("A3")).value().get<std::string>() << std::endl;
+    nowide::cout << "Cell A4 (Hindi)   : " << wks1.cell(XLCellReference("A4")).value().get<std::string>() << std::endl;
+    nowide::cout << "Cell A5 (Russian) : " << wks1.cell(XLCellReference("A5")).value().get<std::string>() << std::endl;
+    nowide::cout << "Cell A6 (Greek)   : " << wks1.cell(XLCellReference("A6")).value().get<std::string>() << std::endl;
 
-        switch (cell.value().type()) {
-            case XLValueType::Empty:
-                cout << "XLValueType::Empty" << endl;
-                break;
 
-            case XLValueType::Float:
-                cout << "XLValueType::Float and the getValue is " << cell.value().get<double>() << endl;
-                break;
+    nowide::cout << "\nNOTE: If you are using a Windows terminal, the above output may look like gibberish,\n"
+                    "because the Windows terminal does not support UTF-8 at the moment. To view to output,\n"
+                    "you can use the overloaded 'cout' in the boost::nowide library (as in this sample program).\n"
+                    "This will require a UTF-8 enabled font in the terminal. Lucinda Console supports some\n"
+                    "non-ASCII scripts, such as Cyrillic and Greek. NSimSun supports some asian scripts.\n\n";
 
-            case XLValueType::Integer:
-                cout << "XLValueType::Integer and the getValue is " << cell.value().get<int64_t>() << endl;
-                break;
-
-            default:
-                cout << "Unknown";
-        }
-    };
-
-    cout << "Cell A1: ";
-    PrintCell(wks2.cell("A1"));
-
-    cout << "Cell B1: ";
-    PrintCell(wks2.cell("B1"));
-
-    cout << "Cell C1: ";
-    PrintCell(wks2.cell("C1"));
-
-    cout << "Cell A2: ";
-    PrintCell(wks2.cell("A2"));
-
-    cout << "Cell B2: ";
-    PrintCell(wks2.cell("B2"));
-
-    cout << "Cell C2: ";
-    PrintCell(wks2.cell("C2"));
-
-    cout << "Cell A3: ";
-    PrintCell(wks2.cell("A3"));
-
-    cout << "Cell B3: ";
-    PrintCell(wks2.cell("B3"));
-
-    cout << "Cell C3: ";
-    PrintCell(wks2.cell("C3"));
-
-    cout << "Cell A4: ";
-    PrintCell(wks2.cell("A4"));
-
-    cout << "Cell B4: ";
-    PrintCell(wks2.cell("B4"));
-
-    cout << "Cell C4: ";
-    PrintCell(wks2.cell("C4"));
-
-    cout << "Cell A5: ";
-    PrintCell(wks2.cell("A5"));
-
-    cout << "Cell B5: ";
-    PrintCell(wks2.cell("B5"));
-
-    cout << "Cell C5: ";
-    PrintCell(wks2.cell("C5"));
-
-    cout << "Cell A6: ";
-    PrintCell(wks2.cell("A6"));
-
-    cout << "Cell B6: ";
-    PrintCell(wks2.cell("B6"));
-
-    cout << "Cell C6: ";
-    PrintCell(wks2.cell("C6"));
-
-    doc2.close();
+    doc1.close();
 
     return 0;
 }

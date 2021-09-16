@@ -241,7 +241,7 @@ namespace OpenXLSX
         {
             if constexpr (std::is_same_v<Command, XLCommandSetSheetName>) {
                 m_appProperties.setSheetName(command.sheetName(), command.newName());
-                m_workbook.setSheetName(command.sheetID(), command.sheetName());
+                m_workbook.setSheetName(command.sheetID(), command.newName());
             }
 
             else if constexpr (std::is_same_v<Command, XLCommandSetSheetVisibility>) {    // NOLINT
