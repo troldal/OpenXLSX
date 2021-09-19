@@ -183,7 +183,7 @@ project; it will save you a lot of headaches.
 
 ## Current Status
 
-OpenXLSX is still work i progress. The following is a list of features
+OpenXLSX is still work in progress. The following is a list of features
 which have been implemented and should be working properly:
 
 - Create/open/save files
