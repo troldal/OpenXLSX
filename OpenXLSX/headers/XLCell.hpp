@@ -171,19 +171,29 @@ namespace OpenXLSX
          * @brief
          * @return
          */
-//        std::string formula() const;
-
         XLFormulaProxy& formula();
 
+        /**
+         * @brief
+         * @return
+         */
         const XLFormulaProxy& formula() const;
 
         /**
          * @brief
          * @param newFormula
          */
-//        void setFormula(const std::string& newFormula);
 
     private:
+
+        /**
+         * @brief
+         * @param lhs
+         * @param rhs
+         * @return
+         */
+        static bool isEqual(const XLCell& lhs, const XLCell& rhs);
+
         //---------- Private Member Variables ---------- //
         std::unique_ptr<XMLNode> m_cellNode;      /**< A pointer to the root XMLNode for the cell. */
         XLSharedStrings*         m_sharedStrings; /**< */
@@ -204,7 +214,7 @@ namespace OpenXLSX
      */
     inline bool operator==(const XLCell& lhs, const XLCell& rhs)
     {
-        return lhs.m_cellNode == rhs.m_cellNode;
+        return XLCell::isEqual(lhs, rhs);
     }
 
     /**
@@ -215,7 +225,7 @@ namespace OpenXLSX
      */
     inline bool operator!=(const XLCell& lhs, const XLCell& rhs)
     {
-        return !(lhs.m_cellNode == rhs.m_cellNode);
+        return !XLCell::isEqual(lhs, rhs);
     }
 
 }    // namespace OpenXLSX

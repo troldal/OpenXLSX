@@ -125,4 +125,26 @@ TEST_CASE("XLCellReference Tests", "[XLCell]")
 
 
     }
+
+    SECTION("Comparison operators") {
+
+        auto ref1 = XLCellReference("B2");
+        auto ref2 = XLCellReference("B2");
+        auto ref3 = XLCellReference("C3");
+
+        REQUIRE(ref1 == ref2);
+        REQUIRE_FALSE(ref1 == ref3);
+        REQUIRE(ref1 != ref3);
+        REQUIRE_FALSE(ref1 != ref2);
+        REQUIRE(ref1 < ref3);
+        REQUIRE_FALSE(ref1 > ref3);
+        REQUIRE(ref3 > ref1);
+        REQUIRE_FALSE(ref3 < ref1);
+        REQUIRE(ref1 <= ref2);
+        REQUIRE(ref1 <= ref3);
+        REQUIRE_FALSE(ref3 <= ref1);
+        REQUIRE(ref2 >= ref1);
+        REQUIRE(ref3 >= ref1);
+        REQUIRE_FALSE(ref1 >= ref3);
+    }
 }

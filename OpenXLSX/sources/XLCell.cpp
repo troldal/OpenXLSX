@@ -173,37 +173,23 @@ bool XLCell::hasFormula() const
     return m_cellNode->child("f") != nullptr;
 }
 
+/**
+ * @details
+ */
 XLFormulaProxy& XLCell::formula()
 {
     if (!*this) throw XLInternalError("XLCell object has not been properly initiated.");
     return m_formulaProxy;
 }
 
+/**
+ * @details
+ */
 const XLFormulaProxy& XLCell::formula() const
 {
     if (!*this) throw XLInternalError("XLCell object has not been properly initiated.");
     return m_formulaProxy;
 }
-
-/**
- * @details
- */
-//std::string XLCell::formula() const
-//{
-//    if (!*this) throw XLInternalError("XLCell object has not been properly initiated.");
-//    return m_cellNode->child("f").text().get();
-//}
-
-/**
- * @details
- * @pre
- * @post
- */
-//void XLCell::setFormula(const std::string& newFormula)
-//{
-//    if (!*this) throw XLInternalError("XLCell object has not been properly initiated.");
-//    m_cellNode->child("f").text().set(newFormula.c_str());
-//}
 
 /**
  * @details
@@ -225,4 +211,14 @@ const XLCellValueProxy& XLCell::value() const
 {
     if (!*this) throw XLInternalError("XLCell object has not been properly initiated.");
     return m_valueProxy;
+}
+
+/**
+ * @details
+ * @pre
+ * @post
+ */
+bool XLCell::isEqual(const XLCell& lhs, const XLCell& rhs)
+{
+    return *lhs.m_cellNode == *rhs.m_cellNode;
 }
