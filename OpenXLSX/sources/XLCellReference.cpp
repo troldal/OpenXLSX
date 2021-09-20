@@ -149,8 +149,7 @@ XLCellReference& XLCellReference::operator=(XLCellReference&& other) noexcept = 
 /**
  * @details
  */
- XLCellReference XLCellReference::operator++(int) // NOLINT
-{
+ XLCellReference XLCellReference::operator++(int) { // NOLINT
     auto oldRef(*this);
     ++(*this);
     return oldRef;
@@ -179,8 +178,7 @@ XLCellReference& XLCellReference::operator=(XLCellReference&& other) noexcept = 
 /**
  * @details
  */
- XLCellReference XLCellReference::operator--(int) // NOLINT
-{
+ XLCellReference XLCellReference::operator--(int) {// NOLINT
     auto oldRef(*this);
     --(*this);
     return oldRef;
