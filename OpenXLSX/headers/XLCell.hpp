@@ -128,16 +128,6 @@ namespace OpenXLSX
         XLCell& operator=(XLCell&& other) noexcept;
 
         /**
-         * @brief This copy assignment operators takes a range as the argument. The purpose is to copy the range to a
-         * new location, with the target cell being the top left cell in the range.
-         * @param range The range to be copied
-         * @return A reference to the new cell object.
-         * @note Copies only the cell contents (values).
-         * @todo Consider moving this function to the XLCellValueProxy class. It would make more sense there.
-         */
-        XLCell& operator=(const XLCellRange& range);
-
-        /**
          * @brief
          * @return
          */

@@ -127,27 +127,6 @@ XLCell& XLCell::operator=(XLCell&& other) noexcept
 }
 
 /**
- * @details This methods copies a range into a new location, with the top left cell being located in the target cell.
- * The copying is done in the following way:
- * - Define a range with the top left cell being the target cell.
- * - Calculate the size of the range from the originating range and set the new range to the same size.
- * - Copy the contents of the original range to the new range.
- * - Return a reference to the first cell in the new range.
- * @pre
- * @post
- * @todo Consider what happens if the target range extends beyond the maximum spreadsheet limits
- */
-XLCell& XLCell::operator=(const XLCellRange& range)
-{
-    auto            first = cellReference();
-    XLCellReference last(first.row() + range.numRows() - 1, first.column() + range.numColumns() - 1);
-    XLCellRange     rng(m_cellNode->parent().parent(), first, last, nullptr);
-    rng = range;
-
-    return *this;
-}
-
-/**
  * @details
  */
 XLCell::operator bool() const
@@ -161,7 +140,7 @@ XLCell::operator bool() const
 XLCellReference XLCell::cellReference() const
 {
     if (!*this) throw XLInternalError("XLCell object has not been properly initiated.");
-    return XLCellReference(m_cellNode->attribute("r").value());
+    return XLCellReference{m_cellNode->attribute("r").value()};
 }
 
 /**
