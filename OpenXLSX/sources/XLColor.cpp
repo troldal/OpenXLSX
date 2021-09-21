@@ -56,6 +56,11 @@ using namespace OpenXLSX;
 /**
  * @details
  */
+XLColor::XLColor() = default;
+
+/**
+ * @details
+ */
 XLColor::XLColor(uint8_t alpha, uint8_t red, uint8_t green, uint8_t blue) : m_alpha(alpha), m_red(red), m_green(green), m_blue(blue) {}
 
 /**
@@ -74,7 +79,27 @@ XLColor::XLColor(const std::string& hexCode) : m_red(0), m_green(0), m_blue(0)
 /**
  * @details
  */
+XLColor::XLColor(const XLColor& other) = default;
+
+/**
+ * @details
+ */
+XLColor::XLColor(XLColor&& other) noexcept = default;
+
+/**
+ * @details
+ */
 XLColor::~XLColor() = default;
+
+/**
+ * @details
+ */
+XLColor& XLColor::operator=(const XLColor& other) = default;
+
+/**
+ * @details
+ */
+XLColor& XLColor::operator=(XLColor&& other) noexcept = default;
 
 /**
  * @details
