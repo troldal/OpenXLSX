@@ -108,4 +108,24 @@ TEST_CASE("XLFormula Tests", "[XLFormula]")
         auto result = std::string(formula1);
         REQUIRE(result == "BLAH1");
     }
+
+    SECTION("FormulaProxy")
+    {
+        XLDocument doc;
+        doc.create("./testXLFormula.xlsx");
+        auto wks = doc.workbook().worksheet("Sheet1");
+
+        wks.cell("A1").formula() = "=1+1";
+        wks.cell("B2").formula() = wks.cell("A1").formula();
+        REQUIRE(wks.cell("B2").formula() == XLFormula("=1+1"));
+
+        XLFormula form = wks.cell("B2").formula();
+        REQUIRE(form == XLFormula("=1+1"));
+
+        REQUIRE(wks.cell("A1").hasFormula());
+        wks.cell("A1").formula().clear();
+        REQUIRE_FALSE(wks.cell("A1").hasFormula());
+        REQUIRE(wks.cell("B2").formula() == XLFormula("=1+1"));
+
+    }
 }

@@ -271,7 +271,7 @@ namespace OpenXLSX
          * @brief Implicit conversion to XLFormula object.
          * @return Returns the corresponding XLFormula object.
          */
-        operator XLFormula();    // NOLINT
+        operator XLFormula() const;    // NOLINT
 
     private:
 

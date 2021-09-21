@@ -100,7 +100,7 @@ XLFormulaProxy& XLFormulaProxy::operator=(XLFormulaProxy&& other) noexcept = def
 /**
  * @details Returns the underlying XLFormula object, by calling getFormula().
  */
-XLFormulaProxy::operator XLFormula()
+XLFormulaProxy::operator XLFormula() const
 {
     return getFormula();
 }
