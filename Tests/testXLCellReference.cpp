@@ -32,6 +32,16 @@ TEST_CASE("XLCellReference Tests", "[XLCell]")
         REQUIRE(ref.row() == 4);
         REQUIRE(ref.column() == 4);
 
+        ref = XLCellReference("AA1");
+        REQUIRE(ref.address() == "AA1");
+        REQUIRE(ref.row() == 1);
+        REQUIRE(ref.column() == 27);
+
+        ref = XLCellReference(1,27);
+        REQUIRE(ref.address() == "AA1");
+        REQUIRE(ref.row() == 1);
+        REQUIRE(ref.column() == 27);
+
         ref = XLCellReference("XFD1");
         REQUIRE(ref.address() == "XFD1");
         REQUIRE(ref.row() == 1);

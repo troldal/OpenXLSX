@@ -198,13 +198,9 @@ uint32_t XLCellReference::row() const
  */
 void XLCellReference::setRow(uint32_t row)
 {
-    if (row < 1)
-        m_row = 1;
-    else if (row > MAX_ROWS)
-        m_row = MAX_ROWS;
-    else
-        m_row = row;
+    if(!addressIsValid(row, m_column)) throw XLCellAddressError("Cell reference is invalid");
 
+    m_row = row;
     m_cellAddress = columnAsString(m_column) + rowAsString(m_row);
 }
 
@@ -222,13 +218,9 @@ uint16_t XLCellReference::column() const
  */
 void XLCellReference::setColumn(uint16_t column)
 {
-    if (column < 1)
-        m_column = 1;
-    else if (column > MAX_COLS)
-        m_column = MAX_COLS;
-    else
-        m_column = column;
+    if(!addressIsValid(m_row, column)) throw XLCellAddressError("Cell reference is invalid");
 
+    m_column = column;
     m_cellAddress = columnAsString(m_column) + rowAsString(m_row);
 }
 
