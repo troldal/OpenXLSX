@@ -184,6 +184,7 @@ const XLFormulaProxy& XLCell::formula() const
     return m_formulaProxy;
 }
 
+/**
  * @pre
  * @post
  */
