@@ -145,7 +145,9 @@ namespace OpenXLSX
          * @return Reference to the assigned-to object.
          */
         template<typename T,
-                 typename std::enable_if<std::is_constructible_v<T, char*>>::type* = nullptr>
+                 typename std::enable_if<std::is_same_v<std::decay_t<T>, std::string> ||
+                                         std::is_same_v<std::decay_t<T>, const char*> ||
+                                         std::is_same_v<std::decay_t<T>, char*> >::type* = nullptr>
         XLFormula& operator=(T formula) {
             XLFormula temp(formula);
             std::swap(*this, temp);
@@ -158,7 +160,9 @@ namespace OpenXLSX
          * @param formula String containing the formula.
          */
         template<typename T,
-                 typename std::enable_if<std::is_constructible_v<T, char*>>::type* = nullptr>
+                 typename std::enable_if<std::is_same_v<std::decay_t<T>, std::string> ||
+                                         std::is_same_v<std::decay_t<T>, const char*> ||
+                                         std::is_same_v<std::decay_t<T>, char*> >::type* = nullptr>
         void set(T formula) {
             *this = formula;
         }
@@ -170,15 +174,10 @@ namespace OpenXLSX
         std::string get() const;
 
         /**
-         * @brief Templated conversion operator, for converting object to a string-type object.
-         * @tparam T Type to convert to.
-         * @return The formula as the desired string-type.
+         * @brief Conversion operator, for converting object to a std::string.
+         * @return The formula as a std::string.
          */
-        template<typename T,
-                 typename std::enable_if<std::is_constructible_v<T, const char*>>::type* = nullptr>
-        operator T() const {
-            return m_formulaString.c_str();
-        }
+        operator std::string() const; // NOLINT
 
         /**
          * @brief Clear the formula.
@@ -220,15 +219,19 @@ namespace OpenXLSX
          * @return A reference to the copied-to object.
          */
         template<typename T,
-                 typename std::enable_if<std::is_same_v<T, XLFormula> || std::is_constructible_v<T, const char*>>::type* = nullptr>
+                 typename std::enable_if<
+                     std::is_same_v<std::decay_t<T>, XLFormula> ||
+                     std::is_same_v<std::decay_t<T>, std::string> ||
+                     std::is_same_v<std::decay_t<T>, const char*> ||
+                     std::is_same_v<std::decay_t<T>, char*> >::type* = nullptr>
         XLFormulaProxy& operator=(T formula) {
 
-            if constexpr (std::is_same_v<T, XLFormula>)
+            if constexpr (std::is_same_v<std::decay_t<T>, XLFormula>)
                 setFormulaString(formula.get().c_str());
-            else if constexpr (std::is_same_v<T, const char*>)
-                setFormulaString(formula);
-            else
+            else if constexpr (std::is_same_v<std::decay_t<T>, std::string>)
                 setFormulaString(formula.c_str());
+            else
+                setFormulaString(formula);
 
             return *this;
         }
@@ -239,7 +242,9 @@ namespace OpenXLSX
          * @param formula The formula string to be assigned.
          */
         template<typename T,
-                 typename std::enable_if<std::is_constructible_v<T, char*>>::type* = nullptr>
+                 typename std::enable_if<std::is_same_v<std::decay_t<T>, std::string> ||
+                                         std::is_same_v<std::decay_t<T>, const char*> ||
+                                         std::is_same_v<std::decay_t<T>, char*> >::type* = nullptr>
         void set(T formula) {
             *this = formula;
         }
@@ -251,21 +256,16 @@ namespace OpenXLSX
         std::string get() const;
 
         /**
-         * @brief Templated conversion operator, for converting object to a string-type object.
-         * @tparam T Type to convert to.
-         * @return The formula as the desired string-type.
-         */
-        template<typename T,
-                 typename std::enable_if<std::is_constructible_v<T, const char*>>::type* = nullptr>
-        operator T() const {
-            return get().c_str();
-        }
-
-        /**
          * @brief Clear the formula.
          * @return Return a reference to the cleared object.
          */
         XLFormulaProxy& clear();
+
+        /**
+         * @brief Conversion operator, for converting the object to a std::string.
+         * @return The formula as a std::string.
+         */
+        operator std::string() const; // NOLINT
 
         /**
          * @brief Implicit conversion to XLFormula object.
