@@ -127,7 +127,7 @@ namespace OpenXLSX
          * @param other
          * @return
          */
-        XLContentItem(XLContentItem&& other) noexcept = default;
+        XLContentItem(XLContentItem&& other) noexcept;
 
         /**
          * @brief
@@ -141,7 +141,7 @@ namespace OpenXLSX
          * @param other
          * @return
          */
-        XLContentItem& operator=(XLContentItem&& other) noexcept = default;
+        XLContentItem& operator=(XLContentItem&& other) noexcept;
 
         /**
          * @brief
@@ -155,7 +155,7 @@ namespace OpenXLSX
          */
         std::string path() const;
 
-    private:                                    // ---------- Private Member Variables ---------- //
+    private:
         std::unique_ptr<XMLNode> m_contentNode; /**< */
     };
 
@@ -172,7 +172,7 @@ namespace OpenXLSX
         /**
          * @brief
          */
-        XLContentTypes() = default;
+        XLContentTypes();
 
         /**
          * @brief
@@ -189,27 +189,27 @@ namespace OpenXLSX
          * @brief
          * @param other
          */
-        XLContentTypes(const XLContentTypes& other) = default;
+        XLContentTypes(const XLContentTypes& other);
 
         /**
          * @brief
          * @param other
          */
-        XLContentTypes(XLContentTypes&& other) noexcept = default;
-
-        /**
-         * @brief
-         * @param other
-         * @return
-         */
-        XLContentTypes& operator=(const XLContentTypes& other) = default;
+        XLContentTypes(XLContentTypes&& other) noexcept;
 
         /**
          * @brief
          * @param other
          * @return
          */
-        XLContentTypes& operator=(XLContentTypes&& other) noexcept = default;
+        XLContentTypes& operator=(const XLContentTypes& other);
+
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
+        XLContentTypes& operator=(XLContentTypes&& other) noexcept;
 
         /**
          * @brief Add a new override key/getValue pair to the data store.

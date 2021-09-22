@@ -107,13 +107,13 @@ namespace OpenXLSX
          * @brief Copy constructor
          * @param other The object to be copied.
          */
-        XLCellReference(const XLCellReference& other) = default;
+        XLCellReference(const XLCellReference& other);
 
         /**
          * @brief
          * @param other
          */
-        XLCellReference(XLCellReference&& other) noexcept = default;
+        XLCellReference(XLCellReference&& other) noexcept;
 
         /**
          * @brief Destructor. Default implementation used.
@@ -125,14 +125,38 @@ namespace OpenXLSX
          * @param other The object to be copied/assigned.
          * @return A reference to the new object.
          */
-        XLCellReference& operator=(const XLCellReference& other) = default;
+        XLCellReference& operator=(const XLCellReference& other);
 
         /**
          * @brief
          * @param other
          * @return
          */
-        XLCellReference& operator=(XLCellReference&& other) noexcept = default;
+        XLCellReference& operator=(XLCellReference&& other) noexcept;
+
+        /**
+         * @brief
+         * @return
+         */
+        XLCellReference& operator++();
+
+        /**
+         * @brief
+         * @return
+         */
+        XLCellReference operator++(int); // NOLINT
+
+        /**
+         * @brief
+         * @return
+         */
+        XLCellReference& operator--();
+
+        /**
+         * @brief
+         * @return
+         */
+        XLCellReference operator--(int); // NOLINT
 
         /**
          * @brief Get the row number of the XLCellReference.

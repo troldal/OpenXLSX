@@ -13,13 +13,20 @@ TEST_CASE("XLCell Tests", "[XLCell]")
     SECTION("Default Constructor")
     {
         XLCell cell;
-
         REQUIRE_FALSE(cell);
         REQUIRE_THROWS(cell.cellReference());
         REQUIRE_FALSE(cell.hasFormula());
         REQUIRE_THROWS(cell.formula());
         REQUIRE_THROWS(cell.formula().set("=1+1"));
         REQUIRE_THROWS(cell.value());
+
+        const auto copy = cell;
+        REQUIRE_FALSE(copy);
+        REQUIRE_THROWS(copy.cellReference());
+        REQUIRE_FALSE(copy.hasFormula());
+        REQUIRE_THROWS(copy.formula());
+        REQUIRE_THROWS(copy.value());
+
 
     }
 
@@ -106,6 +113,8 @@ TEST_CASE("XLCell Tests", "[XLCell]")
         REQUIRE_FALSE(copy.hasFormula());
         REQUIRE(copy.value().get<int>() == 42);
 
+
+
     }
 
     SECTION("Setters and Getters")
@@ -115,12 +124,34 @@ TEST_CASE("XLCell Tests", "[XLCell]")
         XLWorksheet wks = doc.workbook().sheet(1);
         auto cell = wks.cell("A1");
         cell.formula().set("=1+1");
+        cell.value() = 42;
 
         REQUIRE(cell.hasFormula());
         REQUIRE(cell.formula().get() == "=1+1");
+        REQUIRE(cell.value().get<int>() == 42);
 
 
+        const auto copy = cell;
+        REQUIRE(copy.hasFormula());
+        REQUIRE(copy.formula().get() == "=1+1");
+        REQUIRE(copy.value().get<int>() == 42);
 
+    }
+
+    SECTION("Relational operators")
+    {
+        auto doc = XLDocument();
+        doc.create("./testXLCell.xlsx");
+        auto wks = doc.workbook().worksheet("Sheet1");
+
+        auto cell1 = wks.cell("B2");
+        auto cell2 = wks.cell("B2");
+        auto cell3 = wks.cell("C3");
+
+        REQUIRE(cell1 == cell2);
+        REQUIRE_FALSE(cell1 == cell3);
+        REQUIRE(cell1 != cell3);
+        REQUIRE_FALSE(cell1 != cell2);
     }
 
 }

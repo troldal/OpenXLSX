@@ -166,6 +166,9 @@ namespace
     }
 }    // namespace
 
+/**
+ * @details
+ */
 XLContentItem::XLContentItem() : m_contentNode(std::make_unique<XMLNode>()) {}
 
 /**
@@ -173,15 +176,31 @@ XLContentItem::XLContentItem() : m_contentNode(std::make_unique<XMLNode>()) {}
  */
 XLContentItem::XLContentItem(const XMLNode& node) : m_contentNode(std::make_unique<XMLNode>(node)) {}
 
+/**
+ * @details
+ */
 XLContentItem::XLContentItem(const XLContentItem& other) : m_contentNode(std::make_unique<XMLNode>(*other.m_contentNode)) {}
 
+/**
+ * @details
+ */
+XLContentItem::XLContentItem(XLContentItem&& other) noexcept = default;
+
+/**
+ * @details
+ */
 XLContentItem::~XLContentItem() = default;
 
+/**
+ * @details
+ */
 XLContentItem& XLContentItem::operator=(const XLContentItem& other)
 {
     if (&other != this) *m_contentNode = *other.m_contentNode;
     return *this;
 }
+
+XLContentItem& XLContentItem::operator=(XLContentItem&& other) noexcept = default;
 
 /**
  * @details
@@ -202,9 +221,37 @@ std::string XLContentItem::path() const
 /**
  * @details
  */
+XLContentTypes::XLContentTypes() = default;
+
+/**
+ * @details
+ */
 XLContentTypes::XLContentTypes(XLXmlData* xmlData) : XLXmlFile(xmlData) {}
 
+/**
+ * @details
+ */
 XLContentTypes::~XLContentTypes() = default;
+
+/**
+ * @details
+ */
+XLContentTypes::XLContentTypes(const XLContentTypes& other) = default;
+
+/**
+ * @details
+ */
+XLContentTypes::XLContentTypes(XLContentTypes&& other) noexcept = default;
+
+/**
+ * @details
+ */
+XLContentTypes& XLContentTypes::operator=(const XLContentTypes& other) = default;
+
+/**
+ * @details
+ */
+XLContentTypes& XLContentTypes::operator=(XLContentTypes&& other) noexcept = default;
 
 /**
  * @details
@@ -242,6 +289,9 @@ XLContentItem XLContentTypes::contentItem(const std::string& path)
     return XLContentItem(xmlDocument().document_element().find_child_by_attribute("PartName", path.c_str()));
 }
 
+/**
+ * @details
+ */
 std::vector<XLContentItem> XLContentTypes::getContentItems()
 {
     std::vector<XLContentItem> result;

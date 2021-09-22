@@ -128,16 +128,6 @@ namespace OpenXLSX
         XLCell& operator=(XLCell&& other) noexcept;
 
         /**
-         * @brief This copy assignment operators takes a range as the argument. The purpose is to copy the range to a
-         * new location, with the target cell being the top left cell in the range.
-         * @param range The range to be copied
-         * @return A reference to the new cell object.
-         * @note Copies only the cell contents (values).
-         * @todo Consider moving this function to the XLCellValueProxy class. It would make more sense there.
-         */
-        XLCell& operator=(const XLCellRange& range);
-
-        /**
          * @brief
          * @return
          */
@@ -177,19 +167,29 @@ namespace OpenXLSX
          * @brief
          * @return
          */
-//        std::string formula() const;
-
         XLFormulaProxy& formula();
 
+        /**
+         * @brief
+         * @return
+         */
         const XLFormulaProxy& formula() const;
 
         /**
          * @brief
          * @param newFormula
          */
-//        void setFormula(const std::string& newFormula);
 
     private:
+
+        /**
+         * @brief
+         * @param lhs
+         * @param rhs
+         * @return
+         */
+        static bool isEqual(const XLCell& lhs, const XLCell& rhs);
+
         //---------- Private Member Variables ---------- //
         std::unique_ptr<XMLNode> m_cellNode;      /**< A pointer to the root XMLNode for the cell. */
         XLSharedStrings*         m_sharedStrings; /**< */
@@ -210,7 +210,7 @@ namespace OpenXLSX
      */
     inline bool operator==(const XLCell& lhs, const XLCell& rhs)
     {
-        return lhs.m_cellNode == rhs.m_cellNode;
+        return XLCell::isEqual(lhs, rhs);
     }
 
     /**
@@ -221,7 +221,7 @@ namespace OpenXLSX
      */
     inline bool operator!=(const XLCell& lhs, const XLCell& rhs)
     {
-        return !(lhs.m_cellNode == rhs.m_cellNode);
+        return !XLCell::isEqual(lhs, rhs);
     }
 
 }    // namespace OpenXLSX

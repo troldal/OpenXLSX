@@ -58,6 +58,14 @@ XLFormula& XLFormula::clear()
 }
 
 /**
+ * @details
+ */
+XLFormula::operator std::string() const
+{
+    return get();
+}
+
+/**
  * @details Constructor. Set the m_cell and m_cellNode objects.
  */
 XLFormulaProxy::XLFormulaProxy(XLCell* cell, XMLNode* cellNode) : m_cell(cell), m_cellNode(cellNode)
@@ -98,9 +106,17 @@ XLFormulaProxy& XLFormulaProxy::operator=(const XLFormulaProxy& other)
 XLFormulaProxy& XLFormulaProxy::operator=(XLFormulaProxy&& other) noexcept = default;
 
 /**
+ * @details
+ */
+XLFormulaProxy::operator std::string() const
+{
+    return get();
+}
+
+/**
  * @details Returns the underlying XLFormula object, by calling getFormula().
  */
-XLFormulaProxy::operator XLFormula()
+XLFormulaProxy::operator XLFormula() const
 {
     return getFormula();
 }

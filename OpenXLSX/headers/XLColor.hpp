@@ -71,7 +71,7 @@ namespace OpenXLSX
         /**
          * @brief
          */
-        XLColor() = default;
+        XLColor();
 
         /**
          * @brief
@@ -100,13 +100,13 @@ namespace OpenXLSX
          * @brief
          * @param other
          */
-        XLColor(const XLColor& other) = default;
+        XLColor(const XLColor& other);
 
         /**
          * @brief
          * @param other
          */
-        XLColor(XLColor&& other) noexcept = default;
+        XLColor(XLColor&& other) noexcept;
 
         /**
          * @brief
@@ -118,14 +118,14 @@ namespace OpenXLSX
          * @param other
          * @return
          */
-        XLColor& operator=(const XLColor& other) = default;
+        XLColor& operator=(const XLColor& other);
 
         /**
          * @brief
          * @param other
          * @return
          */
-        XLColor& operator=(XLColor&& other) noexcept = default;
+        XLColor& operator=(XLColor&& other) noexcept;
 
         /**
          * @brief

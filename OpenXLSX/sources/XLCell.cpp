@@ -129,27 +129,6 @@ XLCell& XLCell::operator=(XLCell&& other) noexcept
 }
 
 /**
- * @details This methods copies a range into a new location, with the top left cell being located in the target cell.
- * The copying is done in the following way:
- * - Define a range with the top left cell being the target cell.
- * - Calculate the size of the range from the originating range and set the new range to the same size.
- * - Copy the contents of the original range to the new range.
- * - Return a reference to the first cell in the new range.
- * @pre
- * @post
- * @todo Consider what happens if the target range extends beyond the maximum spreadsheet limits
- */
-XLCell& XLCell::operator=(const XLCellRange& range)
-{
-    auto            first = cellReference();
-    XLCellReference last(first.row() + range.numRows() - 1, first.column() + range.numColumns() - 1);
-    XLCellRange     rng(m_cellNode->parent().parent(), first, last, nullptr);
-    rng = range;
-
-    return *this;
-}
-
-/**
  * @details
  */
 XLCell::operator bool() const
@@ -163,7 +142,7 @@ XLCell::operator bool() const
 XLCellReference XLCell::cellReference() const
 {
     if (!*this) throw XLInternalError("XLCell object has not been properly initiated.");
-    return XLCellReference(m_cellNode->attribute("r").value());
+    return XLCellReference{m_cellNode->attribute("r").value()};
 }
 
 /**
@@ -187,40 +166,24 @@ bool XLCell::hasFormula() const
     return m_cellNode->child("f") != nullptr;
 }
 
+/**
+ * @details
+ */
 XLFormulaProxy& XLCell::formula()
 {
     if (!*this) throw XLInternalError("XLCell object has not been properly initiated.");
     return m_formulaProxy;
 }
 
+/**
+ * @details
+ */
 const XLFormulaProxy& XLCell::formula() const
 {
     if (!*this) throw XLInternalError("XLCell object has not been properly initiated.");
     return m_formulaProxy;
 }
 
-/**
- * @details
- */
-// std::string XLCell::formula() const
-//{
-//    if (!*this) throw XLInternalError("XLCell object has not been properly initiated.");
-//    return m_cellNode->child("f").text().get();
-//}
-
-/**
- * @details
- * @pre
- * @post
- */
-// void XLCell::setFormula(const std::string& newFormula)
-//{
-//    if (!*this) throw XLInternalError("XLCell object has not been properly initiated.");
-//    m_cellNode->child("f").text().set(newFormula.c_str());
-//}
-
-/**
- * @details
  * @pre
  * @post
  */
@@ -239,4 +202,14 @@ const XLCellValueProxy& XLCell::value() const
 {
     if (!*this) throw XLInternalError("XLCell object has not been properly initiated.");
     return m_valueProxy;
+}
+
+/**
+ * @details
+ * @pre
+ * @post
+ */
+bool XLCell::isEqual(const XLCell& lhs, const XLCell& rhs)
+{
+    return *lhs.m_cellNode == *rhs.m_cellNode;
 }

@@ -15,18 +15,20 @@ target_include_directories(Catch SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CURR
 #=======================================================================================================================
 add_executable(OpenXLSXTests EXCLUDE_FROM_ALL "")
 target_sources(OpenXLSXTests
-               PRIVATE
-               main.cpp
-               testXLDocument.cpp
-               testXLCell.cpp
-               testXLCellValue.cpp
-               testXLCellValueProxy.cpp
-               testXLDateTime.cpp
-               testXLFormula.cpp
-               )
+        PRIVATE
+        main.cpp
+        testXLDocument.cpp
+        testXLCell.cpp
+        testXLCellReference.cpp
+        testXLCellValue.cpp
+        testXLCellValueProxy.cpp
+        testXLColor.cpp
+        testXLDateTime.cpp
+        testXLFormula.cpp
+        )
 
 target_link_libraries(OpenXLSXTests
-                      PRIVATE
-                      OpenXLSX::OpenXLSX
-                      Catch
-                      )
+        PRIVATE
+        OpenXLSX::OpenXLSX
+        Catch
+        )
