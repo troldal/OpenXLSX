@@ -49,16 +49,19 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 // ===== OpenXLSX Includes ===== //
 #include "XLCell.hpp"
 #include "XLCellRange.hpp"
+#include "utilities/XLUtilities.hpp"
 
 using namespace OpenXLSX;
 
 /**
  * @details
  */
-XLCell::XLCell() : m_cellNode(nullptr),
-                   m_sharedStrings(nullptr),
-                   m_valueProxy(XLCellValueProxy(this, m_cellNode.get())),
-                   m_formulaProxy(XLFormulaProxy(this, m_cellNode.get())){}
+XLCell::XLCell()
+    : m_cellNode(nullptr),
+      m_sharedStrings(nullptr),
+      m_valueProxy(XLCellValueProxy(this, m_cellNode.get())),
+      m_formulaProxy(XLFormulaProxy(this, m_cellNode.get()))
+{}
 
 /**
  * @details This constructor creates a XLCell object based on the cell XMLNode input parameter, and is
@@ -104,9 +107,8 @@ XLCell::~XLCell() = default;
 XLCell& XLCell::operator=(const XLCell& other)
 {
     if (&other != this) {
-    XLCell temp = other;
-    std::swap(*this, temp);
-
+        XLCell temp = other;
+        std::swap(*this, temp);
     }
 
     return *this;
@@ -144,6 +146,18 @@ XLCellReference XLCell::cellReference() const
 }
 
 /**
+ * @details This function returns a const reference to the cell reference by the offset from the current one.
+ */
+XLCell XLCell::offset(uint16_t rowoff, uint16_t coloff) const
+{
+    if (!*this) throw XLInternalError("XLCell object has not been properly initiated.");
+    XLCellReference offsetRef(cellReference().row() + rowoff, cellReference().column() + coloff);
+    auto            rownode  = getRowNode(m_cellNode->parent().parent(), offsetRef.row());
+    auto            cellnode = getCellNode(rownode, offsetRef.column());
+    return XLCell(cellnode, m_sharedStrings);
+}
+
+/**
  * @details
  */
 bool XLCell::hasFormula() const
@@ -170,8 +184,6 @@ const XLFormulaProxy& XLCell::formula() const
     return m_formulaProxy;
 }
 
-/**
- * @details
  * @pre
  * @post
  */

@@ -65,6 +65,11 @@ void init_XLCell(py::module &m) {
         //        .def("value", &XLCell::value, "Get the getValue object for the cell.")
         .def("valueType", &XLCell::valueType, "Get the getValue type for the cell.")
         .def("cellReference", &XLCell::cellReference, "Get the reference object for the cell")
+        .def("offset",
+             py::overload_cast<uint32_t, uint16_t>(&XLCell::offset), 
+             "Get the reference to the offset value of the current one", 
+             py::arg("rowOffset"),
+             py::arg("columnOffset"))
         .def("hasFormula", &XLCell::hasFormula, "Boolean for determining if the cell has a formula or not.")
         .def("formula", &XLCell::formula, "Get the formula object for the cell")
         .def("setFormula", &XLCell::setFormula, "Set the formula string for the cell", py::arg("formula"));

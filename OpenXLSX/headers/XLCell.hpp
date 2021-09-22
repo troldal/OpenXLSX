@@ -152,6 +152,12 @@ namespace OpenXLSX
         XLCellReference cellReference() const;
 
         /**
+         * @brief get the XLCell object from the current cell offset
+         * @return A reference to the XLCell object.
+         */
+        XLCell offset(uint16_t rowoff, uint16_t coloff) const;
+
+        /**
          * @brief
          * @return
          */
