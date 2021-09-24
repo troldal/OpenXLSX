@@ -119,14 +119,17 @@ XLCellIterator& XLCellIterator::operator=(XLCellIterator&& other) noexcept = def
 XLCellIterator& XLCellIterator::operator++()
 {
     auto ref = m_currentCell.cellReference();
+    bool endReached {false};
 
     // ===== Determine the cell reference for the next cell.
     if (ref.column() < m_bottomRight.column())
         ref = XLCellReference(ref.row(), ref.column() + 1);
-    else if (ref.column() == m_bottomRight.column())
+    else if (ref == m_bottomRight)
+        endReached = true;
+    else// if (ref.column() == m_bottomRight.column())
         ref = XLCellReference(ref.row() + 1, m_topLeft.column());
 
-    if (ref > m_bottomRight)
+    if (endReached)
         m_currentCell = XLCell();
     else if (ref > m_bottomRight || ref.row() == m_currentCell.cellReference().row()) {
         auto node = m_currentCell.m_cellNode->next_sibling();
@@ -183,6 +186,10 @@ XLCellIterator::pointer XLCellIterator::operator->()
  */
 bool XLCellIterator::operator==(const XLCellIterator& rhs)
 {
+    if (m_currentCell && !rhs.m_currentCell)
+        return false;
+    if (!m_currentCell && !rhs.m_currentCell)
+        return true;
     return m_currentCell == rhs.m_currentCell;
 }
 
@@ -191,7 +198,7 @@ bool XLCellIterator::operator==(const XLCellIterator& rhs)
  */
 bool XLCellIterator::operator!=(const XLCellIterator& rhs)
 {
-    return !(m_currentCell == rhs.m_currentCell);
+    return !(*this == rhs);
 }
 
 /**
