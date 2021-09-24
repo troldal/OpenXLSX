@@ -44,13 +44,6 @@ int main()
     // An XLCellRange object provides begin and end iterators, and can be used in
     // range-based for-loops. The next line iterates through all the cells in the
     // range and assigns a random number to each cell:
-
-    auto iter = rng.begin();
-    iter->value() = 42;
-    ++iter;
-    auto end = rng.end();
-    if (iter != end) iter->value() = 156;
-
     for (auto& cell : rng) cell.value() = distr(generator);
 
     // Saving a large spreadsheet can take a while...
