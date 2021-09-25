@@ -145,19 +145,26 @@ namespace OpenXLSX
          */
         bool operator!=(const XLCellIterator& rhs);
 
+        /**
+         * @brief
+         * @param last
+         * @return
+         */
         uint64_t distance(const XLCellIterator& last);
 
     private:
-        std::unique_ptr<XMLNode> m_dataNode;
-        XLCellReference          m_topLeft;     /**< The cell reference of the first cell in the range */
-        XLCellReference          m_bottomRight; /**< The cell reference of the last cell in the range */
-        XLCell                   m_currentCell;
-        XLSharedStrings*         m_sharedStrings;
+        std::unique_ptr<XMLNode> m_dataNode;             /**< */
+        XLCellReference          m_topLeft;              /**< The cell reference of the first cell in the range */
+        XLCellReference          m_bottomRight;          /**< The cell reference of the last cell in the range */
+        XLCell                   m_currentCell;          /**< */
+        XLSharedStrings*         m_sharedStrings;        /**< */
+        bool                     m_endReached { false }; /**< */
     };
 
 }    // namespace OpenXLSX
 
-namespace std
+// ===== Template specialization for std::distance.
+namespace std    // NOLINT
 {
     using OpenXLSX::XLCellIterator;
     template<>

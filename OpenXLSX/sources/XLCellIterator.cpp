@@ -77,6 +77,9 @@ XLCellIterator::XLCellIterator(const XLCellRange& cellRange, XLIteratorLocation 
     }
 }
 
+/**
+ * @details
+ */
 XLCellIterator::~XLCellIterator() = default;
 
 /**
@@ -90,6 +93,9 @@ XLCellIterator::XLCellIterator(const XLCellIterator& other)
       m_sharedStrings(other.m_sharedStrings)
 {}
 
+/**
+ * @details
+ */
 XLCellIterator::XLCellIterator(XLCellIterator&& other) noexcept = default;
 
 /**
@@ -119,17 +125,16 @@ XLCellIterator& XLCellIterator::operator=(XLCellIterator&& other) noexcept = def
 XLCellIterator& XLCellIterator::operator++()
 {
     auto ref = m_currentCell.cellReference();
-    bool endReached {false};
 
     // ===== Determine the cell reference for the next cell.
     if (ref.column() < m_bottomRight.column())
         ref = XLCellReference(ref.row(), ref.column() + 1);
     else if (ref == m_bottomRight)
-        endReached = true;
-    else// if (ref.column() == m_bottomRight.column())
+        m_endReached = true;
+    else
         ref = XLCellReference(ref.row() + 1, m_topLeft.column());
 
-    if (endReached)
+    if (m_endReached)
         m_currentCell = XLCell();
     else if (ref > m_bottomRight || ref.row() == m_currentCell.cellReference().row()) {
         auto node = m_currentCell.m_cellNode->next_sibling();
