@@ -80,7 +80,7 @@ namespace OpenXLSX
          * @brief
          * @param xmlData
          */
-        explicit XLSharedStrings(XLXmlData* xmlData);
+        explicit XLSharedStrings(XLXmlData* xmlData, std::deque<std::string> *stringCache);
 
         /**
          * @brief Destructor
@@ -158,7 +158,7 @@ namespace OpenXLSX
         void clearString(unsigned long index);
 
     private:
-        std::deque<std::string> m_stringCache {}; /** < Each string must have an unchanging memory address; hence the use of std::deque */
+        std::deque<std::string> *m_stringCache {}; /** < Each string must have an unchanging memory address; hence the use of std::deque */
     };
 }    // namespace OpenXLSX
 

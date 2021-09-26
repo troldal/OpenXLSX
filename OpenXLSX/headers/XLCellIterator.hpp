@@ -157,7 +157,7 @@ namespace OpenXLSX
         XLCellReference          m_topLeft;              /**< The cell reference of the first cell in the range */
         XLCellReference          m_bottomRight;          /**< The cell reference of the last cell in the range */
         XLCell                   m_currentCell;          /**< */
-        XLSharedStrings*         m_sharedStrings;        /**< */
+        XLSharedStrings          m_sharedStrings;        /**< */
         bool                     m_endReached { false }; /**< */
     };
 

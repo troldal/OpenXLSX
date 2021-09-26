@@ -128,13 +128,13 @@ XLChartsheet XLWorkbook::chartsheet(const std::string& sheetName)
  */
 bool XLWorkbook::hasSharedStrings() const
 {
-    return parentDoc().executeQuery(XLQuerySharedStrings()).sharedStrings() != nullptr;
+    return true;//parentDoc().executeQuery(XLQuerySharedStrings()).sharedStrings() != nullptr;
 }
 
 /**
  * @details
  */
-XLSharedStrings* XLWorkbook::sharedStrings()
+XLSharedStrings XLWorkbook::sharedStrings()
 {
     return parentDoc().executeQuery(XLQuerySharedStrings()).sharedStrings();
 }

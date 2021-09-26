@@ -62,7 +62,7 @@ namespace OpenXLSX
      * @pre
      * @post
      */
-    XLRow::XLRow() : m_rowNode(nullptr), m_sharedStrings(nullptr), m_rowDataProxy(this, m_rowNode.get()) {}
+    XLRow::XLRow() : m_rowNode(nullptr), m_sharedStrings(), m_rowDataProxy(this, m_rowNode.get()) {}
 
     /**
      * @details Constructs a new XLRow object from information in the underlying XML file. A pointer to the corresponding
@@ -70,7 +70,7 @@ namespace OpenXLSX
      * @pre
      * @post
      */
-    XLRow::XLRow(const XMLNode& rowNode, XLSharedStrings* sharedStrings)
+    XLRow::XLRow(const XMLNode& rowNode, XLSharedStrings sharedStrings)
         : m_rowNode(std::make_unique<XMLNode>(rowNode)),
           m_sharedStrings(sharedStrings),
           m_rowDataProxy(this, m_rowNode.get())
@@ -458,7 +458,7 @@ namespace OpenXLSX
      * @pre
      * @post
      */
-    XLRowRange::XLRowRange(const XMLNode& dataNode, uint32_t first, uint32_t last, OpenXLSX::XLSharedStrings* sharedStrings)
+    XLRowRange::XLRowRange(const XMLNode& dataNode, uint32_t first, uint32_t last, OpenXLSX::XLSharedStrings sharedStrings)
         : m_dataNode(std::make_unique<XMLNode>(dataNode)),
           m_firstRow(first),
           m_lastRow(last),

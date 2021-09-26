@@ -501,9 +501,9 @@ void XLWorksheet::updateSheetName(const std::string& oldName, const std::string&
     // ===== Iterate through all defined names
     for (auto& row : xmlDocument().document_element().child("sheetData")) {
         for (auto& cell : row.children()) {
-            if (!XLCell(cell, nullptr).hasFormula()) continue;
+            if (!XLCell(cell, XLSharedStrings()).hasFormula()) continue;
 
-            formula = XLCell(cell, nullptr).formula().get();
+            formula = XLCell(cell, XLSharedStrings()).formula().get();
 
             // ===== Skip if formula contains a '[' and ']' (means that the defined refers to external workbook)
             if (formula.find('[') == std::string::npos && formula.find(']') == std::string::npos) {
@@ -511,7 +511,7 @@ void XLWorksheet::updateSheetName(const std::string& oldName, const std::string&
                 while (formula.find(oldNameTemp) != std::string::npos) {
                     formula.replace(formula.find(oldNameTemp), oldNameTemp.length(), newNameTemp);
                 }
-                XLCell(cell, nullptr).formula() = formula;
+                XLCell(cell, XLSharedStrings()).formula() = formula;
             }
         }
     }

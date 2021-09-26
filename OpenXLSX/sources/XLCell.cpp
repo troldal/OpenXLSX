@@ -58,7 +58,7 @@ using namespace OpenXLSX;
  */
 XLCell::XLCell()
     : m_cellNode(nullptr),
-      m_sharedStrings(nullptr),
+      m_sharedStrings(),
       m_valueProxy(XLCellValueProxy(this, m_cellNode.get())),
       m_formulaProxy(XLFormulaProxy(this, m_cellNode.get()))
 {}
@@ -69,7 +69,7 @@ XLCell::XLCell()
  * If a cell XMLNode does not exist (i.e., the cell is empty), use the relevant constructor to create an XLCell
  * from a XLCellReference parameter.
  */
-XLCell::XLCell(const XMLNode& cellNode, XLSharedStrings* sharedStrings)
+XLCell::XLCell(const XMLNode& cellNode, XLSharedStrings sharedStrings)
     : m_cellNode(std::make_unique<XMLNode>(cellNode)),
       m_sharedStrings(sharedStrings),
       m_valueProxy(XLCellValueProxy(this, m_cellNode.get())),

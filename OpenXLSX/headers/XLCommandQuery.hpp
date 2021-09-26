@@ -57,6 +57,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== OpenXLSX Includes ===== //
 #include "XLXmlData.hpp"
+#include "XLSharedStrings.hpp"
 
 namespace OpenXLSX
 {
@@ -434,18 +435,18 @@ namespace OpenXLSX
     public:
         explicit XLQuerySharedStrings() = default;
 
-        XLSharedStrings* sharedStrings() const
+        XLSharedStrings sharedStrings() const
         {
             return m_sharedStrings;
         }
 
-        void setSharedStrings(XLSharedStrings* sharedStrings)
+        void setSharedStrings(const XLSharedStrings& sharedStrings)
         {
             m_sharedStrings = sharedStrings;
         }
 
     private:
-        XLSharedStrings* m_sharedStrings { nullptr };
+        XLSharedStrings m_sharedStrings;
     };
 
     class XLQueryXmlData

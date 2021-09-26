@@ -283,7 +283,7 @@ namespace OpenXLSX
          * @brief
          * @return
          */
-        XLSharedStrings* sharedStrings();
+        XLSharedStrings sharedStrings();
 
         /**
          * @brief

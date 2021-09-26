@@ -57,6 +57,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLCellReference.hpp"
 #include "XLCellValue.hpp"
 #include "XLFormula.hpp"
+#include "XLSharedStrings.hpp"
 
 // ========== CLASS AND ENUM TYPE DEFINITIONS ========== //
 namespace OpenXLSX
@@ -88,7 +89,7 @@ namespace OpenXLSX
          * @param cellNode
          * @param sharedStrings
          */
-        XLCell(const XMLNode& cellNode, XLSharedStrings* sharedStrings);
+        XLCell(const XMLNode& cellNode, XLSharedStrings sharedStrings);
 
         /**
          * @brief Copy constructor
@@ -192,7 +193,7 @@ namespace OpenXLSX
 
         //---------- Private Member Variables ---------- //
         std::unique_ptr<XMLNode> m_cellNode;      /**< A pointer to the root XMLNode for the cell. */
-        XLSharedStrings*         m_sharedStrings; /**< */
+        XLSharedStrings          m_sharedStrings; /**< */
         XLCellValueProxy         m_valueProxy;    /**< */
         XLFormulaProxy           m_formulaProxy; /**< */
     };

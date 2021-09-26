@@ -85,7 +85,6 @@ namespace OpenXLSX
         friend std::ostream& operator<<(std::ostream& os, const XLFormula& value);
 
     public:
-
         /**
          * @brief Constructor
          */
@@ -97,12 +96,16 @@ namespace OpenXLSX
          * @param formula The formula to initialize the object with.
          */
         template<typename T,
-                 typename std::enable_if<std::is_constructible_v<T, char*>>::type* = nullptr>
-        explicit XLFormula(T formula) {
-
+                 typename std::enable_if<
+                     std::is_same_v<std::decay_t<T>, std::string> || std::is_same_v<std::decay_t<T>, std::string_view> ||
+                     std::is_same_v<std::decay_t<T>, const char*> || std::is_same_v<std::decay_t<T>, char*>>::type* = nullptr>
+        explicit XLFormula(T formula)
+        {
             // ===== If the argument is a const char *, use the argument directly; otherwise, assume it has a .c_str() function.
-            if constexpr (std::is_same_v<T, const char *>)
+            if constexpr (std::is_same_v<std::decay_t<T>, const char*> || std::is_same_v<std::decay_t<T>, char*>)
                 m_formulaString = formula;
+            else if constexpr (std::is_same_v<std::decay_t<T>, std::string_view>)
+                m_formulaString = std::string(formula);
             else
                 m_formulaString = formula.c_str();
         }
@@ -145,10 +148,11 @@ namespace OpenXLSX
          * @return Reference to the assigned-to object.
          */
         template<typename T,
-                 typename std::enable_if<std::is_same_v<std::decay_t<T>, std::string> ||
-                                         std::is_same_v<std::decay_t<T>, const char*> ||
-                                         std::is_same_v<std::decay_t<T>, char*> >::type* = nullptr>
-        XLFormula& operator=(T formula) {
+                 typename std::enable_if<
+                     std::is_same_v<std::decay_t<T>, std::string> || std::is_same_v<std::decay_t<T>, std::string_view> ||
+                     std::is_same_v<std::decay_t<T>, const char*> || std::is_same_v<std::decay_t<T>, char*>>::type* = nullptr>
+        XLFormula& operator=(T formula)
+        {
             XLFormula temp(formula);
             std::swap(*this, temp);
             return *this;
@@ -160,10 +164,11 @@ namespace OpenXLSX
          * @param formula String containing the formula.
          */
         template<typename T,
-                 typename std::enable_if<std::is_same_v<std::decay_t<T>, std::string> ||
-                                         std::is_same_v<std::decay_t<T>, const char*> ||
-                                         std::is_same_v<std::decay_t<T>, char*> >::type* = nullptr>
-        void set(T formula) {
+                 typename std::enable_if<
+                     std::is_same_v<std::decay_t<T>, std::string> || std::is_same_v<std::decay_t<T>, std::string_view> ||
+                     std::is_same_v<std::decay_t<T>, const char*> || std::is_same_v<std::decay_t<T>, char*>>::type* = nullptr>
+        void set(T formula)
+        {
             *this = formula;
         }
 
@@ -177,7 +182,7 @@ namespace OpenXLSX
          * @brief Conversion operator, for converting object to a std::string.
          * @return The formula as a std::string.
          */
-        operator std::string() const; // NOLINT
+        operator std::string() const;    // NOLINT
 
         /**
          * @brief Clear the formula.
@@ -199,7 +204,6 @@ namespace OpenXLSX
         friend class XLFormula;
 
     public:
-
         /**
          * @brief Destructor
          */
@@ -218,18 +222,19 @@ namespace OpenXLSX
          * @param formula The formula string to be assigned.
          * @return A reference to the copied-to object.
          */
-        template<typename T,
-                 typename std::enable_if<
-                     std::is_same_v<std::decay_t<T>, XLFormula> ||
-                     std::is_same_v<std::decay_t<T>, std::string> ||
-                     std::is_same_v<std::decay_t<T>, const char*> ||
-                     std::is_same_v<std::decay_t<T>, char*> >::type* = nullptr>
-        XLFormulaProxy& operator=(T formula) {
-
+        template<
+            typename T,
+            typename std::enable_if<std::is_same_v<std::decay_t<T>, XLFormula> || std::is_same_v<std::decay_t<T>, std::string> ||
+                                    std::is_same_v<std::decay_t<T>, std::string_view> || std::is_same_v<std::decay_t<T>, const char*> ||
+                                    std::is_same_v<std::decay_t<T>, char*>>::type* = nullptr>
+        XLFormulaProxy& operator=(T formula)
+        {
             if constexpr (std::is_same_v<std::decay_t<T>, XLFormula>)
                 setFormulaString(formula.get().c_str());
             else if constexpr (std::is_same_v<std::decay_t<T>, std::string>)
                 setFormulaString(formula.c_str());
+            else if constexpr (std::is_same_v<std::decay_t<T>, std::string_view>)
+                setFormulaString(std::string(formula).c_str());
             else
                 setFormulaString(formula);
 
@@ -242,10 +247,11 @@ namespace OpenXLSX
          * @param formula The formula string to be assigned.
          */
         template<typename T,
-                 typename std::enable_if<std::is_same_v<std::decay_t<T>, std::string> ||
-                                         std::is_same_v<std::decay_t<T>, const char*> ||
-                                         std::is_same_v<std::decay_t<T>, char*> >::type* = nullptr>
-        void set(T formula) {
+                 typename std::enable_if<
+                     std::is_same_v<std::decay_t<T>, std::string> || std::is_same_v<std::decay_t<T>, std::string_view> ||
+                     std::is_same_v<std::decay_t<T>, const char*> || std::is_same_v<std::decay_t<T>, char*>>::type* = nullptr>
+        void set(T formula)
+        {
             *this = formula;
         }
 
@@ -265,7 +271,7 @@ namespace OpenXLSX
          * @brief Conversion operator, for converting the object to a std::string.
          * @return The formula as a std::string.
          */
-        operator std::string() const; // NOLINT
+        operator std::string() const;    // NOLINT
 
         /**
          * @brief Implicit conversion to XLFormula object.
@@ -274,7 +280,6 @@ namespace OpenXLSX
         operator XLFormula() const;    // NOLINT
 
     private:
-
         /**
          * @brief Constructor, taking pointers to the cell and cell node objects.
          * @param cell Pointer to the associated cell object.
@@ -318,7 +323,7 @@ namespace OpenXLSX
         XLCell*  m_cell;     /**< Pointer to the owning XLCell object. */
         XMLNode* m_cellNode; /**< Pointer to corresponding XML cell node. */
     };
-} // namespace OpenXLSX
+}    // namespace OpenXLSX
 
 // ========== FRIEND FUNCTION IMPLEMENTATIONS ========== //
 namespace OpenXLSX

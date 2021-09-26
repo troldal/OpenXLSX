@@ -61,7 +61,7 @@ using namespace OpenXLSX;
 XLCellRange::XLCellRange(const XMLNode&         dataNode,
                          const XLCellReference& topLeft,
                          const XLCellReference& bottomRight,
-                         XLSharedStrings*       sharedStrings)
+                         XLSharedStrings        sharedStrings)
     : m_dataNode(std::make_unique<XMLNode>(dataNode)),
       m_topLeft(topLeft),
       m_bottomRight(bottomRight),

@@ -481,10 +481,13 @@ void XLDocument::open(const std::string& fileName)
                                 /* xmlType   */ item.type());
     }
 
+    for (const auto& str : getXmlData("xl/sharedStrings.xml")->getXmlDocument()->document_element().children())
+        m_sharedStringCache.emplace_back(str.first_child().text().get());
+
     // ===== Open the workbook and document property items
     m_coreProperties = XLProperties(getXmlData("docProps/core.xml"));
     m_appProperties  = XLAppProperties(getXmlData("docProps/app.xml"));
-    m_sharedStrings  = XLSharedStrings(getXmlData("xl/sharedStrings.xml"));
+    m_sharedStrings  = XLSharedStrings(getXmlData("xl/sharedStrings.xml"), &m_sharedStringCache);
     m_workbook       = XLWorkbook(getXmlData("xl/workbook.xml"));
 }
 

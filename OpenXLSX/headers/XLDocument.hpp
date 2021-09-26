@@ -411,7 +411,7 @@ namespace OpenXLSX
 
             // TODO: This requires m_sharedStrings to be mutable. Is there a way around that?
             else if constexpr (std::is_same_v<Query, XLQuerySharedStrings>) {
-                query.setSharedStrings(&m_sharedStrings);
+                query.setSharedStrings(m_sharedStrings);
                 return query;
             }
 
@@ -515,6 +515,7 @@ namespace OpenXLSX
         XLAppProperties m_appProperties {};    /**< A pointer to the App properties object */
         XLProperties    m_coreProperties {};   /**< A pointer to the Core properties object*/
         mutable XLSharedStrings m_sharedStrings {};    /**<  */
+        mutable std::deque<std::string> m_sharedStringCache {};
         XLWorkbook      m_workbook {};         /**< A pointer to the workbook object */
         XLZipArchive    m_archive {};          /**<  */
     };

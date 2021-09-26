@@ -193,12 +193,12 @@ namespace OpenXLSX
          * @param lastColumn The index of the last column.
          * @param sharedStrings A pointer to the shared strings repository.
          */
-        explicit XLRowDataRange(const XMLNode& rowNode, uint16_t firstColumn, uint16_t lastColumn, XLSharedStrings* sharedStrings);
+        explicit XLRowDataRange(const XMLNode& rowNode, uint16_t firstColumn, uint16_t lastColumn, XLSharedStrings sharedStrings);
 
         std::unique_ptr<XMLNode> m_rowNode;                   /**< */
         uint16_t                 m_firstCol { 1 };            /**< The cell reference of the first cell in the range */
         uint16_t                 m_lastCol { 1 };             /**< The cell reference of the last cell in the range */
-        XLSharedStrings*         m_sharedStrings { nullptr }; /**< */
+        XLSharedStrings          m_sharedStrings; /**< */
     };
 
     /**
@@ -367,7 +367,7 @@ namespace OpenXLSX
          * @brief Helper function for getting a pointer to the shared strings repository.
          * @return A pointer to an XLSharedStrings object.
          */
-        XLSharedStrings* getSharedStrings() const;
+        XLSharedStrings getSharedStrings() const;
 
         /**
          * @brief Convenience function for erasing the first 'count' numbers of values in the row.
