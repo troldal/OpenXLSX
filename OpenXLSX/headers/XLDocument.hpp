@@ -505,17 +505,18 @@ namespace OpenXLSX
         //----------------------------------------------------------------------------------------------------------------------
 
     private:
-        std::string                  m_filePath {}; /**< The path to the original file*/
-        std::string                  m_realPath {}; /**<  */
-        mutable std::list<XLXmlData> m_data {};     /**<  */
+        std::string m_filePath {}; /**< The path to the original file*/
+        std::string m_realPath {}; /**<  */
+
+        mutable std::list<XLXmlData>    m_data {};              /**<  */
+        mutable std::deque<std::string> m_sharedStringCache {}; /**<  */
+        mutable XLSharedStrings         m_sharedStrings {};     /**<  */
 
         XLRelationships m_docRelationships {}; /**< A pointer to the document relationships object*/
         XLRelationships m_wbkRelationships {}; /**< A pointer to the document relationships object*/
         XLContentTypes  m_contentTypes {};     /**< A pointer to the content types object*/
         XLAppProperties m_appProperties {};    /**< A pointer to the App properties object */
         XLProperties    m_coreProperties {};   /**< A pointer to the Core properties object*/
-        mutable XLSharedStrings m_sharedStrings {};    /**<  */
-        mutable std::deque<std::string> m_sharedStringCache {};
         XLWorkbook      m_workbook {};         /**< A pointer to the workbook object */
         XLZipArchive    m_archive {};          /**<  */
     };
