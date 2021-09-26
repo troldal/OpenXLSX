@@ -140,13 +140,13 @@ namespace OpenXLSX
          * @brief
          * @return
          */
-        XLCellIterator begin();
+        XLCellIterator begin() const;
 
         /**
          * @brief
          * @return
          */
-        XLCellIterator end();
+        XLCellIterator end() const;
 
         /**
          * @brief

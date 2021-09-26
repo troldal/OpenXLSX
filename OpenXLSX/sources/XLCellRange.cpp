@@ -153,7 +153,7 @@ uint16_t XLCellRange::numColumns() const
  * @pre
  * @post
  */
-XLCellIterator XLCellRange::begin()
+XLCellIterator XLCellRange::begin() const
 {
     return XLCellIterator(*this, XLIteratorLocation::Begin);
 }
@@ -163,7 +163,7 @@ XLCellIterator XLCellRange::begin()
  * @pre
  * @post
  */
-XLCellIterator XLCellRange::end()
+XLCellIterator XLCellRange::end() const
 {
     return XLCellIterator(*this, XLIteratorLocation::End);
 }
@@ -175,9 +175,5 @@ XLCellIterator XLCellRange::end()
  */
 void XLCellRange::clear()
 {
-    //    for (uint32_t row = 1; row <= NumRows(); row++) {
-    //        for (uint16_t column = 1; column <= NumColumns(); column++) {
-    //            Cell(row, column).Value().Clear();
-    //        }
-    //    }
+    for(auto& cell: *this) cell.value().clear();
 }

@@ -536,6 +536,7 @@ namespace OpenXLSX
 
 }    // namespace OpenXLSX
 
+// TODO: Consider comparison operators on fundamental datatypes
 // ========== FRIEND FUNCTION IMPLEMENTATIONS ========== //
 namespace OpenXLSX
 {

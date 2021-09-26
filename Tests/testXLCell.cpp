@@ -154,4 +154,23 @@ TEST_CASE("XLCell Tests", "[XLCell]")
         REQUIRE_FALSE(cell1 != cell2);
     }
 
+    SECTION("Offset function")
+    {
+        auto doc = XLDocument();
+        doc.create("./testXLCell.xlsx");
+        auto wks = doc.workbook().worksheet("Sheet1");
+
+        auto cell1 = wks.cell("B2");
+        cell1.value() = "Value1";
+
+        auto cell2 = cell1.offset(1,1);
+        cell2.value() = "Value2";
+
+        REQUIRE(cell1.value().get<std::string>() == "Value1");
+        REQUIRE(cell2.value().get<std::string>() == "Value2");
+        REQUIRE(cell2.cellReference().address() == "C3");
+
+        doc.save();
+    }
+
 }

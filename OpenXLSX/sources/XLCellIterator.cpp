@@ -189,7 +189,7 @@ XLCellIterator::pointer XLCellIterator::operator->()
 /**
  * @details
  */
-bool XLCellIterator::operator==(const XLCellIterator& rhs)
+bool XLCellIterator::operator==(const XLCellIterator& rhs) const
 {
     if (m_currentCell && !rhs.m_currentCell)
         return false;
@@ -201,7 +201,7 @@ bool XLCellIterator::operator==(const XLCellIterator& rhs)
 /**
  * @details
  */
-bool XLCellIterator::operator!=(const XLCellIterator& rhs)
+bool XLCellIterator::operator!=(const XLCellIterator& rhs) const
 {
     return !(*this == rhs);
 }

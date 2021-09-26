@@ -148,10 +148,10 @@ XLCellReference XLCell::cellReference() const
 /**
  * @details This function returns a const reference to the cell reference by the offset from the current one.
  */
-XLCell XLCell::offset(uint16_t rowoff, uint16_t coloff) const
+XLCell XLCell::offset(uint16_t rowOffset, uint16_t colOffset) const
 {
     if (!*this) throw XLInternalError("XLCell object has not been properly initiated.");
-    XLCellReference offsetRef(cellReference().row() + rowoff, cellReference().column() + coloff);
+    XLCellReference offsetRef(cellReference().row() + rowOffset, cellReference().column() + colOffset);
     auto            rownode  = getRowNode(m_cellNode->parent().parent(), offsetRef.row());
     auto            cellnode = getCellNode(rownode, offsetRef.column());
     return XLCell(cellnode, m_sharedStrings);
