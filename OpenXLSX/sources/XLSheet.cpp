@@ -248,10 +248,10 @@ XLWorksheet::XLWorksheet(XLXmlData* xmlData) : XLSheetBase(xmlData)
             int max = std::stoi(currentNode.attribute("max").value());
             if (min != max) {
                 currentNode.attribute("min").set_value(max);
-                for (int i = min; i < max; i++) {
+                for (int i = min; i < max; i++) { // NOLINT
                     auto newnode = xmlDocument().first_child().child("cols").insert_child_before("col", currentNode);
                     auto attr    = currentNode.first_attribute();
-                    while (attr != nullptr) {
+                    while (attr != nullptr) { // NOLINT
                         newnode.append_attribute(attr.name()) = attr.value();
                         attr                                  = attr.next_attribute();
                     }
@@ -345,7 +345,7 @@ XLCell XLWorksheet::cell(uint32_t rowNumber, uint16_t columnNumber) const
         }
     }
 
-    return XLCell(cellNode, parentDoc().executeQuery(XLQuerySharedStrings()).sharedStrings());
+    return XLCell{cellNode, parentDoc().executeQuery(XLQuerySharedStrings()).sharedStrings()};
 }
 
 /**
@@ -444,7 +444,7 @@ XLColumn XLWorksheet::column(uint16_t columnNumber) const
 
         columnNode.append_attribute("min")         = columnNumber;
         columnNode.append_attribute("max")         = columnNumber;
-        columnNode.append_attribute("width")       = 10;
+        columnNode.append_attribute("width")       = 10; // NOLINT
         columnNode.append_attribute("customWidth") = 1;
     }
 
@@ -508,7 +508,7 @@ void XLWorksheet::updateSheetName(const std::string& oldName, const std::string&
             // ===== Skip if formula contains a '[' and ']' (means that the defined refers to external workbook)
             if (formula.find('[') == std::string::npos && formula.find(']') == std::string::npos) {
                 // ===== For all instances of the old sheet name in the formula, replace with the new name.
-                while (formula.find(oldNameTemp) != std::string::npos) {
+                while (formula.find(oldNameTemp) != std::string::npos) { // NOLINT
                     formula.replace(formula.find(oldNameTemp), oldNameTemp.length(), newNameTemp);
                 }
                 XLCell(cell, XLSharedStrings()).formula() = formula;

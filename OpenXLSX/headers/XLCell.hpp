@@ -89,7 +89,7 @@ namespace OpenXLSX
          * @param cellNode
          * @param sharedStrings
          */
-        XLCell(const XMLNode& cellNode, XLSharedStrings sharedStrings);
+        XLCell(const XMLNode& cellNode, const XLSharedStrings& sharedStrings);
 
         /**
          * @brief Copy constructor

@@ -263,9 +263,9 @@ void XLCellReference::setAddress(const std::string& address)
 std::string XLCellReference::rowAsString(uint32_t row)
 {
 #ifdef CHARCONV_ENABLED
-    std::array<char, 7> str {};
+    std::array<char, 7> str {};  // NOLINT
     auto*               p = std::to_chars(str.data(), str.data() + str.size(), row).ptr;
-    return std::string(str.data(), static_cast<uint16_t>(p - str.data()));
+    return std::string{str.data(), static_cast<uint16_t>(p - str.data())};
 #else
     std::string result;
     while (row != 0) {
@@ -287,7 +287,7 @@ uint32_t XLCellReference::rowAsNumber(const std::string& row)
 {
 #ifdef CHARCONV_ENABLED
     uint32_t value = 0;
-    std::from_chars(row.data(), row.data() + row.size(), value);
+    std::from_chars(row.data(), row.data() + row.size(), value); // NOLINT
     return value;
 #else
     return stoul(row);
@@ -312,9 +312,9 @@ std::string XLCellReference::columnAsString(uint16_t column)
 
     // ===== If there is three letters in the Column Name:
     else {
-        result += char((column - 703) / (alphabetSize * alphabetSize) + asciiOffset + 1);
-        result += char(((column - 703) / alphabetSize) % alphabetSize + asciiOffset + 1);
-        result += char((column - 703) % alphabetSize + asciiOffset + 1);
+        result += char((column - 703) / (alphabetSize * alphabetSize) + asciiOffset + 1);  // NOLINT
+        result += char(((column - 703) / alphabetSize) % alphabetSize + asciiOffset + 1);  // NOLINT
+        result += char((column - 703) % alphabetSize + asciiOffset + 1);  // NOLINT
     }
 
     return result;
@@ -327,7 +327,7 @@ uint16_t XLCellReference::columnAsNumber(const std::string& column)
 {
     uint16_t result = 0;
 
-    for (int16_t i = static_cast<int16_t>(column.size() - 1), j = 0; i >= 0; --i, ++j) {
+    for (int16_t i = static_cast<int16_t>(column.size() - 1), j = 0; i >= 0; --i, ++j) { // NOLINT
         result += static_cast<uint16_t>((column[static_cast<uint64_t>(i)] - asciiOffset) * std::pow(alphabetSize, j));
     }
 
@@ -342,9 +342,9 @@ XLCoordinates XLCellReference::coordinatesFromAddress(const std::string& address
 {
     uint64_t letterCount = 0;
     for (auto letter : address) {
-        if (letter >= 65)
+        if (letter >= 65)  // NOLINT
             ++letterCount;
-        else if (letter <= 57)
+        else if (letter <= 57)  // NOLINT
             break;
     }
 

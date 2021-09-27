@@ -86,7 +86,7 @@ namespace OpenXLSX
          * @param rowNode
          * @param sharedStrings
          */
-        XLRow(const XMLNode& rowNode, XLSharedStrings sharedStrings);
+        XLRow(const XMLNode& rowNode, const XLSharedStrings& sharedStrings);
 
         /**
          * @brief Copy Constructor
@@ -340,7 +340,7 @@ namespace OpenXLSX
          * @param last
          * @param sharedStrings
          */
-        explicit XLRowRange(const XMLNode& dataNode, uint32_t first, uint32_t last, XLSharedStrings sharedStrings);
+        explicit XLRowRange(const XMLNode& dataNode, uint32_t first, uint32_t last, const XLSharedStrings& sharedStrings);
 
         /**
          * @brief

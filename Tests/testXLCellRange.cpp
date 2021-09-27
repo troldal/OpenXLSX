@@ -153,7 +153,7 @@ TEST_CASE("XLCellRange Tests", "[XLCellRange]")
         auto iter2 = ++begin;
         REQUIRE(iter2->cellReference().address() == "C2");
 
-        auto iter3 = std::move(++begin);
+        XLCellIterator iter3 = std::move(++begin) ;
         REQUIRE(iter3->cellReference().address() == "D2");
 
         auto iter4 = rng.begin();

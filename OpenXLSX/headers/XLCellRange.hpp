@@ -85,7 +85,7 @@ namespace OpenXLSX
         explicit XLCellRange(const XMLNode&         dataNode,
                              const XLCellReference& topLeft,
                              const XLCellReference& bottomRight,
-                             XLSharedStrings        sharedStrings);
+                             const XLSharedStrings&        sharedStrings);
 
         /**
          * @brief Copy constructor [default].

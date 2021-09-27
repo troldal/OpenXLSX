@@ -84,12 +84,15 @@ namespace
  */
 XLProperties::XLProperties(XLXmlData* xmlData) : XLXmlFile(xmlData) {}
 
+/**
+ * @details
+ */
 XLProperties::~XLProperties() = default;
 
 /**
  * @details
  */
-bool XLProperties::setProperty(const std::string& name, const std::string& value)
+void XLProperties::setProperty(const std::string& name, const std::string& value)
 {
     XMLNode node;
     if (xmlDocument().first_child().child(name.c_str()) != nullptr)
@@ -98,23 +101,22 @@ bool XLProperties::setProperty(const std::string& name, const std::string& value
         node = xmlDocument().first_child().prepend_child(name.c_str());
 
     node.text().set(value.c_str());
-    return true;
 }
 
 /**
  * @details
  */
-bool XLProperties::setProperty(const std::string& name, int value)
+void XLProperties::setProperty(const std::string& name, int value)
 {
-    return setProperty(name, std::to_string(value));
+    setProperty(name, std::to_string(value));
 }
 
 /**
  * @details
  */
-bool XLProperties::setProperty(const std::string& name, double value)
+void XLProperties::setProperty(const std::string& name, double value)
 {
-    return setProperty(name, std::to_string(value));
+    setProperty(name, std::to_string(value));
 }
 
 /**

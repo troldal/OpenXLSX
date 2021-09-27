@@ -355,8 +355,7 @@ XLSheetType XLWorkbook::typeOfSheet(const std::string& sheetName) const
 
     if (worksheetExists(sheetName))
         return XLSheetType::Worksheet;
-    else
-        return XLSheetType::Chartsheet;
+    return XLSheetType::Chartsheet;
 }
 
 /**
@@ -495,7 +494,7 @@ void XLWorkbook::updateSheetReferences(const std::string& oldName, const std::st
         // ===== Skip if formula contains a '[' and ']' (means that the defined refers to external workbook)
         if (formula.find('[') == std::string::npos && formula.find(']') == std::string::npos) {
             // ===== For all instances of the old sheet name in the formula, replace with the new name.
-            while (formula.find(oldNameTemp) != std::string::npos) {
+            while (formula.find(oldNameTemp) != std::string::npos) { // NOLINT
                 formula.replace(formula.find(oldNameTemp), oldNameTemp.length(), newNameTemp);
             }
             definedName.text().set(formula.c_str());

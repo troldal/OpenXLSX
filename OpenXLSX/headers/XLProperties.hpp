@@ -119,7 +119,7 @@ namespace OpenXLSX
          * @param value
          * @return
          */
-        bool setProperty(const std::string& name, const std::string& value);
+        void setProperty(const std::string& name, const std::string& value);
 
         /**
          * @brief
@@ -127,7 +127,7 @@ namespace OpenXLSX
          * @param value
          * @return
          */
-        bool setProperty(const std::string& name, int value);
+        void setProperty(const std::string& name, int value);
 
         /**
          * @brief
@@ -135,7 +135,7 @@ namespace OpenXLSX
          * @param value
          * @return
          */
-        bool setProperty(const std::string& name, double value);
+        void setProperty(const std::string& name, double value);
 
         /**
          * @brief

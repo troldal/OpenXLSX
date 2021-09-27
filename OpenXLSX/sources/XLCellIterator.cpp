@@ -67,7 +67,6 @@ XLCellIterator::XLCellIterator(const XLCellRange& cellRange, XLIteratorLocation 
     : m_dataNode(std::make_unique<XMLNode>(*cellRange.m_dataNode)),
       m_topLeft(cellRange.m_topLeft),
       m_bottomRight(cellRange.m_bottomRight),
-      m_currentCell(),
       m_sharedStrings(cellRange.m_sharedStrings)
 {
     if (loc == XLIteratorLocation::End)

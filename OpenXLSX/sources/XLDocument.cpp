@@ -47,7 +47,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <nowide/fstream.hpp>
 #include <pugixml.hpp>
 #if defined(_WIN32)
-#    include <cstdio>
 #    include <random>
 #endif
 
@@ -55,7 +54,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLContentTypes.hpp"
 #include "XLDocument.hpp"
 #include "XLSheet.hpp"
-#include "utilities/XLUtilities.hpp"
 
 using namespace OpenXLSX;
 
@@ -422,12 +420,6 @@ namespace
  * @details An alternative constructor, taking a std::string with the path to the .xlsx package as an argument.
  */
 XLDocument::XLDocument(const std::string& docPath)
-    : m_filePath(),
-      m_docRelationships(),
-      m_contentTypes(),
-      m_appProperties(),
-      m_coreProperties(),
-      m_workbook()
 {
     open(docPath);
 }
@@ -646,7 +638,7 @@ std::string XLDocument::property(XLProperty prop) const
  *
  * ```
  */
-void XLDocument::setProperty(XLProperty prop, const std::string& value)
+void XLDocument::setProperty(XLProperty prop, const std::string& value) // NOLINT
 {
     switch (prop) {
         case XLProperty::Application:
@@ -661,7 +653,7 @@ void XLDocument::setProperty(XLProperty prop, const std::string& value)
             }
 
             if (value.find('.') != std::string::npos) {
-                if (!value.substr(value.find('.') + 1).empty() && value.substr(value.find('.') + 1).size() <= 5) {
+                if (!value.substr(value.find('.') + 1).empty() && value.substr(value.find('.') + 1).size() <= 5) { // NOLINT
                     if (!value.substr(0, value.find('.')).empty() && value.substr(0, value.find('.')).size() <= 2) {
                         m_appProperties.setProperty("AppVersion", value);
                     }
@@ -767,7 +759,7 @@ void XLDocument::deleteProperty(XLProperty theProperty)
  */
 XLDocument::operator bool() const
 {
-    return !!m_archive;
+    return !!m_archive; // NOLINT
 }
 
 /**
