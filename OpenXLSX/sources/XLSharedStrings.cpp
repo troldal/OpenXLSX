@@ -91,9 +91,6 @@ bool XLSharedStrings::stringExists(const std::string& str) const
 bool XLSharedStrings::stringExists(uint32_t index) const
 {
     return index <= std::distance(m_stringCache->begin(), m_stringCache->end()) - 1;
-
-    //    return index <=
-    //           std::distance(xmlDocument().document_element().children().begin(), xmlDocument().document_element().children().end()) - 1;
 }
 
 /**
@@ -135,7 +132,7 @@ int32_t XLSharedStrings::appendString(const std::string& str)
  * @details Clear the string at the given index. This will affect the entire spreadsheet; everywhere the shared string
  * is used, it will be erased.
  */
-void XLSharedStrings::clearString(unsigned long index)
+void XLSharedStrings::clearString(uint64_t index)
 {
     (*m_stringCache)[index] = "";
     auto iter            = xmlDocument().document_element().children().begin();
