@@ -104,14 +104,14 @@ namespace OpenXLSX
          * @param rhs XLRowDataIterator to compare to.
          * @return true if equal, otherwise false.
          */
-        bool operator==(const XLRowDataIterator& rhs);
+        bool operator==(const XLRowDataIterator& rhs) const;
 
         /**
          * @brief Non-equality operator.
          * @param rhs XLRowDataIterator to compare to.
          * @return false if equal, otherwise true.
          */
-        bool operator!=(const XLRowDataIterator& rhs);
+        bool operator!=(const XLRowDataIterator& rhs) const;
 
     private:
         /**

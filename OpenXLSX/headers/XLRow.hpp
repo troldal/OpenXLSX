@@ -214,6 +214,9 @@ namespace OpenXLSX
 
         //---------- PRIVATE MEMBER VARIABLES ----------//
     private:
+        static bool isEqual(const XLRow& lhs, const XLRow& rhs);
+        static bool isLessThan(const XLRow& lhs, const XLRow& rhs);
+
         std::unique_ptr<XMLNode> m_rowNode;       /**< The XMLNode object for the row. */
         XLSharedStrings          m_sharedStrings; /**< */
         XLRowDataProxy           m_rowDataProxy;  /**< */
@@ -415,7 +418,7 @@ namespace OpenXLSX
      */
     inline bool operator==(const XLRow& lhs, const XLRow& rhs)
     {
-        return lhs.m_rowNode == rhs.m_rowNode;
+        return XLRow::isEqual(lhs, rhs);
     }
 
     /**
@@ -437,7 +440,7 @@ namespace OpenXLSX
      */
     inline bool operator<(const XLRow& lhs, const XLRow& rhs)
     {
-        return lhs.rowNumber() < rhs.rowNumber();
+        return XLRow::isLessThan(lhs, rhs);
     }
 
     /**

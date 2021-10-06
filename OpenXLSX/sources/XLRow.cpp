@@ -287,6 +287,20 @@ namespace OpenXLSX
         return XLRowDataRange(*m_rowNode, firstCell, lastCell, m_sharedStrings);
     }
 
+    bool XLRow::isEqual(const XLRow& lhs, const XLRow& rhs)
+    {
+        if (lhs.m_rowNode && !rhs.m_rowNode)
+            return false;
+        if (!lhs.m_rowNode && !rhs.m_rowNode)
+            return true;
+        return *lhs.m_rowNode == *rhs.m_rowNode;
+    }
+
+    bool XLRow::isLessThan(const XLRow& lhs, const XLRow& rhs)
+    {
+        return *lhs.m_rowNode < *rhs.m_rowNode;
+    }
+
 }    // namespace OpenXLSX
 
 // ========== XLRowIterator  ================================================ //

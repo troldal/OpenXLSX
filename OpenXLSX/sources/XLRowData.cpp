@@ -189,7 +189,7 @@ namespace OpenXLSX
      * @pre
      * @post
      */
-    bool XLRowDataIterator::operator==(const XLRowDataIterator& rhs)
+    bool XLRowDataIterator::operator==(const XLRowDataIterator& rhs) const
     {
         if (m_currentCell && !rhs.m_currentCell)
             return false;
@@ -203,7 +203,7 @@ namespace OpenXLSX
      * @pre
      * @post
      */
-    bool XLRowDataIterator::operator!=(const XLRowDataIterator& rhs)
+    bool XLRowDataIterator::operator!=(const XLRowDataIterator& rhs) const
     {
         return !(*this == rhs);
     }

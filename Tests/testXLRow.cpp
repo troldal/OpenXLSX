@@ -50,6 +50,20 @@ TEST_CASE("XLRow Tests", "[XLRow]")
         copy4.setHidden(false);
         REQUIRE(copy4.isHidden() == false);
 
+
+        auto row1 = wks.row(11);
+        auto row2 = wks.row(12);
+        auto row3 = wks.row(13);
+        auto row4 = wks.row(13);
+        REQUIRE(row3 == row4);
+        REQUIRE(row4 >= row3);
+        REQUIRE(row3 <= row4);
+        REQUIRE(row3 >= row2);
+        REQUIRE(row2 <= row3);
+        REQUIRE(row1 != row2);
+        REQUIRE(row2 > row1);
+        REQUIRE(row1 < row2);
+
         doc.save();
     }
 }
@@ -469,6 +483,88 @@ TEST_CASE("XLRowDataRange Tests", "[XLRowDataRange]")
         auto sum = 0;
         for (const auto& cell : range) sum += cell.value().get<int>();
         REQUIRE(sum == 1);
+        REQUIRE(range.size() == 1);
+
+        auto range_copy = range;
+        sum = 0;
+        for (const auto& cell : range_copy) sum += cell.value().get<int>();
+        REQUIRE(sum == 1);
+        REQUIRE(range_copy.size() == 1);
+
+        auto range_move = std::move(range_copy);
+        sum = 0;
+        for (const auto& cell : range_move) sum += cell.value().get<int>();
+        REQUIRE(sum == 1);
+        REQUIRE(range_move.size() == 1);
+
+        auto range_copy2 = range_move;
+        range_copy2 = range;
+        sum = 0;
+        for (const auto& cell : range_copy2) sum += cell.value().get<int>();
+        REQUIRE(sum == 1);
+        REQUIRE(range_copy2.size() == 1);
+
+        auto range_move2 = range_move;
+        range_move2 = std::move(range_copy2);
+        sum = 0;
+        for (const auto& cell : range_move2) sum += cell.value().get<int>();
+        REQUIRE(sum == 1);
+        REQUIRE(range_move2.size() == 1);
+
+        auto row2 = wks.row(2);
+        auto range2 = row2.cells(8);
+        for (auto& cell : range2) cell.value() = 1;
+
+        sum = 0;
+        for (const auto& cell : row2.cells()) sum += cell.value().get<int>();
+        REQUIRE(sum == 8);
+        REQUIRE(range2.size() == 8);
+
+        auto row3 = wks.row(3);
+        auto range3 = row3.cells(3, 8);
+        for (auto& cell : range3) cell.value() = 1;
+
+        sum = 0;
+        for (const auto& cell : row3.cells())
+            if (cell.value().type() == XLValueType::Integer) sum += cell.value().get<int>();
+        REQUIRE(sum == 6);
+        REQUIRE(row3.cells().size() == 8);
+
+        doc.save();
+    }
+
+    SECTION("XLRowDataIterator") {
+
+        XLDocument doc;
+        doc.create("./testXLRow.xlsx");
+        auto wks = doc.workbook().worksheet("Sheet1");
+
+        auto row = wks.row(1);
+        auto range = row.cells(2);
+        for (auto& cell : range) cell.value() = 1;
+        auto begin = range.begin();
+        auto end = range.end();
+        auto other = begin;
+
+        REQUIRE(begin == other);
+        REQUIRE_FALSE(begin == end);
+        REQUIRE(begin != end);
+        REQUIRE_FALSE(begin != other);
+
+        ++other;
+        REQUIRE_FALSE(begin == other);
+
+        ++other;
+        REQUIRE(other == end);
+
+        other = begin;
+        REQUIRE(begin == other);
+
+        other++;
+        other = std::move(begin);
+        begin = range.begin();
+        REQUIRE(begin == other);
 
     }
+
 }
