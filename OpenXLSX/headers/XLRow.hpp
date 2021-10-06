@@ -212,11 +212,25 @@ namespace OpenXLSX
          */
         XLRowDataRange cells(uint16_t firstCell, uint16_t lastCell) const;
 
-        //---------- PRIVATE MEMBER VARIABLES ----------//
     private:
+
+        /**
+         * @brief
+         * @param lhs
+         * @param rhs
+         * @return
+         */
         static bool isEqual(const XLRow& lhs, const XLRow& rhs);
+
+        /**
+         * @brief
+         * @param lhs
+         * @param rhs
+         * @return
+         */
         static bool isLessThan(const XLRow& lhs, const XLRow& rhs);
 
+        //---------- PRIVATE MEMBER VARIABLES ----------//
         std::unique_ptr<XMLNode> m_rowNode;       /**< The XMLNode object for the row. */
         XLSharedStrings          m_sharedStrings; /**< */
         XLRowDataProxy           m_rowDataProxy;  /**< */
