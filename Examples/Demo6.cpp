@@ -10,7 +10,7 @@ using namespace OpenXLSX;
 int main()
 {
     cout << "********************************************************************************\n";
-    cout << "DEMO PROGRAM #06: Row Handling\n";
+    cout << "DEMO PROGRAM #06: Row Handling (using containers)\n";
     cout << "********************************************************************************\n";
 
     // As an alternative to using cell ranges, you can use row ranges.

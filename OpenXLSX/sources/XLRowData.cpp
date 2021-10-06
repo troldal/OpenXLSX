@@ -191,6 +191,10 @@ namespace OpenXLSX
      */
     bool XLRowDataIterator::operator==(const XLRowDataIterator& rhs)
     {
+        if (m_currentCell && !rhs.m_currentCell)
+            return false;
+        if (!m_currentCell && !rhs.m_currentCell)
+            return true;
         return m_currentCell == rhs.m_currentCell;
     }
 
@@ -201,7 +205,7 @@ namespace OpenXLSX
      */
     bool XLRowDataIterator::operator!=(const XLRowDataIterator& rhs)
     {
-        return !(m_currentCell == rhs.m_currentCell);
+        return !(*this == rhs);
     }
 
 }    // namespace OpenXLSX

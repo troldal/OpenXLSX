@@ -468,7 +468,7 @@ TEST_CASE("XLRowDataRange Tests", "[XLRowDataRange]")
 
         auto sum = 0;
         for (const auto& cell : range) sum += cell.value().get<int>();
-        REQUIRE(sum == MAX_COLS);
+        REQUIRE(sum == 1);
 
     }
 }
