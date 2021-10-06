@@ -131,12 +131,11 @@ namespace OpenXLSX
                                std::is_same_v<std::decay_t<T>, char*> && !std::is_same_v<T, bool>)
             {
                 m_type = XLValueType::String;
-                if constexpr (std::is_same_v<std::decay_t<T>, const char*> || std::is_same_v<std::decay_t<T>, char*>)
-                    m_value = value;
-                else if constexpr (std::is_same_v<std::decay_t<T>, std::string_view>)
-                    m_value = std::string(value).c_str();
+                if constexpr (std::is_same_v<std::decay_t<T>, std::string_view>)
+                    m_value = std::string(value);
                 else
-                    m_value = value.c_str();
+                    m_value = value;
+
             }
 
             // ===== If the argument is an XLDateTime, set the value to the date/time serial number.
@@ -244,7 +243,7 @@ namespace OpenXLSX
                 if constexpr (std::is_same_v<std::decay_t<T>, std::string> || std::is_same_v<std::decay_t<T>, std::string_view> ||
                               std::is_same_v<std::decay_t<T>, const char*> ||
                               std::is_same_v<std::decay_t<T>, char*> && !std::is_same_v<T, bool>)
-                    return std::get<const char*>(m_value);
+                    return std::get<std::string>(m_value).c_str();
 
                 if constexpr (std::is_same_v<T, XLDateTime>) return XLDateTime(std::get<double>(m_value));
             }
@@ -297,7 +296,7 @@ namespace OpenXLSX
     private:
         //---------- Private Member Variables ---------- //
 
-        std::variant<const char*, int64_t, double, bool> m_value { "" };                /**< The value contained in the cell. */
+        std::variant<std::string, int64_t, double, bool> m_value { "" };                /**< The value contained in the cell. */
         XLValueType                                      m_type { XLValueType::Empty }; /**< The value type of the cell. */
     };
 
@@ -638,7 +637,7 @@ namespace std
     {
         std::size_t operator()(const OpenXLSX::XLCellValue& value) const noexcept
         {
-            return std::hash<std::variant<const char*, int64_t, double, bool>> {}(value.m_value);
+            return std::hash<std::variant<std::string, int64_t, double, bool>> {}(value.m_value);
         }
     };
 }    // namespace std

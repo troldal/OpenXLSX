@@ -453,3 +453,22 @@ TEST_CASE("XLRowData Tests", "[XLRowData]")
         doc.save();
     }
 }
+
+TEST_CASE("XLRowDataRange Tests", "[XLRowDataRange]")
+{
+    SECTION("XLRowDataRange") {
+
+        XLDocument doc;
+        doc.create("./testXLRow.xlsx");
+        auto wks = doc.workbook().worksheet("Sheet1");
+
+        auto row = wks.row(1);
+        auto range = row.cells();
+        for (auto& cell : range) cell.value() = 1;
+
+        auto sum = 0;
+        for (const auto& cell : range) sum += cell.value().get<int>();
+        REQUIRE(sum == MAX_COLS);
+
+    }
+}
