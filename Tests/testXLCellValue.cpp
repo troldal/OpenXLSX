@@ -309,7 +309,7 @@ TEST_CASE("XLCellValue Tests", "[XLCellValue]")
         XLCellValue value;
 
         value ="Hello OpenXLSX!";
-        auto result1 = static_cast<std::string>(value);
+        auto result1 = value.get<std::string>();
         REQUIRE(result1 == "Hello OpenXLSX!");
         REQUIRE_THROWS(static_cast<int>(value));
         REQUIRE_THROWS(static_cast<double>(value));
@@ -318,7 +318,7 @@ TEST_CASE("XLCellValue Tests", "[XLCellValue]")
         value = 42;
         auto result2 = static_cast<int>(value);
         REQUIRE(result2 == 42);
-        REQUIRE_THROWS(static_cast<std::string>(value));
+        REQUIRE_THROWS(value.get<std::string>());
         REQUIRE_THROWS(static_cast<double>(value));
         REQUIRE_THROWS(static_cast<bool>(value));
 
@@ -326,7 +326,7 @@ TEST_CASE("XLCellValue Tests", "[XLCellValue]")
         auto result3 = static_cast<double>(value);
         REQUIRE(result3 == 3.14159);
         REQUIRE_THROWS(static_cast<int>(value));
-        REQUIRE_THROWS(static_cast<std::string>(value));
+        REQUIRE_THROWS(value.get<std::string>());
         REQUIRE_THROWS(static_cast<bool>(value));
 
         value = true;
@@ -334,7 +334,7 @@ TEST_CASE("XLCellValue Tests", "[XLCellValue]")
         REQUIRE(result4 == true);
         REQUIRE_THROWS(static_cast<int>(value));
         REQUIRE_THROWS(static_cast<double>(value));
-        REQUIRE_THROWS(static_cast<std::string>(value));
+        REQUIRE_THROWS(value.get<std::string>());
 
     }
 }

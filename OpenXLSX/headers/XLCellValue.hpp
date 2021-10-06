@@ -131,11 +131,7 @@ namespace OpenXLSX
                                std::is_same_v<std::decay_t<T>, char*> && !std::is_same_v<T, bool>)
             {
                 m_type = XLValueType::String;
-                if constexpr (std::is_same_v<std::decay_t<T>, std::string_view>)
-                    m_value = std::string(value);
-                else
-                    m_value = value;
-
+                m_value = std::string(value);
             }
 
             // ===== If the argument is an XLDateTime, set the value to the date/time serial number.
@@ -296,7 +292,7 @@ namespace OpenXLSX
     private:
         //---------- Private Member Variables ---------- //
 
-        std::variant<std::string, int64_t, double, bool> m_value { "" };                /**< The value contained in the cell. */
+        std::variant<std::string, int64_t, double, bool> m_value { std::string("") };                /**< The value contained in the cell. */
         XLValueType                                      m_type { XLValueType::Empty }; /**< The value type of the cell. */
     };
 
