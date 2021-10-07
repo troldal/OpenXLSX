@@ -477,8 +477,9 @@ void XLDocument::open(const std::string& fileName)
         m_sharedStringCache.emplace_back(str.first_child().text().get());
 
     // ===== Open the workbook and document property items
-    m_coreProperties = XLProperties(getXmlData("docProps/core.xml"));
-    m_appProperties  = XLAppProperties(getXmlData("docProps/app.xml"));
+    // TODO: If property data doesn't exist, consider creating them, instead of ignoring it.
+    m_coreProperties = (hasXmlData("docProps/core.xml") ? XLProperties(getXmlData("docProps/core.xml")) : XLProperties());
+    m_appProperties  = (hasXmlData("docProps/app.xml") ? XLAppProperties(getXmlData("docProps/app.xml")) : XLAppProperties());
     m_sharedStrings  = XLSharedStrings(getXmlData("xl/sharedStrings.xml"), &m_sharedStringCache);
     m_workbook       = XLWorkbook(getXmlData("xl/workbook.xml"));
 }
@@ -767,9 +768,11 @@ XLDocument::operator bool() const
  */
 XLXmlData* XLDocument::getXmlData(const std::string& path)
 {
-    auto result = std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) { return item.getXmlPath() == path; });
-    if (result == m_data.end()) throw XLInternalError("Path does not exist in zip archive.");
-    return &*result;
+    if (!hasXmlData(path)) throw XLInternalError("Path does not exist in zip archive.");
+    return &*std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) { return item.getXmlPath() == path; });
+//    auto result = std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) { return item.getXmlPath() == path; });
+//    if (result == m_data.end()) throw XLInternalError("Path does not exist in zip archive.");
+//    return &*result;
 }
 
 /**
@@ -777,9 +780,18 @@ XLXmlData* XLDocument::getXmlData(const std::string& path)
  */
 const XLXmlData* XLDocument::getXmlData(const std::string& path) const
 {
-    auto result = std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) { return item.getXmlPath() == path; });
-    if (result == m_data.end()) throw XLInternalError("Path does not exist in zip archive.");
-    return &*result;
+    if (!hasXmlData(path)) throw XLInternalError("Path does not exist in zip archive.");
+    return &*std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) { return item.getXmlPath() == path; });
+//    if (result == m_data.end()) throw XLInternalError("Path does not exist in zip archive.");
+//    return &*result;
+}
+
+/**
+ * @details
+ */
+bool XLDocument::hasXmlData(const std::string& path) const
+{
+    return std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) { return item.getXmlPath() == path; }) != m_data.end();
 }
 
 /**

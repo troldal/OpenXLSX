@@ -154,7 +154,7 @@ namespace OpenXLSX
          */
         const XMLDocument& xmlDocument() const;
 
-    private:                              // ===== PRIVATE MEMBER VARIABLES
+    protected:                              // ===== PRIVATE MEMBER VARIABLES
         XLXmlData* m_xmlData { nullptr }; /**< The underlying XML data object. */
     };
 }    // namespace OpenXLSX

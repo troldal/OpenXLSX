@@ -254,7 +254,7 @@ namespace OpenXLSX
          * @param value
          * @return
          */
-        bool setProperty(const std::string& name, const std::string& value);
+        void setProperty(const std::string& name, const std::string& value);
 
         /**
          * @brief

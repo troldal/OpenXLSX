@@ -500,6 +500,13 @@ namespace OpenXLSX
          */
         const XLXmlData* getXmlData(const std::string& path) const;
 
+        /**
+         * @brief
+         * @param path
+         * @return
+         */
+        bool hasXmlData(const std::string& path) const;
+
         //----------------------------------------------------------------------------------------------------------------------
         //           Private Member Variables
         //----------------------------------------------------------------------------------------------------------------------
