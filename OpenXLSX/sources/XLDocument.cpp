@@ -473,8 +473,19 @@ void XLDocument::open(const std::string& fileName)
                                 /* xmlType   */ item.type());
     }
 
-    for (const auto& str : getXmlData("xl/sharedStrings.xml")->getXmlDocument()->document_element().children())
-        m_sharedStringCache.emplace_back(str.first_child().text().get());
+    for (const auto& node : getXmlData("xl/sharedStrings.xml")->getXmlDocument()->document_element().children()){
+        if (std::string(node.first_child().name()) == "r") {
+            std::string result;
+            for (const auto& elem : node.children())
+                result += elem.child("t").text().get();
+            m_sharedStringCache.emplace_back(result);
+        }
+
+        else
+            m_sharedStringCache.emplace_back(node.first_child().text().get());
+
+    }
+
 
     // ===== Open the workbook and document property items
     // TODO: If property data doesn't exist, consider creating them, instead of ignoring it.

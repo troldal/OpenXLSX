@@ -11,15 +11,23 @@ int main()
 {
 
     XLDocument doc;
-    doc.open("./read-tdne.xlsx");
-    auto wks = doc.workbook().worksheet("TEST");
+    doc.open("./ress.xlsx");
+    auto wks = doc.workbook().worksheet("Sheet1");
 
-    if (wks.cell("A1").value().type() == XLValueType::Integer)
-        cout << wks.cell("A1").value() << endl;
+    std::vector<std::string> strings;
 
-    if (wks.cell("A2").value().type() == XLValueType::Integer)
-        cout << wks.cell("A2").value() << endl;
+    for (auto row : wks.rows()){
+        std::vector<XLCellValue> values = row.values();
+        strings.emplace_back(values[0]);
+    }
 
+    int index = 1;
+    for (auto str : strings) {
+        wks.cell(index, 3).value() = str;
+        ++index;
+    }
+
+    doc.saveAs("./Demo9.xlsx");
     doc.close();
 
     return 0;

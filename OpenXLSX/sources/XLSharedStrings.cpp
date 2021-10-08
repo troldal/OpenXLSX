@@ -59,7 +59,6 @@ using namespace OpenXLSX;
  */
 XLSharedStrings::XLSharedStrings(XLXmlData* xmlData, std::deque<std::string> *stringCache) : XLXmlFile(xmlData), m_stringCache(stringCache)
 {
-    //for (const auto& str : xmlDocument().document_element().children()) m_stringCache.emplace_back(str.first_child().text().get());
 }
 
 /**
@@ -102,15 +101,6 @@ bool XLSharedStrings::stringExists(uint32_t index) const
 const char* XLSharedStrings::getString(uint32_t index) const
 {
     return (*m_stringCache)[index].c_str();
-
-    //    auto element = xmlDocument().document_element().first_child();
-    //    for (uint32_t current = 1; current < index; ++current) {
-    //    }
-    //
-    //    auto iter = xmlDocument().document_element().children().begin();
-    //    std::advance(iter, index);
-    //
-    //    return iter->first_child().text().get();
 }
 
 /**
