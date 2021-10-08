@@ -469,7 +469,7 @@ uint16_t XLWorksheet::columnCount() const noexcept
             counts.emplace_back(row.cellCount());
         }
 
-        return static_cast<uint16_t>(*std::max_element(counts.begin(), counts.end()));
+        return std::max(static_cast<uint16_t>(1), static_cast<uint16_t>(*std::max_element(counts.begin(), counts.end())));
 }
 
 /**
