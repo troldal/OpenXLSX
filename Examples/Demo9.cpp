@@ -11,23 +11,12 @@ int main()
 {
 
     XLDocument doc;
-    doc.open("./ress.xlsx");
-    auto wks = doc.workbook().worksheet("Sheet1");
+    doc.open("./test.xlsx");
+    auto wks = doc.workbook().worksheet("sheet");
 
-    std::vector<std::string> strings;
+    cout << wks.cell("A1").value() << endl;
+    cout << wks.cell("B1").value() << endl;
 
-    for (auto row : wks.rows()){
-        std::vector<XLCellValue> values = row.values();
-        strings.emplace_back(values[0]);
-    }
-
-    int index = 1;
-    for (auto str : strings) {
-        wks.cell(index, 3).value() = str;
-        ++index;
-    }
-
-    doc.saveAs("./Demo9.xlsx");
     doc.close();
 
     return 0;
