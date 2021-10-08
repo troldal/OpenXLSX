@@ -624,6 +624,26 @@ namespace OpenXLSX
                 return os << "";
         }
     }
+
+    inline std::ostream& operator<<(std::ostream& os, const XLCellValueProxy& value)
+    {
+        switch (value.type()) {
+            case XLValueType::Empty:
+                return os << "";
+            case XLValueType::Boolean:
+                return os << value.get<bool>();
+            case XLValueType::Integer:
+                return os << value.get<int64_t>();
+            case XLValueType::Float:
+                return os << value.get<double>();
+            case XLValueType::String:
+                return os << value.get<std::string_view>();
+            default:
+                return os << "";
+        }
+    }
+
+
 }    // namespace OpenXLSX
 
 namespace std

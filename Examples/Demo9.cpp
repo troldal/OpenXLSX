@@ -14,17 +14,12 @@ int main()
     doc.open("./read-tdne.xlsx");
     auto wks = doc.workbook().worksheet("TEST");
 
-    for (auto row : wks.rows()) {
-        for (auto cell : row.cells()) {
-            cout << cell.value().get<int>() << endl;
-        }
-    }
+    if (wks.cell("A1").value().type() == XLValueType::Integer)
+        cout << wks.cell("A1").value() << endl;
 
-    doc.workbook().addWorksheet("Other");
-    auto other = doc.workbook().worksheet("Other");
-    other.cell("A1").value() = "Blah!";
+    if (wks.cell("A2").value().type() == XLValueType::Integer)
+        cout << wks.cell("A2").value() << endl;
 
-    doc.saveAs("Demo9.xlsx");
     doc.close();
 
     return 0;
