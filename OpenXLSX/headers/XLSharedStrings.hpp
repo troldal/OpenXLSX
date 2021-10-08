@@ -132,13 +132,6 @@ namespace OpenXLSX
          * @param index
          * @return
          */
-        bool stringExists(uint32_t index) const;
-
-        /**
-         * @brief
-         * @param index
-         * @return
-         */
         const char* getString(uint32_t index) const;
 
         /**

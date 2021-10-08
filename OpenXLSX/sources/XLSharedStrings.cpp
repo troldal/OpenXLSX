@@ -87,17 +87,6 @@ bool XLSharedStrings::stringExists(const std::string& str) const
 /**
  * @details
  */
-bool XLSharedStrings::stringExists(uint32_t index) const
-{
-    return index <= std::distance(m_stringCache->begin(), m_stringCache->end()) - 1;
-}
-
-/**
- * @details
- * @pre
- * @post
- * @throws
- */
 const char* XLSharedStrings::getString(uint32_t index) const
 {
     return (*m_stringCache)[index].c_str();
