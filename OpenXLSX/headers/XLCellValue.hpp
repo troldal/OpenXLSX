@@ -128,7 +128,7 @@ namespace OpenXLSX
             // ===== set the m_type attribute to String.
             else if constexpr (std::is_same_v<std::decay_t<T>, std::string> || std::is_same_v<std::decay_t<T>, std::string_view> ||
                                std::is_same_v<std::decay_t<T>, const char*> ||
-                               std::is_same_v<std::decay_t<T>, char*> && !std::is_same_v<T, bool>)
+                               (std::is_same_v<std::decay_t<T>, char*> && !std::is_same_v<T, bool>))
             {
                 m_type = XLValueType::String;
                 m_value = std::string(value);
@@ -238,7 +238,7 @@ namespace OpenXLSX
 
                 if constexpr (std::is_same_v<std::decay_t<T>, std::string> || std::is_same_v<std::decay_t<T>, std::string_view> ||
                               std::is_same_v<std::decay_t<T>, const char*> ||
-                              std::is_same_v<std::decay_t<T>, char*> && !std::is_same_v<T, bool>)
+                              (std::is_same_v<std::decay_t<T>, char*> && !std::is_same_v<T, bool>))
                     return std::get<std::string>(m_value).c_str();
 
                 if constexpr (std::is_same_v<T, XLDateTime>) return XLDateTime(std::get<double>(m_value));
@@ -351,7 +351,7 @@ namespace OpenXLSX
 
             else if constexpr (std::is_same_v<std::decay_t<T>, std::string> || std::is_same_v<std::decay_t<T>, std::string_view> ||
                                std::is_same_v<std::decay_t<T>, const char*> ||
-                               std::is_same_v<std::decay_t<T>, char*> && !std::is_same_v<T, bool> && !std::is_same_v<T, XLCellValue>)
+                               (std::is_same_v<std::decay_t<T>, char*> && !std::is_same_v<T, bool> && !std::is_same_v<T, XLCellValue>))
             {
                 if constexpr (std::is_same_v<std::decay_t<T>, const char*> || std::is_same_v<std::decay_t<T>, char*>)
                     setString(value);
