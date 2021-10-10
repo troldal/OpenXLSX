@@ -435,7 +435,7 @@ namespace OpenXLSX
      * @pre
      * @post
      */
-    bool XLRowIterator::operator==(const XLRowIterator& rhs)
+    bool XLRowIterator::operator==(const XLRowIterator& rhs) const
     {
         return m_currentRow == rhs.m_currentRow;
     }
@@ -445,7 +445,7 @@ namespace OpenXLSX
      * @pre
      * @post
      */
-    bool XLRowIterator::operator!=(const XLRowIterator& rhs)
+    bool XLRowIterator::operator!=(const XLRowIterator& rhs) const
     {
         return !(m_currentRow == rhs.m_currentRow);
     }

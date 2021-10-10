@@ -568,3 +568,30 @@ TEST_CASE("XLRowDataRange Tests", "[XLRowDataRange]")
     }
 
 }
+
+TEST_CASE("XLRowIterator Tests", "[XLRowDataRange]")
+{
+    SECTION("XLRowIterator") {
+
+        XLDocument doc;
+        doc.create("./testXLRow.xlsx");
+        auto wks = doc.workbook().worksheet("Sheet1");
+
+        auto range = wks.rows(1,3);
+        auto first = range.begin();
+        auto second = first;
+        second++;
+        auto third = range.end();
+        auto fourth = std::move(third);
+        third = second;
+        second = std::move(first);
+        first = range.begin();
+
+        REQUIRE(second == range.begin());
+        REQUIRE_FALSE(second == third);
+        REQUIRE_FALSE(second == fourth);
+        REQUIRE(range.rowCount() == 3);
+        REQUIRE(first->rowNumber() == 1);
+
+    }
+}

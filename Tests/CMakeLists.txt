@@ -27,6 +27,7 @@ target_sources(OpenXLSXTests
         testXLDateTime.cpp
         testXLFormula.cpp
         testXLRow.cpp
+        testXLSheet.cpp
         )
 
 target_link_libraries(OpenXLSXTests
