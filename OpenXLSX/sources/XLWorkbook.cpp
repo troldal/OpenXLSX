@@ -272,7 +272,7 @@ void XLWorkbook::setSheetVisibility(const std::string& sheetRID, const std::stri
         xmlDocument().document_element().child("sheets").find_child_by_attribute("r:id", sheetRID.c_str()).attribute("state");
     if (!stateAttribute) {
         stateAttribute =
-            xmlDocument().document_element().child("sheets").find_child_by_attribute("r:id", sheetRID.c_str()).append_attribute("state");
+            xmlDocument().document_element().child("sheets").find_child_by_attribute("r:id", sheetRID.c_str()).prepend_attribute("state");
     }
 
     // ===== Set the visibility attribute.

@@ -245,6 +245,7 @@ namespace OpenXLSX
             }
 
             else if constexpr (std::is_same_v<Command, XLCommandSetSheetVisibility>) {    // NOLINT
+                m_workbook.setSheetVisibility(command.sheetID(), command.sheetVisibility());
             }
 
             else if constexpr (std::is_same_v<Command, XLCommandSetSheetColor>) {
