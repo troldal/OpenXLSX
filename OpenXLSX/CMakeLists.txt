@@ -41,6 +41,9 @@ set(OPENXLSX_LIBRARY_TYPE "STATIC" CACHE STRING "Set the library type to SHARED 
 add_library(NoWide INTERFACE IMPORTED)
 target_include_directories(NoWide SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/external/nowide/>)
 
+add_library(Json INTERFACE IMPORTED)
+target_include_directories(Json SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/external/json/>)
+
 add_library(Zippy INTERFACE IMPORTED)
 target_include_directories(Zippy SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/external/zippy/>)
 
@@ -130,6 +133,7 @@ if (${OPENXLSX_LIBRARY_TYPE} STREQUAL "STATIC")
     target_link_libraries(OpenXLSX
             PRIVATE
             $<BUILD_INTERFACE:Zippy>
+            $<BUILD_INTERFACE:Json>
             $<BUILD_INTERFACE:PugiXML>
             $<BUILD_INTERFACE:NoWide>)
 
@@ -153,6 +157,7 @@ if (${OPENXLSX_LIBRARY_TYPE} STREQUAL "SHARED")
     target_link_libraries(OpenXLSX
             PRIVATE
             $<BUILD_INTERFACE:Zippy>
+            $<BUILD_INTERFACE:Json>
             $<BUILD_INTERFACE:PugiXML>
             $<BUILD_INTERFACE:NoWide>)
 

@@ -46,6 +46,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 // ===== External Includes ===== //
 #include <nowide/fstream.hpp>
 #include <pugixml.hpp>
+#include <json.hpp>
 #if defined(_WIN32)
 #    include <random>
 #endif
@@ -456,7 +457,7 @@ void XLDocument::open(const std::string& fileName)
     m_docRelationships = XLRelationships(getXmlData("_rels/.rels"));
     m_wbkRelationships = XLRelationships(getXmlData("xl/_rels/workbook.xml.rels"));
 
-    if (!m_archive.hasEntry("xl/sharedStrings.xml")) executeCommand(XLCommandAddSharedStrings());
+    if (!m_archive.hasEntry("xl/sharedStrings.xml")) execCommand(R"({"command": "AddSharedStrings"})");
 
     // ===== Add remaining spreadsheet elements to the vector of XLXmlData objects.
     for (auto& item : m_contentTypes.getContentItems()) {
@@ -764,6 +765,142 @@ void XLDocument::setProperty(XLProperty prop, const std::string& value) // NOLIN
 void XLDocument::deleteProperty(XLProperty theProperty)
 {
     setProperty(theProperty, "");
+}
+
+void XLDocument::execCommand(const std::string& command) {
+
+    auto cmd = nlohmann::json::parse(command);
+
+    // ===== setSheetName
+    if (cmd["command"] == "SetSheetName") {
+        m_appProperties.setSheetName(cmd["sheetName"], cmd["newName"]);
+        m_workbook.setSheetName(cmd["sheetID"], cmd["newName"]);
+    }
+
+    // ===== setSheetColor
+    else if (cmd["command"] == "SetSheetColor") {
+        // TODO: To be implemented
+    }
+
+    // ===== setSheetVisibility
+    else if(cmd["command"] == "SetSheetVisibility") {
+        m_workbook.setSheetVisibility(cmd["sheetID"], cmd["sheetVisibility"]);
+    }
+
+    // ===== setSheetIndex
+    else if (cmd["command"] == "SetSheetIndex") {
+        auto sheetName = executeQuery(XLQuerySheetName(cmd["sheetID"])).sheetName();
+        m_workbook.setSheetIndex(sheetName, cmd["sheetIndex"]);
+    }
+
+    // ===== resetCalcChain
+    else if (cmd["command"] == "ResetCalcChain") {
+        m_archive.deleteEntry("xl/calcChain.xml");
+        auto item = std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) {
+            return item.getXmlPath() == "xl/calcChain.xml";
+        });
+
+        if (item != m_data.end()) m_data.erase(item);
+    }
+
+    // ===== addSharedStrings
+    else if (cmd["command"] == "AddSharedStrings") {
+        std::string sharedStrings {
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+            "<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"1\" uniqueCount=\"1\">\n"
+            "  <si>\n"
+            "    <t/>\n"
+            "  </si>\n"
+            "</sst>"
+        };
+        m_contentTypes.addOverride("/xl/sharedStrings.xml", XLContentType::SharedStrings);
+        m_wbkRelationships.addRelationship(XLRelationshipType::SharedStrings, "sharedStrings.xml");
+        m_archive.addEntry("xl/sharedStrings.xml", sharedStrings);
+    }
+
+    // ===== addWorksheet
+    else if (cmd["command"] == "AddWorksheet") {
+        std::string emptyWorksheet {
+            "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
+            "<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\""
+            " xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\""
+            " xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac\""
+            " xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\">"
+            "<dimension ref=\"A1\"/>"
+            "<sheetViews>"
+            "<sheetView workbookViewId=\"0\"/>"
+            "</sheetViews>"
+            "<sheetFormatPr baseColWidth=\"10\" defaultRowHeight=\"16\" x14ac:dyDescent=\"0.2\"/>"
+            "<sheetData/>"
+            "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/>"
+            "</worksheet>"
+        };
+        m_contentTypes.addOverride(cmd["sheetPath"], XLContentType::Worksheet);
+        m_wbkRelationships.addRelationship(XLRelationshipType::Worksheet, cmd["sheetPath"].get<std::string>().substr(4));
+        m_appProperties.appendSheetName(cmd["sheetName"]);
+        m_archive.addEntry(cmd["sheetPath"].get<std::string>().substr(1), emptyWorksheet);
+        m_data.emplace_back(
+            /* parentDoc */ this,
+            /* xmlPath   */ cmd["sheetPath"].get<std::string>().substr(1),
+            /* xmlID     */ m_wbkRelationships.relationshipByTarget(cmd["sheetPath"].get<std::string>().substr(4)).id(),
+            /* xmlType   */ XLContentType::Worksheet);
+    }
+
+    // ===== addChartsheet
+    else if (cmd["command"] == "AddChartsheet") {
+        // TODO: To be implemented
+    }
+
+    // ===== deleteSheet
+    else if (cmd["command"] == "DeleteSheet") {
+        m_appProperties.deleteSheetName(cmd["sheetName"]);
+        auto sheetPath = "/xl/" + m_wbkRelationships.relationshipById(cmd["sheetID"]).target();
+        m_archive.deleteEntry(sheetPath.substr(1));
+        m_contentTypes.deleteOverride(sheetPath);
+        m_wbkRelationships.deleteRelationship(cmd["sheetID"]);
+        m_data.erase(std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) {
+            return item.getXmlPath() == sheetPath.substr(1);
+        }));
+    }
+
+    // ===== cloneSheet
+    else if (cmd["command"] == "CloneSheet") {
+        auto internalID = m_workbook.createInternalSheetID();
+        auto sheetPath  = "/xl/worksheets/sheet" + std::to_string(internalID) + ".xml";
+        if (m_workbook.sheetExists(cmd["cloneName"]))
+            throw XLInternalError("Sheet named \"" + cmd["cloneName"].get<std::string>() + "\" already exists.");
+
+        if (m_wbkRelationships.relationshipById(cmd["sheetID"]).type() == XLRelationshipType::Worksheet) {
+            m_contentTypes.addOverride(sheetPath, XLContentType::Worksheet);
+            m_wbkRelationships.addRelationship(XLRelationshipType::Worksheet, sheetPath.substr(4));
+            m_appProperties.appendSheetName(cmd["cloneName"]);
+            m_archive.addEntry(sheetPath.substr(1), std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& data) {
+                                                        return data.getXmlPath().substr(3) ==
+                                                               m_wbkRelationships.relationshipById(cmd["sheetID"]).target();
+                                                    })->getRawData());
+            m_data.emplace_back(
+                /* parentDoc */ this,
+                /* xmlPath   */ sheetPath.substr(1),
+                /* xmlID     */ m_wbkRelationships.relationshipByTarget(sheetPath.substr(4)).id(),
+                /* xmlType   */ XLContentType::Worksheet);
+        }
+        else {
+            m_contentTypes.addOverride(sheetPath, XLContentType::Chartsheet);
+            m_wbkRelationships.addRelationship(XLRelationshipType::Chartsheet, sheetPath.substr(4));
+            m_appProperties.appendSheetName(cmd["cloneName"]);
+            m_archive.addEntry(sheetPath.substr(1), std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& data) {
+                                                        return data.getXmlPath().substr(3) ==
+                                                               m_wbkRelationships.relationshipById(cmd["sheetID"]).target();
+                                                    })->getRawData());
+            m_data.emplace_back(
+                /* parentDoc */ this,
+                /* xmlPath   */ sheetPath.substr(1),
+                /* xmlID     */ m_wbkRelationships.relationshipByTarget(sheetPath.substr(4)).id(),
+                /* xmlType   */ XLContentType::Chartsheet);
+        }
+
+        m_workbook.prepareSheetMetadata(cmd["cloneName"], internalID);
+    }
 }
 
 /**

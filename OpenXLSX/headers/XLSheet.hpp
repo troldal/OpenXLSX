@@ -174,7 +174,10 @@ namespace OpenXLSX
                     break;
             }
 
-            parentDoc().executeCommand(XLCommandSetSheetVisibility(relationshipID(), name(), stateString));
+            parentDoc().execCommand(
+                R"({ "command": "SetSheetVisibility", "sheetID": ")" + relationshipID() +
+                R"(", "sheetName": ")" + name() +
+                R"(", "sheetVisibility": ")" + stateString + "\"}");
         }
 
         /**
@@ -211,7 +214,10 @@ namespace OpenXLSX
          */
         void setIndex(uint16_t index)
         {
-            parentDoc().executeCommand(XLCommandSetSheetIndex(relationshipID(), index));
+            //parentDoc().executeCommand(XLCommandSetSheetIndex(relationshipID(), index));
+                parentDoc().execCommand(
+                R"({ "command": "SetSheetIndex", "sheetID": ")" + relationshipID() +
+                R"(", "sheetIndex": )" + std::to_string(index) + "}");
         }
 
         /**
@@ -229,7 +235,11 @@ namespace OpenXLSX
          */
         void setName(const std::string& sheetName)
         {
-            parentDoc().executeCommand(XLCommandSetSheetName(relationshipID(), name(), sheetName));
+//            parentDoc().executeCommand(XLCommandSetSheetName(relationshipID(), name(), sheetName));
+            parentDoc().execCommand(
+                R"({ "command": "SetSheetName", "sheetID": ")" + relationshipID() +
+                R"(", "sheetName": ")" + name() +
+                R"(", "newName": ")" + sheetName + "\"}");
         }
 
         /**
@@ -258,7 +268,9 @@ namespace OpenXLSX
          */
         void clone(const std::string& newName)
         {
-            parentDoc().executeCommand(XLCommandCloneSheet(relationshipID(), newName));
+            parentDoc().execCommand(
+                R"({ "command": "CloneSheet", "sheetID": ")" + relationshipID() +
+                R"(", "cloneName": ")" + newName + "\"}");
         }
     };
 
