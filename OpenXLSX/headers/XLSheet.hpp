@@ -226,7 +226,9 @@ namespace OpenXLSX
          */
         std::string name() const
         {
-            return parentDoc().executeQuery(XLQuerySheetName(relationshipID())).sheetName();
+//            return parentDoc().execQuery(XLQuerySheetName(relationshipID())).sheetName();
+            return parentDoc().execQuery(
+                R"({ "query": "QuerySheetName", "sheetID": ")" + relationshipID() + "\"}");
         }
 
         /**

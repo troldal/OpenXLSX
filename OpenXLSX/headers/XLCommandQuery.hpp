@@ -63,31 +63,6 @@ namespace OpenXLSX
 {
     class XLSharedStrings;
 
-    class XLQuerySheetName
-    {
-    public:
-        explicit XLQuerySheetName(const std::string& sheetID) : m_sheetID(sheetID) {}
-
-        const std::string& sheetID() const
-        {
-            return m_sheetID;
-        }
-
-        const std::string& sheetName() const
-        {
-            return m_sheetName;
-        }
-
-        void setSheetName(const std::string& sheetName)
-        {
-            m_sheetName = sheetName;
-        }
-
-    private:
-        std::string m_sheetID {};
-        std::string m_sheetName {};
-    };
-
     class XLQuerySheetIndex
     {
     public:

@@ -767,6 +767,9 @@ void XLDocument::deleteProperty(XLProperty theProperty)
     setProperty(theProperty, "");
 }
 
+/**
+ * @details
+ */
 void XLDocument::execCommand(const std::string& command) {
 
     auto cmd = nlohmann::json::parse(command);
@@ -789,7 +792,11 @@ void XLDocument::execCommand(const std::string& command) {
 
     // ===== setSheetIndex
     else if (cmd["command"] == "SetSheetIndex") {
-        auto sheetName = executeQuery(XLQuerySheetName(cmd["sheetID"])).sheetName();
+        nlohmann::json query;
+        query["query"] = "QuerySheetName";
+        query["sheetID"] = cmd["sheetID"];
+//        auto sheetName = executeQuery(XLQuerySheetName(cmd["sheetID"])).sheetName();
+        auto sheetName = execQuery(query.dump());
         m_workbook.setSheetIndex(sheetName, cmd["sheetIndex"]);
     }
 
@@ -901,6 +908,26 @@ void XLDocument::execCommand(const std::string& command) {
 
         m_workbook.prepareSheetMetadata(cmd["cloneName"], internalID);
     }
+}
+
+/**
+ * @details
+ */
+std::string XLDocument::execQuery(const std::string& query) const
+{
+    auto qry = nlohmann::json::parse(query);
+
+    if (qry["query"] == "QuerySheetName") {
+        return m_workbook.sheetName(qry["sheetID"]);
+
+    }
+
+    return std::string();
+}
+
+std::string XLDocument::execQuery(const std::string& query)
+{
+    return static_cast<const XLDocument&>(*this).execQuery(query);
 }
 
 /**

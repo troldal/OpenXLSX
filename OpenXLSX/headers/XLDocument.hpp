@@ -238,6 +238,10 @@ namespace OpenXLSX
          */
         void execCommand(const std::string& command);
 
+        std::string execQuery(const std::string& query) const;
+
+        std::string execQuery(const std::string& query);
+
         /**
          * @brief
          * @tparam Query
@@ -247,12 +251,8 @@ namespace OpenXLSX
         template<typename Query>
         Query executeQuery(Query query) const
         {
-            if constexpr (std::is_same_v<Query, XLQuerySheetName>) {    // NOLINT
-                query.setSheetName(m_workbook.sheetName(query.sheetID()));
-                return query;
-            }
 
-            else if constexpr (std::is_same_v<Query, XLQuerySheetIndex>) {
+            if constexpr (std::is_same_v<Query, XLQuerySheetIndex>) {
                 return query;
             }
 
@@ -305,11 +305,11 @@ namespace OpenXLSX
         template<typename Query>
         Query executeQuery(Query query)
         {
-            if constexpr (std::is_same_v<Query, XLQuerySheetName>) {    // NOLINT
-                return static_cast<const XLDocument&>(*this).executeQuery(query);
-            }
+//            if constexpr (std::is_same_v<Query, XLQuerySheetName>) {    // NOLINT
+//                return static_cast<const XLDocument&>(*this).executeQuery(query);
+//            }
 
-            else if constexpr (std::is_same_v<Query, XLQuerySheetIndex>) {
+            if constexpr (std::is_same_v<Query, XLQuerySheetIndex>) {
                 return static_cast<const XLDocument&>(*this).executeQuery(query);
             }
 
