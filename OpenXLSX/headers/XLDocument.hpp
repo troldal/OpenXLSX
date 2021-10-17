@@ -238,9 +238,9 @@ namespace OpenXLSX
          */
         void execCommand(const XLCommand& command);
 
-        std::string execQuery(const std::string& query) const;
+        XLCommand execQuery2(XLCommand& query) const;
 
-        std::string execQuery(const std::string& query);
+        XLCommand execQuery2(XLCommand& query);
 
         /**
          * @brief
@@ -248,53 +248,53 @@ namespace OpenXLSX
          * @param query
          * @return
          */
-        template<typename Query>
-        Query executeQuery(Query query) const
-        {
+//        template<typename Query>
+//        Query executeQuery(Query query) const
+//        {
 
 //            if constexpr (std::is_same_v<Query, XLQuerySheetIndex>) {
 //                return query;
 //            }
 
-            if constexpr (std::is_same_v<Query, XLQuerySheetVisibility>) {
-                query.setSheetVisibility(m_workbook.sheetVisibility(query.sheetID()));
-                return query;
-            }
+//            if constexpr (std::is_same_v<Query, XLQuerySheetVisibility>) {
+//                query.setSheetVisibility(m_workbook.sheetVisibility(query.sheetID()));
+//                return query;
+//            }
 
-            else if constexpr (std::is_same_v<Query, XLQuerySheetType>) {
-                if (m_wbkRelationships.relationshipById(query.sheetID()).type() == XLRelationshipType::Worksheet)
-                    query.setSheetType(XLContentType::Worksheet);
-                else
-                    query.setSheetType(XLContentType::Chartsheet);
+//            if constexpr (std::is_same_v<Query, XLQuerySheetType>) {
+//                if (m_wbkRelationships.relationshipById(query.sheetID()).type() == XLRelationshipType::Worksheet)
+//                    query.setSheetType(XLContentType::Worksheet);
+//                else
+//                    query.setSheetType(XLContentType::Chartsheet);
+//
+//                return query;
+//            }
 
-                return query;
-            }
+//            if constexpr (std::is_same_v<Query, XLQuerySheetID>) {
+//                query.setSheetVisibility(m_workbook.sheetVisibility(query.sheetName()));
+//                return query;
+//            }
 
-            else if constexpr (std::is_same_v<Query, XLQuerySheetID>) {
-                query.setSheetVisibility(m_workbook.sheetVisibility(query.sheetName()));
-                return query;
-            }
-
-            else if constexpr (std::is_same_v<Query, XLQuerySheetRelsID>) {
-                query.setSheetID(m_wbkRelationships.relationshipByTarget(query.sheetPath().substr(4)).id());
-                return query;
-            }
-
-            else if constexpr (std::is_same_v<Query, XLQuerySheetRelsTarget>) {
-                query.setSheetTarget(m_wbkRelationships.relationshipById(query.sheetID()).target());
-                return query;
-            }
+//            if constexpr (std::is_same_v<Query, XLQuerySheetRelsID>) {
+//                query.setSheetID(m_wbkRelationships.relationshipByTarget(query.sheetPath().substr(4)).id());
+//                return query;
+//            }
+//
+//            if constexpr (std::is_same_v<Query, XLQuerySheetRelsTarget>) {
+//                query.setSheetTarget(m_wbkRelationships.relationshipById(query.sheetID()).target());
+//                return query;
+//            }
 
             // TODO: This requires m_sharedStrings to be mutable. Is there a way around that?
-            else if constexpr (std::is_same_v<Query, XLQuerySharedStrings>) {
-                query.setSharedStrings(m_sharedStrings);
-                return query;
-            }
+//            if constexpr (std::is_same_v<Query, XLQuerySharedStrings>) {
+//                query.setSharedStrings(m_sharedStrings);
+//                return query;
+//            }
 
-            else {
-                throw XLInternalError("Invalid query object.");
-            }
-        }
+//            else {
+//                throw XLInternalError("Invalid query object.");
+//            }
+//        }
 
         /**
          * @brief
@@ -302,50 +302,50 @@ namespace OpenXLSX
          * @param query
          * @return
          */
-        template<typename Query>
-        Query executeQuery(Query query)
-        {
-//            if constexpr (std::is_same_v<Query, XLQuerySheetName>) {    // NOLINT
+//        template<typename Query>
+//        Query executeQuery(Query query)
+//        {
+////            if constexpr (std::is_same_v<Query, XLQuerySheetName>) {    // NOLINT
+////                return static_cast<const XLDocument&>(*this).executeQuery(query);
+////            }
+//
+//
+//            if constexpr (std::is_same_v<Query, XLQuerySheetVisibility>) {
 //                return static_cast<const XLDocument&>(*this).executeQuery(query);
 //            }
-
-
-            if constexpr (std::is_same_v<Query, XLQuerySheetVisibility>) {
-                return static_cast<const XLDocument&>(*this).executeQuery(query);
-            }
-
-            else if constexpr (std::is_same_v<Query, XLQuerySheetType>) {
-                return static_cast<const XLDocument&>(*this).executeQuery(query);
-            }
-
-            else if constexpr (std::is_same_v<Query, XLQuerySheetID>) {
-                return static_cast<const XLDocument&>(*this).executeQuery(query);
-            }
-
-            else if constexpr (std::is_same_v<Query, XLQuerySheetRelsID>) {
-                return static_cast<const XLDocument&>(*this).executeQuery(query);
-            }
-
-            else if constexpr (std::is_same_v<Query, XLQuerySheetRelsTarget>) {
-                return static_cast<const XLDocument&>(*this).executeQuery(query);
-            }
-
-            else if constexpr (std::is_same_v<Query, XLQuerySharedStrings>) {
-                return static_cast<const XLDocument&>(*this).executeQuery(query);
-            }
-
-            else if constexpr (std::is_same_v<Query, XLQueryXmlData>) {
-                auto result =
-                    std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) { return item.getXmlPath() == query.xmlPath(); });
-                if (result == m_data.end()) throw XLInternalError("Path does not exist in zip archive.");
-                query.setXmlData(&*result);
-                return query;
-            }
-
-            else {
-                throw XLInternalError("Invalid query object.");
-            }
-        }
+//
+//            else if constexpr (std::is_same_v<Query, XLQuerySheetType>) {
+//                return static_cast<const XLDocument&>(*this).executeQuery(query);
+//            }
+//
+//            else if constexpr (std::is_same_v<Query, XLQuerySheetID>) {
+//                return static_cast<const XLDocument&>(*this).executeQuery(query);
+//            }
+//
+//            else if constexpr (std::is_same_v<Query, XLQuerySheetRelsID>) {
+//                return static_cast<const XLDocument&>(*this).executeQuery(query);
+//            }
+//
+//            else if constexpr (std::is_same_v<Query, XLQuerySheetRelsTarget>) {
+//                return static_cast<const XLDocument&>(*this).executeQuery(query);
+//            }
+//
+//            else if constexpr (std::is_same_v<Query, XLQuerySharedStrings>) {
+//                return static_cast<const XLDocument&>(*this).executeQuery(query);
+//            }
+//
+//            else if constexpr (std::is_same_v<Query, XLQueryXmlData>) {
+//                auto result =
+//                    std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) { return item.getXmlPath() == query.xmlPath(); });
+//                if (result == m_data.end()) throw XLInternalError("Path does not exist in zip archive.");
+//                query.setXmlData(&*result);
+//                return query;
+//            }
+//
+//            else {
+//                throw XLInternalError("Invalid query object.");
+//            }
+//        }
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Protected Member Functions

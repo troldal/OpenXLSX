@@ -92,8 +92,17 @@ XLSheet XLWorkbook::sheet(const std::string& sheetName)
     // ===== Find the sheet data corresponding to the sheet with the requested name
     std::string xmlID =
         xmlDocument().document_element().child("sheets").find_child_by_attribute("name", sheetName.c_str()).attribute("r:id").value();
-    std::string xmlPath = parentDoc().executeQuery(XLQuerySheetRelsTarget(xmlID)).sheetTarget();
-    return XLSheet(parentDoc().executeQuery(XLQueryXmlData("xl/" + xmlPath)).xmlData());
+
+    XLCommand pathQuery(XLCommandType::QuerySheetRelsTarget);
+    pathQuery.setParam("sheetID", xmlID);
+    auto xmlPath = parentDoc().execQuery2(pathQuery).result<std::string>();
+
+    XLCommand xmlQuery(XLCommandType::QueryXmlData);
+    xmlQuery.setParam("xmlPath", "xl/" + xmlPath);
+    return XLSheet(parentDoc().execQuery2(xmlQuery).result<XLXmlData*>());
+
+//    std::string xmlPath = parentDoc().executeQuery(XLQuerySheetRelsTarget(xmlID)).sheetTarget();
+//    return XLSheet(parentDoc().executeQuery(XLQueryXmlData("xl/" + xmlPath)).xmlData());
 }
 
 /**
@@ -136,7 +145,8 @@ bool XLWorkbook::hasSharedStrings() const
  */
 XLSharedStrings XLWorkbook::sharedStrings()
 {
-    return parentDoc().executeQuery(XLQuerySharedStrings()).sharedStrings();
+    XLCommand query(XLCommandType::QuerySharedStrings);
+    return parentDoc().execQuery2(query).result<XLSharedStrings>();
 }
 
 /**
@@ -154,10 +164,16 @@ void XLWorkbook::deleteSheet(const std::string& sheetName)
 {
     // ===== Determine ID and type of sheet, as well as current worksheet count.
     auto sheetID   = sheetsNode(xmlDocument()).find_child_by_attribute("name", sheetName.c_str()).attribute("r:id").value();    // NOLINT
-    auto sheetType = parentDoc().executeQuery(XLQuerySheetType(relationshipID())).sheetType();
+
+    XLCommand sheetTypeQuery(XLCommandType::QuerySheetType);
+    sheetTypeQuery.setParam("sheetID", relationshipID());
+    auto sheetType = parentDoc().execQuery2(sheetTypeQuery).result<XLContentType>();
+
     auto worksheetCount =
         std::count_if(sheetsNode(xmlDocument()).children().begin(), sheetsNode(xmlDocument()).children().end(), [&](const XMLNode& item) {
-            return parentDoc().executeQuery(XLQuerySheetType(item.attribute("r:id").value())).sheetType() == XLContentType::Worksheet;
+            XLCommand query(XLCommandType::QuerySheetType);
+            query.setParam("sheetID", std::string(item.attribute("r:id").value()));
+            return parentDoc().execQuery2(query).result<XLContentType>() == XLContentType::Worksheet;
         });
 
     // ===== If this is the last worksheet in the workbook, throw an exception.
@@ -254,7 +270,10 @@ void XLWorkbook::prepareSheetMetadata(const std::string& sheetName, uint16_t int
     std::string sheetPath            = "/xl/worksheets/sheet" + std::to_string(internalID) + ".xml";
     node.append_attribute("name")    = sheetName.c_str();
     node.append_attribute("sheetId") = std::to_string(internalID).c_str();
-    node.append_attribute("r:id")    = parentDoc().executeQuery(XLQuerySheetRelsID(sheetPath)).sheetID().c_str();
+
+    XLCommand query(XLCommandType::QuerySheetRelsID);
+    query.setParam("sheetPath", sheetPath);
+    node.append_attribute("r:id")    = parentDoc().execQuery2(query).result<std::string>().c_str();
 }
 
 /**
@@ -419,7 +438,9 @@ std::vector<std::string> XLWorkbook::worksheetNames() const
     std::vector<std::string> results;
 
     for (const auto& item : sheetsNode(xmlDocument()).children()) {
-        if (parentDoc().executeQuery(XLQuerySheetType(item.attribute("r:id").value())).sheetType() == XLContentType::Worksheet)
+        XLCommand query(XLCommandType::QuerySheetType);
+        query.setParam("sheetID", std::string(item.attribute("r:id").value()));
+        if (parentDoc().execQuery2(query).result<XLContentType>() == XLContentType::Worksheet)
             results.emplace_back(item.attribute("name").value());
     }
 
@@ -434,7 +455,9 @@ std::vector<std::string> XLWorkbook::chartsheetNames() const
     std::vector<std::string> results;
 
     for (const auto& item : sheetsNode(xmlDocument()).children()) {
-        if (parentDoc().executeQuery(XLQuerySheetType(item.attribute("r:id").value())).sheetType() == XLContentType::Chartsheet)
+        XLCommand query(XLCommandType::QuerySheetType);
+        query.setParam("sheetID", std::string(item.attribute("r:id").value()));
+        if (parentDoc().execQuery2(query).result<XLContentType>() == XLContentType::Chartsheet)
             results.emplace_back(item.attribute("name").value());
     }
 

@@ -786,11 +786,14 @@ void XLDocument::execCommand(const XLCommand& command) {
             break;
         case XLCommandType::SetSheetIndex:
             {
-                nlohmann::json query;
-                query["query"]   = "QuerySheetName";
-                query["sheetID"] = command.getParam<std::string>("sheetID");
+//                nlohmann::json query;
+//                query["query"]   = "QuerySheetName";
+//                query["sheetID"] = command.getParam<std::string>("sheetID");
                 //        auto sheetName = executeQuery(XLQuerySheetName(cmd["sheetID"])).sheetName();
-                auto sheetName = execQuery(query.dump());
+//                auto sheetName = execQuery(query.dump());
+
+                XLCommand qry(XLCommandType::QuerySheetName);
+                auto sheetName = execQuery2(qry.setParam("sheetID", command.getParam<std::string>("sheetID"))).result<std::string>();
                 m_workbook.setSheetIndex(sheetName, command.getParam<uint16_t>("sheetIndex"));
             }
             break;
@@ -903,30 +906,66 @@ void XLDocument::execCommand(const XLCommand& command) {
             m_workbook.prepareSheetMetadata(command.getParam<std::string>("cloneName"), internalID);
         }
             break;
+        default:
+            throw XLCommandError("Unknown command type.");
     }
 }
 
 /**
  * @details
  */
-std::string XLDocument::execQuery(const std::string& query) const
+XLCommand XLDocument::execQuery2(XLCommand& query) const
 {
-    auto qry = nlohmann::json::parse(query);
 
-    if (qry["query"] == "QuerySheetName") {
-        return m_workbook.sheetName(qry["sheetID"]);
+    switch (query.type()) {
+        case XLCommandType::QuerySheetName:
+            return query.setResult(m_workbook.sheetName(query.getParam<std::string>("sheetID")));
+            break;
+        case XLCommandType::QuerySheetIndex:
+            return query;
+            break;
+        case XLCommandType::QuerySheetVisibility:
+            return query.setResult(m_workbook.sheetVisibility(query.getParam<std::string>("sheetID")));
+            break;
+        case XLCommandType::QuerySheetType:
+            if (m_wbkRelationships.relationshipById(query.getParam<std::string>("sheetID")).type() == XLRelationshipType::Worksheet)
+                return query.setResult(XLContentType::Worksheet);
+            else
+                return query.setResult(XLContentType::Chartsheet);
+            break;
+        case XLCommandType::QuerySheetID:
+            return query.setResult(m_workbook.sheetVisibility(query.getParam<std::string>("sheetID")));
+            break;
+        case XLCommandType::QuerySheetRelsID:
+            return query.setResult(m_wbkRelationships.relationshipByTarget(query.getParam<std::string>("sheetPath").substr(4)).id());
+            break;
+        case XLCommandType::QuerySheetRelsTarget:
+            return query.setResult(m_wbkRelationships.relationshipById(query.getParam<std::string>("sheetID")).target());
+            break;
+        case XLCommandType::QuerySharedStrings:
+            return query.setResult(m_sharedStrings);
+            break;
+        case XLCommandType::QueryXmlData:
+            {
+                auto result =
+                    std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) { return item.getXmlPath() == query.getParam<std::string>("xmlPath"); });
+                if (result == m_data.end()) throw XLInternalError("Path does not exist in zip archive.");
+                return query.setResult(&*result);
+            }
+            break;
+        default:
+            throw XLCommandError("Unknown query type.");
     }
 
-    if (qry["query"] == "QuerySheetIndex") {
-        return std::string();
-    }
-
-    return std::string();
+    return query;
 }
 
-std::string XLDocument::execQuery(const std::string& query)
+/**
+ * @details
+ */
+XLCommand XLDocument::execQuery2(XLCommand& query)
 {
-    return static_cast<const XLDocument&>(*this).execQuery(query);
+    return static_cast<const XLDocument&>(*this).execQuery2(query);
 }
 
 /**

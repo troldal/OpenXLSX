@@ -148,6 +148,15 @@ namespace OpenXLSX
         inline explicit XLFormulaError(const std::string& err) : XLException(err) {};
     };
 
+    /**
+     * @brief
+     */
+    class OPENXLSX_EXPORT XLCommandError : public XLException
+    {
+    public:
+        inline explicit XLCommandError(const std::string& err) : XLException(err) {};
+    };
+
 }    // namespace OpenXLSX
 
 #pragma warning(pop)

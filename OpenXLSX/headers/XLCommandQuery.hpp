@@ -72,7 +72,16 @@ namespace OpenXLSX
         AddWorksheet,
         AddChartsheet,
         DeleteSheet,
-        CloneSheet
+        CloneSheet,
+        QuerySheetName,
+        QuerySheetIndex,
+        QuerySheetVisibility,
+        QuerySheetType,
+        QuerySheetID,
+        QuerySheetRelsID,
+        QuerySheetRelsTarget,
+        QuerySharedStrings,
+        QueryXmlData
     };
 
     class XLCommand
@@ -89,6 +98,12 @@ namespace OpenXLSX
         template<typename T>
         T getParam(const std::string& param) const {
             return std::any_cast<T>(m_params.at(param));
+        }
+
+        template<typename T>
+        XLCommand& setResult(T value) {
+            m_result = value;
+            return *this;
         }
 
         template<typename T>
