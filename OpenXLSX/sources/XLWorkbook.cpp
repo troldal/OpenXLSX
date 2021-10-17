@@ -165,8 +165,9 @@ void XLWorkbook::deleteSheet(const std::string& sheetName)
         throw XLInputError("Invalid operation. There must be at least one worksheet in the workbook.");
 
     // ===== Delete the sheet data as well as the sheet node from Workbook.xml
-    parentDoc().execCommand(
-        R"({ "command": "DeleteSheet", "sheetID": ")" + std::string(sheetID) + R"(", "sheetName": ")" + sheetName + "\"}");
+    parentDoc().execCommand(XLCommand(XLCommandType::DeleteSheet)
+                                .setParam("sheetID", std::string(sheetID))
+                                .setParam("sheetName", sheetName));
     sheetsNode(xmlDocument()).remove_child(sheetsNode(xmlDocument()).find_child_by_attribute("name", sheetName.c_str()));
 
     // TODO: The 'activeSheet' property may need to be updated.
@@ -185,10 +186,9 @@ void XLWorkbook::addWorksheet(const std::string& sheetName)
     auto internalID = createInternalSheetID();
 
     // ===== Create xml file for new worksheet and add metadata to the workbook file.
-    parentDoc().execCommand(
-        R"({ "command": "AddWorksheet", "sheetName": ")" + sheetName +
-        R"(", "sheetPath": ")" + "/xl/worksheets/sheet" + std::to_string(internalID) + ".xml" + "\"}");
-
+    parentDoc().execCommand(XLCommand(XLCommandType::AddWorksheet)
+                                .setParam("sheetName", sheetName)
+                                .setParam("sheetPath", "/xl/worksheets/sheet" + std::to_string(internalID) + ".xml"));
     prepareSheetMetadata(sheetName, internalID);
 }
 
@@ -198,9 +198,9 @@ void XLWorkbook::addWorksheet(const std::string& sheetName)
  */
 void XLWorkbook::cloneSheet(const std::string& existingName, const std::string& newName)
 {
-    parentDoc().execCommand(
-        R"({ "command": "CloneSheet", "sheetID": ")" + sheetID(existingName) +
-        R"(", "cloneName": ")" + newName + "\"}");
+    parentDoc().execCommand(XLCommand(XLCommandType::CloneSheet)
+                            .setParam("sheetID", sheetID(existingName))
+                            .setParam("cloneName", newName));
 }
 
 /**

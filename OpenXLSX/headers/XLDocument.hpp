@@ -236,7 +236,7 @@ namespace OpenXLSX
          * @brief
          * @param command
          */
-        void execCommand(const std::string& command);
+        void execCommand(const XLCommand& command);
 
         std::string execQuery(const std::string& query) const;
 
@@ -252,11 +252,11 @@ namespace OpenXLSX
         Query executeQuery(Query query) const
         {
 
-            if constexpr (std::is_same_v<Query, XLQuerySheetIndex>) {
-                return query;
-            }
+//            if constexpr (std::is_same_v<Query, XLQuerySheetIndex>) {
+//                return query;
+//            }
 
-            else if constexpr (std::is_same_v<Query, XLQuerySheetVisibility>) {
+            if constexpr (std::is_same_v<Query, XLQuerySheetVisibility>) {
                 query.setSheetVisibility(m_workbook.sheetVisibility(query.sheetID()));
                 return query;
             }
@@ -309,11 +309,8 @@ namespace OpenXLSX
 //                return static_cast<const XLDocument&>(*this).executeQuery(query);
 //            }
 
-            if constexpr (std::is_same_v<Query, XLQuerySheetIndex>) {
-                return static_cast<const XLDocument&>(*this).executeQuery(query);
-            }
 
-            else if constexpr (std::is_same_v<Query, XLQuerySheetVisibility>) {
+            if constexpr (std::is_same_v<Query, XLQuerySheetVisibility>) {
                 return static_cast<const XLDocument&>(*this).executeQuery(query);
             }
 

@@ -51,6 +51,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #pragma warning(disable : 4275)
 
 // ===== External Includes ===== //
+#include <any>
 #include <map>
 #include <string>
 #include <variant>
@@ -61,32 +62,76 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 namespace OpenXLSX
 {
-    class XLSharedStrings;
+    enum class XLCommandType {
+        SetSheetName,
+        SetSheetColor,
+        SetSheetVisibility,
+        SetSheetIndex,
+        ResetCalcChain,
+        AddSharedStrings,
+        AddWorksheet,
+        AddChartsheet,
+        DeleteSheet,
+        CloneSheet
+    };
 
-    class XLQuerySheetIndex
+    class XLCommand
     {
     public:
-        explicit XLQuerySheetIndex(const std::string& sheetID) : m_sheetID(sheetID) {}
+        explicit XLCommand(XLCommandType type) : m_type(type) {}
 
-        const std::string& sheetID() const
-        {
-            return m_sheetID;
+        template<typename T>
+        XLCommand& setParam(const std::string& param, T value) {
+            m_params[param] = value;
+            return *this;
         }
 
-        uint16_t sheetIndex() const
-        {
-            return m_sheetIndex;
+        template<typename T>
+        T getParam(const std::string& param) const {
+            return std::any_cast<T>(m_params.at(param));
         }
 
-        void setSheetIndex(uint16_t sheetIndex)
-        {
-            m_sheetIndex = sheetIndex;
+        template<typename T>
+        T result() const {
+            return std::any_cast<T>(m_result);
+        }
+
+        XLCommandType type() const {
+            return m_type;
         }
 
     private:
-        std::string m_sheetID {};
-        uint16_t    m_sheetIndex {};
+        XLCommandType m_type;
+        std::any m_result;
+        std::map<std::string, std::any> m_params;
     };
+
+    class XLSharedStrings;
+
+//    class XLQuerySheetIndex
+//    {
+//    public:
+//        explicit XLQuerySheetIndex(const std::string& sheetID) : m_sheetID(sheetID) {}
+//
+//        const std::string& sheetID() const
+//        {
+//            return m_sheetID;
+//        }
+//
+//        uint16_t sheetIndex() const
+//        {
+//            return m_sheetIndex;
+//        }
+//
+//        void setSheetIndex(uint16_t sheetIndex)
+//        {
+//            m_sheetIndex = sheetIndex;
+//        }
+//
+//    private:
+//        std::string m_sheetID {};
+//        uint16_t    m_sheetIndex {};
+//    };
 
     class XLQuerySheetVisibility
     {
