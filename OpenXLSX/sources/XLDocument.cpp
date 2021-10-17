@@ -792,8 +792,8 @@ void XLDocument::execCommand(const XLCommand& command) {
                 //        auto sheetName = executeQuery(XLQuerySheetName(cmd["sheetID"])).sheetName();
 //                auto sheetName = execQuery(query.dump());
 
-                XLCommand qry(XLCommandType::QuerySheetName);
-                auto sheetName = execQuery2(qry.setParam("sheetID", command.getParam<std::string>("sheetID"))).result<std::string>();
+                XLQuery qry(XLQueryType::QuerySheetName);
+                auto sheetName = execQuery(qry.setParam("sheetID", command.getParam<std::string>("sheetID"))).result<std::string>();
                 m_workbook.setSheetIndex(sheetName, command.getParam<uint16_t>("sheetIndex"));
             }
             break;
@@ -907,45 +907,45 @@ void XLDocument::execCommand(const XLCommand& command) {
         }
             break;
         default:
-            throw XLCommandError("Unknown command type.");
+            throw XLCommandQueryError("Unknown command type.");
     }
 }
 
 /**
  * @details
  */
-XLCommand XLDocument::execQuery2(XLCommand& query) const
+XLQuery XLDocument::execQuery(XLQuery& query) const
 {
 
     switch (query.type()) {
-        case XLCommandType::QuerySheetName:
+        case XLQueryType::QuerySheetName:
             return query.setResult(m_workbook.sheetName(query.getParam<std::string>("sheetID")));
             break;
-        case XLCommandType::QuerySheetIndex:
+        case XLQueryType::QuerySheetIndex:
             return query;
             break;
-        case XLCommandType::QuerySheetVisibility:
+        case XLQueryType::QuerySheetVisibility:
             return query.setResult(m_workbook.sheetVisibility(query.getParam<std::string>("sheetID")));
             break;
-        case XLCommandType::QuerySheetType:
+        case XLQueryType::QuerySheetType:
             if (m_wbkRelationships.relationshipById(query.getParam<std::string>("sheetID")).type() == XLRelationshipType::Worksheet)
                 return query.setResult(XLContentType::Worksheet);
             else
                 return query.setResult(XLContentType::Chartsheet);
             break;
-        case XLCommandType::QuerySheetID:
+        case XLQueryType::QuerySheetID:
             return query.setResult(m_workbook.sheetVisibility(query.getParam<std::string>("sheetID")));
             break;
-        case XLCommandType::QuerySheetRelsID:
+        case XLQueryType::QuerySheetRelsID:
             return query.setResult(m_wbkRelationships.relationshipByTarget(query.getParam<std::string>("sheetPath").substr(4)).id());
             break;
-        case XLCommandType::QuerySheetRelsTarget:
+        case XLQueryType::QuerySheetRelsTarget:
             return query.setResult(m_wbkRelationships.relationshipById(query.getParam<std::string>("sheetID")).target());
             break;
-        case XLCommandType::QuerySharedStrings:
+        case XLQueryType::QuerySharedStrings:
             return query.setResult(m_sharedStrings);
             break;
-        case XLCommandType::QueryXmlData:
+        case XLQueryType::QueryXmlData:
             {
                 auto result =
                     std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) { return item.getXmlPath() == query.getParam<std::string>("xmlPath"); });
@@ -954,7 +954,7 @@ XLCommand XLDocument::execQuery2(XLCommand& query) const
             }
             break;
         default:
-            throw XLCommandError("Unknown query type.");
+            throw XLCommandQueryError("Unknown query type.");
     }
 
     return query;
@@ -963,9 +963,9 @@ XLCommand XLDocument::execQuery2(XLCommand& query) const
 /**
  * @details
  */
-XLCommand XLDocument::execQuery2(XLCommand& query)
+XLQuery XLDocument::execQuery(XLQuery& query)
 {
-    return static_cast<const XLDocument&>(*this).execQuery2(query);
+    return static_cast<const XLDocument&>(*this).execQuery(query);
 }
 
 /**

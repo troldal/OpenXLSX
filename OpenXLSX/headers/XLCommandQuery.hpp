@@ -73,15 +73,6 @@ namespace OpenXLSX
         AddChartsheet,
         DeleteSheet,
         CloneSheet,
-        QuerySheetName,
-        QuerySheetIndex,
-        QuerySheetVisibility,
-        QuerySheetType,
-        QuerySheetID,
-        QuerySheetRelsID,
-        QuerySheetRelsTarget,
-        QuerySharedStrings,
-        QueryXmlData
     };
 
     class XLCommand
@@ -100,17 +91,6 @@ namespace OpenXLSX
             return std::any_cast<T>(m_params.at(param));
         }
 
-        template<typename T>
-        XLCommand& setResult(T value) {
-            m_result = value;
-            return *this;
-        }
-
-        template<typename T>
-        T result() const {
-            return std::any_cast<T>(m_result);
-        }
-
         XLCommandType type() const {
             return m_type;
         }
@@ -121,200 +101,54 @@ namespace OpenXLSX
         std::map<std::string, std::any> m_params;
     };
 
-    class XLSharedStrings;
 
-//    class XLQuerySheetIndex
-//    {
-//    public:
-//        explicit XLQuerySheetIndex(const std::string& sheetID) : m_sheetID(sheetID) {}
-//
-//        const std::string& sheetID() const
-//        {
-//            return m_sheetID;
-//        }
-//
-//        uint16_t sheetIndex() const
-//        {
-//            return m_sheetIndex;
-//        }
-//
-//        void setSheetIndex(uint16_t sheetIndex)
-//        {
-//            m_sheetIndex = sheetIndex;
-//        }
-//
-//    private:
-//        std::string m_sheetID {};
-//        uint16_t    m_sheetIndex {};
-//    };
-
-    class XLQuerySheetVisibility
-    {
-    public:
-        explicit XLQuerySheetVisibility(const std::string& sheetID) : m_sheetID(sheetID) {}
-
-        const std::string& sheetID() const
-        {
-            return m_sheetID;
-        }
-
-        const std::string& sheetVisibility() const
-        {
-            return m_sheetVisibility;
-        }
-
-        void setSheetVisibility(const std::string& sheetVisibility)
-        {
-            m_sheetVisibility = sheetVisibility;
-        }
-
-    private:
-        std::string m_sheetID {};
-        std::string m_sheetVisibility {};
+    enum class XLQueryType {
+        QuerySheetName,
+        QuerySheetIndex,
+        QuerySheetVisibility,
+        QuerySheetType,
+        QuerySheetID,
+        QuerySheetRelsID,
+        QuerySheetRelsTarget,
+        QuerySharedStrings,
+        QueryXmlData
     };
 
-    class XLQuerySheetType
+    class XLQuery
     {
     public:
-        explicit XLQuerySheetType(const std::string& sheetID) : m_sheetID(sheetID) {}
+        explicit XLQuery(XLQueryType type) : m_type(type) {}
 
-        const std::string& sheetID() const
-        {
-            return m_sheetID;
+        template<typename T>
+        XLQuery& setParam(const std::string& param, T value) {
+            m_params[param] = value;
+            return *this;
         }
 
-        XLContentType sheetType() const
-        {
-            return m_sheetType;
+        template<typename T>
+        T getParam(const std::string& param) const {
+            return std::any_cast<T>(m_params.at(param));
         }
 
-        void setSheetType(XLContentType sheetType)
-        {
-            m_sheetType = sheetType;
+        template<typename T>
+        XLQuery& setResult(T value) {
+            m_result = value;
+            return *this;
+        }
+
+        template<typename T>
+        T result() const {
+            return std::any_cast<T>(m_result);
+        }
+
+        XLQueryType type() const {
+            return m_type;
         }
 
     private:
-        std::string   m_sheetID {};
-        XLContentType m_sheetType {};
-    };
-
-    class XLQuerySheetID
-    {
-    public:
-        explicit XLQuerySheetID(const std::string& sheetName) : m_sheetName(sheetName) {}
-
-        const std::string& sheetName() const
-        {
-            return m_sheetName;
-        }
-
-        const std::string& sheetID() const
-        {
-            return m_sheetID;
-        }
-
-        void setSheetID(const std::string& sheetID)
-        {
-            m_sheetID = sheetID;
-        }
-
-    private:
-        std::string m_sheetName {};
-        std::string m_sheetID {};
-    };
-
-    class XLQuerySheetRelsID
-    {
-    public:
-        explicit XLQuerySheetRelsID(const std::string& sheetPath) : m_sheetPath(sheetPath) {}
-
-        const std::string& sheetPath() const
-        {
-            return m_sheetPath;
-        }
-
-        const std::string& sheetID() const
-        {
-            return m_sheetID;
-        }
-
-        void setSheetID(const std::string& sheetID)
-        {
-            m_sheetID = sheetID;
-        }
-
-    private:
-        std::string m_sheetPath {};
-        std::string m_sheetID {};
-    };
-
-    class XLQuerySheetRelsTarget
-    {
-    public:
-        explicit XLQuerySheetRelsTarget(const std::string& sheetID) : m_sheetID(sheetID) {}
-
-        const std::string& sheetID() const
-        {
-            return m_sheetID;
-        }
-
-        const std::string& sheetTarget() const
-        {
-            return m_sheetTarget;
-        }
-
-        void setSheetTarget(const std::string& sheetTarget)
-        {
-            m_sheetTarget = sheetTarget;
-        }
-
-    private:
-        std::string m_sheetID {};
-        std::string m_sheetTarget {};
-    };
-
-    class XLQuerySharedStrings
-    {
-    public:
-        explicit XLQuerySharedStrings() = default;
-
-        XLSharedStrings sharedStrings() const
-        {
-            return m_sharedStrings;
-        }
-
-        void setSharedStrings(const XLSharedStrings& sharedStrings)
-        {
-            m_sharedStrings = sharedStrings;
-        }
-
-    private:
-        XLSharedStrings m_sharedStrings;
-    };
-
-    class XLQueryXmlData
-    {
-    public:
-        explicit XLQueryXmlData(const std::string& xmlPath) : m_xmlPath(xmlPath) {}
-
-        const std::string& xmlPath() const
-        {
-            return m_xmlPath;
-        }
-
-        XLXmlData* xmlData() const
-        {
-            return m_xmlData;
-        }
-
-        void setXmlData(XLXmlData* xmlData)
-        {
-            m_xmlData = xmlData;
-        }
-
-    private:
-        std::string m_xmlPath {};
-        XLXmlData*  m_xmlData { nullptr };
+        XLQueryType m_type;
+        std::any m_result;
+        std::map<std::string, std::any> m_params;
     };
 
 }    // namespace OpenXLSX
