@@ -238,9 +238,19 @@ namespace OpenXLSX
          */
         void execCommand(const XLCommand& command);
 
-        XLQuery execQuery(XLQuery& query) const;
+        /**
+         * @brief
+         * @param query
+         * @return
+         */
+        XLQuery execQuery(const XLQuery& query) const;
 
-        XLQuery execQuery(XLQuery& query);
+        /**
+         * @brief
+         * @param query
+         * @return
+         */
+        XLQuery execQuery(const XLQuery& query);
 
 
         //----------------------------------------------------------------------------------------------------------------------

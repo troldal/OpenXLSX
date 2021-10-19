@@ -456,7 +456,7 @@ void XLDocument::open(const std::string& fileName)
     m_docRelationships = XLRelationships(getXmlData("_rels/.rels"));
     m_wbkRelationships = XLRelationships(getXmlData("xl/_rels/workbook.xml.rels"));
 
-    if (!m_archive.hasEntry("xl/sharedStrings.xml")) //execCommand(R"({"command": "AddSharedStrings"})");
+    if (!m_archive.hasEntry("xl/sharedStrings.xml"))
         execCommand(XLCommand(XLCommandType::AddSharedStrings));
 
     // ===== Add remaining spreadsheet elements to the vector of XLXmlData objects.
@@ -785,12 +785,6 @@ void XLDocument::execCommand(const XLCommand& command) {
             break;
         case XLCommandType::SetSheetIndex:
             {
-//                nlohmann::json query;
-//                query["query"]   = "QuerySheetName";
-//                query["sheetID"] = command.getParam<std::string>("sheetID");
-                //        auto sheetName = executeQuery(XLQuerySheetName(cmd["sheetID"])).sheetName();
-//                auto sheetName = execQuery(query.dump());
-
                 XLQuery qry(XLQueryType::QuerySheetName);
                 auto sheetName = execQuery(qry.setParam("sheetID", command.getParam<std::string>("sheetID"))).result<std::string>();
                 m_workbook.setSheetIndex(sheetName, command.getParam<uint16_t>("sheetIndex"));
@@ -905,64 +899,57 @@ void XLDocument::execCommand(const XLCommand& command) {
             m_workbook.prepareSheetMetadata(command.getParam<std::string>("cloneName"), internalID);
         }
             break;
-        default:
-            throw XLCommandQueryError("Unknown command type.");
     }
 }
 
 /**
  * @details
  */
-XLQuery XLDocument::execQuery(XLQuery& query) const
+XLQuery XLDocument::execQuery(const XLQuery& query) const
 {
 
     switch (query.type()) {
         case XLQueryType::QuerySheetName:
-            return query.setResult(m_workbook.sheetName(query.getParam<std::string>("sheetID")));
-            break;
+            return XLQuery(query).setResult(m_workbook.sheetName(query.getParam<std::string>("sheetID")));
+
         case XLQueryType::QuerySheetIndex:
             return query;
-            break;
+
         case XLQueryType::QuerySheetVisibility:
-            return query.setResult(m_workbook.sheetVisibility(query.getParam<std::string>("sheetID")));
-            break;
+            return XLQuery(query).setResult(m_workbook.sheetVisibility(query.getParam<std::string>("sheetID")));
+
         case XLQueryType::QuerySheetType:
             if (m_wbkRelationships.relationshipById(query.getParam<std::string>("sheetID")).type() == XLRelationshipType::Worksheet)
-                return query.setResult(XLContentType::Worksheet);
+                return XLQuery(query).setResult(XLContentType::Worksheet);
             else
-                return query.setResult(XLContentType::Chartsheet);
-            break;
+                return XLQuery(query).setResult(XLContentType::Chartsheet);
+
         case XLQueryType::QuerySheetID:
-            return query.setResult(m_workbook.sheetVisibility(query.getParam<std::string>("sheetID")));
-            break;
+            return XLQuery(query).setResult(m_workbook.sheetVisibility(query.getParam<std::string>("sheetID")));
+
         case XLQueryType::QuerySheetRelsID:
-            return query.setResult(m_wbkRelationships.relationshipByTarget(query.getParam<std::string>("sheetPath").substr(4)).id());
-            break;
+            return XLQuery(query).setResult(m_wbkRelationships.relationshipByTarget(query.getParam<std::string>("sheetPath").substr(4)).id());
+
         case XLQueryType::QuerySheetRelsTarget:
-            return query.setResult(m_wbkRelationships.relationshipById(query.getParam<std::string>("sheetID")).target());
-            break;
+            return XLQuery(query).setResult(m_wbkRelationships.relationshipById(query.getParam<std::string>("sheetID")).target());
+
         case XLQueryType::QuerySharedStrings:
-            return query.setResult(m_sharedStrings);
-            break;
+            return XLQuery(query).setResult(m_sharedStrings);
+
         case XLQueryType::QueryXmlData:
             {
                 auto result =
                     std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) { return item.getXmlPath() == query.getParam<std::string>("xmlPath"); });
                 if (result == m_data.end()) throw XLInternalError("Path does not exist in zip archive.");
-                return query.setResult(&*result);
+                return XLQuery(query).setResult(&*result);
             }
-            break;
-        default:
-            throw XLCommandQueryError("Unknown query type.");
     }
-
-    return query;
 }
 
 /**
  * @details
  */
-XLQuery XLDocument::execQuery(XLQuery& query)
+XLQuery XLDocument::execQuery(const XLQuery& query)
 {
     return static_cast<const XLDocument&>(*this).execQuery(query);
 }
