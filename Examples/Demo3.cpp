@@ -32,6 +32,16 @@ int main()
     wbk.addWorksheet("Sheet3");
     printWorkbook(wbk);
 
+    cout << "Sheet1 active: "  << (wbk.worksheet("Sheet1").isActive() ? "true" : "false") << endl;
+    cout << "Sheet2 active: "  << (wbk.worksheet("Sheet2").isActive() ? "true" : "false") << endl;
+    cout << "Sheet3 active: "  << (wbk.worksheet("Sheet3").isActive() ? "true" : "false") << endl;
+
+    wbk.worksheet("Sheet3").setActive();
+
+    cout << "Sheet1 active: "  << (wbk.worksheet("Sheet1").isActive() ? "true" : "false") << endl;
+    cout << "Sheet2 active: "  << (wbk.worksheet("Sheet2").isActive() ? "true" : "false") << endl;
+    cout << "Sheet3 active: "  << (wbk.worksheet("Sheet3").isActive() ? "true" : "false") << endl;
+
     // OpenXLSX provides three different classes to handle workbook sheets: XLSheet, XLWorksheet, and
     // XLChartsheet. As you might have guessed, XLWorksheet and XLChartsheet represents worksheets
     // and chartsheets, respectively. XLChartsheet only has a limited set of functionality.
@@ -41,7 +51,7 @@ int main()
     // not a parent class to either XLWorksheet or XLChartsheet, and therefore cannot be used
     // polymorphically.
 
-    // From an XLSheet object you can retreive the contained XLWorksheet or XLChartsheet object by
+    // From an XLSheet object you can retrieve the contained XLWorksheet or XLChartsheet object by
     // using the 'get<>()' function:
     auto s1 = wbk.sheet("Sheet2").get<XLWorksheet>();
 

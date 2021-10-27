@@ -265,6 +265,24 @@ namespace OpenXLSX
         }
 
         /**
+         * @brief
+         * @return
+         */
+        bool isActive() const
+        {
+            return static_cast<const T&>(*this).isActive_impl();
+        }
+
+        /**
+         * @brief
+         * @param active
+         */
+        void setActive()
+        {
+            static_cast<T&>(*this).setActive_impl();
+        }
+
+        /**
          * @brief Method for cloning the sheet.
          * @param newName A std::string with the name of the clone
          * @return A pointer to the cloned object.
@@ -447,6 +465,18 @@ namespace OpenXLSX
          * @param selected
          */
         void setSelected_impl(bool selected);
+
+        /**
+         * @brief
+         * @return
+         */
+        bool isActive_impl() const;
+
+        /**
+         * @brief
+         * @param selected
+         */
+        void setActive_impl();
     };
 
     /**

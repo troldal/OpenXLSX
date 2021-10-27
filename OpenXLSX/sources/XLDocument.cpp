@@ -777,12 +777,15 @@ void XLDocument::execCommand(const XLCommand& command) {
             m_appProperties.setSheetName(command.getParam<std::string>("sheetName"), command.getParam<std::string>("newName"));
             m_workbook.setSheetName(command.getParam<std::string>("sheetID"), command.getParam<std::string>("newName"));
             break;
+
         case XLCommandType::SetSheetColor:
             // TODO: To be implemented
             break;
+
         case XLCommandType::SetSheetVisibility:
             m_workbook.setSheetVisibility(command.getParam<std::string>("sheetID"), command.getParam<std::string>("sheetVisibility"));
             break;
+
         case XLCommandType::SetSheetIndex:
             {
                 XLQuery qry(XLQueryType::QuerySheetName);
@@ -790,6 +793,11 @@ void XLDocument::execCommand(const XLCommand& command) {
                 m_workbook.setSheetIndex(sheetName, command.getParam<uint16_t>("sheetIndex"));
             }
             break;
+
+        case XLCommandType::SetSheetActive:
+            m_workbook.setSheetActive(command.getParam<std::string>("sheetID"));
+            break;
+
         case XLCommandType::ResetCalcChain:
             {
                 m_archive.deleteEntry("xl/calcChain.xml");
@@ -923,6 +931,9 @@ XLQuery XLDocument::execQuery(const XLQuery& query) const
                 return XLQuery(query).setResult(XLContentType::Worksheet);
             else
                 return XLQuery(query).setResult(XLContentType::Chartsheet);
+
+        case XLQueryType::QuerySheetIsActive:
+            return XLQuery(query).setResult(m_workbook.sheetIsActive(query.getParam<std::string>("sheetID")));
 
         case XLQueryType::QuerySheetID:
             return XLQuery(query).setResult(m_workbook.sheetVisibility(query.getParam<std::string>("sheetID")));

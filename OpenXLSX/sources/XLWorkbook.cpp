@@ -186,7 +186,8 @@ void XLWorkbook::deleteSheet(const std::string& sheetName)
                                 .setParam("sheetName", sheetName));
     sheetsNode(xmlDocument()).remove_child(sheetsNode(xmlDocument()).find_child_by_attribute("name", sheetName.c_str()));
 
-    // TODO: The 'activeSheet' property may need to be updated.
+    if (sheetIsActive(sheetID))
+        xmlDocument().document_element().child("bookViews").first_child().remove_attribute("activeTab");
 }
 
 /**
@@ -491,7 +492,7 @@ bool XLWorkbook::chartsheetExists(const std::string& sheetName) const
 }
 
 /**
- * @details The UpdateSheetName member function searches theroug the usages of the old name and replaces with the
+ * @details The UpdateSheetName member function searches throug the usages of the old name and replaces with the
  * new sheet name.
  * @todo Currently, this function only searches through defined names. Consider using this function to update the
  * actual sheet name as well.
@@ -548,4 +549,48 @@ void XLWorkbook::setFullCalculationOnLoad()
 
     getOrCreateAttribute("forceFullCalc").set_value(true);
     getOrCreateAttribute("fullCalcOnLoad").set_value(true);
+}
+
+/**
+ * @details
+ */
+bool XLWorkbook::sheetIsActive(const std::string& sheetRID) const
+{
+
+    auto activeTabAttribute = xmlDocument().document_element().child("bookViews").first_child().attribute("activeTab");
+    auto activeTabIndex = (activeTabAttribute ? activeTabAttribute.as_uint() : 0);
+
+    unsigned int index = 0;
+    for (const auto& item : sheetsNode(xmlDocument()).children()){
+        if (std::string(item.attribute("r:id").value()) == sheetRID) break;
+        ++index;
+    }
+
+    return index == activeTabIndex;
+}
+
+/**
+ * @details
+ */
+void XLWorkbook::setSheetActive(const std::string& sheetRID) {
+
+    unsigned int index = 0;
+    for (const auto& item : sheetsNode(xmlDocument()).children()){
+        if (std::string(item.attribute("r:id").value()) == sheetRID && std::string(item.attribute("state").value()) != "hidden") break;
+        if (item == sheetsNode(xmlDocument()).last_child()) {
+            index = 0;
+            break;
+        }
+        ++index;
+    }
+
+    if (index == 0) {
+        xmlDocument().document_element().child("bookViews").first_child().remove_attribute("activeTab");
+    }
+    else {
+        if (xmlDocument().document_element().child("bookViews").first_child().attribute("activeTab") == XMLAttribute())
+            xmlDocument().document_element().child("bookViews").first_child().append_attribute("activeTab");
+
+        xmlDocument().document_element().child("bookViews").first_child().attribute("activeTab").set_value(index);
+    }
 }

@@ -296,6 +296,22 @@ void XLWorksheet::setSelected_impl(bool selected)
 /**
  * @details
  */
+bool XLWorksheet::isActive_impl() const
+{
+    return parentDoc().execQuery(XLQuery(XLQueryType::QuerySheetIsActive).setParam("sheetID", relationshipID())).result<bool>();
+}
+
+/**
+ * @details
+ */
+void XLWorksheet::setActive_impl()
+{
+        parentDoc().execCommand(XLCommand(XLCommandType::SetSheetActive).setParam("sheetID", relationshipID()));
+}
+
+/**
+ * @details
+ */
 XLCell XLWorksheet::cell(const std::string& ref) const
 {
     return cell(XLCellReference(ref));

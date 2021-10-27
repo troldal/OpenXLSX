@@ -22,11 +22,11 @@ TEST_CASE("XLSheet Tests", "[XLSheet]")
         REQUIRE(wks1.name() == "OtherName");
 
         REQUIRE(wks1.visibility() == XLSheetState::Visible);
-        wks1.setVisibility(XLSheetState::Hidden);
+//        wks1.setVisibility(XLSheetState::Hidden);
         //REQUIRE(wks1.visibility() == XLSheetState::Hidden);
 
         auto wks2 = doc.workbook().sheet("Sheet2");
-
+        wks2.setVisibility(XLSheetState::Hidden);
 
         doc.save();
 
