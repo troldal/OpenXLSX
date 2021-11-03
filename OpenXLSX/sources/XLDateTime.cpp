@@ -4,7 +4,7 @@
 
 #include "XLDateTime.hpp"
 #include "XLException.hpp"
-#include <iostream>
+#include <cmath>
 
 namespace {
 
@@ -231,7 +231,7 @@ namespace OpenXLSX
         serial -= (result.tm_min / (24.0 * 60.0));
 
         // ===== Calculate the number of seconds.
-        result.tm_sec = static_cast<int>(serial * 24 * 60 * 60);
+        result.tm_sec = static_cast<int>(lround(serial * 24 * 60 * 60));
 
         return result;
     }

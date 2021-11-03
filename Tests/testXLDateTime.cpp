@@ -47,6 +47,25 @@ TEST_CASE("XLDateTime Tests", "[XLFormula]")
         REQUIRE(tm.tm_sec == 5);
     }
 
+    SECTION("Constructor (serial number, seconds rounding)")
+    {
+        REQUIRE_THROWS(XLDateTime(0.0));
+
+        const double serial = 6069.000008;
+        XLDateTime dt (serial);
+
+        REQUIRE(dt.serial() == Approx(serial));
+
+        auto tm = dt.tm();
+        REQUIRE(tm.tm_year == 16);
+        REQUIRE(tm.tm_mon == 7);
+        REQUIRE(tm.tm_mday == 12);
+        REQUIRE(tm.tm_wday == 6);
+        REQUIRE(tm.tm_hour == 0);
+        REQUIRE(tm.tm_min == 0);
+        REQUIRE(tm.tm_sec == 1);
+    }
+
     SECTION("Constructor (std::tm object)")
     {
         std::tm tmo;
