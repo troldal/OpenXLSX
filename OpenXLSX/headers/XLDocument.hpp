@@ -69,6 +69,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLWorkbook.hpp"
 #include "XLXmlData.hpp"
 #include "XLZipArchive.hpp"
+#include "XLStyles.hpp"
 
 namespace OpenXLSX
 {
@@ -112,6 +113,8 @@ namespace OpenXLSX
         friend class XLWorkbook;
         friend class XLSheet;
         friend class XLXmlData;
+        friend class XLCell;
+        friend class XLStyles;
 
         //---------- Public Member Functions
     public:
@@ -253,6 +256,12 @@ namespace OpenXLSX
         XLQuery execQuery(const XLQuery& query);
 
 
+          /**
+         * @brief
+         * @return
+         */
+        const XLStyles& styles() const;
+
         //----------------------------------------------------------------------------------------------------------------------
         //           Protected Member Functions
         //----------------------------------------------------------------------------------------------------------------------
@@ -305,6 +314,7 @@ namespace OpenXLSX
         XLProperties    m_coreProperties {};   /**< A pointer to the Core properties object*/
         XLWorkbook      m_workbook {};         /**< A pointer to the workbook object */
         XLZipArchive    m_archive {};          /**<  */
+        XLStyles        m_styles {};           /**< Styles object >*/
     };
 
 }    // namespace OpenXLSX
