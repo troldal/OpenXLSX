@@ -64,12 +64,14 @@ namespace OpenXLSX
 {
     class XLCellRange;
     class XLSharedStrings;
+    class XLStyle;
 
     /**
      * @brief An implementation class encapsulating the properties and behaviours of a spreadsheet cell.
      */
     class OPENXLSX_EXPORT XLCell
     {
+        friend class XLStyles;
         friend class XLCellIterator;
         friend class XLCellValueProxy;
         friend class XLRowDataIterator;
@@ -180,6 +182,11 @@ namespace OpenXLSX
          * @brief
          * @param newFormula
          */
+
+        const XLStyles& styles() const;
+
+
+        const XLStyle style() const;
 
     private:
 

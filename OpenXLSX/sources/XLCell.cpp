@@ -49,7 +49,9 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 // ===== OpenXLSX Includes ===== //
 #include "XLCell.hpp"
 #include "XLCellRange.hpp"
+#include "XLDocument.hpp"
 #include "utilities/XLUtilities.hpp"
+#include "XLStyles.hpp"
 
 using namespace OpenXLSX;
 
@@ -213,3 +215,23 @@ bool XLCell::isEqual(const XLCell& lhs, const XLCell& rhs)
 {
     return *lhs.m_cellNode == *rhs.m_cellNode;
 }
+
+/**
+ * @details
+ * @pre
+ * @post
+ */
+const OpenXLSX::XLStyles& OpenXLSX::XLCell::styles() const{
+    return m_sharedStrings.document().styles();
+}
+
+/**
+ * @details
+ * @pre
+ * @post
+ */
+const XLStyle XLCell::style() const{
+    const OpenXLSX::XLStyles& _styles = styles();
+   return _styles.style(*this);
+}
+
