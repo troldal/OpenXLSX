@@ -43,21 +43,53 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXLSX_OPENXLSX_HPP
-#define OPENXLSX_OPENXLSX_HPP
+#ifndef OPENXLSX_XLSYLES_HPP
+#define OPENXLSX_XLSYLES_HPP
 
-#include "headers/XLCell.hpp"
-#include "headers/XLCellRange.hpp"
-#include "headers/XLCellReference.hpp"
-#include "headers/XLCellValue.hpp"
-#include "headers/XLColumn.hpp"
-#include "headers/XLDateTime.hpp"
-#include "headers/XLDocument.hpp"
-#include "headers/XLException.hpp"
-#include "headers/XLFormula.hpp"
-#include "headers/XLRow.hpp"
-#include "headers/XLSheet.hpp"
-#include "headers/XLWorkbook.hpp"
-#include "headers/XLStyles.hpp"
+#pragma warning(push)
+#pragma warning(disable : 4251)
+#pragma warning(disable : 4275)
 
-#endif    // OPENXLSX_OPENXLSX_HPP
+#include <string>
+#include <vector>
+#include <map>
+
+// ===== OpenXLSX Includes ===== //
+#include "OpenXLSX-Exports.hpp"
+#include "XLXmlFile.hpp"
+
+namespace OpenXLSX
+{
+    struct XLCellXfs
+    {
+        int numFmtId          = -1;
+        int fontId            = -1;
+        int fillId            = -1;
+        int borderId          = -1;
+        int xfId              = -1;
+    };
+
+    class OPENXLSX_EXPORT XLStyles : public XLXmlFile
+    {
+        friend class XLCell;
+        friend XLDocument;
+
+    public:
+        XLStyles() = default;
+        ~XLStyles();
+        XLStyles(XLXmlData* xmlData);
+        size_t cellXfsSize() const;
+        XLCellXfs cellXfsFor(const XLCell& cell) const;
+        std::string formatString(int numFmtId) const;
+
+    private:
+        void init(const XLXmlData* stylesData);
+    private:
+        std::vector<XLCellXfs> m_VecXLCellXfs;
+    };
+}// namespace OpenXLSX
+
+
+
+#pragma warning(pop)
+#endif    // OPENXLSX_XLSYLES_HPP

@@ -49,6 +49,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 // ===== OpenXLSX Includes ===== //
 #include "XLCell.hpp"
 #include "XLCellRange.hpp"
+#include "XLDocument.hpp"
 #include "utilities/XLUtilities.hpp"
 
 using namespace OpenXLSX;

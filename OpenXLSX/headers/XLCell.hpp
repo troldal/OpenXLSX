@@ -70,6 +70,7 @@ namespace OpenXLSX
      */
     class OPENXLSX_EXPORT XLCell
     {
+        friend class XLStyles;
         friend class XLCellIterator;
         friend class XLCellValueProxy;
         friend class XLRowDataIterator;
