@@ -315,14 +315,14 @@ namespace OpenXLSX
          * @param rhs
          * @return
          */
-        bool operator==(const XLRowIterator& rhs);
+        bool operator==(const XLRowIterator& rhs) const;
 
         /**
          * @brief
          * @param rhs
          * @return
          */
-        bool operator!=(const XLRowIterator& rhs);
+        bool operator!=(const XLRowIterator& rhs) const;
 
         /**
          * @brief

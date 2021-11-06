@@ -80,8 +80,7 @@ namespace OpenXLSX
      * inherited via the CRTP (Curiously Recurring Template Pattern) pattern.
      * @tparam T Type that will inherit functionality. Restricted to types XLWorksheet and XLChartsheet.
      */
-    template<typename T,
-             typename std::enable_if<std::is_same_v<T, XLWorksheet> || std::is_same_v<T, XLChartsheet>>::type* = nullptr>
+    template<typename T, typename std::enable_if<std::is_same_v<T, XLWorksheet> || std::is_same_v<T, XLChartsheet>>::type* = nullptr>
     class OPENXLSX_EXPORT XLSheetBase : public XLXmlFile
     {
     public:
@@ -137,7 +136,9 @@ namespace OpenXLSX
          */
         XLSheetState visibility() const
         {
-            auto state  = parentDoc().executeQuery(XLQuerySheetVisibility(relationshipID())).sheetVisibility();
+            XLQuery query(XLQueryType::QuerySheetVisibility);
+            query.template setParam("sheetID", relationshipID());
+            auto state  = parentDoc().execQuery(query).template result<std::string>();
             auto result = XLSheetState::Visible;
 
             if (state == "visible" || state.empty()) {
@@ -174,7 +175,9 @@ namespace OpenXLSX
                     break;
             }
 
-            parentDoc().executeCommand(XLCommandSetSheetVisibility(relationshipID(), name(), stateString));
+            parentDoc().execCommand(XLCommand(XLCommandType::SetSheetVisibility)
+                                        .setParam("sheetID", relationshipID())
+                                        .setParam("sheetVisibility", stateString));
         }
 
         /**
@@ -202,7 +205,11 @@ namespace OpenXLSX
          */
         uint16_t index() const
         {
-            return parentDoc().executeQuery(XLQuerySheetIndex(relationshipID())).sheetIndex();
+//            return uint16_t(std::stoi(parentDoc().execQuery(R"({ "query": "QuerySheetIndex", "sheetID": ")" + relationshipID() + "\"}")));
+
+            XLQuery query(XLQueryType::QuerySheetIndex);
+            query.template setParam("sheetID", relationshipID());
+            return uint16_t(std::stoi(parentDoc().execQuery(query).template result<std::string>()));
         }
 
         /**
@@ -211,7 +218,9 @@ namespace OpenXLSX
          */
         void setIndex(uint16_t index)
         {
-            parentDoc().executeCommand(XLCommandSetSheetIndex(relationshipID(), index));
+            parentDoc().execCommand(XLCommand(XLCommandType::SetSheetIndex)
+                                        .setParam("sheetID", relationshipID())
+                                        .setParam("sheetIndex", index));
         }
 
         /**
@@ -220,7 +229,9 @@ namespace OpenXLSX
          */
         std::string name() const
         {
-            return parentDoc().executeQuery(XLQuerySheetName(relationshipID())).sheetName();
+            XLQuery query(XLQueryType::QuerySheetName);
+            query.setParam("sheetID", relationshipID());
+            return parentDoc().execQuery(query).template result<std::string>();
         }
 
         /**
@@ -229,7 +240,10 @@ namespace OpenXLSX
          */
         void setName(const std::string& sheetName)
         {
-            parentDoc().executeCommand(XLCommandSetSheetName(relationshipID(), name(), sheetName));
+            parentDoc().execCommand(XLCommand(XLCommandType::SetSheetName)
+                                        .setParam("sheetID", relationshipID())
+                                        .setParam("sheetName", name())
+                                        .setParam("newName", sheetName));
         }
 
         /**
@@ -251,6 +265,24 @@ namespace OpenXLSX
         }
 
         /**
+         * @brief
+         * @return
+         */
+        bool isActive() const
+        {
+            return static_cast<const T&>(*this).isActive_impl();
+        }
+
+        /**
+         * @brief
+         * @param active
+         */
+        void setActive()
+        {
+            static_cast<T&>(*this).setActive_impl();
+        }
+
+        /**
          * @brief Method for cloning the sheet.
          * @param newName A std::string with the name of the clone
          * @return A pointer to the cloned object.
@@ -258,7 +290,9 @@ namespace OpenXLSX
          */
         void clone(const std::string& newName)
         {
-            parentDoc().executeCommand(XLCommandCloneSheet(relationshipID(), newName));
+            parentDoc().execCommand(XLCommand(XLCommandType::CloneSheet)
+                                        .setParam("sheetID", relationshipID())
+                                        .setParam("cloneName", newName));
         }
     };
 
@@ -367,7 +401,7 @@ namespace OpenXLSX
         XLRowRange rows(uint32_t rowCount) const;
 
         /**
-         * @brief 
+         * @brief
          * @param firstRow
          * @param lastRow
          * @return
@@ -431,6 +465,18 @@ namespace OpenXLSX
          * @param selected
          */
         void setSelected_impl(bool selected);
+
+        /**
+         * @brief
+         * @return
+         */
+        bool isActive_impl() const;
+
+        /**
+         * @brief
+         * @param selected
+         */
+        void setActive_impl();
     };
 
     /**
@@ -615,7 +661,8 @@ namespace OpenXLSX
          * @brief Method to get the type of the sheet.
          * @return An XLSheetType enum object with the sheet type.
          */
-        template<typename SheetType,
+        template<
+            typename SheetType,
             typename std::enable_if<std::is_same_v<SheetType, XLWorksheet> || std::is_same_v<SheetType, XLChartsheet>>::type* = nullptr>
         bool isType() const
         {
@@ -635,8 +682,7 @@ namespace OpenXLSX
          * @tparam T
          * @return
          */
-        template<typename T,
-                 typename std::enable_if<std::is_same_v<T, XLWorksheet> || std::is_same_v<T, XLChartsheet>>::type* = nullptr>
+        template<typename T, typename std::enable_if<std::is_same_v<T, XLWorksheet> || std::is_same_v<T, XLChartsheet>>::type* = nullptr>
         T get() const
         {
             try {
@@ -656,13 +702,13 @@ namespace OpenXLSX
          * @brief
          * @return
          */
-        operator XLWorksheet() const; // NOLINT
+        operator XLWorksheet() const;    // NOLINT
 
         /**
          * @brief
          * @return
          */
-        operator XLChartsheet() const; // NOLINT
+        operator XLChartsheet() const;    // NOLINT
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Private Member Variables

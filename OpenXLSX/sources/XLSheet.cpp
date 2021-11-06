@@ -296,6 +296,22 @@ void XLWorksheet::setSelected_impl(bool selected)
 /**
  * @details
  */
+bool XLWorksheet::isActive_impl() const
+{
+    return parentDoc().execQuery(XLQuery(XLQueryType::QuerySheetIsActive).setParam("sheetID", relationshipID())).result<bool>();
+}
+
+/**
+ * @details
+ */
+void XLWorksheet::setActive_impl()
+{
+        parentDoc().execCommand(XLCommand(XLCommandType::SetSheetActive).setParam("sheetID", relationshipID()));
+}
+
+/**
+ * @details
+ */
 XLCell XLWorksheet::cell(const std::string& ref) const
 {
     return cell(XLCellReference(ref));
@@ -345,7 +361,7 @@ XLCell XLWorksheet::cell(uint32_t rowNumber, uint16_t columnNumber) const
         }
     }
 
-    return XLCell{cellNode, parentDoc().executeQuery(XLQuerySharedStrings()).sharedStrings()};
+    return XLCell{cellNode, parentDoc().execQuery(XLQuery(XLQueryType::QuerySharedStrings)).result<XLSharedStrings>()};
 }
 
 /**
@@ -364,7 +380,7 @@ XLCellRange XLWorksheet::range(const XLCellReference& topLeft, const XLCellRefer
     return XLCellRange(xmlDocument().first_child().child("sheetData"),
                        topLeft,
                        bottomRight,
-                       parentDoc().executeQuery(XLQuerySharedStrings()).sharedStrings());
+                       parentDoc().execQuery(XLQuery(XLQueryType::QuerySharedStrings)).result<XLSharedStrings>());
 }
 
 /**
@@ -374,14 +390,13 @@ XLCellRange XLWorksheet::range(const XLCellReference& topLeft, const XLCellRefer
  */
 XLRowRange XLWorksheet::rows() const
 {
-
     auto sheetDataNode = xmlDocument().first_child().child("sheetData");
     return XLRowRange(sheetDataNode,
                       1,
                       (sheetDataNode.last_child()
                            ? static_cast<uint32_t>(sheetDataNode.last_child().attribute("r").as_ullong())
                            : 1),
-                      parentDoc().executeQuery(XLQuerySharedStrings()).sharedStrings());
+                      parentDoc().execQuery(XLQuery(XLQueryType::QuerySharedStrings)).result<XLSharedStrings>());
 }
 
 /**
@@ -394,7 +409,7 @@ XLRowRange XLWorksheet::rows(uint32_t rowCount) const
     return XLRowRange(xmlDocument().first_child().child("sheetData"),
                       1,
                       rowCount,
-                      parentDoc().executeQuery(XLQuerySharedStrings()).sharedStrings());
+                      parentDoc().execQuery(XLQuery(XLQueryType::QuerySharedStrings)).result<XLSharedStrings>());
 }
 
 /**
@@ -407,7 +422,7 @@ XLRowRange XLWorksheet::rows(uint32_t firstRow, uint32_t lastRow) const
     return XLRowRange(xmlDocument().first_child().child("sheetData"),
                       firstRow,
                       lastRow,
-                      parentDoc().executeQuery(XLQuerySharedStrings()).sharedStrings());
+                      parentDoc().execQuery(XLQuery(XLQueryType::QuerySharedStrings)).result<XLSharedStrings>());
 }
 
 /**
@@ -418,7 +433,7 @@ XLRowRange XLWorksheet::rows(uint32_t firstRow, uint32_t lastRow) const
 XLRow XLWorksheet::row(uint32_t rowNumber) const
 {
     return XLRow{getRowNode(xmlDocument().first_child().child("sheetData"), rowNumber),
-                 parentDoc().executeQuery(XLQuerySharedStrings()).sharedStrings()};
+                   parentDoc().execQuery(XLQuery(XLQueryType::QuerySharedStrings)).result<XLSharedStrings>()};
 }
 
 /**

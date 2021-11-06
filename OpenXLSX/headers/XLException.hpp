@@ -148,6 +148,7 @@ namespace OpenXLSX
         inline explicit XLFormulaError(const std::string& err) : XLException(err) {};
     };
 
+
 }    // namespace OpenXLSX
 
 #pragma warning(pop)

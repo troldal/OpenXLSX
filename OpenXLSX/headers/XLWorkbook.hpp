@@ -302,7 +302,13 @@ namespace OpenXLSX
         void setFullCalculationOnLoad();
 
     private:    // ---------- Private Member Functions ---------- //
+
+        /**
+         * @brief
+         * @return
+         */
         uint16_t createInternalSheetID();
+
         /**
          * @brief
          * @param sheetName
@@ -344,6 +350,20 @@ namespace OpenXLSX
          * @param state
          */
         void setSheetVisibility(const std::string& sheetRID, const std::string& state);
+
+        /**
+         * @brief
+         * @param sheetRID
+         * @return
+         */
+        bool sheetIsActive(const std::string& sheetRID) const;
+
+        /**
+         * @brief
+         * @param sheetRID
+         * @param state
+         */
+        void setSheetActive(const std::string& sheetRID);
 
 
     };
