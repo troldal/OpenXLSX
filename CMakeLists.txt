@@ -25,10 +25,10 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/output)
 #=======================================================================================================================
 # Add build options
 #=======================================================================================================================
-option(OPENXLSX_CREATE_DOCS "Build library documentation (requires Doxygen and Graphviz/Dot to be installed)" ON)
-option(OPENXLSX_BUILD_SAMPLES "Build sample programs" ON)
-option(OPENXLSX_BUILD_TESTS "Build and run library tests" ON)
-option(OPENXLSX_BUILD_BENCHMARKS "Build and run library benchmarks" ON)
+option(OPENXLSX_CREATE_DOCS "Build library documentation (requires Doxygen and Graphviz/Dot to be installed)" OFF)
+option(OPENXLSX_BUILD_SAMPLES "Build sample programs" OFF)
+option(OPENXLSX_BUILD_TESTS "Build and run library tests" OFF)
+option(OPENXLSX_BUILD_BENCHMARKS "Build and run library benchmarks" OFF)
 
 #=======================================================================================================================
 # Add project subdirectories
