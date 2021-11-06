@@ -951,10 +951,12 @@ XLQuery XLDocument::execQuery(const XLQuery& query) const
             {
                 auto result =
                     std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) { return item.getXmlPath() == query.getParam<std::string>("xmlPath"); });
-                if (result == m_data.end()) throw XLInternalError("Path does not exist in zip archive.");
+                if (result == m_data.end()) throw XLInternalError("Path does not exist in zip archive (" + query.getParam<std::string>("xmlPath") + ")");
                 return XLQuery(query).setResult(&*result);
             }
     }
+
+    return query; // Needed in order to suppress compiler warning
 }
 
 /**

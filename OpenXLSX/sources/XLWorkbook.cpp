@@ -97,6 +97,8 @@ XLSheet XLWorkbook::sheet(const std::string& sheetName)
     pathQuery.setParam("sheetID", xmlID);
     auto xmlPath = parentDoc().execQuery(pathQuery).result<std::string>();
 
+    if (xmlPath.substr(0,4) == "/xl/") xmlPath = xmlPath.substr(4);
+
     XLQuery xmlQuery(XLQueryType::QueryXmlData);
     xmlQuery.setParam("xmlPath", "xl/" + xmlPath);
     return XLSheet(parentDoc().execQuery(xmlQuery).result<XLXmlData*>());
