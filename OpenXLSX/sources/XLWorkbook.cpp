@@ -97,14 +97,12 @@ XLSheet XLWorkbook::sheet(const std::string& sheetName)
     pathQuery.setParam("sheetID", xmlID);
     auto xmlPath = parentDoc().execQuery(pathQuery).result<std::string>();
 
+    // Some spreadsheets use absolute rather than relative paths in relationship items.
     if (xmlPath.substr(0,4) == "/xl/") xmlPath = xmlPath.substr(4);
 
     XLQuery xmlQuery(XLQueryType::QueryXmlData);
     xmlQuery.setParam("xmlPath", "xl/" + xmlPath);
     return XLSheet(parentDoc().execQuery(xmlQuery).result<XLXmlData*>());
-
-//    std::string xmlPath = parentDoc().executeQuery(XLQuerySheetRelsTarget(xmlID)).sheetTarget();
-//    return XLSheet(parentDoc().executeQuery(XLQueryXmlData("xl/" + xmlPath)).xmlData());
 }
 
 /**
@@ -295,16 +293,47 @@ void XLWorkbook::setSheetName(const std::string& sheetRID, const std::string& ne
  */
 void XLWorkbook::setSheetVisibility(const std::string& sheetRID, const std::string& state)
 {
-    // ===== Retrieve or create the visibility ("state") attribute for the sheet.
+    // ===== First, determine if there are other sheets that are visible
+    int visibleSheets = 0;
+    for (const auto& item : xmlDocument().document_element().child("sheets").children()) {
+        if (std::string(item.attribute("r:id").value()) != sheetRID) {
+            if (!item.attribute("state") || !(std::string(item.attribute("state").value()) == "hidden" || std::string(item.attribute("state").value()) == "veryHidden"))
+                ++visibleSheets;
+        }
+    }
+
+    // ===== If there are no other visible sheets, and the current sheet is to be made hidden, throw an exception.
+    if ((state == "hidden" || state == "veryHidden") && visibleSheets == 0)
+        throw XLSheetError("At least one sheet must be visible.");
+
+    // ===== Then, retrieve or create the visibility ("state") attribute for the sheet, and set it to the "state" value
     auto stateAttribute =
         xmlDocument().document_element().child("sheets").find_child_by_attribute("r:id", sheetRID.c_str()).attribute("state");
     if (!stateAttribute) {
         stateAttribute =
             xmlDocument().document_element().child("sheets").find_child_by_attribute("r:id", sheetRID.c_str()).prepend_attribute("state");
     }
-
-    // ===== Set the visibility attribute.
     stateAttribute.set_value(state.c_str());
+
+    // Next, find the index of the sheet...
+    std::string name = xmlDocument().document_element().child("sheets").find_child_by_attribute("r:id", sheetRID.c_str()).attribute("name").value();
+    auto index = indexOfSheet(name) - 1;
+
+    // ...and determine the index of the active sheet
+    auto activeTabAttribute = xmlDocument().document_element().child("bookViews").first_child().attribute("activeTab");
+    if (!activeTabAttribute) {
+        activeTabAttribute = xmlDocument().document_element().child("bookViews").first_child().append_attribute("activeTab");
+        activeTabAttribute.set_value(0);
+    }
+    auto activeTabIndex = activeTabAttribute.as_int();
+
+    // Finally, if the current sheet is the active one, set the "activeTab" attribute to the first visible sheet in the workbook
+    if (activeTabIndex == index) {
+        for (auto& item : xmlDocument().document_element().child("sheets").children()) {
+            if (!item.attribute("state") || std::string(item.attribute("state").value()) != "hidden" || std::string(item.attribute("state").value()) != "veryHidden")
+                activeTabAttribute.set_value(indexOfSheet(item.attribute("name").value()) - 1);
+        }
+    }
 }
 
 /**
