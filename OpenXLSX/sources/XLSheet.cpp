@@ -272,6 +272,14 @@ XLWorksheet::~XLWorksheet() = default;
 /**
  * @details
  */
+XLColor XLWorksheet::getColor_impl() const
+{
+    return XLColor(xmlDocument().document_element().child("sheetPr").child("tabColor").attribute("rgb").value());
+}
+
+/**
+ * @details
+ */
 void XLWorksheet::setColor_impl(const XLColor& color)
 {
     setTabColor(xmlDocument(), color);
@@ -541,6 +549,14 @@ XLChartsheet::XLChartsheet(XLXmlData* xmlData) : XLSheetBase(xmlData) {}
  * @details Destructor. Default implementation used.
  */
 XLChartsheet::~XLChartsheet() = default;
+
+/**
+ * @details
+ */
+XLColor XLChartsheet::getColor_impl() const
+{
+    return XLColor(xmlDocument().document_element().child("sheetPr").child("tabColor").attribute("rgb").value());
+}
 
 /**
  * @details Calls the setTabColor() free function.

@@ -67,6 +67,9 @@ namespace OpenXLSX
         //           Public Member Functions
         //----------------------------------------------------------------------------------------------------------------------
 
+        friend bool operator==(const XLColor& lhs, const XLColor& rhs);
+        friend bool operator!=(const XLColor& lhs, const XLColor& rhs);
+
     public:
         /**
          * @brief
@@ -193,6 +196,32 @@ namespace OpenXLSX
 
         uint8_t m_blue { 0 };
     };
+
+}    // namespace OpenXLSX
+
+namespace OpenXLSX
+{
+    /**
+     * @brief
+     * @param lhs
+     * @param rhs
+     * @return
+     */
+    inline bool operator==(const XLColor& lhs, const XLColor& rhs)
+    {
+        return lhs.alpha() == rhs.alpha() && lhs.red() == rhs.red() && lhs.green() == rhs.green() && lhs.blue() == rhs.blue();
+    }
+
+    /**
+     * @brief
+     * @param lhs
+     * @param rhs
+     * @return
+     */
+    inline bool operator!=(const XLColor& lhs, const XLColor& rhs)
+    {
+        return !(lhs == rhs);
+    }
 
 }    // namespace OpenXLSX
 
