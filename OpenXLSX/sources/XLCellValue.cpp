@@ -438,6 +438,8 @@ XLCellValue XLCellValueProxy::getValue() const
                 return XLCellValue { m_cell->m_sharedStrings.getString(static_cast<uint32_t>(m_cellNode->child("v").text().as_ullong())) };
             else if (strcmp(m_cellNode->attribute("t").value(), "str") == 0)
                 return XLCellValue { m_cellNode->child("v").text().get() };
+            else if (strcmp(m_cellNode->attribute("t").value(), "inlineStr") == 0)
+                return XLCellValue { m_cellNode->child("is").child("t").text().get() };
             else
                 throw XLInternalError("Unknown string type");
 
