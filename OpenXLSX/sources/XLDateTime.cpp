@@ -121,6 +121,15 @@ namespace OpenXLSX
     }
 
     /**
+     * @details Constructor taking a unixtime format (seconds since 1/1/1970) as an argument.
+     */
+    XLDateTime::XLDateTime(time_t unixtime) {
+        // There are 86400 seconds in a day
+        // There are 25569 days between 1/1/1970 and 30/12/1899 (the epoch used by Excel)
+        m_serial = static_cast<double>(unixtime) / 86400 + 25569;
+    }
+
+    /**
      * @details Copy constructor. Default implementation.
      */
     XLDateTime::XLDateTime(const XLDateTime& other) = default;
