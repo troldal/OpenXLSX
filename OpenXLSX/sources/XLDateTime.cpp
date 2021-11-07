@@ -4,6 +4,7 @@
 
 #include "XLDateTime.hpp"
 #include "XLException.hpp"
+#include <string>
 #include <cmath>
 
 namespace {
@@ -81,7 +82,7 @@ namespace OpenXLSX
      * @details Constructor taking an Excel date/time serial number as an argument.
      */
     XLDateTime::XLDateTime(double serial) : m_serial(serial) {
-        if (serial < 1.0) throw XLDateTimeError("Excel date/time serial number is invalid (must be >= 1.0.");
+        if (serial < 1.0) throw XLDateTimeError("Excel date/time serial number is invalid (must be >= 1.0.)");
     }
 
     /**
