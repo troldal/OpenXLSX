@@ -83,6 +83,12 @@ namespace OpenXLSX
         explicit XLDateTime(const std::tm& timepoint);
 
         /**
+         * @brief Constructor taking a unixtime format (seconds since 1/1/1970) as an argument.
+         * @param unixtime A time_t number.
+         */
+        explicit XLDateTime(time_t unixtime);
+
+        /**
          * @brief Copy constructor.
          * @param other Object to be copied.
          */
