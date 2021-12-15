@@ -1,6 +1,6 @@
 #include <OpenXLSX.hpp>
-#include <iostream>
 #include <filesystem>
+#include <iostream>
 #include <stdio.h>
 #include <windows.h>
 
@@ -9,12 +9,11 @@ using namespace OpenXLSX;
 
 void printType(XLNumberFormat fmt)
 {
- #ifdef WIN32
+#ifdef WIN32
     SetConsoleOutputCP(CP_UTF8);
 #endif
 
-    switch (fmt.type())
-    {
+    switch (fmt.type()) {
         case XLNumberFormat::XLNumberType::kCurrency:
             cout << "\nkCurrency " + fmt.currencySumbol();
             break;
@@ -24,7 +23,7 @@ void printType(XLNumberFormat fmt)
         case XLNumberFormat::XLNumberType::kPercent:
             cout << "\nkPercent ";
             break;
-         case XLNumberFormat::XLNumberType::kUnkown:
+        case XLNumberFormat::XLNumberType::kUnkown:
             cout << "\nkUnkown ";
             break;
     }
@@ -36,19 +35,16 @@ int main()
     cout << "DEMO PROGRAM #09: Basic Usage\n";
     cout << "********************************************************************************\n";
 
-    auto& current_path = std::filesystem::current_path();
-    auto& parent_path = current_path.parent_path();
+    auto&                 current_path = std::filesystem::current_path();
+    auto&                 parent_path  = current_path.parent_path();
     std::filesystem::path foundPath;
 
-    while (parent_path.string().size() > 3)
-    {
-        if (parent_path.filename().string().compare("OpenXLSX") == 0)
-          foundPath = parent_path;
+    while (parent_path.string().size() > 3) {
+        if (parent_path.filename().string().compare("OpenXLSX") == 0) foundPath = parent_path;
         parent_path = parent_path.parent_path();
     }
     foundPath += "\\Tests\\NumberType.xlsx";
-    if (!std::filesystem::exists(foundPath))
-    {
+    if (!std::filesystem::exists(foundPath)) {
         cout << "File not found";
         return 0;
     }
@@ -58,45 +54,45 @@ int main()
     auto wks = doc.workbook().worksheet("Sheet1");
 
     {
-      const auto cell = wks.cell("A1");
-      XLNumberFormat fmt(cell.style());
-      printType(fmt);
+        const auto     cell = wks.cell("A1");
+        XLNumberFormat fmt(cell.style());
+        printType(fmt);
     }
     {
-      const auto cell = wks.cell("A2");
-      XLNumberFormat fmt(cell.style());
-      printType(fmt);
+        const auto     cell = wks.cell("A2");
+        XLNumberFormat fmt(cell.style());
+        printType(fmt);
     }
     {
-      const auto cell = wks.cell("A3");
-      XLNumberFormat fmt(cell.style());
-      printType(fmt);
-    } 
+        const auto     cell = wks.cell("A3");
+        XLNumberFormat fmt(cell.style());
+        printType(fmt);
+    }
     {
-      const auto cell = wks.cell("A4");
-      XLNumberFormat fmt(cell.style());
-      printType(fmt);
-    } 
+        const auto     cell = wks.cell("A4");
+        XLNumberFormat fmt(cell.style());
+        printType(fmt);
+    }
     {
-      const auto cell = wks.cell("A5");
-      XLNumberFormat fmt(cell.style());
-      printType(fmt);
-    } 
+        const auto     cell = wks.cell("A5");
+        XLNumberFormat fmt(cell.style());
+        printType(fmt);
+    }
     {
-      const auto cell = wks.cell("A6");
-      XLNumberFormat fmt(cell.style());
-      printType(fmt);
-    } 
+        const auto     cell = wks.cell("A6");
+        XLNumberFormat fmt(cell.style());
+        printType(fmt);
+    }
     {
-      const auto cell = wks.cell("A7");
-      XLNumberFormat fmt(cell.style());
-      printType(fmt);
-    } 
+        const auto     cell = wks.cell("A7");
+        XLNumberFormat fmt(cell.style());
+        printType(fmt);
+    }
     {
-      const auto cell = wks.cell("A8");
-      XLNumberFormat fmt(cell.style());
-      printType(fmt);
-    } 
+        const auto     cell = wks.cell("A8");
+        XLNumberFormat fmt(cell.style());
+        printType(fmt);
+    }
 
     doc.close();
 
