@@ -162,8 +162,12 @@ OpenXLSX::XLNumberFormat::XLNumberType OpenXLSX::XLNumberFormat::tryFindType()
         else 
         {
             const char chr = fmt[idx];
-            if (chr == lc->currency_symbol[0] || chr == '$') {
+            if (chr == '$') {
                 m_currencySumbol = chr;
+                return XLNumberType::kCurrency;
+            }
+            else if (std::string lc_curr = lc->currency_symbol; lc_curr.find(chr) != std::string::npos) {
+                m_currencySumbol = lc->currency_symbol;
                 return XLNumberType::kCurrency;
             }
             else if (chr == '%') {
@@ -228,7 +232,7 @@ OpenXLSX::XLNumberFormat::XLNumberType OpenXLSX::XLNumberFormat::tryBuiltinType(
         case 6:
         case 7:
         case 8: 
-            m_currencySumbol = lc->currency_symbol[0];
+            m_currencySumbol = lc->currency_symbol;
             return XLNumberType::kCurrency;
         case 9:   
         case 10:  
