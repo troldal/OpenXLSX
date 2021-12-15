@@ -61,7 +61,11 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 namespace OpenXLSX
 {
     class XLStyle;
+    class XLNumberFormat;
 
+    // ================================================================================
+    // XLStyles Class
+    // ================================================================================
     class OPENXLSX_EXPORT XLStyles : public XLXmlFile
     {
         friend class XLCell;
@@ -81,28 +85,9 @@ namespace OpenXLSX
         std::vector<XLStyle> m_VecStyle;
     };
 
-    class OPENXLSX_EXPORT XLNumberFormat
-    {
-    public:
-        enum class XLNumberType { kUnkown, kDate, kPercent, kCurrency };
-
-    public:
-        explicit XLNumberFormat(const XLStyle& style);
-        ~XLNumberFormat() = default;
-
-        XLNumberType type();
-        std::string currencySumbol() const;
-
-    private:
-        XLNumberType tryFindType();
-        XLNumberType tryBuiltinType();
-
-    private:
-        std::reference_wrapper<const XLStyle> m_style;
-        std::string                           m_currencySumbol;
-        std::string                           m_fmtLocal;
-    };
-
+    // ================================================================================
+    // XLStyle Class
+    // ================================================================================
     class OPENXLSX_EXPORT XLStyle
     {
         friend class XLCell;
@@ -125,7 +110,30 @@ namespace OpenXLSX
         std::reference_wrapper<const XLDocument> m_doc;
     };
 
-    
+    // ================================================================================
+    // XLNumberFormat Class
+    // ================================================================================
+    class OPENXLSX_EXPORT XLNumberFormat
+    {
+    public:
+        enum class XLNumberType { kUnkown, kDate, kPercent, kCurrency };
+
+    public:
+        explicit XLNumberFormat(const XLStyle& style);
+        ~XLNumberFormat() = default;
+
+        XLNumberType type();
+        std::string currencySumbol() const;
+
+    private:
+        XLNumberType tryFindType();
+        XLNumberType tryBuiltinType();
+
+    private:
+        std::reference_wrapper<const XLStyle> m_style;
+        std::string                           m_currencySumbol;
+        std::string                           m_fmtLocal;
+    };
 }// namespace OpenXLSX
 
 

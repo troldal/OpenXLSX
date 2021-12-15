@@ -10,7 +10,9 @@
 
 using namespace OpenXLSX;
 
-
+// ================================================================================
+// Helpers
+// ================================================================================
 template<typename Out>
 inline void splitA(const std::string& s, char delim, Out result)
 {
@@ -26,15 +28,17 @@ inline void splitA(const std::string& s, char delim, std::vector<std::string>& e
     splitA(s, delim, std::back_inserter(elems));
 }
 
-// DRM
-XLStyles::~XLStyles() = default;
+
+// ================================================================================
+// XLStyles Class
+// ================================================================================
 
 XLStyles::XLStyles(XLXmlData* xmlData) 
     : XLXmlFile(xmlData) {
     init(xmlData);
 }
 
-
+XLStyles::~XLStyles() = default;
 
 OpenXLSX::XLStyle OpenXLSX::XLStyles::style(const XLCell& cell) const
 {
@@ -96,7 +100,10 @@ void OpenXLSX::XLStyles::init(const XLXmlData* stylesData)
     }
 }
 
-//
+// ================================================================================
+// XLStyle Class
+// ================================================================================
+
 OpenXLSX::XLStyle::XLStyle(const XLDocument& doc) 
     : m_doc( doc ) 
 {
@@ -115,7 +122,9 @@ int OpenXLSX::XLStyle::numFmtId() const {
     return m_numFmtId;
 }
 
-//
+// ================================================================================
+//XLNumberFormat Class
+// ================================================================================
 OpenXLSX::XLNumberFormat::XLNumberFormat(const XLStyle& style) 
     : m_style { style }
 {
