@@ -132,7 +132,7 @@ namespace OpenXLSX
     private:
         std::reference_wrapper<const XLStyle> m_style;
         std::string                           m_currencySumbol;
-        std::string                           m_fmtLocal;
+        std::string                           m_fmtLocal; //TODO: get precision etc.
     };
 }// namespace OpenXLSX
 

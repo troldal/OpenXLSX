@@ -139,6 +139,7 @@ std::string OpenXLSX::XLNumberFormat::currencySumbol() const{
     return m_currencySumbol;
 }
 
+//TODO: it may be possible to get precision and forrmatting in a single pass.
 OpenXLSX::XLNumberFormat::XLNumberType OpenXLSX::XLNumberFormat::tryFindType()
 {
     const auto _type = tryBuiltinType();
@@ -191,7 +192,8 @@ OpenXLSX::XLNumberFormat::XLNumberType OpenXLSX::XLNumberFormat::tryFindType()
             else if (chr == '0' || chr == '#' || chr == '.') {
                 foundType = XLNumberType::kUnkown;
             }
-            //(iCompare(m_slocale, L"ja-jp") || iCompare(m_slocale, L"zh-tw")) && wchr == 'e' || wchr == 'g' || wchr == 'r')
+            //use lc->int_curr_symbol ? how to get en_US?
+            //(iCompare(m_slocale, L"ja_jp") || iCompare(m_slocale, L"zh_tw")) && wchr == 'e' || wchr == 'g' || wchr == 'r')
         }
     }
     for (const auto& item : bracketTextArray) {
