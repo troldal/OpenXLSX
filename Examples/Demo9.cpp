@@ -1,8 +1,11 @@
 #include <OpenXLSX.hpp>
 #include <filesystem>
 #include <iostream>
+
+#ifdef WIN32
 #include <stdio.h>
 #include <windows.h>
+#endif
 
 using namespace std;
 using namespace OpenXLSX;
