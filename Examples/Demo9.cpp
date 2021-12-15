@@ -32,6 +32,7 @@ void printType(XLNumberFormat fmt)
     }
 }
 
+
 int main()
 {
     cout << "********************************************************************************\n";
@@ -56,46 +57,27 @@ int main()
     doc.open(foundPath.string());
     auto wks = doc.workbook().worksheet("Sheet1");
 
-    {
-        const auto     cell = wks.cell("A1");
-        XLNumberFormat fmt(cell.style());
-        printType(fmt);
-    }
-    {
-        const auto     cell = wks.cell("A2");
-        XLNumberFormat fmt(cell.style());
-        printType(fmt);
-    }
-    {
-        const auto     cell = wks.cell("A3");
-        XLNumberFormat fmt(cell.style());
-        printType(fmt);
-    }
-    {
-        const auto     cell = wks.cell("A4");
-        XLNumberFormat fmt(cell.style());
-        printType(fmt);
-    }
-    {
-        const auto     cell = wks.cell("A5");
-        XLNumberFormat fmt(cell.style());
-        printType(fmt);
-    }
-    {
-        const auto     cell = wks.cell("A6");
-        XLNumberFormat fmt(cell.style());
-        printType(fmt);
-    }
-    {
-        const auto     cell = wks.cell("A7");
-        XLNumberFormat fmt(cell.style());
-        printType(fmt);
-    }
-    {
-        const auto     cell = wks.cell("A8");
-        XLNumberFormat fmt(cell.style());
-        printType(fmt);
-    }
+    //check if the value is a number before using XLNumberFormat 
+    auto doNumFmt = [&](const XLCell& cell) {
+        const auto& val = cell.value();
+        if (XLValueType::Integer == val.type() || XLValueType::Float == val.type()) 
+        {
+            const auto fmt = cell.style().numberFormat();
+            printType(fmt);
+        }
+        else
+            cout << "\nNot a number";
+    };
+
+    doNumFmt(wks.cell("A1"));
+    doNumFmt(wks.cell("A2"));
+    doNumFmt(wks.cell("A3"));
+    doNumFmt(wks.cell("A4"));
+    doNumFmt(wks.cell("A5"));
+    doNumFmt(wks.cell("A6"));
+    doNumFmt(wks.cell("A7"));
+    doNumFmt(wks.cell("A8"));
+    doNumFmt(wks.cell("A9"));
 
     doc.close();
 

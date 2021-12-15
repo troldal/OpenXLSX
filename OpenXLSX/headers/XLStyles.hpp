@@ -60,14 +60,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 namespace OpenXLSX
 {
-    struct XLCellXfs
-    {
-        int numFmtId          = -1;
-        int fontId            = -1;
-        int fillId            = -1;
-        int borderId          = -1;
-        int xfId              = -1;
-    };
+    class XLStyle;
 
     class OPENXLSX_EXPORT XLStyles : public XLXmlFile
     {
@@ -78,30 +71,14 @@ namespace OpenXLSX
         XLStyles() = default;
         ~XLStyles();
         XLStyles(XLXmlData* xmlData);
-        size_t cellXfsSize() const;
-        XLCellXfs cellXfsFor(const XLCell& cell) const;
+        XLStyle style(const XLCell& cell) const;
         std::string formatString(int numFmtId) const;
 
     private:
         void init(const XLXmlData* stylesData);
 
     private:
-        std::vector<XLCellXfs> m_VecXLCellXfs;
-    };
-
-    class OPENXLSX_EXPORT XLStyle
-    {
-        friend class XLCell;
-    public:
-        explicit XLStyle(const XLStyles& styles);
-        ~XLStyle() = default;
-
-        std::string formatString() const;
-        int  numFmtId() const;
-
-    private:
-        XLCellXfs m_xfs;
-        std::reference_wrapper<const XLStyles> m_styles;
+        std::vector<XLStyle> m_VecStyle;
     };
 
     class OPENXLSX_EXPORT XLNumberFormat
@@ -112,23 +89,43 @@ namespace OpenXLSX
     public:
         explicit XLNumberFormat(const XLStyle& style);
         ~XLNumberFormat() = default;
-        XLNumberType type();
 
+        XLNumberType type();
         std::string currencySumbol() const;
 
-
-private:
+    private:
         XLNumberType tryFindType();
-        XLNumberType tryBuiltinType() const;
-
+        XLNumberType tryBuiltinType();
 
     private:
         std::reference_wrapper<const XLStyle> m_style;
-        std::string m_currencySumbol;
-        std::string m_fmtLocal;
+        std::string                           m_currencySumbol;
+        std::string                           m_fmtLocal;
     };
 
+    class OPENXLSX_EXPORT XLStyle
+    {
+        friend class XLCell;
+        friend class XLStyles;
 
+    public:
+        explicit XLStyle(const XLDocument& styles);
+        ~XLStyle() = default;
+
+        XLNumberFormat numberFormat() const;
+        std::string    formatString() const;
+        int            numFmtId() const;
+
+    private:
+        int                                      m_numFmtId = -1;
+        int                                      m_fontId   = -1;
+        int                                      m_fillId   = -1;
+        int                                      m_borderId = -1;
+        int                                      m_xfId     = -1;
+        std::reference_wrapper<const XLDocument> m_doc;
+    };
+
+    
 }// namespace OpenXLSX
 
 

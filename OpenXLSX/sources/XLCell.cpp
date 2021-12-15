@@ -232,8 +232,6 @@ const OpenXLSX::XLStyles& OpenXLSX::XLCell::styles() const{
  */
 const XLStyle XLCell::style() const{
     const OpenXLSX::XLStyles& _styles = styles();
-    XLStyle _style(_styles);
-    _style.m_xfs = _styles.cellXfsFor(*this);
-    return _style;
+   return _styles.style(*this);
 }
 

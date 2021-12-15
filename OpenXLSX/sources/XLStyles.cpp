@@ -6,6 +6,7 @@
 #include "XLStyles.hpp"
 #include "XLXmlData.hpp"
 #include "XLCell.hpp"
+#include "XLDocument.hpp"
 
 using namespace OpenXLSX;
 
@@ -33,20 +34,18 @@ XLStyles::XLStyles(XLXmlData* xmlData)
     init(xmlData);
 }
 
-size_t OpenXLSX::XLStyles::cellXfsSize() const {
-    return m_VecXLCellXfs.size();
-}
 
-OpenXLSX::XLCellXfs OpenXLSX::XLStyles::cellXfsFor(const XLCell& cell) const
+
+OpenXLSX::XLStyle OpenXLSX::XLStyles::style(const XLCell& cell) const
 {
-    XLCellXfs res;
+    XLStyle res(this->parentDoc());
     if (!cell) return res;
     if (const auto* val = cell.m_cellNode->attribute("s").value(); val != nullptr) {
-        if (const size_t pos = std::atoi(val); m_VecXLCellXfs.size() > pos) {
-            return m_VecXLCellXfs.at(pos);
+        if (const size_t pos = std::atoi(val); m_VecStyle.size() > pos) {
+            res = m_VecStyle.at(pos);
         }
     }
-    return XLCellXfs();
+    return res;
 }
 
 std::string OpenXLSX::XLStyles::formatString(int numFmtId) const
@@ -81,13 +80,13 @@ void OpenXLSX::XLStyles::init(const XLXmlData* stylesData)
             if (nodeNameCellXfs == node.name()) {
                 for (const auto& xfNode : node.children()) {
                     if (nodeNameXf == xfNode.name()) {
-                        XLCellXfs item;
-                        if (const auto* val = xfNode.attribute(numFmtId).value(); val != nullptr) item.numFmtId = std::stoi(val);
-                        if (const auto* val = xfNode.attribute(fontId).value(); val != nullptr) item.fontId = std::stoi(val);
-                        if (const auto* val = xfNode.attribute(fillId).value(); val != nullptr) item.fillId = std::stoi(val);
-                        if (const auto* val = xfNode.attribute(borderId).value(); val != nullptr) item.borderId = std::stoi(val);
-                        if (const auto* val = xfNode.attribute(xfId).value(); val != nullptr) item.xfId = std::stoi(val);
-                        m_VecXLCellXfs.push_back(item);
+                        XLStyle item(this->parentDoc());
+                        if (const auto* val = xfNode.attribute(numFmtId).value(); val != nullptr) item.m_numFmtId = std::stoi(val);
+                        if (const auto* val = xfNode.attribute(fontId).value(); val != nullptr) item.m_fontId = std::stoi(val);
+                        if (const auto* val = xfNode.attribute(fillId).value(); val != nullptr) item.m_fillId = std::stoi(val);
+                        if (const auto* val = xfNode.attribute(borderId).value(); val != nullptr) item.m_borderId = std::stoi(val);
+                        if (const auto* val = xfNode.attribute(xfId).value(); val != nullptr) item.m_xfId = std::stoi(val);
+                        m_VecStyle.emplace_back(item);
                     }
                 }
                 break;
@@ -98,17 +97,22 @@ void OpenXLSX::XLStyles::init(const XLXmlData* stylesData)
 }
 
 //
-OpenXLSX::XLStyle::XLStyle(const XLStyles& styles) 
-: m_styles { styles } 
+OpenXLSX::XLStyle::XLStyle(const XLDocument& doc) 
+    : m_doc( doc ) 
 {
 }
 
+OpenXLSX::XLNumberFormat OpenXLSX::XLStyle::numberFormat() const { 
+    XLNumberFormat fmt(*this);
+    return fmt;
+}
+
 std::string OpenXLSX::XLStyle::formatString() const {
-    return m_styles.get().formatString(m_xfs.numFmtId);
+    return m_doc.get().styles().formatString(m_numFmtId);
 }
 
 int OpenXLSX::XLStyle::numFmtId() const {
-    return m_xfs.numFmtId;
+    return m_numFmtId;
 }
 
 //
@@ -155,21 +159,23 @@ OpenXLSX::XLNumberFormat::XLNumberType OpenXLSX::XLNumberFormat::tryFindType()
         else if (isInBracket) {
             bracketText += fmt[idx];
         }
-        else {
-            if (fmt[idx] == lc->_W_currency_symbol[0] || fmt[idx] == '$') {
-                m_currencySumbol = fmt[idx];
+        else 
+        {
+            const char chr = fmt[idx];
+            if (chr == lc->currency_symbol[0] || chr == '$') {
+                m_currencySumbol = chr;
                 return XLNumberType::kCurrency;
             }
-            else if (fmt[idx] == '%') {
+            else if (chr == '%') {
                 return XLNumberType::kPercent;
             }
-            else if (const char chr = fmt[idx]; chr == 'y' || chr == 'M' || chr == 'm' || chr == 'd') {
+            else if (chr == 'y' || chr == 'M' || chr == 'm' || chr == 'd') {
                return XLNumberType::kDate;
             }
-            else if (const char chr = fmt[idx]; chr == 'h' || chr == 's' || chr == ':') {
+            else if (chr == 'h' || chr == 's' || chr == ':') {
                return XLNumberType::kDate;
             }
-            else if (const char chr = fmt[idx]; chr == '0' || chr == '#' || chr == '.') {
+            else if (chr == '0' || chr == '#' || chr == '.') {
                 foundType = XLNumberType::kUnkown;
             }
             //(iCompare(m_slocale, L"ja-jp") || iCompare(m_slocale, L"zh-tw")) && wchr == 'e' || wchr == 'g' || wchr == 'r')
@@ -206,8 +212,10 @@ OpenXLSX::XLNumberFormat::XLNumberType OpenXLSX::XLNumberFormat::tryFindType()
     return foundType;
 }
 
-OpenXLSX::XLNumberFormat::XLNumberType OpenXLSX::XLNumberFormat::tryBuiltinType() const
+OpenXLSX::XLNumberFormat::XLNumberType OpenXLSX::XLNumberFormat::tryBuiltinType()
 {
+    std::setlocale(LC_MONETARY,"");
+    std::lconv* lc = std::localeconv();
     switch (m_style.get().numFmtId()) {
         case 0:
         case 1:
@@ -220,6 +228,7 @@ OpenXLSX::XLNumberFormat::XLNumberType OpenXLSX::XLNumberFormat::tryBuiltinType(
         case 6:
         case 7:
         case 8: 
+            m_currencySumbol = lc->currency_symbol[0];
             return XLNumberType::kCurrency;
         case 9:   
         case 10:  
