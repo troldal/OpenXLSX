@@ -84,9 +84,51 @@ namespace OpenXLSX
 
     private:
         void init(const XLXmlData* stylesData);
+
     private:
         std::vector<XLCellXfs> m_VecXLCellXfs;
     };
+
+    class OPENXLSX_EXPORT XLStyle
+    {
+        friend class XLCell;
+    public:
+        explicit XLStyle(const XLStyles& styles);
+        ~XLStyle() = default;
+
+        std::string formatString() const;
+        int  numFmtId() const;
+
+    private:
+        XLCellXfs m_xfs;
+        std::reference_wrapper<const XLStyles> m_styles;
+    };
+
+    class OPENXLSX_EXPORT XLNumberFormat
+    {
+    public:
+        enum class XLNumberType { kUnkown, kDate, kPercent, kCurrency };
+
+    public:
+        explicit XLNumberFormat(const XLStyle& style);
+        ~XLNumberFormat() = default;
+        XLNumberType type();
+
+        std::string currencySumbol() const;
+
+
+private:
+        XLNumberType tryFindType();
+        XLNumberType tryBuiltinType() const;
+
+
+    private:
+        std::reference_wrapper<const XLStyle> m_style;
+        std::string m_currencySumbol;
+        std::string m_fmtLocal;
+    };
+
+
 }// namespace OpenXLSX
 
 

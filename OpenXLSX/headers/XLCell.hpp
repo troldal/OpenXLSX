@@ -64,6 +64,7 @@ namespace OpenXLSX
 {
     class XLCellRange;
     class XLSharedStrings;
+    class XLStyle;
 
     /**
      * @brief An implementation class encapsulating the properties and behaviours of a spreadsheet cell.
@@ -181,6 +182,11 @@ namespace OpenXLSX
          * @brief
          * @param newFormula
          */
+
+        const XLStyles& styles() const;
+
+
+        const XLStyle style() const;
 
     private:
 
