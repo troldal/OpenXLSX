@@ -9,12 +9,16 @@ project(OpenXLSX.Examples)
 #=======================================================================================================================
 add_subdirectory(external/nowide EXCLUDE_FROM_ALL)
 
+#make all the demo statically linked
+set(CMAKE_EXE_LINKER_FLAGS " -static")
+
 #=======================================================================================================================
 # Define Demo1 target
 #=======================================================================================================================
 add_executable(Demo1 Demo1.cpp)
-target_link_libraries(Demo1 PRIVATE OpenXLSX::OpenXLSX)
-
+target_link_libraries(Demo1 PRIVATE -static-libgcc -static-libstdc++ OpenXLSX::OpenXLSX)
+# you can check with cmd `ldd  DeemoN.exe` that 
+# all N exe depend only on msvcrt and kernel dll
 #=======================================================================================================================
 # Define Demo2 target
 #=======================================================================================================================
