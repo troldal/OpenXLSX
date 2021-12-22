@@ -166,6 +166,15 @@ cmake --build . --target OpenXLSX --config Release
 
 You can change the `--target` and `--config` arguments to whatever you wish to use.
 
+For example, if you use ninja on MinGW, run
+
+
+```
+ninja
+```
+
+from the build directory to produce the executables in the output folde to produce the executables in the output folder.
+
 When built, you can install it using the following command:
 
 ```
