@@ -173,7 +173,10 @@ For example, if you use ninja on MinGW, run
 ninja
 ```
 
-from the build directory to produce the executables in the output folde to produce the executables in the output folder.
+from the build directory to produce the executables in the output folder. Read e.g. [this blog paragraph](https://dmerej.info/blog/post/chuck-norris-part-1-cmake-ninja/#ninja):
+> CMake does not know how to actually perform the build. Instead it generates files that will be used by an other tool.
+> ...
+> And now we use ninja to build and run our executable from the build folder
 
 When built, you can install it using the following command:
 
