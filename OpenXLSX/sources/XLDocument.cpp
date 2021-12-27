@@ -494,6 +494,7 @@ void XLDocument::open(const std::string& fileName)
     m_appProperties  = (hasXmlData("docProps/app.xml") ? XLAppProperties(getXmlData("docProps/app.xml")) : XLAppProperties());
     m_sharedStrings  = XLSharedStrings(getXmlData("xl/sharedStrings.xml"), &m_sharedStringCache);
     m_workbook       = XLWorkbook(getXmlData("xl/workbook.xml"));
+    m_styles         = XLStyles(getXmlData("xl/styles.xml"));
 }
 
 /**
@@ -1005,6 +1006,15 @@ bool XLDocument::hasXmlData(const std::string& path) const
 {
     return std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) { return item.getXmlPath() == path; }) != m_data.end();
 }
+
+/**
+ * @details
+ */
+const OpenXLSX::XLStyles& OpenXLSX::XLDocument::styles() const
+{
+    return m_styles;
+}
+
 
 /**
  * @details

@@ -118,3 +118,8 @@ void XLSharedStrings::clearString(uint64_t index)
     std::advance(iter, index);
     iter->text().set("");
 }
+
+const OpenXLSX::XLDocument& OpenXLSX::XLSharedStrings::document() const 
+{
+    return parentDoc();
+}

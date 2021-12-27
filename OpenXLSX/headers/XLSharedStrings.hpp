@@ -150,6 +150,8 @@ namespace OpenXLSX
          */
         void clearString(uint64_t index);
 
+        const XLDocument& document() const;
+
     private:
         std::deque<std::string> *m_stringCache {}; /** < Each string must have an unchanging memory address; hence the use of std::deque */
     };
