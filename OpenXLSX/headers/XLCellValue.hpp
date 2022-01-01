@@ -92,6 +92,9 @@ namespace OpenXLSX
         friend std::hash<OpenXLSX::XLCellValue>;
 
     public:
+
+        using value_type = std::variant<std::string, int64_t, double, bool>;
+
         //---------- Public Member Functions ----------//
 
         /**
@@ -239,12 +242,12 @@ namespace OpenXLSX
                 if constexpr (std::is_same_v<std::decay_t<T>, std::string> || std::is_same_v<std::decay_t<T>, std::string_view> ||
                               std::is_same_v<std::decay_t<T>, const char*> ||
                               (std::is_same_v<std::decay_t<T>, char*> && !std::is_same_v<T, bool>))
-                    return std::get<std::string>(m_value).c_str();
+                     return std::get<std::string>(m_value).c_str();
 
                 if constexpr (std::is_same_v<T, XLDateTime>) return XLDateTime(std::get<double>(m_value));
             }
 
-            catch (const std::bad_variant_access& e) {
+            catch (const std::bad_variant_access& /*e*/) {
                 throw XLValueTypeError("XLCellValue object does not contain the requested type.");
             }
         }
@@ -263,6 +266,16 @@ namespace OpenXLSX
         operator T() const
         {
             return this->get<T>();
+        }
+
+        const value_type& to_variant() const
+        {
+            return m_value;
+        }
+
+        value_type& to_variant()
+        {
+            return m_value;
         }
 
         /**
@@ -292,7 +305,7 @@ namespace OpenXLSX
     private:
         //---------- Private Member Variables ---------- //
 
-        std::variant<std::string, int64_t, double, bool> m_value { std::string("") };                /**< The value contained in the cell. */
+        value_type m_value { std::string("") };                /**< The value contained in the cell. */
         XLValueType                                      m_type { XLValueType::Empty }; /**< The value type of the cell. */
     };
 
@@ -308,6 +321,9 @@ namespace OpenXLSX
         friend class XLCellValue;
 
     public:
+
+        using value_type = std::variant<std::string, int64_t, double, bool>;
+
         //---------- Public Member Functions ----------//
 
         /**
