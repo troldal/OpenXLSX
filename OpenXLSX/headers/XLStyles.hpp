@@ -53,7 +53,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <string>
 #include <vector>
 
-
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
 #include "XLXmlFile.hpp"
@@ -118,7 +117,6 @@ namespace OpenXLSX
         std::reference_wrapper<const XLDocument> m_doc;
     };
 
-
     // ================================================================================
     // Font Class
     // ================================================================================
@@ -143,6 +141,7 @@ namespace OpenXLSX
         std::reference_wrapper<const XLStyle> m_style;
         std::unique_ptr<XMLNode>              m_node;
     };
+
     // ================================================================================
     // XLNumberFormat Class
     // ================================================================================
@@ -168,8 +167,6 @@ namespace OpenXLSX
         std::string                           m_fmtLocal; //TODO: get precision etc.
     };
 }// namespace OpenXLSX
-
-
 
 #pragma warning(pop)
 #endif    // OPENXLSX_XLSYLES_HPP

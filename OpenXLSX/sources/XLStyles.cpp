@@ -157,7 +157,7 @@ OpenXLSX::XLFont OpenXLSX::XLStyle::font() const
 // ================================================================================
 // XLFont Class
 // ================================================================================
-// XLQuery? cache the node?
+// XLQuery?
 OpenXLSX::XLFont::XLFont(const XLStyle& style, const XMLNode& node) : 
     m_style(style), m_node(new XMLNode(node)) {}
 
@@ -195,14 +195,14 @@ OpenXLSX::XLColor OpenXLSX::XLFont::color() const
 
 int OpenXLSX::XLFont::ColorIndex()
 {
-    int colorIndex = -4142;
+    constexpr int xlColorIndexNone = -4142;
     if (isValid()) {
         const std::string val = m_node->child("color").attribute("theme").value();
         if (val.size() != 0) {
-            colorIndex = std::atoi(val.c_str());
+            return std::atoi(val.c_str());
         }
     }
-    return colorIndex;
+    return xlColorIndexNone;
 }
 
 bool OpenXLSX::XLFont::isValid() const 
