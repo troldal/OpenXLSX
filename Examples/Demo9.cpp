@@ -57,11 +57,10 @@ int main()
     doc.open(foundPath.string());
     auto wks = doc.workbook().worksheet("Sheet1");
 
-    //check if the value is a number before using XLNumberFormat 
+    // check if the value is a number before using XLNumberFormat
     auto doNumFmt = [&](const XLCell& cell) {
         const auto& val = cell.value();
-        if (XLValueType::Integer == val.type() || XLValueType::Float == val.type()) 
-        {
+        if (XLValueType::Integer == val.type() || XLValueType::Float == val.type()) {
             const auto fmt = cell.style().numberFormat();
             printType(fmt);
         }
@@ -78,6 +77,16 @@ int main()
     doNumFmt(wks.cell("A7"));
     doNumFmt(wks.cell("A8"));
     doNumFmt(wks.cell("A9"));
+
+    // Font;
+
+    cout << '\n' << wks.cell("A8").style().font().name() << '\n';
+    cout << wks.cell("A8").style().font().color().hex() << '\n';
+    cout << wks.cell("A8").style().font().size() << '\n';
+
+    cout << '\n' << wks.cell("A9").style().font().name() << '\n';
+    cout << wks.cell("A9").style().font().color().hex() << '\n';
+    cout << wks.cell("A9").style().font().size() << '\n';
 
     doc.close();
 

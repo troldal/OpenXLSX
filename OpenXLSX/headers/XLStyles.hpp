@@ -52,16 +52,19 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 #include <string>
 #include <vector>
-#include <map>
+
 
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
 #include "XLXmlFile.hpp"
+#include "XLColor.hpp"
+
 
 namespace OpenXLSX
 {
     class XLStyle;
     class XLNumberFormat;
+    class XLFont;
 
     // ================================================================================
     // XLStyles Class
@@ -69,6 +72,8 @@ namespace OpenXLSX
     class OPENXLSX_EXPORT XLStyles : public XLXmlFile
     {
         friend class XLCell;
+        friend class XLFont;
+        friend class XLStyle;
         friend XLDocument;
 
     public:
@@ -91,15 +96,17 @@ namespace OpenXLSX
     class OPENXLSX_EXPORT XLStyle
     {
         friend class XLCell;
+        friend class XLFont;
         friend class XLStyles;
 
     public:
-        explicit XLStyle(const XLDocument& styles);
+        explicit XLStyle(const XLDocument& doc);
         ~XLStyle() = default;
 
         XLNumberFormat numberFormat() const;
         std::string    formatString() const;
         int            numFmtId() const;
+        XLFont         font() const;
 
     private:
         int                                      m_numFmtId = -1;
@@ -110,6 +117,29 @@ namespace OpenXLSX
         std::reference_wrapper<const XLDocument> m_doc;
     };
 
+
+    // ================================================================================
+    // Font Class
+    // ================================================================================
+    class OPENXLSX_EXPORT XLFont
+    {
+        friend class XLCell;
+        friend class XLStyle;
+
+    private:
+        XLFont(const XLStyle& style,const XMLNode& node);
+
+    public:
+        ~XLFont();
+        std::string name() const;
+        double      size() const;
+        XLColor     color() const;
+        bool        isValid() const;
+
+    private:
+        std::reference_wrapper<const XLStyle> m_style;
+        XMLNode* m_node;
+    };
     // ================================================================================
     // XLNumberFormat Class
     // ================================================================================
