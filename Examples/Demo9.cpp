@@ -84,9 +84,13 @@ int main()
     cout << wks.cell("A8").style().font().color().hex() << '\n';
     cout << wks.cell("A8").style().font().size() << '\n';
 
-    cout << '\n' << wks.cell("A9").style().font().name() << '\n';
-    cout << wks.cell("A9").style().font().color().hex() << '\n';
-    cout << wks.cell("A9").style().font().size() << '\n';
+
+    auto font = wks.cell("A9").style().font();
+    cout << '\n' << font.name() << '\n';
+    cout << font.color().hex() << '\n';
+    cout << font.size() << '\n';
+
+
 
     doc.close();
 

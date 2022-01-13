@@ -58,6 +58,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "OpenXLSX-Exports.hpp"
 #include "XLXmlFile.hpp"
 #include "XLColor.hpp"
+#include "XLXmlParser.hpp"
 
 
 namespace OpenXLSX
@@ -123,22 +124,24 @@ namespace OpenXLSX
     // ================================================================================
     class OPENXLSX_EXPORT XLFont
     {
-        friend class XLCell;
         friend class XLStyle;
 
     private:
-        XLFont(const XLStyle& style,const XMLNode& node);
+        XLFont(const XLStyle& style, const XMLNode& node);
 
     public:
         ~XLFont();
+        XLFont(XLFont const&) = delete;
+        XLFont&     operator=(XLFont const&) = delete;
         std::string name() const;
         double      size() const;
         XLColor     color() const;
+        int         ColorIndex();
         bool        isValid() const;
 
     private:
         std::reference_wrapper<const XLStyle> m_style;
-        XMLNode* m_node;
+        std::unique_ptr<XMLNode>              m_node;
     };
     // ================================================================================
     // XLNumberFormat Class
