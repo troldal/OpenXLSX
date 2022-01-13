@@ -99,10 +99,12 @@ namespace OpenXLSX
         friend class XLFont;
         friend class XLStyles;
 
-    public:
+    private:
         explicit XLStyle(const XLDocument& doc);
-        ~XLStyle() = default;
 
+    public:
+        ~XLStyle() = default;
+      
         XLNumberFormat numberFormat() const;
         std::string    formatString() const;
         int            numFmtId() const;
