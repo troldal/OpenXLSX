@@ -193,7 +193,7 @@ OpenXLSX::XLColor OpenXLSX::XLFont::color() const
     return clr;
 }
 
-int OpenXLSX::XLFont::ColorIndex()
+int OpenXLSX::XLFont::colorIndex() const
 {
     constexpr int xlColorIndexNone = -4142;
     if (isValid()) {
@@ -203,6 +203,67 @@ int OpenXLSX::XLFont::ColorIndex()
         }
     }
     return xlColorIndexNone;
+}
+
+
+int OpenXLSX::XLFont::underline() const {
+    //https://docs.microsoft.com/en-us/office/vba/api/excel.xlunderlinestyle
+    if (isValid()) {
+        constexpr std::string_view nodeName { "u" };
+        constexpr std::string_view attDouble { "double" };
+        for (const auto& node : m_node->children()) {
+
+            if (nodeName == node.name()) {
+                if (auto attribute = node.attribute("val"); !attribute.empty() && attribute.value() == attDouble) {
+                    return -4119;
+                }
+                else {
+                    return 2;
+                }
+
+            }
+
+        }
+    }
+    return -4142;
+}
+
+bool OpenXLSX::XLFont::strikethrough() const {
+    if (isValid()) {
+        constexpr std::string_view nodeName { "strike" };
+        for (const auto& node : m_node->children()) {
+            if (nodeName == node.name()) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+
+bool OpenXLSX::XLFont::bold() const {
+    if (isValid()) {
+        constexpr std::string_view nodeName { "b" };
+        for (const auto& node : m_node->children()) {
+            if (nodeName == node.name()) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+
+bool OpenXLSX::XLFont::italic() const{
+    if (isValid()) {
+        constexpr std::string_view nodeName { "i" };
+        for (const auto& node : m_node->children()) {
+            if (nodeName == node.name()) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 bool OpenXLSX::XLFont::isValid() const 

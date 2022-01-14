@@ -110,6 +110,10 @@ namespace OpenXLSX
         int            numFmtId() const;
         XLFont         font() const;
 
+        //alignment is in cellXfs, revise to cache the node to lookup 
+        //applyXXX attributes, alignment and stuff we missed.
+        //lazy cache may be best
+
     private:
         int                                      m_numFmtId = -1;
         int                                      m_fontId   = -1;
@@ -136,7 +140,11 @@ namespace OpenXLSX
         std::string name() const;
         double      size() const;
         XLColor     color() const;
-        int         ColorIndex();
+        int         colorIndex() const;
+        int         underline()const;
+        bool        strikethrough() const;
+        bool        bold() const;
+        bool        italic() const;
         bool        isValid() const;
 
     private:
