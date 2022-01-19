@@ -43,6 +43,7 @@ void testNumbers(const XLWorksheet& wks)
         if (XLValueType::Integer == val.type() || XLValueType::Float == val.type()) {
             const auto fmt = cell.style().numberFormat();
             printType(fmt);
+            cout << " Format string = " << cell.style().formatString();
         }
         else
             cout << "\nNot a number";
