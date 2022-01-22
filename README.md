@@ -93,7 +93,7 @@ the library interface, as they are in OpenXLSX. When including the OpenXLSX sour
 
 By using the `add_subdirectory()` command in the CMakeLists.txt file for your project, you can get access to the 
 headers and library files of OpenXLSX. OpenXLSX can generate either a shared library or a static library. By default 
-it will produce a shared library, but you can change that in the OpenXLSX CMakeLists.txt file. The library is 
+it will produce a static library, but you can change that in the OpenXLSX CMakeLists.txt file. The library is 
 located in a namespace called OpenXLSX; hence the full name of the library is `OpenXLSX::OpenXLSX`.
 
 Th following snippet is a minimum CMakeLists.txt file for your own project, that includes OpenXLSX as a subdirectory.
