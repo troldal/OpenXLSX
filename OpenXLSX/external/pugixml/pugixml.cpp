@@ -22,6 +22,15 @@
 #include <assert.h>
 #include <limits.h>
 
+#if (!defined(PUGIXML_HAS_CXX17)) && ((__cplusplus >= 201703L) || \
+     (defined(_MSC_VER) && _MSC_VER >= 1911 && _MSVC_LANG >= 201703L))
+#	define PUGIXML_HAS_CXX17
+#endif
+
+#if defined(PUGIXML_HAS_CXX17)
+#	include <charconv>
+#endif
+
 #ifdef PUGIXML_WCHAR_MODE
 #	include <wchar.h>
 #endif
@@ -4591,7 +4600,13 @@ class xml_buffered_writer
 	#ifdef PUGIXML_WCHAR_MODE
 	    return wcstod(value, 0);
 	#else
+        #if defined(PUGIXML_HAS_CXX17)
+                double result_double = 0.0;
+                std::from_chars(value, (value + strlen(value)), result_double);
+                return result_double;
+        #else
 	        return strtod(value, 0);
+        #endif
 	#endif
 	    }
 
@@ -4600,7 +4615,13 @@ class xml_buffered_writer
 	#ifdef PUGIXML_WCHAR_MODE
 	    return static_cast<float>(wcstod(value, 0));
 	#else
+        #if defined(PUGIXML_HAS_CXX17)
+                double result_double = 0.0;
+                std::from_chars(value, value + strlen(value), result_double);
+                return static_cast<float>(result_double);
+        #else
 	        return static_cast<float>(strtod(value, 0));
+        #endif
 	#endif
 	    }
 
@@ -8415,7 +8436,13 @@ PUGI__FN double convert_string_to_number(const char_t* string)
 	#ifdef PUGIXML_WCHAR_MODE
 	return wcstod(string, 0);
 	#else
-	return strtod(string, 0);
+        #if defined(PUGIXML_HAS_CXX17)
+            double result_double = 0.0;
+            std::from_chars(string, string + strlen(string), result_double);
+            return static_cast<float>(result_double);
+        #else
+	        return strtod(string, 0);
+        #endif
 	#endif
 }
 
