@@ -62,6 +62,25 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 namespace OpenXLSX
 {
+
+    // equivalent of xlsx_drone xlsx_formatter
+    enum Formatter {
+        XLSX_FORMATTER_UNKNOWN,        // others
+        XLSX_FORMATTER_AMBIGUOUS_M,    // unescaped 'm'
+        XLSX_FORMATTER_TIME,           // unescaped 'h' or 's'
+        XLSX_FORMATTER_DATE            // unescaped 'y' or 'd'
+    } ;
+
+    // equivalent of xlsx_drone xlsx_cell_category
+    enum CellCategory {
+        XLSX_NUMBER,       // int, long long, or double
+        XLSX_TEXT,         // string
+        XLSX_DATE,         // int
+        XLSX_TIME,         // double
+        XLSX_DATE_TIME,    // double
+        XLSX_UNKNOWN
+    } ;
+
     class XLCell;
     class XLStyle;
     class XLNumberFormat;
@@ -83,6 +102,8 @@ namespace OpenXLSX
         XLStyles(XLXmlData* xmlData);
         XLStyle style(const XLCell& cell) const;
         std::string formatString(int numFmtId) const;
+        enum Formatter formatter(int numFmtId) const;
+        enum CellCategory cellCategory(int numFmtId) const;
 
     private:
         void init(const XLXmlData* stylesData);
