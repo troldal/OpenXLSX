@@ -489,7 +489,7 @@ uint16_t XLWorksheet::columnCount() const noexcept
 {
         std::vector<int16_t> counts;
         for (const auto& row : rows()) {
-            counts.emplace_back(row.cellCount());
+            counts.emplace_back(static_cast<uint16_t>(row.cellCount()));
         }
 
         return std::max(static_cast<uint16_t>(1), static_cast<uint16_t>(*std::max_element(counts.begin(), counts.end())));

@@ -93,8 +93,8 @@ int main()
     std::tm tm;
     tm.tm_year = 121;
     tm.tm_mon = 8;
-    tm.tm_mday = 1;
-    tm.tm_hour = 12;
+    tm.tm_mday = 30;
+    tm.tm_hour = 15;
     tm.tm_min = 0;
     tm.tm_sec = 0;
     XLDateTime dt (tm);

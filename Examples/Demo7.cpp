@@ -66,7 +66,7 @@ int main()
         // Sum the numbers in each cell.
         sum += std::accumulate(row.cells().begin(),
                                row.cells().end(),
-                               0,
+                               uint64_t(0),
                                [](uint64_t a, XLCell& b) {return a + b.value().get<uint64_t>(); });
     }
 

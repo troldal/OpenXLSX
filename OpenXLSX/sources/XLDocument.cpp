@@ -494,6 +494,7 @@ void XLDocument::open(const std::string& fileName)
     m_appProperties  = (hasXmlData("docProps/app.xml") ? XLAppProperties(getXmlData("docProps/app.xml")) : XLAppProperties());
     m_sharedStrings  = XLSharedStrings(getXmlData("xl/sharedStrings.xml"), &m_sharedStringCache);
     m_workbook       = XLWorkbook(getXmlData("xl/workbook.xml"));
+    m_styles         = XLStyles(getXmlData("xl/styles.xml"));
 }
 
 /**
@@ -659,7 +660,8 @@ void XLDocument::setProperty(XLProperty prop, const std::string& value) // NOLIN
             break;
         case XLProperty::AppVersion:    // ===== TODO: Clean up this section
             try {
-                std::stof(value);
+                auto result_stof = std::stof(value);
+                ((void)result_stof); // Prevent unused variable warning in optimized build.
             }
             catch (...) {
                 throw XLPropertyError("Invalid property value");
@@ -1005,6 +1007,15 @@ bool XLDocument::hasXmlData(const std::string& path) const
 {
     return std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) { return item.getXmlPath() == path; }) != m_data.end();
 }
+
+/**
+ * @details
+ */
+const OpenXLSX::XLStyles& OpenXLSX::XLDocument::styles() const
+{
+    return m_styles;
+}
+
 
 /**
  * @details

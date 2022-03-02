@@ -223,7 +223,7 @@ namespace OpenXLSX
         // ===== Count the number of whole months in the year.
         while (true) {
             auto days = daysInMonth(result.tm_mon + 1, 1900 + result.tm_year);
-            if (days > serial) break;
+            if (days >= static_cast<int>(serial)) break;
             serial -= days;
             ++result.tm_mon;
         }
