@@ -660,7 +660,8 @@ void XLDocument::setProperty(XLProperty prop, const std::string& value) // NOLIN
             break;
         case XLProperty::AppVersion:    // ===== TODO: Clean up this section
             try {
-                std::stof(value);
+                auto result_stof = std::stof(value);
+                ((void)result_stof); // Prevent unused variable warning in optimized build.
             }
             catch (...) {
                 throw XLPropertyError("Invalid property value");
