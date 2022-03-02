@@ -89,8 +89,8 @@ int main()
     cout << "DEMO PROGRAM #09: Basic Usage\n";
     cout << "********************************************************************************\n";
 
-    auto&                 current_path = std::filesystem::current_path();
-    auto&                 parent_path  = current_path.parent_path();
+    auto                  current_path = std::filesystem::current_path();
+    auto                  parent_path  = current_path.parent_path();
     std::filesystem::path foundPath;
 
     while (parent_path.string().size() > 3) {
