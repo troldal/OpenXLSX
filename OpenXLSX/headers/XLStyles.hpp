@@ -62,6 +62,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 namespace OpenXLSX
 {
+    class XLCell;
     class XLStyle;
     class XLNumberFormat;
     class XLFont;
@@ -104,13 +105,13 @@ namespace OpenXLSX
 
     public:
         ~XLStyle() = default;
-      
+
         XLNumberFormat numberFormat() const;
         std::string    formatString() const;
         int            numFmtId() const;
         XLFont         font() const;
 
-        //alignment is in cellXfs, revise to cache the node to lookup 
+        //alignment is in cellXfs, revise to cache the node to lookup
         //applyXXX attributes, alignment and stuff we missed.
         //lazy cache may be best
 
