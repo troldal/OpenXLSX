@@ -416,10 +416,12 @@ namespace
 
 }    // namespace
 
+XLDocument::XLDocument(const IZipArchive& zipArchive) : m_archive(zipArchive) {}
+
 /**
  * @details An alternative constructor, taking a std::string with the path to the .xlsx package as an argument.
  */
-XLDocument::XLDocument(const std::string& docPath)
+XLDocument::XLDocument(const std::string& docPath, const IZipArchive& zipArchive) : m_archive(zipArchive)
 {
     open(docPath);
 }
@@ -437,7 +439,7 @@ XLDocument::~XLDocument()
  * - Check if a document is already open. If yes, close it.
  * - Create a temporary folder for the contents of the .xlsx package
  * - Unzip the contents of the package to the temporary folder.
- * - load the contents into the datastructure for manipulation.
+ * - load the contents into the data structure for manipulation.
  */
 void XLDocument::open(const std::string& fileName)
 {

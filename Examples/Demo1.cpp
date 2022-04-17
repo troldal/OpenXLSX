@@ -1,4 +1,5 @@
 #include <OpenXLSX.hpp>
+#include <XLZipArchive.hpp>
 #include <iostream>
 
 using namespace std;
@@ -25,12 +26,12 @@ int main()
     cout << cell.value().get<int>() << endl;
 
     // The individual cells can be accessed by using the .cell() method on the worksheet object.
-    // The .cell() method can take the celladdress as a string, or alternatively take a XLCellReference
+    // The .cell() method can take the cell address as a string, or alternatively take a XLCellReference
     // object. By using an XLCellReference object, the cells can be accessed by row/column coordinates.
     // The .cell() method returns an XLCell object.
 
     // The .value() method of an XLCell object can be used for both getting and setting the cell value.
-    // Setting the value of a cell can be done bu using the assignment operator on the .value() method
+    // Setting the value of a cell can be done by using the assignment operator on the .value() method
     // as shown below. Alternatively, a .set() can be used. The cell values can be floating point numbers,
     // integers, strings, and booleans. It can also accept XLDateTime objects, but this requires special
     // handling (see later).
@@ -98,6 +99,7 @@ int main()
     tm.tm_min = 0;
     tm.tm_sec = 0;
     XLDateTime dt (tm);
+//    XLDateTime dt (43791.583333333299);
 
     // The std::tm object can be assigned to a cell value in the same way as shown previously.
     wks.cell("F1").value() = dt;
@@ -118,6 +120,7 @@ int main()
     cout << "Cell F1: (" << F1.typeAsString() << ") " << std::asctime(&tmo);
 
     doc.save();
+    doc.close();
 
     return 0;
 }
