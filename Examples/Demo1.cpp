@@ -1,6 +1,7 @@
 #include <OpenXLSX.hpp>
-#include <XLZipArchive.hpp>
 #include <iostream>
+
+#include "CustomZip.h"
 
 using namespace std;
 using namespace OpenXLSX;
@@ -17,7 +18,7 @@ int main()
 
     // First, create a new document and access the sheet named 'Sheet1'.
     // New documents contain a single worksheet named 'Sheet1'
-    XLDocument doc;
+    XLDocument doc(CustomZip{});
     doc.create("./Demo01.xlsx");
     auto wks = doc.workbook().worksheet("Sheet1");
 

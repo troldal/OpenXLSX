@@ -2,6 +2,8 @@
 #include <iostream>
 #include <nowide/iostream.hpp>
 
+#include "CustomZip.h"
+
 //using namespace std;
 using namespace OpenXLSX;
 
@@ -27,7 +29,7 @@ int main()
 
     // First, create a new document and access the sheet named 'Sheet1'.
     // Then rename the worksheet to 'Простыня'.
-    XLDocument doc1;
+    XLDocument doc1(CustomZip{});
     doc1.create("./Demo04.xlsx");
     auto wks1 = doc1.workbook().worksheet("Sheet1");
     wks1.setName("Простыня");

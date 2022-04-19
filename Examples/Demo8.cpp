@@ -4,13 +4,15 @@
 #include <list>
 #include <random>
 
+#include "CustomZip.h"
+
 using namespace std;
 using namespace OpenXLSX;
 
 int main()
 {
     cout << "********************************************************************************\n";
-    cout << "DEMO PROGRAM #07: Row Data - Implicit Conversion\n";
+    cout << "DEMO PROGRAM #08: Row Data - Implicit Conversion\n";
     cout << "********************************************************************************\n";
 
 
@@ -21,8 +23,8 @@ int main()
 
     // First, create a new document and access the sheet named 'Sheet1'.
     cout << "\nGenerating spreadsheet ..." << endl;
-    XLDocument doc;
-    doc.create("./Demo07.xlsx");
+    XLDocument doc(CustomZip{});
+    doc.create("./Demo08.xlsx");
     auto wks = doc.workbook().worksheet("Sheet1");
 
     // A std::vector holding values that are convertible to a cell value can be assigned to an XLRow
@@ -39,7 +41,7 @@ int main()
 
     // ...and reopen it (just to make sure that it is a valid .xlsx file)
     cout << "Re-opening spreadsheet ..." << endl << endl;
-    doc.open("./Demo07.xlsx");
+    doc.open("./Demo08.xlsx");
     wks = doc.workbook().worksheet("Sheet1");
 
     // The '.values()' method returns a proxy object that can be converted to any container supporting

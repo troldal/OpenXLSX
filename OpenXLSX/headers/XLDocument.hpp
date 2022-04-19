@@ -305,8 +305,7 @@ namespace OpenXLSX
         XLAppProperties m_appProperties {};    /**< A pointer to the App properties object */
         XLProperties    m_coreProperties {};   /**< A pointer to the Core properties object*/
         XLWorkbook      m_workbook {};         /**< A pointer to the workbook object */
-//        XLZipArchive    m_archive {};          /**<  */
-        IZipArchive     m_archive {};        /**<  */
+        IZipArchive     m_archive {};          /**<  */
     };
 
 }    // namespace OpenXLSX

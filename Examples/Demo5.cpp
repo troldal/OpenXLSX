@@ -6,6 +6,8 @@
 #include <numeric>
 #include <random>
 
+#include "CustomZip.h"
+
 using namespace std;
 using namespace OpenXLSX;
 
@@ -16,7 +18,7 @@ int main()
     cout << "********************************************************************************\n";
 
     // With OpenXLSX, a range of cells can be defined, in order to iterate through the
-    // cells in the range. A range is a quardratic region of cells in a worksheet.
+    // cells in the range. A range is a quadratic region of cells in a worksheet.
     // A range can be defined using the 'range()' method on an XLWorksheet object. This function
     // takes two XLCellReferences: the cell in the upper left corner of the range, and the cell
     // in the lower right corner.
@@ -25,7 +27,7 @@ int main()
 
     // First, create a new document and access the sheet named 'Sheet1'.
     cout << "\nGenerating spreadsheet ..." << endl;
-    XLDocument doc;
+    XLDocument doc( CustomZip{} );
     doc.create("./Demo05.xlsx");
     auto wks = doc.workbook().worksheet("Sheet1");
 
