@@ -145,6 +145,9 @@ public:
      */
     void addEntry(const std::string& name, const std::string& data)
     {
+//        if (hasEntry(name))
+//            deleteEntry(name);
+//
 //        int sepLocation = name.rfind('/');
 //        if (sepLocation != std::string::npos) {
 //            auto directory = name.substr(0, sepLocation + 1);
@@ -153,16 +156,17 @@ public:
 //            while (nextSlash != std::string::npos) {
 //                auto pathToCreate = directory.substr(0, nextSlash + 1);
 //                if (!hasEntry(pathToCreate)) {
-//                    zip_dir_add(m_zipHandle.get(), pathToCreate.c_str(), ZIP_FL_ENC_GUESS);
+//                    zip_dir_add(m_zipHandle, pathToCreate.c_str(), ZIP_FL_ENC_GUESS);
 //                }
 //                nextSlash = directory.find('/', nextSlash + 1);
 //            }
 //        }
-
+//
         char* sourcedata = new char[data.size()];
         std::strcpy(sourcedata, data.data());
         zip_source* source = zip_source_buffer(m_zipHandle, sourcedata, data.size(), true);
         zip_file_add(m_zipHandle, name.c_str(), source, ZIP_FL_OVERWRITE);
+
     }
 
     /**
