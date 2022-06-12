@@ -1,7 +1,7 @@
 #include <OpenXLSX.hpp>
 #include <iostream>
 
-#include "CustomZip.h"
+#include "CustomZip.hpp"
 
 using namespace std;
 using namespace OpenXLSX;

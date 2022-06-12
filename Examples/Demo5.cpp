@@ -6,7 +6,7 @@
 #include <numeric>
 #include <random>
 
-#include "CustomZip.h"
+#include "CustomZip.hpp"
 
 using namespace std;
 using namespace OpenXLSX;
