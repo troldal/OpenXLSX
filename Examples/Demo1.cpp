@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include "CustomZip.hpp"
+#include <zip.h>
 
 using namespace std;
 using namespace OpenXLSX;
@@ -21,10 +22,6 @@ int main()
     XLDocument doc(CustomZip{});
     doc.create("./Demo01.xlsx");
     auto wks = doc.workbook().worksheet("Sheet1");
-
-    auto cell = wks.cell(1,1);
-    cell.value() = 1;
-    cout << cell.value().get<int>() << endl;
 
     // The individual cells can be accessed by using the .cell() method on the worksheet object.
     // The .cell() method can take the cell address as a string, or alternatively take a XLCellReference
@@ -122,6 +119,16 @@ int main()
 
     doc.save();
     doc.close();
+
+//    zip* zipHandle = nullptr;
+//    int errorFlag = 0;
+//    zipHandle = zip_open("./Demo01.xlsx", ZIP_CREATE, &errorFlag);
+//    zip_source_t *s;
+//    const char buf[]="teststring";
+//    s = zip_source_buffer(zipHandle, buf, sizeof(buf), 0);
+//    zip_file_add(zipHandle, "xl/workbook.xml", s, ZIP_FL_OVERWRITE | ZIP_FL_ENC_GUESS);
+//    zip_close(zipHandle);
+
 
     return 0;
 }

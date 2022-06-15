@@ -31,18 +31,18 @@ int main()
     // and appends the new workdheet at the end.
     // Only worksheets can be added; there is no 'addChartsheet' method.
     wbk.addWorksheet("Sheet2");
-//    wbk.addWorksheet("Sheet3");
-//    printWorkbook(wbk);
-//
-//    cout << "Sheet1 active: "  << (wbk.worksheet("Sheet1").isActive() ? "true" : "false") << endl;
-//    cout << "Sheet2 active: "  << (wbk.worksheet("Sheet2").isActive() ? "true" : "false") << endl;
-//    cout << "Sheet3 active: "  << (wbk.worksheet("Sheet3").isActive() ? "true" : "false") << endl;
-//
-//    wbk.worksheet("Sheet3").setActive();
-//
-//    cout << "Sheet1 active: "  << (wbk.worksheet("Sheet1").isActive() ? "true" : "false") << endl;
-//    cout << "Sheet2 active: "  << (wbk.worksheet("Sheet2").isActive() ? "true" : "false") << endl;
-//    cout << "Sheet3 active: "  << (wbk.worksheet("Sheet3").isActive() ? "true" : "false") << endl;
+    wbk.addWorksheet("Sheet3");
+    printWorkbook(wbk);
+
+    cout << "Sheet1 active: "  << (wbk.worksheet("Sheet1").isActive() ? "true" : "false") << endl;
+    cout << "Sheet2 active: "  << (wbk.worksheet("Sheet2").isActive() ? "true" : "false") << endl;
+    cout << "Sheet3 active: "  << (wbk.worksheet("Sheet3").isActive() ? "true" : "false") << endl;
+
+    wbk.worksheet("Sheet3").setActive();
+
+    cout << "Sheet1 active: "  << (wbk.worksheet("Sheet1").isActive() ? "true" : "false") << endl;
+    cout << "Sheet2 active: "  << (wbk.worksheet("Sheet2").isActive() ? "true" : "false") << endl;
+    cout << "Sheet3 active: "  << (wbk.worksheet("Sheet3").isActive() ? "true" : "false") << endl;
 
     // OpenXLSX provides three different classes to handle workbook sheets: XLSheet, XLWorksheet, and
     // XLChartsheet. As you might have guessed, XLWorksheet and XLChartsheet represents worksheets
@@ -55,35 +55,35 @@ int main()
 
     // From an XLSheet object you can retrieve the contained XLWorksheet or XLChartsheet object by
     // using the 'get<>()' function:
-//    auto s1 = wbk.sheet("Sheet2").get<XLWorksheet>();
+    auto s1 = wbk.sheet("Sheet2").get<XLWorksheet>();
 
     // Alternatively, you can retrieve the contained object, by using implicit conversion:
-//    XLWorksheet s2 = wbk.sheet("Sheet2");
+    XLWorksheet s2 = wbk.sheet("Sheet2");
 
     // Existing sheets can be cloned by calling the 'clone' method on the individual sheet,
     // or by calling the 'cloneSheet' method from the XLWorkbook object. If the latter is
     // chosen, both the name of the sheet to be cloned, as well as the name of the new
     // sheet must be provided.
     // In principle, chartsheets can also be cloned, but the results may not be as expected.
-//    wbk.sheet("Sheet1").clone("Sheet4");
-//    wbk.cloneSheet("Sheet2", "Sheet5");
-//    printWorkbook(wbk);
+    wbk.sheet("Sheet1").clone("Sheet4");
+    wbk.cloneSheet("Sheet2", "Sheet5");
+    printWorkbook(wbk);
 
     // The sheets in the workbook can be reordered by calling the 'setIndex' method on the
     // individual sheets (or worksheets/chartsheets).
-//    wbk.deleteSheet("Sheet1");
-//    wbk.worksheet("Sheet5").setIndex(1);
-//    wbk.worksheet("Sheet4").setIndex(2);
-//    wbk.worksheet("Sheet3").setIndex(3);
-//    wbk.worksheet("Sheet2").setIndex(4);
-//    printWorkbook(wbk);
+    wbk.deleteSheet("Sheet1");
+    wbk.worksheet("Sheet5").setIndex(1);
+    wbk.worksheet("Sheet4").setIndex(2);
+    wbk.worksheet("Sheet3").setIndex(3);
+    wbk.worksheet("Sheet2").setIndex(4);
+    printWorkbook(wbk);
 
     // The color of each sheet tab can be set using the 'setColor' method for a
     // sheet, and passing an XLColor object as an argument.
-//    wbk.sheet("Sheet2").setColor(XLColor(0, 0, 0));
-//    wbk.sheet("Sheet3").setColor(XLColor(255, 0, 0));
-//    wbk.sheet("Sheet4").setColor(XLColor(0, 255, 0));
-//    wbk.sheet("Sheet5").setColor(XLColor(0, 0, 255));
+    wbk.sheet("Sheet2").setColor(XLColor(0, 0, 0));
+    wbk.sheet("Sheet3").setColor(XLColor(255, 0, 0));
+    wbk.sheet("Sheet4").setColor(XLColor(0, 255, 0));
+    wbk.sheet("Sheet5").setColor(XLColor(0, 0, 255));
 
     doc.save();
 

@@ -7,6 +7,7 @@
 
 #include <cstring>
 #include <fstream>
+#include <list>
 // #include <libzippp.h>
 #include <memory>
 #include <nowide/cstdio.hpp>
@@ -77,26 +78,24 @@ public:
      */
     void open(const std::string& fileName)
     {
+        // ===== If a file is already open, close (discard) it.
         if (isOpen()) close();
 
+        // ===== Generate name for the temporary file.
         const int NAME_LENGTH = 20;
         m_fileName = fileName;
         m_tempName = m_fileName.substr(0, m_fileName.rfind('/') + 1) + GenerateRandomName(NAME_LENGTH);
 
+        // ===== Copy the contents of the file to open, to the temporary file.
         std::ifstream src(m_fileName, std::ios::binary);
         std::ofstream dst(m_tempName, std::ios::binary);
         dst << src.rdbuf();
         src.close();
         dst.close();
 
+        // ===== Open the temporary zip file
         int errorFlag = 0;
         m_zipHandle = zip_open(m_tempName.c_str(), ZIP_CREATE, &errorFlag);
-
-        auto count = zip_get_num_entries(m_zipHandle, 0);
-        for (int i = 0; i < count; ++i)
-            std::cout << zip_get_name(m_zipHandle, i, 0) << std::endl;
-
-        if (errorFlag != ZIP_ER_OK) m_zipHandle = nullptr;
     }
 
     /**
@@ -104,18 +103,14 @@ public:
      */
     void close()
     {
-        // ===== zip_discard is called automatically
-//        m_zipHandle.reset();
-
-//        auto num = zip_get_num_entries(m_zipHandle, 0);
-//        if(m_zipHandle)
-//            zip_discard(m_zipHandle);
-//        nowide::remove(m_tempName.c_str());    // NOLINT
-
+        // ===== If the file is open, discard changes and set the handle to nullptr.
         if (isOpen()) {
             zip_discard(m_zipHandle);
             m_zipHandle = nullptr;
         }
+
+        // ===== Delete the temporary file.
+        nowide::remove(m_tempName.c_str());    // NOLINT
     }
 
     /**
@@ -124,17 +119,18 @@ public:
      */
     void save(const std::string& path = "")
     {
-        auto i = zip_close(m_zipHandle);
-        if (i == -1) {
-            std::cout << zip_strerror(m_zipHandle) << std::endl;
+        // ===== Discard any changes made since last commit;
+        if (isOpen()) {
+            zip_discard(m_zipHandle);
+            m_zipHandle = nullptr;
         }
-        m_zipHandle = nullptr;
-//        m_zipHandle.reset();
 
+        // ===== Delete the original file, and rename the temporary file to that of the original.
         if (!path.empty()) m_fileName = path;
         nowide::remove(m_fileName.c_str());                        // NOLINT
         nowide::rename(m_tempName.c_str(), m_fileName.c_str());    // NOLINT
 
+        // ===== Reopen the file.
         open(m_fileName);
     }
 
@@ -145,28 +141,18 @@ public:
      */
     void addEntry(const std::string& name, const std::string& data)
     {
-//        if (hasEntry(name))
-//            deleteEntry(name);
-//
-//        int sepLocation = name.rfind('/');
-//        if (sepLocation != std::string::npos) {
-//            auto directory = name.substr(0, sepLocation + 1);
-//
-//            int nextSlash = directory.find('/');
-//            while (nextSlash != std::string::npos) {
-//                auto pathToCreate = directory.substr(0, nextSlash + 1);
-//                if (!hasEntry(pathToCreate)) {
-//                    zip_dir_add(m_zipHandle, pathToCreate.c_str(), ZIP_FL_ENC_GUESS);
-//                }
-//                nextSlash = directory.find('/', nextSlash + 1);
-//            }
-//        }
-//
-        char* sourcedata = new char[data.size()];
-        std::strcpy(sourcedata, data.data());
-        zip_source* source = zip_source_buffer(m_zipHandle, sourcedata, data.size(), true);
-        zip_file_add(m_zipHandle, name.c_str(), source, ZIP_FL_OVERWRITE);
+        // ===== Create a buffer with the data and immediately commit it to the zip file.
+        zip_source_t* source = zip_source_buffer(m_zipHandle, data.data(), data.size(), false);
+        zip_file_add(m_zipHandle, name.c_str(), source, ZIP_FL_OVERWRITE | ZIP_FL_ENC_GUESS);
+        commit();
+    }
 
+    void commit() {
+
+        // ===== Commit changes by closing and re-opening.
+        zip_close(m_zipHandle);
+        int errorFlag = 0;
+        m_zipHandle   = zip_open(m_tempName.c_str(), ZIP_CREATE, &errorFlag);
     }
 
     /**
@@ -175,7 +161,9 @@ public:
      */
     void deleteEntry(const std::string& entryName) {
         if (hasEntry(entryName)) {
-            zip_delete(m_zipHandle, zip_name_locate(m_zipHandle, entryName.c_str(), 0));
+            zip_stat_t stat;
+            zip_stat(m_zipHandle, entryName.c_str(), ZIP_FL_ENC_GUESS, &stat);
+            zip_delete(m_zipHandle, stat.index);
         }
     }
 
@@ -185,18 +173,20 @@ public:
      * @return
      */
     std::string getEntry(const std::string& name) {
-        std::string result;
 
-        auto* zipFile = zip_fopen(m_zipHandle, name.c_str(), ZIP_FL_ENC_GUESS);
+        // ===== Create the output string and open the file in the zip archive.
+        std::string result;
+        std::unique_ptr<zip_file_t, decltype(&zip_fclose)> zipFile(zip_fopen(m_zipHandle, name.c_str(), ZIP_FL_ENC_GUESS), &zip_fclose);
+
+        // ===== Access the file data and copy the data to the output string.
         if (zipFile) {
             zip_stat_t stat;
             zip_stat(m_zipHandle, name.c_str(), ZIP_FL_ENC_GUESS, &stat);
 
-            char* data = new char[stat.size + 1];
-            zip_fread(zipFile, data, stat.size);
+            auto data = std::unique_ptr<char[]>(new char[stat.size + 1]);
+            zip_fread(zipFile.get(), data.get(), stat.size);
             data[stat.size] = '\0';
-
-            result = data;
+            result = data.get();
         }
 
         return result;
@@ -208,6 +198,8 @@ public:
      * @return
      */
     bool hasEntry(const std::string& entryName) {
+
+        // ===== If the index of the entryName is higher than zero, it means that an entry with that name exists in the archive.
         auto index = zip_name_locate(m_zipHandle, entryName.c_str(), ZIP_FL_ENC_GUESS);
         return index >= 0;
     }

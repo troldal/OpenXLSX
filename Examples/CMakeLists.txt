@@ -11,7 +11,6 @@ find_package(LIBZIP MODULE REQUIRED)
 # Include boost::nowide library (required for Demo3)
 #=======================================================================================================================
 add_subdirectory(external/nowide EXCLUDE_FROM_ALL)
-#add_subdirectory(external/libzippp EXCLUDE_FROM_ALL)
 
 #=======================================================================================================================
 # Define Demo1 target
@@ -23,7 +22,7 @@ target_link_libraries(Demo1 PRIVATE OpenXLSX::OpenXLSX nowide::nowide libzip::zi
 # Define Demo2 target
 #=======================================================================================================================
 add_executable(Demo2 Demo2.cpp)
-target_link_libraries(Demo2 PRIVATE OpenXLSX::OpenXLSX nowide::nowide)
+target_link_libraries(Demo2 PRIVATE OpenXLSX::OpenXLSX nowide::nowide libzip::zip)
 
 #=======================================================================================================================
 # Define Demo3 target
