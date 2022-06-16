@@ -5,18 +5,11 @@
 #include <iostream>
 #include <numeric>
 #include <random>
-#include <chrono>
 
 #include "CustomZip.hpp"
 
 using namespace std;
 using namespace OpenXLSX;
-
-using std::chrono::high_resolution_clock;
-using std::chrono::duration_cast;
-using std::chrono::duration;
-using std::chrono::milliseconds;
-using std::chrono::seconds;
 
 int main()
 {
@@ -57,12 +50,8 @@ int main()
 
     // Saving a large spreadsheet can take a while...
     cout << "Saving spreadsheet ..." << endl;
-    auto t1 = high_resolution_clock::now();
     doc.save();
     doc.close();
-    auto t2 = high_resolution_clock::now();
-    auto ms_int = duration_cast<seconds>(t2 - t1);
-    cout << "Saving took " << ms_int.count() << " seconds." << endl;
 
     // Reopen the spreadsheet..
     cout << "Re-opening spreadsheet ..." << endl;
