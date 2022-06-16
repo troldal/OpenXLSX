@@ -144,12 +144,8 @@ public:
         // ===== Create a buffer with the data and immediately commit it to the zip file.
         zip_source_t* source = zip_source_buffer(m_zipHandle, data.data(), data.size(), false);
         zip_file_add(m_zipHandle, name.c_str(), source, ZIP_FL_OVERWRITE | ZIP_FL_ENC_GUESS);
-        commit();
-    }
 
-    void commit() {
-
-        // ===== Commit changes by closing and re-opening.
+        // ===== Commit the change to the temporary archive (this is safer and - surprisingly - faster than committing everything at once)
         zip_close(m_zipHandle);
         int errorFlag = 0;
         m_zipHandle   = zip_open(m_tempName.c_str(), ZIP_CREATE, &errorFlag);
