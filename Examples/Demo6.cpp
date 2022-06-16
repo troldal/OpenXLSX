@@ -4,8 +4,6 @@
 #include <deque>
 #include <numeric>
 
-#include "CustomZip.hpp"
-
 using namespace std;
 using namespace OpenXLSX;
 
@@ -21,7 +19,7 @@ int main()
 
     // First, create a new document and access the sheet named 'Sheet1'.
     cout << "\nGenerating spreadsheet ..." << endl;
-    XLDocument doc(CustomZip{});
+    XLDocument doc;
     std::string path = "./Demo06.xlsx";
     doc.create(path);
     auto wks = doc.workbook().worksheet("Sheet1");

@@ -1,22 +1,28 @@
 #include <OpenXLSX.hpp>
 #include <iostream>
 
+#include "external/CustomZip/CustomZip.hpp"
+
 using namespace std;
 using namespace OpenXLSX;
 
 int main()
 {
     cout << "********************************************************************************\n";
-    cout << "DEMO PROGRAM #01: Basic Usage\n";
+    cout << "DEMO PROGRAM #01A: Basic Usage\n";
     cout << "********************************************************************************\n";
+
+    // The only difference between this demo program and demo program #01 is that this one uses a different zip library.
+    // In this example, libzip is wrapped inside a thin wrapper called CustomZip, that has the interface described
+    // in the IZipArchive class. This enables the use of any zip library, as long it has the correct interface (no inheritance required).
 
     // This example program illustrates basic usage of OpenXLSX, for example creation of a new workbook, and read/write
     // of cell values.
 
     // First, create a new document and access the sheet named 'Sheet1'.
     // New documents contain a single worksheet named 'Sheet1'
-    XLDocument doc;
-    doc.create("./Demo01.xlsx");
+    XLDocument doc(CustomZip{});
+    doc.create("./Demo01A.xlsx");
     auto wks = doc.workbook().worksheet("Sheet1");
 
     // The individual cells can be accessed by using the .cell() method on the worksheet object.

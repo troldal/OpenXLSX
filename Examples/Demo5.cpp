@@ -6,8 +6,6 @@
 #include <numeric>
 #include <random>
 
-#include "CustomZip.hpp"
-
 using namespace std;
 using namespace OpenXLSX;
 
@@ -27,7 +25,7 @@ int main()
 
     // First, create a new document and access the sheet named 'Sheet1'.
     cout << "\nGenerating spreadsheet ..." << endl;
-    XLDocument doc(CustomZip{});
+    XLDocument doc;
     doc.create("./Demo05.xlsx");
     auto wks = doc.workbook().worksheet("Sheet1");
 

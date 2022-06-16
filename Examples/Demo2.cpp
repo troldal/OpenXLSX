@@ -2,8 +2,6 @@
 #include <OpenXLSX.hpp>
 #include <iostream>
 
-#include "CustomZip.hpp"
-
 using namespace std;
 using namespace OpenXLSX;
 
@@ -13,7 +11,7 @@ int main()
     cout << "DEMO PROGRAM #02: Formulas\n";
     cout << "********************************************************************************\n";
 
-    XLDocument doc(CustomZip{});
+    XLDocument doc;
     doc.create("./Demo02.xlsx");
     auto wks = doc.workbook().worksheet("Sheet1");
 

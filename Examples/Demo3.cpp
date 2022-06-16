@@ -1,8 +1,6 @@
 #include <OpenXLSX.hpp>
 #include <iostream>
 
-#include "CustomZip.hpp"
-
 using namespace std;
 using namespace OpenXLSX;
 
@@ -22,7 +20,7 @@ int main()
     // be renamed and deleted, not created or manipulated.
 
     // First, create a new document and store the workbook object in a variable. Print the sheet names.
-    XLDocument doc(CustomZip{});
+    XLDocument doc;
     doc.create("./Demo03.xlsx");
     auto wbk = doc.workbook();
     printWorkbook(wbk);
