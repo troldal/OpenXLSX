@@ -137,8 +137,8 @@ namespace OpenXLSX
         XLSheetState visibility() const
         {
             XLQuery query(XLQueryType::QuerySheetVisibility);
-            query.template setParam("sheetID", relationshipID());
-            auto state  = parentDoc().execQuery(query).template result<std::string>();
+            query.setParam("sheetID", relationshipID());
+            auto state  = parentDoc().execQuery(query).result<std::string>();
             auto result = XLSheetState::Visible;
 
             if (state == "visible" || state.empty()) {
@@ -208,8 +208,8 @@ namespace OpenXLSX
 //            return uint16_t(std::stoi(parentDoc().execQuery(R"({ "query": "QuerySheetIndex", "sheetID": ")" + relationshipID() + "\"}")));
 
             XLQuery query(XLQueryType::QuerySheetIndex);
-            query.template setParam("sheetID", relationshipID());
-            return uint16_t(std::stoi(parentDoc().execQuery(query).template result<std::string>()));
+            query.setParam("sheetID", relationshipID());
+            return uint16_t(std::stoi(parentDoc().execQuery(query).result<std::string>()));
         }
 
         /**
