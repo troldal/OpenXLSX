@@ -325,7 +325,7 @@ void XLWorkbook::setSheetVisibility(const std::string& sheetRID, const std::stri
         activeTabAttribute = xmlDocument().document_element().child("bookViews").first_child().append_attribute("activeTab");
         activeTabAttribute.set_value(0);
     }
-    auto activeTabIndex = activeTabAttribute.as_int();
+    auto activeTabIndex = activeTabAttribute.as_uint();
 
     // Finally, if the current sheet is the active one, set the "activeTab" attribute to the first visible sheet in the workbook
     if (activeTabIndex == index) {
