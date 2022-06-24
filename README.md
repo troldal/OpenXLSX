@@ -347,6 +347,9 @@ should be relatively easy to understand what's going on.
 
 ## Changes
 
+### New in version 0.4.x
+OpenXLSX can now use other zip libraries than the default Zippy/miniz library. See Demo1A as an example of how it's done
+
 ### New in version 0.3.x
 This version includes row ranges and iterators. It also support assignment of containers of cell values to XLRow 
 objects. This is significantly faster (up to x2) than using cell ranges or accessing cells by cell references.
