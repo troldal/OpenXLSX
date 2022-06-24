@@ -96,10 +96,7 @@ headers and library files of OpenXLSX. OpenXLSX can generate either a shared lib
 it will produce a shared library, but you can change that in the OpenXLSX CMakeLists.txt file. The library is 
 located in a namespace called OpenXLSX; hence the full name of the library is `OpenXLSX::OpenXLSX`.
 
-Th following snippet is a minimum CMakeLists.txt file for your own project, that includes OpenXLSX as a subdirectory.
-Note that the output location of the binaries are set to a common directory. On Linux and MacOS, this is not really 
-required, but on Windows, this will make your life easier, as you would otherwise have to copy the OpenXLSX shared 
-library file to the location of your executable in order to run.
+The following snippet is a minimum CMakeLists.txt file for your own project, that includes OpenXLSX as a subdirectory. Note that the output location of the binaries are set to a common directory. On Linux and MacOS, this is not really required, but on Windows, this will make your life easier, as you would otherwise have to copy the OpenXLSX shared library file to the location of your executable in order to run.
 
 ```cmake
 cmake_minimum_required(VERSION 3.15)
@@ -323,11 +320,24 @@ output of non-ASCII characters (e.g. Chinese or Japanese characters) to the
 terminal window will look like gibberish. As mentioned, sometimes you also have to be mindful 
 of the text encoding of the source files themselves. Some users have had problems
 with OpenXLSX crashing when opening/creating .xlsx files with non-ASCII 
-filenames, where it turned out that the source code for the test program
+filenames, where it turned out that the ***source code*** for the test program
 was in a non-UTF-8 encoding, and hence the input string to OpenXLSX was also
 non-UTF-8. To stay sane, I recommend that source code files are always 
 in UTF-8 files; all IDE's I know of can handle source code files in UTF-8 
 encoding. Welcome to the wonderful world of unicode on Windows 🤮
+
+### Zip Library
+An Excel-file is essentially just a bunch of .xml files wrapped in a .zip archive. OpenXLSX uses a 3rd party library to extract the .xml files from the .zip archive. The default library used by OpenXLSX is Zippy, which is an object-oriented wrapper around miniz. The miniz library is fast, and is header-only, which is ideal for OpenXLSX. 
+
+However, it is possible to use a different zip-library, if you want to. In rare cases, you may experience stability issues with miniz. In those cases, it may be useful to try a different zip-library.
+
+Using the Zippy/miniz library requires no special efforts; it will work straight out of the box. Using a different zip-library, however, will require some work. 
+
+In order to use a different zip-library, you must create a wrapper class that conforms to the interface specified by the IZipArchive class. Note that this is implemented using *type erasure*, meaning that no inheritance is required; the class just needs to have a conforming interface, thats all. After that, provide an object of the class and supply it to the OpenXLSX constructor.
+
+To see an example of how this is done, take a look at Demo1A in the Examples folder. This example uses a class called CustomZip (using libzip as the zip library) which can be found under Examples/external/CustomZip. In order to build the example program, make sure that libzip (and it's dependencies) is installed on your computer, and enable the OPENXLSX_ENABLE_LIBZIP option in the CMakeLists.txt file in the OpenXLSX root.
+
+As mentioned, the Demo1A example program uses libzip. libzip is a very stable library and widely used. However, my experience is that it is quite slow for large zip files, such as large spreadsheets. For that reason, libzip may not be the ideal solution, but it is useful for showing how a different zip library can be used.
 
 ## Example Programs
 
