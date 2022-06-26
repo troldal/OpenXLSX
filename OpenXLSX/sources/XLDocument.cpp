@@ -548,6 +548,10 @@ void XLDocument::saveAs(const std::string& fileName)
 {
     m_filePath = fileName;
 
+    // ===== Delete the calcChain.xml file in order to force re-calculation of the sheet
+    // TODO: Is this the best way to do it? Maybe there is a flag that can be set, that forces re-calculalion.
+    execCommand(XLCommand(XLCommandType::ResetCalcChain));
+
     // ===== Add all xml items to archive and save the archive.
     for (auto& item : m_data) m_archive.addEntry(item.getXmlPath(), item.getRawData());
     m_archive.save(m_filePath);
