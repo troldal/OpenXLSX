@@ -6,7 +6,7 @@ project(OpenXLSX.Examples)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 #=======================================================================================================================
-# Include boost::nowide library (required for Demo3)
+# Include boost::nowide library (required for Demo4)
 #=======================================================================================================================
 add_subdirectory(external/nowide EXCLUDE_FROM_ALL)
 
@@ -14,7 +14,7 @@ add_subdirectory(external/nowide EXCLUDE_FROM_ALL)
 # Define Demo1 target
 #=======================================================================================================================
 add_executable(Demo1 Demo1.cpp)
-target_link_libraries(Demo1 PRIVATE OpenXLSX::OpenXLSX nowide::nowide)
+target_link_libraries(Demo1 PRIVATE OpenXLSX::OpenXLSX)
 
 #=======================================================================================================================
 # Define Demo1A target
@@ -22,20 +22,20 @@ target_link_libraries(Demo1 PRIVATE OpenXLSX::OpenXLSX nowide::nowide)
 if(${OPENXLSX_ENABLE_LIBZIP})
     find_package(LIBZIP MODULE REQUIRED)
     add_executable(Demo1A Demo1A.cpp)
-    target_link_libraries(Demo1A PRIVATE OpenXLSX::OpenXLSX nowide::nowide libzip::zip)
+    target_link_libraries(Demo1A PRIVATE OpenXLSX::OpenXLSX libzip::zip)
 endif()
 
 #=======================================================================================================================
 # Define Demo2 target
 #=======================================================================================================================
 add_executable(Demo2 Demo2.cpp)
-target_link_libraries(Demo2 PRIVATE OpenXLSX::OpenXLSX nowide::nowide)
+target_link_libraries(Demo2 PRIVATE OpenXLSX::OpenXLSX)
 
 #=======================================================================================================================
 # Define Demo3 target
 #=======================================================================================================================
 add_executable(Demo3 Demo3.cpp)
-target_link_libraries(Demo3 PRIVATE OpenXLSX::OpenXLSX nowide::nowide)
+target_link_libraries(Demo3 PRIVATE OpenXLSX::OpenXLSX)
 
 #=======================================================================================================================
 # Define Demo4 target
@@ -47,24 +47,24 @@ target_link_libraries(Demo4 PRIVATE OpenXLSX::OpenXLSX nowide::nowide)
 # Define Demo9 target
 #=======================================================================================================================
 add_executable(Demo5 Demo5.cpp)
-target_link_libraries(Demo5 PRIVATE OpenXLSX::OpenXLSX nowide::nowide)
+target_link_libraries(Demo5 PRIVATE OpenXLSX::OpenXLSX)
 
 #=======================================================================================================================
 # Define Demo6 target
 #=======================================================================================================================
 add_executable(Demo6 Demo6.cpp)
-target_link_libraries(Demo6 PRIVATE OpenXLSX::OpenXLSX nowide::nowide)
+target_link_libraries(Demo6 PRIVATE OpenXLSX::OpenXLSX)
 
 #=======================================================================================================================
 # Define Demo7 target
 #=======================================================================================================================
 add_executable(Demo7 Demo7.cpp)
-target_link_libraries(Demo7 PRIVATE OpenXLSX::OpenXLSX nowide::nowide)
+target_link_libraries(Demo7 PRIVATE OpenXLSX::OpenXLSX)
 
 #=======================================================================================================================
 # Define Demo8 target
 #=======================================================================================================================
 add_executable(Demo8 Demo8.cpp)
-target_link_libraries(Demo8 PRIVATE OpenXLSX::OpenXLSX nowide::nowide)
+target_link_libraries(Demo8 PRIVATE OpenXLSX::OpenXLSX)
 
 
