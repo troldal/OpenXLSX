@@ -984,6 +984,13 @@ XLDocument::operator bool() const
 /**
  * @details
  */
+bool XLDocument::isOpen() const {
+    return this->operator bool();
+}
+
+/**
+ * @details
+ */
 XLXmlData* XLDocument::getXmlData(const std::string& path)
 {
     if (!hasXmlData(path)) throw XLInternalError("Path does not exist in zip archive.");
