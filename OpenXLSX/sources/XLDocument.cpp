@@ -416,10 +416,12 @@ namespace
 
 }    // namespace
 
+XLDocument::XLDocument(const IZipArchive& zipArchive) : m_archive(zipArchive) {}
+
 /**
  * @details An alternative constructor, taking a std::string with the path to the .xlsx package as an argument.
  */
-XLDocument::XLDocument(const std::string& docPath)
+XLDocument::XLDocument(const std::string& docPath, const IZipArchive& zipArchive) : m_archive(zipArchive)
 {
     open(docPath);
 }
@@ -437,7 +439,7 @@ XLDocument::~XLDocument()
  * - Check if a document is already open. If yes, close it.
  * - Create a temporary folder for the contents of the .xlsx package
  * - Unzip the contents of the package to the temporary folder.
- * - load the contents into the datastructure for manipulation.
+ * - load the contents into the data structure for manipulation.
  */
 void XLDocument::open(const std::string& fileName)
 {
@@ -545,6 +547,10 @@ void XLDocument::save()
 void XLDocument::saveAs(const std::string& fileName)
 {
     m_filePath = fileName;
+
+    // ===== Delete the calcChain.xml file in order to force re-calculation of the sheet
+    // TODO: Is this the best way to do it? Maybe there is a flag that can be set, that forces re-calculalion.
+    execCommand(XLCommand(XLCommandType::ResetCalcChain));
 
     // ===== Add all xml items to archive and save the archive.
     for (auto& item : m_data) m_archive.addEntry(item.getXmlPath(), item.getRawData());

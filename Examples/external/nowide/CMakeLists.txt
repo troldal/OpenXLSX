@@ -68,6 +68,9 @@ target_include_directories(nowide PUBLIC include)
 nowide_add_warnings(nowide pedantic ${NOWIDE_WERROR})
 target_compile_features(nowide PUBLIC cxx_std_11)
 
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+  target_compile_options(nowide PRIVATE -Wno-cpp)
+endif()
 
 if(BUILD_TESTING)
   add_subdirectory(test)

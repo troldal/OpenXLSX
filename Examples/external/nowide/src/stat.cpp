@@ -40,4 +40,16 @@ namespace nowide {
     }
 } // namespace nowide
 
+#else
+
+// The only purpose of this function is to avoid warning about empty object file on some platforms
+namespace nowide {
+    namespace detail {
+        int dummy()
+        {
+            return 0;
+        }
+    } // namespace detail
+} // namespace nowide
+
 #endif

@@ -59,6 +59,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <string>
 
 // ===== OpenXLSX Includes ===== //
+#include "IZipArchive.hpp"
 #include "OpenXLSX-Exports.hpp"
 #include "XLCommandQuery.hpp"
 #include "XLContentTypes.hpp"
@@ -118,13 +119,13 @@ namespace OpenXLSX
         /**
          * @brief Constructor. The default constructor with no arguments.
          */
-        XLDocument() = default;
+        explicit XLDocument(const IZipArchive& zipArchive = XLZipArchive());
 
         /**
          * @brief Constructor. An alternative constructor, taking the path to the .xlsx file as an argument.
          * @param docPath A std::string with the path to the .xlsx file.
          */
-        explicit XLDocument(const std::string& docPath);
+        explicit XLDocument(const std::string& docPath, const IZipArchive& zipArchive = XLZipArchive());
 
         /**
          * @brief Copy constructor
@@ -304,7 +305,7 @@ namespace OpenXLSX
         XLAppProperties m_appProperties {};    /**< A pointer to the App properties object */
         XLProperties    m_coreProperties {};   /**< A pointer to the Core properties object*/
         XLWorkbook      m_workbook {};         /**< A pointer to the workbook object */
-        XLZipArchive    m_archive {};          /**<  */
+        IZipArchive     m_archive {};          /**<  */
     };
 
 }    // namespace OpenXLSX
