@@ -228,6 +228,12 @@ namespace OpenXLSX
         explicit operator bool() const;
 
         /**
+         * @brief
+         * @return
+         */
+        bool isOpen() const;
+
+        /**
          * @brief Delete the property from the document
          * @param theProperty The property to delete from the document
          */
