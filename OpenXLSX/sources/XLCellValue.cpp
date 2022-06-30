@@ -366,11 +366,50 @@ void XLCellValueProxy::setFloat(double numberValue)
     m_cellNode->remove_attribute("t");
 
     // ===== Set the text of the value node.
-    m_cellNode->child("v").text().set(numberValue);
+    if (std::fmod(numberValue, 1.0) == 0)
+        m_cellNode->child("v").text().set(std::to_string(numberValue).c_str());
+    else
+        m_cellNode->child("v").text().set(numberValue);
 
     // ===== Disable space preservation (only relevant for strings).
     m_cellNode->child("v").remove_attribute(m_cellNode->child("v").attribute("xml:space"));
 }
+
+/**
+ * @details Set the cell to a datetime value. This is private helper function for setting the cell value
+ * directly in the underlying XML file.
+ * @pre The m_cellNode must not be null, and must point to a valid XMLNode object.
+ * @post The underlying XMLNode has been updated correctly, representing a floating point value.
+ */
+void XLCellValueProxy::setDateTime(XLDateTime numberValue)
+ {
+     // ===== Check that the m_cellNode is valid.
+     assert(m_cellNode);              // NOLINT
+     assert(!m_cellNode->empty());    // NOLINT
+
+     // ===== If the cell node doesn't have a value child node, create it.
+     if (!m_cellNode->child("v")) m_cellNode->append_child("v");
+
+     // ===== The type ("t") attribute is not required for number values.
+     m_cellNode->remove_attribute("t");
+
+     // ===== Set the text of the value node.
+     double dvalue = numberValue.serial();
+     // ===== Set the style depending on whether the number is decimal or not
+     if (!m_cellNode->attribute("s")) m_cellNode->append_attribute("s");
+     auto dd = std::fmod(dvalue, 1.);
+     if (std::fmod(dvalue,1.) == 0.) {
+         m_cellNode->attribute("s").set_value(1);
+         m_cellNode->child("v").text().set(std::to_string(dvalue).c_str());
+     }
+     else {
+         m_cellNode->attribute("s").set_value(2);
+         m_cellNode->child("v").text().set(dvalue);
+     }
+        
+     // ===== Disable space preservation (only relevant for strings).
+     m_cellNode->child("v").remove_attribute(m_cellNode->child("v").attribute("xml:space"));
+ }
 
 /**
  * @details Set the cell to a string value. This is private helper function for setting the cell value
