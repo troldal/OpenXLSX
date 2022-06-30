@@ -74,6 +74,26 @@ TEST_CASE("XLCellValue Tests", "[XLCellValue]")
         REQUIRE_THROWS(value.get<bool>());
     }
 
+        SECTION("Date Constructor")
+    {
+        std::tm tm;
+        tm.tm_year = 121;
+        tm.tm_mon  = 8;
+        tm.tm_mday = 1;
+        tm.tm_hour = 0;
+        tm.tm_min  = 0;
+        tm.tm_sec  = 0;
+        XLDateTime  dt(tm);
+        XLCellValue value(dt);
+
+        REQUIRE(value.type() == XLValueType::Float);
+        REQUIRE(value.typeAsString() == "float");
+        REQUIRE_THROWS(value.get<std::string>());
+        REQUIRE(value.get<double>() == 44440.0);
+        REQUIRE_THROWS(value.get<int>());
+        REQUIRE_THROWS(value.get<bool>());
+    }
+
     SECTION("Copy Constructor")
     {
         XLCellValue value("Hello OpenXLSX!");

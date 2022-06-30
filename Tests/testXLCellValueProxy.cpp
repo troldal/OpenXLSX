@@ -59,6 +59,45 @@ TEST_CASE("XLCellValueProxy Tests", "[XLCellValue]")
             REQUIRE_THROWS(value.get<double>());
             REQUIRE(value.get<bool>() == true);
         }
+
+        {
+            std::tm tm;
+            tm.tm_year = 121;
+            tm.tm_mon  = 8;
+            tm.tm_mday = 1;
+            tm.tm_hour = 0;
+            tm.tm_min  = 0;
+            tm.tm_sec  = 0;
+            XLDateTime dt(tm);
+            wks.cell("A1").value() = dt;
+            XLCellValue value = wks.cell("A1").value();
+            REQUIRE(value.type() == XLValueType::Float);
+            REQUIRE(value.typeAsString() == "float");
+            REQUIRE_THROWS(value.get<std::string>());
+            REQUIRE_THROWS(value.get<int>());
+            REQUIRE(value.get<double>() == 44440.0);
+            REQUIRE_THROWS(value.get<bool>());
+        }
+
+        {
+            std::tm tm;
+            tm.tm_year = 121;
+            tm.tm_mon  = 8;
+            tm.tm_mday = 1;
+            tm.tm_hour = 12;
+            tm.tm_min  = 0;
+            tm.tm_sec  = 0;
+            XLDateTime dt(tm);
+            wks.cell("A1").value() = dt;
+            XLCellValue value      = wks.cell("A1").value();
+            REQUIRE(value.type() == XLValueType::Float);
+            REQUIRE(value.typeAsString() == "float");
+            REQUIRE_THROWS(value.get<std::string>());
+            REQUIRE_THROWS(value.get<int>());
+            REQUIRE(value.get<double>() == 44440.50);
+            REQUIRE_THROWS(value.get<bool>());
+        }
+
     }
 
     SECTION("XLCellValueProxy conversion to XLCellValue (XLCellValue assignment operator)")
@@ -121,6 +160,24 @@ TEST_CASE("XLCellValueProxy Tests", "[XLCellValue]")
         REQUIRE_THROWS(value.get<int>());
         REQUIRE_THROWS(value.get<double>());
         REQUIRE_THROWS(value.get<bool>());
+
+        std::tm tm;
+        tm.tm_year = 121;
+        tm.tm_mon  = 8;
+        tm.tm_mday = 1;
+        tm.tm_hour = 0;
+        tm.tm_min  = 0;
+        tm.tm_sec  = 0;
+        XLDateTime dt(tm);
+        wks.cell("A1").value() = dt;
+        value      = wks.cell("A1").value();
+        REQUIRE(value.type() == XLValueType::Float);
+        REQUIRE(value.typeAsString() == "float");
+        REQUIRE_THROWS(value.get<std::string>());
+        REQUIRE_THROWS(value.get<int>());
+        REQUIRE(value.get<double>() == 44440.0);
+        REQUIRE_THROWS(value.get<bool>());
+
     }
 
     SECTION("XLCellValueProxy copy assignment")
@@ -184,6 +241,22 @@ TEST_CASE("XLCellValueProxy Tests", "[XLCellValue]")
         REQUIRE_THROWS(wks.cell("A2").value().get<double>());
         REQUIRE_THROWS(wks.cell("A2").value().get<bool>());
 
+        std::tm tm;
+        tm.tm_year = 121;
+        tm.tm_mon  = 8;
+        tm.tm_mday = 1;
+        tm.tm_hour = 0;
+        tm.tm_min  = 0;
+        tm.tm_sec  = 0;
+        XLDateTime dt(tm);
+        wks.cell("A1").value() = dt;
+        wks.cell("A2").value() = wks.cell("A1").value();
+        REQUIRE(wks.cell("A2").value().type() == XLValueType::Float);
+        REQUIRE(wks.cell("A2").value().typeAsString() == "float");
+        REQUIRE_THROWS(wks.cell("A2").value().get<std::string>());
+        REQUIRE_THROWS(wks.cell("A2").value().get<int>());
+        REQUIRE(wks.cell("A2").value().get<double>() == 44440.0);
+        REQUIRE_THROWS(wks.cell("A2").value().get<bool>());
     }
 
     SECTION("XLCellValueProxy set functions")
@@ -231,6 +304,22 @@ TEST_CASE("XLCellValueProxy Tests", "[XLCellValue]")
         REQUIRE(wks.cell("A2").value().get<std::string>().empty());
         REQUIRE_THROWS(wks.cell("A2").value().get<int>());
         REQUIRE_THROWS(wks.cell("A2").value().get<double>());
+        REQUIRE_THROWS(wks.cell("A2").value().get<bool>());
+
+        std::tm tm;
+        tm.tm_year = 121;
+        tm.tm_mon  = 8;
+        tm.tm_mday = 1;
+        tm.tm_hour = 0;
+        tm.tm_min  = 0;
+        tm.tm_sec  = 0;
+        XLDateTime dt(tm);
+        wks.cell("A2").value().set(dt);
+        REQUIRE(wks.cell("A2").value().type() == XLValueType::Float);
+        REQUIRE(wks.cell("A2").value().typeAsString() == "float");
+        REQUIRE_THROWS(wks.cell("A2").value().get<std::string>());
+        REQUIRE_THROWS(wks.cell("A2").value().get<int>());
+        REQUIRE(wks.cell("A2").value().get<double>() == 44440.0);
         REQUIRE_THROWS(wks.cell("A2").value().get<bool>());
 
     }

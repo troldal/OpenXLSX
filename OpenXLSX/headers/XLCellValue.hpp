@@ -244,7 +244,7 @@ namespace OpenXLSX
                 if constexpr (std::is_same_v<T, XLDateTime>) return XLDateTime(std::get<double>(m_value));
             }
 
-            catch (const std::bad_variant_access& e) {
+            catch (const std::bad_variant_access& ) {
                 throw XLValueTypeError("XLCellValue object does not contain the requested type.");
             }
         }
@@ -347,7 +347,8 @@ namespace OpenXLSX
                 setFloat(value);
 
             else if constexpr (std::is_same_v<T, XLDateTime>)
-                setFloat(value.serial());
+                setDateTime(value);
+                //setFloat(value);
 
             else if constexpr (std::is_same_v<std::decay_t<T>, std::string> || std::is_same_v<std::decay_t<T>, std::string_view> ||
                                std::is_same_v<std::decay_t<T>, const char*> ||
@@ -510,6 +511,12 @@ namespace OpenXLSX
          * @param numberValue The value to be set.
          */
         void setFloat(double numberValue);
+
+        /**
+         * @brief Set the cell to a datetime value.
+         * @param numberValue The value to be set.
+         */
+        void setDateTime(XLDateTime numberValue);
 
         /**
          * @brief Set the cell to a string value.
