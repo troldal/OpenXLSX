@@ -72,10 +72,10 @@ XLCellValue& XLCellValue::clear()
  * @pre
  * @post
  */
-XLCellValue& XLCellValue::setError()
+XLCellValue& XLCellValue::setError(const std::string &error)
 {
     m_type  = XLValueType::Error;
-    m_value = std::string("");
+    m_value = error;
     return *this;
 }
 
@@ -205,7 +205,7 @@ XLCellValueProxy& XLCellValueProxy::clear()
  * @pre The m_cellNode must not be null, and must point to a valid XML cell node object.
  * @post The cell node must be valid.
  */
-XLCellValueProxy& XLCellValueProxy::setError()
+XLCellValueProxy& XLCellValueProxy::setError(const std::string &error)
 {
     // ===== Check that the m_cellNode is valid.
     assert(m_cellNode);              // NOLINT
@@ -217,14 +217,18 @@ XLCellValueProxy& XLCellValueProxy::setError()
     // ===== Set the type to "e", i.e. error
     m_cellNode->attribute("t").set_value("e");
 
-    // ===== Remove the value node, if it exists
-    m_cellNode->remove_child("v");
+    // ===== If the cell node doesn't have a value attribute, create it.
+    if (!m_cellNode->attribute("v")) m_cellNode->append_attribute("v");
+
+    // ===== If the cell node doesn't have a value child node, create it.
+    if (!m_cellNode->child("v")) m_cellNode->append_child("v");
+
+    // ===== Set the child value to the error
+    m_cellNode->child("v").text().set(error.c_str());
 
     // ===== Disable space preservation (only relevant for strings).
     m_cellNode->remove_attribute(" xml:space");
 
-    // ===== Remove the value node.
-    m_cellNode->remove_child("v");
     return *this;
 }
 
@@ -355,21 +359,28 @@ void XLCellValueProxy::setBoolean(bool numberValue)
  */
 void XLCellValueProxy::setFloat(double numberValue)
 {
-    // ===== Check that the m_cellNode is valid.
-    assert(m_cellNode);              // NOLINT
-    assert(!m_cellNode->empty());    // NOLINT
+    // check for nan / inf
+    if (isfinite(numberValue)) {
+        // ===== Check that the m_cellNode is valid.
+        assert(m_cellNode);              // NOLINT
+        assert(!m_cellNode->empty());    // NOLINT
 
-    // ===== If the cell node doesn't have a value child node, create it.
-    if (!m_cellNode->child("v")) m_cellNode->append_child("v");
+        // ===== If the cell node doesn't have a value child node, create it.
+        if (!m_cellNode->child("v")) m_cellNode->append_child("v");
 
-    // ===== The type ("t") attribute is not required for number values.
-    m_cellNode->remove_attribute("t");
+        // ===== The type ("t") attribute is not required for number values.
+        m_cellNode->remove_attribute("t");
 
-    // ===== Set the text of the value node.
-    m_cellNode->child("v").text().set(numberValue);
+        // ===== Set the text of the value node.
+        m_cellNode->child("v").text().set(numberValue);
 
-    // ===== Disable space preservation (only relevant for strings).
-    m_cellNode->child("v").remove_attribute(m_cellNode->child("v").attribute("xml:space"));
+        // ===== Disable space preservation (only relevant for strings).
+        m_cellNode->child("v").remove_attribute(m_cellNode->child("v").attribute("xml:space"));
+    }
+    else {
+        setError("#NUM!");
+        return;
+    }
 }
 
 /**
@@ -446,7 +457,10 @@ XLCellValue XLCellValueProxy::getValue() const
         case XLValueType::Boolean:
             return XLCellValue { m_cellNode->child("v").text().as_bool() };
 
+        case XLValueType::Error:
+            return XLCellValue().setError(m_cellNode->child("v").text().as_string());
+            
         default:
-            return XLCellValue().setError();
+            return XLCellValue().setError("");
     }
 }

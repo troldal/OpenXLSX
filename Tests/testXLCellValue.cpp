@@ -237,6 +237,32 @@ TEST_CASE("XLCellValue Tests", "[XLCellValue]")
         REQUIRE_THROWS(value.get<bool>());
     }
 
+    SECTION("Set Nan Float")
+    {
+        XLCellValue value;
+        value.set(std::numeric_limits<double>::quiet_NaN());
+
+        REQUIRE(value.type() == XLValueType::Error);
+        REQUIRE(value.typeAsString() == "error");
+        REQUIRE(value.get<std::string>() == "#NUM!");
+        REQUIRE_THROWS(value.get<int>());
+        REQUIRE_THROWS(value.get<double>());
+        REQUIRE_THROWS(value.get<bool>());
+    }
+
+        SECTION("Set Inf Float")
+    {
+        XLCellValue value;
+        value.set(std::numeric_limits<double>::infinity());
+
+        REQUIRE(value.type() == XLValueType::Error);
+        REQUIRE(value.typeAsString() == "error");
+        REQUIRE(value.get<std::string>() == "#NUM!");
+        REQUIRE_THROWS(value.get<int>());
+        REQUIRE_THROWS(value.get<double>());
+        REQUIRE_THROWS(value.get<bool>());
+    }
+
     SECTION("Set Integer")
     {
         XLCellValue value;
@@ -294,11 +320,11 @@ TEST_CASE("XLCellValue Tests", "[XLCellValue]")
     {
         XLCellValue value;
         value.set("Hello OpenXLSX!");
-        value.setError();
+        value.setError("#N/A");
 
         REQUIRE(value.type() == XLValueType::Error);
         REQUIRE(value.typeAsString() == "error");
-        REQUIRE(value.get<std::string>().empty());
+        REQUIRE(value.get<std::string>() == "#N/A");
         REQUIRE_THROWS(value.get<int>());
         REQUIRE_THROWS(value.get<double>());
         REQUIRE_THROWS(value.get<bool>());
