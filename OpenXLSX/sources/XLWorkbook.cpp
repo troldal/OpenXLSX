@@ -325,7 +325,7 @@ void XLWorkbook::setSheetVisibility(const std::string& sheetRID, const std::stri
         activeTabAttribute = xmlDocument().document_element().child("bookViews").first_child().append_attribute("activeTab");
         activeTabAttribute.set_value(0);
     }
-    unsigned int activeTabIndex = activeTabAttribute.as_int();
+    auto activeTabIndex = activeTabAttribute.as_uint();
 
     // Finally, if the current sheet is the active one, set the "activeTab" attribute to the first visible sheet in the workbook
     if (activeTabIndex == index) {
@@ -338,6 +338,7 @@ void XLWorkbook::setSheetVisibility(const std::string& sheetRID, const std::stri
 
 /**
  * @details
+ * @todo In some cases (eg. if a sheet is moved to the position before the selected sheet), multiple sheets are selected when opened in Excel.
  */
 void XLWorkbook::setSheetIndex(const std::string& sheetName, unsigned int index)
 {
@@ -347,7 +348,7 @@ void XLWorkbook::setSheetIndex(const std::string& sheetName, unsigned int index)
     //        throw XLException("Invalid sheet index");
 
     // ===== If the new index is equal to the current, don't do anything
-    if (index == std::distance(xmlDocument().document_element().child("sheets").children().begin(),
+    if (index-1 == std::distance(xmlDocument().document_element().child("sheets").children().begin(),
                                std::find_if(xmlDocument().document_element().child("sheets").children().begin(),
                                             xmlDocument().document_element().child("sheets").children().end(),
                                             [&](const XMLNode& item) { return sheetName == item.attribute("name").value(); })))

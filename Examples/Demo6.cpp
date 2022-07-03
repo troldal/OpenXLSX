@@ -88,7 +88,7 @@ int main()
         // Sum the numbers in each cell.
         sum += std::accumulate(readValues.begin(),
                                readValues.end(),
-                                uint64_t(0),
+                               static_cast <uint64_t>(0),
                                [](uint64_t a, XLCellValue& b) {return a + b.get<uint64_t>(); });
     }
 

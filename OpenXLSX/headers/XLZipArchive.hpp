@@ -108,11 +108,13 @@ namespace OpenXLSX
          */
         explicit operator bool() const;
 
+        bool isValid() const;
+
         /**
          * @brief
          * @return
          */
-        bool isOpen();
+        bool isOpen() const;
 
         /**
          * @brief

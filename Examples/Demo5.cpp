@@ -16,7 +16,7 @@ int main()
     cout << "********************************************************************************\n";
 
     // With OpenXLSX, a range of cells can be defined, in order to iterate through the
-    // cells in the range. A range is a quardratic region of cells in a worksheet.
+    // cells in the range. A range is a quadratic region of cells in a worksheet.
     // A range can be defined using the 'range()' method on an XLWorksheet object. This function
     // takes two XLCellReferences: the cell in the upper left corner of the range, and the cell
     // in the lower right corner.

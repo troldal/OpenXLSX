@@ -447,29 +447,72 @@ XLRow XLWorksheet::row(uint32_t rowNumber) const
 /**
  * @details Get the XLColumn object corresponding to the given column number. In the underlying XML data structure,
  * column nodes do not hold any cell data. Columns are used solely to hold data regarding column formatting.
+ * @todo Consider simplifying this function. Can any standard algorithms be used?
  */
 XLColumn XLWorksheet::column(uint16_t columnNumber) const
 {
     // If no columns exists, create the <cols> node in the XML document.
     if (!xmlDocument().first_child().child("cols"))
-        xmlDocument().root().insert_child_before("cols", xmlDocument().first_child().child("sheetData"));
+        xmlDocument().first_child().insert_child_before("cols", xmlDocument().first_child().child("sheetData"));
 
+    // ===== Find the column node, if it exists
     auto columnNode =
-        xmlDocument().first_child().child("cols").find_child([&](XMLNode node) { return node.attribute("min").as_int() >= columnNumber; });
+        xmlDocument().first_child().child("cols").find_child([&](XMLNode node) {
+            return (columnNumber >= node.attribute("min").as_int() && columnNumber <= node.attribute("max").as_int()) || node.attribute("min").as_int() > columnNumber; });
 
-    if (!columnNumber || columnNode.attribute("min").as_int() > columnNumber) {
-        if (columnNode.attribute("min").as_int() > columnNumber) {
-            columnNode = xmlDocument().first_child().child("cols").insert_child_before("col", columnNode);
-        }
-        else {
-            columnNode = xmlDocument().first_child().child("cols").append_child("col");
-        }
+    // ===== If the node exists for the column, and only spans that column, then continue...
+    if (columnNode && columnNode.attribute("min").as_int() == columnNumber && columnNode.attribute("max").as_int() == columnNumber) {}
 
+    // ===== If the node exists for the column, but spans several columns, split it into individual nodes, and set columnNode to the right one...
+    else if (columnNode && columnNode.attribute("min").as_int() != columnNode.attribute("max").as_int()) {
+        // ===== Split the node in individual columns...
+        for (int i = columnNode.attribute("min").as_int(); i < columnNode.attribute("max").as_int(); ++i) {
+            auto node = xmlDocument().first_child().child("cols").insert_copy_before(columnNode, columnNode);
+            node.attribute("min").set_value(i);
+            node.attribute("max").set_value(i);
+        }
+        // ===== Delete the original node
+        columnNode = columnNode.previous_sibling();
+        xmlDocument().first_child().child("cols").remove_child(columnNode.next_sibling());
+        // ===== Find the node corresponding to the column number
+        while (true) {
+            if (columnNode.attribute("min").as_int() == columnNumber) break;
+            columnNode = columnNode.previous_sibling();
+        }
+    }
+
+    // ===== If a node for the column does NOT exist, but a node for a higher column exist...
+    else if (columnNode && columnNode.attribute("min").as_int() > columnNumber) {
+        columnNode = xmlDocument().first_child().child("cols").insert_child_before("col", columnNode);
         columnNode.append_attribute("min")         = columnNumber;
         columnNode.append_attribute("max")         = columnNumber;
-        columnNode.append_attribute("width")       = 10; // NOLINT
-        columnNode.append_attribute("customWidth") = 1;
+        columnNode.append_attribute("width")       = 9.8; // NOLINT
+        columnNode.append_attribute("customWidth") = 0;
     }
+
+    // ===== Otherwise, the end of the list is reached, and a new node is appended
+    else if (!columnNode) {
+        columnNode = xmlDocument().first_child().child("cols").append_child("col");
+        columnNode.append_attribute("min")         = columnNumber;
+        columnNode.append_attribute("max")         = columnNumber;
+        columnNode.append_attribute("width")       = 9.8; // NOLINT
+        columnNode.append_attribute("customWidth") = 0;
+    }
+
+
+//    if (!columnNode || columnNode.attribute("min").as_int() > columnNumber) {
+//        if (columnNode.attribute("min").as_int() > columnNumber) {
+//            columnNode = xmlDocument().first_child().child("cols").insert_child_before("col", columnNode);
+//        }
+//        else {
+//            columnNode = xmlDocument().first_child().child("cols").append_child("col");
+//        }
+//
+//        columnNode.append_attribute("min")         = columnNumber;
+//        columnNode.append_attribute("max")         = columnNumber;
+//        columnNode.append_attribute("width")       = 10; // NOLINT
+//        columnNode.append_attribute("customWidth") = 1;
+//    }
 
     return XLColumn(columnNode);
 }
@@ -489,7 +532,7 @@ uint16_t XLWorksheet::columnCount() const noexcept
 {
         std::vector<int16_t> counts;
         for (const auto& row : rows()) {
-            counts.emplace_back(static_cast<uint16_t>(row.cellCount()));
+            counts.emplace_back(static_cast<int16_t>(row.cellCount()));
         }
 
         return std::max(static_cast<uint16_t>(1), static_cast<uint16_t>(*std::max_element(counts.begin(), counts.end())));

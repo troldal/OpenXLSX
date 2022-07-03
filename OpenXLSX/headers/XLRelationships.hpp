@@ -61,8 +61,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 namespace OpenXLSX
 {
-    class XLDocument;
-
     class XLRelationships;
 
     class XLRelationshipItem;

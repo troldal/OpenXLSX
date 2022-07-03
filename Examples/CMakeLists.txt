@@ -3,9 +3,10 @@
 #=======================================================================================================================
 cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
 project(OpenXLSX.Examples)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 #=======================================================================================================================
-# Include boost::nowide library (required for Demo3)
+# Include boost::nowide library (required for Demo4)
 #=======================================================================================================================
 add_subdirectory(external/nowide EXCLUDE_FROM_ALL)
 
@@ -14,6 +15,15 @@ add_subdirectory(external/nowide EXCLUDE_FROM_ALL)
 #=======================================================================================================================
 add_executable(Demo1 Demo1.cpp)
 target_link_libraries(Demo1 PRIVATE OpenXLSX::OpenXLSX)
+
+#=======================================================================================================================
+# Define Demo1A target
+#=======================================================================================================================
+if(${OPENXLSX_ENABLE_LIBZIP})
+    find_package(LIBZIP MODULE REQUIRED)
+    add_executable(Demo1A Demo1A.cpp)
+    target_link_libraries(Demo1A PRIVATE OpenXLSX::OpenXLSX libzip::zip)
+endif()
 
 #=======================================================================================================================
 # Define Demo2 target

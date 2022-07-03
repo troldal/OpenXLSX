@@ -35,7 +35,7 @@ int main()
     // Cell values can be set to any Unicode string using the normat value assignment methods.
     wks1.cell(XLCellReference("A1")).value() = "안녕하세요 세계!";
     wks1.cell(XLCellReference("A2")).value() = "你好，世界!";
-    wks1.cell(XLCellReference("A3")).value() = "こんにちは世界";
+    wks1.cell(XLCellReference("A3")).value() = "こんにちは 世界";
     wks1.cell(XLCellReference("A4")).value() = "नमस्ते दुनिया!";
     wks1.cell(XLCellReference("A5")).value() = "Привет, мир!";
     wks1.cell(XLCellReference("A6")).value() = "Γειά σου Κόσμε!";
