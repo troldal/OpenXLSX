@@ -74,6 +74,9 @@ namespace OpenXLSX
      */
     enum class XLValueType { Empty, Boolean, Integer, Float, Error, String };
 
+    class XLEmptyValue {};
+    class XLErrorValue {};
+
     /**
      * @brief Class encapsulating a cell value.
      */
@@ -93,7 +96,7 @@ namespace OpenXLSX
 
     public:
 
-        using value_type = std::variant<std::string, int64_t, double, bool>;
+        using value_type = std::variant<std::string, int64_t, double, bool, XLEmptyValue, XLErrorValue>;
 
         //---------- Public Member Functions ----------//
 
@@ -322,7 +325,7 @@ namespace OpenXLSX
 
     public:
 
-        using value_type = std::variant<std::string, int64_t, double, bool>;
+        using value_type = std::variant<std::string, int64_t, double, bool, XLEmptyValue, XLErrorValue>;
 
         //---------- Public Member Functions ----------//
 
@@ -551,6 +554,66 @@ namespace OpenXLSX
 // ========== FRIEND FUNCTION IMPLEMENTATIONS ========== //
 namespace OpenXLSX
 {
+    inline bool operator==(const XLEmptyValue& lhs, const XLEmptyValue& rhs)
+    {
+        return false;
+    }
+
+    inline bool operator==(const XLErrorValue& lhs, const XLErrorValue& rhs)
+    {
+        return false;
+    }
+
+    inline bool operator!=(const XLEmptyValue& lhs, const XLEmptyValue& rhs)
+    {
+        return false;
+    }
+
+    inline bool operator!=(const XLErrorValue& lhs, const XLErrorValue& rhs)
+    {
+        return false;
+    }
+
+    inline bool operator<(const XLEmptyValue& lhs, const XLEmptyValue& rhs)
+    {
+        return false;
+    }
+
+    inline bool operator<(const XLErrorValue& lhs, const XLErrorValue& rhs)
+    {
+        return false;
+    }
+
+    inline bool operator>(const XLEmptyValue& lhs, const XLEmptyValue& rhs)
+    {
+        return false;
+    }
+
+    inline bool operator>(const XLErrorValue& lhs, const XLErrorValue& rhs)
+    {
+        return false;
+    }
+
+    inline bool operator<=(const XLEmptyValue& lhs, const XLEmptyValue& rhs)
+    {
+        return false;
+    }
+
+    inline bool operator<=(const XLErrorValue& lhs, const XLErrorValue& rhs)
+    {
+        return false;
+    }
+
+    inline bool operator>=(const XLEmptyValue& lhs, const XLEmptyValue& rhs)
+    {
+        return false;
+    }
+
+    inline bool operator>=(const XLErrorValue& lhs, const XLErrorValue& rhs)
+    {
+        return false;
+    }
+
     /**
      * @brief
      * @param lhs
@@ -662,17 +725,17 @@ namespace OpenXLSX
 
 }    // namespace OpenXLSX
 
-namespace std
-{
-    template<>
-    struct hash<OpenXLSX::XLCellValue> // NOLINT
-    {
-        std::size_t operator()(const OpenXLSX::XLCellValue& value) const noexcept
-        {
-            return std::hash<std::variant<std::string, int64_t, double, bool>> {}(value.m_value);
-        }
-    };
-}    // namespace std
+//namespace std
+//{
+//    template<>
+//    struct hash<OpenXLSX::XLCellValue> // NOLINT
+//    {
+//        std::size_t operator()(const OpenXLSX::XLCellValue& value) const noexcept
+//        {
+//            return std::hash<std::variant<std::string, int64_t, double, bool, OpenXLSX::XLEmptyValue, OpenXLSX::XLErrorValue>> {}(value.m_value);
+//        }
+//    };
+//}    // namespace std
 
 #pragma warning(pop)
 #endif    // OPENXLSX_XLCELLVALUE_HPP

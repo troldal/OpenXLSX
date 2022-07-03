@@ -92,6 +92,12 @@ int main()
         {
             cout << "(boolean) " << boolalpha << v << "\n";
         }
+        void operator()(XLEmptyValue) {
+            cout << "(empty) " << "\n";
+        }
+        void operator()(XLErrorValue) {
+            cout << "(error) " << "\n";
+        }
     };
 
     cout<< "using std::visit for output:\n";
