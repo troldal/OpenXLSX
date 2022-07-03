@@ -2,7 +2,7 @@
 # Preamble
 #=======================================================================================================================
 cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
-project(OpenXLSX VERSION 0.4.0 LANGUAGES CXX)
+project(OpenXLSX VERSION 0.4.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN YES)
