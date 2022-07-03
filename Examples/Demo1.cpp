@@ -34,7 +34,7 @@ int main()
     wks.cell("B1").value() = 42;
     wks.cell("C1").value() = "  Hello OpenXLSX!  ";
     wks.cell("D1").value() = true;
-    wks.cell("E1").value() = std::sqrt(-2);
+    wks.cell("E1").value() = std::sqrt(-2); // Result is NAN, resulting in an error value in the Excel spreadsheet.
 
     // As mentioned, the .value() method can also be used for getting tha value of a cell.
     // The .value() method returns a proxy object that cannot be copied or assigned, but
