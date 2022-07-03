@@ -1,6 +1,8 @@
 #include <OpenXLSX.hpp>
 #include <iostream>
 
+#include <cmath>
+
 using namespace std;
 using namespace OpenXLSX;
 
@@ -29,10 +31,11 @@ int main()
     // as shown below. Alternatively, a .set() can be used. The cell values can be floating point numbers,
     // integers, strings, and booleans. It can also accept XLDateTime objects, but this requires special
     // handling (see later).
-    wks.cell("A1").value() = 3.14159;
+    wks.cell("A1").value() = M_PI;
     wks.cell("B1").value() = 42;
     wks.cell("C1").value() = "  Hello OpenXLSX!  ";
     wks.cell("D1").value() = true;
+    wks.cell("E1").value() = std::sqrt(-2);
 
     // As mentioned, the .value() method can also be used for getting tha value of a cell.
     // The .value() method returns a proxy object that cannot be copied or assigned, but
@@ -43,6 +46,7 @@ int main()
     XLCellValue B1 = wks.cell("B1").value();
     XLCellValue C1 = wks.cell("C1").value();
     XLCellValue D1 = wks.cell("D1").value();
+    XLCellValue E1 = wks.cell("E1").value();
 
     // The cell value can be implicitly converted to a basic c++ type. However, if the type does not
     // match the type contained in the XLCellValue object (if, for example, floating point value is
@@ -54,11 +58,13 @@ int main()
     int vB1 = wks.cell("B1").value();
     std::string vC1 = wks.cell("C1").value();
     bool vD1 = wks.cell("D1").value();
+    double vE1 = wks.cell("E1").value();
 
     cout << "Cell A1: (" << A1.typeAsString() << ") " << vA1 << endl;
     cout << "Cell B1: (" << B1.typeAsString() << ") " << vB1 << endl;
     cout << "Cell C1: (" << C1.typeAsString() << ") " << vC1 << endl;
-    cout << "Cell D1: (" << D1.typeAsString() << ") " << vD1 << endl << endl;
+    cout << "Cell D1: (" << D1.typeAsString() << ") " << vD1 << endl;
+    cout << "Cell E1: (" << E1.typeAsString() << ") " << vE1 << endl << endl;
 
     // Instead of using implicit (or explicit) conversion, the underlying value can also be retrieved
     // using the .get() method. This is a templated member function, which takes the desired type
@@ -66,14 +72,15 @@ int main()
     cout << "Cell A1: (" << A1.typeAsString() << ") " << A1.get<double>() << endl;
     cout << "Cell B1: (" << B1.typeAsString() << ") " << B1.get<int64_t>() << endl;
     cout << "Cell C1: (" << C1.typeAsString() << ") " << C1.get<std::string>() << endl;
-    cout << "Cell D1: (" << D1.typeAsString() << ") " << D1.get<bool>() << endl << endl;
+    cout << "Cell D1: (" << D1.typeAsString() << ") " << D1.get<bool>() << endl;
+    cout << "Cell E1: (" << E1.typeAsString() << ") " << E1.get<double>() << endl << endl;
 
     // XLCellValue objects can also be copied and assigned to other cells. This following line
     // will copy and assign the value of cell C1 to cell E1. Note tha only the value is copied;
     // other cell properties of the target cell remain unchanged.
-    wks.cell("E1").value() = wks.cell(XLCellReference("C1")).value();
-    XLCellValue E1 = wks.cell("E1").value();
-    cout << "Cell E1: (" << E1.typeAsString() << ") " << E1.get<std::string_view>() << endl << endl;
+    wks.cell("F1").value() = wks.cell(XLCellReference("C1")).value();
+    XLCellValue F1 = wks.cell("F1").value();
+    cout << "Cell F1: (" << F1.typeAsString() << ") " << F1.get<std::string_view>() << endl << endl;
 
     // Date/time values is a special case. In Excel, date/time values are essentially just a
     // 64-bit floating point value, that is rendered as a date/time string using special
@@ -96,22 +103,22 @@ int main()
 //    XLDateTime dt (43791.583333333299);
 
     // The std::tm object can be assigned to a cell value in the same way as shown previously.
-    wks.cell("F1").value() = dt;
+    wks.cell("G1").value() = dt;
 
     // And as seen previously, an XLCellValue object can be retrieved. However, the object
     // will just contain a floating point value; there is no way to identify it as a date/time value.
-    XLCellValue F1 = wks.cell("F1").value();
-    cout << "Cell F1: (" << F1.typeAsString() << ") " << F1.get<double>() << endl;
+    XLCellValue G1 = wks.cell("G1").value();
+    cout << "Cell G1: (" << G1.typeAsString() << ") " << G1.get<double>() << endl;
 
     // If it is known to be a date/time value, the cell value can be converted to an XLDateTime object.
-    auto result = F1.get<XLDateTime>();
+    auto result = G1.get<XLDateTime>();
 
     // The Excel date/time serial number can be retrieved using the .serial() method.
-    cout << "Cell F1: (" << F1.typeAsString() << ") " << result.serial() << endl;
+    cout << "Cell G1: (" << G1.typeAsString() << ") " << result.serial() << endl;
 
     // Using the .tm() method, the corresponding std::tm object can be retrieved.
     auto tmo = result.tm();
-    cout << "Cell F1: (" << F1.typeAsString() << ") " << std::asctime(&tmo);
+    cout << "Cell G1: (" << G1.typeAsString() << ") " << std::asctime(&tmo);
 
     doc.save();
     doc.close();

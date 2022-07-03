@@ -217,9 +217,6 @@ XLCellValueProxy& XLCellValueProxy::setError(const std::string &error)
     // ===== Set the type to "e", i.e. error
     m_cellNode->attribute("t").set_value("e");
 
-    // ===== If the cell node doesn't have a value attribute, create it.
-    if (!m_cellNode->attribute("v")) m_cellNode->append_attribute("v");
-
     // ===== If the cell node doesn't have a value child node, create it.
     if (!m_cellNode->child("v")) m_cellNode->append_child("v");
 
