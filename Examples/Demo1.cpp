@@ -21,8 +21,6 @@ int main()
     doc.create("./Demo01.xlsx");
     auto wks = doc.workbook().worksheet("Sheet1");
 
-    doc.workbook().addWorksheet("スプレッドシート");
-
     // The individual cells can be accessed by using the .cell() method on the worksheet object.
     // The .cell() method can take the cell address as a string, or alternatively take a XLCellReference
     // object. By using an XLCellReference object, the cells can be accessed by row/column coordinates.
@@ -33,7 +31,7 @@ int main()
     // as shown below. Alternatively, a .set() can be used. The cell values can be floating point numbers,
     // integers, strings, and booleans. It can also accept XLDateTime objects, but this requires special
     // handling (see later).
-    wks.cell("A1").value() = M_PI;
+    wks.cell("A1").value() = 3.14159265358979323846;
     wks.cell("B1").value() = 42;
     wks.cell("C1").value() = "  Hello OpenXLSX!  ";
     wks.cell("D1").value() = true;
