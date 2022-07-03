@@ -74,6 +74,40 @@ int main()
     cout << "Cell D1: (" << D1.typeAsString() << ") " << D1.get<bool>() << endl;
     cout << "Cell E1: (" << E1.typeAsString() << ") " << E1.get<double>() << endl << endl;
 
+    // using std::visit for output
+    struct XLSXVisitor
+    {
+        void operator()(const string& v)
+        {
+            cout << "(string) " << v << "\n";
+        }
+        void operator()(const int64_t& v)
+        {
+            cout << "(integer) " << v << "\n";
+        }
+        void operator()(const double& v)
+        {
+            cout << "(double) " << v << "\n";
+        }
+        void operator()(bool v)
+        {
+            cout << "(boolean) " << boolalpha << v << "\n";
+        }
+        void operator()(XLEmptyValue) {
+            cout << "(empty) " << "\n";
+        }
+        void operator()(XLErrorValue) {
+            cout << "(error) " << "\n";
+        }
+    };
+
+    cout<< "using std::visit for output:\n";
+    for (const auto& c : { A1, B1, C1, D1 }) {
+        visit(XLSXVisitor(), c.to_variant());
+    }
+
+    cout<< endl;
+
     // XLCellValue objects can also be copied and assigned to other cells. This following line
     // will copy and assign the value of cell C1 to cell E1. Note tha only the value is copied;
     // other cell properties of the target cell remain unchanged.
