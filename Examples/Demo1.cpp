@@ -21,6 +21,8 @@ int main()
     doc.create("./Demo01.xlsx");
     auto wks = doc.workbook().worksheet("Sheet1");
 
+    doc.workbook().addWorksheet("スプレッドシート");
+
     // The individual cells can be accessed by using the .cell() method on the worksheet object.
     // The .cell() method can take the cell address as a string, or alternatively take a XLCellReference
     // object. By using an XLCellReference object, the cells can be accessed by row/column coordinates.
