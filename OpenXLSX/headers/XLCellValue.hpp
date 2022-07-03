@@ -51,6 +51,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #pragma warning(disable : 4275)
 
 // ===== External Includes ===== //
+#include <cmath>
 #include <cstdint>
 #include <iostream>
 #include <string>
@@ -144,7 +145,7 @@ namespace OpenXLSX
             // ===== If not, a static_assert will result in compilation error.
             else {
                 static_assert(std::is_floating_point_v<T>, "Invalid argument for constructing XLCellValue object");
-                if (isfinite(value)) {
+                if (std::isfinite(value)) {
                     m_type  = XLValueType::Float;
                     m_value = double(value);
                 }

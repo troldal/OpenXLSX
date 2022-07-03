@@ -357,7 +357,7 @@ void XLCellValueProxy::setBoolean(bool numberValue)
 void XLCellValueProxy::setFloat(double numberValue)
 {
     // check for nan / inf
-    if (isfinite(numberValue)) {
+    if (std::isfinite(numberValue)) {
         // ===== Check that the m_cellNode is valid.
         assert(m_cellNode);              // NOLINT
         assert(!m_cellNode->empty());    // NOLINT
