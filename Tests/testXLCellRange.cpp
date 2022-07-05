@@ -130,15 +130,15 @@ TEST_CASE("XLCellRange Tests", "[XLCellRange]")
 
         rng.clear();
 
-        REQUIRE(wks.cell("B2").value().get<std::string>().empty());
-        REQUIRE(wks.cell("C2").value().get<std::string>().empty());
-        REQUIRE(wks.cell("D2").value().get<std::string>().empty());
-        REQUIRE(wks.cell("B3").value().get<std::string>().empty());
-        REQUIRE(wks.cell("C3").value().get<std::string>().empty());
-        REQUIRE(wks.cell("D3").value().get<std::string>().empty());
-        REQUIRE(wks.cell("B4").value().get<std::string>().empty());
-        REQUIRE(wks.cell("C4").value().get<std::string>().empty());
-        REQUIRE(wks.cell("D4").value().get<std::string>().empty());
+        REQUIRE(wks.cell("B2").value().isEmpty());
+        REQUIRE(wks.cell("C2").value().isEmpty());
+        REQUIRE(wks.cell("D2").value().isEmpty());
+        REQUIRE(wks.cell("B3").value().isEmpty());
+        REQUIRE(wks.cell("C3").value().isEmpty());
+        REQUIRE(wks.cell("D3").value().isEmpty());
+        REQUIRE(wks.cell("B4").value().isEmpty());
+        REQUIRE(wks.cell("C4").value().isEmpty());
+        REQUIRE(wks.cell("D4").value().isEmpty());
     }
 
     SECTION("XLCellIterator")

@@ -244,9 +244,9 @@ TEST_CASE("XLCellValue Tests", "[XLCellValue]")
 
         REQUIRE(value.type() == XLValueType::Error);
         REQUIRE(value.typeAsString() == "error");
-        REQUIRE(value.get<std::string>() == "#NUM!");
+        REQUIRE(value.get<XLErrorValue>().get() == "#NUM!");
         REQUIRE_THROWS(value.get<int>());
-//        REQUIRE_THROWS(value.get<double>());
+        REQUIRE_THROWS(value.get<double>());
         REQUIRE_THROWS(value.get<bool>());
     }
 
@@ -257,9 +257,9 @@ TEST_CASE("XLCellValue Tests", "[XLCellValue]")
 
         REQUIRE(value.type() == XLValueType::Error);
         REQUIRE(value.typeAsString() == "error");
-        REQUIRE(value.get<std::string>() == "#NUM!");
+        REQUIRE(value.get<XLErrorValue>().get() == "#NUM!");
         REQUIRE_THROWS(value.get<int>());
-//        REQUIRE_THROWS(value.get<double>());
+        REQUIRE_THROWS(value.get<double>());
         REQUIRE_THROWS(value.get<bool>());
     }
 
@@ -310,7 +310,7 @@ TEST_CASE("XLCellValue Tests", "[XLCellValue]")
 
         REQUIRE(value.type() == XLValueType::Empty);
         REQUIRE(value.typeAsString() == "empty");
-        REQUIRE(value.get<std::string>().empty());
+        REQUIRE(value.isEmpty());
         REQUIRE_THROWS(value.get<int>());
         REQUIRE_THROWS(value.get<double>());
         REQUIRE_THROWS(value.get<bool>());
@@ -324,9 +324,9 @@ TEST_CASE("XLCellValue Tests", "[XLCellValue]")
 
         REQUIRE(value.type() == XLValueType::Error);
         REQUIRE(value.typeAsString() == "error");
-        REQUIRE(value.get<std::string>() == "#N/A");
+        REQUIRE(value.get<XLErrorValue>().get() == "#N/A");
         REQUIRE_THROWS(value.get<int>());
-//        REQUIRE_THROWS(value.get<double>());
+        REQUIRE_THROWS(value.get<double>());
         REQUIRE_THROWS(value.get<bool>());
     }
 

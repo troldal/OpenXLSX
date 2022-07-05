@@ -63,9 +63,15 @@ XLCellValue& OpenXLSX::XLCellValue::operator=(OpenXLSX::XLCellValue&& other) noe
 XLCellValue& XLCellValue::clear()
 {
     m_type  = XLValueType::Empty;
-    m_value = std::string("");
+//    m_value = std::string("");
+    m_value = XLEmptyValue();
     return *this;
 }
+
+/**
+ *
+ */
+bool XLCellValue::isEmpty() const { return std::holds_alternative<XLEmptyValue>(m_value); }
 
 /**
  * @details Sets the value type to XLValueType::Error. The value will be set to an empty string.
@@ -75,7 +81,8 @@ XLCellValue& XLCellValue::clear()
 XLCellValue& XLCellValue::setError(const std::string &error)
 {
     m_type  = XLValueType::Error;
-    m_value = error;
+//    m_value = error;
+    m_value = XLErrorValue(error);
     return *this;
 }
 
@@ -199,6 +206,12 @@ XLCellValueProxy& XLCellValueProxy::clear()
     m_cellNode->remove_child("v");
     return *this;
 }
+
+/**
+ *
+ */
+bool XLCellValueProxy::isEmpty() const { return getValue().isEmpty(); }
+
 /**
  * @details Set the cell value to a error state. This will remove all children and attributes, except
  * the type attribute, which is set to "e"
@@ -240,7 +253,7 @@ XLValueType XLCellValueProxy::type() const
     assert(m_cellNode);              // NOLINT
     assert(!m_cellNode->empty());    // NOLINT
 
-    // ===== If neither a Type attribute or a getValue node is present, the cell is empty.
+    // ===== If neither a Type attribute nor a Value node is present, the cell is empty.
     if (!m_cellNode->attribute("t") && !m_cellNode->child("v")) return XLValueType::Empty;
 
     // ===== If a Type attribute is not present, but a value node is, the cell contains a number.
