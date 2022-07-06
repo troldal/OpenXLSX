@@ -1,7 +1,3 @@
-//
-// Created by Kenneth Balslev on 19/06/2020.
-//
-
 #pragma warning(push)
 #pragma warning(disable : 4244)
 
@@ -9,8 +5,7 @@
 #include <benchmark/benchmark.h>
 #include <cstdint>
 #include <numeric>
-#include <deque>
-#include <list>
+#include <vector>
 
 using namespace OpenXLSX;
 
@@ -27,7 +22,7 @@ static void BM_WriteStrings(benchmark::State& state)    // NOLINT
     doc.create("./benchmark_strings.xlsx");
     auto wks = doc.workbook().worksheet("Sheet1");
 
-    std::deque<XLCellValue> values(colCount, "OpenXLSX");
+    std::vector<XLCellValue> values(colCount, "OpenXLSX");
 
     for (auto _ : state)    // NOLINT
         for (auto& row : wks.rows(rowCount)) row.values() = values;
