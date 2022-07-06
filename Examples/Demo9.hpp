@@ -117,18 +117,14 @@ int demo9()
         return dur.count();
     };
 
-    cout << "Launching 4 threads ... " << endl;
+    cout << "Launching 2 threads ... " << endl;
 
     t1 = high_resolution_clock::now();
     std::future<double> answer0 = std::async(load);
     std::future<double> answer1 = std::async(load);
-    std::future<double> answer2 = std::async(load);
-    std::future<double> answer3 = std::async(load);
 
     cout << "Thread 0: " << answer0.get() << " seconds" << endl;
     cout << "Thread 1: " << answer1.get() << " seconds" << endl;
-    cout << "Thread 2: " << answer2.get() << " seconds" << endl;
-    cout << "Thread 3: " << answer3.get() << " seconds" << endl;
 
     t2 = high_resolution_clock::now();
     dur = t2 - t1;
