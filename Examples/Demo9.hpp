@@ -1,21 +1,24 @@
-#ifndef OPENXLSX_DEMO6_HPP
-#define OPENXLSX_DEMO6_HPP
+#ifndef OPENXLSX_DEMO9_HPP
+#define OPENXLSX_DEMO9_HPP
 
 #include <OpenXLSX.hpp>
 
 #include <chrono>
 #include <deque>
+#include <filesystem>
+#include <future>
 #include <iostream>
 #include <numeric>
 #include <random>
+#include <sstream>
 
-int demo6()
+int demo9()
 {
     using namespace std;
     using namespace OpenXLSX;
 
     cout << "********************************************************************************\n";
-    cout << "DEMO PROGRAM #06: Row Handling (using containers)\n";
+    cout << "DEMO PROGRAM #09: Parallel Spreadsheet Handling\n";
     cout << "********************************************************************************\n";
 
     // As an alternative to using cell ranges, you can use row ranges, and extract row values to a standard container
@@ -38,7 +41,7 @@ int demo6()
 
     t1 = high_resolution_clock::now();
     XLDocument doc;
-    std::string path = "./Demo06.xlsx";
+    std::string path = "./Demo09.xlsx";
     doc.create(path);
     auto wks = doc.workbook().worksheet("Sheet1");
 
@@ -83,60 +86,58 @@ int demo6()
     dur = t2 - t1;
     std::cout << "(" << dur.count() << " seconds)\n";
 
-    // Reopen the spreadsheet...
-    cout << "Re-opening spreadsheet ... ";
-    cout.flush();
+    auto load = []() -> double {
+        auto t1 = high_resolution_clock::now();
+        XLDocument doc;
+        doc.open("./Demo09.xlsx");
+        auto wks = doc.workbook().worksheet("Sheet1");
+
+        std::vector<XLCellValue> readValues;
+        uint64_t sum = 0;
+        uint64_t count = 0;
+        for (auto& row : wks.rows()) {
+            readValues = row.values();
+
+            // Count the number of cell values
+            count += std::count_if(readValues.begin(), readValues.end(), [](const XLCellValue& v) {
+                return v.type() != XLValueType::Empty;
+            });
+
+            // Sum the numbers in each cell.
+            sum += std::accumulate(readValues.begin(),
+                                   readValues.end(),
+                                   0,
+                                   [](uint64_t a, XLCellValue& b) {return a + b.get<uint64_t>(); });
+        }
+        auto t2 = high_resolution_clock::now();
+
+        duration<double> dur = t2 - t1;
+        doc.close();
+
+        return dur.count();
+    };
+
+    cout << "Launching 4 threads ... " << endl;
+
     t1 = high_resolution_clock::now();
-    doc.open(path);
-    wks = doc.workbook().worksheet("Sheet1");
+    std::future<double> answer0 = std::async(load);
+    std::future<double> answer1 = std::async(load);
+    std::future<double> answer2 = std::async(load);
+    std::future<double> answer3 = std::async(load);
+
+    cout << "Thread 0: " << answer0.get() << " seconds" << endl;
+    cout << "Thread 1: " << answer1.get() << " seconds" << endl;
+    cout << "Thread 2: " << answer2.get() << " seconds" << endl;
+    cout << "Thread 3: " << answer3.get() << " seconds" << endl;
+
     t2 = high_resolution_clock::now();
     dur = t2 - t1;
-    std::cout << "(" << dur.count() << " seconds)\n";
+    std::cout << "Total execution time for all threads: " << dur.count() << " seconds\n";
 
-    // Prepare for reading...
-    uint64_t sum = 0;
-    uint64_t count = 0;
-    std::vector<XLCellValue> readValues;
-    cout << "Reading data from spreadsheet ...";
-
-    // The 'values()' member function can be used for both reading and writing
-    // of data. In this case the 'readValues' variable is a std::vector of
-    // XLCellValues, and the 'values()' method will perform implicit conversion
-    // to the correct type. Again, all containers supporting bi-directional
-    // iterators are supported. Also, if you have a vector of doubles, the values
-    // will be converted, if possible. Note, however, that if conversion is not
-    // possible, an exception will be thrown. For that reason, it is often best
-    // to use a container of XLCellValue objects, and then later determine the
-    // data type for each object.
-    t1 = high_resolution_clock::now();
-    for (auto& row : wks.rows()) {
-        readValues = row.values();
-
-        // Count the number of cell values
-        count += std::count_if(readValues.begin(), readValues.end(), [](const XLCellValue& v) {
-            return v.type() != XLValueType::Empty;
-        });
-
-        // Sum the numbers in each cell.
-        sum += std::accumulate(readValues.begin(),
-                               readValues.end(),
-                               0,
-                               [](uint64_t a, XLCellValue& b) {return a + b.get<uint64_t>(); });
-    }
-
-    t2 = high_resolution_clock::now();
-    dur = t2 - t1;
-    std::cout << " (" << dur.count() << " seconds)\n";
-
-    cout << "Cell count: " << count << endl;
-    cout << "Sum of cell values: " << sum << endl;
-
-    doc.close();
-
-    cout << "\nDEMO PROGRAM #06 COMPLETED\n\n";
+    cout << "\nDEMO PROGRAM #09 COMPLETED\n\n";
 
     return 0;
 }
 
 
-#endif    // OPENXLSX_DEMO6_HPP
+#endif    // OPENXLSX_DEMO9_HPP

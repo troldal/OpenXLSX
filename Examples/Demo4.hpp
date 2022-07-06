@@ -2,14 +2,12 @@
 #define OPENXLSX_DEMO4_HPP
 
 #include <OpenXLSX.hpp>
-#include <filesystem>
 #include <iostream>
 #include <nowide/iostream.hpp>
 
 int demo4()
 {
     using namespace OpenXLSX;
-    using namespace std::filesystem;
 
     nowide::cout << "********************************************************************************\n";
     nowide::cout << "DEMO PROGRAM #04: Unicode\n";
@@ -45,13 +43,11 @@ int demo4()
     wks1.cell(XLCellReference("A6")).value() = "Γειά σου Κόσμε!";
 
     // Workbooks can also be saved and loaded with Unicode names
-    path p("./スプレッドシート.xlsx");
-
     doc1.save();
-    doc1.saveAs(p.native());
+    doc1.saveAs("./スプレッドシート.xlsx");
     doc1.close();
 
-    doc1.open(p.native());
+    doc1.open("./スプレッドシート.xlsx");
     wks1 = doc1.workbook().worksheet("Простыня");
 
     // The nowide::cout object is a drop-in replacement of the std::cout that enables console output of UTF-8, even on Windows.
@@ -72,6 +68,7 @@ int demo4()
     doc1.close();
 
     nowide::cout << "\nDEMO PROGRAM #04 COMPLETED\n\n";
+    nowide::cout.flush();
 
     return 0;
 }
