@@ -21,9 +21,11 @@ int demo9()
     cout << "DEMO PROGRAM #09: Parallel Spreadsheet Handling\n";
     cout << "********************************************************************************\n";
 
-    // As an alternative to using cell ranges, you can use row ranges, and extract row values to a standard container
-    // This can be significantly faster (up to twice as fast in some cases, for both reading and
-    // writing).
+    // OpenXLSX supports multi threading ... sort of. It is not possible to modify an Excel spreadsheet
+    // from two or more threads simultaneously. Also, it is not possible to use the same XLDocument object
+    // from two or more threads, even if it is only for reading. What you can do, is to simultaneously open
+    // the same document from multiple XLDocument objects, which enables parallelism of sorts.
+    // For large spreadsheets, however, this may take up a significant amount of memory.
 
     using std::chrono::high_resolution_clock;
     using std::chrono::duration_cast;
@@ -86,6 +88,8 @@ int demo9()
     dur = t2 - t1;
     std::cout << "(" << dur.count() << " seconds)\n";
 
+    // Create a lambda function, which will load the spreadsheet generated above.
+    // This function will be used by the std::async objects below.
     auto load = []() -> double {
         auto t1 = high_resolution_clock::now();
         XLDocument doc;
@@ -117,6 +121,7 @@ int demo9()
         return dur.count();
     };
 
+    // Launch two threads for simulteneous reading of the same sheet.
     cout << "Launching 2 threads ... " << endl;
 
     t1 = high_resolution_clock::now();
