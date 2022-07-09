@@ -46,6 +46,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 // ===== External Includes ===== //
 #include <nowide/fstream.hpp>
 #include <pugixml.hpp>
+#include <random>
 #if defined(_WIN32)
 #    include <random>
 #endif
@@ -416,13 +417,42 @@ namespace
 
 }    // namespace
 
+namespace {
+
+    const std::string letters = "abcdefghijklmnopqrstuvwxyz0123456789"; // NOLINT
+
+    inline std::string GenerateRandomString()
+    {
+        std::random_device                 rand_dev;
+        std::mt19937                       generator(rand_dev());
+        std::uniform_int_distribution<uint64_t> distr(0, letters.size() - 1);
+
+        std::string result;
+        const int numCharacters = 8;
+        for (int i = 0; i < numCharacters; ++i) {
+            result += letters[distr(generator)];
+        }
+
+        return result;
+    }
+} // namespace
+
 XLDocument::XLDocument(const IZipArchive& zipArchive) : m_archive(zipArchive) {}
 
 /**
- * @details An alternative constructor, taking a std::string with the path to the .xlsx package as an argument.
+ * An alternative constructor, taking a std::string with the path to the .xlsx package as an argument.
  */
-XLDocument::XLDocument(const std::string& docPath, const IZipArchive& zipArchive) : m_archive(zipArchive)
+XLDocument::XLDocument(const fs::path& docPath, const IZipArchive& zipArchive) : m_archive(zipArchive)
 {
+    open(docPath);
+}
+
+/*
+ *
+ */
+XLDocument::XLDocument(const fs::path& docPath, const fs::path& tempDir, const IZipArchive& zipArchive) : m_archive(zipArchive)
+{
+    setTemporaryDir(tempDir);
     open(docPath);
 }
 
@@ -441,13 +471,19 @@ XLDocument::~XLDocument()
  * - Unzip the contents of the package to the temporary folder.
  * - load the contents into the data structure for manipulation.
  */
-void XLDocument::open(const std::string& fileName)
+void XLDocument::open(const fs::path& fileName)
 {
     // Check if a document is already open. If yes, close it.
     // TODO: Consider throwing if a file is already open.
     if (m_archive.isOpen()) close();
     m_filePath = fileName;
-    m_archive.open(m_filePath);
+
+    auto tempName = "~$" + GenerateRandomString() + "_" + fileName.filename().string();
+    m_tempPath = temporaryDir().string() + tempName;
+    const auto copyOptions = fs::copy_options::overwrite_existing;
+    fs::copy_file(m_filePath, m_tempPath, copyOptions);
+
+    m_archive.open(m_tempPath);
 
     // ===== Add and open the Relationships and [Content_Types] files for the document level.
     m_data.emplace_back(this, "[Content_Types].xml");
@@ -501,7 +537,7 @@ void XLDocument::open(const std::string& fileName)
 /**
  * @details Create a new document. This is done by saving the data in XLTemplate.h in binary format.
  */
-void XLDocument::create(const std::string& fileName)
+void XLDocument::create(const fs::path& fileName)
 {
     // ===== Create a temporary output file stream.
     nowide::ofstream outfile(fileName, std::ios::binary);
@@ -520,7 +556,11 @@ void XLDocument::create(const std::string& fileName)
 void XLDocument::close()
 {
     if (m_archive) m_archive.close();
+    fs::remove(m_tempPath);
+
     m_filePath.clear();
+    m_tempPath.clear();
+    m_tempPath.clear();
     m_data.clear();
 
     m_wbkRelationships = XLRelationships();
@@ -544,7 +584,7 @@ void XLDocument::save()
  * is that changes to the document may invalidate the calcChain.xml file. Deleting will force Excel to re-create the
  * file. This will happen automatically, without the user noticing.
  */
-void XLDocument::saveAs(const std::string& fileName)
+void XLDocument::saveAs(const fs::path& fileName)
 {
     m_filePath = fileName;
 
@@ -554,28 +594,50 @@ void XLDocument::saveAs(const std::string& fileName)
 
     // ===== Add all xml items to archive and save the archive.
     for (auto& item : m_data) m_archive.addEntry(item.getXmlPath(), item.getRawData());
-    m_archive.save(m_filePath);
+    m_archive.save(m_tempPath);
+    const auto copyOptions = fs::copy_options::overwrite_existing;
+    fs::copy_file(m_tempPath, m_filePath, copyOptions);
 }
 
 /**
  * @details
  * @todo Currently, this method returns the full path, which is not the intention.
  */
-const std::string& XLDocument::name() const
+fs::path XLDocument::name() const
 {
-    return m_filePath;
+    return m_filePath.filename();
 }
 
 /**
  * @details
  */
-const std::string& XLDocument::path() const
+const fs::path& XLDocument::path() const
 {
     return m_filePath;
 }
 
+/*
+ * Set the path to the temporary directory. If the argument is a blank path, the m_tempDir will be cleared,
+ * indicating that the path of the target file will be used for the temporary file.
+ */
+void XLDocument::setTemporaryDir(const fs::path& path) const {
+    if (path.empty())
+        m_tempDir.clear();
+    else
+        m_tempDir = path;
+}
+
+/*
+ * Get the path of the temporary directory. If the m_tempDir variable is empty, set it to the path of the target
+ * Excel spreadsheet file.
+ */
+const fs::path& XLDocument::temporaryDir() const {
+    if (m_tempDir.empty()) m_tempDir = path().parent_path();
+    return m_tempDir;
+}
+
 /**
- * @details Get a const pointer to the underlying XLWorkbook object.
+ * Get a copy of the underlying XLWorkbook object.
  */
 XLWorkbook XLDocument::workbook() const
 {
