@@ -76,16 +76,16 @@ bool XLZipArchive::isValid() const { return m_archive != nullptr; }
  */
 bool OpenXLSX::XLZipArchive::isOpen() const
 {
-    return m_archive && m_archive->IsOpen();
+    return m_archive && m_archive->isOpen();
 }
 
 /**
  * @details
  */
-void OpenXLSX::XLZipArchive::open(const std::string& fileName)
+void OpenXLSX::XLZipArchive::open(const fs::path& fileName)
 {
     m_archive = std::make_shared<Zippy::ZipArchive>();
-    m_archive->Open(fileName);
+    m_archive->open(fileName);
 }
 
 /**
@@ -93,16 +93,16 @@ void OpenXLSX::XLZipArchive::open(const std::string& fileName)
  */
 void OpenXLSX::XLZipArchive::close()
 {
-    m_archive->Close();
+    m_archive->close();
     m_archive = nullptr;
 }
 
 /**
  * @details
  */
-void OpenXLSX::XLZipArchive::save(const std::string& path)
+void OpenXLSX::XLZipArchive::save(const fs::path& path)
 {
-    m_archive->Save(path);
+    m_archive->save(path);
 }
 
 /**
@@ -110,7 +110,7 @@ void OpenXLSX::XLZipArchive::save(const std::string& path)
  */
 void OpenXLSX::XLZipArchive::addEntry(const std::string& name, const std::string& data)
 {
-    m_archive->AddEntry(name, data);
+    m_archive->addEntry(name, data);
 }
 
 /**
@@ -118,7 +118,7 @@ void OpenXLSX::XLZipArchive::addEntry(const std::string& name, const std::string
  */
 void OpenXLSX::XLZipArchive::deleteEntry(const std::string& entryName)
 {
-    m_archive->DeleteEntry(entryName);
+    m_archive->deleteEntry(entryName);
 }
 
 /**
@@ -126,7 +126,7 @@ void OpenXLSX::XLZipArchive::deleteEntry(const std::string& entryName)
  */
 std::string OpenXLSX::XLZipArchive::getEntry(const std::string& name)
 {
-    return m_archive->GetEntry(name).GetDataAsString();
+    return m_archive->getEntry(name).getDataAsString();
 }
 
 /**
@@ -134,5 +134,5 @@ std::string OpenXLSX::XLZipArchive::getEntry(const std::string& name)
  */
 bool OpenXLSX::XLZipArchive::hasEntry(const std::string& entryName)
 {
-    return m_archive->HasEntry(entryName);
+    return m_archive->hasEntry(entryName);
 }

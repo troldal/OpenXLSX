@@ -50,6 +50,9 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #pragma warning(disable : 4251)
 #pragma warning(disable : 4275)
 
+// ===== External Includes ===== //
+#include <filesystem>
+
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
 
@@ -60,6 +63,9 @@ namespace Zippy
 
 namespace OpenXLSX
 {
+
+    namespace fs = std::filesystem;
+
     /**
      * @brief
      */
@@ -108,6 +114,10 @@ namespace OpenXLSX
          */
         explicit operator bool() const;
 
+        /**
+         *
+         * @return
+         */
         bool isValid() const;
 
         /**
@@ -120,7 +130,7 @@ namespace OpenXLSX
          * @brief
          * @param fileName
          */
-        void open(const std::string& fileName);
+        void open(const fs::path& fileName);
 
         /**
          * @brief
@@ -131,7 +141,7 @@ namespace OpenXLSX
          * @brief
          * @param path
          */
-        void save(const std::string& path = "");
+        void save(const fs::path& path = "");
 
         /**
          * @brief
