@@ -56,10 +56,10 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
 
-namespace Zippy
+namespace KZip
 {
     class ZipArchive;
-}    // namespace Zippy
+}    // namespace KZip
 
 namespace OpenXLSX
 {
@@ -171,7 +171,7 @@ namespace OpenXLSX
         bool hasEntry(const std::string& entryName);
 
     private:
-        std::shared_ptr<Zippy::ZipArchive> m_archive; /**< */
+        std::shared_ptr<KZip::ZipArchive> m_archive; /**< */
     };
 }    // namespace OpenXLSX
 

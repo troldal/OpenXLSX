@@ -634,8 +634,8 @@ namespace OpenXLSX
 
 }    // namespace OpenXLSX
 
-// TODO: Consider comparison operators on fundamental datatypes.
-// TODO: Ensure that comparison operators for XLEmptyValue and XLErrorValue works as intended.
+// TODO(troldal): Consider comparison operators on fundamental datatypes.
+// TODO(troldal): Ensure that comparison operators for XLEmptyValue and XLErrorValue works as intended.
 // ========== FRIEND FUNCTION IMPLEMENTATIONS ========== //
 namespace OpenXLSX
 {

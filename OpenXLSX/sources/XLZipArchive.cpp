@@ -44,7 +44,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
  */
 
 // ===== External Includes ===== //
-#include <zippy.hpp>
+#include <KZip.hpp>
 
 // ===== OpenXLSX Includes ===== //
 #include "XLZipArchive.hpp"
@@ -84,7 +84,7 @@ bool OpenXLSX::XLZipArchive::isOpen() const
  */
 void OpenXLSX::XLZipArchive::open(const fs::path& fileName)
 {
-    m_archive = std::make_shared<Zippy::ZipArchive>();
+    m_archive = std::make_shared<KZip::ZipArchive>();
     m_archive->open(fileName);
 }
 
@@ -126,6 +126,9 @@ void OpenXLSX::XLZipArchive::deleteEntry(const std::string& entryName)
  */
 std::string OpenXLSX::XLZipArchive::getEntry(const std::string& name)
 {
+    KZip::ZipEntry2 data = m_archive->entry(name);
+    std::cout << data.getData<std::string>() << std::endl;
+
     return m_archive->getEntry(name).getDataAsString();
 }
 

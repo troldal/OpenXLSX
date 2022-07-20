@@ -35,14 +35,14 @@ set(OPENXLSX_LIBRARY_TYPE "STATIC" CACHE STRING "Set the library type to SHARED 
 
 #=======================================================================================================================
 # EXTERNAL LIBRARIES
-#   Define external libraries used by OpenXLSX. The libraries (Zippy, PugiXML, and NoWide) are header-only, so
+#   Define external libraries used by OpenXLSX. The libraries (KZip, PugiXML, and NoWide) are header-only, so
 #   INTERFACE libraries should be defined.
 #=======================================================================================================================
 add_library(NoWide INTERFACE IMPORTED)
 target_include_directories(NoWide SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/external/nowide/>)
 
-add_library(Zippy INTERFACE IMPORTED)
-target_include_directories(Zippy SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/external/zippy/>)
+add_library(KZip INTERFACE IMPORTED)
+target_include_directories(KZip SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/external/KZip/>)
 
 add_library(PugiXML INTERFACE IMPORTED)
 target_include_directories(PugiXML SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/external/pugixml/>)
@@ -129,7 +129,7 @@ if (${OPENXLSX_LIBRARY_TYPE} STREQUAL "STATIC")
             $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)     # For export header
     target_link_libraries(OpenXLSX
             PRIVATE
-            $<BUILD_INTERFACE:Zippy>
+            $<BUILD_INTERFACE:KZip>
             $<BUILD_INTERFACE:PugiXML>
             $<BUILD_INTERFACE:NoWide>)
 
@@ -152,7 +152,7 @@ if (${OPENXLSX_LIBRARY_TYPE} STREQUAL "SHARED")
             $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)     # For export header
     target_link_libraries(OpenXLSX
             PRIVATE
-            $<BUILD_INTERFACE:Zippy>
+            $<BUILD_INTERFACE:KZip>
             $<BUILD_INTERFACE:PugiXML>
             $<BUILD_INTERFACE:NoWide>)
 

@@ -4,20 +4,29 @@ OpenXLSX is a C++ library for reading, writing, creating and modifying
 Microsoft Excel® files, with the .xlsx format.
 
 ## Table of Contents
-
-- [Motivation](#motivation)
-- [Ambition](#ambition)
-- [Compatibility](#compatibility)
-- [Build Instructions](#build-instructions)
-- [Current Status](#current-status)
-- [Performance](#performance)
-- [Caveats](#caveats)
-  - [File Size](#file-size)
-  - [Memory Usage](#memory-usage)
-  - [Unicode](#unicode)
-- [Reference Guide](#reference-guide)
-- [Example Programs](#example-programs)
-- [Changes](#changes)
+<!-- TOC -->
+* [OpenXLSX](#openxlsx)
+  * [Table of Contents](#table-of-contents)
+  * [Motivation](#motivation)
+  * [Ambition](#ambition)
+  * [Compatibility](#compatibility)
+  * [Build Instructions](#build-instructions)
+    * [Integrating into a CMake project structure](#integrating-into-a-cmake-project-structure)
+    * [Building as a separate library](#building-as-a-separate-library)
+  * [Current Status](#current-status)
+  * [Performance](#performance)
+  * [Caveats](#caveats)
+    * [File Size](#file-size)
+    * [Memory Usage](#memory-usage)
+    * [Unicode](#unicode)
+    * [Zip Library](#zip-library)
+  * [Example Programs](#example-programs)
+  * [Changes](#changes)
+    * [New in version 0.4.x](#new-in-version-04x)
+    * [New in version 0.3.x](#new-in-version-03x)
+    * [New in version 0.2.x](#new-in-version-02x)
+  * [Credits](#credits)
+<!-- TOC -->
 
 ## Motivation
 
@@ -38,7 +47,7 @@ dependencies as possible. Currently, OpenXLSX depends on the following
 3rd party libraries:
 
 - PugiXML
-- Zippy (C++ wrapper around miniz)
+- KZip (C++ wrapper around miniz)
 - Boost.Nowide (for opening files with non-ASCII names on Windows)
 
 These libraries are all header-only and included in the repository, i.e. it's not necessary to download and build 
@@ -198,10 +207,7 @@ not working!
 
 ## Performance
 
-The table below is the output from a benchmark (using the Google
-Benchmark library), which shows that read/write access can be done at a
-rate of around 4,000,000 cells per second. Floating point numbers are
-somewhat lower, due to conversion to/from strings in the .xml file.
+The table below is the output from a benchmark (using the Google Benchmark library), which shows that single thread read/write access can be done at a rate of around 4,000,000 cells per second. Floating point numbers are somewhat lower, due to conversion to/from strings in the .xml file.
 
 ```
 Run on (16 X 2300 MHz CPU s)
@@ -327,11 +333,11 @@ in UTF-8 files; all IDE's I know of can handle source code files in UTF-8
 encoding. Welcome to the wonderful world of unicode on Windows 🤮
 
 ### Zip Library
-An Excel-file is essentially just a bunch of .xml files wrapped in a .zip archive. OpenXLSX uses a 3rd party library to extract the .xml files from the .zip archive. The default library used by OpenXLSX is Zippy, which is an object-oriented wrapper around miniz. The miniz library is fast, and is header-only, which is ideal for OpenXLSX. 
+An Excel-file is essentially just a bunch of .xml files wrapped in a .zip archive. OpenXLSX uses a 3rd party library to extract the .xml files from the .zip archive. The default library used by OpenXLSX is KZip, which is an object-oriented wrapper around miniz. The miniz library is fast, and is header-only, which is ideal for OpenXLSX. 
 
 However, it is possible to use a different zip-library, if you want to. In rare cases, you may experience stability issues with miniz. In those cases, it may be useful to try a different zip-library.
 
-Using the Zippy/miniz library requires no special efforts; it will work straight out of the box. Using a different zip-library, however, will require some work. 
+Using the KZip/miniz library requires no special efforts; it will work straight out of the box. Using a different zip-library, however, will require some work. 
 
 In order to use a different zip-library, you must create a wrapper class that conforms to the interface specified by the IZipArchive class. Note that this is implemented using *type erasure*, meaning that no inheritance is required; the class just needs to have a conforming interface, thats all. After that, provide an object of the class and supply it to the OpenXLSX constructor.
 
@@ -348,7 +354,7 @@ should be relatively easy to understand what's going on.
 ## Changes
 
 ### New in version 0.4.x
-OpenXLSX can now use other zip libraries than the default Zippy/miniz library. See Demo1A as an example of how it's done
+OpenXLSX can now use other zip libraries than the default KZip/miniz library. See Demo1A as an example of how it's done
 
 ### New in version 0.3.x
 This version includes row ranges and iterators. It also support assignment of containers of cell values to XLRow 
