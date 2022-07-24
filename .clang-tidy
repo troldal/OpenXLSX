@@ -21,6 +21,7 @@ Checks: >-
   -abseil-string-find-startswith,
   -abseil-string-find-str-contains,
   -altera-unroll-loops,
+  -altera-id-dependent-backward-branch,
   -cppcoreguidelines-pro-bounds-array-to-pointer-decay
 
 WarningsAsErrors: '*'
