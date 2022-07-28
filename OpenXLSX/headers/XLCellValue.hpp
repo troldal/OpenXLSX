@@ -246,7 +246,21 @@ namespace OpenXLSX
                     return static_cast<T>(std::get<double>(m_value));
                 }
 
-                if constexpr (std::is_same_v<std::decay_t<T>, std::string> || std::is_same_v<std::decay_t<T>, std::string_view> ||
+                if constexpr (std::is_same_v<std::decay_t<T>, std::string>)
+                {
+                    std::string return_value {};
+                    auto const  visitor = [&return_value](auto&& arg) {
+                        using U = std::decay_t<decltype(arg)>;
+                        if constexpr (std::is_same_v<U, std::string>)
+                            return_value = arg;
+                        else
+                            return_value = std::to_string(arg);
+                    };
+                    std::visit(std::move(visitor), m_value);
+                    return return_value;
+                }
+
+                if constexpr (std::is_same_v<std::decay_t<T>, std::string_view> ||
                               std::is_same_v<std::decay_t<T>, const char*> ||
                               (std::is_same_v<std::decay_t<T>, char*> && !std::is_same_v<T, bool>))
                     return std::get<std::string>(m_value).c_str();
