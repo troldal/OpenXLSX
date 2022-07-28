@@ -25,10 +25,18 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/output)
 #=======================================================================================================================
 # Add build options
 #=======================================================================================================================
-option(OPENXLSX_CREATE_DOCS "Build library documentation (requires Doxygen and Graphviz/Dot to be installed)" ON)
-option(OPENXLSX_BUILD_SAMPLES "Build sample programs" ON)
-option(OPENXLSX_BUILD_TESTS "Build and run library tests" ON)
-option(OPENXLSX_BUILD_BENCHMARKS "Build and run library benchmarks" ON)
+if(NOT DEFINED OPENXLSX_MASTER_PROJECT)
+    if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
+        set(OPENXLSX_MASTER_PROJECT ON)
+    else()
+        set(OPENXLSX_MASTER_PROJECT OFF)
+    endif()
+endif()
+
+option(OPENXLSX_CREATE_DOCS "Build library documentation (requires Doxygen and Graphviz/Dot to be installed)" ${OPENXLSX_MASTER_PROJECT})
+option(OPENXLSX_BUILD_SAMPLES "Build sample programs" ${OPENXLSX_MASTER_PROJECT})
+option(OPENXLSX_BUILD_TESTS "Build and run library tests" ${OPENXLSX_MASTER_PROJECT})
+option(OPENXLSX_BUILD_BENCHMARKS "Build and run library benchmarks" ${OPENXLSX_MASTER_PROJECT})
 option(OPENXLSX_ENABLE_LIBZIP "Enable using libzip" OFF)
 
 #=======================================================================================================================
