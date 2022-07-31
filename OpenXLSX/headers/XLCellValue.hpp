@@ -103,7 +103,7 @@ namespace OpenXLSX
     {
         //---------- Friend Declarations ----------//
 
-        // TODO: Consider template functions to compare to ints, floats etc.
+        // TODO(troldal): Consider template functions to compare to ints, floats etc.
         friend bool          operator==(const XLCellValue& lhs, const XLCellValue& rhs);
         friend bool          operator!=(const XLCellValue& lhs, const XLCellValue& rhs);
         friend bool          operator<(const XLCellValue& lhs, const XLCellValue& rhs);
@@ -111,7 +111,6 @@ namespace OpenXLSX
         friend bool          operator<=(const XLCellValue& lhs, const XLCellValue& rhs);
         friend bool          operator>=(const XLCellValue& lhs, const XLCellValue& rhs);
         friend std::ostream& operator<<(std::ostream& stream, const XLCellValue& value);
-//        friend std::hash<OpenXLSX::XLCellValue>;
 
     public:
 
