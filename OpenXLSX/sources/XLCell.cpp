@@ -122,6 +122,7 @@ XLCell& XLCell::operator=(XLCell&& other) noexcept
         m_cellNode      = std::move(other.m_cellNode);
         m_sharedStrings = other.m_sharedStrings;
         m_valueProxy    = XLCellValueProxy(this, m_cellNode.get());
+        m_formulaProxy  = XLFormulaProxy(this, m_cellNode.get());
     }
 
     return *this;
