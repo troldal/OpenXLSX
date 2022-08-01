@@ -667,7 +667,7 @@ namespace KZip
          * @return
          */
         ZipEntryMetaData metadata() const {
-            // TODO(troldal): To be implemented
+            return ZipEntryMetaData(m_info);
         }
 
     private:

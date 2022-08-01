@@ -22,7 +22,8 @@ Checks: >-
   -abseil-string-find-str-contains,
   -altera-unroll-loops,
   -altera-id-dependent-backward-branch,
-  -cppcoreguidelines-pro-bounds-array-to-pointer-decay
+  -cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+  -hicpp-no-array-decay
 
 WarningsAsErrors: '*'
 HeaderFilterRegex: ''
