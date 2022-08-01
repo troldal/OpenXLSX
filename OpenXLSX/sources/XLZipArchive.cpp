@@ -126,10 +126,10 @@ void OpenXLSX::XLZipArchive::deleteEntry(const std::string& entryName)
  */
 std::string OpenXLSX::XLZipArchive::getEntry(const std::string& name)
 {
-    KZip::ZipEntry2 data = m_archive->entry(name);
-    std::cout << data.getData<std::string>() << std::endl;
+//    KZip::ZipEntry data = m_archive->entry(name);
+//    std::cout << data.getData<std::string>() << std::endl;
 
-    return m_archive->getEntry(name).getDataAsString();
+    return m_archive->entry(name).getData<std::string>();
 }
 
 /**
