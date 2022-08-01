@@ -18,12 +18,12 @@
 #include <fstream>
 #include <iostream>
 #include <memory>
+#include <optional>
 #include <random>
 #include <stdexcept>
 #include <string>
-#include <vector>
 #include <utility>
-#include <optional>
+#include <vector>
 
 // TODO(troldal): Is this required???
 #ifdef _WIN32
@@ -103,16 +103,6 @@ namespace KZip
     class ZipArchive;
     class ZipEntry;
 
-    // ===== Alias Declarations
-
-    /**
-     * @brief The ZipEntryInfo entity is an alias of the mz_zip_archive_file_stat from the miniz library.
-     * @details The ZipEntryInfo/mz_zip_archive_file_stat struct holds various meta data related to a particular
-     * entry (or item) in a zip archive, such as: comments, file size, date stamp etc.
-     * @note A new ZipEntryInfo should not be created manually.
-     */
-//    using ZipEntryInfo = mz_zip_archive_file_stat;
-
     /**
      * @brief The ZipEntryData entity is an alias for a std::vector of std::bytes.
      * @details This is used as a generic container of file data of any kind, both character strings and binary.
@@ -125,120 +115,33 @@ namespace KZip
      * @brief The ZipEntryMetaData is essentially a wrapper around the ZipEntryInfo struct, which is an alias for a
      * miniz struct.
      */
-    struct ZipEntryMetaData // NOLINT
+    class ZipEntryMetaData // NOLINT
     {
+    public:
         /**
          * @brief Constructor.
          * @param info A reference to a ZipEntryInfo object.
          */
-        explicit ZipEntryMetaData(const mz_zip_archive_file_stat& info)
-            : Index(info.m_file_index),
-              CompressedSize(info.m_comp_size),
-              UncompressedSize(info.m_uncomp_size),
-              IsDirectory(info.m_is_directory),
-              IsEncrypted(info.m_is_encrypted),
-              IsSupported(info.m_is_supported),
-              Filename(info.m_filename),
-              Comment(info.m_comment),
-              Time(info.m_time)
-        {}
+        explicit ZipEntryMetaData(const mz_zip_archive_file_stat& info) : m_stats(info) {}
 
-        uint32_t     Index;            /**< */
-        uint64_t     CompressedSize;   /**< */
-        uint64_t     UncompressedSize; /**< */
-        bool         IsDirectory;      /**< */
-        bool         IsEncrypted;      /**< */
-        bool         IsSupported;      /**< */
-        std::string  Filename;         /**< */
-        std::string  Comment;          /**< */
-        const time_t Time;             /**< */
+        uint32_t index() const { return m_stats.m_file_index; }
+        uint64_t compressedSize() const { return m_stats.m_comp_size; }
+        uint64_t uncompressedSize() const { return m_stats.m_uncomp_size; }
+        bool isDirectory() const { return m_stats.m_is_directory; }
+        bool isEncrypted() const { return m_stats.m_is_encrypted; }
+        bool isSupported() const { return m_stats.m_is_supported; }
+        std::string_view name() const { return m_stats.m_filename; }
+        std::string_view comment() const { return m_stats.m_comment; }
+        time_t time() const { return m_stats.m_time; }
+
+    private:
+        mz_zip_archive_file_stat m_stats;
     };
 
     namespace Impl
     {
         class ZipArchive;
 
-        /**
-         * @brief The Impl::ZipEntry class implements the functionality required for manipulating entries in a zip archive.
-         * @details This is the implementation class. The ZipEntry class in the KZip namespace implements the public interface.
-         * The reason for having a separate implementation class, is that it enables easy copy and move operations of
-         * ZipEntry objects, without duplicating the underlying implementation objects.
-         */
-//        class ZipEntry
-//        {
-//            friend class KZip::Impl::ZipArchive;
-//
-//        public:
-//            // ===== Constructors, Destructor and Operators
-//
-//            /**
-//             * @brief Constructor. Creates a new ZipEntry with the given ZipEntryInfo parameter. This is only used for creating
-//             * a ZipEntry for an entry already present in the ZipArchive, when opening an existing archive.
-//             * @param info A reference to a ZipEntryInfo object with the entry info.
-//             */
-//            explicit ZipEntry(const mz_zip_archive_file_stat& info) : m_entryInfo(info)
-//            {
-//                // ===== Call GetNewIndex to update the index counter with the getValue in the ZipEntryInfo object.
-//                getNewIndex(info.m_file_index);    // The return getValue is deliberately not used.
-//            }
-//
-//            /**
-//             * @brief Constructor. Creates a new ZipEntry with the given name and binary data. This should only be used for creating
-//             * new entries, not already present in the ZipArchive
-//             * @param name The name of the new entry to add to the zip archive.
-//             * @param data A reference to a ZipEntryData object with the file data to add.
-//             */
-//            ZipEntry(const std::string& name, const ZipEntryData& data) : m_entryInfo(createInfo(name)),
-//                                                                          m_entryData(data),
-//                                                                          m_isModified(true)
-//
-//            {}
-//
-//            /**
-//             * @brief Constructor. Creates a new ZipEntry with the given name and string data. This should only be used for creating
-//             * new entries, not already present in the ZipArchive
-//             * @param name The name of the new entry to add to the zip archive.
-//             * @param data A string with the text data to add to the zip archive.
-//             */
-//            ZipEntry(const std::string& name, const std::string& data) : m_entryInfo(createInfo(name)),
-//                                                                         m_entryData(std::vector<unsigned char> (data.begin(), data.end())),
-//                                                                         m_isModified(true)
-//            {}
-//
-//            /**
-//             * @brief Copy Constructor (Deleted)
-//             * @param other The object to copy.
-//             * @note The copy constructor has been deleted, because it is not obvious what should happen to the
-//             * underlying file when copying the entry object.
-//             */
-//            ZipEntry(const ZipEntry& other) = delete;
-//
-//            /**
-//             * @brief Move Constructor.
-//             * @param other The object to be moved.
-//             */
-//            ZipEntry(ZipEntry&& other) noexcept = default;
-//
-//            /**
-//             * @brief Destructor.
-//             */
-//            virtual ~ZipEntry() = default;
-//
-//            /**
-//             * @brief Copy Assignment Operator (deleted)
-//             * @param other The object to be copied.
-//             * @return A reference to the copied-to object.
-//             * @note The copy assignment operator has been deleted, because it is not obvious what should happen to the
-//             * underlying file when copying the entry object.
-//             */
-//            ZipEntry& operator=(const ZipEntry& other) = delete;
-//
-//            /**
-//             * @brief Move Assignment Operator.
-//             * @param other The object to be moved.
-//             * @return A reference to the moved-to object.
-//             */
-//            ZipEntry& operator=(ZipEntry&& other) noexcept = default;
 //
 //            // ===== Data Access and Manipulation
 //
@@ -249,15 +152,6 @@ namespace KZip
 //            inline ZipEntryData getData() const
 //            {
 //                return m_entryData;
-//            }
-//
-//            /**
-//             * @brief Get entry data as a std::string.
-//             * @return Returns a std::string with the file data.
-//             */
-//            inline std::string getDataAsString() const
-//            {
-//                return std::string{m_entryData.begin(), m_entryData.end()};
 //            }
 //
 //            /**
@@ -654,8 +548,18 @@ namespace KZip
         friend class Impl::ZipArchive;
 
     public:
+
+        /**
+         * @brief
+         */
         ~ZipEntry() = default;
 
+        /**
+         * @brief
+         * @tparam T
+         * @param data
+         * @return
+         */
         template<
             typename T,
             typename std::enable_if<std::is_convertible_v<typename T::value_type, unsigned char> >::type* = nullptr>
@@ -663,6 +567,11 @@ namespace KZip
             // TODO(troldal): To be implemented
         }
 
+        /**
+         * @brief
+         * @tparam T
+         * @param data
+         */
         template<
             typename T,
             typename std::enable_if<std::is_convertible_v<typename T::value_type, unsigned char> >::type* = nullptr>
@@ -746,10 +655,17 @@ namespace KZip
             return getData<T>();
         }
 
+        /**
+         * @brief
+         */
         void erase() {
             // TODO(troldal): To be implemented
         }
 
+        /**
+         * @brief
+         * @return
+         */
         ZipEntryMetaData metadata() const {
             // TODO(troldal): To be implemented
         }
@@ -757,17 +673,40 @@ namespace KZip
     private:
         //---------- Private Member Functions ---------- //
 
+        /**
+         * @brief
+         * @param archive
+         * @param info
+         */
         ZipEntry(mz_zip_archive* archive, mz_zip_archive_file_stat info)
             : m_archive(archive),
               m_info(info)
         {}
 
+        /**
+         * @brief
+         * @param other
+         */
         ZipEntry(const ZipEntry& other) = default;
 
+        /**
+         * @brief
+         * @param other
+         */
         ZipEntry(ZipEntry&& other) noexcept = default;
 
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
         ZipEntry& operator=(const ZipEntry& other) = default;
 
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
         ZipEntry& operator=(ZipEntry&& other) noexcept = default;
 
 
