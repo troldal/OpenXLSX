@@ -99,7 +99,7 @@ const char* XLSharedStrings::getString(uint32_t index) const
 int32_t XLSharedStrings::appendString(const std::string& str)
 {
     auto textNode = xmlDocument().document_element().append_child("si").append_child("t");
-    if (str.front() == ' ' || str.back() == ' ') textNode.append_attribute("xml:space").set_value("preserve");
+    if ((!str.empty()) && (str.front() == ' ' || str.back() == ' ')) textNode.append_attribute("xml:space").set_value("preserve");
 
     textNode.text().set(str.c_str());
     m_stringCache->emplace_back(textNode.text().get());
