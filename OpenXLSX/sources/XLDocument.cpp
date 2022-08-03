@@ -46,6 +46,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 // ===== External Includes ===== //
 #include <nowide/fstream.hpp>
 #include <pugixml.hpp>
+#include <regex>
 #if defined(_WIN32)
 #    include <random>
 #endif
@@ -663,28 +664,12 @@ void XLDocument::setProperty(XLProperty prop, const std::string& value) // NOLIN
         case XLProperty::Application:
             m_appProperties.setProperty("Application", value);
             break;
-        case XLProperty::AppVersion:    // ===== TODO: Clean up this section
-            try {
-                std::stof(value);
-            }
-            catch (...) {
-                throw XLPropertyError("Invalid property value");
-            }
-
-            if (value.find('.') != std::string::npos) {
-                if (!value.substr(value.find('.') + 1).empty() && value.substr(value.find('.') + 1).size() <= 5) { // NOLINT
-                    if (!value.substr(0, value.find('.')).empty() && value.substr(0, value.find('.')).size() <= 2) {
-                        m_appProperties.setProperty("AppVersion", value);
-                    }
-                    else
-                        throw XLPropertyError("Invalid property value");
-                }
-                else
-                    throw XLPropertyError("Invalid property value");
-            }
+        case XLProperty::AppVersion:
+            // ===== Check for the format "XX.XXXX", with X being a number.
+            if (std::regex_match(value, std::regex{ "^\\d{2}.\\d{4}$" }))
+                m_coreProperties.setProperty("AppVersion", value);
             else
                 throw XLPropertyError("Invalid property value");
-
             break;
 
         case XLProperty::Category:
