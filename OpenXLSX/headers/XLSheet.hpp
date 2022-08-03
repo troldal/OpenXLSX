@@ -51,6 +51,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #pragma warning(disable : 4275)
 
 // ===== External Includes ===== //
+#include <algorithm>
 #include <type_traits>
 #include <variant>
 #include <vector>
@@ -294,6 +295,58 @@ namespace OpenXLSX
                                         .setParam("sheetID", relationshipID())
                                         .setParam("cloneName", newName));
         }
+
+        /**
+         * @brief convert a column name (e.g. "AY") to a column number (51 in this case)
+         * 
+         * @param columName the column's name (e.g. "AY")
+         * @return uint16_t the corresponding column nuber
+         * @details This method works with upper and lower case column names.
+         */
+        static uint16_t columnNameToNumber(const std::string& columName)
+        {
+            std::string s { columName };
+            // convert to upper case (see https://stackoverflow.com/questions/313970/how-to-convert-an-instance-of-stdstring-to-lower-case)
+            std::transform(s.begin(), s.end(), s.begin(),
+                        [](unsigned char c){ return std::toupper(c); });
+            uint16_t    result = 0;
+            // loop for iterating each alphabet
+            for (uint16_t i = 0; i < s.length(); i++) {
+                // multiplying by 26 updating result
+                // process similar to a conversion with base 26 system
+                result *= 26;
+                result += s[i] - 'A' + 1;
+            }
+            // returning the answer after conversion
+            return result;
+        }
+
+        /**
+         * @brief convert a column's numer (e.g. 702) to a column name ("ZZ" in this case)
+         * 
+         * @param columNumber the column's number (e.g. 702)
+         * @return std::string the correspondig clumn name
+         * @details This method always returns an upper case column name.
+         */
+        static std::string columnNumberToName(const uint16_t& columNumber)
+        {
+            std::string str = "";
+            uint16_t    n { columNumber };
+            while (n) {
+                int rem = n % 26;
+                if (rem == 0) {
+                    str += 'Z';
+                    n = (n / 26) - 1;
+                }
+                else {
+                    str += (rem - 1) + 'A';
+                    n = n / 26;
+                }
+            }
+            reverse(str.begin(), str.begin() + str.length());
+            return str;
+        }
+
     };
 
     /**
