@@ -28,6 +28,7 @@ target_sources(OpenXLSXTests
         testXLFormula.cpp
         testXLRow.cpp
         testXLSheet.cpp
+        testCellNameNumber.cpp
         )
 
 target_link_libraries(OpenXLSXTests
