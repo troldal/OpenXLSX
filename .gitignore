@@ -4,6 +4,7 @@
 
 # Build Directories
 *cmake-build*/
+build/
 
 # Visual Studio
 .vs/
