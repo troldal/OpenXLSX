@@ -6,8 +6,9 @@
 *cmake-build*/
 build/
 
-# Visual Studio
+# Visual Studio (Code)
 .vs/
+.vscode/
 out/
 
 # other
