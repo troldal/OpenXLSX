@@ -18,7 +18,7 @@ using namespace OpenXLSX;
  * 
  * @todo the name could be better ...
  */
-void evaluateFormularString(OpenXLSX::XLCell cell)
+void evaluateFormulaString(OpenXLSX::XLCell cell)
 {
     std::string sFormula { cell.value().get<std::string>() };
     if (sFormula[0] == '=') {
@@ -196,7 +196,7 @@ TEST_CASE("XLFormula Tests", "[XLFormula]")
 
         // OK, try something like "=$C2+C$3*$B$4"
         wks.cell("E9").value() = "=$C2+C$3*$B$4";
-        evaluateFormularString(wks.cell("E9"));
+        evaluateFormulaString(wks.cell("E9"));
         REQUIRE(wks.cell("E9").formula() == XLFormula("$C2+C$3*$B$4"));
 
         doc.save();
