@@ -4,6 +4,7 @@
 
 #include <OpenXLSX.hpp>
 #include <catch.hpp>
+#include <filesystem>
 #include <fstream>
 
 using namespace OpenXLSX;
@@ -32,8 +33,10 @@ TEST_CASE("XLCell Tests", "[XLCell]")
 
     SECTION("Create from worksheet")
     {
+        std::filesystem::path fileName{"./testXLCell.xlsx"};
+        std::filesystem::remove(fileName);
         XLDocument doc;
-        doc.create("./testXLCell.xlsx");
+        doc.create(fileName);
         XLWorksheet wks = doc.workbook().sheet(1);
         auto cell = wks.cell("A1");
         cell.value() = 42;
@@ -47,8 +50,10 @@ TEST_CASE("XLCell Tests", "[XLCell]")
 
     SECTION("Copy constructor")
     {
+        std::filesystem::path fileName{"./testXLCell.xlsx"};
+        std::filesystem::remove(fileName);
         XLDocument doc;
-        doc.create("./testXLCell.xlsx");
+        doc.create(fileName);
         XLWorksheet wks = doc.workbook().sheet(1);
         auto cell = wks.cell("A1");
         cell.value() = 42;
@@ -64,8 +69,10 @@ TEST_CASE("XLCell Tests", "[XLCell]")
 
     SECTION("Move constructor")
     {
+        std::filesystem::path fileName{"./testXLCell.xlsx"};
+        std::filesystem::remove(fileName);
         XLDocument doc;
-        doc.create("./testXLCell.xlsx");
+        doc.create(fileName);
         XLWorksheet wks = doc.workbook().sheet(1);
         auto cell = wks.cell("A1");
         cell.value() = 42;
@@ -81,8 +88,10 @@ TEST_CASE("XLCell Tests", "[XLCell]")
 
     SECTION("Copy assignment operator")
     {
+        std::filesystem::path fileName{"./testXLCell.xlsx"};
+        std::filesystem::remove(fileName);
         XLDocument doc;
-        doc.create("./testXLCell.xlsx");
+        doc.create(fileName);
         XLWorksheet wks = doc.workbook().sheet(1);
         auto cell = wks.cell("A1");
         cell.value() = 42;
@@ -99,8 +108,10 @@ TEST_CASE("XLCell Tests", "[XLCell]")
 
     SECTION("Move assignment operator")
     {
+        std::filesystem::path fileName{"./testXLCell.xlsx"};
+        std::filesystem::remove(fileName);
         XLDocument doc;
-        doc.create("./testXLCell.xlsx");
+        doc.create(fileName);
         XLWorksheet wks = doc.workbook().sheet(1);
         auto cell = wks.cell("A1");
         cell.value() = 42;
@@ -119,8 +130,10 @@ TEST_CASE("XLCell Tests", "[XLCell]")
 
     SECTION("Setters and Getters")
     {
+        std::filesystem::path fileName{"./testXLCell.xlsx"};
+        std::filesystem::remove(fileName);
         XLDocument doc;
-        doc.create("./testXLCell.xlsx");
+        doc.create(fileName);
         XLWorksheet wks = doc.workbook().sheet(1);
         auto cell = wks.cell("A1");
         cell.formula().set("=1+1");
@@ -140,8 +153,10 @@ TEST_CASE("XLCell Tests", "[XLCell]")
 
     SECTION("Relational operators")
     {
+        std::filesystem::path fileName{"./testXLCell.xlsx"};
+        std::filesystem::remove(fileName);
         auto doc = XLDocument();
-        doc.create("./testXLCell.xlsx");
+        doc.create(fileName);
         auto wks = doc.workbook().worksheet("Sheet1");
 
         auto cell1 = wks.cell("B2");
@@ -156,8 +171,10 @@ TEST_CASE("XLCell Tests", "[XLCell]")
 
     SECTION("Offset function")
     {
+        std::filesystem::path fileName{"./testXLCell.xlsx"};
+        std::filesystem::remove(fileName);
         auto doc = XLDocument();
-        doc.create("./testXLCell.xlsx");
+        doc.create(fileName);
         auto wks = doc.workbook().worksheet("Sheet1");
 
         auto cell1 = wks.cell("B2");
