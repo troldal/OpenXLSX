@@ -15,7 +15,7 @@ using namespace OpenXLSX;
 TEST_CASE("XLDocument Tests", "[XLDocument]")
 {
     std::string file    = "./testXLDocument.xlsx";
-    std::string newfile = "./TestDocumentCreationNew.xlsx";
+    std::string newfile = "./testXLDocumentCopy.xlsx";
 
     /**
      * @test
@@ -106,6 +106,7 @@ TEST_CASE("XLDocument Tests", "[XLDocument]")
     //    SECTION("Section 01F: Copy construction")
     //    {
     //        XLDocument doc(file);
+    // @note Copy constructor explicitly deleted.
     //        XLDocument copy = doc;
     //
     //        REQUIRE(copy.name() == doc.name());
@@ -120,6 +121,7 @@ TEST_CASE("XLDocument Tests", "[XLDocument]")
     //    {
     //        XLDocument doc(file);
     //        XLDocument copy;
+    // @note Copy constructor explicitly deleted.
     //        copy = doc;
     //
     //        REQUIRE(copy.name() == doc.name());
@@ -133,6 +135,7 @@ TEST_CASE("XLDocument Tests", "[XLDocument]")
     //    SECTION("Section 01H: Move construction")
     //    {
     //        XLDocument doc(file);
+    // @note Copy constructor explicitly deleted.
     //        XLDocument copy = std::move(doc);
     //
     //        REQUIRE(copy.name() == file);
