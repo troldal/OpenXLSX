@@ -13,7 +13,7 @@ target_include_directories(Catch SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CURR
 #=======================================================================================================================
 # Define TEST target
 #=======================================================================================================================
-add_executable(OpenXLSXTests EXCLUDE_FROM_ALL "")
+add_executable(OpenXLSXTests)
 target_sources(OpenXLSXTests
         PRIVATE
         main.cpp
@@ -28,6 +28,7 @@ target_sources(OpenXLSXTests
         testXLFormula.cpp
         testXLRow.cpp
         testXLSheet.cpp
+        testCellNameNumber.cpp
         )
 
 target_link_libraries(OpenXLSXTests

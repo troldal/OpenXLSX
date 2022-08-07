@@ -67,3 +67,8 @@ target_link_libraries(Demo7 PRIVATE OpenXLSX::OpenXLSX)
 add_executable(Demo8 Demo8.cpp)
 target_link_libraries(Demo8 PRIVATE OpenXLSX::OpenXLSX)
 
+#=======================================================================================================================
+# Define createTemplate (Demo9) target
+#=======================================================================================================================
+add_executable(createTemplate createTemplate.cpp)
+target_link_libraries(createTemplate PRIVATE OpenXLSX::OpenXLSX)
