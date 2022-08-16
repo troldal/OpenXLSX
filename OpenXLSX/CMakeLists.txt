@@ -243,80 +243,81 @@ endif ()
 #=======================================================================================================================
 # Install
 #=======================================================================================================================
-# Some basic stuff we'll need in this section
-include(GNUInstallDirs)
-include(CMakePackageConfigHelpers)
-set(ConfigPackageLocation ${CMAKE_INSTALL_LIBDIR}/cmake/OpenXLSX)
+if (OPENXLSX_ACTIVE_INSTALLATION)
+    # Some basic stuff we'll need in this section
+    include(GNUInstallDirs)
+    include(CMakePackageConfigHelpers)
+    set(ConfigPackageLocation ${CMAKE_INSTALL_LIBDIR}/cmake/OpenXLSX)
 
-# Install interface headers
-install(
-        FILES ${OPENXLSX_CXX_INTERFACE_HEADERS}
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/OpenXLSX/${dir}
-)
+    # Install interface headers
+    install(
+            FILES ${OPENXLSX_CXX_INTERFACE_HEADERS}
+            DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/OpenXLSX/${dir}
+    )
 
-# Install export header
-install(
-        FILES ${CMAKE_CURRENT_BINARY_DIR}/OpenXLSX-Exports.hpp
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/OpenXLSX/headers
-)
+    # Install export header
+    install(
+            FILES ${CMAKE_CURRENT_BINARY_DIR}/OpenXLSX-Exports.hpp
+            DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/OpenXLSX/headers
+    )
 
-file(GLOB OPENXLSX_HEADER_LIST ${CMAKE_CURRENT_LIST_DIR}/headers/*.hpp)
-install(
-        FILES ${OPENXLSX_HEADER_LIST}
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/OpenXLSX/headers
-)
+    file(GLOB OPENXLSX_HEADER_LIST ${CMAKE_CURRENT_LIST_DIR}/headers/*.hpp)
+    install(
+            FILES ${OPENXLSX_HEADER_LIST}
+            DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/OpenXLSX/headers
+    )
 
-install(
-        FILES ${CMAKE_CURRENT_LIST_DIR}/OpenXLSX.hpp
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/OpenXLSX
-)
+    install(
+            FILES ${CMAKE_CURRENT_LIST_DIR}/OpenXLSX.hpp
+            DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/OpenXLSX
+    )
 
-# Targets
-install(
-        TARGETS OpenXLSX
-        EXPORT OpenXLSXTargets
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        COMPONENT lib
-        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        COMPONENT lib
-        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-        COMPONENT bin
-        INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/OpenXLSX
-)
+    # Targets
+    install(
+            TARGETS OpenXLSX
+            EXPORT OpenXLSXTargets
+            LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            COMPONENT lib
+            ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            COMPONENT lib
+            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+            COMPONENT bin
+            INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/OpenXLSX
+    )
 
-set_target_properties(OpenXLSX PROPERTIES FOLDER libs VERSION ${OPENXLSX_MAJOR_VERSION}.${OPENXLSX_MINOR_VERSION}.${OPENXLSX_MICRO_VERSION} SOVERSION ${OPENXLSX_MAJOR_VERSION})
+    set_target_properties(OpenXLSX PROPERTIES FOLDER libs VERSION ${OPENXLSX_MAJOR_VERSION}.${OPENXLSX_MINOR_VERSION}.${OPENXLSX_MICRO_VERSION} SOVERSION ${OPENXLSX_MAJOR_VERSION})
 
-# Package version
-write_basic_package_version_file(
-        "${CMAKE_CURRENT_BINARY_DIR}/OpenXLSX/OpenXLSXConfigVersion.cmake"
-        VERSION ${OpenXLSX_VERSION}
-        COMPATIBILITY AnyNewerVersion
-)
-install(
-        FILES
-        OpenXLSXConfig.cmake
-        "${CMAKE_CURRENT_BINARY_DIR}/OpenXLSX/OpenXLSXConfigVersion.cmake"
-        DESTINATION ${ConfigPackageLocation}
-)
+    # Package version
+    write_basic_package_version_file(
+            "${CMAKE_CURRENT_BINARY_DIR}/OpenXLSX/OpenXLSXConfigVersion.cmake"
+            VERSION ${OpenXLSX_VERSION}
+            COMPATIBILITY AnyNewerVersion
+    )
+    install(
+            FILES
+            OpenXLSXConfig.cmake
+            "${CMAKE_CURRENT_BINARY_DIR}/OpenXLSX/OpenXLSXConfigVersion.cmake"
+            DESTINATION ${ConfigPackageLocation}
+    )
 
-# Package configuration
-configure_file(OpenXLSXConfig.cmake
-        "${CMAKE_CURRENT_BINARY_DIR}/OpenXLSX/OpenXLSXConfig.cmake"
-        COPYONLY
-        )
+    # Package configuration
+    configure_file(OpenXLSXConfig.cmake
+            "${CMAKE_CURRENT_BINARY_DIR}/OpenXLSX/OpenXLSXConfig.cmake"
+            COPYONLY
+            )
 
-# Package export targets
-export(
-        EXPORT OpenXLSXTargets
-        FILE "${CMAKE_CURRENT_BINARY_DIR}/OpenXLSX/OpenXLSXTargets.cmake"
-        NAMESPACE OpenXLSX::
-)
-install(
-        EXPORT OpenXLSXTargets
-        FILE OpenXLSXTargets.cmake
-        NAMESPACE OpenXLSX::
-        DESTINATION ${ConfigPackageLocation}
-)
+    # Package export targets
+    export(
+            EXPORT OpenXLSXTargets
+            FILE "${CMAKE_CURRENT_BINARY_DIR}/OpenXLSX/OpenXLSXTargets.cmake"
+            NAMESPACE OpenXLSX::
+    )
+    install(
+            EXPORT OpenXLSXTargets
+            FILE OpenXLSXTargets.cmake
+            NAMESPACE OpenXLSX::
+            DESTINATION ${ConfigPackageLocation}
+    )
 
-
+endif()
 
