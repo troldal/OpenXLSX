@@ -37,6 +37,7 @@ option(OPENXLSX_CREATE_DOCS "Build library documentation (requires Doxygen and G
 option(OPENXLSX_BUILD_SAMPLES "Build sample programs" ${OPENXLSX_MASTER_PROJECT})
 option(OPENXLSX_BUILD_TESTS "Build and run library tests" ${OPENXLSX_MASTER_PROJECT})
 option(OPENXLSX_BUILD_BENCHMARKS "Build and run library benchmarks" ${OPENXLSX_MASTER_PROJECT})
+option(OPENXLSX_ACTIVE_INSTALLATION "Generate instalation processus for make" ${OPENXLSX_MASTER_PROJECT})
 option(OPENXLSX_ENABLE_LIBZIP "Enable using libzip" OFF)
 
 #=======================================================================================================================
