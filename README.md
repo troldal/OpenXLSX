@@ -166,8 +166,10 @@ You can change the `--target` and `--config` arguments to whatever you wish to u
 When built, you can install it using the following command:
 
 ```
-cmake --install .
+cmake --install . --config Release
 ```
+
+You can also change the `--config Release` argument to `--config Debug` for example.
 
 This command will install the library and header files to the default location on your platform (usually /usr/local/ 
 on Linux and MacOS, and C:\Program Files on Windows). You can set a different location using the --prefix argument. 
