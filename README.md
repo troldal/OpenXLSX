@@ -161,7 +161,7 @@ Finally, you can build the library using the command:
 cmake --build . --target OpenXLSX --config Release
 ```
 
-You can change the `--target` and `--config` arguments to whatever you wish to use.
+You can change the `--target` and `--config` arguments to whatever you wish to use. For example, you can use `--config Debug` instead of `--config Release`.
 
 When built, you can install it using the following command:
 
