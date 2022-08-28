@@ -530,7 +530,7 @@ XLCellReference XLWorksheet::lastCell() const noexcept
  */
 uint16_t XLWorksheet::columnCount() const noexcept
 {
-        std::vector<int16_t> counts;
+        std::vector<unsigned int> counts;
         for (const auto& row : rows()) {
             counts.emplace_back(row.cellCount());
         }
