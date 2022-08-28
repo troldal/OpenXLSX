@@ -665,7 +665,7 @@ void XLDocument::setProperty(XLProperty prop, const std::string& value) // NOLIN
             break;
         case XLProperty::AppVersion:    // ===== TODO: Clean up this section
             try {
-                std::stof(value);
+                std::ignore = std::stof(value);
             }
             catch (...) {
                 throw XLPropertyError("Invalid property value");
