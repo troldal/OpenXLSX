@@ -152,11 +152,18 @@ namespace OpenXLSX
         XLSheet sheet(const std::string& sheetName);
 
         /**
-         * @brief
-         * @param sheetName
+         * @brief Get the worksheet with the given name.
+         * @param sheetName The name at which the desired worksheet is located.
          * @return
          */
         XLWorksheet worksheet(const std::string& sheetName);
+        
+        /**
+         * @brief Get the worksheet at the given index.
+         * @param index The index at which the desired worksheet is located.
+         * @return
+         */
+        XLWorksheet worksheet(uint16_t index);
 
         /**
          * @brief
