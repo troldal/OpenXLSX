@@ -127,6 +127,14 @@ XLWorksheet XLWorkbook::worksheet(const std::string& sheetName)
 /**
  * @details
  */
+XLWorksheet XLWorkbook::worksheet(uint16_t index)
+{
+    return sheet(index).get<XLWorksheet>();
+}
+
+/**
+ * @details
+ */
 XLChartsheet XLWorkbook::chartsheet(const std::string& sheetName)
 {
     return sheet(sheetName).get<XLChartsheet>();
