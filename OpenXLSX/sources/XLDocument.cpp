@@ -477,6 +477,7 @@ void XLDocument::open(const std::string& fileName)
     }
 
     for (const auto& node : getXmlData("xl/sharedStrings.xml")->getXmlDocument()->document_element().children()){
+        if(node.type() != pugi::node_element) continue;    
         if (std::string(node.first_child().name()) == "r") {
             std::string result;
             for (const auto& elem : node.children())
