@@ -163,6 +163,15 @@ void XLFormulaProxy::setFormulaString(const char* formulaString) {
     // ===== Set the text of the value node.
     m_cellNode->child("f").text().set(formulaString);
     m_cellNode->child("v").text().set(0);
+    
+    // ===== Remove "t" attribute so that the cell shows the number we've just set
+    m_cellNode->remove_attribute("t");
+    
+    // ===== Remove <is> tag in case previous type was "inlineStr"
+    m_cellNode->remove_child("is");   
+
+    // ===== Excel fails to load documents where <f> comes after <v> so make sure it is the first child    
+    m_cellNode->prepend_move(m_cellNode->child("f"));    
 }
 
 /**
