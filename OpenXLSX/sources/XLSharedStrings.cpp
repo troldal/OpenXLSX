@@ -102,7 +102,7 @@ int32_t XLSharedStrings::appendString(const std::string& str)
     if (str.front() == ' ' || str.back() == ' ') textNode.append_attribute("xml:space").set_value("preserve");
 
     // TODO: this should set "count" to the total number of strings
-    size_t strCount = m_stringCache->size();
+    size_t strCount = m_stringCache->size() + 1;
     xmlDocument().document_element().attribute("uniqueCount").set_value(std::to_string(strCount).c_str());
     xmlDocument().document_element().attribute("count").set_value(std::to_string(strCount).c_str());
 
