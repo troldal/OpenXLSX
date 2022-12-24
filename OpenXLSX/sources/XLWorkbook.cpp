@@ -250,6 +250,20 @@ void XLWorkbook::addWorksheet(const std::string& sheetName)
     prepareSheetMetadata(sheetName, internalID);
 }
 
+void XLWorkbook::deleteNamedRange(const std::string& rangeName,
+                        uint32_t localSheetId)
+{ 
+    auto ElmtNode = xmlDocument().document_element().child("definedNames").find_child_by_attribute("name", rangeName.c_str());
+    
+    // ===== First determine if the named range exists.
+    if (ElmtNode == nullptr)
+        throw XLInputError("Defined Name \"" + rangeName + "\" does not exist");
+
+    xmlDocument().document_element().child("definedNames").
+            remove_child(xmlDocument().document_element().child("definedNames").
+            find_child_by_attribute("name", rangeName.c_str()));
+
+}
 void XLWorkbook::addNamedRange(const std::string& rangeName, 
                         const std::string& reference, 
                         uint32_t localSheetId)

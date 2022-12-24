@@ -192,7 +192,15 @@ namespace OpenXLSX
          */
         void addWorksheet(const std::string& sheetName);
 
-         /**
+        /**
+         * @brief
+         * @param rangeName Name of the range to be deleted
+         * @param localSheetId Id of the sheet where the name is defined, default is 0 (global)
+         */
+        void deleteNamedRange(const std::string& rangeName, 
+                            uint32_t localSheetId = 0);
+
+        /**
          * @brief
          * @param rangeName Name of the range to be created
          * @param reference Reference of the cell/range to be named: Sheet1!$I$17:$I$19
