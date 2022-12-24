@@ -58,6 +58,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "OpenXLSX-Exports.hpp"
 #include "XLCommandQuery.hpp"
 #include "XLContentTypes.hpp"
+#include "XLDefinedName.hpp"
 #include "XLException.hpp"
 #include "XLRelationships.hpp"
 #include "XLXmlFile.hpp"
@@ -150,6 +151,16 @@ namespace OpenXLSX
          * @return A pointer to an XLAbstractSheet with the sheet at the index.
          */
         XLSheet sheet(const std::string& sheetName);
+
+        // ASH
+        int table(const std::string& tableName);
+
+        /**
+         * @brief
+         * @param definedName
+         * @return A XLDefinedName object which is derived from XLCellRange
+         */
+        XLDefinedName definedName(const std::string& definedName);
 
         /**
          * @brief

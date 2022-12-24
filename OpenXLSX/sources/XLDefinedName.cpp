@@ -43,22 +43,93 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXLSX_OPENXLSX_HPP
-#define OPENXLSX_OPENXLSX_HPP
+// ===== External Includes ===== //
+#include <algorithm>
+#include <iterator>
+#include <pugixml.hpp>
+#include <vector>
+#include <string>
+#include <utility>
+#include <memory>
 
-#include "headers/XLCell.hpp"
-#include "headers/XLCellRange.hpp"
-#include "headers/XLCellReference.hpp"
-#include "headers/XLCellValue.hpp"
-#include "headers/XLColumn.hpp"
-#include "headers/XLDateTime.hpp"
-#include "headers/XLDefinedName.hpp"
-#include "headers/XLDocument.hpp"
-#include "headers/XLException.hpp"
-#include "headers/XLFormula.hpp"
-#include "headers/XLRow.hpp"
-#include "headers/XLSheet.hpp"
-#include "headers/XLWorkbook.hpp"
-#include "headers/XLZipArchive.hpp"
+// ===== OpenXLSX Includes ===== //
+/*
+#include "XLDocument.hpp"
+#include "XLWorkbook.hpp"
+*/
+#include "XLDefinedName.hpp"
+//#include "XLCell.hpp"
 
-#endif    // OPENXLSX_OPENXLSX_HPP
+using namespace OpenXLSX;
+
+
+XLDefinedName::XLDefinedName(const std::string& name,
+                      const std::string& reference,
+                      uint32_t localSheetId,
+                      const XLCellRange& rng):
+              m_name(name),
+              m_reference(reference),
+              m_localSheetId(localSheetId),
+              XLCellRange(rng)
+{
+}
+
+XLDefinedName::~XLDefinedName()
+{}
+
+XLDefinedName::XLDefinedName(const XLDefinedName& other):
+              m_name(other.m_name),
+              m_reference(other.m_reference),
+              m_localSheetId(other.m_localSheetId),
+              XLCellRange(other)
+{}
+
+
+XLDefinedName& XLDefinedName::operator=(const XLDefinedName& other)
+{
+    if (&other != this) {
+        XLCellRange::operator=(other);
+        m_localSheetId  = other.m_localSheetId;
+        m_name          = other.m_name;
+        m_reference     = other.m_reference;
+    }
+
+    return *this;
+}
+
+XLDefinedName& XLDefinedName::operator=(XLDefinedName&& other) noexcept
+{
+    if (&other != this) {
+        XLCellRange::operator=(std::move(other));
+        m_localSheetId  = other.m_localSheetId;
+        m_name          = std::string(other.m_name);
+        m_reference     = other.m_reference;
+    }
+
+    return *this;
+}
+
+const std::string& XLDefinedName::name() const
+{
+  return m_name;
+}
+
+const std::string& XLDefinedName::reference() const
+{
+  return m_reference;
+}
+
+uint32_t XLDefinedName::localSheetId() const
+{
+  return m_localSheetId;
+}
+
+XLCell XLDefinedName::firstCell() const
+{
+  return (*begin());
+}
+
+XLCell XLDefinedName::lastCell() const
+{
+  return (*end());
+}

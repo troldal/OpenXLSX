@@ -46,6 +46,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 // ===== External Includes ===== //
 #include <array>
 #include <cmath>
+#include <algorithm>
 #ifdef CHARCONV_ENABLED
 #    include <charconv>
 #endif
@@ -340,15 +341,21 @@ uint16_t XLCellReference::columnAsNumber(const std::string& column)
  */
 XLCoordinates XLCellReference::coordinatesFromAddress(const std::string& address)
 {
+    // Escape the $ if any
+    std::string refAdress = address;
+    refAdress.erase(std::remove( refAdress.begin(),
+                                refAdress.end(),'$'), 
+                                refAdress.end());
+
     uint64_t letterCount = 0;
-    for (auto letter : address) {
+    for (auto letter : refAdress) {
         if (letter >= 65)  // NOLINT
             ++letterCount;
         else if (letter <= 57)  // NOLINT
             break;
     }
 
-    auto numberCount = address.size() - letterCount;
+    auto numberCount = refAdress.size() - letterCount;
 
-    return std::make_pair(rowAsNumber(address.substr(letterCount, numberCount)), columnAsNumber(address.substr(0, letterCount)));
+    return std::make_pair(rowAsNumber(refAdress.substr(letterCount, numberCount)), columnAsNumber(refAdress.substr(0, letterCount)));
 }

@@ -124,6 +124,45 @@ XLWorksheet XLWorkbook::worksheet(const std::string& sheetName)
     return sheet(sheetName).get<XLWorksheet>();
 }
 
+XLDefinedName XLWorkbook::definedName(const std::string& definedName)
+{
+    auto ElmtNode = xmlDocument().document_element().child("definedNames").find_child_by_attribute("name", definedName.c_str());
+    
+    // ===== First determine if the named range exists.
+    if (ElmtNode == nullptr)
+        throw XLInputError("Defined Name \"" + definedName + "\" does not exist");
+
+    std::string reference = ElmtNode.child_value();
+    std::string test = reference.substr(0, 4);
+    if (reference.substr(0, 4) == "#REF")
+        throw XLInputError("Defined Name \"" + definedName + "\" is pointing to an invalid reference");
+
+    // ===== Find the sheet where defineName is declared (but not the reference sheet). Could be empty if global name
+    // seems to be  sheetId - 1. it will be set to 0 if no sheet is specified (global)
+    uint32_t localSheetId = 0;
+    std::string strLocalSheetId = ElmtNode.attribute("localSheetId").value();
+    if (strLocalSheetId.size() > 0)
+        localSheetId = static_cast<uint32_t>(std::stoul(strLocalSheetId)) + 1;
+
+    // Retrieve the worksheet name and top left - bottom right reference
+    // TODO deal with non continuous range =Feuil1!$J$10:$K$15;Feuil1!$J$20:$K$24
+    // TODO to be moved elsewhere (Utils ?)
+    std::string::size_type n = reference.find("!");
+    const std::string sheetName = reference.substr(0, n);
+    std::string ref = reference.substr(n+1, reference.size());
+    n = ref.find(":");
+    std::string topLeft = ref.substr(0, n);
+    std::string bottomRight;
+
+    if (n<ref.size())
+      bottomRight = ref.substr(n+1, ref.size());
+    else // Range with only one cell
+      bottomRight = topLeft;
+    
+    return  XLDefinedName(definedName, reference, localSheetId, 
+        this->worksheet(sheetName).range(XLCellReference(topLeft), XLCellReference(bottomRight))); 
+}
+
 /**
  * @details
  */

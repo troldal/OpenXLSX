@@ -43,22 +43,34 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXLSX_OPENXLSX_HPP
-#define OPENXLSX_OPENXLSX_HPP
+#ifndef OPENXLSX_XLTABLE_HPP
+#define OPENXLSX_XLTABLE_HPP
 
-#include "headers/XLCell.hpp"
-#include "headers/XLCellRange.hpp"
-#include "headers/XLCellReference.hpp"
-#include "headers/XLCellValue.hpp"
-#include "headers/XLColumn.hpp"
-#include "headers/XLDateTime.hpp"
-#include "headers/XLDefinedName.hpp"
-#include "headers/XLDocument.hpp"
-#include "headers/XLException.hpp"
-#include "headers/XLFormula.hpp"
-#include "headers/XLRow.hpp"
-#include "headers/XLSheet.hpp"
-#include "headers/XLWorkbook.hpp"
-#include "headers/XLZipArchive.hpp"
+#pragma warning(push)
+#pragma warning(disable : 4251)
+#pragma warning(disable : 4275)
 
-#endif    // OPENXLSX_OPENXLSX_HPP
+// ===== External Includes ===== //
+#include <type_traits>
+#include <variant>
+#include <vector>
+
+// ===== OpenXLSX Includes ===== //
+#include "OpenXLSX-Exports.hpp"
+#include "XLCell.hpp"
+#include "XLCellReference.hpp"
+#include "XLColor.hpp"
+#include "XLColumn.hpp"
+#include "XLCommandQuery.hpp"
+#include "XLDocument.hpp"
+#include "XLException.hpp"
+#include "XLRow.hpp"
+#include "XLXmlFile.hpp"
+
+namespace OpenXLSX
+{
+    
+}    // namespace OpenXLSX
+
+#pragma warning(pop)
+#endif    // OPENXLSX_XLTABLE_HPP

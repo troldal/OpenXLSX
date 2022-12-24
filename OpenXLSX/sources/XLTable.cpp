@@ -43,22 +43,47 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXLSX_OPENXLSX_HPP
-#define OPENXLSX_OPENXLSX_HPP
+// ===== External Includes ===== //
+#include <algorithm>
+#include <iterator>
+#include <pugixml.hpp>
+#include <vector>
 
-#include "headers/XLCell.hpp"
-#include "headers/XLCellRange.hpp"
-#include "headers/XLCellReference.hpp"
-#include "headers/XLCellValue.hpp"
-#include "headers/XLColumn.hpp"
-#include "headers/XLDateTime.hpp"
-#include "headers/XLDefinedName.hpp"
-#include "headers/XLDocument.hpp"
-#include "headers/XLException.hpp"
-#include "headers/XLFormula.hpp"
-#include "headers/XLRow.hpp"
-#include "headers/XLSheet.hpp"
-#include "headers/XLWorkbook.hpp"
-#include "headers/XLZipArchive.hpp"
+// ===== OpenXLSX Includes ===== //
+#include "XLDocument.hpp"
+#include "XLTable.hpp"
+#include "XLWorkbook.hpp"
 
-#endif    // OPENXLSX_OPENXLSX_HPP
+using namespace OpenXLSX;
+
+int XLWorkbook::table(const std::string& tableName)
+{
+    auto test = xmlDocument().document_element().child("sheets");
+    // ===== First determine if the sheet exists.
+    if (xmlDocument().document_element().child("sheets").find_child_by_attribute("name", tableName.c_str()) == nullptr)
+        throw XLInputError("Sheet \"" + tableName + "\" does not exist");
+
+    // ===== Find the sheet data corresponding to the sheet with the requested name
+    std::string xmlID =
+        xmlDocument().document_element().child("sheets").find_child_by_attribute("name", tableName.c_str()).attribute("r:id").value();
+
+    XLQuery pathQuery(XLQueryType::QuerySheetRelsTarget);
+    pathQuery.setParam("sheetID", xmlID);
+    auto xmlPath = parentDoc().execQuery(pathQuery).result<std::string>();
+
+    // Some spreadsheets use absolute rather than relative paths in relationship items.
+    if (xmlPath.substr(0,4) == "/xl/") xmlPath = xmlPath.substr(4);
+
+    XLQuery xmlQuery(XLQueryType::QueryXmlData);
+    xmlQuery.setParam("xmlPath", "xl/" + xmlPath);
+    return 1;
+}
+
+/*
+XLSheet XLWorkbook::sheet(uint16_t index)
+{
+    if (index < 1 || index > sheetCount()) throw XLInputError("Sheet index is out of bounds");
+    return sheet(
+        std::vector<XMLNode>(sheetsNode(xmlDocument()).begin(), sheetsNode(xmlDocument()).end())[index - 1].attribute("name").as_string());
+}
+*/
