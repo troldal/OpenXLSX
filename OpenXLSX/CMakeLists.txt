@@ -93,6 +93,7 @@ set(OPENXLSX_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLDateTime.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLDocument.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLFormula.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLNamedRange.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLProperties.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLRelationships.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLRow.cpp
@@ -100,7 +101,6 @@ set(OPENXLSX_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLSharedStrings.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLSheet.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLTable.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/sources/XLDefinedName.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLWorkbook.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLXmlData.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLXmlFile.cpp

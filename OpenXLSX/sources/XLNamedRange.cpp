@@ -43,91 +43,93 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXLSX_XLDEFINEDNAME_HPP
-#define OPENXLSX_XLDEFINEDNAME_HPP
-
-#pragma warning(push)
-#pragma warning(disable : 4251)
-#pragma warning(disable : 4275)
-
 // ===== External Includes ===== //
-#include <type_traits>
-#include <variant>
+#include <algorithm>
+#include <iterator>
+#include <pugixml.hpp>
 #include <vector>
+#include <string>
+#include <utility>
+#include <memory>
 
 // ===== OpenXLSX Includes ===== //
-#include "OpenXLSX-Exports.hpp"
-
-#include "XLCellRange.hpp"
 /*
-#include "XLCell.hpp"
-#include "XLCellReference.hpp"
-#include "XLColor.hpp"
-#include "XLColumn.hpp"
-#include "XLCommandQuery.hpp"
 #include "XLDocument.hpp"
-#include "XLException.hpp"
-#include "XLRow.hpp"
-#include "XLXmlFile.hpp"
+#include "XLWorkbook.hpp"
 */
+#include "XLNamedRange.hpp"
+//#include "XLCell.hpp"
 
-namespace OpenXLSX
-{
-  /**
-     * @brief This class derivate from cell range class,
-     * it just add the method to creating, ....
-     */
-  class OPENXLSX_EXPORT XLDefinedName : public XLCellRange
-  {
-    public:
+using namespace OpenXLSX;
 
-        XLDefinedName(const std::string& name,
+
+XLNamedRange::XLNamedRange(const std::string& name,
                       const std::string& reference,
                       uint32_t localSheetId,
-                      const XLCellRange& rng);
-        /**
-         * @brief Destructor [default]
-         * @note This implements the default destructor.
-         */
-        ~XLDefinedName();
+                      const XLCellRange& rng):
+              m_name(name),
+              m_reference(reference),
+              m_localSheetId(localSheetId),
+              XLCellRange(rng)
+{
+}
 
-        /**
-         * @brief The copy constructor
-         * @param other The defined name object to be copied and assigned.
-         * @return A reference to the new object.
-         */
-        XLDefinedName(const XLDefinedName& other);
+XLNamedRange::~XLNamedRange()
+{}
 
-        /**
-         * @brief The copy assignment operator [default]
-         * @param other The defined name to be copied and assigned.
-         * @return A reference to the new object.
-         * @throws A std::range_error if the source range and destination range are of different size and shape.
-         * @note This implements the default copy assignment operator.
-         */
-        XLDefinedName& operator=(const XLDefinedName& other);
+XLNamedRange::XLNamedRange(const XLNamedRange& other):
+              m_name(other.m_name),
+              m_reference(other.m_reference),
+              m_localSheetId(other.m_localSheetId),
+              XLCellRange(other)
+{}
 
-        /**
-         * @brief The move assignment operator
-         * @param other The definedName to be moved and assigned.
-         * @return A reference to the new object.
-         * @note This implements the default move assignment operator.
-         */
-         XLDefinedName& operator=(XLDefinedName&& other) noexcept;
 
-        const std::string& name() const;
-        const std::string& reference() const;
-        uint32_t localSheetId() const;
+XLNamedRange& XLNamedRange::operator=(const XLNamedRange& other)
+{
+    if (&other != this) {
+        XLCellRange::operator=(other);
+        m_localSheetId  = other.m_localSheetId;
+        m_name          = other.m_name;
+        m_reference     = other.m_reference;
+    }
 
-        XLCell firstCell() const;
-        XLCell lastCell() const;
-    
-    private:
-        uint32_t          m_localSheetId;
-        std::string       m_name;
-        std::string       m_reference;
-  };   
-}    // namespace OpenXLSX
+    return *this;
+}
 
-#pragma warning(pop)
-#endif    // OPENXLSX_XLDEFINEDNAME_HPP
+XLNamedRange& XLNamedRange::operator=(XLNamedRange&& other) noexcept
+{
+    if (&other != this) {
+        XLCellRange::operator=(std::move(other));
+        m_localSheetId  = other.m_localSheetId;
+        m_name          = std::string(other.m_name);
+        m_reference     = other.m_reference;
+    }
+
+    return *this;
+}
+
+const std::string& XLNamedRange::name() const
+{
+  return m_name;
+}
+
+const std::string& XLNamedRange::reference() const
+{
+  return m_reference;
+}
+
+uint32_t XLNamedRange::localSheetId() const
+{
+  return m_localSheetId;
+}
+
+XLCell XLNamedRange::firstCell() const
+{
+  return (*begin());
+}
+
+XLCell XLNamedRange::lastCell() const
+{
+  return (*end());
+}

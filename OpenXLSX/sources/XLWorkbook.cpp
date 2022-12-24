@@ -50,6 +50,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <vector>
 
 // ===== OpenXLSX Includes ===== //
+#include "XLNamedRange.hpp"
 #include "XLDocument.hpp"
 #include "XLSheet.hpp"
 #include "XLWorkbook.hpp"
@@ -124,18 +125,18 @@ XLWorksheet XLWorkbook::worksheet(const std::string& sheetName)
     return sheet(sheetName).get<XLWorksheet>();
 }
 
-XLDefinedName XLWorkbook::definedName(const std::string& definedName)
+XLNamedRange XLWorkbook::namedRange(const std::string& rangeName)
 {
-    auto ElmtNode = xmlDocument().document_element().child("definedNames").find_child_by_attribute("name", definedName.c_str());
+    auto ElmtNode = xmlDocument().document_element().child("definedNames").find_child_by_attribute("name", rangeName.c_str());
     
     // ===== First determine if the named range exists.
     if (ElmtNode == nullptr)
-        throw XLInputError("Defined Name \"" + definedName + "\" does not exist");
+        throw XLInputError("Defined Name \"" + rangeName + "\" does not exist");
 
     std::string reference = ElmtNode.child_value();
     std::string test = reference.substr(0, 4);
     if (reference.substr(0, 4) == "#REF")
-        throw XLInputError("Defined Name \"" + definedName + "\" is pointing to an invalid reference");
+        throw XLInputError("Defined Name \"" + rangeName + "\" is pointing to an invalid reference");
 
     // ===== Find the sheet where defineName is declared (but not the reference sheet). Could be empty if global name
     // seems to be  sheetId - 1. it will be set to 0 if no sheet is specified (global)
@@ -159,7 +160,7 @@ XLDefinedName XLWorkbook::definedName(const std::string& definedName)
     else // Range with only one cell
       bottomRight = topLeft;
     
-    return  XLDefinedName(definedName, reference, localSheetId, 
+    return  XLNamedRange(rangeName, reference, localSheetId, 
         this->worksheet(sheetName).range(XLCellReference(topLeft), XLCellReference(bottomRight))); 
 }
 
@@ -246,6 +247,30 @@ void XLWorkbook::addWorksheet(const std::string& sheetName)
                                 .setParam("sheetName", sheetName)
                                 .setParam("sheetPath", "/xl/worksheets/sheet" + std::to_string(internalID) + ".xml"));
     prepareSheetMetadata(sheetName, internalID);
+}
+
+void XLWorkbook::addNamedRange(const std::string& rangeName, 
+                        const std::string& reference, 
+                        uint32_t localSheetId)
+{
+    auto ElmtNode = xmlDocument().document_element().child("definedNames").find_child_by_attribute("name", rangeName.c_str());
+    
+    // ===== First determine if the named range exists.
+    if (ElmtNode)
+        throw XLInputError("Defined Name \"" + rangeName + "\" already exists.");
+
+    //TODO sanitary check the reference (including sheet name exist)
+
+    // ===== Add new child node to the "sheets" node.
+    auto node = xmlDocument().document_element().child("definedNames").append_child("definedName");
+
+    // ===== append the required attributes to the newly created sheet node.
+ 
+    node.append_attribute("name") = rangeName.c_str();
+    if (localSheetId)
+        node.append_attribute("localSheetId") = localSheetId - 1;
+
+    node.text().set(reference.c_str());
 }
 
 /**

@@ -58,7 +58,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "OpenXLSX-Exports.hpp"
 #include "XLCommandQuery.hpp"
 #include "XLContentTypes.hpp"
-#include "XLDefinedName.hpp"
 #include "XLException.hpp"
 #include "XLRelationships.hpp"
 #include "XLXmlFile.hpp"
@@ -72,6 +71,8 @@ namespace OpenXLSX
     class XLWorksheet;
 
     class XLChartsheet;
+
+    class XLNamedRange;
 
     /**
      * @brief The XLSheetType class is an enumeration of the available sheet types, e.g. Worksheet (ordinary
@@ -157,10 +158,10 @@ namespace OpenXLSX
 
         /**
          * @brief
-         * @param definedName
+         * @param rangeName
          * @return A XLDefinedName object which is derived from XLCellRange
          */
-        XLDefinedName definedName(const std::string& definedName);
+        XLNamedRange namedRange(const std::string& rangeName);
 
         /**
          * @brief
@@ -187,9 +188,20 @@ namespace OpenXLSX
 
         /**
          * @brief
-         * @param sheetName
+         * @param definedName
          */
         void addWorksheet(const std::string& sheetName);
+
+         /**
+         * @brief
+         * @param rangeName Name of the range to be created
+         * @param reference Reference of the cell/range to be named: Sheet1!$I$17:$I$19
+         * @param localSheetId Id of the sheet where the name is defined, default is 0 (global)
+         */
+        void addNamedRange(const std::string& rangeName, 
+                            const std::string& reference, 
+                            uint32_t localSheetId = 0);
+
 
         /**
          * @brief
