@@ -50,8 +50,9 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <vector>
 
 // ===== OpenXLSX Includes ===== //
-#include "XLNamedRange.hpp"
+#include "XLCellReference.hpp"
 #include "XLDocument.hpp"
+#include "XLNamedRange.hpp"
 #include "XLSheet.hpp"
 #include "XLWorkbook.hpp"
 
@@ -259,18 +260,39 @@ void XLWorkbook::addNamedRange(const std::string& rangeName,
     if (ElmtNode)
         throw XLInputError("Defined Name \"" + rangeName + "\" already exists.");
 
-    //TODO sanitary check the reference (including sheet name exist)
+    // Retrieve the worksheet name and top left - bottom right reference and make it safe
+    // TODO deal with non continuous range =Feuil1!$J$10:$K$15;Feuil1!$J$20:$K$24
+    // TODO to be moved elsewhere (Utils ?)
+    std::string::size_type n = reference.find("!");
+    if (n == reference.size())
+        throw XLInputError("Invalid reference: \"" + rangeName + "\" no sheet name was found.");
+
+    const std::string sheetName = reference.substr(0, n);
+
+    if (!sheetExists(sheetName)) 
+        throw XLInputError("Sheet with name \"" + sheetName + "\" doesn't exist.");
+
+    std::string ref = reference.substr(n+1, reference.size());
+    n = ref.find(":");
+    std::string topLeft = ref.substr(0, n);
+
+    // Construct a safe reference that shall be absolute
+    XLCellReference cellRef(topLeft);
+    std::string safeReference = sheetName + "!" + cellRef.address(true);
+    if (n<ref.size()){
+        cellRef = XLCellReference(ref.substr(n+1, ref.size()));
+        safeReference += ":" + cellRef.address(true);
+    }
 
     // ===== Add new child node to the "sheets" node.
     auto node = xmlDocument().document_element().child("definedNames").append_child("definedName");
 
     // ===== append the required attributes to the newly created sheet node.
- 
     node.append_attribute("name") = rangeName.c_str();
     if (localSheetId)
         node.append_attribute("localSheetId") = localSheetId - 1;
 
-    node.text().set(reference.c_str());
+    node.text().set(safeReference.c_str());
 }
 
 /**

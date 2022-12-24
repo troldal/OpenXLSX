@@ -241,9 +241,9 @@ void XLCellReference::setRowAndColumn(uint32_t row, uint16_t column)
 /**
  * @details Returns the m_cellAddress property.
  */
-std::string XLCellReference::address() const
+std::string XLCellReference::address(bool absolute) const
 {
-    return m_cellAddress;
+    return adressFromCoordinates(m_row, m_column, absolute);
 }
 
 /**
@@ -255,7 +255,7 @@ void XLCellReference::setAddress(const std::string& address)
     auto coordinates = coordinatesFromAddress(address);
     m_row         = coordinates.first;
     m_column      = coordinates.second;
-    m_cellAddress = address;
+    m_cellAddress = adressFromCoordinates(m_row, m_column);
 }
 
 /**
@@ -358,4 +358,13 @@ XLCoordinates XLCellReference::coordinatesFromAddress(const std::string& address
     auto numberCount = refAdress.size() - letterCount;
 
     return std::make_pair(rowAsNumber(refAdress.substr(letterCount, numberCount)), columnAsNumber(refAdress.substr(0, letterCount)));
+}
+
+std::string XLCellReference::adressFromCoordinates(uint32_t row, uint16_t column, bool absolute)
+{
+    std::string separator = std::string("");
+    if (absolute)
+        separator = "$";
+
+    return separator + columnAsString(column) +  separator + rowAsString(row);
 }
