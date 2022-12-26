@@ -463,17 +463,41 @@ void XLDocument::open(const std::string& fileName)
 
     // ===== Add remaining spreadsheet elements to the vector of XLXmlData objects.
     for (auto& item : m_contentTypes.getContentItems()) {
+        XLXmlData* pData = nullptr;
         if (item.path().substr(0, 4) == "/xl/" && !(item.path() == "/xl/workbook.xml"))
-            m_data.emplace_back(/* parentDoc */ this,
+            pData = &(m_data.emplace_back(/* parentDoc */ this,
                                 /* xmlPath   */ item.path().substr(1),
                                 /* xmlID     */ m_wbkRelationships.relationshipByTarget(item.path().substr(4)).id(),
-                                /* xmlType   */ item.type());
-
+                                /* xmlType   */ item.type()));
         else
             m_data.emplace_back(/* parentDoc */ this,
                                 /* xmlPath   */ item.path().substr(1),
                                 /* xmlID     */ m_docRelationships.relationshipByTarget(item.path().substr(1)).id(),
                                 /* xmlType   */ item.type());
+
+        // load worksheets/_rels/sheetX.xml.rels if any
+        std::string sheetRelsPath = item.path();
+        std::string::size_type n = sheetRelsPath.find_last_of('/');
+        if(n<sheetRelsPath.size()) // otherwise path does not contains '/'
+        {
+            const std::string basePath = sheetRelsPath.substr(1, n - 1);
+            const std::string fileName = sheetRelsPath.substr(n, sheetRelsPath.size());
+            if (fileName.substr(0, 6) == "/sheet"){
+                sheetRelsPath = basePath + "/_rels" + fileName + ".rels";
+                if (m_archive.hasEntry(sheetRelsPath)){ // there is a xl/worksheets/_rels/sheetX.xml.rels
+                    m_data.emplace_back(/* parentDoc */ this,
+                                        /* xmlPath   */ sheetRelsPath,
+                                        /* xmlID     */ std::string(),
+                                        /* xmlType   */ XLContentType::WorksheetRelation);
+                }
+            }
+        }
+        /*
+        std::string basePath = item.path().substr(0, 14);
+        if (basePath == /xl/)
+        if (m_archive.hasEntry("xl/worksheets/_rels/"))
+            test +="_rels";
+            */
     }
 
     for (const auto& node : getXmlData("xl/sharedStrings.xml")->getXmlDocument()->document_element().children()){

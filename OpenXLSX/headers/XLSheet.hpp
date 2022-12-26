@@ -447,6 +447,9 @@ namespace OpenXLSX
          */
         void updateSheetName(const std::string& oldName, const std::string& newName);
 
+        //ASH
+        int listObjects();
+        
     private:
 
         /**

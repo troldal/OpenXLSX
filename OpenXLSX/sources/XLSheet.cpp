@@ -583,6 +583,23 @@ void XLWorksheet::updateSheetName(const std::string& oldName, const std::string&
     }
 }
 
+int XLWorksheet::listObjects()
+{
+    /*
+
+    parentDoc().execCommand(XLCommand(XLCommandType::CloneSheet)
+                                        .setParam("sheetID", relationshipID())
+                                        .setParam("cloneName", newName));
+
+
+    XLQuery pathQuery(XLQueryType::QuerySheetRelsTarget);
+    pathQuery.setParam("sheetID", xmlID);
+    auto xmlPath = parentDoc().execQuery(pathQuery).result<std::string>();
+    */
+
+   return 1;
+}
+
 /**
  * @details Constructor
  */
