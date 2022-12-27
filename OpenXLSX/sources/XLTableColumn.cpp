@@ -43,23 +43,45 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXLSX_OPENXLSX_HPP
-#define OPENXLSX_OPENXLSX_HPP
+// ===== External Includes ===== //
+#include <algorithm>
+#include <pugixml.hpp>
+#include <vector>
 
-#include "headers/XLCell.hpp"
-#include "headers/XLCellRange.hpp"
-#include "headers/XLCellReference.hpp"
-#include "headers/XLCellValue.hpp"
-#include "headers/XLColumn.hpp"
-#include "headers/XLDateTime.hpp"
-#include "headers/XLDocument.hpp"
-#include "headers/XLException.hpp"
-#include "headers/XLFormula.hpp"
-#include "headers/XLNamedRange.hpp"
-#include "headers/XLRow.hpp"
-#include "headers/XLSheet.hpp"
-#include "headers/XLTable.hpp"
-#include "headers/XLWorkbook.hpp"
-#include "headers/XLZipArchive.hpp"
+// ===== OpenXLSX Includes ===== //
+#include "XLTableColumn.hpp"
 
-#endif    // OPENXLSX_OPENXLSX_HPP
+using namespace OpenXLSX;
+
+
+XLTableColumn::XLTableColumn(XMLNode* dataNode): 
+            m_pDataNode(dataNode)
+{
+  /*
+  m_name              = m_dataNode->attribute("name").value();
+  m_xr3uid            = m_dataNode->attribute("xr3:uid").value();
+  m_dataCellStyle     = m_dataNode->attribute("dataCellStyle").value();
+  m_headerRowCellStyle= m_dataNode->attribute("headerRowCellStyle").value();
+  m_totalsRowFunction = m_dataNode->attribute("totalsRowFunction").value();
+  m_totalsRowLabel    = m_dataNode->attribute("totalsRowLabel").value();
+
+  m_Id                = (m_dataNode->attribute("id"))              ? std::stoi(m_dataNode->attribute("id").value())             : (uint32_t) -1;
+  m_dataDxfId         = (m_dataNode->attribute("dataDxfId"))       ? std::stoi(m_dataNode->attribute("dataDxfId").value())      : (uint32_t) -1;
+  m_headerRowDxfId    = (m_dataNode->attribute("headerRowDxfId"))  ? std::stoi(m_dataNode->attribute("headerRowDxfId").value()) : (uint32_t) -1;
+  m_totalsRowDxfId    = (m_dataNode->attribute("totalsRowDxfId"))  ? std::stoi(m_dataNode->attribute("totalsRowDxfId").value()) : (uint32_t) -1;
+
+  if (m_dataNode->child("calculatedColumnFormula"))
+    m_calculatedColumnFormula = m_dataNode->child("calculatedColumnFormula").child_value();
+  if (m_dataNode->child("totalsRowFormula"))
+    m_totalsRowFormula = m_dataNode->child("totalsRowFormula").child_value();
+  */
+
+}
+
+XLTableColumn::~XLTableColumn() = default;
+
+std::string XLTableColumn::name() const
+{
+  std::string test = m_pDataNode->attribute("name").value();
+  return (m_pDataNode->attribute("name").value());
+}

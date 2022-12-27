@@ -54,6 +54,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLDocument.hpp"
 #include "XLNamedRange.hpp"
 #include "XLSheet.hpp"
+#include "XLTable.hpp"
 #include "XLWorkbook.hpp"
 
 using namespace OpenXLSX;
@@ -102,22 +103,6 @@ XLSheet XLWorkbook::sheet(const std::string& sheetName)
     // Some spreadsheets use absolute rather than relative paths in relationship items.
     if (xmlPath.substr(0,4) == "/xl/") xmlPath = xmlPath.substr(4);
 
-    // Collect depencecies if any
-    std::string sheetRelsPath = xmlPath;
-    std::string::size_type n = sheetRelsPath.find_last_of('/');
-    if(n<sheetRelsPath.size()) // otherwis path does not contains '/'
-    {
-        const std::string basePath = sheetRelsPath.substr(0, n);
-        std::string fileName = sheetRelsPath.substr(n, sheetRelsPath.size());
-        sheetRelsPath = "xl/" + basePath + "/_rels" + fileName + ".rels";
-
-        XLQuery xmlRelsQuery(XLQueryType::QueryXmlData);
-        xmlRelsQuery.setParam("xmlPath", sheetRelsPath);
-
-        XLRelationships test = XLRelationships(parentDoc().execQuery(xmlRelsQuery).result<XLXmlData*>());
-    }
-
-
     XLQuery xmlQuery(XLQueryType::QueryXmlData);
     xmlQuery.setParam("xmlPath", "xl/" + xmlPath);
     return XLSheet(parentDoc().execQuery(xmlQuery).result<XLXmlData*>());
@@ -142,29 +127,16 @@ XLWorksheet XLWorkbook::worksheet(const std::string& sheetName)
     return sheet(sheetName).get<XLWorksheet>();
 }
 
-int XLWorkbook::table(const std::string& tableName)
+XLTable XLWorkbook::table(const std::string& tableName)
 {
-    /*
-    // ===== First determine if the sheet exists.
-    if (xmlDocument().document_element().child("sheets").find_child_by_attribute("name", sheetName.c_str()) == nullptr)
-        throw XLInputError("Sheet \"" + sheetName + "\" does not exist");
+    // Throw an exception if table not exist
+    XLQuery xmlQuery(XLQueryType::QueryTableFromName);
+    xmlQuery.setParam("tableName", tableName);
+    
+    XLXmlData* tableItem = (parentDoc().execQuery(xmlQuery).result<XLXmlData*>());
+    //XLTable test = XLTable(tableItem);
 
-    // ===== Find the sheet data corresponding to the sheet with the requested name
-    std::string xmlID =
-        xmlDocument().document_element().child("sheets").find_child_by_attribute("name", sheetName.c_str()).attribute("r:id").value();
-*/
-    //XLQuery pathQuery(XLQueryType::QuerySheetRelsTarget);
-    //pathQuery.setParam("sheetID", xmlID);
-    //auto xmlPath = parentDoc().execQuery(pathQuery).result<std::string>();
-/*
-    // Some spreadsheets use absolute rather than relative paths in relationship items.
-    if (xmlPath.substr(0,4) == "/xl/") xmlPath = xmlPath.substr(4);
-
-    XLQuery xmlQuery(XLQueryType::QueryXmlData);
-    xmlQuery.setParam("xmlPath", "xl/" + xmlPath);
-    return XLSheet(parentDoc().execQuery(xmlQuery).result<XLXmlData*>());
-    */
-    return 1;
+    return XLTable(tableItem);
 }
 
 XLNamedRange XLWorkbook::namedRange(const std::string& rangeName)

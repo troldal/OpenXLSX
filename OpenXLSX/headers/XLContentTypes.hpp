@@ -70,7 +70,7 @@ namespace OpenXLSX
         Workbook,
         WorkbookMacroEnabled,
         Worksheet,
-        WorksheetRelation,
+        WorksheetRelations,
         Chartsheet,
         ExternalLink,
         Theme,

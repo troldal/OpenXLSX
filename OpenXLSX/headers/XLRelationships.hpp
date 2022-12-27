@@ -83,6 +83,7 @@ namespace OpenXLSX
         Theme,
         Styles,
         Chart,
+        Table,
         ChartStyle,
         ChartColorStyle,
         Image,

@@ -74,6 +74,8 @@ namespace OpenXLSX
 
     class XLNamedRange;
 
+    class XLTable;
+
     /**
      * @brief The XLSheetType class is an enumeration of the available sheet types, e.g. Worksheet (ordinary
      * spreadsheets), and Chartsheet (sheets with only a chart).
@@ -154,7 +156,7 @@ namespace OpenXLSX
         XLSheet sheet(const std::string& sheetName);
 
         // ASH
-        int table(const std::string& tableName);
+        XLTable table(const std::string& tableName);
 
         /**
          * @brief
@@ -395,7 +397,6 @@ namespace OpenXLSX
          * @param state
          */
         void setSheetActive(const std::string& sheetRID);
-
 
     };
 }    // namespace OpenXLSX

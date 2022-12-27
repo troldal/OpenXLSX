@@ -93,6 +93,8 @@ namespace
             type = XLRelationshipType::Image;
         else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart")
             type = XLRelationshipType::Chart;
+        else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/table")
+            type = XLRelationshipType::Table;
         else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/externalLinkPath")
             type = XLRelationshipType::ExternalLinkPath;
         else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/printerSettings")

@@ -43,23 +43,41 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXLSX_OPENXLSX_HPP
-#define OPENXLSX_OPENXLSX_HPP
+#ifndef OPENXLSX_XLTABLECOLUMN_HPP
+#define OPENXLSX_XLTABLECOLUMN_HPP
 
-#include "headers/XLCell.hpp"
-#include "headers/XLCellRange.hpp"
-#include "headers/XLCellReference.hpp"
-#include "headers/XLCellValue.hpp"
-#include "headers/XLColumn.hpp"
-#include "headers/XLDateTime.hpp"
-#include "headers/XLDocument.hpp"
-#include "headers/XLException.hpp"
-#include "headers/XLFormula.hpp"
-#include "headers/XLNamedRange.hpp"
-#include "headers/XLRow.hpp"
-#include "headers/XLSheet.hpp"
-#include "headers/XLTable.hpp"
-#include "headers/XLWorkbook.hpp"
-#include "headers/XLZipArchive.hpp"
+#pragma warning(push)
+//#pragma warning(disable : 4251)
+//#pragma warning(disable : 4275)
 
-#endif    // OPENXLSX_OPENXLSX_HPP
+// ===== External Includes ===== //
+#include <string>
+
+// ===== OpenXLSX Includes ===== //
+#include "OpenXLSX-Exports.hpp"
+#include "XLXmlData.hpp"
+
+namespace OpenXLSX
+{
+  class OPENXLSX_EXPORT XLTableColumn
+  {
+  public:
+    /**
+     * @brief The constructor. 
+     * @param xmlData from the table file
+     */
+    XLTableColumn(XMLNode* dataNode);
+
+    //XLTableColumn(const XLTableColumn&) = delete;
+    //XLTableColumn& operator=(const XLTableColumn&) = delete;
+    ~XLTableColumn();
+
+    std::string name() const;
+
+  private:
+    XMLNode* m_pDataNode;
+  };
+}    // namespace OpenXLSX
+
+//#pragma warning(pop)
+#endif    // OPENXLSX_XLTABLECOLUMN_HPP

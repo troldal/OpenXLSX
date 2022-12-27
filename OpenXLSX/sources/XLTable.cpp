@@ -44,46 +44,88 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
  */
 
 // ===== External Includes ===== //
-#include <algorithm>
-#include <iterator>
+#include <string>
 #include <pugixml.hpp>
 #include <vector>
 
 // ===== OpenXLSX Includes ===== //
-#include "XLDocument.hpp"
 #include "XLTable.hpp"
-#include "XLWorkbook.hpp"
+
 
 using namespace OpenXLSX;
 
-int XLWorkbook::table(const std::string& tableName)
+
+XLTable::XLTable(XLXmlData* xmlData) : m_pXmlData(xmlData)
 {
-    auto test = xmlDocument().document_element().child("sheets");
-    // ===== First determine if the sheet exists.
-    if (xmlDocument().document_element().child("sheets").find_child_by_attribute("name", tableName.c_str()) == nullptr)
-        throw XLInputError("Sheet \"" + tableName + "\" does not exist");
+  /*
+    using XMLNode      = pugi::xml_node;
+    using XMLAttribute = pugi::xml_attribute;
+    using XMLDocument  = pugi::xml_document;
+    */
 
-    // ===== Find the sheet data corresponding to the sheet with the requested name
-    std::string xmlID =
-        xmlDocument().document_element().child("sheets").find_child_by_attribute("name", tableName.c_str()).attribute("r:id").value();
 
-    XLQuery pathQuery(XLQueryType::QuerySheetRelsTarget);
-    pathQuery.setParam("sheetID", xmlID);
-    auto xmlPath = parentDoc().execQuery(pathQuery).result<std::string>();
+   
+  
 
-    // Some spreadsheets use absolute rather than relative paths in relationship items.
-    if (xmlPath.substr(0,4) == "/xl/") xmlPath = xmlPath.substr(4);
 
-    XLQuery xmlQuery(XLQueryType::QueryXmlData);
-    xmlQuery.setParam("xmlPath", "xl/" + xmlPath);
-    return 1;
+  // ===== Deal with the columns
+  XMLNode pTblColumns =  m_pXmlData->getXmlDocument()->child("table").child("tableColumns");
+  m_nColumnCount = std::stoi(pTblColumns.attribute("count").value());
+
+  for (XMLNode col : pTblColumns.children()){
+    std::string test = col.attribute("name").value();
+    m_columns.emplace_back(XLTableColumn(&col));
+  }
+  
+  for (auto item : m_columns){
+    std::string test = item.name();
+    int i =0;
+  } 
+    /*
+    XMLDocument* pTableDoc = xmlData->getXmlDocument();
+  m_name = pTableDoc->child("table").attribute("name").value();
+    */
+//for (const auto& node : getXmlData("xl/sharedStrings.xml")->getXmlDocument()->document_element().children()
+
+//<tableColumns count="5">
+  int i = 0;
 }
 
-/*
-XLSheet XLWorkbook::sheet(uint16_t index)
+std::string XLTable::name() const
 {
-    if (index < 1 || index > sheetCount()) throw XLInputError("Sheet index is out of bounds");
-    return sheet(
-        std::vector<XMLNode>(sheetsNode(xmlDocument()).begin(), sheetsNode(xmlDocument()).end())[index - 1].attribute("name").as_string());
+  return (m_pXmlData->getXmlDocument()->child("table").attribute("name").value());
+}
+
+std::string XLTable::ref() const
+{
+  return (m_pXmlData->getXmlDocument()->child("table").attribute("ref").value());
+}
+
+uint16_t XLTable::columnCount() const
+{
+  return (std::stoi(m_pXmlData->getXmlDocument()->child("table")
+            .child("tableColumns").attribute("count").value()));
+}
+
+void XLTable::setName(const std::string& tableName)
+{
+  XMLNode tableNode = m_pXmlData->getXmlDocument()->child("table");
+  tableNode.attribute("name").set_value(tableName.c_str());
+  tableNode.attribute("displayName").set_value(tableName.c_str());
+
+  // TODO change the formulas  in table.xml
+  // TODO change the formulas in the sheet
+
+
+}
+
+
+
+/*XLCellRange XLWorksheet::range(const XLCellReference& topLeft, const XLCellReference& bottomRight) const
+{
+    return XLCellRange(xmlDocument().first_child().child("sheetData"),
+                       topLeft,
+                       bottomRight,
+                       parentDoc().execQuery(XLQuery(XLQueryType::QuerySharedStrings)).result<XLSharedStrings>());
 }
 */

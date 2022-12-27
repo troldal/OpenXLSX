@@ -142,6 +142,7 @@ namespace OpenXLSX
         QuerySheetRelsID,
         QuerySheetRelsTarget,
         QuerySharedStrings,
+        QueryTableFromName,
         QueryXmlData
     };
 

@@ -47,30 +47,45 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #define OPENXLSX_XLTABLE_HPP
 
 #pragma warning(push)
-#pragma warning(disable : 4251)
-#pragma warning(disable : 4275)
+//#pragma warning(disable : 4251)
+//#pragma warning(disable : 4275)
 
 // ===== External Includes ===== //
-#include <type_traits>
-#include <variant>
 #include <vector>
 
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
-#include "XLCell.hpp"
-#include "XLCellReference.hpp"
-#include "XLColor.hpp"
-#include "XLColumn.hpp"
-#include "XLCommandQuery.hpp"
-#include "XLDocument.hpp"
-#include "XLException.hpp"
-#include "XLRow.hpp"
-#include "XLXmlFile.hpp"
-
+#include "XLXmlData.hpp"
+#include "XLTableColumn.hpp"
 namespace OpenXLSX
 {
+  class OPENXLSX_EXPORT XLTable
+  {
+  public:
+    /**
+     * @brief The constructor. 
+     * @param xmlData from the table file
+     */
+    explicit XLTable(XLXmlData* xmlData);
+
+    std::string name() const;
+    std::string ref() const;
+    uint16_t columnCount() const;
+    void setName(const std::string& tableName);
+
     
+
+  private:
+    XLXmlData*                  m_pXmlData;
+    uint32_t                    m_nColumnCount;
+    std::vector<XLTableColumn>  m_columns;
+    // cell range
+    // sheet
+    // filter
+    // sort state
+    // tablestyle
+  };
 }    // namespace OpenXLSX
 
-#pragma warning(pop)
+//#pragma warning(pop)
 #endif    // OPENXLSX_XLTABLE_HPP
