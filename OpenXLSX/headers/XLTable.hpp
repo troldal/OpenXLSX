@@ -52,13 +52,14 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== External Includes ===== //
 #include <vector>
-
+#include <memory>
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
 #include "XLXmlData.hpp"
 #include "XLTableColumn.hpp"
 namespace OpenXLSX
 {
+  class XLSheet;
   class OPENXLSX_EXPORT XLTable
   {
   public:
@@ -67,18 +68,23 @@ namespace OpenXLSX
      * @param xmlData from the table file
      */
     explicit XLTable(XLXmlData* xmlData);
+    ~XLTable();
 
     std::string name() const;
     std::string ref() const;
+    std::vector<std::string> columnNames() const;
+    uint16_t columnIndex(const std::string& name) const;
+    XLSheet getSheet() const;
+
     uint16_t columnCount() const;
+
     void setName(const std::string& tableName);
 
     
 
   private:
-    XLXmlData*                  m_pXmlData;
-    uint32_t                    m_nColumnCount;
-    std::vector<XLTableColumn>  m_columns;
+    XLXmlData* m_pXmlData;
+    std::vector<std::shared_ptr<XLTableColumn>> m_columns;
     // cell range
     // sheet
     // filter

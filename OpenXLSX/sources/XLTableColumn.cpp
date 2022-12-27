@@ -54,8 +54,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 using namespace OpenXLSX;
 
 
-XLTableColumn::XLTableColumn(XMLNode* dataNode): 
-            m_pDataNode(dataNode)
+XLTableColumn::XLTableColumn(const XMLNode& dataNode): 
+            m_dataNode(std::make_unique<XMLNode>(dataNode))
 {
   /*
   m_name              = m_dataNode->attribute("name").value();
@@ -82,6 +82,12 @@ XLTableColumn::~XLTableColumn() = default;
 
 std::string XLTableColumn::name() const
 {
-  std::string test = m_pDataNode->attribute("name").value();
-  return (m_pDataNode->attribute("name").value());
+  return (m_dataNode->attribute("name").value());
+}
+
+void XLTableColumn::setName(const std::string& columnName) const
+{
+  m_dataNode->attribute("name").set_value(columnName.c_str());
+  // TODO change the formulas  in table.xml
+  // TODO change the formulas in the sheet
 }

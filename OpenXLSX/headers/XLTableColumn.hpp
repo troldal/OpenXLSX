@@ -52,10 +52,11 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== External Includes ===== //
 #include <string>
+#include <memory>
 
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
-#include "XLXmlData.hpp"
+#include "XLXmlParser.hpp"
 
 namespace OpenXLSX
 {
@@ -66,16 +67,17 @@ namespace OpenXLSX
      * @brief The constructor. 
      * @param xmlData from the table file
      */
-    XLTableColumn(XMLNode* dataNode);
+    XLTableColumn(const XMLNode& dataNode);
 
     //XLTableColumn(const XLTableColumn&) = delete;
     //XLTableColumn& operator=(const XLTableColumn&) = delete;
     ~XLTableColumn();
 
     std::string name() const;
+    void setName(const std::string& name) const;
 
   private:
-    XMLNode* m_pDataNode;
+    std::unique_ptr<XMLNode> m_dataNode; 
   };
 }    // namespace OpenXLSX
 

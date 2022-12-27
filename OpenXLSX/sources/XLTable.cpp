@@ -44,12 +44,15 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
  */
 
 // ===== External Includes ===== //
+#include <algorithm>
 #include <string>
 #include <pugixml.hpp>
 #include <vector>
 
 // ===== OpenXLSX Includes ===== //
+#include "XLSheet.hpp"
 #include "XLTable.hpp"
+
 
 
 using namespace OpenXLSX;
@@ -62,25 +65,12 @@ XLTable::XLTable(XLXmlData* xmlData) : m_pXmlData(xmlData)
     using XMLAttribute = pugi::xml_attribute;
     using XMLDocument  = pugi::xml_document;
     */
-
-
-   
-  
-
-
   // ===== Deal with the columns
   XMLNode pTblColumns =  m_pXmlData->getXmlDocument()->child("table").child("tableColumns");
-  m_nColumnCount = std::stoi(pTblColumns.attribute("count").value());
 
-  for (XMLNode col : pTblColumns.children()){
-    std::string test = col.attribute("name").value();
-    m_columns.emplace_back(XLTableColumn(&col));
-  }
-  
-  for (auto item : m_columns){
-    std::string test = item.name();
-    int i =0;
-  } 
+  for (const XMLNode& col : pTblColumns.children())
+    m_columns.emplace_back(std::shared_ptr<XLTableColumn>(new XLTableColumn(col)));
+
     /*
     XMLDocument* pTableDoc = xmlData->getXmlDocument();
   m_name = pTableDoc->child("table").attribute("name").value();
@@ -88,8 +78,10 @@ XLTable::XLTable(XLXmlData* xmlData) : m_pXmlData(xmlData)
 //for (const auto& node : getXmlData("xl/sharedStrings.xml")->getXmlDocument()->document_element().children()
 
 //<tableColumns count="5">
-  int i = 0;
 }
+
+XLTable::~XLTable()
+{}
 
 std::string XLTable::name() const
 {
@@ -101,10 +93,30 @@ std::string XLTable::ref() const
   return (m_pXmlData->getXmlDocument()->child("table").attribute("ref").value());
 }
 
-uint16_t XLTable::columnCount() const
+uint16_t XLTable::columnIndex(const std::string& name) const
 {
-  return (std::stoi(m_pXmlData->getXmlDocument()->child("table")
-            .child("tableColumns").attribute("count").value()));
+  auto it = std::find_if(m_columns.begin(),
+    m_columns.end(), 
+    [&](const auto& val){ return val->name() == name; } );
+  
+  if (it !=m_columns.end())
+    return (it - m_columns.begin());
+  
+  return (uint16_t)(-1);
+}
+
+XLSheet XLTable::getSheet() const
+{
+  return XLSheet(m_pXmlData->getParentNode());
+}
+
+std::vector<std::string>  XLTable:: columnNames() const
+{
+  std::vector<std::string> colNames;
+  for (auto col : m_columns)
+    colNames.push_back(col->name());
+  
+  return colNames;
 }
 
 void XLTable::setName(const std::string& tableName)
@@ -117,6 +129,12 @@ void XLTable::setName(const std::string& tableName)
   // TODO change the formulas in the sheet
 
 
+}
+
+uint16_t XLTable::columnCount() const
+{
+  return (std::stoi(m_pXmlData->getXmlDocument()->child("table")
+            .child("tableColumns").attribute("count").value()));
 }
 
 
