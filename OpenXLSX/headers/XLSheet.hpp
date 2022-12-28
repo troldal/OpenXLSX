@@ -386,6 +386,12 @@ namespace OpenXLSX
          * @return A const XLCellRange object with the requested range.
          */
         XLCellRange range(const XLCellReference& topLeft, const XLCellReference& bottomRight) const;
+/**
+         * @brief Get a range with the given coordinates.
+         * @param topLeft A Excel type range i.e "A3:C12".
+         * @return A const XLCellRange object with the requested range.
+         */
+        XLCellRange range(const std::string& range) const;
 
         /**
          * @brief

@@ -159,6 +159,14 @@ namespace OpenXLSX
         XLCellReference operator--(int); // NOLINT
 
         /**
+         * @brief Offset for a given x, y. Stops at the limit of the worksheet.
+         * @param rows the relative number of row to offset
+         * @param columns the relative number of columns to offset
+         * @return return the offseted object
+         */
+        XLCellReference& offset(int rows, int columns = 0);
+
+        /**
          * @brief Get the row number of the XLCellReference.
          * @return The row.
          */

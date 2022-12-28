@@ -52,6 +52,12 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 using namespace OpenXLSX;
 
+namespace OpenXLSX
+{
+    XMLNode getRowNode(XMLNode sheetDataNode, uint32_t rowNumber);
+    XMLNode getCellNode(XMLNode rowNode, uint16_t columnNumber);
+}   
+
 /**
  * @details From the two XLCellReference objects, the constructor calculates the dimensions of the range.
  * If the range exceeds the current bounds of the spreadsheet, the spreadsheet is resized to fit.
@@ -133,6 +139,39 @@ XLCellRange& XLCellRange::operator=(XLCellRange&& other) noexcept
  * @pre
  * @post
  */
+bool XLCellRange::operator==(const XLCellRange& rhs) const
+{
+    return ((m_topLeft == rhs.m_topLeft)&&(m_bottomRight == rhs.m_bottomRight));
+}
+
+/**
+ * @details
+ * @pre
+ * @post
+ */
+bool XLCellRange::operator!=(const XLCellRange& rhs) const
+{
+    return !(*this == rhs);
+}
+
+XLCell XLCellRange::operator[](uint32_t index) const
+{
+    uint16_t nCol = numColumns();
+    uint32_t row = m_topLeft.row() + index / nCol;
+    uint16_t col = m_topLeft.column() + index % nCol;
+
+    if(row > m_bottomRight.row())
+        return XLCell();
+    
+    return XLCell(getCellNode(getRowNode(*m_dataNode, row), 
+                                col), m_sharedStrings);   
+}
+
+/**
+ * @details
+ * @pre
+ * @post
+ */
 uint32_t XLCellRange::numRows() const
 {
     return m_bottomRight.row() + 1 - m_topLeft.row();
@@ -173,7 +212,29 @@ XLCellIterator XLCellRange::end() const
  * @pre
  * @post
  */
+void XLCellRange::offset(int row, int col)
+{
+    m_topLeft.offset(row,col);
+    m_bottomRight.offset(row, col);
+}
+
+
+
+/**
+ * @details
+ * @pre
+ * @post
+ */
 void XLCellRange::clear()
 {
     for(auto& cell: *this) cell.value().clear();
+}
+
+std::pair<std::string,std::string> XLCellRange::topLeftBottomRight(const std::string& ref)
+{
+    std::string::size_type n = ref.find(':');
+    if(n>ref.size())
+        throw XLInputError("Invalid reference \"" + ref + "\" for a range");
+    
+    return std::make_pair(ref.substr(0, n),ref.substr(n+1));
 }

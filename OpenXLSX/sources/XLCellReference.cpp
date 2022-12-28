@@ -185,6 +185,26 @@ XLCellReference& XLCellReference::operator=(XLCellReference&& other) noexcept = 
     return oldRef;
 }
 
+
+XLCellReference& XLCellReference::offset(int rows, int columns)
+{
+    if (m_row + rows > MAX_ROWS)
+        m_row = MAX_ROWS;
+    else if (m_row + rows < 1) 
+        m_row = 1;
+    else
+        m_row = m_row + rows;
+
+    if (m_column + columns > MAX_COLS)
+        setColumn(MAX_COLS);
+    else if (m_column + columns < 1) 
+        setColumn(1);
+    else
+        setColumn(m_column + columns);
+
+    return *this;
+}
+
 /**
  * @details Returns the m_row property.
  */

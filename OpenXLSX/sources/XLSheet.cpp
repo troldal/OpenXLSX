@@ -46,6 +46,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 // ===== External Includes ===== //
 #include <algorithm>
 #include <pugixml.hpp>
+#include <string>
 
 // ===== OpenXLSX Includes ===== //
 #include "XLCellRange.hpp"
@@ -389,6 +390,12 @@ XLCellRange XLWorksheet::range(const XLCellReference& topLeft, const XLCellRefer
                        topLeft,
                        bottomRight,
                        parentDoc().execQuery(XLQuery(XLQueryType::QuerySharedStrings)).result<XLSharedStrings>());
+}
+
+XLCellRange XLWorksheet::range(const std::string& ref) const
+{
+    std::pair<std::string,std::string> pair = XLCellRange::topLeftBottomRight(ref);
+    return range(XLCellReference(pair.first),XLCellReference(pair.second));
 }
 
 /**

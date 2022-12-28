@@ -344,6 +344,7 @@ namespace OpenXLSX
     class OPENXLSX_EXPORT XLRowRange
     {
         friend class XLRowIterator;
+        friend class XLTableRowIterator;
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Public Member Functions
@@ -409,10 +410,10 @@ namespace OpenXLSX
         XLRowIterator end();
 
         //----------------------------------------------------------------------------------------------------------------------
-        //           Private Member Variables
+        //           Protected Member Variables
         //----------------------------------------------------------------------------------------------------------------------
 
-    private:
+    protected:
         std::unique_ptr<XMLNode> m_dataNode;                  /**< */
         uint32_t                 m_firstRow;                  /**< The cell reference of the first cell in the range */
         uint32_t                 m_lastRow;                   /**< The cell reference of the last cell in the range */

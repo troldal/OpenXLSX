@@ -57,6 +57,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "OpenXLSX-Exports.hpp"
 #include "XLXmlData.hpp"
 #include "XLTableColumn.hpp"
+#include "XLTableRows.hpp"
 namespace OpenXLSX
 {
   class XLSheet;
@@ -70,12 +71,20 @@ namespace OpenXLSX
     explicit XLTable(XLXmlData* xmlData);
     ~XLTable();
 
-    std::string name() const;
-    std::string ref() const;
+    const std::string name() const;
+    const std::string ref() const;
     std::vector<std::string> columnNames() const;
     uint16_t columnIndex(const std::string& name) const;
-    XLSheet getSheet() const;
+    XLWorksheet getWorksheet() const;
+    XLCellRange tableRange() const;
+    XLTableRows tableRows() const;
+    XLCellRange dataBodyRange() const;
 
+
+
+    bool isHeaderVisible() const;
+    bool isTotalVisible() const;   
+  
     uint16_t columnCount() const;
 
     void setName(const std::string& tableName);

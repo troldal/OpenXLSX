@@ -52,6 +52,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== External Includes ===== //
 #include <memory>
+#include <utility>
 
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
@@ -125,6 +126,27 @@ namespace OpenXLSX
         XLCellRange& operator=(XLCellRange&& other) noexcept;
 
         /**
+         * @brief
+         * @param rhs
+         * @return
+         */
+        bool operator==(const XLCellRange& rhs) const;
+
+        /**
+         * @brief
+         * @param rhs
+         * @return
+         */
+        bool operator!=(const XLCellRange& rhs) const;
+
+        /**
+         * @brief
+         * @param index
+         * @return
+         */
+        XLCell operator[](uint32_t index) const;
+
+        /**
          * @brief Get the number of rows in the range.
          * @return The number of rows.
          */
@@ -148,10 +170,18 @@ namespace OpenXLSX
          */
         XLCellIterator end() const;
 
+        void offset(int row, int col = 0);
         /**
          * @brief
          */
         void clear();
+
+        /**
+         * @brief Static helper function to get top left and bottom right
+         * @param ref a ref i.e. A1:C20
+         * @return A pair of ref
+         */
+        static std::pair<std::string,std::string> topLeftBottomRight(const std::string& ref);
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Private Member Variables

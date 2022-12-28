@@ -52,7 +52,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 // ===== OpenXLSX Includes ===== //
 #include "XLSheet.hpp"
 #include "XLTable.hpp"
-
+#include "XLCellRange.hpp"
+#include "XLCellReference.hpp"
 
 
 using namespace OpenXLSX;
@@ -83,14 +84,23 @@ XLTable::XLTable(XLXmlData* xmlData) : m_pXmlData(xmlData)
 XLTable::~XLTable()
 {}
 
-std::string XLTable::name() const
+const std::string XLTable::name() const
 {
   return (m_pXmlData->getXmlDocument()->child("table").attribute("name").value());
 }
 
-std::string XLTable::ref() const
+const std::string XLTable::ref() const
 {
   return (m_pXmlData->getXmlDocument()->child("table").attribute("ref").value());
+}
+
+std::vector<std::string>  XLTable:: columnNames() const
+{
+  std::vector<std::string> colNames;
+  for (auto col : m_columns)
+    colNames.push_back(col->name());
+  
+  return colNames;
 }
 
 uint16_t XLTable::columnIndex(const std::string& name) const
@@ -105,19 +115,78 @@ uint16_t XLTable::columnIndex(const std::string& name) const
   return (uint16_t)(-1);
 }
 
-XLSheet XLTable::getSheet() const
+XLWorksheet XLTable::getWorksheet() const
 {
-  return XLSheet(m_pXmlData->getParentNode());
+  return XLWorksheet(m_pXmlData->getParentNode());
 }
 
-std::vector<std::string>  XLTable:: columnNames() const
+XLCellRange XLTable::tableRange() const
 {
-  std::vector<std::string> colNames;
-  for (auto col : m_columns)
-    colNames.push_back(col->name());
-  
-  return colNames;
+  return getWorksheet().range(ref());
 }
+
+XLTableRows XLTable::tableRows() const
+{
+    std::pair<std::string,std::string> p = XLCellRange::topLeftBottomRight(ref());
+    XLCellReference topLeft(p.first);
+    XLCellReference bottomRight(p.second);
+
+    uint32_t firstRow = topLeft.row();
+    uint32_t lastRow = bottomRight.row();
+
+    uint16_t firstCol = topLeft.column(); 
+    uint16_t lastCol = bottomRight.column();
+
+    if (isHeaderVisible())
+        firstRow +=1;
+    
+    if (isTotalVisible())
+        lastRow -=1;
+    
+    return XLTableRows(m_pXmlData->getParentNode()->getXmlDocument()->first_child().child("sheetData"),
+            firstRow, lastRow, firstCol, lastCol,
+            m_pXmlData->getParentDoc()->execQuery(XLQuery(XLQueryType::QuerySharedStrings)).result<XLSharedStrings>());
+}
+
+XLCellRange XLTable::dataBodyRange() const
+{
+  std::pair<std::string,std::string> p = XLCellRange::topLeftBottomRight(ref());
+  XLCellReference topLeft(p.first);
+  XLCellReference bottomRight(p.second);
+
+  if (isHeaderVisible())
+    topLeft.offset(1);
+  
+  if (isTotalVisible())
+    bottomRight.offset(-1);
+  
+  return getWorksheet().range(topLeft,bottomRight);
+}
+
+bool XLTable::isHeaderVisible() const
+{
+  std::string header = m_pXmlData->getXmlDocument()->child("table").attribute("headerRowCount").value();
+  if (header == "0")
+    return false;
+  return true; // if missing, visible
+}
+
+bool XLTable::isTotalVisible() const
+{
+  std::string header = m_pXmlData->getXmlDocument()->child("table").attribute("totalsRowCount").value();
+  if (header == "1")
+    return true;
+  return false; // if missing, not visible
+}
+
+
+
+uint16_t XLTable::columnCount() const
+{
+  return (std::stoi(m_pXmlData->getXmlDocument()->child("table")
+            .child("tableColumns").attribute("count").value()));
+}
+
 
 void XLTable::setName(const std::string& tableName)
 {
@@ -130,14 +199,6 @@ void XLTable::setName(const std::string& tableName)
 
 
 }
-
-uint16_t XLTable::columnCount() const
-{
-  return (std::stoi(m_pXmlData->getXmlDocument()->child("table")
-            .child("tableColumns").attribute("count").value()));
-}
-
-
 
 /*XLCellRange XLWorksheet::range(const XLCellReference& topLeft, const XLCellReference& bottomRight) const
 {
