@@ -75,6 +75,7 @@ namespace OpenXLSX
         AddSharedStrings,
         AddWorksheet,
         AddChartsheet,
+        AddTable,
         DeleteSheet,
         CloneSheet,
     };
@@ -142,6 +143,7 @@ namespace OpenXLSX
         QuerySheetRelsID,
         QuerySheetRelsTarget,
         QuerySharedStrings,
+        QuerySheetFromName,
         QueryTableFromName,
         QueryXmlData
     };

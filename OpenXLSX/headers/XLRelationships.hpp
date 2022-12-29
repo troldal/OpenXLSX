@@ -162,6 +162,7 @@ namespace OpenXLSX
          */
         std::string id() const;
 
+
     private:                                         // ---------- Private Member Variables ---------- //
         std::unique_ptr<XMLNode> m_relationshipNode; /**< An XMLNode object with the relationship item */
     };

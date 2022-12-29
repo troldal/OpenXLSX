@@ -55,15 +55,17 @@ using namespace OpenXLSX;
 /**
  * @details
  */
-XLXmlData::XLXmlData(OpenXLSX::XLDocument* parentDoc, 
-                    const std::string& xmlPath, 
-                    const std::string& xmlId, 
+XLXmlData::XLXmlData(OpenXLSX::XLDocument*  parentDoc, 
+                    const std::string&      xmlPath, 
+                    const std::string&      xmlId,
+                    const std::string&      name,  
                     OpenXLSX::XLContentType xmlType, 
-                    OpenXLSX::XLXmlData* parentNode)
+                    OpenXLSX::XLXmlData*    parentNode)
     : m_parentDoc(parentDoc),
       m_xmlPath(xmlPath),
       m_xmlID(xmlId),
       m_xmlType(xmlType),
+      m_name(name),
       m_parentNode(parentNode),
       m_childNodes(),
       m_xmlDoc(std::make_unique<XMLDocument>())
@@ -84,7 +86,18 @@ void XLXmlData::setRawData(const std::string& data)
     m_xmlDoc->load_string(data.c_str(), pugi::parse_default | pugi::parse_ws_pcdata);
 }
 
-void  XLXmlData::setParentdNode(XLXmlData* parentNode)
+void  XLXmlData::setXmlID(const std::string& xmlID)
+{
+    m_xmlID = xmlID;
+}
+
+void XLXmlData::setName(const std::string& name)
+{
+    m_name = name;
+}
+
+
+void  XLXmlData::setParentNode(XLXmlData* parentNode)
 {
     m_parentNode = parentNode;
 }
@@ -134,6 +147,11 @@ std::string XLXmlData::getXmlPath() const
 std::string XLXmlData::getXmlID() const
 {
     return m_xmlID;
+}
+
+const std::string&  XLXmlData::getName() const
+{
+    return m_name;
 }
 
 /**

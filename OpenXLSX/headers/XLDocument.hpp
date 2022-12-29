@@ -292,6 +292,21 @@ namespace OpenXLSX
          * @return
          */
         bool hasXmlData(const std::string& path) const;
+        
+        /**
+         * @brief Explore the tree to find the sheet element
+         * @param sheetName to be found
+         * @return a pointer to XLXmlData or nullptr if sheetName doesn not exist
+         */
+        XLXmlData* getXmlDataBySheetName(const std::string& sheetName) const;
+
+        /**
+         * @brief
+         * @param tableName
+         * @param reference
+         * @return
+         */
+        void createTable(const std::string& sheetName, const std::string& tableName, const std::string& reference);
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Private Member Variables
@@ -310,6 +325,7 @@ namespace OpenXLSX
         XLContentTypes  m_contentTypes {};     /**< A pointer to the content types object*/
         XLAppProperties m_appProperties {};    /**< A pointer to the App properties object */
         XLProperties    m_coreProperties {};   /**< A pointer to the Core properties object*/
+        XLXmlData*      m_XmlWorkbook {};
         XLWorkbook      m_workbook {};         /**< A pointer to the workbook object */
         IZipArchive     m_archive {};          /**<  */
     };

@@ -50,10 +50,15 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #    include <random>
 #endif
 
+#include <vector>
+#include <algorithm>
+
 // ===== OpenXLSX Includes ===== //
 #include "XLContentTypes.hpp"
+#include "XLConstants.hpp"
 #include "XLDocument.hpp"
 #include "XLSheet.hpp"
+#include "XLTemplates.hpp"
 
 using namespace OpenXLSX;
 
@@ -467,13 +472,14 @@ void XLDocument::open(const std::string& fileName)
             m_data.emplace_back(/* parentDoc */ this,
                                 /* xmlPath   */ item.path().substr(1),
                                 /* xmlID     */ m_wbkRelationships.relationshipByTarget(item.path().substr(4)).id(),
+                                /* name      */ std::string(),                 
                                 /* xmlType   */ item.type());
         else
             m_data.emplace_back(/* parentDoc */ this,
                                 /* xmlPath   */ item.path().substr(1),
                                 /* xmlID     */ m_docRelationships.relationshipByTarget(item.path().substr(1)).id(),
+                                /* name      */ std::string(),  
                                 /* xmlType   */ item.type());
-        
     }
 
     for (const auto& node : getXmlData("xl/sharedStrings.xml")->getXmlDocument()->document_element().children()){
@@ -489,9 +495,22 @@ void XLDocument::open(const std::string& fileName)
 
     }
 
-    // load worksheets/_rels/sheetX.xml.rels if any and connect nodes
+    m_XmlWorkbook    = getXmlData("xl/workbook.xml");
+    m_XmlWorkbook->setName("workbook");
+    m_workbook       = XLWorkbook(m_XmlWorkbook);
+
+    // load worksheets/_rels/sheet{0}.xml.rels if any and connect nodes
     for (auto& wsItem : m_data){
         if (wsItem.getXmlType() == XLContentType::Worksheet){
+            
+            // Connect worksheets to workbook
+            m_XmlWorkbook->addChildNode(&wsItem);
+            wsItem.setParentNode(m_XmlWorkbook);
+           
+            // Retrieve sheet name and set it
+            wsItem.setName(m_XmlWorkbook->getXmlDocument()->document_element().child("sheets")
+                    .find_child_by_attribute("r:id", wsItem.getXmlID().c_str())
+                    .attribute("name").value());
 
             std::string sheetRelsPath = wsItem.getXmlPath();
             std::string::size_type n = sheetRelsPath.find_last_of('/');
@@ -501,23 +520,34 @@ void XLDocument::open(const std::string& fileName)
                 const std::string fileName = sheetRelsPath.substr(n);
                 if (fileName.substr(0, 6) == "/sheet"){
                     sheetRelsPath = basePath + "/_rels" + fileName + ".rels";
-                    if (m_archive.hasEntry(sheetRelsPath)){ // there is a xl/worksheets/_rels/sheetX.xml.rels
+                    if (m_archive.hasEntry(sheetRelsPath)){ // there is a xl/worksheets/_rels/sheet{0}.xml.rels
+
+                        // Adding the sheet{0}.xml.rels
                         XLXmlData* pRels = &(m_data.emplace_back(/* parentDoc */ this,
                                                                 /* xmlPath   */ sheetRelsPath,
                                                                 /* xmlID     */ std::string(),
+                                                                /* name      */ std::string(),
                                                                 /* xmlType   */ XLContentType::WorksheetRelations,
                                                                 /*parentNode */ &wsItem ));
+                        
                         wsItem.addChildNode(pRels);
 
+                        auto sheetRels = XLRelationships(pRels);
                         // Loop throught the sheet relations to connect childrens
-                        for (auto& childItem : XLRelationships(getXmlData(sheetRelsPath)).relationships()){
+                        for (auto& childItem : sheetRels.relationships()){
                             std::string targetPath = childItem.target();
                             // Some may be relative path
-                            if (targetPath.substr(0,2) == "..") targetPath = "xl" + targetPath.substr(2);
-                            XLXmlData* pDocChild = getXmlData(targetPath);
+                            if (targetPath.substr(0,2) == "..") 
+                                targetPath = "xl" + targetPath.substr(2);
+
+                            XLXmlData* pDocChild = getXmlData(targetPath); // Pointer to table elmnt
+
+                            pDocChild->setName(pDocChild->getXmlDocument()->child("table")
+                                                .attribute("name").value());
                             wsItem.addChildNode(pDocChild);
-                            pDocChild->setParentdNode(&wsItem);
-                            auto type = childItem.type();
+                            pDocChild->setParentNode(&wsItem);
+                            pDocChild->setXmlID(sheetRels.relationshipByTarget(childItem.target()).id());
+                            //auto type = childItem.type();
                         }
                         
                     }
@@ -532,7 +562,7 @@ void XLDocument::open(const std::string& fileName)
     m_coreProperties = (hasXmlData("docProps/core.xml") ? XLProperties(getXmlData("docProps/core.xml")) : XLProperties());
     m_appProperties  = (hasXmlData("docProps/app.xml") ? XLAppProperties(getXmlData("docProps/app.xml")) : XLAppProperties());
     m_sharedStrings  = XLSharedStrings(getXmlData("xl/sharedStrings.xml"), &m_sharedStringCache);
-    m_workbook       = XLWorkbook(getXmlData("xl/workbook.xml"));
+
 }
 
 /**
@@ -891,10 +921,22 @@ void XLDocument::execCommand(const XLCommand& command) {
                     /* parentDoc */ this,
                     /* xmlPath   */ command.getParam<std::string>("sheetPath").substr(1),
                     /* xmlID     */ m_wbkRelationships.relationshipByTarget(command.getParam<std::string>("sheetPath").substr(4)).id(),
+                    /* xmlID     */ command.getParam<std::string>("sheetName"),               
                     /* xmlType   */ XLContentType::Worksheet);
             }
             break;
         case XLCommandType::AddChartsheet:
+            // TODO: To be implemented
+            break;
+        case XLCommandType::AddTable:
+            {
+                //TODO worksheet !
+                createTable(command.getParam<std::string>("worksheet"),
+                            command.getParam<std::string>("tableName"),
+                            command.getParam<std::string>("reference"));
+                //get nexta available filename and next available id
+                // check that the name dont already exist
+            }
             // TODO: To be implemented
             break;
         case XLCommandType::DeleteSheet:
@@ -929,6 +971,7 @@ void XLDocument::execCommand(const XLCommand& command) {
                     /* parentDoc */ this,
                     /* xmlPath   */ sheetPath.substr(1),
                     /* xmlID     */ m_wbkRelationships.relationshipByTarget(sheetPath.substr(4)).id(),
+                    /* name      */ command.getParam<std::string>("cloneName"),
                     /* xmlType   */ XLContentType::Worksheet);
             }
             else {
@@ -944,6 +987,7 @@ void XLDocument::execCommand(const XLCommand& command) {
                     /* parentDoc */ this,
                     /* xmlPath   */ sheetPath.substr(1),
                     /* xmlID     */ m_wbkRelationships.relationshipByTarget(sheetPath.substr(4)).id(),
+                    /* name      */ command.getParam<std::string>("cloneName"),
                     /* xmlType   */ XLContentType::Chartsheet);
             }
 
@@ -990,6 +1034,9 @@ XLQuery XLDocument::execQuery(const XLQuery& query) const
         case XLQueryType::QuerySharedStrings:
             return XLQuery(query).setResult(m_sharedStrings);
         
+        case XLQueryType::QuerySheetFromName:
+            return XLQuery(query).setResult(getXmlDataBySheetName(query.getParam<std::string>("sheetName")));
+                
         case XLQueryType::QueryTableFromName:
             {
                 for (auto& item : m_data){
@@ -1002,7 +1049,6 @@ XLQuery XLDocument::execQuery(const XLQuery& query) const
 
                 return query; // Table not found
             }
-            
         case XLQueryType::QueryXmlData:
             {
                 auto result =
@@ -1076,3 +1122,100 @@ std::string XLDocument::extractXmlFromArchive(const std::string& path)
 {
     return (m_archive.hasEntry(path) ? m_archive.getEntry(path) : "");
 }
+
+XLXmlData* XLDocument::getXmlDataBySheetName(const std::string& sheetName) const
+{
+    for(auto sheetXmlData : m_XmlWorkbook->getChildNodes())
+        if(sheetXmlData->getName() == sheetName)
+            return sheetXmlData;
+
+    return nullptr;
+}
+
+void XLDocument::createTable(const std::string& sheetName, const std::string& tableName, const std::string& reference)
+{  
+    std::vector<uint32_t> fileIndices;
+    std::vector<uint32_t> idIndices;
+
+    std::string basePath;
+    std::string name = tableName;
+    // Loop through existing tables to find the available:
+    // - filename
+    // - index
+    // - check name
+    for (auto& wsItem : m_data)
+        if (wsItem.getXmlType() == XLContentType::Table){
+            std::string path = wsItem.getXmlPath();
+            std::string::size_type n = path.find_last_of("/");
+            if (basePath.empty()){
+                basePath = path.substr(0,n+1); //"xl/tables/"
+            }
+            //std::string t = path.substr(n+6,path.size()-n-10); // removing "table and .xml"
+            fileIndices.push_back(std::stoi(path.substr(n+6,path.size()-n-10))); // removing "table and .xml"
+            
+            XMLNode tableNode = wsItem.getXmlDocument()->child("table");
+            idIndices.push_back(std::stoi(tableNode.attribute("id").value()));
+            if (( name == tableNode.attribute("name").value()) ||
+                ( name == tableNode.attribute("displayName").value()))
+                name += INCREMENT_STRING;
+        }
+    // Get the first available indice for file and id (filling missings)
+    std::sort (fileIndices.begin(), fileIndices.end());
+    uint32_t nFile = 1;
+    for(uint32_t i : fileIndices)
+        if (i == nFile)
+            nFile +=1;
+    
+    std::sort (idIndices.begin(), idIndices.end());
+    uint32_t nId = 1;
+    for(uint32_t i : idIndices)
+        if (i == nId)
+            nId +=1;
+
+    std::string fileName = basePath + "table" + std::to_string(nFile) + ".xml";
+
+    // add to contentTypes
+    m_contentTypes.addOverride(fileName, XLContentType::Table);
+
+    XLXmlData* wks = getXmlDataBySheetName(sheetName);
+    //add to rels
+    //m_archive.hasEntry();
+    
+
+    m_archive.addEntry(fileName, emptyTable);
+    int i=0;
+    
+
+
+
+
+
+
+}
+
+/*
+ std::string emptyWorksheet {
+                    "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
+                    "<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\""
+                    " xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\""
+                    " xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\" mc:Ignorable=\"x14ac\""
+                    " xmlns:x14ac=\"http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac\">"
+                    "<dimension ref=\"A1\"/>"
+                    "<sheetViews>"
+                    "<sheetView workbookViewId=\"0\"/>"
+                    "</sheetViews>"
+                    "<sheetFormatPr baseColWidth=\"10\" defaultRowHeight=\"16\" x14ac:dyDescent=\"0.2\"/>"
+                    "<sheetData/>"
+                    "<pageMargins left=\"0.7\" right=\"0.7\" top=\"0.75\" bottom=\"0.75\" header=\"0.3\" footer=\"0.3\"/>"
+                    "</worksheet>"
+                };
+                m_contentTypes.addOverride(command.getParam<std::string>("sheetPath"), XLContentType::Worksheet);
+                m_wbkRelationships.addRelationship(XLRelationshipType::Worksheet, command.getParam<std::string>("sheetPath").substr(4));
+                m_appProperties.appendSheetName(command.getParam<std::string>("sheetName"));
+                m_archive.addEntry(command.getParam<std::string>("sheetPath").substr(1), emptyWorksheet);
+                m_data.emplace_back(
+                    /* parentDoc  this,
+                    /* xmlPath    command.getParam<std::string>("sheetPath").substr(1),
+                    /* xmlID      m_wbkRelationships.relationshipByTarget(command.getParam<std::string>("sheetPath").substr(4)).id(),
+                    /* xmlType   XLContentType::Worksheet);
+*/

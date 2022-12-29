@@ -94,6 +94,7 @@ namespace OpenXLSX
         XLXmlData(XLDocument*        parentDoc,
                   const std::string& xmlPath,
                   const std::string& xmlId   = "",
+                  const std::string& name = "",
                   XLContentType      xmlType = XLContentType::Unknown,
                   XLXmlData*         parentNode = nullptr);
 
@@ -139,7 +140,9 @@ namespace OpenXLSX
          */
         void setRawData(const std::string& data);
 
-        void setParentdNode(XLXmlData* parentNode);
+        void setXmlID(const std::string& xmlID);
+        void setName(const std::string& name);
+        void setParentNode(XLXmlData* parentNode);
         void addChildNode(XLXmlData* childNode);
 
         /**
@@ -174,6 +177,8 @@ namespace OpenXLSX
          */
         std::string getXmlID() const;
 
+        const std::string& getName() const;
+
         /**
          * @brief Retrieve the type represented by the XML data.
          * @return A XLContentType getValue representing the type.
@@ -206,10 +211,11 @@ namespace OpenXLSX
 
     private:
         // ===== PRIVATE MEMBER VARIABLES ===== //
-
+       
         XLDocument*                          m_parentDoc {}; /**< A pointer to the parent XLDocument object. >*/
         std::string                          m_xmlPath {};   /**< The path of the XML data in the .xlsx zip archive. >*/
         std::string                          m_xmlID {};     /**< The relationship ID of the XML data. >*/
+        std::string                          m_name{};
         XLContentType                        m_xmlType {};   /**< The type represented by the XML data. >*/
         XLXmlData*                           m_parentNode {}; /**< A pointer to the parent XLXmlData object. >*/
         std::vector<XLXmlData*>              m_childNodes {}; /**< A pointer to the parent XLXmlData object. >*/

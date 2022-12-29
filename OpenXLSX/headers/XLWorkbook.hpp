@@ -212,6 +212,15 @@ namespace OpenXLSX
                             const std::string& reference, 
                             uint32_t localSheetId = 0);
 
+        /**
+         * @brief
+         * @param wks worksheet which will hold the new table
+         * @param tableName Name of the range to be created
+         * @param reference Reference of the cell/range to be named: $I$17:$I$19
+         * @param localSheetId Id of the sheet where the name is defined, default is 0 (global)
+         */
+        void addTable(const std::string& sheetName, const std::string& tableName, 
+                            const std::string& reference);
 
         /**
          * @brief

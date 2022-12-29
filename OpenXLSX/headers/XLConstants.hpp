@@ -5,10 +5,12 @@
 #ifndef OPENXLSX_XLCONSTANTS_HPP
 #define OPENXLSX_XLCONSTANTS_HPP
 
+#define INCREMENT_STRING "1"
 namespace OpenXLSX
 {
     inline const uint16_t MAX_COLS = 16'384;
     inline const uint32_t MAX_ROWS = 1'048'576;
+
 }    // namespace OpenXLSX
 
 #endif    // OPENXLSX_XLCONSTANTS_HPP
