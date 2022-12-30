@@ -75,10 +75,10 @@ namespace OpenXLSX
     const std::string ref() const;
     std::vector<std::string> columnNames() const;
     uint16_t columnIndex(const std::string& name) const;
-    XLWorksheet getWorksheet() const;
-    XLCellRange tableRange() const;
-    XLTableRows tableRows() const;
-    XLCellRange dataBodyRange() const;
+    XLWorksheet* getWorksheet();
+    XLCellRange tableRange();
+    XLTableRows tableRows();
+    XLCellRange dataBodyRange();
 
 
 
@@ -89,11 +89,10 @@ namespace OpenXLSX
 
     void setName(const std::string& tableName);
 
-    
-
   private:
     XLXmlData* m_pXmlData;
     std::vector<std::shared_ptr<XLTableColumn>> m_columns;
+    XLWorksheet m_sheet;
     // cell range
     // sheet
     // filter

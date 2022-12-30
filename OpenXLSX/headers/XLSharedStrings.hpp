@@ -50,10 +50,10 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #pragma warning(disable : 4251)
 #pragma warning(disable : 4275)
 
-#include <deque>
+//#include <deque>
 #include <vector>
 #include <string>
-#include <functional>
+//#include <functional>
 
 //#include <pugixml.hpp>
 
@@ -82,69 +82,44 @@ namespace OpenXLSX
         /**
          * @brief
          */
-        //XLSharedStrings() = default;
+        XLSharedStrings() = default;
 
         /**
          * @brief
          * @param xmlData
          */
-        //explicit XLSharedStrings(XLXmlData* xmlData, std::deque<std::string> *stringCache);
-        //explicit XLSharedStrings(XLXmlData* xmlData);
-
-        ///////////////////// @brief //////////////////////////////////////////////////////
-    private:
-        XLSharedStrings(XLXmlData* xmlData);
-
-        XLSharedStrings(const XLSharedStrings&) = delete;
-        void operator=(const XLSharedStrings&) = delete;
-    public:
-        static XLSharedStrings& instance(std::function<XLSharedStrings()> *init = nullptr) {
-            static XLSharedStrings s{(*init)()};
-            return s;
-        }
-
-        static void initialize(XLXmlData* d) {
-            std::function<XLSharedStrings()> init = [d]() { return XLSharedStrings(d); };
-            instance(&init);
-        }
-
-        
-   
-
-          /////////// @brief //////////////////////////////////////////////////////
-
-        
+        explicit XLSharedStrings(XLXmlData* xmlData);
 
         /**
          * @brief Destructor
          */
-        //~XLSharedStrings();
+        ~XLSharedStrings();
 
         /**
          * @brief
          * @param other
          */
-        //XLSharedStrings(const XLSharedStrings& other) = default;
+        XLSharedStrings(const XLSharedStrings& other) = default;
 
         /**
          * @brief
          * @param other
          */
-        //XLSharedStrings(XLSharedStrings&& other) noexcept = default;
-
-        /**
-         * @brief
-         * @param other
-         * @return
-         */
-        //XLSharedStrings& operator=(const XLSharedStrings& other) = default;
+        XLSharedStrings(XLSharedStrings&& other) noexcept = default;
 
         /**
          * @brief
          * @param other
          * @return
          */
-        //XLSharedStrings& operator=(XLSharedStrings&& other) noexcept = default;
+        XLSharedStrings& operator=(const XLSharedStrings& other) = default;
+
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
+        XLSharedStrings& operator=(XLSharedStrings&& other) noexcept = default;
 
         /**
          * @brief

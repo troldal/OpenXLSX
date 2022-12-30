@@ -400,6 +400,7 @@ namespace OpenXLSX
          * @param state
          */
         void setSheetActive(const std::string& sheetRID);
+    
 
     };
 }    // namespace OpenXLSX

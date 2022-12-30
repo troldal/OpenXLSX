@@ -181,9 +181,7 @@ void XLDocument::open(const std::string& fileName)
     // TODO: If property data doesn't exist, consider creating them, instead of ignoring it.
     m_coreProperties = (hasXmlData("docProps/core.xml") ? XLProperties(getXmlDataByPath("docProps/core.xml")) : XLProperties());
     m_appProperties  = (hasXmlData("docProps/app.xml") ? XLAppProperties(getXmlDataByPath("docProps/app.xml")) : XLAppProperties());
-    XLSharedStrings::initialize(getXmlDataByPath("xl/sharedStrings.xml"));
-    //m_sharedStrings  = XLSharedStrings(getXmlDataByPath("xl/sharedStrings.xml"));
-    //m_sharedStrings  = XLSharedStrings(getXmlDataByPath("xl/sharedStrings.xml"), &m_sharedStringCache);
+    m_sharedStrings  = XLSharedStrings(getXmlDataByPath("xl/sharedStrings.xml"));
 }
 
 
@@ -637,8 +635,8 @@ XLQuery XLDocument::execQuery(const XLQuery& query) const
             return XLQuery(query).setResult(m_wbkRelationships.relationshipById(query.getParam<std::string>("sheetID")).target());
 
         case XLQueryType::QuerySharedStrings:
-            //return XLQuery(query).setResult(m_sharedStrings);
-            return XLQuery(query).setResult(1);
+            return XLQuery(query).setResult(&m_sharedStrings);
+            //return XLQuery(query).setResult(1);
         
         case XLQueryType::QuerySheetFromName:
             return XLQuery(query).setResult(getXmlDataByName(query.getParam<std::string>("sheetName")));
@@ -739,6 +737,11 @@ XLXmlData* XLDocument::getXmlDataByName(const std::string& name) const
     return nullptr;
 }
 
+XLSharedStrings& XLDocument::getSharedString() const
+{
+    return m_sharedStrings;
+}
+
 std::string XLDocument::getSheetRelsPath(const std::string& sheetName) const
 {
     XLXmlData* wsItem = getXmlDataByName(sheetName);
@@ -792,8 +795,8 @@ uint16_t XLDocument::availableFileID(XLContentType type)
 void XLDocument::createTable(const std::string& sheetName, const std::string& tableName, const std::string& reference)
 {  
     XLXmlData* wks = getXmlDataByName(sheetName);
-
-    std::vector<uint32_t> idIndices;;
+   
+    std::vector<uint32_t> idIndices;
 
     std::string basePath = "xl/tables/";
     std::string name = tableName;
@@ -889,11 +892,12 @@ void XLDocument::createTable(const std::string& sheetName, const std::string& ta
     tableNode.attribute("ref").set_value(ref.c_str());
 
     // Set up the columns !!!
+    const XLWorksheet* pWks = new XLWorksheet(wks);
     auto topRight = XLCellReference(topLeft.row(),bottomRight.column());
     auto headerRange = XLCellRange(wks->getXmlDocument()->first_child().child("sheetData"),
                                     topLeft,
-                                    topRight
-                                    /*m_sharedStrings*/);
+                                    topRight,
+                                    pWks);
     
     // Setup all the columns name
     XMLNode columnsNode = tableNode.child("tableColumns");
@@ -924,6 +928,6 @@ void XLDocument::createTable(const std::string& sheetName, const std::string& ta
     columnsNode.attribute("count").set_value(std::to_string(colId-1).c_str());
 
     // TODEL
-    int i=0;
+    delete pWks;
     
 }

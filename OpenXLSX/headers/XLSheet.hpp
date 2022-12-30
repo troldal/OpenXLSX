@@ -294,6 +294,7 @@ namespace OpenXLSX
                                         .setParam("sheetID", relationshipID())
                                         .setParam("cloneName", newName));
         }
+    
     };
 
     /**
@@ -304,6 +305,7 @@ namespace OpenXLSX
         friend class XLCell;
         friend class XLRow;
         friend class XLWorkbook;
+        friend class XLCellValueProxy;
         friend class XLSheetBase<XLWorksheet>;
 
         //----------------------------------------------------------------------------------------------------------------------
@@ -350,6 +352,8 @@ namespace OpenXLSX
          * @note The move assignment operator has been explicitly deleted.
          */
         XLWorksheet& operator=(XLWorksheet&& other) = default;
+        
+        //XLSharedStrings& getSharedString() const;
 
         /**
          * @brief
@@ -452,7 +456,7 @@ namespace OpenXLSX
          * @param newName
          */
         void updateSheetName(const std::string& oldName, const std::string& newName);
-        
+
     private:
 
         /**
@@ -490,6 +494,7 @@ namespace OpenXLSX
          * @param selected
          */
         void setActive_impl();
+
     };
 
     /**

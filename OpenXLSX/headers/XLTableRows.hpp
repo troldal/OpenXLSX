@@ -181,8 +181,8 @@ namespace OpenXLSX
                     uint32_t firstRow, 
                     uint32_t lastRow,
                     uint16_t firstCol,
-                    uint16_t lastCol
-                    /*const OpenXLSX::XLSharedStrings& sharedStrings*/);
+                    uint16_t lastCol,
+                    const XLWorksheet* wks);
         /**
          * @brief Copy Constructor
          * @param other

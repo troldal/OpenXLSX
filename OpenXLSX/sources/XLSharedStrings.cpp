@@ -57,12 +57,6 @@ using namespace OpenXLSX;
  * @details Constructs a new XLSharedStrings object. Only one (common) object is allowed per XLDocument instance.
  * A filepath to the underlying XML file must be provided.
  */
-/*
-XLSharedStrings::XLSharedStrings(XLXmlData* xmlData, std::deque<std::string> *stringCache) 
-              : XLXmlFile(xmlData), m_stringCache(stringCache)
-{
-}
-*/
 XLSharedStrings::XLSharedStrings(XLXmlData* xmlData) 
               : XLXmlFile(xmlData)
 {
@@ -82,9 +76,9 @@ XLSharedStrings::XLSharedStrings(XLXmlData* xmlData)
     }
 }
 
-/*
+
 XLSharedStrings::~XLSharedStrings() = default;
-*/
+
 /**
  * @details Look up a string index by the string content. If the string does not exist, the returned index is -1.
  */
@@ -97,11 +91,6 @@ uint32_t XLSharedStrings::getStringIndex(const std::string& str) const
     // Not found
     return (uint32_t)(-1);
     
-   /* 
-    auto iter = std::find_if(m_stringCache->begin(), m_stringCache->end(), [&](const std::string& s) { return str == s; });
-
-    return iter == m_stringCache->end() ? -1 : static_cast<uint32_t>(std::distance(m_stringCache->begin(), iter));
-    */
 }
 
 /**
@@ -123,8 +112,7 @@ const char* XLSharedStrings::getString(uint32_t index) const
     } catch (const std::out_of_range&) {
         return std::string().c_str();
     }
-    
-    //return (*m_stringCache)[index].c_str();
+
 }
 
 /**
@@ -139,15 +127,10 @@ uint32_t XLSharedStrings::appendString(const std::string& str)
     textNode.text().set(str.c_str());
 
     m_stringShared.push_back(str);
-    //m_stringCache->emplace_back(textNode.text().get());
+    
     auto test = m_stringShared.size() - 1;
     return m_stringShared.size() - 1;
-    /*
-    auto test = static_cast<uint32_t>(std::distance(m_stringCache->begin(), m_stringCache->end()) - 1);
-    auto size = m_stringCache->size();
 
-    return static_cast<uint32_t>(std::distance(m_stringCache->begin(), m_stringCache->end()) - 1);
-    */
 }
 
 /**

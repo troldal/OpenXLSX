@@ -55,7 +55,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <fstream>
 #include <iostream>
 #include <list>
-#include <map>
 #include <string>
 
 // ===== OpenXLSX Includes ===== //
@@ -300,6 +299,7 @@ namespace OpenXLSX
          */
         XLXmlData* getXmlDataByName(const std::string& name) const;
 
+        XLSharedStrings& getSharedString() const;
 
         /**
          * @brief
@@ -333,8 +333,8 @@ namespace OpenXLSX
         std::string m_realPath {}; /**<  */
 
         mutable std::list<XLXmlData>    m_data {};              /**<  */
-        mutable std::deque<std::string> m_sharedStringCache {}; /**<  */
-        //mutable XLSharedStrings*         m_sharedStrings;     /**<  */
+        //mutable std::deque<std::string> m_sharedStringCache {}; /**<  */
+        mutable XLSharedStrings  m_sharedStrings;     /**<  */
 
         XLRelationships m_docRelationships {}; /**< A pointer to the document relationships object*/
         XLRelationships m_wbkRelationships {}; /**< A pointer to the document relationships object*/

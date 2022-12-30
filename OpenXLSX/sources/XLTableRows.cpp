@@ -61,14 +61,14 @@ using namespace OpenXLSX;
  XLTableRowIterator:: XLTableRowIterator(const XLTableRows& tableRows, XLIteratorLocation loc):
                 m_range (XLCellRange(  *tableRows.m_dataNode,
                         XLCellReference (tableRows.m_firstRow, tableRows.m_firstCol),
-                        XLCellReference (tableRows.m_firstRow, tableRows.m_lastCol)
-                        /*tableRows.m_sharedStrings*/))
+                        XLCellReference (tableRows.m_firstRow, tableRows.m_lastCol),
+                        tableRows.m_worksheet))
 {
     if (loc == XLIteratorLocation::End)
         m_range = XLCellRange(  *tableRows.m_dataNode,
                             XLCellReference (tableRows.m_lastRow, tableRows.m_firstCol),
-                            XLCellReference (tableRows.m_lastRow, tableRows.m_lastCol)
-                            /*tableRows.m_sharedStrings*/);
+                            XLCellReference (tableRows.m_lastRow, tableRows.m_lastCol),
+                            tableRows.m_worksheet);
 }
 
  XLTableRowIterator::~ XLTableRowIterator() = default;
@@ -169,9 +169,9 @@ XLTableRows::XLTableRows(const XMLNode& dataNode,
                         uint32_t firstRow, 
                         uint32_t lastRow,
                         uint16_t firstCol,
-                        uint16_t lastCol
-                        /*const OpenXLSX::XLSharedStrings& sharedStrings*/):
-        XLRowRange(dataNode, firstRow, lastRow/*, sharedStrings*/),
+                        uint16_t lastCol,
+                        const XLWorksheet* wks):
+        XLRowRange(dataNode, firstRow, lastRow, wks),
         m_firstCol(firstCol),
         m_lastCol(lastCol)
 {}
@@ -217,13 +217,13 @@ XLCellRange XLTableRows::operator[](uint32_t index) const
     if (row > m_lastRow)
         return XLCellRange(*m_dataNode,
                         XLCellReference (m_firstRow, m_firstCol),
-                        XLCellReference (m_lastRow, m_lastCol)
-                        /*m_sharedStrings*/);
+                        XLCellReference (m_lastRow, m_lastCol),
+                        m_worksheet);
     
     return XLCellRange(*m_dataNode,
                         XLCellReference (row, m_firstCol),
-                        XLCellReference (row, m_lastCol)
-                        /*m_sharedStrings*/);
+                        XLCellReference (row, m_lastCol),
+                        m_worksheet);
 }
 
 

@@ -49,6 +49,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== OpenXLSX Includes ===== //
 #include "XLCellRange.hpp"
+#include "XLSheet.hpp"
 
 using namespace OpenXLSX;
 
@@ -66,12 +67,12 @@ namespace OpenXLSX
  */
 XLCellRange::XLCellRange(const XMLNode&         dataNode,
                          const XLCellReference& topLeft,
-                         const XLCellReference& bottomRight
-                         /*const XLSharedStrings& sharedStrings*/)
+                         const XLCellReference& bottomRight,
+                         const XLWorksheet*     wks)
     : m_dataNode(std::make_unique<XMLNode>(dataNode)),
       m_topLeft(topLeft),
-      m_bottomRight(bottomRight)
-      //m_sharedStrings(sharedStrings)
+      m_bottomRight(bottomRight),
+      m_worksheet(wks)
 {}
 
 /**
@@ -82,8 +83,8 @@ XLCellRange::XLCellRange(const XMLNode&         dataNode,
 XLCellRange::XLCellRange(const XLCellRange& other)
     : m_dataNode(std::make_unique<XMLNode>(*other.m_dataNode)),
       m_topLeft(other.m_topLeft),
-      m_bottomRight(other.m_bottomRight)
-      //m_sharedStrings(other.m_sharedStrings)
+      m_bottomRight(other.m_bottomRight),
+      m_worksheet(other.m_worksheet)
 {}
 
 /**
@@ -111,7 +112,7 @@ XLCellRange& XLCellRange::operator=(const XLCellRange& other)
         *m_dataNode     = *other.m_dataNode;
         m_topLeft       = other.m_topLeft;
         m_bottomRight   = other.m_bottomRight;
-        //m_sharedStrings = other.m_sharedStrings;
+        m_worksheet = other.m_worksheet;
     }
 
     return *this;
@@ -128,7 +129,7 @@ XLCellRange& XLCellRange::operator=(XLCellRange&& other) noexcept
         *m_dataNode     = *other.m_dataNode;
         m_topLeft       = other.m_topLeft;
         m_bottomRight   = other.m_bottomRight;
-        //m_sharedStrings = other.m_sharedStrings;
+       m_worksheet = other.m_worksheet;
     }
 
     return *this;
@@ -163,7 +164,7 @@ XLCell XLCellRange::operator[](uint32_t index) const
     if(row > m_bottomRight.row())
         return XLCell();
     
-    return XLCell(getCellNode(getRowNode(*m_dataNode, row), col));   
+    return XLCell(getCellNode(getRowNode(*m_dataNode, row), col), m_worksheet);   
 }
 
 /**

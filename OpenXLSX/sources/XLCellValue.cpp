@@ -8,6 +8,8 @@
 // ===== OpenXLSX Includes ===== //
 #include "XLCell.hpp"
 #include "XLCellValue.hpp"
+#include "XLSharedStrings.hpp"
+#include "XLSheet.hpp"
 #include "XLException.hpp"
 
 using namespace OpenXLSX;
@@ -402,15 +404,14 @@ void XLCellValueProxy::setString(const char* stringValue)
     m_cellNode->attribute("t").set_value("s");
 
     // ===== Get or create the index in the XLSharedStrings object.
+
     uint32_t index;
-    if (XLSharedStrings::instance().stringExists(stringValue))
-        index = XLSharedStrings::instance().getStringIndex(stringValue);
+    //if (m_cell->m_worksheet->getSharedString().stringExists(stringValue))
+    if (getSharedString()->stringExists(stringValue))
+        index = getSharedString()->getStringIndex(stringValue);
     else
-        index = XLSharedStrings::instance().appendString(stringValue);
-/*
-    auto index = (m_cell->m_sharedStrings.stringExists(stringValue) ? m_cell->m_sharedStrings.getStringIndex(stringValue)
-                                                                     : m_cell->m_sharedStrings.appendString(stringValue));
-*/
+        index = getSharedString()->appendString(stringValue);
+
     // ===== Set the text of the value node.
     m_cellNode->child("v").text().set(index);
 
@@ -424,7 +425,11 @@ void XLCellValueProxy::setString(const char* stringValue)
     //        m_cellNode->attribute("xml:space").set_value("preserve");
     //    }
 }
-
+XLSharedStrings* XLCellValueProxy::getSharedString() const
+{
+    XLQuery query(XLQueryType::QuerySharedStrings);
+    return m_cell->m_worksheet->parentDoc().execQuery(query).template result<XLSharedStrings*>();
+}
 /**
  * @details Get a copy of the XLCellValue object for the cell. This is private helper function for returning an
  * XLCellValue object corresponding to the cell value.
@@ -449,7 +454,7 @@ XLCellValue XLCellValueProxy::getValue() const
 
         case XLValueType::String:
             if (strcmp(m_cellNode->attribute("t").value(), "s") == 0)
-                return XLCellValue { XLSharedStrings::instance().getString(static_cast<uint32_t>(m_cellNode->child("v").text().as_ullong())) };
+                return XLCellValue {getSharedString()->getString(static_cast<uint32_t>(m_cellNode->child("v").text().as_ullong())) };
             else if (strcmp(m_cellNode->attribute("t").value(), "str") == 0)
                 return XLCellValue { m_cellNode->child("v").text().get() };
             else if (strcmp(m_cellNode->attribute("t").value(), "inlineStr") == 0)

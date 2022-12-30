@@ -370,7 +370,7 @@ XLCell XLWorksheet::cell(uint32_t rowNumber, uint16_t columnNumber) const
         }
     }
 
-    return XLCell{cellNode/*, parentDoc().execQuery(XLQuery(XLQueryType::QuerySharedStrings)).result<XLSharedStrings>()*/};
+    return XLCell{cellNode, this};
 }
 
 /**
@@ -388,8 +388,8 @@ XLCellRange XLWorksheet::range(const XLCellReference& topLeft, const XLCellRefer
 {
     return XLCellRange(xmlDocument().first_child().child("sheetData"),
                        topLeft,
-                       bottomRight
-                       /*parentDoc().execQuery(XLQuery(XLQueryType::QuerySharedStrings)).result<XLSharedStrings>()*/);
+                       bottomRight,
+                       this);
 }
 
 XLCellRange XLWorksheet::range(const std::string& ref) const
@@ -410,8 +410,8 @@ XLRowRange XLWorksheet::rows() const
                       1,
                       (sheetDataNode.last_child()
                            ? static_cast<uint32_t>(sheetDataNode.last_child().attribute("r").as_ullong())
-                           : 1)
-                      /*parentDoc().execQuery(XLQuery(XLQueryType::QuerySharedStrings)).result<XLSharedStrings>()*/);
+                           : 1),
+                            this);
 }
 
 /**
@@ -423,8 +423,8 @@ XLRowRange XLWorksheet::rows(uint32_t rowCount) const
 {
     return XLRowRange(xmlDocument().first_child().child("sheetData"),
                       1,
-                      rowCount
-                      /*parentDoc().execQuery(XLQuery(XLQueryType::QuerySharedStrings)).result<XLSharedStrings>()*/);
+                      rowCount,
+                      this);
 }
 
 /**
@@ -436,8 +436,8 @@ XLRowRange XLWorksheet::rows(uint32_t firstRow, uint32_t lastRow) const
 {
     return XLRowRange(xmlDocument().first_child().child("sheetData"),
                       firstRow,
-                      lastRow
-                      /*parentDoc().execQuery(XLQuery(XLQueryType::QuerySharedStrings)).result<XLSharedStrings>()*/);
+                      lastRow,
+                      this);
 }
 
 /**
@@ -447,8 +447,7 @@ XLRowRange XLWorksheet::rows(uint32_t firstRow, uint32_t lastRow) const
  */
 XLRow XLWorksheet::row(uint32_t rowNumber) const
 {
-    return XLRow{getRowNode(xmlDocument().first_child().child("sheetData"), rowNumber)
-                   /*parentDoc().execQuery(XLQuery(XLQueryType::QuerySharedStrings)).result<XLSharedStrings>()*/};
+    return XLRow{getRowNode(xmlDocument().first_child().child("sheetData"), rowNumber), this};
 }
 
 /**
@@ -574,9 +573,9 @@ void XLWorksheet::updateSheetName(const std::string& oldName, const std::string&
     // ===== Iterate through all defined names
     for (auto& row : xmlDocument().document_element().child("sheetData")) {
         for (auto& cell : row.children()) {
-            if (!XLCell(cell/*, XLSharedStrings()*/).hasFormula()) continue;
+            if (!XLCell(cell, this).hasFormula()) continue;
 
-            formula = XLCell(cell/*, XLSharedStrings()*/).formula().get();
+            formula = XLCell(cell, this).formula().get();
 
             // ===== Skip if formula contains a '[' and ']' (means that the defined refers to external workbook)
             if (formula.find('[') == std::string::npos && formula.find(']') == std::string::npos) {
@@ -584,7 +583,7 @@ void XLWorksheet::updateSheetName(const std::string& oldName, const std::string&
                 while (formula.find(oldNameTemp) != std::string::npos) { // NOLINT
                     formula.replace(formula.find(oldNameTemp), oldNameTemp.length(), newNameTemp);
                 }
-                XLCell(cell/*, XLSharedStrings()*/).formula() = formula;
+                XLCell(cell, this).formula() = formula;
             }
         }
     }

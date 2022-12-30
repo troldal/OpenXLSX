@@ -59,13 +59,10 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 using namespace OpenXLSX;
 
 
-XLTable::XLTable(XLXmlData* xmlData) : m_pXmlData(xmlData)
+XLTable::XLTable(XLXmlData* xmlData) 
+      : m_pXmlData(xmlData),m_sheet(XLWorksheet(xmlData->getParentNode()))
 {
-  /*
-    using XMLNode      = pugi::xml_node;
-    using XMLAttribute = pugi::xml_attribute;
-    using XMLDocument  = pugi::xml_document;
-    */
+  
   // ===== Deal with the columns
   XMLNode pTblColumns =  m_pXmlData->getXmlDocument()->child("table").child("tableColumns");
 
@@ -115,17 +112,17 @@ uint16_t XLTable::columnIndex(const std::string& name) const
   return (uint16_t)(-1);
 }
 
-XLWorksheet XLTable::getWorksheet() const
+XLWorksheet* XLTable::getWorksheet()
 {
-  return XLWorksheet(m_pXmlData->getParentNode());
+  return &m_sheet;
 }
 
-XLCellRange XLTable::tableRange() const
+XLCellRange XLTable::tableRange()
 {
-  return getWorksheet().range(ref());
+  return getWorksheet()->range(ref());
 }
 
-XLTableRows XLTable::tableRows() const
+XLTableRows XLTable::tableRows()
 {
     std::pair<std::string,std::string> p = XLCellRange::topLeftBottomRight(ref());
     XLCellReference topLeft(p.first);
@@ -144,11 +141,10 @@ XLTableRows XLTable::tableRows() const
         lastRow -=1;
     
     return XLTableRows(m_pXmlData->getParentNode()->getXmlDocument()->first_child().child("sheetData"),
-            firstRow, lastRow, firstCol, lastCol
-            /*m_pXmlData->getParentDoc()->execQuery(XLQuery(XLQueryType::QuerySharedStrings)).result<XLSharedStrings>()*/);
+            firstRow, lastRow, firstCol, lastCol, getWorksheet());
 }
 
-XLCellRange XLTable::dataBodyRange() const
+XLCellRange XLTable::dataBodyRange()
 {
   std::pair<std::string,std::string> p = XLCellRange::topLeftBottomRight(ref());
   XLCellReference topLeft(p.first);
@@ -160,7 +156,7 @@ XLCellRange XLTable::dataBodyRange() const
   if (isTotalVisible())
     bottomRight.offset(-1);
   
-  return getWorksheet().range(topLeft,bottomRight);
+  return getWorksheet()->range(topLeft,bottomRight);
 }
 
 bool XLTable::isHeaderVisible() const

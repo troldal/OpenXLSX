@@ -67,6 +67,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 namespace OpenXLSX
 {
     //---------- Forward Declarations ----------//
+    class XLSharedStrings;
     class XLCellValueProxy;
     class XLCell;
 
@@ -532,6 +533,8 @@ namespace OpenXLSX
          * @return An XLCellValue object.
          */
         XLCellValue getValue() const;
+
+        XLSharedStrings* getSharedString() const;
 
         //---------- Private Member Variables ---------- //
 

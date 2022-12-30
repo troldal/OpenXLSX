@@ -88,6 +88,7 @@ XLWorkbook::~XLWorkbook() = default;
  */
 XLSheet XLWorkbook::sheet(const std::string& sheetName)
 {
+
     XLQuery xmlQuery(XLQueryType::QuerySheetFromName);
     xmlQuery.setParam("sheetName", sheetName);
     return XLSheet(parentDoc().execQuery(xmlQuery).result<XLXmlData*>());

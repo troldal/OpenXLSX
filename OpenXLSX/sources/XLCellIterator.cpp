@@ -66,13 +66,14 @@ namespace OpenXLSX
 XLCellIterator::XLCellIterator(const XLCellRange& cellRange, XLIteratorLocation loc)
     : m_dataNode(std::make_unique<XMLNode>(*cellRange.m_dataNode)),
       m_topLeft(cellRange.m_topLeft),
-      m_bottomRight(cellRange.m_bottomRight)
-      //m_sharedStrings(cellRange.m_sharedStrings)
+      m_bottomRight(cellRange.m_bottomRight),
+      m_worksheet(cellRange.m_worksheet)
 {
     if (loc == XLIteratorLocation::End)
         m_currentCell = XLCell();
     else {
-        m_currentCell = XLCell(getCellNode(getRowNode(*m_dataNode, m_topLeft.row()), m_topLeft.column()));
+        m_currentCell = XLCell(getCellNode(getRowNode(*m_dataNode, m_topLeft.row()), 
+                                                m_topLeft.column()), m_worksheet);
     }
 }
 
@@ -88,8 +89,8 @@ XLCellIterator::XLCellIterator(const XLCellIterator& other)
     : m_dataNode(std::make_unique<XMLNode>(*other.m_dataNode)),
       m_topLeft(other.m_topLeft),
       m_bottomRight(other.m_bottomRight),
-      m_currentCell(other.m_currentCell)
-      //m_sharedStrings(other.m_sharedStrings)
+      m_currentCell(other.m_currentCell),
+      m_worksheet(other.m_worksheet)
 {}
 
 /**
@@ -107,7 +108,7 @@ XLCellIterator& XLCellIterator::operator=(const XLCellIterator& other)
         m_topLeft       = other.m_topLeft;
         m_bottomRight   = other.m_bottomRight;
         m_currentCell   = other.m_currentCell;
-        //m_sharedStrings = other.m_sharedStrings;
+        m_worksheet     = other.m_worksheet;
     }
 
     return *this;
@@ -141,7 +142,7 @@ XLCellIterator& XLCellIterator::operator++()
             node = m_currentCell.m_cellNode->parent().insert_child_after("c", *m_currentCell.m_cellNode);
             node.append_attribute("r").set_value(ref.address().c_str());
         }
-        m_currentCell = XLCell(node);
+        m_currentCell = XLCell(node, m_worksheet);
     }
     else if (ref.row() > m_currentCell.cellReference().row()) {
         auto rowNode = m_currentCell.m_cellNode->parent().next_sibling();
@@ -151,7 +152,7 @@ XLCellIterator& XLCellIterator::operator++()
             // getRowNode(*m_dataNode, ref.row());
         }
 
-        m_currentCell = XLCell(getCellNode(rowNode, ref.column()));
+        m_currentCell = XLCell(getCellNode(rowNode, ref.column()), m_worksheet);
     }
     else
         throw XLInternalError("An internal error occured");
