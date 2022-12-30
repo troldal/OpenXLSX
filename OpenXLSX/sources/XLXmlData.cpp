@@ -83,6 +83,7 @@ XLXmlData::~XLXmlData() = default;
  */
 void XLXmlData::setRawData(const std::string& data)
 {
+    //pugi::parse_ws_pcdata     pugi::format_raw
     m_xmlDoc->load_string(data.c_str(), pugi::parse_default | pugi::parse_ws_pcdata);
 }
 
@@ -113,9 +114,20 @@ void  XLXmlData::addChildNode(XLXmlData* childNode)
 std::string XLXmlData::getRawData() const
 {
     std::ostringstream ostr;
-    getXmlDocument()->save(ostr, "", pugi::format_raw);
+
+    XMLNode decl = m_xmlDoc->prepend_child(pugi::node_declaration);
+    decl.append_attribute("version") = "1.0";
+    decl.append_attribute("encoding") = "UTF-8";
+    decl.append_attribute("standalone") = "yes";
+
+    getXmlDocument()->save(ostr, "", pugi::format_raw , pugi::encoding_utf8);
+
+    //pugi::parse_ws_pcdata     pugi::format_raw
+    std::string test = ostr.str();
     return ostr.str();
 }
+
+
 
 /**
  * @details

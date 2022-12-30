@@ -239,13 +239,12 @@ void XLWorkbook::addWorksheet(const std::string& sheetName)
         throw XLInputError("Sheet named \"" + sheetName + "\" already exists.");
 
     // ===== Create new internal (workbook) ID for the sheet
-    auto internalID = createInternalSheetID();
+    //auto internalID = createInternalSheetID();
 
     // ===== Create xml file for new worksheet and add metadata to the workbook file.
     parentDoc().execCommand(XLCommand(XLCommandType::AddWorksheet)
-                                .setParam("sheetName", sheetName)
-                                .setParam("sheetPath", "/xl/worksheets/sheet" + std::to_string(internalID) + ".xml"));
-    prepareSheetMetadata(sheetName, internalID);
+                                .setParam("sheetName", sheetName));
+
 }
 
 void XLWorkbook::deleteNamedRange(const std::string& rangeName,
@@ -349,20 +348,6 @@ void XLWorkbook::cloneSheet(const std::string& existingName, const std::string& 
                             .setParam("cloneName", newName));
 }
 
-/**
- * @details
- */
-uint16_t XLWorkbook::createInternalSheetID()
-{
-    return static_cast<uint16_t>(std::max_element(xmlDocument().document_element().child("sheets").children().begin(),
-                                                  xmlDocument().document_element().child("sheets").children().end(),
-                                                  [](const XMLNode& a, const XMLNode& b) {
-                                                      return a.attribute("sheetId").as_uint() < b.attribute("sheetId").as_uint();
-                                                  })
-                                     ->attribute("sheetId")
-                                     .as_uint() +
-                                 1);
-}
 
 /**
  * @details

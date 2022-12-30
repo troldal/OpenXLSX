@@ -271,8 +271,14 @@ namespace OpenXLSX
          * @return true if the XLRelationshipItem exists; otherwise false.
          */
         bool idExists(const std::string& id) const;
+    
+    protected:   // ---------- Protected Member Functions ---------- //
+        /**
+         * @brief Get the next available id "rId".
+         * @return return the rId{0} string.
+         */
+        std::string getAvailableRelsId() const;
 
-        // ---------- Protected Member Functions ---------- //
     };
 }    // namespace OpenXLSX
 

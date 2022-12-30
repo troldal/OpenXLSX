@@ -347,12 +347,6 @@ namespace OpenXLSX
 
         /**
          * @brief
-         * @return
-         */
-        uint16_t createInternalSheetID();
-
-        /**
-         * @brief
          * @param sheetName
          * @return
          */

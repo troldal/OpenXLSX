@@ -277,14 +277,14 @@ namespace OpenXLSX
          * @param path
          * @return
          */
-        XLXmlData* getXmlData(const std::string& path);
+        XLXmlData* getXmlDataByPath(const std::string& path);
 
         /**
          * @brief
          * @param path
          * @return
          */
-        const XLXmlData* getXmlData(const std::string& path) const;
+        const XLXmlData* getXmlDataByPath(const std::string& path) const;
 
         /**
          * @brief
@@ -298,7 +298,23 @@ namespace OpenXLSX
          * @param sheetName to be found
          * @return a pointer to XLXmlData or nullptr if sheetName doesn not exist
          */
-        XLXmlData* getXmlDataBySheetName(const std::string& sheetName) const;
+        XLXmlData* getXmlDataByName(const std::string& name) const;
+
+
+        /**
+         * @brief
+         * @param name
+         * @return the path to xl/worksheets/_rels/sheet{0}.xml.rels whether it exist or not.
+         * Return a empty string if sheetName does not exists
+         */
+        std::string getSheetRelsPath(const std::string& sheetName) const;
+
+        /**
+         * @brief determine the available id disponible for filename
+         * @param type
+         * @return Return the available id.
+         */
+        uint16_t availableFileID(XLContentType type);
 
         /**
          * @brief

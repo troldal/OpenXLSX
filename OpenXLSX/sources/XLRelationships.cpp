@@ -147,6 +147,8 @@ namespace
             typeString = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image";
         else if (type == XLRelationshipType::Chart)
             typeString = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart";
+        else if (type == XLRelationshipType::Table)
+            typeString = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/table";
         else if (type == XLRelationshipType::ExternalLinkPath)
             typeString = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/externalLinkPath";
         else if (type == XLRelationshipType::PrinterSettings)
@@ -161,19 +163,6 @@ namespace
         return typeString;
     }
 
-    uint32_t GetNewRelsID(XMLNode relationshipsNode)
-    {
-        return static_cast<uint32_t>(stoi(std::string(std::max_element(relationshipsNode.children().begin(),
-                                                                       relationshipsNode.children().end(),
-                                                                       [](XMLNode a, XMLNode b) {
-                                                                           return stoi(std::string(a.attribute("Id").value()).substr(3)) <
-                                                                                  stoi(std::string(b.attribute("Id").value()).substr(3));
-                                                                       })
-                                                          ->attribute("Id")
-                                                          .value())
-                                              .substr(3)) +
-                                     1);
-    }
 }    // namespace
 
 XLRelationshipItem::XLRelationshipItem() : m_relationshipNode(std::make_unique<XMLNode>()) {}
@@ -271,11 +260,9 @@ XLRelationshipItem XLRelationships::addRelationship(XLRelationshipType type, con
 {
     std::string typeString = GetStringFromType(type);
 
-    std::string id = "rId" + std::to_string(GetNewRelsID(xmlDocument().document_element()));
-
     // Create new node in the .rels file
     auto node = xmlDocument().document_element().append_child("Relationship");
-    node.append_attribute("Id").set_value(id.c_str());
+    node.append_attribute("Id").set_value(getAvailableRelsId().c_str());
     node.append_attribute("Type").set_value(typeString.c_str());
     node.append_attribute("Target").set_value(target.c_str());
 
@@ -300,4 +287,29 @@ bool XLRelationships::targetExists(const std::string& target) const
 bool XLRelationships::idExists(const std::string& id) const
 {
     return xmlDocument().document_element().find_child_by_attribute("Id", id.c_str()) != nullptr;
+}
+
+/**
+ * @details Look for hole in the rId field. First load a vector, 
+ * order it and find the first available id.
+ */
+std::string XLRelationships::getAvailableRelsId() const
+{
+    std::vector<uint32_t> rIdIndices;
+
+    // Find available rId1
+    for (auto pChild : xmlDocument().document_element().children()){
+        auto test = pChild.attribute("Id").value();
+        if(!std::string(pChild.attribute("Id").value()).empty())
+            rIdIndices.push_back(std::stoi(std::string(pChild.attribute("Id").value()).substr(3)));
+
+    }
+    
+    std::sort (rIdIndices.begin(), rIdIndices.end());
+    uint32_t nrId = 1;
+    for(uint32_t i : rIdIndices)
+        if (i == nrId)
+            nrId +=1;
+    
+    return ("rId" + std::to_string(nrId)); 
 }
