@@ -89,7 +89,7 @@ namespace OpenXLSX
          * @param cellNode
          * @param sharedStrings
          */
-        XLCell(const XMLNode& cellNode, const XLSharedStrings& sharedStrings);
+        XLCell(const XMLNode& cellNode/*, const XLSharedStrings& sharedStrings*/);
 
         /**
          * @brief Copy constructor
@@ -193,7 +193,7 @@ namespace OpenXLSX
 
         //---------- Private Member Variables ---------- //
         std::unique_ptr<XMLNode> m_cellNode;      /**< A pointer to the root XMLNode for the cell. */
-        XLSharedStrings          m_sharedStrings; /**< */
+        //XLSharedStrings          m_sharedStrings; /**< */
         XLCellValueProxy         m_valueProxy;    /**< */
         XLFormulaProxy           m_formulaProxy; /**< */
     };

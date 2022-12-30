@@ -51,11 +51,19 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #pragma warning(disable : 4275)
 
 #include <deque>
+#include <vector>
 #include <string>
+#include <functional>
+
+//#include <pugixml.hpp>
 
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
 #include "XLXmlFile.hpp"
+
+//#include "XLXmlData.hpp"
+//#include "XLDocument.hpp"
+
 
 namespace OpenXLSX
 {
@@ -74,51 +82,76 @@ namespace OpenXLSX
         /**
          * @brief
          */
-        XLSharedStrings() = default;
+        //XLSharedStrings() = default;
 
         /**
          * @brief
          * @param xmlData
          */
-        explicit XLSharedStrings(XLXmlData* xmlData, std::deque<std::string> *stringCache);
+        //explicit XLSharedStrings(XLXmlData* xmlData, std::deque<std::string> *stringCache);
+        //explicit XLSharedStrings(XLXmlData* xmlData);
+
+        ///////////////////// @brief //////////////////////////////////////////////////////
+    private:
+        XLSharedStrings(XLXmlData* xmlData);
+
+        XLSharedStrings(const XLSharedStrings&) = delete;
+        void operator=(const XLSharedStrings&) = delete;
+    public:
+        static XLSharedStrings& instance(std::function<XLSharedStrings()> *init = nullptr) {
+            static XLSharedStrings s{(*init)()};
+            return s;
+        }
+
+        static void initialize(XLXmlData* d) {
+            std::function<XLSharedStrings()> init = [d]() { return XLSharedStrings(d); };
+            instance(&init);
+        }
+
+        
+   
+
+          /////////// @brief //////////////////////////////////////////////////////
+
+        
 
         /**
          * @brief Destructor
          */
-        ~XLSharedStrings();
+        //~XLSharedStrings();
 
         /**
          * @brief
          * @param other
          */
-        XLSharedStrings(const XLSharedStrings& other) = default;
+        //XLSharedStrings(const XLSharedStrings& other) = default;
 
         /**
          * @brief
          * @param other
          */
-        XLSharedStrings(XLSharedStrings&& other) noexcept = default;
-
-        /**
-         * @brief
-         * @param other
-         * @return
-         */
-        XLSharedStrings& operator=(const XLSharedStrings& other) = default;
+        //XLSharedStrings(XLSharedStrings&& other) noexcept = default;
 
         /**
          * @brief
          * @param other
          * @return
          */
-        XLSharedStrings& operator=(XLSharedStrings&& other) noexcept = default;
+        //XLSharedStrings& operator=(const XLSharedStrings& other) = default;
+
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
+        //XLSharedStrings& operator=(XLSharedStrings&& other) noexcept = default;
 
         /**
          * @brief
          * @param str
          * @return
          */
-        int32_t getStringIndex(const std::string& str) const;
+        uint32_t getStringIndex(const std::string& str) const;
 
         /**
          * @brief
@@ -139,7 +172,7 @@ namespace OpenXLSX
          * @param str The string to append.
          * @return A long int with the index of the appended string
          */
-        int32_t appendString(const std::string& str);
+        uint32_t appendString(const std::string& str);
 
         /**
          * @brief Clear the string at the given index.
@@ -151,7 +184,8 @@ namespace OpenXLSX
         void clearString(uint64_t index);
 
     private:
-        std::deque<std::string> *m_stringCache {}; /** < Each string must have an unchanging memory address; hence the use of std::deque */
+        std::vector<std::string> m_stringShared; /** < Each string must have an unchanging memory address; hence the use of std::deque */
+        //std::deque<std::string> *m_stringCache {}; /** < Each string must have an unchanging memory address; hence the use of std::deque */
     };
 }    // namespace OpenXLSX
 

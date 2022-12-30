@@ -85,8 +85,8 @@ namespace OpenXLSX
          */
         explicit XLCellRange(const XMLNode&         dataNode,
                              const XLCellReference& topLeft,
-                             const XLCellReference& bottomRight,
-                             const XLSharedStrings&        sharedStrings);
+                             const XLCellReference& bottomRight
+                             /*const XLSharedStrings&        sharedStrings*/);
 
         /**
          * @brief Copy constructor [default].
@@ -191,7 +191,7 @@ namespace OpenXLSX
         std::unique_ptr<XMLNode> m_dataNode;    /**< */
         XLCellReference          m_topLeft;     /**< The cell reference of the first cell in the range */
         XLCellReference          m_bottomRight; /**< The cell reference of the last cell in the range */
-        XLSharedStrings          m_sharedStrings;
+        //XLSharedStrings          m_sharedStrings;
     };
 }    // namespace OpenXLSX
 

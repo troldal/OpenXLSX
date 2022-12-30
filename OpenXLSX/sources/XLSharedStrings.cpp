@@ -57,23 +57,51 @@ using namespace OpenXLSX;
  * @details Constructs a new XLSharedStrings object. Only one (common) object is allowed per XLDocument instance.
  * A filepath to the underlying XML file must be provided.
  */
-XLSharedStrings::XLSharedStrings(XLXmlData* xmlData, std::deque<std::string> *stringCache) : XLXmlFile(xmlData), m_stringCache(stringCache)
+/*
+XLSharedStrings::XLSharedStrings(XLXmlData* xmlData, std::deque<std::string> *stringCache) 
+              : XLXmlFile(xmlData), m_stringCache(stringCache)
 {
 }
+*/
+XLSharedStrings::XLSharedStrings(XLXmlData* xmlData) 
+              : XLXmlFile(xmlData)
+{
 
-/**
- * @details
- */
+  for (const auto& node : m_xmlData->getXmlDocument()->document_element().children()){
+        if (std::string(node.first_child().name()) == "r") {
+            std::string result;
+            for (const auto& elem : node.children())
+                result += elem.child("t").text().get();
+            m_stringShared.push_back(result);
+ 
+        } else {
+            m_stringShared.push_back(node.first_child().text().get());
+
+        }
+
+    }
+}
+
+/*
 XLSharedStrings::~XLSharedStrings() = default;
-
+*/
 /**
  * @details Look up a string index by the string content. If the string does not exist, the returned index is -1.
  */
-int32_t XLSharedStrings::getStringIndex(const std::string& str) const
+uint32_t XLSharedStrings::getStringIndex(const std::string& str) const
 {
+    auto it = std::find(m_stringShared.begin(), m_stringShared.end(), str);
+    if (it != m_stringShared.end()) 
+        return (uint32_t)(it - m_stringShared.begin());
+
+    // Not found
+    return (uint32_t)(-1);
+    
+   /* 
     auto iter = std::find_if(m_stringCache->begin(), m_stringCache->end(), [&](const std::string& s) { return str == s; });
 
-    return iter == m_stringCache->end() ? -1 : static_cast<int32_t>(std::distance(m_stringCache->begin(), iter));
+    return iter == m_stringCache->end() ? -1 : static_cast<uint32_t>(std::distance(m_stringCache->begin(), iter));
+    */
 }
 
 /**
@@ -81,7 +109,7 @@ int32_t XLSharedStrings::getStringIndex(const std::string& str) const
  */
 bool XLSharedStrings::stringExists(const std::string& str) const
 {
-    return getStringIndex(str) >= 0;
+    return getStringIndex(str) != (uint32_t)(-1);
 }
 
 /**
@@ -89,22 +117,37 @@ bool XLSharedStrings::stringExists(const std::string& str) const
  */
 const char* XLSharedStrings::getString(uint32_t index) const
 {
-    return (*m_stringCache)[index].c_str();
+    try{
+        std::string value = m_stringShared.at(index);
+        return value.c_str();
+    } catch (const std::out_of_range&) {
+        return std::string().c_str();
+    }
+    
+    //return (*m_stringCache)[index].c_str();
 }
 
 /**
  * @details Append a string by creating a new node in the XML file and adding the string to it. The index to the
  * shared string is returned
  */
-int32_t XLSharedStrings::appendString(const std::string& str)
+uint32_t XLSharedStrings::appendString(const std::string& str)
 {
     auto textNode = xmlDocument().document_element().append_child("si").append_child("t");
     if (str.front() == ' ' || str.back() == ' ') textNode.append_attribute("xml:space").set_value("preserve");
 
     textNode.text().set(str.c_str());
-    m_stringCache->emplace_back(textNode.text().get());
 
-    return static_cast<int32_t>(std::distance(m_stringCache->begin(), m_stringCache->end()) - 1);
+    m_stringShared.push_back(str);
+    //m_stringCache->emplace_back(textNode.text().get());
+    auto test = m_stringShared.size() - 1;
+    return m_stringShared.size() - 1;
+    /*
+    auto test = static_cast<uint32_t>(std::distance(m_stringCache->begin(), m_stringCache->end()) - 1);
+    auto size = m_stringCache->size();
+
+    return static_cast<uint32_t>(std::distance(m_stringCache->begin(), m_stringCache->end()) - 1);
+    */
 }
 
 /**
@@ -113,7 +156,14 @@ int32_t XLSharedStrings::appendString(const std::string& str)
  */
 void XLSharedStrings::clearString(uint64_t index)
 {
-    (*m_stringCache)[index] = "";
+    //(*m_stringCache)[index] = "";
+
+    try{
+        m_stringShared.at(index) = std::string();
+    } catch (const std::out_of_range&) {
+        return;
+    }
+
     auto iter            = xmlDocument().document_element().children().begin();
     std::advance(iter, index);
     iter->text().set("");

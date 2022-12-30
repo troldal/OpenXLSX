@@ -325,13 +325,13 @@ namespace OpenXLSX
          * @brief
          * @return
          */
-        XLSharedStrings sharedStrings();
+       // XLSharedStrings sharedStrings();
 
         /**
          * @brief
          * @return
          */
-        bool hasSharedStrings() const;
+       // bool hasSharedStrings() const;
 
         /**
          * @brief

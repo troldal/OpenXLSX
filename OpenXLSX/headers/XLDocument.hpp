@@ -334,7 +334,7 @@ namespace OpenXLSX
 
         mutable std::list<XLXmlData>    m_data {};              /**<  */
         mutable std::deque<std::string> m_sharedStringCache {}; /**<  */
-        mutable XLSharedStrings         m_sharedStrings {};     /**<  */
+        //mutable XLSharedStrings*         m_sharedStrings;     /**<  */
 
         XLRelationships m_docRelationships {}; /**< A pointer to the document relationships object*/
         XLRelationships m_wbkRelationships {}; /**< A pointer to the document relationships object*/

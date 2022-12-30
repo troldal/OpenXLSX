@@ -124,19 +124,6 @@ void XLDocument::open(const std::string& fileName)
                                 /* xmlType   */ item.type());
     }
 
-    for (const auto& node : getXmlDataByPath("xl/sharedStrings.xml")->getXmlDocument()->document_element().children()){
-        if (std::string(node.first_child().name()) == "r") {
-            std::string result;
-            for (const auto& elem : node.children())
-                result += elem.child("t").text().get();
-            m_sharedStringCache.emplace_back(result);
-        }
-
-        else
-            m_sharedStringCache.emplace_back(node.first_child().text().get());
-
-    }
-
     m_XmlWorkbook    = getXmlDataByPath("xl/workbook.xml");
     m_XmlWorkbook->setName("workbook");
     m_workbook       = XLWorkbook(m_XmlWorkbook);
@@ -194,8 +181,9 @@ void XLDocument::open(const std::string& fileName)
     // TODO: If property data doesn't exist, consider creating them, instead of ignoring it.
     m_coreProperties = (hasXmlData("docProps/core.xml") ? XLProperties(getXmlDataByPath("docProps/core.xml")) : XLProperties());
     m_appProperties  = (hasXmlData("docProps/app.xml") ? XLAppProperties(getXmlDataByPath("docProps/app.xml")) : XLAppProperties());
-    m_sharedStrings  = XLSharedStrings(getXmlDataByPath("xl/sharedStrings.xml"), &m_sharedStringCache);
-
+    XLSharedStrings::initialize(getXmlDataByPath("xl/sharedStrings.xml"));
+    //m_sharedStrings  = XLSharedStrings(getXmlDataByPath("xl/sharedStrings.xml"));
+    //m_sharedStrings  = XLSharedStrings(getXmlDataByPath("xl/sharedStrings.xml"), &m_sharedStringCache);
 }
 
 
@@ -649,7 +637,8 @@ XLQuery XLDocument::execQuery(const XLQuery& query) const
             return XLQuery(query).setResult(m_wbkRelationships.relationshipById(query.getParam<std::string>("sheetID")).target());
 
         case XLQueryType::QuerySharedStrings:
-            return XLQuery(query).setResult(m_sharedStrings);
+            //return XLQuery(query).setResult(m_sharedStrings);
+            return XLQuery(query).setResult(1);
         
         case XLQueryType::QuerySheetFromName:
             return XLQuery(query).setResult(getXmlDataByName(query.getParam<std::string>("sheetName")));
@@ -806,7 +795,7 @@ void XLDocument::createTable(const std::string& sheetName, const std::string& ta
 
     std::vector<uint32_t> idIndices;;
 
-    std::string basePath;
+    std::string basePath = "xl/tables/";
     std::string name = tableName;
     // Loop through existing tables to find the available:
     // - filename
@@ -816,9 +805,6 @@ void XLDocument::createTable(const std::string& sheetName, const std::string& ta
         if (wsItem.getXmlType() == XLContentType::Table){
             std::string path = wsItem.getXmlPath();
             std::string::size_type n = path.find_last_of("/");
-            if (basePath.empty()){
-                basePath = path.substr(0,n+1); //"xl/tables/" only the first time
-            }
 
             XMLNode tableNode = wsItem.getXmlDocument()->child("table");
             idIndices.push_back(std::stoi(tableNode.attribute("id").value()));
@@ -906,8 +892,8 @@ void XLDocument::createTable(const std::string& sheetName, const std::string& ta
     auto topRight = XLCellReference(topLeft.row(),bottomRight.column());
     auto headerRange = XLCellRange(wks->getXmlDocument()->first_child().child("sheetData"),
                                     topLeft,
-                                    topRight,
-                                    m_sharedStrings);
+                                    topRight
+                                    /*m_sharedStrings*/);
     
     // Setup all the columns name
     XMLNode columnsNode = tableNode.child("tableColumns");
@@ -926,6 +912,7 @@ void XLDocument::createTable(const std::string& sheetName, const std::string& ta
                 notValid = false;
         }
         colNames.push_back(colName);
+        cell.value() = colName;
         // Fill shared string
         // Fill cell value !
         auto newNode = columnsNode.append_child("tableColumn");
@@ -933,7 +920,7 @@ void XLDocument::createTable(const std::string& sheetName, const std::string& ta
         newNode.append_attribute("name").set_value(colName.c_str());
         colId +=1;
     }
-    // adding the table columns count !
+    // adding the table columns count
     columnsNode.attribute("count").set_value(std::to_string(colId-1).c_str());
 
     // TODEL

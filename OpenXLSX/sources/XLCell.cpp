@@ -68,9 +68,9 @@ XLCell::XLCell()
  * If a cell XMLNode does not exist (i.e., the cell is empty), use the relevant constructor to create an XLCell
  * from a XLCellReference parameter.
  */
-XLCell::XLCell(const XMLNode& cellNode, const XLSharedStrings& sharedStrings)
+XLCell::XLCell(const XMLNode& cellNode/*, const XLSharedStrings& sharedStrings*/)
     : m_cellNode(std::make_unique<XMLNode>(cellNode)),
-      m_sharedStrings(sharedStrings),
+      //m_sharedStrings(sharedStrings),
       m_valueProxy(XLCellValueProxy(this, m_cellNode.get())),
       m_formulaProxy(XLFormulaProxy(this, m_cellNode.get()))
 {}
@@ -80,7 +80,7 @@ XLCell::XLCell(const XMLNode& cellNode, const XLSharedStrings& sharedStrings)
  */
 XLCell::XLCell(const XLCell& other)
     : m_cellNode(other.m_cellNode ? std::make_unique<XMLNode>(*other.m_cellNode) : nullptr),
-      m_sharedStrings(other.m_sharedStrings),
+      //m_sharedStrings(other.m_sharedStrings),
       m_valueProxy(XLCellValueProxy(this, m_cellNode.get())),
       m_formulaProxy(XLFormulaProxy(this, m_cellNode.get()))
 {}
@@ -90,7 +90,7 @@ XLCell::XLCell(const XLCell& other)
  */
 XLCell::XLCell(XLCell&& other) noexcept
     : m_cellNode(std::move(other.m_cellNode)),
-      m_sharedStrings(std::move(other.m_sharedStrings)),
+      //m_sharedStrings(std::move(other.m_sharedStrings)),
       m_valueProxy(XLCellValueProxy(this, m_cellNode.get())),
       m_formulaProxy(XLFormulaProxy(this, m_cellNode.get()))
 {}
@@ -120,7 +120,7 @@ XLCell& XLCell::operator=(XLCell&& other) noexcept
 {
     if (&other != this) {
         m_cellNode      = std::move(other.m_cellNode);
-        m_sharedStrings = other.m_sharedStrings;
+        //m_sharedStrings = other.m_sharedStrings;
         m_valueProxy    = XLCellValueProxy(this, m_cellNode.get());
     }
 
@@ -153,7 +153,7 @@ XLCell XLCell::offset(uint16_t rowOffset, uint16_t colOffset) const
     XLCellReference offsetRef(cellReference().row() + rowOffset, cellReference().column() + colOffset);
     auto            rownode  = getRowNode(m_cellNode->parent().parent(), offsetRef.row());
     auto            cellnode = getCellNode(rownode, offsetRef.column());
-    return XLCell{cellnode, m_sharedStrings};
+    return XLCell{cellnode/*, m_sharedStrings*/};
 }
 
 /**

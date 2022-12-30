@@ -144,8 +144,8 @@ XLTableRows XLTable::tableRows() const
         lastRow -=1;
     
     return XLTableRows(m_pXmlData->getParentNode()->getXmlDocument()->first_child().child("sheetData"),
-            firstRow, lastRow, firstCol, lastCol,
-            m_pXmlData->getParentDoc()->execQuery(XLQuery(XLQueryType::QuerySharedStrings)).result<XLSharedStrings>());
+            firstRow, lastRow, firstCol, lastCol
+            /*m_pXmlData->getParentDoc()->execQuery(XLQuery(XLQueryType::QuerySharedStrings)).result<XLSharedStrings>()*/);
 }
 
 XLCellRange XLTable::dataBodyRange() const
