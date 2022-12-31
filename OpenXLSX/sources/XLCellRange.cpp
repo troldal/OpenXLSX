@@ -218,8 +218,6 @@ void XLCellRange::offset(int row, int col)
     m_bottomRight.offset(row, col);
 }
 
-
-
 /**
  * @details
  * @pre
@@ -230,9 +228,16 @@ void XLCellRange::clear()
     for(auto& cell: *this) cell.value().clear();
 }
 
-std::pair<XLCoordinates,XLCoordinates> XLCellRange::rangeCoordinates()
+void XLCellRange::setRangeCoordinates(const XLCellReference& topLeft,
+                                        const XLCellReference& bottomRight)
 {
-    return std::make_pair(m_topLeft.coordinates(),m_bottomRight.coordinates());
+    m_topLeft = topLeft;
+    m_bottomRight = bottomRight;
+}
+
+std::pair<XLCellReference,XLCellReference> XLCellRange::rangeCoordinates()
+{
+    return std::make_pair(m_topLeft,m_bottomRight);
 }
 
 std::pair<std::string,std::string> XLCellRange::topLeftBottomRight(const std::string& ref)

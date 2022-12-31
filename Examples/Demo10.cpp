@@ -72,6 +72,13 @@ int main() {
         j++;
     }
 
+    // Also show the total with selected function
+    tbl.autofilter().hideArrows();
+    //tbl.setHeaderVisible(false);
+    tbl.setTotalVisible(true);
+    //tbl.column("Table")->setTotalsRowFunction("sum");
+    tbl.column("Table").setTotalsRowFunction("count");
+
 
     doc.save();
     doc.close();

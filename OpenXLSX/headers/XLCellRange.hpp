@@ -174,10 +174,17 @@ namespace OpenXLSX
 
         /**
          * @brief offset the whole range if possible
+         * @param topLeft XLCoordinates of topleft corner
+         * @param bottomRight XLCoordinates of bottom right corner
+         */
+        void setRangeCoordinates(const XLCellReference& topLeft,
+                                const XLCellReference& bottomRight);
+
+        /**
+         * @brief offset the whole range if possible
          * @param row integer could be negative
          * @param col integer could be negative, default 0
          */
-
         void offset(int row, int col = 0);
         
         /**
@@ -189,7 +196,7 @@ namespace OpenXLSX
          * @brief get the coordinates of the top left and bottom right
          * @return A pair of ref
          */
-        std::pair<XLCoordinates,XLCoordinates> rangeCoordinates();
+        std::pair<XLCellReference,XLCellReference> rangeCoordinates();
 
         /**
          * @brief Static helper function to get top left and bottom right

@@ -131,7 +131,6 @@ namespace OpenXLSX
     {
         if (&other != this) {
             m_rowNode       = std::move(other.m_rowNode);
-            //m_sharedStrings = other.m_sharedStrings;
             m_rowDataProxy  = XLRowDataProxy(this, m_rowNode.get());
         }
         return *this;

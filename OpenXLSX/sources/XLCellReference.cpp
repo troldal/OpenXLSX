@@ -259,10 +259,16 @@ void XLCellReference::setRowAndColumn(uint32_t row, uint16_t column)
     m_cellAddress = columnAsString(m_column) + rowAsString(m_row);
 }
 
- XLCoordinates XLCellReference::coordinates()
- {
-    return std::make_pair(m_row,m_column);
- }
+void XLCellReference::setCoordinates(const XLCoordinates& coord)
+{
+    setRowAndColumn(coord.first,coord.second);
+}
+
+
+XLCoordinates XLCellReference::coordinates()
+{
+   return std::make_pair(m_row,m_column);
+}
 
 /**
  * @details Returns the m_cellAddress property.

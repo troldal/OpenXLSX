@@ -197,6 +197,12 @@ namespace OpenXLSX
          * @param column The column number.
          */
         void setRowAndColumn(uint32_t row, uint16_t column);
+
+        /**
+         * @brief Set the address of the XLCellReference
+         * @param coord coordinates of the cell to be set(std::pair(row, col).
+         */
+        void setCoordinates(const XLCoordinates& coord);
         
         /**
          * @brief .

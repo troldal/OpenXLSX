@@ -15,33 +15,33 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
             MM
            _MM_
 
-  Written by Akira SHIMAHARA
+    Written by Akira SHIMAHARA
 
-  All rights reserved.
+    All rights reserved.
 
-  Redistribution and use in source and binary forms, with or without
-  modification, are permitted provided that the following conditions are met:
-  - Redistributions of source code must retain the above copyright
-    notice, this list of conditions and the following disclaimer.
-  - Redistributions in binary form must reproduce the above copyright
-    notice, this list of conditions and the following disclaimer in the
-    documentation and/or other materials provided with the distribution.
-  - Neither the name of the author nor the
-    names of any contributors may be used to endorse or promote products
-    derived from this software without specific prior written permission.
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are met:
+    - Redistributions of source code must retain the above copyright
+        notice, this list of conditions and the following disclaimer.
+    - Redistributions in binary form must reproduce the above copyright
+        notice, this list of conditions and the following disclaimer in the
+        documentation and/or other materials provided with the distribution.
+    - Neither the name of the author nor the
+        names of any contributors may be used to endorse or promote products
+        derived from this software without specific prior written permission.
 
-  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  DISCLAIMED. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
-  DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+    ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+    WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+    DISCLAIMED. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
+    DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- */
+*/
 
 // ===== External Includes ===== //
 #include <algorithm>
@@ -54,20 +54,35 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLTable.hpp"
 #include "XLCellRange.hpp"
 #include "XLCellReference.hpp"
+#include "XLTemplates.hpp"
 
 
 using namespace OpenXLSX;
 
 
 XLTable::XLTable(XLXmlData* xmlData) 
-      : m_pXmlData(xmlData),m_sheet(XLWorksheet(xmlData->getParentNode()))
+      : m_pXmlData(xmlData),
+        m_sheet(XLWorksheet(xmlData->getParentNode())),
+        m_dataBodyRange(getWorksheet()->range()) // Fake range
 {
-  
-  // ===== Deal with the columns
-  XMLNode pTblColumns =  m_pXmlData->getXmlDocument()->child("table").child("tableColumns");
+    std::pair<std::string,std::string> p = XLCellRange::topLeftBottomRight(ref());
+    XLCellReference topLeft(p.first);
+    XLCellReference bottomRight(p.second);
 
-  for (const XMLNode& col : pTblColumns.children())
-    m_columns.emplace_back(std::shared_ptr<XLTableColumn>(new XLTableColumn(col)));
+    if (isHeaderVisible())
+        topLeft.offset(1);
+    
+    if (isTotalVisible())
+        bottomRight.offset(-1);
+    
+    m_dataBodyRange.setRangeCoordinates(topLeft, bottomRight);
+
+
+    // ===== Deal with the columns
+    XMLNode pTblColumns =  m_pXmlData->getXmlDocument()->child("table").child("tableColumns");
+
+    for (const XMLNode& col : pTblColumns.children())
+        m_columns.push_back(XLTableColumn(col, this));
 
 }
 
@@ -87,24 +102,43 @@ const std::string XLTable::ref() const
 
 std::vector<std::string>  XLTable:: columnNames() const
 {
-  std::vector<std::string> colNames;
-  for (auto col : m_columns)
-    colNames.push_back(col->name());
+    std::vector<std::string> colNames;
+    for (auto& col : m_columns)
+        colNames.push_back(col.name());
   
   return colNames;
 }
 
 uint16_t XLTable::columnIndex(const std::string& name) const
 {
-  auto it = std::find_if(m_columns.begin(),
-    m_columns.end(), 
-    [&](const auto& val){ return val->name() == name; } );
-  
-  if (it !=m_columns.end())
-    return (it - m_columns.begin());
-  
-  return (uint16_t)(-1);
+    auto it = std::find_if(m_columns.begin(),
+        m_columns.end(), 
+        [&](const auto& val){ return val.name() == name; } );
+    
+    if (it !=m_columns.end())
+        return (it - m_columns.begin());
+    
+    return (uint16_t)(-1);
 }
+/*
+std::shared_ptr<XLTableColumn> XLTable::column(const std::string& name)
+{
+    uint16_t index = columnIndex(name);
+    if (index == (uint16_t)(-1))
+        return nullptr; // the column does not exist
+    
+    return std::shared_ptr<XLTableColumn>(m_columns[index]);
+}
+*/
+XLTableColumn& XLTable::column(const std::string& name)
+{
+    uint16_t index = columnIndex(name);
+    if (index == (uint16_t)(-1))
+        index = 0;
+    
+    return m_columns[index];
+}
+
 
 XLWorksheet* XLTable::getWorksheet()
 {
@@ -118,41 +152,23 @@ XLCellRange XLTable::tableRange()
 
 XLTableRows XLTable::tableRows()
 {
-    std::pair<std::string,std::string> p = XLCellRange::topLeftBottomRight(ref());
-    XLCellReference topLeft(p.first);
-    XLCellReference bottomRight(p.second);
-
-    uint32_t firstRow = topLeft.row();
-    uint32_t lastRow = bottomRight.row();
-
-    uint16_t firstCol = topLeft.column(); 
-    uint16_t lastCol = bottomRight.column();
-
-    if (isHeaderVisible())
-        firstRow +=1;
-    
-    if (isTotalVisible())
-        lastRow -=1;
-    
     return XLTableRows(m_pXmlData->getParentNode()->getXmlDocument()->first_child().child("sheetData"),
-            firstRow, lastRow, firstCol, lastCol, getWorksheet());
+            m_dataBodyRange.rangeCoordinates().first.row(),
+            m_dataBodyRange.rangeCoordinates().second.row(),
+            m_dataBodyRange.rangeCoordinates().first.column(),
+            m_dataBodyRange.rangeCoordinates().second.column(),
+            getWorksheet());
 }
 
-XLCellRange XLTable::dataBodyRange()
+XLCellRange& XLTable::dataBodyRange()
 {
-  std::pair<std::string,std::string> p = XLCellRange::topLeftBottomRight(ref());
-  XLCellReference topLeft(p.first);
-  XLCellReference bottomRight(p.second);
-
-  if (isHeaderVisible())
-    topLeft.offset(1);
-  
-  if (isTotalVisible())
-    bottomRight.offset(-1);
-  
-  return getWorksheet()->range(topLeft,bottomRight);
+  return m_dataBodyRange;
 }
 
+const XLCellRange& XLTable::dataBodyRange() const 
+{
+  return m_dataBodyRange;
+}
 
 
 bool XLTable::isHeaderVisible() const
@@ -183,6 +199,7 @@ void XLTable::setHeaderVisible(bool visible)
         node.set_value("0");
         // TODO remove autofilter
     }
+    adjustRef();
 }
 
 
@@ -195,14 +212,17 @@ void XLTable::setTotalVisible(bool visible)
         if (!node)
             node = m_pXmlData->getXmlDocument()->child("table").append_attribute("totalsRowCount");
         node.set_value("1");
+
+        setTotalFormulas();
     } else { // removing the attribute if not visible
         m_pXmlData->getXmlDocument()->child("table").remove_attribute("totalsRowCount");
         auto node = m_pXmlData->getXmlDocument()->child("table").attribute("totalsRowShown");
         if (!node)
             node = m_pXmlData->getXmlDocument()->child("table").append_attribute("totalsRowShown");
         node.set_value("0");
-        
     }
+
+    adjustRef();
     
 }
 
@@ -210,7 +230,6 @@ XLAutofilter XLTable::autofilter()
 {
     return XLAutofilter(m_pXmlData->getXmlDocument()->child("table").child("autoFilter"),m_pXmlData);
 }
-
 
 
 uint16_t XLTable::columnsCount() const
@@ -250,3 +269,56 @@ void XLTable::setName(const std::string& tableName)
 
 }
 
+void XLTable::setTotalFormulas()
+{
+    
+    if (!isTotalVisible())
+        return;
+    
+    uint32_t totalRow = m_dataBodyRange.rangeCoordinates().second.row() + 1;
+    uint16_t totalCol = m_dataBodyRange.rangeCoordinates().first.column();
+
+    for (auto& col: m_columns){
+        std::string colFunc = col.totalsRowFunction();
+
+        // Check if its exist in the list
+        auto it = std::find(std::begin(XLTemplate::totalsRowFunctionList), 
+                std::end(XLTemplate::totalsRowFunctionList), colFunc);
+        if( it != std::end(XLTemplate::totalsRowFunctionList)){
+
+
+            // get the equivalent formula in the sheet
+            std::string sheetFunction =  "SUBTOTAL(";
+            sheetFunction +=  XLTemplate::sheetTotalFunctionList[
+                        std::distance(std::begin(XLTemplate::totalsRowFunctionList), it)
+                        ];
+            sheetFunction   += "," + name() 
+                            + "[" + col.name() + "])";
+            
+            m_sheet.cell(totalRow, totalCol).formula() = sheetFunction;
+        }
+        totalCol +=1;
+    }
+    
+}
+
+void XLTable::adjustRef()
+{
+    uint32_t firstRow   = m_dataBodyRange.rangeCoordinates().first.row();
+    uint32_t lastRow    = m_dataBodyRange.rangeCoordinates().second.row();
+
+    uint16_t firstCol   = m_dataBodyRange.rangeCoordinates().first.column();
+    uint16_t lastCol    = m_dataBodyRange.rangeCoordinates().second.column();
+
+    if(isHeaderVisible())
+        firstRow -=1;
+
+    if(isTotalVisible())
+        lastRow +=1;
+    
+    std::string ref  = XLCellReference::adressFromCoordinates(firstRow, firstCol, false);
+    ref       += ":" + XLCellReference::adressFromCoordinates(lastRow,  lastCol,  false);
+
+    m_pXmlData->getXmlDocument()->child("table")
+                    .attribute("ref").set_value(ref.c_str());
+}

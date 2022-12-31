@@ -97,10 +97,7 @@ XLTableRowIterator& XLTableRowIterator::operator=(XLTableRowIterator&& other) no
 
 XLTableRowIterator& XLTableRowIterator::operator++()
 {
-    m_range.offset(1);/*
-    if(m_range.rangeCoordinates().first.first > m_lastIterRow)
-        m_range = XLCellRange();
-    */
+    m_range.offset(1);
 
     return *this;
 }

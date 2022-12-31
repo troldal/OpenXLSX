@@ -52,6 +52,13 @@ namespace OpenXLSX
                 "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/table\""
                 " Target=\"../tables/table1.xml\"/>"
                 };
+    const std::string totalsRowFunctionList[] = {
+                "average", "count", "countNums", "custom", "max", "min", "none", "stdDev", "sum", "var"
+                };
+    // Warning : this shall be in the same order than totalsRowFunctionList
+    const std::string sheetTotalFunctionList[] = {
+                "101", "103", "102", "custom", "104", "105", "none", "107", "109", "110"
+                };
     const int           templateSize       = 7714;
     const unsigned char templateData[7714] = {
         0x50, 0x4b, 0x03, 0x04, 0x14, 0x00, 0x06, 0x00, 0x08, 0x00, 0x00, 0x00, 0x21, 0x00, 0xb5, 0x55, 0x30, 0x23, 0xf4, 0x00, 0x00, 0x00,
