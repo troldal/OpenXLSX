@@ -299,8 +299,6 @@ namespace OpenXLSX
          */
         XLXmlData* getXmlDataByName(const std::string& name) const;
 
-        XLSharedStrings& getSharedString() const;
-
         /**
          * @brief
          * @param name

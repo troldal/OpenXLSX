@@ -233,8 +233,9 @@ void XLCellRange::clear()
 std::pair<std::string,std::string> XLCellRange::topLeftBottomRight(const std::string& ref)
 {
     std::string::size_type n = ref.find(':');
-    if(n>ref.size())
-        throw XLInputError("Invalid reference \"" + ref + "\" for a range");
+    if(n>ref.size()) // there is no : separator
+        return std::make_pair(ref,ref);
+        //throw XLInputError("Invalid reference \"" + ref + "\" for a range");
     
     return std::make_pair(ref.substr(0, n),ref.substr(n+1));
 }

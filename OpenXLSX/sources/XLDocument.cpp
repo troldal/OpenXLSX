@@ -737,11 +737,6 @@ XLXmlData* XLDocument::getXmlDataByName(const std::string& name) const
     return nullptr;
 }
 
-XLSharedStrings& XLDocument::getSharedString() const
-{
-    return m_sharedStrings;
-}
-
 std::string XLDocument::getSheetRelsPath(const std::string& sheetName) const
 {
     XLXmlData* wsItem = getXmlDataByName(sheetName);
@@ -890,6 +885,8 @@ void XLDocument::createTable(const std::string& sheetName, const std::string& ta
     tableNode.attribute("name").set_value(name.c_str());
     tableNode.attribute("displayName").set_value(name.c_str());
     tableNode.attribute("ref").set_value(ref.c_str());
+    // set autofilter
+    tableNode.child("autoFilter").attribute("ref").set_value(ref.c_str());
 
     // Set up the columns !!!
     const XLWorksheet* pWks = new XLWorksheet(wks);

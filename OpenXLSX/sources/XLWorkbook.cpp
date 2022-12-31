@@ -56,6 +56,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLSheet.hpp"
 #include "XLTable.hpp"
 #include "XLWorkbook.hpp"
+#include "XLCellRange.hpp"
+
 
 using namespace OpenXLSX;
 
@@ -151,17 +153,11 @@ XLNamedRange XLWorkbook::namedRange(const std::string& rangeName)
     std::string::size_type n = reference.find("!");
     const std::string sheetName = reference.substr(0, n);
     std::string ref = reference.substr(n+1);
-    n = ref.find(":");
-    std::string topLeft = ref.substr(0, n);
-    std::string bottomRight;
 
-    if (n<ref.size())
-      bottomRight = ref.substr(n+1);
-    else // Range with only one cell
-      bottomRight = topLeft;
+    auto pair = XLCellRange::topLeftBottomRight(ref);
     
     return  XLNamedRange(rangeName, reference, localSheetId, 
-        this->worksheet(sheetName).range(XLCellReference(topLeft), XLCellReference(bottomRight))); 
+        this->worksheet(sheetName).range(XLCellReference(pair.first), XLCellReference(pair.second))); 
 }
 
 /**
@@ -172,15 +168,7 @@ XLChartsheet XLWorkbook::chartsheet(const std::string& sheetName)
     return sheet(sheetName).get<XLChartsheet>();
 }
 
-/**
- * @details
- */
-/*
-bool XLWorkbook::hasSharedStrings() const
-{
-    return true;//parentDoc().executeQuery(XLQuerySharedStrings()).sharedStrings() != nullptr;
-}
-*/
+
 /**
  * @details
  */
@@ -292,7 +280,7 @@ void XLWorkbook::addNamedRange(const std::string& rangeName,
     if (!sheetExists(sheetName)) 
         throw XLInputError("Sheet with name \"" + sheetName + "\" doesn't exist.");
 
-    std::string ref = reference.substr(n+1, reference.size());
+    std::string ref = reference.substr(n+1);
     n = ref.find(":");
     std::string topLeft = ref.substr(0, n);
 
@@ -300,11 +288,19 @@ void XLWorkbook::addNamedRange(const std::string& rangeName,
     XLCellReference cellRef(topLeft);
     std::string safeReference = sheetName + "!" + cellRef.address(true);
     if (n<ref.size()){
-        cellRef = XLCellReference(ref.substr(n+1, ref.size()));
+        cellRef = XLCellReference(ref.substr(n+1));
         safeReference += ":" + cellRef.address(true);
     }
 
     // ===== Add new child node to the "sheets" node.
+    if (!xmlDocument().document_element().child("definedNames")){ // should be inserted after </sheets>
+        auto shtNode = xmlDocument().document_element().child("sheets");
+        if(!shtNode)
+            throw XLInputError("Unable to find <sheets> tag in \"" + sheetName + "\".");
+
+        xmlDocument().document_element().insert_child_after("definedNames", shtNode);
+    }
+
     auto node = xmlDocument().document_element().child("definedNames").append_child("definedName");
 
     // ===== append the required attributes to the newly created sheet node.
@@ -322,21 +318,11 @@ void XLWorkbook::addNamedRange(const std::string& rangeName,
 void XLWorkbook::addTable(const std::string& sheetName, const std::string& tableName, 
                             const std::string& reference)
 {
-/*
-    // ===== If a sheet with the given name already exists, throw an exception.
-    if (xmlDocument().document_element().child("sheets").find_child_by_attribute("name", sheetName.c_str()))
-        throw XLInputError("Sheet named \"" + sheetName + "\" already exists.");
-
-    // ===== Create new internal (workbook) ID for the sheet
-    auto internalID = createInternalSheetID();
-*/
     // ===== Create xml file for new worksheet and add metadata to the workbook file.
     parentDoc().execCommand(XLCommand(XLCommandType::AddTable)
                                 .setParam("worksheet", sheetName)
                                 .setParam("tableName", tableName)
                                 .setParam("reference", reference));
-    
-    //prepareSheetMetadata(sheetName, internalID);
 
 }
 

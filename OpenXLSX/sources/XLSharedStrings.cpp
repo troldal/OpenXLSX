@@ -128,7 +128,12 @@ uint32_t XLSharedStrings::appendString(const std::string& str)
 
     m_stringShared.push_back(str);
     
-    auto test = m_stringShared.size() - 1;
+    xmlDocument().child("sst").attribute("count")
+                .set_value(std::to_string(m_stringShared.size()).c_str());
+    
+    // TODO deal with the uniqueCount
+    xmlDocument().child("sst").attribute("uniqueCount")
+                .set_value(std::to_string(m_stringShared.size()).c_str());
     return m_stringShared.size() - 1;
 
 }
@@ -147,7 +152,7 @@ void XLSharedStrings::clearString(uint64_t index)
         return;
     }
 
-    auto iter            = xmlDocument().document_element().children().begin();
+    auto iter = xmlDocument().document_element().children().begin();
     std::advance(iter, index);
     iter->text().set("");
 }

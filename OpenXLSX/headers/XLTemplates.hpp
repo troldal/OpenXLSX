@@ -13,9 +13,6 @@ namespace OpenXLSX
     const std::string sharedStrings {
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
                 "<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"1\" uniqueCount=\"1\">"
-                //"  <si>\n"
-                //"    <t/>\n"
-                //"  </si>\n"
                 "</sst>"
                 };
     const std::string emptyWorksheet {
@@ -41,6 +38,7 @@ namespace OpenXLSX
                 " xmlns:xr=\"http://schemas.microsoft.com/office/spreadsheetml/2014/revision\""
                 " xmlns:xr3=\"http://schemas.microsoft.com/office/spreadsheetml/2016/revision3\""
                 " id=\"0\" name=\"Table\" displayName=\"Table\" ref=\"A1:B2\" totalsRowShown=\"0\">"
+                "<autoFilter ref=\"A1:B2\"/>"
                 "<tableColumns count=\"0\"></tableColumns><tableStyleInfo name=\"TableStyleLight1\""
                 " showFirstColumn=\"0\" showLastColumn=\"0\" showRowStripes=\"1\" showColumnStripes=\"0\"/></table>"
                 }; 

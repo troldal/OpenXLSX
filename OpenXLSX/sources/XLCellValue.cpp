@@ -406,7 +406,6 @@ void XLCellValueProxy::setString(const char* stringValue)
     // ===== Get or create the index in the XLSharedStrings object.
 
     uint32_t index;
-    //if (m_cell->m_worksheet->getSharedString().stringExists(stringValue))
     if (getSharedString()->stringExists(stringValue))
         index = getSharedString()->getStringIndex(stringValue);
     else
