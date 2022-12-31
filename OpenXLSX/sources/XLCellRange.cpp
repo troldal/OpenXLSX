@@ -129,7 +129,7 @@ XLCellRange& XLCellRange::operator=(XLCellRange&& other) noexcept
         *m_dataNode     = *other.m_dataNode;
         m_topLeft       = other.m_topLeft;
         m_bottomRight   = other.m_bottomRight;
-       m_worksheet = other.m_worksheet;
+        m_worksheet = other.m_worksheet;
     }
 
     return *this;
@@ -230,6 +230,11 @@ void XLCellRange::clear()
     for(auto& cell: *this) cell.value().clear();
 }
 
+std::pair<XLCoordinates,XLCoordinates> XLCellRange::rangeCoordinates()
+{
+    return std::make_pair(m_topLeft.coordinates(),m_bottomRight.coordinates());
+}
+
 std::pair<std::string,std::string> XLCellRange::topLeftBottomRight(const std::string& ref)
 {
     std::string::size_type n = ref.find(':');
@@ -238,4 +243,29 @@ std::pair<std::string,std::string> XLCellRange::topLeftBottomRight(const std::st
         //throw XLInputError("Invalid reference \"" + ref + "\" for a range");
     
     return std::make_pair(ref.substr(0, n),ref.substr(n+1));
+}
+
+uint16_t XLCellRange::columnsCount(const std::string& ref)
+{
+    std::string::size_type n = ref.find(':');
+    if(n>ref.size()) // there is no : separator
+        return 1;
+
+    XLCoordinates topleft = XLCellReference::coordinatesFromAddress(ref.substr(0,n));
+    XLCoordinates bottomright = XLCellReference::coordinatesFromAddress(ref.substr(n+1));
+    
+    return bottomright.second - topleft.second + 1;
+}
+
+uint32_t XLCellRange::rowsCount(const std::string& ref)
+{
+    std::string::size_type n = ref.find(':');
+    if(n>ref.size()) // there is no : separator
+        return 1;
+
+    XLCoordinates topleft = XLCellReference::coordinatesFromAddress(ref.substr(0,n));
+    XLCoordinates bottomright = XLCellReference::coordinatesFromAddress(ref.substr(n+1));
+    
+    return bottomright.first - topleft.first + 1;
+
 }

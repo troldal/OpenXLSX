@@ -153,6 +153,8 @@ XLCellRange XLTable::dataBodyRange()
   return getWorksheet()->range(topLeft,bottomRight);
 }
 
+
+
 bool XLTable::isHeaderVisible() const
 {
   std::string header = m_pXmlData->getXmlDocument()->child("table").attribute("headerRowCount").value();
@@ -163,10 +165,50 @@ bool XLTable::isHeaderVisible() const
 
 bool XLTable::isTotalVisible() const
 {
-  std::string header = m_pXmlData->getXmlDocument()->child("table").attribute("totalsRowCount").value();
-  if (header == "1")
+  std::string total = m_pXmlData->getXmlDocument()->child("table").attribute("totalsRowCount").value();
+  if (total == "1")
     return true;
   return false; // if missing, not visible
+}
+
+
+void XLTable::setHeaderVisible(bool visible)
+{
+    if(visible){ // removing the attribute if visible
+        m_pXmlData->getXmlDocument()->child("table").remove_attribute("headerRowCount");
+    } else {
+        auto node = m_pXmlData->getXmlDocument()->child("table").attribute("headerRowCount");
+        if (!node)
+            node = m_pXmlData->getXmlDocument()->child("table").append_attribute("headerRowCount");
+        node.set_value("0");
+        // TODO remove autofilter
+    }
+}
+
+
+void XLTable::setTotalVisible(bool visible)
+{
+    if(visible){ 
+        m_pXmlData->getXmlDocument()->child("table").remove_attribute("totalsRowShown");
+
+        auto node = m_pXmlData->getXmlDocument()->child("table").attribute("totalsRowCount");
+        if (!node)
+            node = m_pXmlData->getXmlDocument()->child("table").append_attribute("totalsRowCount");
+        node.set_value("1");
+    } else { // removing the attribute if not visible
+        m_pXmlData->getXmlDocument()->child("table").remove_attribute("totalsRowCount");
+        auto node = m_pXmlData->getXmlDocument()->child("table").attribute("totalsRowShown");
+        if (!node)
+            node = m_pXmlData->getXmlDocument()->child("table").append_attribute("totalsRowShown");
+        node.set_value("0");
+        
+    }
+    
+}
+
+XLAutofilter XLTable::autofilter()
+{
+    return XLAutofilter(m_pXmlData->getXmlDocument()->child("table").child("autoFilter"),m_pXmlData);
 }
 
 

@@ -158,6 +158,8 @@ namespace OpenXLSX
 
     private:
         XLCellRange m_range;               /**< The cell range reference of the first cell in the range */
+        uint32_t m_firstIterRow;
+        uint32_t m_lastIterRow;
            /**< */
     };
 

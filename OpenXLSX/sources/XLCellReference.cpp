@@ -47,6 +47,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <array>
 #include <cmath>
 #include <algorithm>
+#include <utility>
 #ifdef CHARCONV_ENABLED
 #    include <charconv>
 #endif
@@ -257,6 +258,11 @@ void XLCellReference::setRowAndColumn(uint32_t row, uint16_t column)
     m_column = column;
     m_cellAddress = columnAsString(m_column) + rowAsString(m_row);
 }
+
+ XLCoordinates XLCellReference::coordinates()
+ {
+    return std::make_pair(m_row,m_column);
+ }
 
 /**
  * @details Returns the m_cellAddress property.

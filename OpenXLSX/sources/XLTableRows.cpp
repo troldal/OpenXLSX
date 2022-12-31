@@ -62,12 +62,14 @@ using namespace OpenXLSX;
                 m_range (XLCellRange(  *tableRows.m_dataNode,
                         XLCellReference (tableRows.m_firstRow, tableRows.m_firstCol),
                         XLCellReference (tableRows.m_firstRow, tableRows.m_lastCol),
-                        tableRows.m_worksheet))
+                        tableRows.m_worksheet)),
+                m_firstIterRow(tableRows.m_firstRow),
+                m_lastIterRow(tableRows.m_lastRow)
 {
     if (loc == XLIteratorLocation::End)
         m_range = XLCellRange(  *tableRows.m_dataNode,
-                            XLCellReference (tableRows.m_lastRow, tableRows.m_firstCol),
-                            XLCellReference (tableRows.m_lastRow, tableRows.m_lastCol),
+                            XLCellReference (tableRows.m_lastRow+1, tableRows.m_firstCol),
+                            XLCellReference (tableRows.m_lastRow+1, tableRows.m_lastCol),
                             tableRows.m_worksheet);
 }
 
@@ -95,7 +97,11 @@ XLTableRowIterator& XLTableRowIterator::operator=(XLTableRowIterator&& other) no
 
 XLTableRowIterator& XLTableRowIterator::operator++()
 {
-    m_range.offset(1);
+    m_range.offset(1);/*
+    if(m_range.rangeCoordinates().first.first > m_lastIterRow)
+        m_range = XLCellRange();
+    */
+
     return *this;
 }
 

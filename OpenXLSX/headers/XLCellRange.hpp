@@ -186,11 +186,31 @@ namespace OpenXLSX
         void clear();
 
         /**
+         * @brief get the coordinates of the top left and bottom right
+         * @return A pair of ref
+         */
+        std::pair<XLCoordinates,XLCoordinates> rangeCoordinates();
+
+        /**
          * @brief Static helper function to get top left and bottom right
          * @param ref a ref i.e. A1:C20
          * @return A pair of ref
          */
         static std::pair<std::string,std::string> topLeftBottomRight(const std::string& ref);
+
+        /**
+         * @brief Static helper function to get the num of row of a range
+         * @param ref a ref i.e. A1:C20
+         * @return the num of columns
+         */
+        static uint16_t columnsCount(const std::string& ref);
+
+        /**
+         * @brief Static helper function to get the num of row of a range
+         * @param ref a ref i.e. A1:C20
+         * @return the num of columns
+         */
+        static uint32_t rowsCount(const std::string& ref);
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Private Member Variables

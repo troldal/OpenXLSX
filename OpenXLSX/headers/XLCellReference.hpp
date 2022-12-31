@@ -81,6 +81,7 @@ namespace OpenXLSX
         //----------------------------------------------------------------------------------------------------------------------
 
     public:
+
         /**
          * @brief Constructor taking a cell address as argument.
          * @param cellAddress The address of the cell, e.g. 'A1'.
@@ -196,6 +197,12 @@ namespace OpenXLSX
          * @param column The column number.
          */
         void setRowAndColumn(uint32_t row, uint16_t column);
+        
+        /**
+         * @brief .
+         * @return the coordinates of the cellref.
+         */
+        XLCoordinates coordinates(); 
 
         /**
          * @brief Get the address of the XLCellReference
@@ -211,7 +218,7 @@ namespace OpenXLSX
         void setAddress(const std::string& address);
 
         //----------------------------------------------------------------------------------------------------------------------
-        //           Private Member Functions
+        //           Static Helpers Functions
         //----------------------------------------------------------------------------------------------------------------------
 
         // private:

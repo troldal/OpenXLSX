@@ -55,6 +55,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <memory>
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
+#include "XLAutofilter.hpp"
 #include "XLXmlData.hpp"
 #include "XLTableColumn.hpp"
 #include "XLTableRows.hpp"
@@ -133,12 +134,31 @@ namespace OpenXLSX
      * @return true if header is visible
      */
     bool isHeaderVisible() const;
+    
 
     /**
      * @brief
      * @return true if total row is visible
      */
     bool isTotalVisible() const; 
+
+    /**
+     * @brief
+     * @param visible
+     */
+    void setHeaderVisible(bool visible = true);
+
+    /**
+     * @brief
+     * @param visible
+     */
+    void setTotalVisible(bool visible = true);
+
+     /**
+     * @brief
+     * @return the autofilter object
+     */
+    XLAutofilter autofilter();
 
     /**
      * @brief
