@@ -189,7 +189,7 @@ which have been implemented and should be working properly:
 - Copy worksheets
 - Cell ranges and iterators
 - Row ranges and iterators
-- Name range
+- Named range
 - Basis of table support (work in progress)
 
 Features related to formatting, plots and figures have not been
