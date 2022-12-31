@@ -15,7 +15,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
             MM
            _MM_
 
-  Copyright (c) 2018, Kenneth Troldal Balslev
+  Written by Akira SHIMAHARA
 
   All rights reserved.
 
@@ -69,24 +69,93 @@ namespace OpenXLSX
      * @param xmlData from the table file
      */
     explicit XLTable(XLXmlData* xmlData);
+
+    /**
+     * @brief The destructor. 
+     */
     ~XLTable();
 
+    /**
+     * @brief 
+     * @return the name of the table
+     */
     const std::string name() const;
+
+    /**
+     * @brief 
+     * @return the reference cells of the table (without the worksheet)
+     */
     const std::string ref() const;
+
+    /**
+     * @brief 
+     * @return A vector containing the columns names
+     */
     std::vector<std::string> columnNames() const;
+
+    /**
+     * @brief
+     * @param name  the name of the requested column index
+     * @return The index of the column
+     */
     uint16_t columnIndex(const std::string& name) const;
+
+    /**
+     * @brief
+     * @return A pointer to the worksheet object the table belong to
+     */
     XLWorksheet* getWorksheet();
+
+    /**
+     * @brief
+     * @return an XLCellRange object of the whole table 
+     * including header and total row if visibles
+     */
     XLCellRange tableRange();
-    XLTableRows tableRows();
+
+     /**
+     * @brief
+     * @return an XLCellRange object of data body range of the table
+     * exclude header and total row
+     */
     XLCellRange dataBodyRange();
+   
+
+    /**
+     * @brief
+     * @return an XLTableRows iterable object (only data body range)
+     */
+    XLTableRows tableRows();
 
 
-
+    /**
+     * @brief
+     * @return true if header is visible
+     */
     bool isHeaderVisible() const;
-    bool isTotalVisible() const;   
-  
-    uint16_t columnCount() const;
 
+    /**
+     * @brief
+     * @return true if total row is visible
+     */
+    bool isTotalVisible() const; 
+
+    /**
+     * @brief
+     * @return number of columns
+     */
+    uint16_t columnsCount() const;
+
+    /**
+     * @brief
+     * @return number of data rows, excluding header and total row
+     */
+    uint32_t rowsCount() const;
+
+     /**
+     * @brief set the name of the table
+     * @param tableName name of the table
+     */
     void setName(const std::string& tableName);
 
   private:

@@ -888,7 +888,7 @@ void XLDocument::createTable(const std::string& sheetName, const std::string& ta
     // set autofilter
     tableNode.child("autoFilter").attribute("ref").set_value(ref.c_str());
 
-    // Set up the columns !!!
+    // Set up the columns - create a temporary worksheet to access the shared string
     const XLWorksheet* pWks = new XLWorksheet(wks);
     auto topRight = XLCellReference(topLeft.row(),bottomRight.column());
     auto headerRange = XLCellRange(wks->getXmlDocument()->first_child().child("sheetData"),
@@ -914,8 +914,7 @@ void XLDocument::createTable(const std::string& sheetName, const std::string& ta
         }
         colNames.push_back(colName);
         cell.value() = colName;
-        // Fill shared string
-        // Fill cell value !
+
         auto newNode = columnsNode.append_child("tableColumn");
         newNode.append_attribute("id").set_value(std::to_string(colId).c_str());
         newNode.append_attribute("name").set_value(colName.c_str());

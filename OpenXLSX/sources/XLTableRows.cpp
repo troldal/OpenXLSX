@@ -15,7 +15,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
             MM
            _MM_
 
-  Copyright (c) 2018, Kenneth Troldal Balslev
+  Written by Akira SHIMAHARA
 
   All rights reserved.
 

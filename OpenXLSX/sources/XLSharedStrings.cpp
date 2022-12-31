@@ -54,8 +54,10 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 using namespace OpenXLSX;
 
 /**
- * @details Constructs a new XLSharedStrings object. Only one (common) object is allowed per XLDocument instance.
- * A filepath to the underlying XML file must be provided.
+ * @details Constructs a new XLSharedStrings object. 
+ * Only one (common) object is allowed per XLDocument instance. (stored in XLDocument)
+ * It shall be retrieve via worksheet -> Document query process
+ * A filepath to the underlying XML file must be provided. 
  */
 XLSharedStrings::XLSharedStrings(XLXmlData* xmlData) 
               : XLXmlFile(xmlData)

@@ -424,11 +424,13 @@ void XLCellValueProxy::setString(const char* stringValue)
     //        m_cellNode->attribute("xml:space").set_value("preserve");
     //    }
 }
+
 XLSharedStrings* XLCellValueProxy::getSharedString() const
 {
     XLQuery query(XLQueryType::QuerySharedStrings);
     return m_cell->m_worksheet->parentDoc().execQuery(query).template result<XLSharedStrings*>();
 }
+
 /**
  * @details Get a copy of the XLCellValue object for the cell. This is private helper function for returning an
  * XLCellValue object corresponding to the cell value.

@@ -172,7 +172,14 @@ namespace OpenXLSX
          */
         XLCellIterator end() const;
 
+        /**
+         * @brief offset the whole range if possible
+         * @param row integer could be negative
+         * @param col integer could be negative, default 0
+         */
+
         void offset(int row, int col = 0);
+        
         /**
          * @brief
          */

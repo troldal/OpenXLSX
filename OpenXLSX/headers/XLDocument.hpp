@@ -315,7 +315,7 @@ namespace OpenXLSX
         uint16_t availableFileID(XLContentType type);
 
         /**
-         * @brief
+         * @brief create a new table in the doc
          * @param tableName
          * @param reference
          * @return
@@ -330,9 +330,8 @@ namespace OpenXLSX
         std::string m_filePath {}; /**< The path to the original file*/
         std::string m_realPath {}; /**<  */
 
-        mutable std::list<XLXmlData>    m_data {};              /**<  */
-        //mutable std::deque<std::string> m_sharedStringCache {}; /**<  */
-        mutable XLSharedStrings  m_sharedStrings;     /**<  */
+        mutable std::list<XLXmlData>    m_data {};     /**<  */
+        mutable XLSharedStrings  m_sharedStrings;     /**< The sharedstrings object (one for each doc)*/
 
         XLRelationships m_docRelationships {}; /**< A pointer to the document relationships object*/
         XLRelationships m_wbkRelationships {}; /**< A pointer to the document relationships object*/

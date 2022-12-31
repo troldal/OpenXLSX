@@ -1,5 +1,5 @@
 //
-// Created by Akira215 on 28/12/2022.
+// Created by Written by Akira SHIMAHARA on 28/12/2022.
 //
 
 #ifndef OPENXLSX_XLTEMPLATES_HPP

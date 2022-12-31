@@ -478,19 +478,6 @@ namespace OpenXLSX
         return result;
     }
 
-    /**
-     * @details The function returns a pointer to an XLSharedStrings object embedded in the m_row member.
-     * This is required because the XLRow class internals is not visible in the header file.
-     * @pre
-     * @post
-     */
-    /*
-    XLSharedStrings XLRowDataProxy::getSharedStrings() const
-    {
-        //return m_row->m_sharedStrings;
-        return XLSharedStrings::instance();
-    }
-    */
 
     /**
      * @details The deleteCellValues is a convenience function used solely by the templated operator= function.

@@ -274,7 +274,7 @@ namespace OpenXLSX
     
     protected:   // ---------- Protected Member Functions ---------- //
         /**
-         * @brief Get the next available id "rId".
+         * @brief Get the next available id "rId". Find holes in the list
          * @return return the rId{0} string.
          */
         std::string getAvailableRelsId() const;

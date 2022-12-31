@@ -15,7 +15,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
             MM
            _MM_
 
-  Copyright (c) 2018, Kenneth Troldal Balslev
+  Written by Akira SHIMAHARA
 
   All rights reserved.
 
@@ -57,7 +57,7 @@ using namespace OpenXLSX;
 XLTableColumn::XLTableColumn(const XMLNode& dataNode): 
             m_dataNode(std::make_unique<XMLNode>(dataNode))
 {
-  /*
+  /* TODO implement the followings
   m_name              = m_dataNode->attribute("name").value();
   m_xr3uid            = m_dataNode->attribute("xr3:uid").value();
   m_dataCellStyle     = m_dataNode->attribute("dataCellStyle").value();

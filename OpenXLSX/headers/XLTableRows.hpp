@@ -15,7 +15,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
             MM
            _MM_
 
-  Copyright (c) 2018, Kenneth Troldal Balslev
+ Written by Akira SHIMAHARA
 
   All rights reserved.
 
@@ -166,7 +166,8 @@ namespace OpenXLSX
     //----------------------------------------------------------------------------------------------------------------------
 
     /**
-     * @brief Class XLTableRows derived from XLRowRange. This an iterable object within the databodyrange
+     * @brief Class XLTableRows derived from XLRowRange. 
+     * This an iterable object within the databodyrange
      */
     class OPENXLSX_EXPORT XLTableRows : public XLRowRange
     {

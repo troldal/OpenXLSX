@@ -15,7 +15,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
             MM
            _MM_
 
-  Copyright (c) 2018, Kenneth Troldal Balslev
+  Written by Akira SHIMAHARA
 
   All rights reserved.
 
@@ -65,7 +65,7 @@ namespace OpenXLSX
   public:
     /**
      * @brief The constructor. 
-     * @param xmlData from the table file
+     * @param dataNode XMLNode of the column
      */
     XLTableColumn(const XMLNode& dataNode);
 
@@ -73,7 +73,16 @@ namespace OpenXLSX
     //XLTableColumn& operator=(const XLTableColumn&) = delete;
     ~XLTableColumn();
 
+    /**
+     * @brief 
+     * @return the column name
+     */
     std::string name() const;
+
+    /**
+     * @brief 
+     * @param name set the column name
+     */
     void setName(const std::string& name) const;
 
   private:

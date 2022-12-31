@@ -353,8 +353,6 @@ namespace OpenXLSX
          */
         XLWorksheet& operator=(XLWorksheet&& other) = default;
         
-        //XLSharedStrings& getSharedString() const;
-
         /**
          * @brief
          * @param ref

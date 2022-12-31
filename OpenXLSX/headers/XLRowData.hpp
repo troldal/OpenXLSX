@@ -366,12 +366,6 @@ namespace OpenXLSX
         std::vector<XLCellValue> getValues() const;
 
         /**
-         * @brief Helper function for getting a pointer to the shared strings repository.
-         * @return A pointer to an XLSharedStrings object.
-         */
-        //XLSharedStrings getSharedStrings() const;
-
-        /**
          * @brief Convenience function for erasing the first 'count' numbers of values in the row.
          * @param count The number of values to erase.
          */

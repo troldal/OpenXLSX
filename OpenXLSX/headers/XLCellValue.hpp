@@ -534,6 +534,10 @@ namespace OpenXLSX
          */
         XLCellValue getValue() const;
 
+        /**
+         * @brief Get a pointer to the XLSharedStrings* object of the document.
+         * @return An XLSharedStrings pointer.
+         */
         XLSharedStrings* getSharedString() const;
 
         //---------- Private Member Variables ---------- //

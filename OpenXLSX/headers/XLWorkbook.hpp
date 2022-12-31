@@ -155,7 +155,11 @@ namespace OpenXLSX
          */
         XLSheet sheet(const std::string& sheetName);
 
-        // ASH
+        /**
+         * @brief Get the table with the given name.
+         * @param tableName The name at which the desired sheet is located.
+         * @return The table.
+         */
         XLTable table(const std::string& tableName);
 
         /**
@@ -190,9 +194,10 @@ namespace OpenXLSX
 
         /**
          * @brief
-         * @param definedName
+         * @param sheetName
+         * @return the created worksheet
          */
-        void addWorksheet(const std::string& sheetName);
+        XLWorksheet addWorksheet(const std::string& sheetName);
 
         /**
          * @brief
@@ -207,19 +212,20 @@ namespace OpenXLSX
          * @param rangeName Name of the range to be created
          * @param reference Reference of the cell/range to be named: Sheet1!$I$17:$I$19
          * @param localSheetId Id of the sheet where the name is defined, default is 0 (global)
+         * @return the created namedRange
          */
-        void addNamedRange(const std::string& rangeName, 
+        XLNamedRange addNamedRange(const std::string& rangeName, 
                             const std::string& reference, 
                             uint32_t localSheetId = 0);
 
         /**
          * @brief
-         * @param wks worksheet which will hold the new table
+         * @param sheetName worksheet which will hold the new table
          * @param tableName Name of the range to be created
          * @param reference Reference of the cell/range to be named: $I$17:$I$19
-         * @param localSheetId Id of the sheet where the name is defined, default is 0 (global)
+         * @return the created table
          */
-        void addTable(const std::string& sheetName, const std::string& tableName, 
+        XLTable addTable(const std::string& sheetName, const std::string& tableName, 
                             const std::string& reference);
 
         /**

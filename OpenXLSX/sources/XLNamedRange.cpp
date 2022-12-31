@@ -15,7 +15,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
             MM
            _MM_
 
-  Copyright (c) 2018, Kenneth Troldal Balslev
+  Written by Akira SHIMAHARA
 
   All rights reserved.
 
@@ -44,21 +44,11 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
  */
 
 // ===== External Includes ===== //
-#include <algorithm>
-#include <iterator>
-#include <pugixml.hpp>
-#include <vector>
 #include <string>
 #include <utility>
-#include <memory>
 
 // ===== OpenXLSX Includes ===== //
-/*
-#include "XLDocument.hpp"
-#include "XLWorkbook.hpp"
-*/
 #include "XLNamedRange.hpp"
-//#include "XLCell.hpp"
 
 using namespace OpenXLSX;
 
@@ -127,9 +117,4 @@ uint32_t XLNamedRange::localSheetId() const
 XLCell XLNamedRange::firstCell() const
 {
   return (*begin());
-}
-
-XLCell XLNamedRange::lastCell() const
-{
-  return (*end());
 }

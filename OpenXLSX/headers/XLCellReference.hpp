@@ -161,7 +161,7 @@ namespace OpenXLSX
         /**
          * @brief Offset for a given x, y. Stops at the limit of the worksheet.
          * @param rows the relative number of row to offset
-         * @param columns the relative number of columns to offset
+         * @param columns the relative number of columns to offset default 0.
          * @return return the offseted object
          */
         XLCellReference& offset(int rows, int columns = 0);

@@ -336,7 +336,7 @@ namespace OpenXLSX
         uint32_t                 m_firstRow { 1 };            /**< The cell reference of the first cell in the range */
         uint32_t                 m_lastRow { 1 };             /**< The cell reference of the last cell in the range */
         XLRow                    m_currentRow;                /**< */
-        const XLWorksheet*       m_worksheet; /**< */
+        const XLWorksheet*       m_worksheet;                  /**< */
     };
 
     /**

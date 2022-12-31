@@ -15,7 +15,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
             MM
            _MM_
 
-  Copyright (c) 2018, Kenneth Troldal Balslev
+  Written by Akira SHIMAHARA
 
   All rights reserved.
 
@@ -69,13 +69,6 @@ XLTable::XLTable(XLXmlData* xmlData)
   for (const XMLNode& col : pTblColumns.children())
     m_columns.emplace_back(std::shared_ptr<XLTableColumn>(new XLTableColumn(col)));
 
-    /*
-    XMLDocument* pTableDoc = xmlData->getXmlDocument();
-  m_name = pTableDoc->child("table").attribute("name").value();
-    */
-//for (const auto& node : getXmlData("xl/sharedStrings.xml")->getXmlDocument()->document_element().children()
-
-//<tableColumns count="5">
 }
 
 XLTable::~XLTable()
@@ -83,6 +76,7 @@ XLTable::~XLTable()
 
 const std::string XLTable::name() const
 {
+  // Check if displayName is better
   return (m_pXmlData->getXmlDocument()->child("table").attribute("name").value());
 }
 
@@ -177,10 +171,28 @@ bool XLTable::isTotalVisible() const
 
 
 
-uint16_t XLTable::columnCount() const
+uint16_t XLTable::columnsCount() const
 {
   return (std::stoi(m_pXmlData->getXmlDocument()->child("table")
             .child("tableColumns").attribute("count").value()));
+}
+
+uint32_t XLTable::rowsCount() const
+{
+    std::pair<std::string,std::string> p = XLCellRange::topLeftBottomRight(ref());
+    XLCellReference topLeft(p.first);
+    XLCellReference bottomRight(p.second);
+
+    uint32_t firstRow = topLeft.row();
+    uint32_t lastRow = bottomRight.row();
+
+    if (isHeaderVisible())
+        firstRow +=1;
+    
+    if (isTotalVisible())
+        lastRow -=1;
+    
+    return (lastRow - firstRow + 1);
 }
 
 
@@ -196,11 +208,3 @@ void XLTable::setName(const std::string& tableName)
 
 }
 
-/*XLCellRange XLWorksheet::range(const XLCellReference& topLeft, const XLCellReference& bottomRight) const
-{
-    return XLCellRange(xmlDocument().first_child().child("sheetData"),
-                       topLeft,
-                       bottomRight,
-                       parentDoc().execQuery(XLQuery(XLQueryType::QuerySharedStrings)).result<XLSharedStrings>());
-}
-*/

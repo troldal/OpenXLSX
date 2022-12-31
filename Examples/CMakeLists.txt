@@ -11,65 +11,70 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 add_subdirectory(external/nowide EXCLUDE_FROM_ALL)
 
 #=======================================================================================================================
-# Define Demo1 target
+# Define Demo01 target
 #=======================================================================================================================
-add_executable(Demo1 Demo1.cpp)
-target_link_libraries(Demo1 PRIVATE OpenXLSX::OpenXLSX)
+add_executable(Demo01 Demo01.cpp)
+target_link_libraries(Demo01 PRIVATE OpenXLSX::OpenXLSX)
 
 #=======================================================================================================================
-# Define Demo1A target
+# Define Demo01A target
 #=======================================================================================================================
 if(${OPENXLSX_ENABLE_LIBZIP})
     find_package(LIBZIP MODULE REQUIRED)
-    add_executable(Demo1A Demo1A.cpp)
-    target_link_libraries(Demo1A PRIVATE OpenXLSX::OpenXLSX libzip::zip)
+    add_executable(Demo01A Demo01A.cpp)
+    target_link_libraries(Demo01A PRIVATE OpenXLSX::OpenXLSX libzip::zip)
 endif()
 
 #=======================================================================================================================
-# Define Demo2 target
+# Define Demo02 target
 #=======================================================================================================================
-add_executable(Demo2 Demo2.cpp)
-target_link_libraries(Demo2 PRIVATE OpenXLSX::OpenXLSX)
+add_executable(Demo02 Demo02.cpp)
+target_link_libraries(Demo02 PRIVATE OpenXLSX::OpenXLSX)
 
 #=======================================================================================================================
-# Define Demo3 target
+# Define Demo03 target
 #=======================================================================================================================
-add_executable(Demo3 Demo3.cpp)
-target_link_libraries(Demo3 PRIVATE OpenXLSX::OpenXLSX)
+add_executable(Demo03 Demo03.cpp)
+target_link_libraries(Demo03 PRIVATE OpenXLSX::OpenXLSX)
 
 #=======================================================================================================================
-# Define Demo4 target
+# Define Demo04 target
 #=======================================================================================================================
-add_executable(Demo4 Demo4.cpp)
-target_link_libraries(Demo4 PRIVATE OpenXLSX::OpenXLSX nowide::nowide)
+add_executable(Demo04 Demo04.cpp)
+target_link_libraries(Demo04 PRIVATE OpenXLSX::OpenXLSX nowide::nowide)
 
 #=======================================================================================================================
-# Define Demo9 target
+# Define Demo09 target
 #=======================================================================================================================
-add_executable(Demo5 Demo5.cpp)
-target_link_libraries(Demo5 PRIVATE OpenXLSX::OpenXLSX)
+add_executable(Demo05 Demo05.cpp)
+target_link_libraries(Demo05 PRIVATE OpenXLSX::OpenXLSX)
 
 #=======================================================================================================================
-# Define Demo6 target
+# Define Demo06 target
 #=======================================================================================================================
-add_executable(Demo6 Demo6.cpp)
-target_link_libraries(Demo6 PRIVATE OpenXLSX::OpenXLSX)
+add_executable(Demo06 Demo06.cpp)
+target_link_libraries(Demo06 PRIVATE OpenXLSX::OpenXLSX)
 
 #=======================================================================================================================
-# Define Demo7 target
+# Define Demo07 target
 #=======================================================================================================================
-add_executable(Demo7 Demo7.cpp)
-target_link_libraries(Demo7 PRIVATE OpenXLSX::OpenXLSX)
+add_executable(Demo07 Demo07.cpp)
+target_link_libraries(Demo07 PRIVATE OpenXLSX::OpenXLSX)
 
 #=======================================================================================================================
-# Define Demo8 target
+# Define Demo08 target
 #=======================================================================================================================
-add_executable(Demo8 Demo8.cpp)
-target_link_libraries(Demo8 PRIVATE OpenXLSX::OpenXLSX)
+add_executable(Demo08 Demo08.cpp)
+target_link_libraries(Demo08 PRIVATE OpenXLSX::OpenXLSX)
 
 #=======================================================================================================================
-# Define Demo9 target
+# Define Demo09 target
 #=======================================================================================================================
-add_executable(Demo9 Demo9.cpp)
-target_link_libraries(Demo9 PRIVATE OpenXLSX::OpenXLSX)
+add_executable(Demo09 Demo09.cpp)
+target_link_libraries(Demo09 PRIVATE OpenXLSX::OpenXLSX)
 
+#=======================================================================================================================
+# Define Demo10 target
+#=======================================================================================================================
+add_executable(Demo10 Demo10.cpp)
+target_link_libraries(Demo10 PRIVATE OpenXLSX::OpenXLSX)

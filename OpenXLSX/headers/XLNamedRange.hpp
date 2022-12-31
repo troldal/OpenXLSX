@@ -15,7 +15,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
             MM
            _MM_
 
-  Copyright (c) 2018, Kenneth Troldal Balslev
+  Written by Akira SHIMAHARA
 
   All rights reserved.
 
@@ -52,11 +52,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== External Includes ===== //
 #include <string>
-/*
-#include <type_traits>
-#include <variant>
-#include <vector>
-*/
 
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
@@ -72,7 +67,12 @@ namespace OpenXLSX
   class OPENXLSX_EXPORT XLNamedRange : public XLCellRange
   {
     public:
-
+        /**
+         * @brief Constructor 
+         * @param rangeName Name of the range to be created
+         * @param reference Reference of the cell/range to be named: Sheet1!$I$17:$I$19
+         * @param localSheetId Id of the sheet where the name is defined, default is 0 (global)
+         */
         XLNamedRange(const std::string& name,
                       const std::string& reference,
                       uint32_t localSheetId,
@@ -107,12 +107,29 @@ namespace OpenXLSX
          */
          XLNamedRange& operator=(XLNamedRange&& other) noexcept;
 
+        /**
+         * @brief  
+         * @return The name of the named range.
+         */
         const std::string& name() const;
+
+         /**
+         * @brief  
+         * @return The reference of the range.
+         */
         const std::string& reference() const;
+
+         /**
+         * @brief  
+         * @return The name of the named range.
+         */
         uint32_t localSheetId() const;
 
+          /**
+         * @brief  
+         * @return The first cell of the range.
+         */
         XLCell firstCell() const;
-        XLCell lastCell() const;
     
     private:
         uint32_t          m_localSheetId;

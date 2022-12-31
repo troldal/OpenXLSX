@@ -122,7 +122,6 @@ XLTable XLWorkbook::table(const std::string& tableName)
     xmlQuery.setParam("tableName", tableName);
     
     XLXmlData* tableItem = (parentDoc().execQuery(xmlQuery).result<XLXmlData*>());
-    //XLTable test = XLTable(tableItem);
 
     return XLTable(tableItem);
 }
@@ -172,17 +171,6 @@ XLChartsheet XLWorkbook::chartsheet(const std::string& sheetName)
 /**
  * @details
  */
-/*
-XLSharedStrings& XLWorkbook::sharedStrings()
-{
-    //XLQuery query(XLQueryType::QuerySharedStrings);
-    //return parentDoc().execQuery(query).result<XLSharedStrings>();
-    return XLSharedStrings::instance();
-}
-*/
-/**
- * @details
- */
 void XLWorkbook::deleteNamedRanges()
 {
     for (auto& child : xmlDocument().document_element().child("definedNames").children()) child.parent().remove_child(child);
@@ -224,19 +212,17 @@ void XLWorkbook::deleteSheet(const std::string& sheetName)
 /**
  * @details
  */
-void XLWorkbook::addWorksheet(const std::string& sheetName)
+XLWorksheet XLWorkbook::addWorksheet(const std::string& sheetName)
 {
     // ===== If a sheet with the given name already exists, throw an exception.
     if (xmlDocument().document_element().child("sheets").find_child_by_attribute("name", sheetName.c_str()))
         throw XLInputError("Sheet named \"" + sheetName + "\" already exists.");
 
-    // ===== Create new internal (workbook) ID for the sheet
-    //auto internalID = createInternalSheetID();
-
     // ===== Create xml file for new worksheet and add metadata to the workbook file.
     parentDoc().execCommand(XLCommand(XLCommandType::AddWorksheet)
                                 .setParam("sheetName", sheetName));
 
+    return worksheet(sheetName);
 }
 
 void XLWorkbook::deleteNamedRange(const std::string& rangeName,
@@ -258,7 +244,7 @@ void XLWorkbook::deleteNamedRange(const std::string& rangeName,
  * @details
  * @todo check that the name fit excel limitation (no space) XLNamedRange INCREMENT_STRING
  */
-void XLWorkbook::addNamedRange(const std::string& rangeName, 
+XLNamedRange XLWorkbook::addNamedRange(const std::string& rangeName, 
                         const std::string& reference, 
                         uint32_t localSheetId)
 {
@@ -309,13 +295,15 @@ void XLWorkbook::addNamedRange(const std::string& rangeName,
         node.append_attribute("localSheetId") = localSheetId - 1;
 
     node.text().set(safeReference.c_str());
+
+    return namedRange(rangeName);
 }
 
 /**
  * @details ref shall be "B1:K12"
  * @todo check that the name fit excel limitation (no space)
  */
-void XLWorkbook::addTable(const std::string& sheetName, const std::string& tableName, 
+XLTable XLWorkbook::addTable(const std::string& sheetName, const std::string& tableName, 
                             const std::string& reference)
 {
     // ===== Create xml file for new worksheet and add metadata to the workbook file.
@@ -323,7 +311,7 @@ void XLWorkbook::addTable(const std::string& sheetName, const std::string& table
                                 .setParam("worksheet", sheetName)
                                 .setParam("tableName", tableName)
                                 .setParam("reference", reference));
-
+    return table(tableName);
 }
 
 

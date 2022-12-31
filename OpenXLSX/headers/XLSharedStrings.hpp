@@ -50,19 +50,13 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #pragma warning(disable : 4251)
 #pragma warning(disable : 4275)
 
-//#include <deque>
 #include <vector>
 #include <string>
-//#include <functional>
 
-//#include <pugixml.hpp>
 
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
 #include "XLXmlFile.hpp"
-
-//#include "XLXmlData.hpp"
-//#include "XLDocument.hpp"
 
 
 namespace OpenXLSX
