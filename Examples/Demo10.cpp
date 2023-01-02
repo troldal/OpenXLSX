@@ -77,9 +77,23 @@ int main() {
     //tbl.setHeaderVisible(false);
     tbl.setTotalVisible(true);
     //tbl.column("Table")->setTotalsRowFunction("sum");
-    tbl.column("Table").setTotalsRowFunction("count");
     tbl.column("Table").setTotalsRowFunction("");
+    tbl.column("Table").setTotalsRowFunction("count");
 
+    cout << "Table Style : " << tbl.tableStyle().style() << endl;
+    tbl.tableStyle().setStyle("TableStyleDark7"); 
+    
+    cout << "Column stripes : " << tbl.tableStyle().columnStripes() << endl;
+    cout << "row stripes : " << tbl.tableStyle().rowStripes() << endl;
+
+    tbl.tableStyle().showRowStripes(false);
+    tbl.tableStyle().showColumnStripes(true);
+
+    cout << "1st Column highlighted : " << tbl.tableStyle().firstColumnHighlighted() << endl;
+    cout << "last Column highlighted : " << tbl.tableStyle().lastColumnHighlighted() << endl;
+
+    tbl.tableStyle().showFirstColumnHighlighted(true);
+    tbl.tableStyle().showLastColumnHighlighted(true);
 
     doc.save();
     doc.close();

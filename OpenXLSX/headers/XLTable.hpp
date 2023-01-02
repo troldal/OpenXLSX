@@ -59,12 +59,14 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLXmlData.hpp"
 #include "XLTableColumn.hpp"
 #include "XLTableRows.hpp"
+#include "XLTableStyle.hpp"
 #include "XLSheet.hpp"
 namespace OpenXLSX
 {
     class OPENXLSX_EXPORT XLTable
     {
         friend class XLTableColumn;
+        friend class XLTableStyle;
 
     public:
         /**
@@ -177,6 +179,11 @@ namespace OpenXLSX
         XLAutofilter autofilter();
 
         /**
+         * @brief return the table style obect
+         */
+        XLTableStyle tableStyle();
+
+        /**
          * @brief
          * @return number of columns
          */
@@ -193,6 +200,7 @@ namespace OpenXLSX
          * @param tableName name of the table
          */
         void setName(const std::string& tableName);
+
     //----------------------------------------------------------------------------------------------------------------------
     //           Protected
     //----------------------------------------------------------------------------------------------------------------------  

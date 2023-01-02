@@ -113,7 +113,7 @@ XLTableColumn& XLTableColumn::operator=(XLTableColumn&& other) noexcept
 
 std::string XLTableColumn::name() const
 {
-    return (m_dataNode->attribute("name").value());
+    return std::string(m_dataNode->attribute("name").value());
 }
 
 void XLTableColumn::setName(const std::string& columnName) const

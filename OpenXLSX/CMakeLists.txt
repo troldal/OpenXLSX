@@ -104,6 +104,7 @@ set(OPENXLSX_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLTable.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLTableColumn.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLTableRows.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLTableStyle.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLWorkbook.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLXmlData.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLXmlFile.cpp

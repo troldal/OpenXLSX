@@ -231,6 +231,10 @@ XLAutofilter XLTable::autofilter()
     return XLAutofilter(m_pXmlData->getXmlDocument()->child("table").child("autoFilter"),m_pXmlData);
 }
 
+XLTableStyle XLTable::tableStyle()
+{
+    return XLTableStyle(m_pXmlData->getXmlDocument()->child("table").child("tableStyleInfo"), this);
+}
 
 uint16_t XLTable::columnsCount() const
 {
