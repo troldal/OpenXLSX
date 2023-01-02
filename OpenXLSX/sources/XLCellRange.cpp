@@ -235,7 +235,14 @@ void XLCellRange::setRangeCoordinates(const XLCellReference& topLeft,
     m_bottomRight = bottomRight;
 }
 
+
+
 std::pair<XLCellReference,XLCellReference> XLCellRange::rangeCoordinates()
+{
+    return std::make_pair(m_topLeft,m_bottomRight);
+}
+
+const std::pair<XLCellReference,XLCellReference> XLCellRange::rangeCoordinates() const
 {
     return std::make_pair(m_topLeft,m_bottomRight);
 }

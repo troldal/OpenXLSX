@@ -240,18 +240,10 @@ uint16_t XLTable::columnsCount() const
 
 uint32_t XLTable::rowsCount() const
 {
-    std::pair<std::string,std::string> p = XLCellRange::topLeftBottomRight(ref());
-    XLCellReference topLeft(p.first);
-    XLCellReference bottomRight(p.second);
+    auto p = m_dataBodyRange.rangeCoordinates();
 
-    uint32_t firstRow = topLeft.row();
-    uint32_t lastRow = bottomRight.row();
-
-    if (isHeaderVisible())
-        firstRow +=1;
-    
-    if (isTotalVisible())
-        lastRow -=1;
+    uint32_t firstRow = p.first.row();
+    uint32_t lastRow = p.second.row();
     
     return (lastRow - firstRow + 1);
 }
@@ -271,7 +263,6 @@ void XLTable::setName(const std::string& tableName)
 
 void XLTable::setTotalFormulas()
 {
-    
     if (!isTotalVisible())
         return;
     
@@ -280,23 +271,34 @@ void XLTable::setTotalFormulas()
 
     for (auto& col: m_columns){
         std::string colFunc = col.totalsRowFunction();
-
-        // Check if its exist in the list
-        auto it = std::find(std::begin(XLTemplate::totalsRowFunctionList), 
-                std::end(XLTemplate::totalsRowFunctionList), colFunc);
-        if( it != std::end(XLTemplate::totalsRowFunctionList)){
-
-
-            // get the equivalent formula in the sheet
-            std::string sheetFunction =  "SUBTOTAL(";
-            sheetFunction +=  XLTemplate::sheetTotalFunctionList[
-                        std::distance(std::begin(XLTemplate::totalsRowFunctionList), it)
-                        ];
-            sheetFunction   += "," + name() 
-                            + "[" + col.name() + "])";
-            
-            m_sheet.cell(totalRow, totalCol).formula() = sheetFunction;
+        if (colFunc.empty()){  // if there is nothing, remove formula and values
+            m_sheet.cell(totalRow, totalCol).formula().clear();
+            m_sheet.cell(totalRow, totalCol).value().clear(); 
         }
+        else
+        {
+            // Check if its exist in the list
+            auto it = std::find(std::begin(XLTemplate::totalsRowFunctionList), 
+                    std::end(XLTemplate::totalsRowFunctionList), colFunc);
+            if( it != std::end(XLTemplate::totalsRowFunctionList)){
+
+                std::string function =  XLTemplate::sheetTotalFunctionList[
+                            std::distance(std::begin(XLTemplate::totalsRowFunctionList), it)
+                            ];
+                if (function != "none")
+                {
+                    // get the equivalent formula in the sheet
+                     std::string sheetFunction =  "SUBTOTAL(" + function 
+                                + "," + name() 
+                                    + "[" + col.name() + "])";
+                     m_sheet.cell(totalRow, totalCol).formula() = sheetFunction;
+                } else {// remove the formula if function is none 
+                    m_sheet.cell(totalRow, totalCol).formula().clear();
+                    m_sheet.cell(totalRow, totalCol).value().clear(); 
+                }
+               
+            }
+        } // if col function not empty
         totalCol +=1;
     }
     

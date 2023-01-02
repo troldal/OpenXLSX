@@ -118,9 +118,14 @@ namespace OpenXLSX
          */
         std::string totalsRowFunction() const;
 
+         /**
+         * @brief clear the total row function of this columns and trigger the sheet update
+         */
+        void clearTotalsRowFunction();
+
         /**
          * @brief 
-         * @param function function to be set. if function is not know, nothing is done
+         * @param function function to be set. use empty string to remove function,or "none"if function is not know, nothing is done
          */
         void setTotalsRowFunction(const std::string& function);
         

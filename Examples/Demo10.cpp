@@ -78,6 +78,7 @@ int main() {
     tbl.setTotalVisible(true);
     //tbl.column("Table")->setTotalsRowFunction("sum");
     tbl.column("Table").setTotalsRowFunction("count");
+    tbl.column("Table").setTotalsRowFunction("");
 
 
     doc.save();

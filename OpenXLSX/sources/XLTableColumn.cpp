@@ -128,10 +128,25 @@ std::string XLTableColumn::totalsRowFunction() const
     return std::string(m_dataNode->attribute("totalsRowFunction").value());
 }
 
+void XLTableColumn::clearTotalsRowFunction()
+{
+    setTotalsRowFunction(std::string());
+}
+
 void XLTableColumn::setTotalsRowFunction(const std::string& function)
 {
     // TODO implement <totalsRowLabel>
     // TODO implement <totalsRowFormula> == custom function
+    auto node = m_dataNode->attribute("totalsRowFunction");
+    if(!node)
+        node = m_dataNode->append_attribute("totalsRowFunction");
+    
+    // If empty string, we remove the formula
+    if(function.empty()){
+        m_dataNode->remove_attribute("totalsRowFunction");
+        m_table->setTotalFormulas();
+        return;
+    }
 
     // check if the formula is allowed otherwise quit
     auto it = std::find(std::begin(XLTemplate::totalsRowFunctionList), 
@@ -139,10 +154,6 @@ void XLTableColumn::setTotalsRowFunction(const std::string& function)
     if( it == std::end(XLTemplate::totalsRowFunctionList))
         return;
 
-    auto node = m_dataNode->attribute("totalsRowFunction");
-    if(!node)
-        node = m_dataNode->append_attribute("totalsRowFunction");
-    
     node.set_value(function.c_str());
 
     // Update the fonctions in the worksheet
