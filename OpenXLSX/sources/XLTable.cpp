@@ -120,16 +120,8 @@ uint16_t XLTable::columnIndex(const std::string& name) const
     
     return (uint16_t)(-1);
 }
-/*
-std::shared_ptr<XLTableColumn> XLTable::column(const std::string& name)
-{
-    uint16_t index = columnIndex(name);
-    if (index == (uint16_t)(-1))
-        return nullptr; // the column does not exist
-    
-    return std::shared_ptr<XLTableColumn>(m_columns[index]);
-}
-*/
+
+
 XLTableColumn& XLTable::column(const std::string& name)
 {
     uint16_t index = columnIndex(name);
@@ -137,6 +129,11 @@ XLTableColumn& XLTable::column(const std::string& name)
         index = 0;
     
     return m_columns[index];
+}
+
+const std::vector<XLTableColumn>& XLTable::columns() const
+{
+    return m_columns;
 }
 
 
@@ -276,13 +273,10 @@ void XLTable::setColumnFormulas() const
     for (auto& col: m_columns){
         std::string colFormula = col.columnFormula();
         if (colFormula.empty())  // if there is nothing, remove formula keep values
-            for (auto cell: col.bodyRange()){
-                auto test = cell.cellReference();
-                cell.formula().clear();
-
-            }      
+            for (auto& cell: col.bodyRange())
+                cell.formula().clear();  
         else
-            for (auto cell: col.bodyRange())
+            for (auto& cell: col.bodyRange())
                 cell.formula() = colFormula;
     }
     

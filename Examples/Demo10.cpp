@@ -72,26 +72,37 @@ int main() {
         j++;
     }
 
+    // loop could also be done on colums
+    for(auto& col : tbl.columns())
+        for (auto& cell : col.bodyRange())
+            cout << cell.value() << " - ";
+    
+    cout << endl;
+
     // Also show the total with selected function
     tbl.autofilter().hideArrows();
     //tbl.setHeaderVisible(false);
 
-    // Total formulas
+    // Total formulas 
     tbl.setTotalVisible(true);
-    //tbl.column("Table")->setTotalsRowFunction("sum");
     //tbl.column("Table").setTotalsRowFunction("");
     //tbl.column("Table").setTotalsRowFunction("count");
     tbl.column("Table").totalsRowFormula() ="sum";
     string totaFormula = tbl.column("Table").totalsRowFormula();
     cout << "total Formula in the table column : " << totaFormula << endl;
 
+    // To clear, a empty string could be sent, or the method 
+    // clearTotalsRowFormula could be called
     tbl.column("Table").totalsRowFormula() ="";
 
-    // Columns formulas
+    // Columns formulas could be setup, check and cleared, using either
+    // empty string or calling clearColumnFormula
     tbl.column("With").columnFormula() = "MyTable[[#This Row],['#]]*2";
     string columFormula =  tbl.column("With").columnFormula();
     cout << "Column Formula : " << columFormula << endl;
 
+
+    // Table style basics
     cout << "Table Style : " << tbl.tableStyle().style() << endl;
     tbl.tableStyle().setStyle("TableStyleDark7"); 
     

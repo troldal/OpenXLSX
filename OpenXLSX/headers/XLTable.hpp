@@ -114,6 +114,12 @@ namespace OpenXLSX
          */
         XLTableColumn& column(const std::string& name);
 
+         /**
+         * @brief the column vector to be iterate
+         * @return a const ref on the vector of columns
+         */
+        const std::vector<XLTableColumn>& columns() const;
+
         /**
          * @brief
          * @return A pointer to the worksheet object the table belong to

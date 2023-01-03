@@ -124,6 +124,7 @@ XLCell& XLCell::operator=(XLCell&& other) noexcept
         m_cellNode      = std::move(other.m_cellNode);
         m_worksheet     = other.m_worksheet;
         m_valueProxy    = XLCellValueProxy(this, m_cellNode);
+        m_formulaProxy  = XLFormulaProxy(this, m_cellNode);
     }
 
     return *this;
