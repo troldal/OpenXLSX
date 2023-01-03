@@ -54,15 +54,18 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLTable.hpp"
 using namespace OpenXLSX;
 
-XLTableColumn::XLTableColumn(const XMLNode& dataNode, XLTable* table): 
+XLTableColumn::XLTableColumn(const XMLNode& dataNode, const XLTable& table): 
             m_dataNode(std::make_shared<XMLNode>(dataNode)),
             m_table(table),
-            m_proxyTotal(XLTableColumnFormulaProxy(dataNode,"totalsRowFunction")),
-            m_proxyColumn(XLTableColumnFormulaProxy(dataNode,"calculatedColumnFormula"))
+            m_proxyTotal(XLTableColumnFormulaProxy(dataNode,"totalsRowFunction", table)),
+            m_proxyColumn(XLTableColumnFormulaProxy(dataNode,"calculatedColumnFormula", table))
 {
+    // TODO implement <totalsRowLabel>
+    // TODO implement <totalsRowFormula> == custom function
+    
     /* TODO implement the followings
-    m_name              = m_dataNode->attribute("name").value();
-    m_xr3uid            = m_dataNode->attribute("xr3:uid").value();
+    
+    
     m_dataCellStyle     = m_dataNode->attribute("dataCellStyle").value();
     m_headerRowCellStyle= m_dataNode->attribute("headerRowCellStyle").value();
     m_totalsRowFunction = m_dataNode->attribute("totalsRowFunction").value();
@@ -84,8 +87,8 @@ XLTableColumn::XLTableColumn(const XMLNode& dataNode, XLTable* table):
 XLTableColumn::XLTableColumn(const XLTableColumn& other)
         : m_dataNode(other.m_dataNode ? std::make_shared<XMLNode>(*other.m_dataNode) : nullptr),
          m_table(other.m_table),
-         m_proxyTotal(XLTableColumnFormulaProxy((*other.m_dataNode),"totalsRowFunction")),
-         m_proxyColumn(XLTableColumnFormulaProxy((*other.m_dataNode),"calculatedColumnFormula"))
+         m_proxyTotal(XLTableColumnFormulaProxy((*other.m_dataNode),"totalsRowFunction", other.m_table)),
+         m_proxyColumn(XLTableColumnFormulaProxy((*other.m_dataNode),"calculatedColumnFormula", other.m_table))
 {}
 
 XLTableColumn::XLTableColumn(XLTableColumn&& other) noexcept
@@ -111,7 +114,6 @@ XLTableColumn& XLTableColumn::operator=(XLTableColumn&& other) noexcept
 {
     if (&other != this) {
         m_dataNode = std::move(other.m_dataNode);
-        m_table  = other.m_table;
     }
     return *this;
 }
@@ -129,56 +131,20 @@ void XLTableColumn::setName(const std::string& columnName) const
     // TODO change the formulas in the sheet
 }
 
-std::string XLTableColumn::totalsRowFunction() const
-{
-    return std::string(m_dataNode->attribute("totalsRowFunction").value());
-}
-
 void XLTableColumn::clearTotalsRowFunction()
 {
-    setTotalsRowFunction(std::string());
+    m_proxyTotal.clear();
 }
 
 XLTableColumnFormulaProxy& XLTableColumn::totalsRowFormula()
 {
-    auto node = m_dataNode->attribute("totalsRowFunction");
-
-    if (!node)
-        node = m_dataNode->append_attribute("totalsRowFunction");
-
     return m_proxyTotal;
-    //return std::string(m_dataNode->attribute("totalsRowFunction").value());
-
 }
 
-void XLTableColumn::setTotalsRowFunction(const std::string& function)
+const XLTableColumnFormulaProxy& XLTableColumn::totalsRowFormula() const
 {
-    // TODO implement <totalsRowLabel>
-    // TODO implement <totalsRowFormula> == custom function
-    auto node = m_dataNode->attribute("totalsRowFunction");
-    if(!node)
-        node = m_dataNode->append_attribute("totalsRowFunction");
-    
-    // If empty string, we remove the formula
-    if(function.empty()){
-        m_dataNode->remove_attribute("totalsRowFunction");
-        m_table->setTotalFormulas();
-        return;
-    }
-
-    // check if the formula is allowed otherwise quit
-    auto it = std::find(std::begin(XLTemplate::totalsRowFunctionList), 
-                std::end(XLTemplate::totalsRowFunctionList), function);
-    if( it == std::end(XLTemplate::totalsRowFunctionList))
-        return;
-
-    node.set_value(function.c_str());
-
-    // Update the fonctions in the worksheet
-    m_table->setTotalFormulas();
-
+    return m_proxyTotal;
 }
-
 
 /////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -192,8 +158,10 @@ void XLTableColumn::setTotalsRowFunction(const std::string& function)
  * @pre The attr pointer must not be nullptr and must point to valid objects.
  * @post A valid XLCellValueProxy has been created.
  */
-XLTableColumnFormulaProxy::XLTableColumnFormulaProxy(const XMLNode& node, const std::string& attr) 
-                        : m_node(std::make_shared<XMLNode>(node)), m_attribute(attr)
+XLTableColumnFormulaProxy::XLTableColumnFormulaProxy(const XMLNode& node, const std::string& attr, const XLTable& table ) 
+                        : m_node(std::make_shared<XMLNode>(node)), 
+                          m_attribute(attr),
+                          m_table(table)
 {
     assert(node);                  // NOLINT
 }
@@ -212,7 +180,8 @@ XLTableColumnFormulaProxy::~XLTableColumnFormulaProxy() = default;
  */
 XLTableColumnFormulaProxy::XLTableColumnFormulaProxy(const XLTableColumnFormulaProxy& other)
                 : m_node(other.m_node ? std::make_shared<XMLNode>(*other.m_node) : nullptr),
-                  m_attribute(other.m_attribute)
+                  m_attribute(other.m_attribute),
+                  m_table(other.m_table)
 {}
 
 /**
@@ -222,7 +191,8 @@ XLTableColumnFormulaProxy::XLTableColumnFormulaProxy(const XLTableColumnFormulaP
  */
 XLTableColumnFormulaProxy::XLTableColumnFormulaProxy(XLTableColumnFormulaProxy&& other) noexcept
                             : m_node(std::move(other.m_node)),
-                              m_attribute(std::move(other.m_attribute))
+                              m_attribute(std::move(other.m_attribute)),
+                              m_table(std::move(other.m_table))
 {}
 
 /**
@@ -241,12 +211,28 @@ XLTableColumnFormulaProxy& XLTableColumnFormulaProxy::operator=(const XLTableCol
     return *this;
 }
 
+XLTableColumnFormulaProxy& XLTableColumnFormulaProxy::operator=(const std::string& formula)
+{   
+    setFormula(formula);
+    m_table.setFormulas(m_attribute);
+    return *this;
+}
+
+
 /**
  * @details Move assignment operator. Default implementation has been used.
  * @pre
  * @post
  */
-XLTableColumnFormulaProxy& XLTableColumnFormulaProxy::operator=(XLTableColumnFormulaProxy&& other) noexcept = default;
+XLTableColumnFormulaProxy& XLTableColumnFormulaProxy::operator=(XLTableColumnFormulaProxy&& other) noexcept
+{
+    if (&other != this) {
+        m_node          = std::move(other.m_node);
+        m_attribute     = std::move(other.m_attribute);
+    }
+
+    return *this;
+}
 
 /**
  * @details Implicitly convert the XLCellValueProxy object to a std::string.
@@ -267,45 +253,9 @@ XLTableColumnFormulaProxy& XLTableColumnFormulaProxy::clear()
 {
     // ===== Check that the m_attribute is valid.
     assert(m_node);              // NOLINT
-/*
-    // ===== Remove the type attribute
-    m_cellNode->remove_attribute("t");
-
-    // ===== Disable space preservation (only relevant for strings).
-    m_cellNode->remove_attribute(" xml:space");
-
-    // ===== Remove the value node.
-    m_cellNode->remove_child("v");
-*/
-    return *this;
-}
-/**
- * @details Set the cell value to a error state. This will remove all children and attributes, except
- * the type attribute, which is set to "e"
- * @pre The m_cellNode must not be null, and must point to a valid XML cell node object.
- * @post The cell node must be valid.
- */
-XLTableColumnFormulaProxy& XLTableColumnFormulaProxy::setError(const std::string &error)
-{
-    // ===== Check that the m_cellNode is valid.
-    assert(m_node);              // NOLINT
-
-/*
-    // ===== If the cell node doesn't have a type attribute, create it.
-    if (!m_cellNode->attribute("t")) m_cellNode->append_attribute("t");
-
-    // ===== Set the type to "e", i.e. error
-    m_cellNode->attribute("t").set_value("e");
-
-    // ===== If the cell node doesn't have a value child node, create it.
-    if (!m_cellNode->child("v")) m_cellNode->append_child("v");
-
-    // ===== Set the child value to the error
-    m_cellNode->child("v").text().set(error.c_str());
-
-    // ===== Disable space preservation (only relevant for strings).
-    m_cellNode->remove_attribute(" xml:space");
-*/
+    m_node->remove_attribute(m_attribute.c_str());
+    m_table.setTotalFormulas();
+    
     return *this;
 }
 
@@ -320,8 +270,29 @@ void XLTableColumnFormulaProxy::setFormula(const std::string& formula)
 {
     // ===== Check that the m_cellNode is valid.
     assert(m_node);              // NOLINT
+    auto node = m_node->attribute(m_attribute.c_str());
+    if (!node)
+        node = m_node->append_attribute(m_attribute.c_str());
+    
+     // If empty string, we remove the formula
+    if(formula.empty()){
+        clear();
+        return;
+    }
+
+    if(m_attribute == "totalsRowFunction"){
+        // check if the formula is allowed otherwise quit
+        // TODO check for custom formula
+        auto it = std::find(std::begin(XLTemplate::totalsRowFunctionList), 
+                    std::end(XLTemplate::totalsRowFunctionList), formula);
+        if( it == std::end(XLTemplate::totalsRowFunctionList)){
+            XLLogError("The formula \"" + formula + "\" is not available for total Row function");
+            return;
+        }
+    }
 
     m_node->attribute(m_attribute.c_str()).set_value(formula.c_str());
+
 }
 
 /**
@@ -334,7 +305,8 @@ std::string XLTableColumnFormulaProxy::getFormula() const
 {
     // ===== Check that the m_attribute is valid.
     assert(m_node);              // NOLINT
-   
+    assert(m_node->attribute(m_attribute.c_str()));
+    
     return std::string(m_node->attribute(m_attribute.c_str()).value());
 }
 

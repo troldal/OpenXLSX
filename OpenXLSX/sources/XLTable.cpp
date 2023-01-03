@@ -82,7 +82,7 @@ XLTable::XLTable(XLXmlData* xmlData)
     XMLNode pTblColumns =  m_pXmlData->getXmlDocument()->child("table").child("tableColumns");
 
     for (const XMLNode& col : pTblColumns.children())
-        m_columns.push_back(XLTableColumn(col, this));
+        m_columns.push_back(XLTableColumn(col, *this));
 
 }
 
@@ -266,7 +266,17 @@ void XLTable::setName(const std::string& tableName)
 
 }
 
-void XLTable::setTotalFormulas()
+
+void XLTable::setFormulas(const std::string& attribute) const
+{
+    if (attribute=="totalsRowFunction")
+        setTotalFormulas();
+    else if (attribute=="calculatedColumnFormula")
+        throw "to be implemented";
+    
+}
+
+void XLTable::setTotalFormulas() const
 {
     if (!isTotalVisible())
         return;
@@ -275,7 +285,7 @@ void XLTable::setTotalFormulas()
     uint16_t totalCol = m_dataBodyRange.rangeCoordinates().first.column();
 
     for (auto& col: m_columns){
-        std::string colFunc = col.totalsRowFunction();
+        std::string colFunc = col.totalsRowFormula();
         if (colFunc.empty()){  // if there is nothing, remove formula and values
             m_sheet.cell(totalRow, totalCol).formula().clear();
             m_sheet.cell(totalRow, totalCol).value().clear(); 

@@ -66,6 +66,7 @@ namespace OpenXLSX
     class OPENXLSX_EXPORT XLTable
     {
         friend class XLTableColumn;
+        friend class XLTableColumnFormulaProxy;
         friend class XLTableStyle;
 
     public:
@@ -207,9 +208,15 @@ namespace OpenXLSX
     protected:
         /**
          * @brief set the formulas in the worksheet for the total row
+         * @param attribute of the forumla to be set
+         */
+        void setFormulas(const std::string& attribute) const;
+        
+        /**
+         * @brief set the formulas in the worksheet for the total row
          * the formulas is based on the attribute totalsRowFunction of each col
          */
-        void setTotalFormulas();
+        void setTotalFormulas() const;
 
         /**
          * @brief Adjust the ref according to m_dataBodyRange

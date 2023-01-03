@@ -77,9 +77,13 @@ int main() {
     //tbl.setHeaderVisible(false);
     tbl.setTotalVisible(true);
     //tbl.column("Table")->setTotalsRowFunction("sum");
-    tbl.column("Table").setTotalsRowFunction("");
+    //tbl.column("Table").setTotalsRowFunction("");
     //tbl.column("Table").setTotalsRowFunction("count");
     tbl.column("Table").totalsRowFormula() ="sum";
+    std::string totaFormula = tbl.column("Table").totalsRowFormula();
+    cout << "total Formula in the table column : " << totaFormula << endl;
+
+    tbl.column("Table").totalsRowFormula() ="";
 
     cout << "Table Style : " << tbl.tableStyle().style() << endl;
     tbl.tableStyle().setStyle("TableStyleDark7"); 

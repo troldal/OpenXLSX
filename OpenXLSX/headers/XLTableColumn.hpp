@@ -91,15 +91,10 @@ namespace OpenXLSX
         /**
          * @brief Templated assignment operator
          * @tparam T The type of numberValue assigned to the object.
-         * @param value The value.
+         * @param formula The formula to be set
          * @return A reference to the current object.
-         */
-        
-        XLTableColumnFormulaProxy& operator=(const std::string& formula)
-        {   
-            setFormula(formula);
-            return *this;
-        }
+         */      
+        XLTableColumnFormulaProxy& operator=(const std::string& formula);
 
         void set(const std::string& formula)
         {
@@ -120,17 +115,16 @@ namespace OpenXLSX
         XLTableColumnFormulaProxy& setError(const std::string & error);
 
          /**
-         * @brief Implicitly convert the XLCellValueProxy object to a XLCellValue object.
-         * @return An XLCellValue object, corresponding to the cell value.
+         * @brief Implicitly convert the XLTableColumnFormulaProxy object to a string object.
+         * @return a string corresponding to the formula.
          */
         operator std::string();    // NOLINT
 
         /**
-         * @brief
-         * @tparam T
-         * @return
+         * @brief Implicitly convert the XLTableColumnFormulaProxy object to a string object.
+         * @return a string corresponding to the formula.
          */
-        operator std::string() const
+        operator std::string () const
         {
             return getFormula();
         }
@@ -142,7 +136,8 @@ namespace OpenXLSX
          * @brief Constructor
          * @param attr Pointer to the corresponding XML attribute object.
          */
-        XLTableColumnFormulaProxy(const XMLNode& dataNode, const std::string& attr);
+        XLTableColumnFormulaProxy(const XMLNode& dataNode, 
+                        const std::string& attr, const XLTable& table);
 
         /**
          * @brief Copy constructor
@@ -178,7 +173,8 @@ namespace OpenXLSX
           //---------- Private Member Variables ---------- //
 
         std::shared_ptr<XMLNode>    m_node; /**< Pointer to corresponding XML attribute */
-        std::string m_attribute;
+        std::string                 m_attribute;
+        const XLTable&              m_table;
     }; // Class 
 
 
@@ -189,7 +185,7 @@ namespace OpenXLSX
          * @brief The constructor. 
          * @param dataNode XMLNode of the column
          */
-        XLTableColumn(const XMLNode& dataNode, XLTable* table);
+        XLTableColumn(const XMLNode& dataNode, const XLTable& table);
 
          /**
          * @brief Copy Constructor
@@ -233,12 +229,15 @@ namespace OpenXLSX
         void setName(const std::string& name) const;
 
         /**
-         * @brief 
-         * @return function 
+         * @brief the getter setter function
+         * @return return a XLTableColumnFormulaProxy ref which could be implicitely convert to string
          */
-        std::string totalsRowFunction() const;
         XLTableColumnFormulaProxy& totalsRowFormula();
 
+        /**
+         * @brief the getter setter function
+         * @return return a XLTableColumnFormulaProxy ref which could be implicitely convert to string
+         */
         const XLTableColumnFormulaProxy& totalsRowFormula() const;
 
          /**
@@ -246,16 +245,9 @@ namespace OpenXLSX
          */
         void clearTotalsRowFunction();
 
-        /**
-         * @brief 
-         * @param function function to be set. use empty string to remove function,or "none"if function is not know, nothing is done
-         */
-        void setTotalsRowFunction(const std::string& function);
-        
-
     private:
         std::shared_ptr<XMLNode>    m_dataNode;
-        XLTable*                    m_table;
+        const XLTable&              m_table;
         XLTableColumnFormulaProxy   m_proxyTotal;
         XLTableColumnFormulaProxy   m_proxyColumn;
 
