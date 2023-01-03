@@ -78,7 +78,8 @@ int main() {
     tbl.setTotalVisible(true);
     //tbl.column("Table")->setTotalsRowFunction("sum");
     tbl.column("Table").setTotalsRowFunction("");
-    tbl.column("Table").setTotalsRowFunction("count");
+    //tbl.column("Table").setTotalsRowFunction("count");
+    tbl.column("Table").totalsRowFormula() ="sum";
 
     cout << "Table Style : " << tbl.tableStyle().style() << endl;
     tbl.tableStyle().setStyle("TableStyleDark7"); 

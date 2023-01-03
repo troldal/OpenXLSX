@@ -62,6 +62,126 @@ namespace OpenXLSX
 {
     class XLTable;
 
+
+    /**
+     * @brief The XLTableColumnFormulaProxy class is used for proxy (or placeholder) objects for XLTableColumnd formulas objects.
+     * @details The XLTableColumnFormulaProxy class is used for proxy (or placeholder) objects forXLTableColumnd formulas objects.
+     * The purpose is to enable implicit conversion during assignment operations. XLTableColumnd formulas objects
+     * can not be constructed manually by the user, only through XLTableColumn objects.
+     */
+    class OPENXLSX_EXPORT XLTableColumnFormulaProxy
+    {
+        friend class XLTableColumn;
+
+    public:
+        //---------- Public Member Functions ----------//
+
+        /**
+         * @brief Destructor
+         */
+        ~XLTableColumnFormulaProxy();
+
+        /**
+         * @brief Copy assignment operator.
+         * @param other XLCellValueProxy object to be copied.
+         * @return A reference to the current object.
+         */
+        XLTableColumnFormulaProxy& operator=(const XLTableColumnFormulaProxy& other);
+
+        /**
+         * @brief Templated assignment operator
+         * @tparam T The type of numberValue assigned to the object.
+         * @param value The value.
+         * @return A reference to the current object.
+         */
+        
+        XLTableColumnFormulaProxy& operator=(const std::string& formula)
+        {   
+            setFormula(formula);
+            return *this;
+        }
+
+        void set(const std::string& formula)
+        {
+            *this = formula;
+        }
+
+        std::string get() const
+        {
+            return getFormula();
+        }
+
+        XLTableColumnFormulaProxy& clear();
+
+        /**
+         * @brief Set the cell value to a error state.
+         * @return A reference to the current object.
+         */
+        XLTableColumnFormulaProxy& setError(const std::string & error);
+
+         /**
+         * @brief Implicitly convert the XLCellValueProxy object to a XLCellValue object.
+         * @return An XLCellValue object, corresponding to the cell value.
+         */
+        operator std::string();    // NOLINT
+
+        /**
+         * @brief
+         * @tparam T
+         * @return
+         */
+        operator std::string() const
+        {
+            return getFormula();
+        }
+
+    private:
+        //---------- Private Member Functions ---------- //
+
+        /**
+         * @brief Constructor
+         * @param attr Pointer to the corresponding XML attribute object.
+         */
+        XLTableColumnFormulaProxy(const XMLNode& dataNode, const std::string& attr);
+
+        /**
+         * @brief Copy constructor
+         * @param other Object to be copied.
+         */
+        XLTableColumnFormulaProxy(const XLTableColumnFormulaProxy& other);
+
+        /**
+         * @brief Move constructor
+         * @param other Object to be moved.
+         */
+        XLTableColumnFormulaProxy(XLTableColumnFormulaProxy&& other) noexcept;
+
+        /**
+         * @brief Move assignment operator
+         * @param other Object to be moved
+         * @return Reference to moved-to pbject.
+         */
+        XLTableColumnFormulaProxy& operator=(XLTableColumnFormulaProxy&& other) noexcept;
+
+        /**
+         * @brief Set the cell to a string value.
+         * @param stringValue The value to be set.
+         */
+        void setFormula(const std::string& stringValue);
+
+        /**
+         * @brief Get a copy of the XLCellValue object for the cell.
+         * @return An XLCellValue object.
+         */
+        std::string getFormula() const;
+
+          //---------- Private Member Variables ---------- //
+
+        std::shared_ptr<XMLNode>    m_node; /**< Pointer to corresponding XML attribute */
+        std::string m_attribute;
+    }; // Class 
+
+
     class OPENXLSX_EXPORT XLTableColumn
     {
     public:
@@ -117,6 +237,9 @@ namespace OpenXLSX
          * @return function 
          */
         std::string totalsRowFunction() const;
+        XLTableColumnFormulaProxy& totalsRowFormula();
+
+        const XLTableColumnFormulaProxy& totalsRowFormula() const;
 
          /**
          * @brief clear the total row function of this columns and trigger the sheet update
@@ -131,9 +254,16 @@ namespace OpenXLSX
         
 
     private:
-        std::unique_ptr<XMLNode>    m_dataNode;
+        std::shared_ptr<XMLNode>    m_dataNode;
         XLTable*                    m_table;
+        XLTableColumnFormulaProxy   m_proxyTotal;
+        XLTableColumnFormulaProxy   m_proxyColumn;
+
     };
+
+    
+
+
 }    // namespace OpenXLSX
 
 //#pragma warning(pop)

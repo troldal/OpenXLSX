@@ -228,6 +228,7 @@ void XLTable::setTotalVisible(bool visible)
 
 XLAutofilter XLTable::autofilter()
 {
+    // TODO implement auto filter and adjust header masking accordingly
     return XLAutofilter(m_pXmlData->getXmlDocument()->child("table").child("autoFilter"),m_pXmlData);
 }
 
