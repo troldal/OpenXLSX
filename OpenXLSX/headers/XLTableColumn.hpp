@@ -57,6 +57,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
 #include "XLXmlParser.hpp"
+#include "XLCellRange.hpp"
 
 namespace OpenXLSX
 {
@@ -69,7 +70,7 @@ namespace OpenXLSX
      * The purpose is to enable implicit conversion during assignment operations. XLTableColumnd formulas objects
      * can not be constructed manually by the user, only through XLTableColumn objects.
      */
-    class OPENXLSX_EXPORT XLTableColumnFormulaProxy
+    class OPENXLSX_EXPORT XLTableColumnProxy
     {
         friend class XLTableColumn;
 
@@ -79,14 +80,14 @@ namespace OpenXLSX
         /**
          * @brief Destructor
          */
-        ~XLTableColumnFormulaProxy();
+        ~XLTableColumnProxy();
 
         /**
          * @brief Copy assignment operator.
          * @param other XLCellValueProxy object to be copied.
          * @return A reference to the current object.
          */
-        XLTableColumnFormulaProxy& operator=(const XLTableColumnFormulaProxy& other);
+        XLTableColumnProxy& operator=(const XLTableColumnProxy& other);
 
         /**
          * @brief Templated assignment operator
@@ -94,7 +95,7 @@ namespace OpenXLSX
          * @param formula The formula to be set
          * @return A reference to the current object.
          */      
-        XLTableColumnFormulaProxy& operator=(const std::string& formula);
+        virtual XLTableColumnProxy& operator=(const std::string& formula) = 0;
 
         void set(const std::string& formula)
         {
@@ -106,28 +107,139 @@ namespace OpenXLSX
             return getFormula();
         }
 
-        XLTableColumnFormulaProxy& clear();
+        //XLTableColumnProxy& clear();
 
         /**
          * @brief Set the cell value to a error state.
          * @return A reference to the current object.
          */
-        XLTableColumnFormulaProxy& setError(const std::string & error);
+        XLTableColumnProxy& setError(const std::string & error);
 
          /**
-         * @brief Implicitly convert the XLTableColumnFormulaProxy object to a string object.
+         * @brief Implicitly convert the XLTableColumnProxy object to a string object.
          * @return a string corresponding to the formula.
          */
-        operator std::string();    // NOLINT
+        operator std::string() { return getFormula(); };  // NOLINT
 
         /**
-         * @brief Implicitly convert the XLTableColumnFormulaProxy object to a string object.
+         * @brief Implicitly convert the XLTableColumnProxy object to a string object.
          * @return a string corresponding to the formula.
          */
-        operator std::string () const
-        {
-            return getFormula();
-        }
+        operator std::string () const { return getFormula(); };
+
+    protected:
+        //---------- Private Member Functions ---------- //
+
+        /**
+         * @brief Constructor
+         * @param attr Pointer to the corresponding XML attribute object.
+         */
+        XLTableColumnProxy(const XMLNode& dataNode, 
+                        const std::string& attr, const XLTable& table);
+
+        /**
+         * @brief Copy constructor
+         * @param other Object to be copied.
+         */
+        XLTableColumnProxy(const XLTableColumnProxy& other);
+
+        /**
+         * @brief Move constructor
+         * @param other Object to be moved.
+         */
+        XLTableColumnProxy(XLTableColumnProxy&& other) noexcept;
+
+        /**
+         * @brief Move assignment operator
+         * @param other Object to be moved
+         * @return Reference to moved-to pbject.
+         */
+        XLTableColumnProxy& operator=(XLTableColumnProxy&& other) noexcept;
+
+        /**
+         * @brief Set the cell to a string value.
+         * @param formula The value to be set.
+         */
+        virtual void setFormula(const std::string& formula) = 0;
+
+        /**
+         * @brief Get a copy of the XLCellValue object for the cell.
+         * @return An XLCellValue object.
+         */
+        virtual std::string getFormula() const = 0;
+
+          //---------- Private Member Variables ---------- //
+
+        std::shared_ptr<XMLNode>    m_node; /**< Pointer to corresponding XML attribute */
+        std::string                 m_attribute;
+        const XLTable&              m_table;
+    }; // Class
+
+    class OPENXLSX_EXPORT XLTableColumnTotalProxy : public XLTableColumnProxy
+    {
+        friend class XLTableColumn;
+
+    public:
+        //---------- Public Member Functions ----------//
+
+        /**
+         * @brief Destructor
+         */
+        ~XLTableColumnTotalProxy()= default;
+
+        /**
+         * @brief Templated assignment operator
+         * @param formula The formula to be set
+         * @return A reference to the current object.
+         */      
+        XLTableColumnProxy& operator=(const std::string& formula);
+
+        void clear();
+
+    private:
+        //---------- Private Member Functions ---------- //
+
+        /**
+         * @brief Constructor
+         * @param attr Pointer to the corresponding XML attribute object.
+         */
+        XLTableColumnTotalProxy(const XMLNode& dataNode, 
+                        const std::string& attr, const XLTable& table)
+                        : XLTableColumnProxy(dataNode, attr,table) {};
+
+        /**
+         * @brief Set the cell to a string value.
+         * @param formula The value to be set.
+         */
+        void setFormula(const std::string& formula);
+
+        /**
+         * @brief Get a copy of the XLCellValue object for the cell.
+         * @return An XLCellValue object.
+         */
+        std::string getFormula() const;
+    }; // Class 
+
+     class OPENXLSX_EXPORT XLTableColumnFormulaProxy : public XLTableColumnProxy
+    {
+        friend class XLTableColumn;
+
+    public:
+        //---------- Public Member Functions ----------//
+
+        /**
+         * @brief Destructor
+         */
+        ~XLTableColumnFormulaProxy()= default;
+
+        /**
+         * @brief Templated assignment operator
+         * @param formula The formula to be set
+         * @return A reference to the current object.
+         */      
+        XLTableColumnProxy& operator=(const std::string& formula);
+
+        void clear();
 
     private:
         //---------- Private Member Functions ---------- //
@@ -137,44 +249,20 @@ namespace OpenXLSX
          * @param attr Pointer to the corresponding XML attribute object.
          */
         XLTableColumnFormulaProxy(const XMLNode& dataNode, 
-                        const std::string& attr, const XLTable& table);
-
-        /**
-         * @brief Copy constructor
-         * @param other Object to be copied.
-         */
-        XLTableColumnFormulaProxy(const XLTableColumnFormulaProxy& other);
-
-        /**
-         * @brief Move constructor
-         * @param other Object to be moved.
-         */
-        XLTableColumnFormulaProxy(XLTableColumnFormulaProxy&& other) noexcept;
-
-        /**
-         * @brief Move assignment operator
-         * @param other Object to be moved
-         * @return Reference to moved-to pbject.
-         */
-        XLTableColumnFormulaProxy& operator=(XLTableColumnFormulaProxy&& other) noexcept;
+                        const std::string& attr, const XLTable& table)
+                        : XLTableColumnProxy(dataNode, attr,table) {};
 
         /**
          * @brief Set the cell to a string value.
-         * @param stringValue The value to be set.
+         * @param formula The value to be set.
          */
-        void setFormula(const std::string& stringValue);
+        void setFormula(const std::string& formula);
 
         /**
          * @brief Get a copy of the XLCellValue object for the cell.
          * @return An XLCellValue object.
          */
         std::string getFormula() const;
-
-          //---------- Private Member Variables ---------- //
-
-        std::shared_ptr<XMLNode>    m_node; /**< Pointer to corresponding XML attribute */
-        std::string                 m_attribute;
-        const XLTable&              m_table;
     }; // Class 
 
 
@@ -230,25 +318,48 @@ namespace OpenXLSX
 
         /**
          * @brief the getter setter function
-         * @return return a XLTableColumnFormulaProxy ref which could be implicitely convert to string
+         * @return return a XLTableColumnProxy ref which could be implicitely convert to string
          */
-        XLTableColumnFormulaProxy& totalsRowFormula();
+        XLTableColumnProxy& totalsRowFormula();
+
+        /**
+         * @brief the getter setter function
+         * @return return a XLTableColumnProxy ref which could be implicitely convert to string
+         */
+        const XLTableColumnProxy& totalsRowFormula() const;
+
+         /**
+         * @brief clear the total row function of this columns and trigger the sheet update
+         */
+        void clearTotalsRowFormula();
+
+        /**
+         * @brief the getter setter function
+         * @return return a XLTableColumnProxy ref which could be implicitely convert to string
+         */
+        XLTableColumnFormulaProxy& columnFormula();
 
         /**
          * @brief the getter setter function
          * @return return a XLTableColumnFormulaProxy ref which could be implicitely convert to string
          */
-        const XLTableColumnFormulaProxy& totalsRowFormula() const;
+        const XLTableColumnFormulaProxy& columnFormula() const;
 
          /**
          * @brief clear the total row function of this columns and trigger the sheet update
          */
-        void clearTotalsRowFunction();
+        void clearColumnFormula();
+        
+        /**
+         * @brief get the body range of the cell
+         * @return an XLCellReference of the body range of the column
+         */
+        XLCellRange bodyRange() const;
 
     private:
         std::shared_ptr<XMLNode>    m_dataNode;
         const XLTable&              m_table;
-        XLTableColumnFormulaProxy   m_proxyTotal;
+        XLTableColumnTotalProxy     m_proxyTotal;
         XLTableColumnFormulaProxy   m_proxyColumn;
 
     };

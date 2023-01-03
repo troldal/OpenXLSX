@@ -75,15 +75,22 @@ int main() {
     // Also show the total with selected function
     tbl.autofilter().hideArrows();
     //tbl.setHeaderVisible(false);
+
+    // Total formulas
     tbl.setTotalVisible(true);
     //tbl.column("Table")->setTotalsRowFunction("sum");
     //tbl.column("Table").setTotalsRowFunction("");
     //tbl.column("Table").setTotalsRowFunction("count");
     tbl.column("Table").totalsRowFormula() ="sum";
-    std::string totaFormula = tbl.column("Table").totalsRowFormula();
+    string totaFormula = tbl.column("Table").totalsRowFormula();
     cout << "total Formula in the table column : " << totaFormula << endl;
 
     tbl.column("Table").totalsRowFormula() ="";
+
+    // Columns formulas
+    tbl.column("With").columnFormula() = "MyTable[[#This Row],['#]]*2";
+    string columFormula =  tbl.column("With").columnFormula();
+    cout << "Column Formula : " << columFormula << endl;
 
     cout << "Table Style : " << tbl.tableStyle().style() << endl;
     tbl.tableStyle().setStyle("TableStyleDark7"); 

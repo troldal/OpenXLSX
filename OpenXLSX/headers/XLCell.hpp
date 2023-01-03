@@ -193,7 +193,7 @@ namespace OpenXLSX
         static bool isEqual(const XLCell& lhs, const XLCell& rhs);
 
         //---------- Private Member Variables ---------- //
-        std::unique_ptr<XMLNode> m_cellNode;      /**< A pointer to the root XMLNode for the cell. */
+        std::shared_ptr<XMLNode> m_cellNode;      /**< A pointer to the root XMLNode for the cell. */
         const XLWorksheet*       m_worksheet;
         XLCellValueProxy         m_valueProxy;    /**< */
         XLFormulaProxy           m_formulaProxy; /**< */

@@ -119,7 +119,7 @@ std::string XLCellValue::typeAsString() const
  * @pre The cell and cellNode pointers must not be nullptr and must point to valid objects.
  * @post A valid XLCellValueProxy has been created.
  */
-XLCellValueProxy::XLCellValueProxy(XLCell* cell, XMLNode* cellNode) : m_cell(cell), m_cellNode(cellNode)
+XLCellValueProxy::XLCellValueProxy(XLCell* cell, std::shared_ptr<XMLNode> cellNode) : m_cell(cell), m_cellNode(cellNode)
 {
     assert(cell);                  // NOLINT
 //    assert(cellNode);              // NOLINT

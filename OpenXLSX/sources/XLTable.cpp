@@ -267,12 +267,24 @@ void XLTable::setName(const std::string& tableName)
 }
 
 
-void XLTable::setFormulas(const std::string& attribute) const
+void XLTable::setColumnFormulas() const
 {
-    if (attribute=="totalsRowFunction")
-        setTotalFormulas();
-    else if (attribute=="calculatedColumnFormula")
-        throw "to be implemented";
+    // TO be implemented
+    uint32_t firstRow = m_dataBodyRange.rangeCoordinates().first.row();
+    uint16_t firstCol = m_dataBodyRange.rangeCoordinates().first.column();
+
+    for (auto& col: m_columns){
+        std::string colFormula = col.columnFormula();
+        if (colFormula.empty())  // if there is nothing, remove formula keep values
+            for (auto cell: col.bodyRange()){
+                auto test = cell.cellReference();
+                cell.formula().clear();
+
+            }      
+        else
+            for (auto cell: col.bodyRange())
+                cell.formula() = colFormula;
+    }
     
 }
 

@@ -57,7 +57,7 @@ using namespace OpenXLSX;
 XLTableColumn::XLTableColumn(const XMLNode& dataNode, const XLTable& table): 
             m_dataNode(std::make_shared<XMLNode>(dataNode)),
             m_table(table),
-            m_proxyTotal(XLTableColumnFormulaProxy(dataNode,"totalsRowFunction", table)),
+            m_proxyTotal(XLTableColumnTotalProxy(dataNode,"totalsRowFunction", table)),
             m_proxyColumn(XLTableColumnFormulaProxy(dataNode,"calculatedColumnFormula", table))
 {
     // TODO implement <totalsRowLabel>
@@ -87,7 +87,7 @@ XLTableColumn::XLTableColumn(const XMLNode& dataNode, const XLTable& table):
 XLTableColumn::XLTableColumn(const XLTableColumn& other)
         : m_dataNode(other.m_dataNode ? std::make_shared<XMLNode>(*other.m_dataNode) : nullptr),
          m_table(other.m_table),
-         m_proxyTotal(XLTableColumnFormulaProxy((*other.m_dataNode),"totalsRowFunction", other.m_table)),
+         m_proxyTotal(XLTableColumnTotalProxy((*other.m_dataNode),"totalsRowFunction", other.m_table)),
          m_proxyColumn(XLTableColumnFormulaProxy((*other.m_dataNode),"calculatedColumnFormula", other.m_table))
 {}
 
@@ -131,24 +131,55 @@ void XLTableColumn::setName(const std::string& columnName) const
     // TODO change the formulas in the sheet
 }
 
-void XLTableColumn::clearTotalsRowFunction()
+XLTableColumnProxy& XLTableColumn::totalsRowFormula()
+{
+    return m_proxyTotal;
+}
+
+const XLTableColumnProxy& XLTableColumn::totalsRowFormula() const
+{
+    return m_proxyTotal;
+}
+
+void XLTableColumn::clearTotalsRowFormula()
 {
     m_proxyTotal.clear();
 }
 
-XLTableColumnFormulaProxy& XLTableColumn::totalsRowFormula()
+XLTableColumnFormulaProxy& XLTableColumn::columnFormula()
 {
-    return m_proxyTotal;
+    return m_proxyColumn;
 }
 
-const XLTableColumnFormulaProxy& XLTableColumn::totalsRowFormula() const
+const XLTableColumnFormulaProxy& XLTableColumn::columnFormula() const
 {
-    return m_proxyTotal;
+    return m_proxyColumn;
+}
+
+void XLTableColumn::clearColumnFormula()
+{
+    m_proxyColumn.clear();
+}
+
+XLCellRange XLTableColumn::bodyRange() const
+{
+    uint16_t colIndex = m_table.columnIndex(name());
+    XLCellRange tableRange = m_table.dataBodyRange();
+    auto p = tableRange.rangeCoordinates();
+    uint16_t  firstCol = p.first.column();
+    XLCellReference tl = p.first;
+    XLCellReference br = p.second;
+
+    tl.setColumn(firstCol + colIndex);
+    br.setColumn(firstCol + colIndex);
+
+    tableRange.setRangeCoordinates(tl, br);
+    return tableRange;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 //
-//                  XLTableColumnFormulaProxy
+//                  XLTableColumnProxy
 //
 /////////////////////////////////////////////////////////////////////////////////////////
 
@@ -158,7 +189,7 @@ const XLTableColumnFormulaProxy& XLTableColumn::totalsRowFormula() const
  * @pre The attr pointer must not be nullptr and must point to valid objects.
  * @post A valid XLCellValueProxy has been created.
  */
-XLTableColumnFormulaProxy::XLTableColumnFormulaProxy(const XMLNode& node, const std::string& attr, const XLTable& table ) 
+XLTableColumnProxy::XLTableColumnProxy(const XMLNode& node, const std::string& attr, const XLTable& table ) 
                         : m_node(std::make_shared<XMLNode>(node)), 
                           m_attribute(attr),
                           m_table(table)
@@ -171,14 +202,14 @@ XLTableColumnFormulaProxy::XLTableColumnFormulaProxy(const XMLNode& node, const 
  * @pre
  * @post
  */
-XLTableColumnFormulaProxy::~XLTableColumnFormulaProxy() = default;
+XLTableColumnProxy::~XLTableColumnProxy() = default;
 
 /**
  * @details Copy constructor. Default implementation has been used.
  * @pre
  * @post
  */
-XLTableColumnFormulaProxy::XLTableColumnFormulaProxy(const XLTableColumnFormulaProxy& other)
+XLTableColumnProxy::XLTableColumnProxy(const XLTableColumnProxy& other)
                 : m_node(other.m_node ? std::make_shared<XMLNode>(*other.m_node) : nullptr),
                   m_attribute(other.m_attribute),
                   m_table(other.m_table)
@@ -189,7 +220,7 @@ XLTableColumnFormulaProxy::XLTableColumnFormulaProxy(const XLTableColumnFormulaP
  * @pre
  * @post
  */
-XLTableColumnFormulaProxy::XLTableColumnFormulaProxy(XLTableColumnFormulaProxy&& other) noexcept
+XLTableColumnProxy::XLTableColumnProxy(XLTableColumnProxy&& other) noexcept
                             : m_node(std::move(other.m_node)),
                               m_attribute(std::move(other.m_attribute)),
                               m_table(std::move(other.m_table))
@@ -202,19 +233,12 @@ XLTableColumnFormulaProxy::XLTableColumnFormulaProxy(XLTableColumnFormulaProxy&&
  * @pre
  * @post
  */
-XLTableColumnFormulaProxy& XLTableColumnFormulaProxy::operator=(const XLTableColumnFormulaProxy& other)
+XLTableColumnProxy& XLTableColumnProxy::operator=(const XLTableColumnProxy& other)
 {
     if (&other != this) {
         *this = other.getFormula();
     }
 
-    return *this;
-}
-
-XLTableColumnFormulaProxy& XLTableColumnFormulaProxy::operator=(const std::string& formula)
-{   
-    setFormula(formula);
-    m_table.setFormulas(m_attribute);
     return *this;
 }
 
@@ -224,7 +248,7 @@ XLTableColumnFormulaProxy& XLTableColumnFormulaProxy::operator=(const std::strin
  * @pre
  * @post
  */
-XLTableColumnFormulaProxy& XLTableColumnFormulaProxy::operator=(XLTableColumnFormulaProxy&& other) noexcept
+XLTableColumnProxy& XLTableColumnProxy::operator=(XLTableColumnProxy&& other) noexcept
 {
     if (&other != this) {
         m_node          = std::move(other.m_node);
@@ -234,14 +258,18 @@ XLTableColumnFormulaProxy& XLTableColumnFormulaProxy::operator=(XLTableColumnFor
     return *this;
 }
 
-/**
- * @details Implicitly convert the XLCellValueProxy object to a std::string.
- * @pre
- * @post
- */
-XLTableColumnFormulaProxy::operator std::string()
-{
-    return getFormula();
+
+
+/////////////////////////////////////////////////////////////////////////////////////////
+//
+//                  XLTableColumnTotalProxy
+//
+/////////////////////////////////////////////////////////////////////////////////////////
+
+XLTableColumnProxy& XLTableColumnTotalProxy::operator=(const std::string& formula)
+{   
+    setFormula(formula);
+    return *this;
 }
 
 /**
@@ -249,14 +277,13 @@ XLTableColumnFormulaProxy::operator std::string()
  * @pre The m_cellNode must not be null, and must point to a valid XML cell node object.
  * @post The cell node must be valid, but empty.
  */
-XLTableColumnFormulaProxy& XLTableColumnFormulaProxy::clear()
+void XLTableColumnTotalProxy::clear()
 {
     // ===== Check that the m_attribute is valid.
     assert(m_node);              // NOLINT
     m_node->remove_attribute(m_attribute.c_str());
     m_table.setTotalFormulas();
     
-    return *this;
 }
 
 /**
@@ -266,7 +293,7 @@ XLTableColumnFormulaProxy& XLTableColumnFormulaProxy::clear()
  * @pre The m_attribute must not be null, and must point to a valid XMLNode object.
  * @post The underlying attribute has been updated correctly, representing a string value.
  */
-void XLTableColumnFormulaProxy::setFormula(const std::string& formula)
+void XLTableColumnTotalProxy::setFormula(const std::string& formula)
 {
     // ===== Check that the m_cellNode is valid.
     assert(m_node);              // NOLINT
@@ -280,19 +307,15 @@ void XLTableColumnFormulaProxy::setFormula(const std::string& formula)
         return;
     }
 
-    if(m_attribute == "totalsRowFunction"){
-        // check if the formula is allowed otherwise quit
-        // TODO check for custom formula
-        auto it = std::find(std::begin(XLTemplate::totalsRowFunctionList), 
+    auto it = std::find(std::begin(XLTemplate::totalsRowFunctionList), 
                     std::end(XLTemplate::totalsRowFunctionList), formula);
-        if( it == std::end(XLTemplate::totalsRowFunctionList)){
-            XLLogError("The formula \"" + formula + "\" is not available for total Row function");
-            return;
-        }
+    if( it == std::end(XLTemplate::totalsRowFunctionList)){
+        XLLogError("The formula \"" + formula + "\" is not available for total Row function");
+        return;
     }
 
     m_node->attribute(m_attribute.c_str()).set_value(formula.c_str());
-
+    m_table.setTotalFormulas();
 }
 
 /**
@@ -301,13 +324,65 @@ void XLTableColumnFormulaProxy::setFormula(const std::string& formula)
  * @pre The m_cellNode must not be null, and must point to a valid XMLNode object.
  * @post No changes should be made.
  */
+std::string XLTableColumnTotalProxy::getFormula() const
+{
+    // ===== Check that the m_attribute is valid.
+    assert(m_node);              // NOLINT
+    auto node = m_node->attribute(m_attribute.c_str());
+    if (!node)
+        return std::string();
+    
+    return std::string(m_node->attribute(m_attribute.c_str()).value());
+}
+/////////////////////////////////////////////////////////////////////////////////////////
+//
+//                  XLTableColumnFormulaProxy
+//
+/////////////////////////////////////////////////////////////////////////////////////////
+
+XLTableColumnProxy& XLTableColumnFormulaProxy::operator=(const std::string& formula)
+{
+    setFormula(formula);
+    return *this;
+}
+
+void XLTableColumnFormulaProxy::clear()
+{
+    // ===== Check that the m_attribute is valid.
+    assert(m_node);              // NOLINT
+    m_node->remove_child(m_attribute.c_str());
+    m_table.setColumnFormulas();
+    
+}
+
+void XLTableColumnFormulaProxy::setFormula(const std::string& formula)
+{
+    // ===== Check that the m_cellNode is valid.
+    assert(m_node);              // NOLINT
+    auto node = m_node->child(m_attribute.c_str());
+    if (!node)
+        node = m_node->append_child(m_attribute.c_str());
+    
+     // If empty string, we remove the formula
+    if(formula.empty()){
+        clear();
+        return;
+    }
+
+    m_node->child(m_attribute.c_str()).text().set(formula.c_str());
+    m_table.setColumnFormulas();
+}
+
 std::string XLTableColumnFormulaProxy::getFormula() const
 {
     // ===== Check that the m_attribute is valid.
     assert(m_node);              // NOLINT
-    assert(m_node->attribute(m_attribute.c_str()));
+    auto node = m_node->child(m_attribute.c_str());
+    if (!node)
+        return std::string();
     
-    return std::string(m_node->attribute(m_attribute.c_str()).value());
+    return std::string(m_node->child(m_attribute.c_str()).text().get());
+
 }
 
-
+//<calculatedColumnFormula>MyTable[[#This Row],['#]]*2</calculatedColumnFormula>

@@ -483,7 +483,7 @@ namespace OpenXLSX
          * @param cell Pointer to the parent XLCell object.
          * @param cellNode Pointer to the corresponding XMLNode object.
          */
-        XLCellValueProxy(XLCell* cell, XMLNode* cellNode);
+        XLCellValueProxy(XLCell* cell, std::shared_ptr<XMLNode> cellNode);
 
         /**
          * @brief Copy constructor
@@ -543,7 +543,7 @@ namespace OpenXLSX
         //---------- Private Member Variables ---------- //
 
         XLCell*  m_cell;     /**< Pointer to the owning XLCell object. */
-        XMLNode* m_cellNode; /**< Pointer to corresponding XML cell node. */
+        std::shared_ptr<XMLNode> m_cellNode; /**< Pointer to corresponding XML cell node. */
     };
 
 }    // namespace OpenXLSX

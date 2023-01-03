@@ -55,6 +55,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <iostream>
 #include <string>
 #include <variant>
+#include <memory>
 
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
@@ -285,7 +286,7 @@ namespace OpenXLSX
          * @param cell Pointer to the associated cell object.
          * @param cellNode Pointer to the associated cell node object.
          */
-        XLFormulaProxy(XLCell* cell, XMLNode* cellNode);
+        XLFormulaProxy(XLCell* cell, std::shared_ptr<XMLNode> cellNode);
 
         /**
          * @brief Copy constructor.
@@ -321,7 +322,7 @@ namespace OpenXLSX
 
         //---------- Private Member Variables ---------- //
         XLCell*  m_cell;     /**< Pointer to the owning XLCell object. */
-        XMLNode* m_cellNode; /**< Pointer to corresponding XML cell node. */
+        std::shared_ptr<XMLNode> m_cellNode; /**< Pointer to corresponding XML cell node. */
     };
 }    // namespace OpenXLSX
 

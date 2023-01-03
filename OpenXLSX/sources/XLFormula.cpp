@@ -68,7 +68,7 @@ XLFormula::operator std::string() const
 /**
  * @details Constructor. Set the m_cell and m_cellNode objects.
  */
-XLFormulaProxy::XLFormulaProxy(XLCell* cell, XMLNode* cellNode) : m_cell(cell), m_cellNode(cellNode)
+XLFormulaProxy::XLFormulaProxy(XLCell* cell, std::shared_ptr<XMLNode> cellNode) : m_cell(cell), m_cellNode(cellNode)
 {
     assert(cell); // NOLINT
 }

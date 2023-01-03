@@ -60,8 +60,8 @@ using namespace OpenXLSX;
 XLCell::XLCell()
     : m_cellNode(nullptr),
       m_worksheet(nullptr),
-      m_valueProxy(XLCellValueProxy(this, m_cellNode.get())),
-      m_formulaProxy(XLFormulaProxy(this, m_cellNode.get()))
+      m_valueProxy(XLCellValueProxy(this, m_cellNode)),
+      m_formulaProxy(XLFormulaProxy(this, m_cellNode))
 {}
 
 /**
@@ -71,20 +71,20 @@ XLCell::XLCell()
  * from a XLCellReference parameter.
  */
 XLCell::XLCell(const XMLNode& cellNode, const XLWorksheet* wks)
-    : m_cellNode(std::make_unique<XMLNode>(cellNode)),
+    : m_cellNode(std::make_shared<XMLNode>(cellNode)),
       m_worksheet(wks),
-      m_valueProxy(XLCellValueProxy(this, m_cellNode.get())),
-      m_formulaProxy(XLFormulaProxy(this, m_cellNode.get()))
+      m_valueProxy(XLCellValueProxy(this, m_cellNode)),
+      m_formulaProxy(XLFormulaProxy(this, m_cellNode))
 {}
 
 /**
  * @details
  */
 XLCell::XLCell(const XLCell& other)
-    : m_cellNode(other.m_cellNode ? std::make_unique<XMLNode>(*other.m_cellNode) : nullptr),
+    : m_cellNode(other.m_cellNode ? std::make_shared<XMLNode>(*other.m_cellNode) : nullptr),
       m_worksheet(other.m_worksheet),
-      m_valueProxy(XLCellValueProxy(this, m_cellNode.get())),
-      m_formulaProxy(XLFormulaProxy(this, m_cellNode.get()))
+      m_valueProxy(XLCellValueProxy(this, m_cellNode)),
+      m_formulaProxy(XLFormulaProxy(this, m_cellNode))
 {}
 
 /**
@@ -93,8 +93,8 @@ XLCell::XLCell(const XLCell& other)
 XLCell::XLCell(XLCell&& other) noexcept
     : m_cellNode(std::move(other.m_cellNode)),
       m_worksheet(other.m_worksheet),
-      m_valueProxy(XLCellValueProxy(this, m_cellNode.get())),
-      m_formulaProxy(XLFormulaProxy(this, m_cellNode.get()))
+      m_valueProxy(XLCellValueProxy(this, m_cellNode)),
+      m_formulaProxy(XLFormulaProxy(this, m_cellNode))
 {}
 
 /**
@@ -123,7 +123,7 @@ XLCell& XLCell::operator=(XLCell&& other) noexcept
     if (&other != this) {
         m_cellNode      = std::move(other.m_cellNode);
         m_worksheet     = other.m_worksheet;
-        m_valueProxy    = XLCellValueProxy(this, m_cellNode.get());
+        m_valueProxy    = XLCellValueProxy(this, m_cellNode);
     }
 
     return *this;
