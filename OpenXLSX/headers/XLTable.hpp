@@ -68,6 +68,7 @@ namespace OpenXLSX
         friend class XLTableColumn;
         friend class XLTableColumnTotalProxy;
         friend class XLTableColumnFormulaProxy;
+        friend class XLTableColumnTotalLabelProxy;
         friend class XLTableStyle;
 
     public:
@@ -224,6 +225,12 @@ namespace OpenXLSX
          * the formulas is based on the attribute totalsRowFunction of each col
          */
         void setTotalFormulas() const;
+
+         /**
+         * @brief set theLabels in the worksheet for the all the total row
+         * the formulas is based on the attribute totalsRowLabel of each col
+         */
+        void setTotalLabels() const;
 
         /**
          * @brief Adjust the ref according to m_dataBodyRange

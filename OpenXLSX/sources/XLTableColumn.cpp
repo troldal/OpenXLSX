@@ -58,7 +58,8 @@ XLTableColumn::XLTableColumn(const XMLNode& dataNode, const XLTable& table):
             m_dataNode(std::make_shared<XMLNode>(dataNode)),
             m_table(table),
             m_proxyTotal(XLTableColumnTotalProxy(dataNode,"totalsRowFunction", table)),
-            m_proxyColumn(XLTableColumnFormulaProxy(dataNode,"calculatedColumnFormula", table))
+            m_proxyColumn(XLTableColumnFormulaProxy(dataNode,"calculatedColumnFormula", table)),
+            m_proxyLabel(XLTableColumnTotalLabelProxy(dataNode,"totalsRowLabel", table))
 {
     // TODO implement <totalsRowLabel>
     // TODO implement <totalsRowFormula> == custom function
@@ -88,14 +89,16 @@ XLTableColumn::XLTableColumn(const XLTableColumn& other)
         : m_dataNode(other.m_dataNode ? std::make_shared<XMLNode>(*other.m_dataNode) : nullptr),
          m_table(other.m_table),
          m_proxyTotal(XLTableColumnTotalProxy((*other.m_dataNode),"totalsRowFunction", other.m_table)),
-         m_proxyColumn(XLTableColumnFormulaProxy((*other.m_dataNode),"calculatedColumnFormula", other.m_table))
+         m_proxyColumn(XLTableColumnFormulaProxy((*other.m_dataNode),"calculatedColumnFormula", other.m_table)),
+         m_proxyLabel(XLTableColumnTotalLabelProxy(*other.m_dataNode,"totalsRowLabel", other.m_table))
 {}
 
 XLTableColumn::XLTableColumn(XLTableColumn&& other) noexcept
         : m_dataNode(std::move(other.m_dataNode)),
           m_table(other.m_table),
           m_proxyTotal(std::move(other.m_proxyTotal)),
-          m_proxyColumn( std::move(other.m_proxyColumn))
+          m_proxyColumn( std::move(other.m_proxyColumn)),
+          m_proxyLabel( std::move(other.m_proxyLabel))
 {}
 
 
@@ -159,6 +162,21 @@ const XLTableColumnFormulaProxy& XLTableColumn::columnFormula() const
 void XLTableColumn::clearColumnFormula()
 {
     m_proxyColumn.clear();
+}
+
+XLTableColumnProxy& XLTableColumn::totalsRowLabel()
+{
+    return m_proxyLabel;
+}
+
+const XLTableColumnProxy& XLTableColumn::totalsRowLabel() const
+{
+    return m_proxyLabel;
+}
+
+void XLTableColumn::clearTotalsRowLabel()
+{
+    m_proxyLabel.clear();
 }
 
 XLCellRange XLTableColumn::bodyRange() const
@@ -385,4 +403,70 @@ std::string XLTableColumnFormulaProxy::getFormula() const
 
 }
 
-//<calculatedColumnFormula>MyTable[[#This Row],['#]]*2</calculatedColumnFormula>
+/////////////////////////////////////////////////////////////////////////////////////////
+//
+//                  XLTableColumnTotalLabelProxy
+//
+/////////////////////////////////////////////////////////////////////////////////////////
+
+XLTableColumnProxy& XLTableColumnTotalLabelProxy::operator=(const std::string& formula)
+{   
+    setFormula(formula);
+    return *this;
+}
+
+/**
+ * @details Clear the contents of the cell. This removes all children of the cell node.
+ * @pre The m_cellNode must not be null, and must point to a valid XML cell node object.
+ * @post The cell node must be valid, but empty.
+ */
+void XLTableColumnTotalLabelProxy::clear()
+{
+    // ===== Check that the m_attribute is valid.
+    assert(m_node);              // NOLINT
+    m_node->remove_attribute(m_attribute.c_str());
+    m_table.setTotalLabels();
+    
+}
+
+/**
+ * @details Set the the formula in the corresponding attribute.
+ *  This is private helper function for setting the attr 
+ * directly in the underlying XML file.
+ * @pre The m_attribute must not be null, and must point to a valid XMLNode object.
+ * @post The underlying attribute has been updated correctly, representing a string value.
+ */
+void XLTableColumnTotalLabelProxy::setFormula(const std::string& formula)
+{
+    // ===== Check that the m_cellNode is valid.
+    assert(m_node);              // NOLINT
+    auto node = m_node->attribute(m_attribute.c_str());
+    if (!node)
+        node = m_node->append_attribute(m_attribute.c_str());
+    
+     // If empty string, we remove the formula
+    if(formula.empty()){
+        clear();
+        return;
+    }
+
+    m_node->attribute(m_attribute.c_str()).set_value(formula.c_str());
+    m_table.setTotalLabels();
+}
+
+/**
+ * @details Get a copy of the XLCellValue object for the cell. This is private helper function for returning an
+ * XLCellValue object corresponding to the cell value.
+ * @pre The m_cellNode must not be null, and must point to a valid XMLNode object.
+ * @post No changes should be made.
+ */
+std::string XLTableColumnTotalLabelProxy::getFormula() const
+{
+    // ===== Check that the m_attribute is valid.
+    assert(m_node);              // NOLINT
+    auto node = m_node->attribute(m_attribute.c_str());
+    if (!node)
+        return std::string();
+    
+    return std::string(m_node->attribute(m_attribute.c_str()).value());
+}

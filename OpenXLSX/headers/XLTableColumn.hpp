@@ -265,6 +265,51 @@ namespace OpenXLSX
         std::string getFormula() const;
     }; // Class 
 
+    class OPENXLSX_EXPORT XLTableColumnTotalLabelProxy : public XLTableColumnProxy
+    {
+        friend class XLTableColumn;
+
+    public:
+        //---------- Public Member Functions ----------//
+
+        /**
+         * @brief Destructor
+         */
+        ~XLTableColumnTotalLabelProxy()= default;
+
+        /**
+         * @brief Templated assignment operator
+         * @param formula The formula to be set
+         * @return A reference to the current object.
+         */      
+        XLTableColumnProxy& operator=(const std::string& formula);
+
+        void clear();
+
+    private:
+        //---------- Private Member Functions ---------- //
+
+        /**
+         * @brief Constructor
+         * @param attr Pointer to the corresponding XML attribute object.
+         */
+        XLTableColumnTotalLabelProxy(const XMLNode& dataNode, 
+                        const std::string& attr, const XLTable& table)
+                        : XLTableColumnProxy(dataNode, attr,table) {};
+
+        /**
+         * @brief Set the cell to a string value.
+         * @param formula The value to be set.
+         */
+        void setFormula(const std::string& formula);
+
+        /**
+         * @brief Get a copy of the XLCellValue object for the cell.
+         * @return An XLCellValue object.
+         */
+        std::string getFormula() const;
+    }; // Class 
+
 
     class OPENXLSX_EXPORT XLTableColumn
     {
@@ -349,6 +394,23 @@ namespace OpenXLSX
          * @brief clear the total row function of this columns and trigger the sheet update
          */
         void clearColumnFormula();
+
+         /**
+         * @brief the getter setter function
+         * @return return a XLTableColumnProxy ref which could be implicitely convert to string
+         */
+        XLTableColumnProxy& totalsRowLabel();
+
+        /**
+         * @brief the getter setter function
+         * @return return a XLTableColumnProxy ref which could be implicitely convert to string
+         */
+        const XLTableColumnProxy& totalsRowLabel() const;
+
+         /**
+         * @brief clear the total row function of this columns and trigger the sheet update
+         */
+        void clearTotalsRowLabel();
         
         /**
          * @brief get the body range of the cell
@@ -361,6 +423,7 @@ namespace OpenXLSX
         const XLTable&              m_table;
         XLTableColumnTotalProxy     m_proxyTotal;
         XLTableColumnFormulaProxy   m_proxyColumn;
+        XLTableColumnTotalLabelProxy m_proxyLabel;
 
     };
 

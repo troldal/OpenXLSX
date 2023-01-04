@@ -72,7 +72,7 @@ int main() {
         j++;
     }
 
-    // loop could also be done on colums
+    // loop could also be done on columns
     for(auto& col : tbl.columns())
         for (auto& cell : col.bodyRange())
             cout << cell.value() << " - ";
@@ -91,9 +91,15 @@ int main() {
     string totaFormula = tbl.column("Table").totalsRowFormula();
     cout << "total Formula in the table column : " << totaFormula << endl;
 
+     tbl.column("#").totalsRowLabel() ="Demo Total";
+    string totaLabel = tbl.column("#").totalsRowLabel();
+    cout << "total Label in the table column : " << totaLabel << endl;
+
     // To clear, a empty string could be sent, or the method 
     // clearTotalsRowFormula could be called
     tbl.column("Table").totalsRowFormula() ="";
+
+    tbl.setTotalVisible(false);
 
     // Columns formulas could be setup, check and cleared, using either
     // empty string or calling clearColumnFormula

@@ -197,6 +197,7 @@ void XLTable::setHeaderVisible(bool visible)
         // TODO remove autofilter
     }
     adjustRef();
+
 }
 
 
@@ -211,14 +212,18 @@ void XLTable::setTotalVisible(bool visible)
         node.set_value("1");
 
         setTotalFormulas();
+
     } else { // removing the attribute if not visible
         m_pXmlData->getXmlDocument()->child("table").remove_attribute("totalsRowCount");
         auto node = m_pXmlData->getXmlDocument()->child("table").attribute("totalsRowShown");
         if (!node)
             node = m_pXmlData->getXmlDocument()->child("table").append_attribute("totalsRowShown");
         node.set_value("0");
+        //TODO check if required to clear the worksheet when hiding total row
     }
 
+    setTotalFormulas();
+    setTotalLabels();
     adjustRef();
     
 }
@@ -284,17 +289,22 @@ void XLTable::setColumnFormulas() const
 
 void XLTable::setTotalFormulas() const
 {
-    if (!isTotalVisible())
-        return;
-    
     uint32_t totalRow = m_dataBodyRange.rangeCoordinates().second.row() + 1;
     uint16_t totalCol = m_dataBodyRange.rangeCoordinates().first.column();
-
+    
+    // Hide everything if the total is hidded
+    if (!isTotalVisible()){
+        for (auto& col: m_columns){
+            m_sheet.cell(totalRow, totalCol).formula().clear();
+            totalCol += 1;
+        }
+        return;
+    }
+    
     for (auto& col: m_columns){
         std::string colFunc = col.totalsRowFormula();
         if (colFunc.empty()){  // if there is nothing, remove formula and values
-            m_sheet.cell(totalRow, totalCol).formula().clear();
-            m_sheet.cell(totalRow, totalCol).value().clear(); 
+            m_sheet.cell(totalRow, totalCol).formula().clear(); 
         }
         else
         {
@@ -315,7 +325,6 @@ void XLTable::setTotalFormulas() const
                      m_sheet.cell(totalRow, totalCol).formula() = sheetFunction;
                 } else {// remove the formula if function is none 
                     m_sheet.cell(totalRow, totalCol).formula().clear();
-                    m_sheet.cell(totalRow, totalCol).value().clear(); 
                 }
                
             }
@@ -324,6 +333,34 @@ void XLTable::setTotalFormulas() const
     }
     
 }
+
+void XLTable::setTotalLabels() const
+{
+    uint32_t totalRow = m_dataBodyRange.rangeCoordinates().second.row() + 1;
+    uint16_t totalCol = m_dataBodyRange.rangeCoordinates().first.column();
+    
+    // Hide everything if the total is hidded
+    if (!isTotalVisible()){
+        for (auto& col: m_columns){
+            m_sheet.cell(totalRow, totalCol).value().clear();
+            totalCol += 1;
+        }
+        return;
+    }
+
+    for (auto& col: m_columns){
+        std::string colLabel = col.totalsRowLabel();
+        if (colLabel.empty()){  // if there is nothing, remove values
+            m_sheet.cell(totalRow, totalCol).value().clear(); 
+        }
+        else
+            m_sheet.cell(totalRow, totalCol).value() = colLabel;
+
+        totalCol += 1;
+    }
+    
+}
+
 
 void XLTable::adjustRef()
 {
