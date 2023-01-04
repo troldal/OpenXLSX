@@ -210,13 +210,27 @@ namespace OpenXLSX
          */
         void setName(const std::string& tableName);
 
+        /**
+         * @brief Insert a new column before index position
+         * @param columnName name of the new column, will be incremented if already exists
+         * @param index index of insertion 
+         */
+        XLTableColumn& insertColumn(const std::string& columnName, uint16_t index = 0);
+
+        /**
+         * @brief Append a new column at right side of the table
+         * @param columnName name of the new column, will be incremented if already exists
+         */
+        XLTableColumn& appendColumn(const std::string& columnName);
+
     //----------------------------------------------------------------------------------------------------------------------
     //           Protected
     //----------------------------------------------------------------------------------------------------------------------  
     protected:
+
         /**
          * @brief set the formulas in the worksheet for all the columns
-         * @param attribute of the forumla to be set
+         * formulas are read directly in the table.xml file
          */
         void setColumnFormulas() const;
         
@@ -233,6 +247,23 @@ namespace OpenXLSX
         void setTotalLabels() const;
 
         /**
+         * @brief set the headers in the worksheet for all the columns
+         * headers name are read directly in the table.xml file
+         */
+        void setHeaderLabels() const;
+    
+    //----------------------------------------------------------------------------------------------------------------------
+    //           Private Methods
+    //----------------------------------------------------------------------------------------------------------------------
+    private:
+
+        /**
+         * @brief Load the columns in the vector member variable
+         * using the table.xml file
+         */
+        void updateColumns();
+
+       /**
          * @brief Adjust the ref according to m_dataBodyRange
          * and the state of visibility of headers and total
          */

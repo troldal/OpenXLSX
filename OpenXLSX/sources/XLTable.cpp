@@ -77,12 +77,8 @@ XLTable::XLTable(XLXmlData* xmlData)
     
     m_dataBodyRange.setRangeCoordinates(topLeft, bottomRight);
 
-
     // ===== Deal with the columns
-    XMLNode pTblColumns =  m_pXmlData->getXmlDocument()->child("table").child("tableColumns");
-
-    for (const XMLNode& col : pTblColumns.children())
-        m_columns.push_back(XLTableColumn(col, *this));
+    updateColumns();
 
 }
 
@@ -193,11 +189,13 @@ void XLTable::setHeaderVisible(bool visible)
         auto node = m_pXmlData->getXmlDocument()->child("table").attribute("headerRowCount");
         if (!node)
             node = m_pXmlData->getXmlDocument()->child("table").append_attribute("headerRowCount");
-        node.set_value("0");
-        // TODO remove autofilter
+        node.set_value("0"); 
     }
-    adjustRef();
 
+    // TODO remove autofilter
+
+    setHeaderLabels();
+    adjustRef();
 }
 
 
@@ -210,8 +208,6 @@ void XLTable::setTotalVisible(bool visible)
         if (!node)
             node = m_pXmlData->getXmlDocument()->child("table").append_attribute("totalsRowCount");
         node.set_value("1");
-
-        setTotalFormulas();
 
     } else { // removing the attribute if not visible
         m_pXmlData->getXmlDocument()->child("table").remove_attribute("totalsRowCount");
@@ -261,11 +257,97 @@ void XLTable::setName(const std::string& tableName)
   XMLNode tableNode = m_pXmlData->getXmlDocument()->child("table");
   tableNode.attribute("name").set_value(tableName.c_str());
   tableNode.attribute("displayName").set_value(tableName.c_str());
-
   // TODO change the formulas  in table.xml
   // TODO change the formulas in the sheet
 
+}
 
+ XLTableColumn& XLTable::insertColumn(const std::string& columnName, uint16_t index)
+ {
+    
+    // If index is not continuous, the column is appended at the last
+    if (index > m_columns.size())
+        index = m_columns.size();
+
+    // Increment the name of the column if required
+    std::string colName = columnName;
+    bool notValid = true;
+    while (notValid){
+        if (std::find_if(m_columns.begin(), m_columns.end(), 
+                    [&colName](const XLTableColumn& i){ return i.name() == colName; }) != m_columns.end())
+            colName += INCREMENT_STRING;
+        else
+            notValid = false;
+    }
+
+    // Copy the content of the bodyrange of the column, anr re index tablecolumn in table.xml
+    for (uint16_t i = m_columns.size() - 1; i >= index; --i) {
+        auto& tblCol = m_columns[i];
+        
+        // Change the index in table.xml
+        tblCol.setIndex(i+2); // 1 based index
+
+        // Copy column n in n+1 in the sheet
+        XLCellRange src = tblCol.bodyRange();
+        XLCellRange dest = src;
+        dest.offset(0,1);
+        for(uint32_t j = 0; j < src.numRows(); j++){
+            dest[j].value() = src[j].value();
+            if ( src[j].hasFormula())
+                dest[j].formula() = src[j].formula();
+            else
+                dest[j].formula().clear();
+        }
+    }
+
+    // add new entry in table.xml
+    auto nextNode = m_pXmlData->getXmlDocument()->document_element()
+                    .child("tableColumns").find_child_by_attribute("id",std::to_string(index+2).c_str());
+    
+    XMLNode newNode;
+    if(nextNode)
+        newNode = m_pXmlData->getXmlDocument()->document_element()
+                    .child("tableColumns").insert_child_before("tableColumn", nextNode);
+    else
+        newNode = m_pXmlData->getXmlDocument()->document_element()
+                    .child("tableColumns").append_child("tableColumn");
+
+    
+    newNode.append_attribute("id").set_value(std::to_string(index + 1).c_str());
+    newNode.append_attribute("name").set_value(colName.c_str());
+
+    // Update the range coordinates
+    auto p = m_dataBodyRange.rangeCoordinates();
+    m_dataBodyRange.setRangeCoordinates(p.first, p.second.offset(0,1));
+ 
+
+    updateColumns();    // Update the member variable
+
+    setHeaderLabels();  // relocate the labels
+    setTotalLabels();   // relocate the formulas
+    setTotalLabels();   // reolcate the lables
+    adjustRef();        // update the ref
+
+    //Clear the content of the new column
+    for(auto& cell : m_columns[index].bodyRange())
+        cell.value().clear();
+    
+    return m_columns[index];
+ }
+
+XLTableColumn& XLTable::appendColumn(const std::string& columnName)
+{
+    return insertColumn(columnName, m_columns.size());
+}
+
+void XLTable::updateColumns()
+{
+    m_columns.clear();
+
+    XMLNode pTblColumns =  m_pXmlData->getXmlDocument()->child("table").child("tableColumns");
+
+    for (const XMLNode& col : pTblColumns.children())
+        m_columns.push_back(XLTableColumn(col, *this));
 }
 
 
@@ -281,8 +363,10 @@ void XLTable::setColumnFormulas() const
             for (auto& cell: col.bodyRange())
                 cell.formula().clear();  
         else
-            for (auto& cell: col.bodyRange())
+            for (auto& cell: col.bodyRange()){
                 cell.formula() = colFormula;
+                cell.value().clear();
+            }
     }
     
 }
@@ -361,6 +445,29 @@ void XLTable::setTotalLabels() const
     
 }
 
+void XLTable::setHeaderLabels() const
+{
+    uint32_t headerRow = m_dataBodyRange.rangeCoordinates().first.row() - 1;
+    uint16_t headerCol = m_dataBodyRange.rangeCoordinates().first.column();
+    
+    // Hide everything if the total is hidded
+    if (!isHeaderVisible()){
+        for (auto& col: m_columns){
+            m_sheet.cell(headerRow, headerCol).value().clear();
+            headerCol += 1;
+        }
+        return;
+    }
+
+    for (auto& col: m_columns){
+        auto test = col.name();
+        m_sheet.cell(headerRow, headerCol).value() = col.name();
+
+        headerCol += 1;
+    }
+    
+}
+
 
 void XLTable::adjustRef()
 {
@@ -381,4 +488,6 @@ void XLTable::adjustRef()
 
     m_pXmlData->getXmlDocument()->child("table")
                     .attribute("ref").set_value(ref.c_str());
+
+    // TODO adjust autofilter Move this elsewhere
 }

@@ -68,6 +68,8 @@ int main() {
     for(const auto& row : tbl.tableRows()){
         row[tbl.columnIndex("#")].value() = j;
         row[1].value() = "Data" + to_string(j);
+        row[2].value() = "Col" + to_string(j);
+        row[3].value() = 4 * j;
         row[tbl.columnIndex("Table")].value() = (float)j * 2.0f / 3.0f;
         j++;
     }
@@ -91,14 +93,13 @@ int main() {
     string totaFormula = tbl.column("Table").totalsRowFormula();
     cout << "total Formula in the table column : " << totaFormula << endl;
 
-     tbl.column("#").totalsRowLabel() ="Demo Total";
+    tbl.column("#").totalsRowLabel() ="Demo Total";
     string totaLabel = tbl.column("#").totalsRowLabel();
     cout << "total Label in the table column : " << totaLabel << endl;
 
     // To clear, a empty string could be sent, or the method 
     // clearTotalsRowFormula could be called
     tbl.column("Table").totalsRowFormula() ="";
-
     tbl.setTotalVisible(false);
 
     // Columns formulas could be setup, check and cleared, using either
@@ -108,6 +109,17 @@ int main() {
     cout << "Column Formula : " << columFormula << endl;
 
 
+    //Inserting columns
+    auto& newCol = tbl.insertColumn("newCol",2);
+    newCol.columnFormula() = "MyTable[[#This Row],['#]]+2";
+    cout << "Inserted Column : " << newCol.name() << endl;
+
+    auto& appendCol = tbl.appendColumn("newCol"); // test the auto increment
+    appendCol.columnFormula() = "MyTable[[#This Row],['#]]+MyTable[[#This Row],[newCol]]";
+    cout << "Append Column : " << newCol.name() << endl;
+
+
+/*
     // Table style basics
     cout << "Table Style : " << tbl.tableStyle().style() << endl;
     tbl.tableStyle().setStyle("TableStyleDark7"); 
@@ -123,7 +135,7 @@ int main() {
 
     tbl.tableStyle().showFirstColumnHighlighted(true);
     tbl.tableStyle().showLastColumnHighlighted(true);
-
+*/
     doc.save();
     doc.close();
 

@@ -313,6 +313,8 @@ namespace OpenXLSX
 
     class OPENXLSX_EXPORT XLTableColumn
     {
+        friend class XLTable;
+
     public:
         /**
          * @brief The constructor. 
@@ -350,13 +352,13 @@ namespace OpenXLSX
 
 
         /**
-         * @brief 
+         * @brief the name of the column (header)
          * @return the column name
          */
         std::string name() const;
 
         /**
-         * @brief 
+         * @brief set the name of the column (header)
          * @param name set the column name
          */
         void setName(const std::string& name) const;
@@ -417,6 +419,19 @@ namespace OpenXLSX
          * @return an XLCellReference of the body range of the column
          */
         XLCellRange bodyRange() const;
+    
+    protected:
+       /**
+         * @brief get the index of the column, from table xml file
+         * @return the corresponding index
+         */
+        uint16_t index() const;
+
+        /**
+         * @brief set the index of the column, in the table xml file
+         * @param index corresponding index
+         */
+        void setIndex(uint16_t index);
 
     private:
         std::shared_ptr<XMLNode>    m_dataNode;

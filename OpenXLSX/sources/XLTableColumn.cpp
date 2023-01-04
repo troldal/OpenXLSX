@@ -195,6 +195,16 @@ XLCellRange XLTableColumn::bodyRange() const
     return tableRange;
 }
 
+uint16_t XLTableColumn::index() const
+{
+    return std::stoi(std::string(m_dataNode->attribute("id").value()));
+}
+
+void XLTableColumn::setIndex(uint16_t index)
+{
+    m_dataNode->attribute("id").set_value(std::to_string(index).c_str());
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////
 //
 //                  XLTableColumnProxy
