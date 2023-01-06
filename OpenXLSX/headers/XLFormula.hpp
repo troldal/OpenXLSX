@@ -109,6 +109,8 @@ namespace OpenXLSX
                 m_formulaString = std::string(formula);
             else
                 m_formulaString = formula.c_str();
+            
+            checkIfError();
         }
 
         /**
@@ -171,6 +173,7 @@ namespace OpenXLSX
         void set(T formula)
         {
             *this = formula;
+            checkIfError();
         }
 
         /**
@@ -191,8 +194,23 @@ namespace OpenXLSX
          */
         XLFormula& clear();
 
+        /**
+         * @brief update the formula considering that the expression
+         * passed as argument is about to be cancelled
+         * @param toBeDeleted expression that will be replaced by "#REF!"
+         * @return Return a reference to the cleared object, which is unchanged if
+         * it does not contain the param
+         */
+        XLFormula updateDeleting(const std::string& toBeDeleted);
+
+        bool hasError() const;
+    
+    private:
+        void checkIfError();
+
     private:
         std::string m_formulaString; /**< A std::string, holding the formula string.*/
+        bool m_isError {false};
     };
 
     /**
@@ -267,6 +285,17 @@ namespace OpenXLSX
          * @return Return a reference to the cleared object.
          */
         XLFormulaProxy& clear();
+
+        /**
+         * @brief update the formula considering that the expression
+         * passed as argument is about to be cancelled
+         * @param toBeDeleted expression that will be replaced by "#REF!"
+         * @return Return a reference to the cleared object, which is unchanged if
+         * it does not contain the param
+         */
+        XLFormula updateDeleting(const std::string& toBeDeleted);
+
+        bool hasError() const;
 
         /**
          * @brief Conversion operator, for converting the object to a std::string.

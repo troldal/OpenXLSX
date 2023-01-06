@@ -2,11 +2,13 @@
 // Created by Kenneth Balslev on 27/08/2021.
 //
 
+// ===== External Includes ===== //
+#include <regex>
+#include <cassert>
+
 // ===== OpenXLSX Includes ===== //
 #include "XLFormula.hpp"
 #include <pugixml.hpp>
-
-#include <cassert>
 
 using namespace OpenXLSX;
 
@@ -54,7 +56,49 @@ std::string XLFormula::get() const
 XLFormula& XLFormula::clear()
 {
     m_formulaString = "";
+    m_isError = false;
     return *this;
+}
+
+/**
+ * @details use a regex to replace the variable to be deleted by #REF!
+ */
+XLFormula XLFormula::updateDeleting(const std::string& toBeDeleted)
+{
+    
+    //std::string s = toBeDeleted + R"aka((?=([^"]*"[^"]*")*[^"]*$))aka";
+    // Regex that will find all the occurence of toBeDeleted excepted inside quote
+    // TODO deal with nested quotes 
+    const std::regex re(toBeDeleted + R"&((?=([^"]*"[^"]*")*[^"]*$))&");
+
+    std::string newFormula = std::regex_replace(m_formulaString, re, "#REF!");
+
+    if(m_formulaString == newFormula)
+        m_isError = false;
+    else
+        m_isError = true;
+
+    m_formulaString = newFormula;
+
+    return *this;
+}
+
+bool XLFormula::hasError() const
+{
+    return m_isError;
+}
+
+void XLFormula::checkIfError()
+{
+    //Check if Formula has error
+    // TODO deal with nested quotes
+    const std::regex re(R"&(#REF!(?=([^"]*"[^"]*")*[^"]*$))&");
+
+    std::smatch m; // unused
+
+    if (std::regex_search(m_formulaString, m, re))
+        m_isError = true;
+
 }
 
 /**
@@ -141,6 +185,19 @@ XLFormulaProxy& XLFormulaProxy::clear()
     // ===== Remove the value node.
     if (m_cellNode->child("f")) m_cellNode->remove_child("f");
     return *this;
+}
+
+/**
+ * @details Set the m_formulaString member to an empty string.
+ */
+XLFormula XLFormulaProxy::updateDeleting(const std::string& toBeDeleted)
+{ 
+    return getFormula().updateDeleting(toBeDeleted);
+}
+
+bool XLFormulaProxy::hasError() const
+{
+     return getFormula().hasError();
 }
 
 /**

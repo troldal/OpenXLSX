@@ -34,6 +34,7 @@ int main() {
     wks.cell("F2").value() = "Table";
 
     XLTable myTable = doc.workbook().addTable(sheetName,"MyTable","B2:F18");
+    //XLTable myTable = doc.workbook().addTable(sheetName,"MyTable","B2:F4");
 
     // Save the sheet...
     cout << "Saving spreadsheet ..." << endl;
@@ -115,9 +116,11 @@ int main() {
     cout << "Inserted Column : " << newCol.name() << endl;
 
     auto& appendCol = tbl.appendColumn("newCol"); // test the auto increment
-    appendCol.columnFormula() = "MyTable[[#This Row],['#]]+MyTable[[#This Row],[newCol]]";
+    appendCol.columnFormula() = "MyTable[[#This Row],[One]]&amp;\"akira\"&amp;MyTable[[#This Row],[newCol]]";
     cout << "Append Column : " << newCol.name() << endl;
 
+    // Deleting colum
+    tbl.deleteColumn("newCol");
 
 /*
     // Table style basics

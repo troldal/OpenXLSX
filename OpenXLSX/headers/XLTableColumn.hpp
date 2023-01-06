@@ -433,6 +433,12 @@ namespace OpenXLSX
          */
         void setIndex(uint16_t index);
 
+          /**
+         * @brief check if the formula contain the field about to be deleted
+         * @param toBeDeleted field about to be deleted
+         * The field is found excluding inside quote. If found the formula is deleted
+         */
+        void formulaUpdateDeleting(const std::string& toBeDeleted);
     private:
         std::shared_ptr<XMLNode>    m_dataNode;
         const XLTable&              m_table;

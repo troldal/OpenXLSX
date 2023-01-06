@@ -102,11 +102,18 @@ namespace OpenXLSX
         std::vector<std::string> columnNames() const;
 
         /**
-         * @brief
+         * @brief get column index from name
          * @param name  the name of the requested column index
          * @return The index of the column
          */
         uint16_t columnIndex(const std::string& name) const;
+
+        /**
+         * @brief get column name from index
+         * @param index of the requested column
+         * @return the name of the column
+         */
+        const std::string columnName(uint16_t index) const;
 
          /**
          * @brief
@@ -223,6 +230,12 @@ namespace OpenXLSX
          */
         XLTableColumn& appendColumn(const std::string& columnName);
 
+        /**
+         * @brief delete the column 
+         * @param columnName of the column to be deleted
+         */
+        void deleteColumn(const std::string& columnName );
+
     //----------------------------------------------------------------------------------------------------------------------
     //           Protected
     //----------------------------------------------------------------------------------------------------------------------  
@@ -259,11 +272,11 @@ namespace OpenXLSX
 
         /**
          * @brief Load the columns in the vector member variable
-         * using the table.xml file
+         * using the table.xml file. Update the count in the xml file
          */
         void updateColumns();
 
-       /**
+        /**
          * @brief Adjust the ref according to m_dataBodyRange
          * and the state of visibility of headers and total
          */

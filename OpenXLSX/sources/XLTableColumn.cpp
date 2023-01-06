@@ -47,6 +47,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <algorithm>
 #include <pugixml.hpp>
 #include <vector>
+#include <regex>
 
 // ===== OpenXLSX Includes ===== //
 #include "XLTableColumn.hpp"
@@ -203,6 +204,21 @@ uint16_t XLTableColumn::index() const
 void XLTableColumn::setIndex(uint16_t index)
 {
     m_dataNode->attribute("id").set_value(std::to_string(index).c_str());
+}
+
+void  XLTableColumn::formulaUpdateDeleting(const std::string& toBeDeleted)
+{
+    std::string formula = columnFormula();
+    
+    if(formula.empty())
+        return;
+    // Regex that will find all the occurence of toBeDeleted excepted inside quote
+    // TODO deal with nested quotes 
+    const std::regex re(toBeDeleted + R"&((?=([^"]*"[^"]*")*[^"]*$))&");
+    std::smatch m; // unused
+    
+    if (std::regex_search(formula, m, re))
+        m_dataNode->remove_child("calculatedColumnFormula");
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

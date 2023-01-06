@@ -117,6 +117,13 @@ uint16_t XLTable::columnIndex(const std::string& name) const
     return (uint16_t)(-1);
 }
 
+const std::string XLTable::columnName(uint16_t index) const
+{
+    if(index > m_columns.size() - 1)
+        return std::string();
+    
+    return m_columns.at(index).name();
+}
 
 XLTableColumn& XLTable::column(const std::string& name)
 {
@@ -266,8 +273,13 @@ void XLTable::setName(const std::string& tableName)
  {
     
     // If index is not continuous, the column is appended at the last
-    if (index > m_columns.size())
+    if (index > m_columns.size()){
+        XLLogError("Index " + std::to_string(index)
+                    + " is out of column range, column will be appeneded considering "
+                    + std::to_string(m_columns.size()));
         index = m_columns.size();
+    }
+       
 
     // Increment the name of the column if required
     std::string colName = columnName;
@@ -312,7 +324,7 @@ void XLTable::setName(const std::string& tableName)
         newNode = m_pXmlData->getXmlDocument()->document_element()
                     .child("tableColumns").append_child("tableColumn");
 
-    
+    // Add attributes to the new node
     newNode.append_attribute("id").set_value(std::to_string(index + 1).c_str());
     newNode.append_attribute("name").set_value(colName.c_str());
 
@@ -320,7 +332,6 @@ void XLTable::setName(const std::string& tableName)
     auto p = m_dataBodyRange.rangeCoordinates();
     m_dataBodyRange.setRangeCoordinates(p.first, p.second.offset(0,1));
  
-
     updateColumns();    // Update the member variable
 
     setHeaderLabels();  // relocate the labels
@@ -330,7 +341,10 @@ void XLTable::setName(const std::string& tableName)
 
     //Clear the content of the new column
     for(auto& cell : m_columns[index].bodyRange())
+    {
         cell.value().clear();
+        cell.formula().clear();
+    }
     
     return m_columns[index];
  }
@@ -340,14 +354,93 @@ XLTableColumn& XLTable::appendColumn(const std::string& columnName)
     return insertColumn(columnName, m_columns.size());
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
+void XLTable::deleteColumn(const std::string& columnName)
+{
+    uint16_t index = columnIndex(columnName);
+    
+    // If index is not in the line don't do anything
+    if (index > m_columns.size() - 1){
+        XLLogError("Index " + std::to_string(index) 
+                            + " is out of column range, no column wil be deleted");
+        return;
+    }
+
+    // Copy the content of the bodyrange of the column, and re index tablecolumn in table.xml
+    for (uint16_t i = index; i < m_columns.size(); ++i) {
+        auto& tblCol = m_columns[i];
+        
+        // Change the index in table.xml
+        tblCol.setIndex(i); // 1 based index
+        tblCol.formulaUpdateDeleting(columnName);
+        
+        if (i != m_columns.size() -1){
+            // Copy column n+1 in n in the sheet
+            XLCellRange dest = tblCol.bodyRange();
+            XLCellRange src = dest;
+            src.offset(0,1);
+            for(uint32_t j = 0; j < src.numRows(); j++){
+                dest[j].value() = src[j].value();
+                if ( src[j].hasFormula()) {
+                    dest[j].formula() = src[j].formula().updateDeleting(columnName);
+                    if (dest[j].formula().hasError()){
+                        dest[j].formula().clear(); // shall be cleared for table formulas
+                        dest[j].value() = "#REF!";
+                    }
+                }
+                else
+                    dest[j].formula().clear();
+            }
+        } // If avoid de copy the column just outside the table
+    }
+
+    // Delete the entry in table.xml
+    auto delNode = m_pXmlData->getXmlDocument()->document_element()
+                    .child("tableColumns").find_child_by_attribute("name",columnName.c_str());
+    m_pXmlData->getXmlDocument()->document_element()
+                    .child("tableColumns").remove_child(delNode);
+    
+     // Update the range coordinates
+    auto p = m_dataBodyRange.rangeCoordinates();
+    m_dataBodyRange.setRangeCoordinates(p.first, p.second.offset(0,-1));
+ 
+    updateColumns();    // Update the member variable
+
+    setHeaderLabels();  // relocate the labels
+    setTotalLabels();   // relocate the formulas
+    setTotalLabels();   // reolcate the lables
+    adjustRef();        // update the ref
+
+    //Clear the content of the last column, including header and total if required
+    XLCellRange lastCol = m_columns[ m_columns.size()-1].bodyRange();
+    p = lastCol.rangeCoordinates();
+    int t = 0, b = 0;
+    if (isHeaderVisible())
+        t = -1;
+    if (isTotalVisible())
+        b = 1;
+    lastCol.setRangeCoordinates(p.first.offset(t,1),p.second.offset(b,1));
+    for(auto& cell : lastCol)
+    { 
+        cell.value().clear();
+        cell.formula().clear();
+    }
+}
+
 void XLTable::updateColumns()
 {
     m_columns.clear();
 
-    XMLNode pTblColumns =  m_pXmlData->getXmlDocument()->child("table").child("tableColumns");
+    XMLNode tblColumns =  m_pXmlData->getXmlDocument()->child("table").child("tableColumns");
 
-    for (const XMLNode& col : pTblColumns.children())
+    for (const XMLNode& col : tblColumns.children())
         m_columns.push_back(XLTableColumn(col, *this));
+    
+    if (!tblColumns.attribute("count"))
+        tblColumns.append_attribute("count");
+    
+    tblColumns.attribute("count").set_value(std::to_string(m_columns.size()).c_str());
 }
 
 
