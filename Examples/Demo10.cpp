@@ -122,10 +122,12 @@ int main() {
     // Deleting colum
     tbl.deleteColumn("newCol");
 
-
-     //Inserting  and deleting rows
+    //Inserting  and deleting rows
     auto newRow = tbl.insertRow(2);
     tbl.deleteRow(3);
+
+    tbl.setHeaderVisible(false);
+    tbl.setHeaderVisible(true);
 
 /*
     // Table style basics

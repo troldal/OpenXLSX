@@ -192,11 +192,13 @@ void XLTable::setHeaderVisible(bool visible)
 {
     if(visible){ // removing the attribute if visible
         m_pXmlData->getXmlDocument()->child("table").remove_attribute("headerRowCount");
+        setupAutofilter();
     } else {
         auto node = m_pXmlData->getXmlDocument()->child("table").attribute("headerRowCount");
         if (!node)
             node = m_pXmlData->getXmlDocument()->child("table").append_attribute("headerRowCount");
-        node.set_value("0"); 
+        node.set_value("0");
+        removeAutofilter();
     }
 
     // TODO remove autofilter
@@ -233,8 +235,37 @@ void XLTable::setTotalVisible(bool visible)
 
 XLAutofilter XLTable::autofilter()
 {
+    
     // TODO implement auto filter and adjust header masking accordingly
-    return XLAutofilter(m_pXmlData->getXmlDocument()->child("table").child("autoFilter"),m_pXmlData);
+    if(isHeaderVisible())
+        setupAutofilter();
+    else
+        setHeaderVisible(true);
+
+    return XLAutofilter(m_pXmlData->getXmlDocument()->child("table").child("autoFilter"),
+                        m_pXmlData);
+}
+
+void XLTable::setupAutofilter()
+{
+    XMLNode node = m_pXmlData->getXmlDocument()->child("table").child("autoFilter");
+    if (!node)
+        node = m_pXmlData->getXmlDocument()->child("table")
+                            .insert_child_before("autoFilter", 
+                            m_pXmlData->getXmlDocument()->child("table").first_child());
+    
+    if(!node.attribute("ref"))
+        node.append_attribute("ref");
+
+    auto p = m_dataBodyRange.rangeCoordinates();
+
+    node.attribute("ref").set_value(std::string(p.first.address() 
+                                    + ":" + p.second.address() ).c_str());
+}
+
+void XLTable::removeAutofilter()
+{
+    m_pXmlData->getXmlDocument()->child("table").remove_child("autoFilter");
 }
 
 XLTableStyle XLTable::tableStyle()
@@ -340,6 +371,7 @@ void XLTable::setName(const std::string& tableName)
     setTotalFormulas();   // relocate the formulas
     setTotalLabels();   // reolcate the lables
     adjustRef();        // update the ref
+    setupAutofilter();  // update the ref
 
     //Clear the content of the new column
     for(auto& cell : m_columns[index].bodyRange())
@@ -414,6 +446,7 @@ void XLTable::deleteColumn(const std::string& columnName)
         
     setTotalLabels();   // reolcate the lables
     adjustRef();        // update the ref
+    setupAutofilter();  // update the ref
 
     //Clear the content of the last column, including header and total if required
     XLCellRange lastCol = m_columns[ m_columns.size()-1].bodyRange();
@@ -470,6 +503,7 @@ void XLTable::deleteColumn(const std::string& columnName)
     setTotalFormulas(); // relocate the formulas
     setTotalLabels();   // reolcate the lables
     adjustRef();        // update the ref
+    setupAutofilter();  // update the ref
 
     //Clear the content of the new column 
     // but keep the column formula if any
@@ -532,6 +566,7 @@ void XLTable::deleteRow(uint32_t index )
     setTotalFormulas();   // relocate the formulas
     setTotalLabels();   // reolcate the lables
     adjustRef();        // update the ref
+    setupAutofilter();  // update the ref
 
 }
 //////////////////////////////////////////////////////////////////////

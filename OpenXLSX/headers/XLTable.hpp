@@ -183,16 +183,23 @@ namespace OpenXLSX
         void setHeaderVisible(bool visible = true);
 
         /**
-         * @brief
+         * @brief Manage display of the Total Row
          * @param visible
          */
         void setTotalVisible(bool visible = true);
 
         /**
-         * @brief
+         * @brief create the autofilter
          * @return the autofilter object
+         * @note it will turn on visible the headers if required
          */
         XLAutofilter autofilter();
+
+         /**
+         * @brief remove the autofilter
+         * @note it is called automatically when removing headers
+         */
+        void removeAutofilter();
 
         /**
          * @brief return the table style obect
@@ -308,6 +315,12 @@ namespace OpenXLSX
          * and the state of visibility of headers and total
          */
         void adjustRef();
+
+        /**
+         * @brief create the XML entry for the autofilter and setup its ref
+         * 
+         */
+        void setupAutofilter();
 
     //----------------------------------------------------------------------------------------------------------------------
     //           Private Member Variables
