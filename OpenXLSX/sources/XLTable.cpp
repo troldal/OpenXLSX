@@ -292,7 +292,7 @@ void XLTable::setName(const std::string& tableName)
             notValid = false;
     }
 
-    // Copy the content of the bodyrange of the column, anr re index tablecolumn in table.xml
+    // Copy the content of the bodyrange of the column, and re index tablecolumn in table.xml
     for (uint16_t i = m_columns.size() - 1; i >= index; --i) {
         auto& tblCol = m_columns[i];
         
@@ -304,11 +304,13 @@ void XLTable::setName(const std::string& tableName)
         XLCellRange dest = src;
         dest.offset(0,1);
         for(uint32_t j = 0; j < src.numRows(); j++){
-            dest[j].value() = src[j].value();
-            if ( src[j].hasFormula())
+            if ( src[j].hasFormula()){
                 dest[j].formula() = src[j].formula();
-            else
-                dest[j].formula().clear();
+                dest[j].value().clear();
+            } else {
+                dest[j].value() = src[j].value();
+                dest[j].formula().clear();    
+            }
         }
     }
 
@@ -335,7 +337,7 @@ void XLTable::setName(const std::string& tableName)
     updateColumns();    // Update the member variable
 
     setHeaderLabels();  // relocate the labels
-    setTotalLabels();   // relocate the formulas
+    setTotalFormulas();   // relocate the formulas
     setTotalLabels();   // reolcate the lables
     adjustRef();        // update the ref
 
@@ -354,8 +356,6 @@ XLTableColumn& XLTable::appendColumn(const std::string& columnName)
     return insertColumn(columnName, m_columns.size());
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////
 void XLTable::deleteColumn(const std::string& columnName)
 {
     uint16_t index = columnIndex(columnName);
@@ -373,24 +373,25 @@ void XLTable::deleteColumn(const std::string& columnName)
         
         // Change the index in table.xml
         tblCol.setIndex(i); // 1 based index
-        tblCol.formulaUpdateDeleting(columnName);
-        
+        tblCol.formulaUpdateDeleting(columnName); 
+
         if (i != m_columns.size() -1){
             // Copy column n+1 in n in the sheet
             XLCellRange dest = tblCol.bodyRange();
             XLCellRange src = dest;
             src.offset(0,1);
             for(uint32_t j = 0; j < src.numRows(); j++){
-                dest[j].value() = src[j].value();
                 if ( src[j].hasFormula()) {
                     dest[j].formula() = src[j].formula().updateDeleting(columnName);
                     if (dest[j].formula().hasError()){
                         dest[j].formula().clear(); // shall be cleared for table formulas
                         dest[j].value() = "#REF!";
-                    }
-                }
-                else
+                    } else
+                      dest[j].value().clear();  
+                } else {
                     dest[j].formula().clear();
+                    dest[j].value() = src[j].value();
+                }
             }
         } // If avoid de copy the column just outside the table
     }
@@ -408,7 +409,9 @@ void XLTable::deleteColumn(const std::string& columnName)
     updateColumns();    // Update the member variable
 
     setHeaderLabels();  // relocate the labels
-    setTotalLabels();   // relocate the formulas
+    setTotalFormulas(); // relocate the formulas 
+    // TODO erase total value if any issue with the formula 
+        
     setTotalLabels();   // reolcate the lables
     adjustRef();        // update the ref
 
@@ -427,6 +430,111 @@ void XLTable::deleteColumn(const std::string& columnName)
         cell.formula().clear();
     }
 }
+
+
+ XLCellRange XLTable::insertRow(uint16_t index)
+ {
+    // If index is not continuous, the column is appended at the last
+    if (index > rowsCount()){
+        XLLogError("Index " + std::to_string(index)
+                    + " is out of row range, row will be appeneded considering "
+                    + std::to_string(rowsCount()));
+        index = rowsCount();
+    }
+
+    // Copy the content of the bodyrange of the row, index -1 to force one loop
+    // in case of appending
+    XLTableRows rows = tableRows();
+    for (uint16_t i = rowsCount() - 1; i >= index - 1; --i) {
+
+        // Copy column n in n+1 in the sheet
+        XLCellRange src = rows[i];
+        XLCellRange dest = src;
+        dest.offset(1,0);
+        for(uint32_t j = 0; j < src.numColumns(); j++){
+            if ( src[j].hasFormula()){
+                dest[j].formula() = src[j].formula();
+                dest[j].value().clear(); // shall be cleared for table formulas
+            } else {
+                dest[j].value() = src[j].value();
+                dest[j].formula().clear();
+            }
+        }
+    }
+
+    // Update the range coordinates
+    auto p = m_dataBodyRange.rangeCoordinates();
+    m_dataBodyRange.setRangeCoordinates(p.first, p.second.offset(1,0));
+ 
+    setHeaderLabels();  // relocate the labels
+    setTotalFormulas(); // relocate the formulas
+    setTotalLabels();   // reolcate the lables
+    adjustRef();        // update the ref
+
+    //Clear the content of the new column 
+    // but keep the column formula if any
+    rows = tableRows();
+    for(auto& cell : rows[index])
+    {
+        cell.value().clear();
+    }
+    
+    return rows[index];      
+ }
+
+XLCellRange XLTable::appendRow()
+{
+     return insertRow( rowsCount() );
+}
+
+void XLTable::deleteRow(uint32_t index )
+{
+    // If index is not continuous, the column is appended at the last
+    if (index > rowsCount()){
+        XLLogError("Index " + std::to_string(index)
+                    + " is out of row range, no row will be deleted "
+                    + std::to_string(rowsCount()));
+        return;
+    }
+
+    // Copy the content of the bodyrange of the row
+    XLTableRows rows = tableRows();
+    for (uint16_t i = index; i < rowsCount() - 2; ++i) {
+
+        // Copy column n+1 in n in the sheet
+        XLCellRange dest = rows[i]; // 1 based index
+        XLCellRange src = dest;
+        src.offset(1,0);
+        for(uint32_t j = 0; j < src.numRows(); j++){
+            if ( src[j].hasFormula()){
+                dest[j].formula() = src[j].formula();
+                dest[j].value().clear(); // shall be cleared for table formulas
+            } else {
+                dest[j].value() = src[j].value();
+                dest[j].formula().clear();
+            }
+        }
+    }
+
+    //Clear the last row as it will be outside the table
+    for(auto& cell : rows[rowsCount()-1])
+    { 
+        cell.value().clear();
+        cell.formula().clear();
+    }
+
+
+    // Update the range coordinates
+    auto p = m_dataBodyRange.rangeCoordinates();
+    m_dataBodyRange.setRangeCoordinates(p.first, p.second.offset(-1,0));
+ 
+    setHeaderLabels();  // relocate the labels
+    setTotalFormulas();   // relocate the formulas
+    setTotalLabels();   // reolcate the lables
+    adjustRef();        // update the ref
+
+}
+//////////////////////////////////////////////////////////////////////
 
 void XLTable::updateColumns()
 {

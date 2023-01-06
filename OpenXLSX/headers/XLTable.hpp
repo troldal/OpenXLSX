@@ -164,14 +164,14 @@ namespace OpenXLSX
 
 
         /**
-         * @brief
+         * @brief check if the header row is displayed
          * @return true if header is visible
          */
         bool isHeaderVisible() const;
         
 
         /**
-         * @brief
+         * @brief check if the total row is displayed
          * @return true if total row is visible
          */
         bool isTotalVisible() const; 
@@ -221,20 +221,47 @@ namespace OpenXLSX
          * @brief Insert a new column before index position
          * @param columnName name of the new column, will be incremented if already exists
          * @param index index of insertion 
+         * @note the column at the right side of the table are not shifted
          */
         XLTableColumn& insertColumn(const std::string& columnName, uint16_t index = 0);
 
         /**
          * @brief Append a new column at right side of the table
          * @param columnName name of the new column, will be incremented if already exists
+         * @note the column at the right side of the table are not shifted
          */
         XLTableColumn& appendColumn(const std::string& columnName);
 
         /**
          * @brief delete the column 
          * @param columnName of the column to be deleted
+         * @note the column at the right side of the table are not shifted
          */
         void deleteColumn(const std::string& columnName );
+
+        /**
+         * @brief Insert a new row before index position
+         * @param index index of insertion 
+         * @note existing cell info may be deleted if there is a column formula
+         * The data below the table are not shifted down
+         */
+        XLCellRange insertRow(uint16_t index = 0);
+
+        /**
+         * @brief Append a new row at the bottom side of the table
+         * @return a XLCellRange of the appened row
+         * @note existing cell info may be deleted if there is a column formula
+         * The data below the table are not shifted down
+         */
+        XLCellRange appendRow();
+
+        /**
+         * @brief delete a row. Although the Excel behavior, only the row
+         * is impacted, the row belows are not lifted up 
+         * @param index of the row to be deleted
+         * @note the data below the table are not shifted
+         */
+        void deleteRow(uint32_t index );
 
     //----------------------------------------------------------------------------------------------------------------------
     //           Protected

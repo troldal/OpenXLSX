@@ -122,6 +122,11 @@ int main() {
     // Deleting colum
     tbl.deleteColumn("newCol");
 
+
+     //Inserting  and deleting rows
+    auto newRow = tbl.insertRow(2);
+    tbl.deleteRow(3);
+
 /*
     // Table style basics
     cout << "Table Style : " << tbl.tableStyle().style() << endl;

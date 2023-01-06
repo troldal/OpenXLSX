@@ -184,6 +184,8 @@ namespace OpenXLSX
          * @brief offset the whole range if possible
          * @param row integer could be negative
          * @param col integer could be negative, default 0
+         * @note this method does not move any data on the worksheet,
+         * It will only affect the range considered by the XLCellRange object
          */
         void offset(int row, int col = 0);
         
