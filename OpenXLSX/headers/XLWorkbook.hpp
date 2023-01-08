@@ -146,42 +146,42 @@ namespace OpenXLSX
          * @return A pointer to an XLAbstractSheet with the sheet at the index.
          * @note The index must be 1-based (rather than 0-based) as this is the default for Excel spreadsheets.
          */
-        XLSheet sheet(uint16_t index);
+        XLSheet sheet(uint16_t index) const;
 
         /**
          * @brief Get the sheet (worksheet or chartsheet) with the given name.
          * @param sheetName The name at which the desired sheet is located.
          * @return A pointer to an XLAbstractSheet with the sheet at the index.
          */
-        XLSheet sheet(const std::string& sheetName);
+        XLSheet sheet(const std::string& sheetName) const;
 
         /**
          * @brief Get the table with the given name.
          * @param tableName The name at which the desired sheet is located.
          * @return The table.
          */
-        XLTable table(const std::string& tableName);
+        XLTable table(const std::string& tableName) const;
 
         /**
          * @brief
          * @param rangeName
          * @return A XLDefinedName object which is derived from XLCellRange
          */
-        XLNamedRange namedRange(const std::string& rangeName);
+        XLNamedRange namedRange(const std::string& rangeName) const;
 
         /**
          * @brief
          * @param sheetName
          * @return
          */
-        XLWorksheet worksheet(const std::string& sheetName);
+        XLWorksheet worksheet(const std::string& sheetName) const;
 
         /**
          * @brief
          * @param sheetName
          * @return
          */
-        XLChartsheet chartsheet(const std::string& sheetName);
+        XLChartsheet chartsheet(const std::string& sheetName) const;
 
         /**
          * @brief Delete sheet (worksheet or chartsheet) from the workbook.

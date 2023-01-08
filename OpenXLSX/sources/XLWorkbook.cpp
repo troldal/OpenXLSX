@@ -88,9 +88,8 @@ XLWorkbook::~XLWorkbook() = default;
 /**
  * @details
  */
-XLSheet XLWorkbook::sheet(const std::string& sheetName)
+XLSheet XLWorkbook::sheet(const std::string& sheetName) const
 {
-
     XLQuery xmlQuery(XLQueryType::QuerySheetFromName);
     xmlQuery.setParam("sheetName", sheetName);
     return XLSheet(parentDoc().execQuery(xmlQuery).result<XLXmlData*>());
@@ -100,7 +99,7 @@ XLSheet XLWorkbook::sheet(const std::string& sheetName)
  * @details Create a vector with sheet nodes, retrieve the node at the requested index, get sheet name and return the
  * corresponding sheet object.
  */
-XLSheet XLWorkbook::sheet(uint16_t index)
+XLSheet XLWorkbook::sheet(uint16_t index) const
 {
     if (index < 1 || index > sheetCount()) throw XLInputError("Sheet index is out of bounds");
     return sheet(
@@ -110,12 +109,12 @@ XLSheet XLWorkbook::sheet(uint16_t index)
 /**
  * @details
  */
-XLWorksheet XLWorkbook::worksheet(const std::string& sheetName)
+XLWorksheet XLWorkbook::worksheet(const std::string& sheetName) const
 {
     return sheet(sheetName).get<XLWorksheet>();
 }
 
-XLTable XLWorkbook::table(const std::string& tableName)
+XLTable XLWorkbook::table(const std::string& tableName) const
 {
     // Throw an exception if table not exist
     XLQuery xmlQuery(XLQueryType::QueryTableFromName);
@@ -126,7 +125,7 @@ XLTable XLWorkbook::table(const std::string& tableName)
     return XLTable(tableItem);
 }
 
-XLNamedRange XLWorkbook::namedRange(const std::string& rangeName)
+XLNamedRange XLWorkbook::namedRange(const std::string& rangeName) const
 {
     auto ElmtNode = xmlDocument().document_element().child("definedNames").find_child_by_attribute("name", rangeName.c_str());
     
@@ -162,7 +161,7 @@ XLNamedRange XLWorkbook::namedRange(const std::string& rangeName)
 /**
  * @details
  */
-XLChartsheet XLWorkbook::chartsheet(const std::string& sheetName)
+XLChartsheet XLWorkbook::chartsheet(const std::string& sheetName) const
 {
     return sheet(sheetName).get<XLChartsheet>();
 }
