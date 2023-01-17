@@ -194,7 +194,7 @@ namespace OpenXLSX
          * @brief
          * @param color
          */
-        void setColor(const XLColor& color)
+        void setTabColor(const XLColor& color)
         {
             static_cast<T&>(*this).setColor_impl(color);
         }
@@ -649,7 +649,7 @@ namespace OpenXLSX
          * @brief
          * @param color
          */
-        void setColor(const XLColor& color);
+        void setTabColor(const XLColor& color);
 
         /**
          * @brief Method for getting the index of the sheet.

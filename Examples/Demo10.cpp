@@ -129,10 +129,7 @@ int main() {
     tbl.setHeaderVisible(false);
     tbl.setHeaderVisible(true);
 
-
-    auto test = doc.workbook().tableNames();
     
-    doc.workbook().deleteTable("MyTable");
 
 /*
     // Table style basics
@@ -151,6 +148,10 @@ int main() {
     tbl.tableStyle().showFirstColumnHighlighted(true);
     tbl.tableStyle().showLastColumnHighlighted(true);
 */
+
+    auto tablelist = doc.workbook().tableNames();
+    doc.workbook().deleteTable("MyTable");
+
     doc.save();
     doc.close();
 

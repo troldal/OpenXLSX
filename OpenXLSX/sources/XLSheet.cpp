@@ -66,7 +66,7 @@ namespace OpenXLSX
      * @param xmlDocument XMLDocument object
      * @param color Thr color to set
      */
-    void setTabColor(const XMLDocument& xmlDocument, const XLColor& color) {
+    void setTabColorOnDoc(const XMLDocument& xmlDocument, const XLColor& color) {
 
         if (!xmlDocument.document_element().child("sheetPr")) xmlDocument.document_element().prepend_child("sheetPr");
 
@@ -165,9 +165,9 @@ XLColor XLSheet::color() const
 * @details This method sets the color of the sheet, by calling the setColor()
 * member function of the underlying sheet object (XLWorksheet or XLChartsheet).
  */
-void XLSheet::setColor(const XLColor& color)
+void XLSheet::setTabColor(const XLColor& color)
 {
-    std::visit([&](auto&& arg) { return arg.setColor(color); }, m_sheet);
+    std::visit([&](auto&& arg) { return arg.setTabColor(color); }, m_sheet);
 }
 
 /**
@@ -283,7 +283,7 @@ XLColor XLWorksheet::getColor_impl() const
  */
 void XLWorksheet::setColor_impl(const XLColor& color)
 {
-    setTabColor(xmlDocument(), color);
+    setTabColorOnDoc(xmlDocument(), color);
 }
 
 /**
@@ -612,7 +612,7 @@ XLColor XLChartsheet::getColor_impl() const
  */
 void XLChartsheet::setColor_impl(const XLColor& color)
 {
-    setTabColor(xmlDocument(), color);
+    setTabColorOnDoc(xmlDocument(), color);
 }
 
 /**
