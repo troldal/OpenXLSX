@@ -389,7 +389,9 @@ std::string XLWorkbook::sheetVisibility(const std::string& sheetID) const
 /**
  * @details
  */
-void XLWorkbook::prepareSheetMetadata(const std::string& sheetName, uint16_t internalID)
+void XLWorkbook::prepareSheetMetadata(const std::string& sheetName, 
+                                        uint16_t internalID,
+                                        uint16_t sheetID)
 {
     // ===== Add new child node to the "sheets" node.
     auto node = sheetsNode(xmlDocument()).append_child("sheet");
@@ -397,7 +399,7 @@ void XLWorkbook::prepareSheetMetadata(const std::string& sheetName, uint16_t int
     // ===== append the required attributes to the newly created sheet node.
     std::string sheetPath            = "/xl/worksheets/sheet" + std::to_string(internalID) + ".xml";
     node.append_attribute("name")    = sheetName.c_str();
-    node.append_attribute("sheetId") = std::to_string(internalID).c_str();
+    node.append_attribute("sheetId") = std::to_string(sheetID).c_str();
 
     XLQuery query(XLQueryType::QuerySheetRelsID);
     query.setParam("sheetPath", sheetPath);

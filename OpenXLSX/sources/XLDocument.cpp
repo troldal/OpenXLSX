@@ -512,6 +512,7 @@ void XLDocument::execCommand(const XLCommand& command) {
         case XLCommandType::AddWorksheet:
             {
                 auto internalID = availableFileID(XLContentType::Worksheet);
+                auto sheetID = availableSheetID();
                 std::string sheetPath = "xl/worksheets/sheet" + std::to_string(internalID) + ".xml";
                 m_contentTypes.addOverride("/" + sheetPath, XLContentType::Worksheet);
                 m_wbkRelationships.addRelationship(XLRelationshipType::Worksheet, sheetPath.substr(3));
@@ -525,7 +526,7 @@ void XLDocument::execCommand(const XLCommand& command) {
                     /* xmlType   */ XLContentType::Worksheet);
 
                 // TODO move elsewhere ?
-                m_workbook.prepareSheetMetadata(command.getParam<std::string>("sheetName"), internalID);
+                m_workbook.prepareSheetMetadata(command.getParam<std::string>("sheetName"), internalID, sheetID);
             }
             break;
         case XLCommandType::AddChartsheet:
@@ -559,6 +560,7 @@ void XLDocument::execCommand(const XLCommand& command) {
         case XLCommandType::CloneSheet:
         {
             auto internalID = availableFileID(XLContentType::Worksheet);
+            auto sheetID = availableSheetID();
             auto sheetPath  = "/xl/worksheets/sheet" + std::to_string(internalID) + ".xml";
             if (m_workbook.sheetExists(command.getParam<std::string>("cloneName")))
                 throw XLInternalError("Sheet named \"" + command.getParam<std::string>("cloneName") + "\" already exists.");
@@ -596,7 +598,7 @@ void XLDocument::execCommand(const XLCommand& command) {
                     /* xmlType   */ XLContentType::Chartsheet);
             }
 
-            m_workbook.prepareSheetMetadata(command.getParam<std::string>("cloneName"), internalID);
+            m_workbook.prepareSheetMetadata(command.getParam<std::string>("cloneName"), internalID, sheetID);
         }
             break;
     }
@@ -812,6 +814,22 @@ uint16_t XLDocument::availableFileID(XLContentType type)
             nFile +=1;
     
     return nFile;
+}
+
+uint16_t XLDocument::availableSheetID()
+{
+    std::vector<uint16_t> idIndices;
+    auto node = m_XmlWorkbook->getXmlDocument()->document_element().child("sheets");
+    for (auto& wsItem : node.children())
+        idIndices.push_back(std::stoi(wsItem.attribute("sheetId").value()));
+
+    std::sort (idIndices.begin(), idIndices.end());
+    uint16_t nId = 1;
+    for(uint32_t i : idIndices)
+        if (i == nId)
+            nId +=1;
+    
+    return nId;
 }
 
 /**

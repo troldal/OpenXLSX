@@ -408,8 +408,11 @@ namespace OpenXLSX
          * @brief
          * @param sheetName
          * @param internalID
+         * @param sheetID
          */
-        void prepareSheetMetadata(const std::string& sheetName, uint16_t internalID);
+        void prepareSheetMetadata(const std::string& sheetName,
+                                    uint16_t internalID,
+                                    uint16_t sheetID);
 
         /**
          * @brief

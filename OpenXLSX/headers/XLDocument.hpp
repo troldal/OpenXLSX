@@ -315,6 +315,14 @@ namespace OpenXLSX
         uint16_t availableFileID(XLContentType type);
 
         /**
+         * @brief determine the available id disponible for Id field
+         * @param type
+         * @return Return the available id.
+         * @note fill the gap if any
+         */
+        uint16_t availableSheetID();
+
+        /**
          * @brief create a new table in the doc
          * @param sheetName
          * @param tableName
