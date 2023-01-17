@@ -129,6 +129,11 @@ int main() {
     tbl.setHeaderVisible(false);
     tbl.setHeaderVisible(true);
 
+
+    auto test = doc.workbook().tableNames();
+    
+    doc.workbook().deleteTable("MyTable");
+
 /*
     // Table style basics
     cout << "Table Style : " << tbl.tableStyle().style() << endl;

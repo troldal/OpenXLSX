@@ -179,7 +179,7 @@ XLXmlData* XLXmlData::getParentNode() const
     return m_parentNode;
 }
 
-std::vector<XLXmlData*> XLXmlData::getChildNodes() const
+std::vector<XLXmlData*>& XLXmlData::getChildNodes()
 {
     return m_childNodes;
 }

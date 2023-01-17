@@ -195,7 +195,7 @@ namespace OpenXLSX
          * @brief Retrieve the type represented by the XML data.
          * @return A XLContentType getValue representing the type.
          */
-        std::vector<XLXmlData*> getChildNodes() const;
+        std::vector<XLXmlData*>& getChildNodes();
 
         /**
          * @brief Access the underlying XMLDocument object.

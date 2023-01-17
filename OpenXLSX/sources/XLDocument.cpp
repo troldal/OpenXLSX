@@ -533,14 +533,10 @@ void XLDocument::execCommand(const XLCommand& command) {
             break;
         case XLCommandType::AddTable:
             {
-                //TODO worksheet !
                 createTable(command.getParam<std::string>("worksheet"),
                             command.getParam<std::string>("tableName"),
                             command.getParam<std::string>("reference"));
-                //get nexta available filename and next available id
-                // check that the name dont already exist
             }
-            // TODO: To be implemented
             break;
         case XLCommandType::DeleteSheet:
         {
@@ -553,6 +549,12 @@ void XLDocument::execCommand(const XLCommand& command) {
                 return item.getXmlPath() == sheetPath.substr(1);
             }));
         }
+            break;
+        case XLCommandType::DeleteTable:
+            {
+                deleteTable(command.getParam<std::string>("tableName"));
+            }
+            // TODO: To be implemented
             break;
         case XLCommandType::CloneSheet:
         {
@@ -640,7 +642,31 @@ XLQuery XLDocument::execQuery(const XLQuery& query) const
         
         case XLQueryType::QuerySheetFromName:
             return XLQuery(query).setResult(getXmlDataByName(query.getParam<std::string>("sheetName")));
-
+        
+        case XLQueryType::QueryTableCount:
+            {
+                unsigned int results = 0;
+                
+                for (auto& item : m_data){
+                    if(item.getXmlType() == XLContentType::Table)
+                        ++results;
+                }
+            
+                return XLQuery(query).setResult(results);
+            }
+        case XLQueryType::QueryTableFromIndex:
+            {
+                unsigned int index = 0; 
+                for (auto& item : m_data){
+                    if(item.getXmlType() == XLContentType::Table){
+                        if(index == query.getParam<unsigned int>("index"))
+                            return XLQuery(query).setResult(&item);
+                        ++index;
+                    }
+                }
+            
+                return query; // Table not found
+            }
         case XLQueryType::QueryTableFromName:
             {
                 for (auto& item : m_data){
@@ -928,6 +954,64 @@ void XLDocument::createTable(const std::string& sheetName, const std::string& ta
     columnsNode.attribute("count").set_value(std::to_string(colId-1).c_str());
 
     // TODEL
-    delete pWks;
+    delete pWks;   
+}
+
+void XLDocument::deleteTable(const std::string& tableName)
+{
+    XLXmlData* pTable = getXmlDataByName(tableName);
+    if(pTable == nullptr){
+        XLLogError("Table \"" + tableName + "\" does not exist, impossible to delete.");
+        return; // table doesn't exist
+    }
+    XLXmlData* pSheet = pTable->getParentNode();
+    XLXmlData* pShtRls = getXmlDataByPath(getSheetRelsPath(pSheet->getName()));
+    std::string rId = pTable->getXmlID();     
     
+    // Delete tablePart in sheet{0}.xml
+    auto& shtChildren = pSheet->getChildNodes();
+    XMLNode tableParts = pSheet->getXmlDocument()->document_element().child("tableParts");
+    if(tableParts){
+        tableParts.remove_child(
+            tableParts.find_child_by_attribute("r:id", rId.c_str()));
+
+        uint16_t n = 0; // count children
+        for (XMLNode child : tableParts.children()) n++;
+        
+        if (n>0)
+            tableParts.attribute("count")
+                .set_value(std::to_string(n).c_str());
+        else
+            pSheet->getXmlDocument()->document_element().remove_child("tableParts");
+    }
+
+    // Delete Relathionship in sheet{0}.xml.rels
+    XMLNode rels = pShtRls->getXmlDocument()->document_element();
+    if(rels){
+        rels.remove_child(
+            rels.find_child_by_attribute("Id", rId.c_str()));
+        
+        uint16_t n = 0; // count children
+        for (XMLNode child : rels.children()) n++;
+        
+        if (n == 0){
+            // No more relations, we can delete the file
+            std::string relsPath = pShtRls ->getXmlPath();
+            m_archive.deleteEntry(relsPath);
+            shtChildren.erase(std::find_if(shtChildren.begin(), shtChildren.end(), [&](XLXmlData* item) {
+                return item->getXmlPath() == relsPath;}));
+            m_data.erase(std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) {
+                return item.getXmlPath() == relsPath;}));
+        }
+    } // if rels
+
+    // Delete table{0}.xml file and its reference
+    std::string tblPath = pTable->getXmlPath();
+    m_archive.deleteEntry(tblPath);
+    m_contentTypes.deleteOverride("/" + tblPath);
+    shtChildren.erase(std::find_if(shtChildren.begin(), shtChildren.end(), [&](XLXmlData* item) {
+                return item->getName() == tableName;}));
+    m_data.erase(std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) {
+                return item.getXmlPath() == tblPath;}));
+
 }

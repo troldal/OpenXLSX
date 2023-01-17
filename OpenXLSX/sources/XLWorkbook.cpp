@@ -72,6 +72,7 @@ namespace
     {
         return doc.document_element().child("sheets");
     }
+
 }    // namespace
 
 /**
@@ -124,6 +125,15 @@ XLTable XLWorkbook::table(const std::string& tableName) const
 
     return XLTable(tableItem);
 }
+
+XLTable XLWorkbook::table(uint16_t index) const
+{
+    XLQuery query(XLQueryType::QueryTableFromIndex);
+    query.setParam("index", index);
+
+    return XLTable(parentDoc().execQuery(query).result<XLXmlData*>());
+}
+
 
 XLNamedRange XLWorkbook::namedRange(const std::string& rangeName) const
 {
@@ -195,8 +205,26 @@ void XLWorkbook::deleteSheet(const std::string& sheetName)
         });
 
     // ===== If this is the last worksheet in the workbook, throw an exception.
-    if (worksheetCount == 1 && sheetType == XLContentType::Worksheet)
-        throw XLInputError("Invalid operation. There must be at least one worksheet in the workbook.");
+    if (worksheetCount == 1 && sheetType == XLContentType::Worksheet){
+        //throw XLInputError("Invalid operation. There must be at least one worksheet in the workbook.");
+        XLLogError("Unable to delete the worksheet \""+ sheetName + "\". There must be at least one worksheet in the workbook.");
+        return;
+    }
+    
+    // ===== eliminate the tables contained in the worksheet.
+    if (sheetType == XLContentType::Worksheet){
+        XLQuery queryXml(XLQueryType::QuerySheetFromName);
+        queryXml.setParam("sheetName", sheetName);
+        XLXmlData* pSheet = parentDoc().execQuery(queryXml).result<XLXmlData*>();
+        std::vector<std::string> tblNames;
+        for (XLXmlData* item : pSheet->getChildNodes()){
+            if (item->getXmlType() == XLContentType::Table)
+                tblNames.emplace_back(item->getName());
+        }
+        
+        for (std::string& tblName : tblNames)
+            deleteTable(tblName);
+    }
 
     // ===== Delete the sheet data as well as the sheet node from Workbook.xml
     parentDoc().execCommand(XLCommand(XLCommandType::DeleteSheet)
@@ -311,6 +339,14 @@ XLTable XLWorkbook::addTable(const std::string& sheetName, const std::string& ta
                                 .setParam("tableName", tableName)
                                 .setParam("reference", reference));
     return table(tableName);
+}
+
+void XLWorkbook::deleteTable(const std::string& tableName)
+{
+    // ===== Delete the sheet data as well as the sheet node from Workbook.xml
+    parentDoc().execCommand(XLCommand(XLCommandType::DeleteTable)
+                                .setParam("tableName", tableName));
+
 }
 
 
@@ -542,6 +578,12 @@ unsigned int XLWorkbook::chartsheetCount() const
     return static_cast<unsigned int>(chartsheetNames().size());
 }
 
+unsigned int XLWorkbook::tableCount() const
+{
+    return parentDoc().execQuery(XLQuery(XLQueryType::QueryTableCount)).
+                        result<unsigned int>();
+}
+
 /**
  * @details
  */
@@ -588,6 +630,22 @@ std::vector<std::string> XLWorkbook::chartsheetNames() const
     return results;
 }
 
+
+std::vector<std::string> XLWorkbook::tableNames() const
+{
+    std::vector<std::string> results;
+
+    for (unsigned int i = 0 ; i < tableCount(); ++i){
+        XLQuery query(XLQueryType::QueryTableFromIndex);
+        query.setParam("index", i);
+        results.emplace_back(parentDoc()
+                .execQuery(query).result<XLXmlData*>()->getName());
+    }
+         
+    return results;
+
+}
+
 /**
  * @details
  */
@@ -612,6 +670,12 @@ bool XLWorkbook::chartsheetExists(const std::string& sheetName) const
 {
     auto chsNames = chartsheetNames();
     return std::find(chsNames.begin(), chsNames.end(), sheetName) != chsNames.end();
+}
+
+bool XLWorkbook::tableExists(const std::string& tableName) const
+{
+    auto tblNames = tableNames();
+    return std::find(tblNames.begin(), tblNames.end(), tableName) != tblNames.end();    
 }
 
 /**
