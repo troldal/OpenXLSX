@@ -58,6 +58,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "headers/XLNamedRange.hpp"
 #include "headers/XLRow.hpp"
 #include "headers/XLSheet.hpp"
+#include "headers/XLStyles.hpp"
 #include "headers/XLTable.hpp"
 #include "headers/XLTableRows.hpp"
 #include "headers/XLTableStyle.hpp"

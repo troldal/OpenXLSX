@@ -50,6 +50,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLCell.hpp"
 #include "XLSheet.hpp"
 #include "XLCellRange.hpp"
+#include "XLStyles.hpp"
 #include "utilities/XLUtilities.hpp"
 
 using namespace OpenXLSX;
@@ -215,4 +216,23 @@ const XLCellValueProxy& XLCell::value() const
 bool XLCell::isEqual(const XLCell& lhs, const XLCell& rhs)
 {
     return *lhs.m_cellNode == *rhs.m_cellNode;
+}
+
+/**
+ * @details
+ * @pre
+ * @post
+ */
+const OpenXLSX::XLStyles& OpenXLSX::XLCell::styles() const{
+    return m_worksheet->parentDoc().styles();
+}
+
+/**
+ * @details
+ * @pre
+ * @post
+ */
+const XLStyle XLCell::style() const{
+    const OpenXLSX::XLStyles& _styles = styles();
+   return _styles.style(*this);
 }

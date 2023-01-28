@@ -65,6 +65,8 @@ namespace OpenXLSX
 {
     class XLCellRange;
     class XLWorksheet;
+    class XLStyles;
+    class XLStyle;
 
     /**
      * @brief An implementation class encapsulating the properties and behaviours of a spreadsheet cell.
@@ -74,6 +76,7 @@ namespace OpenXLSX
         friend class XLCellIterator;
         friend class XLCellValueProxy;
         friend class XLRowDataIterator;
+        friend class XLStyles;
         friend bool operator==(const XLCell& lhs, const XLCell& rhs);
         friend bool operator!=(const XLCell& lhs, const XLCell& rhs);
 
@@ -181,6 +184,18 @@ namespace OpenXLSX
          * @brief
          * @param newFormula
          */
+
+        /**
+         * @brief
+         * @param 
+         */
+        const XLStyles& styles() const;
+
+        /**
+         * @brief
+         * @param 
+         */
+        const XLStyle style() const;
 
     private:
 

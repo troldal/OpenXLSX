@@ -78,3 +78,9 @@ target_link_libraries(Demo09 PRIVATE OpenXLSX::OpenXLSX)
 #=======================================================================================================================
 add_executable(Demo10 Demo10.cpp)
 target_link_libraries(Demo10 PRIVATE OpenXLSX::OpenXLSX)
+
+#=======================================================================================================================
+# Define Demo11 target
+#=======================================================================================================================
+add_executable(Demo11 Demo11.cpp)
+target_link_libraries(Demo11 PRIVATE OpenXLSX::OpenXLSX)

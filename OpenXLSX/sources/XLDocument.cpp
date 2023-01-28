@@ -168,14 +168,16 @@ void XLDocument::open(const std::string& fileName)
                     if (targetPath.substr(0,2) == "..") 
                         targetPath = "xl" + targetPath.substr(2);
 
-                    XLXmlData* pDocChild = getXmlDataByPath(targetPath); // Pointer to table elmnt
+                    if (childItem.type() == XLRelationshipType::Table){
+                        XLXmlData* pDocChild = getXmlDataByPath(targetPath); // Pointer to table elmnt
 
-                    pDocChild->setName(pDocChild->getXmlDocument()->child("table")
-                                                .attribute("name").value());
-                    wsItem.addChildNode(pDocChild);
-                    pDocChild->setParentNode(&wsItem);
-                    pDocChild->setXmlID(sheetRels.relationshipByTarget(childItem.target()).id());
-                            //auto type = childItem.type();
+                        pDocChild->setName(pDocChild->getXmlDocument()->child("table")
+                                                    .attribute("name").value());
+                        wsItem.addChildNode(pDocChild);
+                        pDocChild->setParentNode(&wsItem);
+                        pDocChild->setXmlID(sheetRels.relationshipByTarget(childItem.target()).id());
+                    } // childItem.type() could also be XLRelationshipType::PrinterSettings
+
                 }
                         
             }
@@ -188,6 +190,7 @@ void XLDocument::open(const std::string& fileName)
     m_coreProperties = (hasXmlData("docProps/core.xml") ? XLProperties(getXmlDataByPath("docProps/core.xml")) : XLProperties());
     m_appProperties  = (hasXmlData("docProps/app.xml") ? XLAppProperties(getXmlDataByPath("docProps/app.xml")) : XLAppProperties());
     m_sharedStrings  = XLSharedStrings(getXmlDataByPath("xl/sharedStrings.xml"));
+    m_styles         = XLStyles(getXmlDataByPath("xl/styles.xml"));
 }
 
 
@@ -726,12 +729,18 @@ bool XLDocument::isOpen() const {
     return this->operator bool();
 }
 
+const OpenXLSX::XLStyles& OpenXLSX::XLDocument::styles() const
+{
+    return m_styles;
+}
+
+
 /**
  * @details
  */
 XLXmlData* XLDocument::getXmlDataByPath(const std::string& path)
 {
-    if (!hasXmlData(path)) throw XLInternalError("Path does not exist in zip archive.");
+    if (!hasXmlData(path)) throw XLInternalError("Path \"" + path + "\" does not exist in zip archive.");
     return &*std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) { return item.getXmlPath() == path; });
 //    auto result = std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) { return item.getXmlPath() == path; });
 //    if (result == m_data.end()) throw XLInternalError("Path does not exist in zip archive.");
@@ -743,7 +752,7 @@ XLXmlData* XLDocument::getXmlDataByPath(const std::string& path)
  */
 const XLXmlData* XLDocument::getXmlDataByPath(const std::string& path) const
 {
-    if (!hasXmlData(path)) throw XLInternalError("Path does not exist in zip archive.");
+    if (!hasXmlData(path)) throw XLInternalError("Path \"" + path + "\" does not exist in zip archive.");
     return &*std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) { return item.getXmlPath() == path; });
 //    if (result == m_data.end()) throw XLInternalError("Path does not exist in zip archive.");
 //    return &*result;
