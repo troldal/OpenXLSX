@@ -143,7 +143,7 @@ XLCell::operator bool() const
  */
 XLCellReference XLCell::cellReference() const
 {
-    if (!*this) throw XLInternalError("XLCell object has not been properly initiated.");
+    if (!this) throw XLInternalError("XLCell object has not been properly initiated.");
     return XLCellReference{m_cellNode->attribute("r").value()};
 }
 
@@ -152,7 +152,7 @@ XLCellReference XLCell::cellReference() const
  */
 XLCell XLCell::offset(uint16_t rowOffset, uint16_t colOffset) const
 {
-    if (!*this) throw XLInternalError("XLCell object has not been properly initiated.");
+    if (!this) throw XLInternalError("XLCell object has not been properly initiated.");
     XLCellReference offsetRef(cellReference().row() + rowOffset, cellReference().column() + colOffset);
     auto            rownode  = getRowNode(m_cellNode->parent().parent(), offsetRef.row());
     auto            cellnode = getCellNode(rownode, offsetRef.column());
@@ -164,7 +164,7 @@ XLCell XLCell::offset(uint16_t rowOffset, uint16_t colOffset) const
  */
 bool XLCell::hasFormula() const
 {
-    if (!*this) return false;
+    if (!this) return false;
     return m_cellNode->child("f") != nullptr;
 }
 
@@ -173,7 +173,7 @@ bool XLCell::hasFormula() const
  */
 XLFormulaProxy& XLCell::formula()
 {
-    if (!*this) throw XLInternalError("XLCell object has not been properly initiated.");
+    if (!this) throw XLInternalError("XLCell object has not been properly initiated.");
     return m_formulaProxy;
 }
 
@@ -182,7 +182,7 @@ XLFormulaProxy& XLCell::formula()
  */
 const XLFormulaProxy& XLCell::formula() const
 {
-    if (!*this) throw XLInternalError("XLCell object has not been properly initiated.");
+    if (!this) throw XLInternalError("XLCell object has not been properly initiated.");
     return m_formulaProxy;
 }
 
@@ -192,7 +192,7 @@ const XLFormulaProxy& XLCell::formula() const
  */
 XLCellValueProxy& XLCell::value()
 {
-    if (!*this) throw XLInternalError("XLCell object has not been properly initiated.");
+    if (!this) throw XLInternalError("XLCell object has not been properly initiated.");
     return m_valueProxy;
 }
 
@@ -203,7 +203,7 @@ XLCellValueProxy& XLCell::value()
  */
 const XLCellValueProxy& XLCell::value() const
 {
-    if (!*this) throw XLInternalError("XLCell object has not been properly initiated.");
+    if (!this) throw XLInternalError("XLCell object has not been properly initiated.");
     return m_valueProxy;
 }
 
