@@ -199,6 +199,9 @@ XLCellValueProxy& XLCellValueProxy::clear()
 
     // ===== Remove the value node.
     m_cellNode->remove_child("v");
+
+    // ===== Remove the is node (only relevant in case previous cell type was "inlineStr")
+    m_cellNode->remove_child("is"); 
     return *this;
 }
 /**
@@ -227,6 +230,9 @@ XLCellValueProxy& XLCellValueProxy::setError(const std::string &error)
 
     // ===== Disable space preservation (only relevant for strings).
     m_cellNode->remove_attribute(" xml:space");
+
+    // ===== Remove the is node (only relevant in case previous cell type was "inlineStr")
+    m_cellNode->remove_child("is");   
 
     return *this;
 }
@@ -320,6 +326,9 @@ void XLCellValueProxy::setInteger(int64_t numberValue)
 
     // ===== Disable space preservation (only relevant for strings).
     m_cellNode->child("v").remove_attribute(m_cellNode->child("v").attribute("xml:space"));
+
+    // ===== Remove the is node (only relevant in case previous cell type was "inlineStr")
+    m_cellNode->remove_child("is");   
 }
 
 /**
@@ -348,6 +357,9 @@ void XLCellValueProxy::setBoolean(bool numberValue)
 
     // ===== Disable space preservation (only relevant for strings).
     m_cellNode->child("v").remove_attribute(m_cellNode->child("v").attribute("xml:space"));
+
+    // ===== Remove the is node (only relevant in case previous cell type was "inlineStr")
+    m_cellNode->remove_child("is");   
 }
 
 /**
@@ -375,6 +387,9 @@ void XLCellValueProxy::setFloat(double numberValue)
 
         // ===== Disable space preservation (only relevant for strings).
         m_cellNode->child("v").remove_attribute(m_cellNode->child("v").attribute("xml:space"));
+
+        // ===== Remove the is node (only relevant in case previous cell type was "inlineStr")
+        m_cellNode->remove_child("is");   
     }
     else {
         setError("#NUM!");
@@ -413,6 +428,9 @@ void XLCellValueProxy::setString(const char* stringValue)
 
     // ===== Set the text of the value node.
     m_cellNode->child("v").text().set(index);
+
+    // ===== Remove the is node (only relevant in case previous cell type was "inlineStr")
+    m_cellNode->remove_child("is");   
 
     // IMPLEMENTATION FOR EMBEDDED STRINGS:
     //    m_cellNode->attribute("t").set_value("str");
