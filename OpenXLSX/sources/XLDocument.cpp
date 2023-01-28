@@ -107,6 +107,12 @@ void XLDocument::open(const std::string& fileName)
 
     if (!m_archive.hasEntry("xl/sharedStrings.xml"))
         execCommand(XLCommand(XLCommandType::AddSharedStrings));
+    
+    // Add /xl/workbook.xml entry if the file didn't have one
+    auto items = m_contentTypes.getContentItems();
+    if(std::find_if(items.begin(), items.end(), [&](const XLContentItem& item) 
+                    { return item.path() == "/xl/workbook.xml"; }) == items.end()) 
+                    m_contentTypes.addOverride("/xl/workbook.xml", XLContentType::Workbook);
 
     // ===== Add remaining spreadsheet elements to the vector of XLXmlData objects.
     for (auto& item : m_contentTypes.getContentItems()) {
