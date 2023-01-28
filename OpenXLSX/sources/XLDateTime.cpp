@@ -211,7 +211,7 @@ namespace OpenXLSX
         // ===== Count the number of whole years since 1900.
         while (true) {
             auto days = (isLeapYear(result.tm_year + 1900) ? 366 : 365);
-            if (days > serial) break;
+            if (days >= static_cast<int>(serial)) break;
             serial -= days;
             ++result.tm_year;
         }

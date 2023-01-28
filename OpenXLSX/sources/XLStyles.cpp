@@ -424,7 +424,7 @@ XLNumberFormat::XLNumberType XLNumberFormat::tryBuiltinType()
 {
     std::setlocale(LC_MONETARY, "");
     std::lconv* lc = std::localeconv();
-    auto n = m_style.get().numFmtId();
+    auto n = m_style.get().numFmtId(); // TO DEL
     switch (m_style.get().numFmtId()) {
         case 0:
         case 1:
