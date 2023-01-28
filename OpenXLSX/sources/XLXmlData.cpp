@@ -55,11 +55,19 @@ using namespace OpenXLSX;
 /**
  * @details
  */
-XLXmlData::XLXmlData(OpenXLSX::XLDocument* parentDoc, const std::string& xmlPath, const std::string& xmlId, OpenXLSX::XLContentType xmlType)
+XLXmlData::XLXmlData(OpenXLSX::XLDocument*  parentDoc, 
+                    const std::string&      xmlPath, 
+                    const std::string&      xmlId,
+                    const std::string&      name,  
+                    OpenXLSX::XLContentType xmlType, 
+                    OpenXLSX::XLXmlData*    parentNode)
     : m_parentDoc(parentDoc),
       m_xmlPath(xmlPath),
       m_xmlID(xmlId),
       m_xmlType(xmlType),
+      m_name(name),
+      m_parentNode(parentNode),
+      m_childNodes(),
       m_xmlDoc(std::make_unique<XMLDocument>())
 {
     m_xmlDoc->reset();
@@ -75,7 +83,29 @@ XLXmlData::~XLXmlData() = default;
  */
 void XLXmlData::setRawData(const std::string& data)
 {
+    //pugi::parse_ws_pcdata     pugi::format_raw
     m_xmlDoc->load_string(data.c_str(), pugi::parse_default | pugi::parse_ws_pcdata);
+}
+
+void  XLXmlData::setXmlID(const std::string& xmlID)
+{
+    m_xmlID = xmlID;
+}
+
+void XLXmlData::setName(const std::string& name)
+{
+    m_name = name;
+}
+
+
+void  XLXmlData::setParentNode(XLXmlData* parentNode)
+{
+    m_parentNode = parentNode;
+}
+
+void  XLXmlData::addChildNode(XLXmlData* childNode)
+{
+    m_childNodes.push_back(childNode);
 }
 
 /**
@@ -84,9 +114,20 @@ void XLXmlData::setRawData(const std::string& data)
 std::string XLXmlData::getRawData() const
 {
     std::ostringstream ostr;
-    getXmlDocument()->save(ostr, "", pugi::format_raw);
+
+    XMLNode decl = m_xmlDoc->prepend_child(pugi::node_declaration);
+    decl.append_attribute("version") = "1.0";
+    decl.append_attribute("encoding") = "UTF-8";
+    decl.append_attribute("standalone") = "yes";
+
+    getXmlDocument()->save(ostr, "", pugi::format_raw , pugi::encoding_utf8);
+
+    //pugi::parse_ws_pcdata     pugi::format_raw
+    std::string test = ostr.str();
     return ostr.str();
 }
+
+
 
 /**
  * @details
@@ -120,12 +161,27 @@ std::string XLXmlData::getXmlID() const
     return m_xmlID;
 }
 
+const std::string&  XLXmlData::getName() const
+{
+    return m_name;
+}
+
 /**
  * @details
  */
 XLContentType XLXmlData::getXmlType() const
 {
     return m_xmlType;
+}
+
+XLXmlData* XLXmlData::getParentNode() const
+{
+    return m_parentNode;
+}
+
+std::vector<XLXmlData*>& XLXmlData::getChildNodes()
+{
+    return m_childNodes;
 }
 
 /**

@@ -52,6 +52,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== External Includes ===== //
 #include <stdexcept>
+#include <iostream>
 
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
@@ -146,6 +147,15 @@ namespace OpenXLSX
     {
     public:
         inline explicit XLFormulaError(const std::string& err) : XLException(err) {};
+    };
+
+    class OPENXLSX_EXPORT XLLogError
+    {
+    public:
+        inline explicit XLLogError(const std::string& err) 
+        {
+            std::cerr << err << std::endl;
+        };
     };
 
 

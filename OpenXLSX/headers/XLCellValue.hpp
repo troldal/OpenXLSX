@@ -67,6 +67,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 namespace OpenXLSX
 {
     //---------- Forward Declarations ----------//
+    class XLSharedStrings;
     class XLCellValueProxy;
     class XLCell;
 
@@ -275,6 +276,52 @@ namespace OpenXLSX
             return this->get<T>();
         }
 
+        std::string getAsString() const
+        {
+            struct AnyGet {
+                std::string operator()(bool value) { return value ? "1" : "0"; }
+                std::string operator()(int64_t value) { return std::to_string(value); }
+                std::string operator()(double value) { return std::to_string(value); }
+                std::string operator()(const std::string& value) { return value; }
+            };
+
+            return std::visit(AnyGet{}, m_value);
+        }
+
+        double getAsDouble() const
+        {
+            struct AnyGet {
+                double operator()(bool value) { return value ? 1.0 : 0.0; }
+                double operator()(int64_t value) { return static_cast<double>(value); }
+                double operator()(double value) { return value; }
+                double operator()(const std::string& value) { 
+                                double res = 0.0;
+                                try{ res = std::stod(value);
+                                }catch(...) { res = 0.0; }
+                                    return res;
+                }
+            };
+
+            return std::visit(AnyGet{}, m_value);
+        }
+
+        int getAsInteger() const
+        {
+            struct AnyGet {
+                int operator()(bool value) { return value ? 1 : 0; }
+                int operator()(int64_t value) { return static_cast<int>(value); }
+                int operator()(double value) { return static_cast<int>(value); }
+                int operator()(const std::string& value) { 
+                                int res = 0;
+                                try{ res = std::stoi(value);
+                                }catch(...) { res = 0; }
+                                    return res;
+                }
+            };
+
+            return std::visit(AnyGet{}, m_value);
+        }
+
         /**
          * @brief Clears the contents of the XLCellValue object.
          * @return Returns a reference to the current object.
@@ -429,6 +476,21 @@ namespace OpenXLSX
             return getValue().get<T>();
         }
 
+        std::string getAsString() const
+        {
+            return getValue().getAsString();
+        }
+
+        double getAsDouble() const
+        {
+            return getValue().getAsDouble();
+        }
+
+        int getAsInteger() const
+        {
+            return getValue().getAsInteger();
+        }
+
         /**
          * @brief Clear the contents of the cell.
          * @return A reference to the current object.
@@ -482,7 +544,7 @@ namespace OpenXLSX
          * @param cell Pointer to the parent XLCell object.
          * @param cellNode Pointer to the corresponding XMLNode object.
          */
-        XLCellValueProxy(XLCell* cell, XMLNode* cellNode);
+        XLCellValueProxy(XLCell* cell, std::shared_ptr<XMLNode> cellNode);
 
         /**
          * @brief Copy constructor
@@ -533,10 +595,16 @@ namespace OpenXLSX
          */
         XLCellValue getValue() const;
 
+        /**
+         * @brief Get a pointer to the XLSharedStrings* object of the document.
+         * @return An XLSharedStrings pointer.
+         */
+        XLSharedStrings* getSharedString() const;
+
         //---------- Private Member Variables ---------- //
 
         XLCell*  m_cell;     /**< Pointer to the owning XLCell object. */
-        XMLNode* m_cellNode; /**< Pointer to corresponding XML cell node. */
+        std::shared_ptr<XMLNode> m_cellNode; /**< Pointer to corresponding XML cell node. */
     };
 
 }    // namespace OpenXLSX

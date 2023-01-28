@@ -189,6 +189,8 @@ which have been implemented and should be working properly:
 - Copy worksheets
 - Cell ranges and iterators
 - Row ranges and iterators
+- Named range
+- Basis of table support (work in progress)
 
 Features related to formatting, plots and figures have not been
 implemented, and are not planned to be in the near future.

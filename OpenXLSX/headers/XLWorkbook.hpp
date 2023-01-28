@@ -15,33 +15,33 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
             MM
            _MM_
 
-  Copyright (c) 2018, Kenneth Troldal Balslev
+    Copyright (c) 2018, Kenneth Troldal Balslev
 
-  All rights reserved.
+    All rights reserved.
 
-  Redistribution and use in source and binary forms, with or without
-  modification, are permitted provided that the following conditions are met:
-  - Redistributions of source code must retain the above copyright
-    notice, this list of conditions and the following disclaimer.
-  - Redistributions in binary form must reproduce the above copyright
-    notice, this list of conditions and the following disclaimer in the
-    documentation and/or other materials provided with the distribution.
-  - Neither the name of the author nor the
-    names of any contributors may be used to endorse or promote products
-    derived from this software without specific prior written permission.
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are met:
+    - Redistributions of source code must retain the above copyright
+        notice, this list of conditions and the following disclaimer.
+    - Redistributions in binary form must reproduce the above copyright
+        notice, this list of conditions and the following disclaimer in the
+        documentation and/or other materials provided with the distribution.
+    - Neither the name of the author nor the
+        names of any contributors may be used to endorse or promote products
+        derived from this software without specific prior written permission.
 
-  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  DISCLAIMED. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
-  DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+    ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+    WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+    DISCLAIMED. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
+    DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- */
+    */
 
 #ifndef OPENXLSX_XLWORKBOOK_HPP
 #define OPENXLSX_XLWORKBOOK_HPP
@@ -71,6 +71,10 @@ namespace OpenXLSX
     class XLWorksheet;
 
     class XLChartsheet;
+
+    class XLNamedRange;
+
+    class XLTable;
 
     /**
      * @brief The XLSheetType class is an enumeration of the available sheet types, e.g. Worksheet (ordinary
@@ -142,28 +146,49 @@ namespace OpenXLSX
          * @return A pointer to an XLAbstractSheet with the sheet at the index.
          * @note The index must be 1-based (rather than 0-based) as this is the default for Excel spreadsheets.
          */
-        XLSheet sheet(uint16_t index);
+        XLSheet sheet(uint16_t index) const;
 
         /**
          * @brief Get the sheet (worksheet or chartsheet) with the given name.
          * @param sheetName The name at which the desired sheet is located.
          * @return A pointer to an XLAbstractSheet with the sheet at the index.
          */
-        XLSheet sheet(const std::string& sheetName);
+        XLSheet sheet(const std::string& sheetName) const;
+
+        /**
+         * @brief Get the table with the given name.
+         * @param tableName The name at which the desired sheet is located.
+         * @return The table.
+         */
+        XLTable table(const std::string& tableName) const;
+
+        /**
+         * @brief Get the table with the given index.
+         * @param index The name at which the desired sheet is located.
+         * @return The table.
+         */
+        XLTable table(uint16_t index) const;
+
+        /**
+         * @brief
+         * @param rangeName
+         * @return A XLDefinedName object which is derived from XLCellRange
+         */
+        XLNamedRange namedRange(const std::string& rangeName) const;
 
         /**
          * @brief
          * @param sheetName
          * @return
          */
-        XLWorksheet worksheet(const std::string& sheetName);
+        XLWorksheet worksheet(const std::string& sheetName) const;
 
         /**
          * @brief
          * @param sheetName
          * @return
          */
-        XLChartsheet chartsheet(const std::string& sheetName);
+        XLChartsheet chartsheet(const std::string& sheetName) const;
 
         /**
          * @brief Delete sheet (worksheet or chartsheet) from the workbook.
@@ -177,9 +202,45 @@ namespace OpenXLSX
         /**
          * @brief
          * @param sheetName
+         * @return the created worksheet
          */
-        void addWorksheet(const std::string& sheetName);
+        XLWorksheet addWorksheet(const std::string& sheetName);
 
+        /**
+         * @brief
+         * @param rangeName Name of the range to be deleted
+         * @param localSheetId Id of the sheet where the name is defined, default is 0 (global)
+         */
+        void deleteNamedRange(const std::string& rangeName, 
+                            uint32_t localSheetId = 0);
+
+        /**
+         * @brief
+         * @param rangeName Name of the range to be created
+         * @param reference Reference of the cell/range to be named: Sheet1!$I$17:$I$19
+         * @param localSheetId Id of the sheet where the name is defined, default is 0 (global)
+         * @return the created namedRange
+         */
+        XLNamedRange addNamedRange(const std::string& rangeName, 
+                            const std::string& reference, 
+                            uint32_t localSheetId = 0);
+
+        /**
+         * @brief
+         * @param sheetName worksheet which will hold the new table
+         * @param tableName Name of the range to be created
+         * @param reference Reference of the cell/range to be named: $I$17:$I$19
+         * @return the created table
+         */
+        XLTable addTable(const std::string& sheetName, const std::string& tableName, 
+                            const std::string& reference);
+
+        /**
+         * @brief detele table but without clearing the data
+         * @param tableName Name of the table to be deleted
+         */
+        void deleteTable(const std::string& tableName);
+        
         /**
          * @brief
          * @param existingName
@@ -237,6 +298,12 @@ namespace OpenXLSX
          * @brief
          * @return
          */
+        unsigned int tableCount() const;
+
+        /**
+         * @brief
+         * @return
+         */
         std::vector<std::string> sheetNames() const;
 
         /**
@@ -250,6 +317,12 @@ namespace OpenXLSX
          * @return
          */
         std::vector<std::string> chartsheetNames() const;
+
+        /**
+         * @brief
+         * @return
+         */
+        std::vector<std::string> tableNames() const;
 
         /**
          * @brief
@@ -274,6 +347,13 @@ namespace OpenXLSX
 
         /**
          * @brief
+         * @param tableName
+         * @return
+         */
+        bool tableExists(const std::string& tableName) const;
+
+        /**
+         * @brief
          * @param oldName
          * @param newName
          */
@@ -283,13 +363,13 @@ namespace OpenXLSX
          * @brief
          * @return
          */
-        XLSharedStrings sharedStrings();
+       // XLSharedStrings sharedStrings();
 
         /**
          * @brief
          * @return
          */
-        bool hasSharedStrings() const;
+       // bool hasSharedStrings() const;
 
         /**
          * @brief
@@ -302,12 +382,6 @@ namespace OpenXLSX
         void setFullCalculationOnLoad();
 
     private:    // ---------- Private Member Functions ---------- //
-
-        /**
-         * @brief
-         * @return
-         */
-        uint16_t createInternalSheetID();
 
         /**
          * @brief
@@ -334,8 +408,11 @@ namespace OpenXLSX
          * @brief
          * @param sheetName
          * @param internalID
+         * @param sheetID
          */
-        void prepareSheetMetadata(const std::string& sheetName, uint16_t internalID);
+        void prepareSheetMetadata(const std::string& sheetName,
+                                    uint16_t internalID,
+                                    uint16_t sheetID);
 
         /**
          * @brief
@@ -364,7 +441,7 @@ namespace OpenXLSX
          * @param state
          */
         void setSheetActive(const std::string& sheetRID);
-
+    
 
     };
 }    // namespace OpenXLSX

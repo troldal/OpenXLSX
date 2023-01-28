@@ -57,13 +57,16 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLCellReference.hpp"
 #include "XLCellValue.hpp"
 #include "XLFormula.hpp"
-#include "XLSharedStrings.hpp"
+
+
 
 // ========== CLASS AND ENUM TYPE DEFINITIONS ========== //
 namespace OpenXLSX
 {
     class XLCellRange;
-    class XLSharedStrings;
+    class XLWorksheet;
+    class XLStyles;
+    class XLStyle;
 
     /**
      * @brief An implementation class encapsulating the properties and behaviours of a spreadsheet cell.
@@ -73,6 +76,7 @@ namespace OpenXLSX
         friend class XLCellIterator;
         friend class XLCellValueProxy;
         friend class XLRowDataIterator;
+        friend class XLStyles;
         friend bool operator==(const XLCell& lhs, const XLCell& rhs);
         friend bool operator!=(const XLCell& lhs, const XLCell& rhs);
 
@@ -89,7 +93,7 @@ namespace OpenXLSX
          * @param cellNode
          * @param sharedStrings
          */
-        XLCell(const XMLNode& cellNode, const XLSharedStrings& sharedStrings);
+        XLCell(const XMLNode& cellNode, const XLWorksheet* wks);
 
         /**
          * @brief Copy constructor
@@ -181,6 +185,18 @@ namespace OpenXLSX
          * @param newFormula
          */
 
+        /**
+         * @brief
+         * @param 
+         */
+        const XLStyles& styles() const;
+
+        /**
+         * @brief
+         * @param 
+         */
+        const XLStyle style() const;
+
     private:
 
         /**
@@ -192,8 +208,8 @@ namespace OpenXLSX
         static bool isEqual(const XLCell& lhs, const XLCell& rhs);
 
         //---------- Private Member Variables ---------- //
-        std::unique_ptr<XMLNode> m_cellNode;      /**< A pointer to the root XMLNode for the cell. */
-        XLSharedStrings          m_sharedStrings; /**< */
+        std::shared_ptr<XMLNode> m_cellNode;      /**< A pointer to the root XMLNode for the cell. */
+        const XLWorksheet*       m_worksheet;
         XLCellValueProxy         m_valueProxy;    /**< */
         XLFormulaProxy           m_formulaProxy; /**< */
     };

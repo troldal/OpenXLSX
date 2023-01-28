@@ -15,33 +15,33 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
             MM
            _MM_
 
-  Copyright (c) 2018, Kenneth Troldal Balslev
+    Copyright (c) 2018, Kenneth Troldal Balslev
 
-  All rights reserved.
+    All rights reserved.
 
-  Redistribution and use in source and binary forms, with or without
-  modification, are permitted provided that the following conditions are met:
-  - Redistributions of source code must retain the above copyright
-    notice, this list of conditions and the following disclaimer.
-  - Redistributions in binary form must reproduce the above copyright
-    notice, this list of conditions and the following disclaimer in the
-    documentation and/or other materials provided with the distribution.
-  - Neither the name of the author nor the
-    names of any contributors may be used to endorse or promote products
-    derived from this software without specific prior written permission.
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are met:
+    - Redistributions of source code must retain the above copyright
+        notice, this list of conditions and the following disclaimer.
+    - Redistributions in binary form must reproduce the above copyright
+        notice, this list of conditions and the following disclaimer in the
+        documentation and/or other materials provided with the distribution.
+    - Neither the name of the author nor the
+        names of any contributors may be used to endorse or promote products
+        derived from this software without specific prior written permission.
 
-  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  DISCLAIMED. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
-  DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+    ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+    WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+    DISCLAIMED. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
+    DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- */
+    */
 
 #ifndef OPENXLSX_XLCELLRANGE_HPP
 #define OPENXLSX_XLCELLRANGE_HPP
@@ -52,6 +52,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== External Includes ===== //
 #include <memory>
+#include <utility>
 
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
@@ -62,6 +63,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 namespace OpenXLSX
 {
+    class XLWorksheet;
+
     /**
      * @brief This class encapsulates the concept of a cell range, i.e. a square area
      * (or subset) of cells in a spreadsheet.
@@ -85,7 +88,7 @@ namespace OpenXLSX
         explicit XLCellRange(const XMLNode&         dataNode,
                              const XLCellReference& topLeft,
                              const XLCellReference& bottomRight,
-                             const XLSharedStrings&        sharedStrings);
+                             const XLWorksheet*     wks);
 
         /**
          * @brief Copy constructor [default].
@@ -125,6 +128,27 @@ namespace OpenXLSX
         XLCellRange& operator=(XLCellRange&& other) noexcept;
 
         /**
+         * @brief
+         * @param rhs
+         * @return
+         */
+        bool operator==(const XLCellRange& rhs) const;
+
+        /**
+         * @brief
+         * @param rhs
+         * @return
+         */
+        bool operator!=(const XLCellRange& rhs) const;
+
+        /**
+         * @brief
+         * @param index
+         * @return
+         */
+        XLCell operator[](uint32_t index) const;
+
+        /**
          * @brief Get the number of rows in the range.
          * @return The number of rows.
          */
@@ -149,9 +173,58 @@ namespace OpenXLSX
         XLCellIterator end() const;
 
         /**
+         * @brief offset the whole range if possible
+         * @param topLeft XLCoordinates of topleft corner
+         * @param bottomRight XLCoordinates of bottom right corner
+         */
+        void setRangeCoordinates(const XLCellReference& topLeft,
+                                const XLCellReference& bottomRight);
+
+        /**
+         * @brief offset the whole range if possible
+         * @param row integer could be negative
+         * @param col integer could be negative, default 0
+         * @note this method does not move any data on the worksheet,
+         * It will only affect the range considered by the XLCellRange object
+         */
+        void offset(int row, int col = 0);
+        
+        /**
          * @brief
          */
         void clear();
+
+        /**
+         * @brief get the coordinates of the top left and bottom right
+         * @return A pair of ref
+         */
+        std::pair<XLCellReference,XLCellReference> rangeCoordinates();
+         /**
+         * @brief get the coordinates of the top left and bottom right
+         * @return A pair of ref
+         */
+        const std::pair<XLCellReference,XLCellReference> rangeCoordinates() const;
+
+        /**
+         * @brief Static helper function to get top left and bottom right
+         * @param ref a ref i.e. A1:C20
+         * @return A pair of ref
+         */
+        static std::pair<std::string,std::string> topLeftBottomRight(const std::string& ref);
+
+        /**
+         * @brief Static helper function to get the num of row of a range
+         * @param ref a ref i.e. A1:C20
+         * @return the num of columns
+         */
+        static uint16_t columnsCount(const std::string& ref);
+
+        /**
+         * @brief Static helper function to get the num of row of a range
+         * @param ref a ref i.e. A1:C20
+         * @return the num of columns
+         */
+        static uint32_t rowsCount(const std::string& ref);
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Private Member Variables
@@ -161,7 +234,7 @@ namespace OpenXLSX
         std::unique_ptr<XMLNode> m_dataNode;    /**< */
         XLCellReference          m_topLeft;     /**< The cell reference of the first cell in the range */
         XLCellReference          m_bottomRight; /**< The cell reference of the last cell in the range */
-        XLSharedStrings          m_sharedStrings;
+        const XLWorksheet*       m_worksheet;
     };
 }    // namespace OpenXLSX
 

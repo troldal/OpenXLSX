@@ -2,11 +2,13 @@
 // Created by Kenneth Balslev on 27/08/2021.
 //
 
+// ===== External Includes ===== //
+#include <regex>
+#include <cassert>
+
 // ===== OpenXLSX Includes ===== //
 #include "XLFormula.hpp"
 #include <pugixml.hpp>
-
-#include <cassert>
 
 using namespace OpenXLSX;
 
@@ -54,7 +56,49 @@ std::string XLFormula::get() const
 XLFormula& XLFormula::clear()
 {
     m_formulaString = "";
+    m_isError = false;
     return *this;
+}
+
+/**
+ * @details use a regex to replace the variable to be deleted by #REF!
+ */
+XLFormula XLFormula::updateDeleting(const std::string& toBeDeleted)
+{
+    
+    //std::string s = toBeDeleted + R"aka((?=([^"]*"[^"]*")*[^"]*$))aka";
+    // Regex that will find all the occurence of toBeDeleted excepted inside quote
+    // TODO deal with nested quotes 
+    const std::regex re(toBeDeleted + R"&((?=([^"]*"[^"]*")*[^"]*$))&");
+
+    std::string newFormula = std::regex_replace(m_formulaString, re, "#REF!");
+
+    if(m_formulaString == newFormula)
+        m_isError = false;
+    else
+        m_isError = true;
+
+    m_formulaString = newFormula;
+
+    return *this;
+}
+
+bool XLFormula::hasError() const
+{
+    return m_isError;
+}
+
+void XLFormula::checkIfError()
+{
+    //Check if Formula has error
+    // TODO deal with nested quotes
+    const std::regex re(R"&(#REF!(?=([^"]*"[^"]*")*[^"]*$))&");
+
+    std::smatch m; // unused
+
+    if (std::regex_search(m_formulaString, m, re))
+        m_isError = true;
+
 }
 
 /**
@@ -68,7 +112,7 @@ XLFormula::operator std::string() const
 /**
  * @details Constructor. Set the m_cell and m_cellNode objects.
  */
-XLFormulaProxy::XLFormulaProxy(XLCell* cell, XMLNode* cellNode) : m_cell(cell), m_cellNode(cellNode)
+XLFormulaProxy::XLFormulaProxy(XLCell* cell, std::shared_ptr<XMLNode> cellNode) : m_cell(cell), m_cellNode(cellNode)
 {
     assert(cell); // NOLINT
 }
@@ -144,6 +188,19 @@ XLFormulaProxy& XLFormulaProxy::clear()
 }
 
 /**
+ * @details Set the m_formulaString member to an empty string.
+ */
+XLFormula XLFormulaProxy::updateDeleting(const std::string& toBeDeleted)
+{ 
+    return getFormula().updateDeleting(toBeDeleted);
+}
+
+bool XLFormulaProxy::hasError() const
+{
+     return getFormula().hasError();
+}
+
+/**
  * @details Convenience function for setting the formula. This method is called from the templated
  * string assignment operator.
  */
@@ -163,6 +220,15 @@ void XLFormulaProxy::setFormulaString(const char* formulaString) {
     // ===== Set the text of the value node.
     m_cellNode->child("f").text().set(formulaString);
     m_cellNode->child("v").text().set(0);
+
+    // ===== Remove "t" attribute so that the cell shows the number we've just set
+    m_cellNode->remove_attribute("t");
+
+    // ===== Remove <is> tag in case previous type was "inlineStr"
+    m_cellNode->remove_child("is");   
+
+    // ===== Excel fails to load documents where <f> comes after <v> so make sure it is the first child    
+    m_cellNode->prepend_move(m_cellNode->child("f"));  
 }
 
 /**

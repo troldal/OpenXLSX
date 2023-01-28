@@ -62,6 +62,7 @@ namespace OpenXLSX
      * @post
      */
     XLRow::XLRow() : m_rowNode(nullptr),
+                     m_worksheet(nullptr),
                      m_rowDataProxy(this, m_rowNode.get()) {}
 
     /**
@@ -70,9 +71,9 @@ namespace OpenXLSX
      * @pre
      * @post
      */
-    XLRow::XLRow(const XMLNode& rowNode, const XLSharedStrings& sharedStrings)
+    XLRow::XLRow(const XMLNode& rowNode, const XLWorksheet* wks)
         : m_rowNode(std::make_unique<XMLNode>(rowNode)),
-          m_sharedStrings(sharedStrings),
+          m_worksheet(wks),
           m_rowDataProxy(this, m_rowNode.get())
     {}
 
@@ -83,7 +84,7 @@ namespace OpenXLSX
      */
     XLRow::XLRow(const XLRow& other)
         : m_rowNode(other.m_rowNode ? std::make_unique<XMLNode>(*other.m_rowNode) : nullptr),
-          m_sharedStrings(other.m_sharedStrings),
+          m_worksheet(other.m_worksheet),
           m_rowDataProxy(this, m_rowNode.get())
     {}
 
@@ -95,7 +96,7 @@ namespace OpenXLSX
      */
     XLRow::XLRow(XLRow&& other) noexcept
         : m_rowNode(std::move(other.m_rowNode)),
-          m_sharedStrings(std::move(other.m_sharedStrings)),
+          m_worksheet(other.m_worksheet),
           m_rowDataProxy(this, m_rowNode.get())
     {}
 
@@ -130,7 +131,6 @@ namespace OpenXLSX
     {
         if (&other != this) {
             m_rowNode       = std::move(other.m_rowNode);
-            m_sharedStrings = other.m_sharedStrings;
             m_rowDataProxy  = XLRowDataProxy(this, m_rowNode.get());
         }
         return *this;
@@ -264,7 +264,8 @@ namespace OpenXLSX
      */
     XLRowDataRange XLRow::cells() const
     {
-        return XLRowDataRange(*m_rowNode, 1, XLCellReference(m_rowNode->last_child().attribute("r").value()).column(), m_sharedStrings);
+        return XLRowDataRange(*m_rowNode, 1, 
+                XLCellReference(m_rowNode->last_child().attribute("r").value()).column(), m_worksheet);
     }
 
     /**
@@ -274,7 +275,7 @@ namespace OpenXLSX
      */
     XLRowDataRange XLRow::cells(uint16_t cellCount) const
     {
-        return XLRowDataRange(*m_rowNode, 1, cellCount, m_sharedStrings);
+        return XLRowDataRange(*m_rowNode, 1, cellCount, m_worksheet);
     }
 
     /**
@@ -284,7 +285,7 @@ namespace OpenXLSX
      */
     XLRowDataRange XLRow::cells(uint16_t firstCell, uint16_t lastCell) const
     {
-        return XLRowDataRange(*m_rowNode, firstCell, lastCell, m_sharedStrings);
+        return XLRowDataRange(*m_rowNode, firstCell, lastCell, m_worksheet);
     }
 
     bool XLRow::isEqual(const XLRow& lhs, const XLRow& rhs)
@@ -315,12 +316,12 @@ namespace OpenXLSX
         : m_dataNode(std::make_unique<XMLNode>(*rowRange.m_dataNode)),
           m_firstRow(rowRange.m_firstRow),
           m_lastRow(rowRange.m_lastRow),
-          m_sharedStrings(rowRange.m_sharedStrings)
+          m_worksheet(rowRange.m_worksheet)
     {
         if (loc == XLIteratorLocation::End)
             m_currentRow = XLRow();
         else {
-            m_currentRow = XLRow(getRowNode(*m_dataNode, m_firstRow), m_sharedStrings);
+            m_currentRow = XLRow(getRowNode(*m_dataNode, m_firstRow), m_worksheet);
         }
     }
 
@@ -341,7 +342,7 @@ namespace OpenXLSX
           m_firstRow(other.m_firstRow),
           m_lastRow(other.m_lastRow),
           m_currentRow(other.m_currentRow),
-          m_sharedStrings(other.m_sharedStrings)
+          m_worksheet(other.m_worksheet)
     {}
 
     /**
@@ -389,11 +390,11 @@ namespace OpenXLSX
         else if (!rowNode || rowNode.attribute("r").as_ullong() != rowNumber) {
             rowNode = m_dataNode->insert_child_after("row", *m_currentRow.m_rowNode);
             rowNode.append_attribute("r").set_value(rowNumber);
-            m_currentRow = XLRow(rowNode, m_sharedStrings);
+            m_currentRow = XLRow(rowNode, m_worksheet);
         }
 
         else
-            m_currentRow = XLRow(rowNode, m_sharedStrings);
+            m_currentRow = XLRow(rowNode, m_worksheet);
 
         return *this;
     }
@@ -470,11 +471,12 @@ namespace OpenXLSX
      * @pre
      * @post
      */
-    XLRowRange::XLRowRange(const XMLNode& dataNode, uint32_t first, uint32_t last, const OpenXLSX::XLSharedStrings& sharedStrings)
+    XLRowRange::XLRowRange(const XMLNode& dataNode, uint32_t first, 
+                        uint32_t last, const XLWorksheet* wks)
         : m_dataNode(std::make_unique<XMLNode>(dataNode)),
           m_firstRow(first),
           m_lastRow(last),
-          m_sharedStrings(sharedStrings)
+          m_worksheet(wks)
     {}
 
     /**
@@ -486,7 +488,7 @@ namespace OpenXLSX
         : m_dataNode(std::make_unique<XMLNode>(*other.m_dataNode)),
           m_firstRow(other.m_firstRow),
           m_lastRow(other.m_lastRow),
-          m_sharedStrings(other.m_sharedStrings)
+          m_worksheet(other.m_worksheet)
     {}
 
     /**

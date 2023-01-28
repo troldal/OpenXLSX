@@ -46,6 +46,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 // ===== External Includes ===== //
 #include <array>
 #include <cmath>
+#include <algorithm>
+#include <utility>
 #ifdef CHARCONV_ENABLED
 #    include <charconv>
 #endif
@@ -184,6 +186,26 @@ XLCellReference& XLCellReference::operator=(XLCellReference&& other) noexcept = 
     return oldRef;
 }
 
+
+XLCellReference& XLCellReference::offset(int rows, int columns)
+{
+    if (m_row + rows > MAX_ROWS)
+        m_row = MAX_ROWS;
+    else if (m_row + rows < 1) 
+        m_row = 1;
+    else
+        m_row = m_row + rows;
+
+    if (m_column + columns > MAX_COLS)
+        setColumn(MAX_COLS);
+    else if (m_column + columns < 1) 
+        setColumn(1);
+    else
+        setColumn(m_column + columns);
+
+    return *this;
+}
+
 /**
  * @details Returns the m_row property.
  */
@@ -237,12 +259,23 @@ void XLCellReference::setRowAndColumn(uint32_t row, uint16_t column)
     m_cellAddress = columnAsString(m_column) + rowAsString(m_row);
 }
 
+void XLCellReference::setCoordinates(const XLCoordinates& coord)
+{
+    setRowAndColumn(coord.first,coord.second);
+}
+
+
+XLCoordinates XLCellReference::coordinates()
+{
+   return std::make_pair(m_row,m_column);
+}
+
 /**
  * @details Returns the m_cellAddress property.
  */
-std::string XLCellReference::address() const
+std::string XLCellReference::address(bool absolute) const
 {
-    return m_cellAddress;
+    return adressFromCoordinates(m_row, m_column, absolute);
 }
 
 /**
@@ -254,7 +287,7 @@ void XLCellReference::setAddress(const std::string& address)
     auto coordinates = coordinatesFromAddress(address);
     m_row         = coordinates.first;
     m_column      = coordinates.second;
-    m_cellAddress = address;
+    m_cellAddress = adressFromCoordinates(m_row, m_column);
 }
 
 /**
@@ -340,15 +373,30 @@ uint16_t XLCellReference::columnAsNumber(const std::string& column)
  */
 XLCoordinates XLCellReference::coordinatesFromAddress(const std::string& address)
 {
+    // Escape the $ if any
+    std::string refAdress = address;
+    refAdress.erase(std::remove( refAdress.begin(),
+                                refAdress.end(),'$'), 
+                                refAdress.end());
+
     uint64_t letterCount = 0;
-    for (auto letter : address) {
+    for (auto letter : refAdress) {
         if (letter >= 65)  // NOLINT
             ++letterCount;
         else if (letter <= 57)  // NOLINT
             break;
     }
 
-    auto numberCount = address.size() - letterCount;
+    auto numberCount = refAdress.size() - letterCount;
 
-    return std::make_pair(rowAsNumber(address.substr(letterCount, numberCount)), columnAsNumber(address.substr(0, letterCount)));
+    return std::make_pair(rowAsNumber(refAdress.substr(letterCount, numberCount)), columnAsNumber(refAdress.substr(0, letterCount)));
+}
+
+std::string XLCellReference::adressFromCoordinates(uint32_t row, uint16_t column, bool absolute)
+{
+    std::string separator = std::string("");
+    if (absolute)
+        separator = "$";
+
+    return separator + columnAsString(column) +  separator + rowAsString(row);
 }

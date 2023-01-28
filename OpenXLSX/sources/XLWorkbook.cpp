@@ -50,9 +50,14 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <vector>
 
 // ===== OpenXLSX Includes ===== //
+#include "XLCellReference.hpp"
 #include "XLDocument.hpp"
+#include "XLNamedRange.hpp"
 #include "XLSheet.hpp"
+#include "XLTable.hpp"
 #include "XLWorkbook.hpp"
+#include "XLCellRange.hpp"
+
 
 using namespace OpenXLSX;
 
@@ -67,6 +72,7 @@ namespace
     {
         return doc.document_element().child("sheets");
     }
+
 }    // namespace
 
 /**
@@ -83,25 +89,10 @@ XLWorkbook::~XLWorkbook() = default;
 /**
  * @details
  */
-XLSheet XLWorkbook::sheet(const std::string& sheetName)
+XLSheet XLWorkbook::sheet(const std::string& sheetName) const
 {
-    // ===== First determine if the sheet exists.
-    if (xmlDocument().document_element().child("sheets").find_child_by_attribute("name", sheetName.c_str()) == nullptr)
-        throw XLInputError("Sheet \"" + sheetName + "\" does not exist");
-
-    // ===== Find the sheet data corresponding to the sheet with the requested name
-    std::string xmlID =
-        xmlDocument().document_element().child("sheets").find_child_by_attribute("name", sheetName.c_str()).attribute("r:id").value();
-
-    XLQuery pathQuery(XLQueryType::QuerySheetRelsTarget);
-    pathQuery.setParam("sheetID", xmlID);
-    auto xmlPath = parentDoc().execQuery(pathQuery).result<std::string>();
-
-    // Some spreadsheets use absolute rather than relative paths in relationship items.
-    if (xmlPath.substr(0,4) == "/xl/") xmlPath = xmlPath.substr(4);
-
-    XLQuery xmlQuery(XLQueryType::QueryXmlData);
-    xmlQuery.setParam("xmlPath", "xl/" + xmlPath);
+    XLQuery xmlQuery(XLQueryType::QuerySheetFromName);
+    xmlQuery.setParam("sheetName", sheetName);
     return XLSheet(parentDoc().execQuery(xmlQuery).result<XLXmlData*>());
 }
 
@@ -109,7 +100,7 @@ XLSheet XLWorkbook::sheet(const std::string& sheetName)
  * @details Create a vector with sheet nodes, retrieve the node at the requested index, get sheet name and return the
  * corresponding sheet object.
  */
-XLSheet XLWorkbook::sheet(uint16_t index)
+XLSheet XLWorkbook::sheet(uint16_t index) const
 {
     if (index < 1 || index > sheetCount()) throw XLInputError("Sheet index is out of bounds");
     return sheet(
@@ -119,35 +110,72 @@ XLSheet XLWorkbook::sheet(uint16_t index)
 /**
  * @details
  */
-XLWorksheet XLWorkbook::worksheet(const std::string& sheetName)
+XLWorksheet XLWorkbook::worksheet(const std::string& sheetName) const
 {
     return sheet(sheetName).get<XLWorksheet>();
 }
 
+XLTable XLWorkbook::table(const std::string& tableName) const
+{
+    // Throw an exception if table not exist
+    XLQuery xmlQuery(XLQueryType::QueryTableFromName);
+    xmlQuery.setParam("tableName", tableName);
+    
+    XLXmlData* tableItem = (parentDoc().execQuery(xmlQuery).result<XLXmlData*>());
+
+    return XLTable(tableItem);
+}
+
+XLTable XLWorkbook::table(uint16_t index) const
+{
+    XLQuery query(XLQueryType::QueryTableFromIndex);
+    query.setParam("index", index);
+
+    return XLTable(parentDoc().execQuery(query).result<XLXmlData*>());
+}
+
+
+XLNamedRange XLWorkbook::namedRange(const std::string& rangeName) const
+{
+    auto ElmtNode = xmlDocument().document_element().child("definedNames").find_child_by_attribute("name", rangeName.c_str());
+    
+    // ===== First determine if the named range exists.
+    if (ElmtNode == nullptr)
+        throw XLInputError("Defined Name \"" + rangeName + "\" does not exist");
+
+    std::string reference = ElmtNode.child_value();
+    std::string test = reference.substr(0, 4);
+    if (reference.substr(0, 4) == "#REF")
+        throw XLInputError("Defined Name \"" + rangeName + "\" is pointing to an invalid reference");
+
+    // ===== Find the sheet where defineName is declared (but not the reference sheet). Could be empty if global name
+    // seems to be  sheetId - 1. it will be set to 0 if no sheet is specified (global)
+    uint32_t localSheetId = 0;
+    std::string strLocalSheetId = ElmtNode.attribute("localSheetId").value();
+    if (strLocalSheetId.size() > 0)
+        localSheetId = static_cast<uint32_t>(std::stoul(strLocalSheetId)) + 1;
+
+    // Retrieve the worksheet name and top left - bottom right reference
+    // TODO deal with non continuous range =Feuil1!$J$10:$K$15;Feuil1!$J$20:$K$24
+    // TODO to be moved elsewhere (Utils ?)
+    std::string::size_type n = reference.find("!");
+    const std::string sheetName = reference.substr(0, n);
+    std::string ref = reference.substr(n+1);
+
+    auto pair = XLCellRange::topLeftBottomRight(ref);
+    
+    return  XLNamedRange(rangeName, reference, localSheetId, 
+        this->worksheet(sheetName).range(XLCellReference(pair.first), XLCellReference(pair.second))); 
+}
+
 /**
  * @details
  */
-XLChartsheet XLWorkbook::chartsheet(const std::string& sheetName)
+XLChartsheet XLWorkbook::chartsheet(const std::string& sheetName) const
 {
     return sheet(sheetName).get<XLChartsheet>();
 }
 
-/**
- * @details
- */
-bool XLWorkbook::hasSharedStrings() const
-{
-    return true;//parentDoc().executeQuery(XLQuerySharedStrings()).sharedStrings() != nullptr;
-}
-
-/**
- * @details
- */
-XLSharedStrings XLWorkbook::sharedStrings()
-{
-    XLQuery query(XLQueryType::QuerySharedStrings);
-    return parentDoc().execQuery(query).result<XLSharedStrings>();
-}
 
 /**
  * @details
@@ -177,8 +205,26 @@ void XLWorkbook::deleteSheet(const std::string& sheetName)
         });
 
     // ===== If this is the last worksheet in the workbook, throw an exception.
-    if (worksheetCount == 1 && sheetType == XLContentType::Worksheet)
-        throw XLInputError("Invalid operation. There must be at least one worksheet in the workbook.");
+    if (worksheetCount == 1 && sheetType == XLContentType::Worksheet){
+        //throw XLInputError("Invalid operation. There must be at least one worksheet in the workbook.");
+        XLLogError("Unable to delete the worksheet \""+ sheetName + "\". There must be at least one worksheet in the workbook.");
+        return;
+    }
+    
+    // ===== eliminate the tables contained in the worksheet.
+    if (sheetType == XLContentType::Worksheet){
+        XLQuery queryXml(XLQueryType::QuerySheetFromName);
+        queryXml.setParam("sheetName", sheetName);
+        XLXmlData* pSheet = parentDoc().execQuery(queryXml).result<XLXmlData*>();
+        std::vector<std::string> tblNames;
+        for (XLXmlData* item : pSheet->getChildNodes()){
+            if (item->getXmlType() == XLContentType::Table)
+                tblNames.emplace_back(item->getName());
+        }
+        
+        for (std::string& tblName : tblNames)
+            deleteTable(tblName);
+    }
 
     // ===== Delete the sheet data as well as the sheet node from Workbook.xml
     parentDoc().execCommand(XLCommand(XLCommandType::DeleteSheet)
@@ -193,21 +239,116 @@ void XLWorkbook::deleteSheet(const std::string& sheetName)
 /**
  * @details
  */
-void XLWorkbook::addWorksheet(const std::string& sheetName)
+XLWorksheet XLWorkbook::addWorksheet(const std::string& sheetName)
 {
     // ===== If a sheet with the given name already exists, throw an exception.
     if (xmlDocument().document_element().child("sheets").find_child_by_attribute("name", sheetName.c_str()))
         throw XLInputError("Sheet named \"" + sheetName + "\" already exists.");
 
-    // ===== Create new internal (workbook) ID for the sheet
-    auto internalID = createInternalSheetID();
-
     // ===== Create xml file for new worksheet and add metadata to the workbook file.
     parentDoc().execCommand(XLCommand(XLCommandType::AddWorksheet)
-                                .setParam("sheetName", sheetName)
-                                .setParam("sheetPath", "/xl/worksheets/sheet" + std::to_string(internalID) + ".xml"));
-    prepareSheetMetadata(sheetName, internalID);
+                                .setParam("sheetName", sheetName));
+
+    return worksheet(sheetName);
 }
+
+void XLWorkbook::deleteNamedRange(const std::string& rangeName,
+                        uint32_t localSheetId)
+{ 
+    auto ElmtNode = xmlDocument().document_element().child("definedNames").find_child_by_attribute("name", rangeName.c_str());
+    
+    // ===== First determine if the named range exists.
+    if (ElmtNode == nullptr)
+        throw XLInputError("Defined Name \"" + rangeName + "\" does not exist");
+
+    xmlDocument().document_element().child("definedNames").
+            remove_child(xmlDocument().document_element().child("definedNames").
+            find_child_by_attribute("name", rangeName.c_str()));
+
+}
+
+/**
+ * @details
+ * @todo check that the name fit excel limitation (no space) XLNamedRange INCREMENT_STRING
+ */
+XLNamedRange XLWorkbook::addNamedRange(const std::string& rangeName, 
+                        const std::string& reference, 
+                        uint32_t localSheetId)
+{
+    auto ElmtNode = xmlDocument().document_element().child("definedNames").find_child_by_attribute("name", rangeName.c_str());
+    
+    // ===== First determine if the named range exists.
+    if (ElmtNode)
+        throw XLInputError("Defined Name \"" + rangeName + "\" already exists.");
+
+    // Retrieve the worksheet name and top left - bottom right reference and make it safe
+    // TODO deal with non continuous range =Feuil1!$J$10:$K$15;Feuil1!$J$20:$K$24
+    // TODO to be moved elsewhere (Utils ?)
+    std::string::size_type n = reference.find("!");
+    if (n == reference.size())
+        throw XLInputError("Invalid reference: \"" + rangeName + "\" no sheet name was found.");
+
+    const std::string sheetName = reference.substr(0, n);
+
+    if (!sheetExists(sheetName)) 
+        throw XLInputError("Sheet with name \"" + sheetName + "\" doesn't exist.");
+
+    std::string ref = reference.substr(n+1);
+    n = ref.find(":");
+    std::string topLeft = ref.substr(0, n);
+
+    // Construct a safe reference that shall be absolute
+    XLCellReference cellRef(topLeft);
+    std::string safeReference = sheetName + "!" + cellRef.address(true);
+    if (n<ref.size()){
+        cellRef = XLCellReference(ref.substr(n+1));
+        safeReference += ":" + cellRef.address(true);
+    }
+
+    // ===== Add new child node to the "sheets" node.
+    if (!xmlDocument().document_element().child("definedNames")){ // should be inserted after </sheets>
+        auto shtNode = xmlDocument().document_element().child("sheets");
+        if(!shtNode)
+            throw XLInputError("Unable to find <sheets> tag in \"" + sheetName + "\".");
+
+        xmlDocument().document_element().insert_child_after("definedNames", shtNode);
+    }
+
+    auto node = xmlDocument().document_element().child("definedNames").append_child("definedName");
+
+    // ===== append the required attributes to the newly created sheet node.
+    node.append_attribute("name") = rangeName.c_str();
+    if (localSheetId)
+        node.append_attribute("localSheetId") = localSheetId - 1;
+
+    node.text().set(safeReference.c_str());
+
+    return namedRange(rangeName);
+}
+
+/**
+ * @details ref shall be "B1:K12"
+ * @todo check that the name fit excel limitation (no space)
+ */
+XLTable XLWorkbook::addTable(const std::string& sheetName, const std::string& tableName, 
+                            const std::string& reference)
+{
+    // ===== Create xml file for new worksheet and add metadata to the workbook file.
+    parentDoc().execCommand(XLCommand(XLCommandType::AddTable)
+                                .setParam("worksheet", sheetName)
+                                .setParam("tableName", tableName)
+                                .setParam("reference", reference));
+    return table(tableName);
+}
+
+void XLWorkbook::deleteTable(const std::string& tableName)
+{
+    // ===== Delete the sheet data as well as the sheet node from Workbook.xml
+    parentDoc().execCommand(XLCommand(XLCommandType::DeleteTable)
+                                .setParam("tableName", tableName));
+
+}
+
 
 /**
  * @details
@@ -220,20 +361,6 @@ void XLWorkbook::cloneSheet(const std::string& existingName, const std::string& 
                             .setParam("cloneName", newName));
 }
 
-/**
- * @details
- */
-uint16_t XLWorkbook::createInternalSheetID()
-{
-    return static_cast<uint16_t>(std::max_element(xmlDocument().document_element().child("sheets").children().begin(),
-                                                  xmlDocument().document_element().child("sheets").children().end(),
-                                                  [](const XMLNode& a, const XMLNode& b) {
-                                                      return a.attribute("sheetId").as_uint() < b.attribute("sheetId").as_uint();
-                                                  })
-                                     ->attribute("sheetId")
-                                     .as_uint() +
-                                 1);
-}
 
 /**
  * @details
@@ -262,7 +389,9 @@ std::string XLWorkbook::sheetVisibility(const std::string& sheetID) const
 /**
  * @details
  */
-void XLWorkbook::prepareSheetMetadata(const std::string& sheetName, uint16_t internalID)
+void XLWorkbook::prepareSheetMetadata(const std::string& sheetName, 
+                                        uint16_t internalID,
+                                        uint16_t sheetID)
 {
     // ===== Add new child node to the "sheets" node.
     auto node = sheetsNode(xmlDocument()).append_child("sheet");
@@ -270,7 +399,7 @@ void XLWorkbook::prepareSheetMetadata(const std::string& sheetName, uint16_t int
     // ===== append the required attributes to the newly created sheet node.
     std::string sheetPath            = "/xl/worksheets/sheet" + std::to_string(internalID) + ".xml";
     node.append_attribute("name")    = sheetName.c_str();
-    node.append_attribute("sheetId") = std::to_string(internalID).c_str();
+    node.append_attribute("sheetId") = std::to_string(sheetID).c_str();
 
     XLQuery query(XLQueryType::QuerySheetRelsID);
     query.setParam("sheetPath", sheetPath);
@@ -451,6 +580,12 @@ unsigned int XLWorkbook::chartsheetCount() const
     return static_cast<unsigned int>(chartsheetNames().size());
 }
 
+unsigned int XLWorkbook::tableCount() const
+{
+    return parentDoc().execQuery(XLQuery(XLQueryType::QueryTableCount)).
+                        result<unsigned int>();
+}
+
 /**
  * @details
  */
@@ -497,6 +632,22 @@ std::vector<std::string> XLWorkbook::chartsheetNames() const
     return results;
 }
 
+
+std::vector<std::string> XLWorkbook::tableNames() const
+{
+    std::vector<std::string> results;
+
+    for (unsigned int i = 0 ; i < tableCount(); ++i){
+        XLQuery query(XLQueryType::QueryTableFromIndex);
+        query.setParam("index", i);
+        results.emplace_back(parentDoc()
+                .execQuery(query).result<XLXmlData*>()->getName());
+    }
+         
+    return results;
+
+}
+
 /**
  * @details
  */
@@ -521,6 +672,12 @@ bool XLWorkbook::chartsheetExists(const std::string& sheetName) const
 {
     auto chsNames = chartsheetNames();
     return std::find(chsNames.begin(), chsNames.end(), sheetName) != chsNames.end();
+}
+
+bool XLWorkbook::tableExists(const std::string& tableName) const
+{
+    auto tblNames = tableNames();
+    return std::find(tblNames.begin(), tblNames.end(), tableName) != tblNames.end();    
 }
 
 /**

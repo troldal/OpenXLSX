@@ -48,7 +48,9 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== OpenXLSX Includes ===== //
 #include "XLCell.hpp"
+#include "XLSheet.hpp"
 #include "XLCellRange.hpp"
+#include "XLStyles.hpp"
 #include "utilities/XLUtilities.hpp"
 
 using namespace OpenXLSX;
@@ -58,8 +60,9 @@ using namespace OpenXLSX;
  */
 XLCell::XLCell()
     : m_cellNode(nullptr),
-      m_valueProxy(XLCellValueProxy(this, m_cellNode.get())),
-      m_formulaProxy(XLFormulaProxy(this, m_cellNode.get()))
+      m_worksheet(nullptr),
+      m_valueProxy(XLCellValueProxy(this, m_cellNode)),
+      m_formulaProxy(XLFormulaProxy(this, m_cellNode))
 {}
 
 /**
@@ -68,21 +71,21 @@ XLCell::XLCell()
  * If a cell XMLNode does not exist (i.e., the cell is empty), use the relevant constructor to create an XLCell
  * from a XLCellReference parameter.
  */
-XLCell::XLCell(const XMLNode& cellNode, const XLSharedStrings& sharedStrings)
-    : m_cellNode(std::make_unique<XMLNode>(cellNode)),
-      m_sharedStrings(sharedStrings),
-      m_valueProxy(XLCellValueProxy(this, m_cellNode.get())),
-      m_formulaProxy(XLFormulaProxy(this, m_cellNode.get()))
+XLCell::XLCell(const XMLNode& cellNode, const XLWorksheet* wks)
+    : m_cellNode(std::make_shared<XMLNode>(cellNode)),
+      m_worksheet(wks),
+      m_valueProxy(XLCellValueProxy(this, m_cellNode)),
+      m_formulaProxy(XLFormulaProxy(this, m_cellNode))
 {}
 
 /**
  * @details
  */
 XLCell::XLCell(const XLCell& other)
-    : m_cellNode(other.m_cellNode ? std::make_unique<XMLNode>(*other.m_cellNode) : nullptr),
-      m_sharedStrings(other.m_sharedStrings),
-      m_valueProxy(XLCellValueProxy(this, m_cellNode.get())),
-      m_formulaProxy(XLFormulaProxy(this, m_cellNode.get()))
+    : m_cellNode(other.m_cellNode ? std::make_shared<XMLNode>(*other.m_cellNode) : nullptr),
+      m_worksheet(other.m_worksheet),
+      m_valueProxy(XLCellValueProxy(this, m_cellNode)),
+      m_formulaProxy(XLFormulaProxy(this, m_cellNode))
 {}
 
 /**
@@ -90,9 +93,9 @@ XLCell::XLCell(const XLCell& other)
  */
 XLCell::XLCell(XLCell&& other) noexcept
     : m_cellNode(std::move(other.m_cellNode)),
-      m_sharedStrings(std::move(other.m_sharedStrings)),
-      m_valueProxy(XLCellValueProxy(this, m_cellNode.get())),
-      m_formulaProxy(XLFormulaProxy(this, m_cellNode.get()))
+      m_worksheet(other.m_worksheet),
+      m_valueProxy(XLCellValueProxy(this, m_cellNode)),
+      m_formulaProxy(XLFormulaProxy(this, m_cellNode))
 {}
 
 /**
@@ -120,8 +123,9 @@ XLCell& XLCell::operator=(XLCell&& other) noexcept
 {
     if (&other != this) {
         m_cellNode      = std::move(other.m_cellNode);
-        m_sharedStrings = other.m_sharedStrings;
-        m_valueProxy    = XLCellValueProxy(this, m_cellNode.get());
+        m_worksheet     = other.m_worksheet;
+        m_valueProxy    = XLCellValueProxy(this, m_cellNode);
+        m_formulaProxy  = XLFormulaProxy(this, m_cellNode);
     }
 
     return *this;
@@ -140,7 +144,7 @@ XLCell::operator bool() const
  */
 XLCellReference XLCell::cellReference() const
 {
-    if (!*this) throw XLInternalError("XLCell object has not been properly initiated.");
+    if (!this) throw XLInternalError("XLCell object has not been properly initiated.");
     return XLCellReference{m_cellNode->attribute("r").value()};
 }
 
@@ -149,11 +153,11 @@ XLCellReference XLCell::cellReference() const
  */
 XLCell XLCell::offset(uint16_t rowOffset, uint16_t colOffset) const
 {
-    if (!*this) throw XLInternalError("XLCell object has not been properly initiated.");
+    if (!this) throw XLInternalError("XLCell object has not been properly initiated.");
     XLCellReference offsetRef(cellReference().row() + rowOffset, cellReference().column() + colOffset);
     auto            rownode  = getRowNode(m_cellNode->parent().parent(), offsetRef.row());
     auto            cellnode = getCellNode(rownode, offsetRef.column());
-    return XLCell{cellnode, m_sharedStrings};
+    return XLCell{cellnode, m_worksheet};
 }
 
 /**
@@ -161,7 +165,7 @@ XLCell XLCell::offset(uint16_t rowOffset, uint16_t colOffset) const
  */
 bool XLCell::hasFormula() const
 {
-    if (!*this) return false;
+    if (!this) return false;
     return m_cellNode->child("f") != nullptr;
 }
 
@@ -170,7 +174,7 @@ bool XLCell::hasFormula() const
  */
 XLFormulaProxy& XLCell::formula()
 {
-    if (!*this) throw XLInternalError("XLCell object has not been properly initiated.");
+    if (!this) throw XLInternalError("XLCell object has not been properly initiated.");
     return m_formulaProxy;
 }
 
@@ -179,7 +183,7 @@ XLFormulaProxy& XLCell::formula()
  */
 const XLFormulaProxy& XLCell::formula() const
 {
-    if (!*this) throw XLInternalError("XLCell object has not been properly initiated.");
+    if (!this) throw XLInternalError("XLCell object has not been properly initiated.");
     return m_formulaProxy;
 }
 
@@ -189,7 +193,7 @@ const XLFormulaProxy& XLCell::formula() const
  */
 XLCellValueProxy& XLCell::value()
 {
-    if (!*this) throw XLInternalError("XLCell object has not been properly initiated.");
+    if (!this) throw XLInternalError("XLCell object has not been properly initiated.");
     return m_valueProxy;
 }
 
@@ -200,7 +204,7 @@ XLCellValueProxy& XLCell::value()
  */
 const XLCellValueProxy& XLCell::value() const
 {
-    if (!*this) throw XLInternalError("XLCell object has not been properly initiated.");
+    if (!this) throw XLInternalError("XLCell object has not been properly initiated.");
     return m_valueProxy;
 }
 
@@ -212,4 +216,23 @@ const XLCellValueProxy& XLCell::value() const
 bool XLCell::isEqual(const XLCell& lhs, const XLCell& rhs)
 {
     return *lhs.m_cellNode == *rhs.m_cellNode;
+}
+
+/**
+ * @details
+ * @pre
+ * @post
+ */
+const OpenXLSX::XLStyles& OpenXLSX::XLCell::styles() const{
+    return m_worksheet->parentDoc().styles();
+}
+
+/**
+ * @details
+ * @pre
+ * @post
+ */
+const XLStyle XLCell::style() const{
+    const OpenXLSX::XLStyles& _styles = styles();
+   return _styles.style(*this);
 }

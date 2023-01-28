@@ -194,12 +194,13 @@ namespace OpenXLSX
          * @param lastColumn The index of the last column.
          * @param sharedStrings A pointer to the shared strings repository.
          */
-        explicit XLRowDataRange(const XMLNode& rowNode, uint16_t firstColumn, uint16_t lastColumn, const XLSharedStrings& sharedStrings);
+        explicit XLRowDataRange(const XMLNode& rowNode, uint16_t firstColumn, 
+                uint16_t lastColumn, const XLWorksheet*  wks);
 
         std::unique_ptr<XMLNode> m_rowNode;                   /**< */
         uint16_t                 m_firstCol { 1 };            /**< The cell reference of the first cell in the range */
         uint16_t                 m_lastCol { 1 };             /**< The cell reference of the last cell in the range */
-        XLSharedStrings          m_sharedStrings; /**< */
+        const XLWorksheet*       m_worksheet; /**< */
     };
 
     /**
@@ -269,7 +270,7 @@ namespace OpenXLSX
 
             // ===== If the container value_type is a POD type, use the overloaded operator= on each cell.
             else {
-                auto range = XLRowDataRange(*m_rowNode, 1, values.size(), getSharedStrings());
+                auto range = XLRowDataRange(*m_rowNode, 1, values.size()/*, getSharedStrings()*/);
                 auto dst   = range.begin();
                 auto src   = values.begin();
 
@@ -363,12 +364,6 @@ namespace OpenXLSX
          * @return A std::vector of XLCellValues.
          */
         std::vector<XLCellValue> getValues() const;
-
-        /**
-         * @brief Helper function for getting a pointer to the shared strings repository.
-         * @return A pointer to an XLSharedStrings object.
-         */
-        XLSharedStrings getSharedStrings() const;
 
         /**
          * @brief Convenience function for erasing the first 'count' numbers of values in the row.

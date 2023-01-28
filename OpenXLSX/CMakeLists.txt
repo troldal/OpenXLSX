@@ -82,6 +82,7 @@ endif ()
 #   List of project source files
 #=======================================================================================================================
 set(OPENXLSX_SOURCES
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLAutofilter.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLCell.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLCellIterator.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLCellRange.cpp
@@ -93,12 +94,18 @@ set(OPENXLSX_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLDateTime.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLDocument.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLFormula.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLNamedRange.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLProperties.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLRelationships.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLRow.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLRowData.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLSharedStrings.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLSheet.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLStyles.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLTable.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLTableColumn.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLTableRows.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLTableStyle.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLWorkbook.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLXmlData.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLXmlFile.cpp

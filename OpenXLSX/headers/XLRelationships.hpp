@@ -83,6 +83,7 @@ namespace OpenXLSX
         Theme,
         Styles,
         Chart,
+        Table,
         ChartStyle,
         ChartColorStyle,
         Image,
@@ -160,6 +161,7 @@ namespace OpenXLSX
          * @return An XMLAttribute object containing the Id getValue.
          */
         std::string id() const;
+
 
     private:                                         // ---------- Private Member Variables ---------- //
         std::unique_ptr<XMLNode> m_relationshipNode; /**< An XMLNode object with the relationship item */
@@ -269,8 +271,14 @@ namespace OpenXLSX
          * @return true if the XLRelationshipItem exists; otherwise false.
          */
         bool idExists(const std::string& id) const;
+    
+    protected:   // ---------- Protected Member Functions ---------- //
+        /**
+         * @brief Get the next available id "rId". Find holes in the list
+         * @return return the rId{0} string.
+         */
+        std::string getAvailableRelsId() const;
 
-        // ---------- Protected Member Functions ---------- //
     };
 }    // namespace OpenXLSX
 

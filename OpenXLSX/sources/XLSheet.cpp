@@ -46,6 +46,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 // ===== External Includes ===== //
 #include <algorithm>
 #include <pugixml.hpp>
+#include <string>
 
 // ===== OpenXLSX Includes ===== //
 #include "XLCellRange.hpp"
@@ -65,7 +66,7 @@ namespace OpenXLSX
      * @param xmlDocument XMLDocument object
      * @param color Thr color to set
      */
-    void setTabColor(const XMLDocument& xmlDocument, const XLColor& color) {
+    void setTabColorOnDoc(const XMLDocument& xmlDocument, const XLColor& color) {
 
         if (!xmlDocument.document_element().child("sheetPr")) xmlDocument.document_element().prepend_child("sheetPr");
 
@@ -164,9 +165,9 @@ XLColor XLSheet::color() const
 * @details This method sets the color of the sheet, by calling the setColor()
 * member function of the underlying sheet object (XLWorksheet or XLChartsheet).
  */
-void XLSheet::setColor(const XLColor& color)
+void XLSheet::setTabColor(const XLColor& color)
 {
-    std::visit([&](auto&& arg) { return arg.setColor(color); }, m_sheet);
+    std::visit([&](auto&& arg) { return arg.setTabColor(color); }, m_sheet);
 }
 
 /**
@@ -282,7 +283,7 @@ XLColor XLWorksheet::getColor_impl() const
  */
 void XLWorksheet::setColor_impl(const XLColor& color)
 {
-    setTabColor(xmlDocument(), color);
+    setTabColorOnDoc(xmlDocument(), color);
 }
 
 /**
@@ -369,7 +370,7 @@ XLCell XLWorksheet::cell(uint32_t rowNumber, uint16_t columnNumber) const
         }
     }
 
-    return XLCell{cellNode, parentDoc().execQuery(XLQuery(XLQueryType::QuerySharedStrings)).result<XLSharedStrings>()};
+    return XLCell{cellNode, this};
 }
 
 /**
@@ -388,7 +389,13 @@ XLCellRange XLWorksheet::range(const XLCellReference& topLeft, const XLCellRefer
     return XLCellRange(xmlDocument().first_child().child("sheetData"),
                        topLeft,
                        bottomRight,
-                       parentDoc().execQuery(XLQuery(XLQueryType::QuerySharedStrings)).result<XLSharedStrings>());
+                       this);
+}
+
+XLCellRange XLWorksheet::range(const std::string& ref) const
+{
+    std::pair<std::string,std::string> pair = XLCellRange::topLeftBottomRight(ref);
+    return range(XLCellReference(pair.first),XLCellReference(pair.second));
 }
 
 /**
@@ -404,7 +411,7 @@ XLRowRange XLWorksheet::rows() const
                       (sheetDataNode.last_child()
                            ? static_cast<uint32_t>(sheetDataNode.last_child().attribute("r").as_ullong())
                            : 1),
-                      parentDoc().execQuery(XLQuery(XLQueryType::QuerySharedStrings)).result<XLSharedStrings>());
+                            this);
 }
 
 /**
@@ -417,7 +424,7 @@ XLRowRange XLWorksheet::rows(uint32_t rowCount) const
     return XLRowRange(xmlDocument().first_child().child("sheetData"),
                       1,
                       rowCount,
-                      parentDoc().execQuery(XLQuery(XLQueryType::QuerySharedStrings)).result<XLSharedStrings>());
+                      this);
 }
 
 /**
@@ -430,7 +437,7 @@ XLRowRange XLWorksheet::rows(uint32_t firstRow, uint32_t lastRow) const
     return XLRowRange(xmlDocument().first_child().child("sheetData"),
                       firstRow,
                       lastRow,
-                      parentDoc().execQuery(XLQuery(XLQueryType::QuerySharedStrings)).result<XLSharedStrings>());
+                      this);
 }
 
 /**
@@ -440,8 +447,7 @@ XLRowRange XLWorksheet::rows(uint32_t firstRow, uint32_t lastRow) const
  */
 XLRow XLWorksheet::row(uint32_t rowNumber) const
 {
-    return XLRow{getRowNode(xmlDocument().first_child().child("sheetData"), rowNumber),
-                   parentDoc().execQuery(XLQuery(XLQueryType::QuerySharedStrings)).result<XLSharedStrings>()};
+    return XLRow{getRowNode(xmlDocument().first_child().child("sheetData"), rowNumber), this};
 }
 
 /**
@@ -530,7 +536,7 @@ XLCellReference XLWorksheet::lastCell() const noexcept
  */
 uint16_t XLWorksheet::columnCount() const noexcept
 {
-        std::vector<int16_t> counts;
+        std::vector<uint16_t> counts;
         for (const auto& row : rows()) {
             counts.emplace_back(row.cellCount());
         }
@@ -567,9 +573,9 @@ void XLWorksheet::updateSheetName(const std::string& oldName, const std::string&
     // ===== Iterate through all defined names
     for (auto& row : xmlDocument().document_element().child("sheetData")) {
         for (auto& cell : row.children()) {
-            if (!XLCell(cell, XLSharedStrings()).hasFormula()) continue;
+            if (!XLCell(cell, this).hasFormula()) continue;
 
-            formula = XLCell(cell, XLSharedStrings()).formula().get();
+            formula = XLCell(cell, this).formula().get();
 
             // ===== Skip if formula contains a '[' and ']' (means that the defined refers to external workbook)
             if (formula.find('[') == std::string::npos && formula.find(']') == std::string::npos) {
@@ -577,7 +583,7 @@ void XLWorksheet::updateSheetName(const std::string& oldName, const std::string&
                 while (formula.find(oldNameTemp) != std::string::npos) { // NOLINT
                     formula.replace(formula.find(oldNameTemp), oldNameTemp.length(), newNameTemp);
                 }
-                XLCell(cell, XLSharedStrings()).formula() = formula;
+                XLCell(cell, this).formula() = formula;
             }
         }
     }
@@ -606,7 +612,7 @@ XLColor XLChartsheet::getColor_impl() const
  */
 void XLChartsheet::setColor_impl(const XLColor& color)
 {
-    setTabColor(xmlDocument(), color);
+    setTabColorOnDoc(xmlDocument(), color);
 }
 
 /**

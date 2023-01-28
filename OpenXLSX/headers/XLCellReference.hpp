@@ -81,6 +81,7 @@ namespace OpenXLSX
         //----------------------------------------------------------------------------------------------------------------------
 
     public:
+
         /**
          * @brief Constructor taking a cell address as argument.
          * @param cellAddress The address of the cell, e.g. 'A1'.
@@ -159,6 +160,14 @@ namespace OpenXLSX
         XLCellReference operator--(int); // NOLINT
 
         /**
+         * @brief Offset for a given x, y. Stops at the limit of the worksheet.
+         * @param rows the relative number of row to offset
+         * @param columns the relative number of columns to offset default 0.
+         * @return return the offseted object
+         */
+        XLCellReference& offset(int rows, int columns = 0);
+
+        /**
          * @brief Get the row number of the XLCellReference.
          * @return The row.
          */
@@ -190,10 +199,22 @@ namespace OpenXLSX
         void setRowAndColumn(uint32_t row, uint16_t column);
 
         /**
+         * @brief Set the address of the XLCellReference
+         * @param coord coordinates of the cell to be set(std::pair(row, col).
+         */
+        void setCoordinates(const XLCoordinates& coord);
+        
+        /**
+         * @brief .
+         * @return the coordinates of the cellref.
+         */
+        XLCoordinates coordinates(); 
+
+        /**
          * @brief Get the address of the XLCellReference
          * @return The address, e.g. 'A1'
          */
-        std::string address() const;
+        std::string address(bool absolute = false) const;
 
         /**
          * @brief Set the address of the XLCellReference
@@ -203,7 +224,7 @@ namespace OpenXLSX
         void setAddress(const std::string& address);
 
         //----------------------------------------------------------------------------------------------------------------------
-        //           Private Member Functions
+        //           Static Helpers Functions
         //----------------------------------------------------------------------------------------------------------------------
 
         // private:
@@ -242,6 +263,8 @@ namespace OpenXLSX
          * @return A std::pair<row, column>
          */
         static XLCoordinates coordinatesFromAddress(const std::string& address);
+
+        static std::string adressFromCoordinates(uint32_t row, uint16_t column, bool absolute = false);
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Private Member Variables

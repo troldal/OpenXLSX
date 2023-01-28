@@ -15,7 +15,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
             MM
            _MM_
 
-  Copyright (c) 2018, Kenneth Troldal Balslev
+  Written by Akira SHIMAHARA
 
   All rights reserved.
 
@@ -43,26 +43,70 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXLSX_OPENXLSX_HPP
-#define OPENXLSX_OPENXLSX_HPP
+#ifndef OPENXLSX_XLAUTOFILTER_HPP
+#define OPENXLSX_XLAUTOFILTER_HPP
 
-#include "headers/XLCell.hpp"
-#include "headers/XLCellRange.hpp"
-#include "headers/XLCellReference.hpp"
-#include "headers/XLCellValue.hpp"
-#include "headers/XLColumn.hpp"
-#include "headers/XLDateTime.hpp"
-#include "headers/XLDocument.hpp"
-#include "headers/XLException.hpp"
-#include "headers/XLFormula.hpp"
-#include "headers/XLNamedRange.hpp"
-#include "headers/XLRow.hpp"
-#include "headers/XLSheet.hpp"
-#include "headers/XLStyles.hpp"
-#include "headers/XLTable.hpp"
-#include "headers/XLTableRows.hpp"
-#include "headers/XLTableStyle.hpp"
-#include "headers/XLWorkbook.hpp"
-#include "headers/XLZipArchive.hpp"
+#pragma warning(push)
+//#pragma warning(disable : 4251)
+//#pragma warning(disable : 4275)
 
-#endif    // OPENXLSX_OPENXLSX_HPP
+// ===== External Includes ===== //
+#include <string>
+#include <memory>
+
+// ===== OpenXLSX Includes ===== //
+#include "OpenXLSX-Exports.hpp"
+#include "XLXmlParser.hpp"
+
+namespace OpenXLSX
+{
+    // ========== Forward declaration ============
+    class XLXmlData;
+
+
+    class OPENXLSX_EXPORT XLAutofilter
+    {
+    public:
+        /**
+         * @brief The constructor. 
+         * @param dataNode XMLNode of the column
+         */
+        XLAutofilter(const XMLNode& dataNode, XLXmlData* parent);
+
+        //XLTableColumn(const XLTableColumn&) = delete;
+        //XLTableColumn& operator=(const XLTableColumn&) = delete;
+        ~XLAutofilter();
+
+        /**
+         * @brief 
+         * @return the ref on which the filter apply
+         */
+        std::string ref() const;
+
+        /**
+         * @brief 
+         * @param name set ref to be applied
+         */
+        void setRef(const std::string& ref) const;
+
+        /**
+         * @brief 
+         * @param indexCol col index to be hidden (first index is 0)
+         * @param hide true by default
+         */
+        void hideArrow(uint16_t indexCol, bool hide = true) const;
+
+         /**
+         * @brief 
+         * @param hide true by default
+         */
+        void hideArrows(bool hide = true) const;
+
+    private:
+        std::unique_ptr<XMLNode> m_dataNode;
+        XLXmlData* m_parent;
+    };
+}    // namespace OpenXLSX
+
+//#pragma warning(pop)
+#endif    // OPENXLSX_XLAUTOFILTER_HPP

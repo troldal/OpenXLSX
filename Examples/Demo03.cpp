@@ -78,10 +78,10 @@ int main()
 
     // The color of each sheet tab can be set using the 'setColor' method for a
     // sheet, and passing an XLColor object as an argument.
-    wbk.sheet("Sheet2").setColor(XLColor(0, 0, 0));
-    wbk.sheet("Sheet3").setColor(XLColor(255, 0, 0));
-    wbk.sheet("Sheet4").setColor(XLColor(0, 255, 0));
-    wbk.sheet("Sheet5").setColor(XLColor(0, 0, 255));
+    wbk.sheet("Sheet2").setTabColor(XLColor(0, 0, 0));
+    wbk.sheet("Sheet3").setTabColor(XLColor(255, 0, 0));
+    wbk.sheet("Sheet4").setTabColor(XLColor(0, 255, 0));
+    wbk.sheet("Sheet5").setTabColor(XLColor(0, 0, 255));
 
     doc.save();
 

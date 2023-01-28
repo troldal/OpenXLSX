@@ -15,33 +15,33 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
             MM
            _MM_
 
-  Copyright (c) 2018, Kenneth Troldal Balslev
+    Copyright (c) 2018, Kenneth Troldal Balslev
 
-  All rights reserved.
+    All rights reserved.
 
-  Redistribution and use in source and binary forms, with or without
-  modification, are permitted provided that the following conditions are met:
-  - Redistributions of source code must retain the above copyright
-    notice, this list of conditions and the following disclaimer.
-  - Redistributions in binary form must reproduce the above copyright
-    notice, this list of conditions and the following disclaimer in the
-    documentation and/or other materials provided with the distribution.
-  - Neither the name of the author nor the
-    names of any contributors may be used to endorse or promote products
-    derived from this software without specific prior written permission.
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are met:
+    - Redistributions of source code must retain the above copyright
+        notice, this list of conditions and the following disclaimer.
+    - Redistributions in binary form must reproduce the above copyright
+        notice, this list of conditions and the following disclaimer in the
+        documentation and/or other materials provided with the distribution.
+    - Neither the name of the author nor the
+        names of any contributors may be used to endorse or promote products
+        derived from this software without specific prior written permission.
 
-  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  DISCLAIMED. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
-  DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+    ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+    WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+    DISCLAIMED. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
+    DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- */
+*/
 
 #ifndef OPENXLSX_XLDOCUMENT_HPP
 #define OPENXLSX_XLDOCUMENT_HPP
@@ -55,7 +55,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <fstream>
 #include <iostream>
 #include <list>
-#include <map>
 #include <string>
 
 // ===== OpenXLSX Includes ===== //
@@ -67,6 +66,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLProperties.hpp"
 #include "XLRelationships.hpp"
 #include "XLSharedStrings.hpp"
+#include "XLStyles.hpp"
 #include "XLWorkbook.hpp"
 #include "XLXmlData.hpp"
 #include "XLZipArchive.hpp"
@@ -112,6 +112,7 @@ namespace OpenXLSX
         friend class XLXmlFile;
         friend class XLWorkbook;
         friend class XLSheet;
+        friend class XLStyles;
         friend class XLXmlData;
 
         //---------- Public Member Functions
@@ -259,6 +260,12 @@ namespace OpenXLSX
          */
         XLQuery execQuery(const XLQuery& query);
 
+        /**
+         * @brief
+         * @return
+         */
+        const XLStyles& styles() const;
+
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Protected Member Functions
@@ -277,14 +284,14 @@ namespace OpenXLSX
          * @param path
          * @return
          */
-        XLXmlData* getXmlData(const std::string& path);
+        XLXmlData* getXmlDataByPath(const std::string& path);
 
         /**
          * @brief
          * @param path
          * @return
          */
-        const XLXmlData* getXmlData(const std::string& path) const;
+        const XLXmlData* getXmlDataByPath(const std::string& path) const;
 
         /**
          * @brief
@@ -292,7 +299,51 @@ namespace OpenXLSX
          * @return
          */
         bool hasXmlData(const std::string& path) const;
+        
+        /**
+         * @brief Explore the tree to find the sheet element
+         * @param sheetName to be found
+         * @return a pointer to XLXmlData or nullptr if sheetName doesn not exist
+         */
+        XLXmlData* getXmlDataByName(const std::string& name) const;
 
+        /**
+         * @brief
+         * @param name
+         * @return the path to xl/worksheets/_rels/sheet{0}.xml.rels whether it exist or not.
+         * Return a empty string if sheetName does not exists
+         */
+        std::string getSheetRelsPath(const std::string& sheetName) const;
+
+        /**
+         * @brief determine the available id disponible for filename
+         * @param type
+         * @return Return the available id.
+         */
+        uint16_t availableFileID(XLContentType type);
+
+        /**
+         * @brief determine the available id disponible for Id field
+         * @param type
+         * @return Return the available id.
+         * @note fill the gap if any
+         */
+        uint16_t availableSheetID();
+
+        /**
+         * @brief create a new table in the doc
+         * @param sheetName
+         * @param tableName
+         * @param reference
+         */
+        void createTable(const std::string& sheetName, const std::string& tableName, const std::string& reference);
+
+        /**
+         * @brief delete the corresponding table
+         * @param tableName the table to be deleted
+         */
+        void deleteTable(const std::string& tableName);
+        
         //----------------------------------------------------------------------------------------------------------------------
         //           Private Member Variables
         //----------------------------------------------------------------------------------------------------------------------
@@ -301,17 +352,18 @@ namespace OpenXLSX
         std::string m_filePath {}; /**< The path to the original file*/
         std::string m_realPath {}; /**<  */
 
-        mutable std::list<XLXmlData>    m_data {};              /**<  */
-        mutable std::deque<std::string> m_sharedStringCache {}; /**<  */
-        mutable XLSharedStrings         m_sharedStrings {};     /**<  */
+        mutable std::list<XLXmlData>    m_data {};     /**<  */
+        mutable XLSharedStrings  m_sharedStrings;     /**< The sharedstrings object (one for each doc)*/
 
         XLRelationships m_docRelationships {}; /**< A pointer to the document relationships object*/
         XLRelationships m_wbkRelationships {}; /**< A pointer to the document relationships object*/
         XLContentTypes  m_contentTypes {};     /**< A pointer to the content types object*/
         XLAppProperties m_appProperties {};    /**< A pointer to the App properties object */
         XLProperties    m_coreProperties {};   /**< A pointer to the Core properties object*/
+        XLXmlData*      m_XmlWorkbook {};
         XLWorkbook      m_workbook {};         /**< A pointer to the workbook object */
         IZipArchive     m_archive {};          /**<  */
+        XLStyles        m_styles {};           /**< Styles object >*/
     };
 
 }    // namespace OpenXLSX

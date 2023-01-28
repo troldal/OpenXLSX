@@ -55,6 +55,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <memory>
 #include <sstream>
 #include <string>
+#include <vector>
 
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
@@ -93,7 +94,9 @@ namespace OpenXLSX
         XLXmlData(XLDocument*        parentDoc,
                   const std::string& xmlPath,
                   const std::string& xmlId   = "",
-                  XLContentType      xmlType = XLContentType::Unknown);
+                  const std::string& name = "",
+                  XLContentType      xmlType = XLContentType::Unknown,
+                  XLXmlData*         parentNode = nullptr);
 
         /**
          * @brief Default destructor. The XLXmlData does not manage any dynamically allocated resources, so a default
@@ -137,6 +140,11 @@ namespace OpenXLSX
          */
         void setRawData(const std::string& data);
 
+        void setXmlID(const std::string& xmlID);
+        void setName(const std::string& name);
+        void setParentNode(XLXmlData* parentNode);
+        void addChildNode(XLXmlData* childNode);
+
         /**
          * @brief Get the raw data for the underlying XML document. This function will retrieve the raw XML text data
          * from the underlying XMLDocument object. This will mainly be used when saving data to the .xlsx package
@@ -169,11 +177,25 @@ namespace OpenXLSX
          */
         std::string getXmlID() const;
 
+        const std::string& getName() const;
+
         /**
          * @brief Retrieve the type represented by the XML data.
          * @return A XLContentType getValue representing the type.
          */
         XLContentType getXmlType() const;
+
+        /**
+         * @brief Retrieve the type represented by the XML data.
+         * @return A XLContentType getValue representing the type.
+         */
+        XLXmlData* getParentNode() const;
+
+        /**
+         * @brief Retrieve the type represented by the XML data.
+         * @return A XLContentType getValue representing the type.
+         */
+        std::vector<XLXmlData*>& getChildNodes();
 
         /**
          * @brief Access the underlying XMLDocument object.
@@ -189,11 +211,14 @@ namespace OpenXLSX
 
     private:
         // ===== PRIVATE MEMBER VARIABLES ===== //
-
+       
         XLDocument*                          m_parentDoc {}; /**< A pointer to the parent XLDocument object. >*/
         std::string                          m_xmlPath {};   /**< The path of the XML data in the .xlsx zip archive. >*/
         std::string                          m_xmlID {};     /**< The relationship ID of the XML data. >*/
+        std::string                          m_name{};
         XLContentType                        m_xmlType {};   /**< The type represented by the XML data. >*/
+        XLXmlData*                           m_parentNode {}; /**< A pointer to the parent XLXmlData object. >*/
+        std::vector<XLXmlData*>              m_childNodes {}; /**< A pointer to the parent XLXmlData object. >*/
         mutable std::unique_ptr<XMLDocument> m_xmlDoc;       /**< The underlying XMLDocument object. >*/
     };
 }    // namespace OpenXLSX

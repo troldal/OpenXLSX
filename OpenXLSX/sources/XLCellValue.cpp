@@ -8,6 +8,8 @@
 // ===== OpenXLSX Includes ===== //
 #include "XLCell.hpp"
 #include "XLCellValue.hpp"
+#include "XLSharedStrings.hpp"
+#include "XLSheet.hpp"
 #include "XLException.hpp"
 
 using namespace OpenXLSX;
@@ -117,7 +119,7 @@ std::string XLCellValue::typeAsString() const
  * @pre The cell and cellNode pointers must not be nullptr and must point to valid objects.
  * @post A valid XLCellValueProxy has been created.
  */
-XLCellValueProxy::XLCellValueProxy(XLCell* cell, XMLNode* cellNode) : m_cell(cell), m_cellNode(cellNode)
+XLCellValueProxy::XLCellValueProxy(XLCell* cell, std::shared_ptr<XMLNode> cellNode) : m_cell(cell), m_cellNode(cellNode)
 {
     assert(cell);                  // NOLINT
 //    assert(cellNode);              // NOLINT
@@ -197,6 +199,9 @@ XLCellValueProxy& XLCellValueProxy::clear()
 
     // ===== Remove the value node.
     m_cellNode->remove_child("v");
+
+    // ===== Remove the is node (only relevant in case previous cell type was "inlineStr")
+    m_cellNode->remove_child("is"); 
     return *this;
 }
 /**
@@ -225,6 +230,9 @@ XLCellValueProxy& XLCellValueProxy::setError(const std::string &error)
 
     // ===== Disable space preservation (only relevant for strings).
     m_cellNode->remove_attribute(" xml:space");
+
+    // ===== Remove the is node (only relevant in case previous cell type was "inlineStr")
+    m_cellNode->remove_child("is");   
 
     return *this;
 }
@@ -318,6 +326,9 @@ void XLCellValueProxy::setInteger(int64_t numberValue)
 
     // ===== Disable space preservation (only relevant for strings).
     m_cellNode->child("v").remove_attribute(m_cellNode->child("v").attribute("xml:space"));
+
+    // ===== Remove the is node (only relevant in case previous cell type was "inlineStr")
+    m_cellNode->remove_child("is");   
 }
 
 /**
@@ -346,6 +357,9 @@ void XLCellValueProxy::setBoolean(bool numberValue)
 
     // ===== Disable space preservation (only relevant for strings).
     m_cellNode->child("v").remove_attribute(m_cellNode->child("v").attribute("xml:space"));
+
+    // ===== Remove the is node (only relevant in case previous cell type was "inlineStr")
+    m_cellNode->remove_child("is");   
 }
 
 /**
@@ -373,6 +387,9 @@ void XLCellValueProxy::setFloat(double numberValue)
 
         // ===== Disable space preservation (only relevant for strings).
         m_cellNode->child("v").remove_attribute(m_cellNode->child("v").attribute("xml:space"));
+
+        // ===== Remove the is node (only relevant in case previous cell type was "inlineStr")
+        m_cellNode->remove_child("is");   
     }
     else {
         setError("#NUM!");
@@ -402,11 +419,18 @@ void XLCellValueProxy::setString(const char* stringValue)
     m_cellNode->attribute("t").set_value("s");
 
     // ===== Get or create the index in the XLSharedStrings object.
-    auto index = (m_cell->m_sharedStrings.stringExists(stringValue) ? m_cell->m_sharedStrings.getStringIndex(stringValue)
-                                                                     : m_cell->m_sharedStrings.appendString(stringValue));
+
+    uint32_t index;
+    if (getSharedString()->stringExists(stringValue))
+        index = getSharedString()->getStringIndex(stringValue);
+    else
+        index = getSharedString()->appendString(stringValue);
 
     // ===== Set the text of the value node.
     m_cellNode->child("v").text().set(index);
+
+    // ===== Remove the is node (only relevant in case previous cell type was "inlineStr")
+    m_cellNode->remove_child("is");   
 
     // IMPLEMENTATION FOR EMBEDDED STRINGS:
     //    m_cellNode->attribute("t").set_value("str");
@@ -417,6 +441,12 @@ void XLCellValueProxy::setString(const char* stringValue)
     //        if (!m_cellNode->attribute("xml:space")) m_cellNode->append_attribute("xml:space");
     //        m_cellNode->attribute("xml:space").set_value("preserve");
     //    }
+}
+
+XLSharedStrings* XLCellValueProxy::getSharedString() const
+{
+    XLQuery query(XLQueryType::QuerySharedStrings);
+    return m_cell->m_worksheet->parentDoc().execQuery(query).template result<XLSharedStrings*>();
 }
 
 /**
@@ -443,7 +473,7 @@ XLCellValue XLCellValueProxy::getValue() const
 
         case XLValueType::String:
             if (strcmp(m_cellNode->attribute("t").value(), "s") == 0)
-                return XLCellValue { m_cell->m_sharedStrings.getString(static_cast<uint32_t>(m_cellNode->child("v").text().as_ullong())) };
+                return XLCellValue {getSharedString()->getString(static_cast<uint32_t>(m_cellNode->child("v").text().as_ullong())) };
             else if (strcmp(m_cellNode->attribute("t").value(), "str") == 0)
                 return XLCellValue { m_cellNode->child("v").text().get() };
             else if (strcmp(m_cellNode->attribute("t").value(), "inlineStr") == 0)

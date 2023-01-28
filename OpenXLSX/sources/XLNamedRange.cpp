@@ -15,7 +15,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
             MM
            _MM_
 
-  Copyright (c) 2018, Kenneth Troldal Balslev
+  Written by Akira SHIMAHARA
 
   All rights reserved.
 
@@ -43,26 +43,78 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXLSX_OPENXLSX_HPP
-#define OPENXLSX_OPENXLSX_HPP
+// ===== External Includes ===== //
+#include <string>
+#include <utility>
 
-#include "headers/XLCell.hpp"
-#include "headers/XLCellRange.hpp"
-#include "headers/XLCellReference.hpp"
-#include "headers/XLCellValue.hpp"
-#include "headers/XLColumn.hpp"
-#include "headers/XLDateTime.hpp"
-#include "headers/XLDocument.hpp"
-#include "headers/XLException.hpp"
-#include "headers/XLFormula.hpp"
-#include "headers/XLNamedRange.hpp"
-#include "headers/XLRow.hpp"
-#include "headers/XLSheet.hpp"
-#include "headers/XLStyles.hpp"
-#include "headers/XLTable.hpp"
-#include "headers/XLTableRows.hpp"
-#include "headers/XLTableStyle.hpp"
-#include "headers/XLWorkbook.hpp"
-#include "headers/XLZipArchive.hpp"
+// ===== OpenXLSX Includes ===== //
+#include "XLNamedRange.hpp"
 
-#endif    // OPENXLSX_OPENXLSX_HPP
+using namespace OpenXLSX;
+
+
+XLNamedRange::XLNamedRange(const std::string& name,
+                      const std::string& reference,
+                      uint32_t localSheetId,
+                      const XLCellRange& rng):
+              m_name(name),
+              m_reference(reference),
+              m_localSheetId(localSheetId),
+              XLCellRange(rng)
+{
+}
+
+XLNamedRange::~XLNamedRange()
+{}
+
+XLNamedRange::XLNamedRange(const XLNamedRange& other):
+              m_name(other.m_name),
+              m_reference(other.m_reference),
+              m_localSheetId(other.m_localSheetId),
+              XLCellRange(other)
+{}
+
+
+XLNamedRange& XLNamedRange::operator=(const XLNamedRange& other)
+{
+    if (&other != this) {
+        XLCellRange::operator=(other);
+        m_localSheetId  = other.m_localSheetId;
+        m_name          = other.m_name;
+        m_reference     = other.m_reference;
+    }
+
+    return *this;
+}
+
+XLNamedRange& XLNamedRange::operator=(XLNamedRange&& other) noexcept
+{
+    if (&other != this) {
+        XLCellRange::operator=(std::move(other));
+        m_localSheetId  = other.m_localSheetId;
+        m_name          = std::string(other.m_name);
+        m_reference     = other.m_reference;
+    }
+
+    return *this;
+}
+
+const std::string& XLNamedRange::name() const
+{
+  return m_name;
+}
+
+const std::string& XLNamedRange::reference() const
+{
+  return m_reference;
+}
+
+uint32_t XLNamedRange::localSheetId() const
+{
+  return m_localSheetId;
+}
+
+XLCell XLNamedRange::firstCell() const
+{
+  return (*begin());
+}

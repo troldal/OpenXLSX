@@ -49,8 +49,15 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== OpenXLSX Includes ===== //
 #include "XLCellRange.hpp"
+#include "XLSheet.hpp"
 
 using namespace OpenXLSX;
+
+namespace OpenXLSX
+{
+    XMLNode getRowNode(XMLNode sheetDataNode, uint32_t rowNumber);
+    XMLNode getCellNode(XMLNode rowNode, uint16_t columnNumber);
+}   
 
 /**
  * @details From the two XLCellReference objects, the constructor calculates the dimensions of the range.
@@ -61,11 +68,11 @@ using namespace OpenXLSX;
 XLCellRange::XLCellRange(const XMLNode&         dataNode,
                          const XLCellReference& topLeft,
                          const XLCellReference& bottomRight,
-                         const XLSharedStrings& sharedStrings)
+                         const XLWorksheet*     wks)
     : m_dataNode(std::make_unique<XMLNode>(dataNode)),
       m_topLeft(topLeft),
       m_bottomRight(bottomRight),
-      m_sharedStrings(sharedStrings)
+      m_worksheet(wks)
 {}
 
 /**
@@ -77,7 +84,7 @@ XLCellRange::XLCellRange(const XLCellRange& other)
     : m_dataNode(std::make_unique<XMLNode>(*other.m_dataNode)),
       m_topLeft(other.m_topLeft),
       m_bottomRight(other.m_bottomRight),
-      m_sharedStrings(other.m_sharedStrings)
+      m_worksheet(other.m_worksheet)
 {}
 
 /**
@@ -105,7 +112,7 @@ XLCellRange& XLCellRange::operator=(const XLCellRange& other)
         *m_dataNode     = *other.m_dataNode;
         m_topLeft       = other.m_topLeft;
         m_bottomRight   = other.m_bottomRight;
-        m_sharedStrings = other.m_sharedStrings;
+        m_worksheet = other.m_worksheet;
     }
 
     return *this;
@@ -122,10 +129,42 @@ XLCellRange& XLCellRange::operator=(XLCellRange&& other) noexcept
         *m_dataNode     = *other.m_dataNode;
         m_topLeft       = other.m_topLeft;
         m_bottomRight   = other.m_bottomRight;
-        m_sharedStrings = other.m_sharedStrings;
+        m_worksheet = other.m_worksheet;
     }
 
     return *this;
+}
+
+/**
+ * @details
+ * @pre
+ * @post
+ */
+bool XLCellRange::operator==(const XLCellRange& rhs) const
+{
+    return ((m_topLeft == rhs.m_topLeft)&&(m_bottomRight == rhs.m_bottomRight));
+}
+
+/**
+ * @details
+ * @pre
+ * @post
+ */
+bool XLCellRange::operator!=(const XLCellRange& rhs) const
+{
+    return !(*this == rhs);
+}
+
+XLCell XLCellRange::operator[](uint32_t index) const
+{
+    uint16_t nCol = numColumns();
+    uint32_t row = m_topLeft.row() + index / nCol;
+    uint16_t col = m_topLeft.column() + index % nCol;
+
+    if(row > m_bottomRight.row())
+        return XLCell();
+    
+    return XLCell(getCellNode(getRowNode(*m_dataNode, row), col), m_worksheet);   
 }
 
 /**
@@ -173,7 +212,72 @@ XLCellIterator XLCellRange::end() const
  * @pre
  * @post
  */
+void XLCellRange::offset(int row, int col)
+{
+    m_topLeft.offset(row,col);
+    m_bottomRight.offset(row, col);
+}
+
+/**
+ * @details
+ * @pre
+ * @post
+ */
 void XLCellRange::clear()
 {
     for(auto& cell: *this) cell.value().clear();
+}
+
+void XLCellRange::setRangeCoordinates(const XLCellReference& topLeft,
+                                        const XLCellReference& bottomRight)
+{
+    m_topLeft = topLeft;
+    m_bottomRight = bottomRight;
+}
+
+
+
+std::pair<XLCellReference,XLCellReference> XLCellRange::rangeCoordinates()
+{
+    return std::make_pair(m_topLeft,m_bottomRight);
+}
+
+const std::pair<XLCellReference,XLCellReference> XLCellRange::rangeCoordinates() const
+{
+    return std::make_pair(m_topLeft,m_bottomRight);
+}
+
+std::pair<std::string,std::string> XLCellRange::topLeftBottomRight(const std::string& ref)
+{
+    std::string::size_type n = ref.find(':');
+    if(n>ref.size()) // there is no : separator
+        return std::make_pair(ref,ref);
+        //throw XLInputError("Invalid reference \"" + ref + "\" for a range");
+    
+    return std::make_pair(ref.substr(0, n),ref.substr(n+1));
+}
+
+uint16_t XLCellRange::columnsCount(const std::string& ref)
+{
+    std::string::size_type n = ref.find(':');
+    if(n>ref.size()) // there is no : separator
+        return 1;
+
+    XLCoordinates topleft = XLCellReference::coordinatesFromAddress(ref.substr(0,n));
+    XLCoordinates bottomright = XLCellReference::coordinatesFromAddress(ref.substr(n+1));
+    
+    return bottomright.second - topleft.second + 1;
+}
+
+uint32_t XLCellRange::rowsCount(const std::string& ref)
+{
+    std::string::size_type n = ref.find(':');
+    if(n>ref.size()) // there is no : separator
+        return 1;
+
+    XLCoordinates topleft = XLCellReference::coordinatesFromAddress(ref.substr(0,n));
+    XLCoordinates bottomright = XLCellReference::coordinatesFromAddress(ref.substr(n+1));
+    
+    return bottomright.first - topleft.first + 1;
+
 }

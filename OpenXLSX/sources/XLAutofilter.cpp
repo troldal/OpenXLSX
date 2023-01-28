@@ -15,7 +15,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
             MM
            _MM_
 
-  Copyright (c) 2018, Kenneth Troldal Balslev
+  Written by Akira SHIMAHARA
 
   All rights reserved.
 
@@ -43,26 +43,77 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXLSX_OPENXLSX_HPP
-#define OPENXLSX_OPENXLSX_HPP
+// ===== External Includes ===== //
+#include <algorithm>
+#include <pugixml.hpp>
+#include <vector>
 
-#include "headers/XLCell.hpp"
-#include "headers/XLCellRange.hpp"
-#include "headers/XLCellReference.hpp"
-#include "headers/XLCellValue.hpp"
-#include "headers/XLColumn.hpp"
-#include "headers/XLDateTime.hpp"
-#include "headers/XLDocument.hpp"
-#include "headers/XLException.hpp"
-#include "headers/XLFormula.hpp"
-#include "headers/XLNamedRange.hpp"
-#include "headers/XLRow.hpp"
-#include "headers/XLSheet.hpp"
-#include "headers/XLStyles.hpp"
-#include "headers/XLTable.hpp"
-#include "headers/XLTableRows.hpp"
-#include "headers/XLTableStyle.hpp"
-#include "headers/XLWorkbook.hpp"
-#include "headers/XLZipArchive.hpp"
+// ===== OpenXLSX Includes ===== //
+#include "XLAutofilter.hpp"
+#include "XLCellRange.hpp"
+#include "XLXmlData.hpp"
 
-#endif    // OPENXLSX_OPENXLSX_HPP
+
+
+using namespace OpenXLSX;
+
+
+ XLAutofilter:: XLAutofilter(const XMLNode& dataNode, XLXmlData* parent): 
+            m_dataNode(std::make_unique<XMLNode>(dataNode)),
+            m_parent(parent)
+{
+}
+// TODO check if Autofilter is valid
+XLAutofilter::~XLAutofilter() = default;
+
+std::string XLAutofilter::ref() const
+{
+    return std::string(m_dataNode->attribute("ref").value());
+}
+
+ 
+void XLAutofilter::setRef(const std::string& ref) const
+{
+    auto node = m_dataNode->attribute("ref");
+    if(!node)
+        node = m_dataNode->append_attribute("ref");
+    
+    node.set_value(ref.c_str());  
+}
+
+void XLAutofilter::hideArrow(uint16_t indexCol, bool hide) const
+{
+    auto node = m_dataNode->find_child_by_attribute("colId", std::to_string(indexCol).c_str());
+    if (!node){
+        node = m_dataNode->append_child("filterColumn");
+        node.append_attribute("colId")
+            .set_value(std::to_string(indexCol).c_str());
+    }
+    if(!node.attribute("hiddenButton"))
+        node.append_attribute("hiddenButton");
+
+    if(hide)
+        node.attribute("hiddenButton").set_value("1");
+    else
+        node.attribute("hiddenButton").set_value("0");
+}
+
+void XLAutofilter::hideArrows(bool hide) const
+{
+    uint16_t nCol = XLCellRange::columnsCount(ref());
+    for (uint16_t i = 0; i < nCol;i++)
+        hideArrow(i,hide);
+}
+/*
+std::string XLTableColumn::name() const
+{
+  return (m_dataNode->attribute("name").value());
+}
+
+void XLTableColumn::setName(const std::string& columnName) const
+{
+  m_dataNode->attribute("name").set_value(columnName.c_str());
+  // TODO change the formulas  in table.xml
+  // TODO change the formulas in the sheet
+}
+*/

@@ -194,7 +194,7 @@ namespace OpenXLSX
          * @brief
          * @param color
          */
-        void setColor(const XLColor& color)
+        void setTabColor(const XLColor& color)
         {
             static_cast<T&>(*this).setColor_impl(color);
         }
@@ -294,6 +294,7 @@ namespace OpenXLSX
                                         .setParam("sheetID", relationshipID())
                                         .setParam("cloneName", newName));
         }
+    
     };
 
     /**
@@ -304,6 +305,7 @@ namespace OpenXLSX
         friend class XLCell;
         friend class XLRow;
         friend class XLWorkbook;
+        friend class XLCellValueProxy;
         friend class XLSheetBase<XLWorksheet>;
 
         //----------------------------------------------------------------------------------------------------------------------
@@ -350,7 +352,7 @@ namespace OpenXLSX
          * @note The move assignment operator has been explicitly deleted.
          */
         XLWorksheet& operator=(XLWorksheet&& other) = default;
-
+        
         /**
          * @brief
          * @param ref
@@ -386,6 +388,12 @@ namespace OpenXLSX
          * @return A const XLCellRange object with the requested range.
          */
         XLCellRange range(const XLCellReference& topLeft, const XLCellReference& bottomRight) const;
+/**
+         * @brief Get a range with the given coordinates.
+         * @param topLeft A Excel type range i.e "A3:C12".
+         * @return A const XLCellRange object with the requested range.
+         */
+        XLCellRange range(const std::string& range) const;
 
         /**
          * @brief
@@ -484,6 +492,7 @@ namespace OpenXLSX
          * @param selected
          */
         void setActive_impl();
+
     };
 
     /**
@@ -640,7 +649,7 @@ namespace OpenXLSX
          * @brief
          * @param color
          */
-        void setColor(const XLColor& color);
+        void setTabColor(const XLColor& color);
 
         /**
          * @brief Method for getting the index of the sheet.
