@@ -10734,11 +10734,12 @@ namespace Zippy
             }
 
             // ===== Generate a random file name with the same path as the current file
-            std::string tempPath = filename.substr(0, filename.rfind('/') + 1) + Impl::GenerateRandomName(20);
+            std::string tempPath = filename.substr(0, filename.find_last_of("/\\") + 1) + Impl::GenerateRandomName(20);
 
             // ===== Prepare an temporary archive file with the random filename;
             mz_zip_archive tempArchive = mz_zip_archive();
-            mz_zip_writer_init_file(&tempArchive, tempPath.c_str(), 0);
+            if (!mz_zip_writer_init_file(&tempArchive, tempPath.c_str(), 0))
+                throw ZipRuntimeError(mz_zip_get_error_string(tempArchive.m_last_error));
 
             // ===== Iterate through the ZipEntries and add entries to the temporary file
             for (auto& file : m_ZipEntries) {
