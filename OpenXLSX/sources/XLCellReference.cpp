@@ -46,6 +46,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 // ===== External Includes ===== //
 #include <array>
 #include <cmath>
+#include <cstdint>
 #ifdef CHARCONV_ENABLED
 #    include <charconv>
 #endif
