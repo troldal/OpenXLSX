@@ -46,6 +46,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 // ===== External Includes ===== //
 #include <algorithm>
 #include <sstream>
+#include <cstdint>
 
 // ===== OpenXLSX Includes ===== //
 #include "XLColor.hpp"
