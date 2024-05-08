@@ -277,9 +277,9 @@ namespace OpenXLSX
          * @brief
          * @param active
          */
-        void setActive()
+        bool setActive()
         {
-            static_cast<T&>(*this).setActive_impl();
+            return static_cast<T&>(*this).setActive_impl();
         }
 
         /**
@@ -356,7 +356,7 @@ namespace OpenXLSX
          * @param ref
          * @return
          */
-        XLCell cell(const std::string& ref) const;
+        XLCellAssignable cell(const std::string& ref) const;
 
         /**
          * @brief Get a pointer to the XLCell object for the given cell reference.
@@ -483,7 +483,7 @@ namespace OpenXLSX
          * @brief
          * @param selected
          */
-        void setActive_impl();
+        bool setActive_impl();
     };
 
     /**
@@ -666,6 +666,12 @@ namespace OpenXLSX
         void setName(const std::string& name);
 
         /**
+         * @brief Determine whether the sheet is selected
+         * @return
+         */
+        bool isSelected() const;
+
+        /**
          * @brief
          * @param selected
          */
@@ -723,6 +729,11 @@ namespace OpenXLSX
          * @return
          */
         operator XLChartsheet() const;    // NOLINT
+
+        /**
+         * @brief print the XML contents of the XLSheet using the underlying XMLNode print function
+         */
+        void print(std::basic_ostream<char, std::char_traits<char> >& os);
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Private Member Variables

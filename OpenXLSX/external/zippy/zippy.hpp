@@ -27,7 +27,12 @@
 #    include <direct.h>
 #endif
 
-#include <nowide/cstdio.hpp>
+#ifdef ENABLE_NOWIDE // TODO TBD: test this on windows
+#    include <nowide/cstdio.hpp>
+#    define FILESYSTEM_NAMESPACE nowide
+#else
+#    define FILESYSTEM_NAMESPACE std
+#endif
 
 namespace
 {
@@ -4546,12 +4551,12 @@ common_exit:
 #        if defined(_MSC_VER) || defined(__MINGW64__)
     static FILE* mz_fopen(const char* pFilename, const char* pMode)
     {
-        FILE* pFile = nowide::fopen(pFilename, pMode);
+        FILE* pFile = FILESYSTEM_NAMESPACE::fopen(pFilename, pMode);
         return pFile;
     }
     static FILE* mz_freopen(const char* pPath, const char* pMode, FILE* pStream)
     {
-        FILE* pFile = nowide::freopen(pPath, pMode, pStream);
+        FILE* pFile = FILESYSTEM_NAMESPACE::freopen(pPath, pMode, pStream);
         if (!pFile) return NULL;
         return pFile;
     }
@@ -4569,11 +4574,12 @@ common_exit:
 #            define MZ_FFLUSH fflush
 #            define MZ_FREOPEN mz_freopen
 #            define MZ_DELETE_FILE remove
+#            define MZ_RENAME_FILE rename
 #        elif defined(__MINGW32__)
 #            ifndef MINIZ_NO_TIME
 #                include <sys/utime.h>
 #            endif
-#            define MZ_FOPEN(f, m) nowide::fopen(f, m)
+#            define MZ_FOPEN(f, m) FILESYSTEM_NAMESPACE::fopen(f, m)
 #            define MZ_FCLOSE fclose
 #            define MZ_FREAD fread
 #            define MZ_FWRITE fwrite
@@ -4582,13 +4588,14 @@ common_exit:
 #            define MZ_FILE_STAT_STRUCT _stat
 #            define MZ_FILE_STAT _stat
 #            define MZ_FFLUSH fflush
-#            define MZ_FREOPEN(f, m, s) nowide::freopen(f, m, s)
-#            define MZ_DELETE_FILE nowide::remove
+#            define MZ_FREOPEN(f, m, s) FILESYSTEM_NAMESPACE::freopen(f, m, s)
+#            define MZ_DELETE_FILE FILESYSTEM_NAMESPACE::remove
+#            define MZ_RENAME_FILE FILESYSTEM_NAMESPACE::rename
 #        elif defined(__TINYC__)
 #            ifndef MINIZ_NO_TIME
 #                include <sys/utime.h>
 #            endif
-#            define MZ_FOPEN(f, m) nowide::fopen(f, m)
+#            define MZ_FOPEN(f, m) FILESYSTEM_NAMESPACE::fopen(f, m)
 #            define MZ_FCLOSE fclose
 #            define MZ_FREAD fread
 #            define MZ_FWRITE fwrite
@@ -4597,8 +4604,9 @@ common_exit:
 #            define MZ_FILE_STAT_STRUCT stat
 #            define MZ_FILE_STAT stat
 #            define MZ_FFLUSH fflush
-#            define MZ_FREOPEN(f, m, s) nowide::freopen(f, m, s)
-#            define MZ_DELETE_FILE nowide::remove
+#            define MZ_FREOPEN(f, m, s) FILESYSTEM_NAMESPACE::freopen(f, m, s)
+#            define MZ_DELETE_FILE FILESYSTEM_NAMESPACE::remove
+#            define MZ_RENAME_FILE FILESYSTEM_NAMESPACE::rename
 #        elif defined(__GNUC__) && _LARGEFILE64_SOURCE
 #            ifndef MINIZ_NO_TIME
 #                include <utime.h>
@@ -4614,6 +4622,7 @@ common_exit:
 #            define MZ_FFLUSH fflush
 #            define MZ_FREOPEN(p, m, s) freopen64(p, m, s)
 #            define MZ_DELETE_FILE remove
+#            define MZ_RENAME_FILE rename
 #        elif defined(__APPLE__)
 #            ifndef MINIZ_NO_TIME
 
@@ -4621,7 +4630,7 @@ common_exit:
 
 #            endif
 
-#            define MZ_FOPEN(f, m) nowide::fopen(f, m)
+#            define MZ_FOPEN(f, m) FILESYSTEM_NAMESPACE::fopen(f, m)
 #            define MZ_FCLOSE fclose
 #            define MZ_FREAD fread
 #            define MZ_FWRITE fwrite
@@ -4630,15 +4639,16 @@ common_exit:
 #            define MZ_FILE_STAT_STRUCT stat
 #            define MZ_FILE_STAT stat
 #            define MZ_FFLUSH fflush
-#            define MZ_FREOPEN(p, m, s) nowide::freopen(p, m, s)
-#            define MZ_DELETE_FILE nowide::remove
+#            define MZ_FREOPEN(p, m, s) FILESYSTEM_NAMESPACE::freopen(p, m, s)
+#            define MZ_DELETE_FILE FILESYSTEM_NAMESPACE::remove
+#            define MZ_RENAME_FILE FILESYSTEM_NAMESPACE::rename
 
 #        else
 #            pragma message("Using fopen, ftello, fseeko, stat() etc. path for file I/O - this path may not support large files.")
 #            ifndef MINIZ_NO_TIME
 #                include <utime.h>
 #            endif
-#            define MZ_FOPEN(f, m) nowide::fopen(f, m)
+#            define MZ_FOPEN(f, m) FILESYSTEM_NAMESPACE::fopen(f, m)
 #            define MZ_FCLOSE fclose
 #            define MZ_FREAD fread
 #            define MZ_FWRITE fwrite
@@ -4652,8 +4662,9 @@ common_exit:
 #            define MZ_FILE_STAT_STRUCT stat
 #            define MZ_FILE_STAT stat
 #            define MZ_FFLUSH fflush
-#            define MZ_FREOPEN(f, m, s) nowide::freopen(f, m, s)
-#            define MZ_DELETE_FILE nowide::remove
+#            define MZ_FREOPEN(f, m, s) FILESYSTEM_NAMESPACE::freopen(f, m, s)
+#            define MZ_DELETE_FILE FILESYSTEM_NAMESPACE::remove
+#            define MZ_RENAME_FILE FILESYSTEM_NAMESPACE::rename
 #        endif /* #ifdef _MSC_VER */
 #    endif /* #ifdef MINIZ_NO_STDIO */
 
@@ -10732,13 +10743,31 @@ namespace Zippy
             if (filename.empty()) {
                 filename = m_ArchivePath;
             }
+#           ifdef _WIN32
+               std::replace( filename.begin(), filename.end(), '\\', '/' ); // pull request #210, alternate fix: fopen etc work fine with forward slashes
+#           endif
+
+            // ===== Determine path of the current file
+            size_t pathPos = filename.rfind('/');
+
+            // pull request #191, support AmigaOS style paths
+#           ifdef __amigaos__
+                constexpr const char * localFolder = "\"\"/"; // local folder on AmigaOS is ""
+                if (pathPos == std::string::npos) pathPos = filename.rfind(':'); // if no '/' found, attempt to find amiga drive root path
+#           else
+                constexpr const char * localFolder = "./"; // local folder on _WIN32 && __linux__ is .
+#           endif
+            std::string tempPath{};
+            if (pathPos != std::string::npos) tempPath = filename.substr(0, pathPos + 1);
+				else tempPath = localFolder; // prepend explicit identification of local folder in case path did not contain a folder
 
             // ===== Generate a random file name with the same path as the current file
-            std::string tempPath = filename.substr(0, filename.rfind('/') + 1) + Impl::GenerateRandomName(20);
+            tempPath = tempPath + Impl::GenerateRandomName(20);
 
             // ===== Prepare an temporary archive file with the random filename;
             mz_zip_archive tempArchive = mz_zip_archive();
-            mz_zip_writer_init_file(&tempArchive, tempPath.c_str(), 0);
+            if (!mz_zip_writer_init_file(&tempArchive, tempPath.c_str(), 0))              // pull request #210
+                throw ZipRuntimeError(mz_zip_get_error_string(tempArchive.m_last_error)); //  "
 
             // ===== Iterate through the ZipEntries and add entries to the temporary file
             for (auto& file : m_ZipEntries) {
@@ -10772,8 +10801,8 @@ namespace Zippy
 
             // ===== Close the current archive, delete the file with input filename (if it exists), rename the temporary and call Open.
             Close();
-            nowide::remove(filename.c_str());
-            nowide::rename(tempPath.c_str(), filename.c_str());
+            MZ_DELETE_FILE(filename.c_str());
+            MZ_RENAME_FILE(tempPath.c_str(), filename.c_str());
             Open(filename);
         }
 

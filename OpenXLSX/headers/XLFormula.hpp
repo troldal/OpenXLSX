@@ -64,6 +64,9 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 // ========== CLASS AND ENUM TYPE DEFINITIONS ========== //
 namespace OpenXLSX
 {
+    constexpr const bool XLResetValue = true;
+    constexpr const bool XLPreserveValue = false;
+
     //---------- Forward Declarations ----------//
     class XLFormulaProxy;
     class XLCell;
@@ -173,7 +176,7 @@ namespace OpenXLSX
         }
 
         /**
-         * @brief Get the forumla as a std::string.
+         * @brief Get the formula as a std::string.
          * @return A std::string with the formula.
          */
         std::string get() const;
@@ -256,7 +259,7 @@ namespace OpenXLSX
         }
 
         /**
-         * @brief Get the forumla as a std::string.
+         * @brief Get the formula as a std::string.
          * @return A std::string with the formula.
          */
         std::string get() const;
@@ -309,8 +312,9 @@ namespace OpenXLSX
         /**
          * @brief Set the formula to the given string.
          * @param formulaString String holding the formula.
+         * @param resetValue if true (XLResetValue), the cell value will be set to 0, if false (XLPreserveValue), it will remain unchanged
          */
-        void setFormulaString(const char* formulaString);
+        void setFormulaString(const char* formulaString, bool resetValue = XLResetValue);
 
         /**
          * @brief Get the underlying XLFormula object.
@@ -351,14 +355,25 @@ namespace OpenXLSX
     }
 
     /**
-     * @brief
-     * @param os
-     * @param value
+     * @brief send a formula string to an ostream
+     * @param os the output destination
+     * @param value the formula to send to os
      * @return
      */
     inline std::ostream& operator<<(std::ostream& os, const XLFormula& value)
     {
         return os << value.m_formulaString;
+    }
+
+    /**
+     * @brief send a formula string to an ostream
+     * @param os the output destination
+     * @param value the formula proxy whose formula to send to os
+     * @return
+     */
+    inline std::ostream& operator<<(std::ostream& os, const XLFormulaProxy& value)
+    {
+        return os << value.get();
     }
 }    // namespace OpenXLSX
 

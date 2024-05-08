@@ -44,23 +44,26 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
  */
 
 // ===== External Includes ===== //
-#include <nowide/fstream.hpp>
-#include <pugixml.hpp>
+#ifdef ENABLE_NOWIDE
+#    include <nowide/fstream.hpp>
+#endif
 #if defined(_WIN32)
 #    include <random>
 #endif
+#include <pugixml.hpp>
 
 // ===== OpenXLSX Includes ===== //
 #include "XLContentTypes.hpp"
 #include "XLDocument.hpp"
 #include "XLSheet.hpp"
+#include "utilities/XLUtilities.hpp"
 
 using namespace OpenXLSX;
 
 namespace
 {
-    const int           templateSize       = 7714;
-    const unsigned char templateData[7714] = {
+    constexpr const int           templateSize       = 7714;
+    constexpr const unsigned char templateData[7714] = {
         0x50, 0x4b, 0x03, 0x04, 0x14, 0x00, 0x06, 0x00, 0x08, 0x00, 0x00, 0x00, 0x21, 0x00, 0xb5, 0x55, 0x30, 0x23, 0xf4, 0x00, 0x00, 0x00,
         0x4c, 0x02, 0x00, 0x00, 0x0b, 0x00, 0x08, 0x02, 0x5f, 0x72, 0x65, 0x6c, 0x73, 0x2f, 0x2e, 0x72, 0x65, 0x6c, 0x73, 0x20, 0xa2, 0x04,
         0x02, 0x28, 0xa0, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -476,19 +479,44 @@ void XLDocument::open(const std::string& fileName)
                                 /* xmlType   */ item.type());
     }
 
-    for (const auto& node : getXmlData("xl/sharedStrings.xml")->getXmlDocument()->document_element().children()){
-        if (std::string(node.first_child().name()) == "r") {
-            std::string result;
-            for (const auto& elem : node.children())
-                result += elem.child("t").text().get();
-            m_sharedStringCache.emplace_back(result);
+    // ===== Read shared strings table.
+    XMLDocument * sharedStrings = getXmlData("xl/sharedStrings.xml")->getXmlDocument();
+    if( !sharedStrings->document_element().attribute("uniqueCount").empty() )
+        sharedStrings->document_element().remove_attribute("uniqueCount"); // pull request #192 -> remove count & uniqueCount as they are optional
+    if( !sharedStrings->document_element().attribute("count").empty() )
+        sharedStrings->document_element().remove_attribute("count");       // pull request #192 -> remove count & uniqueCount as they are optional
+
+    XMLNode node = sharedStrings->document_element().first_child_of_type(pugi::node_element); // pull request #186: Skip non-element nodes in sst.
+    while (node) {
+        // ===== Validate si node name.
+        using namespace std::literals::string_literals;
+        if(node.name() != "si"s ) throw XLInputError( "xl/sharedStrings.xml sst node name \""s + node.name() + "\" is not \"si\""s );
+
+        // ===== Find first node_element child of si node.
+        XMLNode elem = node.first_child_of_type(pugi::node_element);
+        if (elem) {
+            // ===== If shared string is a rich text string
+            if (std::string(elem.name()) == "r") {
+                std::string result;
+                while (elem) {
+                    result += elem.child("t").text().get();
+                    elem = elem.next_sibling_of_type(pugi::node_element);
+                }
+                m_sharedStringCache.emplace_back(result);
+            }
+            // ===== If shared string is a regular string
+            else { // 2024-05-03: support a string composed of multiple <t> nodes, because LibreOffice accepts it
+                std::string result;
+                while (elem) {
+                    if( elem.name() != "t"s ) throw XLInputError( "xl/sharedStrings.xml si node \""s + node.name() + "\" is neiter \"r\" not \"t\""s );
+                    result += elem.text().get();
+                    elem = elem.next_sibling_of_type(pugi::node_element);
+                }
+                m_sharedStringCache.emplace_back(result);
+            }
         }
-
-        else
-            m_sharedStringCache.emplace_back(node.first_child().text().get());
-
+        node = node.next_sibling_of_type(pugi::node_element);
     }
-
 
     // ===== Open the workbook and document property items
     // TODO: If property data doesn't exist, consider creating them, instead of ignoring it.
@@ -504,7 +532,11 @@ void XLDocument::open(const std::string& fileName)
 void XLDocument::create(const std::string& fileName)
 {
     // ===== Create a temporary output file stream.
+#ifdef ENABLE_NOWIDE
     nowide::ofstream outfile(fileName, std::ios::binary);
+#else
+    std::ofstream outfile(fileName, std::ios::binary);
+#endif
 
     // ===== Stream the binary data for an empty workbook to the output file.
     // ===== Casting, in particular reinterpret_cast, is discouraged, but in this case it is unfortunately unavoidable.
@@ -634,6 +666,48 @@ std::string XLDocument::property(XLProperty prop) const
 }
 
 /**
+ * @brief extract an integer major version v1 and minor version v2 from a string
+ * @details trims all whitespaces from begin and end of versionString and attempts to extract two integers from the format [0-9]{1,2}\.[0-9]{1,4}  (Example: 14.123)
+ * @param versionString the string to process
+ * @param majorVersion by reference: store the major version here
+ * @param minorVersion by reference: store the minor version here
+ * @return true if string adheres to format & version numbers could be extracted
+ * @return false in case of failure
+ */
+bool getAppVersion( std::string versionString, int & majorVersion, int & minorVersion )
+{
+    // ===== const expressions for hardcoded version limits
+    constexpr const int minMajorV= 0, maxMajorV =   99; // allowed value range for major version number
+    constexpr const int minMinorV= 0, maxMinorV = 9999; //          "          for minor   "
+
+    size_t begin = versionString.find_first_not_of(" \t");
+    size_t dotPos = versionString.find_first_of('.');
+
+    // early failure if string is only blanks or does not contain a dot
+    if (begin == std::string::npos || dotPos == std::string::npos)
+        return false;
+
+    size_t end = versionString.find_last_not_of( " \t" );
+    if(begin != std::string::npos && dotPos != std::string::npos) {
+        std::string trimmedValue = versionString.substr(begin, end + 1 - begin);
+        std::string strMajorVersion = versionString.substr(begin, dotPos - begin);
+        std::string strMinorVersion = versionString.substr(dotPos + 1, end - dotPos);
+        try {
+            size_t pos;
+            majorVersion = std::stoi(strMajorVersion, &pos); if(pos != strMajorVersion.length()) throw 1;
+            minorVersion = std::stoi(strMinorVersion, &pos); if(pos != strMinorVersion.length()) throw 1;
+        }
+        catch(...) {
+            return false; // conversion failed or did not convert the full string
+        }
+    }
+    if (majorVersion < minMajorV || majorVersion > maxMajorV || minorVersion < minMinorV || minorVersion > maxMinorV) // final range check
+        return false;
+
+    return true;
+}
+
+/**
  * @details Set the value for a property.
  *
  * If the property is a datetime, it must be in the W3CDTF format, i.e. YYYY-MM-DDTHH:MM:SSZ. Also, the time should
@@ -663,28 +737,12 @@ void XLDocument::setProperty(XLProperty prop, const std::string& value) // NOLIN
         case XLProperty::Application:
             m_appProperties.setProperty("Application", value);
             break;
-        case XLProperty::AppVersion:    // ===== TODO: Clean up this section
-            try {
-                std::stof(value);
-            }
-            catch (...) {
-                throw XLPropertyError("Invalid property value");
-            }
-
-            if (value.find('.') != std::string::npos) {
-                if (!value.substr(value.find('.') + 1).empty() && value.substr(value.find('.') + 1).size() <= 5) { // NOLINT
-                    if (!value.substr(0, value.find('.')).empty() && value.substr(0, value.find('.')).size() <= 2) {
-                        m_appProperties.setProperty("AppVersion", value);
-                    }
-                    else
-                        throw XLPropertyError("Invalid property value");
-                }
-                else
-                    throw XLPropertyError("Invalid property value");
-            }
-            else
-                throw XLPropertyError("Invalid property value");
-
+		  case XLProperty::AppVersion:    // ===== 2025-05-02 done: section cleaned up, pull request #174: Fixing discarding return value of function with 'nodiscard' attribute
+            int minorVersion, majorVersion;
+            // ===== Check for the format "XX.XXXX", with X being a number.
+            if (!getAppVersion(value, majorVersion, minorVersion))
+                throw XLPropertyError("Invalid property value: " + std::string(value));
+            m_appProperties.setProperty("AppVersion", std::to_string(majorVersion) + "." + std::to_string(minorVersion)); // re-assemble version string for a clean property setting
             break;
 
         case XLProperty::Category:
@@ -774,9 +832,9 @@ void XLDocument::deleteProperty(XLProperty theProperty)
 }
 
 /**
- * @details
+ * @details return value defaults to true, false only where the XLCommandType implements it
  */
-void XLDocument::execCommand(const XLCommand& command) {
+bool XLDocument::execCommand(const XLCommand& command) {
 
     switch (command.type()) {
         case XLCommandType::SetSheetName:
@@ -801,8 +859,8 @@ void XLDocument::execCommand(const XLCommand& command) {
             break;
 
         case XLCommandType::SetSheetActive:
-            m_workbook.setSheetActive(command.getParam<std::string>("sheetID"));
-            break;
+            return m_workbook.setSheetActive(command.getParam<std::string>("sheetID"));
+            // break;
 
         case XLCommandType::ResetCalcChain:
             {
@@ -818,7 +876,8 @@ void XLDocument::execCommand(const XLCommand& command) {
             {
                 std::string sharedStrings {
                     "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-                    "<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"1\" uniqueCount=\"1\">\n"
+                    // "<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"1\" uniqueCount=\"1\">\n"
+                    "<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\">\n" // pull request #192 -> remove count & uniqueCount as they are optional
                     "  <si>\n"
                     "    <t/>\n"
                     "  </si>\n"
@@ -914,6 +973,8 @@ void XLDocument::execCommand(const XLCommand& command) {
         }
             break;
     }
+
+    return true; // default: command claims success unless otherwise implemented in switch-clauses
 }
 
 /**
@@ -932,12 +993,15 @@ XLQuery XLDocument::execQuery(const XLQuery& query) const
         case XLQueryType::QuerySheetVisibility:
             return XLQuery(query).setResult(m_workbook.sheetVisibility(query.getParam<std::string>("sheetID")));
 
-        case XLQueryType::QuerySheetType:
-            if (m_wbkRelationships.relationshipById(query.getParam<std::string>("sheetID")).type() == XLRelationshipType::Worksheet)
+        case XLQueryType::QuerySheetType: {
+            XLRelationshipType t = m_wbkRelationships.relationshipById(query.getParam<std::string>("sheetID")).type();
+            if (t == XLRelationshipType::Worksheet)
                 return XLQuery(query).setResult(XLContentType::Worksheet);
-            else
+            else if ( t == XLRelationshipType::Chartsheet )
                 return XLQuery(query).setResult(XLContentType::Chartsheet);
-
+            else
+                return XLQuery(query).setResult(XLContentType::Unknown);
+        }
         case XLQueryType::QuerySheetIsActive:
             return XLQuery(query).setResult(m_workbook.sheetIsActive(query.getParam<std::string>("sheetID")));
 

@@ -55,6 +55,11 @@ namespace pugi
 
 namespace OpenXLSX
 {
+    // class OpenXLSX_xml_node : public pugi::xml_node {
+    //     using xml_node::xml_node; // use all constructors of pugi::xml_node
+    // TBD: can first_child_element and last_child_element be implemented here to skip whitespace nodes?
+    // };
+    // using XMLNode      = OpenXLSX_xml_node;
     using XMLNode      = pugi::xml_node;
     using XMLAttribute = pugi::xml_attribute;
     using XMLDocument  = pugi::xml_document;

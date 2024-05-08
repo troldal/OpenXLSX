@@ -150,6 +150,11 @@ namespace OpenXLSX
          */
         void clearString(uint64_t index);
 
+        /**
+         * @brief print the XML contents of the shared strings document using the underlying XMLNode print function
+         */
+        void print(std::basic_ostream<char, std::char_traits<char> >& os);
+
     private:
         std::deque<std::string> *m_stringCache {}; /** < Each string must have an unchanging memory address; hence the use of std::deque */
     };

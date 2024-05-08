@@ -3,6 +3,8 @@
 //
 
 // ===== External Includes ===== //
+#include <cassert>
+#include <cstring>
 #include <pugixml.hpp>
 
 // ===== OpenXLSX Includes ===== //
@@ -197,6 +199,10 @@ XLCellValueProxy& XLCellValueProxy::clear()
 
     // ===== Remove the value node.
     m_cellNode->remove_child("v");
+
+    // ===== Remove the is node (only relevant in case previous cell type was "inlineStr"). // pull request #188
+    m_cellNode->remove_child("is");
+
     return *this;
 }
 /**
@@ -226,6 +232,9 @@ XLCellValueProxy& XLCellValueProxy::setError(const std::string &error)
     // ===== Disable space preservation (only relevant for strings).
     m_cellNode->remove_attribute(" xml:space");
 
+    // ===== Remove the is node (only relevant in case previous cell type was "inlineStr"). // pull request #188
+    m_cellNode->remove_child("is");
+
     return *this;
 }
 
@@ -244,7 +253,7 @@ XLValueType XLCellValueProxy::type() const
     if (!m_cellNode->attribute("t") && !m_cellNode->child("v")) return XLValueType::Empty;
 
     // ===== If a Type attribute is not present, but a value node is, the cell contains a number.
-    if ((!m_cellNode->attribute("t") || (strcmp(m_cellNode->attribute("t").value(), "n") == 0 && m_cellNode->child("v") != nullptr))) {
+    if (!m_cellNode->attribute("t") || ((strcmp(m_cellNode->attribute("t").value(), "n") == 0) && !m_cellNode->child("v").empty())) {
         std::string numberString = m_cellNode->child("v").text().get();
         if (numberString.find('.') != std::string::npos || numberString.find("E-") != std::string::npos ||
             numberString.find("e-") != std::string::npos)
@@ -253,19 +262,19 @@ XLValueType XLCellValueProxy::type() const
     }
 
     // ===== If the cell is of type "s", the cell contains a shared string.
-    if (m_cellNode->attribute("t") != nullptr && strcmp(m_cellNode->attribute("t").value(), "s") == 0)
+    if (!m_cellNode->attribute("t").empty() && strcmp(m_cellNode->attribute("t").value(), "s") == 0)
         return XLValueType::String;    // NOLINT
 
     // ===== If the cell is of type "inlineStr", the cell contains an inline string.
-    if (m_cellNode->attribute("t") != nullptr && strcmp(m_cellNode->attribute("t").value(), "inlineStr") == 0)
+    if (!m_cellNode->attribute("t").empty() && strcmp(m_cellNode->attribute("t").value(), "inlineStr") == 0)
         return XLValueType::String;
 
     // ===== If the cell is of type "str", the cell contains an ordinary string.
-    if (m_cellNode->attribute("t") != nullptr && strcmp(m_cellNode->attribute("t").value(), "str") == 0)
+    if (!m_cellNode->attribute("t").empty() && strcmp(m_cellNode->attribute("t").value(), "str") == 0)
         return XLValueType::String;
 
     // ===== If the cell is of type "b", the cell contains a boolean.
-    if (m_cellNode->attribute("t") != nullptr && strcmp(m_cellNode->attribute("t").value(), "b") == 0)
+    if (!m_cellNode->attribute("t").empty() && strcmp(m_cellNode->attribute("t").value(), "b") == 0)
         return XLValueType::Boolean;
 
     // ===== Otherwise, the cell contains an error.
@@ -318,6 +327,9 @@ void XLCellValueProxy::setInteger(int64_t numberValue)
 
     // ===== Disable space preservation (only relevant for strings).
     m_cellNode->child("v").remove_attribute(m_cellNode->child("v").attribute("xml:space"));
+
+    // ===== Remove the is node (only relevant in case previous cell type was "inlineStr"). // pull request #188
+    m_cellNode->remove_child("is");
 }
 
 /**
@@ -346,6 +358,9 @@ void XLCellValueProxy::setBoolean(bool numberValue)
 
     // ===== Disable space preservation (only relevant for strings).
     m_cellNode->child("v").remove_attribute(m_cellNode->child("v").attribute("xml:space"));
+
+    // ===== Remove the is node (only relevant in case previous cell type was "inlineStr"). // pull request #188
+    m_cellNode->remove_child("is");
 }
 
 /**
@@ -373,6 +388,9 @@ void XLCellValueProxy::setFloat(double numberValue)
 
         // ===== Disable space preservation (only relevant for strings).
         m_cellNode->child("v").remove_attribute(m_cellNode->child("v").attribute("xml:space"));
+
+        // ===== Remove the is node (only relevant in case previous cell type was "inlineStr"). // pull request #188
+        m_cellNode->remove_child("is");
     }
     else {
         setError("#NUM!");
@@ -408,6 +426,13 @@ void XLCellValueProxy::setString(const char* stringValue)
     // ===== Set the text of the value node.
     m_cellNode->child("v").text().set(index);
 
+    // ===== Remove the is node (only relevant in case previous cell type was "inlineStr"). // pull request #188
+    m_cellNode->remove_child("is");
+
+	 /* 2024-04-23: NOTE "embedded" strings are "inline strings" in XLSX, using a node like so:
+	  *     <c r="C1" s="3" t="inlineStr"><is><t>An inline string</t></is></c>
+     *  Those should be not confused with the below "str" type, which is I believe only relevant for the cell display format
+	  */
     // IMPLEMENTATION FOR EMBEDDED STRINGS:
     //    m_cellNode->attribute("t").set_value("str");
     //    m_cellNode->child("v").text().set(stringValue);

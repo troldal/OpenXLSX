@@ -166,7 +166,7 @@ namespace OpenXLSX
          * @brief Get the number of cells in the row.
          * @return The number of cells in the row.
          */
-        unsigned int cellCount() const;
+        uint16_t cellCount() const;
 
         /**
          * @brief

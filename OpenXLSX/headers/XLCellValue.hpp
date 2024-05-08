@@ -63,6 +63,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLException.hpp"
 #include "XLXmlParser.hpp"
 
+typedef std::variant< std::string, int64_t, double, bool > XLCellValueType; // TBD: typedef std::variant< std::string, int64_t, double, bool, struct timestamp > XLCellValueType;
+
 // ========== CLASS AND ENUM TYPE DEFINITIONS ========== //
 namespace OpenXLSX
 {
@@ -75,12 +77,23 @@ namespace OpenXLSX
      */
     enum class XLValueType { Empty, Boolean, Integer, Float, Error, String };
 
+    //---------- Private Struct to enable XLValueType conversion to std::string ---------- //
+    struct VisitXLCellValueTypeToString {
+        std::string packageName = "VisitXLCellValueTypeToString";
+        std::string operator()( int64_t v ) { return std::to_string( v ); }
+        std::string operator()( double v ) { return std::to_string( v ); }
+        std::string operator()( bool v ) { return v ? "true" : "false"; }
+        // std::string operator()( struct timestamp v ) { return timestampString( v.seconds, v.microseconds, WITH_MS ); }
+        std::string operator()( std::string v ) { return v; }
+    };
+
     /**
      * @brief Class encapsulating a cell value.
      */
     class OPENXLSX_EXPORT XLCellValue
     {
         //---------- Friend Declarations ----------//
+        friend class XLCellValueProxy; // to allow access to m_value
 
         // TODO: Consider template functions to compare to ints, floats etc.
         friend bool          operator==(const XLCellValue& lhs, const XLCellValue& rhs);
@@ -260,6 +273,30 @@ namespace OpenXLSX
         }
 
         /**
+         * @brief get the cell value as a std::string, regardless of value type
+         * @return A std::string representation of value
+         * @throws XLValueTypeError if the XLCellValue object is not convertible to string.
+         */
+        std::string getString() // pull request #158 is covered by this
+        {
+            try {
+                return std::visit( VisitXLCellValueTypeToString(), m_value );
+            }
+            catch( std::string s ) {
+                throw XLValueTypeError("XLCellValue object is not convertible to string.");
+            }
+        }
+
+        /**
+         * @brief get the cell value as a std::variant of XLCellValueType
+         * @return a const reference to m_value
+         */
+        const XLCellValueType & getVariant() const // pull request #127
+        {
+            return m_value;
+        }
+
+        /**
          * @brief Explicit conversion operator for easy conversion to supported types.
          * @tparam T The type to cast to.
          * @return The XLCellValue object cast to requested type.
@@ -302,7 +339,7 @@ namespace OpenXLSX
     private:
         //---------- Private Member Variables ---------- //
 
-        std::variant<std::string, int64_t, double, bool> m_value { std::string("") };                /**< The value contained in the cell. */
+        XLCellValueType                                  m_value { std::string("") };                /**< The value contained in the cell. */
         XLValueType                                      m_type { XLValueType::Empty }; /**< The value type of the cell. */
     };
 
@@ -474,6 +511,20 @@ namespace OpenXLSX
             return getValue().get<T>();
         }
 
+        /**
+         * @brief get the cell value as a std::string, regardless of value type
+         * @return A std::string representation of value
+         * @throws XLValueTypeError if the XLCellValue object is not convertible to string.
+         */
+        std::string getString() const // pull request #158 is covered by this
+        {
+            try {
+                return std::visit( VisitXLCellValueTypeToString(), getValue().m_value );
+            }
+            catch( std::string s ) {
+                throw XLValueTypeError("XLCellValue object is not convertible to string.");
+            }
+        }
     private:
         //---------- Private Member Functions ---------- //
 

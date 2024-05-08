@@ -122,9 +122,40 @@ XLCell& XLCell::operator=(XLCell&& other) noexcept
         m_cellNode      = std::move(other.m_cellNode);
         m_sharedStrings = other.m_sharedStrings;
         m_valueProxy    = XLCellValueProxy(this, m_cellNode.get());
+        m_formulaProxy  = XLFormulaProxy(this, m_cellNode.get()); // pull request #160
     }
 
     return *this;
+}
+
+/**
+ * @details
+ */
+void XLCell::copyFrom(XLCell const & other)
+{
+    using namespace std::literals::string_literals;
+    if (!m_cellNode) {
+		  // copyFrom invoked by empty XLCell: create a new cell with reference & m_cellNode from other
+		  std::cout << "copyFrom invoked by empty XLCell - creating a new cell with reference " << other.cellReference().address() << std::endl;
+		  m_cellNode = std::make_unique<XMLNode>(*other.m_cellNode);
+		  m_sharedStrings = other.m_sharedStrings;
+		  m_valueProxy = XLCellValueProxy(this, m_cellNode.get());
+		  m_formulaProxy = XLFormulaProxy(this, m_cellNode.get());
+        return;
+    }
+
+    if ((&other != this) && (*other.m_cellNode == *m_cellNode)) // nothing to do
+        return;
+
+    if ((&other != this) && (*other.m_cellNode != *m_cellNode)) {
+        m_cellNode->remove_children();
+        for (XMLNode child = other.m_cellNode->first_child(); !child.empty(); child = child.next_sibling())
+            m_cellNode->append_copy( child );
+        for (auto attr = m_cellNode->first_attribute(); !attr.empty(); attr = attr.next_attribute())
+			  if(strcmp(attr.name(), "r") != 0) m_cellNode->remove_attribute(attr);
+        for (auto attr = other.m_cellNode->first_attribute(); !attr.empty(); attr = attr.next_attribute())
+			  if(strcmp(attr.name(), "r") != 0) m_cellNode->append_copy(attr);
+    }
 }
 
 /**
@@ -140,7 +171,6 @@ XLCell::operator bool() const
  */
 XLCellReference XLCell::cellReference() const
 {
-    if (!*this) throw XLInternalError("XLCell object has not been properly initiated.");
     return XLCellReference{m_cellNode->attribute("r").value()};
 }
 
@@ -149,7 +179,6 @@ XLCellReference XLCell::cellReference() const
  */
 XLCell XLCell::offset(uint16_t rowOffset, uint16_t colOffset) const
 {
-    if (!*this) throw XLInternalError("XLCell object has not been properly initiated.");
     XLCellReference offsetRef(cellReference().row() + rowOffset, cellReference().column() + colOffset);
     auto            rownode  = getRowNode(m_cellNode->parent().parent(), offsetRef.row());
     auto            cellnode = getCellNode(rownode, offsetRef.column());
@@ -161,8 +190,7 @@ XLCell XLCell::offset(uint16_t rowOffset, uint16_t colOffset) const
  */
 bool XLCell::hasFormula() const
 {
-    if (!*this) return false;
-    return m_cellNode->child("f") != nullptr;
+    return ( m_cellNode->child("f").empty() ? false : true ); // evaluate child XMLNode as boolean
 }
 
 /**
@@ -170,8 +198,51 @@ bool XLCell::hasFormula() const
  */
 XLFormulaProxy& XLCell::formula()
 {
-    if (!*this) throw XLInternalError("XLCell object has not been properly initiated.");
     return m_formulaProxy;
+}
+
+/**
+ * @details
+ */
+void XLCell::print(std::basic_ostream<char, std::char_traits<char> >& os)
+{
+	m_cellNode->print( os );
+}
+
+/**
+ * @details
+ */
+XLCellAssignable& XLCellAssignable::operator=(const XLCell& other)
+{
+	copyFrom( other );
+	return *this;
+}
+
+/**
+ * @details
+ */
+XLCellAssignable& XLCellAssignable::operator=(const XLCellAssignable& other)
+{
+	copyFrom( other );
+	return *this;
+}
+
+/**
+ * @details
+ */
+XLCellAssignable& XLCellAssignable::operator=(XLCell&& other) noexcept
+{
+	copyFrom( other );
+	return *this;
+}
+
+/**
+ * @details
+ */
+XLCellAssignable& XLCellAssignable::operator=(XLCellAssignable&& other) noexcept
+{
+	copyFrom( other );
+	return *this;
 }
 
 /**
@@ -179,7 +250,6 @@ XLFormulaProxy& XLCell::formula()
  */
 const XLFormulaProxy& XLCell::formula() const
 {
-    if (!*this) throw XLInternalError("XLCell object has not been properly initiated.");
     return m_formulaProxy;
 }
 
@@ -189,7 +259,6 @@ const XLFormulaProxy& XLCell::formula() const
  */
 XLCellValueProxy& XLCell::value()
 {
-    if (!*this) throw XLInternalError("XLCell object has not been properly initiated.");
     return m_valueProxy;
 }
 
@@ -200,7 +269,6 @@ XLCellValueProxy& XLCell::value()
  */
 const XLCellValueProxy& XLCell::value() const
 {
-    if (!*this) throw XLInternalError("XLCell object has not been properly initiated.");
     return m_valueProxy;
 }
 

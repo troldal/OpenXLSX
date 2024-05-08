@@ -49,6 +49,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifdef CHARCONV_ENABLED
 #    include <charconv>
 #endif
+#include <cstdint> // pull requests #216, #232
 
 // ===== OpenXLSX Includes ===== //
 #include "XLCellReference.hpp"
@@ -74,11 +75,12 @@ namespace {
 XLCellReference::XLCellReference(const std::string& cellAddress)
 {
     if (!cellAddress.empty()) setAddress(cellAddress);
-    if (!addressIsValid(m_row, m_column)) {
+    if (cellAddress.empty() || !addressIsValid(m_row, m_column)) { // 2024-04-25: throw exception on empty string
+        throw XLCellAddressError("Cell reference is invalid");
+        // TODO below: possibly deprecated (if exception remains)
         m_row = 1;
         m_column = 1;
         m_cellAddress = "A1";
-        throw XLCellAddressError("Cell reference is invalid");
     }
 }
 

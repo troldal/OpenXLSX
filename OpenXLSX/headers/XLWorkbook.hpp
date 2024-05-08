@@ -146,24 +146,38 @@ namespace OpenXLSX
 
         /**
          * @brief Get the sheet (worksheet or chartsheet) with the given name.
-         * @param sheetName The name at which the desired sheet is located.
+         * @param sheetName The name of the desired sheet.
          * @return A pointer to an XLAbstractSheet with the sheet at the index.
          */
         XLSheet sheet(const std::string& sheetName);
 
         /**
-         * @brief
-         * @param sheetName
+         * @brief Get the worksheet with the given name.
+         * @param sheetName The name of the desired worksheet.
          * @return
          */
         XLWorksheet worksheet(const std::string& sheetName);
 
         /**
-         * @brief
-         * @param sheetName
+         * @brief Get the worksheet at the given index.
+         * @param index The index at which the desired sheet is located.
+         * @return
+         */
+        XLWorksheet worksheet(uint16_t index);
+
+        /**
+         * @brief Get the chartsheet with the given name.
+         * @param sheetName The name of the desired chartsheet.
          * @return
          */
         XLChartsheet chartsheet(const std::string& sheetName);
+
+        /**
+         * @brief Get the chartsheet at the given index.
+         * @param index The index at which the desired sheet is located.
+         * @return
+         */
+        XLChartsheet chartsheet(uint16_t index);
 
         /**
          * @brief Delete sheet (worksheet or chartsheet) from the workbook.
@@ -301,6 +315,11 @@ namespace OpenXLSX
          */
         void setFullCalculationOnLoad();
 
+        /**
+         * @brief print the XML contents of the workbook.xml using the underlying XMLNode print function
+         */
+        void print(std::basic_ostream<char, std::char_traits<char> >& os);
+
     private:    // ---------- Private Member Functions ---------- //
 
         /**
@@ -361,11 +380,23 @@ namespace OpenXLSX
         /**
          * @brief
          * @param sheetRID
-         * @param state
+         * @return true if sheed with sheedRID could be set to active (or was already active), otherwise false
          */
-        void setSheetActive(const std::string& sheetRID);
+        bool setSheetActive(const std::string& sheetRID);
 
+        /**
+         * @brief Check whether attribute string state matches a value that is considered not visible
+         * @param sheetNode
+			* @return true if state does not match a value that is considered not visible (hidden, veryHidden), otherwise false
+         */
+        bool isVisibleState(std::string const & state) const;
 
+        /**
+         * @brief Check whether sheetNode is not empty, and in case it has an attribute "state", that the state does not reflect hidden-ness
+         * @param sheetNode
+			* @return true if sheetNode can be considered visible (and could be activated)
+         */
+        bool isVisible(XMLNode const & sheetNode) const;
     };
 }    // namespace OpenXLSX
 

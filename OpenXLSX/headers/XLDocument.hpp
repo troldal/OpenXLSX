@@ -242,8 +242,9 @@ namespace OpenXLSX
         /**
          * @brief
          * @param command
+         * @return for XLCommandType::SetSheetActive: execution success, otherwise always true
          */
-        void execCommand(const XLCommand& command);
+        bool execCommand(const XLCommand& command);
 
         /**
          * @brief

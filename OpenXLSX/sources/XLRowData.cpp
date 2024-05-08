@@ -123,18 +123,22 @@ namespace OpenXLSX
     {
         // ===== Compute the column number, and move the m_cellNode to the next sibling.
         auto cellNumber = m_currentCell.cellReference().column() + 1;
-        auto cellNode   = m_currentCell.m_cellNode->next_sibling();
+        auto cellNode   = m_currentCell.m_cellNode->next_sibling_of_type(pugi::node_element);
 
-        // ===== If the cellNumber exceeds the last column in the range has been reached, and the m_currentCell
-        // ===== is set to an empty XLCell, indicating the end of the range has been reached.
+        // ===== If the cellNumber exceeds the last column in the range,
+        // ===== m_currentCell is set to an empty XLCell, indicating the end of the range has been reached.
         if (cellNumber > m_dataRange->m_lastCol) m_currentCell = XLCell();
 
-        // ====== If the m_cellNode is null (i.e. no more children in the current row node) or the column number of the cell node
+        // ====== If the cellNode is null (i.e. no more children in the current row node) or the column number of the cell node
         // ====== is higher than the computed column number, then insert the node.
         // TODO: When checking for > cellNumber rather than != cellNumber, m_cellNode->empty() fails. Why?
         // TODO: Apparently only fails when assigning containers with POD values, rather XLCellValues.
         // else if (m_cellNode->empty() || XLCellReference(cellNode.attribute("r").value()).column() > cellNumber) {
-        else if (m_cellNode->empty() || XLCellReference(cellNode.attribute("r").value()).column() != cellNumber) {
+
+        // BUG BUGFIX 2024-04-26: check was for m_cellNode->empty(), allowing an invalid test for the attribute r, discovered
+        //       because the modified XLCellReference throws an exception on invalid parameter
+        //  this BUGFIX should explain the TODO above
+        else if (cellNode.empty() || XLCellReference(cellNode.attribute("r").value()).column() > cellNumber) {
             cellNode = m_dataRange->m_rowNode->insert_child_after("c", *m_currentCell.m_cellNode);
             cellNode.append_attribute("r").set_value(
                 XLCellReference(
@@ -230,6 +234,18 @@ namespace OpenXLSX
             m_lastCol  = 1;
             throw XLOverflowError("lastColumn is less than firstColumn.");
         }
+    }
+
+    /**
+     * @details Constructs an empty XLDataRange, whose size() will return 0. To be used as return value in functions that shall fail without exception.
+     */
+    XLRowDataRange::XLRowDataRange()
+        : m_rowNode(),
+          m_firstCol(1),   // first col of 1
+          m_lastCol(0),    // and last col of 0 will ensure that size returns 0
+          m_sharedStrings()
+    {
+        // nothing to do
     }
 
     /**
@@ -369,20 +385,16 @@ namespace OpenXLSX
     /**
      * @details Assignment operator taking a std::vector of XLCellValue objects as an argument. Other container types
      * and/or value types will be handled by the templated operator=. However, because assigning a std::vector of
-     * XLCellValue object is the most common case, this case is handled separately fo higher performance.
+     * XLCellValue object is the most common case, this case is handled separately for higher performance.
      * @pre
      * @post
      */
-    XLRowDataProxy& XLRowDataProxy::operator=(const std::vector<XLCellValue>& values)
+    XLRowDataProxy& XLRowDataProxy::operator=(const std::vector<XLCellValue>& values) // 2024-04-30: whitespace support
     {
-        // ===== Mark cell nodes for deletion
-        std::vector<XMLNode> toBeDeleted;
-        for (auto cellNode : m_rowNode->children()) {
-            if (XLCellReference(cellNode.attribute("r").value()).column() <= values.size()) toBeDeleted.emplace_back(cellNode);
-        }
+        if (values.size() > MAX_COLS) throw XLOverflowError("vector<XLCellValue> size exceeds maximum number of columns.");
+        if (values.empty()) return *this;
 
-        // ===== Delete selected cell nodes
-        for (auto cellNode : toBeDeleted) m_rowNode->remove_child(cellNode);
+        deleteCellValues((uint16_t) values.size()); // 2024-04-30: whitespace support
 
         // ===== prepend new cell nodes to current row node
         auto curNode = XMLNode();
@@ -406,20 +418,20 @@ namespace OpenXLSX
      * @pre
      * @post
      */
-    XLRowDataProxy& XLRowDataProxy::operator=(const std::vector<bool>& values)
+    XLRowDataProxy& XLRowDataProxy::operator=(const std::vector<bool>& values) // 2024-04-30: whitespace support
     {
-        if (values.size() > MAX_COLS) throw XLOverflowError("Container size exceeds maximum number of columns.");
+        if (values.size() > MAX_COLS) throw XLOverflowError("vector<bool> size exceeds maximum number of columns.");
         if (values.empty()) return *this;
 
         auto range = XLRowDataRange(*m_rowNode, 1, static_cast<uint16_t>(values.size()), getSharedStrings());
-        auto dst   = range.begin();
+        auto dst   = range.begin(); // 2024-04-30: whitespace support: safe because XLRowDataRange::begin invokes whitespace-safe getCellNode for column 1
         auto src   = values.begin();
 
         while (true) {
             dst->value() = static_cast<bool>(*src);
             ++src;
             if (src == values.end()) break;
-            ++dst;
+            ++dst; // 2024-04-30: whitespace support: XLRowDataIterator::operator++ is whitespace-safe
         }
 
         return *this;
@@ -460,17 +472,20 @@ namespace OpenXLSX
      * @pre
      * @post
      */
-    std::vector<XLCellValue> XLRowDataProxy::getValues() const
+    std::vector<XLCellValue> XLRowDataProxy::getValues() const // 2024-04-30: whitespace support
     {
         // ===== Determine the number of cells in the current row. Create a std::vector of the same size.
-        auto numCells =
-            (m_rowNode->last_child() == XMLNode() ? 0 : XLCellReference(m_rowNode->last_child().attribute("r").value()).column());
+        XMLNode lastElementChild = m_rowNode->last_child_of_type(pugi::node_element);
+        uint16_t numCells = (lastElementChild.empty() ? 0 : XLCellReference(lastElementChild.attribute("r").value()).column());
         std::vector<XLCellValue> result(static_cast<uint64_t>(numCells));
 
         // ===== If there are one or more cells in the current row, iterate through them and add the value to the container.
         if (numCells > 0) {
-            for (auto& node : m_rowNode->children())
+            XMLNode node = lastElementChild; // avoid unneeded call to first_child_of_type by iterating backwards, vector is random access so it doesn't matter
+            while( !node.empty() ) {
                 result[XLCellReference(node.attribute("r").value()).column() - 1] = XLCell(node, m_row->m_sharedStrings).value();
+                node = node.previous_sibling_of_type(pugi::node_element);
+            }
         }
 
         // ===== Return the resulting container.
@@ -494,12 +509,24 @@ namespace OpenXLSX
      * @pre
      * @post
      */
-    void XLRowDataProxy::deleteCellValues(uint16_t count)
+    void XLRowDataProxy::deleteCellValues(uint16_t count) // 2024-04-30: whitespace support
     {
         // ===== Mark cell nodes for deletion
         std::vector<XMLNode> toBeDeleted;
-        for (auto cellNode : m_rowNode->children()) {
-            if (XLCellReference(cellNode.attribute("r").value()).column() <= count) toBeDeleted.emplace_back(cellNode);
+        XMLNode cellNode = m_rowNode->first_child_of_type(pugi::node_element);
+        while( !cellNode.empty() ) {
+            if (XLCellReference(cellNode.attribute("r").value()).column() <= count) {
+                toBeDeleted.emplace_back(cellNode);
+                XMLNode nextNode = cellNode.next_sibling(); // get next "regular" sibling (any type) before advancing cellNode
+                cellNode = cellNode.next_sibling_of_type(pugi::node_element);
+                // ===== Iterate over non-element nodes and mark them for deletion
+                while( nextNode != cellNode ) { // this also works with the empty node returned past last sibling, as for XMLNode a{}, b{}, ( a == b ) is true
+                    toBeDeleted.emplace_back(nextNode);
+                    nextNode = nextNode.next_sibling();
+                }
+            }
+            else
+                cellNode = cellNode.next_sibling_of_type(pugi::node_element);
         }
 
         // ===== Delete selected cell nodes
@@ -513,9 +540,15 @@ namespace OpenXLSX
      * @pre
      * @post
      */
-    void XLRowDataProxy::prependCellValue(const XLCellValue& value, uint16_t col)
+    void XLRowDataProxy::prependCellValue(const XLCellValue& value, uint16_t col) // 2024-04-30: whitespace support
     {
-        auto curNode = m_rowNode->prepend_child("c");
+        // XMLNode first_child = m_rowNode->first_child_of_type(pugi::node_element); // pretty formatting by inserting before an existing first child
+        // XMLNode curNode{};
+        // if (first_child.empty())
+        //     curNode = m_rowNode->prepend_child("c");
+        // else
+        //     curNode = m_rowNode->insert_child_before("c", first_child);
+        auto curNode = m_rowNode->prepend_child("c"); // this will correctly insert a new cell directly at the beginning of the row
         curNode.append_attribute("r").set_value(XLCellReference(static_cast<uint32_t>(m_row->rowNumber()), col).address().c_str());
         XLCell(curNode, m_row->m_sharedStrings).value() = value;
     }

@@ -52,13 +52,14 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLDocument.hpp"
 #include "XLRelationships.hpp"
 #include "XLSheet.hpp"
+#include "utilities/XLUtilities.hpp"
 
 using namespace OpenXLSX;
 
 namespace OpenXLSX
 {
-    // Forward declaration. Implementation is in the XLUtilities.hpp file
-    XMLNode getRowNode(XMLNode sheetDataNode, uint32_t rowNumber);
+    // // Forward declaration. Implementation is in the XLUtilities.hpp file
+    // XMLNode getRowNode(XMLNode sheetDataNode, uint32_t rowNumber);
 
     /**
      * @brief Function for setting tab color.
@@ -79,22 +80,26 @@ namespace OpenXLSX
     }
 
     /**
-     * @brief Function for checking if the tab is selected.
+     * @brief Set the tab selected property to desired value
      * @param xmlDocument
      * @param selected
      */
-    void setTabSelected(const XMLDocument& xmlDocument, bool selected) {
+    void setTabSelected(const XMLDocument& xmlDocument, bool selected) { // 2024-04-30: whitespace support
         unsigned int value = (selected ? 1 : 0);
-        xmlDocument.first_child().child("sheetViews").first_child().attribute("tabSelected").set_value(value);
+		  XMLNode sheetView = xmlDocument.document_element().child("sheetViews").first_child_of_type(pugi::node_element);
+		  XMLAttribute tabSelected = sheetView.attribute("tabSelected");
+		  if( tabSelected.empty() ) sheetView.prepend_attribute("tabSelected"); // BUGFIX 2024-05-01: create tabSelected attribute if it does not exist
+		  tabSelected.set_value(value);
     }
 
     /**
-     * @brief Set the tab selected property to true.
+     * @brief Function for checking if the tab is selected.
      * @param xmlDocument
      * @return
+     * @note pugi::xml_attribute::as_bool defaults to false for a non-existing (= empty) attribute
      */
-    bool tabIsSelected(const XMLDocument& xmlDocument) {
-        return xmlDocument.first_child().child("sheetViews").first_child().attribute("tabSelected").value();
+    bool tabIsSelected(const XMLDocument& xmlDocument) { // 2024-04-30: whitespace support
+        return xmlDocument.document_element().child("sheetViews").first_child_of_type(pugi::node_element).attribute("tabSelected").as_bool(); // BUGFIX 2024-05-01: .value() "0" was evaluating to true
     }
 
 }    // namespace OpenXLSX
@@ -170,6 +175,15 @@ void XLSheet::setColor(const XLColor& color)
 }
 
 /**
+* @details This reports the selection state of the sheet, by calling the isSelected()
+* member function of the underlying sheet object (XLWorksheet or XLChartsheet).
+ */
+bool XLSheet::isSelected() const
+{
+    return std::visit([](auto&& arg) { return arg.isSelected(); }, m_sheet);
+}
+
+/**
 * @details This method sets the selection state of the sheet, by calling the setSelected()
 * member function of the underlying sheet object (XLWorksheet or XLChartsheet).
  */
@@ -223,6 +237,14 @@ XLSheet::operator XLChartsheet() const
     return this->get<XLChartsheet>();
 }
 
+/**
+* @details Print the underlying XML using pugixml::xml_node::print
+ */
+void XLSheet::print(std::basic_ostream<char, std::char_traits<char> >& os)
+{
+    xmlDocument().document_element().print( os );
+}
+
 
 // ========== XLWorksheet Member Functions
 
@@ -241,17 +263,23 @@ XLWorksheet::XLWorksheet(XLXmlData* xmlData) : XLSheetBase(xmlData)
         xmlDocument().document_element().child("dimension").set_value(dimensions.substr(dimensions.find(':') + 1).c_str());
 
     // If Column properties are grouped, divide them into properties for individual Columns.
-    if (xmlDocument().first_child().child("cols").type() != pugi::node_null) {
-        auto currentNode = xmlDocument().first_child().child("cols").first_child();
-        while (currentNode != nullptr) {
-            int min = std::stoi(currentNode.attribute("min").value());
-            int max = std::stoi(currentNode.attribute("max").value());
+    if (xmlDocument().document_element().child("cols").type() != pugi::node_null) {
+        auto currentNode = xmlDocument().document_element().child("cols").first_child_of_type(pugi::node_element);
+        while (!currentNode.empty()) {
+            uint16_t min = 0, max = 0;
+            try {
+                min = std::stoi(currentNode.attribute("min").value());
+                max = std::stoi(currentNode.attribute("max").value());
+            }
+            catch( ... ) {
+					throw XLInternalError( "Worksheet column min and/or max attributes are invalid." );
+				}
             if (min != max) {
                 currentNode.attribute("min").set_value(max);
-                for (int i = min; i < max; i++) { // NOLINT
-                    auto newnode = xmlDocument().first_child().child("cols").insert_child_before("col", currentNode);
+                for (uint16_t i = min; i < max; i++) { // NOLINT
+                    auto newnode = xmlDocument().document_element().child("cols").insert_child_before("col", currentNode);
                     auto attr    = currentNode.first_attribute();
-                    while (attr != nullptr) { // NOLINT
+                    while (!attr.empty()) { // NOLINT
                         newnode.append_attribute(attr.name()) = attr.value();
                         attr                                  = attr.next_attribute();
                     }
@@ -259,7 +287,7 @@ XLWorksheet::XLWorksheet(XLXmlData* xmlData) : XLSheetBase(xmlData)
                     newnode.attribute("max") = i;
                 }
             }
-            currentNode = currentNode.next_sibling();
+            currentNode = currentNode.next_sibling_of_type(pugi::node_element);
         }
     }
 }
@@ -312,17 +340,17 @@ bool XLWorksheet::isActive_impl() const
 /**
  * @details
  */
-void XLWorksheet::setActive_impl()
+bool XLWorksheet::setActive_impl()
 {
-        parentDoc().execCommand(XLCommand(XLCommandType::SetSheetActive).setParam("sheetID", relationshipID()));
+    return parentDoc().execCommand(XLCommand(XLCommandType::SetSheetActive).setParam("sheetID", relationshipID()));
 }
 
 /**
  * @details
  */
-XLCell XLWorksheet::cell(const std::string& ref) const
+XLCellAssignable XLWorksheet::cell(const std::string& ref) const
 {
-    return cell(XLCellReference(ref));
+    return static_cast< XLCellAssignable >( cell(XLCellReference(ref)) ); // TODO TBD if this is defined behavior: XLCellAssignable adds only methods, no member variables
 }
 
 /**
@@ -339,37 +367,50 @@ XLCell XLWorksheet::cell(const XLCellReference& ref) const
  */
 XLCell XLWorksheet::cell(uint32_t rowNumber, uint16_t columnNumber) const
 {
-    auto cellNode = XMLNode();
-    auto cellRef  = XLCellReference(rowNumber, columnNumber);
-    auto rowNode  = getRowNode(xmlDocument().first_child().child("sheetData"), rowNumber);
-
-    // ===== If there are no cells in the current row, or the requested cell is beyond the last cell in the row...
-    if (rowNode.last_child().empty() || XLCellReference(rowNode.last_child().attribute("r").value()).column() < columnNumber) {
-        // if (rowNode.last_child().empty() ||
-        // XLCellReference::CoordinatesFromAddress(rowNode.last_child().attribute("r").getValue()).second < columnNumber) {
-        rowNode.append_child("c").append_attribute("r").set_value(cellRef.address().c_str());
-        cellNode = rowNode.last_child();
-    }
-    // ===== If the requested node is closest to the end, start from the end and search backwards...
-    else if (XLCellReference(rowNode.last_child().attribute("r").value()).column() - columnNumber < columnNumber) {
-        cellNode = rowNode.last_child();
-        while (XLCellReference(cellNode.attribute("r").value()).column() > columnNumber) cellNode = cellNode.previous_sibling();
-        if (XLCellReference(cellNode.attribute("r").value()).column() < columnNumber) {
-            cellNode = rowNode.insert_child_after("c", cellNode);
-            cellNode.append_attribute("r").set_value(cellRef.address().c_str());
-        }
-    }
-    // ===== Otherwise, start from the beginning
-    else {
-        cellNode = rowNode.first_child();
-        while (XLCellReference(cellNode.attribute("r").value()).column() < columnNumber) cellNode = cellNode.next_sibling();
-        if (XLCellReference(cellNode.attribute("r").value()).column() > columnNumber) {
-            cellNode = rowNode.insert_child_before("c", cellNode);
-            cellNode.append_attribute("r").set_value(cellRef.address().c_str());
-        }
-    }
-
+    XMLNode rowNode  = getRowNode(xmlDocument().document_element().child("sheetData"), rowNumber);
+	 XMLNode cellNode = getCellNode( rowNode, columnNumber, rowNumber );
     return XLCell{cellNode, parentDoc().execQuery(XLQuery(XLQueryType::QuerySharedStrings)).result<XLSharedStrings>()};
+
+/*** BEGIN obsolete section: below code is identical to XLUtilities.hpp::getCellNode ***/
+//     // ===== Get the last child of rowNode that is of type node_element, if any.
+//     auto cellNode = XMLNode();
+//     cellNode = rowNode.last_child_of_type(pugi::node_element);
+//     auto cellRef  = XLCellReference(rowNumber, columnNumber);  // only distinction from getCellNode: rowNumber is available directly as uint16_t
+// 
+//     // ===== If there are no cells in the current row, or the requested cell is beyond the last cell in the row...
+//     if (cellNode.empty() || (XLCellReference(cellNode.attribute("r").value()).column() < columnNumber)) {
+//         // ===== append a new node to the end.
+//         rowNode.append_child("c").append_attribute("r").set_value(cellRef.address().c_str());
+//         cellNode = rowNode.last_child();
+//     }
+//     // ===== If the requested node is closest to the end, start from the end and search backwards...
+//     else if (XLCellReference(cellNode.attribute("r").value()).column() - columnNumber < columnNumber) {
+//         while (!cellNode.empty() && (XLCellReference(cellNode.attribute("r").value()).column() > columnNumber)) cellNode = cellNode.previous_sibling_of_type(pugi::node_element);
+//         // ===== If the backwards search failed to locate the requested cell
+//         if (cellNode.empty() || (XLCellReference(cellNode.attribute("r").value()).column() < columnNumber)) {
+//             if (cellNode.empty()) // If between row begin and higher column number, only non-element nodes exist
+//                 cellNode = rowNode.prepend_child("c"); // insert a new cell node at row begin. When saving, this will keep whitespace formatting towards next cell node
+//             else
+//                 cellNode = rowNode.insert_child_after("c", cellNode);
+//             cellNode.append_attribute("r").set_value(cellRef.address().c_str());
+//         }
+//     }
+//     // ===== Otherwise, start from the beginning
+//     else {
+//         // ===== At this point, it is guaranteed that there is at least one node_element in the row that is not empty.
+//         cellNode = rowNode.first_child_of_type(pugi::node_element);
+// 
+//         // ===== It has been verified above that the requested columnNumber is <= the column number of the last node_element, therefore this loop will halt:
+//         while (XLCellReference(cellNode.attribute("r").value()).column() < columnNumber) cellNode = cellNode.next_sibling_of_type(pugi::node_element);
+//         // ===== If the forwards search failed to locate the requested cell
+//         if (XLCellReference(cellNode.attribute("r").value()).column() > columnNumber) {
+//             cellNode = rowNode.insert_child_before("c", cellNode);
+//             cellNode.append_attribute("r").set_value(cellRef.address().c_str());
+//         }
+//     }
+// 
+//     return XLCell{cellNode, parentDoc().execQuery(XLQuery(XLQueryType::QuerySharedStrings)).result<XLSharedStrings>()};
+/*** END obsolete section ***/
 }
 
 /**
@@ -385,7 +426,7 @@ XLCellRange XLWorksheet::range() const
  */
 XLCellRange XLWorksheet::range(const XLCellReference& topLeft, const XLCellReference& bottomRight) const
 {
-    return XLCellRange(xmlDocument().first_child().child("sheetData"),
+    return XLCellRange(xmlDocument().document_element().child("sheetData"),
                        topLeft,
                        bottomRight,
                        parentDoc().execQuery(XLQuery(XLQueryType::QuerySharedStrings)).result<XLSharedStrings>());
@@ -396,14 +437,14 @@ XLCellRange XLWorksheet::range(const XLCellReference& topLeft, const XLCellRefer
  * @pre
  * @post
  */
-XLRowRange XLWorksheet::rows() const
+XLRowRange XLWorksheet::rows() const // 2024-04-29: patched for whitespace
 {
-    auto sheetDataNode = xmlDocument().first_child().child("sheetData");
+    auto sheetDataNode = xmlDocument().document_element().child("sheetData");
     return XLRowRange(sheetDataNode,
                       1,
-                      (sheetDataNode.last_child()
-                           ? static_cast<uint32_t>(sheetDataNode.last_child().attribute("r").as_ullong())
-                           : 1),
+                      (sheetDataNode.last_child_of_type(pugi::node_element).empty()
+                           ? 1
+                           : static_cast<uint32_t>(sheetDataNode.last_child_of_type(pugi::node_element).attribute("r").as_ullong())),
                       parentDoc().execQuery(XLQuery(XLQueryType::QuerySharedStrings)).result<XLSharedStrings>());
 }
 
@@ -414,7 +455,7 @@ XLRowRange XLWorksheet::rows() const
  */
 XLRowRange XLWorksheet::rows(uint32_t rowCount) const
 {
-    return XLRowRange(xmlDocument().first_child().child("sheetData"),
+    return XLRowRange(xmlDocument().document_element().child("sheetData"),
                       1,
                       rowCount,
                       parentDoc().execQuery(XLQuery(XLQueryType::QuerySharedStrings)).result<XLSharedStrings>());
@@ -427,7 +468,7 @@ XLRowRange XLWorksheet::rows(uint32_t rowCount) const
  */
 XLRowRange XLWorksheet::rows(uint32_t firstRow, uint32_t lastRow) const
 {
-    return XLRowRange(xmlDocument().first_child().child("sheetData"),
+    return XLRowRange(xmlDocument().document_element().child("sheetData"),
                       firstRow,
                       lastRow,
                       parentDoc().execQuery(XLQuery(XLQueryType::QuerySharedStrings)).result<XLSharedStrings>());
@@ -440,7 +481,7 @@ XLRowRange XLWorksheet::rows(uint32_t firstRow, uint32_t lastRow) const
  */
 XLRow XLWorksheet::row(uint32_t rowNumber) const
 {
-    return XLRow{getRowNode(xmlDocument().first_child().child("sheetData"), rowNumber),
+    return XLRow{getRowNode(xmlDocument().document_element().child("sheetData"), rowNumber),
                    parentDoc().execQuery(XLQuery(XLQueryType::QuerySharedStrings)).result<XLSharedStrings>()};
 }
 
@@ -451,39 +492,53 @@ XLRow XLWorksheet::row(uint32_t rowNumber) const
  */
 XLColumn XLWorksheet::column(uint16_t columnNumber) const
 {
+    using namespace std::literals::string_literals;
+
     // If no columns exists, create the <cols> node in the XML document.
-    if (!xmlDocument().first_child().child("cols"))
-        xmlDocument().first_child().insert_child_before("cols", xmlDocument().first_child().child("sheetData"));
+    if (xmlDocument().document_element().child("cols").empty())
+        xmlDocument().document_element().insert_child_before("cols", xmlDocument().document_element().child("sheetData"));
 
     // ===== Find the column node, if it exists
     auto columnNode =
-        xmlDocument().first_child().child("cols").find_child([&](XMLNode node) {
+        xmlDocument().document_element().child("cols").find_child([&](XMLNode node) {
             return (columnNumber >= node.attribute("min").as_int() && columnNumber <= node.attribute("max").as_int()) || node.attribute("min").as_int() > columnNumber; });
 
+    uint16_t minColumn = 0, maxColumn = 0;
+    if( !columnNode.empty() ) {
+        minColumn = columnNode.attribute("min").as_int(); // only look it up once for multiple access
+        maxColumn = columnNode.attribute("max").as_int(); //   "
+    }
+
     // ===== If the node exists for the column, and only spans that column, then continue...
-    if (columnNode && columnNode.attribute("min").as_int() == columnNumber && columnNode.attribute("max").as_int() == columnNumber) {}
+    if ( !columnNode.empty() && (minColumn == columnNumber) && (maxColumn == columnNumber)) {}
 
     // ===== If the node exists for the column, but spans several columns, split it into individual nodes, and set columnNode to the right one...
-    else if (columnNode && columnNode.attribute("min").as_int() != columnNode.attribute("max").as_int()) {
+    // BUGFIX 2024-04-27 - old if condition would split a multi-column setting even if columnNumber is < minColumn (see lambda return value above)
+    // NOTE 2024-04-27: the column splitting for loaded files is already handled in the constructor, technically this code is not necessary here
+    else if (!columnNode.empty() && (columnNumber >= minColumn) && (minColumn != maxColumn)) {
         // ===== Split the node in individual columns...
-        for (int i = columnNode.attribute("min").as_int(); i < columnNode.attribute("max").as_int(); ++i) {
-            auto node = xmlDocument().first_child().child("cols").insert_copy_before(columnNode, columnNode);
+        columnNode.attribute("min").set_value (maxColumn); // Limit the original node to a single column
+        for (int i = minColumn; i < maxColumn; ++i) {
+            auto node = xmlDocument().document_element().child("cols").insert_copy_before(columnNode, columnNode);
             node.attribute("min").set_value(i);
             node.attribute("max").set_value(i);
         }
-        // ===== Delete the original node
-        columnNode = columnNode.previous_sibling();
-        xmlDocument().first_child().child("cols").remove_child(columnNode.next_sibling());
-        // ===== Find the node corresponding to the column number
-        while (true) {
-            if (columnNode.attribute("min").as_int() == columnNumber) break;
-            columnNode = columnNode.previous_sibling();
-        }
+        // BUGFIX 2024-04-27: the original node should not be deleted, but - in line with XLWorksheet constructor - is now limited above to min = max attribute
+        // // ===== Delete the original node
+        // columnNode = columnNode.previous_sibling_of_type(pugi::node_element); // due to insert loop, previous node should be guaranteed to be an element node
+        // xmlDocument().document_element().child("cols").remove_child(columnNode.next_sibling());
+
+        // ===== Find the node corresponding to the column number - BUGFIX 2024-04-27: loop should abort on empty node
+        while (!columnNode.empty() && columnNode.attribute("min").as_int() != columnNumber)
+            columnNode = columnNode.previous_sibling_of_type(pugi::node_element);
+        if (columnNode.empty())
+            throw XLInternalError("XLWorksheet::"s + __func__ + ": column node for index "s + std::to_string( columnNumber )
+                + "not found after splitting column nodes"s );
     }
 
     // ===== If a node for the column does NOT exist, but a node for a higher column exist...
-    else if (columnNode && columnNode.attribute("min").as_int() > columnNumber) {
-        columnNode = xmlDocument().first_child().child("cols").insert_child_before("col", columnNode);
+    else if (!columnNode.empty() && minColumn > columnNumber) {
+        columnNode = xmlDocument().document_element().child("cols").insert_child_before("col", columnNode);
         columnNode.append_attribute("min")         = columnNumber;
         columnNode.append_attribute("max")         = columnNumber;
         columnNode.append_attribute("width")       = 9.8; // NOLINT
@@ -491,29 +546,17 @@ XLColumn XLWorksheet::column(uint16_t columnNumber) const
     }
 
     // ===== Otherwise, the end of the list is reached, and a new node is appended
-    else if (!columnNode) {
-        columnNode = xmlDocument().first_child().child("cols").append_child("col");
+    else if (columnNode.empty()) {
+        columnNode = xmlDocument().document_element().child("cols").append_child("col");
         columnNode.append_attribute("min")         = columnNumber;
         columnNode.append_attribute("max")         = columnNumber;
         columnNode.append_attribute("width")       = 9.8; // NOLINT
         columnNode.append_attribute("customWidth") = 0;
     }
 
-
-//    if (!columnNode || columnNode.attribute("min").as_int() > columnNumber) {
-//        if (columnNode.attribute("min").as_int() > columnNumber) {
-//            columnNode = xmlDocument().first_child().child("cols").insert_child_before("col", columnNode);
-//        }
-//        else {
-//            columnNode = xmlDocument().first_child().child("cols").append_child("col");
-//        }
-//
-//        columnNode.append_attribute("min")         = columnNumber;
-//        columnNode.append_attribute("max")         = columnNumber;
-//        columnNode.append_attribute("width")       = 10; // NOLINT
-//        columnNode.append_attribute("customWidth") = 1;
-//    }
-
+    using namespace std::literals::string_literals;
+    if (columnNode.empty())
+        throw XLInternalError("XLWorksheet::"s + __func__ + ": was unable to find or create node for column "s + std::to_string(columnNumber));
     return XLColumn(columnNode);
 }
 
@@ -530,12 +573,18 @@ XLCellReference XLWorksheet::lastCell() const noexcept
  */
 uint16_t XLWorksheet::columnCount() const noexcept
 {
-        std::vector<int16_t> counts;
+        uint16_t maxCount = 0; // Pull request: Update XLSheet.cpp with correct type #176, Explicitely cast to unsigned short int #163
         for (const auto& row : rows()) {
-            counts.emplace_back(row.cellCount());
+            uint16_t cellCount = row.cellCount();
+            if( cellCount > maxCount ) maxCount = cellCount;
         }
+        return maxCount;
 
-        return std::max(static_cast<uint16_t>(1), static_cast<uint16_t>(*std::max_element(counts.begin(), counts.end())));
+        // std::vector<uint16_t> counts; // Pull request: Update XLSheet.cpp with correct type #176, Explicitely cast to unsigned short int #163
+        // for (const auto& row : rows()) {
+            // counts.emplace_back(row.cellCount());
+        // }
+        // return std::max(static_cast<uint16_t>(1), *std::max_element(counts.begin(), counts.end()));
 }
 
 /**
@@ -543,13 +592,13 @@ uint16_t XLWorksheet::columnCount() const noexcept
  */
 uint32_t XLWorksheet::rowCount() const noexcept
 {
-    return static_cast<uint32_t>(xmlDocument().document_element().child("sheetData").last_child().attribute("r").as_ullong());
+    return static_cast<uint32_t>(xmlDocument().document_element().child("sheetData").last_child_of_type(pugi::node_element).attribute("r").as_ullong());
 }
 
 /**
  * @details
  */
-void XLWorksheet::updateSheetName(const std::string& oldName, const std::string& newName)
+void XLWorksheet::updateSheetName(const std::string& oldName, const std::string& newName) // 2024-04-29: patched for whitespace
 {
     // ===== Set up temporary variables
     std::string oldNameTemp = oldName;
@@ -565,8 +614,9 @@ void XLWorksheet::updateSheetName(const std::string& oldName, const std::string&
     newNameTemp += '!';
 
     // ===== Iterate through all defined names
-    for (auto& row : xmlDocument().document_element().child("sheetData")) {
-        for (auto& cell : row.children()) {
+    XMLNode row = xmlDocument().document_element().child("sheetData").first_child_of_type(pugi::node_element);
+    for (; row.empty() == false; row = row.next_sibling_of_type(pugi::node_element)) {
+        for (XMLNode cell = row.first_child_of_type(pugi::node_element); cell.empty() == false; cell = cell.next_sibling_of_type(pugi::node_element)) {
             if (!XLCell(cell, XLSharedStrings()).hasFormula()) continue;
 
             formula = XLCell(cell, XLSharedStrings()).formula().get();

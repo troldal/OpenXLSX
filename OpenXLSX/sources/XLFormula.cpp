@@ -147,7 +147,7 @@ XLFormulaProxy& XLFormulaProxy::clear()
  * @details Convenience function for setting the formula. This method is called from the templated
  * string assignment operator.
  */
-void XLFormulaProxy::setFormulaString(const char* formulaString) {
+void XLFormulaProxy::setFormulaString(const char* formulaString, bool resetValue) {
     // ===== Check that the m_cellNode is valid.
     assert(m_cellNode);              // NOLINT
     assert(!m_cellNode->empty());    // NOLINT
@@ -156,13 +156,25 @@ void XLFormulaProxy::setFormulaString(const char* formulaString) {
     if (!m_cellNode->child("f")) m_cellNode->append_child("f");
     if (!m_cellNode->child("v")) m_cellNode->append_child("v");
 
-    // ===== Remove the type and shared index attributes, if they exists.
+    // ===== Remove the formula type and shared index attributes, if they exist.
     m_cellNode->child("f").remove_attribute("t");
     m_cellNode->child("f").remove_attribute("si");
 
     // ===== Set the text of the value node.
     m_cellNode->child("f").text().set(formulaString);
-    m_cellNode->child("v").text().set(0);
+    if( resetValue )
+        m_cellNode->child("v").text().set(0);
+
+// BEGIN pull request #189
+    // ===== Remove cell type attribute so that it can be determined by Office Suite when next calculating the formula.
+    m_cellNode->remove_attribute("t");
+
+    // ===== Remove inline string <is> tag, in case previous type was "inlineStr".
+    m_cellNode->remove_child("is");
+
+    // ===== Ensure that the formula node <f> is the first child, listed before the value <v> node.
+    m_cellNode->prepend_move(m_cellNode->child("f"));
+// END pull request #189
 }
 
 /**

@@ -230,11 +230,12 @@ namespace OpenXLSX
      * @pre
      * @post
      */
-    unsigned int XLRow::cellCount() const
+    uint16_t XLRow::cellCount() const
     {
-        if (!m_rowNode->last_child())
+        auto node = m_rowNode->last_child_of_type(pugi::node_element);
+        if (node.empty())
             return 0;
-        return XLCellReference(m_rowNode->last_child().attribute("r").value()).column();
+        return XLCellReference(node.attribute("r").value()).column();
     }
 
     /**
@@ -264,7 +265,9 @@ namespace OpenXLSX
      */
     XLRowDataRange XLRow::cells() const
     {
-        return XLRowDataRange(*m_rowNode, 1, XLCellReference(m_rowNode->last_child().attribute("r").value()).column(), m_sharedStrings);
+        XMLNode node = m_rowNode->last_child_of_type(pugi::node_element);
+        if (node.empty()) return XLRowDataRange(); // empty range
+        return XLRowDataRange(*m_rowNode, 1, XLCellReference(node.attribute("r").value()).column(), m_sharedStrings);
     }
 
     /**
@@ -378,15 +381,15 @@ namespace OpenXLSX
      * @pre
      * @post
      */
-    XLRowIterator& XLRowIterator::operator++()
+    XLRowIterator& XLRowIterator::operator++() // 2024-04-29: patched for whitespace
     {
         auto rowNumber = m_currentRow.rowNumber() + 1;
-        auto rowNode   = m_currentRow.m_rowNode->next_sibling();
+        auto rowNode   = m_currentRow.m_rowNode->next_sibling_of_type(pugi::node_element);
 
         if (rowNumber > m_lastRow)
             m_currentRow = XLRow();
 
-        else if (!rowNode || rowNode.attribute("r").as_ullong() != rowNumber) {
+        else if (rowNode.empty() || rowNode.attribute("r").as_ullong() != rowNumber) {
             rowNode = m_dataNode->insert_child_after("row", *m_currentRow.m_rowNode);
             rowNode.append_attribute("r").set_value(rowNumber);
             m_currentRow = XLRow(rowNode, m_sharedStrings);

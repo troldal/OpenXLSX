@@ -199,7 +199,7 @@ list(APPEND OPENXLSX_DEBUG_FLAGS_GNUCLANG
         "-Weffc++"
         "-Wno-unknown-pragmas")
 list(APPEND OPENXLSX_DEBUG_FLAGS_MSVC
-        "/permissive"
+        "/permissive-"
         "/W4"
         "/w14242"
         "/w14254"
@@ -223,6 +223,7 @@ list(APPEND OPENXLSX_DEBUG_FLAGS_MSVC
         "/wd4251"
         "/wd4275")
 list(APPEND OPENXLSX_RELEASE_FLAGS_MSVC
+        "/permissive-"
         "/wd4251"
         "/wd4275")
 

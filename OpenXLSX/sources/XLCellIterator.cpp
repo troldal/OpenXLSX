@@ -51,14 +51,9 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLCellRange.hpp"
 #include "XLCellReference.hpp"
 #include "XLException.hpp"
+#include "utilities/XLUtilities.hpp"
 
 using namespace OpenXLSX;
-
-namespace OpenXLSX
-{
-    XMLNode getRowNode(XMLNode sheetDataNode, uint32_t rowNumber);
-    XMLNode getCellNode(XMLNode rowNode, uint16_t columnNumber);
-}    // namespace OpenXLSX
 
 /**
  * @details
@@ -136,7 +131,7 @@ XLCellIterator& XLCellIterator::operator++()
     if (m_endReached)
         m_currentCell = XLCell();
     else if (ref > m_bottomRight || ref.row() == m_currentCell.cellReference().row()) {
-        auto node = m_currentCell.m_cellNode->next_sibling();
+        auto node = m_currentCell.m_cellNode->next_sibling_of_type(pugi::node_element);
         if (!node || XLCellReference(node.attribute("r").value()) != ref) {
             node = m_currentCell.m_cellNode->parent().insert_child_after("c", *m_currentCell.m_cellNode);
             node.append_attribute("r").set_value(ref.address().c_str());
@@ -144,7 +139,7 @@ XLCellIterator& XLCellIterator::operator++()
         m_currentCell = XLCell(node, m_sharedStrings);
     }
     else if (ref.row() > m_currentCell.cellReference().row()) {
-        auto rowNode = m_currentCell.m_cellNode->parent().next_sibling();
+        auto rowNode = m_currentCell.m_cellNode->parent().next_sibling_of_type(pugi::node_element);
         if (!rowNode || rowNode.attribute("r").as_ullong() != ref.row()) {
             rowNode = m_currentCell.m_cellNode->parent().parent().insert_child_after("row", m_currentCell.m_cellNode->parent());
             rowNode.append_attribute("r").set_value(ref.row());

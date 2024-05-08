@@ -89,6 +89,10 @@ bool XLSharedStrings::stringExists(const std::string& str) const
  */
 const char* XLSharedStrings::getString(uint32_t index) const
 {
+    if (index >= m_stringCache->size()) { // 2024-04-30: added range check
+        using namespace std::literals::string_literals;
+        throw XLInternalError ("XLSharedStrings::"s + __func__ + ": index "s + std::to_string( index ) + " is out of range"s);
+    }
     return (*m_stringCache)[index].c_str();
 }
 
@@ -99,8 +103,7 @@ const char* XLSharedStrings::getString(uint32_t index) const
 int32_t XLSharedStrings::appendString(const std::string& str)
 {
     auto textNode = xmlDocument().document_element().append_child("si").append_child("t");
-    if (str.front() == ' ' || str.back() == ' ') textNode.append_attribute("xml:space").set_value("preserve");
-
+    if ((!str.empty()) && (str.front() == ' ' || str.back() == ' ')) textNode.append_attribute("xml:space").set_value("preserve"); // pull request #161
     textNode.text().set(str.c_str());
     m_stringCache->emplace_back(textNode.text().get());
 
@@ -108,13 +111,38 @@ int32_t XLSharedStrings::appendString(const std::string& str)
 }
 
 /**
+* @details Print the underlying XML using pugixml::xml_node::print
+ */
+void XLSharedStrings::print(std::basic_ostream<char, std::char_traits<char> >& os)
+{
+    xmlDocument().document_element().print( os );
+}
+
+/**
  * @details Clear the string at the given index. This will affect the entire spreadsheet; everywhere the shared string
  * is used, it will be erased.
  */
-void XLSharedStrings::clearString(uint64_t index)
+// 2024-04-30 CAUTION: other functions use uint32_t index or even int32_t (getStringIndex) - should be pulled straight!
+void XLSharedStrings::clearString(uint64_t index) // 2024-04-30: whitespace support
 {
+    if( index >= m_stringCache->size() ) // 2024-04-30: added range check
+        throw XLInternalError( std::string( "XLSharedStrings::" ) + std::string( __func__ ) + std::string( ": index " ) + std::to_string( index ) + std::string( " is out of range" ) );
+
     (*m_stringCache)[index] = "";
-    auto iter            = xmlDocument().document_element().children().begin();
-    std::advance(iter, index);
-    iter->text().set("");
+    // auto iter            = xmlDocument().document_element().children().begin();
+    // std::advance(iter, index);
+    // iter->text().set(""); // 2024-04-30: BUGFIX: this was never going to work, <si> entries can be plenty that need to be cleared, including formatting
+    // 2024-04-30 CAUTION: performance critical - with whitespace support, the function can no longer know the exact iterator position of the shared string to be cleared
+    // TBD what to do instead?
+    // potential solution: store the XML child position with each entry in m_stringCache in a std::deque<struct entry> with struct entry { std::string s; uint64_t xmlChildIndex; };
+    XMLNode sharedStringNode = xmlDocument().document_element().first_child_of_type(pugi::node_element);
+    uint64_t sharedStringPos = 0;
+    while( sharedStringPos < index && !sharedStringNode.empty() ) {
+        sharedStringNode = sharedStringNode.next_sibling_of_type(pugi::node_element);
+        ++sharedStringPos;
+    }
+    if( !sharedStringNode.empty() ) { // index was found
+        sharedStringNode.remove_children(); // clear all data and formatting
+        sharedStringNode.append_child("t"); // append an empty text node
+    }
 }

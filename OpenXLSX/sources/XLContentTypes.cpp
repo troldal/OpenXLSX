@@ -260,7 +260,7 @@ void XLContentTypes::addOverride(const std::string& path, XLContentType type)
 {
     std::string typeString = GetStringFromType(type);
 
-    auto node = xmlDocument().first_child().append_child("Override");
+    auto node = xmlDocument().document_element().append_child("Override");
     node.append_attribute("PartName").set_value(path.c_str());
     node.append_attribute("ContentType").set_value(typeString.c_str());
 }
@@ -295,8 +295,10 @@ XLContentItem XLContentTypes::contentItem(const std::string& path)
 std::vector<XLContentItem> XLContentTypes::getContentItems()
 {
     std::vector<XLContentItem> result;
-    for (auto item : xmlDocument().document_element().children()) {
+    XMLNode item = xmlDocument().document_element().first_child_of_type(pugi::node_element);
+    while( item ) {
         if (strcmp(item.name(), "Override") == 0) result.emplace_back(item);
+        item = item.next_sibling_of_type(pugi::node_element);
     }
 
     return result;

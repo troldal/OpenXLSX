@@ -4,9 +4,8 @@
 
 #include "XLDateTime.hpp"
 #include "XLException.hpp"
-#include <cmath>
 #include <string>
-#include <cstdint>
+#include <cmath>
 
 namespace {
 

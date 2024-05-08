@@ -196,6 +196,11 @@ namespace OpenXLSX
          */
         explicit XLRowDataRange(const XMLNode& rowNode, uint16_t firstColumn, uint16_t lastColumn, const XLSharedStrings& sharedStrings);
 
+        /**
+         * @brief Constructor for an empty range.
+         */
+        explicit XLRowDataRange();
+
         std::unique_ptr<XMLNode> m_rowNode;                   /**< */
         uint16_t                 m_firstCol { 1 };            /**< The cell reference of the first cell in the range */
         uint16_t                 m_lastCol { 1 };             /**< The cell reference of the last cell in the range */
@@ -244,12 +249,15 @@ namespace OpenXLSX
          * @return A reference to the copied-to object.
          * @throws XLOverflowError if size of container exceeds maximum number of columns.
          */
-        template<typename T,
-                 typename std::enable_if<!std::is_same_v<T, XLRowDataProxy> &&
-                                             std::is_base_of_v<typename std::bidirectional_iterator_tag,
-                                                               typename std::iterator_traits<typename T::iterator>::iterator_category>,
-                                         T>::type* = nullptr>
-        XLRowDataProxy& operator=(const T& values)
+        template<
+            typename T,
+            typename std::enable_if<
+                !std::is_same_v<T, XLRowDataProxy>
+                    && std::is_base_of_v< typename std::bidirectional_iterator_tag, typename std::iterator_traits< typename T::iterator >::iterator_category >,
+                T
+            >::type* = nullptr
+        >
+        XLRowDataProxy& operator=(const T& values) // 2024-04-30: whitespace support
         {
             if (values.size() > MAX_COLS) throw XLOverflowError("Container size exceeds maximum number of columns.");
             if (values.size() == 0) return *this;
@@ -257,12 +265,12 @@ namespace OpenXLSX
             // ===== If the container value_type is XLCellValue, the values can be copied directly.
             if constexpr (std::is_same_v<typename T::value_type, XLCellValue>) {
                 // ===== First, delete the values in the first N columns.
-                deleteCellValues(values.size());
+                deleteCellValues(values.size()); // 2024-04-30: whitespace support
 
                 // ===== Then, prepend new cell nodes to current row node
                 auto colNo = values.size();
                 for (auto value = values.rbegin(); value != values.rend(); ++value) {    // NOLINT
-                    prependCellValue(*value, colNo);
+                    prependCellValue(*value, colNo); // 2024-04-30: whitespace support: this is safe because only prependCellValue (with whitespace support) touches the row data
                     --colNo;
                 }
             }
@@ -270,19 +278,36 @@ namespace OpenXLSX
             // ===== If the container value_type is a POD type, use the overloaded operator= on each cell.
             else {
                 auto range = XLRowDataRange(*m_rowNode, 1, values.size(), getSharedStrings());
-                auto dst   = range.begin();
+                auto dst   = range.begin(); // 2024-04-30: whitespace support: safe because XLRowDataRange::begin invokes whitespace-safe getCellNode for column 1
                 auto src   = values.begin();
 
                 while (true) {
                     dst->value() = *src;
                     ++src;
                     if (src == values.end()) break;
-                    ++dst;
+                    ++dst; // 2024-04-30: whitespace support: XLRowDataIterator::operator++ is whitespace-safe
                 }
             }
 
             return *this;
         }
+
+// // BEGIN working template header
+//         template<
+//             typename T,
+//             typename std::enable_if<
+//                 !std::is_same_v< T, XLRowDataProxy >
+//                  && std::is_base_of_v< XMLNode, T >,
+//                 T
+//             >::type* = nullptr
+//         >
+// // END working template header
+//         XLRowDataProxy& operator=(const T& values)
+//         {
+// using namespace std::literals::string_literals;
+// throw XLInternalError( "templated XLRowDataProxy& operator=(const T& values) instantiated for an XMLNode ("s+ typeid(T).name() + "), this function must be implemented then"s );
+// 
+//         }
 
         /**
          * @brief Implicit conversion to std::vector of XLCellValues.
@@ -398,7 +423,7 @@ namespace OpenXLSX
                                         std::is_base_of_v<typename std::bidirectional_iterator_tag,
                                                           typename std::iterator_traits<typename Container::iterator>::iterator_category>,
                                     Container>::type* = nullptr>
-        Container convertContainer() const
+        Container convertContainer() const // 2024-04-30: whitespace support
         {
             Container c;
             auto      it = std::inserter(c, c.end());
