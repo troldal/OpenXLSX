@@ -38,12 +38,17 @@ set(OPENXLSX_LIBRARY_TYPE "STATIC" CACHE STRING "Set the library type to SHARED 
 #   Define external libraries used by OpenXLSX. The libraries (Zippy, PugiXML, and NoWide) are header-only, so
 #   INTERFACE libraries should be defined.
 #=======================================================================================================================
-add_library(NoWide INTERFACE IMPORTED)
-target_include_directories(NoWide SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/external/nowide/>)
+
+if (OPENXLSX_ENABLE_NOWIDE)
+    add_library(NoWide INTERFACE IMPORTED)
+    target_include_directories(NoWide SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/external/nowide/>)
+endif()
 
 add_library(Zippy INTERFACE IMPORTED)
 target_include_directories(Zippy SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/external/zippy/>)
-target_compile_definitions(Zippy INTERFACE ENABLE_NOWIDE)
+if (OPENXLSX_ENABLE_NOWIDE)
+    target_compile_definitions(Zippy INTERFACE ENABLE_NOWIDE)
+endif ()
 
 add_library(PugiXML INTERFACE IMPORTED)
 target_include_directories(PugiXML SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/external/pugixml/>)
@@ -131,8 +136,13 @@ if (${OPENXLSX_LIBRARY_TYPE} STREQUAL "STATIC")
     target_link_libraries(OpenXLSX
             PRIVATE
             $<BUILD_INTERFACE:Zippy>
-            $<BUILD_INTERFACE:PugiXML>
-            $<BUILD_INTERFACE:NoWide>)
+            $<BUILD_INTERFACE:PugiXML>)
+
+    if (OPENXLSX_ENABLE_NOWIDE)
+        target_link_libraries(OpenXLSX
+                PRIVATE
+                $<BUILD_INTERFACE:NoWide>)
+    endif ()
 
     target_compile_definitions(OpenXLSX PUBLIC OPENXLSX_STATIC_DEFINE)
 
@@ -154,8 +164,13 @@ if (${OPENXLSX_LIBRARY_TYPE} STREQUAL "SHARED")
     target_link_libraries(OpenXLSX
             PRIVATE
             $<BUILD_INTERFACE:Zippy>
-            $<BUILD_INTERFACE:PugiXML>
-            $<BUILD_INTERFACE:NoWide>)
+            $<BUILD_INTERFACE:PugiXML>)
+
+    if (OPENXLSX_ENABLE_NOWIDE)
+        target_link_libraries(OpenXLSX
+                PRIVATE
+                $<BUILD_INTERFACE:NoWide>)
+    endif ()
 
     # Enable Link-Time Optimization (LTO)
     include(CheckIPOSupported)
@@ -165,6 +180,12 @@ if (${OPENXLSX_LIBRARY_TYPE} STREQUAL "SHARED")
     endif ()
 
 endif()
+
+
+if (OPENXLSX_ENABLE_NOWIDE)
+    target_compile_definitions(OpenXLSX PRIVATE ENABLE_NOWIDE)
+endif ()
+
 
 # Generate export header
 include(GenerateExportHeader)

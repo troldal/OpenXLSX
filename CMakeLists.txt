@@ -30,7 +30,13 @@ option(OPENXLSX_BUILD_SAMPLES "Build sample programs" ON)
 option(OPENXLSX_BUILD_TESTS "Build and run library tests" ON)
 option(OPENXLSX_BUILD_BENCHMARKS "Build and run library benchmarks" ON)
 option(OPENXLSX_ENABLE_LIBZIP "Enable using libzip" OFF)
-#option(OPENXLSX_ENABLE_NOWIDE "Enable using nowide" OFF)
+
+#=======================================================================================================================
+# Add project configurations (#ifdef / #ifndef testable)
+#=======================================================================================================================
+if(WIN32)
+    set(OPENXLSX_ENABLE_NOWIDE ON)
+endif()
 
 #=======================================================================================================================
 # Add project subdirectories
@@ -53,10 +59,4 @@ if(${OPENXLSX_BUILD_BENCHMARKS})
     add_subdirectory(Benchmarks)
 endif()
 
-#=======================================================================================================================
-# Add project configurations (#ifdef / #ifndef testable)
-#=======================================================================================================================
-if(WIN32)
-    add_compile_definitions(ENABLE_NOWIDE)
-    message(STATUS "Enabled NoWide")
-endif()
+
