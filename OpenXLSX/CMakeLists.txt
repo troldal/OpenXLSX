@@ -43,6 +43,7 @@ target_include_directories(NoWide SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CUR
 
 add_library(Zippy INTERFACE IMPORTED)
 target_include_directories(Zippy SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/external/zippy/>)
+target_compile_definitions(Zippy INTERFACE ENABLE_NOWIDE)
 
 add_library(PugiXML INTERFACE IMPORTED)
 target_include_directories(PugiXML SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/external/pugixml/>)

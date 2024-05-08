@@ -151,14 +151,14 @@ namespace OpenXLSX
          * @param name
          * @return
          */
-        std::string getEntry(const std::string& name);
+        std::string getEntry(const std::string& name) const;
 
         /**
          * @brief
          * @param entryName
          * @return
          */
-        bool hasEntry(const std::string& entryName);
+        bool hasEntry(const std::string& entryName) const;
 
     private:
         std::shared_ptr<Zippy::ZipArchive> m_archive; /**< */

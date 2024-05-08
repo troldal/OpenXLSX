@@ -69,7 +69,7 @@ XLXmlFile::~XLXmlFile() = default;
  * empty strings, which is not what we want. The downside is that whitespace characters such as \\n and \\t in the
  * input xml file may mess up the parsing.
  */
-void XLXmlFile::setXmlData(const std::string& xmlData)
+void XLXmlFile::setXmlData(const std::string& xmlData) // NOLINT
 {
     m_xmlData->setRawData(xmlData);
 }

@@ -54,18 +54,13 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <any>
 #include <map>
 #include <string>
-#include <variant>
-
-// ===== OpenXLSX Includes ===== //
-#include "XLXmlData.hpp"
-#include "XLSharedStrings.hpp"
 
 namespace OpenXLSX
 {
     /**
      * @brief
      */
-    enum class XLCommandType {
+    enum class XLCommandType : uint8_t {
         SetSheetName,
         SetSheetColor,
         SetSheetVisibility,
@@ -85,7 +80,6 @@ namespace OpenXLSX
     class XLCommand
     {
     public:
-
         /**
          * @brief
          * @param type
@@ -100,7 +94,8 @@ namespace OpenXLSX
          * @return
          */
         template<typename T>
-        XLCommand& setParam(const std::string& param, T value) {
+        XLCommand& setParam(const std::string& param, T value)
+        {
             m_params[param] = value;
             return *this;
         }
@@ -112,7 +107,8 @@ namespace OpenXLSX
          * @return
          */
         template<typename T>
-        T getParam(const std::string& param) const {
+        T getParam(const std::string& param) const
+        {
             return std::any_cast<T>(m_params.at(param));
         }
 
@@ -120,19 +116,17 @@ namespace OpenXLSX
          * @brief
          * @return
          */
-        XLCommandType type() const {
-            return m_type;
-        }
+        XLCommandType type() const { return m_type; }
 
     private:
-        XLCommandType m_type; /*< */
+        XLCommandType                   m_type;   /*< */
         std::map<std::string, std::any> m_params; /*< */
     };
 
     /**
      * @brief
      */
-    enum class XLQueryType {
+    enum class XLQueryType : uint8_t {
         QuerySheetName,
         QuerySheetIndex,
         QuerySheetVisibility,
@@ -151,7 +145,6 @@ namespace OpenXLSX
     class XLQuery
     {
     public:
-
         /**
          * @brief
          * @param type
@@ -166,7 +159,8 @@ namespace OpenXLSX
          * @return
          */
         template<typename T>
-        XLQuery& setParam(const std::string& param, T value) {
+        XLQuery& setParam(const std::string& param, T value)
+        {
             m_params[param] = value;
             return *this;
         }
@@ -178,7 +172,8 @@ namespace OpenXLSX
          * @return
          */
         template<typename T>
-        T getParam(const std::string& param) const {
+        T getParam(const std::string& param) const
+        {
             return std::any_cast<T>(m_params.at(param));
         }
 
@@ -189,7 +184,8 @@ namespace OpenXLSX
          * @return
          */
         template<typename T>
-        XLQuery& setResult(T value) {
+        XLQuery& setResult(T value)
+        {
             m_result = value;
             return *this;
         }
@@ -200,7 +196,8 @@ namespace OpenXLSX
          * @return
          */
         template<typename T>
-        T result() const {
+        T result() const
+        {
             return std::any_cast<T>(m_result);
         }
 
@@ -208,13 +205,11 @@ namespace OpenXLSX
          * @brief
          * @return
          */
-        XLQueryType type() const {
-            return m_type;
-        }
+        XLQueryType type() const { return m_type; }
 
     private:
-        XLQueryType m_type; /*< */
-        std::any m_result; /*< */
+        XLQueryType                     m_type;   /*< */
+        std::any                        m_result; /*< */
         std::map<std::string, std::any> m_params; /*< */
     };
 

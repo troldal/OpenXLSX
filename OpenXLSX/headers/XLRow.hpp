@@ -213,7 +213,6 @@ namespace OpenXLSX
         XLRowDataRange cells(uint16_t firstCell, uint16_t lastCell) const;
 
     private:
-
         /**
          * @brief
          * @param lhs
@@ -331,11 +330,11 @@ namespace OpenXLSX
         explicit operator bool() const;
 
     private:
-        std::unique_ptr<XMLNode> m_dataNode;                  /**< */
-        uint32_t                 m_firstRow { 1 };            /**< The cell reference of the first cell in the range */
-        uint32_t                 m_lastRow { 1 };             /**< The cell reference of the last cell in the range */
-        XLRow                    m_currentRow;                /**< */
-        XLSharedStrings          m_sharedStrings; /**< */
+        std::unique_ptr<XMLNode> m_dataNode;       /**< */
+        uint32_t                 m_firstRow { 1 }; /**< The cell reference of the first cell in the range */
+        uint32_t                 m_lastRow { 1 };  /**< The cell reference of the last cell in the range */
+        XLRow                    m_currentRow;     /**< */
+        XLSharedStrings          m_sharedStrings;  /**< */
     };
 
     /**
@@ -413,9 +412,9 @@ namespace OpenXLSX
         //----------------------------------------------------------------------------------------------------------------------
 
     private:
-        std::unique_ptr<XMLNode> m_dataNode;                  /**< */
-        uint32_t                 m_firstRow;                  /**< The cell reference of the first cell in the range */
-        uint32_t                 m_lastRow;                   /**< The cell reference of the last cell in the range */
+        std::unique_ptr<XMLNode> m_dataNode;      /**< */
+        uint32_t                 m_firstRow;      /**< The cell reference of the first cell in the range */
+        uint32_t                 m_lastRow;       /**< The cell reference of the last cell in the range */
         XLSharedStrings          m_sharedStrings; /**< */
     };
 
@@ -430,10 +429,7 @@ namespace OpenXLSX
      * @param rhs
      * @return
      */
-    inline bool operator==(const XLRow& lhs, const XLRow& rhs)
-    {
-        return XLRow::isEqual(lhs, rhs);
-    }
+    inline bool operator==(const XLRow& lhs, const XLRow& rhs) { return XLRow::isEqual(lhs, rhs); }
 
     /**
      * @brief
@@ -441,10 +437,7 @@ namespace OpenXLSX
      * @param rhs
      * @return
      */
-    inline bool operator!=(const XLRow& lhs, const XLRow& rhs)
-    {
-        return !(lhs.m_rowNode == rhs.m_rowNode);
-    }
+    inline bool operator!=(const XLRow& lhs, const XLRow& rhs) { return !(lhs.m_rowNode == rhs.m_rowNode); }
 
     /**
      * @brief
@@ -452,10 +445,7 @@ namespace OpenXLSX
      * @param rhs
      * @return
      */
-    inline bool operator<(const XLRow& lhs, const XLRow& rhs)
-    {
-        return XLRow::isLessThan(lhs, rhs);
-    }
+    inline bool operator<(const XLRow& lhs, const XLRow& rhs) { return XLRow::isLessThan(lhs, rhs); }
 
     /**
      * @brief
@@ -463,10 +453,7 @@ namespace OpenXLSX
      * @param rhs
      * @return
      */
-    inline bool operator>(const XLRow& lhs, const XLRow& rhs)
-    {
-        return (rhs < lhs);
-    }
+    inline bool operator>(const XLRow& lhs, const XLRow& rhs) { return (rhs < lhs); }
 
     /**
      * @brief
@@ -474,10 +461,7 @@ namespace OpenXLSX
      * @param rhs
      * @return
      */
-    inline bool operator<=(const XLRow& lhs, const XLRow& rhs)
-    {
-        return !(lhs > rhs);
-    }
+    inline bool operator<=(const XLRow& lhs, const XLRow& rhs) { return !(lhs > rhs); }
 
     /**
      * @brief
@@ -485,10 +469,7 @@ namespace OpenXLSX
      * @param rhs
      * @return
      */
-    inline bool operator>=(const XLRow& lhs, const XLRow& rhs)
-    {
-        return !(lhs < rhs);
-    }
+    inline bool operator>=(const XLRow& lhs, const XLRow& rhs) { return !(lhs < rhs); }
 
 }    // namespace OpenXLSX
 

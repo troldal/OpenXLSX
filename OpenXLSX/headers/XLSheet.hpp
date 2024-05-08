@@ -53,7 +53,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 // ===== External Includes ===== //
 #include <type_traits>
 #include <variant>
-#include <vector>
 
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
@@ -72,7 +71,7 @@ namespace OpenXLSX
     /**
      * @brief The XLSheetState is an enumeration of the possible (visibility) states, e.g. Visible or Hidden.
      */
-    enum class XLSheetState { Visible, Hidden, VeryHidden };
+    enum class XLSheetState : uint8_t { Visible, Hidden, VeryHidden };
 
     /**
      * @brief The XLSheetBase class is the base class for the XLWorksheet and XLChartsheet classes. However,
@@ -80,7 +79,7 @@ namespace OpenXLSX
      * inherited via the CRTP (Curiously Recurring Template Pattern) pattern.
      * @tparam T Type that will inherit functionality. Restricted to types XLWorksheet and XLChartsheet.
      */
-    template<typename T, typename std::enable_if<std::is_same_v<T, XLWorksheet> || std::is_same_v<T, XLChartsheet>>::type* = nullptr>
+    template<typename T, typename = std::enable_if_t<std::is_same_v<T, XLWorksheet> || std::is_same_v<T, XLChartsheet>>>
     class OPENXLSX_EXPORT XLSheetBase : public XLXmlFile
     {
     public:
@@ -138,7 +137,7 @@ namespace OpenXLSX
         {
             XLQuery query(XLQueryType::QuerySheetVisibility);
             query.setParam("sheetID", relationshipID());
-            auto state  = parentDoc().execQuery(query).template result<std::string>();
+            const auto state  = parentDoc().execQuery(query).template result<std::string>();
             auto result = XLSheetState::Visible;
 
             if (state == "visible" || state.empty()) {
@@ -209,7 +208,7 @@ namespace OpenXLSX
 
             XLQuery query(XLQueryType::QuerySheetIndex);
             query.setParam("sheetID", relationshipID());
-            return uint16_t(std::stoi(parentDoc().execQuery(query).template result<std::string>()));
+            return static_cast<uint16_t>(std::stoi(parentDoc().execQuery(query).template result<std::string>()));
         }
 
         /**
@@ -275,7 +274,6 @@ namespace OpenXLSX
 
         /**
          * @brief
-         * @param active
          */
         bool setActive()
         {
@@ -481,7 +479,6 @@ namespace OpenXLSX
 
         /**
          * @brief
-         * @param selected
          */
         bool setActive_impl();
     };
@@ -683,7 +680,7 @@ namespace OpenXLSX
          */
         template<
             typename SheetType,
-            typename std::enable_if<std::is_same_v<SheetType, XLWorksheet> || std::is_same_v<SheetType, XLChartsheet>>::type* = nullptr>
+                 typename = std::enable_if_t<std::is_same_v<SheetType, XLWorksheet> || std::is_same_v<SheetType, XLChartsheet>>>
         bool isType() const
         {
             return std::holds_alternative<SheetType>(m_sheet);
@@ -702,7 +699,7 @@ namespace OpenXLSX
          * @tparam T
          * @return
          */
-        template<typename T, typename std::enable_if<std::is_same_v<T, XLWorksheet> || std::is_same_v<T, XLChartsheet>>::type* = nullptr>
+        template<typename T, typename = std::enable_if_t<std::is_same_v<T, XLWorksheet> || std::is_same_v<T, XLChartsheet>>>
         T get() const
         {
             try {
@@ -733,7 +730,7 @@ namespace OpenXLSX
         /**
          * @brief print the XML contents of the XLSheet using the underlying XMLNode print function
          */
-        void print(std::basic_ostream<char, std::char_traits<char> >& os);
+        void print(std::basic_ostream<char, std::char_traits<char> >& ostr);
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Private Member Variables

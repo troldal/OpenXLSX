@@ -51,11 +51,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #pragma warning(disable : 4275)
 
 // ===== External Includes ===== //
-#include <algorithm>
-#include <fstream>
-#include <iostream>
-#include <list>
-#include <map>
 #include <string>
 
 // ===== OpenXLSX Includes ===== //
@@ -63,13 +58,14 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "OpenXLSX-Exports.hpp"
 #include "XLCommandQuery.hpp"
 #include "XLContentTypes.hpp"
-#include "XLException.hpp"
 #include "XLProperties.hpp"
 #include "XLRelationships.hpp"
 #include "XLSharedStrings.hpp"
 #include "XLWorkbook.hpp"
 #include "XLXmlData.hpp"
 #include "XLZipArchive.hpp"
+
+#include <list>
 
 namespace OpenXLSX
 {
@@ -124,6 +120,7 @@ namespace OpenXLSX
         /**
          * @brief Constructor. An alternative constructor, taking the path to the .xlsx file as an argument.
          * @param docPath A std::string with the path to the .xlsx file.
+         * @param zipArchive
          */
         explicit XLDocument(const std::string& docPath, const IZipArchive& zipArchive = XLZipArchive());
 
@@ -259,7 +256,6 @@ namespace OpenXLSX
          * @return
          */
         XLQuery execQuery(const XLQuery& query);
-
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Protected Member Functions

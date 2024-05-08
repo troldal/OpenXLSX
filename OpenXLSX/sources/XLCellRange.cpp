@@ -45,7 +45,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== External Includes ===== //
 #include <pugixml.hpp>
-#include <stdexcept>
 
 // ===== OpenXLSX Includes ===== //
 #include "XLCellRange.hpp"
@@ -133,40 +132,28 @@ XLCellRange& XLCellRange::operator=(XLCellRange&& other) noexcept
  * @pre
  * @post
  */
-uint32_t XLCellRange::numRows() const
-{
-    return m_bottomRight.row() + 1 - m_topLeft.row();
-}
+uint32_t XLCellRange::numRows() const { return m_bottomRight.row() + 1 - m_topLeft.row(); }
 
 /**
  * @details
  * @pre
  * @post
  */
-uint16_t XLCellRange::numColumns() const
-{
-    return m_bottomRight.column() + 1 - m_topLeft.column();
-}
+uint16_t XLCellRange::numColumns() const { return m_bottomRight.column() + 1 - m_topLeft.column(); }
 
 /**
  * @details
  * @pre
  * @post
  */
-XLCellIterator XLCellRange::begin() const
-{
-    return XLCellIterator(*this, XLIteratorLocation::Begin);
-}
+XLCellIterator XLCellRange::begin() const { return XLCellIterator(*this, XLIteratorLocation::Begin); }
 
 /**
  * @details
  * @pre
  * @post
  */
-XLCellIterator XLCellRange::end() const
-{
-    return XLCellIterator(*this, XLIteratorLocation::End);
-}
+XLCellIterator XLCellRange::end() const { return XLCellIterator(*this, XLIteratorLocation::End); }
 
 /**
  * @details
@@ -175,5 +162,5 @@ XLCellIterator XLCellRange::end() const
  */
 void XLCellRange::clear()
 {
-    for(auto& cell: *this) cell.value().clear();
+    for (auto& cell : *this) cell.value().clear();
 }

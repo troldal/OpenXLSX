@@ -167,38 +167,27 @@ XLCellIterator XLCellIterator::operator++(int)    // NOLINT
 /**
  * @details
  */
-XLCell& XLCellIterator::operator*()
-{
-    return m_currentCell;
-}
+XLCell& XLCellIterator::operator*() { return m_currentCell; }
 
 /**
  * @details
  */
-XLCellIterator::pointer XLCellIterator::operator->()
-{
-    return &m_currentCell;
-}
+XLCellIterator::pointer XLCellIterator::operator->() { return &m_currentCell; }
 
 /**
  * @details
  */
 bool XLCellIterator::operator==(const XLCellIterator& rhs) const
 {
-    if (m_currentCell && !rhs.m_currentCell)
-        return false;
-    if (!m_currentCell && !rhs.m_currentCell)
-        return true;
+    if (m_currentCell && !rhs.m_currentCell) return false;
+    if (!m_currentCell && !rhs.m_currentCell) return true;
     return m_currentCell == rhs.m_currentCell;
 }
 
 /**
  * @details
  */
-bool XLCellIterator::operator!=(const XLCellIterator& rhs) const
-{
-    return !(*this == rhs);
-}
+bool XLCellIterator::operator!=(const XLCellIterator& rhs) const { return !(*this == rhs); }
 
 /**
  * @details

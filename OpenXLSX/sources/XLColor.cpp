@@ -44,8 +44,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
  */
 
 // ===== External Includes ===== //
-#include <algorithm>
-#include <cstdint> // pull requests #216, #232
+#include <cstdint>    // pull requests #216, #232
 #include <sstream>
 
 // ===== OpenXLSX Includes ===== //
@@ -72,10 +71,7 @@ XLColor::XLColor(uint8_t red, uint8_t green, uint8_t blue) : m_red(red), m_green
 /**
  * @details
  */
-XLColor::XLColor(const std::string& hexCode)
-{
-    set(hexCode);
-}
+XLColor::XLColor(const std::string& hexCode) { set(hexCode); }
 
 /**
  * @details
@@ -135,8 +131,8 @@ void XLColor::set(const std::string& hexCode)
 
     auto temp = hex();
 
-    const int hexCodeSizeWithoutAlpha = 6;
-    const int hexCodeSizeWithAlpha = 8;
+    constexpr int hexCodeSizeWithoutAlpha = 6;
+    constexpr int hexCodeSizeWithAlpha    = 8;
 
     if (hexCode.size() == hexCodeSizeWithoutAlpha) {
         alpha = hex().substr(0, 2);
@@ -149,49 +145,37 @@ void XLColor::set(const std::string& hexCode)
         alpha = hexCode.substr(0, 2);
         red   = hexCode.substr(2, 2);
         green = hexCode.substr(4, 2);
-        blue  = hexCode.substr(6, 2); //NOLINT
+        blue  = hexCode.substr(6, 2);    // NOLINT
     }
     else
         throw XLInputError("Invalid color code");
 
-    const int hexBase = 16;
-    m_alpha = static_cast<uint8_t>(stoul(alpha, nullptr, hexBase));
-    m_red   = static_cast<uint8_t>(stoul(red, nullptr, hexBase));
-    m_green = static_cast<uint8_t>(stoul(green, nullptr, hexBase));
-    m_blue  = static_cast<uint8_t>(stoul(blue, nullptr, hexBase));
+    constexpr int hexBase = 16;
+    m_alpha               = static_cast<uint8_t>(stoul(alpha, nullptr, hexBase));
+    m_red                 = static_cast<uint8_t>(stoul(red, nullptr, hexBase));
+    m_green               = static_cast<uint8_t>(stoul(green, nullptr, hexBase));
+    m_blue                = static_cast<uint8_t>(stoul(blue, nullptr, hexBase));
 }
 
 /**
  * @details
  */
-uint8_t XLColor::alpha() const
-{
-    return m_alpha;
-}
+uint8_t XLColor::alpha() const { return m_alpha; }
 
 /**
  * @details
  */
-uint8_t XLColor::red() const
-{
-    return m_red;
-}
+uint8_t XLColor::red() const { return m_red; }
 
 /**
  * @details
  */
-uint8_t XLColor::green() const
-{
-    return m_green;
-}
+uint8_t XLColor::green() const { return m_green; }
 
 /**
  * @details
  */
-uint8_t XLColor::blue() const
-{
-    return m_blue;
-}
+uint8_t XLColor::blue() const { return m_blue; }
 
 /**
  * @details
@@ -199,7 +183,7 @@ uint8_t XLColor::blue() const
 std::string XLColor::hex() const
 {
     std::stringstream str;
-    const int hexBase = 16;
+    constexpr int     hexBase = 16;
 
     if (m_alpha < hexBase) str << "0";
     str << std::hex << static_cast<int>(m_alpha);

@@ -51,15 +51,10 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #pragma warning(disable : 4275)
 
 // ===== External Includes ===== //
-#include <variant>
 #include <vector>
 
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
-#include "XLCommandQuery.hpp"
-#include "XLContentTypes.hpp"
-#include "XLException.hpp"
-#include "XLRelationships.hpp"
 #include "XLXmlFile.hpp"
 
 namespace OpenXLSX
@@ -318,10 +313,9 @@ namespace OpenXLSX
         /**
          * @brief print the XML contents of the workbook.xml using the underlying XMLNode print function
          */
-        void print(std::basic_ostream<char, std::char_traits<char> >& os);
+        void print(std::basic_ostream<char, std::char_traits<char>>& os);
 
     private:    // ---------- Private Member Functions ---------- //
-
         /**
          * @brief
          * @return
@@ -386,17 +380,17 @@ namespace OpenXLSX
 
         /**
          * @brief Check whether attribute string state matches a value that is considered not visible
-         * @param sheetNode
-			* @return true if state does not match a value that is considered not visible (hidden, veryHidden), otherwise false
+         * @param state
+         * @return true if state does not match a value that is considered not visible (hidden, veryHidden), otherwise false
          */
-        bool isVisibleState(std::string const & state) const;
+        bool isVisibleState(std::string const& state) const;
 
         /**
          * @brief Check whether sheetNode is not empty, and in case it has an attribute "state", that the state does not reflect hidden-ness
          * @param sheetNode
-			* @return true if sheetNode can be considered visible (and could be activated)
+         * @return true if sheetNode can be considered visible (and could be activated)
          */
-        bool isVisible(XMLNode const & sheetNode) const;
+        bool isVisible(XMLNode const& sheetNode) const;
     };
 }    // namespace OpenXLSX
 

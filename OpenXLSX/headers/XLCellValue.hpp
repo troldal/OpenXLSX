@@ -63,7 +63,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLException.hpp"
 #include "XLXmlParser.hpp"
 
-typedef std::variant< std::string, int64_t, double, bool > XLCellValueType; // TBD: typedef std::variant< std::string, int64_t, double, bool, struct timestamp > XLCellValueType;
+typedef std::variant<std::string, int64_t, double, bool>
+    XLCellValueType;    // TBD: typedef std::variant< std::string, int64_t, double, bool, struct timestamp > XLCellValueType;
 
 // ========== CLASS AND ENUM TYPE DEFINITIONS ========== //
 namespace OpenXLSX
@@ -78,13 +79,14 @@ namespace OpenXLSX
     enum class XLValueType { Empty, Boolean, Integer, Float, Error, String };
 
     //---------- Private Struct to enable XLValueType conversion to std::string ---------- //
-    struct VisitXLCellValueTypeToString {
+    struct VisitXLCellValueTypeToString
+    {
         std::string packageName = "VisitXLCellValueTypeToString";
-        std::string operator()( int64_t v ) { return std::to_string( v ); }
-        std::string operator()( double v ) { return std::to_string( v ); }
-        std::string operator()( bool v ) { return v ? "true" : "false"; }
+        std::string operator()(int64_t v) const { return std::to_string(v); }
+        std::string operator()(double v) const { return std::to_string(v); }
+        std::string operator()(bool v) const { return v ? "true" : "false"; }
         // std::string operator()( struct timestamp v ) { return timestampString( v.seconds, v.microseconds, WITH_MS ); }
-        std::string operator()( std::string v ) { return v; }
+        std::string operator()(std::string v) const { return v; }
     };
 
     /**
@@ -93,7 +95,7 @@ namespace OpenXLSX
     class OPENXLSX_EXPORT XLCellValue
     {
         //---------- Friend Declarations ----------//
-        friend class XLCellValueProxy; // to allow access to m_value
+        friend class XLCellValueProxy;    // to allow access to m_value
 
         // TODO: Consider template functions to compare to ints, floats etc.
         friend bool          operator==(const XLCellValue& lhs, const XLCellValue& rhs);
@@ -119,11 +121,11 @@ namespace OpenXLSX
          * @param value The value.
          * @todo Consider changing the enable_if statement to check for objects with a .c_str() member function.
          */
-        template<
-            typename T,
-            typename std::enable_if<std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<std::decay_t<T>, std::string> ||
-                                    std::is_same_v<std::decay_t<T>, std::string_view> || std::is_same_v<std::decay_t<T>, const char*> ||
-                                    std::is_same_v<std::decay_t<T>, char*> || std::is_same_v<T, XLDateTime>>::type* = nullptr>
+        template<typename T,
+                 typename = std::enable_if_t<
+                     std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<std::decay_t<T>, std::string> ||
+                     std::is_same_v<std::decay_t<T>, std::string_view> || std::is_same_v<std::decay_t<T>, const char*> ||
+                     std::is_same_v<std::decay_t<T>, char*> || std::is_same_v<T, XLDateTime>>>
         XLCellValue(T value)    // NOLINT
         {
             // ===== If the argument is a bool, set the m_type attribute to Boolean.
@@ -135,7 +137,7 @@ namespace OpenXLSX
             // ===== If the argument is an integral type, set the m_type attribute to Integer.
             else if constexpr (std::is_integral_v<T> && !std::is_same_v<T, bool>) {
                 m_type  = XLValueType::Integer;
-                m_value = int64_t(value);
+                m_value = static_cast<int64_t>(value);
             }
 
             // ===== If the argument is a string type (i.e. is constructable from *char),
@@ -144,7 +146,7 @@ namespace OpenXLSX
                                std::is_same_v<std::decay_t<T>, const char*> ||
                                (std::is_same_v<std::decay_t<T>, char*> && !std::is_same_v<T, bool>))
             {
-                m_type = XLValueType::String;
+                m_type  = XLValueType::String;
                 m_value = std::string(value);
             }
 
@@ -160,10 +162,10 @@ namespace OpenXLSX
                 static_assert(std::is_floating_point_v<T>, "Invalid argument for constructing XLCellValue object");
                 if (std::isfinite(value)) {
                     m_type  = XLValueType::Float;
-                    m_value = double(value);
+                    m_value = static_cast<double>(value);
                 }
                 else {
-                    m_type = XLValueType::Error;
+                    m_type  = XLValueType::Error;
                     m_value = std::string("#NUM!");
                 }
             }
@@ -206,11 +208,11 @@ namespace OpenXLSX
          * @param value The value.
          * @return A reference to the assigned-to object.
          */
-        template<
-            typename T,
-            typename std::enable_if<std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<std::decay_t<T>, std::string> ||
-                                    std::is_same_v<std::decay_t<T>, std::string_view> || std::is_same_v<std::decay_t<T>, const char*> ||
-                                    std::is_same_v<std::decay_t<T>, char*> || std::is_same_v<T, XLDateTime>>::type* = nullptr>
+        template<typename T,
+                 typename = std::enable_if_t<
+                     std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<std::decay_t<T>, std::string> ||
+                     std::is_same_v<std::decay_t<T>, std::string_view> || std::is_same_v<std::decay_t<T>, const char*> ||
+                     std::is_same_v<std::decay_t<T>, char*> || std::is_same_v<T, XLDateTime>>>
         XLCellValue& operator=(T value)
         {
             // ===== Implemented using copy-and-swap.
@@ -226,10 +228,10 @@ namespace OpenXLSX
          */
         template<
             typename T,
-            typename std::enable_if<std::is_same_v<T, XLCellValue> || std::is_integral_v<T> || std::is_floating_point_v<T> ||
-                                    std::is_same_v<std::decay_t<T>, std::string> || std::is_same_v<std::decay_t<T>, std::string_view> ||
-                                    std::is_same_v<std::decay_t<T>, const char*> || std::is_same_v<std::decay_t<T>, char*> ||
-                                    std::is_same_v<T, XLDateTime>>::type* = nullptr>
+            typename = std::enable_if_t<std::is_same_v<T, XLCellValue> || std::is_integral_v<T> || std::is_floating_point_v<T> ||
+                                        std::is_same_v<std::decay_t<T>, std::string> || std::is_same_v<std::decay_t<T>, std::string_view> ||
+                                        std::is_same_v<std::decay_t<T>, const char*> || std::is_same_v<std::decay_t<T>, char*> ||
+                                        std::is_same_v<T, XLDateTime>>>
         void set(T numberValue)
         {
             // ===== Implemented using the assignment operator.
@@ -242,11 +244,11 @@ namespace OpenXLSX
          * @return The value as a type T object.
          * @throws XLValueTypeError if the XLCellValue object does not contain a compatible type.
          */
-        template<
-            typename T,
-            typename std::enable_if<std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<std::decay_t<T>, std::string> ||
-                                    std::is_same_v<std::decay_t<T>, std::string_view> || std::is_same_v<std::decay_t<T>, const char*> ||
-                                    std::is_same_v<std::decay_t<T>, char*> || std::is_same_v<T, XLDateTime>>::type* = nullptr>
+        template<typename T,
+                 typename = std::enable_if_t<
+                     std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<std::decay_t<T>, std::string> ||
+                     std::is_same_v<std::decay_t<T>, std::string_view> || std::is_same_v<std::decay_t<T>, const char*> ||
+                     std::is_same_v<std::decay_t<T>, char*> || std::is_same_v<T, XLDateTime>>>
         T get() const
         {
             try {
@@ -267,7 +269,7 @@ namespace OpenXLSX
                 if constexpr (std::is_same_v<T, XLDateTime>) return XLDateTime(std::get<double>(m_value));
             }
 
-            catch (const std::bad_variant_access& ) {
+            catch (const std::bad_variant_access&) {
                 throw XLValueTypeError("XLCellValue object does not contain the requested type.");
             }
         }
@@ -277,12 +279,12 @@ namespace OpenXLSX
          * @return A std::string representation of value
          * @throws XLValueTypeError if the XLCellValue object is not convertible to string.
          */
-        std::string getString() // pull request #158 is covered by this
+        std::string getString()    // pull request #158 is covered by this
         {
             try {
-                return std::visit( VisitXLCellValueTypeToString(), m_value );
+                return std::visit(VisitXLCellValueTypeToString(), m_value);
             }
-            catch( std::string s ) {
+            catch (std::string s) {
                 throw XLValueTypeError("XLCellValue object is not convertible to string.");
             }
         }
@@ -291,7 +293,7 @@ namespace OpenXLSX
          * @brief get the cell value as a std::variant of XLCellValueType
          * @return a const reference to m_value
          */
-        const XLCellValueType & getVariant() const // pull request #127
+        const XLCellValueType& getVariant() const    // pull request #127
         {
             return m_value;
         }
@@ -302,11 +304,11 @@ namespace OpenXLSX
          * @return The XLCellValue object cast to requested type.
          * @throws XLValueTypeError if the XLCellValue object does not contain a compatible type.
          */
-        template<
-            typename T,
-            typename std::enable_if<std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<std::decay_t<T>, std::string> ||
-                                    std::is_same_v<std::decay_t<T>, std::string_view> || std::is_same_v<std::decay_t<T>, const char*> ||
-                                    std::is_same_v<std::decay_t<T>, char*> || std::is_same_v<T, XLDateTime>>::type* = nullptr>
+        template<typename T,
+                 typename = std::enable_if_t<
+                     std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<std::decay_t<T>, std::string> ||
+                     std::is_same_v<std::decay_t<T>, std::string_view> || std::is_same_v<std::decay_t<T>, const char*> ||
+                     std::is_same_v<std::decay_t<T>, char*> || std::is_same_v<T, XLDateTime>>>
         operator T() const
         {
             return this->get<T>();
@@ -322,7 +324,7 @@ namespace OpenXLSX
          * @brief Sets the value type to XLValueType::Error.
          * @return Returns a reference to the current object.
          */
-        XLCellValue& setError(const std::string &error);
+        XLCellValue& setError(const std::string& error);
 
         /**
          * @brief Get the value type of the current object.
@@ -339,8 +341,8 @@ namespace OpenXLSX
     private:
         //---------- Private Member Variables ---------- //
 
-        XLCellValueType                                  m_value { std::string("") };                /**< The value contained in the cell. */
-        XLValueType                                      m_type { XLValueType::Empty }; /**< The value type of the cell. */
+        XLCellValueType m_value { std::string("") };   /**< The value contained in the cell. */
+        XLValueType     m_type { XLValueType::Empty }; /**< The value type of the cell. */
     };
 
     /**
@@ -375,12 +377,11 @@ namespace OpenXLSX
          * @param value The value.
          * @return A reference to the current object.
          */
-        template<
-            typename T,
-            typename std::enable_if<std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<std::decay_t<T>, std::string> ||
-                                    std::is_same_v<std::decay_t<T>, std::string_view> || std::is_same_v<std::decay_t<T>, const char*> ||
-                                    std::is_same_v<std::decay_t<T>, char*> || std::is_same_v<T, XLCellValue> ||
-                                    std::is_same_v<T, XLDateTime>>::type* = nullptr>
+        template<typename T,
+                 typename = std::enable_if_t<
+                     std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<std::decay_t<T>, std::string> ||
+                     std::is_same_v<std::decay_t<T>, std::string_view> || std::is_same_v<std::decay_t<T>, const char*> ||
+                     std::is_same_v<std::decay_t<T>, char*> || std::is_same_v<T, XLCellValue> || std::is_same_v<T, XLDateTime>>>
         XLCellValueProxy& operator=(T value)
         {    // NOLINT
 
@@ -439,12 +440,11 @@ namespace OpenXLSX
          * @tparam T
          * @param value
          */
-        template<
-            typename T,
-            typename std::enable_if<std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<std::decay_t<T>, std::string> ||
-                                    std::is_same_v<std::decay_t<T>, std::string_view> || std::is_same_v<std::decay_t<T>, const char*> ||
-                                    std::is_same_v<std::decay_t<T>, char*> || std::is_same_v<T, XLCellValue> ||
-                                    std::is_same_v<T, XLDateTime>>::type* = nullptr>
+        template<typename T,
+                 typename = std::enable_if_t<
+                     std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<std::decay_t<T>, std::string> ||
+                     std::is_same_v<std::decay_t<T>, std::string_view> || std::is_same_v<std::decay_t<T>, const char*> ||
+                     std::is_same_v<std::decay_t<T>, char*> || std::is_same_v<T, XLCellValue> || std::is_same_v<T, XLDateTime>>>
         void set(T value)
         {
             *this = value;
@@ -456,11 +456,11 @@ namespace OpenXLSX
          * @return
          * @todo Is an explicit conversion operator needed as well?
          */
-        template<
-            typename T,
-            typename std::enable_if<std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<std::decay_t<T>, std::string> ||
-                                    std::is_same_v<std::decay_t<T>, std::string_view> || std::is_same_v<std::decay_t<T>, const char*> ||
-                                    std::is_same_v<std::decay_t<T>, char*> || std::is_same_v<T, XLDateTime>>::type* = nullptr>
+        template<typename T,
+                 typename = std::enable_if_t<
+                     std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<std::decay_t<T>, std::string> ||
+                     std::is_same_v<std::decay_t<T>, std::string_view> || std::is_same_v<std::decay_t<T>, const char*> ||
+                     std::is_same_v<std::decay_t<T>, char*> || std::is_same_v<T, XLDateTime>>>
         T get() const
         {
             return getValue().get<T>();
@@ -476,7 +476,7 @@ namespace OpenXLSX
          * @brief Set the cell value to a error state.
          * @return A reference to the current object.
          */
-        XLCellValueProxy& setError(const std::string & error);
+        XLCellValueProxy& setError(const std::string& error);
 
         /**
          * @brief Get the value type for the cell.
@@ -494,18 +494,18 @@ namespace OpenXLSX
          * @brief Implicitly convert the XLCellValueProxy object to a XLCellValue object.
          * @return An XLCellValue object, corresponding to the cell value.
          */
-        operator XLCellValue();    // NOLINT
+        operator XLCellValue() const;    // NOLINT
 
         /**
          * @brief
          * @tparam T
          * @return
          */
-        template<
-            typename T,
-            typename std::enable_if<std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<std::decay_t<T>, std::string> ||
-                                    std::is_same_v<std::decay_t<T>, std::string_view> || std::is_same_v<std::decay_t<T>, const char*> ||
-                                    std::is_same_v<std::decay_t<T>, char*> || std::is_same_v<T, XLDateTime>>::type* = nullptr>
+        template<typename T,
+                 typename = std::enable_if_t<
+                     std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<std::decay_t<T>, std::string> ||
+                     std::is_same_v<std::decay_t<T>, std::string_view> || std::is_same_v<std::decay_t<T>, const char*> ||
+                     std::is_same_v<std::decay_t<T>, char*> || std::is_same_v<T, XLDateTime>>>
         operator T() const
         {
             return getValue().get<T>();
@@ -516,15 +516,16 @@ namespace OpenXLSX
          * @return A std::string representation of value
          * @throws XLValueTypeError if the XLCellValue object is not convertible to string.
          */
-        std::string getString() const // pull request #158 is covered by this
+        std::string getString() const    // pull request #158 is covered by this
         {
             try {
-                return std::visit( VisitXLCellValueTypeToString(), getValue().m_value );
+                return std::visit(VisitXLCellValueTypeToString(), getValue().m_value);
             }
-            catch( std::string s ) {
+            catch (std::string s) {
                 throw XLValueTypeError("XLCellValue object is not convertible to string.");
             }
         }
+
     private:
         //---------- Private Member Functions ---------- //
 
@@ -602,10 +603,7 @@ namespace OpenXLSX
      * @param rhs
      * @return
      */
-    inline bool operator==(const XLCellValue& lhs, const XLCellValue& rhs)
-    {
-        return lhs.m_value == rhs.m_value;
-    }
+    inline bool operator==(const XLCellValue& lhs, const XLCellValue& rhs) { return lhs.m_value == rhs.m_value; }
 
     /**
      * @brief
@@ -613,10 +611,7 @@ namespace OpenXLSX
      * @param rhs
      * @return
      */
-    inline bool operator!=(const XLCellValue& lhs, const XLCellValue& rhs)
-    {
-        return lhs.m_value != rhs.m_value;
-    }
+    inline bool operator!=(const XLCellValue& lhs, const XLCellValue& rhs) { return lhs.m_value != rhs.m_value; }
 
     /**
      * @brief
@@ -624,10 +619,7 @@ namespace OpenXLSX
      * @param rhs
      * @return
      */
-    inline bool operator<(const XLCellValue& lhs, const XLCellValue& rhs)
-    {
-        return lhs.m_value < rhs.m_value;
-    }
+    inline bool operator<(const XLCellValue& lhs, const XLCellValue& rhs) { return lhs.m_value < rhs.m_value; }
 
     /**
      * @brief
@@ -635,10 +627,7 @@ namespace OpenXLSX
      * @param rhs
      * @return
      */
-    inline bool operator>(const XLCellValue& lhs, const XLCellValue& rhs)
-    {
-        return lhs.m_value > rhs.m_value;
-    }
+    inline bool operator>(const XLCellValue& lhs, const XLCellValue& rhs) { return lhs.m_value > rhs.m_value; }
 
     /**
      * @brief
@@ -646,10 +635,7 @@ namespace OpenXLSX
      * @param rhs
      * @return
      */
-    inline bool operator<=(const XLCellValue& lhs, const XLCellValue& rhs)
-    {
-        return lhs.m_value <= rhs.m_value;
-    }
+    inline bool operator<=(const XLCellValue& lhs, const XLCellValue& rhs) { return lhs.m_value <= rhs.m_value; }
 
     /**
      * @brief
@@ -657,10 +643,7 @@ namespace OpenXLSX
      * @param rhs
      * @return
      */
-    inline bool operator>=(const XLCellValue& lhs, const XLCellValue& rhs)
-    {
-        return lhs.m_value >= rhs.m_value;
-    }
+    inline bool operator>=(const XLCellValue& lhs, const XLCellValue& rhs) { return lhs.m_value >= rhs.m_value; }
 
     /**
      * @brief
@@ -704,20 +687,16 @@ namespace OpenXLSX
         }
     }
 
-
 }    // namespace OpenXLSX
 
-namespace std
+template<>
+struct std::hash<OpenXLSX::XLCellValue>    // NOLINT
 {
-    template<>
-    struct hash<OpenXLSX::XLCellValue> // NOLINT
+    std::size_t operator()(const OpenXLSX::XLCellValue& value) const noexcept
     {
-        std::size_t operator()(const OpenXLSX::XLCellValue& value) const noexcept
-        {
-            return std::hash<std::variant<std::string, int64_t, double, bool>> {}(value.m_value);
-        }
-    };
-}    // namespace std
+        return std::hash<std::variant<std::string, int64_t, double, bool>> {}(value.m_value);
+    }
+};
 
 #pragma warning(pop)
 #endif    // OPENXLSX_XLCELLVALUE_HPP

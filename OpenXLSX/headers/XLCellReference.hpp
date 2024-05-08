@@ -87,7 +87,7 @@ namespace OpenXLSX
          * @details The constructor creates a new XLCellReference from a string, e.g. 'A1'. If there's no input,
          * the default reference will be cell A1.
          */
-        XLCellReference(const std::string& cellAddress = ""); // NOLINT
+        XLCellReference(const std::string& cellAddress = "");    // NOLINT
 
         /**
          * @brief Constructor taking the cell coordinates as arguments.
@@ -144,7 +144,7 @@ namespace OpenXLSX
          * @brief
          * @return
          */
-        XLCellReference operator++(int); // NOLINT
+        XLCellReference operator++(int);    // NOLINT
 
         /**
          * @brief
@@ -156,7 +156,7 @@ namespace OpenXLSX
          * @brief
          * @return
          */
-        XLCellReference operator--(int); // NOLINT
+        XLCellReference operator--(int);    // NOLINT
 
         /**
          * @brief Get the row number of the XLCellReference.
@@ -247,9 +247,9 @@ namespace OpenXLSX
         //           Private Member Variables
         //----------------------------------------------------------------------------------------------------------------------
     private:
-        uint32_t    m_row { 1 };      /**< The row */
-        uint16_t    m_column { 1 };   /**< The column */
-        std::string m_cellAddress {"A1"}; /**< The address, e.g. 'A1' */
+        uint32_t    m_row { 1 };            /**< The row */
+        uint16_t    m_column { 1 };         /**< The column */
+        std::string m_cellAddress { "A1" }; /**< The address, e.g. 'A1' */
     };
 
     /**
@@ -269,10 +269,7 @@ namespace OpenXLSX
      * @param rhs The second XLCellReference
      * @return false if equal; otherwise true.
      */
-    inline bool operator!=(const XLCellReference& lhs, const XLCellReference& rhs)
-    {
-        return !(lhs == rhs);
-    }
+    inline bool operator!=(const XLCellReference& lhs, const XLCellReference& rhs) { return !(lhs == rhs); }
 
     /**
      * @brief Helper function to check if one XLCellReference is smaller than another.
@@ -291,10 +288,7 @@ namespace OpenXLSX
      * @param rhs The second XLCellReference
      * @return true if lhs > rhs; otherwise false.
      */
-    inline bool operator>(const XLCellReference& lhs, const XLCellReference& rhs)
-    {
-        return (rhs < lhs);
-    }
+    inline bool operator>(const XLCellReference& lhs, const XLCellReference& rhs) { return (rhs < lhs); }
 
     /**
      * @brief Helper function to check if one XLCellReference is smaller than or equal to another.
@@ -302,10 +296,7 @@ namespace OpenXLSX
      * @param rhs The second XLCellReference
      * @return true if lhs <= rhs; otherwise false
      */
-    inline bool operator<=(const XLCellReference& lhs, const XLCellReference& rhs)
-    {
-        return !(lhs > rhs);
-    }
+    inline bool operator<=(const XLCellReference& lhs, const XLCellReference& rhs) { return !(lhs > rhs); }
 
     /**
      * @brief Helper function to check if one XLCellReference is larger than or equal to another.
@@ -313,10 +304,7 @@ namespace OpenXLSX
      * @param rhs The second XLCellReference
      * @return true if lhs >= rhs; otherwise false.
      */
-    inline bool operator>=(const XLCellReference& lhs, const XLCellReference& rhs)
-    {
-        return !(lhs < rhs);
-    }
+    inline bool operator>=(const XLCellReference& lhs, const XLCellReference& rhs) { return !(lhs < rhs); }
 }    // namespace OpenXLSX
 
 #pragma warning(pop)

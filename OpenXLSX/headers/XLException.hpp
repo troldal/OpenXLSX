@@ -64,7 +64,7 @@ namespace OpenXLSX
     class OPENXLSX_EXPORT XLException : public std::runtime_error
     {
     public:
-        inline explicit XLException(const std::string& err) : runtime_error(err) {};
+        explicit XLException(const std::string& err) : runtime_error(err) {};
     };
 
     /**
@@ -73,7 +73,7 @@ namespace OpenXLSX
     class OPENXLSX_EXPORT XLOverflowError : public XLException
     {
     public:
-        inline explicit XLOverflowError(const std::string& err) : XLException(err) {};
+        explicit XLOverflowError(const std::string& err) : XLException(err) {};
     };
 
     /**
@@ -82,7 +82,7 @@ namespace OpenXLSX
     class OPENXLSX_EXPORT XLValueTypeError : public XLException
     {
     public:
-        inline explicit XLValueTypeError(const std::string& err) : XLException(err) {};
+        explicit XLValueTypeError(const std::string& err) : XLException(err) {};
     };
 
     /**
@@ -91,7 +91,7 @@ namespace OpenXLSX
     class OPENXLSX_EXPORT XLCellAddressError : public XLException
     {
     public:
-        inline explicit XLCellAddressError(const std::string& err) : XLException(err) {};
+        explicit XLCellAddressError(const std::string& err) : XLException(err) {};
     };
 
     /**
@@ -100,7 +100,7 @@ namespace OpenXLSX
     class OPENXLSX_EXPORT XLInputError : public XLException
     {
     public:
-        inline explicit XLInputError(const std::string& err) : XLException(err) {};
+        explicit XLInputError(const std::string& err) : XLException(err) {};
     };
 
     /**
@@ -109,7 +109,7 @@ namespace OpenXLSX
     class OPENXLSX_EXPORT XLInternalError : public XLException
     {
     public:
-        inline explicit XLInternalError(const std::string& err) : XLException(err) {};
+        explicit XLInternalError(const std::string& err) : XLException(err) {};
     };
 
     /**
@@ -118,7 +118,7 @@ namespace OpenXLSX
     class OPENXLSX_EXPORT XLPropertyError : public XLException
     {
     public:
-        inline explicit XLPropertyError(const std::string& err) : XLException(err) {};
+        explicit XLPropertyError(const std::string& err) : XLException(err) {};
     };
 
     /**
@@ -127,7 +127,7 @@ namespace OpenXLSX
     class OPENXLSX_EXPORT XLSheetError : public XLException
     {
     public:
-        inline explicit XLSheetError(const std::string& err) : XLException(err) {};
+        explicit XLSheetError(const std::string& err) : XLException(err) {};
     };
 
     /**
@@ -136,7 +136,7 @@ namespace OpenXLSX
     class OPENXLSX_EXPORT XLDateTimeError : public XLException
     {
     public:
-        inline explicit XLDateTimeError(const std::string& err) : XLException(err) {};
+        explicit XLDateTimeError(const std::string& err) : XLException(err) {};
     };
 
     /**
@@ -145,7 +145,7 @@ namespace OpenXLSX
     class OPENXLSX_EXPORT XLFormulaError : public XLException
     {
     public:
-        inline explicit XLFormulaError(const std::string& err) : XLException(err) {};
+        explicit XLFormulaError(const std::string& err) : XLException(err) {};
     };
 
 

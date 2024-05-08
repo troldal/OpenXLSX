@@ -50,7 +50,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #pragma warning(disable : 4251)
 #pragma warning(disable : 4275)
 
-#include <iostream> // ostream
 #include <memory>
 
 // ===== OpenXLSX Includes ===== //
@@ -111,7 +110,7 @@ namespace OpenXLSX
          * @brief Destructor
          * @note Using the default destructor
          */
-        ~XLCell();
+        virtual ~XLCell();
 
         /**
          * @brief Copy assignment operator
@@ -119,21 +118,21 @@ namespace OpenXLSX
          * @return A reference to the new object
          * @note Copies only the cell contents, not the pointer to parent worksheet etc.
          */
-        XLCell& operator=(const XLCell& other);
+        virtual XLCell& operator=(const XLCell& other);
 
         /**
-         * @brief Move assignment operator [deleted]
+         * @brief Move assignment operator
          * @param other The XLCell object to be move assigned
          * @return A reference to the new object
          * @note The move assignment constructor has been deleted, as it makes no sense to move a cell.
          */
-        XLCell& operator=(XLCell&& other) noexcept;
+        virtual XLCell& operator=(XLCell&& other) noexcept;
 
         /**
          * @brief Copy contents of a cell, value & formula
          * @param other The XLCell object from which to copy
          */
-        void copyFrom(XLCell const & other);
+        void copyFrom(XLCell const& other);
 
         /**
          * @brief
@@ -191,10 +190,9 @@ namespace OpenXLSX
         /**
          * @brief print the XML contents of the XLCell using the underlying XMLNode print function
          */
-        void print(std::basic_ostream<char, std::char_traits<char> >& os);
+        void print(std::basic_ostream<char>& ostr) const;
 
     private:
-
         /**
          * @brief
          * @param lhs
@@ -207,21 +205,23 @@ namespace OpenXLSX
         std::unique_ptr<XMLNode> m_cellNode;      /**< A pointer to the root XMLNode for the cell. */
         XLSharedStrings          m_sharedStrings; /**< */
         XLCellValueProxy         m_valueProxy;    /**< */
-        XLFormulaProxy           m_formulaProxy; /**< */
+        XLFormulaProxy           m_formulaProxy;  /**< */
     };
 
-	 class OPENXLSX_EXPORT XLCellAssignable : public XLCell {
-	 public:
+    class OPENXLSX_EXPORT XLCellAssignable : public XLCell
+    {
+    public:
         /**
          * @brief Default constructor. Constructs a null object.
          */
-		  XLCellAssignable() : XLCell() {}
+        XLCellAssignable() : XLCell() {}
 
         /**
          * @brief Inherit all constructors with parameters from XLCell
          */
-		  template< class base >
-        XLCellAssignable( base b ) : XLCell( b ) {}
+        template<class base>
+        explicit XLCellAssignable(base b) : XLCell(b)
+        {}
 
         /**
          * @brief Copy assignment operator
@@ -229,7 +229,7 @@ namespace OpenXLSX
          * @return A reference to the new object
          * @note Copies only the cell contents, not the pointer to parent worksheet etc.
          */
-        XLCellAssignable& operator=(const XLCell& other);
+        XLCellAssignable& operator=(const XLCell& other) override;
         XLCellAssignable& operator=(const XLCellAssignable& other);
 
         /**
@@ -238,7 +238,7 @@ namespace OpenXLSX
          * @return A reference to the new object
          * @note Copies only the cell contents, not the pointer to parent worksheet etc.
          */
-        XLCellAssignable& operator=(XLCell&& other) noexcept;
+        XLCellAssignable& operator=(XLCell&& other) noexcept override;
         XLCellAssignable& operator=(XLCellAssignable&& other) noexcept;
     };
 }    // namespace OpenXLSX
@@ -252,10 +252,7 @@ namespace OpenXLSX
      * @param rhs
      * @return
      */
-    inline bool operator==(const XLCell& lhs, const XLCell& rhs)
-    {
-        return XLCell::isEqual(lhs, rhs);
-    }
+    inline bool operator==(const XLCell& lhs, const XLCell& rhs) { return XLCell::isEqual(lhs, rhs); }
 
     /**
      * @brief
@@ -263,10 +260,7 @@ namespace OpenXLSX
      * @param rhs
      * @return
      */
-    inline bool operator!=(const XLCell& lhs, const XLCell& rhs)
-    {
-        return !XLCell::isEqual(lhs, rhs);
-    }
+    inline bool operator!=(const XLCell& lhs, const XLCell& rhs) { return !XLCell::isEqual(lhs, rhs); }
 
     /**
      * @brief
@@ -274,7 +268,8 @@ namespace OpenXLSX
      * @param c    the cell to output to the stream
      * @return
      */
-    inline std::ostream& operator<<(std::ostream& os, const XLCellAssignable& c) {
+    inline std::ostream& operator<<(std::ostream& os, const XLCellAssignable& c)
+    {
         os << c.getString();
         // TODO: send to stream different data types based on cell data type
         return os;

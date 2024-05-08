@@ -122,7 +122,7 @@ XLCell& XLCell::operator=(XLCell&& other) noexcept
         m_cellNode      = std::move(other.m_cellNode);
         m_sharedStrings = other.m_sharedStrings;
         m_valueProxy    = XLCellValueProxy(this, m_cellNode.get());
-        m_formulaProxy  = XLFormulaProxy(this, m_cellNode.get()); // pull request #160
+        m_formulaProxy  = XLFormulaProxy(this, m_cellNode.get());    // pull request #160
     }
 
     return *this;
@@ -131,58 +131,52 @@ XLCell& XLCell::operator=(XLCell&& other) noexcept
 /**
  * @details
  */
-void XLCell::copyFrom(XLCell const & other)
+void XLCell::copyFrom(XLCell const& other)
 {
     using namespace std::literals::string_literals;
     if (!m_cellNode) {
-		  // copyFrom invoked by empty XLCell: create a new cell with reference & m_cellNode from other
-		  std::cout << "copyFrom invoked by empty XLCell - creating a new cell with reference " << other.cellReference().address() << std::endl;
-		  m_cellNode = std::make_unique<XMLNode>(*other.m_cellNode);
-		  m_sharedStrings = other.m_sharedStrings;
-		  m_valueProxy = XLCellValueProxy(this, m_cellNode.get());
-		  m_formulaProxy = XLFormulaProxy(this, m_cellNode.get());
+        // copyFrom invoked by empty XLCell: create a new cell with reference & m_cellNode from other
+        std::cout << "copyFrom invoked by empty XLCell - creating a new cell with reference " << other.cellReference().address()
+                  << std::endl;
+        m_cellNode      = std::make_unique<XMLNode>(*other.m_cellNode);
+        m_sharedStrings = other.m_sharedStrings;
+        m_valueProxy    = XLCellValueProxy(this, m_cellNode.get());
+        m_formulaProxy  = XLFormulaProxy(this, m_cellNode.get());
         return;
     }
 
-    if ((&other != this) && (*other.m_cellNode == *m_cellNode)) // nothing to do
+    if ((&other != this) && (*other.m_cellNode == *m_cellNode))    // nothing to do
         return;
 
     if ((&other != this) && (*other.m_cellNode != *m_cellNode)) {
         m_cellNode->remove_children();
-        for (XMLNode child = other.m_cellNode->first_child(); !child.empty(); child = child.next_sibling())
-            m_cellNode->append_copy( child );
+        for (XMLNode child = other.m_cellNode->first_child(); !child.empty(); child = child.next_sibling()) m_cellNode->append_copy(child);
         for (auto attr = m_cellNode->first_attribute(); !attr.empty(); attr = attr.next_attribute())
-			  if(strcmp(attr.name(), "r") != 0) m_cellNode->remove_attribute(attr);
+            if (strcmp(attr.name(), "r") != 0) m_cellNode->remove_attribute(attr);
         for (auto attr = other.m_cellNode->first_attribute(); !attr.empty(); attr = attr.next_attribute())
-			  if(strcmp(attr.name(), "r") != 0) m_cellNode->append_copy(attr);
+            if (strcmp(attr.name(), "r") != 0) m_cellNode->append_copy(attr);
     }
 }
 
 /**
  * @details
  */
-XLCell::operator bool() const
-{
-    return m_cellNode && *m_cellNode;
-}
+XLCell::operator bool() const { return m_cellNode && *m_cellNode; }
 
 /**
  * @details This function returns a const reference to the cellReference property.
  */
-XLCellReference XLCell::cellReference() const
-{
-    return XLCellReference{m_cellNode->attribute("r").value()};
-}
+XLCellReference XLCell::cellReference() const { return XLCellReference { m_cellNode->attribute("r").value() }; }
 
 /**
  * @details This function returns a const reference to the cell reference by the offset from the current one.
  */
 XLCell XLCell::offset(uint16_t rowOffset, uint16_t colOffset) const
 {
-    XLCellReference offsetRef(cellReference().row() + rowOffset, cellReference().column() + colOffset);
-    auto            rownode  = getRowNode(m_cellNode->parent().parent(), offsetRef.row());
-    auto            cellnode = getCellNode(rownode, offsetRef.column());
-    return XLCell{cellnode, m_sharedStrings};
+    const XLCellReference offsetRef(cellReference().row() + rowOffset, cellReference().column() + colOffset);
+    const auto            rownode  = getRowNode(m_cellNode->parent().parent(), offsetRef.row());
+    const auto            cellnode = getCellNode(rownode, offsetRef.column());
+    return XLCell { cellnode, m_sharedStrings };
 }
 
 /**
@@ -190,32 +184,26 @@ XLCell XLCell::offset(uint16_t rowOffset, uint16_t colOffset) const
  */
 bool XLCell::hasFormula() const
 {
-    return ( m_cellNode->child("f").empty() ? false : true ); // evaluate child XMLNode as boolean
+    return (not m_cellNode->child("f").empty());    // evaluate child XMLNode as boolean
 }
 
 /**
  * @details
  */
-XLFormulaProxy& XLCell::formula()
-{
-    return m_formulaProxy;
-}
+XLFormulaProxy& XLCell::formula() { return m_formulaProxy; }
 
 /**
  * @details
  */
-void XLCell::print(std::basic_ostream<char, std::char_traits<char> >& os)
-{
-	m_cellNode->print( os );
-}
+void XLCell::print(std::basic_ostream<char>& ostr) const { m_cellNode->print(ostr); }
 
 /**
  * @details
  */
 XLCellAssignable& XLCellAssignable::operator=(const XLCell& other)
 {
-	copyFrom( other );
-	return *this;
+    copyFrom(other);
+    return *this;
 }
 
 /**
@@ -223,8 +211,8 @@ XLCellAssignable& XLCellAssignable::operator=(const XLCell& other)
  */
 XLCellAssignable& XLCellAssignable::operator=(const XLCellAssignable& other)
 {
-	copyFrom( other );
-	return *this;
+    copyFrom(other);
+    return *this;
 }
 
 /**
@@ -232,8 +220,8 @@ XLCellAssignable& XLCellAssignable::operator=(const XLCellAssignable& other)
  */
 XLCellAssignable& XLCellAssignable::operator=(XLCell&& other) noexcept
 {
-	copyFrom( other );
-	return *this;
+    copyFrom(other);
+    return *this;
 }
 
 /**
@@ -241,43 +229,31 @@ XLCellAssignable& XLCellAssignable::operator=(XLCell&& other) noexcept
  */
 XLCellAssignable& XLCellAssignable::operator=(XLCellAssignable&& other) noexcept
 {
-	copyFrom( other );
-	return *this;
+    copyFrom(other);
+    return *this;
 }
 
 /**
  * @details
  */
-const XLFormulaProxy& XLCell::formula() const
-{
-    return m_formulaProxy;
-}
+const XLFormulaProxy& XLCell::formula() const { return m_formulaProxy; }
 
 /**
  * @pre
  * @post
  */
-XLCellValueProxy& XLCell::value()
-{
-    return m_valueProxy;
-}
+XLCellValueProxy& XLCell::value() { return m_valueProxy; }
 
 /**
  * @details
  * @pre
  * @post
  */
-const XLCellValueProxy& XLCell::value() const
-{
-    return m_valueProxy;
-}
+const XLCellValueProxy& XLCell::value() const { return m_valueProxy; }
 
 /**
  * @details
  * @pre
  * @post
  */
-bool XLCell::isEqual(const XLCell& lhs, const XLCell& rhs)
-{
-    return *lhs.m_cellNode == *rhs.m_cellNode;
-}
+bool XLCell::isEqual(const XLCell& lhs, const XLCell& rhs) { return *lhs.m_cellNode == *rhs.m_cellNode; }

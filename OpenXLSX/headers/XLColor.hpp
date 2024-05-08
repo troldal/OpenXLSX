@@ -218,10 +218,7 @@ namespace OpenXLSX
      * @param rhs
      * @return
      */
-    inline bool operator!=(const XLColor& lhs, const XLColor& rhs)
-    {
-        return !(lhs == rhs);
-    }
+    inline bool operator!=(const XLColor& lhs, const XLColor& rhs) { return !(lhs == rhs); }
 
 }    // namespace OpenXLSX
 

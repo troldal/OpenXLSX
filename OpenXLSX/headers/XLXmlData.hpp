@@ -51,9 +51,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #pragma warning(disable : 4275)
 
 // ===== External Includes ===== //
-#include <cstring>
 #include <memory>
-#include <sstream>
 #include <string>
 
 // ===== OpenXLSX Includes ===== //

@@ -71,15 +71,12 @@ XLColumn& XLColumn::operator=(const XLColumn& other)
 /**
  * @details
  */
-float XLColumn::width() const
-{
-    return columnNode().attribute("width").as_float();
-}
+float XLColumn::width() const { return columnNode().attribute("width").as_float(); }
 
 /**
  * @details
  */
-void XLColumn::setWidth(float width) // NOLINT
+void XLColumn::setWidth(float width)    // NOLINT
 {
     // Set the 'Width' attribute for the Cell. If it does not exist, create it.
     auto widthAtt = columnNode().attribute("width");
@@ -97,15 +94,12 @@ void XLColumn::setWidth(float width) // NOLINT
 /**
  * @details
  */
-bool XLColumn::isHidden() const
-{
-    return columnNode().attribute("hidden").as_bool();
-}
+bool XLColumn::isHidden() const { return columnNode().attribute("hidden").as_bool(); }
 
 /**
  * @details
  */
-void XLColumn::setHidden(bool state) // NOLINT
+void XLColumn::setHidden(bool state)    // NOLINT
 {
     auto hiddenAtt = columnNode().attribute("hidden");
     if (!hiddenAtt) hiddenAtt = columnNode().append_attribute("hidden");
@@ -119,7 +113,4 @@ void XLColumn::setHidden(bool state) // NOLINT
 /**
  * @details
  */
-XMLNode& XLColumn::columnNode() const
-{
-    return *m_columnNode;
-}
+XMLNode& XLColumn::columnNode() const { return *m_columnNode; }

@@ -4573,8 +4573,8 @@ common_exit:
 #            define MZ_FILE_STAT _stat
 #            define MZ_FFLUSH fflush
 #            define MZ_FREOPEN mz_freopen
-#            define MZ_DELETE_FILE remove
-#            define MZ_RENAME_FILE rename
+#            define MZ_DELETE_FILE FILESYSTEM_NAMESPACE::remove
+#            define MZ_RENAME_FILE FILESYSTEM_NAMESPACE::rename
 #        elif defined(__MINGW32__)
 #            ifndef MINIZ_NO_TIME
 #                include <sys/utime.h>
@@ -4621,8 +4621,8 @@ common_exit:
 #            define MZ_FILE_STAT stat64
 #            define MZ_FFLUSH fflush
 #            define MZ_FREOPEN(p, m, s) freopen64(p, m, s)
-#            define MZ_DELETE_FILE remove
-#            define MZ_RENAME_FILE rename
+#            define MZ_DELETE_FILE FILESYSTEM_NAMESPACE::remove
+#            define MZ_RENAME_FILE FILESYSTEM_NAMESPACE::rename
 #        elif defined(__APPLE__)
 #            ifndef MINIZ_NO_TIME
 

@@ -6,6 +6,7 @@
 #include "XLFormula.hpp"
 #include <pugixml.hpp>
 
+#include <XLException.hpp>
 #include <cassert>
 
 using namespace OpenXLSX;
@@ -43,10 +44,7 @@ XLFormula& XLFormula::operator=(XLFormula&& other) noexcept = default;
 /**
  * @details Return the m_formulaString member variable.
  */
-std::string XLFormula::get() const
-{
-    return m_formulaString;
-}
+std::string XLFormula::get() const { return m_formulaString; }
 
 /**
  * @details Set the m_formulaString member to an empty string.
@@ -60,17 +58,14 @@ XLFormula& XLFormula::clear()
 /**
  * @details
  */
-XLFormula::operator std::string() const
-{
-    return get();
-}
+XLFormula::operator std::string() const { return get(); }
 
 /**
  * @details Constructor. Set the m_cell and m_cellNode objects.
  */
 XLFormulaProxy::XLFormulaProxy(XLCell* cell, XMLNode* cellNode) : m_cell(cell), m_cellNode(cellNode)
 {
-    assert(cell); // NOLINT
+    assert(cell);    // NOLINT
 }
 
 /**
@@ -108,26 +103,17 @@ XLFormulaProxy& XLFormulaProxy::operator=(XLFormulaProxy&& other) noexcept = def
 /**
  * @details
  */
-XLFormulaProxy::operator std::string() const
-{
-    return get();
-}
+XLFormulaProxy::operator std::string() const { return get(); }
 
 /**
  * @details Returns the underlying XLFormula object, by calling getFormula().
  */
-XLFormulaProxy::operator XLFormula() const
-{
-    return getFormula();
-}
+XLFormulaProxy::operator XLFormula() const { return getFormula(); }
 
 /**
  * @details Call the .get() function in the underlying XLFormula object.
  */
-std::string XLFormulaProxy::get() const
-{
-    return getFormula().get();
-}
+std::string XLFormulaProxy::get() const { return getFormula().get(); }
 
 /**
  * @details If a formula node exists, it will be erased.
@@ -147,7 +133,8 @@ XLFormulaProxy& XLFormulaProxy::clear()
  * @details Convenience function for setting the formula. This method is called from the templated
  * string assignment operator.
  */
-void XLFormulaProxy::setFormulaString(const char* formulaString, bool resetValue) {
+void XLFormulaProxy::setFormulaString(const char* formulaString, bool resetValue) // NOLINT
+{
     // ===== Check that the m_cellNode is valid.
     assert(m_cellNode);              // NOLINT
     assert(!m_cellNode->empty());    // NOLINT
@@ -162,10 +149,9 @@ void XLFormulaProxy::setFormulaString(const char* formulaString, bool resetValue
 
     // ===== Set the text of the value node.
     m_cellNode->child("f").text().set(formulaString);
-    if( resetValue )
-        m_cellNode->child("v").text().set(0);
+    if (resetValue) m_cellNode->child("v").text().set(0);
 
-// BEGIN pull request #189
+    // BEGIN pull request #189
     // ===== Remove cell type attribute so that it can be determined by Office Suite when next calculating the formula.
     m_cellNode->remove_attribute("t");
 
@@ -174,7 +160,7 @@ void XLFormulaProxy::setFormulaString(const char* formulaString, bool resetValue
 
     // ===== Ensure that the formula node <f> is the first child, listed before the value <v> node.
     m_cellNode->prepend_move(m_cellNode->child("f"));
-// END pull request #189
+    // END pull request #189
 }
 
 /**
@@ -186,11 +172,10 @@ XLFormula XLFormulaProxy::getFormula() const
     assert(m_cellNode);              // NOLINT
     assert(!m_cellNode->empty());    // NOLINT
 
-    auto formulaNode = m_cellNode->child("f");
+    const auto formulaNode = m_cellNode->child("f");
 
     // ===== If the formula node doesn't exist, return an empty XLFormula object.
-    if (!formulaNode)
-        return XLFormula();
+    if (!formulaNode) return XLFormula();
 
     // ===== If the formula type is 'shared' or 'array', throw an exception.
     if (formulaNode.attribute("t") && std::string(formulaNode.attribute("t").value()) == "shared")

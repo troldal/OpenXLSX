@@ -79,8 +79,9 @@ namespace OpenXLSX
         /**
          * @brief
          * @param xmlData
+         * @param stringCache
          */
-        explicit XLSharedStrings(XLXmlData* xmlData, std::deque<std::string> *stringCache);
+        explicit XLSharedStrings(XLXmlData* xmlData, std::deque<std::string>* stringCache);
 
         /**
          * @brief Destructor
@@ -153,10 +154,10 @@ namespace OpenXLSX
         /**
          * @brief print the XML contents of the shared strings document using the underlying XMLNode print function
          */
-        void print(std::basic_ostream<char, std::char_traits<char> >& os);
+        void print(std::basic_ostream<char, std::char_traits<char>>& ostr);
 
     private:
-        std::deque<std::string> *m_stringCache {}; /** < Each string must have an unchanging memory address; hence the use of std::deque */
+        std::deque<std::string>* m_stringCache {}; /** < Each string must have an unchanging memory address; hence the use of std::deque */
     };
 }    // namespace OpenXLSX
 

@@ -43,7 +43,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-
 #ifndef OPENXLSX_XLDATETIME_HPP
 #define OPENXLSX_XLDATETIME_HPP
 
@@ -64,7 +63,6 @@ namespace OpenXLSX
     class OPENXLSX_EXPORT XLDateTime
     {
     public:
-
         /**
          * @brief Constructor.
          */
@@ -139,8 +137,8 @@ namespace OpenXLSX
          * @return Excel date/time serial number.
          */
         template<typename T,
-                 typename std::enable_if<std::is_floating_point_v<T> >::type* = nullptr>
-        operator T() const // NOLINT
+                 typename = std::enable_if_t<std::is_floating_point_v<T>>>
+        operator T() const    // NOLINT
         {
             return serial();
         }
@@ -149,7 +147,7 @@ namespace OpenXLSX
          * @brief Implicit conversion to std::tm object.
          * @return std::tm object.
          */
-        operator std::tm() const; // NOLINT
+        operator std::tm() const;    // NOLINT
 
         /**
          * @brief Get the date/time in the form of an Excel date/time serial number.
@@ -164,10 +162,8 @@ namespace OpenXLSX
         std::tm tm() const;
 
     private:
-        double m_serial {1.0}; /**<  */
-
-
+        double m_serial { 1.0 }; /**<  */
     };
-} // namespace OpenXLSX
+}    // namespace OpenXLSX
 
 #endif    // OPENXLSX_XLDATETIME_HPP

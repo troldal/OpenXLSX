@@ -61,8 +61,7 @@ namespace OpenXLSX
      * @pre
      * @post
      */
-    XLRow::XLRow() : m_rowNode(nullptr),
-                     m_rowDataProxy(this, m_rowNode.get()) {}
+    XLRow::XLRow() : m_rowNode(nullptr), m_rowDataProxy(this, m_rowNode.get()) {}
 
     /**
      * @details Constructs a new XLRow object from information in the underlying XML file. A pointer to the corresponding
@@ -143,7 +142,7 @@ namespace OpenXLSX
      */
     double XLRow::height() const
     {
-        return m_rowNode->attribute("ht").as_double(15.0); // NOLINT
+        return m_rowNode->attribute("ht").as_double(15.0);    // NOLINT
     }
 
     /**
@@ -152,7 +151,7 @@ namespace OpenXLSX
      * @pre
      * @post
      */
-    void XLRow::setHeight(float height)
+    void XLRow::setHeight(float height)    // NOLINT
     {
         // Set the 'ht' attribute for the Cell. If it does not exist, create it.
         if (!m_rowNode->attribute("ht"))
@@ -174,7 +173,7 @@ namespace OpenXLSX
      */
     float XLRow::descent() const
     {
-        return m_rowNode->attribute("x14ac:dyDescent").as_float(0.25); // NOLINT
+        return m_rowNode->attribute("x14ac:dyDescent").as_float(0.25);    // NOLINT
     }
 
     /**
@@ -196,17 +195,14 @@ namespace OpenXLSX
      * @pre
      * @post
      */
-    bool XLRow::isHidden() const
-    {
-        return m_rowNode->attribute("hidden").as_bool(false);
-    }
+    bool XLRow::isHidden() const { return m_rowNode->attribute("hidden").as_bool(false); }
 
     /**
      * @details Set the hidden state by setting the 'hidden' attribute to true or false.
      * @pre
      * @post
      */
-    void XLRow::setHidden(bool state)
+    void XLRow::setHidden(bool state)    // NOLINT
     {
         // Set the 'hidden' attribute. If it does not exist, create it.
         if (!m_rowNode->attribute("hidden"))
@@ -220,10 +216,7 @@ namespace OpenXLSX
      * @pre
      * @post
      */
-    uint64_t XLRow::rowNumber() const
-    {
-        return m_rowNode->attribute("r").as_ullong();
-    }
+    uint64_t XLRow::rowNumber() const { return m_rowNode->attribute("r").as_ullong(); }
 
     /**
      * @details Get the number of cells in the row, by returning the size of the m_cells vector.
@@ -232,9 +225,8 @@ namespace OpenXLSX
      */
     uint16_t XLRow::cellCount() const
     {
-        auto node = m_rowNode->last_child_of_type(pugi::node_element);
-        if (node.empty())
-            return 0;
+        const auto node = m_rowNode->last_child_of_type(pugi::node_element);
+        if (node.empty()) return 0;
         return XLCellReference(node.attribute("r").value()).column();
     }
 
@@ -243,20 +235,14 @@ namespace OpenXLSX
      * @pre
      * @post
      */
-    XLRowDataProxy& XLRow::values()
-    {
-        return m_rowDataProxy;
-    }
+    XLRowDataProxy& XLRow::values() { return m_rowDataProxy; }
 
     /**
      * @details
      * @pre
      * @post
      */
-    const XLRowDataProxy& XLRow::values() const
-    {
-        return m_rowDataProxy;
-    }
+    const XLRowDataProxy& XLRow::values() const { return m_rowDataProxy; }
 
     /**
      * @details
@@ -265,8 +251,8 @@ namespace OpenXLSX
      */
     XLRowDataRange XLRow::cells() const
     {
-        XMLNode node = m_rowNode->last_child_of_type(pugi::node_element);
-        if (node.empty()) return XLRowDataRange(); // empty range
+        const XMLNode node = m_rowNode->last_child_of_type(pugi::node_element);
+        if (node.empty()) return XLRowDataRange();    // empty range
         return XLRowDataRange(*m_rowNode, 1, XLCellReference(node.attribute("r").value()).column(), m_sharedStrings);
     }
 
@@ -275,10 +261,7 @@ namespace OpenXLSX
      * @pre
      * @post
      */
-    XLRowDataRange XLRow::cells(uint16_t cellCount) const
-    {
-        return XLRowDataRange(*m_rowNode, 1, cellCount, m_sharedStrings);
-    }
+    XLRowDataRange XLRow::cells(uint16_t cellCount) const { return XLRowDataRange(*m_rowNode, 1, cellCount, m_sharedStrings); }
 
     /**
      * @details
@@ -292,17 +275,12 @@ namespace OpenXLSX
 
     bool XLRow::isEqual(const XLRow& lhs, const XLRow& rhs)
     {
-        if (lhs.m_rowNode && !rhs.m_rowNode)
-            return false;
-        if (!lhs.m_rowNode && !rhs.m_rowNode)
-            return true;
+        if (lhs.m_rowNode && !rhs.m_rowNode) return false;
+        if (!lhs.m_rowNode && !rhs.m_rowNode) return true;
         return *lhs.m_rowNode == *rhs.m_rowNode;
     }
 
-    bool XLRow::isLessThan(const XLRow& lhs, const XLRow& rhs)
-    {
-        return *lhs.m_rowNode < *rhs.m_rowNode;
-    }
+    bool XLRow::isLessThan(const XLRow& lhs, const XLRow& rhs) { return *lhs.m_rowNode < *rhs.m_rowNode; }
 
 }    // namespace OpenXLSX
 
@@ -381,10 +359,10 @@ namespace OpenXLSX
      * @pre
      * @post
      */
-    XLRowIterator& XLRowIterator::operator++() // 2024-04-29: patched for whitespace
+    XLRowIterator& XLRowIterator::operator++()    // 2024-04-29: patched for whitespace
     {
-        auto rowNumber = m_currentRow.rowNumber() + 1;
-        auto rowNode   = m_currentRow.m_rowNode->next_sibling_of_type(pugi::node_element);
+        const auto rowNumber = m_currentRow.rowNumber() + 1;
+        auto       rowNode   = m_currentRow.m_rowNode->next_sibling_of_type(pugi::node_element);
 
         if (rowNumber > m_lastRow)
             m_currentRow = XLRow();
@@ -418,50 +396,35 @@ namespace OpenXLSX
      * @pre
      * @post
      */
-    XLRow& XLRowIterator::operator*()
-    {
-        return m_currentRow;
-    }
+    XLRow& XLRowIterator::operator*() { return m_currentRow; }
 
     /**
      * @details
      * @pre
      * @post
      */
-    XLRowIterator::pointer XLRowIterator::operator->()
-    {
-        return &m_currentRow;
-    }
+    XLRowIterator::pointer XLRowIterator::operator->() { return &m_currentRow; }
 
     /**
      * @details
      * @pre
      * @post
      */
-    bool XLRowIterator::operator==(const XLRowIterator& rhs) const
-    {
-        return m_currentRow == rhs.m_currentRow;
-    }
+    bool XLRowIterator::operator==(const XLRowIterator& rhs) const { return m_currentRow == rhs.m_currentRow; }
 
     /**
      * @details
      * @pre
      * @post
      */
-    bool XLRowIterator::operator!=(const XLRowIterator& rhs) const
-    {
-        return !(m_currentRow == rhs.m_currentRow);
-    }
+    bool XLRowIterator::operator!=(const XLRowIterator& rhs) const { return not(m_currentRow == rhs.m_currentRow); }    // NOLINT
 
     /**
      * @details
      * @pre
      * @post
      */
-    XLRowIterator::operator bool() const
-    {
-        return false;
-    }
+    XLRowIterator::operator bool() const { return false; }
 
 }    // namespace OpenXLSX
 
@@ -533,29 +496,20 @@ namespace OpenXLSX
      * @pre
      * @post
      */
-    uint32_t XLRowRange::rowCount() const
-    {
-        return m_lastRow - m_firstRow + 1;
-    }
+    uint32_t XLRowRange::rowCount() const { return m_lastRow - m_firstRow + 1; }
 
     /**
      * @details
      * @pre
      * @post
      */
-    XLRowIterator XLRowRange::begin()
-    {
-        return XLRowIterator(*this, XLIteratorLocation::Begin);
-    }
+    XLRowIterator XLRowRange::begin() { return XLRowIterator(*this, XLIteratorLocation::Begin); }
 
     /**
      * @details
      * @pre
      * @post
      */
-    XLRowIterator XLRowRange::end()
-    {
-        return XLRowIterator(*this, XLIteratorLocation::End);
-    }
+    XLRowIterator XLRowRange::end() { return XLRowIterator(*this, XLIteratorLocation::End); }
 
 }    // namespace OpenXLSX

@@ -175,8 +175,7 @@ XLCellValueProxy& XLCellValueProxy::operator=(XLCellValueProxy&& other) noexcept
  * @pre
  * @post
  */
-XLCellValueProxy::operator XLCellValue()
-{
+XLCellValueProxy::operator XLCellValue() const {
     return getValue();
 }
 
@@ -254,8 +253,7 @@ XLValueType XLCellValueProxy::type() const
 
     // ===== If a Type attribute is not present, but a value node is, the cell contains a number.
     if (!m_cellNode->attribute("t") || ((strcmp(m_cellNode->attribute("t").value(), "n") == 0) && !m_cellNode->child("v").empty())) {
-        std::string numberString = m_cellNode->child("v").text().get();
-        if (numberString.find('.') != std::string::npos || numberString.find("E-") != std::string::npos ||
+        if (const std::string numberString = m_cellNode->child("v").text().get(); numberString.find('.') != std::string::npos || numberString.find("E-") != std::string::npos ||
             numberString.find("e-") != std::string::npos)
             return XLValueType::Float;
         return XLValueType::Integer;
@@ -310,7 +308,7 @@ std::string XLCellValueProxy::typeAsString() const
  * @pre The m_cellNode must not be null, and must point to a valid XMLNode object.
  * @post The underlying XMLNode has been updated correctly, representing an integer value.
  */
-void XLCellValueProxy::setInteger(int64_t numberValue)
+void XLCellValueProxy::setInteger(int64_t numberValue) // NOLINT
 {
     // ===== Check that the m_cellNode is valid.
     assert(m_cellNode);              // NOLINT
@@ -338,7 +336,7 @@ void XLCellValueProxy::setInteger(int64_t numberValue)
  * @pre The m_cellNode must not be null, and must point to a valid XMLNode object.
  * @post The underlying XMLNode has been updated correctly, representing an bool value.
  */
-void XLCellValueProxy::setBoolean(bool numberValue)
+void XLCellValueProxy::setBoolean(bool numberValue) // NOLINT
 {
     // ===== Check that the m_cellNode is valid.
     assert(m_cellNode);              // NOLINT
@@ -404,7 +402,7 @@ void XLCellValueProxy::setFloat(double numberValue)
  * @pre The m_cellNode must not be null, and must point to a valid XMLNode object.
  * @post The underlying XMLNode has been updated correctly, representing a string value.
  */
-void XLCellValueProxy::setString(const char* stringValue)
+void XLCellValueProxy::setString(const char* stringValue) // NOLINT
 {
     // ===== Check that the m_cellNode is valid.
     assert(m_cellNode);              // NOLINT
@@ -420,7 +418,7 @@ void XLCellValueProxy::setString(const char* stringValue)
     m_cellNode->attribute("t").set_value("s");
 
     // ===== Get or create the index in the XLSharedStrings object.
-    auto index = (m_cell->m_sharedStrings.stringExists(stringValue) ? m_cell->m_sharedStrings.getStringIndex(stringValue)
+    const auto index = (m_cell->m_sharedStrings.stringExists(stringValue) ? m_cell->m_sharedStrings.getStringIndex(stringValue)
                                                                      : m_cell->m_sharedStrings.appendString(stringValue));
 
     // ===== Set the text of the value node.

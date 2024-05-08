@@ -51,7 +51,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #pragma warning(disable : 4275)
 
 // ===== External Includes ===== //
-#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -66,7 +65,7 @@ namespace OpenXLSX
     /**
      * @brief
      */
-    enum class XLContentType {
+    enum class XLContentType : uint8_t {
         Workbook,
         WorkbookMacroEnabled,
         Worksheet,
@@ -228,7 +227,7 @@ namespace OpenXLSX
          * @brief
          * @param item
          */
-        void deleteOverride(XLContentItem& item);
+        void deleteOverride(const XLContentItem& item);
 
         /**
          * @brief

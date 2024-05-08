@@ -44,12 +44,13 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
  */
 
 // ===== External Includes ===== //
-#include <algorithm>
 #include <pugixml.hpp>
 
 // ===== OpenXLSX Includes ===== //
 #include "XLDocument.hpp"
 #include "XLRelationships.hpp"
+
+#include <XLException.hpp>
 
 using namespace OpenXLSX;
 
@@ -163,28 +164,29 @@ namespace
     {
         using namespace std::literals::string_literals;
         // ===== workaround for pugi::xml_node currently not having an iterator for node_element only
-        XMLNode relationship = relationshipsNode.first_child_of_type(pugi::node_element);
-        uint32_t newId = 1; // default
+        XMLNode  relationship = relationshipsNode.first_child_of_type(pugi::node_element);
+        uint32_t newId        = 1;    // default
         while (!relationship.empty()) {
             uint32_t id;
             try {
                 id = std::stoi(std::string(relationship.attribute("Id").value()).substr(3));
             }
-            catch (std::invalid_argument e) { // expected stoi exception
-                throw XLInputError( "GetNewRelsID could not convert attribute Id to uint32_t ("s + e.what() + ")"s );
+            catch (std::invalid_argument e) {    // expected stoi exception
+                throw XLInputError("GetNewRelsID could not convert attribute Id to uint32_t ("s + e.what() + ")"s);
             }
-            catch (...) { // catch all other errors during conversion of attribute to uint32_t
-                throw XLInputError( "GetNewRelsID could not convert attribute Id to uint32_t"s );
+            catch (...) {    // catch all other errors during conversion of attribute to uint32_t
+                throw XLInputError("GetNewRelsID could not convert attribute Id to uint32_t"s);
             }
-            if( id >= newId ) newId = id + 1;
-            relationship = relationship.next_sibling_of_type(pugi::node_element);  
+            if (id >= newId) newId = id + 1;
+            relationship = relationship.next_sibling_of_type(pugi::node_element);
         }
         return newId;
         // ===== if a node_element iterator can be implemented for pugi::xml_node, the below code can be used again
         // return static_cast<uint32_t>(stoi(std::string(std::max_element(relationshipsNode.children().begin(),
         //                                                                relationshipsNode.children().end(),
         //                                                                [](XMLNode a, XMLNode b) {
-        //                                                                    return stoi(std::string(a.attribute("Id").value()).substr(3)) <
+        //                                                                    return stoi(std::string(a.attribute("Id").value()).substr(3))
+        //                                                                    <
         //                                                                           stoi(std::string(b.attribute("Id").value()).substr(3));
         //                                                                })
         //                                                   ->attribute("Id")
@@ -216,26 +218,17 @@ XLRelationshipItem& XLRelationshipItem::operator=(const XLRelationshipItem& othe
 /**
  * @details Returns the m_relationshipType member variable by getValue.
  */
-XLRelationshipType XLRelationshipItem::type() const
-{
-    return GetTypeFromString(m_relationshipNode->attribute("Type").value());
-}
+XLRelationshipType XLRelationshipItem::type() const { return GetTypeFromString(m_relationshipNode->attribute("Type").value()); }
 
 /**
  * @details Returns the m_relationshipTarget member variable by getValue.
  */
-std::string XLRelationshipItem::target() const
-{
-    return m_relationshipNode->attribute("Target").value();
-}
+std::string XLRelationshipItem::target() const { return m_relationshipNode->attribute("Target").value(); }
 
 /**
  * @details Returns the m_relationshipId member variable by getValue.
  */
-std::string XLRelationshipItem::id() const
-{
-    return m_relationshipNode->attribute("Id").value();
-}
+std::string XLRelationshipItem::id() const { return m_relationshipNode->attribute("Id").value(); }
 
 /**
  * @details Creates a XLRelationships object, which will read the XML file with the given path
@@ -266,8 +259,8 @@ XLRelationshipItem XLRelationships::relationshipByTarget(const std::string& targ
 std::vector<XLRelationshipItem> XLRelationships::relationships() const
 {
     // ===== workaround for pugi::xml_node currently not having an iterator for node_element only
-    auto result = std::vector<XLRelationshipItem>();
-    XMLNode item = xmlDocument().document_element().first_child_of_type(pugi::node_element);
+    auto    result = std::vector<XLRelationshipItem>();
+    XMLNode item   = xmlDocument().document_element().first_child_of_type(pugi::node_element);
     while (!item.empty()) {
         result.emplace_back(XLRelationshipItem(item));
         item = item.next_sibling_of_type(pugi::node_element);
@@ -283,10 +276,7 @@ void XLRelationships::deleteRelationship(const std::string& relID)
     xmlDocument().document_element().remove_child(xmlDocument().document_element().find_child_by_attribute("Id", relID.c_str()));
 }
 
-void XLRelationships::deleteRelationship(const XLRelationshipItem& item)
-{
-    deleteRelationship(item.id());
-}
+void XLRelationships::deleteRelationship(const XLRelationshipItem& item) { deleteRelationship(item.id()); }
 
 /**
  * @details Adds a new relationship by creating new XML node in the .rels file and creating a new XLRelationshipItem
@@ -294,12 +284,13 @@ void XLRelationships::deleteRelationship(const XLRelationshipItem& item)
  */
 XLRelationshipItem XLRelationships::addRelationship(XLRelationshipType type, const std::string& target)
 {
-    std::string typeString = GetStringFromType(type);
-    std::string id = "rId" + std::to_string(GetNewRelsID(xmlDocument().document_element()));
+    const std::string typeString = GetStringFromType(type);
+    const std::string id         = "rId" + std::to_string(GetNewRelsID(xmlDocument().document_element()));
 
     // Create new node in the .rels file
-    XMLNode node = xmlDocument().document_element().last_child_of_type(pugi::node_element); // pretty formatting: insert new node before whitespaces following last element node
-    if( node )
+    XMLNode node = xmlDocument().document_element().last_child_of_type(
+        pugi::node_element);    // pretty formatting: insert new node before whitespaces following last element node
+    if (node)
         node = xmlDocument().document_element().insert_child_after("Relationship", node);
     else
         node = xmlDocument().document_element().append_child("Relationship");

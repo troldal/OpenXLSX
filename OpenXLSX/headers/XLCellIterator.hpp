@@ -168,10 +168,9 @@ namespace std    // NOLINT
 {
     using OpenXLSX::XLCellIterator;
     template<>
-    inline typename std::iterator_traits<XLCellIterator>::difference_type distance<XLCellIterator>(XLCellIterator first,
-                                                                                                   XLCellIterator last)
+    inline std::iterator_traits<XLCellIterator>::difference_type distance<XLCellIterator>(XLCellIterator first, XLCellIterator last)
     {
-        return static_cast<typename std::iterator_traits<XLCellIterator>::difference_type>(first.distance(last));
+        return static_cast<std::iterator_traits<XLCellIterator>::difference_type>(first.distance(last));
     }
 }    // namespace std
 

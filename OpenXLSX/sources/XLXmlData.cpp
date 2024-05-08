@@ -50,12 +50,14 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLDocument.hpp"
 #include "XLXmlData.hpp"
 
+#include <sstream>
+
 using namespace OpenXLSX;
 
 /**
  * @details
  */
-XLXmlData::XLXmlData(OpenXLSX::XLDocument* parentDoc, const std::string& xmlPath, const std::string& xmlId, OpenXLSX::XLContentType xmlType)
+XLXmlData::XLXmlData(OpenXLSX::XLDocument* parentDoc, const std::string& xmlPath, const std::string& xmlId, XLContentType xmlType)
     : m_parentDoc(parentDoc),
       m_xmlPath(xmlPath),
       m_xmlID(xmlId),
@@ -73,7 +75,7 @@ XLXmlData::~XLXmlData() = default;
 /**
  * @details
  */
-void XLXmlData::setRawData(const std::string& data)
+void XLXmlData::setRawData(const std::string& data) // NOLINT
 {
     m_xmlDoc->load_string(data.c_str(), pugi::parse_default | pugi::parse_ws_pcdata);
 }

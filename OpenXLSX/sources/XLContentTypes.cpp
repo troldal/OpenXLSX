@@ -51,6 +51,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLContentTypes.hpp"
 #include "XLDocument.hpp"
 
+#include <XLException.hpp>
+
 using namespace OpenXLSX;
 
 namespace
@@ -60,7 +62,7 @@ namespace
      */
     XLContentType GetTypeFromString(const std::string& typeString)
     {
-        XLContentType type;
+        XLContentType type { XLContentType::Unknown };
 
         if (typeString == "application/vnd.ms-excel.Sheet.macroEnabled.main+xml")
             type = XLContentType::WorkbookMacroEnabled;
@@ -205,18 +207,12 @@ XLContentItem& XLContentItem::operator=(XLContentItem&& other) noexcept = defaul
 /**
  * @details
  */
-XLContentType XLContentItem::type() const
-{
-    return GetTypeFromString(m_contentNode->attribute("ContentType").value());
-}
+XLContentType XLContentItem::type() const { return GetTypeFromString(m_contentNode->attribute("ContentType").value()); }
 
 /**
  * @details
  */
-std::string XLContentItem::path() const
-{
-    return m_contentNode->attribute("PartName").value();
-}
+std::string XLContentItem::path() const { return m_contentNode->attribute("PartName").value(); }
 
 /**
  * @details
@@ -258,7 +254,7 @@ XLContentTypes& XLContentTypes::operator=(XLContentTypes&& other) noexcept = def
  */
 void XLContentTypes::addOverride(const std::string& path, XLContentType type)
 {
-    std::string typeString = GetStringFromType(type);
+    const std::string typeString = GetStringFromType(type);
 
     auto node = xmlDocument().document_element().append_child("Override");
     node.append_attribute("PartName").set_value(path.c_str());
@@ -276,10 +272,7 @@ void XLContentTypes::deleteOverride(const std::string& path)
 /**
  * @details
  */
-void XLContentTypes::deleteOverride(XLContentItem& item)
-{
-    deleteOverride(item.path());
-}
+void XLContentTypes::deleteOverride(const XLContentItem& item) { deleteOverride(item.path()); }
 
 /**
  * @details
@@ -295,8 +288,8 @@ XLContentItem XLContentTypes::contentItem(const std::string& path)
 std::vector<XLContentItem> XLContentTypes::getContentItems()
 {
     std::vector<XLContentItem> result;
-    XMLNode item = xmlDocument().document_element().first_child_of_type(pugi::node_element);
-    while( item ) {
+    XMLNode                    item = xmlDocument().document_element().first_child_of_type(pugi::node_element);
+    while (item) {
         if (strcmp(item.name(), "Override") == 0) result.emplace_back(item);
         item = item.next_sibling_of_type(pugi::node_element);
     }
