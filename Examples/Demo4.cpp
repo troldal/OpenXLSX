@@ -1,18 +1,23 @@
 #include <OpenXLSX.hpp>
-#include <iostream>
-#include <nowide/iostream.hpp>
 
-//using namespace std;
+#ifdef ENABLE_NOWIDE
+    #include <nowide/iostream.hpp>
+    using nowide::cout;
+#else
+    #include <iostream>
+    using std::cout;
+#endif
+
 using namespace OpenXLSX;
 
 int main()
 {
-    nowide::cout << "********************************************************************************\n";
-    nowide::cout << "DEMO PROGRAM #04: Unicode\n";
-    nowide::cout << "********************************************************************************\n";
+    cout << "********************************************************************************\n";
+    cout << "DEMO PROGRAM #04: Unicode\n";
+    cout << "********************************************************************************\n";
 
     // Unicode can be a real pain in the neck. While UTF-8 encoding has become the de facto standard
-    // encoding on Linux, MacOS and the internet, some systems use other encodings, most notably
+    // encoding on Linux, macOS and the internet, some systems use other encodings, most notably
     // Windows which use UTF-16.
     // OpenXLSX is based on UTF-8. That means that all text input and output MUST be in UTF-8 format.
     // On Linux and MacOS, this will work out of the box because UTF-8 is baked into those systems.
@@ -49,15 +54,15 @@ int main()
     wks1 = doc1.workbook().worksheet("Простыня");
 
     // The nowide::cout object is a drop-in replacement of the std::cout that enables console output of UTF-8, even on Windows.
-    nowide::cout << "Cell A1 (Korean)  : " << wks1.cell(XLCellReference("A1")).value().get<std::string>() << std::endl;
-    nowide::cout << "Cell A2 (Chinese) : " << wks1.cell(XLCellReference("A2")).value().get<std::string>() << std::endl;
-    nowide::cout << "Cell A3 (Japanese): " << wks1.cell(XLCellReference("A3")).value().get<std::string>() << std::endl;
-    nowide::cout << "Cell A4 (Hindi)   : " << wks1.cell(XLCellReference("A4")).value().get<std::string>() << std::endl;
-    nowide::cout << "Cell A5 (Russian) : " << wks1.cell(XLCellReference("A5")).value().get<std::string>() << std::endl;
-    nowide::cout << "Cell A6 (Greek)   : " << wks1.cell(XLCellReference("A6")).value().get<std::string>() << std::endl;
+    cout << "Cell A1 (Korean)  : " << wks1.cell(XLCellReference("A1")).value().get<std::string>() << '\n';
+    cout << "Cell A2 (Chinese) : " << wks1.cell(XLCellReference("A2")).value().get<std::string>() << '\n';
+    cout << "Cell A3 (Japanese): " << wks1.cell(XLCellReference("A3")).value().get<std::string>() << '\n';
+    cout << "Cell A4 (Hindi)   : " << wks1.cell(XLCellReference("A4")).value().get<std::string>() << '\n';
+    cout << "Cell A5 (Russian) : " << wks1.cell(XLCellReference("A5")).value().get<std::string>() << '\n';
+    cout << "Cell A6 (Greek)   : " << wks1.cell(XLCellReference("A6")).value().get<std::string>() << '\n';
 
 
-    nowide::cout << "\nNOTE: If you are using a Windows terminal, the above output may look like gibberish,\n"
+    cout << "\nNOTE: If you are using a Windows terminal, the above output may look like gibberish,\n"
                     "because the Windows terminal does not support UTF-8 at the moment. To view to output,\n"
                     "you can use the overloaded 'cout' in the boost::nowide library (as in this sample program).\n"
                     "This will require a UTF-8 enabled font in the terminal. Lucinda Console supports some\n"
