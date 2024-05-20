@@ -1,0 +1,9 @@
+{
+  "name" : "openxlsx",
+  "version-string" : "1.0.0",
+  "builtin-baseline" : "d8160798747ac9953d3374f9473393868d76dfe6",
+  "dependencies" : [ {
+    "name" : "benchmark",
+    "version>=" : "1.8.3#2"
+  } ]
+}

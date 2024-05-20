@@ -56,6 +56,11 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLConstants.hpp"
 #include "XLException.hpp"
 
+#include <algorithm>
+#include <cstring>
+#include <iostream>
+#include <unordered_map>
+
 using namespace OpenXLSX;
 
 constexpr uint8_t alphabetSize = 26;
@@ -287,10 +292,10 @@ uint32_t XLCellReference::rowAsNumber(const std::string& row)
 #ifdef CHARCONV_ENABLED
     uint32_t value = 0;
     std::from_chars(row.data(), row.data() + row.size(), value);    // NOLINT
-    return value;
 #else
-    return stoul(row);
+    uint32_t value = stoul(row);
 #endif
+    return value;
 }
 
 /**
@@ -324,10 +329,19 @@ std::string XLCellReference::columnAsString(uint16_t column)
  */
 uint16_t XLCellReference::columnAsNumber(const std::string& column)
 {
+    // uint16_t result = 0;
+    //
+    // for (int16_t i = static_cast<int16_t>(column.size() - 1), j = 0; i >= 0; --i, ++j) {    // NOLINT
+    //     result += static_cast<uint16_t>((column[static_cast<uint64_t>(i)] - asciiOffset) * std::pow(alphabetSize, j));
+    // }
+    //
+    // return result;
     uint16_t result = 0;
+    uint16_t factor = 1;
 
-    for (int16_t i = static_cast<int16_t>(column.size() - 1), j = 0; i >= 0; --i, ++j) {    // NOLINT
-        result += static_cast<uint16_t>((column[static_cast<uint64_t>(i)] - asciiOffset) * std::pow(alphabetSize, j));
+    for (int16_t i = static_cast<int16_t>(column.size() - 1); i >= 0; --i) {
+        result += static_cast<uint16_t>((column[static_cast<uint64_t>(i)] - asciiOffset) * factor);
+        factor *= alphabetSize;
     }
 
     return result;
@@ -339,15 +353,21 @@ uint16_t XLCellReference::columnAsNumber(const std::string& column)
  */
 XLCoordinates XLCellReference::coordinatesFromAddress(const std::string& address)
 {
-    uint64_t letterCount = 0;
-    for (const auto letter : address) {
-        if (letter >= 65)    // NOLINT
-            ++letterCount;
-        else if (letter <= 57)    // NOLINT
-            break;
-    }
+    // uint64_t letterCount = 0;
+    // for (const auto letter : address) {
+    //     if (letter >= 65)    // NOLINT
+    //         ++letterCount;
+    //     else if (letter <= 57)    // NOLINT
+    //         break;
+    // }
+    //
+    // const auto numberCount = address.size() - letterCount;
+    //
+    // return std::make_pair(rowAsNumber(address.substr(letterCount, numberCount)), columnAsNumber(address.substr(0, letterCount)));
 
-    const auto numberCount = address.size() - letterCount;
+    auto it = std::find_if(address.begin(), address.end(), ::isdigit);
+    auto columnPart = std::string(address.begin(), it);
+    auto rowPart = std::string(it, address.end());
 
-    return std::make_pair(rowAsNumber(address.substr(letterCount, numberCount)), columnAsNumber(address.substr(0, letterCount)));
+    return std::make_pair(rowAsNumber(rowPart), columnAsNumber(columnPart));
 }
