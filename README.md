@@ -321,7 +321,7 @@ possible to use other encodings, but I'm not sure about that).
 
 For the above reason, **if you work with other text encodings, you have
 to convert to/from UTF-8 yourself**. There are a number of options (e.g.
-Boost.Nowide or Boost.Text). Internally, OpenXLSX uses Boose.Nowide; it has a number
+Boost.Nowide or Boost.Text). Internally, OpenXLSX uses Boost.Nowide; it has a number
 of handy features for opening files and converting between std::string and std::wstring
 etc. I will also suggest that you watch James McNellis' presentation at [CppCon 2014](https://youtu.be/n0GK-9f4dl8),
 and read [Joel Spolsky's blog](https://www.joelonsoftware.com/2003/10/08/the-absolute-minimum-every-software-developer-absolutely-positively-must-know-about-unicode-and-character-sets-no-excuses/).
