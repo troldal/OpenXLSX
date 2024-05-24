@@ -493,7 +493,8 @@ void XLDocument::open(const std::string& fileName)
         // ===== Find first node_element child of si node.
         if (XMLNode elem = node.first_child_of_type(pugi::node_element)) {
             // ===== If shared string is a rich text string
-            if (std::string(elem.name()) == "r") {
+            if (std::string(elem.name()) == "rPh" || std::string(elem.name()) == "phoneticPr") {}
+            else if (std::string(elem.name()) == "r") {
                 std::string result;
                 while (elem) {
                     result += elem.child("t").text().get();
@@ -502,16 +503,19 @@ void XLDocument::open(const std::string& fileName)
                 m_sharedStringCache.emplace_back(result);
             }
             // ===== If shared string is a regular string
-            else {    // 2024-05-03: support a string composed of multiple <t> nodes, because LibreOffice accepts it
+            else if (std::string(elem.name()) == "t") {    // 2024-05-03: support a string composed of multiple <t> nodes, because LibreOffice accepts it
                 std::string result;
                 while (elem) {
-                    if (elem.name() != "t"s)
-                        throw XLInputError("xl/sharedStrings.xml si node \""s + node.name() + "\" is neiter \"r\" not \"t\""s);
+                    // if (elem.name() != "t"s)
+                    //     throw XLInputError("xl/sharedStrings.xml si node \""s + node.name() + "\" is neiter \"r\" not \"t\""s);
                     result += elem.text().get();
                     elem = elem.next_sibling_of_type(pugi::node_element);
                 }
                 m_sharedStringCache.emplace_back(result);
             }
+            else
+                throw XLInputError("xl/sharedStrings.xml si node \""s + node.name() + "\" is neiter \"r\" not \"t\""s);
+
         }
         node = node.next_sibling_of_type(pugi::node_element);
     }
