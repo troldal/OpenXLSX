@@ -10993,7 +10993,8 @@ namespace Zippy
             }
 
             // ===== Finally, add a new entry with the given name and data, and return the object.
-            return ZipEntry(&m_ZipEntries.emplace_back(Impl::ZipEntry(name, data)));
+            m_ZipEntries.emplace_back(Impl::ZipEntry(name, data));
+            return ZipEntry(&m_ZipEntries.back());
         }
 
     private:

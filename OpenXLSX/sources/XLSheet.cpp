@@ -132,7 +132,7 @@ XLSheet::XLSheet(XLXmlData* xmlData) : XLXmlFile(xmlData)
  */
 std::string XLSheet::name() const
 {
-    return std::visit([](auto&& arg) { return arg.name(); }, m_sheet);
+    return bv::visit([](auto&& arg) { return arg.name(); }, m_sheet);
 }
 
 /**
@@ -141,7 +141,7 @@ std::string XLSheet::name() const
  */
 void XLSheet::setName(const std::string& name)
 {
-    std::visit([&](auto&& arg) { return arg.setName(name); }, m_sheet);
+    bv::visit([&](auto&& arg) { return arg.setName(name); }, m_sheet);
 }
 
 /**
@@ -150,7 +150,7 @@ void XLSheet::setName(const std::string& name)
  */
 XLSheetState XLSheet::visibility() const
 {
-    return std::visit([](auto&& arg) { return arg.visibility(); }, m_sheet);
+    return bv::visit([](auto&& arg) { return arg.visibility(); }, m_sheet);
 }
 
 /**
@@ -159,7 +159,7 @@ XLSheetState XLSheet::visibility() const
  */
 void XLSheet::setVisibility(XLSheetState state)
 {
-    std::visit([&](auto&& arg) { return arg.setVisibility(state); }, m_sheet);
+    bv::visit([&](auto&& arg) { return arg.setVisibility(state); }, m_sheet);
 }
 
 /**
@@ -168,7 +168,7 @@ void XLSheet::setVisibility(XLSheetState state)
  */
 XLColor XLSheet::color() const
 {
-    return std::visit([](auto&& arg) { return arg.color(); }, m_sheet);
+    return bv::visit([](auto&& arg) { return arg.color(); }, m_sheet);
 }
 
 /**
@@ -177,7 +177,7 @@ XLColor XLSheet::color() const
  */
 void XLSheet::setColor(const XLColor& color)
 {
-    std::visit([&](auto&& arg) { return arg.setColor(color); }, m_sheet);
+    bv::visit([&](auto&& arg) { return arg.setColor(color); }, m_sheet);
 }
 
 /**
@@ -186,7 +186,7 @@ void XLSheet::setColor(const XLColor& color)
  */
 bool XLSheet::isSelected() const
 {
-    return std::visit([](auto&& arg) { return arg.isSelected(); }, m_sheet);
+    return bv::visit([](auto&& arg) { return arg.isSelected(); }, m_sheet);
 }
 
 /**
@@ -195,7 +195,7 @@ bool XLSheet::isSelected() const
  */
 void XLSheet::setSelected(bool selected)
 {
-    std::visit([&](auto&& arg) { return arg.setSelected(selected); }, m_sheet);
+    bv::visit([&](auto&& arg) { return arg.setSelected(selected); }, m_sheet);
 }
 
 /**
@@ -204,7 +204,7 @@ void XLSheet::setSelected(bool selected)
  */
 void XLSheet::clone(const std::string& newName)
 {
-    std::visit([&](auto&& arg) { arg.clone(newName); }, m_sheet);
+    bv::visit([&](auto&& arg) { arg.clone(newName); }, m_sheet);
 }
 
 /**
@@ -213,7 +213,7 @@ void XLSheet::clone(const std::string& newName)
  */
 uint16_t XLSheet::index() const
 {
-    return std::visit([](auto&& arg) { return arg.index(); }, m_sheet);
+    return bv::visit([](auto&& arg) { return arg.index(); }, m_sheet);
 }
 
 /**
@@ -222,7 +222,7 @@ uint16_t XLSheet::index() const
  */
 void XLSheet::setIndex(uint16_t index)
 {
-    std::visit([&](auto&& arg) { arg.setIndex(index); }, m_sheet);
+    bv::visit([&](auto&& arg) { arg.setIndex(index); }, m_sheet);
 }
 
 /**

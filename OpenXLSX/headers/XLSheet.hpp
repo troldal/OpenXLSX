@@ -704,10 +704,10 @@ namespace OpenXLSX
         {
             try {
                 if constexpr (std::is_same<T, XLWorksheet>::value)
-                    return std::get<XLWorksheet>(m_sheet);
+                    return bv::get<XLWorksheet>(m_sheet);
 
                 else if constexpr (std::is_same<T, XLChartsheet>::value)
-                    return std::get<XLChartsheet>(m_sheet);
+                    return bv::get<XLChartsheet>(m_sheet);
             }
 
             catch (const std::bad_variant_access&) {
@@ -737,7 +737,7 @@ namespace OpenXLSX
         //----------------------------------------------------------------------------------------------------------------------
 
     private:
-        std::variant<XLWorksheet, XLChartsheet> m_sheet; /**<  */
+        bv::variant<XLWorksheet, XLChartsheet> m_sheet; /**<  */
     };
 }    // namespace OpenXLSX
 
