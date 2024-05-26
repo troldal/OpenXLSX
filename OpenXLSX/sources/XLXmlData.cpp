@@ -62,7 +62,7 @@ XLXmlData::XLXmlData(OpenXLSX::XLDocument* parentDoc, const std::string& xmlPath
       m_xmlPath(xmlPath),
       m_xmlID(xmlId),
       m_xmlType(xmlType),
-      m_xmlDoc(std::make_unique<XMLDocument>())
+      m_xmlDoc(cpp::make_unique<XMLDocument>())
 {
     m_xmlDoc->reset();
 }

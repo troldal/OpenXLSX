@@ -171,17 +171,17 @@ namespace
 /**
  * @details
  */
-XLContentItem::XLContentItem() : m_contentNode(std::make_unique<XMLNode>()) {}
+XLContentItem::XLContentItem() : m_contentNode(cpp::make_unique<XMLNode>()) {}
 
 /**
  * @details
  */
-XLContentItem::XLContentItem(const XMLNode& node) : m_contentNode(std::make_unique<XMLNode>(node)) {}
+XLContentItem::XLContentItem(const XMLNode& node) : m_contentNode(cpp::make_unique<XMLNode>(node)) {}
 
 /**
  * @details
  */
-XLContentItem::XLContentItem(const XLContentItem& other) : m_contentNode(std::make_unique<XMLNode>(*other.m_contentNode)) {}
+XLContentItem::XLContentItem(const XLContentItem& other) : m_contentNode(cpp::make_unique<XMLNode>(*other.m_contentNode)) {}
 
 /**
  * @details

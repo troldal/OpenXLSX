@@ -88,8 +88,8 @@ bool XLSharedStrings::stringExists(const std::string& str) const { return getStr
 const char* XLSharedStrings::getString(uint32_t index) const
 {
     if (index >= m_stringCache->size()) {    // 2024-04-30: added range check
-        using namespace std::literals::string_literals;
-        throw XLInternalError("XLSharedStrings::"s + __func__ + ": index "s + std::to_string(index) + " is out of range"s);
+        // using namespace std::literals::string_literals;
+        throw XLInternalError(std::string("XLSharedStrings::") + __func__ + ": index " + std::to_string(index) + " is out of range");
     }
     return (*m_stringCache)[index].c_str();
 }
