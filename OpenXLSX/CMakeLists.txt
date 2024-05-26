@@ -42,7 +42,7 @@ set(OPENXLSX_LIBRARY_TYPE "STATIC" CACHE STRING "Set the library type to SHARED 
 if (OPENXLSX_ENABLE_NOWIDE)
     add_library(NoWide INTERFACE IMPORTED)
     target_include_directories(NoWide SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/external/nowide/>)
-endif()
+endif ()
 
 add_library(Zippy INTERFACE IMPORTED)
 target_include_directories(Zippy SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/external/zippy/>)
@@ -56,6 +56,9 @@ target_include_directories(PugiXML SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CU
 if (${OPENXLSX_COMPACT_MODE})
     target_compile_definitions(PugiXML INTERFACE PUGIXML_COMPACT)
 endif ()
+
+find_package(Boost REQUIRED)
+
 
 #=======================================================================================================================
 # COMPILER FEATURES
@@ -83,6 +86,7 @@ if (CHARCONV_RESULT)
     add_compile_definitions(CHARCONV_ENABLED)
 endif ()
 
+
 #=======================================================================================================================
 # PROJECT FILES
 #   List of project source files
@@ -109,16 +113,16 @@ set(OPENXLSX_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLXmlData.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLXmlFile.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLZipArchive.cpp
-        )
+)
 
 
 #=======================================================================================================================
 # STATIC AND SHARED LIBRARY
 #   Check that the input is valid
 #=======================================================================================================================
-if(NOT ${OPENXLSX_LIBRARY_TYPE} STREQUAL "STATIC" AND NOT ${OPENXLSX_LIBRARY_TYPE} STREQUAL "SHARED")
-    message( FATAL_ERROR "Invalid library type. Must be SHARED or STATIC." )
-endif()
+if (NOT ${OPENXLSX_LIBRARY_TYPE} STREQUAL "STATIC" AND NOT ${OPENXLSX_LIBRARY_TYPE} STREQUAL "SHARED")
+    message(FATAL_ERROR "Invalid library type. Must be SHARED or STATIC.")
+endif ()
 
 #=======================================================================================================================
 # STATIC LIBRARY
@@ -143,6 +147,12 @@ if (${OPENXLSX_LIBRARY_TYPE} STREQUAL "STATIC")
                 PRIVATE
                 $<BUILD_INTERFACE:NoWide>)
     endif ()
+
+
+    target_link_libraries(OpenXLSX
+            PUBLIC
+            $<BUILD_INTERFACE:Boost::boost>)
+
 
     target_compile_definitions(OpenXLSX PUBLIC OPENXLSX_STATIC_DEFINE)
 
@@ -172,6 +182,12 @@ if (${OPENXLSX_LIBRARY_TYPE} STREQUAL "SHARED")
                 $<BUILD_INTERFACE:NoWide>)
     endif ()
 
+
+    target_link_libraries(OpenXLSX
+            PUBLIC
+            $<BUILD_INTERFACE:Boost::boost>)
+
+
     # Enable Link-Time Optimization (LTO)
     include(CheckIPOSupported)
     check_ipo_supported(RESULT result OUTPUT output)
@@ -179,7 +195,7 @@ if (${OPENXLSX_LIBRARY_TYPE} STREQUAL "SHARED")
         set_property(TARGET OpenXLSX PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
     endif ()
 
-endif()
+endif ()
 
 
 if (OPENXLSX_ENABLE_NOWIDE)
@@ -326,7 +342,7 @@ install(
 configure_file(OpenXLSXConfig.cmake
         "${CMAKE_CURRENT_BINARY_DIR}/OpenXLSX/OpenXLSXConfig.cmake"
         COPYONLY
-        )
+)
 
 # Package export targets
 export(

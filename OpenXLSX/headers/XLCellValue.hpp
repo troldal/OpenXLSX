@@ -51,11 +51,11 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #pragma warning(disable : 4275)
 
 // ===== External Includes ===== //
+#include <boost/variant2.hpp>
 #include <cmath>
 #include <cstdint>
 #include <iostream>
 #include <string>
-#include <variant>
 
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
@@ -63,8 +63,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLException.hpp"
 #include "XLXmlParser.hpp"
 
-typedef std::variant<std::string, int64_t, double, bool>
-    XLCellValueType;    // TBD: typedef std::variant< std::string, int64_t, double, bool, struct timestamp > XLCellValueType;
+using XLCellValueType = boost::variant2::variant<std::string, int64_t, double, bool>;
+namespace var = boost::variant2;
 
 // ========== CLASS AND ENUM TYPE DEFINITIONS ========== //
 namespace OpenXLSX
@@ -252,21 +252,21 @@ namespace OpenXLSX
         T get() const
         {
             try {
-                if constexpr (std::is_integral_v<T> && std::is_same_v<T, bool>) return std::get<bool>(m_value);
+                if constexpr (std::is_integral_v<T> && std::is_same_v<T, bool>) return var::get<bool>(m_value);
 
-                if constexpr (std::is_integral_v<T> && !std::is_same_v<T, bool>) return static_cast<T>(std::get<int64_t>(m_value));
+                if constexpr (std::is_integral_v<T> && !std::is_same_v<T, bool>) return static_cast<T>(var::get<int64_t>(m_value));
 
                 if constexpr (std::is_floating_point_v<T>) {
                     if (m_type == XLValueType::Error) return std::nan("1");
-                    return static_cast<T>(std::get<double>(m_value));
+                    return static_cast<T>(var::get<double>(m_value));
                 }
 
                 if constexpr (std::is_same_v<std::decay_t<T>, std::string> || std::is_same_v<std::decay_t<T>, std::string_view> ||
                               std::is_same_v<std::decay_t<T>, const char*> ||
                               (std::is_same_v<std::decay_t<T>, char*> && !std::is_same_v<T, bool>))
-                    return std::get<std::string>(m_value).c_str();
+                    return var::get<std::string>(m_value).c_str();
 
-                if constexpr (std::is_same_v<T, XLDateTime>) return XLDateTime(std::get<double>(m_value));
+                if constexpr (std::is_same_v<T, XLDateTime>) return XLDateTime(var::get<double>(m_value));
             }
 
             catch (const std::bad_variant_access&) {
@@ -282,7 +282,7 @@ namespace OpenXLSX
         std::string getString()    // pull request #158 is covered by this
         {
             try {
-                return std::visit(VisitXLCellValueTypeToString(), m_value);
+                return var::visit(VisitXLCellValueTypeToString(), m_value);
             }
             catch (std::string s) {
                 throw XLValueTypeError("XLCellValue object is not convertible to string.");
@@ -519,7 +519,7 @@ namespace OpenXLSX
         std::string getString() const    // pull request #158 is covered by this
         {
             try {
-                return std::visit(VisitXLCellValueTypeToString(), getValue().m_value);
+                return var::visit(VisitXLCellValueTypeToString(), getValue().m_value);
             }
             catch (std::string s) {
                 throw XLValueTypeError("XLCellValue object is not convertible to string.");
@@ -694,7 +694,7 @@ struct std::hash<OpenXLSX::XLCellValue>    // NOLINT
 {
     std::size_t operator()(const OpenXLSX::XLCellValue& value) const noexcept
     {
-        return std::hash<std::variant<std::string, int64_t, double, bool>> {}(value.m_value);
+        return std::hash<var::variant<std::string, int64_t, double, bool>> {}(value.m_value);
     }
 };
 
