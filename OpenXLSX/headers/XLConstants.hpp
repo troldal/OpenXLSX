@@ -7,8 +7,8 @@
 
 namespace OpenXLSX
 {
-    inline constexpr uint16_t MAX_COLS = 16'384;
-    inline constexpr uint32_t MAX_ROWS = 1'048'576;
+    static constexpr uint16_t MAX_COLS = 16384;
+    static constexpr uint32_t MAX_ROWS = 1048576;
 }    // namespace OpenXLSX
 
 #endif    // OPENXLSX_XLCONSTANTS_HPP

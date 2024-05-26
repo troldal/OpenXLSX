@@ -137,7 +137,7 @@ namespace OpenXLSX
          * @return Excel date/time serial number.
          */
         template<typename T,
-                 typename = std::enable_if_t<std::is_floating_point_v<T>>>
+                 typename = typename std::enable_if<std::is_floating_point<T>::value>::type>
         operator T() const    // NOLINT
         {
             return serial();

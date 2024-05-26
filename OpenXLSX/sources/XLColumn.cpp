@@ -48,15 +48,16 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== OpenXLSX Includes ===== //
 #include "XLColumn.hpp"
+#include "XLUnique.hpp"
 
 using namespace OpenXLSX;
 
 /**
  * @details Assumes each node only has data for one column.
  */
-XLColumn::XLColumn(const XMLNode& columnNode) : m_columnNode(std::make_unique<XMLNode>(columnNode)) {}
+XLColumn::XLColumn(const XMLNode& columnNode) : m_columnNode(cpp::make_unique<XMLNode>(columnNode)) {}
 
-XLColumn::XLColumn(const XLColumn& other) : m_columnNode(std::make_unique<XMLNode>(*other.m_columnNode)) {}
+XLColumn::XLColumn(const XLColumn& other) : m_columnNode(cpp::make_unique<XMLNode>(*other.m_columnNode)) {}
 
 XLColumn::XLColumn(XLColumn&& other) noexcept = default;
 
