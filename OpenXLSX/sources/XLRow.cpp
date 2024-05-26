@@ -53,6 +53,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 #include "utilities/XLUtilities.hpp"
 
+#include <XLUnique.hpp>
+
 // ========== XLRow  ======================================================== //
 namespace OpenXLSX
 {
@@ -70,7 +72,7 @@ namespace OpenXLSX
      * @post
      */
     XLRow::XLRow(const XMLNode& rowNode, const XLSharedStrings& sharedStrings)
-        : m_rowNode(std::make_unique<XMLNode>(rowNode)),
+        : m_rowNode(cpp::make_unique<XMLNode>(rowNode)),
           m_sharedStrings(sharedStrings),
           m_rowDataProxy(this, m_rowNode.get())
     {}
@@ -81,7 +83,7 @@ namespace OpenXLSX
      * @post
      */
     XLRow::XLRow(const XLRow& other)
-        : m_rowNode(other.m_rowNode ? std::make_unique<XMLNode>(*other.m_rowNode) : nullptr),
+        : m_rowNode(other.m_rowNode ? cpp::make_unique<XMLNode>(*other.m_rowNode) : nullptr),
           m_sharedStrings(other.m_sharedStrings),
           m_rowDataProxy(this, m_rowNode.get())
     {}
@@ -293,7 +295,7 @@ namespace OpenXLSX
      * @post
      */
     XLRowIterator::XLRowIterator(const XLRowRange& rowRange, XLIteratorLocation loc)
-        : m_dataNode(std::make_unique<XMLNode>(*rowRange.m_dataNode)),
+        : m_dataNode(cpp::make_unique<XMLNode>(*rowRange.m_dataNode)),
           m_firstRow(rowRange.m_firstRow),
           m_lastRow(rowRange.m_lastRow),
           m_sharedStrings(rowRange.m_sharedStrings)
@@ -318,7 +320,7 @@ namespace OpenXLSX
      * @post
      */
     XLRowIterator::XLRowIterator(const XLRowIterator& other)
-        : m_dataNode(std::make_unique<XMLNode>(*other.m_dataNode)),
+        : m_dataNode(cpp::make_unique<XMLNode>(*other.m_dataNode)),
           m_firstRow(other.m_firstRow),
           m_lastRow(other.m_lastRow),
           m_currentRow(other.m_currentRow),
@@ -437,7 +439,7 @@ namespace OpenXLSX
      * @post
      */
     XLRowRange::XLRowRange(const XMLNode& dataNode, uint32_t first, uint32_t last, const OpenXLSX::XLSharedStrings& sharedStrings)
-        : m_dataNode(std::make_unique<XMLNode>(dataNode)),
+        : m_dataNode(cpp::make_unique<XMLNode>(dataNode)),
           m_firstRow(first),
           m_lastRow(last),
           m_sharedStrings(sharedStrings)
@@ -449,7 +451,7 @@ namespace OpenXLSX
      * @post
      */
     XLRowRange::XLRowRange(const XLRowRange& other)
-        : m_dataNode(std::make_unique<XMLNode>(*other.m_dataNode)),
+        : m_dataNode(cpp::make_unique<XMLNode>(*other.m_dataNode)),
           m_firstRow(other.m_firstRow),
           m_lastRow(other.m_lastRow),
           m_sharedStrings(other.m_sharedStrings)

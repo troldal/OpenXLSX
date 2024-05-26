@@ -53,6 +53,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLRowData.hpp"
 #include "utilities/XLUtilities.hpp"
 
+#include <XLUnique.hpp>
+
 // ========== XLRowDataIterator  ============================================ //
 namespace OpenXLSX
 {
@@ -62,8 +64,8 @@ namespace OpenXLSX
      * @post
      */
     XLRowDataIterator::XLRowDataIterator(const XLRowDataRange& rowDataRange, XLIteratorLocation loc)
-        : m_dataRange(std::make_unique<XLRowDataRange>(rowDataRange)),
-          m_cellNode(std::make_unique<XMLNode>(getCellNode(*m_dataRange->m_rowNode, m_dataRange->m_firstCol))),
+        : m_dataRange(cpp::make_unique<XLRowDataRange>(rowDataRange)),
+          m_cellNode(cpp::make_unique<XMLNode>(getCellNode(*m_dataRange->m_rowNode, m_dataRange->m_firstCol))),
           m_currentCell(loc == XLIteratorLocation::End ? XLCell() : XLCell(*m_cellNode, m_dataRange->m_sharedStrings))
     {}
 
@@ -80,8 +82,8 @@ namespace OpenXLSX
      * @post
      */
     XLRowDataIterator::XLRowDataIterator(const XLRowDataIterator& other)
-        : m_dataRange(std::make_unique<XLRowDataRange>(*other.m_dataRange)),
-          m_cellNode(std::make_unique<XMLNode>(*other.m_cellNode)),
+        : m_dataRange(cpp::make_unique<XLRowDataRange>(*other.m_dataRange)),
+          m_cellNode(cpp::make_unique<XMLNode>(*other.m_cellNode)),
           m_currentCell(other.m_currentCell)
     {}
 
@@ -214,7 +216,7 @@ namespace OpenXLSX
      * @post
      */
     XLRowDataRange::XLRowDataRange(const XMLNode& rowNode, uint16_t firstColumn, uint16_t lastColumn, const XLSharedStrings& sharedStrings)
-        : m_rowNode(std::make_unique<XMLNode>(rowNode)),
+        : m_rowNode(cpp::make_unique<XMLNode>(rowNode)),
           m_firstCol(firstColumn),
           m_lastCol(lastColumn),
           m_sharedStrings(sharedStrings)
@@ -245,7 +247,7 @@ namespace OpenXLSX
      * @post
      */
     XLRowDataRange::XLRowDataRange(const XLRowDataRange& other)
-        : m_rowNode(std::make_unique<XMLNode>(*other.m_rowNode)),
+        : m_rowNode(cpp::make_unique<XMLNode>(*other.m_rowNode)),
           m_firstCol(other.m_firstCol),
           m_lastCol(other.m_lastCol),
           m_sharedStrings(other.m_sharedStrings)
