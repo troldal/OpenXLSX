@@ -197,41 +197,41 @@ XLFormulaProxy& XLCell::formula() { return m_formulaProxy; }
  */
 void XLCell::print(std::basic_ostream<char>& ostr) const { m_cellNode->print(ostr); }
 
-/**
- * @details
- */
-XLCellAssignable& XLCellAssignable::operator=(const XLCell& other)
-{
-    copyFrom(other);
-    return *this;
-}
-
-/**
- * @details
- */
-XLCellAssignable& XLCellAssignable::operator=(const XLCellAssignable& other)
-{
-    copyFrom(other);
-    return *this;
-}
-
-/**
- * @details
- */
-XLCellAssignable& XLCellAssignable::operator=(XLCell&& other) noexcept
-{
-    copyFrom(other);
-    return *this;
-}
-
-/**
- * @details
- */
-XLCellAssignable& XLCellAssignable::operator=(XLCellAssignable&& other) noexcept
-{
-    copyFrom(other);
-    return *this;
-}
+// /**
+//  * @details
+//  */
+// XLCellAssignable& XLCellAssignable::operator=(const XLCell& other)
+// {
+//     copyFrom(other);
+//     return *this;
+// }
+//
+// /**
+//  * @details
+//  */
+// XLCellAssignable& XLCellAssignable::operator=(const XLCellAssignable& other)
+// {
+//     copyFrom(other);
+//     return *this;
+// }
+//
+// /**
+//  * @details
+//  */
+// XLCellAssignable& XLCellAssignable::operator=(XLCell&& other) noexcept
+// {
+//     copyFrom(other);
+//     return *this;
+// }
+//
+// /**
+//  * @details
+//  */
+// XLCellAssignable& XLCellAssignable::operator=(XLCellAssignable&& other) noexcept
+// {
+//     copyFrom(other);
+//     return *this;
+// }
 
 /**
  * @details

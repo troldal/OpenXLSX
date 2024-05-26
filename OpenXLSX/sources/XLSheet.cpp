@@ -336,10 +336,9 @@ bool XLWorksheet::setActive_impl()
 /**
  * @details
  */
-XLCellAssignable XLWorksheet::cell(const std::string& ref) const
+XLCell XLWorksheet::cell(const std::string& ref) const
 {
-    return static_cast<XLCellAssignable>(
-        cell(XLCellReference(ref)));    // TODO TBD if this is defined behavior: XLCellAssignable adds only methods, no member variables
+    return cell(XLCellReference(ref));    // TODO TBD if this is defined behavior: XLCellAssignable adds only methods, no member variables
 }
 
 /**

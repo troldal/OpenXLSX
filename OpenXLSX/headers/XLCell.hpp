@@ -208,39 +208,39 @@ namespace OpenXLSX
         XLFormulaProxy           m_formulaProxy;  /**< */
     };
 
-    class OPENXLSX_EXPORT XLCellAssignable : public XLCell
-    {
-    public:
-        /**
-         * @brief Default constructor. Constructs a null object.
-         */
-        XLCellAssignable() : XLCell() {}
-
-        /**
-         * @brief Inherit all constructors with parameters from XLCell
-         */
-        template<class base>
-        explicit XLCellAssignable(base b) : XLCell(b)
-        {}
-
-        /**
-         * @brief Copy assignment operator
-         * @param other The XLCell object to be copy assigned
-         * @return A reference to the new object
-         * @note Copies only the cell contents, not the pointer to parent worksheet etc.
-         */
-        XLCellAssignable& operator=(const XLCell& other) override;
-        XLCellAssignable& operator=(const XLCellAssignable& other);
-
-        /**
-         * @brief Move assignment operator -> overrides XLCell copy operator, becomes a copy operator
-         * @param other The XLCell object to be copy assigned
-         * @return A reference to the new object
-         * @note Copies only the cell contents, not the pointer to parent worksheet etc.
-         */
-        XLCellAssignable& operator=(XLCell&& other) noexcept override;
-        XLCellAssignable& operator=(XLCellAssignable&& other) noexcept;
-    };
+    // class OPENXLSX_EXPORT XLCellAssignable : public XLCell
+    // {
+    // public:
+    //     /**
+    //      * @brief Default constructor. Constructs a null object.
+    //      */
+    //     XLCellAssignable() : XLCell() {}
+    //
+    //     /**
+    //      * @brief Inherit all constructors with parameters from XLCell
+    //      */
+    //     template<class base>
+    //     explicit XLCellAssignable(base b) : XLCell(b)
+    //     {}
+    //
+    //     /**
+    //      * @brief Copy assignment operator
+    //      * @param other The XLCell object to be copy assigned
+    //      * @return A reference to the new object
+    //      * @note Copies only the cell contents, not the pointer to parent worksheet etc.
+    //      */
+    //     XLCellAssignable& operator=(const XLCell& other) override;
+    //     XLCellAssignable& operator=(const XLCellAssignable& other);
+    //
+    //     /**
+    //      * @brief Move assignment operator -> overrides XLCell copy operator, becomes a copy operator
+    //      * @param other The XLCell object to be copy assigned
+    //      * @return A reference to the new object
+    //      * @note Copies only the cell contents, not the pointer to parent worksheet etc.
+    //      */
+    //     XLCellAssignable& operator=(XLCell&& other) noexcept override;
+    //     XLCellAssignable& operator=(XLCellAssignable&& other) noexcept;
+    // };
 }    // namespace OpenXLSX
 
 // ========== FRIEND FUNCTION IMPLEMENTATIONS ========== //
@@ -268,7 +268,7 @@ namespace OpenXLSX
      * @param c    the cell to output to the stream
      * @return
      */
-    inline std::ostream& operator<<(std::ostream& os, const XLCellAssignable& c)
+    inline std::ostream& operator<<(std::ostream& os, const XLCell& c)
     {
         os << c.getString();
         // TODO: send to stream different data types based on cell data type

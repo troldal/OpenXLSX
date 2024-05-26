@@ -354,7 +354,7 @@ namespace OpenXLSX
          * @param ref
          * @return
          */
-        XLCellAssignable cell(const std::string& ref) const;
+        XLCell cell(const std::string& ref) const;
 
         /**
          * @brief Get a pointer to the XLCell object for the given cell reference.
@@ -683,7 +683,7 @@ namespace OpenXLSX
                  typename = std::enable_if_t<std::is_same_v<SheetType, XLWorksheet> || std::is_same_v<SheetType, XLChartsheet>>>
         bool isType() const
         {
-            return std::holds_alternative<SheetType>(m_sheet);
+            return bv::holds_alternative<SheetType>(m_sheet);
         }
 
         /**
