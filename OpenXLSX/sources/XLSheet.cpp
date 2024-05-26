@@ -132,7 +132,15 @@ XLSheet::XLSheet(XLXmlData* xmlData) : XLXmlFile(xmlData)
  */
 std::string XLSheet::name() const
 {
-    return bv::visit([](auto&& arg) { return arg.name(); }, m_sheet);
+    // return bv::visit([](auto&& arg) { return arg.name(); }, m_sheet);
+
+    struct NameGetter
+    {
+        std::string operator()(const XLWorksheet& sheet) const { return sheet.name(); }
+        std::string operator()(const XLChartsheet& sheet) const { return sheet.name(); }
+    };
+
+    return bv::visit(NameGetter(), m_sheet);
 }
 
 /**
@@ -141,7 +149,20 @@ std::string XLSheet::name() const
  */
 void XLSheet::setName(const std::string& name)
 {
-    bv::visit([&](auto&& arg) { return arg.setName(name); }, m_sheet);
+    // bv::visit([&](auto&& arg) { return arg.setName(name); }, m_sheet);
+
+    struct NameSetter
+    {
+        explicit NameSetter(const std::string& name) : name_(name) {}
+
+        void operator()(XLWorksheet& sheet) const { sheet.setName(name_); }
+        void operator()(XLChartsheet& sheet) const { sheet.setName(name_); }
+
+    private:
+        std::string name_;
+    };
+
+    bv::visit(NameSetter { name }, m_sheet);
 }
 
 /**
@@ -150,7 +171,15 @@ void XLSheet::setName(const std::string& name)
  */
 XLSheetState XLSheet::visibility() const
 {
-    return bv::visit([](auto&& arg) { return arg.visibility(); }, m_sheet);
+    // return bv::visit([](auto&& arg) { return arg.visibility(); }, m_sheet);
+
+    struct VisibilityGetter
+    {
+        XLSheetState operator()(const XLWorksheet& sheet) const { return sheet.visibility(); }
+        XLSheetState operator()(const XLChartsheet& sheet) const { return sheet.visibility(); }
+    };
+
+    return bv::visit(VisibilityGetter(), m_sheet);
 }
 
 /**
@@ -159,7 +188,20 @@ XLSheetState XLSheet::visibility() const
  */
 void XLSheet::setVisibility(XLSheetState state)
 {
-    bv::visit([&](auto&& arg) { return arg.setVisibility(state); }, m_sheet);
+    // bv::visit([&](auto&& arg) { return arg.setVisibility(state); }, m_sheet);
+
+    struct VisibilitySetter
+    {
+        explicit VisibilitySetter(XLSheetState state) : state_(state) {}
+
+        void operator()(XLWorksheet& sheet) const { sheet.setVisibility(state_); }
+        void operator()(XLChartsheet& sheet) const { sheet.setVisibility(state_); }
+
+    private:
+        XLSheetState state_;
+    };
+
+    bv::visit(VisibilitySetter { state }, m_sheet);
 }
 
 /**
@@ -168,7 +210,15 @@ void XLSheet::setVisibility(XLSheetState state)
  */
 XLColor XLSheet::color() const
 {
-    return bv::visit([](auto&& arg) { return arg.color(); }, m_sheet);
+    // return bv::visit([](auto&& arg) { return arg.color(); }, m_sheet);
+
+    struct ColorGetter
+    {
+        XLColor operator()(const XLWorksheet& sheet) const { return sheet.color(); }
+        XLColor operator()(const XLChartsheet& sheet) const { return sheet.color(); }
+    };
+
+    return bv::visit(ColorGetter(), m_sheet);
 }
 
 /**
@@ -177,7 +227,20 @@ XLColor XLSheet::color() const
  */
 void XLSheet::setColor(const XLColor& color)
 {
-    bv::visit([&](auto&& arg) { return arg.setColor(color); }, m_sheet);
+    // bv::visit([&](auto&& arg) { return arg.setColor(color); }, m_sheet);
+
+    struct ColorSetter
+    {
+        explicit ColorSetter(const XLColor& color) : color_(color) {}
+
+        void operator()(XLWorksheet& sheet) const { sheet.setColor(color_); }
+        void operator()(XLChartsheet& sheet) const { sheet.setColor(color_); }
+
+    private:
+        XLColor color_;
+    };
+
+    bv::visit(ColorSetter { color }, m_sheet);
 }
 
 /**
@@ -186,7 +249,15 @@ void XLSheet::setColor(const XLColor& color)
  */
 bool XLSheet::isSelected() const
 {
-    return bv::visit([](auto&& arg) { return arg.isSelected(); }, m_sheet);
+    // return bv::visit([](auto&& arg) { return arg.isSelected(); }, m_sheet);
+
+    struct SelectedGetter
+    {
+        bool operator()(const XLWorksheet& sheet) const { return sheet.isSelected(); }
+        bool operator()(const XLChartsheet& sheet) const { return sheet.isSelected(); }
+    };
+
+    return bv::visit(SelectedGetter(), m_sheet);
 }
 
 /**
@@ -195,7 +266,20 @@ bool XLSheet::isSelected() const
  */
 void XLSheet::setSelected(bool selected)
 {
-    bv::visit([&](auto&& arg) { return arg.setSelected(selected); }, m_sheet);
+    // bv::visit([&](auto&& arg) { return arg.setSelected(selected); }, m_sheet);
+
+    struct SelectedSetter
+    {
+        explicit SelectedSetter(bool selected) : selected_(selected) {}
+
+        void operator()(XLWorksheet& sheet) const { sheet.setSelected(selected_); }
+        void operator()(XLChartsheet& sheet) const { sheet.setSelected(selected_); }
+
+    private:
+        bool selected_;
+    };
+
+    bv::visit(SelectedSetter { selected }, m_sheet);
 }
 
 /**
@@ -204,7 +288,20 @@ void XLSheet::setSelected(bool selected)
  */
 void XLSheet::clone(const std::string& newName)
 {
-    bv::visit([&](auto&& arg) { arg.clone(newName); }, m_sheet);
+    // bv::visit([&](auto&& arg) { arg.clone(newName); }, m_sheet);
+
+    struct Cloner
+    {
+        explicit Cloner(const std::string& newName) : newName_(newName) {}
+
+        void operator()(XLWorksheet& sheet) const { sheet.clone(newName_); }
+        void operator()(XLChartsheet& sheet) const { sheet.clone(newName_); }
+
+    private:
+        std::string newName_;
+    };
+
+    bv::visit(Cloner { newName }, m_sheet);
 }
 
 /**
@@ -213,7 +310,15 @@ void XLSheet::clone(const std::string& newName)
  */
 uint16_t XLSheet::index() const
 {
-    return bv::visit([](auto&& arg) { return arg.index(); }, m_sheet);
+    // return bv::visit([](auto&& arg) { return arg.index(); }, m_sheet);
+
+    struct IndexGetter
+    {
+        uint16_t operator()(const XLWorksheet& sheet) const { return sheet.index(); }
+        uint16_t operator()(const XLChartsheet& sheet) const { return sheet.index(); }
+    };
+
+    return bv::visit(IndexGetter(), m_sheet);
 }
 
 /**
@@ -222,7 +327,20 @@ uint16_t XLSheet::index() const
  */
 void XLSheet::setIndex(uint16_t index)
 {
-    bv::visit([&](auto&& arg) { arg.setIndex(index); }, m_sheet);
+    // bv::visit([&](auto&& arg) { arg.setIndex(index); }, m_sheet);
+
+    struct IndexSetter
+    {
+        explicit IndexSetter(uint16_t index) : index_(index) {}
+
+        void operator()(XLWorksheet& sheet) const { sheet.setIndex(index_); }
+        void operator()(XLChartsheet& sheet) const { sheet.setIndex(index_); }
+
+    private:
+        uint16_t index_;
+    };
+
+    bv::visit(IndexSetter { index }, m_sheet);
 }
 
 /**
@@ -252,8 +370,8 @@ void XLSheet::print(std::basic_ostream<char, std::char_traits<char>>& ostr) { xm
 XLWorksheet::XLWorksheet(XLXmlData* xmlData) : XLSheetBase(xmlData)
 {
     // ===== Read the dimensions of the Sheet and set data members accordingly.
-    if (const std::string dimensions = xmlDocument().document_element().child("dimension").attribute("ref").value();
-        dimensions.find(':') == std::string::npos)
+    const std::string dimensions = xmlDocument().document_element().child("dimension").attribute("ref").value();
+    if (dimensions.find(':') == std::string::npos)
         xmlDocument().document_element().child("dimension").set_value("A1");
     else
         xmlDocument().document_element().child("dimension").set_value(dimensions.substr(dimensions.find(':') + 1).c_str());
@@ -478,7 +596,7 @@ XLRow XLWorksheet::row(uint32_t rowNumber) const
  */
 XLColumn XLWorksheet::column(uint16_t columnNumber) const
 {
-    using namespace std::literals::string_literals;
+    //using namespace std::literals::string_literals;
 
     // If no columns exists, create the <cols> node in the XML document.
     if (xmlDocument().document_element().child("cols").empty())
@@ -523,8 +641,8 @@ XLColumn XLWorksheet::column(uint16_t columnNumber) const
         while (not columnNode.empty() && columnNode.attribute("min").as_int() != columnNumber)
             columnNode = columnNode.previous_sibling_of_type(pugi::node_element);
         if (columnNode.empty())
-            throw XLInternalError("XLWorksheet::"s + __func__ + ": column node for index "s + std::to_string(columnNumber) +
-                                  "not found after splitting column nodes"s);
+            throw XLInternalError(std::string("XLWorksheet::") + __func__ + ": column node for index " + std::to_string(columnNumber) +
+                                  "not found after splitting column nodes");
     }
 
     // ===== If a node for the column does NOT exist, but a node for a higher column exist...
@@ -545,9 +663,9 @@ XLColumn XLWorksheet::column(uint16_t columnNumber) const
         columnNode.append_attribute("customWidth") = 0;
     }
 
-    using namespace std::literals::string_literals;
+    //using namespace std::literals::string_literals;
     if (columnNode.empty())
-        throw XLInternalError("XLWorksheet::"s + __func__ + ": was unable to find or create node for column "s +
+        throw XLInternalError(std::string("XLWorksheet::") + __func__ + ": was unable to find or create node for column " +
                               std::to_string(columnNumber));
     return XLColumn(columnNode);
 }
@@ -565,7 +683,7 @@ uint16_t XLWorksheet::columnCount() const noexcept
     uint16_t maxCount = 0;    // Pull request: Update XLSheet.cpp with correct type #176, Explicitely cast to unsigned short int #163
     for (const auto& row : rows()) {
         uint16_t cellCount = row.cellCount();
-        maxCount = std::max(cellCount, maxCount);
+        maxCount           = std::max(cellCount, maxCount);
     }
     return maxCount;
 
