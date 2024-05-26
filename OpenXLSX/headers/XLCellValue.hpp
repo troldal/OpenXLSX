@@ -270,7 +270,7 @@ namespace OpenXLSX
                 if constexpr (std::is_same_v<T, XLDateTime>) return XLDateTime(bv::get<double>(m_value));
             }
 
-            catch (const std::bad_variant_access&) {
+            catch (const bv::bad_variant_access&) {
                 throw XLValueTypeError("XLCellValue object does not contain the requested type.");
             }
         }
