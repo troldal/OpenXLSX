@@ -79,7 +79,7 @@ namespace OpenXLSX
      * inherited via the CRTP (Curiously Recurring Template Pattern) pattern.
      * @tparam T Type that will inherit functionality. Restricted to types XLWorksheet and XLChartsheet.
      */
-    template<typename T, typename = std::enable_if_t<std::is_same_v<T, XLWorksheet> || std::is_same_v<T, XLChartsheet>>>
+    template<typename T, typename = typename std::enable_if<std::is_same<T, XLWorksheet>::value || std::is_same<T, XLChartsheet>::value>::type>
     class OPENXLSX_EXPORT XLSheetBase : public XLXmlFile
     {
     public:
@@ -680,7 +680,7 @@ namespace OpenXLSX
          */
         template<
             typename SheetType,
-                 typename = std::enable_if_t<std::is_same_v<SheetType, XLWorksheet> || std::is_same_v<SheetType, XLChartsheet>>>
+                 typename = typename std::enable_if<std::is_same<SheetType, XLWorksheet>::value || std::is_same<SheetType, XLChartsheet>::value>::type>
         bool isType() const
         {
             return bv::holds_alternative<SheetType>(m_sheet);
@@ -699,7 +699,7 @@ namespace OpenXLSX
          * @tparam T
          * @return
          */
-        template<typename T, typename = std::enable_if_t<std::is_same_v<T, XLWorksheet> || std::is_same_v<T, XLChartsheet>>>
+        template<typename T, typename = typename std::enable_if<std::is_same<T, XLWorksheet>::value || std::is_same<T, XLChartsheet>::value>::type>
         T get() const
         {
             try {
@@ -710,7 +710,7 @@ namespace OpenXLSX
                     return bv::get<XLChartsheet>(m_sheet);
             }
 
-            catch (const std::bad_variant_access&) {
+            catch (const bv::bad_variant_access&) {
                 throw XLSheetError("XLSheet object does not contain the requested sheet type.");
             }
         }
