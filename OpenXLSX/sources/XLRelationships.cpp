@@ -162,7 +162,7 @@ namespace
 
     uint32_t GetNewRelsID(XMLNode relationshipsNode)
     {
-        using namespace std::literals::string_literals;
+        // using namespace std::literals::string_literals;
         // ===== workaround for pugi::xml_node currently not having an iterator for node_element only
         XMLNode  relationship = relationshipsNode.first_child_of_type(pugi::node_element);
         uint32_t newId        = 1;    // default
@@ -172,10 +172,10 @@ namespace
                 id = std::stoi(std::string(relationship.attribute("Id").value()).substr(3));
             }
             catch (std::invalid_argument e) {    // expected stoi exception
-                throw XLInputError("GetNewRelsID could not convert attribute Id to uint32_t ("s + e.what() + ")"s);
+                throw XLInputError(std::string("GetNewRelsID could not convert attribute Id to uint32_t (") + e.what() + ")");
             }
             catch (...) {    // catch all other errors during conversion of attribute to uint32_t
-                throw XLInputError("GetNewRelsID could not convert attribute Id to uint32_t"s);
+                throw XLInputError(std::string("GetNewRelsID could not convert attribute Id to uint32_t"));
             }
             if (id >= newId) newId = id + 1;
             relationship = relationship.next_sibling_of_type(pugi::node_element);
@@ -196,17 +196,17 @@ namespace
     }
 }    // namespace
 
-XLRelationshipItem::XLRelationshipItem() : m_relationshipNode(std::make_unique<XMLNode>()) {}
+XLRelationshipItem::XLRelationshipItem() : m_relationshipNode(cpp::make_unique<XMLNode>()) {}
 
 /**
  * @details Constructor. Initializes the member variables for the new XLRelationshipItem object.
  */
-XLRelationshipItem::XLRelationshipItem(const XMLNode& node) : m_relationshipNode(std::make_unique<XMLNode>(node)) {}
+XLRelationshipItem::XLRelationshipItem(const XMLNode& node) : m_relationshipNode(cpp::make_unique<XMLNode>(node)) {}
 
 XLRelationshipItem::~XLRelationshipItem() = default;
 
 XLRelationshipItem::XLRelationshipItem(const XLRelationshipItem& other)
-    : m_relationshipNode(std::make_unique<XMLNode>(*other.m_relationshipNode))
+    : m_relationshipNode(cpp::make_unique<XMLNode>(*other.m_relationshipNode))
 {}
 
 XLRelationshipItem& XLRelationshipItem::operator=(const XLRelationshipItem& other)
