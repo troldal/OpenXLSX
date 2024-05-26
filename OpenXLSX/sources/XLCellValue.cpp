@@ -435,7 +435,7 @@ void XLCellValueProxy::setString(const char* stringValue) // NOLINT
     //    m_cellNode->attribute("t").set_value("str");
     //    m_cellNode->child("v").text().set(stringValue);
     //
-    //    auto s = std::string_view(stringValue);
+    //    auto s = nonstd::string_view(stringValue);
     //    if (s.front() == ' ' || s.back() == ' ') {
     //        if (!m_cellNode->attribute("xml:space")) m_cellNode->append_attribute("xml:space");
     //        m_cellNode->attribute("xml:space").set_value("preserve");

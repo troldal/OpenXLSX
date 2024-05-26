@@ -8,5 +8,8 @@
   }, {
     "name" : "boost-variant2",
     "version>=" : "1.84.0"
+  }, {
+    "name" : "string-view-lite",
+    "version>=" : "1.7.0#1"
   } ]
 }

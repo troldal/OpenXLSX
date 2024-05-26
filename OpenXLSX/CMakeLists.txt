@@ -58,6 +58,7 @@ if (${OPENXLSX_COMPACT_MODE})
 endif ()
 
 find_package(Boost REQUIRED)
+find_package(string-view-lite REQUIRED)
 
 
 #=======================================================================================================================
@@ -151,7 +152,8 @@ if (${OPENXLSX_LIBRARY_TYPE} STREQUAL "STATIC")
 
     target_link_libraries(OpenXLSX
             PUBLIC
-            $<BUILD_INTERFACE:Boost::boost>)
+            $<BUILD_INTERFACE:Boost::boost>
+            $<BUILD_INTERFACE:nonstd::string-view-lite>)
 
 
     target_compile_definitions(OpenXLSX PUBLIC OPENXLSX_STATIC_DEFINE)
@@ -185,7 +187,8 @@ if (${OPENXLSX_LIBRARY_TYPE} STREQUAL "SHARED")
 
     target_link_libraries(OpenXLSX
             PUBLIC
-            $<BUILD_INTERFACE:Boost::boost>)
+            $<BUILD_INTERFACE:Boost::boost>
+            $<BUILD_INTERFACE:nonstd::string-view-lite>)
 
 
     # Enable Link-Time Optimization (LTO)
