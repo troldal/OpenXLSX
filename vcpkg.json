@@ -11,5 +11,8 @@
   }, {
     "name" : "string-view-lite",
     "version>=" : "1.7.0#1"
+  }, {
+    "name" : "boost-any",
+    "version>=" : "1.84.0"
   } ]
 }

@@ -51,7 +51,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #pragma warning(disable : 4275)
 
 // ===== External Includes ===== //
-#include <any>
+#include <boost/any.hpp>
 #include <map>
 #include <string>
 
@@ -109,7 +109,7 @@ namespace OpenXLSX
         template<typename T>
         T getParam(const std::string& param) const
         {
-            return std::any_cast<T>(m_params.at(param));
+            return boost::any_cast<T>(m_params.at(param));
         }
 
         /**
@@ -120,7 +120,7 @@ namespace OpenXLSX
 
     private:
         XLCommandType                   m_type;   /*< */
-        std::map<std::string, std::any> m_params; /*< */
+        std::map<std::string, boost::any> m_params; /*< */
     };
 
     /**
@@ -174,7 +174,7 @@ namespace OpenXLSX
         template<typename T>
         T getParam(const std::string& param) const
         {
-            return std::any_cast<T>(m_params.at(param));
+            return boost::any_cast<T>(m_params.at(param));
         }
 
         /**
@@ -198,7 +198,7 @@ namespace OpenXLSX
         template<typename T>
         T result() const
         {
-            return std::any_cast<T>(m_result);
+            return boost::any_cast<T>(m_result);
         }
 
         /**
@@ -209,8 +209,8 @@ namespace OpenXLSX
 
     private:
         XLQueryType                     m_type;   /*< */
-        std::any                        m_result; /*< */
-        std::map<std::string, std::any> m_params; /*< */
+        boost::any                        m_result; /*< */
+        std::map<std::string, boost::any> m_params; /*< */
     };
 
 }    // namespace OpenXLSX
