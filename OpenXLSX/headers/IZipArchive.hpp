@@ -52,6 +52,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
+#include "XLUnique.hpp"
 
 #include <memory>
 #include <string>
@@ -80,7 +81,7 @@ namespace OpenXLSX
          * to take any type as an argument. However, only objects that satisfy the required interface can be used.
          */
         template<typename T>
-        IZipArchive(const T& zipArchive) : m_zipArchive { std::make_unique<Model<T>>(zipArchive) } {} // NOLINT
+        IZipArchive(const T& zipArchive) : m_zipArchive { cpp::make_unique<Model<T>>(zipArchive) } {} // NOLINT
 
         /**
          * @brief Copy constructor
@@ -108,7 +109,7 @@ namespace OpenXLSX
         template<typename T>
         inline IZipArchive& operator=(const T& zipArchive)
         {
-            m_zipArchive = std::make_unique<Model<T>>(zipArchive);
+            m_zipArchive = cpp::make_unique<Model<T>>(zipArchive);
             return *this;
         }
 
@@ -293,7 +294,7 @@ namespace OpenXLSX
              */
             inline std::unique_ptr<Concept> clone() const override
             {
-                return std::make_unique<Model<T>>(ZipType);
+                return cpp::make_unique<Model<T>>(ZipType);
             }
 
             inline bool isValid() const override {

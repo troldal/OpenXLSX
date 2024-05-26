@@ -135,7 +135,8 @@ std::string XLProperties::property(const std::string& name) const
 void XLProperties::deleteProperty(const std::string& name)
 {
     if (!m_xmlData) return;
-    if (const XMLNode property = xmlDocument().document_element().child(name.c_str()); not property.empty())
+    const XMLNode property = xmlDocument().document_element().child(name.c_str());
+    if (not property.empty())
         xmlDocument().document_element().remove_child(property);
 }
 
@@ -225,8 +226,8 @@ void XLAppProperties::addHeadingPair(const std::string& name, int value)
     if (pairCountValue)
         pairCountValue.text().set(std::to_string(value).c_str());
     else {
-        using namespace std::literals::string_literals;
-        throw XLInternalError("XLAppProperties::addHeadingPair: found no matching pair count value to name "s + name);
+        // using namespace std::literals::string_literals;
+        throw XLInternalError(std::string("XLAppProperties::addHeadingPair: found no matching pair count value to name ") + name);
     }
     headingPairsSize(xmlDocument().document_element()).set_value(HeadingPairsNode.child_count_of_type());
 }
@@ -276,11 +277,11 @@ void XLAppProperties::setHeadingPair(const std::string& name, int newValue)
 
     if (item) {
         const XMLNode pairCountValue = item.next_sibling_of_type(pugi::node_element).first_child_of_type(pugi::node_element);    //
-        using namespace std::literals::string_literals;
-        if (pairCountValue && (pairCountValue.name() == "vt:i4"s))
+        // using namespace std::literals::string_literals;
+        if (pairCountValue && (std::string("vt:i4") == pairCountValue.name()))
             pairCountValue.text().set(std::to_string(newValue).c_str());
         else
-            throw XLInternalError("XLAppProperties::setHeadingPair: found no matching pair count value to name "s + name);
+            throw XLInternalError(std::string("XLAppProperties::setHeadingPair: found no matching pair count value to name ") + name);
     }
 }
 
