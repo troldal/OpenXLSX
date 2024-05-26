@@ -51,6 +51,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLCellRange.hpp"
 #include "utilities/XLUtilities.hpp"
 
+#include <XLUnique.hpp>
+
 using namespace OpenXLSX;
 
 /**
@@ -69,7 +71,7 @@ XLCell::XLCell()
  * from a XLCellReference parameter.
  */
 XLCell::XLCell(const XMLNode& cellNode, const XLSharedStrings& sharedStrings)
-    : m_cellNode(std::make_unique<XMLNode>(cellNode)),
+    : m_cellNode(cpp::make_unique<XMLNode>(cellNode)),
       m_sharedStrings(sharedStrings),
       m_valueProxy(XLCellValueProxy(this, m_cellNode.get())),
       m_formulaProxy(XLFormulaProxy(this, m_cellNode.get()))
@@ -79,7 +81,7 @@ XLCell::XLCell(const XMLNode& cellNode, const XLSharedStrings& sharedStrings)
  * @details
  */
 XLCell::XLCell(const XLCell& other)
-    : m_cellNode(other.m_cellNode ? std::make_unique<XMLNode>(*other.m_cellNode) : nullptr),
+    : m_cellNode(other.m_cellNode ? cpp::make_unique<XMLNode>(*other.m_cellNode) : nullptr),
       m_sharedStrings(other.m_sharedStrings),
       m_valueProxy(XLCellValueProxy(this, m_cellNode.get())),
       m_formulaProxy(XLFormulaProxy(this, m_cellNode.get()))
@@ -133,12 +135,12 @@ XLCell& XLCell::operator=(XLCell&& other) noexcept
  */
 void XLCell::copyFrom(XLCell const& other)
 {
-    using namespace std::literals::string_literals;
+    //using namespace std::literals::string_literals;
     if (!m_cellNode) {
         // copyFrom invoked by empty XLCell: create a new cell with reference & m_cellNode from other
         std::cout << "copyFrom invoked by empty XLCell - creating a new cell with reference " << other.cellReference().address()
                   << std::endl;
-        m_cellNode      = std::make_unique<XMLNode>(*other.m_cellNode);
+        m_cellNode      = cpp::make_unique<XMLNode>(*other.m_cellNode);
         m_sharedStrings = other.m_sharedStrings;
         m_valueProxy    = XLCellValueProxy(this, m_cellNode.get());
         m_formulaProxy  = XLFormulaProxy(this, m_cellNode.get());

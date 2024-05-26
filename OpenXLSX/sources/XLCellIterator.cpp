@@ -53,13 +53,15 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLException.hpp"
 #include "utilities/XLUtilities.hpp"
 
+#include <XLUnique.hpp>
+
 using namespace OpenXLSX;
 
 /**
  * @details
  */
 XLCellIterator::XLCellIterator(const XLCellRange& cellRange, XLIteratorLocation loc)
-    : m_dataNode(std::make_unique<XMLNode>(*cellRange.m_dataNode)),
+    : m_dataNode(cpp::make_unique<XMLNode>(*cellRange.m_dataNode)),
       m_topLeft(cellRange.m_topLeft),
       m_bottomRight(cellRange.m_bottomRight),
       m_sharedStrings(cellRange.m_sharedStrings)
@@ -80,7 +82,7 @@ XLCellIterator::~XLCellIterator() = default;
  * @details
  */
 XLCellIterator::XLCellIterator(const XLCellIterator& other)
-    : m_dataNode(std::make_unique<XMLNode>(*other.m_dataNode)),
+    : m_dataNode(cpp::make_unique<XMLNode>(*other.m_dataNode)),
       m_topLeft(other.m_topLeft),
       m_bottomRight(other.m_bottomRight),
       m_currentCell(other.m_currentCell),

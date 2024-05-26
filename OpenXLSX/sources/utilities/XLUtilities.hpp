@@ -23,16 +23,16 @@ namespace OpenXLSX
      */
     inline std::string XLValueTypeString( XLValueType t )
     {
-        using namespace std::literals::string_literals;
+        //using namespace std::literals::string_literals;
         switch( t ) {
-            case XLValueType::Empty      : return "Empty"s;
-            case XLValueType::Boolean    : return "Boolean"s;
-            case XLValueType::Integer    : return "Integer"s;
-            case XLValueType::Float      : return "Float"s;
-            case XLValueType::Error      : return "Error"s;
-            case XLValueType::String     : return "String"s;
+            case XLValueType::Empty      : return "Empty";
+            case XLValueType::Boolean    : return "Boolean";
+            case XLValueType::Integer    : return "Integer";
+            case XLValueType::Float      : return "Float";
+            case XLValueType::Error      : return "Error";
+            case XLValueType::String     : return "String";
         }
-        throw XLInternalError(__func__ + "Invalid XLValueType."s);
+        throw XLInternalError(std::string(__func__) + "Invalid XLValueType.");
     }
 
     /**
@@ -42,17 +42,17 @@ namespace OpenXLSX
      */
     inline std::string xml_node_type_string( pugi::xml_node_type t )
     {
-        using namespace std::literals::string_literals;
+        //using namespace std::literals::string_literals;
         switch( t ) {
-            case pugi::node_null        : return "node_null"s;
-            case pugi::node_document    : return "node_document"s;
-            case pugi::node_element     : return "node_element"s;
-            case pugi::node_pcdata      : return "node_pcdata"s;
-            case pugi::node_cdata       : return "node_cdata"s;
-            case pugi::node_comment     : return "node_comment"s;
-            case pugi::node_pi          : return "node_pi"s;
-            case pugi::node_declaration : return "node_declaration"s;
-            case pugi::node_doctype     : return "node_doctype"s;
+            case pugi::node_null        : return "node_null";
+            case pugi::node_document    : return "node_document";
+            case pugi::node_element     : return "node_element";
+            case pugi::node_pcdata      : return "node_pcdata";
+            case pugi::node_cdata       : return "node_cdata";
+            case pugi::node_comment     : return "node_comment";
+            case pugi::node_pi          : return "node_pi";
+            case pugi::node_declaration : return "node_declaration";
+            case pugi::node_doctype     : return "node_doctype";
         }
         throw XLInternalError("Invalid XML node type.");
     }

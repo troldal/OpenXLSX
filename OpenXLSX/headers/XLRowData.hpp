@@ -250,17 +250,17 @@ namespace OpenXLSX
          * @throws XLOverflowError if size of container exceeds maximum number of columns.
          */
         template<typename T,
-                 typename = std::enable_if_t<!std::is_same_v<T, XLRowDataProxy> &&
-                                                 std::is_base_of_v<std::bidirectional_iterator_tag,
-                                                                   typename std::iterator_traits<typename T::iterator>::iterator_category>,
-                                             T>>
+                 typename = typename std::enable_if<!std::is_same<T, XLRowDataProxy>::value &&
+                                                 std::is_base_of<std::bidirectional_iterator_tag,
+                                                                   typename std::iterator_traits<typename T::iterator>::iterator_category>::value,
+                                             T>::type>
         XLRowDataProxy& operator=(const T& values)    // 2024-04-30: whitespace support
         {
             if (values.size() > MAX_COLS) throw XLOverflowError("Container size exceeds maximum number of columns.");
             if (values.size() == 0) return *this;
 
             // ===== If the container value_type is XLCellValue, the values can be copied directly.
-            if constexpr (std::is_same_v<typename T::value_type, XLCellValue>) {
+            if constexpr (std::is_same<typename T::value_type, XLCellValue>::value) {
                 // ===== First, delete the values in the first N columns.
                 deleteCellValues(values.size());    // 2024-04-30: whitespace support
 
@@ -336,11 +336,10 @@ namespace OpenXLSX
          * @return The required container with the row data.
          */
         template<typename Container,
-                 typename =
-                     std::enable_if_t<!std::is_same_v<Container, XLRowDataProxy> &&
-                                          std::is_base_of_v<std::bidirectional_iterator_tag,
-                                                            typename std::iterator_traits<typename Container::iterator>::iterator_category>,
-                                      Container>>
+                 typename = typename std::enable_if<!std::is_same<Container, XLRowDataProxy>::value &&
+                                          std::is_base_of<std::bidirectional_iterator_tag,
+                                                            typename std::iterator_traits<typename Container::iterator>::iterator_category>::value,
+                                      Container>::type>
         explicit operator Container() const
         {
             return convertContainer<Container>();
@@ -418,18 +417,17 @@ namespace OpenXLSX
          * @throws bad_variant_access if Container::value type is not XLCellValue and does not match the type contained.
          */
         template<typename Container,
-                 typename =
-                     std::enable_if_t<!std::is_same_v<Container, XLRowDataProxy> &&
-                                          std::is_base_of_v<std::bidirectional_iterator_tag,
-                                                            typename std::iterator_traits<typename Container::iterator>::iterator_category>,
-                                      Container>>
+                 typename = typename std::enable_if<!std::is_same<Container, XLRowDataProxy>::value &&
+                                          std::is_base_of<std::bidirectional_iterator_tag,
+                                                            typename std::iterator_traits<typename Container::iterator>::iterator_category>::value,
+                                      Container>::type>
         Container convertContainer() const    // 2024-04-30: whitespace support
         {
             Container c;
             auto      it = std::inserter(c, c.end());
             for (const auto& v : getValues()) {
                 // ===== If the value_type of the container is XLCellValue, the value can be assigned directly.
-                if constexpr (std::is_same_v<typename Container::value_type, XLCellValue>) *it++ = v;
+                if constexpr (std::is_same<typename Container::value_type, XLCellValue>::value) *it++ = v;
 
                 // ===== If the value_type is something else, the underlying value has to be extracted from the XLCellValue object.
                 // ===== Note that if the type contained in the XLCellValue object does not match the value_type, a bad_variant_access

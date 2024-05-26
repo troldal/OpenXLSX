@@ -49,6 +49,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 // ===== OpenXLSX Includes ===== //
 #include "XLCellRange.hpp"
 
+#include <XLUnique.hpp>
+
 using namespace OpenXLSX;
 
 /**
@@ -61,7 +63,7 @@ XLCellRange::XLCellRange(const XMLNode&         dataNode,
                          const XLCellReference& topLeft,
                          const XLCellReference& bottomRight,
                          const XLSharedStrings& sharedStrings)
-    : m_dataNode(std::make_unique<XMLNode>(dataNode)),
+    : m_dataNode(cpp::make_unique<XMLNode>(dataNode)),
       m_topLeft(topLeft),
       m_bottomRight(bottomRight),
       m_sharedStrings(sharedStrings)
@@ -73,7 +75,7 @@ XLCellRange::XLCellRange(const XMLNode&         dataNode,
  * @post
  */
 XLCellRange::XLCellRange(const XLCellRange& other)
-    : m_dataNode(std::make_unique<XMLNode>(*other.m_dataNode)),
+    : m_dataNode(cpp::make_unique<XMLNode>(*other.m_dataNode)),
       m_topLeft(other.m_topLeft),
       m_bottomRight(other.m_bottomRight),
       m_sharedStrings(other.m_sharedStrings)
