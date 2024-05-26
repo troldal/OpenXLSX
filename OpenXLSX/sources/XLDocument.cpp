@@ -487,8 +487,8 @@ void XLDocument::open(const std::string& fileName)
         sharedStrings->document_element().first_child_of_type(pugi::node_element);    // pull request #186: Skip non-element nodes in sst.
     while (node) {
         // ===== Validate si node name.
-        using namespace std::literals::string_literals;
-        if (node.name() != "si"s) throw XLInputError("xl/sharedStrings.xml sst node name \""s + node.name() + "\" is not \"si\""s);
+        //using namespace std::literals::string_literals;
+        if (std::string(node.name()) != "si") throw XLInputError(std::string("xl/sharedStrings.xml sst node name \"") + node.name() + "\" is not \"si\"");
 
         // ===== Find first node_element child of si node.
         if (XMLNode elem = node.first_child_of_type(pugi::node_element)) {
@@ -514,7 +514,7 @@ void XLDocument::open(const std::string& fileName)
                 m_sharedStringCache.emplace_back(result);
             }
             else
-                throw XLInputError("xl/sharedStrings.xml si node \""s + node.name() + "\" is neiter \"r\" not \"t\""s);
+                throw XLInputError(std::string("xl/sharedStrings.xml si node \"") + node.name() + "\" is neiter \"r\" not \"t\"");
 
         }
         node = node.next_sibling_of_type(pugi::node_element);
