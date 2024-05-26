@@ -122,8 +122,8 @@ XLSheet XLWorkbook::sheet(uint16_t index)    // 2024-04-30: whitespace support
     }
 
     // ===== If execution gets here, there are less element nodes than index in sheetsNode, this should never happen
-    using namespace std::literals::string_literals;
-    throw XLInternalError("Sheet index "s + std::to_string(index) + " is out of bounds"s);
+    //using namespace std::literals::string_literals;
+    throw XLInternalError(std::string("Sheet index ") + std::to_string(index) + " is out of bounds");
 }
 
 /**
@@ -492,8 +492,8 @@ XLSheetType XLWorkbook::typeOfSheet(unsigned int index) const    // 2024-05-01: 
         ++thisIndex;
     }
 
-    using namespace std::literals::string_literals;
-    throw XLInputError(std::string(__func__) + ": index "s + std::to_string(index) + " is out of range"s);
+    //using namespace std::literals::string_literals;
+    throw XLInputError(std::string(__func__) + ": index " + std::to_string(index) + " is out of range");
 }
 
 /**
