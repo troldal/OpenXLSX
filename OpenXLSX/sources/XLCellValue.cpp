@@ -253,7 +253,8 @@ XLValueType XLCellValueProxy::type() const
 
     // ===== If a Type attribute is not present, but a value node is, the cell contains a number.
     if (!m_cellNode->attribute("t") || ((strcmp(m_cellNode->attribute("t").value(), "n") == 0) && !m_cellNode->child("v").empty())) {
-        if (const std::string numberString = m_cellNode->child("v").text().get(); numberString.find('.') != std::string::npos || numberString.find("E-") != std::string::npos ||
+        const std::string numberString = m_cellNode->child("v").text().get();
+        if (numberString.find('.') != std::string::npos || numberString.find("E-") != std::string::npos ||
             numberString.find("e-") != std::string::npos)
             return XLValueType::Float;
         return XLValueType::Integer;
