@@ -103,14 +103,23 @@ namespace OpenXLSX
                                                     std::is_same<typename std::decay<T>::type, char*>::value>::type>
         explicit XLFormula(T formula)
         {
+            struct StringSetter
+            {
+                std::string operator()(const char* str) const { return str; }
+                std::string operator()(const std::string& str) const { return str; }
+                std::string operator()(const nonstd::string_view& str) const { return std::string(str); }
+            };
+
             // ===== If the argument is a const char *, use the argument directly; otherwise, assume it has a .c_str() function.
-            if constexpr (std::is_same<typename std::decay<T>::type, const char*>::value ||
-                          std::is_same<typename std::decay<T>::type, char*>::value)
-                m_formulaString = formula;
-            else if constexpr (std::is_same<typename std::decay<T>::type, nonstd::string_view>::value)
-                m_formulaString = std::string(formula);
-            else
-                m_formulaString = formula.c_str();
+            // if constexpr (std::is_same<typename std::decay<T>::type, const char*>::value ||
+            //               std::is_same<typename std::decay<T>::type, char*>::value)
+            //     m_formulaString = formula;
+            // else if constexpr (std::is_same<typename std::decay<T>::type, nonstd::string_view>::value)
+            //     m_formulaString = std::string(formula);
+            // else
+            //     m_formulaString = formula.c_str();
+
+            m_formulaString = StringSetter {}(formula);
         }
 
         /**
@@ -235,14 +244,24 @@ namespace OpenXLSX
                                                     std::is_same<typename std::decay<T>::type, char*>::value>::type>
         XLFormulaProxy& operator=(T formula)
         {
-            if constexpr (std::is_same<typename std::decay<T>::type, XLFormula>::value)
-                setFormulaString(formula.get().c_str());
-            else if constexpr (std::is_same<typename std::decay<T>::type, std::string>::value)
-                setFormulaString(formula.c_str());
-            else if constexpr (std::is_same<typename std::decay<T>::type, nonstd::string_view>::value)
-                setFormulaString(std::string(formula).c_str());
-            else
-                setFormulaString(formula);
+            struct FormulaSetter
+            {
+                std::string operator()(const XLFormula& formula) const { return formula.get().c_str(); }
+                std::string operator()(const char* formula) const { return formula; }
+                std::string operator()(const std::string& formula) const { return formula; }
+                std::string operator()(const nonstd::string_view& formula) const { return std::string(formula); }
+            };
+
+            // if constexpr (std::is_same<typename std::decay<T>::type, XLFormula>::value)
+            //     setFormulaString(formula.get().c_str());
+            // else if constexpr (std::is_same<typename std::decay<T>::type, std::string>::value)
+            //     setFormulaString(formula.c_str());
+            // else if constexpr (std::is_same<typename std::decay<T>::type, nonstd::string_view>::value)
+            //     setFormulaString(std::string(formula).c_str());
+            // else
+            //     setFormulaString(formula);
+
+            setFormulaString(FormulaSetter {}(formula).c_str());
 
             return *this;
         }

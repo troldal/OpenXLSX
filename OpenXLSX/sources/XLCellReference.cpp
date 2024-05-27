@@ -255,10 +255,10 @@ std::string XLCellReference::address() const { return m_cellAddress; }
  */
 void XLCellReference::setAddress(const std::string& address)
 {
-    const auto [fst, snd] = coordinatesFromAddress(address);
-    m_row            = fst;
-    m_column         = snd;
-    m_cellAddress    = address;
+    const auto result = coordinatesFromAddress(address);
+    m_row = result.first;
+    m_column = result.second;
+    m_cellAddress = address;
 }
 
 /**
