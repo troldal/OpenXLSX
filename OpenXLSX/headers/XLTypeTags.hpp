@@ -26,6 +26,9 @@ namespace OpenXLSX
     struct DateTimeTypeTag
     {
     };
+    struct CellValueProxyTypeTag
+    {
+    };
 
     template<typename T, typename = void>
     struct TypeTag
@@ -63,5 +66,6 @@ namespace OpenXLSX
     {
         using type = DateTimeTypeTag;
     };
+
 
 }    // namespace OpenXLSX
