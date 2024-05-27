@@ -79,7 +79,8 @@ namespace OpenXLSX
      * inherited via the CRTP (Curiously Recurring Template Pattern) pattern.
      * @tparam T Type that will inherit functionality. Restricted to types XLWorksheet and XLChartsheet.
      */
-    template<typename T, typename = typename std::enable_if<std::is_same<T, XLWorksheet>::value || std::is_same<T, XLChartsheet>::value>::type>
+    template<typename T,
+             typename = typename std::enable_if<std::is_same<T, XLWorksheet>::value || std::is_same<T, XLChartsheet>::value>::type>
     class OPENXLSX_EXPORT XLSheetBase : public XLXmlFile
     {
     public:
@@ -138,7 +139,7 @@ namespace OpenXLSX
             XLQuery query(XLQueryType::QuerySheetVisibility);
             query.setParam("sheetID", relationshipID());
             const auto state  = parentDoc().execQuery(query).template result<std::string>();
-            auto result = XLSheetState::Visible;
+            auto       result = XLSheetState::Visible;
 
             if (state == "visible" || state.empty()) {
                 result = XLSheetState::Visible;
@@ -184,19 +185,13 @@ namespace OpenXLSX
          * @return
          * @todo To be implemented.
          */
-        XLColor color() const
-        {
-            return static_cast<const T&>(*this).getColor_impl();
-        }
+        XLColor color() const { return static_cast<const T&>(*this).getColor_impl(); }
 
         /**
          * @brief
          * @param color
          */
-        void setColor(const XLColor& color)
-        {
-            static_cast<T&>(*this).setColor_impl(color);
-        }
+        void setColor(const XLColor& color) { static_cast<T&>(*this).setColor_impl(color); }
 
         /**
          * @brief
@@ -204,7 +199,8 @@ namespace OpenXLSX
          */
         uint16_t index() const
         {
-//            return uint16_t(std::stoi(parentDoc().execQuery(R"({ "query": "QuerySheetIndex", "sheetID": ")" + relationshipID() + "\"}")));
+            //            return uint16_t(std::stoi(parentDoc().execQuery(R"({ "query": "QuerySheetIndex", "sheetID": ")" + relationshipID()
+            //            + "\"}")));
 
             XLQuery query(XLQueryType::QuerySheetIndex);
             query.setParam("sheetID", relationshipID());
@@ -217,9 +213,8 @@ namespace OpenXLSX
          */
         void setIndex(uint16_t index)
         {
-            parentDoc().execCommand(XLCommand(XLCommandType::SetSheetIndex)
-                                        .setParam("sheetID", relationshipID())
-                                        .setParam("sheetIndex", index));
+            parentDoc().execCommand(
+                XLCommand(XLCommandType::SetSheetIndex).setParam("sheetID", relationshipID()).setParam("sheetIndex", index));
         }
 
         /**
@@ -249,36 +244,24 @@ namespace OpenXLSX
          * @brief
          * @return
          */
-        bool isSelected() const
-        {
-            return static_cast<const T&>(*this).isSelected_impl();
-        }
+        bool isSelected() const { return static_cast<const T&>(*this).isSelected_impl(); }
 
         /**
          * @brief
          * @param selected
          */
-        void setSelected(bool selected)
-        {
-            static_cast<T&>(*this).setSelected_impl(selected);
-        }
+        void setSelected(bool selected) { static_cast<T&>(*this).setSelected_impl(selected); }
 
         /**
          * @brief
          * @return
          */
-        bool isActive() const
-        {
-            return static_cast<const T&>(*this).isActive_impl();
-        }
+        bool isActive() const { return static_cast<const T&>(*this).isActive_impl(); }
 
         /**
          * @brief
          */
-        bool setActive()
-        {
-            return static_cast<T&>(*this).setActive_impl();
-        }
+        bool setActive() { return static_cast<T&>(*this).setActive_impl(); }
 
         /**
          * @brief Method for cloning the sheet.
@@ -288,9 +271,8 @@ namespace OpenXLSX
          */
         void clone(const std::string& newName)
         {
-            parentDoc().execCommand(XLCommand(XLCommandType::CloneSheet)
-                                        .setParam("sheetID", relationshipID())
-                                        .setParam("cloneName", newName));
+            parentDoc().execCommand(
+                XLCommand(XLCommandType::CloneSheet).setParam("sheetID", relationshipID()).setParam("cloneName", newName));
         }
     };
 
@@ -446,7 +428,6 @@ namespace OpenXLSX
         void updateSheetName(const std::string& oldName, const std::string& newName);
 
     private:
-
         /**
          * @brief
          * @return
@@ -538,7 +519,6 @@ namespace OpenXLSX
         XLChartsheet& operator=(XLChartsheet&& other) noexcept = default;
 
     private:
-
         /**
          * @brief
          * @return
@@ -562,6 +542,27 @@ namespace OpenXLSX
          * @param selected
          */
         void setSelected_impl(bool selected);
+    };
+
+    template<typename T>
+    struct GetSheet
+    {
+        static T get(const bv::variant<XLWorksheet, XLChartsheet>& m_sheet)
+        {
+            throw XLSheetError("XLSheet object does not contain the requested sheet type.");
+        }
+    };
+
+    template<>
+    struct GetSheet<XLWorksheet>
+    {
+        static XLWorksheet get(const bv::variant<XLWorksheet, XLChartsheet>& m_sheet) { return bv::get<XLWorksheet>(m_sheet); }
+    };
+
+    template<>
+    struct GetSheet<XLChartsheet>
+    {
+        static XLChartsheet get(const bv::variant<XLWorksheet, XLChartsheet>& m_sheet) { return bv::get<XLChartsheet>(m_sheet); }
     };
 
     /**
@@ -678,9 +679,9 @@ namespace OpenXLSX
          * @brief Method to get the type of the sheet.
          * @return An XLSheetType enum object with the sheet type.
          */
-        template<
-            typename SheetType,
-                 typename = typename std::enable_if<std::is_same<SheetType, XLWorksheet>::value || std::is_same<SheetType, XLChartsheet>::value>::type>
+        template<typename SheetType,
+                 typename = typename std::enable_if<std::is_same<SheetType, XLWorksheet>::value ||
+                                                    std::is_same<SheetType, XLChartsheet>::value>::type>
         bool isType() const
         {
             return bv::holds_alternative<SheetType>(m_sheet);
@@ -699,20 +700,26 @@ namespace OpenXLSX
          * @tparam T
          * @return
          */
-        template<typename T, typename = typename std::enable_if<std::is_same<T, XLWorksheet>::value || std::is_same<T, XLChartsheet>::value>::type>
+        // template<typename T, typename = typename std::enable_if<std::is_same<T, XLWorksheet>::value || std::is_same<T,
+        // XLChartsheet>::value>::type> T get() const
+        // {
+        //     try {
+        //         if constexpr (std::is_same<T, XLWorksheet>::value)
+        //             return bv::get<XLWorksheet>(m_sheet);
+        //
+        //         else if constexpr (std::is_same<T, XLChartsheet>::value)
+        //             return bv::get<XLChartsheet>(m_sheet);
+        //     }
+        //
+        //     catch (const bv::bad_variant_access&) {
+        //         throw XLSheetError("XLSheet object does not contain the requested sheet type.");
+        //     }
+        // }
+
+        template<typename T>
         T get() const
         {
-            try {
-                if constexpr (std::is_same<T, XLWorksheet>::value)
-                    return bv::get<XLWorksheet>(m_sheet);
-
-                else if constexpr (std::is_same<T, XLChartsheet>::value)
-                    return bv::get<XLChartsheet>(m_sheet);
-            }
-
-            catch (const bv::bad_variant_access&) {
-                throw XLSheetError("XLSheet object does not contain the requested sheet type.");
-            }
+            return GetSheet<T>::get(m_sheet);
         }
 
         /**
@@ -730,7 +737,7 @@ namespace OpenXLSX
         /**
          * @brief print the XML contents of the XLSheet using the underlying XMLNode print function
          */
-        void print(std::basic_ostream<char, std::char_traits<char> >& ostr);
+        void print(std::basic_ostream<char, std::char_traits<char>>& ostr);
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Private Member Variables
