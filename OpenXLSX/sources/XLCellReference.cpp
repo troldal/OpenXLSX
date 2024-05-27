@@ -266,11 +266,6 @@ void XLCellReference::setAddress(const std::string& address)
  */
 std::string XLCellReference::rowAsString(uint32_t row)
 {
-#ifdef CHARCONV_ENABLED
-    std::array<char, 7> str {};    // NOLINT
-    const auto*               p = std::to_chars(str.data(), str.data() + str.size(), row).ptr;
-    return std::string { str.data(), static_cast<uint16_t>(p - str.data()) };
-#else
     std::string result;
     while (row != 0) {
         int rem = row % 10;
@@ -281,7 +276,6 @@ std::string XLCellReference::rowAsString(uint32_t row)
     for (int i = 0; i < result.length() / 2; i++) std::swap(result[i], result[result.length() - i - 1]);
 
     return result;
-#endif
 }
 
 /**
@@ -289,13 +283,7 @@ std::string XLCellReference::rowAsString(uint32_t row)
  */
 uint32_t XLCellReference::rowAsNumber(const std::string& row)
 {
-#ifdef CHARCONV_ENABLED
-    uint32_t value = 0;
-    std::from_chars(row.data(), row.data() + row.size(), value);    // NOLINT
-#else
-    uint32_t value = stoul(row);
-#endif
-    return value;
+    return stoul(row);
 }
 
 /**
