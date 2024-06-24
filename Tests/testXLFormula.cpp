@@ -4,9 +4,31 @@
 
 #include <OpenXLSX.hpp>
 #include <catch.hpp>
+#include <filesystem>
 #include <fstream>
 
 using namespace OpenXLSX;
+
+/**
+ * @brief convert a cell's string value to a proper XLFormula
+ *
+ * @param cell the cell with a string that should be used as formula
+ * 
+ * @todo this should be a mathod of XLCell
+ * 
+ * @todo the name could be better ...
+ */
+void evaluateFormulaString(OpenXLSX::XLCell cell)
+{
+    std::string sFormula { cell.value().get<std::string>() };
+    if (sFormula[0] == '=') {
+        // remove the '='
+        sFormula.erase(0, 1);
+    }
+    OpenXLSX::XLFormula formula(sFormula);
+    cell.value().clear();    // This is vital! If we don't clear the cell's value, Excel won't open the file.
+    cell.formula() = formula;
+}
 
 TEST_CASE("XLFormula Tests", "[XLFormula]")
 {
@@ -111,8 +133,10 @@ TEST_CASE("XLFormula Tests", "[XLFormula]")
 
     SECTION("FormulaProxy")
     {
+        std::filesystem::path fileName { "./testXLFormula.xlsx" };
+        std::filesystem::remove(fileName);
         XLDocument doc;
-        doc.create("./testXLFormula.xlsx");
+        doc.create(fileName);
         auto wks = doc.workbook().worksheet("Sheet1");
 
         wks.cell("A1").formula() = "=1+1";
@@ -127,5 +151,55 @@ TEST_CASE("XLFormula Tests", "[XLFormula]")
         REQUIRE_FALSE(wks.cell("A1").hasFormula());
         REQUIRE(wks.cell("B2").formula() == XLFormula("=1+1"));
 
+    }
+
+    SECTION("StringToFormula")
+    {
+        std::filesystem::path fileName { "./testXLFormula.xlsx" };
+        std::filesystem::remove(fileName);
+        XLDocument doc;
+        doc.create(fileName);
+        auto wks = doc.workbook().worksheet("Sheet1");
+
+        wks.cell("A1").value() = "Values";
+        wks.cell("B1").value() = "Calculations";
+        wks.cell("C1").value() = "More Values";
+
+        for (uint16_t i = 2; i <= 10; i++) {
+            std::string cellNameA       = "A" + std::to_string(i);
+            std::string cellNameB       = "B" + std::to_string(i);
+            std::string cellNameC       = "C" + std::to_string(i);
+            wks.cell(cellNameA).value() = double(i + i * 0.10);
+            wks.cell(cellNameB).value() = std::string("= " + cellNameA + " * " + cellNameC);
+            wks.cell(cellNameC).value() = double(i * 5 + i * 1.1);
+        }
+
+        // This works: The cells F5 and G7 have a valid formula and the
+        // resulting Excel file is opened by Excel without any complaints.
+        const std::string sFormula_F5 { "2*A2" };
+        const std::string sFormula_G7 { sFormula_F5 + "+3*A3" };
+        wks.cell("F5").formula() = sFormula_F5;
+        wks.cell("G7").formula() = sFormula_G7;
+        REQUIRE(wks.cell("F5").formula() == XLFormula(sFormula_F5));
+        REQUIRE(wks.cell("G7").formula() == XLFormula(sFormula_G7));
+
+        // Now let's try to convert the string in cell B4 to a proper formula:
+        OpenXLSX::XLCell cell = wks.cell("B4");
+        std::string      sFormula_B4 { cell.value().get<std::string>() };
+        if (sFormula_B4[0] == '=') {
+            sFormula_B4.erase(0, 1);
+        }
+        OpenXLSX::XLFormula formula(sFormula_B4);
+        cell.value().clear();    // This is vital! If we don't clear the cell's value, Excel won't open the file.
+        cell.formula() = formula;
+        REQUIRE(wks.cell("B4").formula() == formula);
+
+        // OK, try something like "=$C2+C$3*$B$4"
+        wks.cell("E9").value() = "=$C2+C$3*$B$4";
+        evaluateFormulaString(wks.cell("E9"));
+        REQUIRE(wks.cell("E9").formula() == XLFormula("$C2+C$3*$B$4"));
+
+        doc.save();
+        doc.close();
     }
 }
