@@ -11,17 +11,23 @@
 #define CATCH_CONFIG_RUNNER
 
 #include <catch.hpp>
+#include <filesystem>
 #include <OpenXLSX.hpp>
 #include <cstdio>
 
 using namespace OpenXLSX;
 
-void PrepareDocument(std::string name)
+void PrepareDocument(const std::string& name)
 {
+    // delete the document/file before creating it:
+    std::filesystem::path fileName{name};
+    std::filesystem::remove(fileName);
+    // create the document:
     XLDocument doc;
-    std::remove(name.c_str());
-    doc.create(name);
+    doc.create(fileName);
+    // save the document to the given file;
     doc.save();
+    // close the document:
     doc.close();
 }
 
