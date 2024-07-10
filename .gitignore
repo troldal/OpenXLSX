@@ -2,8 +2,10 @@
 /*
 
 # include generic files
+!/.clang-format
+!/.clang-tidy
 !/.gitignore
-!/LICENSE
+!/LICENSE.md
 !/NOTICE
 !/README.md
 
