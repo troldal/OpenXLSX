@@ -64,6 +64,13 @@ namespace OpenXLSX
      */
     class OPENXLSX_EXPORT XLProperties : public XLXmlFile
     {
+    private:
+        /**
+         * @brief constructor helper function: create core.xml content from template
+         * @param workbook
+         */
+        void createFromTemplate();
+
         //----------------------------------------------------------------------------------------------------------------------
         //           Public Member Functions
         //----------------------------------------------------------------------------------------------------------------------
@@ -159,6 +166,13 @@ namespace OpenXLSX
      */
     class OPENXLSX_EXPORT XLAppProperties : public XLXmlFile
     {
+    private:
+        /**
+         * @brief constructor helper function: create app.xml content from template
+         * @param workbook
+         */
+        void createFromTemplate(XMLDocument const & workbookXml);
+
         //--------------------------------------------------------------------------------------------------------------
         //           Public Member Functions
         //--------------------------------------------------------------------------------------------------------------
@@ -168,6 +182,13 @@ namespace OpenXLSX
          * @brief
          */
         XLAppProperties() = default;
+
+        /**
+         * @brief enable XLAppProperties to re-create a worksheet list in docProps/app.xml <TitlesOfParts> element from workbookXml
+         * @param xmlData
+         * @param workbook
+         */
+        explicit XLAppProperties(XLXmlData* xmlData, XMLDocument const & workbookXml);
 
         /**
          * @brief

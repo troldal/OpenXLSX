@@ -62,10 +62,13 @@ XLCellIterator::XLCellIterator(const XLCellRange& cellRange, XLIteratorLocation 
     : m_dataNode(std::make_unique<XMLNode>(*cellRange.m_dataNode)),
       m_topLeft(cellRange.m_topLeft),
       m_bottomRight(cellRange.m_bottomRight),
-      m_sharedStrings(cellRange.m_sharedStrings)
+      m_sharedStrings(cellRange.m_sharedStrings),
+      m_endReached(false)
 {
-    if (loc == XLIteratorLocation::End)
+    if (loc == XLIteratorLocation::End) {
         m_currentCell = XLCell();
+        m_endReached = true;
+    }
     else {
         m_currentCell = XLCell(getCellNode(getRowNode(*m_dataNode, m_topLeft.row()), m_topLeft.column()), m_sharedStrings);
     }
@@ -84,7 +87,8 @@ XLCellIterator::XLCellIterator(const XLCellIterator& other)
       m_topLeft(other.m_topLeft),
       m_bottomRight(other.m_bottomRight),
       m_currentCell(other.m_currentCell),
-      m_sharedStrings(other.m_sharedStrings)
+      m_sharedStrings(other.m_sharedStrings),
+      m_endReached(other.m_endReached)
 {}
 
 /**
@@ -103,6 +107,7 @@ XLCellIterator& XLCellIterator::operator=(const XLCellIterator& other)
         m_bottomRight   = other.m_bottomRight;
         m_currentCell   = other.m_currentCell;
         m_sharedStrings = other.m_sharedStrings;
+        m_endReached    = other.m_endReached;
     }
 
     return *this;
@@ -118,6 +123,9 @@ XLCellIterator& XLCellIterator::operator=(XLCellIterator&& other) noexcept = def
  */
 XLCellIterator& XLCellIterator::operator++()
 {
+    if (m_endReached)
+        throw XLInputError("XLCellIterator: tried to increment beyond end operator");
+
     auto ref = m_currentCell.cellReference();
 
     // ===== Determine the cell reference for the next cell.
@@ -128,11 +136,15 @@ XLCellIterator& XLCellIterator::operator++()
     else
         ref = XLCellReference(ref.row() + 1, m_topLeft.column());
 
+    // 2024-06-03 TBD TODO: why ref > m_bottomRight - that shouldn't be possible? --> added exception to test for this
+    if (ref > m_bottomRight)
+        throw XLInternalError("XLCellIterator became > m_bottomRight - this should not happen!");
+
     if (m_endReached)
         m_currentCell = XLCell();
-    else if (ref > m_bottomRight || ref.row() == m_currentCell.cellReference().row()) {
+    else if (ref > m_bottomRight || ref.row() == m_currentCell.cellReference().row()) {    // TBD: remove ref > m_bottomRight condition unless I overlooked something
         auto node = m_currentCell.m_cellNode->next_sibling_of_type(pugi::node_element);
-        if (!node || XLCellReference(node.attribute("r").value()) != ref) {
+        if (node.empty() || XLCellReference(node.attribute("r").value()) != ref) {
             node = m_currentCell.m_cellNode->parent().insert_child_after("c", *m_currentCell.m_cellNode);
             node.append_attribute("r").set_value(ref.address().c_str());
         }
@@ -140,13 +152,12 @@ XLCellIterator& XLCellIterator::operator++()
     }
     else if (ref.row() > m_currentCell.cellReference().row()) {
         auto rowNode = m_currentCell.m_cellNode->parent().next_sibling_of_type(pugi::node_element);
-        if (!rowNode || rowNode.attribute("r").as_ullong() != ref.row()) {
+        if (rowNode.empty() || rowNode.attribute("r").as_ullong() != ref.row()) {
             rowNode = m_currentCell.m_cellNode->parent().parent().insert_child_after("row", m_currentCell.m_cellNode->parent());
             rowNode.append_attribute("r").set_value(ref.row());
-            // getRowNode(*m_dataNode, ref.row());
         }
-
-        m_currentCell = XLCell(getCellNode(rowNode, ref.column()), m_sharedStrings);
+        // ===== Pass the already known ref.row() to getCellNode so that it does not have to be fetched again
+        m_currentCell = XLCell(getCellNode(rowNode, ref.column(), ref.row()), m_sharedStrings);
     }
     else
         throw XLInternalError("An internal error occured");
@@ -191,14 +202,42 @@ bool XLCellIterator::operator!=(const XLCellIterator& rhs) const { return !(*thi
 
 /**
  * @details
- * @todo This implementation is rather ineffecient. Consider an alternative implementation.
+ * @note 2024-06-03: implemented a calculated distance based on m_currentCell, m_topLeft and m_bottomRight (if m_endReached)
+ *                   accordingly, implemented defined setting of m_endReached at all times
  */
 uint64_t XLCellIterator::distance(const XLCellIterator& last)
 {
-    uint64_t result = 0;
-    while (*this != last) {
-        ++result;
-        ++(*this);
-    }
-    return result;
+    // ===== Determine rows and columns, taking into account beyond-the-end iterators
+    uint32_t row = (m_endReached ? m_bottomRight.row() : m_currentCell.cellReference().row());
+    uint16_t col = (m_endReached ? m_bottomRight.column() + 1 : m_currentCell.cellReference().column());
+    uint32_t lastRow = (last.m_endReached ? last.m_bottomRight.row() : last.m_currentCell.cellReference().row());
+    // ===== lastCol can store +1 for beyond-the-end iterator without overflow because MAX_COLS is less than max uint16_t
+    uint16_t lastCol = (last.m_endReached ? last.m_bottomRight.column() + 1 : last.m_currentCell.cellReference().column());
+
+    uint16_t rowWidth = m_bottomRight.column() - m_topLeft.column() + 1;    // amount of cells in a row of the iterator range
+    int64_t distance =  ((int64_t)(lastRow) - row) * rowWidth    //   row distance * rowWidth
+                       + (int64_t)(lastCol) - col;               // + column distance (may be negative)
+    if (distance < 0)
+        throw XLInputError("XLCellIterator::distance is negative");
+
+    return static_cast<uint64_t>(distance);    // after excluding negative result: cast back to positive value
+
+    /* OBSOLETE CODE:
+    // uint64_t result = 0;
+    // while (*this != last) {
+    //     ++result;
+    //     ++(*this);
+    // }
+    // return result;
+    */
+}
+
+/**
+ * @details
+ */
+const std::string XLCellIterator::address() const
+{
+    uint32_t row = (m_endReached ? m_bottomRight.row() : m_currentCell.cellReference().row());
+    uint16_t col = (m_endReached ? m_bottomRight.column() + 1 : m_currentCell.cellReference().column());
+    return (m_endReached ? "END(" : "") + XLCellReference(row, col).address() + (m_endReached ? ")" : "");
 }

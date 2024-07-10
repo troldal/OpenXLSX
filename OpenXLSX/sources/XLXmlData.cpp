@@ -45,19 +45,19 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== External Includes ===== //
 #include <pugixml.hpp>
+#include <sstream>
 
 // ===== OpenXLSX Includes ===== //
 #include "XLDocument.hpp"
 #include "XLXmlData.hpp"
 
-#include <sstream>
-
 using namespace OpenXLSX;
 
+const unsigned int pugi_parse_settings = pugi::parse_default | pugi::parse_ws_pcdata; // TBD: | pugi::parse_comments
 /**
  * @details
  */
-XLXmlData::XLXmlData(OpenXLSX::XLDocument* parentDoc, const std::string& xmlPath, const std::string& xmlId, XLContentType xmlType)
+XLXmlData::XLXmlData(XLDocument* parentDoc, const std::string& xmlPath, const std::string& xmlId, XLContentType xmlType)
     : m_parentDoc(parentDoc),
       m_xmlPath(xmlPath),
       m_xmlID(xmlId),
@@ -77,16 +77,43 @@ XLXmlData::~XLXmlData() = default;
  */
 void XLXmlData::setRawData(const std::string& data) // NOLINT
 {
-    m_xmlDoc->load_string(data.c_str(), pugi::parse_default | pugi::parse_ws_pcdata);
+    m_xmlDoc->load_string(data.c_str(), pugi_parse_settings);
 }
 
 /**
  * @details
+ * @note Default encoding for pugixml xml_document::save is pugi::encoding_auto, becomes pugi::encoding_utf8
  */
 std::string XLXmlData::getRawData() const
 {
+    XMLDocument *doc = const_cast<XMLDocument *>(getXmlDocument());
+
+    // ===== 2024-08-08: ensure that the default encoding UTF-8 is explicitly written to the XML document with a custom saving declaration
+    XMLNode savingDeclaration = doc->first_child();
+    if (savingDeclaration.empty() || savingDeclaration.type() != pugi::node_declaration)    // if saving declaration node does not exist
+        savingDeclaration = doc->prepend_child(pugi::node_declaration);                         // create it
+
+    // ===== If a node_declaration could be fetched or created
+    if (not savingDeclaration.empty()) {
+        // ===== Fetch or create saving declaration attributes
+        XMLAttribute attrVersion = savingDeclaration.attribute("version");
+        if (attrVersion.empty())
+            attrVersion = savingDeclaration.append_attribute("version");
+        XMLAttribute attrEncoding = savingDeclaration.attribute("encoding");
+        if (attrEncoding.empty())
+            attrEncoding = savingDeclaration.append_attribute("encoding");
+        XMLAttribute attrStandalone = savingDeclaration.attribute("standalone");
+        if (attrStandalone.empty())
+            attrStandalone = savingDeclaration.append_attribute("standalone");
+
+        // ===== Set saving declaration attribute values (potentially overwriting existing values)
+        attrVersion = "1.0";       // version="1.0" is XML default
+        attrEncoding = "UTF-8";    // encoding="UTF-8" is XML default
+        attrStandalone = "no";     // standalone="no" is XML default
+    }
+
     std::ostringstream ostr;
-    getXmlDocument()->save(ostr, "", pugi::format_raw);
+    doc->save(ostr, "", pugi::format_raw);
     return ostr.str();
 }
 
@@ -136,7 +163,7 @@ XLContentType XLXmlData::getXmlType() const
 XMLDocument* XLXmlData::getXmlDocument()
 {
     if (!m_xmlDoc->document_element())
-        m_xmlDoc->load_string(m_parentDoc->extractXmlFromArchive(m_xmlPath).c_str(), pugi::parse_default | pugi::parse_ws_pcdata);
+        m_xmlDoc->load_string(m_parentDoc->extractXmlFromArchive(m_xmlPath).c_str(), pugi_parse_settings);
 
     return m_xmlDoc.get();
 }
@@ -147,7 +174,7 @@ XMLDocument* XLXmlData::getXmlDocument()
 const XMLDocument* XLXmlData::getXmlDocument() const
 {
     if (!m_xmlDoc->document_element())
-        m_xmlDoc->load_string(m_parentDoc->extractXmlFromArchive(m_xmlPath).c_str(), pugi::parse_default | pugi::parse_ws_pcdata);
+        m_xmlDoc->load_string(m_parentDoc->extractXmlFromArchive(m_xmlPath).c_str(), pugi_parse_settings);
 
     return m_xmlDoc.get();
 }

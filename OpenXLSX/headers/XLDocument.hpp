@@ -51,6 +51,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #pragma warning(disable : 4275)
 
 // ===== External Includes ===== //
+#include <algorithm> // std::find_if
+#include <list>
 #include <string>
 
 // ===== OpenXLSX Includes ===== //
@@ -64,8 +66,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLWorkbook.hpp"
 #include "XLXmlData.hpp"
 #include "XLZipArchive.hpp"
-
-#include <list>
 
 namespace OpenXLSX
 {
@@ -189,8 +189,9 @@ namespace OpenXLSX
         /**
          * @brief Get the filename of the current document, e.g. "spreadsheet.xlsx".
          * @return A std::string with the filename.
+         * @note 2024-06-03: function can't return as reference to const because filename as a substr of m_filePath can be a temporary
          */
-        const std::string& name() const;
+        const std::string name() const;
 
         /**
          * @brief Get the full path of the current document, e.g. "drive/blah/spreadsheet.xlsx"

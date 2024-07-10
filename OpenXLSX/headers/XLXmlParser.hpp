@@ -46,22 +46,143 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_XLXMLPARSER_HPP
 #define OPENXLSX_XLXMLPARSER_HPP
 
-namespace pugi
-{
-    class xml_node;
-    class xml_attribute;
-    class xml_document;
-}    // namespace pugi
+// ===== pugixml.hpp needed for pugi::impl::xml_memory_page_type_mask, pugi::xml_node_type, pugi::char_t, pugi::node_element, pugi::xml_node, pugi::xml_attribute, pugi::xml_document
+#include <external/pugixml/pugixml.hpp> // not sure why the full include path is needed within the header file
+
+// 2024-05-29: forward declarations now pointless with include on pugixml being needed anyways
+// namespace pugi
+// {
+//     class xml_node;
+//     class xml_attribute;
+//     class xml_document;
+// }    // namespace pugi
 
 namespace OpenXLSX
 {
-    // class OpenXLSX_xml_node : public pugi::xml_node {
-    //     using xml_node::xml_node; // use all constructors of pugi::xml_node
-    // TBD: can first_child_element and last_child_element be implemented here to skip whitespace nodes?
-    // };
-    // using XMLNode      = OpenXLSX_xml_node;
-    using XMLNode      = pugi::xml_node;
-    using XMLAttribute = pugi::xml_attribute;
-    using XMLDocument  = pugi::xml_document;
+    // ===== Copy definition of PUGI_IMPL_NODETYPE, which is defined in pugixml.cpp, within a namespace, and somehow doesn't work here
+#   define PUGI_IMPL_NODETYPE(n) static_cast<pugi::xml_node_type>((n)->header & pugi::impl::xml_memory_page_type_mask)
+
+
+    // disable this line to use original (non-augmented) pugixml
+#   define PUGI_AUGMENTED
+
+    // ===== Using statements to switch between pugixml and augmented pugixml implementation
+#   ifdef PUGI_AUGMENTED
+        // ===== Forward declarations for using statements below
+        class OpenXLSX_xml_node;
+        class OpenXLSX_xml_document;
+
+        using XMLNode      = OpenXLSX_xml_node;
+        using XMLAttribute = pugi::xml_attribute;
+        using XMLDocument  = OpenXLSX_xml_document;
+#   else
+        using XMLNode      = pugi::xml_node;
+        using XMLAttribute = pugi::xml_attribute;
+        using XMLDocument  = pugi::xml_document;
+#   endif
+
+    // ===== Custom OpenXLSX_xml_node to add functionality to pugi::xml_node
+    class OpenXLSX_xml_node : public pugi::xml_node {
+    public:
+        /**
+         * @brief Default constructor. Constructs a null object.
+         */
+        OpenXLSX_xml_node() : pugi::xml_node() {}
+
+        /**
+         * @brief Inherit all constructors with parameters from pugi::xml_node
+         */
+        template<class base>
+        // explicit OpenXLSX_xml_node(base b) : xml_node(b) // TBD
+        OpenXLSX_xml_node(base b) : pugi::xml_node(b)
+        {}
+
+        // ===== BEGIN: Wrappers for xml_node member functions to ensure OpenXLSX_xml_node return values
+        // ===== CAUTION: this section is incomplete, only implementing those functions actually used by OpenXLSX to date
+        /**
+         * @brief for all functions: invoke the base class function, but with a return type of OpenXLSX_xml_node
+         */
+        XMLNode parent() { return pugi::xml_node::parent(); }
+        XMLNode child(const pugi::char_t* name) const { return pugi::xml_node::child(name); }
+        template <typename Predicate> XMLNode find_child(Predicate pred) const { return pugi::xml_node::find_child(pred); }
+        // ===== END: Wrappers for xml_node member functions
+
+        /**
+         * @brief get first node child that matches type
+         * @param type_ the pugi::xml_node_type to match
+         * @return a valid child matching the node type or an empty XMLNode
+         */
+        XMLNode first_child_of_type(pugi::xml_node_type type_ = pugi::node_element) const;
+
+        /**
+         * @brief get last node child that matches type
+         * @param type_ the pugi::xml_node_type to match
+         * @return a valid child matching the node type or an empty XMLNode
+         */
+        XMLNode last_child_of_type(pugi::xml_node_type type_ = pugi::node_element) const;
+
+        /**
+         * @brief count node children that match type
+         * @param type_ the pugi::xml_node_type to match
+         * @return the amount of node children matching type
+         */
+        size_t child_count_of_type(pugi::xml_node_type type_ = pugi::node_element) const;
+
+        /**
+         * @brief get next node sibling that matches type
+         * @param type_ the pugi::xml_node_type to match
+         * @return a valid sibling matching the node type or an empty XMLNode
+         */
+        XMLNode next_sibling_of_type(pugi::xml_node_type type_ = pugi::node_element) const;
+
+        /**
+         * @brief get previous node sibling that matches type
+         * @param type_ the pugi::xml_node_type to match
+         * @return a valid sibling matching the node type or an empty XMLNode
+         */
+        XMLNode previous_sibling_of_type(pugi::xml_node_type type_ = pugi::node_element) const;
+
+        /**
+         * @brief get next node sibling that matches name_ and type
+         * @param name_ the xml_node::name() to match
+         * @param type_ the pugi::xml_node_type to match
+         * @return a valid sibling matching the node type or an empty XMLNode
+         */
+        XMLNode next_sibling_of_type(const pugi::char_t* name_, pugi::xml_node_type type_ = pugi::node_element) const;
+
+        /**
+         * @brief get previous node sibling that matches name_ and type
+         * @param name_ the xml_node::name() to match
+         * @param type_ the pugi::xml_node_type to match
+         * @return a valid sibling matching the node type or an empty XMLNode
+         */
+        XMLNode previous_sibling_of_type(const pugi::char_t* name_, pugi::xml_node_type type_ = pugi::node_element) const;
+    };
+
+    // ===== Custom OpenXLSX_xml_document to override relevant pugi::xml_document member functions with OpenXLSX_xml_node return value
+    class OpenXLSX_xml_document : public pugi::xml_document {
+    public:
+        /**
+         * @brief Default constructor. Constructs a null object.
+         */
+        OpenXLSX_xml_document() : pugi::xml_document() {}
+
+        /**
+         * @brief Inherit all constructors with parameters from pugi::xml_document
+         */
+        template<class base>
+        // explicit OpenXLSX_xml_document(base b) : xml_document(b) // TBD
+        OpenXLSX_xml_document(base b) : pugi::xml_document(b)
+        {}
+
+        // ===== BEGIN: Wrappers for xml_document member functions to ensure OpenXLSX_xml_node return values
+        // ===== CAUTION: this section is incomplete, only implementing those functions actually used by OpenXLSX to date
+        /**
+         * @brief for all functions: invoke the base class function, but with a return type of OpenXLSX_xml_node
+         */
+        XMLNode document_element() const { return pugi::xml_document::document_element(); }
+        // ===== END: Wrappers for xml_document member functions
+    };
+
 }    // namespace OpenXLSX
 #endif    // OPENXLSX_XLXMLPARSER_HPP

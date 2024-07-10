@@ -52,6 +52,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== External Includes ===== //
 #include <any>
+#include <cstdint> // uint8_t
 #include <map>
 #include <string>
 
@@ -67,6 +68,8 @@ namespace OpenXLSX
         SetSheetIndex,
         SetSheetActive,
         ResetCalcChain,
+        CheckAndFixCoreProperties,
+        CheckAndFixExtendedProperties,
         AddSharedStrings,
         AddWorksheet,
         AddChartsheet,

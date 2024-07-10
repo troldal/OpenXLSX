@@ -14,8 +14,6 @@
 #ifndef SOURCE_PUGIXML_CPP
 #define SOURCE_PUGIXML_CPP
 
-#include <iostream>
-
 #include "pugixml.hpp"
 
 #include <stdlib.h>
@@ -5705,64 +5703,6 @@ namespace pugi
 		return xml_node();
 	}
 
-	/* BEGIN 2024-04-26 Lars Uffmann: added next_sibling_of_type, previous_sibling_of_type */
-	PUGI_IMPL_FN xml_node xml_node::next_sibling_of_type(xml_node_type t) const
-	{
-		if (_root) {
-			xml_node_struct* next = _root->next_sibling;
-			// while (next && (xml_node(next).type() != t)) next = next->next_sibling;
-			while (next && (PUGI_IMPL_NODETYPE(next) != t)) next = next->next_sibling; // faster than creating an xml_node object to access the .type() method?
-			if( next )
-				return xml_node(next);
-		}
-		return xml_node(); // if no node matching type t was found: return an empty node
-	}
-
-	PUGI_IMPL_FN xml_node xml_node::previous_sibling_of_type(xml_node_type t) const
-	{
-		// return prev->next_sibling ? xml_node(prev) : xml_node();
-		if (_root) {
-			xml_node_struct* prev = _root->prev_sibling_c;
-			// while (prev->next_sibling && (xml_node(prev).type() != t)) prev = prev->prev_sibling_c;
-			while (prev->next_sibling && (PUGI_IMPL_NODETYPE(prev) != t)) prev = prev->prev_sibling_c; // faster than creating an xml_node object to access the .type() method?
-
-			if( prev->next_sibling )
-				return xml_node(prev);
-		}
-		return xml_node(); // if no node matching type t was found: return an empty node
-	}
-
-	PUGI_IMPL_FN xml_node xml_node::next_sibling_of_type(const char_t* name_, xml_node_type t) const
-	{
-		if (_root) {
-			for (xml_node_struct* i = _root->next_sibling; i; i = i->next_sibling)
-			{
-				const char_t* iname = i->name;
-				// if (iname && impl::strequal(name_, iname) && (xml_node(i).type() == t))
-				if (iname && impl::strequal(name_, iname) && (PUGI_IMPL_NODETYPE(i) == t)) // faster than creating an xml_node object to access the .type() method?
-					return xml_node(i);
-			}
-		}
-
-		return xml_node(); // if no node matching type t was found: return an empty node
-	}
-
-	PUGI_IMPL_FN xml_node xml_node::previous_sibling_of_type(const char_t* name_, xml_node_type t) const
-	{
-		if (_root) {
-			for (xml_node_struct* i = _root->prev_sibling_c; i->next_sibling; i = i->prev_sibling_c)
-			{
-				const char_t* iname = i->name;
-				// if (iname && impl::strequal(name_, iname) && (xml_node(i).type() == t))
-				if (iname && impl::strequal(name_, iname) && (PUGI_IMPL_NODETYPE(i) == t)) // faster than creating an xml_node object to access the .type() method?
-					return xml_node(i);
-			}
-		}
-		return xml_node(); // if no node matching type t was found: return an empty node
-	}
-	/* END 2024-04-26 Lars Uffmann: added next_sibling_of_type, previous_sibling_of_type */
-
-
 	PUGI_IMPL_FN xml_attribute xml_node::attribute(const char_t* name_, xml_attribute& hint_) const
 	{
 		xml_attribute_struct* hint = hint_._attr;
@@ -5872,47 +5812,6 @@ namespace pugi
 		xml_node_struct* first = _root->first_child;
 		return first ? xml_node(first->prev_sibling_c) : xml_node();
 	}
-
-	/* BEGIN 2024-04-25 Lars Uffmann: added first_child_of_type, last_child_of_type */
-	PUGI_IMPL_FN xml_node xml_node::first_child_of_type(xml_node_type t) const
-	{
-		if (_root) {
-			auto x = first_child();
-			auto l = last_child();
-			while(x != l && x.type() != t) x = x.next_sibling();
-			if( x.type() == t )
-				return xml_node(x);
-		}
-		return xml_node(); // if no node matching type t was found: return an empty node
-	}
-
-	PUGI_IMPL_FN xml_node xml_node::last_child_of_type(xml_node_type t) const
-	{
-		if (_root) {
-			auto f = first_child();
-			auto x = last_child();
-			while (x != f && x.type() != t) x = x.previous_sibling();
-			if( x.type() == t )
-				return xml_node(x);
-		}
-		return xml_node(); // if no node matching type t was found: return an empty node
-	}
-	/* END 2024-04-25 Lars Uffmann: added first_child_of_type, last_child_of_type */
-
-	/* BEGIN 2024-04-28 Lars Uffmann: added child_count_of_type */
-	PUGI_IMPL_FN size_t xml_node::child_count_of_type(xml_node_type type) const
-	{
-		size_t counter = 0;
-		if (_root) {
-			auto c = first_child_of_type( type );
-			while( c ) {
-				++counter;
-				c = c.next_sibling_of_type( type );
-			}
-		}
-		return counter;
-	}
-	/* END 2024-04-28 Lars Uffmann: added child_count_of_type */
 
 	PUGI_IMPL_FN bool xml_node::set_name(const char_t* rhs)
 	{
@@ -7546,7 +7445,7 @@ namespace pugi
 	{
 		impl::xml_buffered_writer buffered_writer(writer, encoding);
 
-		if ((flags & format_write_bom) && encoding != encoding_latin1)
+		if ((flags & format_write_bom) && buffered_writer.encoding != encoding_latin1)
 		{
 			// BOM always represents the codepoint U+FEFF, so just write it in native encoding
 		#ifdef PUGIXML_WCHAR_MODE
@@ -7560,7 +7459,7 @@ namespace pugi
 		if (!(flags & format_no_declaration) && !impl::has_declaration(_root))
 		{
 			buffered_writer.write_string(PUGIXML_TEXT("<?xml version=\"1.0\""));
-			if (encoding == encoding_latin1) buffered_writer.write_string(PUGIXML_TEXT(" encoding=\"ISO-8859-1\""));
+			if (buffered_writer.encoding == encoding_latin1) buffered_writer.write_string(PUGIXML_TEXT(" encoding=\"ISO-8859-1\""));
 			buffered_writer.write('?', '>');
 			if (!(flags & format_raw)) buffered_writer.write('\n');
 		}

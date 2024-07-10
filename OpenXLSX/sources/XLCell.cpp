@@ -136,8 +136,6 @@ void XLCell::copyFrom(XLCell const& other)
     using namespace std::literals::string_literals;
     if (!m_cellNode) {
         // copyFrom invoked by empty XLCell: create a new cell with reference & m_cellNode from other
-        std::cout << "copyFrom invoked by empty XLCell - creating a new cell with reference " << other.cellReference().address()
-                  << std::endl;
         m_cellNode      = std::make_unique<XMLNode>(*other.m_cellNode);
         m_sharedStrings = other.m_sharedStrings;
         m_valueProxy    = XLCellValueProxy(this, m_cellNode.get());
@@ -148,12 +146,14 @@ void XLCell::copyFrom(XLCell const& other)
     if ((&other != this) && (*other.m_cellNode == *m_cellNode))    // nothing to do
         return;
 
+    // ===== If m_cellNode points to a different XML node than other
     if ((&other != this) && (*other.m_cellNode != *m_cellNode)) {
         m_cellNode->remove_children();
-        for (XMLNode child = other.m_cellNode->first_child(); !child.empty(); child = child.next_sibling()) m_cellNode->append_copy(child);
-        for (auto attr = m_cellNode->first_attribute(); !attr.empty(); attr = attr.next_attribute())
+        // ===== Copy all XML attributes that are not the cell reference ("r") and all XML child nodes
+        for (XMLNode child = other.m_cellNode->first_child(); not child.empty(); child = child.next_sibling()) m_cellNode->append_copy(child);
+        for (auto attr = m_cellNode->first_attribute(); not attr.empty(); attr = attr.next_attribute())
             if (strcmp(attr.name(), "r") != 0) m_cellNode->remove_attribute(attr);
-        for (auto attr = other.m_cellNode->first_attribute(); !attr.empty(); attr = attr.next_attribute())
+        for (auto attr = other.m_cellNode->first_attribute(); not attr.empty(); attr = attr.next_attribute())
             if (strcmp(attr.name(), "r") != 0) m_cellNode->append_copy(attr);
     }
 }
@@ -161,7 +161,7 @@ void XLCell::copyFrom(XLCell const& other)
 /**
  * @details
  */
-XLCell::operator bool() const { return m_cellNode && *m_cellNode; }
+XLCell::operator bool() const { return m_cellNode && (not m_cellNode->empty() ); } // ===== 2024-05-28: replaced explicit bool evaluation
 
 /**
  * @details This function returns a const reference to the cellReference property.
@@ -196,6 +196,16 @@ XLFormulaProxy& XLCell::formula() { return m_formulaProxy; }
  * @details
  */
 void XLCell::print(std::basic_ostream<char>& ostr) const { m_cellNode->print(ostr); }
+
+/**
+ * @details
+ */
+XLCellAssignable::XLCellAssignable (XLCell const & other) : XLCell(other) {}
+
+/**
+ * @details
+ */
+XLCellAssignable::XLCellAssignable (XLCell && other) : XLCell(std::move(other)) {}
 
 /**
  * @details

@@ -44,6 +44,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
  */
 
 // ===== External Includes ===== //
+#include <algorithm>
 #ifdef ENABLE_NOWIDE
 #    include <nowide/fstream.hpp>
 #endif
@@ -57,8 +58,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLDocument.hpp"
 #include "XLSheet.hpp"
 #include "utilities/XLUtilities.hpp"
-
-#include <algorithm>
 
 using namespace OpenXLSX;
 
@@ -431,7 +430,10 @@ XLDocument::XLDocument(const std::string& docPath, const IZipArchive& zipArchive
 /**
  * @details The destructor calls the closeDocument method before the object is destroyed.
  */
-XLDocument::~XLDocument() { close(); }
+XLDocument::~XLDocument()
+{
+    if (isOpen()) close();// 2024-05-31 prevent double-close if document has been manually closed before
+}
 
 /**
  * @details The openDocument method opens the .xlsx package in the following manner:
@@ -443,8 +445,7 @@ XLDocument::~XLDocument() { close(); }
 void XLDocument::open(const std::string& fileName)
 {
     // Check if a document is already open. If yes, close it.
-    // TODO: Consider throwing if a file is already open.
-    if (m_archive.isOpen()) close();
+    if (m_archive.isOpen()) close(); // TBD: consider throwing if a file is already open.
     m_filePath = fileName;
     m_archive.open(m_filePath);
 
@@ -476,56 +477,64 @@ void XLDocument::open(const std::string& fileName)
 
     // ===== Read shared strings table.
     XMLDocument* sharedStrings = getXmlData("xl/sharedStrings.xml")->getXmlDocument();
-    if (!sharedStrings->document_element().attribute("uniqueCount").empty())
+    if (not sharedStrings->document_element().attribute("uniqueCount").empty())
         sharedStrings->document_element().remove_attribute(
             "uniqueCount");    // pull request #192 -> remove count & uniqueCount as they are optional
-    if (!sharedStrings->document_element().attribute("count").empty())
+    if (not sharedStrings->document_element().attribute("count").empty())
         sharedStrings->document_element().remove_attribute(
-            "count");    // pull request #192 -> remove count & uniqueCount as they are optional
+            "count");          // pull request #192 -> remove count & uniqueCount as they are optional
 
     XMLNode node =
         sharedStrings->document_element().first_child_of_type(pugi::node_element);    // pull request #186: Skip non-element nodes in sst.
-    while (node) {
+    while (not node.empty()) {
         // ===== Validate si node name.
         using namespace std::literals::string_literals;
         if (node.name() != "si"s) throw XLInputError("xl/sharedStrings.xml sst node name \""s + node.name() + "\" is not \"si\""s);
 
         // ===== Find first node_element child of si node.
-        if (XMLNode elem = node.first_child_of_type(pugi::node_element)) {
-            // ===== If shared string is a rich text string
+        XMLNode elem = node.first_child_of_type(pugi::node_element);
+        if (not elem.empty()) {
+            // ===== Ignore phonetic property tags
             if (std::string(elem.name()) == "rPh" || std::string(elem.name()) == "phoneticPr") {}
+            // ===== If shared string is a rich text string
             else if (std::string(elem.name()) == "r") {
                 std::string result;
-                while (elem) {
+                while (not elem.empty()) {
                     result += elem.child("t").text().get();
                     elem = elem.next_sibling_of_type(pugi::node_element);
                 }
                 m_sharedStringCache.emplace_back(result);
             }
             // ===== If shared string is a regular string
-            else if (std::string(elem.name()) == "t") {    // 2024-05-03: support a string composed of multiple <t> nodes, because LibreOffice accepts it
+            else {    // 2024-05-03: support a string composed of multiple <t> nodes, because LibreOffice accepts it
                 std::string result;
-                while (elem) {
-                    // if (elem.name() != "t"s)
-                    //     throw XLInputError("xl/sharedStrings.xml si node \""s + node.name() + "\" is neiter \"r\" not \"t\""s);
+                while (not elem.empty()) {
+                    if (elem.name() != "t"s)
+                        throw XLInputError("xl/sharedStrings.xml si node \""s + node.name() + "\" is none of \"r\", \"t\", \"rPh\", \"phoneticPr\""s);
                     result += elem.text().get();
                     elem = elem.next_sibling_of_type(pugi::node_element);
                 }
                 m_sharedStringCache.emplace_back(result);
             }
-            else
-                throw XLInputError("xl/sharedStrings.xml si node \""s + node.name() + "\" is neiter \"r\" not \"t\""s);
-
         }
         node = node.next_sibling_of_type(pugi::node_element);
     }
 
     // ===== Open the workbook and document property items
-    // TODO: If property data doesn't exist, consider creating them, instead of ignoring it.
-    m_coreProperties = (hasXmlData("docProps/core.xml") ? XLProperties(getXmlData("docProps/core.xml")) : XLProperties());
-    m_appProperties  = (hasXmlData("docProps/app.xml") ? XLAppProperties(getXmlData("docProps/app.xml")) : XLAppProperties());
-    m_sharedStrings  = XLSharedStrings(getXmlData("xl/sharedStrings.xml"), &m_sharedStringCache);
     m_workbook       = XLWorkbook(getXmlData("xl/workbook.xml"));
+    // 2024-05-31: moved XLWorkbook object creation up in code worksheets info can be used for XLAppProperties generation from scratch
+
+    // ===== 2024-06-03: creating core and extended properties if they do not exist
+    execCommand(XLCommand(XLCommandType::CheckAndFixCoreProperties));      // checks & fixes consistency of docProps/core.xml related data
+    execCommand(XLCommand(XLCommandType::CheckAndFixExtendedProperties));  // checks & fixes consistency of docProps/app.xml related data
+
+    if (!hasXmlData("docProps/core.xml") || !hasXmlData("docProps/app.xml"))
+        throw XLInternalError("Failed to repair docProps (core.xml and/or app.xml)");
+
+    m_coreProperties = XLProperties(getXmlData("docProps/core.xml"));
+    m_appProperties  = XLAppProperties(getXmlData("docProps/app.xml"), m_workbook.xmlDocument());
+
+    m_sharedStrings  = XLSharedStrings(getXmlData("xl/sharedStrings.xml"), &m_sharedStringCache);
 }
 
 /**
@@ -553,7 +562,7 @@ void XLDocument::create(const std::string& fileName)
  */
 void XLDocument::close()
 {
-    if (m_archive) m_archive.close();
+    if (m_archive.isValid()) m_archive.close();
     m_filePath.clear();
     m_data.clear();
 
@@ -590,9 +599,15 @@ void XLDocument::saveAs(const std::string& fileName)
 
 /**
  * @details
- * @todo Currently, this method returns the full path, which is not the intention.
  */
-const std::string& XLDocument::name() const { return m_filePath; }
+const std::string XLDocument::name() const
+{
+    size_t pos = m_filePath.find_last_of('/');
+    if (pos != std::string::npos)
+        return m_filePath.substr(pos + 1);
+    else
+        return m_filePath;
+}
 
 /**
  * @details
@@ -679,7 +694,6 @@ bool getAppVersion(const std::string& versionString, int& majorVersion, int& min
 
     const size_t end = versionString.find_last_not_of(" \t");
     if (begin != std::string::npos && dotPos != std::string::npos) {
-        std::string       trimmedValue    = versionString.substr(begin, end + 1 - begin);
         const std::string strMajorVersion = versionString.substr(begin, dotPos - begin);
         const std::string strMinorVersion = versionString.substr(dotPos + 1, end - dotPos);
         try {
@@ -844,7 +858,7 @@ bool XLDocument::execCommand(const XLCommand& command)
 
         case XLCommandType::SetSheetIndex: {
             XLQuery    qry(XLQueryType::QuerySheetName);
-            const auto    sheetName = execQuery(qry.setParam("sheetID", command.getParam<std::string>("sheetID"))).result<std::string>();
+            const auto sheetName = execQuery(qry.setParam("sheetID", command.getParam<std::string>("sheetID"))).result<std::string>();
             m_workbook.setSheetIndex(sheetName, command.getParam<uint16_t>("sheetIndex"));
         } break;
 
@@ -858,6 +872,46 @@ bool XLDocument::execCommand(const XLCommand& command)
                 std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& theItem) { return theItem.getXmlPath() == "xl/calcChain.xml"; });
 
             if (item != m_data.end()) m_data.erase(item);
+        } break;
+        case XLCommandType::CheckAndFixCoreProperties: {    // does nothing if core properties are in good shape
+            // ===== If _rels/.rels has no entry for docProps/core.xml
+            if (!m_docRelationships.targetExists("docProps/core.xml"))
+                m_docRelationships.addRelationship(XLRelationshipType::CoreProperties, "docProps/core.xml");    // Fix m_docRelationships
+
+            // ===== If docProps/core.xml is missing
+            if (!m_archive.hasEntry("docProps/core.xml"))
+                m_archive.addEntry("docProps/core.xml", "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");    // create empty docProps/core.xml
+                // ===== XLProperties constructor will take care of adding template content
+
+            // ===== If [Content Types].xml has no relationship for docProps/core.xml
+            if (!hasXmlData("docProps/core.xml")) {
+                m_contentTypes.addOverride("/docProps/core.xml", XLContentType::CoreProperties);    // add content types entry
+                m_data.emplace_back(                                                                // store new entry in m_data
+                    /* parentDoc */ this,
+                    /* xmlPath   */ "docProps/core.xml",
+                    /* xmlID     */ m_docRelationships.relationshipByTarget("docProps/core.xml").id(),
+                    /* xmlType   */ XLContentType::CoreProperties);
+            }
+        } break;
+        case XLCommandType::CheckAndFixExtendedProperties: {    // does nothing if extended properties are in good shape
+            // ===== If _rels/.rels has no entry for docProps/app.xml
+            if (!m_docRelationships.targetExists("docProps/app.xml"))
+                m_docRelationships.addRelationship(XLRelationshipType::ExtendedProperties, "docProps/app.xml");    // Fix m_docRelationships
+
+            // ===== If docProps/app.xml is missing
+            if (!m_archive.hasEntry("docProps/app.xml"))
+                m_archive.addEntry("docProps/app.xml", "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");    // create empty docProps/app.xml
+                // ===== XLAppProperties constructor will take care of adding template content
+
+            // ===== If [Content Types].xml has no relationship for docProps/app.xml
+            if (!hasXmlData("docProps/app.xml")) {
+                m_contentTypes.addOverride("/docProps/app.xml", XLContentType::ExtendedProperties);    // add content types entry
+                m_data.emplace_back(                                                                   // store new entry in m_data
+                    /* parentDoc */ this,
+                    /* xmlPath   */ "docProps/app.xml",
+                    /* xmlID     */ m_docRelationships.relationshipByTarget("docProps/app.xml").id(),
+                    /* xmlType   */ XLContentType::ExtendedProperties);
+            }
         } break;
         case XLCommandType::AddSharedStrings: {
             const std::string sharedStrings {
@@ -1004,6 +1058,8 @@ XLQuery XLDocument::execQuery(const XLQuery& query) const
                 throw XLInternalError("Path does not exist in zip archive (" + query.getParam<std::string>("xmlPath") + ")");
             return XLQuery(query).setResult(&*result);
         }
+        default:
+            throw XLInternalError("XLDocument::execQuery: unknown query type " + std::to_string(static_cast<uint8_t>(query.type())));
     }
 
     return query;    // Needed in order to suppress compiler warning
@@ -1019,7 +1075,7 @@ XLQuery XLDocument::execQuery(const XLQuery& query) { return static_cast<const X
  */
 XLDocument::operator bool() const
 {
-    return !!m_archive;    // NOLINT
+    return m_archive.isValid();    // NOLINT
 }
 
 /**

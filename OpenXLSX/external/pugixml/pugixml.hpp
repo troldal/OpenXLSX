@@ -532,19 +532,6 @@ namespace pugi
         xml_node next_sibling() const;
         xml_node previous_sibling() const;
 
-        // 2024-04-25 Lars Uffmann: added first_child_of_type, last_child_of_type
-        xml_node first_child_of_type(xml_node_type t = node_element) const;
-        xml_node last_child_of_type(xml_node_type t = node_element) const;
-
-        // 2024-04-28 Lars Uffmann: added child_count_of_type
-        size_t child_count_of_type(xml_node_type type = node_element) const;
-
-        // 2024-04-26 Lars Uffmann: added next_sibling_of_type, previous_sibling_of_type
-        xml_node next_sibling_of_type(xml_node_type t = node_element) const;
-        xml_node previous_sibling_of_type(xml_node_type t = node_element) const;
-        xml_node next_sibling_of_type(const char_t* name_, xml_node_type t = node_element) const;
-        xml_node previous_sibling_of_type(const char_t* name_, xml_node_type t = node_element) const;
-
         // Get parent node
         xml_node parent() const;
 

@@ -9,6 +9,7 @@
 #include <pugixml.hpp>
 #include <string>   // 2024-04-25 needed for xml_node_type_string
 
+#include "XLConstants.hpp"    // 2024-05-28 OpenXLSX::MAX_ROWS
 #include "XLCellReference.hpp"
 #include "XLCellValue.hpp"    // OpenXLSX::XLValueType
 #include "XLContentTypes.hpp" // OpenXLSX::XLContentType
@@ -97,6 +98,10 @@ namespace OpenXLSX
      */
     inline XMLNode getRowNode(XMLNode sheetDataNode, uint32_t rowNumber)
     {
+        if( rowNumber > OpenXLSX::MAX_ROWS ) {    // 2024-05-28: added range check
+            using namespace std::literals::string_literals;
+            throw XLCellAddressError( "rowNumber "s + std::to_string( rowNumber ) + " is outside valid range" );
+        }
         // ===== Get the last child of sheetDataNode that is of type node_element.
         auto result = XMLNode();
         result = sheetDataNode.last_child_of_type(pugi::node_element);
@@ -111,7 +116,7 @@ namespace OpenXLSX
 
         // ===== If the requested node is closest to the end, start from the end and search backwards.
         else if (result.attribute("r").as_ullong() - rowNumber < rowNumber) {
-            while (!result.empty() && (result.attribute("r").as_ullong() > rowNumber)) result = result.previous_sibling_of_type(pugi::node_element);
+            while (not result.empty() && (result.attribute("r").as_ullong() > rowNumber)) result = result.previous_sibling_of_type(pugi::node_element);
             // ===== If the backwards search failed to locate the requested row
             if (result.empty() || (result.attribute("r").as_ullong() != rowNumber)) {
                 if (result.empty())
@@ -155,6 +160,8 @@ namespace OpenXLSX
     inline XMLNode getCellNode(XMLNode rowNode, uint16_t columnNumber, uint32_t rowNumber = 0 )
     {
         auto cellNode = XMLNode();
+        if( rowNode.empty() ) return cellNode;    // 2024-05-28: return an empty node in case of empty rowNode
+
         cellNode = rowNode.last_child_of_type(pugi::node_element);
         if( !rowNumber ) rowNumber = rowNode.attribute("r").as_uint(); // if not provided, determine from rowNode
         auto cellRef  = XLCellReference(rowNumber, columnNumber);
@@ -167,7 +174,8 @@ namespace OpenXLSX
         }
         // ===== If the requested node is closest to the end, start from the end and search backwards...
         else if (XLCellReference(cellNode.attribute("r").value()).column() - columnNumber < columnNumber) {
-            while (!cellNode.empty() && (XLCellReference(cellNode.attribute("r").value()).column() > columnNumber)) cellNode = cellNode.previous_sibling_of_type(pugi::node_element);
+            while (not cellNode.empty() && (XLCellReference(cellNode.attribute("r").value()).column() > columnNumber))
+                cellNode = cellNode.previous_sibling_of_type(pugi::node_element);
             // ===== If the backwards search failed to locate the requested cell
             if (cellNode.empty() || (XLCellReference(cellNode.attribute("r").value()).column() < columnNumber)) {
                 if (cellNode.empty()) // If between row begin and higher column number, only non-element nodes exist
@@ -183,7 +191,8 @@ namespace OpenXLSX
             cellNode = rowNode.first_child_of_type(pugi::node_element);
 
             // ===== It has been verified above that the requested columnNumber is <= the column number of the last node_element, therefore this loop will halt:
-            while (XLCellReference(cellNode.attribute("r").value()).column() < columnNumber) cellNode = cellNode.next_sibling_of_type(pugi::node_element);
+            while (XLCellReference(cellNode.attribute("r").value()).column() < columnNumber)
+                cellNode = cellNode.next_sibling_of_type(pugi::node_element);
             // ===== If the forwards search failed to locate the requested cell
             if (XLCellReference(cellNode.attribute("r").value()).column() > columnNumber) {
                 cellNode = rowNode.insert_child_before("c", cellNode);

@@ -50,16 +50,12 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #    include <charconv>
 #endif
 #include <cstdint>    // pull requests #216, #232
+#include <locale>     // std::isdigit
 
 // ===== OpenXLSX Includes ===== //
 #include "XLCellReference.hpp"
 #include "XLConstants.hpp"
 #include "XLException.hpp"
-
-#include <algorithm>
-#include <cstring>
-#include <iostream>
-#include <unordered_map>
 
 using namespace OpenXLSX;
 
@@ -81,13 +77,13 @@ namespace
  */
 XLCellReference::XLCellReference(const std::string& cellAddress)
 {
-    if (!cellAddress.empty()) setAddress(cellAddress);
-    if (cellAddress.empty() || !addressIsValid(m_row, m_column)) {    // 2024-04-25: throw exception on empty string
+    if (not cellAddress.empty()) setAddress(cellAddress);
+    if (cellAddress.empty() || not addressIsValid(m_row, m_column)) {    // 2024-04-25: throw exception on empty string
         throw XLCellAddressError("Cell reference is invalid");
-        // TODO below: possibly deprecated (if exception remains)
-        m_row         = 1;
-        m_column      = 1;
-        m_cellAddress = "A1";
+        // ===== 2024-05-27: below code is obsolete due to exception on invalid cellAddress
+        // m_row         = 1;
+        // m_column      = 1;
+        // m_cellAddress = "A1";
     }
 }
 
@@ -182,7 +178,7 @@ XLCellReference& XLCellReference::operator--()
     else if (m_column == 1 && m_row == 1) {
         m_column      = MAX_COLS;
         m_row         = MAX_ROWS;
-        m_cellAddress = "XFD1048576";
+        m_cellAddress = "XFD1048576";    // this address represents the very last cell that an excel spreadsheet can reference / support
     }
     return *this;
 }
@@ -268,7 +264,7 @@ std::string XLCellReference::rowAsString(uint32_t row)
 {
 #ifdef CHARCONV_ENABLED
     std::array<char, 7> str {};    // NOLINT
-    const auto*               p = std::to_chars(str.data(), str.data() + str.size(), row).ptr;
+    const auto*         p = std::to_chars(str.data(), str.data() + str.size(), row).ptr;
     return std::string { str.data(), static_cast<uint16_t>(p - str.data()) };
 #else
     std::string result;
@@ -292,10 +288,10 @@ uint32_t XLCellReference::rowAsNumber(const std::string& row)
 #ifdef CHARCONV_ENABLED
     uint32_t value = 0;
     std::from_chars(row.data(), row.data() + row.size(), value);    // NOLINT
-#else
-    uint32_t value = stoul(row);
-#endif
     return value;
+#else
+    return stoul(row);
+#endif
 }
 
 /**
@@ -314,11 +310,11 @@ std::string XLCellReference::columnAsString(uint16_t column)
         result += static_cast<char>((column - (alphabetSize + 1)) % alphabetSize + asciiOffset + 1);
     }
 
-    // ===== If there is three letters in the Column Name:
+    // ===== If there are three letters in the Column Name:
     else {
-        result += char((column - 703) / (alphabetSize * alphabetSize) + asciiOffset + 1);    // NOLINT
-        result += char(((column - 703) / alphabetSize) % alphabetSize + asciiOffset + 1);    // NOLINT
-        result += char((column - 703) % alphabetSize + asciiOffset + 1);                     // NOLINT
+        result += static_cast<char>((column - 703) / (alphabetSize * alphabetSize) + asciiOffset + 1);    // NOLINT
+        result += static_cast<char>(((column - 703) / alphabetSize) % alphabetSize + asciiOffset + 1);    // NOLINT
+        result += static_cast<char>((column - 703) % alphabetSize + asciiOffset + 1);                     // NOLINT
     }
 
     return result;
@@ -326,48 +322,74 @@ std::string XLCellReference::columnAsString(uint16_t column)
 
 /**
  * @details Helper method to calculate the column number from column letter.
+ * @throws XLInputError
+ * @note 2024-06-03: added check for valid address
  */
 uint16_t XLCellReference::columnAsNumber(const std::string& column)
 {
-    // uint16_t result = 0;
-    //
-    // for (int16_t i = static_cast<int16_t>(column.size() - 1), j = 0; i >= 0; --i, ++j) {    // NOLINT
-    //     result += static_cast<uint16_t>((column[static_cast<uint64_t>(i)] - asciiOffset) * std::pow(alphabetSize, j));
-    // }
-    //
-    // return result;
-    uint16_t result = 0;
-    uint16_t factor = 1;
-
-    for (int16_t i = static_cast<int16_t>(column.size() - 1); i >= 0; --i) {
-        result += static_cast<uint16_t>((column[static_cast<uint64_t>(i)] - asciiOffset) * factor);
-        factor *= alphabetSize;
+    uint64_t letterCount = 0;
+    uint32_t colNo = 0;
+    for (const auto letter : column) {
+        if (letter >= 'A' && letter <= 'Z') {    // allow only uppercase letters
+            ++letterCount;
+            colNo = colNo * 26 + (letter - 'A' + 1);
+        }
+        else
+            break;
     }
 
-    return result;
+    // ===== If the full string was decoded and colNo is within allowed range [1;MAX_COLS]
+    if(letterCount == column.length() && colNo > 0 && colNo <= MAX_COLS)
+        return colNo;
+    throw XLInputError("XLCellReference::columnAsNumber - column \"" + column + "\" is invalid");
+
+    /* 2024-06-19 OBSOLETE CODE:
+    // uint16_t result = 0;
+    // uint16_t factor = 1;
+    // 
+    // for (int16_t i = static_cast<int16_t>(column.size() - 1); i >= 0; --i) {
+    //     result += static_cast<uint16_t>((column[static_cast<uint64_t>(i)] - asciiOffset) * factor);
+    //     factor *= alphabetSize;
+    // }
+    // 
+    // return result;
+    */
 }
 
 /**
  * @details Helper method for calculating the coordinates from the cell address.
- * @todo Consider checking if the given address is valid.
+ * @throws XLInputError
+ * @note 2024-06-03: added check for valid address
  */
 XLCoordinates XLCellReference::coordinatesFromAddress(const std::string& address)
 {
-    // uint64_t letterCount = 0;
-    // for (const auto letter : address) {
-    //     if (letter >= 65)    // NOLINT
-    //         ++letterCount;
-    //     else if (letter <= 57)    // NOLINT
-    //         break;
-    // }
-    //
-    // const auto numberCount = address.size() - letterCount;
-    //
-    // return std::make_pair(rowAsNumber(address.substr(letterCount, numberCount)), columnAsNumber(address.substr(0, letterCount)));
+    uint64_t letterCount = 0;
+    uint32_t colNo = 0;
+    for (const auto letter : address) {
+        if (letter >= 'A' && letter <= 'Z') {    // allow only uppercase letters
+            ++letterCount;
+            colNo = colNo * 26 + (letter - 'A' + 1);
+        }
+        else
+            break;
+    }
 
-    auto it = std::find_if(address.begin(), address.end(), ::isdigit);
-    auto columnPart = std::string(address.begin(), it);
-    auto rowPart = std::string(it, address.end());
+    // ===== If address contains between 1 and 3 letters and has at least 1 more character for the row
+    if(colNo > 0 && colNo <= MAX_COLS && address.length() > letterCount) {
+        size_t pos = letterCount;
+        uint64_t rowNo = 0;
+        for (; pos < address.length() && std::isdigit(address[pos]); ++pos) // check digits
+            rowNo = rowNo * 10 + (address[pos] - '0');
+        if (pos == address.length() && rowNo <= MAX_ROWS)    // full address was < 4 letters + only digits
+            return std::make_pair(rowNo, colNo);
+    }
+    throw XLInputError("XLCellReference::coordinatesFromAddress - address \"" + address + "\" is invalid");
 
-    return std::make_pair(rowAsNumber(rowPart), columnAsNumber(columnPart));
+    /* 2024-06-19 OBSOLETE CODE
+    // auto it = std::find_if(address.begin(), address.end(), ::isdigit);
+    // auto columnPart = std::string(address.begin(), it);
+    // auto rowPart = std::string(it, address.end());
+    // 
+    // return std::make_pair(rowAsNumber(rowPart), columnAsNumber(columnPart));
+    */
 }

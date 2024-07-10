@@ -50,6 +50,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #pragma warning(disable : 4251)
 #pragma warning(disable : 4275)
 
+#include <iostream> // std::ostream
+#include <ostream>  // std::basic_ostream
 #include <memory>
 
 // ===== OpenXLSX Includes ===== //
@@ -217,11 +219,25 @@ namespace OpenXLSX
         XLCellAssignable() : XLCell() {}
 
         /**
-         * @brief Inherit all constructors with parameters from XLCell
+         * @brief Copy constructor. Constructs an assignable XLCell from an existing cell
+         * @param other the cell to construct from
          */
-        template<class base>
-        explicit XLCellAssignable(base b) : XLCell(b)
-        {}
+        XLCellAssignable (XLCell const & other);
+
+        /**
+         * @brief Move constructor. Constructs an assignable XLCell from a temporary (r)value
+         * @param other the cell to construct from
+         */
+        XLCellAssignable (XLCell && other);
+
+        // /**
+        //  * @brief Inherit all constructors with parameters from XLCell
+        //  */
+        // template<class base>
+        // // explicit XLCellAssignable(base b) : XLCell(b)
+        // // NOTE: BUG: explicit keyword triggers tons of compiler errors when << operator attempts to use an XLCell (implicit conversion works because << is overloaded for XLCellAssignable)
+        // XLCellAssignable(base b) : XLCell(b)
+        // {}
 
         /**
          * @brief Copy assignment operator
@@ -263,7 +279,20 @@ namespace OpenXLSX
     inline bool operator!=(const XLCell& lhs, const XLCell& rhs) { return !XLCell::isEqual(lhs, rhs); }
 
     /**
-     * @brief
+     * @brief      ostream output of XLCell content as string
+     * @param os   the ostream destination
+     * @param c    the cell to output to the stream
+     * @return
+     */
+    inline std::ostream& operator<<(std::ostream& os, const XLCell& c)
+    {
+        os << c.getString();
+        // TODO: send to stream different data types based on cell data type
+        return os;
+    }
+
+    /**
+     * @brief      ostream output of XLCellAssignable content as string
      * @param os   the ostream destination
      * @param c    the cell to output to the stream
      * @return

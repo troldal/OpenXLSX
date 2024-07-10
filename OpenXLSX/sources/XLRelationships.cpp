@@ -44,7 +44,12 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
  */
 
 // ===== External Includes ===== //
+#include <cstdint>      // uint32_t
+#include <memory>       // std::make_unique
 #include <pugixml.hpp>
+#include <stdexcept>    // std::invalid_argument
+#include <string>       // std::stoi, std::literals::string_literals
+#include <vector>       // std::vector
 
 // ===== OpenXLSX Includes ===== //
 #include "XLDocument.hpp"
@@ -108,6 +113,10 @@ namespace
         return type;
     }
 
+} //    namespace
+
+namespace OpenXLSX_XLRelationships {    // make GetStringFromType accessible throughout the project (for use by XLAppProperties)
+    using namespace OpenXLSX;
     std::string GetStringFromType(XLRelationshipType type)
     {
         std::string typeString;
@@ -159,19 +168,21 @@ namespace
 
         return typeString;
     }
+} //    namespace OpenXLSX_XLRelationships
 
+namespace { //    re-open anonymous namespace
     uint32_t GetNewRelsID(XMLNode relationshipsNode)
     {
         using namespace std::literals::string_literals;
         // ===== workaround for pugi::xml_node currently not having an iterator for node_element only
         XMLNode  relationship = relationshipsNode.first_child_of_type(pugi::node_element);
         uint32_t newId        = 1;    // default
-        while (!relationship.empty()) {
+        while (not relationship.empty()) {
             uint32_t id;
             try {
                 id = std::stoi(std::string(relationship.attribute("Id").value()).substr(3));
             }
-            catch (std::invalid_argument e) {    // expected stoi exception
+            catch (std::invalid_argument const & e) {    // expected stoi exception
                 throw XLInputError("GetNewRelsID could not convert attribute Id to uint32_t ("s + e.what() + ")"s);
             }
             catch (...) {    // catch all other errors during conversion of attribute to uint32_t
@@ -181,18 +192,6 @@ namespace
             relationship = relationship.next_sibling_of_type(pugi::node_element);
         }
         return newId;
-        // ===== if a node_element iterator can be implemented for pugi::xml_node, the below code can be used again
-        // return static_cast<uint32_t>(stoi(std::string(std::max_element(relationshipsNode.children().begin(),
-        //                                                                relationshipsNode.children().end(),
-        //                                                                [](XMLNode a, XMLNode b) {
-        //                                                                    return stoi(std::string(a.attribute("Id").value()).substr(3))
-        //                                                                    <
-        //                                                                           stoi(std::string(b.attribute("Id").value()).substr(3));
-        //                                                                })
-        //                                                   ->attribute("Id")
-        //                                                   .value())
-        //                                       .substr(3)) +
-        //                              1);
     }
 }    // namespace
 
@@ -254,14 +253,14 @@ XLRelationshipItem XLRelationships::relationshipByTarget(const std::string& targ
 }
 
 /**
- * @details Returns a const reference to the internal datastructure (std::map)
+ * @details Returns a const reference to the internal datastructure (std::vector)
  */
 std::vector<XLRelationshipItem> XLRelationships::relationships() const
 {
     // ===== workaround for pugi::xml_node currently not having an iterator for node_element only
     auto    result = std::vector<XLRelationshipItem>();
     XMLNode item   = xmlDocument().document_element().first_child_of_type(pugi::node_element);
-    while (!item.empty()) {
+    while (not item.empty()) {
         result.emplace_back(XLRelationshipItem(item));
         item = item.next_sibling_of_type(pugi::node_element);
     }
@@ -284,13 +283,13 @@ void XLRelationships::deleteRelationship(const XLRelationshipItem& item) { delet
  */
 XLRelationshipItem XLRelationships::addRelationship(XLRelationshipType type, const std::string& target)
 {
-    const std::string typeString = GetStringFromType(type);
+    const std::string typeString = OpenXLSX_XLRelationships::GetStringFromType(type);
     const std::string id         = "rId" + std::to_string(GetNewRelsID(xmlDocument().document_element()));
 
     // Create new node in the .rels file
-    XMLNode node = xmlDocument().document_element().last_child_of_type(
-        pugi::node_element);    // pretty formatting: insert new node before whitespaces following last element node
-    if (node)
+    XMLNode node = xmlDocument().document_element().last_child_of_type(pugi::node_element); // pretty formatting: insert new node before
+                                                                                            // whitespaces following last element node
+    if (not node.empty())
         node = xmlDocument().document_element().insert_child_after("Relationship", node);
     else
         node = xmlDocument().document_element().append_child("Relationship");

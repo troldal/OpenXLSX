@@ -60,10 +60,13 @@ namespace OpenXLSX
      * @details Constructor.
      * @pre The given range and location are both valid.
      * @post
+     * @note 2024-05-28: added support for constructing with an empty m_cellNode from an empty rowDataRange which will allow obtaining
+     *       an XLIteratorLocation::End for such a range so that iterations can fail in a controlled manner
      */
     XLRowDataIterator::XLRowDataIterator(const XLRowDataRange& rowDataRange, XLIteratorLocation loc)
         : m_dataRange(std::make_unique<XLRowDataRange>(rowDataRange)),
-          m_cellNode(std::make_unique<XMLNode>(getCellNode(*m_dataRange->m_rowNode, m_dataRange->m_firstCol))),
+          m_cellNode(std::make_unique<XMLNode>(
+              getCellNode((m_dataRange->size() ? *m_dataRange->m_rowNode : XMLNode {}), m_dataRange->m_firstCol))),
           m_currentCell(loc == XLIteratorLocation::End ? XLCell() : XLCell(*m_cellNode, m_dataRange->m_sharedStrings))
     {}
 
@@ -129,15 +132,10 @@ namespace OpenXLSX
         // ===== m_currentCell is set to an empty XLCell, indicating the end of the range has been reached.
         if (cellNumber > m_dataRange->m_lastCol) m_currentCell = XLCell();
 
-        // ====== If the cellNode is null (i.e. no more children in the current row node) or the column number of the cell node
+        // ====== If the cellNode is empty (i.e. no more children in the current row node) or the column number of the cell node
         // ====== is higher than the computed column number, then insert the node.
-        // TODO: When checking for > cellNumber rather than != cellNumber, m_cellNode->empty() fails. Why?
-        // TODO: Apparently only fails when assigning containers with POD values, rather XLCellValues.
-        // else if (m_cellNode->empty() || XLCellReference(cellNode.attribute("r").value()).column() > cellNumber) {
-
         // BUG BUGFIX 2024-04-26: check was for m_cellNode->empty(), allowing an invalid test for the attribute r, discovered
         //       because the modified XLCellReference throws an exception on invalid parameter
-        //  this BUGFIX should explain the TODO above
         else if (cellNode.empty() || XLCellReference(cellNode.attribute("r").value()).column() > cellNumber) {
             cellNode = m_dataRange->m_rowNode->insert_child_after("c", *m_currentCell.m_cellNode);
             cellNode.append_attribute("r").set_value(
@@ -190,8 +188,10 @@ namespace OpenXLSX
      */
     bool XLRowDataIterator::operator==(const XLRowDataIterator& rhs) const
     {
-        if (m_currentCell && !rhs.m_currentCell) return false;
-        if (!m_currentCell && !rhs.m_currentCell) return true;
+        // 2024-05-28 BUGFIX: (!m_currentCell && rhs.m_currentCell) was not evaluated, triggering a segmentation fault on dereferencing
+        if (static_cast<bool>(m_currentCell) != static_cast<bool>(rhs.m_currentCell)) return false;
+        // ===== If execution gets here, current cells are BOTH valid or BOTH invalid / empty
+        if (not m_currentCell) return true;    // checking one for being empty is enough to know both are empty
         return m_currentCell == rhs.m_currentCell;
     }
 
@@ -231,7 +231,7 @@ namespace OpenXLSX
      * exception.
      */
     XLRowDataRange::XLRowDataRange()
-        : m_rowNode(),
+        : m_rowNode(nullptr),
           m_firstCol(1),    // first col of 1
           m_lastCol(0),     // and last col of 0 will ensure that size returns 0
           m_sharedStrings()
@@ -245,7 +245,7 @@ namespace OpenXLSX
      * @post
      */
     XLRowDataRange::XLRowDataRange(const XLRowDataRange& other)
-        : m_rowNode(std::make_unique<XMLNode>(*other.m_rowNode)),
+        : m_rowNode((other.m_rowNode != nullptr) ? std::make_unique<XMLNode>(*other.m_rowNode) : nullptr),    // 2024-05-28: support for copy-construction from an empty XLDataRange
           m_firstCol(other.m_firstCol),
           m_lastCol(other.m_lastCol),
           m_sharedStrings(other.m_sharedStrings)
@@ -299,8 +299,9 @@ namespace OpenXLSX
      * @details Get an iterator to the first cell in the range.
      * @pre
      * @post
+     * @note 2024-05-28: enhanced ::begin() to return an end iterator for an empty range
      */
-    XLRowDataIterator XLRowDataRange::begin() { return XLRowDataIterator { *this, XLIteratorLocation::Begin }; }
+    XLRowDataIterator XLRowDataRange::begin() { return XLRowDataIterator { *this, (size() > 0 ? XLIteratorLocation::Begin : XLIteratorLocation::End) }; }
 
     /**
      * @details Get an iterator to (one past) the last cell in the range.
@@ -457,7 +458,7 @@ namespace OpenXLSX
         if (numCells > 0) {
             XMLNode node = lastElementChild;    // avoid unneeded call to first_child_of_type by iterating backwards, vector is random
                                                 // access so it doesn't matter
-            while (!node.empty()) {
+            while (not node.empty()) {
                 result[XLCellReference(node.attribute("r").value()).column() - 1] = XLCell(node, m_row->m_sharedStrings).value();
                 node                                                              = node.previous_sibling_of_type(pugi::node_element);
             }
@@ -486,7 +487,7 @@ namespace OpenXLSX
         // ===== Mark cell nodes for deletion
         std::vector<XMLNode> toBeDeleted;
         XMLNode              cellNode = m_rowNode->first_child_of_type(pugi::node_element);
-        while (!cellNode.empty()) {
+        while (not cellNode.empty()) {
             if (XLCellReference(cellNode.attribute("r").value()).column() <= count) {
                 toBeDeleted.emplace_back(cellNode);
                 XMLNode nextNode = cellNode.next_sibling();    // get next "regular" sibling (any type) before advancing cellNode
@@ -515,11 +516,14 @@ namespace OpenXLSX
      */
     void XLRowDataProxy::prependCellValue(const XLCellValue& value, uint16_t col)    // NOLINT   // 2024-04-30: whitespace support
     {
-        // XMLNode first_child = m_rowNode->first_child_of_type(pugi::node_element); // pretty formatting by inserting before an existing
-        // first child XMLNode curNode{}; if (first_child.empty())
+        // ===== (disabled) Pretty formatting by inserting before an existing first child
+        // XMLNode first_child = m_rowNode->first_child_of_type(pugi::node_element);
+        // XMLNode curNode{};
+        // if (first_child.empty())
         //     curNode = m_rowNode->prepend_child("c");
         // else
         //     curNode = m_rowNode->insert_child_before("c", first_child);
+
         auto curNode = m_rowNode->prepend_child("c");    // this will correctly insert a new cell directly at the beginning of the row
         curNode.append_attribute("r").set_value(XLCellReference(static_cast<uint32_t>(m_row->rowNumber()), col).address().c_str());
         XLCell(curNode, m_row->m_sharedStrings).value() = value;
