@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing" xmlns:x14="http://schemas.microsoft.com/office/spreadsheetml/2009/9/main" xmlns:xr2="http://schemas.microsoft.com/office/spreadsheetml/2015/revision2" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006">
+	<sheetPr filterMode="false">
+		<pageSetUpPr fitToPage="false"/>
+	</sheetPr>
+	<dimension ref="A1"/>
+	<sheetViews>
+		<sheetView showFormulas="false" showGridLines="true" showRowColHeaders="true" showZeros="true" rightToLeft="false" tabSelected="false" showOutlineSymbols="true" defaultGridColor="true" view="normal" topLeftCell="A1" colorId="64" zoomScale="100" zoomScaleNormal="100" zoomScalePageLayoutView="100" workbookViewId="0">
+			<selection pane="topLeft" activeCell="A1" activeCellId="0" sqref="A1"/>
+		</sheetView>
+	</sheetViews>
+	<sheetFormatPr defaultColWidth="10.4921875" defaultRowHeight="15.75" zeroHeight="false" outlineLevelRow="0" outlineLevelCol="0"/>
+	<sheetData/>
+	<printOptions headings="false" gridLines="false" gridLinesSet="true" horizontalCentered="false" verticalCentered="false"/>
+	<pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.511811023622047" footer="0.511811023622047"/>
+	<pageSetup paperSize="1" scale="100" fitToWidth="1" fitToHeight="1" pageOrder="downThenOver" orientation="portrait" blackAndWhite="false" draft="false" cellComments="none" horizontalDpi="300" verticalDpi="300" copies="1"/>
+	<headerFooter differentFirst="false" differentOddEven="false">
+		<oddHeader/>
+		<oddFooter/>
+	</headerFooter>
+</worksheet>

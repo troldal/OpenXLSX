@@ -61,6 +61,34 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 namespace OpenXLSX
 {
+    constexpr const bool XLXmlStandalone = true;
+    constexpr const bool XLXmlNotStandalone = false;
+    /**
+     * @brief The XLXmlSavingDeclaration class encapsulates the properties of an XML saving declaration,
+     * that can be used in calls to XLXmlData::getRawData to enforce specific settings
+     */
+    class OPENXLSX_EXPORT XLXmlSavingDeclaration {
+    public:
+        // ===== PUBLIC MEMBER FUNCTIONS ===== //
+        XLXmlSavingDeclaration() : m_version("1.0"), m_encoding("UTF-8"), m_standalone(XLXmlNotStandalone) {}
+        XLXmlSavingDeclaration(std::string version, std::string encoding, bool standalone = XLXmlNotStandalone)
+            : m_version(version), m_encoding(encoding), m_standalone(standalone) {}
+        ~XLXmlSavingDeclaration() {}
+
+        /**
+         * @brief: getter functions: version, encoding, standalone
+         */
+        std::string const & version() const { return m_version; }
+        std::string const & encoding() const { return m_encoding; }
+        bool standalone_as_bool() const { return m_standalone; }
+        std::string const standalone() const { return m_standalone ? "yes" : "no"; }
+    private:
+        // ===== PRIVATE MEMBER VARIABLES ===== //
+        std::string m_version;
+        std::string m_encoding;
+        bool        m_standalone;
+    };
+
     /**
      * @brief The XLXmlData class encapsulates the properties and behaviour of the .xml files in an .xlsx file zip
      * package. Objects of the XLXmlData type are intended to be stored centrally in an XLDocument object, from where
@@ -139,9 +167,10 @@ namespace OpenXLSX
          * @brief Get the raw data for the underlying XML document. This function will retrieve the raw XML text data
          * from the underlying XMLDocument object. This will mainly be used when saving data to the .xlsx package
          * using the save function in the XLDocument class.
+         * @param savingDeclaration @optional specify an XML saving declaration to use
          * @return A std::string with the raw XML text data.
          */
-        std::string getRawData() const;
+        std::string getRawData(XLXmlSavingDeclaration savingDeclaration = XLXmlSavingDeclaration{}) const;
 
         /**
          * @brief Access the parent XLDocument object.

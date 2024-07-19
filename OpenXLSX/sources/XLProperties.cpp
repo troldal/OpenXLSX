@@ -57,7 +57,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 using namespace OpenXLSX;
 
-namespace
+namespace    // anonymous namespace for module local functions
 {
     XMLNode headingPairsNode(XMLNode docNode) { return docNode.child("HeadingPairs").first_child_of_type(pugi::node_element); }
 
@@ -66,6 +66,8 @@ namespace
         return docNode.child("HeadingPairs").first_child_of_type(pugi::node_element).attribute("size");
     }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
     std::vector<std::string> headingPairsCategoriesStrings(XMLNode docNode)
     {
         // 2024-05-28 DONE: tested this code with two pairs in headingPairsNode
@@ -79,11 +81,12 @@ namespace
         return result; // 2024-05-28: std::move should not be used when the operand of a return statement is the name of a local variable
                        // as this can prevent named return value optimization (NRVO, copy elision)
     }
+#pragma GCC diagnostic pop
 
     XMLNode sheetNames(XMLNode docNode) { return docNode.child("TitlesOfParts").first_child_of_type(pugi::node_element); }
 
     XMLAttribute sheetCount(XMLNode docNode) { return sheetNames(docNode).attribute("size"); }
-}    // namespace
+}    // anonymous namespace
 
 /**
  * @details
@@ -93,8 +96,6 @@ void XLProperties::createFromTemplate()
     // std::cout << "XLProperties created with empty docProps/core.xml, creating from scratch!" << std::endl;
     if( m_xmlData == nullptr )
         throw XLInternalError("XLProperties m_xmlData is nullptr");
-
-    // NOTE: there is no functionality in pugixml to include the standalone="yes" attribute in the <xml> element node
 
     // ===== OpenXLSX_XLRelationships::GetStringFromType yields almost the string needed here, with added /relationships
     //       TBD: use hardcoded string?
@@ -216,8 +217,6 @@ void XLAppProperties::createFromTemplate(XMLDocument const & workbookXml)
         if (key != ++worksheetCount)
            throw XLInputError( "xl/workbook.xml is missing sheet with sheetId=\"" + std::to_string(worksheetCount) + "\"" );
     }
-
-    // NOTE: there is no functionality in pugixml to include the standalone="yes" attribute in the <xml> element node
 
     // ===== OpenXLSX_XLRelationships::GetStringFromType yields almost the string needed here, with added /relationships
     //       TBD: use hardcoded string?

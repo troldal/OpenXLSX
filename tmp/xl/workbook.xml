@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+	<fileVersion appName="Calc"/>
+	<workbookPr backupFile="false" showObjects="all" date1904="false"/>
+	<workbookProtection/>
+	<bookViews>
+		<workbookView showHorizontalScroll="true" showVerticalScroll="true" showSheetTabs="true" xWindow="0" yWindow="0" windowWidth="16384" windowHeight="8192" tabRatio="500" firstSheet="0" activeTab="2"/>
+	</bookViews>
+	<sheets>
+		<sheet name="General" sheetId="1" state="visible" r:id="rId3"/>
+		<sheet name="ChangeLog" sheetId="2" state="visible" r:id="rId4"/>
+		<sheet name="Containers" sheetId="3" state="visible" r:id="rId5"/>
+		<sheet name="Parameters" sheetId="4" state="visible" r:id="rId6"/>
+		<sheet name="DataTypes" sheetId="5" state="visible" r:id="rId7"/>
+		<sheet name="Calibration" sheetId="6" state="visible" r:id="rId8"/>
+		<sheet name="DerivedParameters" sheetId="7" state="visible" r:id="rId9"/>
+		<sheet name="Commands" sheetId="8" state="visible" r:id="rId10"/>
+		<sheet name="CommandOptions" sheetId="9" state="visible" r:id="rId11"/>
+		<sheet name="LocalParameters" sheetId="10" state="visible" r:id="rId12"/>
+		<sheet name="CommandVerification" sheetId="11" state="visible" r:id="rId13"/>
+		<sheet name="Alarms" sheetId="12" state="visible" r:id="rId14"/>
+		<sheet name="Algorithms" sheetId="13" state="visible" r:id="rId15"/>
+	</sheets>
+	<calcPr iterateCount="100" refMode="A1" iterate="false" iterateDelta="0.0001"/>
+	<extLst>
+		<ext xmlns:loext="http://schemas.libreoffice.org/" uri="{7626C862-2A13-11E5-B345-FEFF819CDC9F}">
+			<loext:extCalcPr stringRefSyntax="ExcelA1"/>
+		</ext>
+	</extLst>
+</workbook>

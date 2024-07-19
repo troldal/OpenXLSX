@@ -57,6 +57,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLContentTypes.hpp"
 #include "XLDocument.hpp"
 #include "XLSheet.hpp"
+#include "XLStyles.hpp"
 #include "utilities/XLUtilities.hpp"
 
 using namespace OpenXLSX;
@@ -454,9 +455,13 @@ void XLDocument::open(const std::string& fileName)
     m_data.emplace_back(this, "_rels/.rels");
     m_data.emplace_back(this, "xl/_rels/workbook.xml.rels");
 
+    // 2024-07-19: TBD whether styles.xml should be created from scratch (relatively easy as most code is already in XLStyles.cpp)
+    m_data.emplace_back(this, "xl/styles.xml"); // 2024-07-15: begin styles support
+
     m_contentTypes     = XLContentTypes(getXmlData("[Content_Types].xml"));
     m_docRelationships = XLRelationships(getXmlData("_rels/.rels"));
     m_wbkRelationships = XLRelationships(getXmlData("xl/_rels/workbook.xml.rels"));
+    m_styles           = XLStyles(getXmlData("xl/styles.xml"));
 
     if (!m_archive.hasEntry("xl/sharedStrings.xml")) execCommand(XLCommand(XLCommandType::AddSharedStrings));
 
@@ -593,7 +598,13 @@ void XLDocument::saveAs(const std::string& fileName)
     execCommand(XLCommand(XLCommandType::ResetCalcChain));
 
     // ===== Add all xml items to archive and save the archive.
-    for (auto& item : m_data) m_archive.addEntry(item.getXmlPath(), item.getRawData());
+    for (auto& item : m_data) {
+        bool XmlIsStandalone = XLXmlNotStandalone;
+        if ((item.getXmlPath() == "docProps/core.xml")
+          ||(item.getXmlPath() == "docProps/app.xml"))
+            XmlIsStandalone = XLXmlStandalone;
+        m_archive.addEntry(item.getXmlPath(), item.getRawData(XLXmlSavingDeclaration("1.0", "UTF-8", XmlIsStandalone)));
+    }
     m_archive.save(m_filePath);
 }
 
@@ -838,6 +849,24 @@ void XLDocument::setProperty(XLProperty prop, const std::string& value)    // NO
 void XLDocument::deleteProperty(XLProperty theProperty) { setProperty(theProperty, ""); }
 
 /**
+ * @details
+ */
+XLDocument::operator bool() const
+{
+    return m_archive.isValid();    // NOLINT
+}
+
+/**
+ * @details
+ */
+bool XLDocument::isOpen() const { return this->operator bool(); }
+
+/**
+* @details fetch a reference to m_styles
+*/
+XLStyles& XLDocument::styles() { return m_styles; }
+
+/**
  * @details return value defaults to true, false only where the XLCommandType implements it
  */
 bool XLDocument::execCommand(const XLCommand& command)
@@ -1070,18 +1099,18 @@ XLQuery XLDocument::execQuery(const XLQuery& query) const
  */
 XLQuery XLDocument::execQuery(const XLQuery& query) { return static_cast<const XLDocument&>(*this).execQuery(query); }
 
-/**
- * @details
- */
-XLDocument::operator bool() const
-{
-    return m_archive.isValid();    // NOLINT
-}
+
+//----------------------------------------------------------------------------------------------------------------------
+//           Protected Member Functions
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * @details
  */
-bool XLDocument::isOpen() const { return this->operator bool(); }
+std::string XLDocument::extractXmlFromArchive(const std::string& path)
+{
+    return (m_archive.hasEntry(path) ? m_archive.getEntry(path) : "");
+}
 
 /**
  * @details
@@ -1112,12 +1141,4 @@ const XLXmlData* XLDocument::getXmlData(const std::string& path) const
 bool XLDocument::hasXmlData(const std::string& path) const
 {
     return std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) { return item.getXmlPath() == path; }) != m_data.end();
-}
-
-/**
- * @details
- */
-std::string XLDocument::extractXmlFromArchive(const std::string& path)
-{
-    return (m_archive.hasEntry(path) ? m_archive.getEntry(path) : "");
 }

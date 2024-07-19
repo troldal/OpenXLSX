@@ -193,6 +193,24 @@ bool XLCell::hasFormula() const
 XLFormulaProxy& XLCell::formula() { return m_formulaProxy; }
 
 /**
+* @details get the value of the s attribute of the cell node
+*/
+size_t XLCell::cellFormat() const { return m_cellNode->attribute("s").as_uint(0); }
+
+/**
+* @details set the s attribute of the cell node, pointing to an xl/styles.xml cellXfs index
+*          the attribute will be created if not existant, function will fail if attribute creation fails
+*/
+bool XLCell::setCellFormat(size_t cellFormatIndex)
+{
+    XMLAttribute attr = m_cellNode->attribute("s");
+    if (attr.empty() && not m_cellNode->empty())
+        attr = m_cellNode->append_attribute("s");
+    attr.set_value(cellFormatIndex); // silently fails on empty attribute, which is intended here
+    return attr.empty() == false;
+}
+
+/**
  * @details
  */
 void XLCell::print(std::basic_ostream<char>& ostr) const { m_cellNode->print(ostr); }

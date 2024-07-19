@@ -16,6 +16,10 @@
 !/make-gnu.sh
 !/vcpkg.json
 
+# include root directory helper files
+!/test.xlsx
+!/xml-format.sh
+
 # include Benchmarks folder
 !/Benchmarks
 # exclude everything *in* Benchmarks folder
@@ -53,6 +57,18 @@
 # re-include specifically what is desired from gnu-make-crutch folder
 !/gnu-make-crutch/OpenXLSX-Exports.hpp
 
+# include Notes folder
+!/Notes
+# exclude everything *in* Notes folder
+/Notes/*
+# re-include specifically what is desired from Notes folder
+!/Notes/2024-05-07-changes-LU.txt
+!/Notes/2024-06-19-OpenXLSX-update-questions-and-changes.txt
+!/Notes/2024-07-08-changes-LU.txt
+!/Notes/Demo01-linted.xlsx
+!/Notes/styles-missing-support.xml
+!/Notes/todo-list.txt
+
 # include OpenXLSX folder
 !/OpenXLSX
 # exclude everything *in* OpenXLSX folder
@@ -78,6 +94,12 @@
 !/Tests/CMakeLists.txt
 !/Tests/*.cpp
 
+# include tmp folder
+!/tmp
+# exclude everything *in* tmp folder
+/tmp/*
+# re-include specifically what is desired from tmp folder
+!/tmp/*
 
 # ## OLD gitignore rules below:
 # 

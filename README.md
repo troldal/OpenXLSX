@@ -3,6 +3,30 @@
 OpenXLSX is a C++ library for reading, writing, creating and modifying
 Microsoft Excel® files, with the .xlsx format.
 
+## July 2024 - xl/styles.xml - support for cell formatting in work
+Please refer to Demo10 and XLStyles.hpp on how to set cell formatting.
+In short:
+* size_t XLCell::cellFormat() and bool XLCell::setCellFormat(size_t cellFormatIndex)
+* these functions get/set an index to a format defind in xl/styles.xml <styleSheet>:<cellXfs>
+* <cellXfs> refers to 
+  * numFmtId -> XLStyles::numberFormats().formatById( uint32_t formatId ) // where formatId is the numFmtId attribute of the numFmt entry
+  * fontId -> XLStyles::fonts().fontByIndex( fontId )
+  * fillId -> XLStyles::fills().fillByIndex( fillId )
+  * borderId -> XLStyles::borders().borderByIndex( borderId )
+  * xfId -> XLStyles::cellStyleFormats( xfId ) // xfId appears to refer to entries in the <cellStyleXfs> array - untested currently
+* it is not yet clear what the purpose of the <cellStyles> array is
+* all array getter functions (numberFormats, fonts, fills, borders, cellStyleFormats, cellFormats, cellStyles) support the operator[] to access an object by index
+* all objects provide getter and setter functions for all supported attributes. Especially in the color domain, there's probably quite a bit of support missing at this stage
+* color support: only rgb via XLColor (XLColor::hex()) is supported at this stage. In particular, no color themes are supported
+
+### July 2024 - to-do list:
+- update xl/styles.xml arrays "count" attribute when saving
+- completion of style support as much as is reasonable (not color themes, most likely)
+- format support for XLRows: <row> attributes s (same as cell attribute) and customFormat (=true/false)
+  - it appears that XLRow style is used to overwrite existing cell formats, and then for whenever a new cell is created
+  - -> could support the same in OpenXLSX - possibly also for columns
+- TBD: permit setting a format reference for shared strings
+
 ## May 2024 Update
 
 After a long period of inactivity, I have decided to resume development of OpenXLSX. The code has been cleaned up and a significant number of bugs have been fixed. The library has been tested on Windows, macOS and Linux, and should work on all platforms. 

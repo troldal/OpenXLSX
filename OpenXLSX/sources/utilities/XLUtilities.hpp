@@ -201,7 +201,6 @@ namespace OpenXLSX
         }
         return cellNode;
     }
-
 }    // namespace OpenXLSX
 
 #endif    // OPENXLSX_XLUTILITIES_HPP

@@ -63,6 +63,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLProperties.hpp"
 #include "XLRelationships.hpp"
 #include "XLSharedStrings.hpp"
+#include "XLStyles.hpp"
 #include "XLWorkbook.hpp"
 #include "XLXmlData.hpp"
 #include "XLZipArchive.hpp"
@@ -220,6 +221,12 @@ namespace OpenXLSX
         void setProperty(XLProperty prop, const std::string& value);
 
         /**
+         * @brief Delete the property from the document
+         * @param theProperty The property to delete from the document
+         */
+        void deleteProperty(XLProperty theProperty);
+
+        /**
          * @brief
          * @return
          */
@@ -232,10 +239,10 @@ namespace OpenXLSX
         bool isOpen() const;
 
         /**
-         * @brief Delete the property from the document
-         * @param theProperty The property to delete from the document
+         * @brief return a handle on the workbook's styles
+         * @return a reference to m_styles
          */
-        void deleteProperty(XLProperty theProperty);
+        XLStyles& styles();
 
         /**
          * @brief
@@ -308,6 +315,7 @@ namespace OpenXLSX
         XLContentTypes  m_contentTypes {};     /**< A pointer to the content types object*/
         XLAppProperties m_appProperties {};    /**< A pointer to the App properties object */
         XLProperties    m_coreProperties {};   /**< A pointer to the Core properties object*/
+        XLStyles        m_styles {};           /**< A pointer to the document styles object*/
         XLWorkbook      m_workbook {};         /**< A pointer to the workbook object */
         IZipArchive     m_archive {};          /**<  */
     };

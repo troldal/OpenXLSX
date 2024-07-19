@@ -190,6 +190,19 @@ namespace OpenXLSX
         std::string getString() const { return value().getString(); }
 
         /**
+         * @brief get the array index of xl/styles.xml:<styleSheet>:<cellXfs> for the style used in this cell
+         *        this value is stored in the s attribute of a cell (or row? TBD) like so: s="2"
+         */
+        size_t cellFormat() const;
+
+        /**
+         * @brief set the cell style (attribute s) with a reference to the array index of xl/styles.xml:<styleSheet>:<cellXfs>
+         * @param cellFormatIndex the style to set, corresponding to the nidex of XLStyles::cellStyles()
+         * @returns true on success, false on failure
+         */
+        bool setCellFormat(size_t cellFormatIndex);
+
+        /**
          * @brief print the XML contents of the XLCell using the underlying XMLNode print function
          */
         void print(std::basic_ostream<char>& ostr) const;

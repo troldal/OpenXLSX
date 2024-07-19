@@ -1,0 +1,61 @@
+$ grep -rni "todo\|tbd\|caution" > ../todo-list.txt
+----------------------------------------------------
+
+	external/zippy/zippy.hpp:186:    /* TODO: Work around "error: include file 'sys\utime.h' when compiling with tcc on Linux */
+	external/zippy/zippy.hpp:1369:    /* TODO */
+	external/zippy/zippy.hpp:1519:        /* TODO: Perhaps add an option to leave the existing central dir in place in case the add dies? We could then truncate the file (so
+	external/zippy/zippy.hpp:5570:            /* TODO: Better sanity check archive_size and the # of actual remaining bytes */
+	external/zippy/zippy.hpp:7032:            /* TODO: parse local header extra data when local_header_comp_size is 0xFFFFFFFF! (big_descriptor.zip) */
+	external/zippy/zippy.hpp:7623:            /* TODO: We could add a flag that lets the user start writing immediately AFTER the existing central dir - this would be safer.
+	external/zippy/zippy.hpp:7630:            /* TODO: We could easily maintain the sorted central directory offsets. */
+	external/zippy/zippy.hpp:7643:        /* TODO: pArchive_name is a terrible name here! */
+	external/zippy/zippy.hpp:8755:        /* TODO: This func is now pretty freakin complex due to zip64, split it up? */
+	external/zippy/zippy.hpp:8800:            /* TODO: We don't support central dir's >= MZ_UINT32_MAX bytes right now (+32 fudge factor in case we need to add more extra
+	external/zippy/zippy.hpp:8815:                /* TODO: Our zip64 support still has some 32-bit limits that may not be worth fixing. */
+	external/zippy/zippy.hpp:9125:                /* TODO: Support central dirs >= 32-bits in size */
+	external/zippy/zippy.hpp:9190:                MZ_WRITE_LE16(hdr + MZ_ZIP64_ECDH_VERSION_MADE_BY_OFS, 0x031E); /* TODO: always Unix */
+	external/zippy/zippy.hpp:9939:                }    // TODO: Should this use reinterpret_cast instead?
+	external/zippy/zippy.hpp:10162:         * @todo Can this be made private?
+	external/zippy/zippy.hpp:10294:         * @todo Consider renaming to GetName and add a SetName member function.
+	external/zippy/zippy.hpp:10774:                if (file.IsDirectory()) continue;    // TODO: Ensure this is the right thing to do (Excel issue)
+	external/zippy/zippy.hpp:10817:            // TODO: To be implemented
+	external/zippy/zippy.hpp:10898:         * @todo To be implemented
+	external/zippy/zippy.hpp:10908:         * @todo To be implemented
+sources/XLWorkbook.cpp:183:                                                              // CAUTION: execCommand on underlying XML with whitespaces not verified
+sources/XLWorkbook.cpp:244: * @todo If the original sheet's tabSelected attribute is set, ensure it is un-set in the clone.
+sources/XLWorkbook.cpp:245: *       TBD: See comment in XLWorkbook::setSheetActive - should the tabSelected actually be un-set? It's not the same as the active tab,
+	sources/XLWorkbook.cpp:438:    // ===== Updated defined names with worksheet scopes. TBD what this does
+	sources/XLWorkbook.cpp:441:        // TBD: is the current definedName actually associated with the sheet that was moved?
+	sources/XLWorkbook.cpp:606: * @todo Currently, this function only searches through defined names. Consider using this function to update the
+	sources/XLWorkbook.cpp:611:    const std::string& newName)    // 2024-05-01: whitespace support with TBD to verify definedNames logic
+	sources/XLWorkbook.cpp:631:    // ===== Iterate through all defined names // TODO 2024-05-01: verify definedNames logic
+sources/XLWorkbook.cpp:715:    //     - TBD with Kenneth if this is desired behavior
+
+
+sources/XLSharedStrings.cpp:140:    /* 2024-04-30 CAUTION: performance critical - with whitespace support, the function can no longer know the exact iterator position of
+sources/XLSharedStrings.cpp:141:     *   the shared string to be cleared - TBD what to do instead?
+
+	sources/XLDocument.cpp:448:    if (m_archive.isOpen()) close(); // TBD: consider throwing if a file is already open.
+	sources/XLDocument.cpp:582:    // TODO: Is this the best way to do it? Maybe there is a flag that can be set, that forces re-calculalion.
+	sources/XLDocument.cpp:837:            // TODO: To be implemented
+	sources/XLDocument.cpp:907:            // TODO: To be implemented
+
+	sources/XLSheet.cpp:436: * @todo Consider simplifying this function. Can any standard algorithms be used?
+
+	sources/XLCellReference.cpp:91: * @todo consider swapping the arguments.
+	sources/XLCellReference.cpp:101: * @todo consider swapping the arguments.
+
+	headers/XLCellValue.hpp:67:    XLCellValueType;    // TBD: typedef std::variant< std::string, int64_t, double, bool, struct timestamp > XLCellValueType;
+	headers/XLCellValue.hpp:100:        // TODO: Consider template functions to compare to ints, floats etc.
+	headers/XLCellValue.hpp:122:         * @todo Consider changing the enable_if statement to check for objects with a .c_str() member function.
+	headers/XLCellValue.hpp:457:         * @todo Is an explicit conversion operator needed as well?
+	headers/XLCellValue.hpp:596:// TODO: Consider comparison operators on fundamental datatypes
+headers/XLCell.hpp:278:        // TODO: send to stream different data types based on cell data type
+	headers/XLRowData.hpp:35:     * @todo Consider implementing a const iterator also
+headers/XLXmlParser.hpp:97:        // explicit OpenXLSX_xml_node(base b) : xml_node(b) // TBD
+headers/XLXmlParser.hpp:102:        // ===== CAUTION: this section is incomplete, only implementing those functions actually used by OpenXLSX to date
+headers/XLXmlParser.hpp:175:        // explicit OpenXLSX_xml_document(base b) : xml_document(b) // TBD
+headers/XLXmlParser.hpp:180:        // ===== CAUTION: this section is incomplete, only implementing those functions actually used by OpenXLSX to date
+	headers/XLFormula.hpp:78:     * @todo Enable handling of shared and array formulas.
+	headers/XLSheet.hpp:187:         * @todo To be implemented.
+	headers/XLSheet.hpp:490:     * @todo This class is largely unimplemented and works just as a placeholder.
