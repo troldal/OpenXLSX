@@ -63,14 +63,21 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 namespace OpenXLSX
 {
+    using XLStyleIndex = size_t; // custom data type for XLStyleIndex
+
     constexpr const uint32_t XLInvalidUInt16 = 0xffff;     // used to signal "value not defined" for uint16_t return types
     constexpr const uint32_t XLInvalidUInt32 = 0xffffffff; // used to signal "value not defined" for uint32_t return types
 
     constexpr const bool XLCreateIfMissing = true;         // use with XLCellFormat::alignment(XLCreateIfMissing)
     constexpr const bool XLDoNotCreate     = false;        // use with XLCellFormat::alignment(XLDoNotCreate)
 
-    constexpr const char * XLStylesPrefixDefault       = "\n\t";   // indentation to use for newly created root level style node tags
-    constexpr const char * XLStyleEntriesPrefixDefault = "\n\t\t"; // indentation to use for newly created style entry nodes
+    constexpr const char * XLDefaultStylesPrefix       = "\n\t";   // indentation to use for newly created root level style node tags
+    constexpr const char * XLDefaultStyleEntriesPrefix = "\n\t\t"; // indentation to use for newly created style entry nodes
+
+    constexpr const XLStyleIndex XLDefaultCellFormat = 0;          // default cell format index in xl/styles.xml:<styleSheet>:<cellXfs>
+
+    // ===== As pugixml attributes are not guaranteed to support value range of XLStyleIndex, use 32 bit unsigned int
+    constexpr const XLStyleIndex XLInvalidStyleIndex = XLInvalidUInt32;    // as a function return value, indicates no valid index
 
     constexpr const uint32_t XLDefaultFontSize       = 12;         //
     constexpr const char *   XLDefaultFontColor      = "ff000000"; // default font color
@@ -189,13 +196,13 @@ namespace OpenXLSX
 
         /**
          * @brief Get the id of the number format
-         * @return the id for this number format
+         * @return The id for this number format
          */
         uint32_t formatId() const;
 
         /**
          * @brief Get the code of the number format
-         * @return the format code for this number format
+         * @return The format code for this number format
          */
         std::string formatCode() const;
 
@@ -208,7 +215,7 @@ namespace OpenXLSX
         bool setFormatCode(std::string newFormatCode);
 
         /**
-         * @brief return a string summary of the number format
+         * @brief Return a string summary of the number format
          * @return string with info about the number format object
          */
         std::string summary() const;
@@ -268,34 +275,34 @@ namespace OpenXLSX
 
         /**
          * @brief Get the count of number formats
-         * @return the amount of entries in the number formats
+         * @return The amount of entries in the number formats
          */
         size_t count() const;
 
         /**
          * @brief Get the number format identified by index
-         * @return an XLNumberFormat object
+         * @return An XLNumberFormat object
          */
-        XLNumberFormat formatByIndex(size_t index) const;
+        XLNumberFormat formatByIndex(XLStyleIndex index) const;
 
         /**
-         * @brief operator overload: allow [] as shortcut access to formatById
+         * @brief Operator overload: allow [] as shortcut access to formatById
          */
-        XLNumberFormat operator[](size_t index) const { return formatByIndex(index); }
+        XLNumberFormat operator[](XLStyleIndex index) const { return formatByIndex(index); }
 
         /**
          * @brief Get the number format identified by formatId
-         * @return an XLNumberFormat object
+         * @return An XLNumberFormat object
          */
         XLNumberFormat formatById(uint32_t formatId) const;
 
         /**
-         * @brief append a new XLNumberFormat, based on copyFrom, and return its index in numFmts node
-         * @param copyFrom can provide an XLNumberFormat to use as template for the new style
-         * @param styleEntriesPrefix prefix the newly created cell style XMLNode with this pugi::node_pcdata text
-         * @returns the index of the new style as used by operator[]
+         * @brief Append a new XLNumberFormat, based on copyFrom, and return its index in numFmts node
+         * @param copyFrom Can provide an XLNumberFormat to use as template for the new style
+         * @param styleEntriesPrefix Prefix the newly created cell style XMLNode with this pugi::node_pcdata text
+         * @returns The index of the new style as used by operator[]
          */
-        size_t create(XLNumberFormat copyFrom = XLNumberFormat{}, std::string styleEntriesPrefix = XLStyleEntriesPrefixDefault);
+        XLStyleIndex create(XLNumberFormat copyFrom = XLNumberFormat{}, std::string styleEntriesPrefix = XLDefaultStyleEntriesPrefix);
 
 
     private:                                         // ---------- Private Member Variables ---------- //
@@ -359,13 +366,13 @@ namespace OpenXLSX
 
         /**
          * @brief Get the font name
-         * @return the font name
+         * @return The font name
          */
         std::string fontName() const;
 
         /**
          * @brief Get the font size
-         * @return the font size
+         * @return The font size
          */
         size_t fontSize() const;
 
@@ -383,7 +390,7 @@ namespace OpenXLSX
 
         /**
          * @brief Get the font underline status
-         * @return an XLUnderlineStyle value
+         * @return An XLUnderlineStyle value
          */
         XLUnderlineStyle underline() const;
 
@@ -395,19 +402,19 @@ namespace OpenXLSX
 
         /**
          * @brief Get the font color
-         * @return the font color
+         * @return The font color
          */
         XLColor fontColor() const;
 
         /**
          * @brief Get the font family
-         * @return the font family id
+         * @return The font family id
          */
         size_t fontFamily() const;
 
         /**
          * @brief Get the font charset
-         * @return the font charset id
+         * @return The font charset id
          */
         size_t fontCharset() const;
 
@@ -427,7 +434,7 @@ namespace OpenXLSX
         bool setFontCharset(size_t newCharset);
 
         /**
-         * @brief return a string summary of the font properties
+         * @brief Return a string summary of the font properties
          * @return string with info about the font object
          */
         std::string summary() const;
@@ -487,31 +494,31 @@ namespace OpenXLSX
 
         /**
          * @brief Get the count of fonts
-         * @return the amount of font entries
+         * @return The amount of font entries
          */
         size_t count() const;
 
         /**
          * @brief Get the font identified by index
-         * @param index the index within the XML sequence
-         * @return an XLFont object
+         * @param index The index within the XML sequence
+         * @return An XLFont object
          */
-        XLFont fontByIndex(size_t index) const;
+        XLFont fontByIndex(XLStyleIndex index) const;
 
         /**
-         * @brief operator overload: allow [] as shortcut access to fontByIndex
-         * @param index the index within the XML sequence
-         * @return an XLFont object
+         * @brief Operator overload: allow [] as shortcut access to fontByIndex
+         * @param index The index within the XML sequence
+         * @return An XLFont object
          */
-        XLFont operator[](size_t index) const { return fontByIndex(index); }
+        XLFont operator[](XLStyleIndex index) const { return fontByIndex(index); }
 
         /**
-         * @brief append a new XLFont, based on copyFrom, and return its index in fonts node
-         * @param copyFrom can provide an XLFont to use as template for the new style
-         * @param styleEntriesPrefix prefix the newly created cell style XMLNode with this pugi::node_pcdata text
-         * @returns the index of the new style as used by operator[]
+         * @brief Append a new XLFont, based on copyFrom, and return its index in fonts node
+         * @param copyFrom Can provide an XLFont to use as template for the new style
+         * @param styleEntriesPrefix Prefix the newly created cell style XMLNode with this pugi::node_pcdata text
+         * @returns The index of the new style as used by operator[]
          */
-        size_t create(XLFont copyFrom = XLFont{}, std::string styleEntriesPrefix = XLStyleEntriesPrefixDefault);
+        XLStyleIndex create(XLFont copyFrom = XLFont{}, std::string styleEntriesPrefix = XLDefaultStyleEntriesPrefix);
 
     private:                                         // ---------- Private Member Variables ---------- //
         std::unique_ptr<XMLNode> m_fontsNode;        /**< An XMLNode object with the fonts item */
@@ -574,32 +581,32 @@ namespace OpenXLSX
 
         /**
          * @brief Get the name of the element describing a fill
-         * @return the name of the first child element of the fill node
+         * @return The name of the first child element of the fill node
          */
         std::string fillType() const;
 
         /**
          * @brief Get the pattern type
-         * @return the pattern type string
+         * @return The pattern type string
          */
         std::string patternType() const;
 
         /**
          * @brief Get the foreground color
-         * @return the foreground color
+         * @return The foreground color
          */
         XLColor color();
 
         /**
          * @brief Get the background color
-         * @return the background color
+         * @return The background color
          */
         XLColor backgroundColor();
 
     private:                                         // ----- switch to private for one function ----- //
         /**
          * @brief Fetch a valid first element child of m_fillNode. Create with default if needed
-         * @return an XMLNode containing a fill description
+         * @return An XMLNode containing a fill description
          */
         XMLNode getValidFillDescription();
     public:                                          // ----- switch back to public functions -------- //
@@ -614,7 +621,7 @@ namespace OpenXLSX
         bool setBackgroundColor(XLColor newBgColor);
 
         /**
-         * @brief return a string summary of the fill properties
+         * @brief Return a string summary of the fill properties
          * @return string with info about the fill object
          */
         std::string summary();
@@ -674,31 +681,31 @@ namespace OpenXLSX
 
         /**
          * @brief Get the count of fills
-         * @return the amount of fill entries
+         * @return The amount of fill entries
          */
         size_t count() const;
 
         /**
          * @brief Get the fill entry identified by index
-         * @param index the index within the XML sequence
-         * @return an XLFill object
+         * @param index The index within the XML sequence
+         * @return An XLFill object
          */
-        XLFill fillByIndex(size_t index) const;
+        XLFill fillByIndex(XLStyleIndex index) const;
 
         /**
-         * @brief operator overload: allow [] as shortcut access to fillByIndex
-         * @param index the index within the XML sequence
-         * @return an XLFill object
+         * @brief Operator overload: allow [] as shortcut access to fillByIndex
+         * @param index The index within the XML sequence
+         * @return An XLFill object
          */
-        XLFill operator[](size_t index) const { return fillByIndex(index); }
+        XLFill operator[](XLStyleIndex index) const { return fillByIndex(index); }
 
         /**
-         * @brief append a new XLFill, based on copyFrom, and return its index in fills node
-         * @param copyFrom can provide an XLFill to use as template for the new style
-         * @param styleEntriesPrefix prefix the newly created cell style XMLNode with this pugi::node_pcdata text
-         * @returns the index of the new style as used by operator[]
+         * @brief Append a new XLFill, based on copyFrom, and return its index in fills node
+         * @param copyFrom Can provide an XLFill to use as template for the new style
+         * @param styleEntriesPrefix Prefix the newly created cell style XMLNode with this pugi::node_pcdata text
+         * @returns The index of the new style as used by operator[]
          */
-        size_t create(XLFill copyFrom = XLFill{}, std::string styleEntriesPrefix = XLStyleEntriesPrefixDefault);
+        XLStyleIndex create(XLFill copyFrom = XLFill{}, std::string styleEntriesPrefix = XLDefaultStyleEntriesPrefix);
 
     private:                                         // ---------- Private Member Variables ---------- //
         std::unique_ptr<XMLNode> m_fillsNode;        /**< An XMLNode object with the fills item */
@@ -760,26 +767,26 @@ namespace OpenXLSX
         XLLine& operator=(XLLine&& other) noexcept = default;
   
         /**
-         * @brief get the line style
-         * @return an XLLineStyle enum
+         * @brief Get the line style
+         * @return An XLLineStyle enum
          */
         XLLineStyle style() const;
   
         /**
-         * @brief evaluate XLLine as bool
+         * @brief Evaluate XLLine as bool
          * @return true if line is set, false if not
          */
         explicit operator bool() const;
   
         /**
-         * @brief get the line color
-         * @return an XLColor object
+         * @brief Get the line color
+         * @return An XLColor object
          */
         XLColor color() const;
   
         /**
          * @brief Setter functions for style parameters
-         * @note: please refer to XLBorder setLine / setLeft / setRight / setTop / setBottom / setDiagonal
+         * @note: Please refer to XLBorder setLine / setLeft / setRight / setTop / setBottom / setDiagonal
          * @param value that shall be set
          * @return true for success, false for failure
          */
@@ -787,7 +794,7 @@ namespace OpenXLSX
         // bool setColor(XLColor newColor);
 
         /**
-         * @brief return a string summary of the line properties
+         * @brief Return a string summary of the line properties
          * @return string with info about the line object
          */
         std::string summary() const;
@@ -860,31 +867,31 @@ namespace OpenXLSX
   
         /**
          * @brief Get the left line property
-         * @return an XLLine object
+         * @return An XLLine object
          */
         XLLine left() const;
   
         /**
          * @brief Get the left line property
-         * @return an XLLine object
+         * @return An XLLine object
          */
         XLLine right() const;
   
         /**
          * @brief Get the left line property
-         * @return an XLLine object
+         * @return An XLLine object
          */
         XLLine top() const;
   
         /**
          * @brief Get the bottom line property
-         * @return an XLLine object
+         * @return An XLLine object
          */
         XLLine bottom() const;
   
         /**
          * @brief Get the diagonal line property
-         * @return an XLLine object
+         * @return An XLLine object
          */
         XLLine diagonal() const;
   
@@ -904,7 +911,7 @@ namespace OpenXLSX
         bool setDiagonal    (                     XLLineStyle lineStyle, XLColor lineColor);
 
         /**
-         * @brief return a string summary of the font properties
+         * @brief Return a string summary of the font properties
          * @return string with info about the font object
          */
         std::string summary() const;
@@ -964,31 +971,31 @@ namespace OpenXLSX
   
         /**
          * @brief Get the count of border descriptions
-         * @return the amount of border description entries
+         * @return The amount of border description entries
          */
         size_t count() const;
   
         /**
          * @brief Get the border description identified by index
-         * @param index the index within the XML sequence
-         * @return an XLBorder object
+         * @param index The index within the XML sequence
+         * @return An XLBorder object
          */
-        XLBorder borderByIndex(size_t index) const;
+        XLBorder borderByIndex(XLStyleIndex index) const;
   
         /**
-         * @brief operator overload: allow [] as shortcut access to borderByIndex
-         * @param index the index within the XML sequence
-         * @return an XLBorder object
+         * @brief Operator overload: allow [] as shortcut access to borderByIndex
+         * @param index The index within the XML sequence
+         * @return An XLBorder object
          */
-        XLBorder operator[](size_t index) const { return borderByIndex(index); }
+        XLBorder operator[](XLStyleIndex index) const { return borderByIndex(index); }
   
         /**
-         * @brief append a new XLBorder, based on copyFrom, and return its index in borders node
-         * @param copyFrom can provide an XLBorder to use as template for the new style
-         * @param styleEntriesPrefix prefix the newly created cell style XMLNode with this pugi::node_pcdata text
-         * @returns the index of the new style as used by operator[]
+         * @brief Append a new XLBorder, based on copyFrom, and return its index in borders node
+         * @param copyFrom Can provide an XLBorder to use as template for the new style
+         * @param styleEntriesPrefix Prefix the newly created cell style XMLNode with this pugi::node_pcdata text
+         * @returns The index of the new style as used by operator[]
          */
-        size_t create(XLBorder copyFrom = XLBorder{}, std::string styleEntriesPrefix = XLStyleEntriesPrefixDefault);
+        XLStyleIndex create(XLBorder copyFrom = XLBorder{}, std::string styleEntriesPrefix = XLDefaultStyleEntriesPrefix);
 
     private:                                         // ---------- Private Member Variables ---------- //
         std::unique_ptr<XMLNode> m_bordersNode;      /**< An XMLNode object with the borders item */
@@ -1050,37 +1057,37 @@ namespace OpenXLSX
         XLAlignment& operator=(XLAlignment&& other) noexcept = default;
   
         /**
-         * @brief get the horizontal alignment
-         * @return an XLAlignmentStyle
+         * @brief Get the horizontal alignment
+         * @return An XLAlignmentStyle
          */
         XLAlignmentStyle horizontal() const;
 
         /**
-         * @brief get the vertical alignment
-         * @return an XLAlignmentStyle
+         * @brief Get the vertical alignment
+         * @return An XLAlignmentStyle
          */
         XLAlignmentStyle vertical() const;
 
         /**
-         * @brief get the text rotation
-         * @return a value in degrees (TBD: clockwise? counter-clockwise?)
+         * @brief Get the text rotation
+         * @return A value in degrees (TBD: clockwise? counter-clockwise?)
          */
         uint16_t textRotation() const;
 
         /**
-         * @brief check whether text wrapping is enabled
+         * @brief Check whether text wrapping is enabled
          * @return true if enabled, false otherwise
          */
         bool wrapText() const;
 
         /**
-         * @brief get the indent setting
+         * @brief Get the indent setting
          * @return TBD: what is the indent / what's the unit?
          */
         uint32_t indent() const;
 
         /**
-         * @brief check whether shrink to fit is enabled
+         * @brief Check whether shrink to fit is enabled
          * @return true if enabled, false otherwise
          */
         bool shrinkToFit() const;
@@ -1098,7 +1105,7 @@ namespace OpenXLSX
         bool setShrinkToFit(bool set);
 
         /**
-         * @brief return a string summary of the alignment properties
+         * @brief Return a string summary of the alignment properties
          * @return string with info about the alignment object
          */
         std::string summary() const;
@@ -1160,74 +1167,74 @@ namespace OpenXLSX
   
         /**
          * @brief Get the number format id
-         * @return the identifier of a number format, built-in (predefined by office) or defind in XLNumberFormats
+         * @return The identifier of a number format, built-in (predefined by office) or defind in XLNumberFormats
          */
         uint32_t numberFormatId() const;
   
         /**
          * @brief Get the font index
-         * @return the index(!) of a font as defined in XLFonts
+         * @return The index(!) of a font as defined in XLFonts
          */
-        uint32_t fontIndex() const;
+        XLStyleIndex fontIndex() const;
 
         /**
          * @brief Get the fill index
-         * @return the index(!) of a fill as defined in XLFills
+         * @return The index(!) of a fill as defined in XLFills
          */
-        uint32_t fillIndex() const;
+        XLStyleIndex fillIndex() const;
 
         /**
          * @brief Get the border index
-         * @return the index(!) of a border as defined in XLBorders
+         * @return The index(!) of a border as defined in XLBorders
          */
-        uint32_t borderIndex() const;
+        XLStyleIndex borderIndex() const;
 
         /**
-         * @brief report whether font is applied
+         * @brief Report whether font is applied
          * @return true for a setting enabled, or false if disabled
          */
         bool applyFont() const;
 
         /**
-         * @brief report whether fill is applied
+         * @brief Report whether fill is applied
          * @return true for a setting enabled, or false if disabled
          */
         bool applyFill() const;
 
         /**
-         * @brief report whether border is applied
+         * @brief Report whether border is applied
          * @return true for a setting enabled, or false if disabled
          */
         bool applyBorder() const;
 
         /**
-         * @brief report whether alignment is applied
+         * @brief Report whether alignment is applied
          * @return true for a setting enabled, or false if disabled
          */
         bool applyAlignment() const;
 
         /**
-         * @brief report whether protection is applied
+         * @brief Report whether protection is applied
          * @return true for a setting enabled, or false if disabled
          */
         bool applyProtection() const;
 
         /**
-         * @brief report whether protection locked is applied
+         * @brief Report whether protection locked is applied
          * @return true for a setting enabled, or false if disabled
          */
         bool locked() const;
 
         /**
-         * @brief report whether protection hidden is applied
+         * @brief Report whether protection hidden is applied
          * @return true for a setting enabled, or false if disabled
          */
         bool hidden() const;
 
         /**
-         * @brief return a reference to applicable alignment
+         * @brief Return a reference to applicable alignment
          * @param createIfMissing triggers creation of alignment node - should be used with setter functions of XLAlignment
-         * @return an XLAlignment object reference
+         * @return An XLAlignment object reference
          */
         XLAlignment alignment(bool createIfMissing = false) const;
 
@@ -1237,9 +1244,9 @@ namespace OpenXLSX
          * @return true for success, false for failure
          */
         bool setNumberFormatId  (uint32_t newNumFmtId);
-        bool setFontIndex       (uint32_t newXfIndex);
-        bool setFillIndex       (uint32_t newFillIndex);
-        bool setBorderIndex     (uint32_t newBorderIndex);
+        bool setFontIndex       (XLStyleIndex newFontIndex);
+        bool setFillIndex       (XLStyleIndex newFillIndex);
+        bool setBorderIndex     (XLStyleIndex newBorderIndex);
         bool setApplyFont       (bool set);
         bool setApplyFill       (bool set);
         bool setApplyBorder     (bool set);
@@ -1249,7 +1256,7 @@ namespace OpenXLSX
         bool setHidden          (bool set);
 
         /**
-         * @brief return a string summary of the cell format properties
+         * @brief Return a string summary of the cell format properties
          * @return string with info about the cell format object
          */
         std::string summary() const;
@@ -1309,32 +1316,32 @@ namespace OpenXLSX
   
         /**
          * @brief Get the count of cell style format descriptions
-         * @return the amount of cell style format description entries
+         * @return The amount of cell style format description entries
          */
         size_t count() const;
   
         /**
          * @brief Get the cell style format description identified by index
-         * @param index the index within the XML sequence
-         * @return an XLCellFormat object
+         * @param index The index within the XML sequence
+         * @return An XLCellFormat object
          */
-        XLCellFormat cellFormatByIndex(size_t index) const;
+        XLCellFormat cellFormatByIndex(XLStyleIndex index) const;
   
         /**
-         * @brief operator overload: allow [] as shortcut access to cellFormatByIndex
-         * @param index the index within the XML sequence
-         * @return an XLCellFormat object
+         * @brief Operator overload: allow [] as shortcut access to cellFormatByIndex
+         * @param index The index within the XML sequence
+         * @return An XLCellFormat object
          */
-        XLCellFormat operator[](size_t index) const { return cellFormatByIndex(index); }
+        XLCellFormat operator[](XLStyleIndex index) const { return cellFormatByIndex(index); }
   
         /**
-         * @brief append a new XLCellFormat, based on copyFrom, and return its index
+         * @brief Append a new XLCellFormat, based on copyFrom, and return its index
          *       in cellXfs (for XLStyles::cellFormats) or cellStyleXfs (for XLStyles::cellStyleFormats)
-         * @param copyFrom can provide an XLCellFormat to use as template for the new style
-         * @param styleEntriesPrefix prefix the newly created cell style XMLNode with this pugi::node_pcdata text
-         * @returns the index of the new style as used by operator[]
+         * @param copyFrom Can provide an XLCellFormat to use as template for the new style
+         * @param styleEntriesPrefix Prefix the newly created cell style XMLNode with this pugi::node_pcdata text
+         * @returns The index of the new style as used by operator[]
          */
-        size_t create(XLCellFormat copyFrom = XLCellFormat{}, std::string styleEntriesPrefix = XLStyleEntriesPrefixDefault);
+        XLStyleIndex create(XLCellFormat copyFrom = XLCellFormat{}, std::string styleEntriesPrefix = XLDefaultStyleEntriesPrefix);
 
     private:                                         // ---------- Private Member Variables ---------- //
         std::unique_ptr<XMLNode> m_cellFormatsNode;  /**< An XMLNode object with the cell formats item */
@@ -1397,26 +1404,26 @@ namespace OpenXLSX
         XLCellStyle& operator=(XLCellStyle&& other) noexcept = default;
 
         /**
-         * @brief test if this is an empty node
+         * @brief Test if this is an empty node
          * @return true if underlying XMLNode is empty
          */
         bool empty() const;
 
         /**
          * @brief Get the name of the cell style
-         * @return the name for this cell style entry
+         * @return The name for this cell style entry
          */
         std::string name() const;
 
         /**
          * @brief Get the id of the cell style format
-         * @return the id referring to an index in cell style formats (cellStyleXfs) - TBD to be confirmed
+         * @return The id referring to an index in cell style formats (cellStyleXfs) - TBD to be confirmed
          */
-        uint32_t xfId() const;
+        XLStyleIndex xfId() const;
 
         /**
          * @brief Get the built-in id of the cell style
-         * @return the built-in id of the cell style - TBD what this means
+         * @return The built-in id of the cell style - TBD what this means
          */
         uint32_t builtinId() const;
 
@@ -1426,11 +1433,11 @@ namespace OpenXLSX
          * @return true for success, false for failure
          */
         bool setName     (std::string newName);
-        bool setXfId     (uint32_t newXfId);
+        bool setXfId     (XLStyleIndex newXfId);
         bool setBuiltinId(uint32_t newBuiltinId);
 
         /**
-         * @brief return a string summary of the cell style properties
+         * @brief Return a string summary of the cell style properties
          * @return string with info about the cell style object
          */
         std::string summary() const;
@@ -1490,30 +1497,30 @@ namespace OpenXLSX
 
         /**
          * @brief Get the count of cell styles
-         * @return the amount of entries in the cell styles
+         * @return The amount of entries in the cell styles
          */
         size_t count() const;
 
         /**
          * @brief Get the cell style identified by index
-         * @return an XLCellStyle object
+         * @return An XLCellStyle object
          */
-        XLCellStyle cellStyleByIndex(size_t index) const;
+        XLCellStyle cellStyleByIndex(XLStyleIndex index) const;
 
         /**
-         * @brief operator overload: allow [] as shortcut access to cellStyleByIndex
-         * @param index the index within the XML sequence
-         * @return an XLCellStyle object
+         * @brief Operator overload: allow [] as shortcut access to cellStyleByIndex
+         * @param index The index within the XML sequence
+         * @return An XLCellStyle object
          */
-        XLCellStyle operator[](size_t index) const { return cellStyleByIndex(index); }
+        XLCellStyle operator[](XLStyleIndex index) const { return cellStyleByIndex(index); }
 
         /**
-         * @brief append a new XLCellStyle, based on copyFrom, and return its index in cellStyles node
-         * @param copyFrom can provide an XLCellStyle to use as template for the new style
-         * @param styleEntriesPrefix prefix the newly created cell style XMLNode with this pugi::node_pcdata text
-         * @returns the index of the new style as used by operator[]
+         * @brief Append a new XLCellStyle, based on copyFrom, and return its index in cellStyles node
+         * @param copyFrom Can provide an XLCellStyle to use as template for the new style
+         * @param styleEntriesPrefix Prefix the newly created cell style XMLNode with this pugi::node_pcdata text
+         * @returns The index of the new style as used by operator[]
          */
-        size_t create(XLCellStyle copyFrom = XLCellStyle{}, std::string styleEntriesPrefix = XLStyleEntriesPrefixDefault);
+        XLStyleIndex create(XLCellStyle copyFrom = XLCellStyle{}, std::string styleEntriesPrefix = XLDefaultStyleEntriesPrefix);
 
     private:                                         // ---------- Private Member Variables ---------- //
         std::unique_ptr<XMLNode> m_cellStylesNode;   /**< An XMLNode object with the cell styles item */
@@ -1539,9 +1546,9 @@ namespace OpenXLSX
         /**
          * @brief
          * @param xmlData
-         * @param stylesPrefix prefix any newly created root style nodes pugi::node_pcdata text
+         * @param stylesPrefix Prefix any newly created root style nodes with this text as pugi::node_pcdata
          */
-        explicit XLStyles(XLXmlData* xmlData, std::string stylesPrefix = XLStylesPrefixDefault);
+        explicit XLStyles(XLXmlData* xmlData, std::string stylesPrefix = XLDefaultStylesPrefix);
     
         /**
          * @brief Destructor
@@ -1575,44 +1582,44 @@ namespace OpenXLSX
         XLStyles& operator=(XLStyles&& other) noexcept = default;
     
         /**
-         * @brief get the number formats object
-         * @return an XLNumberFormats object
+         * @brief Get the number formats object
+         * @return An XLNumberFormats object
          */
         XLNumberFormats& numberFormats() const;
 
         /**
-         * @brief get the fonts object
-         * @return an XLFonts object
+         * @brief Get the fonts object
+         * @return An XLFonts object
          */
         XLFonts& fonts() const;
 
         /**
-         * @brief get the fills object
-         * @return an XLFills object
+         * @brief Get the fills object
+         * @return An XLFills object
          */
         XLFills& fills() const;
 
         /**
-         * @brief get the borders object
-         * @return an XLBorders object
+         * @brief Get the borders object
+         * @return An XLBorders object
          */
         XLBorders& borders() const;
 
         /**
-         * @brief get the cell style formats object
-         * @return an XLCellFormats object
+         * @brief Get the cell style formats object
+         * @return An XLCellFormats object
          */
         XLCellFormats& cellStyleFormats() const;
 
         /**
-         * @brief get the cell formats object
-         * @return an XLCellFormats object
+         * @brief Get the cell formats object
+         * @return An XLCellFormats object
          */
         XLCellFormats& cellFormats() const;
 
         /**
-         * @brief get the cell styles object
-         * @return an XLCellStyles object
+         * @brief Get the cell styles object
+         * @return An XLCellStyles object
          */
         XLCellStyles& cellStyles() const;
 

@@ -125,6 +125,24 @@ namespace OpenXLSX
         XLCellRange& operator=(XLCellRange&& other) noexcept;
 
         /**
+         * @brief get the top left cell
+         * @return a const XLCellReference
+         */
+        const XLCellReference topLeft() const;
+
+        /**
+         * @brief get the bottom right cell
+         * @return a const XLCellReference
+         */
+        const XLCellReference bottomRight() const;
+
+        /**
+         * @brief get the string reference that corresponds to the represented cell range
+         * @return a std::string range reference, e.g. "A2:Z5"
+         */
+        std::string address() const;
+
+        /**
          * @brief Get the number of rows in the range.
          * @return The number of rows.
          */
@@ -152,6 +170,31 @@ namespace OpenXLSX
          * @brief
          */
         void clear();
+
+        /**
+         * @brief Templated assignment operator - assign value to a range of cells
+         * @tparam T The type of the value argument.
+         * @param value The value.
+         * @return A reference to the assigned-to object.
+         */
+        template<typename T,
+                 typename = std::enable_if_t<
+                     std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<std::decay_t<T>, std::string> ||
+                     std::is_same_v<std::decay_t<T>, std::string_view> || std::is_same_v<std::decay_t<T>, const char*> ||
+                     std::is_same_v<std::decay_t<T>, char*> || std::is_same_v<T, XLDateTime>>>
+        XLCellRange& operator=(T value)
+        {
+            // forward implementation to templated XLCellValue& XLCellValue::operator=(T value)
+            for (auto it = begin(); it != end(); ++it) it->value() = value;
+            return *this;
+        }
+
+        /**
+         * @brief Set cell format for a range of cells
+         * @param cellFormatIndex The style to set, corresponding to the nidex of XLStyles::cellStyles()
+         * @returns true on success, false on failure
+         */
+        bool setFormat(XLStyleIndex cellFormatIndex);
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Private Member Variables

@@ -55,6 +55,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
+#include "XLStyles.hpp"          // XLStyleIndex
 #include "XLXmlParser.hpp"
 
 namespace OpenXLSX
@@ -128,6 +129,20 @@ namespace OpenXLSX
          * @return The XMLNode for the column
          */
         XMLNode& columnNode() const;
+
+        /**
+         * @brief Get the array index of xl/styles.xml:<styleSheet>:<cellXfs> for the style assigned to the column.
+         *        This value is stored in the col attributes like so: style="2"
+         * @returns The index of the applicable format style
+         */
+        XLStyleIndex format() const;
+
+        /**
+         * @brief Set the column style as a reference to the array index of xl/styles.xml:<styleSheet>:<cellXfs>
+         * @param cellFormatIndex The style to set, corresponding to the index of XLStyles::cellStyles()
+         * @returns true on success, false on failure
+         */
+        bool setFormat(XLStyleIndex cellFormatIndex);
 
     private:
         std::unique_ptr<XMLNode> m_columnNode; /**< A pointer to the XMLNode object for the column. */

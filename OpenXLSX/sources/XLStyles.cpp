@@ -230,8 +230,8 @@ namespace     // anonymous namespace for module local functions
     XMLAttribute appendAndSetNodeAttribute(XMLNode & parent, std::string nodeName, std::string attrName, std::string attrVal, bool removeAttributes = false)
     {
         XMLNode node = appendAndGetNode(parent, nodeName);
-        if( removeAttributes ) node.remove_attributes();
-        return appendAndSetAttribute( node, attrName, attrVal );
+        if (removeAttributes) node.remove_attributes();
+        return appendAndSetAttribute(node, attrName, attrVal);
     }
 
     void copyXMLNode(XMLNode & destination, XMLNode & source)
@@ -325,8 +325,8 @@ XLNumberFormats::XLNumberFormats(const XMLNode& numberFormats)
     while (not node.empty()) {
         std::string nodeName = node.name();
         // std::cout << "XMLNumberFormats constructor, node name is " << nodeName << std::endl;
-        if( nodeName == "numFmt" )
-            m_numberFormats.push_back( XLNumberFormat( node ) );
+        if (nodeName == "numFmt")
+            m_numberFormats.push_back(XLNumberFormat(node));
         else
             std::cerr << "WARNING: XLNumberFormats constructor: unknown subnode " << nodeName << std::endl;
         node = node.next_sibling_of_type(pugi::node_element);
@@ -375,7 +375,7 @@ size_t XLNumberFormats::count() const { return m_numberFormats.size(); }
 /**
  * @details fetch XLNumberFormat from m_numberFormats by index
  */
-XLNumberFormat XLNumberFormats::formatByIndex( size_t index ) const
+XLNumberFormat XLNumberFormats::formatByIndex(XLStyleIndex index) const
 {
     if(index >= m_numberFormats.size()) {
         using namespace std::literals::string_literals;
@@ -387,7 +387,7 @@ XLNumberFormat XLNumberFormats::formatByIndex( size_t index ) const
 /**
  * @details fetch XLNumberFormat from m_numberFormats by its formatId
  */
-XLNumberFormat XLNumberFormats::formatById( uint32_t formatId ) const
+XLNumberFormat XLNumberFormats::formatById(uint32_t formatId) const
 {
     for(XLNumberFormat fmt : m_numberFormats)
         if(fmt.formatId() == formatId)
@@ -399,10 +399,10 @@ XLNumberFormat XLNumberFormats::formatById( uint32_t formatId ) const
 /**
  * @details append a new XLNumberFormat to m_numberFormats and m_numberFormatsNode, based on copyFrom
  */
-size_t XLNumberFormats::create(XLNumberFormat copyFrom, std::string styleEntriesPrefix)
+XLStyleIndex XLNumberFormats::create(XLNumberFormat copyFrom, std::string styleEntriesPrefix)
 {
-    size_t index = count();    // index for the number format to be created
-    XMLNode newNode{};         // scope declaration
+    XLStyleIndex index = count();    // index for the number format to be created
+    XMLNode newNode{};               // scope declaration
 
     // ===== Append new node prior to final whitespaces, if any
     XMLNode lastStyle = m_numberFormatsNode->last_child_of_type(pugi::node_element);
@@ -415,8 +415,17 @@ size_t XLNumberFormats::create(XLNumberFormat copyFrom, std::string styleEntries
     if (styleEntriesPrefix.length() > 0)    // if a whitespace prefix is configured
         m_numberFormatsNode->insert_child_before(pugi::node_pcdata, newNode).set_value(styleEntriesPrefix.c_str());    // prefix the new node with styleEntriesPrefix
 
-    copyXMLNode( newNode, *copyFrom.m_numberFormatNode ); // will use copyFrom as template, does nothing if copyFrom is empty
-    m_numberFormats.push_back(XLNumberFormat(newNode));
+    XLNumberFormat newNumberFormat(newNode);
+    if (copyFrom.m_numberFormatNode->empty()) {    // if no template is given
+        // ===== Create a number format with default values
+        newNumberFormat.setFormatId(0);
+        newNumberFormat.setFormatCode("General");
+    }
+    else
+        copyXMLNode(newNode, *copyFrom.m_numberFormatNode); // will use copyFrom as template, does nothing if copyFrom is empty
+
+    m_numberFormats.push_back(newNumberFormat);
+    appendAndSetAttribute(*m_numberFormatsNode, "count", std::to_string(m_numberFormats.size())); // update array count in XML
     return index;
 }
 
@@ -449,7 +458,7 @@ XLFont& XLFont::operator=(const XLFont& other)
  */
 std::string XLFont::fontName() const
 {
-    XMLAttribute attr = appendAndGetNodeAttribute( *m_fontNode, "name", "val", OpenXLSX::XLDefaultFontName);
+    XMLAttribute attr = appendAndGetNodeAttribute(*m_fontNode, "name", "val", OpenXLSX::XLDefaultFontName);
     return attr.value();
 }
 
@@ -458,20 +467,20 @@ std::string XLFont::fontName() const
  */
 size_t XLFont::fontSize() const
 {
-    XMLAttribute attr = appendAndGetNodeAttribute( *m_fontNode, "sz", "val", std::to_string(OpenXLSX::XLDefaultFontSize));
+    XMLAttribute attr = appendAndGetNodeAttribute(*m_fontNode, "sz", "val", std::to_string(OpenXLSX::XLDefaultFontSize));
     return attr.as_uint();
 }
 
 /**
  * @details getter functions: return the font's bold, italic, underline, strikethrough status
  */
-bool XLFont::bold()                  const { return appendAndGetNodeAttribute( *m_fontNode, "b",      "val", "false").as_bool(); }
-bool XLFont::italic()                const { return appendAndGetNodeAttribute( *m_fontNode, "i",      "val", "false").as_bool(); }
+bool XLFont::bold()                  const { return appendAndGetNodeAttribute(*m_fontNode, "b",      "val", "false").as_bool(); }
+bool XLFont::italic()                const { return appendAndGetNodeAttribute(*m_fontNode, "i",      "val", "false").as_bool(); }
 XLUnderlineStyle XLFont::underline() const
 {
-    return XLUnderlineStyleFromString(appendAndGetNodeAttribute( *m_fontNode, "u", "val", "").value());
+    return XLUnderlineStyleFromString(appendAndGetNodeAttribute(*m_fontNode, "u", "val", "").value());
 }
-bool XLFont::strikethrough()         const { return appendAndGetNodeAttribute( *m_fontNode, "strike", "val", "false").as_bool(); }
+bool XLFont::strikethrough()         const { return appendAndGetNodeAttribute(*m_fontNode, "strike", "val", "false").as_bool(); }
 
 /**
  * @details Returns the font color property
@@ -479,7 +488,7 @@ bool XLFont::strikethrough()         const { return appendAndGetNodeAttribute( *
 XLColor XLFont::fontColor() const
 {
     using namespace std::literals::string_literals;
-    // XMLAttribute attr = appendAndGetNodeAttribute( *m_fontNode, "color", "theme", OpenXLSX::XLDefaultFontColorTheme);
+    // XMLAttribute attr = appendAndGetNodeAttribute(*m_fontNode, "color", "theme", OpenXLSX::XLDefaultFontColorTheme);
     // TBD what "theme" is and whether it should be supported at all
     XMLAttribute attr = appendAndGetNodeAttribute(*m_fontNode, "color", "rgb", XLDefaultFontColor);
     return XLColor(attr.value());
@@ -490,7 +499,7 @@ XLColor XLFont::fontColor() const
  */
 size_t XLFont::fontFamily() const
 {
-    XMLAttribute attr = appendAndGetNodeAttribute( *m_fontNode, "family", "val", std::to_string(OpenXLSX::XLDefaultFontFamily));
+    XMLAttribute attr = appendAndGetNodeAttribute(*m_fontNode, "family", "val", std::to_string(OpenXLSX::XLDefaultFontFamily));
     return attr.as_uint();
 }
 
@@ -499,7 +508,7 @@ size_t XLFont::fontFamily() const
  */
 size_t XLFont::fontCharset() const
 {
-    XMLAttribute attr = appendAndGetNodeAttribute( *m_fontNode, "charset", "val", std::to_string(OpenXLSX::XLDefaultFontCharset));
+    XMLAttribute attr = appendAndGetNodeAttribute(*m_fontNode, "charset", "val", std::to_string(OpenXLSX::XLDefaultFontCharset));
     return attr.as_uint();
 }
 
@@ -513,7 +522,7 @@ bool XLFont::setBold         (bool set)           { return appendAndSetNodeAttri
 bool XLFont::setItalic       (bool set)           { return appendAndSetNodeAttribute(*m_fontNode, "i",       "val", (set ? "true" : "false")).empty() == false;   }
 bool XLFont::setUnderline(XLUnderlineStyle style)
 {
-    return appendAndSetNodeAttribute(*m_fontNode, "u", "val", XLUnderlineStyleToString( style ).c_str()).empty() == false;
+    return appendAndSetNodeAttribute(*m_fontNode, "u", "val", XLUnderlineStyleToString(style).c_str()).empty() == false;
 }
 bool XLFont::setStrikethrough(bool set)           { return appendAndSetNodeAttribute(*m_fontNode, "strike",  "val", (set ? "true" : "false")).empty() == false;   }
 
@@ -549,8 +558,8 @@ XLFonts::XLFonts(const XMLNode& fonts)
     XMLNode node = fonts.first_child_of_type(pugi::node_element);
     while (not node.empty()) {
         std::string nodeName = node.name();
-        if( nodeName == "font" )
-            m_fonts.push_back( XLFont( node ) );
+        if (nodeName == "font")
+            m_fonts.push_back(XLFont(node));
         else
             std::cerr << "WARNING: XLFonts constructor: unknown subnode " << nodeName << std::endl;
         node = node.next_sibling_of_type(pugi::node_element);
@@ -599,7 +608,7 @@ size_t XLFonts::count() const { return m_fonts.size(); }
 /**
  * @details fetch XLFont from m_Fonts by index
  */
-XLFont XLFonts::fontByIndex( size_t index ) const
+XLFont XLFonts::fontByIndex(XLStyleIndex index) const
 {
     if(index >= m_fonts.size()) {
         using namespace std::literals::string_literals;
@@ -611,10 +620,10 @@ XLFont XLFonts::fontByIndex( size_t index ) const
 /**
  * @details append a new XLFont to m_fonts and m_fontsNode, based on copyFrom
  */
-size_t XLFonts::create(XLFont copyFrom, std::string styleEntriesPrefix)
+XLStyleIndex XLFonts::create(XLFont copyFrom, std::string styleEntriesPrefix)
 {
-    size_t index = count();    // index for the font to be created
-    XMLNode newNode{};         // scope declaration
+    XLStyleIndex index = count();    // index for the font to be created
+    XMLNode newNode{};               // scope declaration
 
     // ===== Append new node prior to final whitespaces, if any
     XMLNode lastStyle = m_fontsNode->last_child_of_type(pugi::node_element);
@@ -627,8 +636,18 @@ size_t XLFonts::create(XLFont copyFrom, std::string styleEntriesPrefix)
     if (styleEntriesPrefix.length() > 0)    // if a whitespace prefix is configured
         m_fontsNode->insert_child_before(pugi::node_pcdata, newNode).set_value(styleEntriesPrefix.c_str());    // prefix the new node with styleEntriesPrefix
 
-    copyXMLNode( newNode, *copyFrom.m_fontNode ); // will use copyFrom as template, does nothing if copyFrom is empty
-    m_fonts.push_back(XLFont(newNode));
+    XLFont newFont(newNode);
+    if (copyFrom.m_fontNode->empty()) {    // if no template is given
+        // ===== Create a font with default values
+        // TODO: implement font defaults
+        // newFont.setProperty( defaultValue );
+        // ...
+    }
+    else
+        copyXMLNode(newNode, *copyFrom.m_fontNode);    // will use copyFrom as template, does nothing if copyFrom is empty
+
+    m_fonts.push_back(newFont);
+    appendAndSetAttribute(*m_fontsNode, "count", std::to_string(m_fonts.size())); // update array count in XML
     return index;
 }
 
@@ -670,7 +689,7 @@ std::string XLFill::fillType() const
  */
 std::string XLFill::patternType() const
 {
-    XMLAttribute attr = appendAndGetNodeAttribute( *m_fillNode, "patternFill", "patternType", OpenXLSX::XLDefaultFillPatternType);
+    XMLAttribute attr = appendAndGetNodeAttribute(*m_fillNode, "patternFill", "patternType", OpenXLSX::XLDefaultFillPatternType);
     return attr.value();
 }
 
@@ -713,7 +732,7 @@ bool XLFill::setFillType(std::string newFillType)
         }
     }
 
-    if( insertAfter.empty() )                                                                // If no whitespace reference available
+    if (insertAfter.empty())                                                                 // If no whitespace reference available
         fillDescription = m_fillNode->prepend_child(newFillType.c_str());                        // insert new description at front
     else                                                                                     // if whitespace reference is available
         fillDescription = m_fillNode->insert_child_before(newFillType.c_str(), fillDescription); // insert new description in the exact same position between whitespaces
@@ -775,8 +794,8 @@ XLFills::XLFills(const XMLNode& fills)
     XMLNode node = fills.first_child_of_type(pugi::node_element);
     while (not node.empty()) {
         std::string nodeName = node.name();
-        if( nodeName == "fill" )
-            m_fills.push_back( XLFill( node ) );
+        if (nodeName == "fill")
+            m_fills.push_back(XLFill(node));
         else
             std::cerr << "WARNING: XLFills constructor: unknown subnode " << nodeName << std::endl;
         node = node.next_sibling_of_type(pugi::node_element);
@@ -825,7 +844,7 @@ size_t XLFills::count() const { return m_fills.size(); }
 /**
  * @details fetch XLFill from m_fills by index
  */
-XLFill XLFills::fillByIndex( size_t index ) const
+XLFill XLFills::fillByIndex(XLStyleIndex index) const
 {
     if(index >= m_fills.size()) {
         using namespace std::literals::string_literals;
@@ -837,10 +856,10 @@ XLFill XLFills::fillByIndex( size_t index ) const
 /**
  * @details append a new XLFill to m_fills and m_fillsNode, based on copyFrom
  */
-size_t XLFills::create(XLFill copyFrom, std::string styleEntriesPrefix)
+XLStyleIndex XLFills::create(XLFill copyFrom, std::string styleEntriesPrefix)
 {
-    size_t index = count();    // index for the fill to be created
-    XMLNode newNode{};         // scope declaration
+    XLStyleIndex index = count();    // index for the fill to be created
+    XMLNode newNode{};               // scope declaration
 
     // ===== Append new node prior to final whitespaces, if any
     XMLNode lastStyle = m_fillsNode->last_child_of_type(pugi::node_element);
@@ -853,8 +872,18 @@ size_t XLFills::create(XLFill copyFrom, std::string styleEntriesPrefix)
     if (styleEntriesPrefix.length() > 0)    // if a whitespace prefix is configured
         m_fillsNode->insert_child_before(pugi::node_pcdata, newNode).set_value(styleEntriesPrefix.c_str());    // prefix the new node with styleEntriesPrefix
 
-    copyXMLNode( newNode, *copyFrom.m_fillNode ); // will use copyFrom as template, does nothing if copyFrom is empty
-    m_fills.push_back(XLFill(newNode));
+    XLFill newFill(newNode);
+    if (copyFrom.m_fillNode->empty()) {    // if no template is given
+        // ===== Create a fill with default values
+        // TODO: implement fill defaults
+        // newFill.setProperty( defaultValue );
+        // ...
+    }
+    else
+        copyXMLNode(newNode, *copyFrom.m_fillNode);    // will use copyFrom as template, does nothing if copyFrom is empty
+
+    m_fills.push_back(newFill);
+    appendAndSetAttribute(*m_fillsNode, "count", std::to_string(m_fills.size())); // update array count in XML
     return index;
 }
 
@@ -1010,8 +1039,8 @@ XLBorders::XLBorders(const XMLNode& borders)
     XMLNode node = borders.first_child_of_type(pugi::node_element);
     while (not node.empty()) {
         std::string nodeName = node.name();
-        if( nodeName == "border" )
-            m_borders.push_back( XLBorder( node ) );
+        if (nodeName == "border")
+            m_borders.push_back(XLBorder(node));
         else
             std::cerr << "WARNING: XLBorders constructor: unknown subnode " << nodeName << std::endl;
         node = node.next_sibling_of_type(pugi::node_element);
@@ -1060,7 +1089,7 @@ size_t XLBorders::count() const { return m_borders.size(); }
 /**
  * @details fetch XLBorder from m_borders by index
  */
-XLBorder XLBorders::borderByIndex( size_t index ) const
+XLBorder XLBorders::borderByIndex(XLStyleIndex index) const
 {
     if(index >= m_borders.size()) {
         using namespace std::literals::string_literals;
@@ -1072,10 +1101,10 @@ XLBorder XLBorders::borderByIndex( size_t index ) const
 /**
  * @details append a new XLBorder to m_borders and m_bordersNode, based on copyFrom
  */
-size_t XLBorders::create(XLBorder copyFrom, std::string styleEntriesPrefix)
+XLStyleIndex XLBorders::create(XLBorder copyFrom, std::string styleEntriesPrefix)
 {
-    size_t index = count();    // index for the border to be created
-    XMLNode newNode{};         // scope declaration
+    XLStyleIndex index = count();    // index for the border to be created
+    XMLNode newNode{};               // scope declaration
 
     // ===== Append new node prior to final whitespaces, if any
     XMLNode lastStyle = m_bordersNode->last_child_of_type(pugi::node_element);
@@ -1088,8 +1117,18 @@ size_t XLBorders::create(XLBorder copyFrom, std::string styleEntriesPrefix)
     if (styleEntriesPrefix.length() > 0)    // if a whitespace prefix is configured
         m_bordersNode->insert_child_before(pugi::node_pcdata, newNode).set_value(styleEntriesPrefix.c_str());    // prefix the new node with styleEntriesPrefix
 
-    copyXMLNode( newNode, *copyFrom.m_borderNode ); // will use copyFrom as template, does nothing if copyFrom is empty
-    m_borders.push_back(XLBorder(newNode));
+    XLBorder newBorder(newNode);
+    if (copyFrom.m_borderNode->empty()) {    // if no template is given
+        // ===== Create a border with default values
+        // TODO: implement border defaults
+        // newBorder.setProperty( defaultValue );
+        // ...
+    }
+    else
+        copyXMLNode(newNode, *copyFrom.m_borderNode);    // will use copyFrom as template, does nothing if copyFrom is empty
+
+    m_borders.push_back(newBorder);
+    appendAndSetAttribute(*m_bordersNode, "count", std::to_string(m_borders.size())); // update array count in XML
     return index;
 }
 
@@ -1201,21 +1240,21 @@ uint32_t XLCellFormat::numberFormatId() const { return m_cellFormatNode->attribu
 
 /**
  * @details determines the fontIndex
- * @note returns XLInvalidUInt32 if attribute is not defined / set / empty
+ * @note returns XLInvalidStyleIndex if attribute is not defined / set / empty
  */
-uint32_t XLCellFormat::fontIndex() const { return m_cellFormatNode->attribute("fontId").as_uint(XLInvalidUInt32); }
+XLStyleIndex XLCellFormat::fontIndex() const { return m_cellFormatNode->attribute("fontId").as_uint(XLInvalidStyleIndex); }
 
 /**
  * @details determines the fillIndex
- * @note returns XLInvalidUInt32 if attribute is not defined / set / empty
+ * @note returns XLInvalidStyleIndex if attribute is not defined / set / empty
  */
-uint32_t XLCellFormat::fillIndex() const { return m_cellFormatNode->attribute("fillId").as_uint(XLInvalidUInt32); }
+XLStyleIndex XLCellFormat::fillIndex() const { return m_cellFormatNode->attribute("fillId").as_uint(XLInvalidStyleIndex); }
 
 /**
  * @details determines the borderIndex
- * @note returns XLInvalidUInt32 if attribute is not defined / set / empty
+ * @note returns XLInvalidStyleIndex if attribute is not defined / set / empty
  */
-uint32_t XLCellFormat::borderIndex() const { return m_cellFormatNode->attribute("borderId").as_uint(XLInvalidUInt32); }
+XLStyleIndex XLCellFormat::borderIndex() const { return m_cellFormatNode->attribute("borderId").as_uint(XLInvalidStyleIndex); }
 
 /**
  * @details determines the applyFont,applyFill,applyBorder,applyAlignment,applyProtection status
@@ -1246,17 +1285,17 @@ XLAlignment XLCellFormat::alignment(bool createIfMissing) const
 /**
  * @details Setter functions
  */
-bool XLCellFormat::setNumberFormatId  (uint32_t newNumFmtId)    { return appendAndSetAttribute(*m_cellFormatNode, "numFmtId", std::to_string(newNumFmtId)).empty() == false;     }
-bool XLCellFormat::setFontIndex       (uint32_t newXfIndex)     { return appendAndSetAttribute(*m_cellFormatNode, "fontId",   std::to_string(newXfIndex)).empty() == false;      }
-bool XLCellFormat::setFillIndex       (uint32_t newFillIndex)   { return appendAndSetAttribute(*m_cellFormatNode, "fillId",   std::to_string(newFillIndex)).empty() == false;    }
-bool XLCellFormat::setBorderIndex     (uint32_t newBorderIndex) { return appendAndSetAttribute(*m_cellFormatNode, "borderId", std::to_string(newBorderIndex)).empty() == false;  }
-bool XLCellFormat::setApplyFont       (bool set)       { return appendAndSetAttribute    (*m_cellFormatNode, "applyFont",            (set ? "true" : "false")).empty() == false; }
-bool XLCellFormat::setApplyFill       (bool set)       { return appendAndSetAttribute    (*m_cellFormatNode, "applyFill",            (set ? "true" : "false")).empty() == false; }
-bool XLCellFormat::setApplyBorder     (bool set)       { return appendAndSetAttribute    (*m_cellFormatNode, "applyBorder",          (set ? "true" : "false")).empty() == false; }
-bool XLCellFormat::setApplyAlignment  (bool set)       { return appendAndSetAttribute    (*m_cellFormatNode, "applyAlignment",       (set ? "true" : "false")).empty() == false; }
-bool XLCellFormat::setApplyProtection (bool set)       { return appendAndSetAttribute    (*m_cellFormatNode, "applyProtection",      (set ? "true" : "false")).empty() == false; }
-bool XLCellFormat::setLocked          (bool set)       { return appendAndSetNodeAttribute(*m_cellFormatNode, "protection", "locked", (set ? "true" : "false")).empty() == false; }
-bool XLCellFormat::setHidden          (bool set)       { return appendAndSetNodeAttribute(*m_cellFormatNode, "protection", "hidden", (set ? "true" : "false")).empty() == false; }
+bool XLCellFormat::setNumberFormatId  (uint32_t newNumFmtId)        { return appendAndSetAttribute(*m_cellFormatNode, "numFmtId",        std::to_string(newNumFmtId)).empty()    == false; }
+bool XLCellFormat::setFontIndex       (XLStyleIndex newXfIndex)     { return appendAndSetAttribute(*m_cellFormatNode, "fontId",          std::to_string(newXfIndex)).empty()     == false; }
+bool XLCellFormat::setFillIndex       (XLStyleIndex newFillIndex)   { return appendAndSetAttribute(*m_cellFormatNode, "fillId",          std::to_string(newFillIndex)).empty()   == false; }
+bool XLCellFormat::setBorderIndex     (XLStyleIndex newBorderIndex) { return appendAndSetAttribute(*m_cellFormatNode, "borderId",        std::to_string(newBorderIndex)).empty() == false; }
+bool XLCellFormat::setApplyFont       (bool set)                    { return appendAndSetAttribute(*m_cellFormatNode, "applyFont",       (set ? "true" : "false")).empty()       == false; }
+bool XLCellFormat::setApplyFill       (bool set)                    { return appendAndSetAttribute(*m_cellFormatNode, "applyFill",       (set ? "true" : "false")).empty()       == false; }
+bool XLCellFormat::setApplyBorder     (bool set)                    { return appendAndSetAttribute(*m_cellFormatNode, "applyBorder",     (set ? "true" : "false")).empty()       == false; }
+bool XLCellFormat::setApplyAlignment  (bool set)                    { return appendAndSetAttribute(*m_cellFormatNode, "applyAlignment",  (set ? "true" : "false")).empty()       == false; }
+bool XLCellFormat::setApplyProtection (bool set)                    { return appendAndSetAttribute(*m_cellFormatNode, "applyProtection", (set ? "true" : "false")).empty()       == false; }
+bool XLCellFormat::setLocked          (bool set)                { return appendAndSetNodeAttribute(*m_cellFormatNode, "protection", "locked", (set ? "true" : "false")).empty() == false;  }
+bool XLCellFormat::setHidden          (bool set)                { return appendAndSetNodeAttribute(*m_cellFormatNode, "protection", "hidden", (set ? "true" : "false")).empty() == false;  }
 
 
 /**
@@ -1297,8 +1336,8 @@ XLCellFormats::XLCellFormats(const XMLNode& cellStyleFormats)
     XMLNode node = cellStyleFormats.first_child_of_type(pugi::node_element);
     while (not node.empty()) {
         std::string nodeName = node.name();
-        if( nodeName == "xf" )
-            m_cellFormats.push_back( XLCellFormat( node ) );
+        if (nodeName == "xf")
+            m_cellFormats.push_back(XLCellFormat(node));
         else
             std::cerr << "WARNING: XLCellFormats constructor: unknown subnode " << nodeName << std::endl;
         node = node.next_sibling_of_type(pugi::node_element);
@@ -1347,7 +1386,7 @@ size_t XLCellFormats::count() const { return m_cellFormats.size(); }
 /**
  * @details fetch XLCellFormat from m_cellFormats by index
  */
-XLCellFormat XLCellFormats::cellFormatByIndex( size_t index ) const
+XLCellFormat XLCellFormats::cellFormatByIndex(XLStyleIndex index) const
 {
     if(index >= m_cellFormats.size()) {
         using namespace std::literals::string_literals;
@@ -1360,10 +1399,10 @@ XLCellFormat XLCellFormats::cellFormatByIndex( size_t index ) const
 /**
  * @details append a new XLCellFormat to m_cellFormats and m_cellFormatsNode, based on copyFrom
  */
-size_t XLCellFormats::create(XLCellFormat copyFrom, std::string styleEntriesPrefix)
+XLStyleIndex XLCellFormats::create(XLCellFormat copyFrom, std::string styleEntriesPrefix)
 {
-    size_t index = count();    // index for the format to be created
-    XMLNode newNode{};         // scope declaration
+    XLStyleIndex index = count();    // index for the cell format to be created
+    XMLNode newNode{};               // scope declaration
 
     // ===== Append new node prior to final whitespaces, if any
     XMLNode lastStyle = m_cellFormatsNode->last_child_of_type(pugi::node_element);
@@ -1376,8 +1415,18 @@ size_t XLCellFormats::create(XLCellFormat copyFrom, std::string styleEntriesPref
     if (styleEntriesPrefix.length() > 0)    // if a whitespace prefix is configured
         m_cellFormatsNode->insert_child_before(pugi::node_pcdata, newNode).set_value(styleEntriesPrefix.c_str());    // prefix the new node with styleEntriesPrefix
 
-    copyXMLNode( newNode, *copyFrom.m_cellFormatNode ); // will use copyFrom as template, does nothing if copyFrom is empty
-    m_cellFormats.push_back(XLCellFormat(newNode));
+    XLCellFormat newCellFormat(newNode);
+    if (copyFrom.m_cellFormatNode->empty()) {    // if no template is given
+        // ===== Create a cell format with default values
+        // TODO: implement cell format defaults
+        // newStyle.setProperty( defaultValue );
+        // ...
+    }
+    else
+        copyXMLNode(newNode, *copyFrom.m_cellFormatNode); // will use copyFrom as template, does nothing if copyFrom is empty
+
+    m_cellFormats.push_back(newCellFormat);
+    appendAndSetAttribute(*m_cellFormatsNode, "count", std::to_string(m_cellFormats.size())); // update array count in XML
     return index;
 }
 
@@ -1417,7 +1466,7 @@ std::string XLCellStyle::name() const { return m_cellStyleNode->attribute("name"
 /**
  * @details Returns the xfId value
  */
-uint32_t XLCellStyle::xfId() const { return m_cellStyleNode->attribute("xfId").as_uint(XLInvalidUInt32); }
+XLStyleIndex XLCellStyle::xfId() const { return m_cellStyleNode->attribute("xfId").as_uint(XLInvalidStyleIndex); }
 
 /**
  * @details Returns the builtinId value
@@ -1428,7 +1477,7 @@ uint32_t XLCellStyle::builtinId() const { return m_cellStyleNode->attribute("bui
  * @details Setter functions
  */
 bool XLCellStyle::setName     (std::string newName)   { return appendAndSetAttribute(*m_cellStyleNode, "name",      newName).empty() == false;                      }
-bool XLCellStyle::setXfId     (uint32_t newXfId)      { return appendAndSetAttribute(*m_cellStyleNode, "xfId",      std::to_string(newXfId)).empty() == false;      }
+bool XLCellStyle::setXfId     (XLStyleIndex newXfId)  { return appendAndSetAttribute(*m_cellStyleNode, "xfId",      std::to_string(newXfId)).empty() == false;      }
 bool XLCellStyle::setBuiltinId(uint32_t newBuiltinId) { return appendAndSetAttribute(*m_cellStyleNode, "builtinId", std::to_string(newBuiltinId)).empty() == false; }
 
 /**
@@ -1460,8 +1509,8 @@ XLCellStyles::XLCellStyles(const XMLNode& cellStyles)
     while (not node.empty()) {
         std::string nodeName = node.name();
         // std::cout << "XLCellStyles constructor, node name is " << nodeName << std::endl;
-        if( nodeName == "cellStyle" )
-            m_cellStyles.push_back( XLCellStyle( node ) );
+        if (nodeName == "cellStyle")
+            m_cellStyles.push_back(XLCellStyle(node));
         else
             std::cerr << "WARNING: XLCellStyles constructor: unknown subnode " << nodeName << std::endl;
         node = node.next_sibling_of_type(pugi::node_element);
@@ -1510,7 +1559,7 @@ size_t XLCellStyles::count() const { return m_cellStyles.size(); }
 /**
  * @details fetch XLCellStyle from m_cellStyles by index
  */
-XLCellStyle XLCellStyles::cellStyleByIndex( size_t index ) const
+XLCellStyle XLCellStyles::cellStyleByIndex(XLStyleIndex index) const
 {
     if(index >= m_cellStyles.size()) {
         using namespace std::literals::string_literals;
@@ -1523,10 +1572,10 @@ XLCellStyle XLCellStyles::cellStyleByIndex( size_t index ) const
 /**
  * @details append a new XLCellStyle to m_cellStyles and m_cellStyleNode, based on copyFrom
  */
-size_t XLCellStyles::create(XLCellStyle copyFrom, std::string styleEntriesPrefix)
+XLStyleIndex XLCellStyles::create(XLCellStyle copyFrom, std::string styleEntriesPrefix)
 {
-    size_t index = count();    // index for the style to be created
-    XMLNode newNode{};         // scope declaration
+    XLStyleIndex index = count();    // index for the cell style to be created
+    XMLNode newNode{};               // scope declaration
 
     // ===== Append new node prior to final whitespaces, if any
     XMLNode lastStyle = m_cellStylesNode->last_child_of_type(pugi::node_element);
@@ -1539,8 +1588,18 @@ size_t XLCellStyles::create(XLCellStyle copyFrom, std::string styleEntriesPrefix
     if (styleEntriesPrefix.length() > 0)    // if a whitespace prefix is configured
         m_cellStylesNode->insert_child_before(pugi::node_pcdata, newNode).set_value(styleEntriesPrefix.c_str());    // prefix the new node with styleEntriesPrefix
 
-    copyXMLNode( newNode, *copyFrom.m_cellStyleNode ); // will use copyFrom as template, does nothing if copyFrom is empty
-    m_cellStyles.push_back(XLCellStyle(newNode));
+    XLCellStyle newCellStyle(newNode);
+    if (copyFrom.m_cellStyleNode->empty()) {    // if no template is given
+        // ===== Create a cell style with default values
+        // TODO: implement cell style defaults
+        // newCellStyle.setProperty( defaultValue );
+        // ...
+    }
+    else
+        copyXMLNode(newNode, *copyFrom.m_cellStyleNode); // will use copyFrom as template, does nothing if copyFrom is empty
+
+    m_cellStyles.push_back(newCellStyle);
+    appendAndSetAttribute(*m_cellStylesNode, "count", std::to_string(m_cellStyles.size())); // update array count in XML
     return index;
 }
 
@@ -1551,39 +1610,38 @@ size_t XLCellStyles::create(XLCellStyle copyFrom, std::string styleEntriesPrefix
 XLStyles::XLStyles(XLXmlData* xmlData, std::string stylesPrefix)
     : XLXmlFile(xmlData)
 {
-    std::cout << "XLStyles constructor, xmlData is:" << std::endl;
     XMLDocument & doc = xmlDocument();
     XMLNode node = doc.document_element().first_child_of_type(pugi::node_element);
     while (not node.empty()) {
         XLStylesEntryType e = XLStylesEntryTypeFromString (node.name());
-        // std::cout << "node.name() is " << node.name() << ", resulting XLStylesEntryType is " << std::to_string( e ) << std::endl;
+        // std::cout << "node.name() is " << node.name() << ", resulting XLStylesEntryType is " << std::to_string(e) << std::endl;
         switch (e) {
             case XLStylesNumberFormats:
-                std::cout << "found XLStylesNumberFormats, node name is " << node.name() << std::endl;
+                // std::cout << "found XLStylesNumberFormats, node name is " << node.name() << std::endl;
                 m_numberFormats = std::make_unique<XLNumberFormats>(node);
                 break;
             case XLStylesFonts:
-                std::cout << "found XLStylesFonts, node name is " << node.name() << std::endl;
+                // std::cout << "found XLStylesFonts, node name is " << node.name() << std::endl;
                 m_fonts = std::make_unique<XLFonts>(node);
                 break;
             case XLStylesFills:
-                std::cout << "found XLStylesFills, node name is " << node.name() << std::endl;
+                // std::cout << "found XLStylesFills, node name is " << node.name() << std::endl;
                 m_fills = std::make_unique<XLFills>(node);
                 break;
             case XLStylesBorders:
-                std::cout << "found XLStylesBorders, node name is " << node.name() << std::endl;
+                // std::cout << "found XLStylesBorders, node name is " << node.name() << std::endl;
                 m_borders = std::make_unique<XLBorders>(node);
                 break;
             case XLStylesCellStyleFormats:
-                std::cout << "found XLStylesCellStyleFormats, node name is " << node.name() << std::endl;
+                // std::cout << "found XLStylesCellStyleFormats, node name is " << node.name() << std::endl;
                 m_cellStyleFormats = std::make_unique<XLCellFormats>(node);
                 break;
             case XLStylesCellFormats:
-                std::cout << "found XLStylesCellFormats, node name is " << node.name() << std::endl;
+                // std::cout << "found XLStylesCellFormats, node name is " << node.name() << std::endl;
                 m_cellFormats = std::make_unique<XLCellFormats>(node);
                 break;
             case XLStylesCellStyles:
-                std::cout << "found XLStylesCellStyles, node name is " << node.name() << std::endl;
+                // std::cout << "found XLStylesCellStyles, node name is " << node.name() << std::endl;
                 m_cellStyles = std::make_unique<XLCellStyles>(node);
                 break;
             case XLStylesUnknown: [[fallthrough]];

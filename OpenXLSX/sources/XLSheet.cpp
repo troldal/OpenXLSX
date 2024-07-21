@@ -377,6 +377,23 @@ XLCellRange XLWorksheet::range(const XLCellReference& topLeft, const XLCellRefer
 }
 
 /**
+ * @details Get a range based on two cell reference strings
+ */
+XLCellRange XLWorksheet::range(std::string const& topLeft, std::string const& bottomRight) const
+{
+    return range(XLCellReference(topLeft), XLCellReference(bottomRight));
+}
+
+/**
+ * @details Get a range based on a reference string
+ */
+XLCellRange XLWorksheet::range(std::string const& rangeReference) const
+{
+    size_t pos = rangeReference.find_first_of(':');
+    return range(rangeReference.substr(0, pos), rangeReference.substr(pos + 1, std::string::npos));
+}
+
+/**
  * @details
  * @pre
  * @post
@@ -515,6 +532,12 @@ XLColumn XLWorksheet::column(uint16_t columnNumber) const
 }
 
 /**
+ * @details Get the column with the given column reference by converting the columnRef into a column number
+ *          and forwarding the implementation to XLColumn XLWorksheet::column(uint16_t columnNumber) const
+ */
+XLColumn XLWorksheet::column(std::string const& columnRef) const { return column(XLCellReference::columnAsNumber(columnRef)); }
+
+/**
  * @details Returns an XLCellReference to the last cell using rowCount() and columnCount() methods.
  */
 XLCellReference XLWorksheet::lastCell() const noexcept { return { rowCount(), columnCount() }; }
@@ -580,6 +603,52 @@ void XLWorksheet::updateSheetName(const std::string& oldName, const std::string&
             }
         }
     }
+}
+
+/**
+ * @details Retrieve the column's format
+ */
+XLStyleIndex XLWorksheet::getColumnFormat(uint16_t columnNumber) const { return column(columnNumber).format(); }
+XLStyleIndex XLWorksheet::getColumnFormat(const std::string& columnNumber) const { return getColumnFormat(XLCellReference::columnAsNumber(columnNumber)); }
+
+/**
+ * @details Set the style for the identified column,
+ *          then iterate over all rows to set the same style for existing cells in that column
+ */
+bool XLWorksheet::setColumnFormat(uint16_t columnNumber, XLStyleIndex cellFormatIndex)
+{
+    if (!column(columnNumber).setFormat(cellFormatIndex)) // attempt to set column format
+        return false; // early fail
+    
+    XLRowRange allRows = rows();
+    for (XLRowIterator rowIt = allRows.begin(); rowIt != allRows.end(); ++rowIt) {
+        XLCell curCell = rowIt->findCell(columnNumber);
+        if (curCell && !curCell.setCellFormat(cellFormatIndex))    // attempt to set cell format for a non empty cell
+            return false; // failure to set cell format
+    }
+    return true; // if loop finished nominally: success
+}
+bool XLWorksheet::setColumnFormat(const std::string& columnNumber, XLStyleIndex cellFormatIndex) { return setColumnFormat( XLCellReference::columnAsNumber(columnNumber), cellFormatIndex); }
+
+/**
+ * @details Retrieve the row's format
+ */
+XLStyleIndex XLWorksheet::getRowFormat(uint16_t rowNumber) const { return row(rowNumber).format(); }
+
+/**
+ * @details Set the style for the identified row,
+ *          then iterate over all existing cells in the row to set the same style 
+ */
+bool XLWorksheet::setRowFormat(uint32_t rowNumber, XLStyleIndex cellFormatIndex)
+{
+    if (!row(rowNumber).setFormat(cellFormatIndex)) // attempt to set row format
+        return false; // early fail
+
+    XLRowDataRange rowCells = row(rowNumber).cells();
+    for (XLRowDataIterator cellIt = rowCells.begin(); cellIt != rowCells.end(); ++cellIt)
+        if (!cellIt->setCellFormat(cellFormatIndex)) // attempt to set cell format
+            return false;
+    return true; // if loop finished nominally: success
 }
 
 /**

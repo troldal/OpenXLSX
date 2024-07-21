@@ -60,6 +60,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLCellValue.hpp"
 #include "XLFormula.hpp"
 #include "XLSharedStrings.hpp"
+#include "XLStyles.hpp"          // XLStyleIndex
 
 // ========== CLASS AND ENUM TYPE DEFINITIONS ========== //
 namespace OpenXLSX
@@ -190,20 +191,21 @@ namespace OpenXLSX
         std::string getString() const { return value().getString(); }
 
         /**
-         * @brief get the array index of xl/styles.xml:<styleSheet>:<cellXfs> for the style used in this cell
-         *        this value is stored in the s attribute of a cell (or row? TBD) like so: s="2"
+         * @brief Get the array index of xl/styles.xml:<styleSheet>:<cellXfs> for the style used in this cell.
+         *        This value is stored in the s attribute of a cell (or row? TBD) like so: s="2"
+         * @returns The index of the applicable format style
          */
-        size_t cellFormat() const;
+        XLStyleIndex cellFormat() const;
 
         /**
-         * @brief set the cell style (attribute s) with a reference to the array index of xl/styles.xml:<styleSheet>:<cellXfs>
-         * @param cellFormatIndex the style to set, corresponding to the nidex of XLStyles::cellStyles()
-         * @returns true on success, false on failure
+         * @brief Set the cell style (attribute s) with a reference to the array index of xl/styles.xml:<styleSheet>:<cellXfs>
+         * @param cellFormatIndex The style to set, corresponding to the nidex of XLStyles::cellStyles()
+         * @returns True on success, false on failure
          */
-        bool setCellFormat(size_t cellFormatIndex);
+        bool setCellFormat(XLStyleIndex cellFormatIndex);
 
         /**
-         * @brief print the XML contents of the XLCell using the underlying XMLNode print function
+         * @brief Print the XML contents of the XLCell using the underlying XMLNode print function
          */
         void print(std::basic_ostream<char>& ostr) const;
 
@@ -269,6 +271,23 @@ namespace OpenXLSX
          */
         XLCellAssignable& operator=(XLCell&& other) noexcept override;
         XLCellAssignable& operator=(XLCellAssignable&& other) noexcept;
+
+        /**
+         * @brief Templated assignment operator.
+         * @tparam T The type of the value argument.
+         * @param value The value.
+         * @return A reference to the assigned-to object.
+         */
+        template<typename T,
+                 typename = std::enable_if_t<
+                     std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<std::decay_t<T>, std::string> ||
+                     std::is_same_v<std::decay_t<T>, std::string_view> || std::is_same_v<std::decay_t<T>, const char*> ||
+                     std::is_same_v<std::decay_t<T>, char*> || std::is_same_v<T, XLDateTime>>>
+        XLCellAssignable& operator=(T value)
+        {
+            XLCell::value() = value; // forward implementation to templated XLCellValue& XLCellValue::operator=(T value)
+            return *this;
+        }
     };
 }    // namespace OpenXLSX
 

@@ -21,20 +21,27 @@ int main( int argc, char *argv[] )
 {
 	std::cout << "nowide is " << ( nowide_status() ? "enabled" : "disabled" ) << std::endl;
 
-	/* DONE: format support for XLCells (cellFormat / setCellFormat)
-	 * TODO: update style elements "count" attribute for all arrays when saving
-	 * TODO: format support for XLRows: <row> attributes s (same as cell attribute) and customFormat (=true/false)
-	 *       it appears that XLRow style is used to overwrite existing cell formats, and then for whenever a new cell is created
-	 *         -> could support the same in OpenXLSX - possibly also for columns
+	/*
+	 * TODO: align XLStyles.cpp with known documentation of xl/styles.xml as far as support is desired
+	 * TODO: XLStyles ::create functions: implement good default style properties for all styles
 	 * TODO TBD: permit setting a format reference for shared strings
+	 * 
+	 * DONE: format support for XLCells (cellFormat / setCellFormat)
+	 * DONE: format support for XLRows: <row> attributes s (same as cell attribute) and customFormat (=true/false)
+	 *       XLWorksheet::setRowFormat overwrites existing cell formats, and
+	 *         TODO TBD row format is then used by OpenXLSX for new cells created in that row
+	 * DONE: format support for XLColumns: <col> attributes style (same as cell attribute s)
+	 *       XLWorksheet::setColumnFormat overwrites existing cell formats, and
+	 *         TODO TBD column format is then used by OpenXLSX as default for new cells created in that column when they do not have a row style
+	 * DONE: update style elements "count" attribute for all arrays when saving
 	 */
 	
-	// load example file
-	XLDocument doc("./test.xlsx"s);
+	// create new workbook
+	XLDocument doc{};
+	doc.create("./Demo10.xlsx");
 
 	std::cout << "doc.name() is " << doc.name() << std::endl;
 
-	size_t nodeIndex;
 
 	XLNumberFormats & numberFormats = doc.styles().numberFormats();
 	XLFonts & fonts = doc.styles().fonts();
@@ -44,13 +51,13 @@ int main( int argc, char *argv[] )
 	XLCellFormats & cellFormats = doc.styles().cellFormats();
 	XLCellStyles & cellStyles = doc.styles().cellStyles();
 
-	XLWorksheet wks = doc.workbook().worksheet("Containers");
-	size_t cellFormatIndexA2 = wks.cell("A2").cellFormat();                 // get index of cell format
-	size_t fontIndexA2 = cellFormats[ cellFormatIndexA2 ].fontIndex();      // get index of used font
+	XLWorksheet wks = doc.workbook().worksheet(1);
+	XLStyleIndex cellFormatIndexA2 = wks.cell("A2").cellFormat();                 // get index of cell format
+	XLStyleIndex fontIndexA2 = cellFormats[ cellFormatIndexA2 ].fontIndex();      // get index of used font
 
-	size_t newFontIndex = fonts.create( fonts[ fontIndexA2 ] );             // create a new font based on used font
-	size_t newCellFormatIndex                                               // create a new cell format
-		= cellFormats.create( cellFormats[ cellFormatIndexA2 ] );            //              based on used format
+	XLStyleIndex newFontIndex = fonts.create( fonts[ fontIndexA2 ] );             // create a new font based on used font
+	XLStyleIndex newCellFormatIndex                                               // create a new cell format
+		= cellFormats.create( cellFormats[ cellFormatIndexA2 ] );                  //              based on used format
 
 	cellFormats[ newCellFormatIndex ].setFontIndex( newFontIndex );         // assign the new font to the new cell format
 	wks.cell("A2").setCellFormat( newCellFormatIndex );                     // assign the new cell format to the cell
@@ -68,8 +75,65 @@ int main( int argc, char *argv[] )
 
 	cellFormats[ newCellFormatIndex ].setApplyFont( true );                 // apply the font (seems to do nothing)
 
+	wks.cell("A25" ) = "42"; // NEW functionality: XLCellAssignable now has a direct value assignment overload
+	std::cout << "wks A25 value is " << wks.cell("A25" ) << std::endl;
 
+	XLCellRange cellRange = wks.range("A3", "Z10"); // NEW functionality: range based on cell reference strings
+	std::cout << "range " << cellRange.address()                      // NEW: cell range address
+		<< " with top left " << cellRange.topLeft().address()          // NEW: cell range topLeft cell reference
+		<< " and bottom right " << cellRange.bottomRight().address()   // NEW: cell range bottomRight cell reference
+		<< " contains " << cellRange.numRows() << " rows, " << cellRange.numColumns() << " columns" << std::endl;
+
+	cellRange = wks.range("A1:XFD100"); // NEW functionality: range based on range reference
+	std::cout << "range " << cellRange.address() << " contains " << cellRange.numRows() << " rows, " << cellRange.numColumns() << " columns" << std::endl;
+
+	XLStyleIndex fontBold = fonts.create();
+	fonts[ fontBold ].setBold();
+	XLStyleIndex boldDefault = cellFormats.create();
+	cellFormats[ boldDefault ].setFontIndex( fontBold );
+
+	cellRange = wks.range("A5:Z5");
+	cellRange = "this is a bold range"; // NEW functionality: XLCellRange now has a direct value assignment overload
+	cellRange.setFormat( boldDefault ); // NEW functionality: XLCellRange supports setting format for all cells in the range
+
+	XLStyleIndex fontItalic = fonts.create();
+	fonts[ fontItalic ].setItalic();
+	XLStyleIndex italicDefault = cellFormats.create();
+	cellFormats[ italicDefault ].setFontIndex( fontItalic );
+
+	cellRange = wks.range("E1:E100");
+	cellRange = "this is an italic range";
+	cellRange.setFormat( italicDefault );
+
+	cellRange = wks.range("A10:Z11");
+	cellRange = "lalala"; // create cells if they do not exist by assigning values to them
+	XLRow row = wks.row(10);
+	row.cells() = "this is an italic row"; // NEW functionality: overwrite value for all *existing* cells in row
+	wks.setRowFormat( row.rowNumber(), italicDefault );  // NEW functionality: set format for all (existing) cells in row, and row format to be used as default for future cells
+
+	cellRange = wks.range("J1:J100");
+	cellRange = "this is a bold column";
+	XLColumn col = wks.column("J");      // NEW functionality: XLWorksheet::column now supports getting a column from a column reference
+	wks.setColumnFormat( XLCellReference::columnAsNumber("J"), boldDefault ); // NEW functionality: set format for all (existing) cells in column, and column format to be used as default for future cells
+
+	wks.setRowFormat( 11, newCellFormatIndex );  // set row 11 to bold italic underline strikethrough font with color as formatted above
+	XLStyleIndex redFormat = cellFormats.create( cellFormats[ newCellFormatIndex ] );
+	XLStyleIndex redFont = fonts.create();
+	fonts[ redFont ].setFontColor( red );
+	cellFormats[ redFormat ].setFontIndex( redFont );
+	cellRange = wks.range("B2:P5");
+	cellRange = "red range";
+	wks.cell(cellRange.topLeft()).value() = "red range " + cellRange.address() + " top left cell";
+	wks.cell(cellRange.bottomRight()).value() = "red range " + cellRange.address() + " bottom right cell";
+	cellRange.setFormat( redFormat );
+
+	// XLStyleIndex 
+
+
+	// enable testBasics = true to create/modify at least one entry in each known styles array
+	// disable testBasics = false to stop the demo execution here and save the document
 	bool testBasics = false;
+
 	if( testBasics ) {
 		std::cout << "   numberFormats.count() is " <<    numberFormats.count() << std::endl;
 		std::cout << "           fonts.count() is " <<            fonts.count() << std::endl;
@@ -80,7 +144,11 @@ int main( int argc, char *argv[] )
 		std::cout << "      cellStyles.count() is " <<       cellStyles.count() << std::endl;
 
 
-		bool createAll = false;
+		// enable createAll = true to create a new entry in each known styles array and modify that
+		// disable createAll = false to modify the last entry in each styles array instead
+		bool createAll = true;
+
+		XLStyleIndex nodeIndex;
 
 		nodeIndex = ( createAll ? numberFormats.create() : numberFormats.count() - 1 );
 		numberFormats[ nodeIndex ].setFormatId( 15 );
@@ -171,7 +239,7 @@ int main( int argc, char *argv[] )
 	} // end if( testBasics )
 
 	
-	doc.saveAs("./test-out.xlsx");
+	doc.saveAs("./Demo10.xlsx");
 	doc.close();
 
 	return 0;

@@ -212,6 +212,27 @@ namespace OpenXLSX
          */
         XLRowDataRange cells(uint16_t firstCell, uint16_t lastCell) const;
 
+        /**
+         * @brief Find a cell at columNumber, or return an empty cell
+         * @param columNumber The column at which to check for an existing cell
+         * @return An XLCell object (that bool-evaluates to false if cell was not found)
+         */
+        XLCell findCell(uint16_t columNumber) const;
+
+        /**
+         * @brief Get the array index of xl/styles.xml:<styleSheet>:<cellXfs> for the style assigned to the row.
+         *        This value is stored in the row attributes like so: s="2"
+         * @returns The index of the applicable format style
+         */
+        XLStyleIndex format() const;
+
+        /**
+         * @brief Set the row style as a reference to the array index of xl/styles.xml:<styleSheet>:<cellXfs>
+         * @param cellFormatIndex The style to set, corresponding to the index of XLStyles::cellStyles()
+         * @returns true on success, false on failure
+         */
+        bool setFormat(XLStyleIndex cellFormatIndex);
+
     private:
         /**
          * @brief

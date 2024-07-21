@@ -157,10 +157,10 @@ namespace OpenXLSX
      * @param rowNumber (optional) row number of the row node, if already known, defaults to 0
      * @return The xml node representing the requested cell.
      */
-    inline XMLNode getCellNode(XMLNode rowNode, uint16_t columnNumber, uint32_t rowNumber = 0 )
+    inline XMLNode getCellNode(XMLNode rowNode, uint16_t columnNumber, uint32_t rowNumber = 0)
     {
         auto cellNode = XMLNode();
-        if( rowNode.empty() ) return cellNode;    // 2024-05-28: return an empty node in case of empty rowNode
+        if (rowNode.empty()) return cellNode;    // 2024-05-28: return an empty node in case of empty rowNode
 
         cellNode = rowNode.last_child_of_type(pugi::node_element);
         if( !rowNumber ) rowNumber = rowNode.attribute("r").as_uint(); // if not provided, determine from rowNode

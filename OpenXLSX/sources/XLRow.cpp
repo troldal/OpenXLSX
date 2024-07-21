@@ -50,6 +50,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLCell.hpp"
 #include "XLCellReference.hpp"
 #include "XLRow.hpp"
+#include "XLStyles.hpp"          // XLDefaultCellFormat
 
 #include "utilities/XLUtilities.hpp"
 
@@ -272,6 +273,78 @@ namespace OpenXLSX
     {
         return XLRowDataRange(*m_rowNode, firstCell, lastCell, m_sharedStrings);
     }
+
+    /**
+     * @details Find & return a cell in indicated column
+     */
+    XLCell XLRow::findCell(uint16_t columnNumber) const
+    {
+        if (m_rowNode->empty()) return XLCell{};
+
+        XMLNode cellNode = m_rowNode->last_child_of_type(pugi::node_element);
+
+        // ===== If there are no cells in the current row, or the requested cell is beyond the last cell in the row...
+        if (cellNode.empty() || (XLCellReference(cellNode.attribute("r").value()).column() < columnNumber))
+            return XLCell{}; // fail
+
+        // ===== If the requested node is closest to the end, start from the end and search backwards...
+        if (XLCellReference(cellNode.attribute("r").value()).column() - columnNumber < columnNumber) {
+            while (not cellNode.empty() && (XLCellReference(cellNode.attribute("r").value()).column() > columnNumber))
+                cellNode = cellNode.previous_sibling_of_type(pugi::node_element);
+            // ===== If the backwards search failed to locate the requested cell
+            if (cellNode.empty() || (XLCellReference(cellNode.attribute("r").value()).column() < columnNumber))
+                return XLCell{}; // fail
+        }
+        // ===== Otherwise, start from the beginning
+        else {
+            // ===== At this point, it is guaranteed that there is at least one node_element in the row that is not empty.
+            cellNode = m_rowNode->first_child_of_type(pugi::node_element);
+
+            // ===== It has been verified above that the requested columnNumber is <= the column number of the last node_element, therefore this loop will halt:
+            while (XLCellReference(cellNode.attribute("r").value()).column() < columnNumber)
+                cellNode = cellNode.next_sibling_of_type(pugi::node_element);
+            // ===== If the forwards search failed to locate the requested cell
+            if (XLCellReference(cellNode.attribute("r").value()).column() > columnNumber)
+                return XLCell{}; // fail
+        }
+        return XLCell(cellNode, m_sharedStrings);
+    }
+
+    /**
+     * @details Determine the value of the style attribute "s" - if attribute does not exist, return default value
+     */
+    XLStyleIndex XLRow::format() const { return m_rowNode->attribute("s").as_uint(XLDefaultCellFormat); }
+
+    /**
+     * @brief Set the row style as a reference to the array index of xl/styles.xml:<styleSheet>:<cellXfs>
+     *        If the style attribute "s" does not exist, create it
+     */
+    bool XLRow::setFormat(XLStyleIndex cellFormatIndex)
+    {
+        XMLAttribute customFormatAtt = m_rowNode->attribute("customFormat");
+        if (cellFormatIndex != XLDefaultCellFormat) {
+            if (customFormatAtt.empty()) {
+                customFormatAtt = m_rowNode->append_attribute("customFormat");
+                if (customFormatAtt.empty()) return false; // fail if missing customFormat attribute could not be created
+            }
+            customFormatAtt.set_value("true");
+        }
+        else { // cellFormatIndex is XLDefaultCellFormat
+            if (not customFormatAtt.empty()) m_rowNode->remove_attribute(customFormatAtt); // an existing customFormat attribute should be deleted
+        }
+
+        XMLAttribute styleAtt = m_rowNode->attribute("s");
+        if (styleAtt.empty()) {
+            styleAtt = m_rowNode->append_attribute("s");
+            if (styleAtt.empty()) return false;
+        }
+        styleAtt.set_value(cellFormatIndex);
+
+        return true;
+    }
+
+
+    // ---------- Private Member Functions ---------- //
 
     bool XLRow::isEqual(const XLRow& lhs, const XLRow& rhs)
     {

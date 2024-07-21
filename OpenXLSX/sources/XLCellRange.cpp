@@ -129,6 +129,22 @@ XLCellRange& XLCellRange::operator=(XLCellRange&& other) noexcept
 
 /**
  * @details
+ */
+const XLCellReference XLCellRange::topLeft() const { return m_topLeft; }
+
+/**
+ * @details
+ */
+const XLCellReference XLCellRange::bottomRight() const { return m_bottomRight; }
+
+/**
+ * @details Evaluate the top left and bottom right cells as string references and
+ *          concatenate them with a colon ':'
+ */
+std::string XLCellRange::address() const { return m_topLeft.address() + ":" + m_bottomRight.address(); }
+
+/**
+ * @details
  * @pre
  * @post
  */
@@ -163,4 +179,16 @@ XLCellIterator XLCellRange::end() const { return XLCellIterator(*this, XLIterato
 void XLCellRange::clear()
 {
     for (auto& cell : *this) cell.value().clear();
+}
+
+/**
+ * @details Iterate over the full range and set format for each existing cell
+ */
+bool XLCellRange::setFormat(size_t cellFormatIndex)
+{
+    // ===== Iterate over all cells in the range
+    for (auto it = begin(); it != end(); ++it)
+        if (!it->setCellFormat(cellFormatIndex))    // attempt to set cell format
+            return false;                               // fail if any setCellFormat failed
+    return true; // success if loop finished nominally
 }

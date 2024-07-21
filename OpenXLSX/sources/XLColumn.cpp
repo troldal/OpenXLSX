@@ -48,6 +48,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== OpenXLSX Includes ===== //
 #include "XLColumn.hpp"
+#include "XLStyles.hpp"          // XLDefaultCellFormat
 
 using namespace OpenXLSX;
 
@@ -114,3 +115,21 @@ void XLColumn::setHidden(bool state)    // NOLINT
  * @details
  */
 XMLNode& XLColumn::columnNode() const { return *m_columnNode; }
+
+/**
+ * @details Determine the value of the style attribute - if attribute does not exist, return default value
+ */
+XLStyleIndex XLColumn::format() const { return columnNode().attribute("style").as_uint(XLDefaultCellFormat); }
+
+/**
+ * @brief Set the column style as a reference to the array index of xl/styles.xml:<styleSheet>:<cellXfs>
+ *        If the style attribute does not exist, create it
+ */
+bool XLColumn::setFormat(XLStyleIndex cellFormatIndex)
+{
+    XMLAttribute styleAtt = columnNode().attribute("style");
+    if (styleAtt.empty()) styleAtt = columnNode().append_attribute("style");
+    if (styleAtt.empty()) return false;
+    styleAtt.set_value(cellFormatIndex);
+    return true;
+};
