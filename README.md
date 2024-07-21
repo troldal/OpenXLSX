@@ -3,7 +3,7 @@
 OpenXLSX is a C++ library for reading, writing, creating and modifying
 Microsoft Excel® files, with the .xlsx format.
 
-## July 2024 - xl/styles.xml - support for cell formatting in work
+## 21 July 2024 - xl/styles.xml - support for cell formatting in work
 Please refer to Demo10 and XLStyles.hpp on how to set cell formatting.
 In short:
 * size_t XLCell::cellFormat() and bool XLCell::setCellFormat(size_t cellFormatIndex)
@@ -20,12 +20,11 @@ In short:
 * color support: only rgb via XLColor (XLColor::hex()) is supported at this stage. In particular, no color themes are supported
 
 ### July 2024 - to-do list:
-- update xl/styles.xml arrays "count" attribute when saving
-- completion of style support as much as is reasonable (not color themes, most likely)
-- format support for XLRows: <row> attributes s (same as cell attribute) and customFormat (=true/false)
-  - it appears that XLRow style is used to overwrite existing cell formats, and then for whenever a new cell is created
-  - -> could support the same in OpenXLSX - possibly also for columns
+- completion of style support as much as is reasonable (not color themes, most likely) per known documentation of xl/styles.xml
+- XLStyles ::create functions: implement good default style properties for all styles
 - TBD: permit setting a format reference for shared strings
+- TBD: should a row format be used by OpenXLSX as default for new cells created in that row?
+- TBD: should a column format be used by OpenXLSX as default for new cells created in that column, when they do not have an applied row style?
 
 ## May 2024 Update
 
