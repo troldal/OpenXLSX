@@ -146,11 +146,25 @@ namespace OpenXLSX
         bool operator!=(const XLCellIterator& rhs) const;
 
         /**
+         * @brief determine whether iterator is at 1 beyond the last cell in range
+         * @return
+         * @note 28-07-2024: Removed const from return type (Troldal)
+         */
+        bool endReached() const { return m_endReached; }
+
+        /**
          * @brief
          * @param last
          * @return
          */
         uint64_t distance(const XLCellIterator& last);
+
+        /**
+         * @brief get the XLCellReference::address corresponding to the current iterator position
+         * @return an XLCellReference::address, with m_bottomRight.col() + 1 for the beyond-the-end iterator
+         * @note 28-07-2024: Removed const from return type (Troldal)
+         */
+        std::string address() const;
 
     private:
         std::unique_ptr<XMLNode> m_dataNode;             /**< */
@@ -158,9 +172,20 @@ namespace OpenXLSX
         XLCellReference          m_bottomRight;          /**< The cell reference of the last cell in the range */
         XLCell                   m_currentCell;          /**< */
         XLSharedStrings          m_sharedStrings;        /**< */
-        bool                     m_endReached { false }; /**< */
+        bool                     m_endReached;           /**< */
     };
 
+    /**
+     * @brief      ostream output of XLIterator position as XLCellReference::address
+     * @param os   the ostream destination
+     * @param it    the XLIterator whose position to send to the stream
+     * @return
+     */
+    inline std::ostream& operator<<(std::ostream& os, const XLCellIterator& it)
+    {
+        os << it.address();
+        return os;
+    }
 }    // namespace OpenXLSX
 
 // ===== Template specialization for std::distance.

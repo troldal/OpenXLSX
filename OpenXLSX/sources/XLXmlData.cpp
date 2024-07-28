@@ -45,19 +45,19 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== External Includes ===== //
 #include <pugixml.hpp>
+#include <sstream>
 
 // ===== OpenXLSX Includes ===== //
 #include "XLDocument.hpp"
 #include "XLXmlData.hpp"
 
-#include <sstream>
-
 using namespace OpenXLSX;
 
+const unsigned int pugi_parse_settings = pugi::parse_default | pugi::parse_ws_pcdata; // TBD: | pugi::parse_comments
 /**
  * @details
  */
-XLXmlData::XLXmlData(OpenXLSX::XLDocument* parentDoc, const std::string& xmlPath, const std::string& xmlId, XLContentType xmlType)
+XLXmlData::XLXmlData(XLDocument* parentDoc, const std::string& xmlPath, const std::string& xmlId, XLContentType xmlType)
     : m_parentDoc(parentDoc),
       m_xmlPath(xmlPath),
       m_xmlID(xmlId),
@@ -77,11 +77,12 @@ XLXmlData::~XLXmlData() = default;
  */
 void XLXmlData::setRawData(const std::string& data) // NOLINT
 {
-    m_xmlDoc->load_string(data.c_str(), pugi::parse_default | pugi::parse_ws_pcdata);
+    m_xmlDoc->load_string(data.c_str(), pugi_parse_settings);
 }
 
 /**
  * @details
+ * @note Default encoding for pugixml xml_document::save is pugi::encoding_auto, becomes pugi::encoding_utf8
  */
 std::string XLXmlData::getRawData() const
 {
@@ -136,7 +137,7 @@ XLContentType XLXmlData::getXmlType() const
 XMLDocument* XLXmlData::getXmlDocument()
 {
     if (!m_xmlDoc->document_element())
-        m_xmlDoc->load_string(m_parentDoc->extractXmlFromArchive(m_xmlPath).c_str(), pugi::parse_default | pugi::parse_ws_pcdata);
+        m_xmlDoc->load_string(m_parentDoc->extractXmlFromArchive(m_xmlPath).c_str(), pugi_parse_settings);
 
     return m_xmlDoc.get();
 }
@@ -147,7 +148,7 @@ XMLDocument* XLXmlData::getXmlDocument()
 const XMLDocument* XLXmlData::getXmlDocument() const
 {
     if (!m_xmlDoc->document_element())
-        m_xmlDoc->load_string(m_parentDoc->extractXmlFromArchive(m_xmlPath).c_str(), pugi::parse_default | pugi::parse_ws_pcdata);
+        m_xmlDoc->load_string(m_parentDoc->extractXmlFromArchive(m_xmlPath).c_str(), pugi_parse_settings);
 
     return m_xmlDoc.get();
 }

@@ -284,7 +284,7 @@ namespace OpenXLSX
             try {
                 return std::visit(VisitXLCellValueTypeToString(), m_value);
             }
-            catch (std::string s) {
+            catch (...) { // 2024-05-27: was catch( string s ) - must have been a typo, currently nothing throws a string here
                 throw XLValueTypeError("XLCellValue object is not convertible to string.");
             }
         }

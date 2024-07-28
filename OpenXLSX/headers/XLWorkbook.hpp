@@ -51,6 +51,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #pragma warning(disable : 4275)
 
 // ===== External Includes ===== //
+#include <ostream>    // std::basic_ostream
 #include <vector>
 
 // ===== OpenXLSX Includes ===== //
@@ -313,7 +314,7 @@ namespace OpenXLSX
         /**
          * @brief print the XML contents of the workbook.xml using the underlying XMLNode print function
          */
-        void print(std::basic_ostream<char, std::char_traits<char>>& os);
+        void print(std::basic_ostream<char>& ostr) const;
 
     private:    // ---------- Private Member Functions ---------- //
         /**

@@ -94,7 +94,18 @@ namespace OpenXLSX
         ControlProperties,
         Unknown
     };
+} //     namespace OpenXLSX
 
+namespace OpenXLSX_XLRelationships { // special namespace to avoid naming conflict with another GetStringFromType function
+    using namespace OpenXLSX;
+    /**
+     * @brief helper function, used only within module and from XLProperties.cpp / XLAppProperties::createFromTemplate
+     * @param type the XLRelationshipType for which to return the correct XML string
+     */
+    std::string GetStringFromType(XLRelationshipType type);
+} //    namespace OpenXLSX_XLRelationships
+
+namespace OpenXLSX {
     /**
      * @brief An encapsulation of a relationship item, i.e. an XML file in the document, its type and an ID number.
      */

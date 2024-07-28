@@ -2,12 +2,13 @@
 // Created by Kenneth Balslev on 27/08/2021.
 //
 
-// ===== OpenXLSX Includes ===== //
-#include "XLFormula.hpp"
+// ===== External Includes ===== //
+#include <cassert>
 #include <pugixml.hpp>
 
+// ===== OpenXLSX Includes ===== //
+#include "XLFormula.hpp"
 #include <XLException.hpp>
-#include <cassert>
 
 using namespace OpenXLSX;
 
@@ -121,11 +122,11 @@ std::string XLFormulaProxy::get() const { return getFormula().get(); }
 XLFormulaProxy& XLFormulaProxy::clear()
 {
     // ===== Check that the m_cellNode is valid.
-    assert(m_cellNode);              // NOLINT
-    assert(!m_cellNode->empty());    // NOLINT
+    assert(m_cellNode != nullptr);      // NOLINT
+    assert(not m_cellNode->empty());    // NOLINT
 
     // ===== Remove the value node.
-    if (m_cellNode->child("f")) m_cellNode->remove_child("f");
+    if (not m_cellNode->child("f").empty()) m_cellNode->remove_child("f");
     return *this;
 }
 
@@ -136,12 +137,12 @@ XLFormulaProxy& XLFormulaProxy::clear()
 void XLFormulaProxy::setFormulaString(const char* formulaString, bool resetValue) // NOLINT
 {
     // ===== Check that the m_cellNode is valid.
-    assert(m_cellNode);              // NOLINT
-    assert(!m_cellNode->empty());    // NOLINT
+    assert(m_cellNode != nullptr);      // NOLINT
+    assert(not m_cellNode->empty());    // NOLINT
 
     // ===== If the cell node doesn't have a value child node, create it.
-    if (!m_cellNode->child("f")) m_cellNode->append_child("f");
-    if (!m_cellNode->child("v")) m_cellNode->append_child("v");
+    if (m_cellNode->child("f").empty()) m_cellNode->append_child("f");
+    if (m_cellNode->child("v").empty()) m_cellNode->append_child("v");
 
     // ===== Remove the formula type and shared index attributes, if they exist.
     m_cellNode->child("f").remove_attribute("t");
@@ -169,19 +170,22 @@ void XLFormulaProxy::setFormulaString(const char* formulaString, bool resetValue
  */
 XLFormula XLFormulaProxy::getFormula() const
 {
-    assert(m_cellNode);              // NOLINT
-    assert(!m_cellNode->empty());    // NOLINT
+    assert(m_cellNode != nullptr);      // NOLINT
+    assert(not m_cellNode->empty());    // NOLINT
 
     const auto formulaNode = m_cellNode->child("f");
 
     // ===== If the formula node doesn't exist, return an empty XLFormula object.
-    if (!formulaNode) return XLFormula();
+    if (formulaNode.empty()) return XLFormula();
 
     // ===== If the formula type is 'shared' or 'array', throw an exception.
-    if (formulaNode.attribute("t") && std::string(formulaNode.attribute("t").value()) == "shared")
-        throw XLFormulaError("Shared formulas not supported.");
-    if (formulaNode.attribute("t") && std::string(formulaNode.attribute("t").value()) == "array")
-        throw XLFormulaError("Array formulas not supported.");
+    if (not formulaNode.attribute("t").empty() ) {    // 2024-05-28: de-duplicated check (only relevant for performance,
+                                                      //  xml_attribute::value() returns an empty string for empty attributes)
+        if (std::string(formulaNode.attribute("t").value()) == "shared")
+            throw XLFormulaError("Shared formulas not supported.");
+        if (std::string(formulaNode.attribute("t").value()) == "array")
+            throw XLFormulaError("Array formulas not supported.");
+    }
 
     return XLFormula(formulaNode.text().get());
 }

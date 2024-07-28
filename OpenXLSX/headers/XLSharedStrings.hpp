@@ -51,6 +51,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #pragma warning(disable : 4275)
 
 #include <deque>
+#include <limits>     // std::numeric_limits
+#include <ostream>    // std::basic_ostream
 #include <string>
 
 // ===== OpenXLSX Includes ===== //
@@ -59,6 +61,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 namespace OpenXLSX
 {
+    constexpr size_t XLMaxSharedStrings = std::numeric_limits< int32_t >::max();
+
     /**
      * @brief This class encapsulate the Excel concept of Shared Strings. In Excel, instead of havig individual strings
      * in each cell, cells have a reference to an entry in the SharedStrings register. This results in smalle file
@@ -133,12 +137,12 @@ namespace OpenXLSX
          * @param index
          * @return
          */
-        const char* getString(uint32_t index) const;
+        const char* getString(int32_t index) const;
 
         /**
          * @brief Append a new string to the list of shared strings.
          * @param str The string to append.
-         * @return A long int with the index of the appended string
+         * @return An int32_t with the index of the appended string
          */
         int32_t appendString(const std::string& str);
 
@@ -149,12 +153,20 @@ namespace OpenXLSX
          * shared string indices for the cells in the spreadsheet. Instead use this member functions, which clears
          * the contents of the string, but keeps the XMLNode holding the string.
          */
-        void clearString(uint64_t index);
+        void clearString(int32_t index);
+
+        // 2024-06-18 TBD if this is ever needed
+        // /**
+        //  * @brief check m_stringCache is initialized
+        //  * @return true if m_stringCache != nullptr, false otherwise
+        //  * @note 2024-05-28 added function to enable other classes to check m_stringCache status
+        //  */
+        // bool initialized() const { return m_stringCache != nullptr; }
 
         /**
          * @brief print the XML contents of the shared strings document using the underlying XMLNode print function
          */
-        void print(std::basic_ostream<char, std::char_traits<char>>& ostr);
+        void print(std::basic_ostream<char>& ostr) const;
 
     private:
         std::deque<std::string>* m_stringCache {}; /** < Each string must have an unchanging memory address; hence the use of std::deque */

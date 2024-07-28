@@ -108,6 +108,7 @@ set(OPENXLSX_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLWorkbook.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLXmlData.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLXmlFile.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLXmlParser.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLZipArchive.cpp
         )
 

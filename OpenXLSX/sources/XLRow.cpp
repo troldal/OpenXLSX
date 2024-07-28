@@ -154,13 +154,13 @@ namespace OpenXLSX
     void XLRow::setHeight(float height)    // NOLINT
     {
         // Set the 'ht' attribute for the Cell. If it does not exist, create it.
-        if (!m_rowNode->attribute("ht"))
+        if (m_rowNode->attribute("ht").empty())
             m_rowNode->append_attribute("ht") = height;
         else
             m_rowNode->attribute("ht").set_value(height);
 
         // Set the 'customHeight' attribute. If it does not exist, create it.
-        if (!m_rowNode->attribute("customHeight"))
+        if (m_rowNode->attribute("customHeight").empty())
             m_rowNode->append_attribute("customHeight") = 1;
         else
             m_rowNode->attribute("customHeight").set_value(1);
@@ -184,7 +184,7 @@ namespace OpenXLSX
     void XLRow::setDescent(float descent)
     {
         // Set the 'x14ac:dyDescent' attribute. If it does not exist, create it.
-        if (!m_rowNode->attribute("x14ac:dyDescent"))
+        if (m_rowNode->attribute("x14ac:dyDescent").empty())
             m_rowNode->append_attribute("x14ac:dyDescent") = descent;
         else
             m_rowNode->attribute("x14ac:dyDescent") = descent;
@@ -205,7 +205,7 @@ namespace OpenXLSX
     void XLRow::setHidden(bool state)    // NOLINT
     {
         // Set the 'hidden' attribute. If it does not exist, create it.
-        if (!m_rowNode->attribute("hidden"))
+        if (m_rowNode->attribute("hidden").empty())
             m_rowNode->append_attribute("hidden") = static_cast<int>(state);
         else
             m_rowNode->attribute("hidden").set_value(static_cast<int>(state));
@@ -275,8 +275,10 @@ namespace OpenXLSX
 
     bool XLRow::isEqual(const XLRow& lhs, const XLRow& rhs)
     {
-        if (lhs.m_rowNode && !rhs.m_rowNode) return false;
-        if (!lhs.m_rowNode && !rhs.m_rowNode) return true;
+        // 2024-05-28 BUGFIX: (!lhs.m_rowNode && rhs.m_rowNode) was not evaluated, triggering a segmentation fault on dereferencing
+        if (static_cast<bool>(lhs.m_rowNode) != static_cast<bool>(rhs.m_rowNode)) return false;
+        // ===== If execution gets here, row nodes are BOTH valid or BOTH invalid / empty
+        if (not lhs.m_rowNode) return true;    // checking one for being empty is enough to know both are empty
         return *lhs.m_rowNode == *rhs.m_rowNode;
     }
 

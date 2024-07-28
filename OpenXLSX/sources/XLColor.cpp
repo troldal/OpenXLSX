@@ -45,6 +45,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== External Includes ===== //
 #include <cstdint>    // pull requests #216, #232
+#include <ios>        // std::hex
 #include <sstream>
 
 // ===== OpenXLSX Includes ===== //

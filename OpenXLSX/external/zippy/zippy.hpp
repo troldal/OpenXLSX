@@ -27,14 +27,14 @@
 #    include <direct.h>
 #endif
 
-#ifdef ENABLE_NOWIDE // TODO TBD: test this on windows
+#ifdef ENABLE_NOWIDE // DONE: test this on windows
 #    include <nowide/cstdio.hpp>
 #    define FILESYSTEM_NAMESPACE nowide
 #else
 #    define FILESYSTEM_NAMESPACE std
 #endif
 
-namespace
+namespace ns_miniz
 {
     /* miniz.c 2.0.8 - public domain deflate/inflate, zlib-subset, ZIP reading/writing/appending, PNG writing
    See "unlicense" statement at the end of this file.
@@ -9691,10 +9691,12 @@ handle_failure:
 
 #endif /*#ifndef MINIZ_NO_ARCHIVE_APIS*/
 
-}    // namespace
+}    // namespace ns_miniz
 
 namespace Zippy
 {
+    using namespace ns_miniz;
+
     /**
      * @brief The ZipRuntimeError class is a custom exception class derived from the std::runtime_error class.
      * @details In case of an error in the Zippy library, an ZipRuntimeError object will be thrown, with a message
@@ -10752,7 +10754,7 @@ namespace Zippy
 
             // pull request #191, support AmigaOS style paths
 #           ifdef __amigaos__
-                constexpr const char * localFolder = "\"\"/"; // local folder on AmigaOS is ""
+                constexpr const char * localFolder = "";    // local folder on AmigaOS can not be explicitly expressed in a path
                 if (pathPos == std::string::npos) pathPos = filename.rfind(':'); // if no '/' found, attempt to find amiga drive root path
 #           else
                 constexpr const char * localFolder = "./"; // local folder on _WIN32 && __linux__ is .
@@ -10848,7 +10850,10 @@ namespace Zippy
             // ===== If data has not been extracted from the archive (i.e., m_EntryData is empty),
             // ===== extract the data from the archive to the ZipEntry object.
             if (result->m_EntryData.empty()) {
-                result->m_EntryData.resize(result->UncompressedSize());
+                if (result->UncompressedSize())
+                    result->m_EntryData.resize(result->UncompressedSize());
+                else
+                    result->m_EntryData.resize(1); // 2024-06-03 BUFIX: std::vector::data() can be nullptr when ::size() is 0, leading to a failure to load an empty file
                 mz_zip_reader_extract_file_to_mem(&m_Archive, name.c_str(), result->m_EntryData.data(), result->m_EntryData.size(), 0);
             }
 
