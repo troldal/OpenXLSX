@@ -70,6 +70,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 namespace OpenXLSX
 {
+    constexpr const bool XLForceOverwrite = true;    // readability constant for 2nd parameter of XLDocument::saveAs
+
     /**
      * @brief The XLDocumentProperties class is an enumeration of the possible properties (metadata) that can be set
      * for a XLDocument object (and .xlsx file)
@@ -166,8 +168,11 @@ namespace OpenXLSX
         /**
          * @brief Create a new .xlsx file with the given name.
          * @param fileName The path of the new .xlsx file.
+         * @param forceOverwrite If not true (XLForceOverwrite) and fileName exists, create will throw an exception
+         * @throw XLException (OpenXLSX failed checks)
+         * @throw ZipRuntimeError (zippy failed archive / file access)
          */
-        void create(const std::string& fileName);
+        void create(const std::string& fileName, bool forceOverwrite = false);
 
         /**
          * @brief Close the current document
@@ -176,16 +181,19 @@ namespace OpenXLSX
 
         /**
          * @brief Save the current document using the current filename, overwriting the existing file.
-         * @return true if successful; otherwise false.
+         * @throw XLException (OpenXLSX failed checks)
+         * @throw ZipRuntimeError (zippy failed archive / file access)
          */
         void save();
 
         /**
          * @brief Save the document with a new name. If a file exists with that name, it will be overwritten.
          * @param fileName The path of the file
-         * @return true if successful; otherwise false.
+         * @param forceOverwrite If not true (XLForceOverwrite) and fileName exists, saveAs will throw an exception
+         * @throw XLException (OpenXLSX failed checks)
+         * @throw ZipRuntimeError (zippy failed archive / file access)
          */
-        void saveAs(const std::string& fileName);
+        void saveAs(const std::string& fileName, bool forceOverwrite = false);
 
         /**
          * @brief Get the filename of the current document, e.g. "spreadsheet.xlsx".
@@ -265,6 +273,13 @@ namespace OpenXLSX
          */
         XLQuery execQuery(const XLQuery& query);
 
+        /**
+         * @brief configure an alternative XML saving declaration to be used with pugixml
+         * @param savingDeclaration An XLXmlSavingDeclaration object with the configuration to use
+         * @return
+         */
+        void setSavingDeclaration(XLXmlSavingDeclaration const& savingDeclaration);
+
         //----------------------------------------------------------------------------------------------------------------------
         //           Protected Member Functions
         //----------------------------------------------------------------------------------------------------------------------
@@ -305,6 +320,8 @@ namespace OpenXLSX
     private:
         std::string m_filePath {}; /**< The path to the original file*/
         std::string m_realPath {}; /**<  */
+
+        XLXmlSavingDeclaration m_xmlSavingDeclaration;  /**< The xml saving declaration that will be passed to pugixml before generating the XML output data*/
 
         mutable std::list<XLXmlData>    m_data {};              /**<  */
         mutable std::deque<std::string> m_sharedStringCache {}; /**<  */

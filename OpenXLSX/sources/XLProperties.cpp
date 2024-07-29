@@ -239,19 +239,22 @@ void XLAppProperties::createFromTemplate(XMLDocument const & workbookXml)
     props.append_child("ScaleCrop").text().set(false);
 
     XMLNode headingPairs = props.append_child("HeadingPairs");
-    XMLNode vecHP = headingPairs.append_child("vt:vector");
+    XMLNode vecHP = headingPairs.append_child("vt:vector", XLForceNamespace);
     vecHP.append_attribute("size") = 2;
     vecHP.append_attribute("baseType") = "variant";
-    vecHP.append_child("vt:variant").append_child("vt:lpstr").text().set("Worksheets");
-    vecHP.append_child("vt:variant").append_child("vt:i4").text().set(1); // TBD: should this be count of worksheets?
+    vecHP.append_child("vt:variant", XLForceNamespace).append_child("vt:lpstr", XLForceNamespace).text().set("Worksheets");
+    vecHP.append_child("vt:variant", XLForceNamespace).append_child("vt:i4", XLForceNamespace).text().set(1); // TBD: should this be count of worksheets?
 
-    XMLNode sheetsVector = headingPairs.append_child("TitlesOfParts").append_child("vt:vector");
+    XMLNode sheetsVector = headingPairs.append_child("TitlesOfParts").append_child("vt:vector", XLForceNamespace);
     sheetsVector.append_attribute("size") = worksheetCount;
     sheetsVector.append_attribute("baseType") = "lpstr";
     for (const auto & [key, value] : sheetsOrderedById)
-        sheetsVector.append_child("vt:lpstr").text().set(value.c_str());
+        sheetsVector.append_child("vt:lpstr", XLForceNamespace).text().set(value.c_str());
 
-    props.append_child("Company").text().set("");
+    // NOTE 2024-07-24: for an empty string, .text().set("") would create a "<Company></Company>" node that
+    // would get reduced to <Company/> on a simple open + save operation and thereby cause the *only* diff
+    // to the uncompressed workbook. For this cosmetic reasons, text().set was removed in this case
+    props.append_child("Company"); // .text().set("");
     props.append_child("LinksUpToDate").text().set(false);
     props.append_child("SharedDoc").text().set(false);
     props.append_child("HyperlinksChanged").text().set(false);
@@ -291,7 +294,7 @@ XLAppProperties::~XLAppProperties() = default;
 void XLAppProperties::addSheetName(const std::string& title)
 {
     if (m_xmlData == nullptr) return;
-    XMLNode theNode = sheetNames(xmlDocument().document_element()).append_child("vt:lpstr");
+    XMLNode theNode = sheetNames(xmlDocument().document_element()).append_child("vt:lpstr", XLForceNamespace);
     theNode.text().set(title.c_str());
     sheetCount(xmlDocument().document_element()).set_value(sheetCount(xmlDocument().document_element()).as_uint() + 1);
 }
@@ -349,13 +352,13 @@ void XLAppProperties::addHeadingPair(const std::string& name, int value)
     else {
         item = HeadingPairsNode.last_child_of_type(pugi::node_element);
         if (not item.empty())
-            pairCategory = HeadingPairsNode.insert_child_after("vt:variant", item);
+            pairCategory = HeadingPairsNode.insert_child_after("vt:variant", item, XLForceNamespace);
         else
-            pairCategory = HeadingPairsNode.append_child("vt:variant");
-        XMLNode categoryName = pairCategory.append_child("vt:lpstr");
+            pairCategory = HeadingPairsNode.append_child("vt:variant", XLForceNamespace);
+        XMLNode categoryName = pairCategory.append_child("vt:lpstr", XLForceNamespace);
         categoryName.text().set(name.c_str());
-        XMLNode pairCount = HeadingPairsNode.insert_child_after("vt:variant", pairCategory);
-        pairCountValue    = pairCount.append_child("vt:i4");
+        XMLNode pairCount = HeadingPairsNode.insert_child_after("vt:variant", pairCategory, XLForceNamespace);
+        pairCountValue    = pairCount.append_child("vt:i4", XLForceNamespace);
     }
 
     if (not pairCountValue.empty())
@@ -418,7 +421,7 @@ void XLAppProperties::setHeadingPair(const std::string& name, int newValue)
     if (not item.empty()) {
         XMLNode pairCountValue = item.next_sibling_of_type(pugi::node_element).first_child_of_type(pugi::node_element);
         using namespace std::literals::string_literals;
-        if (not pairCountValue.empty() && (pairCountValue.name() == "vt:i4"s))
+        if (not pairCountValue.empty() && (pairCountValue.raw_name() == "vt:i4"s))
             pairCountValue.text().set(std::to_string(newValue).c_str());
         else
             throw XLInternalError("XLAppProperties::setHeadingPair: found no matching pair count value to name "s + name);
@@ -470,7 +473,7 @@ void XLAppProperties::deleteProperty(const std::string& name)
 void XLAppProperties::appendSheetName(const std::string& sheetName)
 {
     if (m_xmlData == nullptr) return;
-    auto theNode = sheetNames(xmlDocument().document_element()).append_child("vt:lpstr");
+    auto theNode = sheetNames(xmlDocument().document_element()).append_child("vt:lpstr", XLForceNamespace);
     theNode.text().set(sheetName.c_str());
     sheetCount(xmlDocument().document_element()).set_value(sheetCount(xmlDocument().document_element()).as_uint() + 1);
 }
@@ -481,7 +484,7 @@ void XLAppProperties::appendSheetName(const std::string& sheetName)
 void XLAppProperties::prependSheetName(const std::string& sheetName)
 {
     if (m_xmlData == nullptr) return;
-    auto theNode = sheetNames(xmlDocument().document_element()).prepend_child("vt:lpstr");
+    auto theNode = sheetNames(xmlDocument().document_element()).prepend_child("vt:lpstr", XLForceNamespace);
     theNode.text().set(sheetName.c_str());
     sheetCount(xmlDocument().document_element()).set_value(sheetCount(xmlDocument().document_element()).as_uint() + 1);
 }
@@ -504,7 +507,7 @@ void XLAppProperties::insertSheetName(const std::string& sheetName, unsigned int
         // whitespaces.
         const XMLNode lastSheet = sheetNames(xmlDocument().document_element()).last_child_of_type(pugi::node_element);
         if (not lastSheet.empty()) {
-            XMLNode theNode = sheetNames(xmlDocument().document_element()).insert_child_after("vt:lpstr", lastSheet);
+            XMLNode theNode = sheetNames(xmlDocument().document_element()).insert_child_after("vt:lpstr", lastSheet, XLForceNamespace);
             theNode.text().set(sheetName.c_str());
             // ===== Update sheet count before return statement.
             sheetCount(xmlDocument().document_element()).set_value(sheetCount(xmlDocument().document_element()).as_uint() + 1);
@@ -527,7 +530,7 @@ void XLAppProperties::insertSheetName(const std::string& sheetName, unsigned int
         return;
     }
 
-    XMLNode theNode = sheetNames(xmlDocument().document_element()).insert_child_before("vt:lpstr", curNode);
+    XMLNode theNode = sheetNames(xmlDocument().document_element()).insert_child_before("vt:lpstr", curNode, XLForceNamespace);
     theNode.text().set(sheetName.c_str());
 
     sheetCount(xmlDocument().document_element()).set_value(sheetCount(xmlDocument().document_element()).as_uint() + 1);

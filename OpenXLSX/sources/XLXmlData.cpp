@@ -88,7 +88,7 @@ std::string XLXmlData::getRawData(XLXmlSavingDeclaration savingDeclaration) cons
 {
     XMLDocument *doc = const_cast<XMLDocument *>(getXmlDocument());
 
-    // ===== 2024-08-08: ensure that the default encoding UTF-8 is explicitly written to the XML document with a custom saving declaration
+    // ===== 2024-07-08: ensure that the default encoding UTF-8 is explicitly written to the XML document with a custom saving declaration
     XMLNode saveDeclaration = doc->first_child();
     if (saveDeclaration.empty() || saveDeclaration.type() != pugi::node_declaration) {    // if saving declaration node does not exist
         doc->prepend_child(pugi::node_pcdata).set_value("\n");                                // prepend a line break

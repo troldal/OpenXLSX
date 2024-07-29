@@ -26,6 +26,7 @@ int main( int argc, char *argv[] )
 	 * TODO: XLStyles ::create functions: implement good default style properties for all styles
 	 * TODO TBD: permit setting a format reference for shared strings
 	 * 
+	 * DONE: support for xfId / setXfId in XLStyles::cellFormats, but not(!) in XLStyles::cellStyleFormats
 	 * DONE: format support for XLCells (cellFormat / setCellFormat)
 	 * DONE: format support for XLRows: <row> attributes s (same as cell attribute) and customFormat (=true/false)
 	 *       XLWorksheet::setRowFormat overwrites existing cell formats, and
@@ -38,7 +39,8 @@ int main( int argc, char *argv[] )
 	
 	// create new workbook
 	XLDocument doc{};
-	doc.create("./Demo10.xlsx");
+	doc.create("./Demo10.xlsx", XLForceOverwrite);
+	// doc.open("./Demo10.xlsx");
 
 	std::cout << "doc.name() is " << doc.name() << std::endl;
 
@@ -127,12 +129,33 @@ int main( int argc, char *argv[] )
 	wks.cell(cellRange.bottomRight()).value() = "red range " + cellRange.address() + " bottom right cell";
 	cellRange.setFormat( redFormat );
 
-	// XLStyleIndex 
+	constexpr const char * XLFillPatternSolid = "solid";
 
+	// // get the relevant style objects for easy access
+	// XLCellFormats & cellFormats = doc.styles().cellFormats();
+	// XLFonts & fonts = doc.styles().fonts();
+	// XLFills & fills = doc.styles().fills();
+
+	XLCellRange myCellRange = wks.range("B20:P25");           // create a new range for formatting
+	myCellRange = "TEST COLORS";                              // write some values to the cells so we can see format changes
+	XLStyleIndex baseFormat = wks.cell("B20").cellFormat();   // determine the style used in B20
+	XLStyleIndex newCellStyle = cellFormats.create( cellFormats[ baseFormat ] ); // create a new style based on the style in B20
+	XLStyleIndex newFontStyle = fonts.create(fonts[ cellFormats[ baseFormat ].fontIndex() ]); // create a new font style based on the used font
+	XLStyleIndex newFillStyle = fills.create(fills[ cellFormats[ baseFormat ].fillIndex() ]); // create a new fill style based on the used fill
+
+	fonts[ newFontStyle ].setFontColor( XLColor( "ff00ff00" ) );          // green
+	cellFormats[ newCellStyle ].setFontIndex( newFontStyle );
+
+	fills[ newFillStyle ].setPatternType    ( XLFillPatternSolid );       // "solid"
+	fills[ newFillStyle ].setColor          ( XLColor( "ffffff00" ) );    // yellow
+	// fills[ newFillStyle ].setBackgroundColor( XLColor( "ff0000ff" ) );    // blue, setBackgroundColor only makes sense with gradient fills
+	cellFormats[ newCellStyle ].setFillIndex( newFillStyle );
+
+	myCellRange.setFormat( newCellStyle ); // assign the new format to the full range of cells
 
 	// enable testBasics = true to create/modify at least one entry in each known styles array
 	// disable testBasics = false to stop the demo execution here and save the document
-	bool testBasics = false;
+	bool testBasics = true;
 
 	if( testBasics ) {
 		std::cout << "   numberFormats.count() is " <<    numberFormats.count() << std::endl;
@@ -151,7 +174,7 @@ int main( int argc, char *argv[] )
 		XLStyleIndex nodeIndex;
 
 		nodeIndex = ( createAll ? numberFormats.create() : numberFormats.count() - 1 );
-		numberFormats[ nodeIndex ].setFormatId( 15 );
+		numberFormats[ nodeIndex ].setNumberFormatId( 15 );
 		numberFormats[ nodeIndex ].setFormatCode( "fifteen" );
 		std::cout << "numberFormats[ " << nodeIndex << " ] summary: " << numberFormats[ nodeIndex ].summary() << std::endl;
 
@@ -199,6 +222,14 @@ int main( int argc, char *argv[] )
 		cellStyleFormats[ nodeIndex ].alignment(XLCreateIfMissing).setWrapText(true);
 		cellStyleFormats[ nodeIndex ].alignment(XLCreateIfMissing).setIndent(256);
 		cellStyleFormats[ nodeIndex ].alignment(XLCreateIfMissing).setShrinkToFit(false);
+		try { cellStyleFormats[ nodeIndex ].setXfId(9); } // TEST: this should throw
+		catch (XLException const & e) {
+			std::cout << "cellStyleFormats NOMINAL EXCEPTION: " << e.what() << std::endl;
+		}
+		try { (void) cellStyleFormats[ nodeIndex ].xfId(); } // TEST: this should throw
+		catch (XLException const & e) {
+			std::cout << "cellStyleFormats NOMINAL EXCEPTION: " << e.what() << std::endl;
+		}
 
 		std::cout << "cellStyleFormats[ " << nodeIndex << " ] summary: " << cellStyleFormats[ nodeIndex ].summary() << std::endl;
 
@@ -220,6 +251,7 @@ int main( int argc, char *argv[] )
 		cellFormats[ nodeIndex ].alignment(XLCreateIfMissing).setWrapText(false);
 		cellFormats[ nodeIndex ].alignment(XLCreateIfMissing).setIndent(37);
 		cellFormats[ nodeIndex ].alignment(XLCreateIfMissing).setShrinkToFit(true);
+		cellFormats[ nodeIndex ].setXfId(26);
 		std::cout << "cellFormats[ " << nodeIndex << " ] summary: " << cellFormats[ nodeIndex ].summary() << std::endl;
 
 		nodeIndex = ( createAll ? cellStyles.create() : cellStyles.count() - 1 );
@@ -239,7 +271,7 @@ int main( int argc, char *argv[] )
 	} // end if( testBasics )
 
 	
-	doc.saveAs("./Demo10.xlsx");
+	doc.saveAs("./Demo10.xlsx", XLForceOverwrite);
 	doc.close();
 
 	return 0;

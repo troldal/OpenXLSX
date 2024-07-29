@@ -61,8 +61,10 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 namespace OpenXLSX
 {
-    constexpr const bool XLXmlStandalone = true;
-    constexpr const bool XLXmlNotStandalone = false;
+    constexpr const char * XLXmlDefaultVersion = "1.0";
+    constexpr const char * XLXmlDefaultEncoding = "UTF-8";
+    constexpr const bool   XLXmlStandalone = true;
+    constexpr const bool   XLXmlNotStandalone = false;
     /**
      * @brief The XLXmlSavingDeclaration class encapsulates the properties of an XML saving declaration,
      * that can be used in calls to XLXmlData::getRawData to enforce specific settings
@@ -70,7 +72,8 @@ namespace OpenXLSX
     class OPENXLSX_EXPORT XLXmlSavingDeclaration {
     public:
         // ===== PUBLIC MEMBER FUNCTIONS ===== //
-        XLXmlSavingDeclaration() : m_version("1.0"), m_encoding("UTF-8"), m_standalone(XLXmlNotStandalone) {}
+        XLXmlSavingDeclaration() : m_version(XLXmlDefaultVersion), m_encoding(XLXmlDefaultEncoding), m_standalone(XLXmlNotStandalone) {}
+        XLXmlSavingDeclaration(XLXmlSavingDeclaration const & other) = default; // copy constructor
         XLXmlSavingDeclaration(std::string version, std::string encoding, bool standalone = XLXmlNotStandalone)
             : m_version(version), m_encoding(encoding), m_standalone(standalone) {}
         ~XLXmlSavingDeclaration() {}

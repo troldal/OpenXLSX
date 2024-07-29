@@ -7,12 +7,13 @@
 
 #include <fstream>
 #include <pugixml.hpp>
-#include <string>   // 2024-04-25 needed for xml_node_type_string
+#include <string>    // 2024-04-25 needed for xml_node_type_string
 
-#include "XLConstants.hpp"    // 2024-05-28 OpenXLSX::MAX_ROWS
+#include "XLConstants.hpp"        // 2024-05-28 OpenXLSX::MAX_ROWS
 #include "XLCellReference.hpp"
-#include "XLCellValue.hpp"    // OpenXLSX::XLValueType
-#include "XLContentTypes.hpp" // OpenXLSX::XLContentType
+#include "XLCellValue.hpp"        // OpenXLSX::XLValueType
+#include "XLContentTypes.hpp"     // OpenXLSX::XLContentType
+#include "XLRelationships.hpp"    // OpenXLSX::XLRelationshipType
 #include "XLXmlParser.hpp"
 
 namespace OpenXLSX
@@ -89,6 +90,43 @@ namespace OpenXLSX
             case XLContentType::Table: return "Table";
             case XLContentType::VMLDrawing: return "VMLDrawing";
             case XLContentType::Unknown: return "Unknown";
+        }
+        return "invalid";
+    }
+
+    /**
+     * @brief Get a string representation of OpenXLSX::XLRelationshipType
+     * @param t an OpenXLSX::XLRelationshipType value
+     * @return std::string containing the descriptive name of the relationship type
+     */
+    inline std::string XLRelationshipTypeString( OpenXLSX::XLRelationshipType const & t )
+    {
+        using namespace OpenXLSX;
+        switch (t) {
+            case XLRelationshipType::CoreProperties: return "CoreProperties";
+            case XLRelationshipType::ExtendedProperties: return "ExtendedProperties";
+            case XLRelationshipType::CustomProperties: return "CustomProperties";
+            case XLRelationshipType::Workbook: return "Workbook";
+            case XLRelationshipType::Worksheet: return "Worksheet";
+            case XLRelationshipType::Chartsheet: return "Chartsheet";
+            case XLRelationshipType::Dialogsheet: return "Dialogsheet";
+            case XLRelationshipType::Macrosheet: return "Macrosheet";
+            case XLRelationshipType::CalculationChain: return "CalculationChain";
+            case XLRelationshipType::ExternalLink: return "ExternalLink";
+            case XLRelationshipType::ExternalLinkPath: return "ExternalLinkPath";
+            case XLRelationshipType::Theme: return "Theme";
+            case XLRelationshipType::Styles: return "Styles";
+            case XLRelationshipType::Chart: return "Chart";
+            case XLRelationshipType::ChartStyle: return "ChartStyle";
+            case XLRelationshipType::ChartColorStyle: return "ChartColorStyle";
+            case XLRelationshipType::Image: return "Image";
+            case XLRelationshipType::Drawing: return "Drawing";
+            case XLRelationshipType::VMLDrawing: return "VMLDrawing";
+            case XLRelationshipType::SharedStrings: return "SharedStrings";
+            case XLRelationshipType::PrinterSettings: return "PrinterSettings";
+            case XLRelationshipType::VBAProject: return "VBAProject";
+            case XLRelationshipType::ControlProperties: return "ControlProperties";
+            case XLRelationshipType::Unknown: return "Unknown";
         }
         return "invalid";
     }

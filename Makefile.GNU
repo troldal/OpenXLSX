@@ -2,7 +2,7 @@
 # Version: 2024-07-08 20:45 CEST
 
 # NOTE: lib and library are available as aliases for OpenXLSX, to build the static library file
-TARGETS=OpenXLSX Demo1 Demo2 Demo3 Demo4 Demo5 Demo6 Demo7 Demo8 Demo9 Demo10
+TARGETS=OpenXLSX Demo1 Demo2 Demo3 Demo4 Demo5 Demo6 Demo7 Demo8 Demo9 Demo10 Demo0
 
 DEMOS_SRC_DIR=Examples
 BIN_DIR=output
@@ -103,6 +103,10 @@ endif
 ADDITIONAL_INCLUDE_FLAGS=-I$(OPENXLSX_DIR) -I$(OPENXLSX_DIR)/$(EXTERNAL_SUBDIR)
 
 # application objects
+OBJS_DEMO0=Demo0.o
+OBJS_OPENXLSX_DEMO0=$(OBJS_DEMOS)
+LDLIBS_DEMO0=
+
 OBJS_DEMO1=Demo1.o
 OBJS_OPENXLSX_DEMO1=$(OBJS_DEMOS)
 LDLIBS_DEMO1=
@@ -193,6 +197,8 @@ default: $(TARGETS)
 all: $(TARGETS)
 
 # the $(NOOP) rules are only needed for the dependency / forward to $(BIN_DIR)
+Demo0: $(BIN_DIR)/Demo0
+	$(NOOP)
 Demo1: $(BIN_DIR)/Demo1
 	$(NOOP)
 Demo2: $(BIN_DIR)/Demo2
@@ -234,7 +240,7 @@ $(BIN_DIR)/%: $$(addprefix $(OBJ_DIR)/,$$(OBJS_$$(call uc,$$*))) $$(OBJS_OPENXLS
 	$(CXX) $(LDFLAGS) $^ $(LDLIBS) $(LDLIBS_$(call uc,$*)) -o $@
 
 # rule for .cpp files in DEMOS_SRC_DIR
-$(OBJ_DIR)/%.o: $(addprefix $(DEMOS_SRC_DIR)/,%.cpp) | $(OBJ_DIR)
+$(OBJ_DIR)/%.o: $(addprefix $(DEMOS_SRC_DIR)/,%.cpp) | $(OBJ_DIR) $(OPENXLSX_DIR)/OpenXLSX-Exports.hpp
 	$(CXX) $(CPPFLAGS) -I$(OPENXLSX_DIR)/$(INCLUDE_DIR) -c $< -o $@
 
 # rule for OpenXLSX .cpp files
@@ -288,7 +294,7 @@ $(OBJ_DIR)/$(ZIPPY_SUBDIR)/:
 clean: cleanObjects cleanTargets
 
 cleanObjects:
-	rm -f $(addprefix $(OBJ_DIR)/,$(OBJS_DEMO1) $(OBJS_DEMO2) $(OBJS_DEMO3) $(OBJS_DEMO4) $(OBJS_DEMO5) $(OBJS_DEMO6) $(OBJS_DEMO7) $(OBJS_DEMO8) $(OBJS_DEMO9) $(OBJS_DEMO10)) \
+	rm -f $(addprefix $(OBJ_DIR)/,$(OBJS_DEMO0) $(OBJS_DEMO1) $(OBJS_DEMO2) $(OBJS_DEMO3) $(OBJS_DEMO4) $(OBJS_DEMO5) $(OBJS_DEMO6) $(OBJS_DEMO7) $(OBJS_DEMO8) $(OBJS_DEMO9) $(OBJS_DEMO10)) \
 	      $(BIN_DIR)/$(STATIC_LIBRARY) \
 	      $(OBJS_OPENXLSX_PREFIXED) \
 	      $(addprefix $(OBJ_DIR)/$(PUGIXML_SUBDIR)/,$(OBJS_PUGIXML)) \
@@ -357,6 +363,9 @@ echo:
 	@echo "PROJECT_FLAGS: $(PROJECT_FLAGS)"
 	@echo "ADDITIONAL_INCLUDE_FLAGS: $(ADDITIONAL_INCLUDE_FLAGS)"
 	@echo
+	@echo "OBJS_DEMO0: $(OBJS_DEMO0)"
+	@echo "OBJS_OPENXLSX_DEMO0: $(OBJS_OPENXLSX_DEMO0)"
+	@echo "LDLIBS_DEMO0: $(LDLIBS_DEMO0)"
 	@echo "OBJS_DEMO1: $(OBJS_DEMO1)"
 	@echo "OBJS_OPENXLSX_DEMO1: $(OBJS_OPENXLSX_DEMO1)"
 	@echo "LDLIBS_DEMO1: $(LDLIBS_DEMO1)"

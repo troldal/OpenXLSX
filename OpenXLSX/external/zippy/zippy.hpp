@@ -10478,7 +10478,8 @@ namespace Zippy
             // ===== Validate the temporary file
             mz_zip_error errordata;
             if (!mz_zip_validate_file_archive(fileName.c_str(), 0, &errordata)) {
-                throw ZipRuntimeError(mz_zip_get_error_string(errordata));
+                // throw ZipRuntimeError(mz_zip_get_error_string(errordata));
+                throw ZipRuntimeError(std::string(mz_zip_get_error_string(errordata)) + " (m_ArchivePath: " + m_ArchivePath + ")");
             }
 
             // ===== If everything is OK, open the newly created archive.
@@ -10502,7 +10503,8 @@ namespace Zippy
             }
             m_ArchivePath = fileName;
             if (!mz_zip_reader_init_file(&m_Archive, m_ArchivePath.c_str(), 0)) {
-                throw ZipRuntimeError(mz_zip_get_error_string(m_Archive.m_last_error));
+                // throw ZipRuntimeError(mz_zip_get_error_string(m_Archive.m_last_error));
+                throw ZipRuntimeError(std::string(mz_zip_get_error_string(m_Archive.m_last_error)) + " (m_ArchivePath: " + m_ArchivePath + ")");
             }
             m_IsOpen = true;
 
@@ -10510,7 +10512,8 @@ namespace Zippy
             for (unsigned int i = 0; i < mz_zip_reader_get_num_files(&m_Archive); i++) {
                 ZipEntryInfo info;
                 if (!mz_zip_reader_file_stat(&m_Archive, i, &info)) {
-                    throw ZipRuntimeError(mz_zip_get_error_string(m_Archive.m_last_error));
+                    // throw ZipRuntimeError(mz_zip_get_error_string(m_Archive.m_last_error));
+                    throw ZipRuntimeError(std::string(mz_zip_get_error_string(m_Archive.m_last_error)) + " (m_ArchivePath: " + m_ArchivePath + ")");
                 }
 
                 m_ZipEntries.emplace_back(Impl::ZipEntry(info));

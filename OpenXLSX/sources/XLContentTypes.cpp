@@ -251,12 +251,34 @@ XLContentTypes& XLContentTypes::operator=(XLContentTypes&& other) noexcept = def
 
 /**
  * @details
+ * @note 2024-07-22: added more intelligent whitespace support
  */
 void XLContentTypes::addOverride(const std::string& path, XLContentType type)
 {
     const std::string typeString = GetStringFromType(type);
 
-    auto node = xmlDocument().document_element().append_child("Override");
+
+    XMLNode lastOverride = xmlDocument().document_element().last_child_of_type(pugi::node_element); // see if there's a last element
+    XMLNode node{};    // scope declaration
+
+    // Create new node in the [Content_Types].xml file
+    if (lastOverride.empty())
+        node = xmlDocument().document_element().prepend_child("Override");
+    else { // if last element found
+        // ===== Insert node after previous override
+        node = xmlDocument().document_element().insert_child_after("Override", lastOverride);
+
+        // ===== Using whitespace nodes prior to lastOverride as a template, insert whitespaces between lastOverride and the new node
+        XMLNode copyWhitespaceFrom = lastOverride;    // start looking for whitespace nodes before previous override
+        XMLNode insertBefore = node;                  // start inserting the same whitespace nodes before new override
+        while (copyWhitespaceFrom.previous_sibling().type() == pugi::node_pcdata) { // empty node returns pugi::node_null
+            // Advance to previous "template" whitespace node, ensured to exist in while-condition
+            copyWhitespaceFrom = copyWhitespaceFrom.previous_sibling();
+            // ===== Insert a whitespace node
+            insertBefore = xmlDocument().document_element().insert_child_before(pugi::node_pcdata, insertBefore);
+            insertBefore.set_value(copyWhitespaceFrom.value());            // copy the a whitespace in sequence node value
+        }
+    }
     node.append_attribute("PartName").set_value(path.c_str());
     node.append_attribute("ContentType").set_value(typeString.c_str());
 }

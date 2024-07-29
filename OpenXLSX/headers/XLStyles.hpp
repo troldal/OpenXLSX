@@ -68,6 +68,8 @@ namespace OpenXLSX
     constexpr const uint32_t XLInvalidUInt16 = 0xffff;     // used to signal "value not defined" for uint16_t return types
     constexpr const uint32_t XLInvalidUInt32 = 0xffffffff; // used to signal "value not defined" for uint32_t return types
 
+    constexpr const bool XLPermitXfID      = true;         // use with XLCellFormat constructor to enable xfId() getter and setXfId() setter
+
     constexpr const bool XLCreateIfMissing = true;         // use with XLCellFormat::alignment(XLCreateIfMissing)
     constexpr const bool XLDoNotCreate     = false;        // use with XLCellFormat::alignment(XLDoNotCreate)
 
@@ -109,6 +111,12 @@ namespace OpenXLSX
     class XLCellStyle;
     class XLCellStyles;
     class XLStyles;
+
+    // TODO: implement fill pattern constants & use thereof
+    enum XLFillPattern: uint8_t {
+        XLFillPatternNone = 0,      // "none"
+        XLFillPatternSolid = 1      // "solid"
+    };
 
     enum XLLineType: uint8_t {
         XLLineLeft     = 0,
@@ -198,7 +206,7 @@ namespace OpenXLSX
          * @brief Get the id of the number format
          * @return The id for this number format
          */
-        uint32_t formatId() const;
+        uint32_t numberFormatId() const;
 
         /**
          * @brief Get the code of the number format
@@ -211,7 +219,7 @@ namespace OpenXLSX
          * @param value that shall be set
          * @return true for success, false for failure
          */
-        bool setFormatId(uint32_t newFormatId);
+        bool setNumberFormatId(uint32_t newNumberFormatId);
         bool setFormatCode(std::string newFormatCode);
 
         /**
@@ -281,26 +289,41 @@ namespace OpenXLSX
 
         /**
          * @brief Get the number format identified by index
+         * @param index an array index within XLStyles::numberFormats()
          * @return An XLNumberFormat object
+         * @throw XLException when index is out of m_numberFormats range
          */
-        XLNumberFormat formatByIndex(XLStyleIndex index) const;
+        XLNumberFormat numberFormatByIndex(XLStyleIndex index) const;
 
         /**
-         * @brief Operator overload: allow [] as shortcut access to formatById
+         * @brief Operator overload: allow [] as shortcut access to numberFormatByIndex
          */
-        XLNumberFormat operator[](XLStyleIndex index) const { return formatByIndex(index); }
+        XLNumberFormat operator[](XLStyleIndex index) const { return numberFormatByIndex(index); }
 
         /**
-         * @brief Get the number format identified by formatId
+         * @brief Get the number format identified by numberFormatId
+         * @param numberFormatId a numFmtId reference to a number format
          * @return An XLNumberFormat object
+         * @throw XLException if no match for numberFormatId is found within m_numberFormats
          */
-        XLNumberFormat formatById(uint32_t formatId) const;
+        XLNumberFormat numberFormatById(uint32_t numberFormatId) const;
+
+        /**
+         * @brief Get the numFmtId from the number format identified by index
+         * @param index an array index within XLStyles::numberFormats()
+         * @return the uint32_t numFmtId corresponding to index
+         * @throw XLException when index is out of m_numberFormats range
+         */
+        uint32_t numberFormatIdFromIndex(XLStyleIndex index) const;
 
         /**
          * @brief Append a new XLNumberFormat, based on copyFrom, and return its index in numFmts node
          * @param copyFrom Can provide an XLNumberFormat to use as template for the new style
          * @param styleEntriesPrefix Prefix the newly created cell style XMLNode with this pugi::node_pcdata text
          * @returns The index of the new style as used by operator[]
+         * @todo: TBD assign a unique, non-reserved uint32_t numFmtId. Alternatively, the user should configure it manually via setNumberFormatId
+         * @todo: TBD implement a "getFreeNumberFormatId()" method that skips reserved identifiers and iterates over m_numberFormats to avoid
+         *         all existing number format Ids.
          */
         XLStyleIndex create(XLNumberFormat copyFrom = XLNumberFormat{}, std::string styleEntriesPrefix = XLDefaultStyleEntriesPrefix);
 
@@ -1131,8 +1154,9 @@ namespace OpenXLSX
         /**
          * @brief Constructor. New items should only be created through an XLStyles object.
          * @param node An XMLNode object with the fonts XMLNode. If no input is provided, a null node is used.
+         * @param permitXfId true (XLPermitXfID) -> getter xfId and setter setXfId are enabled, otherwise will throw XLException if invoked
          */
-        explicit XLCellFormat(const XMLNode& node);
+        explicit XLCellFormat(const XMLNode& node, bool permitXfId);
   
         /**
          * @brief Copy Constructor.
@@ -1239,6 +1263,14 @@ namespace OpenXLSX
         XLAlignment alignment(bool createIfMissing = false) const;
 
         /**
+         * @brief Get the id of a referred <xf> entry
+         * @return The id referring to an index in cell style formats (cellStyleXfs)
+         * @throw XLException when invoked from cellStyleFormats
+         * @note - only permitted for cellFormats
+         */
+        XLStyleIndex xfId() const;
+
+        /**
          * @brief Setter functions for style parameters
          * @param value that shall be set
          * @return true for success, false for failure
@@ -1254,6 +1286,7 @@ namespace OpenXLSX
         bool setApplyProtection (bool set);
         bool setLocked          (bool set);
         bool setHidden          (bool set);
+        bool setXfId            (XLStyleIndex newXfId); // NOTE: throws when invoked from cellStyleFormats
 
         /**
          * @brief Return a string summary of the cell format properties
@@ -1263,6 +1296,7 @@ namespace OpenXLSX
   
     private:                                         // ---------- Private Member Variables ---------- //
         std::unique_ptr<XMLNode> m_cellFormatNode;   /**< An XMLNode object with the cell format (xf) item */
+        bool m_permitXfId{false};
     };
 
 
@@ -1280,8 +1314,9 @@ namespace OpenXLSX
         /**
          * @brief Constructor. New items should only be created through an XLStyles object.
          * @param node An XMLNode object with the styles item. If no input is provided, a null node is used.
+         * @param permitXfId Pass-through to XLCellFormat constructor: true (XLPermitXfID) -> setter setXfId is enabled, otherwise throws
          */
-        explicit XLCellFormats(const XMLNode& node);
+        explicit XLCellFormats(const XMLNode& node, bool permitXfId = false);
   
         /**
          * @brief Copy Constructor.
@@ -1346,6 +1381,7 @@ namespace OpenXLSX
     private:                                         // ---------- Private Member Variables ---------- //
         std::unique_ptr<XMLNode> m_cellFormatsNode;  /**< An XMLNode object with the cell formats item */
         std::vector<XLCellFormat> m_cellFormats;
+        bool m_permitXfId{false};
     };
 
 

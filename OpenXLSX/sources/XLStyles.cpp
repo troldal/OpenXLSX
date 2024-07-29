@@ -67,25 +67,33 @@ namespace     // anonymous namespace for module local functions
     constexpr const bool XLRemoveAttributes = true;
 
     enum XLStylesEntryType : uint8_t {
-        XLStylesNumberFormats    = 0,
-        XLStylesFonts            = 1,
-        XLStylesFills            = 2,
-        XLStylesBorders          = 3,
-        XLStylesCellStyleFormats = 4,
-        XLStylesCellFormats      = 5,
-        XLStylesCellStyles       = 6,
+        XLStylesNumberFormats    =   0,
+        XLStylesFonts            =   1,
+        XLStylesFills            =   2,
+        XLStylesBorders          =   3,
+        XLStylesCellStyleFormats =   4,
+        XLStylesCellFormats      =   5,
+        XLStylesCellStyles       =   6,
+        XLStylesColors           =   7,
+        XLStylesFormats          =   8,
+        XLStylesTableStyles      =   9,
+        XLStylesExtLst           =  10,
         XLStylesUnknown          = 255
     };
 
     XLStylesEntryType XLStylesEntryTypeFromString(std::string name)
     {
-        if (name == "numFmts")      return XLStylesEntryType::XLStylesNumberFormats;
-        if (name == "fonts")        return XLStylesEntryType::XLStylesFonts;
-        if (name == "fills")        return XLStylesEntryType::XLStylesFills;
-        if (name == "borders")      return XLStylesEntryType::XLStylesBorders;
-        if (name == "cellStyleXfs") return XLStylesEntryType::XLStylesCellStyleFormats;
-        if (name == "cellXfs")      return XLStylesEntryType::XLStylesCellFormats;
-        if (name == "cellStyles")   return XLStylesEntryType::XLStylesCellStyles;
+        if (name == "numFmts")      return XLStylesNumberFormats;
+        if (name == "fonts")        return XLStylesFonts;
+        if (name == "fills")        return XLStylesFills;
+        if (name == "borders")      return XLStylesBorders;
+        if (name == "cellStyleXfs") return XLStylesCellStyleFormats;
+        if (name == "cellXfs")      return XLStylesCellFormats;
+        if (name == "cellStyles")   return XLStylesCellStyles;
+        if (name == "colors")       return XLStylesColors;
+        if (name == "dxfs")         return XLStylesFormats;
+        if (name == "tableStyles")  return XLStylesTableStyles;
+        if (name == "extLst")       return XLStylesExtLst;
         return XLStylesEntryType::XLStylesUnknown;
     }
 
@@ -99,6 +107,10 @@ namespace     // anonymous namespace for module local functions
             case XLStylesCellStyleFormats: return "cellStyleXfs";
             case XLStylesCellFormats:      return "cellXfs";
             case XLStylesCellStyles:       return "cellStyles";
+            case XLStylesColors:           return "colors";
+            case XLStylesFormats:          return "dxfs";
+            case XLStylesTableStyles:      return "tableStyles";
+            case XLStylesExtLst:           return "extLst";
             case XLStylesUnknown:          [[fallthrough]];
             default:                       return "(unknown)";
         }
@@ -280,9 +292,9 @@ XLNumberFormat& XLNumberFormat::operator=(const XLNumberFormat& other)
 }
 
 /**
- * @details Returns the formatId value
+ * @details Returns the numFmtId value
  */
-uint32_t XLNumberFormat::formatId() const { return m_numberFormatNode->attribute("numFmtId").as_uint(XLInvalidUInt32); }
+uint32_t XLNumberFormat::numberFormatId() const { return m_numberFormatNode->attribute("numFmtId").as_uint(XLInvalidUInt32); }
 
 /**
  * @details Returns the formatCode value
@@ -292,8 +304,10 @@ std::string XLNumberFormat::formatCode() const { return m_numberFormatNode->attr
 /**
  * @details Setter functions
  */
-bool XLNumberFormat::setFormatId  (uint32_t newFormatId)      { return appendAndSetAttribute(*m_numberFormatNode, "numFmtId",   std::to_string(newFormatId)).empty() == false; }
-bool XLNumberFormat::setFormatCode(std::string newFormatCode) { return appendAndSetAttribute(*m_numberFormatNode, "formatCode", newFormatCode.c_str()).empty() == false;       }
+bool XLNumberFormat::setNumberFormatId(uint32_t newNumberFormatId)
+    { return appendAndSetAttribute(*m_numberFormatNode, "numFmtId",   std::to_string(newNumberFormatId)).empty() == false; }
+bool XLNumberFormat::setFormatCode    (std::string newFormatCode)
+    { return appendAndSetAttribute(*m_numberFormatNode, "formatCode", newFormatCode.c_str()            ).empty() == false; }
 
 
 /**
@@ -302,7 +316,7 @@ bool XLNumberFormat::setFormatCode(std::string newFormatCode) { return appendAnd
 std::string XLNumberFormat::summary() const
 {
     using namespace std::literals::string_literals;
-    return "formatId="s + std::to_string(formatId())
+    return "numFmtId="s + std::to_string(numberFormatId())
          + ", formatCode="s + formatCode();
 }
 
@@ -375,25 +389,37 @@ size_t XLNumberFormats::count() const { return m_numberFormats.size(); }
 /**
  * @details fetch XLNumberFormat from m_numberFormats by index
  */
-XLNumberFormat XLNumberFormats::formatByIndex(XLStyleIndex index) const
+XLNumberFormat XLNumberFormats::numberFormatByIndex(XLStyleIndex index) const
 {
-    if(index >= m_numberFormats.size()) {
+    if (index >= m_numberFormats.size()) {
         using namespace std::literals::string_literals;
-        throw XLException("XLNumberFormats::"s + __func__ + ": attempted to access index "s + std::to_string(index) + " with count "s + std::to_string(m_numberFormats.size()));
+        throw XLException("XLNumberFormats::"s + __func__ + ": index "s + std::to_string(index) + " is out of range"s);
     }
     return m_numberFormats.at(index);
 }
 
 /**
- * @details fetch XLNumberFormat from m_numberFormats by its formatId
+ * @details fetch XLNumberFormat from m_numberFormats by its numberFormatId
  */
-XLNumberFormat XLNumberFormats::formatById(uint32_t formatId) const
+XLNumberFormat XLNumberFormats::numberFormatById(uint32_t numberFormatId) const
 {
-    for(XLNumberFormat fmt : m_numberFormats)
-        if(fmt.formatId() == formatId)
+    for (XLNumberFormat fmt : m_numberFormats)
+        if (fmt.numberFormatId() == numberFormatId)
             return fmt;
     using namespace std::literals::string_literals;
-    throw XLException("XLNumberFormats::"s + __func__ + ": formatId "s + std::to_string(formatId) + " not found"s);
+    throw XLException("XLNumberFormats::"s + __func__ + ": numberFormatId "s + std::to_string(numberFormatId) + " not found"s);
+}
+
+/**
+ * @details fetch a numFmtId from m_numberFormats by index
+ */
+uint32_t XLNumberFormats::numberFormatIdFromIndex(XLStyleIndex index) const
+{
+    if (index >= m_numberFormats.size()) {
+        using namespace std::literals::string_literals;
+        throw XLException("XLNumberFormats::"s + __func__ + ": index "s + std::to_string(index) + " is out of range"s);
+    }
+    return m_numberFormats[ index ].numberFormatId(); 
 }
 
 /**
@@ -418,7 +444,7 @@ XLStyleIndex XLNumberFormats::create(XLNumberFormat copyFrom, std::string styleE
     XLNumberFormat newNumberFormat(newNode);
     if (copyFrom.m_numberFormatNode->empty()) {    // if no template is given
         // ===== Create a number format with default values
-        newNumberFormat.setFormatId(0);
+        newNumberFormat.setNumberFormatId(0);
         newNumberFormat.setFormatCode("General");
     }
     else
@@ -610,7 +636,7 @@ size_t XLFonts::count() const { return m_fonts.size(); }
  */
 XLFont XLFonts::fontByIndex(XLStyleIndex index) const
 {
-    if(index >= m_fonts.size()) {
+    if (index >= m_fonts.size()) {
         using namespace std::literals::string_literals;
         throw XLException("XLFonts::"s + __func__ + ": attempted to access index "s + std::to_string(index) + " with count "s + std::to_string(m_fonts.size()));
     }
@@ -640,7 +666,7 @@ XLStyleIndex XLFonts::create(XLFont copyFrom, std::string styleEntriesPrefix)
     if (copyFrom.m_fontNode->empty()) {    // if no template is given
         // ===== Create a font with default values
         // TODO: implement font defaults
-        // newFont.setProperty( defaultValue );
+        // newFont.setProperty(defaultValue);
         // ...
     }
     else
@@ -846,7 +872,7 @@ size_t XLFills::count() const { return m_fills.size(); }
  */
 XLFill XLFills::fillByIndex(XLStyleIndex index) const
 {
-    if(index >= m_fills.size()) {
+    if (index >= m_fills.size()) {
         using namespace std::literals::string_literals;
         throw XLException("XLFills::"s + __func__ + ": attempted to access index "s + std::to_string(index) + " with count "s + std::to_string(m_fills.size()));
     }
@@ -876,7 +902,7 @@ XLStyleIndex XLFills::create(XLFill copyFrom, std::string styleEntriesPrefix)
     if (copyFrom.m_fillNode->empty()) {    // if no template is given
         // ===== Create a fill with default values
         // TODO: implement fill defaults
-        // newFill.setProperty( defaultValue );
+        // newFill.setProperty(defaultValue);
         // ...
     }
     else
@@ -1091,7 +1117,7 @@ size_t XLBorders::count() const { return m_borders.size(); }
  */
 XLBorder XLBorders::borderByIndex(XLStyleIndex index) const
 {
-    if(index >= m_borders.size()) {
+    if (index >= m_borders.size()) {
         using namespace std::literals::string_literals;
         throw XLException("XLBorders::"s + __func__ + ": attempted to access index "s + std::to_string(index) + " with count "s + std::to_string(m_borders.size()));
     }
@@ -1121,7 +1147,7 @@ XLStyleIndex XLBorders::create(XLBorder copyFrom, std::string styleEntriesPrefix
     if (copyFrom.m_borderNode->empty()) {    // if no template is given
         // ===== Create a border with default values
         // TODO: implement border defaults
-        // newBorder.setProperty( defaultValue );
+        // newBorder.setProperty(defaultValue);
         // ...
     }
     else
@@ -1218,17 +1244,24 @@ XLCellFormat::XLCellFormat() : m_cellFormatNode(std::make_unique<XMLNode>()) {}
 /**
  * @details Constructor. Initializes the member variables for the new XLCellFormat object.
  */
-XLCellFormat::XLCellFormat(const XMLNode& node) : m_cellFormatNode(std::make_unique<XMLNode>(node)) {}
+XLCellFormat::XLCellFormat(const XMLNode& node, bool permitXfId)
+ : m_cellFormatNode(std::make_unique<XMLNode>(node)),
+   m_permitXfId(permitXfId)
+{}
 
 XLCellFormat::~XLCellFormat() = default;
 
 XLCellFormat::XLCellFormat(const XLCellFormat& other)
-    : m_cellFormatNode(std::make_unique<XMLNode>(*other.m_cellFormatNode))
+    : m_cellFormatNode(std::make_unique<XMLNode>(*other.m_cellFormatNode)),
+      m_permitXfId(other.m_permitXfId)
 {}
 
 XLCellFormat& XLCellFormat::operator=(const XLCellFormat& other)
 {
-    if (&other != this) *m_cellFormatNode = *other.m_cellFormatNode;
+    if (&other != this) {
+        *m_cellFormatNode = *other.m_cellFormatNode;
+        m_permitXfId = other.m_permitXfId;
+    }
     return *this;
 }
 
@@ -1283,6 +1316,15 @@ XLAlignment XLCellFormat::alignment(bool createIfMissing) const
 }
 
 /**
+ * @details Returns the xfId value
+ */
+XLStyleIndex XLCellFormat::xfId() const
+{
+    if (m_permitXfId) return m_cellFormatNode->attribute("xfId").as_uint(XLInvalidStyleIndex);
+    throw XLException("XLCellFormat::xfId not permitted when m_permitXfId is false");
+}
+
+/**
  * @details Setter functions
  */
 bool XLCellFormat::setNumberFormatId  (uint32_t newNumFmtId)        { return appendAndSetAttribute(*m_cellFormatNode, "numFmtId",        std::to_string(newNumFmtId)).empty()    == false; }
@@ -1296,6 +1338,11 @@ bool XLCellFormat::setApplyAlignment  (bool set)                    { return app
 bool XLCellFormat::setApplyProtection (bool set)                    { return appendAndSetAttribute(*m_cellFormatNode, "applyProtection", (set ? "true" : "false")).empty()       == false; }
 bool XLCellFormat::setLocked          (bool set)                { return appendAndSetNodeAttribute(*m_cellFormatNode, "protection", "locked", (set ? "true" : "false")).empty() == false;  }
 bool XLCellFormat::setHidden          (bool set)                { return appendAndSetNodeAttribute(*m_cellFormatNode, "protection", "hidden", (set ? "true" : "false")).empty() == false;  }
+bool XLCellFormat::setXfId            (XLStyleIndex newXfId)
+{
+    if (m_permitXfId) return appendAndSetAttribute(*m_cellFormatNode, "xfId",      std::to_string(newXfId)).empty() == false;
+    throw XLException("XLCellFormat::setXfId not permitted when m_permitXfId is false");
+}
 
 
 /**
@@ -1315,7 +1362,8 @@ std::string XLCellFormat::summary() const
          + ", applyProtection: "s + (applyProtection() ? "true"s : "false"s)
          + ", locked: "s + (locked() ? "true"s : "false"s)
          + ", hidden: "s + (hidden() ? "true"s : "false"s)
-         + ", " + alignment().summary();
+         + ", " + alignment().summary()
+         + ( m_permitXfId ? (", xfId: "s + std::to_string(xfId())) : ""s);
 }
 
 
@@ -1329,15 +1377,16 @@ XLCellFormats::XLCellFormats() : m_cellFormatsNode(std::make_unique<XMLNode>()) 
 /**
  * @details Constructor. Initializes the member variables for the new XLCellFormats object.
  */
-XLCellFormats::XLCellFormats(const XMLNode& cellStyleFormats)
-    : m_cellFormatsNode(std::make_unique<XMLNode>(cellStyleFormats))
+XLCellFormats::XLCellFormats(const XMLNode& cellStyleFormats, bool permitXfId)
+    : m_cellFormatsNode(std::make_unique<XMLNode>(cellStyleFormats)),
+      m_permitXfId(permitXfId)
 {
     // initialize XLCellFormats entries and m_cellFormats here
     XMLNode node = cellStyleFormats.first_child_of_type(pugi::node_element);
     while (not node.empty()) {
         std::string nodeName = node.name();
         if (nodeName == "xf")
-            m_cellFormats.push_back(XLCellFormat(node));
+            m_cellFormats.push_back(XLCellFormat(node, m_permitXfId));
         else
             std::cerr << "WARNING: XLCellFormats constructor: unknown subnode " << nodeName << std::endl;
         node = node.next_sibling_of_type(pugi::node_element);
@@ -1351,14 +1400,16 @@ XLCellFormats::~XLCellFormats()
 
 XLCellFormats::XLCellFormats(const XLCellFormats& other)
     : m_cellFormatsNode(std::make_unique<XMLNode>(*other.m_cellFormatsNode)),
-      m_cellFormats(other.m_cellFormats)
+      m_cellFormats(other.m_cellFormats),
+      m_permitXfId(other.m_permitXfId)
 {
     // std::cout << __func__ << " copy constructor" << std::endl;
 }
 
 XLCellFormats::XLCellFormats(XLCellFormats&& other)
     : m_cellFormatsNode(std::move(other.m_cellFormatsNode)),
-      m_cellFormats(std::move(other.m_cellFormats))
+      m_cellFormats(std::move(other.m_cellFormats)),
+      m_permitXfId(other.m_permitXfId)
 {
     // std::cout << __func__ << " move constructor" << std::endl;
 }
@@ -1374,6 +1425,7 @@ XLCellFormats& XLCellFormats::operator=(const XLCellFormats& other)
         *m_cellFormatsNode = *other.m_cellFormatsNode;
         m_cellFormats.clear();
         m_cellFormats = other.m_cellFormats;
+        m_permitXfId = other.m_permitXfId;
     }
     return *this;
 }
@@ -1388,7 +1440,7 @@ size_t XLCellFormats::count() const { return m_cellFormats.size(); }
  */
 XLCellFormat XLCellFormats::cellFormatByIndex(XLStyleIndex index) const
 {
-    if(index >= m_cellFormats.size()) {
+    if (index >= m_cellFormats.size()) {
         using namespace std::literals::string_literals;
         throw XLException("XLCellFormats::"s + __func__ + ": attempted to access index "s + std::to_string(index)
                         + " with count "s + std::to_string(m_cellFormats.size()));
@@ -1415,11 +1467,11 @@ XLStyleIndex XLCellFormats::create(XLCellFormat copyFrom, std::string styleEntri
     if (styleEntriesPrefix.length() > 0)    // if a whitespace prefix is configured
         m_cellFormatsNode->insert_child_before(pugi::node_pcdata, newNode).set_value(styleEntriesPrefix.c_str());    // prefix the new node with styleEntriesPrefix
 
-    XLCellFormat newCellFormat(newNode);
+    XLCellFormat newCellFormat(newNode, m_permitXfId);
     if (copyFrom.m_cellFormatNode->empty()) {    // if no template is given
         // ===== Create a cell format with default values
         // TODO: implement cell format defaults
-        // newStyle.setProperty( defaultValue );
+        // newStyle.setProperty(defaultValue);
         // ...
     }
     else
@@ -1561,7 +1613,7 @@ size_t XLCellStyles::count() const { return m_cellStyles.size(); }
  */
 XLCellStyle XLCellStyles::cellStyleByIndex(XLStyleIndex index) const
 {
-    if(index >= m_cellStyles.size()) {
+    if (index >= m_cellStyles.size()) {
         using namespace std::literals::string_literals;
         throw XLException("XLCellStyles::"s + __func__ + ": attempted to access index "s + std::to_string(index)
                         + " with count "s + std::to_string(m_cellStyles.size()));
@@ -1592,7 +1644,7 @@ XLStyleIndex XLCellStyles::create(XLCellStyle copyFrom, std::string styleEntries
     if (copyFrom.m_cellStyleNode->empty()) {    // if no template is given
         // ===== Create a cell style with default values
         // TODO: implement cell style defaults
-        // newCellStyle.setProperty( defaultValue );
+        // newCellStyle.setProperty(defaultValue);
         // ...
     }
     else
@@ -1638,16 +1690,21 @@ XLStyles::XLStyles(XLXmlData* xmlData, std::string stylesPrefix)
                 break;
             case XLStylesCellFormats:
                 // std::cout << "found XLStylesCellFormats, node name is " << node.name() << std::endl;
-                m_cellFormats = std::make_unique<XLCellFormats>(node);
+                m_cellFormats = std::make_unique<XLCellFormats>(node, XLPermitXfID);
                 break;
             case XLStylesCellStyles:
                 // std::cout << "found XLStylesCellStyles, node name is " << node.name() << std::endl;
                 m_cellStyles = std::make_unique<XLCellStyles>(node);
                 break;
+            case XLStylesColors:      [[fallthrough]];
+            case XLStylesFormats:     [[fallthrough]];
+            case XLStylesTableStyles: [[fallthrough]];
+            case XLStylesExtLst:
+                std::cout << "XLStyles: Ignoring currently unsupported <" << XLStylesEntryTypeToString(e) + "> node" << std::endl;
+                break;
             case XLStylesUnknown: [[fallthrough]];
             default:
-                using namespace std::literals::string_literals;
-                std::cerr << "WARNING: XLStyles constructor: unknown styles subnode \""s + node.name() << "\"" << std::endl;
+                std::cerr << "WARNING: XLStyles constructor: unknown styles subnode \"" << node.name() << "\"" << std::endl;
                 break;
         }
         node = node.next_sibling_of_type(pugi::node_element);
@@ -1662,7 +1719,7 @@ XLStyles::XLStyles(XLXmlData* xmlData, std::string stylesPrefix)
     if (!m_cellFormats) {
         node = doc.document_element().prepend_child(XLStylesEntryTypeToString(XLStylesCellFormats).c_str());
         wrapNode (doc.document_element(), node, stylesPrefix);
-        m_cellFormats = std::make_unique<XLCellFormats>(node);
+        m_cellFormats = std::make_unique<XLCellFormats>(node, XLPermitXfID);
     }
     if (!m_cellStyleFormats) {
         node = doc.document_element().prepend_child(XLStylesEntryTypeToString(XLStylesCellStyleFormats).c_str());

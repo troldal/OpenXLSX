@@ -22,8 +22,12 @@ int main( int argc, char *argv[] )
 	cout << "********************************************************************************\n";
 	cout << "DEMO PROGRAM ###: Load a file to test git pull request #186 Ignore whitespace in sharedStrings.xml\n";
 	cout << "********************************************************************************\n";
-
 	std::cout << "nowide is " << ( nowide_status() ? "enabled" : "disabled" ) << std::endl;
+
+	// XLDocument docRoot;
+	// docRoot.create("./test2.xlsx"s);
+	// docRoot.save();
+	// docRoot.close();
 
 	// load example file
 	XLDocument doc("./test.xlsx"s);
@@ -152,8 +156,6 @@ std::cout << "x is " << x << std::endl;
 	wks.cell("A25" ).value() = "42";
 	wks.cell("A25" ).formula() = "=4+3";
 std::cout << "A25 value() is " << wks.cell("A25") << ", A25 formula() is " << wks.cell("A25").formula() << std::endl;
-	wks.cell("C11") = wks.cell("A25");
-std::cout << "C11 value() is " << wks.cell("C11") << ", C11 formula() is " << wks.cell("C11").formula() << std::endl;
 	wks.cell("C11") = wks.cell("A25");
 std::cout << "C11 value() is " << wks.cell("C11") << ", C11 formula() is " << wks.cell("C11").formula() << std::endl;
 	wks.cell("D12") = wks.cell("A1");
@@ -376,7 +378,8 @@ std::cout << std::endl;
 
 }
 
-	doc.save();
+	// doc.save(); // implies XLForceOverwrite
+	doc.saveAs("./test.xlsx", XLForceOverwrite);
 	doc.close();
 
 	return 0;
