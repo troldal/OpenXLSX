@@ -3,13 +3,20 @@
 OpenXLSX is a C++ library for reading, writing, creating and modifying
 Microsoft Excel® files, with the .xlsx format.
 
-## 21 July 2024 - xl/styles.xml - support for cell formatting in work
+## (Lars Uffmann) 29 July 2024 - support for workbook##.xml and XML namespaces
+* it appears that a workbook does not always have to be at xl/workbook.xml
+  * --> the workbook path is now read from the document relationships, if it has an entry for "officeDocument"
+* also, XML namespaces can be used for node names throughout (almost) all XML files as long as they are defined in the document root(?) node with xmlns:<namespace> - e.g. xmlns:x
+  * added functions enable_xml_namespaces and disable_xml_namespaces
+  * when enable_xml_namespaces() was invoked, XLXmlParser XMLNode now wraps all pugi::xml_node methods so that a node referred to by a name will be found regardless of namespace, and children will be created automatically inheriting the node's own namespace
+
+## (Lars Uffmann) 21 July 2024 - xl/styles.xml - support for cell formatting in work
 Please refer to Demo10 and XLStyles.hpp on how to set cell formatting.
 In short:
 * size_t XLCell::cellFormat() and bool XLCell::setCellFormat(size_t cellFormatIndex)
-* these functions get/set an index to a format defind in xl/styles.xml <styleSheet>:<cellXfs>
+* these functions get/set an index to a format defined in xl/styles.xml <styleSheet>:<cellXfs>
 * <cellXfs> refers to 
-  * numFmtId -> XLStyles::numberFormats().formatById( uint32_t formatId ) // where formatId is the numFmtId attribute of the numFmt entry
+  * numFmtId -> XLStyles::numberFormats().numberFormatById( uint32_t numberFormatId ) // where numberFormatId is the numFmtId attribute of the numFmt entry
   * fontId -> XLStyles::fonts().fontByIndex( fontId )
   * fillId -> XLStyles::fills().fillByIndex( fillId )
   * borderId -> XLStyles::borders().borderByIndex( borderId )
@@ -19,7 +26,7 @@ In short:
 * all objects provide getter and setter functions for all supported attributes. Especially in the color domain, there's probably quite a bit of support missing at this stage
 * color support: only rgb via XLColor (XLColor::hex()) is supported at this stage. In particular, no color themes are supported
 
-### July 2024 - to-do list:
+### (Lars Uffmann) July 2024 - to-do list:
 - completion of style support as much as is reasonable (not color themes, most likely) per known documentation of xl/styles.xml
 - XLStyles ::create functions: implement good default style properties for all styles
 - TBD: permit setting a format reference for shared strings

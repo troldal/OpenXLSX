@@ -27,6 +27,8 @@
 # re-include specifically what is desired from Benchmarks folder
 !/Benchmarks/*.cpp
 !/Benchmarks/*.txt
+!/Benchmarks/benchmarks_before_XMLNode_wrappers
+!/Benchmarks/benchmarks_with_XMLNode_wrappers_*
 
 # include Documentation folder
 !/Documentation
