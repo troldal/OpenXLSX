@@ -23,9 +23,17 @@ int main( int argc, char *argv[] )
 
 	/*
 	 * TODO: align XLStyles.cpp with known documentation of xl/styles.xml as far as support is desired
-	 * TODO: XLStyles ::create functions: implement good default style properties for all styles
+	 *  * XLFills: support gradientFill
+	 *  * XLFills: support patternFill patternType (XLFillPattern)
+	 *  * XLFonts: support scheme major/minor/none (<font><scheme>major</scheme></font>)
+	 *  * XLStyles ::create functions: implement good default style properties for all styles
+	 *  * support "colors"
+	 *  * support "dxfs"
+	 *  * support "tableStyles"
 	 * TODO TBD: permit setting a format reference for shared strings
 	 * 
+	 * DONE: support complete for: "borders", "cellStyles", "cellStyleXfs", "cellXfs", "numFmts"
+	 * DONE: support nearly complete (exceptions above) for: "fonts"
 	 * DONE: support for xfId / setXfId in XLStyles::cellFormats, but not(!) in XLStyles::cellStyleFormats
 	 * DONE: format support for XLCells (cellFormat / setCellFormat)
 	 * DONE: format support for XLRows: <row> attributes s (same as cell attribute) and customFormat (=true/false)
@@ -65,15 +73,17 @@ int main( int argc, char *argv[] )
 	wks.cell("A2").setCellFormat( newCellFormatIndex );                     // assign the new cell format to the cell
 
 	//                                                                      // change the new font style:
-	fonts[ newFontIndex ].setBold();                                        // bold
-	fonts[ newFontIndex ].setItalic();                                      // italic
-	fonts[ newFontIndex ].setUnderline(XLUnderlineDouble);                  // underline: XLUnderlineSingle, XLUnderlineDouble, XLUnderlineNone
-	fonts[ newFontIndex ].setUnderline(XLUnderlineNone);                    // TEST: un-set the underline status
-	fonts[ newFontIndex ].setStrikethrough();                               // strikethrough
+	fonts[ newFontIndex ].setFontName("Arial");
+	fonts[ newFontIndex ].setFontSize(14);
 	XLColor red  ( "ffff0000" );
 	XLColor green( "ff00ff00" );
 	XLColor blue ( "ff0000ff" );
 	fonts[ newFontIndex ].setFontColor( green );
+	fonts[ newFontIndex ].setBold();                                        // bold
+	fonts[ newFontIndex ].setItalic();                                      // italic
+	fonts[ newFontIndex ].setStrikethrough();                               // strikethrough
+	fonts[ newFontIndex ].setUnderline(XLUnderlineDouble);                  // underline: XLUnderlineSingle, XLUnderlineDouble, XLUnderlineNone
+	fonts[ newFontIndex ].setUnderline(XLUnderlineNone);                    // TEST: un-set the underline status
 
 	cellFormats[ newCellFormatIndex ].setApplyFont( true );                 // apply the font (seems to do nothing)
 
@@ -179,11 +189,19 @@ int main( int argc, char *argv[] )
 		std::cout << "numberFormats[ " << nodeIndex << " ] summary: " << numberFormats[ nodeIndex ].summary() << std::endl;
 
 		nodeIndex = ( createAll ? fonts.create() : fonts.count() - 1 );
-		fonts[ nodeIndex ].setFontSize( 12 );
-		fonts[ nodeIndex ].setFontColor( XLColor( XLDefaultFontColor ) );
 		fonts[ nodeIndex ].setFontName( "Twelve" );
-		fonts[ nodeIndex ].setFontFamily( 13 );
-		fonts[ nodeIndex ].setFontCharset( 14 );
+		fonts[ nodeIndex ].setFontCharset( 13 );
+		fonts[ nodeIndex ].setFontFamily( 14 );
+		fonts[ nodeIndex ].setFontSize( 15 );
+		fonts[ nodeIndex ].setFontColor( XLColor( XLDefaultFontColor ) );
+		fonts[ nodeIndex ].setBold();                                        // bold
+		fonts[ nodeIndex ].setItalic();                                      // italic
+		fonts[ nodeIndex ].setStrikethrough();                               // strikethrough
+		fonts[ nodeIndex ].setUnderline(XLUnderlineDouble);                  // underline: XLUnderlineSingle, XLUnderlineDouble, XLUnderlineNone
+		fonts[ nodeIndex ].setOutline();
+		fonts[ nodeIndex ].setShadow();
+		fonts[ nodeIndex ].setCondense();
+		fonts[ nodeIndex ].setExtend();
 		std::cout << "fonts[ " << nodeIndex << " ] summary: " << fonts[ nodeIndex ].summary() << std::endl;
 
 		nodeIndex = ( createAll ? fills.create() : fills.count() - 1 );
@@ -196,13 +214,24 @@ int main( int argc, char *argv[] )
 		nodeIndex = ( createAll ? borders.create() : borders.count() - 1 );
 		borders[ nodeIndex ].setDiagonalUp( false );
 		borders[ nodeIndex ].setDiagonalDown( true );
-		borders[ nodeIndex ].setLine    ( XLLineBottom, XLLineStyleThin, XLColor( XLDefaultFontColor ) );
-		borders[ nodeIndex ].setLeft    (               XLLineStyleNone, XLColor( "ff112222" )         );
-		borders[ nodeIndex ].setRight   (               XLLineStyleThin, XLColor( "ff113333" )         );
-		borders[ nodeIndex ].setTop     (               XLLineStyleThin, XLColor( "ff114444" )         );
-		borders[ nodeIndex ].setBottom  (               XLLineStyleNone, XLColor( "ff222222" )         );
-		borders[ nodeIndex ].setDiagonal(               XLLineStyleThin, XLColor( "ff332222" )         );
-		std::cout << "borders[ " << nodeIndex << " ] summary: " << borders[ nodeIndex ].summary() << std::endl;
+		borders[ nodeIndex ].setOutline( true );
+		borders[ nodeIndex ].setLeft      ( XLLineStyleThin,   XLColor( "ff112222" ) );
+		borders[ nodeIndex ].setRight     ( XLLineStyleMedium, XLColor( "ff113333" ) );
+		borders[ nodeIndex ].setTop       ( XLLineStyleDashed, XLColor( "ff114444" ) );
+		borders[ nodeIndex ].setBottom    ( XLLineStyleDotted, XLColor( "ff222222" ), 0.25 );
+		borders[ nodeIndex ].setDiagonal  ( XLLineStyleThick,  XLColor( "ff332222" ), -0.25 );
+		borders[ nodeIndex ].setVertical  ( XLLineStyleDouble, XLColor( "ff443322" ) );
+		borders[ nodeIndex ].setHorizontal( XLLineStyleHair,   XLColor( "ff446688" ) );
+		std::cout << "#1 borders[ " << nodeIndex << " ] summary: " << borders[ nodeIndex ].summary() << std::endl;
+
+		// test additional line styles with setter function:
+		borders[ nodeIndex ].setLine      ( XLLineLeft,     XLLineStyleMediumDashed,     XLColor( XLDefaultFontColor ) );
+		borders[ nodeIndex ].setLine      ( XLLineRight,    XLLineStyleDashDot,          XLColor( XLDefaultFontColor ), 1.0 );
+		borders[ nodeIndex ].setLine      ( XLLineTop,      XLLineStyleMediumDashDot,    XLColor( XLDefaultFontColor ) );
+		borders[ nodeIndex ].setLine      ( XLLineBottom,   XLLineStyleDashDotDot,       XLColor( XLDefaultFontColor ), -0.1 );
+		borders[ nodeIndex ].setLine      ( XLLineDiagonal, XLLineStyleMediumDashDotDot, XLColor( XLDefaultFontColor ), -1.0 );
+		borders[ nodeIndex ].setLine      ( XLLineVertical, XLLineStyleSlantDashDot,     XLColor( XLDefaultFontColor ) );
+		std::cout << "#2 borders[ " << nodeIndex << " ] summary: " << borders[ nodeIndex ].summary() << std::endl;
 
 		nodeIndex = ( createAll ? cellStyleFormats.create() : cellStyleFormats.count() - 1 );
 		cellStyleFormats[ nodeIndex ].setNumberFormatId( 5 );
@@ -221,7 +250,11 @@ int main( int argc, char *argv[] )
 		cellStyleFormats[ nodeIndex ].alignment(XLCreateIfMissing).setTextRotation(255);
 		cellStyleFormats[ nodeIndex ].alignment(XLCreateIfMissing).setWrapText(true);
 		cellStyleFormats[ nodeIndex ].alignment(XLCreateIfMissing).setIndent(256);
+		cellStyleFormats[ nodeIndex ].alignment(XLCreateIfMissing).setRelativeIndent(-255);
+		cellStyleFormats[ nodeIndex ].alignment(XLCreateIfMissing).setJustifyLastLine(true);
 		cellStyleFormats[ nodeIndex ].alignment(XLCreateIfMissing).setShrinkToFit(false);
+		cellStyleFormats[ nodeIndex ].alignment(XLCreateIfMissing).setReadingOrder(XLReadingOrderLeftToRight);
+
 		try { cellStyleFormats[ nodeIndex ].setXfId(9); } // TEST: this should throw
 		catch (XLException const & e) {
 			std::cout << "cellStyleFormats NOMINAL EXCEPTION: " << e.what() << std::endl;
@@ -238,11 +271,14 @@ int main( int argc, char *argv[] )
 		cellFormats[ nodeIndex ].setFontIndex( 23 );
 		cellFormats[ nodeIndex ].setFillIndex( 24 );
 		cellFormats[ nodeIndex ].setBorderIndex( 25 );
+		cellFormats[ nodeIndex ].setApplyNumberFormat(true);
 		cellFormats[ nodeIndex ].setApplyFont(false);
 		cellFormats[ nodeIndex ].setApplyFill(true);
 		cellFormats[ nodeIndex ].setApplyBorder(true);
 		cellFormats[ nodeIndex ].setApplyAlignment(false);
 		cellFormats[ nodeIndex ].setApplyProtection(true);
+		cellFormats[ nodeIndex ].setQuotePrefix(true);
+		cellFormats[ nodeIndex ].setPivotButton(true);
 		cellFormats[ nodeIndex ].setLocked(false);
 		cellFormats[ nodeIndex ].setHidden(true);
 		cellFormats[ nodeIndex ].alignment(XLCreateIfMissing).setHorizontal(XLAlignGeneral);
@@ -258,6 +294,9 @@ int main( int argc, char *argv[] )
 		cellStyles[ nodeIndex ].setName( "test cellStyle" );
 		cellStyles[ nodeIndex ].setXfId( 77 );
 		cellStyles[ nodeIndex ].setBuiltinId( 7 );
+		cellStyles[ nodeIndex ].setOutlineStyle( 8 );
+		cellStyles[ nodeIndex ].setHidden( true );
+		cellStyles[ nodeIndex ].setCustomBuiltin( true );
 		std::cout << "cellStyles[ " << nodeIndex << " ] summary: " << cellStyles[ nodeIndex ].summary() << std::endl;
 
 

@@ -96,6 +96,7 @@ namespace OpenXLSX
     constexpr const char * XLDefaultLineStyle = ""; // empty string = line not set
 
     // forward declarations of all classes in this header
+    class XLUnsupportedElement; // used for stub getter / setter functions for unsupported style options
     class XLNumberFormat;
     class XLNumberFormats;
     class XLFont;
@@ -112,6 +113,14 @@ namespace OpenXLSX
     class XLCellStyles;
     class XLStyles;
 
+
+    enum XLUnderlineStyle : uint8_t {
+        XLUnderlineNone    = 0,
+        XLUnderlineSingle  = 1,
+        XLUnderlineDouble  = 2,
+        XLUnderlineInvalid = 255
+    };
+
     // TODO: implement fill pattern constants & use thereof
     enum XLFillPattern: uint8_t {
         XLFillPatternNone = 0,      // "none"
@@ -119,17 +128,32 @@ namespace OpenXLSX
     };
 
     enum XLLineType: uint8_t {
-        XLLineLeft     = 0,
-        XLLineRight    = 1,
-        XLLineTop      = 2,
-        XLLineBottom   = 3,
-        XLLineDiagonal = 4,
-        XLLineInvalid  = 255
+        XLLineLeft       =   0,
+        XLLineRight      =   1,
+        XLLineTop        =   2,
+        XLLineBottom     =   3,
+        XLLineDiagonal   =   4,
+        XLLineVertical   =   5,
+        XLLineHorizontal =   6,
+        XLLineInvalid    = 255
     };
 
     enum XLLineStyle : uint8_t {
-        XLLineStyleNone          = 0,
-        XLLineStyleThin          = 1 // TBD: all valid line styles
+        XLLineStyleNone             =   0,
+        XLLineStyleThin             =   1,
+        XLLineStyleMedium           =   2,
+        XLLineStyleDashed           =   3,
+        XLLineStyleDotted           =   4,
+        XLLineStyleThick            =   5,
+        XLLineStyleDouble           =   6,
+        XLLineStyleHair             =   7,
+        XLLineStyleMediumDashed     =   8,
+        XLLineStyleDashDot          =   9,
+        XLLineStyleMediumDashDot    =  10,
+        XLLineStyleDashDotDot       =  11,
+        XLLineStyleMediumDashDotDot =  12,
+        XLLineStyleSlantDashDot     =  13,
+        XLLineStyleInvalid          = 255
     };
 
     enum XLAlignmentStyle : uint8_t {
@@ -142,11 +166,20 @@ namespace OpenXLSX
         XLAlignUnknown       = 255 // TBD: all valid alignment styles
     };
 
-    enum XLUnderlineStyle : uint8_t {
-        XLUnderlineNone    = 0,
-        XLUnderlineSingle  = 1,
-        XLUnderlineDouble  = 2,
-        XLUnderlineInvalid = 255
+    enum XLReadingOrder : uint32_t {
+        XLReadingOrderContextual  = 0,
+        XLReadingOrderLeftToRight = 1,
+        XLReadingOrderRightToLeft = 2
+    };
+
+    // ================================================================================
+    // XLUnsupportedElement Class
+    // ================================================================================
+    class OPENXLSX_EXPORT XLUnsupportedElement
+    {
+    public:
+        XLUnsupportedElement() {}
+        bool empty() { return true; }
     };
 
     // ================================================================================
@@ -394,10 +427,28 @@ namespace OpenXLSX
         std::string fontName() const;
 
         /**
+         * @brief Get the font charset
+         * @return The font charset id
+         */
+        size_t fontCharset() const;
+
+        /**
+         * @brief Get the font family
+         * @return The font family id
+         */
+        size_t fontFamily() const;
+
+        /**
          * @brief Get the font size
          * @return The font size
          */
         size_t fontSize() const;
+
+        /**
+         * @brief Get the font color
+         * @return The font color
+         */
+        XLColor fontColor() const;
 
         /**
          * @brief Get the font bold status
@@ -424,22 +475,37 @@ namespace OpenXLSX
         bool strikethrough() const;
 
         /**
-         * @brief Get the font color
-         * @return The font color
+         * @brief Get the outline status
+         * @return a TBD bool
+         * @todo need to find a use case for this
          */
-        XLColor fontColor() const;
+        bool outline() const;
 
         /**
-         * @brief Get the font family
-         * @return The font family id
+         * @brief Get the shadow status
+         * @return a TBD bool
+         * @todo need to find a use case for this
          */
-        size_t fontFamily() const;
+        bool shadow() const;
 
         /**
-         * @brief Get the font charset
-         * @return The font charset id
+         * @brief Get the condense status
+         * @return a TBD bool
+         * @todo need to find a use case for this
          */
-        size_t fontCharset() const;
+        bool condense() const;
+
+        /**
+         * @brief Get the extend status
+         * @return a TBD bool
+         * @todo need to find a use case for this
+         */
+        bool extend() const;
+
+        /**
+         * @brief currently unsupported getter stubs
+         */
+		  XLUnsupportedElement fontScheme() const { return XLUnsupportedElement{}; } // <font><scheme>major</scheme></font>: "major", "minor", "none"
 
         /**
          * @brief Setter functions for style parameters
@@ -447,14 +513,22 @@ namespace OpenXLSX
          * @return true for success, false for failure
          */
         bool setFontName(std::string newName);
+        bool setFontCharset(size_t newCharset);
+        bool setFontFamily(size_t newFamily);
         bool setFontSize(size_t newSize);
+        bool setFontColor(XLColor newColor);
         bool setBold(bool set = true);
         bool setItalic(bool set = true);
-        bool setUnderline(XLUnderlineStyle style = XLUnderlineSingle);
         bool setStrikethrough(bool set = true);
-        bool setFontColor(XLColor newColor);
-        bool setFontFamily(size_t newFamily);
-        bool setFontCharset(size_t newCharset);
+        bool setUnderline(XLUnderlineStyle style = XLUnderlineSingle);
+        bool setOutline(bool set = true);
+        bool setShadow(bool set = true);
+        bool setCondense(bool set = true);
+        bool setExtend(bool set = true);
+        /**
+         * @brief currently unsupported setter stubs
+         */
+		  bool setScheme(XLUnsupportedElement const& newScheme) { return false; }
 
         /**
          * @brief Return a string summary of the font properties
@@ -808,13 +882,33 @@ namespace OpenXLSX
         XLColor color() const;
   
         /**
+         * @brief Get the line color tint
+         * @return A double value as stored in the "tint" attribute (should be between [-1.0;+1.0]), 0.0 if attribute does not exist
+         */
+        double colorTint() const;
+
+        /**
+         * @brief currently unsupported getter stubs
+         */
+        bool     colorAuto()    const { return false; } // <color auto="true" />
+        uint32_t colorIndexed() const { return     0; } // <color indexed="1" />
+        uint32_t colorTheme()   const { return     0; } // <color theme="1" />
+
+        /**
          * @brief Setter functions for style parameters
-         * @note: Please refer to XLBorder setLine / setLeft / setRight / setTop / setBottom / setDiagonal
+         * @note Please refer to XLBorder setLine / setLeft / setRight / setTop / setBottom / setDiagonal
          * @param value that shall be set
          * @return true for success, false for failure
          */
         // bool setStyle(XLLineStyle newStyle);
         // bool setColor(XLColor newColor);
+        // bool setColorTint(double newTint);
+        /**
+         * @brief currently unsupported setter stubs
+         */
+        // bool setColorAuto(bool set)             const { return false; }
+        // bool setColorIndexed(uint32_t newIndex) const { return false; }
+        // bool setColorTheme(uint32_t newTheme)   const { return false; }
 
         /**
          * @brief Return a string summary of the line properties
@@ -889,6 +983,12 @@ namespace OpenXLSX
         bool diagonalDown() const;
   
         /**
+         * @brief Get the outline property
+         * @return true if set, otherwise false
+         */
+        bool outline() const;
+  
+        /**
          * @brief Get the left line property
          * @return An XLLine object
          */
@@ -919,6 +1019,18 @@ namespace OpenXLSX
         XLLine diagonal() const;
   
         /**
+         * @brief Get the vertical line property
+         * @return An XLLine object
+         */
+        XLLine vertical() const;
+  
+        /**
+         * @brief Get the horizontal line property
+         * @return An XLLine object
+         */
+        XLLine horizontal() const;
+  
+        /**
          * @brief Setter functions for style parameters
          * @param value that shall be set
          * @param value2 (optional) that shall be set
@@ -926,12 +1038,15 @@ namespace OpenXLSX
          */
         bool setDiagonalUp  (bool set);
         bool setDiagonalDown(bool set);
-        bool setLine        (XLLineType lineType, XLLineStyle lineStyle, XLColor lineColor);
-        bool setLeft        (                     XLLineStyle lineStyle, XLColor lineColor);
-        bool setRight       (                     XLLineStyle lineStyle, XLColor lineColor);
-        bool setTop         (                     XLLineStyle lineStyle, XLColor lineColor);
-        bool setBottom      (                     XLLineStyle lineStyle, XLColor lineColor);
-        bool setDiagonal    (                     XLLineStyle lineStyle, XLColor lineColor);
+        bool setOutline     (bool set);
+        bool setLine        (XLLineType lineType, XLLineStyle lineStyle, XLColor lineColor, double lineTint = 0.0);
+        bool setLeft        (                     XLLineStyle lineStyle, XLColor lineColor, double lineTint = 0.0);
+        bool setRight       (                     XLLineStyle lineStyle, XLColor lineColor, double lineTint = 0.0);
+        bool setTop         (                     XLLineStyle lineStyle, XLColor lineColor, double lineTint = 0.0);
+        bool setBottom      (                     XLLineStyle lineStyle, XLColor lineColor, double lineTint = 0.0);
+        bool setDiagonal    (                     XLLineStyle lineStyle, XLColor lineColor, double lineTint = 0.0);
+        bool setVertical    (                     XLLineStyle lineStyle, XLColor lineColor, double lineTint = 0.0);
+        bool setHorizontal  (                     XLLineStyle lineStyle, XLColor lineColor, double lineTint = 0.0);
 
         /**
          * @brief Return a string summary of the font properties
@@ -1105,9 +1220,22 @@ namespace OpenXLSX
 
         /**
          * @brief Get the indent setting
-         * @return TBD: what is the indent / what's the unit?
+         * @return An integer value, where an increment of 1 represents 3 spaces.
          */
         uint32_t indent() const;
+
+        /**
+         * @brief Get the relative indent setting
+         * @return An integer value, where an increment of 1 represents 1 space, in addition to indent()*3 spaces
+         * @note can be negative
+         */
+        int32_t relativeIndent() const;
+
+        /**
+         * @brief Check whether justification of last line is enabled
+         * @return true if enabled, false otherwise
+         */
+        bool justifyLastLine() const;
 
         /**
          * @brief Check whether shrink to fit is enabled
@@ -1116,16 +1244,25 @@ namespace OpenXLSX
         bool shrinkToFit() const;
 
         /**
+         * @brief Get the reading order setting
+         * @return An integer value: 0 - Context Dependent, 1 - Left-to-Right, 2 - Right-to-Left (any other value should be invalid)
+         */
+        uint32_t readingOrder() const;
+
+        /**
          * @brief Setter functions for style parameters
          * @param value that shall be set
          * @return true for success, false for failure
          */
-        bool setHorizontal(XLAlignmentStyle newStyle);
-        bool setVertical(XLAlignmentStyle newStyle);
-        bool setTextRotation(uint16_t newRotation);
-        bool setWrapText(bool set);
-        bool setIndent(uint32_t newIndent);
-        bool setShrinkToFit(bool set);
+        bool setHorizontal     (XLAlignmentStyle newStyle);
+        bool setVertical       (XLAlignmentStyle newStyle);
+        bool setTextRotation   (uint16_t newRotation);
+        bool setWrapText       (bool set);
+        bool setIndent         (uint32_t newIndent);
+        bool setRelativeIndent (int32_t newIndent);
+        bool setJustifyLastLine(bool set);
+        bool setShrinkToFit    (bool set);
+        bool setReadingOrder   (uint32_t newReadingOrder); // can be used with XLReadingOrderContextual, XLReadingOrderLeftToRight, XLReadingOrderRightToLeft
 
         /**
          * @brief Return a string summary of the alignment properties
@@ -1214,6 +1351,20 @@ namespace OpenXLSX
         XLStyleIndex borderIndex() const;
 
         /**
+         * @brief Get the id of a referred <xf> entry
+         * @return The id referring to an index in cell style formats (cellStyleXfs)
+         * @throw XLException when invoked from cellStyleFormats
+         * @note - only permitted for cellFormats
+         */
+        XLStyleIndex xfId() const;
+
+        /**
+         * @brief Report whether number format is applied
+         * @return true for a setting enabled, or false if disabled
+         */
+        bool applyNumberFormat() const;
+
+        /**
          * @brief Report whether font is applied
          * @return true for a setting enabled, or false if disabled
          */
@@ -1244,6 +1395,22 @@ namespace OpenXLSX
         bool applyProtection() const;
 
         /**
+         * @brief Report whether quotePrefix is enabled
+         * @return true for a setting enabled, or false if disabled
+         * @note from documentation: A boolean value indicating whether the text string in a cell should be prefixed by a single quote mark
+         *       (e.g., 'text). In these cases, the quote is not stored in the Shared Strings Part.
+         */
+        bool quotePrefix() const;
+
+        /**
+         * @brief Report whether pivot button is applied
+         * @return true for a setting enabled, or false if disabled
+         * @note from documentation: A boolean value indicating whether the cell rendering includes a pivot table dropdown button.
+         * @todo need to find a use case for this
+         */
+        bool pivotButton() const;
+
+        /**
          * @brief Report whether protection locked is applied
          * @return true for a setting enabled, or false if disabled
          */
@@ -1263,30 +1430,34 @@ namespace OpenXLSX
         XLAlignment alignment(bool createIfMissing = false) const;
 
         /**
-         * @brief Get the id of a referred <xf> entry
-         * @return The id referring to an index in cell style formats (cellStyleXfs)
-         * @throw XLException when invoked from cellStyleFormats
-         * @note - only permitted for cellFormats
+         * @brief Unsupported getter
          */
-        XLStyleIndex xfId() const;
+        XLUnsupportedElement extLst() const { return XLUnsupportedElement{}; } // <xf><extLst>...</extLst></xf>
 
         /**
          * @brief Setter functions for style parameters
          * @param value that shall be set
          * @return true for success, false for failure
          */
-        bool setNumberFormatId  (uint32_t newNumFmtId);
-        bool setFontIndex       (XLStyleIndex newFontIndex);
-        bool setFillIndex       (XLStyleIndex newFillIndex);
-        bool setBorderIndex     (XLStyleIndex newBorderIndex);
-        bool setApplyFont       (bool set);
-        bool setApplyFill       (bool set);
-        bool setApplyBorder     (bool set);
-        bool setApplyAlignment  (bool set);
-        bool setApplyProtection (bool set);
-        bool setLocked          (bool set);
-        bool setHidden          (bool set);
-        bool setXfId            (XLStyleIndex newXfId); // NOTE: throws when invoked from cellStyleFormats
+        bool setNumberFormatId   (uint32_t newNumFmtId);
+        bool setFontIndex        (XLStyleIndex newFontIndex);
+        bool setFillIndex        (XLStyleIndex newFillIndex);
+        bool setBorderIndex      (XLStyleIndex newBorderIndex);
+        bool setXfId             (XLStyleIndex newXfId); // NOTE: throws when invoked from cellStyleFormats
+        bool setApplyNumberFormat(bool set);
+        bool setApplyFont        (bool set);
+        bool setApplyFill        (bool set);
+        bool setApplyBorder      (bool set);
+        bool setApplyAlignment   (bool set);
+        bool setApplyProtection  (bool set);
+        bool setQuotePrefix      (bool set);
+        bool setPivotButton      (bool set);
+        bool setLocked           (bool set);
+        bool setHidden           (bool set);
+        /**
+         * @brief Unsupported setter
+         */
+        bool setExtLst          (XLUnsupportedElement const& newExtLst) { return false; }
 
         /**
          * @brief Return a string summary of the cell format properties
@@ -1459,18 +1630,50 @@ namespace OpenXLSX
 
         /**
          * @brief Get the built-in id of the cell style
-         * @return The built-in id of the cell style - TBD what this means
+         * @return The built-in id of the cell style
+         * @todo need to find a use case for this
          */
         uint32_t builtinId() const;
+
+        /**
+         * @brief Get the outline style id (attribute iLevel) of the cell style
+         * @return The outline style id of the cell style
+         * @todo need to find a use case for this
+         */
+        uint32_t outlineStyle() const;
+
+        /**
+         * @brief Get the hidden flag of the cell style
+         * @return The hidden flag status (true: applications should not show this style)
+         */
+        bool hidden() const;
+
+        /**
+         * @brief Get the custom buildin flag
+         * @return true if this cell style shall customize a built-in style
+         */
+        bool customBuiltin() const;
+
+        /**
+         * @brief Unsupported getter
+         */
+        XLUnsupportedElement extLst() const { return XLUnsupportedElement{}; } // <cellStyle><extLst>...</extLst></cellStyle>
 
         /**
          * @brief Setter functions for style parameters
          * @param value that shall be set
          * @return true for success, false for failure
          */
-        bool setName     (std::string newName);
-        bool setXfId     (XLStyleIndex newXfId);
-        bool setBuiltinId(uint32_t newBuiltinId);
+        bool setName         (std::string newName);
+        bool setXfId         (XLStyleIndex newXfId);
+        bool setBuiltinId    (uint32_t newBuiltinId);
+        bool setOutlineStyle (uint32_t newOutlineStyle);
+        bool setHidden       (bool set);
+        bool setCustomBuiltin(bool set);
+        /**
+         * @brief Unsupported setter
+         */
+        bool setExtLst   (XLUnsupportedElement const& newExtLst) { return false; }
 
         /**
          * @brief Return a string summary of the cell style properties
