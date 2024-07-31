@@ -3,6 +3,19 @@
 OpenXLSX is a C++ library for reading, writing, creating and modifying
 Microsoft Excel® files, with the .xlsx format.
 
+## (Lars Uffmann) 31 July 2024 - xl/styles.xml - support for fill::gradientFill and XLDataBarColor
+* gradientFill elements within <fills><fill><gradientFill>...</gradientFill></fill>...</fills> are now supported
+* along with that come a few new classes: XLGradientStops, XLGradientStop, XLDataBarColor
+* XLLine color properties are now controlled via the XLDataBarColor as well
+* Examples/Demo10.cpp has been updated to test some(!) of the new formatting elements
+
+### (Lars Uffmann) July 2024 - to-do list:
+- completion of style support as much as is reasonable (not color themes, most likely) per known documentation of xl/styles.xml
+- XLStyles ::create functions: implement good default style properties for all styles
+- TBD: permit setting a format reference for shared strings
+- TBD: should a row format be used by OpenXLSX as default for new cells created in that row?
+- TBD: should a column format be used by OpenXLSX as default for new cells created in that column, when they do not have an applied row style?
+
 ## (Lars Uffmann) 29 July 2024 - support for workbook##.xml and XML namespaces
 * it appears that a workbook does not always have to be at xl/workbook.xml
   * --> the workbook path is now read from the document relationships, if it has an entry for "officeDocument"
@@ -25,13 +38,6 @@ In short:
 * all array getter functions (numberFormats, fonts, fills, borders, cellStyleFormats, cellFormats, cellStyles) support the operator[] to access an object by index
 * all objects provide getter and setter functions for all supported attributes. Especially in the color domain, there's probably quite a bit of support missing at this stage
 * color support: only rgb via XLColor (XLColor::hex()) is supported at this stage. In particular, no color themes are supported
-
-### (Lars Uffmann) July 2024 - to-do list:
-- completion of style support as much as is reasonable (not color themes, most likely) per known documentation of xl/styles.xml
-- XLStyles ::create functions: implement good default style properties for all styles
-- TBD: permit setting a format reference for shared strings
-- TBD: should a row format be used by OpenXLSX as default for new cells created in that row?
-- TBD: should a column format be used by OpenXLSX as default for new cells created in that column, when they do not have an applied row style?
 
 ## May 2024 Update
 
