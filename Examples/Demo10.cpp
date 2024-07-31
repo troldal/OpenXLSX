@@ -23,7 +23,6 @@ int main( int argc, char *argv[] )
 
 	/*
 	 * TODO: align XLStyles.cpp with known documentation of xl/styles.xml as far as support is desired
-	 *  * XLFills: support gradientFill
 	 *  * XLFills: support patternFill patternType (XLFillPattern)
 	 *  * XLFonts: support scheme major/minor/none (<font><scheme>major</scheme></font>)
 	 *  * XLStyles ::create functions: implement good default style properties for all styles
@@ -32,6 +31,7 @@ int main( int argc, char *argv[] )
 	 *  * support "tableStyles"
 	 * TODO TBD: permit setting a format reference for shared strings
 	 * 
+	 * DONE: XLFills: support gradientFill
 	 * DONE: support complete for: "borders", "cellStyles", "cellStyleXfs", "cellXfs", "numFmts"
 	 * DONE: support nearly complete (exceptions above) for: "fonts"
 	 * DONE: support for xfId / setXfId in XLStyles::cellFormats, but not(!) in XLStyles::cellStyleFormats
@@ -75,9 +75,10 @@ int main( int argc, char *argv[] )
 	//                                                                      // change the new font style:
 	fonts[ newFontIndex ].setFontName("Arial");
 	fonts[ newFontIndex ].setFontSize(14);
-	XLColor red  ( "ffff0000" );
-	XLColor green( "ff00ff00" );
-	XLColor blue ( "ff0000ff" );
+	XLColor red   ( "ffff0000" );
+	XLColor green ( "ff00ff00" );
+	XLColor blue  ( "ff0000ff" );
+	XLColor yellow( "ffffff00" );
 	fonts[ newFontIndex ].setFontColor( green );
 	fonts[ newFontIndex ].setBold();                                        // bold
 	fonts[ newFontIndex ].setItalic();                                      // italic
@@ -139,8 +140,6 @@ int main( int argc, char *argv[] )
 	wks.cell(cellRange.bottomRight()).value() = "red range " + cellRange.address() + " bottom right cell";
 	cellRange.setFormat( redFormat );
 
-	constexpr const char * XLFillPatternSolid = "solid";
-
 	// // get the relevant style objects for easy access
 	// XLCellFormats & cellFormats = doc.styles().cellFormats();
 	// XLFonts & fonts = doc.styles().fonts();
@@ -153,11 +152,11 @@ int main( int argc, char *argv[] )
 	XLStyleIndex newFontStyle = fonts.create(fonts[ cellFormats[ baseFormat ].fontIndex() ]); // create a new font style based on the used font
 	XLStyleIndex newFillStyle = fills.create(fills[ cellFormats[ baseFormat ].fillIndex() ]); // create a new fill style based on the used fill
 
-	fonts[ newFontStyle ].setFontColor( XLColor( "ff00ff00" ) );          // green
+	fonts[ newFontStyle ].setFontColor( green );
 	cellFormats[ newCellStyle ].setFontIndex( newFontStyle );
 
-	fills[ newFillStyle ].setPatternType    ( XLFillPatternSolid );       // "solid"
-	fills[ newFillStyle ].setColor          ( XLColor( "ffffff00" ) );    // yellow
+	fills[ newFillStyle ].setPatternType    ( XLPatternSolid );           // "solid"
+	fills[ newFillStyle ].setColor          ( yellow );
 	// fills[ newFillStyle ].setBackgroundColor( XLColor( "ff0000ff" ) );    // blue, setBackgroundColor only makes sense with gradient fills
 	cellFormats[ newCellStyle ].setFillIndex( newFillStyle );
 
@@ -204,11 +203,34 @@ int main( int argc, char *argv[] )
 		fonts[ nodeIndex ].setExtend();
 		std::cout << "fonts[ " << nodeIndex << " ] summary: " << fonts[ nodeIndex ].summary() << std::endl;
 
+		// XLFill -> XLPatternFill test:
 		nodeIndex = ( createAll ? fills.create() : fills.count() - 1 );
-		fills[ nodeIndex ].setFillType( XLDefaultFillType );
-		fills[ nodeIndex ].setPatternType( XLDefaultFillPatternType );
-		fills[ nodeIndex ].setColor          ( XLColor( XLDefaultFillPatternFgColor ) );
-		fills[ nodeIndex ].setBackgroundColor( XLColor( XLDefaultFillPatternBgColor ) );
+		fills[ nodeIndex ].setFillType( XLPatternFill );
+		fills[ nodeIndex ].setPatternType( XLDefaultPatternType );
+		fills[ nodeIndex ].setColor          ( XLColor( XLDefaultPatternFgColor ) );
+		fills[ nodeIndex ].setBackgroundColor( XLColor( XLDefaultPatternBgColor ) );
+		std::cout << "fills[ " << nodeIndex << " ] summary: " << fills[ nodeIndex ].summary() << std::endl;
+
+		// XLFill -> XLGradientFill test:
+		nodeIndex = ( createAll ? fills.create() : fills.count() - 1 );
+		fills[ nodeIndex ].setFillType( XLPatternFill );
+		fills[ nodeIndex ].setFillType( XLGradientFill, XLForceFillType );
+		fills[ nodeIndex ].setGradientType( XLGradientLinear );
+		XLGradientStops stops = fills[ nodeIndex ].stops();
+
+		// first XLGradientStop
+		XLStyleIndex stopIndex = stops.create();
+		XLDataBarColor stopColor = stops[ stopIndex ].color();
+		stops[ stopIndex ].setPosition(3.14);
+		stopColor.setRgb( green );
+		stopColor.setTint( 1.01 );
+		stopColor.setAutomatic();
+		stopColor.setIndexed( 77 );
+		stopColor.setTheme( 79 );
+
+		// second XLGradientStop
+		stopIndex = stops.create(stops[stopIndex]); // create another stop using previous stop as template
+		stopColor.set( yellow );
 		std::cout << "fills[ " << nodeIndex << " ] summary: " << fills[ nodeIndex ].summary() << std::endl;
 
 		nodeIndex = ( createAll ? borders.create() : borders.count() - 1 );
@@ -232,6 +254,22 @@ int main( int argc, char *argv[] )
 		borders[ nodeIndex ].setLine      ( XLLineDiagonal, XLLineStyleMediumDashDotDot, XLColor( XLDefaultFontColor ), -1.0 );
 		borders[ nodeIndex ].setLine      ( XLLineVertical, XLLineStyleSlantDashDot,     XLColor( XLDefaultFontColor ) );
 		std::cout << "#2 borders[ " << nodeIndex << " ] summary: " << borders[ nodeIndex ].summary() << std::endl;
+
+		// test direct access to line properties (read: the XLDataBarColor)
+		XLLine leftLine = borders[ nodeIndex ].left();
+		XLDataBarColor leftLineColor = leftLine.color();
+		leftLineColor.setRgb( blue );
+		leftLineColor.setTint( -0.2 );
+		leftLineColor.setAutomatic();
+		leftLineColor.setIndexed( 606 );
+		leftLineColor.setTheme( 707 );
+		std::cout << "#2 borders, leftLine summary: " << leftLine.summary() << std::endl;
+		// unset some properties
+		leftLineColor.setTint( 0 );
+		leftLineColor.setAutomatic( false );
+		leftLineColor.setIndexed( 0 );
+		leftLineColor.setTheme( 0 );
+		std::cout << "#2 borders, leftLineColor summary: " << leftLineColor.summary() << std::endl;
 
 		nodeIndex = ( createAll ? cellStyleFormats.create() : cellStyleFormats.count() - 1 );
 		cellStyleFormats[ nodeIndex ].setNumberFormatId( 5 );

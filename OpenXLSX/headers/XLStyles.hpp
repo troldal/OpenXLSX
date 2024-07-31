@@ -73,6 +73,8 @@ namespace OpenXLSX
     constexpr const bool XLCreateIfMissing = true;         // use with XLCellFormat::alignment(XLCreateIfMissing)
     constexpr const bool XLDoNotCreate     = false;        // use with XLCellFormat::alignment(XLDoNotCreate)
 
+    constexpr const bool XLForceFillType   = true;
+
     constexpr const char * XLDefaultStylesPrefix       = "\n\t";   // indentation to use for newly created root level style node tags
     constexpr const char * XLDefaultStyleEntriesPrefix = "\n\t\t"; // indentation to use for newly created style entry nodes
 
@@ -87,11 +89,6 @@ namespace OpenXLSX
     constexpr const char *   XLDefaultFontName       = "Arial";    //
     constexpr const uint32_t XLDefaultFontFamily     = 0;          // TBD what this means / how it is used
     constexpr const uint32_t XLDefaultFontCharset    = 1;          // TBD what this means / how it is used
-
-    constexpr const char * XLDefaultFillType           = "patternFill"; // node name for the pattern description
-    constexpr const char * XLDefaultFillPatternType    = "none";        // attribute patternType value
-    constexpr const char * XLDefaultFillPatternFgColor = "ffffffff";    // child node fgcolor attribute rgb value
-    constexpr const char * XLDefaultFillPatternBgColor = "ff000000";    // child node bgcolor attribute rgb value
 
     constexpr const char * XLDefaultLineStyle = ""; // empty string = line not set
 
@@ -121,11 +118,29 @@ namespace OpenXLSX
         XLUnderlineInvalid = 255
     };
 
-    // TODO: implement fill pattern constants & use thereof
-    enum XLFillPattern: uint8_t {
-        XLFillPatternNone = 0,      // "none"
-        XLFillPatternSolid = 1      // "solid"
+    enum XLFillType : uint8_t {
+        XLGradientFill     =   0,    // <gradientFill />
+        XLPatternFill      =   1,    // <patternFill />
+        XLFillTypeInvalid  = 255,    // any child of <fill> that is not one of the above
     };
+
+    enum XLGradientType : uint8_t {
+        XLGradientLinear      =   0,
+        XLGradientPath        =   1,
+        XLGradientTypeInvalid = 255
+    };
+
+    // TODO: implement fill pattern constants & use thereof
+    enum XLPatternType: uint8_t {
+        XLPatternNone        =   0,   // "none"
+        XLPatternSolid       =   1,   // "solid"
+        XLPatternTypeInvalid = 255    // any patternType that is not one of the above
+    };
+    constexpr const XLFillType    XLDefaultFillType       = XLPatternFill; // node name for the pattern description is derived from this
+    constexpr const XLPatternType XLDefaultPatternType    = XLPatternNone; // attribute patternType default value: no fill
+    constexpr const char*         XLDefaultPatternFgColor = "ffffffff";    // child node fgcolor attribute rgb value
+    constexpr const char*         XLDefaultPatternBgColor = "ff000000";    // child node bgcolor attribute rgb value
+
 
     enum XLLineType: uint8_t {
         XLLineLeft       =   0,
@@ -505,7 +520,7 @@ namespace OpenXLSX
         /**
          * @brief currently unsupported getter stubs
          */
-		  XLUnsupportedElement fontScheme() const { return XLUnsupportedElement{}; } // <font><scheme>major</scheme></font>: "major", "minor", "none"
+        XLUnsupportedElement fontScheme() const { return XLUnsupportedElement{}; } // <font><scheme>major</scheme></font>: "major", "minor", "none"
 
         /**
          * @brief Setter functions for style parameters
@@ -528,7 +543,7 @@ namespace OpenXLSX
         /**
          * @brief currently unsupported setter stubs
          */
-		  bool setScheme(XLUnsupportedElement const& newScheme) { return false; }
+        bool setScheme(XLUnsupportedElement const& newScheme) { return false; }
 
         /**
          * @brief Return a string summary of the font properties
@@ -624,9 +639,260 @@ namespace OpenXLSX
 
 
     // ================================================================================
+    // XLDataBarColor Class
+    // ================================================================================
+
+    /**
+     * @brief An encapsulation of an XLSX Data Bar Color (CT_Color) item
+     */
+    class OPENXLSX_EXPORT XLDataBarColor
+    {
+    public:
+        /**
+         * @brief
+         */
+        XLDataBarColor();
+
+        /**
+         * @brief Constructor. New items should only be created through an XLGradientStop or XLLine object.
+         * @param node An XMLNode object with a data bar color XMLNode. If no input is provided, a null node is used.
+         */
+        explicit XLDataBarColor(const XMLNode& node);
+
+        /**
+         * @brief Copy Constructor.
+         * @param other Object to be copied.
+         */
+        XLDataBarColor(const XLDataBarColor& other);
+
+        /**
+         * @brief Move Constructor.
+         * @param other Object to be moved.
+         */
+        XLDataBarColor(XLDataBarColor&& other) noexcept = default;
+
+        /**
+         * @brief
+         */
+        ~XLDataBarColor() = default;
+
+        /**
+         * @brief Copy assignment operator.
+         * @param other Right hand side of assignment operation.
+         * @return A reference to the lhs object.
+         */
+        XLDataBarColor& operator=(const XLDataBarColor& other);
+
+        /**
+         * @brief Move assignment operator.
+         * @param other Right hand side of assignment operation.
+         * @return A reference to lhs object.
+         */
+        XLDataBarColor& operator=(XLDataBarColor&& other) noexcept = default;
+
+        /**
+         * @brief Get the line color from the rgb attribute
+         * @return An XLColor object
+         */
+        XLColor rgb() const;
+  
+        /**
+         * @brief Get the line color tint
+         * @return A double value as stored in the "tint" attribute (should be between [-1.0;+1.0]), 0.0 if attribute does not exist
+         */
+        double tint() const;
+
+        /**
+         * @brief currently unsupported getter stubs
+         */
+        bool     automatic() const; // <color auto="true" />
+        uint32_t indexed()   const; // <color indexed="1" />
+        uint32_t theme()     const; // <color theme="1" />
+
+        /**
+         * @brief Setter functions for data bar color parameters
+         * @param value that shall be set
+         * @return true for success, false for failure
+         */
+        bool setRgb      (XLColor newColor);
+        bool set         (XLColor newColor) { return setRgb(newColor); } // alias for setRgb
+        bool setTint     (double newTint);
+        bool setAutomatic(bool set = true);
+        bool setIndexed  (uint32_t newIndex);
+        bool setTheme    (uint32_t newTheme);
+
+        /**
+         * @brief Return a string summary of the color properties
+         * @return string with info about the color object
+         */
+        std::string summary() const;
+
+    private:                                         // ---------- Private Member Variables ---------- //
+        std::unique_ptr<XMLNode> m_colorNode;        /**< An XMLNode object with the color item */
+    };
+
+
+    // ================================================================================
     // XLFills Class
     // ================================================================================
-    
+
+    /**
+     * @brief An encapsulation of an fill::gradientFill::stop item
+     */
+    class OPENXLSX_EXPORT XLGradientStop
+    {
+        friend class XLGradientStops;    // for access to m_stopNode in XLGradientStops::create
+    public:                                          // ---------- Public Member Functions ----------- //
+        /**
+         * @brief
+         */
+        XLGradientStop();
+
+        /**
+         * @brief Constructor. New items should only be created through an XLGradientStops object.
+         * @param node An XMLNode object with the gradient stop XMLNode. If no input is provided, a null node is used.
+         */
+        explicit XLGradientStop(const XMLNode& node);
+
+        /**
+         * @brief Copy Constructor.
+         * @param other Object to be copied.
+         */
+        XLGradientStop(const XLGradientStop& other);
+
+        /**
+         * @brief Move Constructor.
+         * @param other Object to be moved.
+         */
+        XLGradientStop(XLGradientStop&& other) noexcept = default;
+
+        /**
+         * @brief
+         */
+        ~XLGradientStop() = default;
+
+        /**
+         * @brief Copy assignment operator.
+         * @param other Right hand side of assignment operation.
+         * @return A reference to the lhs object.
+         */
+        XLGradientStop& operator=(const XLGradientStop& other);
+
+        /**
+         * @brief Move assignment operator.
+         * @param other Right hand side of assignment operation.
+         * @return A reference to lhs object.
+         */
+        XLGradientStop& operator=(XLGradientStop&& other) noexcept = default;
+
+        /**
+         * @brief Getter functions
+         * @return The requested gradient stop property
+         */
+        XLDataBarColor color() const; // <stop><color /></stop>
+        double position()      const; // <stop position="1.2" />
+
+        /**
+         * @brief Setter functions
+         * @param value that shall be set
+         * @return true for success, false for failure
+         * @note for color setters, use the color() getter with the XLDataBarColor setter functions
+         */
+        bool setPosition(double newPosition);
+
+        /**
+         * @brief Return a string summary of the stop properties
+         * @return string with info about the stop object
+         */
+        std::string summary() const;
+
+    private:                                         // ---------- Private Member Variables ---------- //
+        std::unique_ptr<XMLNode> m_stopNode;         /**< An XMLNode object with the stop item */
+    };
+
+    /**
+     * @brief An encapsulation of an array of fill::gradientFill::stop items
+     */
+    class OPENXLSX_EXPORT XLGradientStops
+    {
+    public:    // ---------- Public Member Functions ---------- //
+        /**
+         * @brief
+         */
+        XLGradientStops();
+
+        /**
+         * @brief Constructor. New items should only be created through an XLFill object.
+         * @param node An XMLNode object with the gradientFill item. If no input is provided, a null node is used.
+         */
+        explicit XLGradientStops(const XMLNode& node);
+
+        /**
+         * @brief Copy Constructor.
+         * @param other Object to be copied.
+         */
+        XLGradientStops(const XLGradientStops& other);
+
+        /**
+         * @brief Move Constructor.
+         * @param other Object to be moved.
+         */
+        XLGradientStops(XLGradientStops&& other);
+
+        /**
+         * @brief
+         */
+        ~XLGradientStops();
+
+        /**
+         * @brief Copy assignment operator.
+         * @param other Right hand side of assignment operation.
+         * @return A reference to the lhs object.
+         */
+        XLGradientStops& operator=(const XLGradientStops& other);
+
+        /**
+         * @brief Move assignment operator.
+         * @param other Right hand side of assignment operation.
+         * @return A reference to lhs object.
+         */
+        XLGradientStops& operator=(XLGradientStops&& other) noexcept = default;
+
+        /**
+         * @brief Get the count of gradient stops
+         * @return The amount of stop entries
+         */
+        size_t count() const;
+
+        /**
+         * @brief Get the gradient stop entry identified by index
+         * @param index The index within the XML sequence
+         * @return An XLGradientStop object
+         */
+        XLGradientStop stopByIndex(XLStyleIndex index) const;
+
+        /**
+         * @brief Operator overload: allow [] as shortcut access to stopByIndex
+         * @param index The index within the XML sequence
+         * @return An XLGradientStop object
+         */
+        XLGradientStop operator[](XLStyleIndex index) const { return stopByIndex(index); }
+
+        /**
+         * @brief Append a new XLGradientStop, based on copyFrom, and return its index in fills node
+         * @param copyFrom Can provide an XLGradientStop to use as template for the new style
+         * @param stopEntriesPrefix Prefix the newly created stop XMLNode with this pugi::node_pcdata text
+         * @returns The index of the new style as used by operator[]
+         */
+        XLStyleIndex create(XLGradientStop copyFrom = XLGradientStop{}, std::string styleEntriesPrefix = "");
+
+		  std::string summary() const;
+
+    private:
+        std::unique_ptr<XMLNode> m_gradientNode;        /**< An XMLNode object with the gradientFill item */
+        std::vector<XLGradientStop> m_gradientStops;
+    };
+
     /**
      * @brief An encapsulation of a fill item
      */
@@ -641,7 +907,7 @@ namespace OpenXLSX
 
         /**
          * @brief Constructor. New items should only be created through an XLStyles object.
-         * @param node An XMLNode object with the fonts XMLNode. If no input is provided, a null node is used.
+         * @param node An XMLNode object with the fill XMLNode. If no input is provided, a null node is used.
          */
         explicit XLFill(const XMLNode& node);
 
@@ -678,42 +944,77 @@ namespace OpenXLSX
 
         /**
          * @brief Get the name of the element describing a fill
-         * @return The name of the first child element of the fill node
+         * @return The XLFillType derived from the name of the first child element of the fill node
          */
-        std::string fillType() const;
+        XLFillType fillType() const;
 
         /**
-         * @brief Get the pattern type
-         * @return The pattern type string
+         * @brief Create & set the base XML element describing the fill
+         * @param newFillType that shall be set
+         * @param force erase an existing fillType() if not equal newFillType
+         * @return true for success, false for failure
          */
-        std::string patternType() const;
+        bool setFillType(XLFillType newFillType, bool force = false);
 
+    private:                                         // ---------- Switch to private context for two Methods  --------- //
         /**
-         * @brief Get the foreground color
-         * @return The foreground color
+         * @brief Throw XLException if fillType() matches typeToThrowOn
+         * @param typeToThrowOn throw on this
+         * @param functionName include this (calling function name) in the exception
          */
-        XLColor color();
+        void throwOnFillType(XLFillType typeToThrowOn, const char *functionName) const;
 
-        /**
-         * @brief Get the background color
-         * @return The background color
-         */
-        XLColor backgroundColor();
-
-    private:                                         // ----- switch to private for one function ----- //
         /**
          * @brief Fetch a valid first element child of m_fillNode. Create with default if needed
+         * @param fillTypeIfEmpty if no conflicting fill type exists, create a node with this fill type
+         * @param functionName include this (calling function name) in a potential exception
          * @return An XMLNode containing a fill description
+         * @throw XLException if fillTypeIfEmpty is in conflict with a current fillType()
          */
-        XMLNode getValidFillDescription();
-    public:                                          // ----- switch back to public functions -------- //
+        XMLNode getValidFillDescription(XLFillType fillTypeIfEmpty, const char *functionName);
+
+    public:                                          // ---------- Switch back to public context ---------------------- //
+
         /**
-         * @brief Setter functions for style parameters
+         * @brief Getter functions for gradientFill - will throwOnFillType(XLPatternFill, __func__)
+         * @return The requested gradientFill property
+         */
+        XLGradientType gradientType(); // <gradientFill type="path" />
+        double degree();
+        double left();
+        double right();
+        double top();
+        double bottom();
+        XLGradientStops stops();
+
+        /**
+         * @brief Getter functions for patternFill - will throwOnFillType(XLGradientFill, __func__)
+         * @return The requested patternFill property
+         */
+        XLPatternType patternType();
+        XLColor color();
+        XLColor backgroundColor();
+
+        /**
+         * @brief Setter functions for gradientFill - will throwOnFillType(XLPatternFill, __func__)
+         * @param value that shall be set
+         * @return true for success, false for failure
+         * @note for gradient stops, use the stops() getter with the XLGradientStops access functions (create, stopByIndex, [])
+         *       and the XLGradientStop setter functions
+         */
+        bool setGradientType(XLGradientType newType);
+        bool setDegree(double newDegree);
+        bool setLeft(double newLeft);
+        bool setRight(double newRight);
+        bool setTop(double newTop);
+        bool setBottom(double newBottom);
+
+        /**
+         * @brief Setter functions for patternFill - will throwOnFillType(XLGradientFill, __func__)
          * @param value that shall be set
          * @return true for success, false for failure
          */
-        bool setFillType(std::string newFillType);
-        bool setPatternType(std::string newPatternType);
+        bool setPatternType(XLPatternType newPatternType);
         bool setColor(XLColor newColor);
         bool setBackgroundColor(XLColor newBgColor);
 
@@ -741,7 +1042,7 @@ namespace OpenXLSX
 
         /**
          * @brief Constructor. New items should only be created through an XLStyles object.
-         * @param node An XMLNode object with the styles item. If no input is provided, a null node is used.
+         * @param node An XMLNode object with the fills item. If no input is provided, a null node is used.
          */
         explicit XLFills(const XMLNode& node);
 
@@ -828,7 +1129,7 @@ namespace OpenXLSX
   
         /**
          * @brief Constructor. New items should only be created through an XLBorder object.
-         * @param node An XMLNode object with the fonts XMLNode. If no input is provided, a null node is used.
+         * @param node An XMLNode object with the line XMLNode. If no input is provided, a null node is used.
          */
         explicit XLLine(const XMLNode& node);
   
@@ -875,24 +1176,25 @@ namespace OpenXLSX
          */
         explicit operator bool() const;
   
-        /**
-         * @brief Get the line color
-         * @return An XLColor object
-         */
-        XLColor color() const;
-  
-        /**
-         * @brief Get the line color tint
-         * @return A double value as stored in the "tint" attribute (should be between [-1.0;+1.0]), 0.0 if attribute does not exist
-         */
-        double colorTint() const;
-
-        /**
-         * @brief currently unsupported getter stubs
-         */
-        bool     colorAuto()    const { return false; } // <color auto="true" />
-        uint32_t colorIndexed() const { return     0; } // <color indexed="1" />
-        uint32_t colorTheme()   const { return     0; } // <color theme="1" />
+        XLDataBarColor color() const; // <line><color /></line> where node can be left, right, top, bottom, diagonal, vertical, horizontal
+//         /**
+//          * @brief Get the line color from the rgb attribute
+//          * @return An XLColor object
+//          */
+//         XLColor color() const;
+//   
+//         /**
+//          * @brief Get the line color tint
+//          * @return A double value as stored in the "tint" attribute (should be between [-1.0;+1.0]), 0.0 if attribute does not exist
+//          */
+//         double colorTint() const;
+// 
+//         /**
+//          * @brief currently unsupported getter stubs
+//          */
+//         bool     colorAuto()    const { return false; } // <color auto="true" />
+//         uint32_t colorIndexed() const { return     0; } // <color indexed="1" />
+//         uint32_t colorTheme()   const { return     0; } // <color theme="1" />
 
         /**
          * @brief Setter functions for style parameters
@@ -935,7 +1237,7 @@ namespace OpenXLSX
   
         /**
          * @brief Constructor. New items should only be created through an XLStyles object.
-         * @param node An XMLNode object with the fonts XMLNode. If no input is provided, a null node is used.
+         * @param node An XMLNode object with the border XMLNode. If no input is provided, a null node is used.
          */
         explicit XLBorder(const XMLNode& node);
   
@@ -1072,7 +1374,7 @@ namespace OpenXLSX
   
         /**
          * @brief Constructor. New items should only be created through an XLStyles object.
-         * @param node An XMLNode object with the styles item. If no input is provided, a null node is used.
+         * @param node An XMLNode object with the borders item. If no input is provided, a null node is used.
          */
         explicit XLBorders(const XMLNode& node);
   
@@ -1159,7 +1461,7 @@ namespace OpenXLSX
 
         /**
          * @brief Constructor. New items should only be created through an XLBorder object.
-         * @param node An XMLNode object with the fonts XMLNode. If no input is provided, a null node is used.
+         * @param node An XMLNode object with the alignment XMLNode. If no input is provided, a null node is used.
          */
         explicit XLAlignment(const XMLNode& node);
   
@@ -1290,7 +1592,7 @@ namespace OpenXLSX
   
         /**
          * @brief Constructor. New items should only be created through an XLStyles object.
-         * @param node An XMLNode object with the fonts XMLNode. If no input is provided, a null node is used.
+         * @param node An XMLNode object with the xf XMLNode. If no input is provided, a null node is used.
          * @param permitXfId true (XLPermitXfID) -> getter xfId and setter setXfId are enabled, otherwise will throw XLException if invoked
          */
         explicit XLCellFormat(const XMLNode& node, bool permitXfId);
@@ -1484,7 +1786,7 @@ namespace OpenXLSX
   
         /**
          * @brief Constructor. New items should only be created through an XLStyles object.
-         * @param node An XMLNode object with the styles item. If no input is provided, a null node is used.
+         * @param node An XMLNode object with the cell formats (cellXfs or cellStyleXfs) item. If no input is provided, a null node is used.
          * @param permitXfId Pass-through to XLCellFormat constructor: true (XLPermitXfID) -> setter setXfId is enabled, otherwise throws
          */
         explicit XLCellFormats(const XMLNode& node, bool permitXfId = false);
@@ -1575,7 +1877,7 @@ namespace OpenXLSX
 
         /**
          * @brief Constructor. New items should only be created through an XLStyles object.
-         * @param node An XMLNode object with the styles item. If no input is provided, a null node is used.
+         * @param node An XMLNode object with the cellStyle item. If no input is provided, a null node is used.
          */
         explicit XLCellStyle(const XMLNode& node);
 
@@ -1699,7 +2001,7 @@ namespace OpenXLSX
 
         /**
          * @brief Constructor. New items should only be created through an XLStyles object.
-         * @param node An XMLNode object with the styles item. If no input is provided, a null node is used.
+         * @param node An XMLNode object with the cellStyles item. If no input is provided, a null node is used.
          */
         explicit XLCellStyles(const XMLNode& node);
 

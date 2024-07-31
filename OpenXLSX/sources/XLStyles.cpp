@@ -137,6 +137,61 @@ namespace     // anonymous namespace for module local functions
         }
     }
 
+    XLFillType XLFillTypeFromString(std::string fillType)
+    {
+        if (fillType == "gradientFill") return XLGradientFill;
+        if (fillType == "patternFill" ) return XLPatternFill;
+        if (fillType != "")    // suppress error message for empty fillType (= no node exists yet)
+            std::cerr << __func__ << ": invalid fillType \"" << fillType << "\"" << std::endl;
+        return XLFillTypeInvalid;
+    }
+
+    std::string XLFillTypeToString(XLFillType fillType)
+    {
+        switch (fillType) {
+            case XLGradientFill   : return "gradientFill";
+            case XLPatternFill    : return "patternFill";
+            case XLFillTypeInvalid: [[fallthrough]];
+            default:                return "(invalid)";
+        }
+    }
+
+    XLGradientType XLGradientTypeFromString(std::string gradientType)
+    {
+        if (gradientType == "linear") return XLGradientLinear;
+        if (gradientType == "path")   return XLGradientPath;
+        std::cerr << __func__ << ": invalid gradient type " << gradientType << std::endl;
+        return XLGradientTypeInvalid;
+    }
+    std::string XLGradientTypeToString(XLGradientType gradientType)
+    {
+        switch (gradientType) {
+            case XLGradientLinear     : return "linear";
+            case XLGradientPath       : return "path";
+            case XLGradientTypeInvalid: [[fallthrough]];
+            default:                    return "(invalid)";
+        }
+    }
+
+    XLPatternType XLPatternTypeFromString(std::string patternType)
+    {
+        if (patternType == ""
+         || patternType == "none")         return XLPatternNone;
+        if (patternType == "solid")        return XLPatternSolid;
+        std::cerr << __func__ << ": invalid patternType " << patternType << std::endl;
+        return XLPatternTypeInvalid;
+    }
+
+    std::string XLPatternTypeToString(XLPatternType patternType)
+    {
+        switch (patternType) {
+            case XLPatternNone       : return "none";
+            case XLPatternSolid      : return "solid";
+            case XLPatternTypeInvalid: [[fallthrough]];
+            default:                   return "(invalid)";
+        }
+    }
+
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-function"
     XLLineType XLLineTypeFromString(std::string lineType)
@@ -163,7 +218,7 @@ namespace     // anonymous namespace for module local functions
             case XLLineDiagonal:   return "diagonal";
             case XLLineVertical:   return "vertical";
             case XLLineHorizontal: return "horizontal";
-				case XLLineInvalid:    [[fallthrough]];
+            case XLLineInvalid:    [[fallthrough]];
             default:               return "(invalid)";
         }
     }
@@ -202,8 +257,8 @@ namespace     // anonymous namespace for module local functions
             case XLLineStyleMediumDashed    : return "mediumDashed";
             case XLLineStyleDashDot         : return "dashDot";
             case XLLineStyleMediumDashDot   : return "mediumDashDot";
-				case XLLineStyleDashDotDot      : return "dashDotDot";
-				case XLLineStyleMediumDashDotDot: return "mediumDashDotDot";
+            case XLLineStyleDashDotDot      : return "dashDotDot";
+            case XLLineStyleMediumDashDotDot: return "mediumDashDotDot";
             case XLLineStyleSlantDashDot    : return "slantDashDot";
             case XLLineStyleInvalid         : [[fallthrough]];
             default                         : return "(invalid)";
@@ -249,6 +304,7 @@ namespace     // anonymous namespace for module local functions
 
     XMLNode appendAndGetNode(XMLNode & parent, std::string nodeName)
     {
+        if (parent.empty()) return XMLNode{};
         XMLNode node = parent.child(nodeName.c_str());
         if (node.empty()) node = parent.append_child(nodeName.c_str());
         return node;
@@ -256,6 +312,7 @@ namespace     // anonymous namespace for module local functions
 
     XMLAttribute appendAndGetAttribute(XMLNode & node, std::string attrName, std::string attrDefaultVal)
     {
+        if (node.empty()) return XMLAttribute{};
         XMLAttribute attr = node.attribute(attrName.c_str());
         if (attr.empty() && not node.empty()) {
             attr = node.append_attribute(attrName.c_str());
@@ -266,6 +323,7 @@ namespace     // anonymous namespace for module local functions
 
     XMLAttribute appendAndSetAttribute(XMLNode & node, std::string attrName, std::string attrVal)
     {
+        if (node.empty()) return XMLAttribute{};
         XMLAttribute attr = node.attribute(attrName.c_str());
         if (attr.empty() && not node.empty())
             attr = node.append_attribute(attrName.c_str());
@@ -275,12 +333,14 @@ namespace     // anonymous namespace for module local functions
 
     XMLAttribute appendAndGetNodeAttribute(XMLNode & parent, std::string nodeName, std::string attrName, std::string attrDefaultVal)
     {
+        if (parent.empty()) return XMLAttribute{};
         XMLNode node = appendAndGetNode(parent, nodeName);
         return appendAndGetAttribute(node, attrName, attrDefaultVal);
     }
 
     XMLAttribute appendAndSetNodeAttribute(XMLNode & parent, std::string nodeName, std::string attrName, std::string attrVal, bool removeAttributes = false)
     {
+        if (parent.empty()) return XMLAttribute{};
         XMLNode node = appendAndGetNode(parent, nodeName);
         if (removeAttributes) node.remove_attributes();
         return appendAndSetAttribute(node, attrName, attrVal);
@@ -306,6 +366,22 @@ namespace     // anonymous namespace for module local functions
         }
     }
 
+   /**
+     * @brief Format val as a string with decimalPlaces
+     * @param val The value to format
+     * @param decimalPlaces The amount of digits following the decimal separator that shall be included in the formatted string
+     * @return The value formatted as a string with the desired amount of decimal places
+     */
+    std::string formatDoubleAsString(double val, int decimalPlaces = 2)
+    {
+        std::string result = std::to_string(val);
+        size_t decimalPos = result.find_first_of('.');
+        assert(decimalPos < result.length()); // this should never throw
+    
+        // ===== Return the string representation of val with the decimal separator and decimalPlaces digits following
+        return result.substr(0, decimalPos + 1 + decimalPlaces);
+    }
+
     /**
      * @brief Check that a double value is within range, and format it as a string with decimalPlaces
      * @param val The value to check & format
@@ -321,13 +397,8 @@ namespace     // anonymous namespace for module local functions
     {
         if (max <= min || absTolerance < 0.0) throw XLException("checkAndFormatDoubleAsString: max must be greater than min and absTolerance must be >= 0.0");
         if (val < min - absTolerance || val > max + absTolerance) return ""; // range check
-    	 if (val < min) val = min; else if (val > max) val = max;             // fix rounding errors within tolerance
-        std::string result = std::to_string(val);
-        size_t decimalPos = result.find_first_of('.');
-    	 assert(decimalPos < result.length()); // this should never throw
-    
-        // ===== Return the string representation of val with the decimal separator and decimalPlaces digits following
-        return result.substr(0, decimalPos + 1 + decimalPlaces);
+        if (val < min) val = min; else if (val > max) val = max;             // fix rounding errors within tolerance
+        return formatDoubleAsString(val, decimalPlaces);
     }
 }    // anonymous namespace
 
@@ -657,7 +728,7 @@ XLFonts::XLFonts(const XMLNode& fonts)
     : m_fontsNode(std::make_unique<XMLNode>(fonts))
 {
     // initialize XLFonts entries and m_fonts here
-    XMLNode node = fonts.first_child_of_type(pugi::node_element);
+    XMLNode node = m_fontsNode->first_child_of_type(pugi::node_element);
     while (not node.empty()) {
         std::string nodeName = node.name();
         if (nodeName == "font")
@@ -754,6 +825,256 @@ XLStyleIndex XLFonts::create(XLFont copyFrom, std::string styleEntriesPrefix)
 }
 
 
+// ===== XLDataBarColor, used by XLFills gradientFill and by XLLine (to be implemented)
+
+/**
+ * @details Constructor. Initializes an empty XLDataBarColor object
+ */
+XLDataBarColor::XLDataBarColor() : m_colorNode(std::make_unique<XMLNode>()) {}
+
+/**
+ * @details Constructor. Initializes the member variables for the new XLDataBarColor object.
+ */
+XLDataBarColor::XLDataBarColor(const XMLNode& node) : m_colorNode(std::make_unique<XMLNode>(node)) {}
+
+/**
+ * @details Copy constructor - initializes the member variables from other
+ */
+XLDataBarColor::XLDataBarColor(const XLDataBarColor& other)
+    : m_colorNode(std::make_unique<XMLNode>(*other.m_colorNode))
+{}
+
+/**
+ * @details Assign values of other to this
+ */
+XLDataBarColor& XLDataBarColor::operator=(const XLDataBarColor& other)
+{
+    if (&other != this) *m_colorNode = *other.m_colorNode;
+    return *this;
+}
+
+/**
+ * @details Getter functions
+ */
+XLColor  XLDataBarColor::rgb()       const { return XLColor(m_colorNode->attribute("rgb"    ).as_string("ffffffff")); }
+double   XLDataBarColor::tint()      const { return         m_colorNode->attribute("tint"   ).as_double(0.0)        ; }
+bool     XLDataBarColor::automatic() const { return         m_colorNode->attribute("auto"   ).as_bool()             ; }
+uint32_t XLDataBarColor::indexed()   const { return         m_colorNode->attribute("indexed").as_uint()             ; }
+uint32_t XLDataBarColor::theme()     const { return         m_colorNode->attribute("theme"  ).as_uint()             ; }
+/**
+ * @details Setter functions
+ */
+bool XLDataBarColor::setRgb (XLColor newColor)     { return appendAndSetAttribute(*m_colorNode, "rgb",       newColor.hex()               ).empty() == false; }
+bool XLDataBarColor::setTint(double newTint)
+{
+    std::string tintString = "";
+    if (newTint != 0.0) {
+        tintString = checkAndFormatDoubleAsString(newTint, -1.0, +1.0, 0.01);
+        if (tintString.length() == 0) {
+            using namespace std::literals::string_literals;
+            throw XLException("XLDataBarColor::setTint: color tint "s + std::to_string(newTint) + " is not in range [-1.0;+1.0]"s);
+        }
+    }
+    if (tintString.length() == 0) return m_colorNode->remove_attribute("tint");           // remove tint attribute for a value 0
+
+	 return (appendAndSetAttribute(*m_colorNode, "tint", tintString).empty() == false);    // else: set tint attribute
+}
+bool XLDataBarColor::setAutomatic(bool set)        { return appendAndSetAttribute(*m_colorNode, "auto",      (set ? "true" : "false")     ).empty() == false; }
+bool XLDataBarColor::setIndexed(uint32_t newIndex) { return appendAndSetAttribute(*m_colorNode, "indexed",   std::to_string(newIndex)     ).empty() == false; }
+bool XLDataBarColor::setTheme(uint32_t newTheme)   { return appendAndSetAttribute(*m_colorNode, "theme",     std::to_string(newTheme)     ).empty() == false; }
+
+/**
+ * @details assemble a string summary about the color
+ */
+std::string XLDataBarColor::summary() const
+{
+    using namespace std::literals::string_literals;
+    return "rgb is "s + rgb().hex()
+         + ", tint is "s + formatDoubleAsString(tint())
+         + (automatic() ? ", +automatic"s : ""s)
+         + (indexed() ? (", index is "s + std::to_string(indexed())) : "")
+         + (theme()   ? (", theme is "s + std::to_string(theme()  )) : "")
+         ;
+}
+
+
+/**
+ * @details Constructor. Initializes an empty XLGradientStop object
+ */
+XLGradientStop::XLGradientStop() : m_stopNode(std::make_unique<XMLNode>()) {}
+
+/**
+ * @details Constructor. Initializes the member variables for the new XLGradientStop object.
+ */
+XLGradientStop::XLGradientStop(const XMLNode& node) : m_stopNode(std::make_unique<XMLNode>(node)) {}
+
+/**
+ * @details Copy constructor - initializes the member variables from other
+ */
+XLGradientStop::XLGradientStop(const XLGradientStop& other)
+    : m_stopNode(std::make_unique<XMLNode>(*other.m_stopNode))
+{}
+
+/**
+ * @details Assign values of other to this
+ */
+XLGradientStop& XLGradientStop::operator=(const XLGradientStop& other)
+{
+    if (&other != this) *m_stopNode = *other.m_stopNode;
+    return *this;
+}
+
+/**
+ * @details Getter functions
+ */
+XLDataBarColor XLGradientStop::color() const
+{
+    XMLNode color = appendAndGetNode(*m_stopNode, "color");
+    if (color.empty()) return XLDataBarColor{};
+    return XLDataBarColor(color);
+}
+double XLGradientStop::position() const
+{
+    XMLAttribute attr = m_stopNode->attribute("position");
+    return attr.as_double(0.0);
+}
+
+/**
+ * @details Setter functions
+ */
+bool XLGradientStop::setPosition(double newPosition) { return appendAndSetAttribute(*m_stopNode, "position", formatDoubleAsString(newPosition)).empty() == false; }
+
+
+/**
+ * @details assemble a string summary about the stop
+ */
+std::string XLGradientStop::summary() const
+{
+    using namespace std::literals::string_literals;
+    return "stop position is "s + formatDoubleAsString(position())
+         + ", " + color().summary();
+}
+
+
+// ===== XLGradientStops, parent of XLGradientStop
+
+/**
+ * @details Constructor. Initializes an empty XLGradientStops object
+ */
+XLGradientStops::XLGradientStops() : m_gradientNode(std::make_unique<XMLNode>()) {}
+
+/**
+ * @details Constructor. Initializes the member variables for the new XLGradientStops object.
+ */
+XLGradientStops::XLGradientStops(const XMLNode& gradient)
+    : m_gradientNode(std::make_unique<XMLNode>(gradient))
+{
+    // initialize XLGradientStops entries and m_gradientStops here
+    XMLNode node = m_gradientNode->first_child_of_type(pugi::node_element);
+    while (not node.empty()) {
+        std::string nodeName = node.name();
+        if (nodeName == "stop")
+            m_gradientStops.push_back(XLGradientStop(node));
+        else
+            std::cerr << "WARNING: XLGradientStops constructor: unknown subnode " << nodeName << std::endl;
+        node = node.next_sibling_of_type(pugi::node_element);
+    }
+}
+
+XLGradientStops::~XLGradientStops()
+{
+    m_gradientStops.clear(); // delete vector with all children
+}
+
+XLGradientStops::XLGradientStops(const XLGradientStops& other)
+    : m_gradientNode(std::make_unique<XMLNode>(*other.m_gradientNode)),
+      m_gradientStops(other.m_gradientStops)
+{
+    // std::cout << __func__ << " copy constructor" << std::endl;
+}
+
+XLGradientStops::XLGradientStops(XLGradientStops&& other)
+    : m_gradientNode(std::move(other.m_gradientNode)),
+      m_gradientStops(std::move(other.m_gradientStops))
+{
+    // std::cout << __func__ << " move constructor" << std::endl;
+}
+
+
+/**
+ * @details Copy assignment operator
+ */
+XLGradientStops& XLGradientStops::operator=(const XLGradientStops& other)
+{
+    // std::cout << "XLGradientStops::" << __func__ << " copy assignment" << std::endl;
+    if (&other != this) {
+        *m_gradientNode = *other.m_gradientNode;
+        m_gradientStops.clear();
+        m_gradientStops = other.m_gradientStops;
+    }
+    return *this;
+}
+
+/**
+ * @details Returns the amount of gradient stops held by the class
+ */
+size_t XLGradientStops::count() const { return m_gradientStops.size(); }
+
+/**
+ * @details fetch XLGradientStop from m_gradientStops by index
+ */
+XLGradientStop XLGradientStops::stopByIndex(XLStyleIndex index) const
+{
+    if (index >= m_gradientStops.size()) {
+        using namespace std::literals::string_literals;
+        throw XLException("XLGradientStops::"s + __func__ + ": attempted to access index "s + std::to_string(index) + " with count "s + std::to_string(m_gradientStops.size()));
+    }
+    return m_gradientStops.at(index);
+}
+
+/**
+ * @details append a new XLGradientStop to m_gradientStops m_gradientNode, based on copyFrom
+ */
+XLStyleIndex XLGradientStops::create(XLGradientStop copyFrom, std::string styleEntriesPrefix)
+{
+    XLStyleIndex index = count();    // index for the gradient stop to be created
+    XMLNode newNode{};               // scope declaration
+
+    // ===== Append new node prior to final whitespaces, if any
+    XMLNode lastStyle = m_gradientNode->last_child_of_type(pugi::node_element);
+    if (lastStyle.empty()) newNode = m_gradientNode->prepend_child("stop");
+    else                   newNode = m_gradientNode->insert_child_after("stop", lastStyle);
+    if (newNode.empty()) {
+        using namespace std::literals::string_literals;
+        throw XLException("XLGradientStops::"s + __func__ + ": failed to append a new stop node"s);
+    }
+    if (styleEntriesPrefix.length() > 0)    // if a whitespace prefix is configured
+        m_gradientNode->insert_child_before(pugi::node_pcdata, newNode).set_value(styleEntriesPrefix.c_str());    // prefix the new node with styleEntriesPrefix
+
+    XLGradientStop newStop(newNode);
+    if (copyFrom.m_stopNode->empty()) {    // if no template is given
+        // ===== Create a stop node with default values
+        // TODO: implement stop defaults
+        // newStop.setProperty(defaultValue);
+        // ...
+    }
+    else
+        copyXMLNode(newNode, *copyFrom.m_stopNode);    // will use copyFrom as template, does nothing if copyFrom is empty
+
+    m_gradientStops.push_back(newStop);
+    appendAndSetAttribute(*m_gradientNode, "count", std::to_string(m_gradientStops.size())); // update array count in XML
+    return index;
+}
+
+std::string XLGradientStops::summary() const
+{
+    std::string result{};
+    for(XLGradientStop stop : m_gradientStops)
+        result += stop.summary() + ", ";
+	 if (result.length() < 2) return ""; // if no stop summary was created - return empty string
+    return result.substr(0, result.length() - 2);
+}
+
 /**
  * @details Constructor. Initializes an empty XLFill object
  */
@@ -778,91 +1099,156 @@ XLFill& XLFill::operator=(const XLFill& other)
 
 /**
  * @details Returns the name of the first element child of fill
+ * @note an empty node ::name() returns an empty string "", leading to XLFillTypeInvalid
  */
-std::string XLFill::fillType() const
+XLFillType XLFill::fillType() const { return XLFillTypeFromString(m_fillNode->first_child_of_type(pugi::node_element).name()); }
+
+/**
+ * @details set the fill type for a fill node - if force is true, delete any existing fill properties
+ */
+bool XLFill::setFillType(XLFillType newFillType, bool force)
 {
-    XMLNode node = m_fillNode->first_child_of_type(pugi::node_element);
-    if (node.empty()) return std::string("(undefined)");
-    return node.name();
+    XLFillType ft = fillType(); // determine once, use twice
+
+    // ===== If desired filltype is already set
+    if (ft == newFillType) return true;    // nothing to do
+
+    // ===== If force == true or fillType is just not set at all, delete existing child nodes, otherwise throw
+    if (!force && ft != XLFillTypeInvalid) {
+        using namespace std::literals::string_literals;
+        throw XLException("XLFill::setFillType: can not change the fillType from "s + XLFillTypeToString(fillType())
+                        + " to "s + XLFillTypeToString(newFillType) + " - invoke with force == true if override is desired"s);
+    }
+    // ===== At this point, m_fillNode needs to be emptied for a setting / force-change of the fill type
+
+    // ===== Delete all fill node children and insert a new node for the newFillType
+    m_fillNode->remove_children();
+    return (m_fillNode->append_child(XLFillTypeToString(newFillType).c_str()).empty() == false);
 }
 
 /**
- * @details Returns the patternType property
+ * @details Throw an XLException on a fill of typeToThrowOn
  */
-std::string XLFill::patternType() const
+void XLFill::throwOnFillType(XLFillType typeToThrowOn, const char *functionName) const
 {
-    XMLAttribute attr = appendAndGetNodeAttribute(*m_fillNode, "patternFill", "patternType", OpenXLSX::XLDefaultFillPatternType);
-    return attr.value();
+    using namespace std::literals::string_literals;
+    if (fillType() == typeToThrowOn)
+        throw XLException("XLFill::"s + functionName + " must not be invoked for a "s + XLFillTypeToString(typeToThrowOn));
 }
 
 /**
- * @details Returns the pattern fgcolor
+ * @details get the fill element XML, create element with default XLFillType if none exists
  */
+XMLNode XLFill::getValidFillDescription(XLFillType fillTypeIfEmpty, const char *functionName)
+{
+    XLFillType throwOnThis = XLFillTypeInvalid;
+    switch (fillTypeIfEmpty) {
+        case XLGradientFill: throwOnThis = XLPatternFill; break;     // throw on non-matching fill type
+        case XLPatternFill : throwOnThis = XLGradientFill; break;    //   "
+        default: throw XLException("XLFill::getValidFillDescription was not invoked with XLPatternFill or XLGradientFill");
+    }
+    throwOnFillType(throwOnThis, functionName);
+    XMLNode fillDescription = m_fillNode->first_child_of_type(pugi::node_element); // fetch an existing fill description
+    if (fillDescription.empty() && setFillType(fillTypeIfEmpty))                   // if none exists, attempt to create a description
+        fillDescription = m_fillNode->first_child_of_type(pugi::node_element);         // fetch newly inserted description
+    return fillDescription;
+}
+
+
+/**
+ * @details Getter functions for gradientFill
+ */
+XLGradientType  XLFill::gradientType() { return XLGradientTypeFromString(getValidFillDescription(XLGradientFill, __func__).attribute("type"  ).value()     ); }
+double          XLFill::degree()       { return                          getValidFillDescription(XLGradientFill, __func__).attribute("degree").as_double(0) ; }
+double          XLFill::left()         { return                          getValidFillDescription(XLGradientFill, __func__).attribute("left"  ).as_double(0) ; }
+double          XLFill::right()        { return                          getValidFillDescription(XLGradientFill, __func__).attribute("right" ).as_double(0) ; }
+double          XLFill::top()          { return                          getValidFillDescription(XLGradientFill, __func__).attribute("top"   ).as_double(0) ; }
+double          XLFill::bottom()       { return                          getValidFillDescription(XLGradientFill, __func__).attribute("bottom").as_double(0) ; }
+XLGradientStops XLFill::stops()        { return XLGradientStops(         getValidFillDescription(XLGradientFill, __func__)                                 ); }
+
+/**
+ * @details Getter functions for patternFill
+ */
+XLPatternType XLFill::patternType()
+{
+    XMLNode fillDescription = getValidFillDescription(XLPatternFill, __func__);
+    if (fillDescription.empty()) return XLDefaultPatternType;    // if no description could be fetched: fail
+    XMLAttribute attr = appendAndGetNodeAttribute(*m_fillNode, XLFillTypeToString(XLPatternFill), "patternType", XLPatternTypeToString(XLDefaultPatternType));
+    return XLPatternTypeFromString(attr.value());
+}
+
 XLColor XLFill::color()
 {
-    XMLNode fillDescription = getValidFillDescription();
+    XMLNode fillDescription = getValidFillDescription(XLPatternFill, __func__);
     if (fillDescription.empty()) return XLColor{}; // if no description could be fetched: fail
-    XMLAttribute fgColorRGB = appendAndGetNodeAttribute(fillDescription, "fgColor", "rgb", XLDefaultFillPatternFgColor);
+    XMLAttribute fgColorRGB = appendAndGetNodeAttribute(fillDescription, "fgColor", "rgb", XLDefaultPatternFgColor);
     return XLColor(fgColorRGB.value());
 }
-
-/**
- * @details Returns the pattern bgcolor
- */
 XLColor XLFill::backgroundColor()
 {
-    XMLNode fillDescription = getValidFillDescription();
+    XMLNode fillDescription = getValidFillDescription(XLPatternFill, __func__);
     if (fillDescription.empty()) return XLColor{}; // if no description could be fetched: fail
-    XMLAttribute bgColorRGB = appendAndGetNodeAttribute(fillDescription, "bgColor", "rgb", XLDefaultFillPatternBgColor);
+    XMLAttribute bgColorRGB = appendAndGetNodeAttribute(fillDescription, "bgColor", "rgb", XLDefaultPatternBgColor);
     return XLColor(bgColorRGB.value());
 }
 
 /**
- * @details Setter functions
+ * @details Setter functions for gradientFill
  */
-bool XLFill::setFillType(std::string newFillType)
+bool XLFill::setGradientType(XLGradientType newType)
 {
-    XMLNode fillDescription = m_fillNode->first_child_of_type(pugi::node_element);
-    XMLNode insertAfter{}; // empty node for triggering XMLNode::prepend_child
-
-    if (not fillDescription.empty()) {
-        if (newFillType == fillDescription.name())           // If desired fill type is already set
-            return true;                                         // nothing to do
-        else {                                               // if old fill description is not the same
-            insertAfter = fillDescription.previous_sibling();    // update insertion reference: can still be an empty node if fillDescription equals m_fillNode->first_child
-            m_fillNode->remove_child(fillDescription);           // and delete the old description
-        }
+    XMLNode fillDescription = getValidFillDescription(XLGradientFill, __func__);
+    return appendAndSetAttribute(fillDescription, "type", XLGradientTypeToString(newType)).empty() == false;
+}
+bool XLFill::setDegree(double newDegree)
+{
+    std::string degreeString = checkAndFormatDoubleAsString(newDegree, 0.0, 360.0, 0.01);
+    if (degreeString.length() == 0) {
+        using namespace std::literals::string_literals;
+        throw XLException("XLFill::setDegree: gradientFill degree value "s + std::to_string(newDegree) + " is not in range [0.0;360.0]"s);
     }
-
-    if (insertAfter.empty())                                                                 // If no whitespace reference available
-        fillDescription = m_fillNode->prepend_child(newFillType.c_str());                        // insert new description at front
-    else                                                                                     // if whitespace reference is available
-        fillDescription = m_fillNode->insert_child_before(newFillType.c_str(), fillDescription); // insert new description in the exact same position between whitespaces
-
-    return (fillDescription.empty() == false);
+    XMLNode fillDescription = getValidFillDescription(XLGradientFill, __func__);
+    return appendAndSetAttribute(fillDescription, "degree", degreeString                         ).empty() == false;
 }
-XMLNode XLFill::getValidFillDescription()
+bool XLFill::setLeft(double newLeft)
 {
-    XMLNode fillDescription = m_fillNode->first_child_of_type(pugi::node_element); // fetch an existing fill description
-    if (fillDescription.empty() && setFillType(XLDefaultFillType))                 // if none exists, attempt to create a default description
-        fillDescription = m_fillNode->first_child_of_type(pugi::node_element);         // fetch newly inserted description
-    return fillDescription;
+    XMLNode fillDescription = getValidFillDescription(XLGradientFill, __func__);
+    return appendAndSetAttribute(fillDescription, "left",   formatDoubleAsString(newLeft  ).c_str()).empty() == false;
 }
-bool XLFill::setPatternType(std::string newFillPattern)
+bool XLFill::setRight(double newRight)
 {
-    XMLNode fillDescription = getValidFillDescription();
+    XMLNode fillDescription = getValidFillDescription(XLGradientFill, __func__);
+    return appendAndSetAttribute(fillDescription, "right",  formatDoubleAsString(newRight ).c_str()).empty() == false;
+}
+bool XLFill::setTop(double newTop)
+{
+    XMLNode fillDescription = getValidFillDescription(XLGradientFill, __func__);
+    return appendAndSetAttribute(fillDescription, "top",    formatDoubleAsString(newTop   ).c_str()).empty() == false;
+}
+bool XLFill::setBottom(double newBottom)
+{
+    XMLNode fillDescription = getValidFillDescription(XLGradientFill, __func__);
+    return appendAndSetAttribute(fillDescription, "bottom", formatDoubleAsString(newBottom).c_str()).empty() == false;
+}
+
+/**
+ * @details Setter functions for patternFill
+ */
+bool XLFill::setPatternType(XLPatternType newFillPattern)
+{
+    XMLNode fillDescription = getValidFillDescription(XLPatternFill, __func__);
     if (fillDescription.empty()) return false; // if no description could be fetched: fail
-    return appendAndSetAttribute(fillDescription, "patternType", newFillPattern).empty() == false;
+    return appendAndSetAttribute(fillDescription, "patternType", XLPatternTypeToString(newFillPattern)).empty() == false;
 }
 bool XLFill::setColor(XLColor newColor)
 {
-    XMLNode fillDescription = getValidFillDescription();
+    XMLNode fillDescription = getValidFillDescription(XLPatternFill, __func__);
     if (fillDescription.empty()) return false; // if no description could be fetched: fail
     return appendAndSetNodeAttribute(fillDescription, "fgColor", "rgb", newColor.hex(), XLRemoveAttributes).empty() == false;
 }
 bool XLFill::setBackgroundColor(XLColor newBgColor)
 {
-    XMLNode fillDescription = getValidFillDescription();
+    XMLNode fillDescription = getValidFillDescription(XLPatternFill, __func__);
     if (fillDescription.empty()) return false; // if no description could be fetched: fail
     return appendAndSetNodeAttribute(fillDescription, "bgColor", "rgb", newBgColor.hex(), XLRemoveAttributes).empty() == false;
 }
@@ -874,10 +1260,25 @@ bool XLFill::setBackgroundColor(XLColor newBgColor)
 std::string XLFill::summary()
 {
     using namespace std::literals::string_literals;
-    return "fill type is "s + fillType() + ", pattern type is "s + patternType()
-         + ", fgcolor is: "s + color().hex() + ", bgcolor: "s + backgroundColor().hex();
+    switch (fillType()) {
+        case XLGradientFill:
+            return "fill type is "s + XLFillTypeToString(fillType())
+                 + ", gradient type is "s + XLGradientTypeToString(gradientType())
+                 + ", degree is: "s + formatDoubleAsString(degree())
+                 + ", left is: "s   + formatDoubleAsString(left())
+                 + ", right is: "s  + formatDoubleAsString(right())
+                 + ", top is: "s    + formatDoubleAsString(top())
+                 + ", bottom is: "s + formatDoubleAsString(bottom())
+                 + ", stops: "s + stops().summary();
+        case XLPatternFill :
+            return "fill type is "s + XLFillTypeToString(fillType())
+                 + ", pattern type is "s + XLPatternTypeToString(patternType())
+                 + ", fgcolor is: "s + color().hex() + ", bgcolor: "s + backgroundColor().hex();
+        case XLFillTypeInvalid: [[fallthrough]];
+        default               :
+            return "fill type is invalid!"s;
+    }
 }
-
 
 // ===== XLFills, parent of XLFill
 
@@ -1028,30 +1429,36 @@ XLLineStyle XLLine::style() const
 XLLine::operator bool() const { return (style() != XLLineStyleNone); }
 
 /**
- * @details Returns the line color
+ * @details Returns the line data bar color object
  */
-XLColor XLLine::color() const
+XLDataBarColor XLLine::color() const
 {
-    XMLNode colorDetails = m_lineNode->child("color");
-    if (colorDetails.empty()) return XLColor("ffffffff");
-    XMLAttribute colorRGB = colorDetails.attribute("rgb");
-    if (colorRGB.empty()) return XLColor("ffffffff");
-    return XLColor(colorRGB.value());
+    XMLNode color = appendAndGetNode(*m_lineNode, "color");
+    if (color.empty()) return XLDataBarColor{};
+    return XLDataBarColor(color);
 }
-
-/**
- * @details Returns the line color tint
- */
-double XLLine::colorTint() const
-{
-    XMLNode colorDetails = m_lineNode->child("color");
-    if (not colorDetails.empty()) {
-        XMLAttribute colorTint = colorDetails.attribute("tint");
-        if (not colorTint.empty())
-            return colorTint.as_double();
-    }
-    return 0.0;
-}
+// XLColor XLLine::color() const
+// {
+//     XMLNode colorDetails = m_lineNode->child("color");
+//     if (colorDetails.empty()) return XLColor("ffffffff");
+//     XMLAttribute colorRGB = colorDetails.attribute("rgb");
+//     if (colorRGB.empty()) return XLColor("ffffffff");
+//     return XLColor(colorRGB.value());
+// }
+// 
+// /**
+//  * @details Returns the line color tint
+//  */
+// double XLLine::colorTint() const
+// {
+//     XMLNode colorDetails = m_lineNode->child("color");
+//     if (not colorDetails.empty()) {
+//         XMLAttribute colorTint = colorDetails.attribute("tint");
+//         if (not colorTint.empty())
+//             return colorTint.as_double();
+//     }
+//     return 0.0;
+// }
 
 /**
  * @details assemble a string summary about the fill
@@ -1059,11 +1466,12 @@ double XLLine::colorTint() const
 std::string XLLine::summary() const
 {
     using namespace std::literals::string_literals;
-    double tint = colorTint();
-    std::string tintSummary = "colorTint is "s + (tint == 0.0 ? "(none)"s : std::to_string(tint));
-	 size_t tintDecimalPos = tintSummary.find_last_of('.');
-	 if (tintDecimalPos != std::string::npos) tintSummary = tintSummary.substr(0, tintDecimalPos + 3); // truncate colorTint double output 2 digits after the decimal separator
-    return "line style is "s + XLLineStyleToString(style()) + ", color is "s + color().hex() + ", "s + tintSummary;
+    return "line style is "s + XLLineStyleToString(style()) + ", "s + color().summary();
+    // double tint = colorTint();
+    // std::string tintSummary = "colorTint is "s + (tint == 0.0 ? "(none)"s : std::to_string(tint));
+    // size_t tintDecimalPos = tintSummary.find_last_of('.');
+    // if (tintDecimalPos != std::string::npos) tintSummary = tintSummary.substr(0, tintDecimalPos + 3); // truncate colorTint double output 2 digits after the decimal separator
+    // return "line style is "s + XLLineStyleToString(style()) + ", color is "s + color().hex() + ", "s + tintSummary;
 }
 
 
@@ -1123,26 +1531,29 @@ bool XLBorder::setDiagonalDown(bool set) { return appendAndSetAttribute(*m_borde
 bool XLBorder::setOutline     (bool set) { return appendAndSetAttribute(*m_borderNode, "outline",      (set ? "true" : "false")).empty() == false; }
 bool XLBorder::setLine(XLLineType lineType, XLLineStyle lineStyle, XLColor lineColor, double lineTint)
 {
-    std::string tintString = "";
-    if (lineTint != 0.0) {
-        tintString = checkAndFormatDoubleAsString(lineTint, -1.0, +1.0, 0.01);
-        if (tintString.length() == 0) {
-            using namespace std::literals::string_literals;
-            throw XLException("XLBorder::setLine: line tint "s + std::to_string(lineTint) + " is not in range [-1.0;+1.0]"s);
-        }
-	 }
-        
+    // std::string tintString = "";
+    // if (lineTint != 0.0) {
+    //     tintString = checkAndFormatDoubleAsString(lineTint, -1.0, +1.0, 0.01);
+    //     if (tintString.length() == 0) {
+    //         using namespace std::literals::string_literals;
+    //         throw XLException("XLBorder::setLine: line tint "s + std::to_string(lineTint) + " is not in range [-1.0;+1.0]"s);
+    //     }
+    // }
+
     XMLNode lineNode = appendAndGetNode(*m_borderNode, XLLineTypeToString(lineType));    // generate line node if not present
     bool success = (lineNode.empty() == false);
     if (success) success = (appendAndSetAttribute(lineNode, "style", XLLineStyleToString(lineStyle)).empty() == false); // set style attribute
     XMLNode colorNode{}; // empty node
     if (success) colorNode = appendAndGetNode(lineNode, "color");                        // generate color node if not present
+    XLDataBarColor colorObject{colorNode};
     success = (colorNode.empty() == false);
-    if (success) success = (appendAndSetAttribute(colorNode, "rgb", lineColor.hex()).empty() == false);                 // set rgb attribute
-	 if (success) {
-        if (tintString.length() == 0) success = colorNode.remove_attribute("tint");                                     // unset: remove tint attribute
-        else success = (appendAndSetAttribute(colorNode, "tint", tintString).empty() == false);                         // set tint attribute
-    }
+    if (success) success = colorObject.setRgb(lineColor);
+    if (success) success = colorObject.setTint(lineTint);
+    // if (success) success = (appendAndSetAttribute(colorNode, "rgb", lineColor.hex()).empty() == false);                 // set rgb attribute
+    // if (success) {
+    //     if (tintString.length() == 0) success = colorNode.remove_attribute("tint");                                     // unset: remove tint attribute
+    //     else success = (appendAndSetAttribute(colorNode, "tint", tintString).empty() == false);                         // set tint attribute
+    // }
     return success;
 }
 bool XLBorder::setLeft      (XLLineStyle lineStyle, XLColor lineColor, double lineTint) { return setLine(XLLineLeft,       lineStyle, lineColor, lineTint); }
@@ -1151,7 +1562,7 @@ bool XLBorder::setTop       (XLLineStyle lineStyle, XLColor lineColor, double li
 bool XLBorder::setBottom    (XLLineStyle lineStyle, XLColor lineColor, double lineTint) { return setLine(XLLineBottom,     lineStyle, lineColor, lineTint); }
 bool XLBorder::setDiagonal  (XLLineStyle lineStyle, XLColor lineColor, double lineTint) { return setLine(XLLineDiagonal,   lineStyle, lineColor, lineTint); }
 bool XLBorder::setVertical  (XLLineStyle lineStyle, XLColor lineColor, double lineTint) { return setLine(XLLineVertical,   lineStyle, lineColor, lineTint); }
-bool XLBorder::setHorizontal(XLLineStyle lineStyle, XLColor lineColor, double lineTint) { return setLine(XLLineHorizontal, lineStyle, lineColor, lineTint); }	
+bool XLBorder::setHorizontal(XLLineStyle lineStyle, XLColor lineColor, double lineTint) { return setLine(XLLineHorizontal, lineStyle, lineColor, lineTint); }
 
 
 /**
@@ -1694,7 +2105,7 @@ bool XLCellStyle::setCustomBuiltin(bool set)                 { return appendAndS
 std::string XLCellStyle::summary() const
 {
     using namespace std::literals::string_literals;
-	 uint32_t iLevel = outlineStyle();
+    uint32_t iLevel = outlineStyle();
     return "name="s + name()
          + ", xfId="s + std::to_string(xfId())
          + ", builtinId="s + std::to_string(builtinId())
