@@ -137,6 +137,48 @@ namespace     // anonymous namespace for module local functions
         }
     }
 
+    XLFontSchemeStyle XLFontSchemeStyleFromString(std::string fontScheme)
+    {
+        if (fontScheme == ""
+         || fontScheme == "none")  return XLFontSchemeNone;
+        if (fontScheme == "major") return XLFontSchemeMajor;
+        if (fontScheme == "minor") return XLFontSchemeMinor;
+        std::cerr << __func__ << ": invalid font scheme " << fontScheme << std::endl;
+        return XLFontSchemeInvalid;
+    }
+
+    std::string XLFontSchemeStyleToString(XLFontSchemeStyle fontScheme)
+    {
+        switch (fontScheme) {
+            case XLFontSchemeNone   : return "none";
+            case XLFontSchemeMajor  : return "major";
+            case XLFontSchemeMinor  : return "minor";
+            case XLFontSchemeInvalid: [[fallthrough]];
+            default                 : return "(invalid)";
+        }
+    }
+
+    XLVerticalAlignRunStyle XLVerticalAlignRunStyleFromString(std::string vertAlign)
+    {
+        if (vertAlign == ""
+         || vertAlign == "baseline")    return XLBaseline;
+        if (vertAlign == "subscript")   return XLSubscript;
+        if (vertAlign == "superscript") return XLSuperscript;
+        std::cerr << __func__ << ": invalid font vertical align run style " << vertAlign << std::endl;
+        return XLVerticalAlignRunInvalid;
+    }
+
+    std::string XLVerticalAlignRunStyleToString(XLVerticalAlignRunStyle vertAlign)
+    {
+        switch (vertAlign) {
+            case XLBaseline               : return "baseline";
+            case XLSubscript              : return "subscript";
+            case XLSuperscript            : return "superscript";
+            case XLVerticalAlignRunInvalid: [[fallthrough]];
+            default                       : return "(invalid)";
+        }
+    }
+
     XLFillType XLFillTypeFromString(std::string fillType)
     {
         if (fillType == "gradientFill") return XLGradientFill;
@@ -176,8 +218,25 @@ namespace     // anonymous namespace for module local functions
     XLPatternType XLPatternTypeFromString(std::string patternType)
     {
         if (patternType == ""
-         || patternType == "none")         return XLPatternNone;
-        if (patternType == "solid")        return XLPatternSolid;
+         || patternType == "none")            return XLPatternNone;
+        if (patternType == "solid")           return XLPatternSolid;
+        if (patternType == "mediumGray")      return XLPatternMediumGray;
+        if (patternType == "darkGray")        return XLPatternDarkGray;
+        if (patternType == "lightGray")       return XLPatternLightGray;
+        if (patternType == "darkHorizontal")  return XLPatternDarkHorizontal;
+        if (patternType == "darkVertical")    return XLPatternDarkVertical;
+        if (patternType == "darkDown")        return XLPatternDarkDown;
+        if (patternType == "darkUp")          return XLPatternDarkUp;
+        if (patternType == "darkGrid")        return XLPatternDarkGrid;
+        if (patternType == "darkTrellis")     return XLPatternDarkTrellis;
+        if (patternType == "lightHorizontal") return XLPatternLightHorizontal;
+        if (patternType == "lightVertical")   return XLPatternLightVertical;
+        if (patternType == "lightDown")       return XLPatternLightDown;
+        if (patternType == "lightUp")         return XLPatternLightUp;
+        if (patternType == "lightGrid")       return XLPatternLightGrid;
+        if (patternType == "lightTrellis")    return XLPatternLightTrellis;
+        if (patternType == "gray125")         return XLPatternGray125;
+        if (patternType == "gray0625")        return XLPatternGray0625;
         std::cerr << __func__ << ": invalid patternType " << patternType << std::endl;
         return XLPatternTypeInvalid;
     }
@@ -185,10 +244,27 @@ namespace     // anonymous namespace for module local functions
     std::string XLPatternTypeToString(XLPatternType patternType)
     {
         switch (patternType) {
-            case XLPatternNone       : return "none";
-            case XLPatternSolid      : return "solid";
-            case XLPatternTypeInvalid: [[fallthrough]];
-            default:                   return "(invalid)";
+            case XLPatternNone           : return "none";
+            case XLPatternSolid          : return "solid";
+            case XLPatternMediumGray     : return "mediumGray";
+            case XLPatternDarkGray       : return "darkGray";
+            case XLPatternLightGray      : return "lightGray";
+            case XLPatternDarkHorizontal : return "darkHorizontal";
+            case XLPatternDarkVertical   : return "darkVertical";
+            case XLPatternDarkDown       : return "darkDown";
+            case XLPatternDarkUp         : return "darkUp";
+            case XLPatternDarkGrid       : return "darkGrid";
+            case XLPatternDarkTrellis    : return "darkTrellis";
+            case XLPatternLightHorizontal: return "lightHorizontal";
+            case XLPatternLightVertical  : return "lightVertical";
+            case XLPatternLightDown      : return "lightDown";
+            case XLPatternLightUp        : return "lightUp";
+            case XLPatternLightGrid      : return "lightGrid";
+            case XLPatternLightTrellis   : return "lightTrellis";
+            case XLPatternGray125        : return "gray125";
+            case XLPatternGray0625       : return "gray0625";
+            case XLPatternTypeInvalid    : [[fallthrough]];
+            default:                       return "(invalid)";
         }
     }
 
@@ -268,26 +344,34 @@ namespace     // anonymous namespace for module local functions
     XLAlignmentStyle XLAlignmentStyleFromString(std::string alignment)
     {
         if (alignment == ""
-         || alignment == "general") return XLAlignGeneral;
-        if (alignment == "left")    return XLAlignLeft;
-        if (alignment == "right")   return XLAlignRight;
-        if (alignment == "center")  return XLAlignCenter;
-        if (alignment == "top")     return XLAlignTop;
-        if (alignment == "bottom")  return XLAlignBottom;
-        std::cerr << __func__ << ": unknown alignment style " << alignment << std::endl;
-        return XLAlignUnknown;
+         || alignment == "general")          return XLAlignGeneral;
+        if (alignment == "left")             return XLAlignLeft;
+        if (alignment == "right")            return XLAlignRight;
+        if (alignment == "center")           return XLAlignCenter;
+        if (alignment == "top")              return XLAlignTop;
+        if (alignment == "bottom")           return XLAlignBottom;
+        if (alignment == "fill")             return XLAlignFill;
+        if (alignment == "justify")          return XLAlignJustify;
+        if (alignment == "centerContinuous") return XLAlignCenterContinuous;
+        if (alignment == "distributed")      return XLAlignDistributed;
+        std::cerr << __func__ << ": invalid alignment style " << alignment << std::endl;
+        return XLAlignInvalid;
     }
 
     std::string XLAlignmentStyleToString(XLAlignmentStyle alignment)
     {
         switch (alignment) {
-            case XLAlignGeneral: return "";
-            case XLAlignLeft   : return "left";
-            case XLAlignRight  : return "right";
-            case XLAlignCenter : return "center";
-            case XLAlignTop    : return "top";
-            case XLAlignBottom : return "bottom";
-            case XLAlignUnknown: [[fallthrough]];
+            case XLAlignGeneral          : return "";
+            case XLAlignLeft             : return "left";
+            case XLAlignRight            : return "right";
+            case XLAlignCenter           : return "center";
+            case XLAlignTop              : return "top";
+            case XLAlignBottom           : return "bottom";
+            case XLAlignFill             : return "fill";
+            case XLAlignJustify          : return "justify";
+            case XLAlignCenterContinuous : return "centerContinuous";
+            case XLAlignDistributed      : return "distributed";
+            case XLAlignInvalid: [[fallthrough]];
             default: return "(unknown)";
         }
     }
@@ -665,14 +749,16 @@ XLColor XLFont::fontColor() const
 /**
  * @details getter functions: return the font's bold, italic, underline, strikethrough status
  */
-bool XLFont::bold()          const { return appendAndGetNodeAttribute(*m_fontNode, "b",        "val", "false").as_bool(); }
-bool XLFont::italic()        const { return appendAndGetNodeAttribute(*m_fontNode, "i",        "val", "false").as_bool(); }
-XLUnderlineStyle XLFont::underline() const { return XLUnderlineStyleFromString(appendAndGetNodeAttribute(*m_fontNode, "u", "val", "").value()); }
-bool XLFont::strikethrough() const { return appendAndGetNodeAttribute(*m_fontNode, "strike",   "val", "false").as_bool(); }
-bool XLFont::outline()       const { return appendAndGetNodeAttribute(*m_fontNode, "outline",  "val", "false").as_bool(); }
-bool XLFont::shadow()        const { return appendAndGetNodeAttribute(*m_fontNode, "shadow",   "val", "false").as_bool(); }
-bool XLFont::condense()      const { return appendAndGetNodeAttribute(*m_fontNode, "condense", "val", "false").as_bool(); }
-bool XLFont::extend()        const { return appendAndGetNodeAttribute(*m_fontNode, "extend",   "val", "false").as_bool(); }
+bool                    XLFont::bold()          const { return                                   appendAndGetNodeAttribute(*m_fontNode, "b",         "val", "false").as_bool() ; }
+bool                    XLFont::italic()        const { return                                   appendAndGetNodeAttribute(*m_fontNode, "i",         "val", "false").as_bool() ; }
+bool                    XLFont::strikethrough() const { return                                   appendAndGetNodeAttribute(*m_fontNode, "strike",    "val", "false").as_bool() ; }
+XLUnderlineStyle        XLFont::underline()     const { return XLUnderlineStyleFromString       (appendAndGetNodeAttribute(*m_fontNode, "u",         "val", ""     ).value()  ); }
+XLFontSchemeStyle       XLFont::scheme()        const { return XLFontSchemeStyleFromString      (appendAndGetNodeAttribute(*m_fontNode, "scheme",    "val", ""     ).value()  ); }
+XLVerticalAlignRunStyle XLFont::vertAlign()     const { return XLVerticalAlignRunStyleFromString(appendAndGetNodeAttribute(*m_fontNode, "vertAlign", "val", ""     ).value()  ); }
+bool                    XLFont::outline()       const { return                                   appendAndGetNodeAttribute(*m_fontNode, "outline",   "val", "false").as_bool() ; }
+bool                    XLFont::shadow()        const { return                                   appendAndGetNodeAttribute(*m_fontNode, "shadow",    "val", "false").as_bool() ; }
+bool                    XLFont::condense()      const { return                                   appendAndGetNodeAttribute(*m_fontNode, "condense",  "val", "false").as_bool() ; }
+bool                    XLFont::extend()        const { return                                   appendAndGetNodeAttribute(*m_fontNode, "extend",    "val", "false").as_bool() ; }
 
 /**
  * @details Setter functions
@@ -685,7 +771,12 @@ bool XLFont::setFontColor    (XLColor newColor)       { return appendAndSetNodeA
 bool XLFont::setBold         (bool set)               { return appendAndSetNodeAttribute(*m_fontNode, "b",        "val", (set ? "true" : "false")               ).empty() == false; }
 bool XLFont::setItalic       (bool set)               { return appendAndSetNodeAttribute(*m_fontNode, "i",        "val", (set ? "true" : "false")               ).empty() == false; }
 bool XLFont::setStrikethrough(bool set)               { return appendAndSetNodeAttribute(*m_fontNode, "strike",   "val", (set ? "true" : "false")               ).empty() == false; }
-bool XLFont::setUnderline    (XLUnderlineStyle style) { return appendAndSetNodeAttribute(*m_fontNode, "u",        "val", XLUnderlineStyleToString(style).c_str()).empty() == false; }
+bool XLFont::setUnderline    (XLUnderlineStyle style)
+    { return appendAndSetNodeAttribute(*m_fontNode, "u",         "val", XLUnderlineStyleToString       (style       ).c_str()).empty() == false; }
+bool XLFont::setScheme       (XLFontSchemeStyle newScheme)
+    { return appendAndSetNodeAttribute(*m_fontNode, "scheme",    "val", XLFontSchemeStyleToString      (newScheme   ).c_str()).empty() == false; }
+bool XLFont::setVertAlign    (XLVerticalAlignRunStyle newVertAlign)
+    { return appendAndSetNodeAttribute(*m_fontNode, "vertAlign", "val", XLVerticalAlignRunStyleToString(newVertAlign).c_str()).empty() == false; }
 bool XLFont::setOutline (bool set)                    { return appendAndSetNodeAttribute(*m_fontNode, "outline",  "val", (set ? "true" : "false")               ).empty() == false; }
 bool XLFont::setShadow  (bool set)                    { return appendAndSetNodeAttribute(*m_fontNode, "shadow",   "val", (set ? "true" : "false")               ).empty() == false; }
 bool XLFont::setCondense(bool set)                    { return appendAndSetNodeAttribute(*m_fontNode, "condense", "val", (set ? "true" : "false")               ).empty() == false; }
@@ -707,6 +798,8 @@ std::string XLFont::summary() const
          + (italic() ? ", +italic"s : ""s)
          + (strikethrough() ? ", +strikethrough"s : ""s)
          + (underline() != XLUnderlineNone ? ", underline: "s + XLUnderlineStyleToString(underline()) : ""s)
+         + (scheme() != XLFontSchemeNone ? ", scheme: "s + XLFontSchemeStyleToString(scheme()) : ""s)
+         + (vertAlign() != XLBaseline ? ", vertAlign: "s + XLVerticalAlignRunStyleToString(vertAlign()) : ""s)
          + (outline() ? ", +outline"s : ""s)
          + (shadow() ? ", +shadow"s : ""s)
          + (condense() ? ", +condense"s : ""s)
@@ -877,7 +970,7 @@ bool XLDataBarColor::setTint(double newTint)
     }
     if (tintString.length() == 0) return m_colorNode->remove_attribute("tint");           // remove tint attribute for a value 0
 
-	 return (appendAndSetAttribute(*m_colorNode, "tint", tintString).empty() == false);    // else: set tint attribute
+    return (appendAndSetAttribute(*m_colorNode, "tint", tintString).empty() == false);    // else: set tint attribute
 }
 bool XLDataBarColor::setAutomatic(bool set)        { return appendAndSetAttribute(*m_colorNode, "auto",      (set ? "true" : "false")     ).empty() == false; }
 bool XLDataBarColor::setIndexed(uint32_t newIndex) { return appendAndSetAttribute(*m_colorNode, "indexed",   std::to_string(newIndex)     ).empty() == false; }
@@ -1071,7 +1164,7 @@ std::string XLGradientStops::summary() const
     std::string result{};
     for(XLGradientStop stop : m_gradientStops)
         result += stop.summary() + ", ";
-	 if (result.length() < 2) return ""; // if no stop summary was created - return empty string
+    if (result.length() < 2) return ""; // if no stop summary was created - return empty string
     return result.substr(0, result.length() - 2);
 }
 

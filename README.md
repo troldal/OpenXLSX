@@ -3,14 +3,21 @@
 OpenXLSX is a C++ library for reading, writing, creating and modifying
 Microsoft Excel® files, with the .xlsx format.
 
+## (Lars Uffmann) 01 August 2024 - xl/styles.xml - support for XLFill patternFill all pattern types, XLFonts scheme & vertAlign, all XLAlignmentStyle values
+* patternFill now supports all patternType values per standard
+* XLFonts now support scheme major/minor/none (`<font><scheme val="major"/></font>`)
+* XLFonts now support vertical align run style (`<font><vertAlign val="subscript"/></font>`)
+* XLAlignmentStyle can now be used with all defined horizontal and vertical alignment styles
+* Examples/Demo10.cpp has been updated to test some(!) of the new formatting elements
+
 ## (Lars Uffmann) 31 July 2024 - xl/styles.xml - support for fill::gradientFill and XLDataBarColor
-* gradientFill elements within ```<fills><fill><gradientFill>...</gradientFill></fill>...</fills>``` are now supported
+* gradientFill elements within `<fills><fill><gradientFill>...</gradientFill></fill>...</fills>` are now supported
 * along with that come a few new classes: XLGradientStops, XLGradientStop, XLDataBarColor
 * XLLine color properties are now controlled via the XLDataBarColor as well
-* Examples/Demo10.cpp has been updated to test some(!) of the new formatting elements
 
 ### (Lars Uffmann) July 2024 - to-do list:
 - completion of style support as much as is reasonable (not color themes, most likely) per known documentation of xl/styles.xml
+- XLAlignmentStyle: check / throw if vertical alignments are used as horizontal and vice versa
 - XLStyles ::create functions: implement good default style properties for all styles
 - TBD: permit setting a format reference for shared strings
 - TBD: should a row format be used by OpenXLSX as default for new cells created in that row?

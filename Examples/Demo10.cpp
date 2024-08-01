@@ -23,14 +23,16 @@ int main( int argc, char *argv[] )
 
 	/*
 	 * TODO: align XLStyles.cpp with known documentation of xl/styles.xml as far as support is desired
-	 *  * XLFills: support patternFill patternType (XLFillPattern)
-	 *  * XLFonts: support scheme major/minor/none (<font><scheme>major</scheme></font>)
+	 *  * XLAlignmentStyle: check / throw if vertical alignments are used as horizontal and vice versa
 	 *  * XLStyles ::create functions: implement good default style properties for all styles
 	 *  * support "colors"
 	 *  * support "dxfs"
 	 *  * support "tableStyles"
 	 * TODO TBD: permit setting a format reference for shared strings
 	 * 
+	 * DONE: XLFills: support patternFill patternType (XLFillPattern)
+	 * DONE: XLFonts: support scheme major/minor/none (<font><scheme val="major"/></font>)
+	 * DONE: XLFonts: support vertical align run style (<font><vertAlign val="subscript"/></font>)
 	 * DONE: XLFills: support gradientFill
 	 * DONE: support complete for: "borders", "cellStyles", "cellStyleXfs", "cellXfs", "numFmts"
 	 * DONE: support nearly complete (exceptions above) for: "fonts"
@@ -155,12 +157,65 @@ int main( int argc, char *argv[] )
 	fonts[ newFontStyle ].setFontColor( green );
 	cellFormats[ newCellStyle ].setFontIndex( newFontStyle );
 
-	fills[ newFillStyle ].setPatternType    ( XLPatternSolid );           // "solid"
+	fills[ newFillStyle ].setPatternType    ( XLPatternNone );
+	fills[ newFillStyle ].setPatternType    ( XLPatternSolid );
+	// fills[ newFillStyle ].setPatternType    ( XLPatternMediumGray );
+	// fills[ newFillStyle ].setPatternType    ( XLPatternDarkGray );
+	// fills[ newFillStyle ].setPatternType    ( XLPatternLightGray );
+	// fills[ newFillStyle ].setPatternType    ( XLPatternDarkHorizontal );
+	// fills[ newFillStyle ].setPatternType    ( XLPatternDarkVertical );
+	// fills[ newFillStyle ].setPatternType    ( XLPatternDarkDown );
+	// fills[ newFillStyle ].setPatternType    ( XLPatternDarkUp );
+	// fills[ newFillStyle ].setPatternType    ( XLPatternDarkGrid );
+	// fills[ newFillStyle ].setPatternType    ( XLPatternDarkTrellis );
+	// fills[ newFillStyle ].setPatternType    ( XLPatternLightHorizontal );
+	// fills[ newFillStyle ].setPatternType    ( XLPatternLightVertical );
+	// fills[ newFillStyle ].setPatternType    ( XLPatternLightDown );
+	// fills[ newFillStyle ].setPatternType    ( XLPatternLightUp );
+	// fills[ newFillStyle ].setPatternType    ( XLPatternLightGrid );
+	// fills[ newFillStyle ].setPatternType    ( XLPatternLightTrellis );
+	// fills[ newFillStyle ].setPatternType    ( XLPatternGray125 );
+	// fills[ newFillStyle ].setPatternType    ( XLPatternGray0625 );
 	fills[ newFillStyle ].setColor          ( yellow );
-	// fills[ newFillStyle ].setBackgroundColor( XLColor( "ff0000ff" ) );    // blue, setBackgroundColor only makes sense with gradient fills
+	fills[ newFillStyle ].setBackgroundColor( blue );    // blue, setBackgroundColor only makes sense with gradient fills
 	cellFormats[ newCellStyle ].setFillIndex( newFillStyle );
 
 	myCellRange.setFormat( newCellStyle ); // assign the new format to the full range of cells
+
+
+	// XLFill -> XLGradientFill test:
+	myCellRange = wks.range("B30:P35");           // create a new range for formatting
+	myCellRange = "TEST GRADIENT";                            // write some values to the cells so we can see format changes
+	baseFormat = wks.cell("B30").cellFormat();   // determine the style used in B20
+	newCellStyle = cellFormats.create( cellFormats[ baseFormat ] ); // create a new style based on the style in B20
+	XLStyleIndex testGradientIndex = fills.create(fills[ cellFormats[ baseFormat ].fillIndex() ]); // create a new fill style based on the used fill
+
+	fills[ testGradientIndex ].setFillType( XLPatternFill );                   // set the "wrong" fill type
+	fills[ testGradientIndex ].setFillType( XLGradientFill, XLForceFillType ); // override that with a gradientFill
+	fills[ testGradientIndex ].setGradientType( XLGradientLinear );            // the gradient type
+
+	// configure the gradient stops
+	XLGradientStops stops = fills[ testGradientIndex ].stops();
+
+	// first XLGradientStop
+	XLStyleIndex stopIndex = stops.create();
+	XLDataBarColor stopColor = stops[ stopIndex ].color();
+	stops[ stopIndex ].setPosition(0.1);
+	stopColor.setRgb( green );
+	// stopColor.setTint( 1.01 );
+	// stopColor.setAutomatic();
+	// stopColor.setIndexed( 77 );
+	// stopColor.setTheme( 79 );
+
+	// second XLGradientStop
+	stopIndex = stops.create(stops[stopIndex]); // create another stop using previous stop as template
+	stopColor.set( yellow );
+	stops[ stopIndex ].setPosition(0.5);
+
+	cellFormats[ newCellStyle ].setFillIndex( testGradientIndex );
+
+	myCellRange.setFormat( newCellStyle ); // assign the new format to the full range of cells
+
 
 	// enable testBasics = true to create/modify at least one entry in each known styles array
 	// disable testBasics = false to stop the demo execution here and save the document
@@ -197,6 +252,14 @@ int main( int argc, char *argv[] )
 		fonts[ nodeIndex ].setItalic();                                      // italic
 		fonts[ nodeIndex ].setStrikethrough();                               // strikethrough
 		fonts[ nodeIndex ].setUnderline(XLUnderlineDouble);                  // underline: XLUnderlineSingle, XLUnderlineDouble, XLUnderlineNone
+		fonts[ nodeIndex ].setScheme(XLFontSchemeMajor);
+			// fonts[ nodeIndex ].setScheme(XLFontSchemeMinor);
+			// fonts[ nodeIndex ].setScheme(XLFontSchemeNone);
+			// fonts[ nodeIndex ].setScheme(XLFontSchemeInvalid);
+		fonts[ nodeIndex ].setVertAlign(XLSubscript);
+			// fonts[ nodeIndex ].setVertAlign(XLBaseline);
+			// fonts[ nodeIndex ].setVertAlign(XLSuperscript);
+			// fonts[ nodeIndex ].setVertAlign(XLVerticalAlignRunInvalid);
 		fonts[ nodeIndex ].setOutline();
 		fonts[ nodeIndex ].setShadow();
 		fonts[ nodeIndex ].setCondense();
@@ -206,31 +269,15 @@ int main( int argc, char *argv[] )
 		// XLFill -> XLPatternFill test:
 		nodeIndex = ( createAll ? fills.create() : fills.count() - 1 );
 		fills[ nodeIndex ].setFillType( XLPatternFill );
-		fills[ nodeIndex ].setPatternType( XLDefaultPatternType );
+		fills[ nodeIndex ].setPatternType( XLPatternSolid );
+		// fills[ nodeIndex ].setPatternType( XLPatternTypeInvalid );
 		fills[ nodeIndex ].setColor          ( XLColor( XLDefaultPatternFgColor ) );
 		fills[ nodeIndex ].setBackgroundColor( XLColor( XLDefaultPatternBgColor ) );
-		std::cout << "fills[ " << nodeIndex << " ] summary: " << fills[ nodeIndex ].summary() << std::endl;
 
-		// XLFill -> XLGradientFill test:
-		nodeIndex = ( createAll ? fills.create() : fills.count() - 1 );
-		fills[ nodeIndex ].setFillType( XLPatternFill );
-		fills[ nodeIndex ].setFillType( XLGradientFill, XLForceFillType );
-		fills[ nodeIndex ].setGradientType( XLGradientLinear );
-		XLGradientStops stops = fills[ nodeIndex ].stops();
+		// output summary of previously created style with a gradient fill
+		std::cout << "fills[ " << testGradientIndex << " ] summary: " << fills[ testGradientIndex ].summary() << std::endl;
 
-		// first XLGradientStop
-		XLStyleIndex stopIndex = stops.create();
-		XLDataBarColor stopColor = stops[ stopIndex ].color();
-		stops[ stopIndex ].setPosition(3.14);
-		stopColor.setRgb( green );
-		stopColor.setTint( 1.01 );
-		stopColor.setAutomatic();
-		stopColor.setIndexed( 77 );
-		stopColor.setTheme( 79 );
-
-		// second XLGradientStop
-		stopIndex = stops.create(stops[stopIndex]); // create another stop using previous stop as template
-		stopColor.set( yellow );
+		// output summary of newly created style
 		std::cout << "fills[ " << nodeIndex << " ] summary: " << fills[ nodeIndex ].summary() << std::endl;
 
 		nodeIndex = ( createAll ? borders.create() : borders.count() - 1 );

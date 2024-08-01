@@ -110,12 +110,25 @@ namespace OpenXLSX
     class XLCellStyles;
     class XLStyles;
 
-
     enum XLUnderlineStyle : uint8_t {
         XLUnderlineNone    = 0,
         XLUnderlineSingle  = 1,
         XLUnderlineDouble  = 2,
         XLUnderlineInvalid = 255
+    };
+
+    enum XLFontSchemeStyle : uint8_t {
+        XLFontSchemeNone    =   0, // <scheme val="none"/>
+        XLFontSchemeMajor   =   1, // <scheme val="major"/>
+        XLFontSchemeMinor   =   2, // <scheme val="minor"/>
+        XLFontSchemeInvalid = 255  // all other values
+    };
+
+    enum XLVerticalAlignRunStyle : uint8_t {
+        XLBaseline                =   0, // <vertAlign val="baseline"/>
+        XLSubscript               =   1, // <vertAlign val="subscript"/>
+        XLSuperscript             =   2, // <vertAlign val="superscript"/>
+        XLVerticalAlignRunInvalid = 255
     };
 
     enum XLFillType : uint8_t {
@@ -130,11 +143,27 @@ namespace OpenXLSX
         XLGradientTypeInvalid = 255
     };
 
-    // TODO: implement fill pattern constants & use thereof
     enum XLPatternType: uint8_t {
-        XLPatternNone        =   0,   // "none"
-        XLPatternSolid       =   1,   // "solid"
-        XLPatternTypeInvalid = 255    // any patternType that is not one of the above
+        XLPatternNone            =   0,   // "none"
+        XLPatternSolid           =   1,   // "solid"
+        XLPatternMediumGray      =   2,   // "mediumGray"
+        XLPatternDarkGray        =   3,   // "darkGray"
+        XLPatternLightGray       =   4,   // "lightGray"
+        XLPatternDarkHorizontal  =   5,   // "darkHorizontal"
+        XLPatternDarkVertical    =   6,   // "darkVertical"
+        XLPatternDarkDown        =   7,   // "darkDown"
+        XLPatternDarkUp          =   8,   // "darkUp"
+        XLPatternDarkGrid        =   9,   // "darkGrid"
+        XLPatternDarkTrellis     =  10,   // "darkTrellis"
+        XLPatternLightHorizontal =  11,   // "lightHorizontal"
+        XLPatternLightVertical   =  12,   // "lightVertical"
+        XLPatternLightDown       =  13,   // "lightDown"
+        XLPatternLightUp         =  14,   // "lightUp"
+        XLPatternLightGrid       =  15,   // "lightGrid"
+        XLPatternLightTrellis    =  16,   // "lightTrellis"
+        XLPatternGray125         =  17,   // "gray125"
+        XLPatternGray0625        =  18,   // "gray0625"
+        XLPatternTypeInvalid     = 255    // any patternType that is not one of the above
     };
     constexpr const XLFillType    XLDefaultFillType       = XLPatternFill; // node name for the pattern description is derived from this
     constexpr const XLPatternType XLDefaultPatternType    = XLPatternNone; // attribute patternType default value: no fill
@@ -172,13 +201,17 @@ namespace OpenXLSX
     };
 
     enum XLAlignmentStyle : uint8_t {
-        XLAlignGeneral       = 0,
-        XLAlignLeft          = 1,
-        XLAlignRight         = 2,
-        XLAlignCenter        = 3,
-        XLAlignTop           = 4,
-        XLAlignBottom        = 5,
-        XLAlignUnknown       = 255 // TBD: all valid alignment styles
+        XLAlignGeneral          =   0, // value="general",          horizontal only
+        XLAlignLeft             =   1, // value="left",             horizontal only
+        XLAlignRight            =   2, // value="right",            horizontal only
+        XLAlignCenter           =   3, // value="center",           both
+        XLAlignTop              =   4, // value="top",              vertical only
+        XLAlignBottom           =   5, // value="bottom",           vertical only
+        XLAlignFill             =   6, // value="fill",             horizontal only
+        XLAlignJustify          =   7, // value="justify",          both
+        XLAlignCenterContinuous =   8, // value="centerContinuous", horizontal only
+        XLAlignDistributed      =   9, // value="distributed",      both
+        XLAlignInvalid          = 255  // all other values
     };
 
     enum XLReadingOrder : uint32_t {
@@ -478,16 +511,28 @@ namespace OpenXLSX
         bool italic() const;
 
         /**
+         * @brief Get the font strikethrough status
+         * @return true = strikethrough, false = no strikethrough
+         */
+        bool strikethrough() const;
+
+        /**
          * @brief Get the font underline status
          * @return An XLUnderlineStyle value
          */
         XLUnderlineStyle underline() const;
 
         /**
-         * @brief Get the font strikethrough status
-         * @return true = strikethrough, false = no strikethrough
+         * @brief get the font scheme: none, major or minor
+         * @return An XLFontSchemeStyle
          */
-        bool strikethrough() const;
+        XLFontSchemeStyle scheme() const;
+
+        /**
+         * @brief get the font vertical alignment run style: baseline, subscript or superscript
+         * @return An XLVerticalAlignRunStyle
+         */
+        XLVerticalAlignRunStyle vertAlign() const;
 
         /**
          * @brief Get the outline status
@@ -517,10 +562,6 @@ namespace OpenXLSX
          */
         bool extend() const;
 
-        /**
-         * @brief currently unsupported getter stubs
-         */
-        XLUnsupportedElement fontScheme() const { return XLUnsupportedElement{}; } // <font><scheme>major</scheme></font>: "major", "minor", "none"
 
         /**
          * @brief Setter functions for style parameters
@@ -536,14 +577,12 @@ namespace OpenXLSX
         bool setItalic(bool set = true);
         bool setStrikethrough(bool set = true);
         bool setUnderline(XLUnderlineStyle style = XLUnderlineSingle);
+        bool setScheme(XLFontSchemeStyle newScheme);
+        bool setVertAlign(XLVerticalAlignRunStyle newVertAlign);
         bool setOutline(bool set = true);
         bool setShadow(bool set = true);
         bool setCondense(bool set = true);
         bool setExtend(bool set = true);
-        /**
-         * @brief currently unsupported setter stubs
-         */
-        bool setScheme(XLUnsupportedElement const& newScheme) { return false; }
 
         /**
          * @brief Return a string summary of the font properties
@@ -886,7 +925,7 @@ namespace OpenXLSX
          */
         XLStyleIndex create(XLGradientStop copyFrom = XLGradientStop{}, std::string styleEntriesPrefix = "");
 
-		  std::string summary() const;
+        std::string summary() const;
 
     private:
         std::unique_ptr<XMLNode> m_gradientNode;        /**< An XMLNode object with the gradientFill item */
