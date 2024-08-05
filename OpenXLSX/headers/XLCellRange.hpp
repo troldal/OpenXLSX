@@ -76,6 +76,11 @@ namespace OpenXLSX
 
     public:
         /**
+         * @brief Default constructor for variable declaration
+         */
+        XLCellRange();
+
+        /**
          * @brief
          * @param dataNode
          * @param topLeft
@@ -88,14 +93,14 @@ namespace OpenXLSX
                              const XLSharedStrings& sharedStrings);
 
         /**
-         * @brief Copy constructor [default].
+         * @brief Copy constructor
          * @param other The range object to be copied.
          * @note This implements the default copy constructor, i.e. memberwise copying.
          */
         XLCellRange(const XLCellRange& other);
 
         /**
-         * @brief Move constructor [default].
+         * @brief Move constructor
          * @param other The range object to be moved.
          * @note This implements the default move constructor, i.e. memberwise move.
          */

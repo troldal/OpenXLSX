@@ -52,6 +52,16 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 using namespace OpenXLSX;
 
 /**
+ * @details
+ */
+XLCellRange::XLCellRange()
+    : m_dataNode(std::make_unique<XMLNode>(XMLNode{})),
+      m_topLeft(XLCellReference("A1")),
+      m_bottomRight(XLCellReference("A1")),
+      m_sharedStrings{}
+{}
+
+/**
  * @details From the two XLCellReference objects, the constructor calculates the dimensions of the range.
  * If the range exceeds the current bounds of the spreadsheet, the spreadsheet is resized to fit.
  * @pre

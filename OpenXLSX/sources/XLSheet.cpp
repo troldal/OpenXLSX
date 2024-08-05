@@ -455,6 +455,9 @@ XLColumn XLWorksheet::column(uint16_t columnNumber) const
 {
     using namespace std::literals::string_literals;
 
+    if (columnNumber < 1 || columnNumber > OpenXLSX::MAX_COLS)    // 2024-08-05: added range check
+        throw XLException("XLWorksheet::column: columnNumber "s + std::to_string(columnNumber) + " is outside allowed range [1;"s + std::to_string(MAX_COLS) + "]"s);
+
     // If no columns exists, create the <cols> node in the XML document.
     if (xmlDocument().document_element().child("cols").empty())
         xmlDocument().document_element().insert_child_before("cols", xmlDocument().document_element().child("sheetData"));

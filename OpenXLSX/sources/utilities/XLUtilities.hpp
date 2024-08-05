@@ -136,13 +136,13 @@ namespace OpenXLSX
      */
     inline XMLNode getRowNode(XMLNode sheetDataNode, uint32_t rowNumber)
     {
-        if( rowNumber > OpenXLSX::MAX_ROWS ) {    // 2024-05-28: added range check
+        if (rowNumber < 1 || rowNumber > OpenXLSX::MAX_ROWS) {    // 2024-05-28: added range check
             using namespace std::literals::string_literals;
-            throw XLCellAddressError( "rowNumber "s + std::to_string( rowNumber ) + " is outside valid range" );
+            throw XLCellAddressError("rowNumber "s + std::to_string( rowNumber ) + " is outside valid range [1;"s + std::to_string(OpenXLSX::MAX_ROWS) + "]"s);
         }
+
         // ===== Get the last child of sheetDataNode that is of type node_element.
-        auto result = XMLNode();
-        result = sheetDataNode.last_child_of_type(pugi::node_element);
+        XMLNode result = sheetDataNode.last_child_of_type(pugi::node_element);
 
         // ===== If there are now rows in the worksheet, or the requested row is beyond the current max row, append a new row to the end.
         if (result.empty() || (rowNumber > result.attribute("r").as_ullong())) {
@@ -197,10 +197,13 @@ namespace OpenXLSX
      */
     inline XMLNode getCellNode(XMLNode rowNode, uint16_t columnNumber, uint32_t rowNumber = 0)
     {
-        auto cellNode = XMLNode();
-        if (rowNode.empty()) return cellNode;    // 2024-05-28: return an empty node in case of empty rowNode
+        if (columnNumber < 1 || columnNumber > OpenXLSX::MAX_COLS) {    // 2024-08-05: added range check
+            using namespace std::literals::string_literals;
+            throw XLException("XLWorksheet::column: columnNumber "s + std::to_string(columnNumber) + " is outside allowed range [1;"s + std::to_string(MAX_COLS) + "]"s);
+        }
+        if (rowNode.empty()) return XMLNode{};    // 2024-05-28: return an empty node in case of empty rowNode
 
-        cellNode = rowNode.last_child_of_type(pugi::node_element);
+        XMLNode cellNode = rowNode.last_child_of_type(pugi::node_element);
         if( !rowNumber ) rowNumber = rowNode.attribute("r").as_uint(); // if not provided, determine from rowNode
         auto cellRef  = XLCellReference(rowNumber, columnNumber);
 

@@ -1216,40 +1216,12 @@ namespace OpenXLSX
         explicit operator bool() const;
   
         XLDataBarColor color() const; // <line><color /></line> where node can be left, right, top, bottom, diagonal, vertical, horizontal
-//         /**
-//          * @brief Get the line color from the rgb attribute
-//          * @return An XLColor object
-//          */
-//         XLColor color() const;
-//   
-//         /**
-//          * @brief Get the line color tint
-//          * @return A double value as stored in the "tint" attribute (should be between [-1.0;+1.0]), 0.0 if attribute does not exist
-//          */
-//         double colorTint() const;
-// 
-//         /**
-//          * @brief currently unsupported getter stubs
-//          */
-//         bool     colorAuto()    const { return false; } // <color auto="true" />
-//         uint32_t colorIndexed() const { return     0; } // <color indexed="1" />
-//         uint32_t colorTheme()   const { return     0; } // <color theme="1" />
 
         /**
-         * @brief Setter functions for style parameters
+         * @note Regarding setter functions for style parameters:
          * @note Please refer to XLBorder setLine / setLeft / setRight / setTop / setBottom / setDiagonal
-         * @param value that shall be set
-         * @return true for success, false for failure
+         * @note  and XLDataBarColor setter functions that can be invoked via color()
          */
-        // bool setStyle(XLLineStyle newStyle);
-        // bool setColor(XLColor newColor);
-        // bool setColorTint(double newTint);
-        /**
-         * @brief currently unsupported setter stubs
-         */
-        // bool setColorAuto(bool set)             const { return false; }
-        // bool setColorIndexed(uint32_t newIndex) const { return false; }
-        // bool setColorTheme(uint32_t newTheme)   const { return false; }
 
         /**
          * @brief Return a string summary of the line properties
@@ -1377,9 +1349,9 @@ namespace OpenXLSX
          * @param value2 (optional) that shall be set
          * @return true for success, false for failure
          */
-        bool setDiagonalUp  (bool set);
-        bool setDiagonalDown(bool set);
-        bool setOutline     (bool set);
+        bool setDiagonalUp  (bool set = true);
+        bool setDiagonalDown(bool set = true);
+        bool setOutline     (bool set = true);
         bool setLine        (XLLineType lineType, XLLineStyle lineStyle, XLColor lineColor, double lineTint = 0.0);
         bool setLeft        (                     XLLineStyle lineStyle, XLColor lineColor, double lineTint = 0.0);
         bool setRight       (                     XLLineStyle lineStyle, XLColor lineColor, double lineTint = 0.0);
@@ -1598,11 +1570,11 @@ namespace OpenXLSX
         bool setHorizontal     (XLAlignmentStyle newStyle);
         bool setVertical       (XLAlignmentStyle newStyle);
         bool setTextRotation   (uint16_t newRotation);
-        bool setWrapText       (bool set);
+        bool setWrapText       (bool set = true);
         bool setIndent         (uint32_t newIndent);
         bool setRelativeIndent (int32_t newIndent);
-        bool setJustifyLastLine(bool set);
-        bool setShrinkToFit    (bool set);
+        bool setJustifyLastLine(bool set = true);
+        bool setShrinkToFit    (bool set = true);
         bool setReadingOrder   (uint32_t newReadingOrder); // can be used with XLReadingOrderContextual, XLReadingOrderLeftToRight, XLReadingOrderRightToLeft
 
         /**
@@ -1785,16 +1757,16 @@ namespace OpenXLSX
         bool setFillIndex        (XLStyleIndex newFillIndex);
         bool setBorderIndex      (XLStyleIndex newBorderIndex);
         bool setXfId             (XLStyleIndex newXfId); // NOTE: throws when invoked from cellStyleFormats
-        bool setApplyNumberFormat(bool set);
-        bool setApplyFont        (bool set);
-        bool setApplyFill        (bool set);
-        bool setApplyBorder      (bool set);
-        bool setApplyAlignment   (bool set);
-        bool setApplyProtection  (bool set);
-        bool setQuotePrefix      (bool set);
-        bool setPivotButton      (bool set);
-        bool setLocked           (bool set);
-        bool setHidden           (bool set);
+        bool setApplyNumberFormat(bool set = true);
+        bool setApplyFont        (bool set = true);
+        bool setApplyFill        (bool set = true);
+        bool setApplyBorder      (bool set = true);
+        bool setApplyAlignment   (bool set = true);
+        bool setApplyProtection  (bool set = true);
+        bool setQuotePrefix      (bool set = true);
+        bool setPivotButton      (bool set = true);
+        bool setLocked           (bool set = true);
+        bool setHidden           (bool set = true);
         /**
          * @brief Unsupported setter
          */
@@ -2009,8 +1981,8 @@ namespace OpenXLSX
         bool setXfId         (XLStyleIndex newXfId);
         bool setBuiltinId    (uint32_t newBuiltinId);
         bool setOutlineStyle (uint32_t newOutlineStyle);
-        bool setHidden       (bool set);
-        bool setCustomBuiltin(bool set);
+        bool setHidden       (bool set = true);
+        bool setCustomBuiltin(bool set = true);
         /**
          * @brief Unsupported setter
          */
