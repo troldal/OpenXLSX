@@ -14,8 +14,6 @@
 #ifndef SOURCE_PUGIXML_CPP
 #define SOURCE_PUGIXML_CPP
 
-#include <iostream>
-
 #include "pugixml.hpp"
 
 #include <stdlib.h>
@@ -7447,7 +7445,7 @@ namespace pugi
 	{
 		impl::xml_buffered_writer buffered_writer(writer, encoding);
 
-		if ((flags & format_write_bom) && encoding != encoding_latin1)
+		if ((flags & format_write_bom) && buffered_writer.encoding != encoding_latin1)
 		{
 			// BOM always represents the codepoint U+FEFF, so just write it in native encoding
 		#ifdef PUGIXML_WCHAR_MODE
@@ -7461,17 +7459,7 @@ namespace pugi
 		if (!(flags & format_no_declaration) && !impl::has_declaration(_root))
 		{
 			buffered_writer.write_string(PUGIXML_TEXT("<?xml version=\"1.0\""));
-			// 2024-06-03: BUG fixed in pugixml: buffered_writer constructor uses get_write_encoding which can encoding_auto into
-			//  a specific encoding (encoding_utf8), however, this code was still checking the non-transformed encoding parameter
-			switch( buffered_writer.encoding ) {
-				case encoding_latin1:
-					buffered_writer.write_string(PUGIXML_TEXT(" encoding=\"ISO-8859-1\""));
-				break;
-				case encoding_utf8:
-					buffered_writer.write_string(PUGIXML_TEXT(" encoding=\"UTF-8\"")); // 2024-06-03: explicit UTF-8 encoding
-				break;
-				default: break; // noop - other encodings are (currently) not supported / not explicitly stored in xml header
-			}
+			if (buffered_writer.encoding == encoding_latin1) buffered_writer.write_string(PUGIXML_TEXT(" encoding=\"ISO-8859-1\""));
 			buffered_writer.write('?', '>');
 			if (!(flags & format_raw)) buffered_writer.write('\n');
 		}
