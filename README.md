@@ -15,6 +15,10 @@ In particular, I would like to thank Lars Uffmann (https://codeberg.org/lars_uff
 * Google Benchmark is no longer included in the repository. To run the benchmarks, Google Benchmark have to be installed on the system. If you use vcpkg, it will be downloaded automatically.
 * Minor performance improvements to XLCellReference.
 
+### 06/08/2024
+* Housekeeping updates to the code.
+* Added Makefile.GNU for building on Linux. The project will continue to be based on CMake, and the makefile may not always be kept up-to-date.
+
 ## Table of Contents
 
 - [Motivation](#motivation)
