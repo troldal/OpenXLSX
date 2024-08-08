@@ -50,6 +50,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 // ===== OpenXLSX Includes ===== //
 #include "XLCellRange.hpp"
 #include "XLDocument.hpp"
+#include "XLMergeCells.hpp"
 #include "XLSheet.hpp"
 #include "utilities/XLUtilities.hpp"
 
@@ -289,11 +290,6 @@ XLWorksheet::XLWorksheet(XLXmlData* xmlData) : XLSheetBase(xmlData)
         }
     }
 }
-
-/**
- * @details Destructor. Default implementation.
- */
-XLWorksheet::~XLWorksheet() = default;
 
 /**
  * @details
@@ -606,6 +602,78 @@ void XLWorksheet::updateSheetName(const std::string& oldName, const std::string&
             }
         }
     }
+}
+
+/**
+ * @details create a new mergeCell element in the worksheet mergeCells array, with the only
+ *          attribute being ref="A1:D6" (with the top left and bottom right cells of the range)
+ *          The mergeCell element otherwise remains empty (no value)
+ *          The mergeCells attribute count will be increased by one
+ *          If emptyHiddenCells is true (XLEmptyHiddenCells), the values of all but the top left cell of the range
+ *          will be deleted (not from shared strings)
+ *          If any cell within the range is the sheet's active cell, the active cell will be set to the
+ *          top left corner of rangeToMerge
+ */
+void XLWorksheet::mergeCells(XLCellRange const& rangeToMerge, bool emptyHiddenCells)
+{
+    if (rangeToMerge.numRows() * rangeToMerge.numColumns() < 2) {
+        using namespace std::literals::string_literals;
+        throw XLInputError("XLWorksheet::"s + __func__ + ": rangeToMerge must comprise at least 2 cells"s);
+    }
+    // TBD: determine if XLMergeCells can somehow be stored with the document / worksheet instead of created on each call
+    XMLNode mergeCellsNode = xmlDocument().document_element().child("mergeCells");
+    if (mergeCellsNode.empty())
+        mergeCellsNode = xmlDocument().document_element().append_child("mergeCells");
+    XLMergeCells m_mergeCells(mergeCellsNode);
+
+    m_mergeCells.appendMerge(rangeToMerge.address());
+    if (emptyHiddenCells) {
+        // ===== Iterate over rangeToMerge, delete values & attributes (except r and s) for all but the first cell in the range
+        XLCellIterator it = rangeToMerge.begin();
+        ++it; // leave first cell untouched
+        while (it != rangeToMerge.end()) {
+            // ===== When merging with emptyHiddenCells in LO, subsequent unmerging restores the cell styles -> so keep them here as well
+            it->clear(XLKeepCellStyle);    // clear cell contents except style
+            ++it;
+        }
+    }
+}
+
+/**
+ * @details Convenience wrapper for the previous function, using a std::string range reference
+ */
+void XLWorksheet::mergeCells(const std::string& rangeReference, bool emptyHiddenCells) {
+    mergeCells(range(rangeReference), emptyHiddenCells);
+}
+
+/**
+ * @details check if rangeToMerge exists in mergeCells array & remove it
+ */
+void XLWorksheet::unmergeCells(XLCellRange const& rangeToMerge)
+{
+    // TBD: determine if XLMergeCells can somehow be stored with the document / worksheet instead of created on each call
+    XMLNode mergeCellsNode = xmlDocument().document_element().child("mergeCells");
+    if (mergeCellsNode.empty()) {
+        using namespace std::literals::string_literals;
+        throw XLInputError("XLWorksheet::"s + __func__ + ": this worksheet has no merged cells"s);
+    }
+    XLMergeCells m_mergeCells(mergeCellsNode);
+
+    int32_t mergeIndex = m_mergeCells.getMergeIndex(rangeToMerge.address());
+    if (mergeIndex != -1)
+        m_mergeCells.deleteMerge(mergeIndex);
+    else {
+        using namespace std::literals::string_literals;
+        throw XLInputError("XLWorksheet::"s + __func__ + ": merged range "s + rangeToMerge.address() + " does not exist"s);
+    }
+}
+
+/**
+ * @details Convenience wrapper for the previous function, using a std::string range reference
+ */
+void XLWorksheet::unmergeCells(const std::string& rangeReference)
+{
+    unmergeCells(range(rangeReference));
 }
 
 /**

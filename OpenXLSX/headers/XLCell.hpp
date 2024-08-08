@@ -65,6 +65,13 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 // ========== CLASS AND ENUM TYPE DEFINITIONS ========== //
 namespace OpenXLSX
 {
+    // ===== Flags that can be passed to XLCell::clear as parameter keep, flags can be combined with bitwise OR
+    //                                  // Do not clear the cell's:
+    constexpr const uint32_t XLKeepCellStyle   =  1; // style (attribute s)
+    constexpr const uint32_t XLKeepCellType    =  2; // type (attribute t)
+    constexpr const uint32_t XLKeepCellValue   =  4; // value (child node v)
+    constexpr const uint32_t XLKeepCellFormula =  8; // formula (child node f)
+
     class XLCellRange;
     class XLSharedStrings;
 
@@ -144,6 +151,13 @@ namespace OpenXLSX
         explicit operator bool() const;
 
         /**
+         * @brief clear all cell content and attributes except for the cell reference (attribute r)
+         * @param keep do not clear cell properties whose flags are set in keep (XLKeepCellStyle, XLKeepCellType,
+         *              XLKeepCellValue, XLKeepCellFormula), flags can be combined with bitwise OR
+         */
+        void clear(uint32_t keep);
+
+        /**
          * @brief
          * @return
          */
@@ -192,7 +206,7 @@ namespace OpenXLSX
 
         /**
          * @brief Get the array index of xl/styles.xml:<styleSheet>:<cellXfs> for the style used in this cell.
-         *        This value is stored in the s attribute of a cell (or row? TBD) like so: s="2"
+         *        This value is stored in the s attribute of a cell like so: s="2"
          * @returns The index of the applicable format style
          */
         XLStyleIndex cellFormat() const;

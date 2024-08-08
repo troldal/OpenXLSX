@@ -1569,6 +1569,15 @@ namespace OpenXLSX
          */
         bool setHorizontal     (XLAlignmentStyle newStyle);
         bool setVertical       (XLAlignmentStyle newStyle);
+        /**
+         * @details on setTextRotation from XLSX specification:
+         * Text rotation in cells. Expressed in degrees. Values range from 0 to 180. The first letter of the text 
+         *  is considered the center-point of the arc.
+         * For 0 - 90, the value represents degrees above horizon. For 91-180 the degrees below the horizon is calculated as:
+         * [degrees below horizon] = 90 - [newRotation].
+         * Examples: setTextRotation( 45): / (text is formatted along a line from lower left to upper right)
+         *           setTextRotation(135): \ (text is formatted along a line from upper left to lower right)
+         */
         bool setTextRotation   (uint16_t newRotation);
         bool setWrapText       (bool set = true);
         bool setIndent         (uint32_t newIndent);

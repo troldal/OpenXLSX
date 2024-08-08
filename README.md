@@ -3,6 +3,24 @@
 OpenXLSX is a C++ library for reading, writing, creating and modifying
 Microsoft Excel® files, with the .xlsx format.
 
+## (Lars Uffmann) 08 August 2024 - support for XLWorksheet::mergeCells and ::unmergeCells
+* support for XLWorksheet::mergeCells and unmergeCells (with XLCellRange or std::string range reference parameter, option to clear cell contents)
+  * added XLWorksheet new method ::mergeCells with parameter emptyHiddenCells (and convenience const bool XLEmptyHiddenCells = true)
+  * added XLWorksheet new method ::unmergeCells
+  * added XLCell::clear method with bitwise-OR combineable flags: XLKeepCellStyle, XLKeepCellType, XLKeepCellValue, XLKeepCellFormula 
+  * added new module XLMergeCells.hpp / XLMergeCells.cpp
+* XLCellRange constructor: added XLInputError exception when range is constructed with a topLeft cell that is to the right or lower than bottomRight cell
+* Demo10: included a demonstration of mergeCells
+
+### (Lars Uffmann) August 2024 - to-do list:
+- completion of style support as much as is reasonable (not color themes, most likely) per known documentation of xl/styles.xml
+- XLAlignmentStyle: check / throw if vertical alignments are used as horizontal and vice versa
+- XLStyles ::create functions: implement good default style properties for all styles
+- TBD: permit setting a format reference for shared strings
+- TBD: should a row format be used by OpenXLSX as default for new cells created in that row?
+- TBD: should a column format be used by OpenXLSX as default for new cells created in that column, when they do not have an applied row style?
+- TBD: determine if XLMergeCells can somehow be stored with the document / worksheet instead of created on each call
+
 ## (Lars Uffmann) 01 August 2024 - xl/styles.xml - support for XLFill patternFill all pattern types, XLFonts scheme & vertAlign, all XLAlignmentStyle values
 * patternFill now supports all patternType values per standard
 * XLFonts now support scheme major/minor/none (`<font><scheme val="major"/></font>`)
@@ -14,14 +32,6 @@ Microsoft Excel® files, with the .xlsx format.
 * gradientFill elements within `<fills><fill><gradientFill>...</gradientFill></fill>...</fills>` are now supported
 * along with that come a few new classes: XLGradientStops, XLGradientStop, XLDataBarColor
 * XLLine color properties are now controlled via the XLDataBarColor as well
-
-### (Lars Uffmann) July 2024 - to-do list:
-- completion of style support as much as is reasonable (not color themes, most likely) per known documentation of xl/styles.xml
-- XLAlignmentStyle: check / throw if vertical alignments are used as horizontal and vice versa
-- XLStyles ::create functions: implement good default style properties for all styles
-- TBD: permit setting a format reference for shared strings
-- TBD: should a row format be used by OpenXLSX as default for new cells created in that row?
-- TBD: should a column format be used by OpenXLSX as default for new cells created in that column, when they do not have an applied row style?
 
 ## (Lars Uffmann) 29 July 2024 - support for workbook##.xml and XML namespaces
 * it appears that a workbook does not always have to be at xl/workbook.xml

@@ -276,6 +276,42 @@ XLCellAssignable& XLCellAssignable::operator=(XLCellAssignable&& other) noexcept
 const XLFormulaProxy& XLCell::formula() const { return m_formulaProxy; }
 
 /**
+ * @details clear cell contents except for those identified by keep
+ */
+void  XLCell::clear(uint32_t keep)
+{
+    // ===== Clear attributes
+    XMLAttribute attr = m_cellNode->first_attribute();
+    while (not attr.empty()) {
+        XMLAttribute nextAttr = attr.next_attribute();
+        std::string attrName = attr.name();
+        if ((attrName == "r")                                 // if this is cell reference (must always remain untouched)
+          ||((keep & XLKeepCellStyle) && attrName == "s")     // or style shall be kept & this is style
+          ||((keep & XLKeepCellType ) && attrName == "t"))    // or type shall be kept & this is type
+            attr = XMLAttribute{};                                // empty attribute won't get deleted
+        // ===== Remove all non-kept attributes
+        if (not attr.empty()) m_cellNode->remove_attribute(attr);
+        attr = nextAttr; // advance to previously determined next cell node attribute
+    }
+
+    // ===== Clear node children
+    XMLNode node = m_cellNode->first_child();
+    while (not node.empty()) {
+        XMLNode nextNode = node.next_sibling();
+        // ===== Only preserve non-whitespace nodes
+        if (node.type() == pugi::node_element) {
+            std::string nodeName = node.name();
+            if (((keep & XLKeepCellValue  ) && nodeName == "v")     // if value shall be kept & this is value
+              ||((keep & XLKeepCellFormula) && nodeName == "f"))    // or formula shall be kept & this is formula
+                node = XMLNode{};                                       // empty node won't get deleted
+        }
+        // ===== Remove all non-kept cell node children
+        if (not node.empty()) m_cellNode->remove_child(node);
+        node = nextNode; // advance to previously determined next cell node child
+    }
+}
+
+/**
  * @pre
  * @post
  */

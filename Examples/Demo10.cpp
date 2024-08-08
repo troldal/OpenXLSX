@@ -394,7 +394,20 @@ int main( int argc, char *argv[] )
 		std::cout << "      cellStyles.count() is " <<       cellStyles.count() << std::endl;
 	} // end if( testBasics )
 
-	
+
+	XLStyleIndex mergedCellFormat = cellFormats.create( cellFormats[ wks.cell("E4").cellFormat() ] );
+	cellFormats[ mergedCellFormat ].alignment(XLCreateIfMissing).setHorizontal(XLAlignCenter);
+	cellFormats[ mergedCellFormat ].alignment(XLCreateIfMissing).setVertical(XLAlignTop);
+	cellFormats[ mergedCellFormat ].alignment(XLCreateIfMissing).setTextRotation(5);
+	cellFormats[ mergedCellFormat ].alignment(XLCreateIfMissing).setWrapText(true);
+
+	wks.cell("E4") = "merged red range #1\n - hidden cell values are intact!";
+   wks.mergeCells("E4:G7");                     // merge cells without deletion of contents
+	wks.cell("E4").setCellFormat( mergedCellFormat );
+	wks.cell("J5") = "merged red range #2\n - hidden cell contents have been deleted!";
+   wks.mergeCells("J5:L8", XLEmptyHiddenCells); // merge cells    with deletion of contents
+	wks.cell("J5").setCellFormat( mergedCellFormat );
+
 	doc.saveAs("./Demo10.xlsx", XLForceOverwrite);
 	doc.close();
 

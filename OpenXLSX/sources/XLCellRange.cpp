@@ -75,7 +75,13 @@ XLCellRange::XLCellRange(const XMLNode&         dataNode,
       m_topLeft(topLeft),
       m_bottomRight(bottomRight),
       m_sharedStrings(sharedStrings)
-{}
+{
+    if (m_topLeft.row() > m_bottomRight.row() || m_topLeft.column() > m_bottomRight.column()) {
+        using namespace std::literals::string_literals;
+        throw XLInputError("XLCellRange constructor: topLeft ("s + topLeft.address() + ")"s
+        /**/             + " does not point to a lower or equal row and column than bottomRight ("s + bottomRight.address() + ")"s);
+    }
+}
 
 /**
  * @details

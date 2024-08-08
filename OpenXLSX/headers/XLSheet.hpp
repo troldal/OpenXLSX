@@ -70,6 +70,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 namespace OpenXLSX
 {
+    constexpr const bool XLEmptyHiddenCells = true; // readability constant for XLWorksheet::mergeCells parameter emptyHiddenCells
+
     /**
      * @brief The XLSheetState is an enumeration of the possible (visibility) states, e.g. Visible or Hidden.
      */
@@ -337,7 +339,7 @@ namespace OpenXLSX
         /**
          * @brief Destructor.
          */
-        ~XLWorksheet();
+        ~XLWorksheet() = default;
 
         /**
          * @brief Copy assignment operator.
@@ -469,6 +471,33 @@ namespace OpenXLSX
          * @param newName
          */
         void updateSheetName(const std::string& oldName, const std::string& newName);
+
+        /**
+         * @brief merge the cells indicated by range
+         * @param rangeToMerge the XLCellRange to merge, can be obtained from XLWorksheet::range functions
+         * @param emptyHiddenCells if true (XLEmptyHiddenCells), the values of hidden cells will be deleted
+         *                         (only from the cells, not from the shared strings table, if used)
+         * @throws XLInputException if range comprises < 2 cells or any cell within rangeToMerge is already part of an existing range
+         */
+        void mergeCells(XLCellRange const& rangeToMerge, bool emptyHiddenCells = false);
+        /**
+         * @brief Convenience wrapper for mergeCells with a std::string range reference
+         * @param rangeReference A range reference string for the cells to merge
+         * @param emptyHiddenCells as above
+         */
+        void mergeCells(const std::string& rangeReference, bool emptyHiddenCells = false);
+
+        /**
+         * @brief remove the merge setting for the indicated range
+         * @param rangeToUnmerge the XLCellRange to unmerge, can be obtained from XLWorksheet::range functions
+         * @throws XLInputException if no merged range exists that matches rangeToMerge precisely
+         */
+        void unmergeCells(XLCellRange const& rangeToMerge);
+        /**
+         * @brief Convenience wrapper for unmergeCells with a std::string range reference
+         * @param rangeReference A range reference string for the cells to unmerge
+         */
+        void unmergeCells(const std::string& rangeReference);
 
         /**
          * @brief Get the array index of xl/styles.xml:<styleSheet>:<cellXfs> for the style assigned to a column.
