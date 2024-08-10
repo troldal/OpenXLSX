@@ -145,7 +145,13 @@ namespace OpenXLSX
         void copyFrom(XLCell const& other);
 
         /**
-         * @brief
+         * @brief test if cell object has no (valid) content
+         * @return
+         */
+        bool empty() const;
+
+        /**
+         * @brief opposite of empty()
          * @return
          */
         explicit operator bool() const;

@@ -85,7 +85,7 @@ ZIPPY_SUBDIR=$(EXTERNAL_SUBDIR)/zippy
 # OBJS_SHARED=$(OBJS_LICENSE)
 OBJS_PUGIXML= # used as header-only module
 OBJS_ZIPPY=   # header-only module
-OBJS_OPENXLSX=XLCell.o XLCellIterator.o XLCellRange.o XLCellReference.o XLCellValue.o XLColor.o XLColumn.o XLContentTypes.o XLDateTime.o XLDocument.o XLFormula.o XLMergeCells.o XLProperties.o XLRelationships.o XLRow.o XLRowData.o XLSharedStrings.o XLSheet.o XLStyles.o XLWorkbook.o XLXmlData.o XLXmlFile.o XLXmlParser.o XLZipArchive.o
+OBJS_OPENXLSX=XLCell.o XLCellIterator.o XLCellRange.o XLCellReference.o XLCellValue.o XLColor.o XLColumn.o XLComments.o XLContentTypes.o XLDateTime.o XLDocument.o XLFormula.o XLMergeCells.o XLProperties.o XLRelationships.o XLRow.o XLRowData.o XLSharedStrings.o XLSheet.o XLStyles.o XLWorkbook.o XLXmlData.o XLXmlFile.o XLXmlParser.o XLZipArchive.o
 
 # create a version of OBJS_OPENXLSX that already has the correct prefix so that it can be used for linking without further modification
 OBJS_OPENXLSX_PREFIXED=$(addprefix $(OBJ_DIR)/$(OPENXLSX_DIR)/,$(OBJS_OPENXLSX))

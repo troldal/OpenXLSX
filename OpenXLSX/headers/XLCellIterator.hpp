@@ -107,6 +107,16 @@ namespace OpenXLSX
          */
         XLCellIterator& operator=(XLCellIterator&& other) noexcept;
 
+    private:    // ===== Switch to private method that is used by the XLIterator increment operator++ and the dereference operators * and ->
+        static constexpr const bool XLCreateIfMissing      = true;     // code readability for updateCurrentCell parameter createIfMissing
+        static constexpr const bool XLDoNotCreateIfMissing = false;    //   "
+        /**
+         * @brief update m_currentCell by fetching (or inserting) a cell at m_currentRow, m_currentColumn
+         * @param createIfMissing m_currentCell will only be inserted if createIfMissing is true
+         */
+        void updateCurrentCell(bool createIfMissing);
+
+    public:     // ===== Switch back to public methods
         /**
          * @brief
          * @return
@@ -146,6 +156,12 @@ namespace OpenXLSX
         bool operator!=(const XLCellIterator& rhs) const;
 
         /**
+         * @brief determine whether the cell that the iterator points to exists (cell at m_currentRow, m_currentColumn)
+         * @return true if XML already has an entry for that cell, otherwise false
+         */
+        const bool cellExists() const { return not m_currentCell.empty(); }
+
+        /**
          * @brief determine whether iterator is at 1 beyond the last cell in range
          * @return
          */
@@ -168,9 +184,14 @@ namespace OpenXLSX
         std::unique_ptr<XMLNode> m_dataNode;             /**< */
         XLCellReference          m_topLeft;              /**< The cell reference of the first cell in the range */
         XLCellReference          m_bottomRight;          /**< The cell reference of the last cell in the range */
-        XLCell                   m_currentCell;          /**< */
         XLSharedStrings          m_sharedStrings;        /**< */
         bool                     m_endReached;           /**< */
+        XLCell                   m_hintCell;             /**< The cell reference of the last existing cell found up to current iterator position */
+        uint32_t                 m_hintRow;              /**<   the row number for m_hintCell */
+        uint16_t                 m_hintColumn;           /**<   the column number for m_hintCell */
+        XLCell                   m_currentCell;          /**< The cell to which the iterator is currently pointing, if it exists, otherwise an empty XLCell */
+        uint32_t                 m_currentRow;
+        uint16_t                 m_currentColumn;
     };
 
     /**

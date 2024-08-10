@@ -170,6 +170,12 @@ void XLCell::copyFrom(XLCell const& other)
 /**
  * @details
  */
+bool XLCell::empty() const { return (!m_cellNode) || m_cellNode->empty(); }
+
+/**
+ * @details
+ * @todo 2024-08-10 TBD whether body can be replaced with !empty() (performance?)
+ */
 XLCell::operator bool() const { return m_cellNode && (not m_cellNode->empty() ); } // ===== 2024-05-28: replaced explicit bool evaluation
 
 /**

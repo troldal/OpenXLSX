@@ -126,6 +126,7 @@ namespace OpenXLSX
             case XLRelationshipType::PrinterSettings: return "PrinterSettings";
             case XLRelationshipType::VBAProject: return "VBAProject";
             case XLRelationshipType::ControlProperties: return "ControlProperties";
+            case XLRelationshipType::Comments: return "Comments";
             case XLRelationshipType::Unknown: return "Unknown";
         }
         return "invalid";
@@ -175,7 +176,7 @@ namespace OpenXLSX
             // ===== It has been verified above that the requested rowNumber is <= the row number of the last node_element, therefore this loop will halt.
             while (result.attribute("r").as_ullong() < rowNumber) result = result.next_sibling_of_type(pugi::node_element);
             // ===== If the forwards search failed to locate the requested row
-            if ((result.type() != pugi::node_element) || (result.attribute("r").as_ullong() > rowNumber)) {
+            if (result.attribute("r").as_ullong() > rowNumber) {
                 result = sheetDataNode.insert_child_before("row", result);
 
                 result.append_attribute("r") = rowNumber;
@@ -204,7 +205,7 @@ namespace OpenXLSX
         if (rowNode.empty()) return XMLNode{};    // 2024-05-28: return an empty node in case of empty rowNode
 
         XMLNode cellNode = rowNode.last_child_of_type(pugi::node_element);
-        if( !rowNumber ) rowNumber = rowNode.attribute("r").as_uint(); // if not provided, determine from rowNode
+        if (!rowNumber) rowNumber = rowNode.attribute("r").as_uint(); // if not provided, determine from rowNode
         auto cellRef  = XLCellReference(rowNumber, columnNumber);
 
         // ===== If there are no cells in the current row, or the requested cell is beyond the last cell in the row...
