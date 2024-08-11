@@ -3,14 +3,11 @@
 OpenXLSX is a C++ library for reading, writing, creating and modifying
 Microsoft Excel® files, with the .xlsx format.
 
-## (Lars Uffmann) 08 August 2024 - support for XLWorksheet::mergeCells and ::unmergeCells
-* support for XLWorksheet::mergeCells and unmergeCells (with XLCellRange or std::string range reference parameter, option to clear cell contents)
-  * added XLWorksheet new method ::mergeCells with parameter emptyHiddenCells (and convenience const bool XLEmptyHiddenCells = true)
-  * added XLWorksheet new method ::unmergeCells
-  * added XLCell::clear method with bitwise-OR combineable flags: XLKeepCellStyle, XLKeepCellType, XLKeepCellValue, XLKeepCellFormula 
-  * added new module XLMergeCells.hpp / XLMergeCells.cpp
-* XLCellRange constructor: added XLInputError exception when range is constructed with a topLeft cell that is to the right or lower than bottomRight cell
-* Demo10: included a demonstration of mergeCells
+## (Lars Uffmann) 11 August 2024 - support for non-creating XLCellIterators, iterator performance patch, bugfix
+* XLCellIterators can now be used to iterate over a range and *test* `XLCellIterator::cellExists()` without creating the XML for the cell.
+* cell (and row) XML will now only be created when an XLCellIterator is dereferenced
+* Performance improvement: Execution time on Demo5 is down from (on my test system) 86 seconds to 75 seconds (-12.8%)
+* XLCellIterator bugfix since last commit: m_hintCell (now m_hintNode) was being initialized to other.m_currentCell (should have been other.m_hintCell) in copy constructor and copy assignment operator
 
 ### (Lars Uffmann) August 2024 - to-do list:
 - completion of style support as much as is reasonable (not color themes, most likely) per known documentation of xl/styles.xml
@@ -20,6 +17,15 @@ Microsoft Excel® files, with the .xlsx format.
 - TBD: should a row format be used by OpenXLSX as default for new cells created in that row?
 - TBD: should a column format be used by OpenXLSX as default for new cells created in that column, when they do not have an applied row style?
 - TBD: determine if XLMergeCells can somehow be stored with the document / worksheet instead of created on each call
+
+## (Lars Uffmann) 08 August 2024 - support for XLWorksheet::mergeCells and ::unmergeCells
+* support for XLWorksheet::mergeCells and unmergeCells (with XLCellRange or std::string range reference parameter, option to clear cell contents)
+  * added XLWorksheet new method ::mergeCells with parameter emptyHiddenCells (and convenience const bool XLEmptyHiddenCells = true)
+  * added XLWorksheet new method ::unmergeCells
+  * added XLCell::clear method with bitwise-OR combineable flags: XLKeepCellStyle, XLKeepCellType, XLKeepCellValue, XLKeepCellFormula 
+  * added new module XLMergeCells.hpp / XLMergeCells.cpp
+* XLCellRange constructor: added XLInputError exception when range is constructed with a topLeft cell that is to the right or lower than bottomRight cell
+* Demo10: included a demonstration of mergeCells
 
 ## (Lars Uffmann) 01 August 2024 - xl/styles.xml - support for XLFill patternFill all pattern types, XLFonts scheme & vertAlign, all XLAlignmentStyle values
 * patternFill now supports all patternType values per standard

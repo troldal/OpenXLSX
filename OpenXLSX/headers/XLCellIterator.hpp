@@ -159,7 +159,7 @@ namespace OpenXLSX
          * @brief determine whether the cell that the iterator points to exists (cell at m_currentRow, m_currentColumn)
          * @return true if XML already has an entry for that cell, otherwise false
          */
-        const bool cellExists() const { return not m_currentCell.empty(); }
+        bool cellExists();
 
         /**
          * @brief determine whether iterator is at 1 beyond the last cell in range
@@ -186,10 +186,13 @@ namespace OpenXLSX
         XLCellReference          m_bottomRight;          /**< The cell reference of the last cell in the range */
         XLSharedStrings          m_sharedStrings;        /**< */
         bool                     m_endReached;           /**< */
-        XLCell                   m_hintCell;             /**< The cell reference of the last existing cell found up to current iterator position */
+        XMLNode                  m_hintNode;             /**< The cell node of the last existing cell found up to current iterator position */
         uint32_t                 m_hintRow;              /**<   the row number for m_hintCell */
-        uint16_t                 m_hintColumn;           /**<   the column number for m_hintCell */
         XLCell                   m_currentCell;          /**< The cell to which the iterator is currently pointing, if it exists, otherwise an empty XLCell */
+        static constexpr const int XLNotLoaded  = 0;    // code readability for m_currentCellStatus
+        static constexpr const int XLNoSuchCell = 1;    //   "
+        static constexpr const int XLLoaded     = 2;    //   "
+        int                      m_currentCellStatus;    /**< Status of m_currentCell: XLNotLoaded, XLNoSuchCell or XLLoaded */
         uint32_t                 m_currentRow;
         uint16_t                 m_currentColumn;
     };
