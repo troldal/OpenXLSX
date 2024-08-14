@@ -30,6 +30,7 @@
 !/Benchmarks/benchmarks_before_XMLNode_wrappers
 !/Benchmarks/benchmarks_with_XMLNode_wrappers_*
 !/Benchmarks/benchmarks_post-XLCellIterator-Rework
+!/Benchmarks/benchmarks_post-default-row-column-style-support
 
 # include Documentation folder
 !/Documentation

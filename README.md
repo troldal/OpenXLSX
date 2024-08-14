@@ -3,20 +3,35 @@
 OpenXLSX is a C++ library for reading, writing, creating and modifying
 Microsoft Excel® files, with the .xlsx format.
 
+## (Lars Uffmann) 14 August 2024 - use row style, or if not set, column style for default cell style
+* Newly created cells will now use the style that is set for the row or the column (if set and != XLDefaultCellFormat), with row style taking precedence
+  * added XLUtilities.hpp getColumnStyle which retrieves the column style for a given column index from the `<cols>` element obtained via a rowNode parent's parent
+  * added XLUtilities.hpp setDefaultCellAttributes, which sets the cell reference and the cell style, taking an optional vector of column styles that will improve performance using a previously extracted set of column styles
+  * XLRowData now uses setDefaultCellAttributes after creating a new cell
+  * XLUtilities.hpp getCellNode now takes the same optional vector of column styles and passes it on to setDefaultCellAttributes, which is now used after creating a new cell
+  * XLCellIterator constructor now requires a pointer to a column styles vector (size can be 0) which is used when new cells need to be created
+  * XLCellRange now has a new member `std::vector< XLStyleIndex > m_columnStyles`, and a method fetchColumnStyles that will populate the vector so that it can be passed to the XLCellIterator constructor
+    * if used, the optimization function has to be called *after* all column styles for the range are configured - columns configured afterwards will result in cells not getting the format setting
+    * if the function is not used, each cell creation will result in a call to getColumnStyle, which has a small performance impact (<5%) for few columns, but is likely to be more impactful with the amount of formatted columns increasing
+* the remaining XLSheet cell() functions (taking an XLCellReference or a rowNumber / columnNumber) have been modified to return an XLCellAssignable
+  * unchanged: XLCellAssignable XLWorksheet::cell(const std::string& ref) const
+  * return type changed: XLCellAssignable cell(const XLCellReference& ref) const
+  * return type changed: XLCellAssignable cell(uint32_t rowNumber, uint16_t columnNumber) const;
+  * the XLCellAssignable is now constructed in the latter method, and the other two pass through the return value of this latter method
+  
+### (Lars Uffmann) August 2024 - to-do list:
+- TBD: could XLRowData also benefit from passing through to setDefaultCellAttributes a column styles vector?
+- completion of style support as much as is reasonable (not color themes, most likely) per known documentation of xl/styles.xml
+- XLAlignmentStyle: check / throw if vertical alignments are used as horizontal and vice versa
+- XLStyles ::create functions: implement good default style properties for all styles
+- TBD: permit setting a format reference for shared strings
+- TBD: determine if XLMergeCells can somehow be stored with the document / worksheet instead of created on each call
+
 ## (Lars Uffmann) 11 August 2024 - support for non-creating XLCellIterators, iterator performance patch, bugfix
 * XLCellIterators can now be used to iterate over a range and *test* `XLCellIterator::cellExists()` without creating the XML for the cell.
 * cell (and row) XML will now only be created when an XLCellIterator is dereferenced
 * Performance improvement: Execution time on Demo5 is down from (on my test system) 86 seconds to 75 seconds (-12.8%)
 * XLCellIterator bugfix since last commit: m_hintCell (now m_hintNode) was being initialized to other.m_currentCell (should have been other.m_hintCell) in copy constructor and copy assignment operator
-
-### (Lars Uffmann) August 2024 - to-do list:
-- completion of style support as much as is reasonable (not color themes, most likely) per known documentation of xl/styles.xml
-- XLAlignmentStyle: check / throw if vertical alignments are used as horizontal and vice versa
-- XLStyles ::create functions: implement good default style properties for all styles
-- TBD: permit setting a format reference for shared strings
-- TBD: should a row format be used by OpenXLSX as default for new cells created in that row?
-- TBD: should a column format be used by OpenXLSX as default for new cells created in that column, when they do not have an applied row style?
-- TBD: determine if XLMergeCells can somehow be stored with the document / worksheet instead of created on each call
 
 ## (Lars Uffmann) 08 August 2024 - support for XLWorksheet::mergeCells and ::unmergeCells
 * support for XLWorksheet::mergeCells and unmergeCells (with XLCellRange or std::string range reference parameter, option to clear cell contents)

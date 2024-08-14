@@ -333,27 +333,23 @@ bool XLWorksheet::setActive_impl()
 /**
  * @details
  */
-XLCellAssignable XLWorksheet::cell(const std::string& ref) const
-{
-    return XLCellAssignable(cell(XLCellReference(ref))); // move-construct XLCellAssignable from temporary XLCell
-}
+XLCellAssignable XLWorksheet::cell(const std::string& ref) const { return cell(XLCellReference(ref)); }
 
 /**
  * @details
  */
-XLCell XLWorksheet::cell(const XLCellReference& ref) const { return cell(ref.row(), ref.column()); }
+XLCellAssignable XLWorksheet::cell(const XLCellReference& ref) const { return cell(ref.row(), ref.column()); }
 
 /**
  * @details This function returns a pointer to an XLCell object in the worksheet. This particular overload
  * also serves as the main function, called by the other overloads.
  */
-XLCell XLWorksheet::cell(uint32_t rowNumber, uint16_t columnNumber) const
+XLCellAssignable XLWorksheet::cell(uint32_t rowNumber, uint16_t columnNumber) const
 {
     const XMLNode rowNode  = getRowNode(xmlDocument().document_element().child("sheetData"), rowNumber);
     const XMLNode cellNode = getCellNode(rowNode, columnNumber, rowNumber);
-    return XLCell { cellNode, parentDoc().execQuery(XLQuery(XLQueryType::QuerySharedStrings)).result<XLSharedStrings>() };
-
-    /*** removed obsolete section with code identical to XLUtilities.hpp::getCellNode ***/
+    // ===== Move-construct XLCellAssignable from temporary XLCell
+    return XLCellAssignable(XLCell(cellNode, parentDoc().execQuery(XLQuery(XLQueryType::QuerySharedStrings)).result<XLSharedStrings>()));
 }
 
 /**

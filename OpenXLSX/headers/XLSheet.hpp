@@ -365,7 +365,7 @@ namespace OpenXLSX
          * @param ref An XLCellReference object with the address of the cell to get.
          * @return A reference to the requested XLCell object.
          */
-        XLCell cell(const XLCellReference& ref) const;
+        XLCellAssignable cell(const XLCellReference& ref) const;
 
         /**
          * @brief Get the cell at the given coordinates.
@@ -373,7 +373,7 @@ namespace OpenXLSX
          * @param columnNumber The column number (index base 1).
          * @return A reference to the XLCell object at the given coordinates.
          */
-        XLCell cell(uint32_t rowNumber, uint16_t columnNumber) const;
+        XLCellAssignable cell(uint32_t rowNumber, uint16_t columnNumber) const;
 
         /**
          * @brief Get a range for the area currently in use (i.e. from cell A1 to the last cell being in use).

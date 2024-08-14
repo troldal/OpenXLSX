@@ -40,10 +40,10 @@ int main( int argc, char *argv[] )
 	 * DONE: format support for XLCells (cellFormat / setCellFormat)
 	 * DONE: format support for XLRows: <row> attributes s (same as cell attribute) and customFormat (=true/false)
 	 *       XLWorksheet::setRowFormat overwrites existing cell formats, and
-	 *         TODO TBD row format is then used by OpenXLSX for new cells created in that row
+	 *         row format is then used by OpenXLSX for new cells created in that row
 	 * DONE: format support for XLColumns: <col> attributes style (same as cell attribute s)
 	 *       XLWorksheet::setColumnFormat overwrites existing cell formats, and
-	 *         TODO TBD column format is then used by OpenXLSX as default for new cells created in that column when they do not have a row style
+	 *         column format is then used by OpenXLSX as default for new cells created in that column when they do not have a row style
 	 * DONE: update style elements "count" attribute for all arrays when saving
 	 */
 	

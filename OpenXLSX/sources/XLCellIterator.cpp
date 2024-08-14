@@ -58,7 +58,7 @@ using namespace OpenXLSX;
 /**
  * @details
  */
-XLCellIterator::XLCellIterator(const XLCellRange& cellRange, XLIteratorLocation loc)
+XLCellIterator::XLCellIterator(const XLCellRange& cellRange, XLIteratorLocation loc, std::vector<XLStyleIndex> const * colStyles)
     : m_dataNode(std::make_unique<XMLNode>(*cellRange.m_dataNode)),
       m_topLeft(cellRange.m_topLeft),
       m_bottomRight(cellRange.m_bottomRight),
@@ -69,7 +69,8 @@ XLCellIterator::XLCellIterator(const XLCellRange& cellRange, XLIteratorLocation 
       m_currentCell(),
       m_currentCellStatus(XLNotLoaded),
       m_currentRow(0),
-      m_currentColumn(0)
+      m_currentColumn(0),
+      m_colStyles(colStyles)
 {
     if (loc == XLIteratorLocation::End)
         m_endReached = true;
@@ -77,6 +78,8 @@ XLCellIterator::XLCellIterator(const XLCellRange& cellRange, XLIteratorLocation 
         m_currentRow    = m_topLeft.row();
         m_currentColumn = m_topLeft.column();
     }
+    if (m_colStyles == nullptr)
+		 throw XLInternalError("XLCellIterator constructor parameter colStyles must not be nullptr");
 // std::cout << "XLCellIterator constructed with topLeft " << m_topLeft.address() << " and bottomRight " << m_bottomRight.address() << std::endl;
 // std::cout << "XLCellIterator m_endReached is " << ( m_endReached ? "true" : "false" ) << std::endl;
 }
@@ -100,7 +103,8 @@ XLCellIterator::XLCellIterator(const XLCellIterator& other)
       m_currentCell  (other.m_currentCell),
       m_currentCellStatus(other.m_currentCellStatus),
       m_currentRow   (other.m_currentRow),
-      m_currentColumn(other.m_currentColumn)
+      m_currentColumn(other.m_currentColumn),
+      m_colStyles    (other.m_colStyles)
 {}
 
 /**
@@ -125,6 +129,7 @@ XLCellIterator& XLCellIterator::operator=(const XLCellIterator& other)
         m_currentCellStatus = other.m_currentCellStatus;
         m_currentRow    =  other.m_currentRow;
         m_currentColumn =  other.m_currentColumn;
+        m_colStyles     =  other.m_colStyles;
     }
 
     return *this;
@@ -235,7 +240,7 @@ void XLCellIterator::updateCurrentCell(bool createIfMissing)
 
     if (m_hintNode.empty()) { // no hint has been established: fetch first cell node the "tedious" way
         if (createIfMissing)      // getCellNode / getRowNode create missing cells
-            m_currentCell = XLCell(getCellNode(getRowNode(*m_dataNode, m_currentRow), m_currentColumn), m_sharedStrings);
+            m_currentCell = XLCell(getCellNode(getRowNode(*m_dataNode, m_currentRow), m_currentColumn, 0, *m_colStyles), m_sharedStrings);
         else                      // findCellNode / findRowNode return an empty cell for missing cells
             m_currentCell = XLCell(findCellNode(findRowNode(*m_dataNode, m_currentRow), m_currentColumn), m_sharedStrings);
     }
@@ -254,7 +259,8 @@ void XLCellIterator::updateCurrentCell(bool createIfMissing)
             // ===== Create missing cell node if createIfMissing == true
             if (createIfMissing && cellNode.empty()) {
                 cellNode = m_hintNode.parent().insert_child_after("c", m_hintNode);
-                cellNode.append_attribute("r").set_value(XLCellReference(m_currentRow, m_currentColumn).address().c_str());
+                setDefaultCellAttributes(cellNode, XLCellReference(m_currentRow, m_currentColumn).address(), m_hintNode.parent(),
+                /**/                      m_currentColumn, *m_colStyles);
             }
             m_currentCell = XLCell(cellNode, m_sharedStrings); // cellNode.empty() can be true if createIfMissing == false and cell is not found
         }
@@ -278,7 +284,7 @@ void XLCellIterator::updateCurrentCell(bool createIfMissing)
             else {                  // else: row found
                 if (createIfMissing) {
                     // ===== Pass the already known m_currentRow to getCellNode so that it does not have to be fetched again
-                    m_currentCell = XLCell(getCellNode (rowNode, m_currentColumn, m_currentRow), m_sharedStrings);
+                    m_currentCell = XLCell(getCellNode (rowNode, m_currentColumn, m_currentRow, *m_colStyles), m_sharedStrings);
                 }
                 else // ===== Do a "soft find" if a missing cell shall not be created
                     m_currentCell = XLCell(findCellNode(rowNode, m_currentColumn), m_sharedStrings);

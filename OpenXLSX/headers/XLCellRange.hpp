@@ -130,6 +130,12 @@ namespace OpenXLSX
         XLCellRange& operator=(XLCellRange&& other) noexcept;
 
         /**
+         * @brief populate the m_columnStyles
+         * @return a const XLCellReference
+         */
+        void fetchColumnStyles();
+
+        /**
          * @brief get the top left cell
          * @return a const XLCellReference
          */
@@ -206,10 +212,11 @@ namespace OpenXLSX
         //----------------------------------------------------------------------------------------------------------------------
 
     private:
-        std::unique_ptr<XMLNode> m_dataNode;    /**< */
-        XLCellReference          m_topLeft;     /**< The cell reference of the first cell in the range */
-        XLCellReference          m_bottomRight; /**< The cell reference of the last cell in the range */
-        XLSharedStrings          m_sharedStrings;
+        std::unique_ptr<XMLNode>  m_dataNode;      /**< */
+        XLCellReference           m_topLeft;       /**< The cell reference of the first cell in the range */
+        XLCellReference           m_bottomRight;   /**< The cell reference of the last cell in the range */
+        XLSharedStrings           m_sharedStrings;
+        std::vector<XLStyleIndex> m_columnStyles;  /**< quick access to column styles in the range - populated by fetchColumnStyles() */
     };
 }    // namespace OpenXLSX
 
