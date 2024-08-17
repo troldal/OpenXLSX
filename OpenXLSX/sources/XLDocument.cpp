@@ -501,14 +501,21 @@ void XLDocument::open(const std::string& fileName)
 
         bool isWorkbookPath = (item.path().substr(1) == workbookPath);      // determine once, use twice
         if (!isWorkbookPath && item.path().substr(0, 4) == "/xl/") {
-            if(item.path().substr(4, 7) == "comment") {
+            if (item.path().substr(4, 7) == "comment") {
                 std::cout << "XLDocument::" << __func__ << ": ignoring comment xml file " << item.path() << std::endl;
             }
-            else if(item.path().substr(4, 5) == "sheet" || true) { // 2024-07-24: || true is a placeholder for a later else condition with explicit check for sheet files
+            else if ((item.path().substr(4, 16) == "worksheets/sheet")
+                   ||(item.path().substr(4)     == "sharedStrings.xml")
+                   ||(item.path().substr(4)     == "styles.xml")
+                   ||(item.path().substr(4, 11) == "theme/theme"))
+            {
                 m_data.emplace_back(/* parentDoc */ this,
                                     /* xmlPath   */ item.path().substr(1),
                                     /* xmlID     */ m_wbkRelationships.relationshipByTarget(item.path().substr(4)).id(),
                                     /* xmlType   */ item.type());
+            }
+            else {
+                std::cout << "ignoring currently unhandled workbook item " << item.path() << std::endl;
             }
         }
         else if (!isWorkbookPath || !workbookAdded) { // do not re-add workbook if it was previously added via m_docRelationships

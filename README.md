@@ -5,6 +5,7 @@ Microsoft Excel® files, with the .xlsx format.
 
 ## (Lars Uffmann) 17 August 2024 - bugfix in XLAppProperties::createFromTemplate
 * BUGFIX: TitlesOfParts is now correctly inserted into the `<Properties>` (document) element, was previously wrongly appended to headingPairs
+* entries in /xl/ are now explitly checked for known & handled file types (`/xl/worksheets/sheet*`, `/xl/sharedStrings.xml`, `/xl/styles.xml`, `/xl/theme/theme*`) and otherwise ignored. This fixes an issue when the workbook contains `/xl/pivotCache/` and `/xl/pivotTables/` entries until support for those is implemented (if ever ;P)
 
 ### (Lars Uffmann) August 2024 - to-do list:
 - TBD: could XLRowData also benefit from passing through to setDefaultCellAttributes a column styles vector?
