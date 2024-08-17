@@ -3,6 +3,17 @@
 OpenXLSX is a C++ library for reading, writing, creating and modifying
 Microsoft Excel® files, with the .xlsx format.
 
+## (Lars Uffmann) 17 August 2024 - bugfix in XLAppProperties::createFromTemplate
+* BUGFIX: TitlesOfParts is now correctly inserted into the `<Properties>` (document) element, was previously wrongly appended to headingPairs
+
+### (Lars Uffmann) August 2024 - to-do list:
+- TBD: could XLRowData also benefit from passing through to setDefaultCellAttributes a column styles vector?
+- completion of style support as much as is reasonable (not color themes, most likely) per known documentation of xl/styles.xml
+- XLAlignmentStyle: check / throw if vertical alignments are used as horizontal and vice versa
+- XLStyles ::create functions: implement good default style properties for all styles
+- TBD: permit setting a format reference for shared strings
+- TBD: determine if XLMergeCells can somehow be stored with the document / worksheet instead of created on each call
+
 ## (Lars Uffmann) 14 August 2024 - use row style, or if not set, column style for default cell style
 * Newly created cells will now use the style that is set for the row or the column (if set and != XLDefaultCellFormat), with row style taking precedence
   * added XLUtilities.hpp getColumnStyle which retrieves the column style for a given column index from the `<cols>` element obtained via a rowNode parent's parent
@@ -19,14 +30,6 @@ Microsoft Excel® files, with the .xlsx format.
   * return type changed: XLCellAssignable cell(uint32_t rowNumber, uint16_t columnNumber) const;
   * the XLCellAssignable is now constructed in the latter method, and the other two pass through the return value of this latter method
   
-### (Lars Uffmann) August 2024 - to-do list:
-- TBD: could XLRowData also benefit from passing through to setDefaultCellAttributes a column styles vector?
-- completion of style support as much as is reasonable (not color themes, most likely) per known documentation of xl/styles.xml
-- XLAlignmentStyle: check / throw if vertical alignments are used as horizontal and vice versa
-- XLStyles ::create functions: implement good default style properties for all styles
-- TBD: permit setting a format reference for shared strings
-- TBD: determine if XLMergeCells can somehow be stored with the document / worksheet instead of created on each call
-
 ## (Lars Uffmann) 11 August 2024 - support for non-creating XLCellIterators, iterator performance patch, bugfix
 * XLCellIterators can now be used to iterate over a range and *test* `XLCellIterator::cellExists()` without creating the XML for the cell.
 * cell (and row) XML will now only be created when an XLCellIterator is dereferenced

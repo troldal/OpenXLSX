@@ -245,7 +245,7 @@ void XLAppProperties::createFromTemplate(XMLDocument const & workbookXml)
     vecHP.append_child("vt:variant", XLForceNamespace).append_child("vt:lpstr", XLForceNamespace).text().set("Worksheets");
     vecHP.append_child("vt:variant", XLForceNamespace).append_child("vt:i4", XLForceNamespace).text().set(1); // TBD: should this be count of worksheets?
 
-    XMLNode sheetsVector = headingPairs.append_child("TitlesOfParts").append_child("vt:vector", XLForceNamespace);
+    XMLNode sheetsVector = props.append_child("TitlesOfParts").append_child("vt:vector", XLForceNamespace); // 2024-08-17 BUGFIX: TitlesOfParts was wrongly appended to headingPairs
     sheetsVector.append_attribute("size") = worksheetCount;
     sheetsVector.append_attribute("baseType") = "lpstr";
     for (const auto & [key, value] : sheetsOrderedById)
