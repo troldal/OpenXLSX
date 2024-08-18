@@ -69,11 +69,11 @@ namespace { // anonymous namespace: do not export these symbols
      * @param value The number to convert, must be 0 <= value <= 15
      * @return 0 if value > 15, otherwise the hex digit equivalent to value, as a character
      */
-    char hexDigit( unsigned int value )
+    char hexDigit(unsigned int value)
     {
-        if( value > 0xf ) return 0;
-        if( value < 0xa ) return value + '0';    // return value as number digit
-        return ( value - 0xa ) + 'a';            // return value as letter digit
+        if (value > 0xf) return 0;
+        if (value < 0xa) return value + '0';    // return value as number digit
+        return (value - 0xa) + 'a';             // return value as letter digit
     }
 
     /**
@@ -81,26 +81,26 @@ namespace { // anonymous namespace: do not export these symbols
      * @param data A pointer to the data bytes to format
      * @param size The amount of data bytes to format
      * @return A string with the base-16 representation of the data bytes
+     * @note 2024-08-18 BUGFIX: replaced char array with std::string, as ISO C++ standard does not permit variable size arrays
      */
-    std::string BinaryAsHexString( const uint8_t *data, size_t size )
+    std::string BinaryAsHexString(const uint8_t *data, const size_t size)
     {
-        // ===== Allocate memory for string assembly + terminating zero - each byte takes two hex digits = 2 characters in string
-        char strAssemble[ size * 2 + 1 ];
+        // ===== Allocate memory for string assembly - each byte takes two hex digits = 2 characters in string
+        std::string strAssemble(size * 2, 0); // zero-initialize (alternative would be to default-construct a string and .reserve(size * 2);
 
         // ===== assemble a string of hex digits
-        for( int pos = 0; pos < size * 2; ++pos ) {
-            int valueByte = *( data + ( pos / 2 ) );
-            int valueHalfByte = ( valueByte & ( pos % 2 ? 0x0f : 0xf0 ) ) >> ( pos % 2 ? 0 : 4 );
-            strAssemble[ pos ] = hexDigit( valueHalfByte ); // convert each half-byte into a hex digit
+        for (size_t pos = 0; pos < size * 2; ++pos) {
+            int valueByte = data[pos / 2];
+            int valueHalfByte = (valueByte & (pos & 1 ? 0x0f : 0xf0)) >> (pos & 1 ? 0 : 4);
+            strAssemble[pos] = hexDigit(valueHalfByte); // convert each half-byte into a hex digit
         }
-
-        strAssemble[ size * 2 ] = 0;    // zero-terminate the assembled string
-        return std::string( strAssemble );
+        return strAssemble;
     }
+
     /**
      * @brief Overload for BinaryAsHexString to permit data being of any pointer type
      */
-    std::string BinaryAsHexString( void *data, size_t size ) { return BinaryAsHexString(static_cast<uint8_t *>(data), size); }
+    std::string BinaryAsHexString(void *data, size_t size) { return BinaryAsHexString(static_cast<uint8_t *>(data), size); }
 } // anonymous namespace
 
 
@@ -118,25 +118,25 @@ namespace OpenXLSX { // anonymous namespace: do not export these symbols
     /**
      * @details Use the std::mt19937 default return on operator()
      */
-    std::mt19937 Rand32( 0 );
+    std::mt19937 Rand32(0);
 
     /**
      * @details Combine values from two subsequent invocations of Rand32()
      */
-    uint64_t Rand64() { return ( Rand32() << 32L ) + Rand32(); }
+    uint64_t Rand64() { return (static_cast<uint64_t>(Rand32()) << 32) + Rand32(); } // 2024-08-18 BUGFIX: left-shift does *not* do integer promotion to long on the left operand
 
     /**
      * @details Initialize the module's random functions
      */
-    void InitRandom( bool pseudoRandom )
+    void InitRandom(bool pseudoRandom)
     {
         uint64_t rdSeed;
-        if( pseudoRandom ) rdSeed = 3744821255L;
+        if (pseudoRandom) rdSeed = 3744821255L; // in pseudo-random mode, always use the same seed
         else {
             std::random_device rd;
             rdSeed = rd();
         }
-        Rand32.seed( rdSeed );
+        Rand32.seed(rdSeed);
         RandomizerInitialized = true;
     }
 } // namespace OpenXLSX
@@ -256,8 +256,8 @@ namespace { //    re-open anonymous namespace
      */
     std::string GetNewRelsIDString(XMLNode relationshipsNode) {
         uint64_t newId = GetNewRelsID(relationshipsNode);
-        if (RandomIDs) return "R" + BinaryAsHexString( &newId, sizeof( newId ) );
-        return "rId" + std::to_string( newId );
+        if (RandomIDs) return "R" + BinaryAsHexString(&newId, sizeof(newId));
+        return "rId" + std::to_string(newId);
     }
 }    // anonymous namespace
 
@@ -316,7 +316,7 @@ XLRelationships::XLRelationships(XLXmlData* xmlData, std::string pathTo)
  : XLXmlFile(xmlData)
 {
     constexpr const char *relFolder = "_rels/";    // all relationships are stored in a (sub-)folder named "_rels/"
-    constexpr const size_t relFolderLen = strlen( relFolder );
+    constexpr const size_t relFolderLen = strlen(relFolder);
 
     bool addFirstSlash = (pathTo[0] != '/'); // if first character of pathTo is NOT a slash, then addFirstSlash = true
     size_t pathToEndsAt = pathTo.find_last_of('/');

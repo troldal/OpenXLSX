@@ -117,11 +117,12 @@ namespace OpenXLSX
     /**
      * @details for creation of node children: copy this node's namespace with thread safety, using
      *  smart pointer with a trade-off for ~15-20% performance impact (increased runtime)
+     * @note // 2024-08-18: made lambda parameter unnamed to eliminate -Wunused-parameter
      */
     std::shared_ptr<pugi::char_t> XMLNode::namespaced_name_shared_ptr(const pugi::char_t* name_, bool force_ns) const
     {
         // ===== If node has no namespace: Early pass-through return with noop-deleter
-        if (!name_begin || force_ns) return std::shared_ptr<pugi::char_t>(const_cast<pugi::char_t*>(name_), [](pugi::char_t* p){});
+        if (!name_begin || force_ns) return std::shared_ptr<pugi::char_t>(const_cast<pugi::char_t*>(name_), [](pugi::char_t*){});
 
         // ===== If node has a namespace: allocate memory for concatenation and create a namespaced version of name_
         std::shared_ptr<pugi::char_t> namespaced_name_ (new pugi::char_t[name_begin + strlen(name_) + 1], std::default_delete<pugi::char_t[]>());

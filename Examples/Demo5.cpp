@@ -1,5 +1,8 @@
-#pragma warning(push)
-#pragma warning(disable : 4244)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunknown-pragmas" // disable warning about below #pragma warning being unknown
+#   pragma warning(push)
+#   pragma warning(disable : 4244)
+#pragma GCC diagnostic pop
 
 #include <OpenXLSX.hpp>
 #include <iostream>
@@ -69,4 +72,7 @@ int main()
     return 0;
 }
 
-#pragma warning(pop)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunknown-pragmas" // disable warning about below #pragma warning being unknown
+#   pragma warning(pop)
+#pragma GCC diagnostic pop

@@ -55,9 +55,9 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 // ===== OpenXLSX Includes ===== //
 #include "XLColor.hpp"
 #include "XLDocument.hpp"
-#include "XLStyles.hpp"
-
 #include <XLException.hpp>
+#include "utilities/XLUtilities.hpp"    // OpenXLSX::ignore
+#include "XLStyles.hpp"
 
 using namespace OpenXLSX;
 
@@ -2003,6 +2003,11 @@ bool XLCellFormat::setPivotButton      (bool set)            { return appendAndS
 bool XLCellFormat::setLocked           (bool set)            { return appendAndSetNodeAttribute(*m_cellFormatNode, "protection",        "locked", (set ? "true" : "false")).empty() == false; }
 bool XLCellFormat::setHidden           (bool set)            { return appendAndSetNodeAttribute(*m_cellFormatNode, "protection",        "hidden", (set ? "true" : "false")).empty() == false; }
 
+/**
+ * @brief Unsupported setter function
+ */
+bool XLCellFormat::setExtLst(XLUnsupportedElement const& newExtLst) { OpenXLSX::ignore(newExtLst); return false; }
+
 
 /**
  * @details assemble a string summary about the cell format
@@ -2191,6 +2196,11 @@ bool XLCellStyle::setBuiltinId    (uint32_t newBuiltinId)    { return appendAndS
 bool XLCellStyle::setOutlineStyle (uint32_t newOutlineStyle) { return appendAndSetAttribute(*m_cellStyleNode, "iLevel",        std::to_string(newOutlineStyle)).empty() == false; }
 bool XLCellStyle::setHidden       (bool set)                 { return appendAndSetAttribute(*m_cellStyleNode, "hidden",        (set ? "true" : "false")).empty() == false;        }
 bool XLCellStyle::setCustomBuiltin(bool set)                 { return appendAndSetAttribute(*m_cellStyleNode, "customBuiltin", (set ? "true" : "false")).empty() == false;        }
+
+/**
+ * @brief Unsupported setter function
+ */
+bool XLCellStyle::setExtLst(XLUnsupportedElement const& newExtLst) { OpenXLSX::ignore(newExtLst); return false; }
 
 /**
  * @details assemble a string summary about the cell style

@@ -153,16 +153,18 @@ SANITIZE_FLAGS=
 SANITIZE_LIBS=
 # SANITIZE_LIBS=-llsan
 
-# 2024-07-08 warning state:
+# 2024-08-18 warning state:
 #   misleading-indentation: 0 warnings
-#   unused-function: 1 warning: OpenXLSX/sources/XLProperties.cpp:69: std::vector<std::string> headingPairsCategoriesStrings(XMLNode docNode)
-#   sign-compare: 7 warnings
-#   unknown-pragmas: 1586(!)
-DISABLED_WARNING_FLAGS=-Wno-unknown-pragmas -Wno-sign-compare
+#   sign-compare: 0 warnings
+#   unknown-pragmas: 0 (disabled warning about previous 144 lines upsetting gcc/g++ by pragma)
+#   unused-function: 3 (disabled by pragma)
+#     OpenXLSX/sources/XLProperties.cpp: std::vector<std::string> headingPairsCategoriesStrings(XMLNode docNode)
+#     OpenXLSX/sources/XLDocument.cpp: bool fileExists(const std::string& fileName)
+#                                      bool isDirectory(const std::string& fileName)
+ENABLED_WARNING_FLAGS=-Wformat -Wformat-signedness -Wall -Wpedantic -Wextra
+DISABLED_WARNING_FLAGS=
 
-GENERIC_FLAGS=$(ADDITIONAL_INCLUDE_FLAGS) $(PROJECT_FLAGS) -fno-common $(SANITIZE_FLAGS) $(OPTIMIZATION_FLAGS) -Wall -Wformat -Wformat-signedness $(DISABLED_WARNING_FLAGS)
-# WARNING: there be dragons here:
-# GENERIC_FLAGS=-I$(INCLUDE_DIR) -fno-common $(OPTIMIZATION_FLAGS) -Wall -Wformat -Wformat-signedness -Wpedantic -Wextra -Werror
+GENERIC_FLAGS=$(ADDITIONAL_INCLUDE_FLAGS) $(PROJECT_FLAGS) -fno-common $(SANITIZE_FLAGS) $(OPTIMIZATION_FLAGS) $(ENABLED_WARNING_FLAGS) $(DISABLED_WARNING_FLAGS)
 
 CPPFLAGS=$(GENERIC_FLAGS) -std=c++17
 # CPPFLAGS=$(GENERIC_FLAGS) -std=c++17 -D_GNU_SOURCE -D_POSIX_C_SOURCE=200809L -D_XOPEN_SOURCE=700

@@ -274,7 +274,7 @@ std::string XLCellReference::rowAsString(uint32_t row)
         row = row / 10;
     }
 
-    for (int i = 0; i < result.length() / 2; i++) std::swap(result[i], result[result.length() - i - 1]);
+    for (unsigned int i = 0; i < result.length() / 2; i++) std::swap(result[i], result[result.length() - i - 1]);
 
     return result;
 #endif

@@ -19,6 +19,12 @@
 namespace OpenXLSX
 {
     /**
+     * @brief Get rid of compiler warnings about unused variables (-Wunused-variable) or unused parameters (-Wunusued-parameter)
+     * @param (unnamed) the variable / parameter which is intentionally unused (e.g. for function stubs)
+     */
+    template<class T> void ignore( const T& ) {}
+
+    /**
      * @brief Get a string representation of pugi::xml_node_type
      * @param t the pugi::xml_node_type of a node
      * @return a std::string containing the descriptive name of the node type

@@ -3,9 +3,62 @@
 OpenXLSX is a C++ library for reading, writing, creating and modifying
 Microsoft Excel® files, with the .xlsx format.
 
-## (Lars Uffmann) 17 August 2024 - bugfix in XLAppProperties::createFromTemplate
-* BUGFIX: TitlesOfParts is now correctly inserted into the `<Properties>` (document) element, was previously wrongly appended to headingPairs
-* entries in /xl/ are now explitly checked for known & handled file types (`/xl/worksheets/sheet*`, `/xl/sharedStrings.xml`, `/xl/styles.xml`, `/xl/theme/theme*`) and otherwise ignored. This fixes an issue when the workbook contains `/xl/pivotCache/` and `/xl/pivotTables/` entries until support for those is implemented (if ever ;P)
+## (Lars Uffmann) 18 August 2024 - minor bugfixes and elimination of warnings
+* BUGFIX XLRelationships.cpp `BinaryAsHexString`: replaced char array with std::string, as ISO C++ standard does not permit variable size arrays
+* BUGFIX XLRelationships.cpp `Rand64`: added explicit type cast, as bitwise shift-left does *not* do integer promotion to long on the left operand
+* Makefile.GNU: added warning flags `-Wpedantic -Wextra` and **removed all previously disabled flags after below patches**
+* reformatted whitespaces in XLRelationships.cpp to align with project style (`f( param )` -> `f(param)`, `a[ index ]` -> `a[index]` and `if( condition )` -> `if (condition)`)
+* Eliminate some warnings:
+  * zippy.hpp: assign explicit uint64_t type to a nameless enum to address `warning: enumerated and non-enumerated type in conditional expression [-Wextra]`
+  * zippy.hpp: added typecasts to void on function parameters for functions that are not yet implemented, also added explicit exceptions to ensure those functions are never invoked
+    * affects:
+      * `void ZipArchive::Save(std::ostream& stream)`
+      * `void ZipArchive::ExtractDir(const std::string& dir, const std::string& dest)`
+      * `void ZipArchive::ExtractAll(const std::string& dest)`
+  * XLDocument.cpp: disabled `-Wunused-function` by pragma for functions `fileExists` and `isDirectory`
+  * XLRow.hpp & .cpp: changed return type of rowNumber to `uint32_t` (was `uint64_t`). **CAUTION**: there is no validity check on the underlying XML (nor was there ever one in case a value was inconsistent with OpenXLSX::MAX_ROWS)
+  * changed some loop variable types, modified range checks and added static_cast instructions to eliminate `-Wsign-compare`
+    * affects: XLCellReference.cpp, XLMergeCells.cpp, XLSharedStrings.cpp, Demo9.cpp
+  * XLCellIterator.hpp: removed const-ness of return value of `bool endReached()` to eliminate `-Wignored-qualifiers` (ignored because const on trivial return types accomplishes nothing)
+  * added utilities/XLUtilities.cpp `OpenXLSX::ignore` template, can be used to suppress `-Wunused-parameter` and `-Wunused-variable` like so: `OpenXLSX::ignore(unusedValue)`
+    * now used in: XLComments.cpp, XLStyles.cpp
+  * XLXmlParser.cpp XMLNode::namespaced_name_shared_ptr: made no-op lambda parameter unnamed to eliminate `-Wunused-parameter`
+  * Demo10.cpp: cast command line parameters to void to suppress -Wunused-parameter
+  * wrapped all `#pragma warning` lines in another pragma to disable `-Wunknown-pragmas` (on gcc/g++)
+    * wrapper pragma:
+      * `#pragma GCC diagnostic push`
+      * `#pragma GCC diagnostic ignored "-Wunknown-pragmas" // disable warning about below #pragma warning being unknown`
+      * `#   pragma /* offending lines go here */`
+      * `#pragma GCC diagnostic pop`
+    * affects: 
+      * `zippy.hpp`
+      * `IZipArchive.hpp`
+      * `XLCell.hpp`
+      * `XLCellIterator.hpp`
+      * `XLCellRange.hpp`
+      * `XLCellReference.hpp`
+      * `XLCellValue.hpp`
+      * `XLColor.hpp`
+      * `XLColumn.hpp`
+      * `XLCommandQuery.hpp`
+      * `XLContentTypes.hpp`
+      * `XLDateTime.hpp`
+      * `XLDocument.hpp`
+      * `XLException.hpp`
+      * `XLFormula.hpp`
+      * `XLMergeCells.hpp`
+      * `XLProperties.hpp`
+      * `XLRelationships.hpp`
+      * `XLRowData.hpp`
+      * `XLRow.hpp`
+      * `XLSharedStrings.hpp`
+      * `XLSheet.hpp`
+      * `XLStyles.hpp`
+      * `XLWorkbook.hpp`
+      * `XLXmlData.hpp`
+      * `XLXmlFile.hpp`
+      * `XLZipArchive.hpp`
+      * `Examples/Demo5.cpp`
 
 ### (Lars Uffmann) August 2024 - to-do list:
 - TBD: could XLRowData also benefit from passing through to setDefaultCellAttributes a column styles vector?
@@ -14,6 +67,10 @@ Microsoft Excel® files, with the .xlsx format.
 - XLStyles ::create functions: implement good default style properties for all styles
 - TBD: permit setting a format reference for shared strings
 - TBD: determine if XLMergeCells can somehow be stored with the document / worksheet instead of created on each call
+
+## (Lars Uffmann) 17 August 2024 - bugfix in XLAppProperties::createFromTemplate
+* BUGFIX: TitlesOfParts is now correctly inserted into the `<Properties>` (document) element, was previously wrongly appended to headingPairs
+* entries in /xl/ are now explitly checked for known & handled file types (`/xl/worksheets/sheet*`, `/xl/sharedStrings.xml`, `/xl/styles.xml`, `/xl/theme/theme*`) and otherwise ignored. This fixes an issue when the workbook contains `/xl/pivotCache/` and `/xl/pivotTables/` entries until support for those is implemented (if ever ;P)
 
 ## (Lars Uffmann) 14 August 2024 - use row style, or if not set, column style for default cell style
 * Newly created cells will now use the style that is set for the row or the column (if set and != XLDefaultCellFormat), with row style taking precedence

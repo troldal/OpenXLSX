@@ -51,7 +51,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 // #include "XLCellRange.hpp"
 // #include "XLDocument.hpp"
 #include "XLComments.hpp"
-// #include "utilities/XLUtilities.hpp"
+#include "utilities/XLUtilities.hpp"    // OpenXLSX::ignore
 
 using namespace OpenXLSX;
 
@@ -78,6 +78,7 @@ XLComments::XLComments(XLXmlData* xmlData) : XLXmlFile(xmlData)
  */
 std::string XLComments::get(std::string cellRef) const
 {
+    OpenXLSX::ignore(cellRef);
     return "";
 }
 
@@ -86,6 +87,7 @@ std::string XLComments::get(std::string cellRef) const
  */
 bool XLComments::set(std::string cellRef)
 {
+    OpenXLSX::ignore(cellRef);
     return false;
 }
 

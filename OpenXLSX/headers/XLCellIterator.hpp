@@ -46,9 +46,12 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_XLCELLITERATOR_HPP
 #define OPENXLSX_XLCELLITERATOR_HPP
 
-#pragma warning(push)
-#pragma warning(disable : 4251)
-#pragma warning(disable : 4275)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunknown-pragmas" // disable warning about below #pragma warning being unknown
+#   pragma warning(push)
+#   pragma warning(disable : 4251)
+#   pragma warning(disable : 4275)
+#pragma GCC diagnostic pop
 
 #include <algorithm>
 
@@ -168,7 +171,7 @@ namespace OpenXLSX
          * @brief determine whether iterator is at 1 beyond the last cell in range
          * @return
          */
-        const bool endReached() const { return m_endReached; }
+        bool endReached() const { return m_endReached; }
 
         /**
          * @brief
@@ -225,5 +228,9 @@ namespace std    // NOLINT
     }
 }    // namespace std
 
-#pragma warning(pop)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunknown-pragmas" // disable warning about below #pragma warning being unknown
+#   pragma warning(pop)
+#pragma GCC diagnostic pop
+
 #endif    // OPENXLSX_XLCELLITERATOR_HPP

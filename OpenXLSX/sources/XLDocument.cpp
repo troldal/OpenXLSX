@@ -602,6 +602,8 @@ namespace {
             return true;
         return false;
     }
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
     /**
      * @brief Test if fileName exists and is not a directory
      * @param fileName The path to check for existence (as a file)
@@ -613,12 +615,6 @@ namespace {
         if (stat(fileName.c_str(), &info ) == 0)    // test if path exists
             if ((info.st_mode & S_IFDIR) == 0)          // test if it is NOT a directory
                 return true;
-        // // The alternative: fopen
-        // FILE *testExist = fopen(fileName.c_str(), "r");
-        // if (testExist != nullptr) {
-        //     fclose(testExist);
-        //     return true;
-        // }
         return false;
     }
     bool isDirectory(const std::string& fileName)
@@ -629,6 +625,7 @@ namespace {
                 return true;
         return false;
     }
+#pragma GCC diagnostic pop
 } // anonymous namespace
 
 /**

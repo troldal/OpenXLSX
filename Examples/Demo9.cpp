@@ -54,7 +54,7 @@ return 0;
 
 	auto const & wsNames = doc.workbook().worksheetNames();
 	// int wsIndex = 0;
-	for( int idx = 0; idx < wsNames.size(); ++idx )
+	for( size_t idx = 0; idx < wsNames.size(); ++idx )
 		// if( wsNames[ idx ] == "Containers" ) {
 		// 	cout << "found Containers sheet, index is " << idx << endl;
 		// 	wsIndex = idx;
@@ -186,7 +186,7 @@ std::cout << "D13 hasFormula() is " << ( wks.cell("D13").hasFormula() ? "true" :
 	std::cout << "wks.rowCount is " << wks.rowCount() << std::endl;
 	std::cout << "wks.rows().rowCount is " << wks.rows().rowCount() << std::endl;
 	auto row = wks.rows().begin();
-	int limit = 55;
+	uint32_t limit = 55;
 	while( row != wks.rows().end() && row->rowNumber() < limit ) {
 		std::cout << "row number is " << row->rowNumber() << std::endl;
 		++row;
@@ -287,7 +287,7 @@ std::cout << "D13 hasFormula() is " << ( wks.cell("D13").hasFormula() ? "true" :
 	// std::cout << "doc.sharedStrings().getString( 2 ) is " << doc.sharedStrings().getString( 2 ) << std::endl;
 
 	std::cout << "doc.workbook().sheetCount() is " << doc.workbook().sheetCount() << std::endl;
-	for( int i = 1; i <= doc.workbook().sheetCount(); ++i )
+	for( size_t i = 1; i <= doc.workbook().sheetCount(); ++i )
 		std::cout << "workbook.worksheet(" << i << ").name() is " << doc.workbook().worksheet(i).name() << std::endl;
 
 	std::string newSheetName;

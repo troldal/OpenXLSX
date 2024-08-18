@@ -19,6 +19,10 @@ using namespace OpenXLSX;
 
 int main( int argc, char *argv[] )
 {
+	// ignore command line params without warning:
+	static_cast< void >( argc );
+	static_cast< void >( argv );
+
 	std::cout << "nowide is " << ( nowide_status() ? "enabled" : "disabled" ) << std::endl;
 
 	/*

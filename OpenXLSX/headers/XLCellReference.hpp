@@ -46,9 +46,12 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_XLCELLREFERENCE_HPP
 #define OPENXLSX_XLCELLREFERENCE_HPP
 
-#pragma warning(push)
-#pragma warning(disable : 4251)
-#pragma warning(disable : 4275)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunknown-pragmas" // disable warning about below #pragma warning being unknown
+#   pragma warning(push)
+#   pragma warning(disable : 4251)
+#   pragma warning(disable : 4275)
+#pragma GCC diagnostic pop
 
 // ===== External Includes ===== //
 #include <string>
@@ -307,5 +310,9 @@ namespace OpenXLSX
     inline bool operator>=(const XLCellReference& lhs, const XLCellReference& rhs) { return !(lhs < rhs); }
 }    // namespace OpenXLSX
 
-#pragma warning(pop)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunknown-pragmas" // disable warning about below #pragma warning being unknown
+#   pragma warning(pop)
+#pragma GCC diagnostic pop
+
 #endif    // OPENXLSX_XLCELLREFERENCE_HPP

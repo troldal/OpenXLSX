@@ -1,16 +1,19 @@
 #ifndef ZIPPYHEADERONLY_ZIPPY_HPP
 #define ZIPPYHEADERONLY_ZIPPY_HPP
 
-#pragma warning(push)
-#pragma warning(disable : 4334)
-#pragma warning(disable : 4996)
-#pragma warning(disable : 4127)
-#pragma warning(disable : 4267)
-#pragma warning(disable : 4100)
-#pragma warning(disable : 4245)
-#pragma warning(disable : 4267)
-#pragma warning(disable : 4242)
-#pragma warning(disable : 4244)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunknown-pragmas" // disable warning about below #pragma warning being unknown
+#   pragma warning(push)
+#   pragma warning(disable : 4334)
+#   pragma warning(disable : 4996)
+#   pragma warning(disable : 4127)
+#   pragma warning(disable : 4267)
+#   pragma warning(disable : 4100)
+#   pragma warning(disable : 4245)
+#   pragma warning(disable : 4267)
+#   pragma warning(disable : 4242)
+#   pragma warning(disable : 4244)
+#pragma GCC diagnostic pop
 
 #include <algorithm>
 #include <cstddef>
@@ -1018,7 +1021,15 @@ namespace ns_miniz
     {
 #    endif
 
-        enum {
+        // ===== 2024-08-18 minor bugfix: assign an explicit type to below nameless enum to address:
+        // | [..] In function ‘ns_miniz::mz_zip_reader_extract_iter_state* ns_miniz::mz_zip_reader_extract_iter_new(mz_zip_archive*, mz_uint, mz_uint)’:
+        // | [..]: warning: enumerated and non-enumerated type in conditional expression [-Wextra]
+        // |   597 | #define MZ_MIN(a, b) (((a) < (b)) ? (a) : (b))
+        // |                              ~~~~~~~~~~~~^~~~~~~~~~~
+        // | [..]: note: in expansion of macro ‘MZ_MIN’
+        // |  6581 |                     pState->read_buf_size = MZ_MIN(pState->file_stat.m_comp_size, MZ_ZIP_MAX_IO_BUF_SIZE);
+        // |       |                                             ^~~~~~
+        enum : uint64_t {
             /* Note: These enums can be reduced as needed to save memory or stack space - they are pretty conservative. */
             MZ_ZIP_MAX_IO_BUF_SIZE               = 64 * 1024,
             MZ_ZIP_MAX_ARCHIVE_FILENAME_SIZE     = 512,
@@ -10764,7 +10775,7 @@ namespace Zippy
 #           endif
             std::string tempPath{};
             if (pathPos != std::string::npos) tempPath = filename.substr(0, pathPos + 1);
-				else tempPath = localFolder; // prepend explicit identification of local folder in case path did not contain a folder
+            else tempPath = localFolder; // prepend explicit identification of local folder in case path did not contain a folder
 
             // ===== Generate a random file name with the same path as the current file
             tempPath = tempPath + Impl::GenerateRandomName(20);
@@ -10817,9 +10828,9 @@ namespace Zippy
          */
         void Save(std::ostream& stream)
         {
-            if (!IsOpen()) throw ZipLogicError("Cannot call Save on empty ZipArchive object!");
-
-            // TODO: To be implemented
+            if (!IsOpen()) throw ZipLogicError("Cannot call ZipArchive::Save(std::ostream&) on empty ZipArchive object!");
+            throw ZipLogicError("ZipArchive::Save(std::ostream&) is not yet implemented!"); // TODO: To be implemented
+            (void) stream; // 2024-08-18: suppress -Wunused-parameter
         }
 
         /**
@@ -10907,7 +10918,9 @@ namespace Zippy
          */
         void ExtractDir(const std::string& dir, const std::string& dest)
         {
-            if (!IsOpen()) throw ZipLogicError("Cannot call ExtractDir on empty ZipArchive object!");
+            if (!IsOpen()) throw ZipLogicError("Cannot call ZipArchive::ExtractDir(const std::string&, const std::string&) on empty ZipArchive object!");
+            throw ZipLogicError("ZipArchive::ExtractDir(const std::string&, const std::string&) is not yet implemented!"); // TODO: To be implemented
+            (void) dir; (void) dest; // 2024-08-18: suppress -Wunused-parameter
         }
 
         /**
@@ -10917,7 +10930,9 @@ namespace Zippy
          */
         void ExtractAll(const std::string& dest)
         {
-            if (!IsOpen()) throw ZipLogicError("Cannot call ExtractAll on empty ZipArchive object!");
+            if (!IsOpen()) throw ZipLogicError("Cannot call ZipArchive::ExtractAll(const std::string&) on empty ZipArchive object!");
+            throw ZipLogicError("ZipArchive::ExtractAll(std::string const &) is not yet implemented!"); // TODO: To be implemented
+            (void) dest; // 2024-08-18: suppress -Wunused-parameter
         }
 
         /**
@@ -11013,5 +11028,9 @@ namespace Zippy
     };
 }    // namespace Zippy
 
-#pragma warning(pop)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunknown-pragmas" // disable warning about below #pragma warning being unknown
+#   pragma warning(pop)
+#pragma GCC diagnostic pop
+
 #endif    // ZIPPYHEADERONLY_ZIPPY_HPP

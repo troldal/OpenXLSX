@@ -46,9 +46,12 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_XLFORMULA_HPP
 #define OPENXLSX_XLFORMULA_HPP
 
-#pragma warning(push)
-#pragma warning(disable : 4251)
-#pragma warning(disable : 4275)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunknown-pragmas" // disable warning about below #pragma warning being unknown
+#   pragma warning(push)
+#   pragma warning(disable : 4251)
+#   pragma warning(disable : 4275)
+#pragma GCC diagnostic pop
 
 // ===== External Includes ===== //
 #include <iostream>
@@ -362,5 +365,10 @@ namespace OpenXLSX
      */
     inline std::ostream& operator<<(std::ostream& os, const XLFormulaProxy& value) { return os << value.get(); }
 }    // namespace OpenXLSX
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunknown-pragmas" // disable warning about below #pragma warning being unknown
+#   pragma warning(pop)
+#pragma GCC diagnostic pop
 
 #endif    // OPENXLSX_XLFORMULA_HPP

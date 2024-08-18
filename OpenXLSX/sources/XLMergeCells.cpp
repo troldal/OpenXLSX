@@ -123,7 +123,7 @@ bool XLMergeCells::mergeExists(const std::string& reference) const { return getM
  */
 const char* XLMergeCells::getMerge(int32_t index) const
 {
-    if (index >= m_referenceCache.size()) {
+    if (index < 0 || static_cast<uint32_t>(index) >= m_referenceCache.size()) {
         using namespace std::literals::string_literals;
         throw XLInputError("XLMergeCells::"s + __func__ + ": index "s + std::to_string(index) + " is out of range"s);
     }
@@ -224,7 +224,7 @@ void XLMergeCells::deleteMerge(int32_t index)
 {
     using namespace std::literals::string_literals;
 
-    if (index >= m_referenceCache.size())
+    if (index < 0 || static_cast<uint32_t>(index) >= m_referenceCache.size())
         throw XLInputError("XLMergeCells::"s + __func__ + ": index "s + std::to_string(index) + " is out of range"s);
 
     int32_t curIndex = 0;

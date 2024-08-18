@@ -46,9 +46,12 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_XLSTYLES_HPP
 #define OPENXLSX_XLSTYLES_HPP
 
-#pragma warning(push)
-#pragma warning(disable : 4251)
-#pragma warning(disable : 4275)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunknown-pragmas" // disable warning about below #pragma warning being unknown
+#   pragma warning(push)
+#   pragma warning(disable : 4251)
+#   pragma warning(disable : 4275)
+#pragma GCC diagnostic pop
 
 // ===== External Includes ===== //
 #include <cstdint>   // uint32_t etc
@@ -1779,7 +1782,7 @@ namespace OpenXLSX
         /**
          * @brief Unsupported setter
          */
-        bool setExtLst          (XLUnsupportedElement const& newExtLst) { return false; }
+        bool setExtLst          (XLUnsupportedElement const& newExtLst);
 
         /**
          * @brief Return a string summary of the cell format properties
@@ -1995,7 +1998,7 @@ namespace OpenXLSX
         /**
          * @brief Unsupported setter
          */
-        bool setExtLst   (XLUnsupportedElement const& newExtLst) { return false; }
+        bool setExtLst   (XLUnsupportedElement const& newExtLst);
 
         /**
          * @brief Return a string summary of the cell style properties
@@ -2196,5 +2199,9 @@ namespace OpenXLSX
     };
 }    // namespace OpenXLSX
 
-#pragma warning(pop)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunknown-pragmas" // disable warning about below #pragma warning being unknown
+#   pragma warning(pop)
+#pragma GCC diagnostic pop
+
 #endif    // OPENXLSX_XLSTYLES_HPP

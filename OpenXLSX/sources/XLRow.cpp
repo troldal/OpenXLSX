@@ -216,8 +216,10 @@ namespace OpenXLSX
      * @details
      * @pre
      * @post
+     * @note 2024-08-18: changed return type of rowNumber to uint32_t
+     *       CAUTION: there is no validity check on the underlying XML (nor was there ever one in case a value was inconsistent with OpenXLSX::MAX_ROWS)
      */
-    uint64_t XLRow::rowNumber() const { return m_rowNode->attribute("r").as_ullong(); }
+    uint32_t XLRow::rowNumber() const { return static_cast<uint32_t>(m_rowNode->attribute("r").as_ullong()); }
 
     /**
      * @details Get the number of cells in the row, by returning the size of the m_cells vector.
