@@ -117,7 +117,7 @@ set(OPENXLSX_SOURCES
 # STATIC AND SHARED LIBRARY
 #   Check that the input is valid
 #=======================================================================================================================
-if(NOT ${OPENXLSX_LIBRARY_TYPE} STREQUAL "STATIC" AND NOT ${OPENXLSX_LIBRARY_TYPE} STREQUAL "SHARED")
+if(NOT "${OPENXLSX_LIBRARY_TYPE}" STREQUAL "STATIC" AND NOT "${OPENXLSX_LIBRARY_TYPE}" STREQUAL "SHARED")
     message( FATAL_ERROR "Invalid library type. Must be SHARED or STATIC." )
 endif()
 
@@ -125,7 +125,7 @@ endif()
 # STATIC LIBRARY
 #   Define the static library
 #=======================================================================================================================
-if (${OPENXLSX_LIBRARY_TYPE} STREQUAL "STATIC")
+if ("${OPENXLSX_LIBRARY_TYPE}" STREQUAL "STATIC")
     add_library(OpenXLSX STATIC "")
     add_library(OpenXLSX::OpenXLSX ALIAS OpenXLSX)
     target_sources(OpenXLSX PRIVATE ${OPENXLSX_SOURCES})
@@ -153,7 +153,7 @@ endif ()
 # SHARED LIBRARY
 #   Define the shared library
 #=======================================================================================================================
-if (${OPENXLSX_LIBRARY_TYPE} STREQUAL "SHARED")
+if ("${OPENXLSX_LIBRARY_TYPE}" STREQUAL "SHARED")
     add_library(OpenXLSX SHARED "")
     add_library(OpenXLSX::OpenXLSX ALIAS OpenXLSX)
     target_sources(OpenXLSX PRIVATE ${OPENXLSX_SOURCES})
