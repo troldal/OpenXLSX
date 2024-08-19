@@ -3,6 +3,10 @@
 OpenXLSX is a C++ library for reading, writing, creating and modifying
 Microsoft Excel® files, with the .xlsx format.
 
+## (aral-matrix) 19/20 August 2024 updated pull requests
+
+Closed a multitude of pull requests that had been implemented in the May 2024 Update, implemented two more editorials from PR #246 and #253.
+
 ## May 2024 Update
 
 After a long period of inactivity, I have decided to resume development of OpenXLSX. The code has been cleaned up and a significant number of bugs have been fixed. The library has been tested on Windows, macOS and Linux, and should work on all platforms. 
@@ -325,7 +329,7 @@ possible to use other encodings, but I'm not sure about that).
 
 For the above reason, **if you work with other text encodings, you have
 to convert to/from UTF-8 yourself**. There are a number of options (e.g.
-Boost.Nowide or Boost.Text). Internally, OpenXLSX uses Boose.Nowide; it has a number
+Boost.Nowide or Boost.Text). Internally, OpenXLSX uses Boost.Nowide; it has a number
 of handy features for opening files and converting between std::string and std::wstring
 etc. I will also suggest that you watch James McNellis' presentation at [CppCon 2014](https://youtu.be/n0GK-9f4dl8),
 and read [Joel Spolsky's blog](https://www.joelonsoftware.com/2003/10/08/the-absolute-minimum-every-software-developer-absolutely-positively-must-know-about-unicode-and-character-sets-no-excuses/).
