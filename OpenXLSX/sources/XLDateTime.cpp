@@ -209,7 +209,7 @@ namespace OpenXLSX
         // ===== Count the number of whole years since 1900.
         while (true) {
             const auto days = (isLeapYear(result.tm_year + 1900) ? 366 : 365);
-            if (days > serial) break;
+            if (days >= serial) break;
             serial -= days;
             ++result.tm_year;
         }
@@ -221,7 +221,7 @@ namespace OpenXLSX
         // ===== Count the number of whole months in the year.
         while (true) {
             auto days = daysInMonth(result.tm_mon + 1, 1900 + result.tm_year);
-            if (days > serial) break;
+            if (days >= serial) break;
             serial -= days;
             ++result.tm_mon;
         }
