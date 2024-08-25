@@ -61,7 +61,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 namespace OpenXLSX
 {
-    constexpr size_t XLMaxSharedStrings = std::numeric_limits< int32_t >::max();
+    constexpr size_t XLMaxSharedStrings = (std::numeric_limits< int32_t >::max)();
 
     /**
      * @brief This class encapsulate the Excel concept of Shared Strings. In Excel, instead of havig individual strings
