@@ -1,8 +1,7 @@
 #ifndef ZIPPYHEADERONLY_ZIPPY_HPP
 #define ZIPPYHEADERONLY_ZIPPY_HPP
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunknown-pragmas" // disable warning about below #pragma warning being unknown
+#ifdef _MSC_VER // avoid other compilers complaining about MSVC-only pragmas being unknown
 #   pragma warning(push)
 #   pragma warning(disable : 4334)
 #   pragma warning(disable : 4996)
@@ -13,7 +12,7 @@
 #   pragma warning(disable : 4267)
 #   pragma warning(disable : 4242)
 #   pragma warning(disable : 4244)
-#pragma GCC diagnostic pop
+#endif // _MSC_VER
 
 #include <algorithm>
 #include <cstddef>
@@ -11028,9 +11027,8 @@ namespace Zippy
     };
 }    // namespace Zippy
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunknown-pragmas" // disable warning about below #pragma warning being unknown
+#ifdef _MSC_VER // avoid other compilers complaining about MSVC-only pragmas being unknown
 #   pragma warning(pop)
-#pragma GCC diagnostic pop
+#endif // _MSC_VER
 
 #endif    // ZIPPYHEADERONLY_ZIPPY_HPP
