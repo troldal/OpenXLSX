@@ -316,7 +316,7 @@ XLRelationships::XLRelationships(XLXmlData* xmlData, std::string pathTo)
  : XLXmlFile(xmlData)
 {
     constexpr const char *relFolder = "_rels/";    // all relationships are stored in a (sub-)folder named "_rels/"
-    constexpr const size_t relFolderLen = strlen(relFolder);
+    static const size_t relFolderLen = strlen(relFolder); // 2024-08-23: strlen seems to not be accepted in a constexpr in VS2019 with c++17
 
     bool addFirstSlash = (pathTo[0] != '/'); // if first character of pathTo is NOT a slash, then addFirstSlash = true
     size_t pathToEndsAt = pathTo.find_last_of('/');

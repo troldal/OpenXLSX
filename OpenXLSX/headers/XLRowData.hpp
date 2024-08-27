@@ -7,9 +7,11 @@
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunknown-pragmas" // disable warning about below #pragma warning being unknown
+#ifdef _MSC_VER                                    // additional condition because the previous line does not work on gcc 12.2
 #   pragma warning(push)
 #   pragma warning(disable : 4251)
 #   pragma warning(disable : 4275)
+#endif // _MSC_VER
 #pragma GCC diagnostic pop
 
 // ===== External Includes ===== //
@@ -472,7 +474,9 @@ namespace OpenXLSX
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunknown-pragmas" // disable warning about below #pragma warning being unknown
+#ifdef _MSC_VER                                    // additional condition because the previous line does not work on gcc 12.2
 #   pragma warning(pop)
+#endif // _MSC_VER
 #pragma GCC diagnostic pop
 
 #endif    // OPENXLSX_XLROWDATA_HPP

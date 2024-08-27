@@ -48,9 +48,11 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunknown-pragmas" // disable warning about below #pragma warning being unknown
+#ifdef _MSC_VER                                    // additional condition because the previous line does not work on gcc 12.2
 #   pragma warning(push)
 #   pragma warning(disable : 4251)
 #   pragma warning(disable : 4275)
+#endif // _MSC_VER
 #pragma GCC diagnostic pop
 
 #include <deque>
@@ -65,7 +67,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 namespace OpenXLSX
 {
-    constexpr size_t XLMaxMergeCells = std::numeric_limits< int32_t >::max();
+    constexpr size_t XLMaxMergeCells = (std::numeric_limits< int32_t >::max)();    // pull request #261: wrapped max in parentheses to prevent expansion of windows.h "max" macro
 
     /**
      * @brief This class encapsulate the Excel concept of <mergeCells>. Each worksheet that has merged cells has a list of
@@ -170,7 +172,9 @@ namespace OpenXLSX
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunknown-pragmas" // disable warning about below #pragma warning being unknown
+#ifdef _MSC_VER                                    // additional condition because the previous line does not work on gcc 12.2
 #   pragma warning(pop)
+#endif // _MSC_VER
 #pragma GCC diagnostic pop
 
 #endif    // OPENXLSX_XLMERGECELLS_HPP
