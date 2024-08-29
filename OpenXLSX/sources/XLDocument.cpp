@@ -509,6 +509,10 @@ void XLDocument::open(const std::string& fileName)
             else {    // 2024-05-03: support a string composed of multiple <t> nodes, because LibreOffice accepts it
                 std::string result;
                 while (not elem.empty()) {
+                    if (std::string(elem.name()) == "rPh" || std::string(elem.name()) == "phoneticPr") {
+                        elem = elem.next_sibling_of_type(pugi::node_element);
+                        continue;
+                    }
                     if (elem.name() != "t"s)
                         throw XLInputError("xl/sharedStrings.xml si node \""s + node.name() + "\" is none of \"r\", \"t\", \"rPh\", \"phoneticPr\""s);
                     result += elem.text().get();
