@@ -3,6 +3,12 @@
 OpenXLSX is a C++ library for reading, writing, creating and modifying
 Microsoft Excel® files, with the .xlsx format.
 
+## (Lars Uffmann) 31 August 2024 - added fallback solution to get document relationships
+
+Included a "dumb" fallback solution in ```XLRelationships.cpp GetTypeFromString``` to support previously unknown relationship domains, e.g. ```type="http://purl.oclc.org/ooxml/officeDocument/relationships/worksheet"```. Altered behavior will initially test against the hardcoded relationship domains, and if that test fails to identify a relationship type string, the type string will be searched for an occurrence of ```/relationships``` and if that substring is found, the type detection fallback will try to evaluate the relationship type based on the substring starting with ```/relationships/```, ignoring the domain. For the above example, that would result in a test of ```typeString.substr( comparePos ) == "/relationships/worksheet"```, where comparePos == 41 (the position at which substring ```/relationships/``` begins).
+
+In line with this change, similar repeating hardcoded strings in ```XLContentTypes.cpp GetTypeFromString``` were also replaced with string constants in anticipation of a potential future need for a similar "dumb" fallback solution.
+
 ## (Lars Uffmann) 18 August 2024 - minor bugfixes and elimination of warnings
 * BUGFIX XLRelationships.cpp `BinaryAsHexString`: replaced char array with std::string, as ISO C++ standard does not permit variable size arrays
 * BUGFIX XLRelationships.cpp `Rand64`: added explicit type cast, as bitwise shift-left does *not* do integer promotion to long on the left operand
