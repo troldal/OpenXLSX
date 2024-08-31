@@ -92,6 +92,7 @@ namespace OpenXLSX
         PrinterSettings,
         VBAProject,
         ControlProperties,
+        Comments,
         Unknown
     };
 } //     namespace OpenXLSX

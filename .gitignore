@@ -1,16 +1,79 @@
-# System Files and Directories
-.idea/
-.DS_Store
+# ignore everything
+/*
 
-# Build Directories
-*cmake-build*/
+# include generic files
+!/.clang-format
+!/.clang-tidy
+!/.gitignore
+!/LICENSE.md
+!/NOTICE
+!/README.md
 
-# Visual Studio
-.vs/
-out/
+# include root directory files
+!/cmake-cleanup.sh
+!/CMakeLists.txt
+!/Makefile.GNU
+!/make-gnu.sh
+!/vcpkg.json
 
-# other
-*.so
-*.dylib
-*.a
-*.xlsx
+# include Benchmarks folder
+!/Benchmarks
+# exclude everything *in* Benchmarks folder
+/Benchmarks/*
+# re-include specifically what is desired from Benchmarks folder
+!/Benchmarks/*.cpp
+!/Benchmarks/*.txt
+
+# include Documentation folder
+!/Documentation
+# exclude everything *in* Documentation folder
+/Documentation/*
+# re-include specifically what is desired from Documentation folder
+!/Documentation/*.txt
+!/Documentation/*.css
+!/Documentation/*.in
+!/Documentation/*.xml
+
+# include Examples folder
+!/Examples
+# exclude everything *in* Examples folder
+/Examples/*
+# re-include specifically what is desired from Examples folder
+!/Examples/cmake
+!/Examples/cmake/*
+!/Examples/CMakeLists.txt
+!/Examples/*.cpp
+!/Examples/external
+!/Examples/external/*
+
+# include gnu-make-crutch folder
+!/gnu-make-crutch
+# exclude everything *in* gnu-make-crutch folder
+/gnu-make-crutch/*
+# re-include specifically what is desired from gnu-make-crutch folder
+!/gnu-make-crutch/OpenXLSX-Exports.hpp
+
+# include OpenXLSX folder
+!/OpenXLSX
+# exclude everything *in* OpenXLSX folder
+/OpenXLSX/*
+# re-include specifically what is desired from OpenXLSX folder
+!/OpenXLSX/CMakeLists.txt
+!/OpenXLSX/external
+!/OpenXLSX/external/*
+!/OpenXLSX/headers
+!/OpenXLSX/headers/*
+!/OpenXLSX/OpenXLSXConfig.cmake
+!/OpenXLSX/OpenXLSX.hpp
+!/OpenXLSX/sources
+!/OpenXLSX/sources/*
+
+# include Tests folder
+!/Tests
+# exclude everything *in* Tests folder
+/Tests/*
+# re-include specifically what is desired from Tests folder
+!/Tests/catch
+!/Tests/catch/*.hpp
+!/Tests/CMakeLists.txt
+!/Tests/*.cpp

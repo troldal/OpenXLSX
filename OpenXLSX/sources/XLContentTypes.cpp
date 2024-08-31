@@ -57,54 +57,61 @@ using namespace OpenXLSX;
 
 namespace
 {
+    const std::string applicationOpenXmlOfficeDocument = "application/vnd.openxmlformats-officedocument";
+    const std::string applicationOpenXmlPackage        = "application/vnd.openxmlformats-package";
+    const std::string applicationMicrosoftExcel        = "application/vnd.ms-excel";
+    const std::string applicationMicrosoftOffice       = "application/vnd.ms-office";
+
     /**
      * @details
+     * @note 2024-08-31: In line with a change to hardcoded XML relationship domains in XLRelationships.cpp, replaced the repeating
+     *          hardcoded strings here with the above declared constants, preparing a potential need for a similar "dumb" fallback implementation
      */
     XLContentType GetTypeFromString(const std::string& typeString)
     {
         XLContentType type { XLContentType::Unknown };
 
-        if (typeString == "application/vnd.ms-excel.Sheet.macroEnabled.main+xml")
+        if (typeString == applicationMicrosoftExcel + ".Sheet.macroEnabled.main+xml")
             type = XLContentType::WorkbookMacroEnabled;
-        else if (typeString == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml")
+        else if (typeString == applicationOpenXmlOfficeDocument + ".spreadsheetml.sheet.main+xml")
             type = XLContentType::Workbook;
-        else if (typeString == "application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml")
+        else if (typeString == applicationOpenXmlOfficeDocument + ".spreadsheetml.worksheet+xml")
             type = XLContentType::Worksheet;
-        else if (typeString == "application/vnd.openxmlformats-officedocument.spreadsheetml.chartsheet+xml")
+        else if (typeString == applicationOpenXmlOfficeDocument + ".spreadsheetml.chartsheet+xml")
             type = XLContentType::Chartsheet;
-        else if (typeString == "application/vnd.openxmlformats-officedocument.spreadsheetml.externalLink+xml")
+        else if (typeString == applicationOpenXmlOfficeDocument + ".spreadsheetml.externalLink+xml")
             type = XLContentType::ExternalLink;
-        else if (typeString == "application/vnd.openxmlformats-officedocument.theme+xml")
+        else if (typeString == applicationOpenXmlOfficeDocument + ".theme+xml")
             type = XLContentType::Theme;
-        else if (typeString == "application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml")
+        else if (typeString == applicationOpenXmlOfficeDocument + ".spreadsheetml.styles+xml")
             type = XLContentType::Styles;
-        else if (typeString == "application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml")
+        else if (typeString == applicationOpenXmlOfficeDocument + ".spreadsheetml.sharedStrings+xml")
             type = XLContentType::SharedStrings;
-        else if (typeString == "application/vnd.openxmlformats-officedocument.drawing+xml")
+        else if (typeString == applicationOpenXmlOfficeDocument + ".drawing+xml")
             type = XLContentType::Drawing;
-        else if (typeString == "application/vnd.openxmlformats-officedocument.drawingml.chart+xml")
+        else if (typeString == applicationOpenXmlOfficeDocument + ".drawingml.chart+xml")
             type = XLContentType::Chart;
-        else if (typeString == "application/vnd.ms-office.chartstyle+xml")
+        else if (typeString == applicationMicrosoftOffice + ".chartstyle+xml")
             type = XLContentType::ChartStyle;
-        else if (typeString == "application/vnd.ms-office.chartcolorstyle+xml")
+        else if (typeString == applicationMicrosoftOffice + ".chartcolorstyle+xml")
             type = XLContentType::ChartColorStyle;
-        else if (typeString == "application/vnd.ms-excel.controlproperties+xml")
+        else if (typeString == applicationMicrosoftExcel + ".controlproperties+xml")
             type = XLContentType::ControlProperties;
-        else if (typeString == "application/vnd.openxmlformats-officedocument.spreadsheetml.calcChain+xml")
+        else if (typeString == applicationOpenXmlOfficeDocument + ".spreadsheetml.calcChain+xml")
             type = XLContentType::CalculationChain;
-        else if (typeString == "application/vnd.ms-office.vbaProject")
+        else if (typeString == applicationMicrosoftOffice + ".vbaProject")
             type = XLContentType::VBAProject;
-        else if (typeString == "application/vnd.openxmlformats-package.core-properties+xml")
+        else if (typeString == applicationOpenXmlPackage + ".core-properties+xml")
             type = XLContentType::CoreProperties;
-        else if (typeString == "application/vnd.openxmlformats-officedocument.extended-properties+xml")
+        else if (typeString == applicationOpenXmlOfficeDocument + ".extended-properties+xml")
             type = XLContentType::ExtendedProperties;
-        else if (typeString == "application/vnd.openxmlformats-officedocument.custom-properties+xml")
+        else if (typeString == applicationOpenXmlOfficeDocument + ".custom-properties+xml")
             type = XLContentType::CustomProperties;
-        else if (typeString == "application/vnd.openxmlformats-officedocument.spreadsheetml.comments+xml")
+        else if (typeString == applicationOpenXmlOfficeDocument + ".spreadsheetml.comments+xml")
             type = XLContentType::Comments;
-        else if (typeString == "application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml")
+        else if (typeString == applicationOpenXmlOfficeDocument + ".spreadsheetml.table+xml")
             type = XLContentType::Table;
-        else if (typeString == "application/vnd.openxmlformats-officedocument.vmlDrawing")
+        else if (typeString == applicationOpenXmlOfficeDocument + ".vmlDrawing")
             type = XLContentType::VMLDrawing;
         else
             type = XLContentType::Unknown;
@@ -120,47 +127,47 @@ namespace
         std::string typeString;
 
         if (type == XLContentType::WorkbookMacroEnabled)
-            typeString = "application/vnd.ms-excel.Sheet.macroEnabled.main+xml";
+            typeString = applicationMicrosoftExcel + ".Sheet.macroEnabled.main+xml";
         else if (type == XLContentType::Workbook)
-            typeString = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml";
+            typeString = applicationOpenXmlOfficeDocument + ".spreadsheetml.sheet.main+xml";
         else if (type == XLContentType::Worksheet)
-            typeString = "application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml";
+            typeString = applicationOpenXmlOfficeDocument + ".spreadsheetml.worksheet+xml";
         else if (type == XLContentType::Chartsheet)
-            typeString = "application/vnd.openxmlformats-officedocument.spreadsheetml.chartsheet+xml";
+            typeString = applicationOpenXmlOfficeDocument + ".spreadsheetml.chartsheet+xml";
         else if (type == XLContentType::ExternalLink)
-            typeString = "application/vnd.openxmlformats-officedocument.spreadsheetml.externalLink+xml";
+            typeString = applicationOpenXmlOfficeDocument + ".spreadsheetml.externalLink+xml";
         else if (type == XLContentType::Theme)
-            typeString = "application/vnd.openxmlformats-officedocument.theme+xml";
+            typeString = applicationOpenXmlOfficeDocument + ".theme+xml";
         else if (type == XLContentType::Styles)
-            typeString = "application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml";
+            typeString = applicationOpenXmlOfficeDocument + ".spreadsheetml.styles+xml";
         else if (type == XLContentType::SharedStrings)
-            typeString = "application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml";
+            typeString = applicationOpenXmlOfficeDocument + ".spreadsheetml.sharedStrings+xml";
         else if (type == XLContentType::Drawing)
-            typeString = "application/vnd.openxmlformats-officedocument.drawing+xml";
+            typeString = applicationOpenXmlOfficeDocument + ".drawing+xml";
         else if (type == XLContentType::Chart)
-            typeString = "application/vnd.openxmlformats-officedocument.drawingml.chart+xml";
+            typeString = applicationOpenXmlOfficeDocument + ".drawingml.chart+xml";
         else if (type == XLContentType::ChartStyle)
-            typeString = "application/vnd.ms-office.chartstyle+xml";
+            typeString = applicationMicrosoftOffice + ".chartstyle+xml";
         else if (type == XLContentType::ChartColorStyle)
-            typeString = "application/vnd.ms-office.chartcolorstyle+xml";
+            typeString = applicationMicrosoftOffice + ".chartcolorstyle+xml";
         else if (type == XLContentType::ControlProperties)
-            typeString = "application/vnd.ms-excel.controlproperties+xml";
+            typeString = applicationMicrosoftExcel + ".controlproperties+xml";
         else if (type == XLContentType::CalculationChain)
-            typeString = "application/vnd.openxmlformats-officedocument.spreadsheetml.calcChain+xml";
+            typeString = applicationOpenXmlOfficeDocument + ".spreadsheetml.calcChain+xml";
         else if (type == XLContentType::VBAProject)
-            typeString = "application/vnd.ms-office.vbaProject";
+            typeString = applicationMicrosoftOffice + ".vbaProject";
         else if (type == XLContentType::CoreProperties)
-            typeString = "application/vnd.openxmlformats-package.core-properties+xml";
+            typeString = applicationOpenXmlPackage + ".core-properties+xml";
         else if (type == XLContentType::ExtendedProperties)
-            typeString = "application/vnd.openxmlformats-officedocument.extended-properties+xml";
+            typeString = applicationOpenXmlOfficeDocument + ".extended-properties+xml";
         else if (type == XLContentType::CustomProperties)
-            typeString = "application/vnd.openxmlformats-officedocument.custom-properties+xml";
+            typeString = applicationOpenXmlOfficeDocument + ".custom-properties+xml";
         else if (type == XLContentType::Comments)
-            typeString = "application/vnd.openxmlformats-officedocument.spreadsheetml.comments+xml";
+            typeString = applicationOpenXmlOfficeDocument + ".spreadsheetml.comments+xml";
         else if (type == XLContentType::Table)
-            typeString = "application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml";
+            typeString = applicationOpenXmlOfficeDocument + ".spreadsheetml.table+xml";
         else if (type == XLContentType::VMLDrawing)
-            typeString = "application/vnd.openxmlformats-officedocument.vmlDrawing";
+            typeString = applicationOpenXmlOfficeDocument + ".vmlDrawing";
         else
             throw XLInternalError("Unknown ContentType");
 
@@ -251,12 +258,33 @@ XLContentTypes& XLContentTypes::operator=(XLContentTypes&& other) noexcept = def
 
 /**
  * @details
+ * @note 2024-07-22: added more intelligent whitespace support
  */
 void XLContentTypes::addOverride(const std::string& path, XLContentType type)
 {
     const std::string typeString = GetStringFromType(type);
 
-    auto node = xmlDocument().document_element().append_child("Override");
+    XMLNode lastOverride = xmlDocument().document_element().last_child_of_type(pugi::node_element); // see if there's a last element
+    XMLNode node{};    // scope declaration
+
+    // Create new node in the [Content_Types].xml file
+    if (lastOverride.empty())
+        node = xmlDocument().document_element().prepend_child("Override");
+    else { // if last element found
+        // ===== Insert node after previous override
+        node = xmlDocument().document_element().insert_child_after("Override", lastOverride);
+
+        // ===== Using whitespace nodes prior to lastOverride as a template, insert whitespaces between lastOverride and the new node
+        XMLNode copyWhitespaceFrom = lastOverride;    // start looking for whitespace nodes before previous override
+        XMLNode insertBefore = node;                  // start inserting the same whitespace nodes before new override
+        while (copyWhitespaceFrom.previous_sibling().type() == pugi::node_pcdata) { // empty node returns pugi::node_null
+            // Advance to previous "template" whitespace node, ensured to exist in while-condition
+            copyWhitespaceFrom = copyWhitespaceFrom.previous_sibling();
+            // ===== Insert a whitespace node
+            insertBefore = xmlDocument().document_element().insert_child_before(pugi::node_pcdata, insertBefore);
+            insertBefore.set_value(copyWhitespaceFrom.value());            // copy the a whitespace in sequence node value
+        }
+    }
     node.append_attribute("PartName").set_value(path.c_str());
     node.append_attribute("ContentType").set_value(typeString.c_str());
 }

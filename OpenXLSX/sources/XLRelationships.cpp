@@ -61,56 +61,76 @@ using namespace OpenXLSX;
 
 namespace
 {
+    const std::string relationshipDomainOpenXml2006          = "http://schemas.openxmlformats.org/officeDocument/2006";
+    const std::string relationshipDomainOpenXml2006CoreProps = "http://schemas.openxmlformats.org/package/2006";
+    const std::string relationshipDomainMicrosoft2006        = "http://schemas.microsoft.com/office/2006";
+    const std::string relationshipDomainMicrosoft2011        = "http://schemas.microsoft.com/office/2011";
+
+    /**
+     * @note 2024-08-31: Included a "dumb" fallback solution in relationship tests to support
+     *          previously unknown relationship domains, e.g. type="http://purl.oclc.org/ooxml/officeDocument/relationships/worksheet"
+     */
     XLRelationshipType GetTypeFromString(const std::string& typeString)
     {
-        XLRelationshipType type;
+        // TODO 2024-08-09: support dumb applications that implemented relationship Type in different case (e.g. vmldrawing instead of vmlDrawing)
+        //                  easy approach: convert typestring and comparison string to all lower characters
+        size_t comparePos = 0; // start by comparing full relationship type strings
+        do {
+            if (typeString.substr(comparePos) == (comparePos ? "" : relationshipDomainOpenXml2006) + "/relationships/extended-properties")
+                return XLRelationshipType::ExtendedProperties;
+            if (typeString.substr(comparePos) == (comparePos ? "" : relationshipDomainOpenXml2006) + "/relationships/custom-properties")
+                return XLRelationshipType::CustomProperties;
+            if (typeString.substr(comparePos) == (comparePos ? "" : relationshipDomainOpenXml2006) + "/relationships/officeDocument")
+                return XLRelationshipType::Workbook;
+            if (typeString.substr(comparePos) == (comparePos ? "" : relationshipDomainOpenXml2006) + "/relationships/worksheet")
+                return XLRelationshipType::Worksheet;
+            if (typeString.substr(comparePos) == (comparePos ? "" : relationshipDomainOpenXml2006) + "/relationships/styles")
+                return XLRelationshipType::Styles;
+            if (typeString.substr(comparePos) == (comparePos ? "" : relationshipDomainOpenXml2006) + "/relationships/sharedStrings")
+                return XLRelationshipType::SharedStrings;
+            if (typeString.substr(comparePos) == (comparePos ? "" : relationshipDomainOpenXml2006) + "/relationships/calcChain")
+                return XLRelationshipType::CalculationChain;
+            if (typeString.substr(comparePos) == (comparePos ? "" : relationshipDomainOpenXml2006) + "/relationships/externalLink")
+                return XLRelationshipType::ExternalLink;
+            if (typeString.substr(comparePos) == (comparePos ? "" : relationshipDomainOpenXml2006) + "/relationships/theme")
+                return XLRelationshipType::Theme;
+            if (typeString.substr(comparePos) == (comparePos ? "" : relationshipDomainOpenXml2006) + "/relationships/chartsheet")
+                return XLRelationshipType::Chartsheet;
+            if (typeString.substr(comparePos) == (comparePos ? "" : relationshipDomainOpenXml2006) + "/relationships/drawing")
+                return XLRelationshipType::Drawing;
+            if (typeString.substr(comparePos) == (comparePos ? "" : relationshipDomainOpenXml2006) + "/relationships/image")
+                return XLRelationshipType::Image;
+            if (typeString.substr(comparePos) == (comparePos ? "" : relationshipDomainOpenXml2006) + "/relationships/chart")
+                return XLRelationshipType::Chart;
+            if (typeString.substr(comparePos) == (comparePos ? "" : relationshipDomainOpenXml2006) + "/relationships/externalLinkPath")
+                return XLRelationshipType::ExternalLinkPath;
+            if (typeString.substr(comparePos) == (comparePos ? "" : relationshipDomainOpenXml2006) + "/relationships/printerSettings")
+                return XLRelationshipType::PrinterSettings;
+            if (typeString.substr(comparePos) == (comparePos ? "" : relationshipDomainOpenXml2006) + "/relationships/vmlDrawing")
+                return XLRelationshipType::VMLDrawing;
+            if (typeString.substr(comparePos) == (comparePos ? "" : relationshipDomainOpenXml2006) + "/relationships/ctrlProp")
+                return XLRelationshipType::ControlProperties;
+            if (typeString.substr(comparePos) == (comparePos ? "" : relationshipDomainOpenXml2006) + "/relationships/comments")
+                return XLRelationshipType::Comments;
+            if (typeString.substr(comparePos) == (comparePos ? "" : relationshipDomainOpenXml2006CoreProps) + "/relationships/metadata/core-properties")
+                return XLRelationshipType::CoreProperties;
+            if (typeString.substr(comparePos) == (comparePos ? "" : relationshipDomainMicrosoft2006) + "/relationships/vbaProject")
+                return XLRelationshipType::VBAProject;
+            if (typeString.substr(comparePos) == (comparePos ? "" : relationshipDomainMicrosoft2011) + "/relationships/chartStyle")
+                return XLRelationshipType::ChartStyle;
+            if (typeString.substr(comparePos) == (comparePos ? "" : relationshipDomainMicrosoft2011) + "/relationships/chartColorStyle")
+                return XLRelationshipType::ChartColorStyle;
 
-        if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties")
-            type = XLRelationshipType::ExtendedProperties;
-        else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/custom-properties")
-            type = XLRelationshipType::CustomProperties;
-        else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument")
-            type = XLRelationshipType::Workbook;
-        else if (typeString == "http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties")
-            type = XLRelationshipType::CoreProperties;
-        else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet")
-            type = XLRelationshipType::Worksheet;
-        else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles")
-            type = XLRelationshipType::Styles;
-        else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings")
-            type = XLRelationshipType::SharedStrings;
-        else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/calcChain")
-            type = XLRelationshipType::CalculationChain;
-        else if (typeString == "http://schemas.microsoft.com/office/2006/relationships/vbaProject")
-            type = XLRelationshipType::VBAProject;
-        else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/externalLink")
-            type = XLRelationshipType::ExternalLink;
-        else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme")
-            type = XLRelationshipType::Theme;
-        else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/chartsheet")
-            type = XLRelationshipType::Chartsheet;
-        else if (typeString == "http://schemas.microsoft.com/office/2011/relationships/chartStyle")
-            type = XLRelationshipType::ChartStyle;
-        else if (typeString == "http://schemas.microsoft.com/office/2011/relationships/chartColorStyle")
-            type = XLRelationshipType::ChartColorStyle;
-        else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing")
-            type = XLRelationshipType::Drawing;
-        else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image")
-            type = XLRelationshipType::Image;
-        else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart")
-            type = XLRelationshipType::Chart;
-        else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/externalLinkPath")
-            type = XLRelationshipType::ExternalLinkPath;
-        else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/printerSettings")
-            type = XLRelationshipType::PrinterSettings;
-        else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/vmlDrawing")
-            type = XLRelationshipType::VMLDrawing;
-        else if (typeString == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/ctrlProp")
-            type = XLRelationshipType::ControlProperties;
-        else
-            type = XLRelationshipType::Unknown;
+            // ===== relationship could not be identified
+            if (comparePos == 0 )    // If fallback solution has not yet been tried
+                comparePos = typeString.find("/relationships/");    // attempt to find the relationships section of the type string, regardless of domain
+            else                     // If fallback solution was tried & unsuccessful
+                comparePos = 0;                                     // trigger loop exit
 
-        return type;
+        } while(comparePos > 0 && comparePos != std::string::npos);
+        // ===== loop exits if comparePos is not within typeString (= fallback solution failed or not possible)
+
+        return XLRelationshipType::Unknown; // default: relationship could not be identified
     }
 
 } //    namespace
@@ -119,54 +139,32 @@ namespace OpenXLSX_XLRelationships {    // make GetStringFromType accessible thr
     using namespace OpenXLSX;
     std::string GetStringFromType(XLRelationshipType type)
     {
-        std::string typeString;
-
-        if (type == XLRelationshipType::ExtendedProperties)
-            typeString = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties";
-        else if (type == XLRelationshipType::CustomProperties)
-            typeString = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/custom-properties";
-        else if (type == XLRelationshipType::Workbook)
-            typeString = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument";
-        else if (type == XLRelationshipType::CoreProperties)
-            typeString = "http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties";
-        else if (type == XLRelationshipType::Worksheet)
-            typeString = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet";
-        else if (type == XLRelationshipType::Styles)
-            typeString = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles";
-        else if (type == XLRelationshipType::SharedStrings)
-            typeString = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings";
-        else if (type == XLRelationshipType::CalculationChain)
-            typeString = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/calcChain";
-        else if (type == XLRelationshipType::VBAProject)
-            typeString = "http://schemas.microsoft.com/office/2006/relationships/vbaProject";
-        else if (type == XLRelationshipType::ExternalLink)
-            typeString = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/externalLink";
-        else if (type == XLRelationshipType::Theme)
-            typeString = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme";
-        else if (type == XLRelationshipType::Chartsheet)
-            typeString = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/chartsheet";
-        else if (type == XLRelationshipType::ChartStyle)
-            typeString = "http://schemas.microsoft.com/office/2011/relationships/chartStyle";
-        else if (type == XLRelationshipType::ChartColorStyle)
-            typeString = "http://schemas.microsoft.com/office/2011/relationships/chartColorStyle";
-        else if (type == XLRelationshipType::Drawing)
-            typeString = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing";
-        else if (type == XLRelationshipType::Image)
-            typeString = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image";
-        else if (type == XLRelationshipType::Chart)
-            typeString = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart";
-        else if (type == XLRelationshipType::ExternalLinkPath)
-            typeString = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/externalLinkPath";
-        else if (type == XLRelationshipType::PrinterSettings)
-            typeString = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/printerSettings";
-        else if (type == XLRelationshipType::VMLDrawing)
-            typeString = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/vmlDrawing";
-        else if (type == XLRelationshipType::ControlProperties)
-            typeString = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/ctrlProp";
-        else
-            throw XLInternalError("RelationshipType not recognized!");
-
-        return typeString;
+        switch (type) {
+            case XLRelationshipType::ExtendedProperties: return relationshipDomainOpenXml2006 + "/relationships/extended-properties";
+            case XLRelationshipType::CustomProperties:   return relationshipDomainOpenXml2006 + "/relationships/custom-properties";
+            case XLRelationshipType::Workbook:           return relationshipDomainOpenXml2006 + "/relationships/officeDocument";
+            case XLRelationshipType::Worksheet:          return relationshipDomainOpenXml2006 + "/relationships/worksheet";
+            case XLRelationshipType::Styles:             return relationshipDomainOpenXml2006 + "/relationships/styles";
+            case XLRelationshipType::SharedStrings:      return relationshipDomainOpenXml2006 + "/relationships/sharedStrings";
+            case XLRelationshipType::CalculationChain:   return relationshipDomainOpenXml2006 + "/relationships/calcChain";
+            case XLRelationshipType::ExternalLink:       return relationshipDomainOpenXml2006 + "/relationships/externalLink";
+            case XLRelationshipType::Theme:              return relationshipDomainOpenXml2006 + "/relationships/theme";
+            case XLRelationshipType::Chartsheet:         return relationshipDomainOpenXml2006 + "/relationships/chartsheet";
+            case XLRelationshipType::Drawing:            return relationshipDomainOpenXml2006 + "/relationships/drawing";
+            case XLRelationshipType::Image:              return relationshipDomainOpenXml2006 + "/relationships/image";
+            case XLRelationshipType::Chart:              return relationshipDomainOpenXml2006 + "/relationships/chart";
+            case XLRelationshipType::ExternalLinkPath:   return relationshipDomainOpenXml2006 + "/relationships/externalLinkPath";
+            case XLRelationshipType::PrinterSettings:    return relationshipDomainOpenXml2006 + "/relationships/printerSettings";
+            case XLRelationshipType::VMLDrawing:         return relationshipDomainOpenXml2006 + "/relationships/vmlDrawing";
+            case XLRelationshipType::ControlProperties:  return relationshipDomainOpenXml2006 + "/relationships/ctrlProp";
+            case XLRelationshipType::Comments:           return relationshipDomainOpenXml2006 + "/relationships/comments";
+            case XLRelationshipType::CoreProperties:     return relationshipDomainOpenXml2006CoreProps + "/relationships/metadata/core-properties";
+            case XLRelationshipType::VBAProject:         return relationshipDomainMicrosoft2006 + "/relationships/vbaProject";
+            case XLRelationshipType::ChartStyle:         return relationshipDomainMicrosoft2011 + "/relationships/chartStyle";
+            case XLRelationshipType::ChartColorStyle:    return relationshipDomainMicrosoft2011 + "/relationships/chartColorStyle";
+            default:
+                throw XLInternalError("RelationshipType not recognized!");
+        }
     }
 } //    namespace OpenXLSX_XLRelationships
 
