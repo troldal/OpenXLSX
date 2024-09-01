@@ -3,6 +3,9 @@
 OpenXLSX is a C++ library for reading, writing, creating and modifying
 Microsoft Excel® files, with the .xlsx format.
 
+## (aral-matrix) 01 September 2024 - ignore phonetic tags consistently in shared strings table
+Code refactored in XLDocument::open to read the shared strings table while consistently ignoring phonetic tags, which were previously only ignored if the very first child of an ```<si>``` tag was a phonetic tag. Will now be ignored anywhere before, after or in between text ```<t>``` and rich text ```<r>``` tags.
+
 ## (aral-matrix) 31 August 2024 - added fallback solution to get document relationships
 
 Included a "dumb" fallback solution in ```XLRelationships.cpp GetTypeFromString``` to support previously unknown relationship domains, e.g. ```type="http://purl.oclc.org/ooxml/officeDocument/relationships/worksheet"```. Altered behavior will initially test against the hardcoded relationship domains, and if that test fails to identify a relationship type string, the type string will be searched for an occurrence of ```/relationships/``` and if that substring is found, the type detection fallback will try to evaluate the relationship type based on the substring starting with ```/relationships/```, ignoring the domain. For the above example, that would result in a test of ```typeString.substr( comparePos ) == "/relationships/worksheet"```, where comparePos == 41 (the position at which substring ```/relationships/``` begins).

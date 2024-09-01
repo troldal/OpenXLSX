@@ -491,32 +491,31 @@ void XLDocument::open(const std::string& fileName)
         using namespace std::literals::string_literals;
         if (node.name() != "si"s) throw XLInputError("xl/sharedStrings.xml sst node name \""s + node.name() + "\" is not \"si\""s);
 
+        // ===== 2024-09-01 Refactored code to tolerate a mix of <t> and <r> tags within a shared string entry.
+        // This simplifies the loop while not doing any harm (obsolete inner loops for rich text and text elements removed).
+
         // ===== Find first node_element child of si node.
         XMLNode elem = node.first_child_of_type(pugi::node_element);
-        if (not elem.empty()) {
+        std::string result{}; // assemble a shared string entry here
+        while (not elem.empty()) {
+            // 2024-09-01: support a string composed of multiple <t> nodes in the same way as rich text <r> nodes, because LibreOffice accepts it
+
+            std::string elementName = elem.name(); // assign name to a string once, for string comparisons using operator==
+            if      (elementName == "t")               // If elem is a regular string
+                result += elem.text().get();               // append the tag value to result
+            else if (elementName == "r")               // If elem is rich text
+                result += elem.child("t").text().get();    // append the <t> node value to result
             // ===== Ignore phonetic property tags
-            if (std::string(elem.name()) == "rPh" || std::string(elem.name()) == "phoneticPr") {}
-            // ===== If shared string is a rich text string
-            else if (std::string(elem.name()) == "r") {
-                std::string result;
-                while (not elem.empty()) {
-                    result += elem.child("t").text().get();
-                    elem = elem.next_sibling_of_type(pugi::node_element);
-                }
-                m_sharedStringCache.emplace_back(result);
-            }
-            // ===== If shared string is a regular string
-            else {    // 2024-05-03: support a string composed of multiple <t> nodes, because LibreOffice accepts it
-                std::string result;
-                while (not elem.empty()) {
-                    if (elem.name() != "t"s)
-                        throw XLInputError("xl/sharedStrings.xml si node \""s + node.name() + "\" is none of \"r\", \"t\", \"rPh\", \"phoneticPr\""s);
-                    result += elem.text().get();
-                    elem = elem.next_sibling_of_type(pugi::node_element);
-                }
-                m_sharedStringCache.emplace_back(result);
-            }
+            else if (elementName == "rPh" || elementName == "phoneticPr") {}
+            else                                       // For all other (unexpected) tags, throw an exception
+                throw XLInputError("xl/sharedStrings.xml si node \""s + elementName + "\" is none of \"r\", \"t\", \"rPh\", \"phoneticPr\""s);
+
+            elem = elem.next_sibling_of_type(pugi::node_element);    // advance to next child of <si>
         }
+        // ===== Append an empty string even if elem.empty(), to keep the index aligned with the <si> tag index in the shared strings table <sst>
+        m_sharedStringCache.emplace_back(result); // 2024-09-01 TBC BUGFIX: previously, a shared strings table entry that had neither <t> nor
+        /**/                                      //     <r> nodes would not have appended to m_sharedStringCache, causing an index misalignment
+
         node = node.next_sibling_of_type(pugi::node_element);
     }
 
