@@ -9,7 +9,7 @@
 			<selection pane="topLeft" activeCell="A1" activeCellId="0" sqref="A1"/>
 		</sheetView>
 	</sheetViews>
-	<sheetFormatPr defaultColWidth="10.4921875" defaultRowHeight="15.75" zeroHeight="false" outlineLevelRow="0" outlineLevelCol="0"/>
+	<sheetFormatPr defaultColWidth="10.4921875" defaultRowHeight="16" zeroHeight="false" outlineLevelRow="0" outlineLevelCol="0"/>
 	<sheetData/>
 	<printOptions headings="false" gridLines="false" gridLinesSet="true" horizontalCentered="false" verticalCentered="false"/>
 	<pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.511811023622047" footer="0.511811023622047"/>

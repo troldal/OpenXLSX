@@ -233,6 +233,20 @@ namespace OpenXLSX
         XLAppProperties& operator=(XLAppProperties&& other) noexcept = default;
 
         /**
+         * @brief update the "HeadingPairs" entry for "Worksheets" *and* the "TitlesOfParts" vector size
+         * @param increment change the sheet count by this (negative = decrement)
+         * @throws XLInternalError when sheet count would become < 1
+         */
+        void incrementSheetCount(int16_t increment);
+
+        /**
+         * @brief initialize <TitlesOfParts> to contain all and only entries from workbookSheetNames & ensure HeadingPairs entry for Worksheets has the correct count
+         * @param workbookSheetNames the vector of sheet names as returned by XLWorkbook::sheetNames()
+         * @throws XLInternalError thrown by the underlying sheetNames call upon failure
+         */
+        void alignWorksheets(std::vector<std::string> const & workbookSheetNames);
+
+        /**
          * @brief
          * @param title
          * @return

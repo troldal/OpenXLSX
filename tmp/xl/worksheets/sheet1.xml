@@ -5,44 +5,54 @@
 	</sheetPr>
 	<dimension ref="A1:J25"/>
 	<sheetViews>
-		<sheetView showFormulas="false" showGridLines="true" showRowColHeaders="true" showZeros="true" rightToLeft="false" tabSelected="true" showOutlineSymbols="true" defaultGridColor="true" view="normal" topLeftCell="A1" colorId="64" zoomScale="100" zoomScaleNormal="100" zoomScalePageLayoutView="100" workbookViewId="0">
+		<sheetView showFormulas="false" showGridLines="true" showRowColHeaders="true" showZeros="true" rightToLeft="false" tabSelected="false" showOutlineSymbols="true" defaultGridColor="true" view="normal" topLeftCell="A1" colorId="64" zoomScale="100" zoomScaleNormal="100" zoomScalePageLayoutView="100" workbookViewId="0">
 			<selection pane="topLeft" activeCell="A1" activeCellId="0" sqref="A1"/>
 		</sheetView>
 	</sheetViews>
-	<sheetFormatPr defaultColWidth="8.3671875" defaultRowHeight="15.75" zeroHeight="false" outlineLevelRow="0" outlineLevelCol="0"/>
+	<sheetFormatPr defaultColWidth="10.4921875" defaultRowHeight="15.75" zeroHeight="false" outlineLevelRow="0" outlineLevelCol="0"/>
 	<cols>
+		<col collapsed="false" customWidth="true" hidden="false" outlineLevel="0" max="1" min="1" style="1" width="9.4"/>
+		<col collapsed="false" customWidth="true" hidden="false" outlineLevel="0" max="2" min="2" style="1" width="26.6"/>
 		<col collapsed="false" customWidth="true" hidden="false" outlineLevel="0" max="3" min="3" style="1" width="1"/>
 	</cols>
 	<sheetData>
 		<row r="1" customFormat="false" ht="15.75" hidden="false" customHeight="false" outlineLevel="0" collapsed="false">
-			<c r="D1" s="2"/>
+			<c r="A1" s="1" t="s">
+				<v>0</v>
+			</c>
+			<c r="B1" s="1" t="s">
+				<v>0</v>
+			</c>
+			<c r="C1" s="1" t="s">
+				<v>1</v>
+			</c>
 		</row>
 		<row r="2" customFormat="false" ht="15.75" hidden="false" customHeight="false" outlineLevel="0" collapsed="false">
-			<c r="A2" s="2" t="n">
+			<c r="A2" s="2" t="b">
 				<f aca="false">TRUE()</f>
 				<v>1</v>
 			</c>
-			<c r="B2" s="2" t="n">
+			<c r="B2" s="2" t="b">
 				<f aca="false">TRUE()</f>
 				<v>1</v>
 			</c>
-			<c r="C2" s="2" t="n">
+			<c r="C2" s="2" t="b">
 				<f aca="false">FALSE()</f>
 				<v>0</v>
 			</c>
-			<c r="D2" s="2" t="n">
+			<c r="D2" s="3" t="b">
 				<f aca="false">FALSE()</f>
 				<v>0</v>
 			</c>
-			<c r="E2" s="2" t="n">
+			<c r="E2" s="3" t="b">
 				<f aca="false">TRUE()</f>
 				<v>1</v>
 			</c>
-			<c r="F2" s="2" t="n">
+			<c r="F2" s="3" t="b">
 				<f aca="false">FALSE()</f>
 				<v>0</v>
 			</c>
-			<c r="G2" s="2" t="n">
+			<c r="G2" s="3" t="b">
 				<f aca="false">TRUE()</f>
 				<v>1</v>
 			</c>
@@ -57,26 +67,37 @@
 			<c r="C3" s="1" t="n">
 				<v>2</v>
 			</c>
-			<c r="D3" s="1" t="n">
+			<c r="D3" s="0" t="n">
 				<v>3</v>
 			</c>
-			<c r="E3" s="1" t="n">
+			<c r="E3" s="0" t="n">
 				<v>4</v>
 			</c>
-			<c r="F3" s="1" t="n">
+			<c r="F3" s="0" t="n">
 				<v>5</v>
 			</c>
-			<c r="G3" s="1" t="n">
+			<c r="G3" s="0" t="n">
 				<v>6</v>
 			</c>
-			<c r="H3" s="1" t="n">
+			<c r="H3" s="0" t="n">
 				<v>7</v>
 			</c>
-			<c r="I3" s="1" t="n">
+			<c r="I3" s="0" t="n">
 				<v>8</v>
 			</c>
-			<c r="J3" s="1" t="n">
+			<c r="J3" s="0" t="n">
 				<v>9</v>
+			</c>
+		</row>
+		<row r="4" customFormat="false" ht="15.75" hidden="false" customHeight="false" outlineLevel="0" collapsed="false">
+			<c r="A4" s="1" t="s">
+				<v>0</v>
+			</c>
+			<c r="B4" s="1" t="s">
+				<v>0</v>
+			</c>
+			<c r="C4" s="1" t="s">
+				<v>1</v>
 			</c>
 		</row>
 		<row r="11" customFormat="false" ht="15.75" hidden="false" customHeight="false" outlineLevel="0" collapsed="false">
@@ -86,9 +107,14 @@
 			</c>
 		</row>
 		<row r="12" customFormat="false" ht="15.75" hidden="false" customHeight="false" outlineLevel="0" collapsed="false">
-			<c r="D12" s="1" t="n">
+			<c r="D12" s="4" t="n">
 				<f aca="false">4+3</f>
 				<v>7</v>
+			</c>
+		</row>
+		<row r="13" customFormat="false" ht="15.75" hidden="false" customHeight="false" outlineLevel="0" collapsed="false">
+			<c r="D13" s="1" t="s">
+				<v>0</v>
 			</c>
 		</row>
 		<row r="25" customFormat="false" ht="15.75" hidden="false" customHeight="false" outlineLevel="0" collapsed="false">

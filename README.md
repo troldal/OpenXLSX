@@ -3,6 +3,12 @@
 OpenXLSX is a C++ library for reading, writing, creating and modifying
 Microsoft Excel® files, with the .xlsx format.
 
+## (Lars Uffmann) 02 September 2024 - ensure that all worksheets are contained in app.xml <TitlesOfParts> and reflected in <HeadingPairs> value for Worksheets
+
+* Code refactored in ```XLProperties.cpp XLAppProperties``` to create ```<TitlesOfParts>``` and ```<HeadingPairs>``` nodes (and subnodes) if missing, added method ```alignWorksheets```, called by ```XLDocument::open``` to ensure that all worksheets listed in the workbook xml are also accounted for in ```docProps/app.xml```.
+* Started to encapsulate whitespace "pretty format" support in a separate function to remove clutter from the functional code -> ```XLProperties.cpp prettyInsertXmlNodeBefore```, maybe this can eventually become a global function, paired with a TBW function ```prettyInsertXmlNodeAfter```, and could be used by all classes, cleaning up the code for whitespace support substantially.
+* changed some confusing variable names in ```XLProperties.cpp``` for ```<HeadingPairs>``` subnodes: ```pairCount``` -> ```pairValueParent```, ```pairCountValue``` -> ```pairValue```
+
 ## (Lars Uffmann) 01 September 2024 - ignore phonetic tags consistently in shared strings table
 Code refactored in XLDocument::open to read the shared strings table while consistently ignoring phonetic tags, which were previously only ignored if the very first child of an ```<si>``` tag was a phonetic tag. Will now be ignored anywhere before, after or in between text ```<t>``` and rich text ```<r>``` tags.
 
