@@ -16,6 +16,10 @@
 !/make-gnu.sh
 !/vcpkg.json
 
+# include root directory helper files
+!/test.xlsx
+!/xml-format.sh
+
 # include Benchmarks folder
 !/Benchmarks
 # exclude everything *in* Benchmarks folder
@@ -23,6 +27,15 @@
 # re-include specifically what is desired from Benchmarks folder
 !/Benchmarks/*.cpp
 !/Benchmarks/*.txt
+!/Benchmarks/2024-07-29-benchmarks_before_XMLNode_wrappers
+!/Benchmarks/2024-07-29-benchmarks_with_XMLNode_wrappers_and_namespace_and_stripping
+!/Benchmarks/2024-07-29-benchmarks_with_XMLNode_wrappers_and_namespace_char_support
+!/Benchmarks/2024-07-29-benchmarks_with_XMLNode_wrappers_and_namespaced_name_disabled
+!/Benchmarks/2024-07-29-benchmarks_with_XMLNode_wrappers_and_namespace_support
+!/Benchmarks/2024-08-11-benchmarks_post-XLCellIterator-Rework
+!/Benchmarks/2024-08-14-benchmarks_post-default-row-column-style-support
+!/Benchmarks/2024-09-02-benchmarks
+
 
 # include Documentation folder
 !/Documentation
@@ -53,6 +66,14 @@
 # re-include specifically what is desired from gnu-make-crutch folder
 !/gnu-make-crutch/OpenXLSX-Exports.hpp
 
+# include Notes folder
+!/Notes
+# exclude everything *in* Notes folder
+/Notes/*
+# re-include specifically what is desired from Notes folder
+!/Notes/styles-missing-support.xml
+!/Notes/todo-list.txt
+
 # include OpenXLSX folder
 !/OpenXLSX
 # exclude everything *in* OpenXLSX folder
@@ -77,3 +98,29 @@
 !/Tests/catch/*.hpp
 !/Tests/CMakeLists.txt
 !/Tests/*.cpp
+
+# include tmp folder
+!/tmp
+# exclude everything *in* tmp folder
+/tmp/*
+# re-include specifically what is desired from tmp folder
+!/tmp/*
+
+# ## OLD gitignore rules below:
+# 
+# # System Files and Directories
+# .idea/
+# .DS_Store
+# 
+# # Build Directories
+# *cmake-build*/
+# 
+# # Visual Studio
+# .vs/
+# out/
+# 
+# # other
+# *.so
+# *.dylib
+# *.a
+# *.xlsx

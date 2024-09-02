@@ -87,7 +87,7 @@ bool XLSharedStrings::stringExists(const std::string& str) const { return getStr
  */
 const char* XLSharedStrings::getString(int32_t index) const
 {
-    if (index >= m_stringCache->size()) {    // 2024-04-30: added range check
+    if (index < 0 || static_cast<size_t>(index) >= m_stringCache->size()) { // 2024-04-30: added range check
         using namespace std::literals::string_literals;
         throw XLInternalError("XLSharedStrings::"s + __func__ + ": index "s + std::to_string(index) + " is out of range"s);
     }
@@ -127,9 +127,10 @@ void XLSharedStrings::print(std::basic_ostream<char>& ostr) const { xmlDocument(
  */
 void XLSharedStrings::clearString(int32_t index)    // 2024-04-30: whitespace support
 {
-    if (index >= m_stringCache->size())    // 2024-04-30: added range check
-        throw XLInternalError(std::string("XLSharedStrings::") + std::string(__func__) + std::string(": index ") + std::to_string(index) +
-                              std::string(" is out of range"));
+    if (index < 0 || static_cast<size_t>(index) >= m_stringCache->size()) { // 2024-04-30: added range check
+        using namespace std::literals::string_literals;
+        throw XLInternalError("XLSharedStrings::"s + __func__ + ": index "s + std::to_string(index) + " is out of range"s);
+    }
 
     (*m_stringCache)[index] = "";
     // auto iter            = xmlDocument().document_element().children().begin();
@@ -143,7 +144,7 @@ void XLSharedStrings::clearString(int32_t index)    // 2024-04-30: whitespace su
      *   with struct entry { std::string s; uint64_t xmlChildIndex; };
      */
     XMLNode  sharedStringNode = xmlDocument().document_element().first_child_of_type(pugi::node_element);
-    uint64_t sharedStringPos  = 0;
+    int32_t sharedStringPos  = 0;
     while (sharedStringPos < index && not sharedStringNode.empty()) {
         sharedStringNode = sharedStringNode.next_sibling_of_type(pugi::node_element);
         ++sharedStringPos;

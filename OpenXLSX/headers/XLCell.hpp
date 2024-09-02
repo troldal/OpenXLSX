@@ -46,9 +46,14 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_XLCELL_HPP
 #define OPENXLSX_XLCELL_HPP
 
-#pragma warning(push)
-#pragma warning(disable : 4251)
-#pragma warning(disable : 4275)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunknown-pragmas" // disable warning about below #pragma warning being unknown
+#ifdef _MSC_VER                                    // additional condition because the previous line does not work on gcc 12.2
+#   pragma warning(push)
+#   pragma warning(disable : 4251)
+#   pragma warning(disable : 4275)
+#endif // _MSC_VER
+#pragma GCC diagnostic pop
 
 #include <iostream> // std::ostream
 #include <ostream>  // std::basic_ostream
@@ -60,10 +65,18 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLCellValue.hpp"
 #include "XLFormula.hpp"
 #include "XLSharedStrings.hpp"
+#include "XLStyles.hpp"          // XLStyleIndex
 
 // ========== CLASS AND ENUM TYPE DEFINITIONS ========== //
 namespace OpenXLSX
 {
+    // ===== Flags that can be passed to XLCell::clear as parameter keep, flags can be combined with bitwise OR
+    //                                  // Do not clear the cell's:
+    constexpr const uint32_t XLKeepCellStyle   =  1; // style (attribute s)
+    constexpr const uint32_t XLKeepCellType    =  2; // type (attribute t)
+    constexpr const uint32_t XLKeepCellValue   =  4; // value (child node v)
+    constexpr const uint32_t XLKeepCellFormula =  8; // formula (child node f)
+
     class XLCellRange;
     class XLSharedStrings;
 
@@ -137,10 +150,23 @@ namespace OpenXLSX
         void copyFrom(XLCell const& other);
 
         /**
-         * @brief
+         * @brief test if cell object has no (valid) content
+         * @return
+         */
+        bool empty() const;
+
+        /**
+         * @brief opposite of empty()
          * @return
          */
         explicit operator bool() const;
+
+        /**
+         * @brief clear all cell content and attributes except for the cell reference (attribute r)
+         * @param keep do not clear cell properties whose flags are set in keep (XLKeepCellStyle, XLKeepCellType,
+         *              XLKeepCellValue, XLKeepCellFormula), flags can be combined with bitwise OR
+         */
+        void clear(uint32_t keep);
 
         /**
          * @brief
@@ -190,7 +216,21 @@ namespace OpenXLSX
         std::string getString() const { return value().getString(); }
 
         /**
-         * @brief print the XML contents of the XLCell using the underlying XMLNode print function
+         * @brief Get the array index of xl/styles.xml:<styleSheet>:<cellXfs> for the style used in this cell.
+         *        This value is stored in the s attribute of a cell like so: s="2"
+         * @returns The index of the applicable format style
+         */
+        XLStyleIndex cellFormat() const;
+
+        /**
+         * @brief Set the cell style (attribute s) with a reference to the array index of xl/styles.xml:<styleSheet>:<cellXfs>
+         * @param cellFormatIndex The style to set, corresponding to the nidex of XLStyles::cellStyles()
+         * @returns True on success, false on failure
+         */
+        bool setCellFormat(XLStyleIndex cellFormatIndex);
+
+        /**
+         * @brief Print the XML contents of the XLCell using the underlying XMLNode print function
          */
         void print(std::basic_ostream<char>& ostr) const;
 
@@ -256,6 +296,23 @@ namespace OpenXLSX
          */
         XLCellAssignable& operator=(XLCell&& other) noexcept override;
         XLCellAssignable& operator=(XLCellAssignable&& other) noexcept;
+
+        /**
+         * @brief Templated assignment operator.
+         * @tparam T The type of the value argument.
+         * @param value The value.
+         * @return A reference to the assigned-to object.
+         */
+        template<typename T,
+                 typename = std::enable_if_t<
+                     std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<std::decay_t<T>, std::string> ||
+                     std::is_same_v<std::decay_t<T>, std::string_view> || std::is_same_v<std::decay_t<T>, const char*> ||
+                     std::is_same_v<std::decay_t<T>, char*> || std::is_same_v<T, XLDateTime>>>
+        XLCellAssignable& operator=(T value)
+        {
+            XLCell::value() = value; // forward implementation to templated XLCellValue& XLCellValue::operator=(T value)
+            return *this;
+        }
     };
 }    // namespace OpenXLSX
 
@@ -305,5 +362,10 @@ namespace OpenXLSX
     }
 }    // namespace OpenXLSX
 
-#pragma warning(pop)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunknown-pragmas" // disable warning about below #pragma warning being unknown
+#ifdef _MSC_VER                                    // additional condition because the previous line does not work on gcc 12.2
+#   pragma warning(pop)
+#endif // _MSC_VER
+#pragma GCC diagnostic pop
 #endif    // OPENXLSX_XLCELL_HPP

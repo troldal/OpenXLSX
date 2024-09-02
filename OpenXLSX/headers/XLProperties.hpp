@@ -46,9 +46,14 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_XLPROPERTIES_HPP
 #define OPENXLSX_XLPROPERTIES_HPP
 
-#pragma warning(push)
-#pragma warning(disable : 4251)
-#pragma warning(disable : 4275)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunknown-pragmas" // disable warning about below #pragma warning being unknown
+#ifdef _MSC_VER                                    // additional condition because the previous line does not work on gcc 12.2
+#   pragma warning(push)
+#   pragma warning(disable : 4251)
+#   pragma warning(disable : 4275)
+#endif // _MSC_VER
+#pragma GCC diagnostic pop
 
 // ===== External Includes ===== //
 #include <string>
@@ -228,6 +233,20 @@ namespace OpenXLSX
         XLAppProperties& operator=(XLAppProperties&& other) noexcept = default;
 
         /**
+         * @brief update the "HeadingPairs" entry for "Worksheets" *and* the "TitlesOfParts" vector size
+         * @param increment change the sheet count by this (negative = decrement)
+         * @throws XLInternalError when sheet count would become < 1
+         */
+        void incrementSheetCount(int16_t increment);
+
+        /**
+         * @brief initialize <TitlesOfParts> to contain all and only entries from workbookSheetNames & ensure HeadingPairs entry for Worksheets has the correct count
+         * @param workbookSheetNames the vector of sheet names as returned by XLWorkbook::sheetNames()
+         * @throws XLInternalError thrown by the underlying sheetNames call upon failure
+         */
+        void alignWorksheets(std::vector<std::string> const & workbookSheetNames);
+
+        /**
          * @brief
          * @param title
          * @return
@@ -313,5 +332,11 @@ namespace OpenXLSX
 
 }    // namespace OpenXLSX
 
-#pragma warning(pop)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunknown-pragmas" // disable warning about below #pragma warning being unknown
+#ifdef _MSC_VER                                    // additional condition because the previous line does not work on gcc 12.2
+#   pragma warning(pop)
+#endif // _MSC_VER
+#pragma GCC diagnostic pop
+
 #endif    // OPENXLSX_XLPROPERTIES_HPP

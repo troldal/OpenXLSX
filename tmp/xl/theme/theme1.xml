@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<a:theme xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" name="Office Theme">
+	<a:themeElements>
+		<a:clrScheme name="Office">
+			<a:dk1>
+				<a:srgbClr val="000000"/>
+			</a:dk1>
+			<a:lt1>
+				<a:srgbClr val="ffffff"/>
+			</a:lt1>
+			<a:dk2>
+				<a:srgbClr val="44546a"/>
+			</a:dk2>
+			<a:lt2>
+				<a:srgbClr val="e7e6e6"/>
+			</a:lt2>
+			<a:accent1>
+				<a:srgbClr val="4472c4"/>
+			</a:accent1>
+			<a:accent2>
+				<a:srgbClr val="ed7d31"/>
+			</a:accent2>
+			<a:accent3>
+				<a:srgbClr val="a5a5a5"/>
+			</a:accent3>
+			<a:accent4>
+				<a:srgbClr val="ffc000"/>
+			</a:accent4>
+			<a:accent5>
+				<a:srgbClr val="5b9bd5"/>
+			</a:accent5>
+			<a:accent6>
+				<a:srgbClr val="70ad47"/>
+			</a:accent6>
+			<a:hlink>
+				<a:srgbClr val="0563c1"/>
+			</a:hlink>
+			<a:folHlink>
+				<a:srgbClr val="954f72"/>
+			</a:folHlink>
+		</a:clrScheme>
+		<a:fontScheme name="Office">
+			<a:majorFont>
+				<a:latin typeface="Calibri Light" panose="020F0302020204030204" pitchFamily="0" charset="1"/>
+				<a:ea typeface=""/>
+				<a:cs typeface=""/>
+			</a:majorFont>
+			<a:minorFont>
+				<a:latin typeface="Calibri" panose="020F0502020204030204" pitchFamily="0" charset="1"/>
+				<a:ea typeface=""/>
+				<a:cs typeface=""/>
+			</a:minorFont>
+		</a:fontScheme>
+		<a:fmtScheme>
+			<a:fillStyleLst>
+				<a:solidFill>
+					<a:schemeClr val="phClr"/>
+				</a:solidFill>
+				<a:gradFill>
+					<a:gsLst>
+						<a:gs pos="0">
+							<a:schemeClr val="phClr">
+								<a:lumMod val="110000"/>
+								<a:tint val="67000"/>
+							</a:schemeClr>
+						</a:gs>
+						<a:gs pos="50000">
+							<a:schemeClr val="phClr">
+								<a:lumMod val="105000"/>
+								<a:tint val="73000"/>
+							</a:schemeClr>
+						</a:gs>
+						<a:gs pos="100000">
+							<a:schemeClr val="phClr">
+								<a:lumMod val="105000"/>
+								<a:tint val="81000"/>
+							</a:schemeClr>
+						</a:gs>
+					</a:gsLst>
+					<a:lin ang="5400000" scaled="0"/>
+					<a:tileRect l="0" t="0" r="0" b="0"/>
+				</a:gradFill>
+				<a:gradFill>
+					<a:gsLst>
+						<a:gs pos="0">
+							<a:schemeClr val="phClr">
+								<a:lumMod val="102000"/>
+								<a:tint val="94000"/>
+							</a:schemeClr>
+						</a:gs>
+						<a:gs pos="50000">
+							<a:schemeClr val="phClr">
+								<a:lumMod val="100000"/>
+								<a:shade val="100000"/>
+							</a:schemeClr>
+						</a:gs>
+						<a:gs pos="100000">
+							<a:schemeClr val="phClr">
+								<a:lumMod val="99000"/>
+								<a:shade val="78000"/>
+							</a:schemeClr>
+						</a:gs>
+					</a:gsLst>
+					<a:lin ang="5400000" scaled="0"/>
+					<a:tileRect l="0" t="0" r="0" b="0"/>
+				</a:gradFill>
+			</a:fillStyleLst>
+			<a:lnStyleLst>
+				<a:ln w="6350" cap="flat" cmpd="sng" algn="ctr">
+					<a:prstDash val="solid"/>
+					<a:miter lim="800000"/>
+				</a:ln>
+				<a:ln w="12700" cap="flat" cmpd="sng" algn="ctr">
+					<a:prstDash val="solid"/>
+					<a:miter lim="800000"/>
+				</a:ln>
+				<a:ln w="19050" cap="flat" cmpd="sng" algn="ctr">
+					<a:prstDash val="solid"/>
+					<a:miter lim="800000"/>
+				</a:ln>
+			</a:lnStyleLst>
+			<a:effectStyleLst>
+				<a:effectStyle>
+					<a:effectLst/>
+				</a:effectStyle>
+				<a:effectStyle>
+					<a:effectLst/>
+				</a:effectStyle>
+				<a:effectStyle>
+					<a:effectLst/>
+				</a:effectStyle>
+			</a:effectStyleLst>
+			<a:bgFillStyleLst>
+				<a:solidFill>
+					<a:schemeClr val="phClr"/>
+				</a:solidFill>
+				<a:solidFill>
+					<a:schemeClr val="phClr">
+						<a:tint val="95000"/>
+					</a:schemeClr>
+				</a:solidFill>
+				<a:gradFill>
+					<a:gsLst>
+						<a:gs pos="0">
+							<a:schemeClr val="phClr">
+								<a:tint val="93000"/>
+								<a:shade val="98000"/>
+								<a:lumMod val="102000"/>
+							</a:schemeClr>
+						</a:gs>
+						<a:gs pos="50000">
+							<a:schemeClr val="phClr">
+								<a:tint val="98000"/>
+								<a:shade val="90000"/>
+								<a:lumMod val="103000"/>
+							</a:schemeClr>
+						</a:gs>
+						<a:gs pos="100000">
+							<a:schemeClr val="phClr">
+								<a:shade val="63000"/>
+							</a:schemeClr>
+						</a:gs>
+					</a:gsLst>
+					<a:lin ang="5400000" scaled="0"/>
+					<a:tileRect l="0" t="0" r="0" b="0"/>
+				</a:gradFill>
+			</a:bgFillStyleLst>
+		</a:fmtScheme>
+	</a:themeElements>
+</a:theme>

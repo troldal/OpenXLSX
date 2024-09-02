@@ -7,7 +7,6 @@
 
 #include <cmath>
 #include <cstdint>    // int32_t
-#include <string>
 
 namespace
 {

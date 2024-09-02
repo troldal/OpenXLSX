@@ -46,9 +46,14 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_XLSHAREDSTRINGS_HPP
 #define OPENXLSX_XLSHAREDSTRINGS_HPP
 
-#pragma warning(push)
-#pragma warning(disable : 4251)
-#pragma warning(disable : 4275)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunknown-pragmas" // disable warning about below #pragma warning being unknown
+#ifdef _MSC_VER                                    // additional condition because the previous line does not work on gcc 12.2
+#   pragma warning(push)
+#   pragma warning(disable : 4251)
+#   pragma warning(disable : 4275)
+#endif // _MSC_VER
+#pragma GCC diagnostic pop
 
 #include <deque>
 #include <limits>     // std::numeric_limits
@@ -61,7 +66,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 namespace OpenXLSX
 {
-    constexpr size_t XLMaxSharedStrings = (std::numeric_limits< int32_t >::max)();
+    constexpr size_t XLMaxSharedStrings = (std::numeric_limits< int32_t >::max)();    // pull request #261: wrapped max in parentheses to prevent expansion of windows.h "max" macro
 
     /**
      * @brief This class encapsulate the Excel concept of Shared Strings. In Excel, instead of havig individual strings
@@ -173,5 +178,11 @@ namespace OpenXLSX
     };
 }    // namespace OpenXLSX
 
-#pragma warning(pop)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunknown-pragmas" // disable warning about below #pragma warning being unknown
+#ifdef _MSC_VER                                    // additional condition because the previous line does not work on gcc 12.2
+#   pragma warning(pop)
+#endif // _MSC_VER
+#pragma GCC diagnostic pop
+
 #endif    // OPENXLSX_XLSHAREDSTRINGS_HPP

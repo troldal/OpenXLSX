@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<styleSheet>
+	<dxfs count="0"/>
+	<tableStyles count="0" defaultTableStyle="TableStyleMedium2" defaultPivotStyle="PivotStyleLight16"/>
+	<extLst>
+		<ext xmlns:x14="http://schemas.microsoft.com/office/spreadsheetml/2009/9/main" uri="{EB79DEF2-80B8-43e5-95BD-54CBDDF9020C}">
+			<x14:slicerStyles defaultSlicerStyle="SlicerStyleLight1"/>
+		</ext>
+		<ext xmlns:x15="http://schemas.microsoft.com/office/spreadsheetml/2010/11/main" uri="{9260A510-F301-46a8-8635-F512D64BE5F5}">
+			<x15:timelineStyles defaultTimelineStyle="TimeSlicerStyleLight1"/>
+		</ext>
+	</extLst>
+</styleSheet>
