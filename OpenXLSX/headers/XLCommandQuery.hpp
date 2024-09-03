@@ -80,6 +80,7 @@ namespace OpenXLSX
         AddChartsheet,
         DeleteSheet,
         CloneSheet,
+        AddStyles
     };
 
     /**
