@@ -466,7 +466,6 @@ void XLDocument::open(const std::string& fileName)
     std::string workbookPath = "xl/workbook.xml";
     bool workbookAdded = false;
     for (auto& item : m_docRelationships.relationships()) {
-        // std::cout << "relationship target: " << item.target() << ", type is " << XLRelationshipTypeString( item.type() ) << std::endl;
         if (item.type() == XLRelationshipType::Workbook) {
             workbookPath = item.target();
             if( workbookPath[ 0 ] == '/' ) workbookPath = workbookPath.substr(1); // NON STANDARD FORMATS: strip leading '/'
@@ -485,12 +484,11 @@ void XLDocument::open(const std::string& fileName)
     std::string workbookRelsFilename = std::string("xl/_rels/") + workbookPath.substr(pos + 1) + std::string(".rels");
     m_data.emplace_back(this, workbookRelsFilename); // m_data.emplace_back(this, "xl/_rels/workbook.xml.rels");
     m_wbkRelationships = XLRelationships(getXmlData(workbookRelsFilename), workbookRelsFilename);
-    // m_wbkRelationships = XLRelationships(getXmlData("xl/_rels/workbook.xml.rels"));
 
-    // 2024-07-19: TBD whether styles.xml should be created from scratch (relatively easy as most code is already in XLStyles.cpp)
-    m_data.emplace_back(this, "xl/styles.xml"); // 2024-07-15: begin styles support
-    m_styles           = XLStyles(getXmlData("xl/styles.xml"));
+    // ===== Create xl/styles.xml if missing
+    if (!m_archive.hasEntry("xl/styles.xml")) execCommand(XLCommand(XLCommandType::AddStyles));
 
+    // ===== Create xl/sharedStrings.xml from scratch if missing
     if (!m_archive.hasEntry("xl/sharedStrings.xml")) execCommand(XLCommand(XLCommandType::AddSharedStrings));
 
     // ===== Add remaining spreadsheet elements to the vector of XLXmlData objects.
@@ -498,6 +496,12 @@ void XLDocument::open(const std::string& fileName)
         // ===== 2024-07-26 BUGFIX: ignore content item entries for relationship files, that have already been read above
         if (item.path().substr(1) == relsFilename) continue;            // always ignore relsFilename - would have thrown above if not found
         if (item.path().substr(1) == workbookRelsFilename) continue;    // always ignore workbookRelsFilename - would have thrown
+
+        // ===== Test if item is not in a known and handled subfolder (e.g. /customXml/*)
+        if (size_t pos = item.path().substr(1).find_first_of('/'); pos != std::string::npos) {
+            std::string subdirectory = item.path().substr(1, pos);
+            if (subdirectory != "xl" && subdirectory != "docProps") continue; // ignore items in unhandled subfolders
+        }
 
         bool isWorkbookPath = (item.path().substr(1) == workbookPath);      // determine once, use twice
         if (!isWorkbookPath && item.path().substr(0, 4) == "/xl/") {
@@ -588,6 +592,7 @@ void XLDocument::open(const std::string& fileName)
     m_appProperties.alignWorksheets(m_workbook.sheetNames());
 
     m_sharedStrings  = XLSharedStrings(getXmlData("xl/sharedStrings.xml"), &m_sharedStringCache);
+    m_styles         = XLStyles(getXmlData("xl/styles.xml"));
 }
 
 namespace {
@@ -1044,19 +1049,10 @@ bool XLDocument::execCommand(const XLCommand& command)
             }
         } break;
         case XLCommandType::AddSharedStrings: {
-            const std::string sharedStrings {
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-                // "<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"1\" uniqueCount=\"1\">\n"
-                "<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\">\n"    // pull request #192 -> remove count &
-                                                                                                 // uniqueCount as they are optional
-                "  <si>\n"
-                "    <t/>\n"
-                "  </si>\n"
-                "</sst>"
-            };
             m_contentTypes.addOverride("/xl/sharedStrings.xml", XLContentType::SharedStrings);
             m_wbkRelationships.addRelationship(XLRelationshipType::SharedStrings, "sharedStrings.xml");
-            m_archive.addEntry("xl/sharedStrings.xml", sharedStrings);
+            // ===== Add empty archive entry for shared strings, XLSharedStrings constructor will create a default document when no document element is found
+            m_archive.addEntry("xl/sharedStrings.xml", "");
         } break;
         case XLCommandType::AddWorksheet: {
             const std::string emptyWorksheet {
@@ -1135,6 +1131,12 @@ bool XLDocument::execCommand(const XLCommand& command)
             }
 
             m_workbook.prepareSheetMetadata(command.getParam<std::string>("cloneName"), internalID);
+        } break;
+        case XLCommandType::AddStyles: {
+            m_contentTypes.addOverride("/xl/styles.xml", XLContentType::Styles);
+            m_wbkRelationships.addRelationship(XLRelationshipType::Styles, "styles.xml");
+            // ===== Add empty archive entry for styles, XLStyles constructor will create a default document when no document element is found
+            m_archive.addEntry("xl/styles.xml", "");
         } break;
     }
 

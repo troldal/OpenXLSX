@@ -2337,6 +2337,14 @@ XLStyles::XLStyles(XLXmlData* xmlData, std::string stylesPrefix)
     : XLXmlFile(xmlData)
 {
     XMLDocument & doc = xmlDocument();
+    if (doc.document_element().empty())    // handle a bad (no document element) xl/styles.xml
+        doc.load_string(
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                "<styleSheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\">\n"
+                "</styleSheet>",
+                pugi_parse_settings
+        );
+
     XMLNode node = doc.document_element().first_child_of_type(pugi::node_element);
     while (not node.empty()) {
         XLStylesEntryType e = XLStylesEntryTypeFromString (node.name());
@@ -2395,6 +2403,16 @@ XLStyles::XLStyles(XLXmlData* xmlData, std::string stylesPrefix)
         wrapNode (doc.document_element(), node, stylesPrefix);
         m_cellFormats = std::make_unique<XLCellFormats>(node, XLPermitXfID);
     }
+    if (m_cellFormats->count() == 0) {    // if the cell formats array is empty
+        // ===== Create a default empty cell format with ID 0 (== XLDefaultCellFormat) because when XLDefaultCellFormat
+        //        is assigned to an XLRow, the intention is interpreted as "set the cell back to default formatting",
+        //        which does not trigger setting the attribute customFormat="true".
+        //       To avoid confusing the user when the first style created does not work for rows, and setting a cell's
+        //        format back to XLDefaultCellFormat would cause an actual formatting (if assigned format ID 0), this
+        //        initial entry with no properties is created and henceforth ignored
+        m_cellFormats->create();
+    }
+
     if (!m_cellStyleFormats) {
         node = doc.document_element().prepend_child(XLStylesEntryTypeToString(XLStylesCellStyleFormats).c_str());
         wrapNode (doc.document_element(), node, stylesPrefix);

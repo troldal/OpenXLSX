@@ -3,6 +3,13 @@
 OpenXLSX is a C++ library for reading, writing, creating and modifying
 Microsoft Excel® files, with the .xlsx format.
 
+## (Lars Uffmann) 03 September 2024 - ignore worksheet internal subfolders that are not known (e.g. customXml)
+
+* ```XLDocument::open``` will now ignore unknown subfolders (they remain unmodified and unaccessible in the zip in memory and stay in the archive upon saving). This prevents throwing an exception for any XLSX file written by a "creative" application that added items unknown to this library
+* made a ```constexpr``` from ```const unsigned int pugi_parse_settings``` and moved it to ```XLDocument.hpp``` so that the const becomes available to XLStyles and XLSharedStrings
+* XLStyles and XLSharedStrings now take care of creating a valid default document element, if an archive is missing the corresponding XML file or the document element is not present
+* XLStyles constructor now ensures that cellFormats() has at least the default entry with index 0, so that a call to cellFormats().create() will not return this reserved index
+
 ## (Lars Uffmann) 02 September 2024 - ensure that all worksheets are contained in app.xml <TitlesOfParts> and reflected in <HeadingPairs> value for Worksheets
 
 * Code refactored in ```XLProperties.cpp XLAppProperties``` to create ```<TitlesOfParts>``` and ```<HeadingPairs>``` nodes (and subnodes) if missing, added method ```alignWorksheets```, called by ```XLDocument::open``` to ensure that all worksheets listed in the workbook xml are also accounted for in ```docProps/app.xml```.

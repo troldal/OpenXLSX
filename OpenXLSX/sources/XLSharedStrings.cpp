@@ -59,8 +59,24 @@ using namespace OpenXLSX;
  * @details Constructs a new XLSharedStrings object. Only one (common) object is allowed per XLDocument instance.
  * A filepath to the underlying XML file must be provided.
  */
-XLSharedStrings::XLSharedStrings(XLXmlData* xmlData, std::deque<std::string>* stringCache) : XLXmlFile(xmlData), m_stringCache(stringCache)
-{}
+XLSharedStrings::XLSharedStrings(XLXmlData* xmlData, std::deque<std::string>* stringCache)
+    : XLXmlFile(xmlData),
+    m_stringCache(stringCache)
+{
+    XMLDocument & doc = xmlDocument();
+    if (doc.document_element().empty())    // handle a bad (no document element) xl/sharedStrings.xml
+        doc.load_string(
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                "<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\">\n"    // pull request #192 -> remove count &
+                                                                                                 // uniqueCount as they are optional
+                // 2024-09-03: removed empty string entry on creation, as it appears to just waste a string index that will never be used
+                // "  <si>\n"
+                // "    <t/>\n"
+                // "  </si>\n"
+                "</sst>",
+                pugi_parse_settings
+        );
+}
 
 /**
  * @details
