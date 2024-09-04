@@ -70,6 +70,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLCommandQuery.hpp"
 #include "XLDocument.hpp"
 #include "XLException.hpp"
+#include "XLMergeCells.hpp"
 #include "XLRow.hpp"
 #include "XLXmlFile.hpp"
 
@@ -476,6 +477,12 @@ namespace OpenXLSX
          * @param newName
          */
         void updateSheetName(const std::string& oldName, const std::string& newName);
+
+        /**
+         * @brief get an XLMergeCells object to directly access the member functions
+         * @returns an XLMergeCells object for this worksheet
+         */
+        XLMergeCells mergedRanges();
 
         /**
          * @brief merge the cells indicated by range

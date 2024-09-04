@@ -103,33 +103,6 @@ XLMergeCells::XLMergeCells(const XMLNode& node) : m_mergeCellsNode(std::make_uni
  */
 XLMergeCells::~XLMergeCells() = default;
 
-/**
- * @details Look up a merge index by the reference. If the reference does not exist, the returned index is -1.
- */
-int32_t XLMergeCells::getMergeIndex(const std::string& reference) const
-{
-    const auto iter = std::find_if(m_referenceCache.begin(), m_referenceCache.end(), [&](const std::string& ref) { return reference == ref; });
-
-    return iter == m_referenceCache.end() ? -1 : static_cast<int32_t>(std::distance(m_referenceCache.begin(), iter));
-}
-
-/**
- * @details
- */
-bool XLMergeCells::mergeExists(const std::string& reference) const { return getMergeIndex(reference) >= 0; }
-
-/**
- * @details
- */
-const char* XLMergeCells::getMerge(int32_t index) const
-{
-    if (index < 0 || static_cast<uint32_t>(index) >= m_referenceCache.size()) {
-        using namespace std::literals::string_literals;
-        throw XLInputError("XLMergeCells::"s + __func__ + ": index "s + std::to_string(index) + " is out of range"s);
-    }
-    return m_referenceCache[index].c_str();
-}
-
 namespace { // anonymous namespace: do not export any symbols from here
     /**
      * @brief Test if (range) reference overlaps with the cell window defined by topRow, firstCol, bottomRow, lastCol
@@ -164,6 +137,47 @@ namespace { // anonymous namespace: do not export any symbols from here
         return false; // otherwise: no overlap
     }
 } // anonymous namespace
+
+/**
+ * @details Look up a merge index by the reference. If the reference does not exist, the returned index is -1.
+ */
+int32_t XLMergeCells::getMergeIndex(const std::string& reference) const
+{
+    const auto iter = std::find_if(m_referenceCache.begin(), m_referenceCache.end(), [&](const std::string& ref) { return reference == ref; });
+
+    return iter == m_referenceCache.end() ? -1 : static_cast<int32_t>(std::distance(m_referenceCache.begin(), iter));
+}
+
+/**
+ * @details Find the index of the merge of which cellRef is a part. If no such merge exists, the returned index is -1.
+ */
+int32_t XLMergeCells::getMergeIndexByCell(const std::string& cellRef) const { return getMergeIndexByCell(XLCellReference(cellRef)); }
+int32_t XLMergeCells::getMergeIndexByCell(XLCellReference cellRef) const
+{
+    const auto iter = std::find_if(m_referenceCache.begin(), m_referenceCache.end(),
+    /**/                           [&](const std::string& ref) { // use XLReferenceOverlaps with a "range" that only contains cellRef
+    /**/                               return XLReferenceOverlaps( ref, cellRef.row(), cellRef.column(), cellRef.row(), cellRef.column());
+    /**/                           });
+
+    return iter == m_referenceCache.end() ? -1 : static_cast<int32_t>(std::distance(m_referenceCache.begin(), iter));
+}
+
+/**
+ * @details
+ */
+bool XLMergeCells::mergeExists(const std::string& reference) const { return getMergeIndex(reference) >= 0; }
+
+/**
+ * @details
+ */
+const char* XLMergeCells::getMerge(int32_t index) const
+{
+    if (index < 0 || static_cast<uint32_t>(index) >= m_referenceCache.size()) {
+        using namespace std::literals::string_literals;
+        throw XLInputError("XLMergeCells::"s + __func__ + ": index "s + std::to_string(index) + " is out of range"s);
+    }
+    return m_referenceCache[index].c_str();
+}
 
 /**
  * @details Append a mergeCell by creating a new node in the XML file and adding the string to it. The index to the

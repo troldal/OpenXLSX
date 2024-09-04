@@ -63,6 +63,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
+#include "XLCellReference.hpp"
 #include "XLXmlParser.hpp" // XMLNode, pugi node types
 
 namespace OpenXLSX
@@ -128,6 +129,14 @@ namespace OpenXLSX
          * @return -1 if no such reference exists, 0-based index otherwise
          */
         int32_t getMergeIndex(const std::string& reference) const;
+
+        /**
+         * @brief get the index of a <mergeCell> entry of which cellReference is a part
+         * @param cellRef the cell reference (string or XLCellReference) to search for in the merged ranges
+         * @return -1 if no such reference exists, 0-based index otherwise
+         */
+        int32_t getMergeIndexByCell(const std::string& cellRef) const;
+        int32_t getMergeIndexByCell(XLCellReference cellRef) const;
 
         /**
          * @brief test if a mergeCell with reference exists, equivalent to getMergeIndex(reference) >= 0
