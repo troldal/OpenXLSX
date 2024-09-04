@@ -601,6 +601,18 @@ void XLWorksheet::updateSheetName(const std::string& oldName, const std::string&
 }
 
 /**
+ * @details
+ */
+XLMergeCells XLWorksheet::mergedRanges()
+{
+    // TBD: determine if XLMergeCells can somehow be stored with the document / worksheet instead of created on each call
+    XMLNode mergeCellsNode = xmlDocument().document_element().child("mergeCells");
+    if (mergeCellsNode.empty())
+        mergeCellsNode = xmlDocument().document_element().append_child("mergeCells");
+    return XLMergeCells(mergeCellsNode);
+}
+
+/**
  * @details create a new mergeCell element in the worksheet mergeCells array, with the only
  *          attribute being ref="A1:D6" (with the top left and bottom right cells of the range)
  *          The mergeCell element otherwise remains empty (no value)
@@ -616,13 +628,8 @@ void XLWorksheet::mergeCells(XLCellRange const& rangeToMerge, bool emptyHiddenCe
         using namespace std::literals::string_literals;
         throw XLInputError("XLWorksheet::"s + __func__ + ": rangeToMerge must comprise at least 2 cells"s);
     }
-    // TBD: determine if XLMergeCells can somehow be stored with the document / worksheet instead of created on each call
-    XMLNode mergeCellsNode = xmlDocument().document_element().child("mergeCells");
-    if (mergeCellsNode.empty())
-        mergeCellsNode = xmlDocument().document_element().append_child("mergeCells");
-    XLMergeCells m_mergeCells(mergeCellsNode);
 
-    m_mergeCells.appendMerge(rangeToMerge.address());
+    mergedRanges().appendMerge(rangeToMerge.address());
     if (emptyHiddenCells) {
         // ===== Iterate over rangeToMerge, delete values & attributes (except r and s) for all but the first cell in the range
         XLCellIterator it = rangeToMerge.begin();
@@ -647,14 +654,7 @@ void XLWorksheet::mergeCells(const std::string& rangeReference, bool emptyHidden
  */
 void XLWorksheet::unmergeCells(XLCellRange const& rangeToMerge)
 {
-    // TBD: determine if XLMergeCells can somehow be stored with the document / worksheet instead of created on each call
-    XMLNode mergeCellsNode = xmlDocument().document_element().child("mergeCells");
-    if (mergeCellsNode.empty()) {
-        using namespace std::literals::string_literals;
-        throw XLInputError("XLWorksheet::"s + __func__ + ": this worksheet has no merged cells"s);
-    }
-    XLMergeCells m_mergeCells(mergeCellsNode);
-
+    XLMergeCells m_mergeCells = mergedRanges();
     int32_t mergeIndex = m_mergeCells.getMergeIndex(rangeToMerge.address());
     if (mergeIndex != -1)
         m_mergeCells.deleteMerge(mergeIndex);

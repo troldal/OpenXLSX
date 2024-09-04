@@ -3,7 +3,17 @@
 OpenXLSX is a C++ library for reading, writing, creating and modifying
 Microsoft Excel® files, with the .xlsx format.
 
-## (aral-matrix) 03 September 2024 - ignore worksheet internal subfolders that are not known (e.g. customXml)
+### (aral-matrix) 04 September 2024 - enhance XLMergeCells and XLWorksheet functionality
+
+* ```XLWorksheet``` now allows to access an object managing the worksheet's merged cell ranges
+  * ```XLMergeCells XLWorksheet::mergedRanges()```
+* ```XLMergeCells```: added methods
+  * ```int32_t XLMergeCells::getMergeIndexByCell(const std::string& cellRef)```
+  * ```int32_t getMergeIndexByCell(XLCellReference cellRef)```
+* added example usage of this functionality to ```Demo10.cpp```
+
+### (aral-matrix) 03 September 2024 - ignore worksheet internal subfolders that are not known (e.g. customXml)
+
 * ```XLDocument::open``` will now ignore unknown subfolders (they remain unmodified and unaccessible in the zip in memory and stay in the archive upon saving). This prevents throwing an exception for any XLSX file written by a "creative" application that added items unknown to this library
 * made a ```constexpr``` from ```const unsigned int pugi_parse_settings``` and moved it to ```XLDocument.hpp``` so that the const becomes available to XLStyles and XLSharedStrings
 * XLStyles and XLSharedStrings now take care of creating a valid default document element, if an archive is missing the corresponding XML file or the document element is not present

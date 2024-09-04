@@ -407,6 +407,21 @@ int main( int argc, char *argv[] )
 
 	wks.cell("E4") = "merged red range #1\n - hidden cell values are intact!";
    wks.mergeCells("E4:G7");                     // merge cells without deletion of contents
+
+	// How to get the value of a merged range that a cell is a part of (by getting the top left cell first)
+	std::cout << "value of cell F6 is " << wks.cell("F6") << std::endl;    // empty
+	XLMergeCells merges = wks.mergedRanges();                              // get the worksheet's collection of merged ranges
+	int32_t mergeIndexForF6 = merges.getMergeIndexByCell("F6");            // determine if F6 is contained within any merge
+	if( mergeIndexForF6 != -1 ) {                                          // if cell is found at mergeIndexForF6
+		std::string mergeRef = merges.getMerge( mergeIndexForF6 );              // get the actual merge reference
+		size_t pos = mergeRef.find_first_of(':');                               // 
+		XLCellReference topLeftRef(mergeRef.substr(0, pos));                    // extract from the merge the top left cell
+
+		// output information about the merge
+		std::cout << "mergeIndexForF6 is " << mergeIndexForF6 << " , this merge reference is " << mergeRef << " and the top left cell is " << topLeftRef.address() << std::endl;
+		// output the value of the merge's top left cell
+		std::cout << "value of cell F6 by merge is \"" << wks.cell(topLeftRef) << "\"" << std::endl;
+	}
 	wks.cell("E4").setCellFormat( mergedCellFormat );
 	wks.cell("J5") = "merged red range #2\n - hidden cell contents have been deleted!";
    wks.mergeCells("J5:L8", XLEmptyHiddenCells); // merge cells    with deletion of contents
