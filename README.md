@@ -7,7 +7,7 @@ Microsoft Excel® files, with the .xlsx format.
 
 A couple of days ago I finally had the time to learn enough git functionality to be able to work with branches. So I created a development branch with the newest features that I have mentioned in some pull requests / issues. Feel free to [have a look](https://github.com/troldal/OpenXLSX/tree/development-aral). This way you don't have to wait until the main repository is updated.
 
-### New feature on the development branch:
+### New features on the development branch:
 * ```XLCellIterator``` no longer creates empty cells just for iterating over them, and provides ```::cellExists()``` to test if the currently pointed-to cell is already in the worksheet XML, before accessing it
 * ```XLStyles``` support
 * ```XLWorksheet``` now provides ```XLMergeCells``` support for merging / unmerging cell ranges
