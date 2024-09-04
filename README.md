@@ -3,6 +3,20 @@
 OpenXLSX is a C++ library for reading, writing, creating and modifying
 Microsoft Excel® files, with the .xlsx format.
 
+## (aral-matrix) 04 September 2024 - new development branch
+
+A couple of days ago I finally had the time to learn enough git functionality to be able to work with branches. So I created a development branch with the newest features that I have mentioned in some pull requests / issues. Feel free to [have a look](https://github.com/troldal/OpenXLSX/tree/development-aral). This way you don't have to wait until the main repository is updated.
+
+### New feature on the development branch:
+* ```XLCellIterator``` no longer creates empty cells just for iterating over them, and provides ```::cellExists()``` to test if the currently pointed-to cell is already in the worksheet XML, before accessing it
+* ```XLStyles``` support
+* ```XLWorksheet``` now provides ```XLMergeCells``` support for merging / unmerging cell ranges
+* ```Demo10.cpp``` has a lot of examples on how to use the new XLStyles functionality
+* ignore ```customXml``` etc in the xlsx archive
+* accept non-standard workbook names (if correctly identified in the relationships)
+* support for documents with XML namespaces throughout the worksheets
+* support for documents using non-sequential, random relationship IDs
+
 ## (aral-matrix) 01 September 2024 - ignore phonetic tags consistently in shared strings table
 Code refactored in XLDocument::open to read the shared strings table while consistently ignoring phonetic tags, which were previously only ignored if the very first child of an ```<si>``` tag was a phonetic tag. Will now be ignored anywhere before, after or in between text ```<t>``` and rich text ```<r>``` tags.
 
