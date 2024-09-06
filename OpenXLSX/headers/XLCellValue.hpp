@@ -257,7 +257,7 @@ namespace OpenXLSX
                 if constexpr (std::is_integral_v<T> && !std::is_same_v<T, bool>) return static_cast<T>(std::get<int64_t>(m_value));
 
                 if constexpr (std::is_floating_point_v<T>) {
-                    if (m_type == XLValueType::Error) return std::nan("1");
+                    if (m_type == XLValueType::Error) return static_cast<T>(std::nan("1"));
                     return static_cast<T>(std::get<double>(m_value));
                 }
 
