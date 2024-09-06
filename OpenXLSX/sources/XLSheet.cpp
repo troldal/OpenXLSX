@@ -292,6 +292,43 @@ XLWorksheet::XLWorksheet(XLXmlData* xmlData) : XLSheetBase(xmlData)
 }
 
 /**
+ * @details copy-construct an XLWorksheet from other
+ */
+XLWorksheet::XLWorksheet(const XLWorksheet& other) : XLSheetBase<XLWorksheet>(other)
+{
+    m_merges = other.m_merges;    // invoke XLMergeCells copy assignment operator
+}
+
+/**
+ * @details move-construct an XLWorksheet from other
+ */
+XLWorksheet::XLWorksheet(XLWorksheet&& other) : XLSheetBase< XLWorksheet >( other )
+{
+    m_merges = std::move(other.m_merges);    // invoke XLMergeCells move assignment operator
+}
+
+/**
+ * @details copy-assign an XLWorksheet from other
+ */
+XLWorksheet& XLWorksheet::operator=(const XLWorksheet& other)
+{
+    XLSheetBase<XLWorksheet>::operator=(other); // invoke base class copy assignment operator
+    m_merges = other.m_merges;
+    return *this;
+}
+
+/**
+ * @details move-assign an XLWorksheet from other
+ */
+XLWorksheet& XLWorksheet::operator=(XLWorksheet&& other)
+{
+    XLSheetBase<XLWorksheet>::operator=(other); // invoke base class move assignment operator
+    m_merges = std::move(other.m_merges);
+    return *this;
+}
+
+
+/**
  * @details
  */
 XLColor XLWorksheet::getColor_impl() const
@@ -601,15 +638,17 @@ void XLWorksheet::updateSheetName(const std::string& oldName, const std::string&
 }
 
 /**
- * @details
+ * @details upon first access, ensure that the worksheet's <mergeCells> tag exists, and create an XLMergeCells object
  */
-XLMergeCells XLWorksheet::mergedRanges()
+XLMergeCells & XLWorksheet::merges()
 {
-    // TBD: determine if XLMergeCells can somehow be stored with the document / worksheet instead of created on each call
-    XMLNode mergeCellsNode = xmlDocument().document_element().child("mergeCells");
-    if (mergeCellsNode.empty())
-        mergeCellsNode = xmlDocument().document_element().append_child("mergeCells");
-    return XLMergeCells(mergeCellsNode);
+    if( m_merges.uninitialized() ) {
+        XMLNode mergeCellsNode = xmlDocument().document_element().child("mergeCells");
+        if (mergeCellsNode.empty())
+            mergeCellsNode = xmlDocument().document_element().append_child("mergeCells");
+        m_merges = XLMergeCells(mergeCellsNode);
+    }
+    return m_merges;
 }
 
 /**
@@ -629,7 +668,7 @@ void XLWorksheet::mergeCells(XLCellRange const& rangeToMerge, bool emptyHiddenCe
         throw XLInputError("XLWorksheet::"s + __func__ + ": rangeToMerge must comprise at least 2 cells"s);
     }
 
-    mergedRanges().appendMerge(rangeToMerge.address());
+    merges().appendMerge(rangeToMerge.address());
     if (emptyHiddenCells) {
         // ===== Iterate over rangeToMerge, delete values & attributes (except r and s) for all but the first cell in the range
         XLCellIterator it = rangeToMerge.begin();
@@ -650,17 +689,16 @@ void XLWorksheet::mergeCells(const std::string& rangeReference, bool emptyHidden
 }
 
 /**
- * @details check if rangeToMerge exists in mergeCells array & remove it
+ * @details check if rangeToUnmerge exists in mergeCells array & remove it
  */
-void XLWorksheet::unmergeCells(XLCellRange const& rangeToMerge)
+void XLWorksheet::unmergeCells(XLCellRange const& rangeToUnmerge)
 {
-    XLMergeCells m_mergeCells = mergedRanges();
-    int32_t mergeIndex = m_mergeCells.getMergeIndex(rangeToMerge.address());
+    int32_t mergeIndex = merges().findMerge(rangeToUnmerge.address());
     if (mergeIndex != -1)
-        m_mergeCells.deleteMerge(mergeIndex);
+        merges().deleteMerge(mergeIndex);
     else {
         using namespace std::literals::string_literals;
-        throw XLInputError("XLWorksheet::"s + __func__ + ": merged range "s + rangeToMerge.address() + " does not exist"s);
+        throw XLInputError("XLWorksheet::"s + __func__ + ": merged range "s + rangeToUnmerge.address() + " does not exist"s);
     }
 }
 

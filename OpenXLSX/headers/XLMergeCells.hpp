@@ -101,56 +101,87 @@ namespace OpenXLSX
          * @brief
          * @param other
          */
-        XLMergeCells(const XLMergeCells& other) = default;
+        XLMergeCells(const XLMergeCells& other)
+        {
+            m_mergeCellsNode = other.m_mergeCellsNode ? std::make_unique<XMLNode>( *other.m_mergeCellsNode ) : std::unique_ptr<XMLNode> {};
+            m_referenceCache = other.m_referenceCache;
+        }
 
         /**
          * @brief
          * @param other
          */
-        XLMergeCells(XLMergeCells&& other) noexcept = default;
+        XLMergeCells(XLMergeCells&& other)
+        {
+            m_mergeCellsNode = std::move( other.m_mergeCellsNode );
+            m_referenceCache = std::move( other.m_referenceCache );
+        }
 
         /**
          * @brief
          * @param other
          * @return
          */
-        XLMergeCells& operator=(const XLMergeCells& other) = default;
+        XLMergeCells& operator=(const XLMergeCells& other)
+        {
+            m_mergeCellsNode = other.m_mergeCellsNode ? std::make_unique<XMLNode>( *other.m_mergeCellsNode ) : std::unique_ptr<XMLNode> {};
+            m_referenceCache = other.m_referenceCache;
+            return *this;
+        }
 
         /**
          * @brief
          * @param other
          * @return
          */
-        XLMergeCells& operator=(XLMergeCells&& other) noexcept = default;
+        XLMergeCells& operator=(XLMergeCells&& other)
+        {
+            m_mergeCellsNode = std::move( other.m_mergeCellsNode );
+            m_referenceCache = std::move( other.m_referenceCache );
+            return *this;
+        }
+
+        bool uninitialized() const { return ( !m_mergeCellsNode ); }
 
         /**
          * @brief get the index of a <mergeCell> entry by its reference
          * @param reference the reference to search for
          * @return -1 if no such reference exists, 0-based index otherwise
          */
-        int32_t getMergeIndex(const std::string& reference) const;
+        int32_t findMerge(const std::string& reference) const;
 
         /**
-         * @brief get the index of a <mergeCell> entry of which cellReference is a part
-         * @param cellRef the cell reference (string or XLCellReference) to search for in the merged ranges
-         * @return -1 if no such reference exists, 0-based index otherwise
-         */
-        int32_t getMergeIndexByCell(const std::string& cellRef) const;
-        int32_t getMergeIndexByCell(XLCellReference cellRef) const;
-
-        /**
-         * @brief test if a mergeCell with reference exists, equivalent to getMergeIndex(reference) >= 0
+         * @brief test if a mergeCell with reference exists, equivalent to findMerge(reference) >= 0
          * @param reference the reference to find
          * @return true if reference exists, false otherwise
          */
         bool mergeExists(const std::string& reference) const;
 
         /**
+         * @brief get the index of a <mergeCell> entry of which cellReference is a part
+         * @param cellRef the cell reference (string or XLCellReference) to search for in the merged ranges
+         * @return -1 if no such reference exists, 0-based index otherwise
+         */
+        int32_t findMergeByCell(const std::string& cellRef) const;
+        int32_t findMergeByCell(XLCellReference cellRef) const;
+
+        /**
+         * @brief get the amount of entries in <mergeCells>
+         * @return the count of defined cell merges
+         */
+        size_t count() const;
+
+        /**
          * @brief return the cell reference string for the given index
          * @param index
          * @return
          */
-        const char* getMerge(int32_t index) const;
+        const char* merge(int32_t index) const;
+
+        /**
+         * @brief Operator overload: allow [] as shortcut access to merge
+         */
+        const char* operator[](int32_t index) const { return merge(index); }
 
         /**
          * @brief Append a new merge to the list of merges

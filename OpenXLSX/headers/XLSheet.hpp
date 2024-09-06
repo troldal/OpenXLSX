@@ -331,33 +331,30 @@ namespace OpenXLSX
         explicit XLWorksheet(XLXmlData* xmlData);
 
         /**
-         * @brief Copy Constructor.
-         * @note The copy constructor has been explicitly deleted.
-         */
-        XLWorksheet(const XLWorksheet& other) = default;
-
-        /**
-         * @brief Move Constructor.
-         * @note The move constructor has been explicitly deleted.
-         */
-        XLWorksheet(XLWorksheet&& other) = default;
-
-        /**
          * @brief Destructor.
          */
         ~XLWorksheet() = default;
 
         /**
-         * @brief Copy assignment operator.
-         * @note The copy assignment operator has been explicitly deleted.
+         * @brief Copy Constructor.
          */
-        XLWorksheet& operator=(const XLWorksheet& other) = default;
+        XLWorksheet(const XLWorksheet& other);
+
+        /**
+         * @brief Move Constructor.
+         */
+        XLWorksheet(XLWorksheet&& other);
+
+        /**
+         * @brief Copy assignment operator.
+         */
+        XLWorksheet& operator=(const XLWorksheet& other);
 
         /**
          * @brief Move assignment operator.
-         * @note The move assignment operator has been explicitly deleted.
          */
-        XLWorksheet& operator=(XLWorksheet&& other) = default;
+        XLWorksheet& operator=(XLWorksheet&& other);
+
 
         /**
          * @brief
@@ -482,7 +479,7 @@ namespace OpenXLSX
          * @brief get an XLMergeCells object to directly access the member functions
          * @returns an XLMergeCells object for this worksheet
          */
-        XLMergeCells mergedRanges();
+        XLMergeCells & merges();
 
         /**
          * @brief merge the cells indicated by range
@@ -504,7 +501,7 @@ namespace OpenXLSX
          * @param rangeToUnmerge the XLCellRange to unmerge, can be obtained from XLWorksheet::range functions
          * @throws XLInputException if no merged range exists that matches rangeToMerge precisely
          */
-        void unmergeCells(XLCellRange const& rangeToMerge);
+        void unmergeCells(XLCellRange const& rangeToUnmerge);
         /**
          * @brief Convenience wrapper for unmergeCells with a std::string range reference
          * @param rangeReference A range reference string for the cells to unmerge
@@ -583,6 +580,8 @@ namespace OpenXLSX
          * @brief
          */
         bool setActive_impl();
+
+        XLMergeCells m_merges;    /**< class handling the <mergeCells> */
     };
 
     /**

@@ -91,7 +91,7 @@ XLMergeCells::XLMergeCells(const XMLNode& node) : m_mergeCellsNode(std::make_uni
                 while (mergeNode.next_sibling() != nextNode) m_mergeCellsNode->remove_child(mergeNode.next_sibling());
             }
             m_mergeCellsNode->remove_child(mergeNode);
-		  }
+        }
 
         // ===== Advance to next element mergeNode
         mergeNode = nextNode;
@@ -141,7 +141,7 @@ namespace { // anonymous namespace: do not export any symbols from here
 /**
  * @details Look up a merge index by the reference. If the reference does not exist, the returned index is -1.
  */
-int32_t XLMergeCells::getMergeIndex(const std::string& reference) const
+int32_t XLMergeCells::findMerge(const std::string& reference) const
 {
     const auto iter = std::find_if(m_referenceCache.begin(), m_referenceCache.end(), [&](const std::string& ref) { return reference == ref; });
 
@@ -149,10 +149,15 @@ int32_t XLMergeCells::getMergeIndex(const std::string& reference) const
 }
 
 /**
+ * @details
+ */
+bool XLMergeCells::mergeExists(const std::string& reference) const { return findMerge(reference) >= 0; }
+
+/**
  * @details Find the index of the merge of which cellRef is a part. If no such merge exists, the returned index is -1.
  */
-int32_t XLMergeCells::getMergeIndexByCell(const std::string& cellRef) const { return getMergeIndexByCell(XLCellReference(cellRef)); }
-int32_t XLMergeCells::getMergeIndexByCell(XLCellReference cellRef) const
+int32_t XLMergeCells::findMergeByCell(const std::string& cellRef) const { return findMergeByCell(XLCellReference(cellRef)); }
+int32_t XLMergeCells::findMergeByCell(XLCellReference cellRef) const
 {
     const auto iter = std::find_if(m_referenceCache.begin(), m_referenceCache.end(),
     /**/                           [&](const std::string& ref) { // use XLReferenceOverlaps with a "range" that only contains cellRef
@@ -165,12 +170,12 @@ int32_t XLMergeCells::getMergeIndexByCell(XLCellReference cellRef) const
 /**
  * @details
  */
-bool XLMergeCells::mergeExists(const std::string& reference) const { return getMergeIndex(reference) >= 0; }
+size_t XLMergeCells::count() const { return m_referenceCache.size(); }
 
 /**
  * @details
  */
-const char* XLMergeCells::getMerge(int32_t index) const
+const char* XLMergeCells::merge(int32_t index) const
 {
     if (index < 0 || static_cast<uint32_t>(index) >= m_referenceCache.size()) {
         using namespace std::literals::string_literals;
