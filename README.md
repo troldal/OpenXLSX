@@ -3,7 +3,7 @@
 OpenXLSX is a C++ library for reading, writing, creating and modifying
 Microsoft Excel® files, with the .xlsx format.
 
-### (aral-matrix) 06 September 2024 - enhance XLMergeCells and XLWorksheet functionality
+## (aral-matrix) 06 September 2024 - enhance XLMergeCells and XLWorksheet functionality
 * ```XLWorksheet``` now allows to access an object managing the worksheet's merged cell ranges
   * ```XLMergeCells XLWorksheet::merges()``` - access the XLMergeCells class for the worksheet directly
   * ```void mergeCells(XLCellRange const& rangeToMerge, bool emptyHiddenCells = false)``` - merge cells defined by rangeToMerge
