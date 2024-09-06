@@ -3,16 +3,35 @@
 OpenXLSX is a C++ library for reading, writing, creating and modifying
 Microsoft Excel® files, with the .xlsx format.
 
-### (aral-matrix) 04 September 2024 - enhance XLMergeCells and XLWorksheet functionality
-
+### (aral-matrix) 06 September 2024 - enhance XLMergeCells and XLWorksheet functionality
 * ```XLWorksheet``` now allows to access an object managing the worksheet's merged cell ranges
-  * ```XLMergeCells XLWorksheet::mergedRanges()```
+  * ```XLMergeCells XLWorksheet::merges()``` - access the XLMergeCells class for the worksheet directly
+  * ```void mergeCells(XLCellRange const& rangeToMerge, bool emptyHiddenCells = false)``` - merge cells defined by rangeToMerge
+  * ```void mergeCells(const std::string& rangeReference, bool emptyHiddenCells = false)``` - merge cells defined by rangeReference
+  * ```void unmergeCells(XLCellRange const& rangeToUnmerge)``` - unmerge cells defined by rangeToUnmerge
+  * ```void unmergeCells(const std::string& rangeReference)``` - unmerge cells defined by rangeReference
+
 * ```XLMergeCells```: added methods
-  * ```int32_t XLMergeCells::getMergeIndexByCell(const std::string& cellRef)```
-  * ```int32_t getMergeIndexByCell(XLCellReference cellRef)```
+  * ```int32_t XLMergeCells::findMerge(const std::string& reference)``` - find a merge matching reference
+  * ```bool mergeExists(const std::string& reference)``` - test if a merge with reference exists
+  * ```int32_t XLMergeCells::findMergeByCell(const std::string& cellRef)``` - find a merge containing std::string cellRef
+  * ```int32_t XLMergeCells::findMergeByCell(XLCellReference cellRef)``` - find a merge containing XLCellReference cellRef
+  * ```size_t count()``` - get count of merges defined in the worksheet
+  * ```const char* merge(int32_t index)``` - get merge reference string at index
+  * ```const char* operator[](int32_t index)``` - overload of operator[] as a shortcut to ::merge
+  * ```int32_t appendMerge(const std::string& reference)``` - define a new merge, invoked by XLWorksheet::mergeCells
+  * ```void deleteMerge(int32_t index)``` - delete merge with the given index from the worksheet (= unmerge cells), invoked by XLWorksheet::unmergeCells
+
 * added example usage of this functionality to ```Demo10.cpp```
 
-### (aral-matrix) 03 September 2024 - ignore worksheet internal subfolders that are not known (e.g. customXml)
+### (aral-matrix) September 2024 - to-do list:
+- TBD: could XLRowData also benefit from passing through to setDefaultCellAttributes a column styles vector?
+- completion of style support as much as is reasonable (not color themes, most likely) per known documentation of xl/styles.xml
+- XLAlignmentStyle: check / throw if vertical alignments are used as horizontal and vice versa
+- XLStyles ::create functions: implement good default style properties for all styles
+- TBD: permit setting a format reference for shared strings
+
+
 
 * ```XLDocument::open``` will now ignore unknown subfolders (they remain unmodified and unaccessible in the zip in memory and stay in the archive upon saving). This prevents throwing an exception for any XLSX file written by a "creative" application that added items unknown to this library
 * made a ```constexpr``` from ```const unsigned int pugi_parse_settings``` and moved it to ```XLDocument.hpp``` so that the const becomes available to XLStyles and XLSharedStrings

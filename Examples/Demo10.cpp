@@ -58,7 +58,6 @@ int main( int argc, char *argv[] )
 
 	std::cout << "doc.name() is " << doc.name() << std::endl;
 
-
 	XLNumberFormats & numberFormats = doc.styles().numberFormats();
 	XLFonts & fonts = doc.styles().fonts();
 	XLFills & fills = doc.styles().fills();
@@ -223,7 +222,11 @@ int main( int argc, char *argv[] )
 
 	// enable testBasics = true to create/modify at least one entry in each known styles array
 	// disable testBasics = false to stop the demo execution here and save the document
-	bool testBasics = true;
+	bool testBasics = false;
+	// CAUTION: setting testBasics = true will cause MS Excel to complain about document errors
+	//          the purpose of this scope is to prove desired modification of the underlying XML
+	//          tags for direct inspection with unzip + xmllint + text editor.
+	//          The testBasics scope makes no attempt to generate meaningful or consistent style information.
 
 	if( testBasics ) {
 		std::cout << "   numberFormats.count() is " <<    numberFormats.count() << std::endl;
@@ -410,10 +413,10 @@ int main( int argc, char *argv[] )
 
 	// How to get the value of a merged range that a cell is a part of (by getting the top left cell first)
 	std::cout << "value of cell F6 is " << wks.cell("F6") << std::endl;    // empty
-	XLMergeCells merges = wks.mergedRanges();                              // get the worksheet's collection of merged ranges
-	int32_t mergeIndexForF6 = merges.getMergeIndexByCell("F6");            // determine if F6 is contained within any merge
+	XLMergeCells merges = wks.merges();                                // get the worksheet's collection of merged ranges
+	int32_t mergeIndexForF6 = merges.findMergeByCell("F6");            // determine if F6 is contained within any merge
 	if( mergeIndexForF6 != -1 ) {                                          // if cell is found at mergeIndexForF6
-		std::string mergeRef = merges.getMerge( mergeIndexForF6 );              // get the actual merge reference
+		std::string mergeRef = merges[ mergeIndexForF6 ];                       // get the actual merge reference
 		size_t pos = mergeRef.find_first_of(':');                               // 
 		XLCellReference topLeftRef(mergeRef.substr(0, pos));                    // extract from the merge the top left cell
 
