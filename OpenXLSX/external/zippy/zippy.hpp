@@ -36,6 +36,49 @@
 #    define FILESYSTEM_NAMESPACE std
 #endif
 
+// 2024-09-15: moved Zippy exceptions to top of module to be able to use them earlier - forward declaration didn't seem to work
+namespace Zippy
+{
+    /**
+     * @brief The ZipRuntimeError class is a custom exception class derived from the std::runtime_error class.
+     * @details In case of an error in the Zippy library, an ZipRuntimeError object will be thrown, with a message
+     * describing the details of the error.
+     */
+    class ZipRuntimeError : public std::runtime_error
+    {
+    public:
+        /**
+         * @brief Constructor.
+         * @param err A string with a description of the error.
+         */
+        inline explicit ZipRuntimeError(const std::string& err) : runtime_error(err) {}
+
+        /**
+         * @brief Destructor.
+         */
+        inline ~ZipRuntimeError() override = default;
+    };
+
+    /**
+     * @brief
+     */
+    class ZipLogicError : public std::logic_error
+    {
+    public:
+        /**
+         * @brief
+         * @param err
+         */
+        inline explicit ZipLogicError(const std::string& err) : logic_error(err) {}
+
+        /**
+         * @brief
+         */
+        inline ~ZipLogicError() override = default;
+    };
+
+}    // namespace Zippy
+
 namespace ns_miniz
 {
     /* miniz.c 2.0.8 - public domain deflate/inflate, zlib-subset, ZIP reading/writing/appending, PNG writing
@@ -151,6 +194,65 @@ namespace ns_miniz
      (i.e. 32-bit stat() fails for me on files > 0x7FFFFFFF bytes).
 */
 #pragma once
+
+    /* 2024-09-15: added fileExists and moveFile functions to verify that FILESYSTEM_NAMESPACE::rename actually succeeded
+     *  ==> print an error to stderr if sourceFile still exists after a "successful" rename
+     *  ==> throw an exception if destinationFile was not created
+     */
+
+    /* Function: fileExists
+     * Purpose: test if fileName exists on the filesystem, using unicode-compatible functions (FILESYSTEM_NAMESPACE)
+     * Parameters:
+     *     fileName        the file path to check
+     * Returns:
+     *     true    if file exists
+     *     false    if it does not
+     */
+    bool fileExists( const char *fileName )
+    {
+        FILE *f = FILESYSTEM_NAMESPACE::fopen(fileName, "rb");
+        if (f != nullptr) {
+            fclose(f);
+            return true;                         // it exists
+        }
+        return false;    // default: file does not exist
+    }
+    /* End of Function: fileExists */
+
+    /* Function: moveFile
+     * Purpose: attempt file rename, using unicode-compatible functions (FILESYSTEM_NAMESPACE)
+     *           with additional test if source file is gone and destinationFile exists after move
+     * Parameters:
+     *     sourceFile       move this file
+     *     destinationFile  to this location
+     * Returns: N/A
+     * Throws:: std::filesystem::filesystem_error upon failure - sourceFile will remain in that case
+     */
+    void moveFile(const char *sourceFile, const char *destinationFile)
+    {
+std::cout << "moveFile invoked by zippy" << std::endl; // TODO DEBUG: remove this after tests confirm desired functionality
+        bool success = false;
+        if (0 == FILESYSTEM_NAMESPACE::rename(sourceFile, destinationFile)) { // initially: try move
+            // if rename reported success, test if source file is gone
+            if (fileExists(sourceFile)) {
+                std::cerr << "zippy " << __func__ << " WARNING: FILESYSTEM_NAMESPACE::rename reported success"
+                /**/                                 << " but sourceFile \"" << sourceFile << "\" still exists" << std::endl;
+                if( 0 == FILESYSTEM_NAMESPACE::remove( sourceFile ) ) // on success: attempt to unlink the source file - can't do anything if this fails, however
+                    std::cerr << "zippy " << __func__ << " WARNING: unlink failed on " << sourceFile << std::endl;
+            }
+            if (fileExists(destinationFile)) // confirm that destination file exists after rename
+                success = true;
+        }
+        // else: rename failed, success is still false
+
+        if (!success) {
+            using namespace std::literals::string_literals;
+            std::string strErr = "zippy "s + std::string(__func__) + " ERROR: failed to rename "s + std::string(sourceFile) + " to " + std::string(destinationFile);
+            std::cerr << strErr << std::endl;
+            throw Zippy::ZipRuntimeError(strErr);
+        }
+    }
+    /* End of Function: moveFile */
 
     /* Defines to completely disable specific portions of miniz.c:
        If all macros here are defined the only functionality remaining will be CRC-32, adler-32, tinfl, and tdefl. */
@@ -4570,6 +4672,7 @@ common_exit:
         if (!pFile) return NULL;
         return pFile;
     }
+
 #            ifndef MINIZ_NO_TIME
 #                include <sys/utime.h>
 #            endif
@@ -4677,6 +4780,13 @@ common_exit:
 #            define MZ_RENAME_FILE FILESYSTEM_NAMESPACE::rename
 #        endif /* #ifdef _MSC_VER */
 #    endif /* #ifdef MINIZ_NO_STDIO */
+
+// 2024-09-15: override all previous settings for MZ_RENAME_FILE with moveFile - which correctly invokes FILESYSTEM_NAMESPACE
+//             The purpose is to check rename when it reports success (if sourcefile persists, output a warning & attempt to remove it manually)
+#    ifdef MZ_RENAME_FILE
+#        undef MZ_RENAME_FILE
+#        define MZ_RENAME_FILE moveFile
+#    endif
 
 #    define MZ_TOLOWER(c) ((((c) >= 'A') && ((c) <= 'Z')) ? ((c) - 'A' + 'a') : (c))
 
@@ -9703,49 +9813,7 @@ handle_failure:
 
 }    // namespace ns_miniz
 
-namespace Zippy
-{
-    using namespace ns_miniz;
-
-    /**
-     * @brief The ZipRuntimeError class is a custom exception class derived from the std::runtime_error class.
-     * @details In case of an error in the Zippy library, an ZipRuntimeError object will be thrown, with a message
-     * describing the details of the error.
-     */
-    class ZipRuntimeError : public std::runtime_error
-    {
-    public:
-        /**
-         * @brief Constructor.
-         * @param err A string with a description of the error.
-         */
-        inline explicit ZipRuntimeError(const std::string& err) : runtime_error(err) {}
-
-        /**
-         * @brief Destructor.
-         */
-        inline ~ZipRuntimeError() override = default;
-    };
-
-    /**
-     * @brief
-     */
-    class ZipLogicError : public std::logic_error
-    {
-    public:
-        /**
-         * @brief
-         * @param err
-         */
-        inline explicit ZipLogicError(const std::string& err) : logic_error(err) {}
-
-        /**
-         * @brief
-         */
-        inline ~ZipLogicError() override = default;
-    };
-
-}    // namespace Zippy
+// 2024-09-15: removed Zippy ZipRuntimeError here to move it to the top of module because forward declaration did not work
 
 namespace Zippy::Impl
 {
@@ -9775,6 +9843,8 @@ namespace Zippy::Impl
 
 namespace Zippy
 {
+    using namespace ns_miniz;
+
     class ZipArchive;
 
     class ZipEntry;
