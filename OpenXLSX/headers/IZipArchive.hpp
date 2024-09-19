@@ -141,40 +141,45 @@ namespace OpenXLSX
         }
 
         inline bool isValid() const {
-            return m_zipArchive->isValid();
+            return m_zipArchive != nullptr && m_zipArchive->isValid();
 
         }
 
         inline bool isOpen() const {
-            return m_zipArchive->isOpen();
+            return m_zipArchive != nullptr && m_zipArchive->isOpen();
         }
 
         inline void open(const std::string& fileName) {
-            m_zipArchive->open(fileName);
+            if( m_zipArchive != nullptr )
+                m_zipArchive->open(fileName);
         }
 
         inline void close() const {
-            m_zipArchive->close();
+            if( m_zipArchive != nullptr )
+                m_zipArchive->close();
         }
 
         inline void save(const std::string& path) {
-            m_zipArchive->save(path);
+            if( m_zipArchive != nullptr )
+                m_zipArchive->save(path);
         }
 
         inline void addEntry(const std::string& name, const std::string& data) {
-            m_zipArchive->addEntry(name, data);
+            if( m_zipArchive != nullptr )
+                m_zipArchive->addEntry(name, data);
         }
 
         inline void deleteEntry(const std::string& entryName) {
-            m_zipArchive->deleteEntry(entryName);
+            if( m_zipArchive != nullptr )
+                m_zipArchive->deleteEntry(entryName);
         }
 
         inline std::string getEntry(const std::string& name) {
-            return m_zipArchive->getEntry(name);
+            return m_zipArchive != nullptr ? m_zipArchive->getEntry(name) : std::string();
         }
 
         inline bool hasEntry(const std::string& entryName) {
-            return m_zipArchive->hasEntry(entryName);
+            return m_zipArchive != nullptr && m_zipArchive->hasEntry(entryName);
         }
 
     private:
