@@ -85,7 +85,15 @@ bool XLZipArchive::isOpen() const
 void XLZipArchive::open(const std::string& fileName)
 {
     m_archive = std::make_shared<Zippy::ZipArchive>();
-    m_archive->Open(fileName);
+
+    try
+    {
+        m_archive->Open(fileName);
+    }
+    catch(...)
+    {
+        m_archive = nullptr;
+    }
 }
 
 /**
@@ -93,7 +101,8 @@ void XLZipArchive::open(const std::string& fileName)
  */
 void XLZipArchive::close()
 {
-    m_archive->Close();
+    if( m_archive != nullptr )
+        m_archive->Close();
     m_archive = nullptr;
 }
 
@@ -102,7 +111,8 @@ void XLZipArchive::close()
  */
 void XLZipArchive::save(const std::string& path) // NOLINT
 {
-    m_archive->Save(path);
+    if( m_archive != nullptr )
+        m_archive->Save(path);
 }
 
 /**
@@ -110,7 +120,8 @@ void XLZipArchive::save(const std::string& path) // NOLINT
  */
 void XLZipArchive::addEntry(const std::string& name, const std::string& data) // NOLINT
 {
-    m_archive->AddEntry(name, data);
+    if( m_archive != nullptr )
+        m_archive->AddEntry(name, data);
 }
 
 /**
@@ -118,19 +129,20 @@ void XLZipArchive::addEntry(const std::string& name, const std::string& data) //
  */
 void XLZipArchive::deleteEntry(const std::string& entryName) // NOLINT
 {
-    m_archive->DeleteEntry(entryName);
+    if( m_archive != nullptr )
+        m_archive->DeleteEntry(entryName);
 }
 
 /**
  * @details
  */
 std::string XLZipArchive::getEntry(const std::string& name) const {
-    return m_archive->GetEntry(name).GetDataAsString();
+    return m_archive != nullptr ? m_archive->GetEntry(name).GetDataAsString() : nullptr;
 }
 
 /**
  * @details
  */
 bool XLZipArchive::hasEntry(const std::string& entryName) const {
-    return m_archive->HasEntry(entryName);
+    return m_archive != nullptr && m_archive->HasEntry(entryName);
 }
