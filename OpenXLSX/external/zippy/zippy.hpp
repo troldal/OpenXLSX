@@ -230,7 +230,6 @@ namespace ns_miniz
      */
     void moveFile(const char *sourceFile, const char *destinationFile)
     {
-std::cout << "moveFile invoked by zippy" << std::endl; // TODO DEBUG: remove this after tests confirm desired functionality
         bool success = false;
         if (0 == FILESYSTEM_NAMESPACE::rename(sourceFile, destinationFile)) { // initially: try move
             // if rename reported success, test if source file is gone
