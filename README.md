@@ -72,7 +72,7 @@ After a long period of inactivity, I have decided to resume development of OpenX
 
 I would like to extend my sincere thanks to all the people who have contributed to the project, either by reporting bugs, suggesting features or by submitting pull requests. I would also like to thank all the people who have starred the project, and who have shown interest in the project.
 
-In particular, I would like to thank aral-matrix (https://codeberg.org/lars_uffmann/) for his contributions to the project. Lars has spent significant time and effort in cleaning up the code, fixing bugs and implementing new features. Without his help, the project would not have been in the state it is today.
+In particular, I would like to thank Lars Uffmann (https://codeberg.org/lars_uffmann/) for his contributions to the project. Lars has spent significant time and effort in cleaning up the code, fixing bugs and implementing new features. Without his help, the project would not have been in the state it is today.
 
 ### 20/05/2024
 * Google Benchmark is no longer included in the repository. To run the benchmarks, Google Benchmark have to be installed on the system. If you use vcpkg, it will be downloaded automatically.
