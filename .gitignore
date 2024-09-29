@@ -30,7 +30,6 @@
 !/Benchmarks/2024-08-14-benchmarks_post-default-row-column-style-support
 !/Benchmarks/2024-09-02-benchmarks
 
-
 # include Documentation folder
 !/Documentation
 # exclude everything *in* Documentation folder
@@ -104,29 +103,3 @@
 !/Tests/catch/*.hpp
 !/Tests/CMakeLists.txt
 !/Tests/*.cpp
-
-# include tmp folder
-!/tmp
-# exclude everything *in* tmp folder
-/tmp/*
-# re-include specifically what is desired from tmp folder
-!/tmp/*
-
-# ## OLD gitignore rules below:
-# 
-# # System Files and Directories
-# .idea/
-# .DS_Store
-# 
-# # Build Directories
-# *cmake-build*/
-# 
-# # Visual Studio
-# .vs/
-# out/
-# 
-# # other
-# *.so
-# *.dylib
-# *.a
-# *.xlsx

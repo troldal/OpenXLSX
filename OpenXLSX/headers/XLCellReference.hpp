@@ -56,6 +56,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #pragma GCC diagnostic pop
 
 // ===== External Includes ===== //
+#include <cstdint>    // Pull request #276
 #include <string>
 #include <utility>
 

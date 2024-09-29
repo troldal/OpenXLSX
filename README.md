@@ -15,6 +15,14 @@ Microsoft Excel® files, with the .xlsx format.
 * added ```Scripts/demos-cleanup.sh``` to remove all xlsx files created by the Demos
 * support for ```void setSavingDeclaration(XLXmlSavingDeclaration const& savingDeclaration)``` using ```class XLXmlSavingDeclaration``` (defined in ```XLXmlData.hpp```) that can be used to pass a custom XML version, encoding, and standalone property to pugixml
 
+### (aral-matrix) September 2024 - to-do list:
+- for more to-do items, refer to ```Notes/todo-list.txt```
+- TBD: could XLRowData also benefit from passing through to setDefaultCellAttributes a column styles vector?
+- completion of style support as much as is reasonable (not color themes, most likely) per known documentation of xl/styles.xml
+- XLAlignmentStyle: check / throw if vertical alignments are used as horizontal and vice versa
+- XLStyles ::create functions: implement good default style properties for all styles
+- TBD: permit setting a format reference for shared strings
+
 ## (aral-matrix) 06 September 2024 - enhance XLMergeCells and XLWorksheet functionality
 
 * ```XLWorksheet``` now allows to access an object managing the worksheet's merged cell ranges
@@ -36,13 +44,6 @@ Microsoft Excel® files, with the .xlsx format.
   * ```void deleteMerge(int32_t index)``` - delete merge with the given index from the worksheet (= unmerge cells), invoked by XLWorksheet::unmergeCells
 
 * added example usage of this functionality to ```Demo10.cpp```
-
-### (aral-matrix) September 2024 - to-do list:
-- TBD: could XLRowData also benefit from passing through to setDefaultCellAttributes a column styles vector?
-- completion of style support as much as is reasonable (not color themes, most likely) per known documentation of xl/styles.xml
-- XLAlignmentStyle: check / throw if vertical alignments are used as horizontal and vice versa
-- XLStyles ::create functions: implement good default style properties for all styles
-- TBD: permit setting a format reference for shared strings
 
 ### (aral-matrix) 03 September 2024 - ignore worksheet internal subfolders that are not known (e.g. customXml)
 * ```XLDocument::open``` will now ignore unknown subfolders (they remain unmodified and unaccessible in the zip in memory and stay in the archive upon saving). This prevents throwing an exception for any XLSX file written by a "creative" application that added items unknown to this library
@@ -416,7 +417,7 @@ filenames, where it turned out that the ***source code*** for the test program
 was in a non-UTF-8 encoding, and hence the input string to OpenXLSX was also
 non-UTF-8. To stay sane, I recommend that source code files are always 
 in UTF-8 files; all IDE's I know of can handle source code files in UTF-8 
-encoding. Welcome to the wonderful world of unicode on Windows
+encoding. Welcome to the wonderful world of unicode on Windows 🤮
 
 ### Zip Library
 An Excel-file is essentially just a bunch of .xml files wrapped in a .zip archive. OpenXLSX uses a 3rd party library to extract the .xml files from the .zip archive. The default library used by OpenXLSX is Zippy, which is an object-oriented wrapper around miniz. The miniz library is fast, and is header-only, which is ideal for OpenXLSX. 
