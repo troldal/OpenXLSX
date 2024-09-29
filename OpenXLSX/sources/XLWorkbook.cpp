@@ -213,7 +213,7 @@ void XLWorkbook::deleteSheet(const std::string& sheetName)    // 2024-05-02: whi
             sheetsNode(xmlDocument()).remove_child(nonElementNode);
             nonElementNode = nonElementNode.next_sibling();
         }
-        sheetsNode(xmlDocument()).remove_child(sheet);    // delete the actual sheet entry 
+        sheetsNode(xmlDocument()).remove_child(sheet);    // delete the actual sheet entry
     }
 
     if (sheetIsActive(sheetID))

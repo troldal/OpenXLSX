@@ -26,8 +26,8 @@ int main()
     // all your source code files are in UTF-8 encoding. All major compilers and IDEs on windows
     // support UTF-8 encoded source files.
     // To convert input/output manually, you can use the Windows API, or 3rd party libraries, such
-    // as boost.nowide.
-    // In this example boost.nowide is used, as it provides some handy functionality that enables
+    // as Boost.NoWide.
+    // In this example Boost.NoWide is used, as it provides some handy functionality that enables
     // console input/output with implicit conversion to/from UTF-8 on Windows.
 
     // First, create a new document and access the sheet named 'Sheet1'.
@@ -37,7 +37,7 @@ int main()
     auto wks1 = doc1.workbook().worksheet("Sheet1");
     wks1.setName("Простыня");
 
-    // Cell values can be set to any Unicode string using the normat value assignment methods.
+    // Cell values can be set to any Unicode string using the normal value assignment methods.
     wks1.cell(XLCellReference("A1")).value() = "안녕하세요 세계!";
     wks1.cell(XLCellReference("A2")).value() = "你好，世界!";
     wks1.cell(XLCellReference("A3")).value() = "こんにちは 世界";

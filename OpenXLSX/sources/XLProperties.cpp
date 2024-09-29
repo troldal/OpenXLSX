@@ -558,7 +558,7 @@ void XLAppProperties::deleteHeadingPair(const std::string& name)
     // ===== If item with name was found, remove pair and update headingPairsSize
     if (not item.empty()) {
         const XMLNode count = item.next_sibling_of_type(pugi::node_element);
-        // ===== 2024-05-28: delete all (non-element) nodes between item and count node, *then* delete non-element nodes following a count node 
+        // ===== 2024-05-28: delete all (non-element) nodes between item and count node, *then* delete non-element nodes following a count node
         if (not count.empty()) {
             while (item.next_sibling() != count)
                 HeadingPairsNode.remove_child(item.next_sibling());     // remove nodes between item & count nodes to be deleted jointly

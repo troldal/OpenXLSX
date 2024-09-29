@@ -172,6 +172,7 @@ namespace OpenXLSX
         /**
          * @brief determine whether iterator is at 1 beyond the last cell in range
          * @return
+         * @note 28-07-2024: Removed const from return type (Troldal)
          */
         bool endReached() const { return m_endReached; }
 
@@ -185,8 +186,9 @@ namespace OpenXLSX
         /**
          * @brief get the XLCellReference::address corresponding to the current iterator position
          * @return an XLCellReference::address, with m_bottomRight.col() + 1 for the beyond-the-end iterator
+         * @note 28-07-2024: Removed const from return type (Troldal)
          */
-        const std::string address() const;
+        std::string address() const;
 
     private:
         std::unique_ptr<XMLNode> m_dataNode;             /**< */

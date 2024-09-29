@@ -731,7 +731,7 @@ void XLDocument::saveAs(const std::string& fileName) { saveAs( fileName, XLForce
 /**
  * @details
  */
-const std::string XLDocument::name() const
+std::string XLDocument::name() const
 {
     size_t pos = m_filePath.find_last_of('/');
     if (pos != std::string::npos)

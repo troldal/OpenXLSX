@@ -424,7 +424,7 @@ uint64_t XLCellIterator::distance(const XLCellIterator& last)
 /**
  * @details
  */
-const std::string XLCellIterator::address() const
+std::string XLCellIterator::address() const
 {
     uint32_t row = (m_endReached ? m_bottomRight.row() : m_currentRow);
     uint16_t col = (m_endReached ? m_bottomRight.column() + 1 : m_currentColumn);

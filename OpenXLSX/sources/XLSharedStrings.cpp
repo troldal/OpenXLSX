@@ -160,8 +160,8 @@ void XLSharedStrings::clearString(int32_t index)    // 2024-04-30: whitespace su
      *   with struct entry { std::string s; uint64_t xmlChildIndex; };
      */
     XMLNode  sharedStringNode = xmlDocument().document_element().first_child_of_type(pugi::node_element);
-    uint64_t sharedStringPos  = 0;
-    while (sharedStringPos < static_cast<size_t>(index) && not sharedStringNode.empty()) {
+    int32_t sharedStringPos  = 0;
+    while (sharedStringPos < index && not sharedStringNode.empty()) {
         sharedStringNode = sharedStringNode.next_sibling_of_type(pugi::node_element);
         ++sharedStringPos;
     }

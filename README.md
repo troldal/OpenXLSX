@@ -15,6 +15,14 @@ Microsoft Excel® files, with the .xlsx format.
 * added ```Scripts/demos-cleanup.sh``` to remove all xlsx files created by the Demos
 * support for ```void setSavingDeclaration(XLXmlSavingDeclaration const& savingDeclaration)``` using ```class XLXmlSavingDeclaration``` (defined in ```XLXmlData.hpp```) that can be used to pass a custom XML version, encoding, and standalone property to pugixml
 
+### (Lars Uffmann) September 2024 - to-do list:
+- for more to-do items, refer to ```Notes/todo-list.txt```
+- TBD: could XLRowData also benefit from passing through to setDefaultCellAttributes a column styles vector?
+- completion of style support as much as is reasonable (not color themes, most likely) per known documentation of xl/styles.xml
+- XLAlignmentStyle: check / throw if vertical alignments are used as horizontal and vice versa
+- XLStyles ::create functions: implement good default style properties for all styles
+- TBD: permit setting a format reference for shared strings
+
 ## (Lars Uffmann) 06 September 2024 - enhance XLMergeCells and XLWorksheet functionality
 
 * ```XLWorksheet``` now allows to access an object managing the worksheet's merged cell ranges
@@ -36,14 +44,6 @@ Microsoft Excel® files, with the .xlsx format.
   * ```void deleteMerge(int32_t index)``` - delete merge with the given index from the worksheet (= unmerge cells), invoked by XLWorksheet::unmergeCells
 
 * added example usage of this functionality to ```Demo10.cpp```
-
-### (Lars Uffmann) September 2024 - to-do list:
-- TBD: could XLRowData also benefit from passing through to setDefaultCellAttributes a column styles vector?
-- completion of style support as much as is reasonable (not color themes, most likely) per known documentation of xl/styles.xml
-- XLAlignmentStyle: check / throw if vertical alignments are used as horizontal and vice versa
-- XLStyles ::create functions: implement good default style properties for all styles
-- TBD: permit setting a format reference for shared strings
-
 
 ## (Lars Uffmann) 03 September 2024 - ignore worksheet internal subfolders that are not known (e.g. customXml)
 

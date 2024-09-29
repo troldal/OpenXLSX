@@ -389,7 +389,7 @@ XLCoordinates XLCellReference::coordinatesFromAddress(const std::string& address
     // auto it = std::find_if(address.begin(), address.end(), ::isdigit);
     // auto columnPart = std::string(address.begin(), it);
     // auto rowPart = std::string(it, address.end());
-    // 
+    //
     // return std::make_pair(rowAsNumber(rowPart), columnAsNumber(columnPart));
     */
 }
