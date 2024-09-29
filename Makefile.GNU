@@ -1,8 +1,8 @@
 # GNU Makefile for OpenXLSX modules & demos
-# Version: 2024-07-08 20:45 CEST
+# Version: 2024-09-29 13:45 CEST
 
 # NOTE: lib and library are available as aliases for OpenXLSX, to build the static library file
-TARGETS=OpenXLSX Demo1 Demo2 Demo3 Demo4 Demo5 Demo6 Demo7 Demo8 Demo9 Demo10 Demo0
+TARGETS=OpenXLSX Demo1 Demo2 Demo3 Demo4 Demo5 Demo6 Demo7 Demo8 Demo9 Demo10
 
 DEMOS_SRC_DIR=Examples
 BIN_DIR=output
@@ -77,6 +77,7 @@ endif
 
 # SHARED_SUBDIR=shared
 EXTERNAL_SUBDIR=external
+NOWIDE_SUBDIR=$(EXTERNAL_SUBDIR)/nowide
 PUGIXML_SUBDIR=$(EXTERNAL_SUBDIR)/pugixml
 ZIPPY_SUBDIR=$(EXTERNAL_SUBDIR)/zippy
 
@@ -103,6 +104,8 @@ endif
 ADDITIONAL_INCLUDE_FLAGS=-I$(OPENXLSX_DIR) -I$(OPENXLSX_DIR)/$(EXTERNAL_SUBDIR)
 
 # application objects
+
+# Demo0 is a placeholder for test programs - if used, has to be explicitly provided as build target (not included in defaults)
 OBJS_DEMO0=Demo0.o
 OBJS_OPENXLSX_DEMO0=$(OBJS_DEMOS)
 LDLIBS_DEMO0=
@@ -243,19 +246,19 @@ $(BIN_DIR)/%: $$(addprefix $(OBJ_DIR)/,$$(OBJS_$$(call uc,$$*))) $$(OBJS_OPENXLS
 
 # rule for .cpp files in DEMOS_SRC_DIR
 $(OBJ_DIR)/%.o: $(addprefix $(DEMOS_SRC_DIR)/,%.cpp) | $(OBJ_DIR) $(OPENXLSX_DIR)/OpenXLSX-Exports.hpp
-	$(CXX) $(CPPFLAGS) -I$(OPENXLSX_DIR)/$(INCLUDE_DIR) -c $< -o $@
+	$(CXX) $(CPPFLAGS) -I$(OPENXLSX_DIR)/$(INCLUDE_DIR) -I$(OPENXLSX_DIR)/$(NOWIDE_SUBDIR) -c $< -o $@
 
 # rule for OpenXLSX .cpp files
 $(OBJ_DIR)/$(OPENXLSX_DIR)/%.o: $(OPENXLSX_DIR)/$(SRC_DIR)/%.cpp | $(OBJ_DIR) $(OBJ_DIR)/$(OPENXLSX_DIR)/ $(OPENXLSX_DIR)/OpenXLSX-Exports.hpp
-	$(CXX) $(CPPFLAGS) -I$(OPENXLSX_DIR)/$(INCLUDE_DIR) -I$(OPENXLSX_DIR)/$(PUGIXML_SUBDIR) -I$(OPENXLSX_DIR)/$(ZIPPY_SUBDIR) -c $< -o $@
+	$(CXX) $(CPPFLAGS) -I$(OPENXLSX_DIR)/$(INCLUDE_DIR) -I$(OPENXLSX_DIR)/$(NOWIDE_SUBDIR) -I$(OPENXLSX_DIR)/$(PUGIXML_SUBDIR) -I$(OPENXLSX_DIR)/$(ZIPPY_SUBDIR) -c $< -o $@
+
+# rule for nowide .cpp files: N/A, as nowide is header-only
 
 # rule for pugixml .cpp files: N/A, as pugixml is used as header only
 $(OBJ_DIR)/$(PUGIXML_SUBDIR)/%.o: $(OPENXLSX_DIR)/$(PUGIXML_SUBDIR)/%.cpp | $(OBJ_DIR) $(OBJ_DIR)/$(PUGIXML_SUBDIR)/
 	$(CXX) $(CPPFLAGS) -I$(OPENXLSX_DIR)/$(PUGIXML_SUBDIR) -c $< -o $@
 
 # rule for zippy .cpp files: N/A, as zippy is header only
-$(OBJ_DIR)/$(ZIPPY_SUBDIR)/%.o: $(OPENXLSX_DIR)/$(ZIPPY_SUBDIR)/%.cpp | $(OBJ_DIR) $(OBJ_DIR)/$(ZIPPY_SUBDIR)/
-	$(CXX) $(CPPFLAGS) -I$(OPENXLSX_DIR)/$(ZIPPY_SUBDIR) -c $< -o $@
 
 $(OPENXLSX_DIR)/OpenXLSX-Exports.hpp:
 	cp gnu-make-crutch/OpenXLSX-Exports.hpp $@
@@ -304,7 +307,7 @@ cleanObjects:
 # 	      $(addprefix $(OBJ_DIR)/$(SHARED_SUBDIR)/,$(OBJS_SHARED))
 
 cleanTargets:
-	rm -f $(addprefix $(BIN_DIR)/,$(TARGETS))
+	rm -f $(addprefix $(BIN_DIR)/,Demo0) $(addprefix $(BIN_DIR)/,$(TARGETS))
 
 
 # have a look at the established configuration

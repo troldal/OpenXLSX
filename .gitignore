@@ -16,10 +16,6 @@
 !/make-gnu.sh
 !/vcpkg.json
 
-# include root directory helper files
-!/test.xlsx
-!/xml-format.sh
-
 # include Benchmarks folder
 !/Benchmarks
 # exclude everything *in* Benchmarks folder
@@ -66,12 +62,10 @@
 # exclude everything *in* Notes folder
 /Notes/*
 # re-include specifically what is desired from Notes folder
-!/Notes/2024-05-07-changes-LU.txt
-!/Notes/2024-06-19-OpenXLSX-update-questions-and-changes.txt
-!/Notes/2024-07-08-changes-LU.txt
-!/Notes/Demo01-linted.xlsx
 !/Notes/styles-missing-support.xml
 !/Notes/todo-list.txt
+!/Notes/confirmed-TBCs.txt
+!/Notes/TBDs.txt
 
 # include OpenXLSX folder
 !/OpenXLSX
@@ -87,6 +81,14 @@
 !/OpenXLSX/OpenXLSX.hpp
 !/OpenXLSX/sources
 !/OpenXLSX/sources/*
+
+# include Scripts folder
+!/Scripts
+# exclude everything *in* Scripts folder
+/Scripts/*
+# re-include specifically what is desired from Scripts folder
+!/Scripts/cmake-cleanup.sh
+!/Scripts/xml-format.sh
 
 # include Tests folder
 !/Tests
