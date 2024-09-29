@@ -10,10 +10,8 @@
 !/README.md
 
 # include root directory files
-!/cmake-cleanup.sh
 !/CMakeLists.txt
 !/Makefile.GNU
-!/make-gnu.sh
 !/vcpkg.json
 
 # include Benchmarks folder
@@ -88,6 +86,8 @@
 /Scripts/*
 # re-include specifically what is desired from Scripts folder
 !/Scripts/cmake-cleanup.sh
+!/Scripts/demos-cleanup.sh
+!/Scripts/make-gnu.sh
 !/Scripts/xml-format.sh
 
 # include Tests folder

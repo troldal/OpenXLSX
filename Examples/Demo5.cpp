@@ -31,7 +31,7 @@ int main()
     // First, create a new document and access the sheet named 'Sheet1'.
     cout << "\nGenerating spreadsheet ..." << endl;
     XLDocument doc;
-    doc.create("./Demo05.xlsx");
+    doc.create("./Demo05.xlsx", XLForceOverwrite);
     auto wks = doc.workbook().worksheet("Sheet1");
 
     // Create a random-number generator (to be used later)

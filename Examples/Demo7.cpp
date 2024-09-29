@@ -21,7 +21,7 @@ int main()
     cout << "\nGenerating spreadsheet ..." << endl;
     XLDocument doc;
     std::string path = "./Demo07.xlsx";
-    doc.create(path);
+    doc.create(path, XLForceOverwrite);
     auto wks = doc.workbook().worksheet("Sheet1");
 
     // Create a random-number generator (to be used later)

@@ -661,6 +661,13 @@ void XLDocument::create(const std::string& fileName, bool forceOverwrite)
 }
 
 /**
+ * @details Legacy function to create a new document
+ * @deprecated use instead XLDocument::create(const std::string& fileName, bool forceOverwrite)
+ * @warning This deprecated function overwrites an existing file without prompt
+ */
+void XLDocument::create(const std::string& fileName) { create( fileName, XLForceOverwrite ); }
+
+/**
  * @details The document is closed by deleting the temporary folder structure.
  */
 void XLDocument::close()
@@ -713,6 +720,13 @@ void XLDocument::saveAs(const std::string& fileName, bool forceOverwrite)
     }
     m_archive.save(m_filePath);
 }
+
+/**
+ * @details Legacy function to save the document with a new name
+ * @deprecated use instead void XLDocument::saveAs(const std::string& fileName, bool forceOverwrite)
+ * @warning This deprecated function overwrites an existing file without prompt
+ */
+void XLDocument::saveAs(const std::string& fileName) { saveAs( fileName, XLForceOverwrite ); }
 
 /**
  * @details

@@ -33,7 +33,7 @@ int main()
     // First, create a new document and access the sheet named 'Sheet1'.
     // Then rename the worksheet to 'Простыня'.
     XLDocument doc1;
-    doc1.create("./Demo04.xlsx");
+    doc1.create("./Demo04.xlsx", XLForceOverwrite);
     auto wks1 = doc1.workbook().worksheet("Sheet1");
     wks1.setName("Простыня");
 
@@ -47,7 +47,7 @@ int main()
 
     // Workbooks can also be saved and loaded with Unicode names
     doc1.save();
-    doc1.saveAs("./スプレッドシート.xlsx");
+    doc1.saveAs("./スプレッドシート.xlsx", XLForceOverwrite);
     doc1.close();
 
     doc1.open("./スプレッドシート.xlsx");
