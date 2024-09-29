@@ -3,30 +3,26 @@
 OpenXLSX is a C++ library for reading, writing, creating and modifying
 Microsoft Excel® files, with the .xlsx format.
 
+## (aral-matrix) 29 September 2024 - Support for styles, merging cells (and more)
+
+Today the features from the development branch finally made it into the main branch :) For details, please refer to the [detailed change log](#detailed-change-log) below.
+
+In summary:
+* ```OpenXLSX/headers/XLStyles.hpp```: XLStyles class (and lots of subclasses) has been added, providing nearly complete access to all Excel formatting capabilities.
+* ```OpenXLSX/headers/XLMergeCells.hpp``` and ```XLSheet.hpp```: XLMergeCells class is made accessible through XLWorksheet in order to create / delete cell merges
+* ```Examples/Demo10.cpp``` demonstrates how styles and merges are used **Note:** The section that is disabled with ```testBasics = false``` *will* break the resulting Excel Spreadsheet if enabled, the only purpose is to demonstrate access to *all* new classes and methods. If you want to use them, make sure to use them correctly
+
+*Note on XLNumberFormat(s)*: Contrary to all other XLStyles elements, these do not use an index within the XML as the referrable ID (XLCellFormat::setNumberFormatId), but instead a user-defined ID that can be set via XLNumberFormat::setNumberFormatId - and for an XLCellFormat, can be set to either a self-defined number format ID, or to a [format predefined by MS](https://learn.microsoft.com/en-us/dotnet/api/documentformat.openxml.spreadsheet.numberingformat?view=openxml-3.0.1). Generally, for custom formats, it is recommended to use IDs > 100.
+
+
+*On the to-do list:*
+* support predefined number formats with constants that have meaningful names
+* support for XML comments
+* (TBD) support for Rich Text elements in cell strings
+
 ## (aral-matrix) 04 September 2024 - new development branch
 
 A couple of days ago I finally had the time to learn enough git functionality to be able to work with branches. So I created a development branch with the newest features that I have mentioned in some pull requests / issues. Feel free to [have a look](https://github.com/troldal/OpenXLSX/tree/development-aral). This way you don't have to wait until the main repository is updated.
-
-### New features on the development branch:
-* ```XLCellIterator``` no longer creates empty cells just for iterating over them, and provides ```::cellExists()``` to test if the currently pointed-to cell is already in the worksheet XML, before accessing it
-* ```XLStyles``` support
-* ```XLWorksheet``` now provides ```XLMergeCells``` support for merging / unmerging cell ranges
-* ```Demo10.cpp``` has a lot of examples on how to use the new XLStyles functionality
-* ignore ```customXml``` etc in the xlsx archive
-* accept non-standard workbook names (if correctly identified in the relationships)
-* support for documents with XML namespaces throughout the worksheets
-* support for documents using non-sequential, random relationship IDs
-
-## (aral-matrix) 01 September 2024 - ignore phonetic tags consistently in shared strings table
-Code refactored in XLDocument::open to read the shared strings table while consistently ignoring phonetic tags, which were previously only ignored if the very first child of an ```<si>``` tag was a phonetic tag. Will now be ignored anywhere before, after or in between text ```<t>``` and rich text ```<r>``` tags.
-
-## (aral-matrix) 31 August 2024 - added fallback solution to get document relationships
-
-Included a "dumb" fallback solution in ```XLRelationships.cpp GetTypeFromString``` to support previously unknown relationship domains, e.g. ```type="http://purl.oclc.org/ooxml/officeDocument/relationships/worksheet"```. Altered behavior will initially test against the hardcoded relationship domains, and if that test fails to identify a relationship type string, the type string will be searched for an occurrence of ```/relationships/``` and if that substring is found, the type detection fallback will try to evaluate the relationship type based on the substring starting with ```/relationships/```, ignoring the domain. For the above example, that would result in a test of ```typeString.substr( comparePos ) == "/relationships/worksheet"```, where comparePos == 41 (the position at which substring ```/relationships/``` begins).
-
-In anticipation of a potential future need for a similar "dumb" fallback solution, repeating hardcoded strings in ```XLContentTypes.cpp GetTypeFromString``` were also replaced with string constants.
-
-Updated .gitignore to a more generic version that excludes everything and explicitly re-includes all desired files.
 
 ## (aral-matrix) 19/20 August 2024 updated pull requests
 
@@ -429,6 +425,238 @@ I realise that these changes may cause problems for some users. Because
 of that, the previous version of OpenXLSX can be found in the "legacy"
 branch of this repository. However, I strongly recommend that you
 transition to the new version instead.
+
+<h2 id="detailed-change-log">Detailed change log</h2>
+
+## (aral-matrix) 29 September 2024 - prepare merge into main repository
+* modified Demo9 to match style / behavior of other Demo programs
+* re-created legacy ```XLDocument::create``` and ```XLDocument::saveAs``` function interfaces, but marked them as ```[[deprecated]]```. The new interfaces require explicit specification of ```XLForceOverwrite``` or ```XLDoNotOverwrite```. Once the deprecated function definitions can be removed, ```XLDoNotOverwrite``` could become the new default behavior
+* moved nowide back into the correct location ```OpenXLSX/external/nowide/nowide```
+* removed ```Demo0``` / kept it in the Makefile as a test vehicle
+* updated ```Notes``` folder
+* created ```Scripts``` folder with ```xml-format.sh``` (XML linting, useful to analyze XLSX zip contents in a text editor)
+* moved ```make-gnu.sh``` to ```Scripts/make-gnu.sh```
+* added ```Scripts/cmake-cleanup.sh``` to prepare (not execute!) commands that remove all temporary files generated by cmake
+* added ```Scripts/demos-cleanup.sh``` to remove all xlsx files created by the Demos
+* support for ```void setSavingDeclaration(XLXmlSavingDeclaration const& savingDeclaration)``` using ```class XLXmlSavingDeclaration``` (defined in ```XLXmlData.hpp```) that can be used to pass a custom XML version, encoding, and standalone property to pugixml
+
+### (aral-matrix) September 2024 - to-do list:
+- for more to-do items, refer to ```Notes/todo-list.txt```
+- TBD: could XLRowData also benefit from passing through to setDefaultCellAttributes a column styles vector?
+- completion of style support as much as is reasonable (not color themes, most likely) per known documentation of xl/styles.xml
+- XLAlignmentStyle: check / throw if vertical alignments are used as horizontal and vice versa
+- XLStyles ::create functions: implement good default style properties for all styles
+- TBD: permit setting a format reference for shared strings
+
+### (aral-matrix) 29 September 2024 (development-aral branch: 06 September) 2024 - enhance XLMergeCells and related XLWorksheet functionality
+
+* ```XLWorksheet``` now allows to access an object managing the worksheet's merged cell ranges
+  * ```XLMergeCells XLWorksheet::merges()``` - access the XLMergeCells class for the worksheet directly
+  * ```void mergeCells(XLCellRange const& rangeToMerge, bool emptyHiddenCells = false)``` - merge cells defined by rangeToMerge
+  * ```void mergeCells(const std::string& rangeReference, bool emptyHiddenCells = false)``` - merge cells defined by rangeReference
+  * ```void unmergeCells(XLCellRange const& rangeToUnmerge)``` - unmerge cells defined by rangeToUnmerge
+  * ```void unmergeCells(const std::string& rangeReference)``` - unmerge cells defined by rangeReference
+
+* ```XLMergeCells```: added methods
+  * ```int32_t XLMergeCells::findMerge(const std::string& reference)``` - find a merge matching reference
+  * ```bool mergeExists(const std::string& reference)``` - test if a merge with reference exists
+  * ```int32_t XLMergeCells::findMergeByCell(const std::string& cellRef)``` - find a merge containing std::string cellRef
+  * ```int32_t XLMergeCells::findMergeByCell(XLCellReference cellRef)``` - find a merge containing XLCellReference cellRef
+  * ```size_t count()``` - get count of merges defined in the worksheet
+  * ```const char* merge(int32_t index)``` - get merge reference string at index
+  * ```const char* operator[](int32_t index)``` - overload of operator[] as a shortcut to ::merge
+  * ```int32_t appendMerge(const std::string& reference)``` - define a new merge, invoked by XLWorksheet::mergeCells
+  * ```void deleteMerge(int32_t index)``` - delete merge with the given index from the worksheet (= unmerge cells), invoked by XLWorksheet::unmergeCells
+
+* added example usage of this functionality to ```Demo10.cpp```
+
+### (aral-matrix) 29 September 2024 (development-aral branch: 03 September 2024) - ignore worksheet internal subfolders that are not known (e.g. customXml)
+* ```XLDocument::open``` will now ignore unknown subfolders (they remain unmodified and unaccessible in the zip in memory and stay in the archive upon saving). This prevents throwing an exception for any XLSX file written by a "creative" application that added items unknown to this library
+* made a ```constexpr``` from ```const unsigned int pugi_parse_settings``` and moved it to ```XLDocument.hpp``` so that the const becomes available to XLStyles and XLSharedStrings
+* XLStyles and XLSharedStrings now take care of creating a valid default document element, if an archive is missing the corresponding XML file or the document element is not present
+* XLStyles constructor now ensures that cellFormats() has at least the default entry with index 0, so that a call to cellFormats().create() will not return this reserved index
+
+### (aral-matrix) 29 September 2024 (development-aral branch: 02 September 2024) - major update with (nearly) complete styles support & cell merging
+* implemented support for worksheet styles in ```XLStyles``` class - interface can be found in ```OpenXLSX/headers/XLStyles.hpp```
+* support for merged cells
+* ```Examples/Demo10.cpp``` demonstrates use of the new XLStyles & cell merging functionality
+* plenty of bugfixes
+* support for non-creating ```XLCellIterator```: can now iterate over a range and test ```XLCellIterator::cellExists``` before accessing it. This allows to skip non-existing cells without creating them.
+* support for ```workbook##.xml```, XML namespaces and random 64bit (relationship) identifiers
+  * a non-standard (== not ```xl/workbook.xml```) workbook XML name is now accepted if it is correctly referenced in ```_rels/.rels```
+  * XLSX documents that use namespaces throughout their XML files are now supported in the following way:
+    * ```bool OpenXLSX::enable_xml_namespaces()``` must be used to enable namespace support *before* opening a document using e.g. a namespace ```x``` (like so: ```<x:row r="1">```) everywhere
+    * the document is then opened normally
+    * any and all node creations will expose to the user normal node names (as if the namespaces were not in use) and will save/create elements with the correct namespace (of their parent node)
+    * if a node is accessed with a namespace, the leading namespace will be stripped and then the node name will be checked based on the parent node's name
+      * Example: ```insert_child_before("x:row", curRow )``` in the ```<y:sheetData>``` node will strip the ```x:``` and insert a row element named ```<y:row>```, using the parent node's namespace
+    * all XMLNode functions where the namespace could be relevant (see ```OpenXLSX/headers/XLXmlParser.hpp```) take as an optional last argument a ```bool force_ns``` that - if true - will respect a namespace passed into the function for node creation / access. A helper ```const bool OpenXLSX::XLForceNamespace = true``` is available for code readability
+      * Example: ```XMLNode::insert_child_before("x:row", curRow, XLForceNamespace)``` in the ```<y:sheetData>``` node like above, will insert a row element named ```x:row```
+  * OpenXLSX by default assumes that worksheet relationship IDs are sequential and stored in the form ```id="rId##"``` where ```##``` is the sequence number, and when a new component is added to the workbook, a new relationship ID is determined by taking the highest existing value within the workbook, and adding +1 to it. During investigation of [https://github.com/troldal/OpenXLSX/issues/254] a workbook was found to use (seemingly) random 64 bit integers, stored in the form ```r:id="Rxx"```, with ```xx``` being a hexadecimal representation of a 64 bit integer.
+    * ```OpenXLSX::UseRandomIDs()``` must be invoked to switch ID functionality *before* opening such a document
+    * the document is then opened normally and new document components will be added with a 64 bit high quality randomizer, which should be reasonably safe to never cause a collision
+    * (optional) ```OpenXLSX::UseSequentialIDs()``` can be used to restore default (sequential) relationship ID functionality
+
+**NOTE** on ```enable_xml_namespaces```: Namespace support is transparent and can be used with documents that do not use such namespaces. However, it can have a small (<5%) performance impact on large workbooks and is therefore optional to enable.
+
+**CAUTION** with ```UseRandomIDs```: Please be aware that a mixed mode, where one document is opened with random ID support and another without sequential relationship IDs, is not supported for the time being. If you have to work with documents of different types, you should always configure the desired relationship ID behavior for the next document, work with that, close it, and change the relationship ID configuration before opening the next document.
+
+Please disregard Examples/Demo0.cpp and Examples/Demo9.cpp for now (Demo0 is trivial and was used to test non-standard workbook support, and Demo9 requires a review with better comments). Demo9 showcases how to use the new XLCellAssignable to copy-assign cell contents (like Excel copy & paste).
+
+### (aral-matrix) 04 September 2024 - new features on the development branch:
+* ```XLCellIterator``` no longer creates empty cells just for iterating over them, and provides ```::cellExists()``` to test if the currently pointed-to cell is already in the worksheet XML, before accessing it
+* ```XLStyles``` support
+* ```XLWorksheet``` now provides ```XLMergeCells``` support for merging / unmerging cell ranges
+* ```Demo10.cpp``` has a lot of examples on how to use the new XLStyles functionality
+* ignore ```customXml``` etc in the xlsx archive
+* accept non-standard workbook names (if correctly identified in the relationships)
+* support for documents with XML namespaces throughout the worksheets
+* support for documents using non-sequential, random relationship IDs
+
+### (aral-matrix) 02 September 2024 - ensure that all worksheets are contained in app.xml <TitlesOfParts> and reflected in <HeadingPairs> value for Worksheets
+
+* Code refactored in ```XLProperties.cpp XLAppProperties``` to create ```<TitlesOfParts>``` and ```<HeadingPairs>``` nodes (and subnodes) if missing, added method ```alignWorksheets```, called by ```XLDocument::open``` to ensure that all worksheets listed in the workbook xml are also accounted for in ```docProps/app.xml```.
+* Started to encapsulate whitespace "pretty format" support in a separate function to remove clutter from the functional code -> ```XLProperties.cpp prettyInsertXmlNodeBefore```, maybe this can eventually become a global function, paired with a TBW function ```prettyInsertXmlNodeAfter```, and could be used by all classes, cleaning up the code for whitespace support substantially.
+* changed some confusing variable names in ```XLProperties.cpp``` for ```<HeadingPairs>``` subnodes: ```pairCount``` -> ```pairValueParent```, ```pairCountValue``` -> ```pairValue```
+
+### (aral-matrix) 01 September 2024 - ignore phonetic tags consistently in shared strings table
+
+Code refactored in XLDocument::open to read the shared strings table while consistently ignoring phonetic tags, which were previously only ignored if the very first child of an ```<si>``` tag was a phonetic tag. Will now be ignored anywhere before, after or in between text ```<t>``` and rich text ```<r>``` tags.
+
+### (aral-matrix) 31 August 2024 - added fallback solution to get document relationships
+
+Included a "dumb" fallback solution in ```XLRelationships.cpp GetTypeFromString``` to support previously unknown relationship domains, e.g. ```type="http://purl.oclc.org/ooxml/officeDocument/relationships/worksheet"```. Altered behavior will initially test against the hardcoded relationship domains, and if that test fails to identify a relationship type string, the type string will be searched for an occurrence of ```/relationships/``` and if that substring is found, the type detection fallback will try to evaluate the relationship type based on the substring starting with ```/relationships/```, ignoring the domain. For the above example, that would result in a test of ```typeString.substr( comparePos ) == "/relationships/worksheet"```, where comparePos == 41 (the position at which substring ```/relationships/``` begins).
+
+In anticipation of a potential future need for a similar "dumb" fallback solution, repeating hardcoded strings in ```XLContentTypes.cpp GetTypeFromString``` were also replaced with string constants.
+
+Updated .gitignore to a more generic version that excludes everything and explicitly re-includes all desired files.
+
+### (aral-matrix) 18 August 2024 - minor bugfixes and elimination of warnings
+* BUGFIX XLRelationships.cpp `BinaryAsHexString`: replaced char array with std::string, as ISO C++ standard does not permit variable size arrays
+* BUGFIX XLRelationships.cpp `Rand64`: added explicit type cast, as bitwise shift-left does *not* do integer promotion to long on the left operand
+* Makefile.GNU: added warning flags `-Wpedantic -Wextra` and **removed all previously disabled flags after below patches**
+* reformatted whitespaces in XLRelationships.cpp to align with project style (`f( param )` -> `f(param)`, `a[ index ]` -> `a[index]` and `if( condition )` -> `if (condition)`)
+* Eliminate some warnings:
+  * zippy.hpp: assign explicit uint64_t type to a nameless enum to address `warning: enumerated and non-enumerated type in conditional expression [-Wextra]`
+  * zippy.hpp: added typecasts to void on function parameters for functions that are not yet implemented, also added explicit exceptions to ensure those functions are never invoked
+    * affects:
+      * `void ZipArchive::Save(std::ostream& stream)`
+      * `void ZipArchive::ExtractDir(const std::string& dir, const std::string& dest)`
+      * `void ZipArchive::ExtractAll(const std::string& dest)`
+  * XLDocument.cpp: disabled `-Wunused-function` by pragma for functions `fileExists` and `isDirectory`
+  * XLRow.hpp & .cpp: changed return type of rowNumber to `uint32_t` (was `uint64_t`). **CAUTION**: there is no validity check on the underlying XML (nor was there ever one in case a value was inconsistent with OpenXLSX::MAX_ROWS)
+  * changed some loop variable types, modified range checks and added static_cast instructions to eliminate `-Wsign-compare`
+    * affects: XLCellReference.cpp, XLMergeCells.cpp, XLSharedStrings.cpp, Demo9.cpp
+  * XLCellIterator.hpp: removed const-ness of return value of `bool endReached()` to eliminate `-Wignored-qualifiers` (ignored because const on trivial return types accomplishes nothing)
+  * added utilities/XLUtilities.cpp `OpenXLSX::ignore` template, can be used to suppress `-Wunused-parameter` and `-Wunused-variable` like so: `OpenXLSX::ignore(unusedValue)`
+    * now used in: XLComments.cpp, XLStyles.cpp
+  * XLXmlParser.cpp XMLNode::namespaced_name_shared_ptr: made no-op lambda parameter unnamed to eliminate `-Wunused-parameter`
+  * Demo10.cpp: cast command line parameters to void to suppress -Wunused-parameter
+  * wrapped all `#pragma warning` lines in another pragma to disable `-Wunknown-pragmas` (on gcc/g++)
+    * wrapper pragma:
+      * `#pragma GCC diagnostic push`
+      * `#pragma GCC diagnostic ignored "-Wunknown-pragmas" // disable warning about below #pragma warning being unknown`
+      * `#   pragma /* offending lines go here */`
+      * `#pragma GCC diagnostic pop`
+    * affects: 
+      * `zippy.hpp`
+      * `IZipArchive.hpp`
+      * `XLCell.hpp`
+      * `XLCellIterator.hpp`
+      * `XLCellRange.hpp`
+      * `XLCellReference.hpp`
+      * `XLCellValue.hpp`
+      * `XLColor.hpp`
+      * `XLColumn.hpp`
+      * `XLCommandQuery.hpp`
+      * `XLContentTypes.hpp`
+      * `XLDateTime.hpp`
+      * `XLDocument.hpp`
+      * `XLException.hpp`
+      * `XLFormula.hpp`
+      * `XLMergeCells.hpp`
+      * `XLProperties.hpp`
+      * `XLRelationships.hpp`
+      * `XLRowData.hpp`
+      * `XLRow.hpp`
+      * `XLSharedStrings.hpp`
+      * `XLSheet.hpp`
+      * `XLStyles.hpp`
+      * `XLWorkbook.hpp`
+      * `XLXmlData.hpp`
+      * `XLXmlFile.hpp`
+      * `XLZipArchive.hpp`
+      * `Examples/Demo5.cpp`
+
+### (aral-matrix) 17 August 2024 - bugfix in XLAppProperties::createFromTemplate
+* BUGFIX: TitlesOfParts is now correctly inserted into the `<Properties>` (document) element, was previously wrongly appended to headingPairs
+* entries in /xl/ are now explitly checked for known & handled file types (`/xl/worksheets/sheet*`, `/xl/sharedStrings.xml`, `/xl/styles.xml`, `/xl/theme/theme*`) and otherwise ignored. This fixes an issue when the workbook contains `/xl/pivotCache/` and `/xl/pivotTables/` entries until support for those is implemented (if ever ;P)
+
+### (aral-matrix) 14 August 2024 - use row style, or if not set, column style for default cell style
+* Newly created cells will now use the style that is set for the row or the column (if set and != XLDefaultCellFormat), with row style taking precedence
+  * added XLUtilities.hpp getColumnStyle which retrieves the column style for a given column index from the `<cols>` element obtained via a rowNode parent's parent
+  * added XLUtilities.hpp setDefaultCellAttributes, which sets the cell reference and the cell style, taking an optional vector of column styles that will improve performance using a previously extracted set of column styles
+  * XLRowData now uses setDefaultCellAttributes after creating a new cell
+  * XLUtilities.hpp getCellNode now takes the same optional vector of column styles and passes it on to setDefaultCellAttributes, which is now used after creating a new cell
+  * XLCellIterator constructor now requires a pointer to a column styles vector (size can be 0) which is used when new cells need to be created
+  * XLCellRange now has a new member `std::vector< XLStyleIndex > m_columnStyles`, and a method fetchColumnStyles that will populate the vector so that it can be passed to the XLCellIterator constructor
+    * if used, the optimization function has to be called *after* all column styles for the range are configured - columns configured afterwards will result in cells not getting the format setting
+    * if the function is not used, each cell creation will result in a call to getColumnStyle, which has a small performance impact (<5%) for few columns, but is likely to be more impactful with the amount of formatted columns increasing
+* the remaining XLSheet cell() functions (taking an XLCellReference or a rowNumber / columnNumber) have been modified to return an XLCellAssignable
+  * unchanged: XLCellAssignable XLWorksheet::cell(const std::string& ref) const
+  * return type changed: XLCellAssignable cell(const XLCellReference& ref) const
+  * return type changed: XLCellAssignable cell(uint32_t rowNumber, uint16_t columnNumber) const;
+  * the XLCellAssignable is now constructed in the latter method, and the other two pass through the return value of this latter method
+  
+### (aral-matrix) 11 August 2024 - support for non-creating XLCellIterators, iterator performance patch, bugfix
+* XLCellIterators can now be used to iterate over a range and *test* `XLCellIterator::cellExists()` without creating the XML for the cell.
+* cell (and row) XML will now only be created when an XLCellIterator is dereferenced
+* Performance improvement: Execution time on Demo5 is down from (on my test system) 86 seconds to 75 seconds (-12.8%)
+* XLCellIterator bugfix since last commit: m_hintCell (now m_hintNode) was being initialized to other.m_currentCell (should have been other.m_hintCell) in copy constructor and copy assignment operator
+
+### (aral-matrix) 08 August 2024 - support for XLWorksheet::mergeCells and ::unmergeCells
+* support for XLWorksheet::mergeCells and unmergeCells (with XLCellRange or std::string range reference parameter, option to clear cell contents)
+  * added XLWorksheet new method ::mergeCells with parameter emptyHiddenCells (and convenience const bool XLEmptyHiddenCells = true)
+  * added XLWorksheet new method ::unmergeCells
+  * added XLCell::clear method with bitwise-OR combineable flags: XLKeepCellStyle, XLKeepCellType, XLKeepCellValue, XLKeepCellFormula 
+  * added new module XLMergeCells.hpp / XLMergeCells.cpp
+* XLCellRange constructor: added XLInputError exception when range is constructed with a topLeft cell that is to the right or lower than bottomRight cell
+* Demo10: included a demonstration of mergeCells
+
+### (aral-matrix) 01 August 2024 - xl/styles.xml - support for XLFill patternFill all pattern types, XLFonts scheme & vertAlign, all XLAlignmentStyle values
+* patternFill now supports all patternType values per standard
+* XLFonts now support scheme major/minor/none (`<font><scheme val="major"/></font>`)
+* XLFonts now support vertical align run style (`<font><vertAlign val="subscript"/></font>`)
+* XLAlignmentStyle can now be used with all defined horizontal and vertical alignment styles
+* Examples/Demo10.cpp has been updated to test some(!) of the new formatting elements
+
+### (aral-matrix) 31 July 2024 - xl/styles.xml - support for fill::gradientFill and XLDataBarColor
+* gradientFill elements within `<fills><fill><gradientFill>...</gradientFill></fill>...</fills>` are now supported
+* along with that come a few new classes: XLGradientStops, XLGradientStop, XLDataBarColor
+* XLLine color properties are now controlled via the XLDataBarColor as well
+
+### (aral-matrix) 29 July 2024 - support for workbook##.xml and XML namespaces
+* it appears that a workbook does not always have to be at xl/workbook.xml
+  * --> the workbook path is now read from the document relationships, if it has an entry for "officeDocument"
+* also, XML namespaces can be used for node names throughout (almost) all XML files as long as they are defined in the document root(?) node with xmlns:<namespace> - e.g. xmlns:x
+  * added functions enable_xml_namespaces and disable_xml_namespaces
+  * when enable_xml_namespaces() was invoked, XLXmlParser XMLNode now wraps all pugi::xml_node methods so that a node referred to by a name will be found regardless of namespace, and children will be created automatically inheriting the node's own namespace
+
+### (aral-matrix) 21 July 2024 - xl/styles.xml - support for cell formatting in work
+Please refer to Demo10 and XLStyles.hpp on how to set cell formatting.
+In short:
+* size_t XLCell::cellFormat() and bool XLCell::setCellFormat(size_t cellFormatIndex)
+* these functions get/set an index to a format defined in xl/styles.xml <styleSheet>:<cellXfs>
+* <cellXfs> refers to 
+  * numFmtId -> XLStyles::numberFormats().numberFormatById( uint32_t numberFormatId ) // where numberFormatId is the numFmtId attribute of the numFmt entry
+  * fontId -> XLStyles::fonts().fontByIndex( fontId )
+  * fillId -> XLStyles::fills().fillByIndex( fillId )
+  * borderId -> XLStyles::borders().borderByIndex( borderId )
+  * xfId -> XLStyles::cellStyleFormats( xfId ) // xfId appears to refer to entries in the <cellStyleXfs> array - untested currently
+* it is not yet clear what the purpose of the <cellStyles> array is
+* all array getter functions (numberFormats, fonts, fills, borders, cellStyleFormats, cellFormats, cellStyles) support the operator[] to access an object by index
+* all objects provide getter and setter functions for all supported attributes. Especially in the color domain, there's probably quite a bit of support missing at this stage
+* color support: only rgb via XLColor (XLColor::hex()) is supported at this stage. In particular, no color themes are supported
 
 ## Credits
 

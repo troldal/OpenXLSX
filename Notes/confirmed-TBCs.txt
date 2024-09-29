@@ -1,0 +1,8 @@
+CONFIRMED:
+* XLCellReference constructor shall throw exception on empty string
+* node.empty() works on empty nodes, e.g.: XLMNode node() // --> node.empty() evaluates to true
+* Does an XLSX column type t default to "n" numeric? Because OpenXLSX does not add the t field for numbers:
+-> no type == generic value (for any application reading)
+
+* Pull request #191: can AmigaOS support ""/file-in-local-folder.xlsx, using "" as local folder?
+-> No, AmigaOS does NOT support an explicit identifier for the local folder

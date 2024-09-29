@@ -95,16 +95,19 @@ set(OPENXLSX_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLCellValue.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLColor.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLColumn.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLComments.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLContentTypes.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLDateTime.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLDocument.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLFormula.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLMergeCells.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLProperties.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLRelationships.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLRow.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLRowData.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLSharedStrings.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLSheet.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLStyles.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLWorkbook.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLXmlData.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLXmlFile.cpp

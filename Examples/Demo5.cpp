@@ -1,5 +1,10 @@
-#pragma warning(push)
-#pragma warning(disable : 4244)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunknown-pragmas" // disable warning about below #pragma warning being unknown
+#ifdef _MSC_VER                                    // additional condition because the previous line does not work on gcc 12.2
+#   pragma warning(push)
+#   pragma warning(disable : 4244)
+#endif // _MSC_VER
+#pragma GCC diagnostic pop
 
 #include <OpenXLSX.hpp>
 #include <iostream>
@@ -26,7 +31,7 @@ int main()
     // First, create a new document and access the sheet named 'Sheet1'.
     cout << "\nGenerating spreadsheet ..." << endl;
     XLDocument doc;
-    doc.create("./Demo05.xlsx");
+    doc.create("./Demo05.xlsx", XLForceOverwrite);
     auto wks = doc.workbook().worksheet("Sheet1");
 
     // Create a random-number generator (to be used later)
@@ -69,4 +74,9 @@ int main()
     return 0;
 }
 
-#pragma warning(pop)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunknown-pragmas" // disable warning about below #pragma warning being unknown
+#ifdef _MSC_VER                                    // additional condition because the previous line does not work on gcc 12.2
+#   pragma warning(pop)
+#endif // _MSC_VER
+#pragma GCC diagnostic pop

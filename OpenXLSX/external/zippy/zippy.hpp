@@ -1,16 +1,18 @@
 #ifndef ZIPPYHEADERONLY_ZIPPY_HPP
 #define ZIPPYHEADERONLY_ZIPPY_HPP
 
-#pragma warning(push)
-#pragma warning(disable : 4334)
-#pragma warning(disable : 4996)
-#pragma warning(disable : 4127)
-#pragma warning(disable : 4267)
-#pragma warning(disable : 4100)
-#pragma warning(disable : 4245)
-#pragma warning(disable : 4267)
-#pragma warning(disable : 4242)
-#pragma warning(disable : 4244)
+#ifdef _MSC_VER // avoid other compilers complaining about MSVC-only pragmas being unknown
+#   pragma warning(push)
+#   pragma warning(disable : 4334)
+#   pragma warning(disable : 4996)
+#   pragma warning(disable : 4127)
+#   pragma warning(disable : 4267)
+#   pragma warning(disable : 4100)
+#   pragma warning(disable : 4245)
+#   pragma warning(disable : 4267)
+#   pragma warning(disable : 4242)
+#   pragma warning(disable : 4244)
+#endif // _MSC_VER
 
 #include <algorithm>
 #include <cstddef>
@@ -33,6 +35,49 @@
 #else
 #    define FILESYSTEM_NAMESPACE std
 #endif
+
+// 2024-09-15: moved Zippy exceptions to top of module to be able to use them earlier - forward declaration didn't seem to work
+namespace Zippy
+{
+    /**
+     * @brief The ZipRuntimeError class is a custom exception class derived from the std::runtime_error class.
+     * @details In case of an error in the Zippy library, an ZipRuntimeError object will be thrown, with a message
+     * describing the details of the error.
+     */
+    class ZipRuntimeError : public std::runtime_error
+    {
+    public:
+        /**
+         * @brief Constructor.
+         * @param err A string with a description of the error.
+         */
+        inline explicit ZipRuntimeError(const std::string& err) : runtime_error(err) {}
+
+        /**
+         * @brief Destructor.
+         */
+        inline ~ZipRuntimeError() override = default;
+    };
+
+    /**
+     * @brief
+     */
+    class ZipLogicError : public std::logic_error
+    {
+    public:
+        /**
+         * @brief
+         * @param err
+         */
+        inline explicit ZipLogicError(const std::string& err) : logic_error(err) {}
+
+        /**
+         * @brief
+         */
+        inline ~ZipLogicError() override = default;
+    };
+
+}    // namespace Zippy
 
 namespace ns_miniz
 {
@@ -149,6 +194,64 @@ namespace ns_miniz
      (i.e. 32-bit stat() fails for me on files > 0x7FFFFFFF bytes).
 */
 #pragma once
+
+    /* 2024-09-15: added fileExists and moveFile functions to verify that FILESYSTEM_NAMESPACE::rename actually succeeded
+     *  ==> print an error to stderr if sourceFile still exists after a "successful" rename
+     *  ==> throw an exception if destinationFile was not created
+     */
+
+    /* Function: fileExists
+     * Purpose: test if fileName exists on the filesystem, using unicode-compatible functions (FILESYSTEM_NAMESPACE)
+     * Parameters:
+     *     fileName        the file path to check
+     * Returns:
+     *     true    if file exists
+     *     false    if it does not
+     */
+    bool fileExists( const char *fileName )
+    {
+        FILE *f = FILESYSTEM_NAMESPACE::fopen(fileName, "rb");
+        if (f != nullptr) {
+            fclose(f);
+            return true;                         // it exists
+        }
+        return false;    // default: file does not exist
+    }
+    /* End of Function: fileExists */
+
+    /* Function: moveFile
+     * Purpose: attempt file rename, using unicode-compatible functions (FILESYSTEM_NAMESPACE)
+     *           with additional test if source file is gone and destinationFile exists after move
+     * Parameters:
+     *     sourceFile       move this file
+     *     destinationFile  to this location
+     * Returns: N/A
+     * Throws:: std::filesystem::filesystem_error upon failure - sourceFile will remain in that case
+     */
+    void moveFile(const char *sourceFile, const char *destinationFile)
+    {
+        bool success = false;
+        if (0 == FILESYSTEM_NAMESPACE::rename(sourceFile, destinationFile)) { // initially: try move
+            // if rename reported success, test if source file is gone
+            if (fileExists(sourceFile)) {
+                std::cerr << "zippy " << __func__ << " WARNING: FILESYSTEM_NAMESPACE::rename reported success"
+                /**/                                 << " but sourceFile \"" << sourceFile << "\" still exists" << std::endl;
+                if( 0 == FILESYSTEM_NAMESPACE::remove( sourceFile ) ) // on success: attempt to unlink the source file - can't do anything if this fails, however
+                    std::cerr << "zippy " << __func__ << " WARNING: unlink failed on " << sourceFile << std::endl;
+            }
+            if (fileExists(destinationFile)) // confirm that destination file exists after rename
+                success = true;
+        }
+        // else: rename failed, success is still false
+
+        if (!success) {
+            using namespace std::literals::string_literals;
+            std::string strErr = "zippy "s + std::string(__func__) + " ERROR: failed to rename "s + std::string(sourceFile) + " to " + std::string(destinationFile);
+            std::cerr << strErr << std::endl;
+            throw Zippy::ZipRuntimeError(strErr);
+        }
+    }
+    /* End of Function: moveFile */
 
     /* Defines to completely disable specific portions of miniz.c:
        If all macros here are defined the only functionality remaining will be CRC-32, adler-32, tinfl, and tdefl. */
@@ -1018,7 +1121,15 @@ namespace ns_miniz
     {
 #    endif
 
-        enum {
+        // ===== 2024-08-18 minor bugfix: assign an explicit type to below nameless enum to address:
+        // | [..] In function ‘ns_miniz::mz_zip_reader_extract_iter_state* ns_miniz::mz_zip_reader_extract_iter_new(mz_zip_archive*, mz_uint, mz_uint)’:
+        // | [..]: warning: enumerated and non-enumerated type in conditional expression [-Wextra]
+        // |   597 | #define MZ_MIN(a, b) (((a) < (b)) ? (a) : (b))
+        // |                              ~~~~~~~~~~~~^~~~~~~~~~~
+        // | [..]: note: in expansion of macro ‘MZ_MIN’
+        // |  6581 |                     pState->read_buf_size = MZ_MIN(pState->file_stat.m_comp_size, MZ_ZIP_MAX_IO_BUF_SIZE);
+        // |       |                                             ^~~~~~
+        enum : uint64_t {
             /* Note: These enums can be reduced as needed to save memory or stack space - they are pretty conservative. */
             MZ_ZIP_MAX_IO_BUF_SIZE               = 64 * 1024,
             MZ_ZIP_MAX_ARCHIVE_FILENAME_SIZE     = 512,
@@ -4560,6 +4671,7 @@ common_exit:
         if (!pFile) return NULL;
         return pFile;
     }
+
 #            ifndef MINIZ_NO_TIME
 #                include <sys/utime.h>
 #            endif
@@ -4667,6 +4779,13 @@ common_exit:
 #            define MZ_RENAME_FILE FILESYSTEM_NAMESPACE::rename
 #        endif /* #ifdef _MSC_VER */
 #    endif /* #ifdef MINIZ_NO_STDIO */
+
+// 2024-09-15: override all previous settings for MZ_RENAME_FILE with moveFile - which correctly invokes FILESYSTEM_NAMESPACE
+//             The purpose is to check rename when it reports success (if sourcefile persists, output a warning & attempt to remove it manually)
+#    ifdef MZ_RENAME_FILE
+#        undef MZ_RENAME_FILE
+#        define MZ_RENAME_FILE moveFile
+#    endif
 
 #    define MZ_TOLOWER(c) ((((c) >= 'A') && ((c) <= 'Z')) ? ((c) - 'A' + 'a') : (c))
 
@@ -9693,49 +9812,7 @@ handle_failure:
 
 }    // namespace ns_miniz
 
-namespace Zippy
-{
-    using namespace ns_miniz;
-
-    /**
-     * @brief The ZipRuntimeError class is a custom exception class derived from the std::runtime_error class.
-     * @details In case of an error in the Zippy library, an ZipRuntimeError object will be thrown, with a message
-     * describing the details of the error.
-     */
-    class ZipRuntimeError : public std::runtime_error
-    {
-    public:
-        /**
-         * @brief Constructor.
-         * @param err A string with a description of the error.
-         */
-        inline explicit ZipRuntimeError(const std::string& err) : runtime_error(err) {}
-
-        /**
-         * @brief Destructor.
-         */
-        inline ~ZipRuntimeError() override = default;
-    };
-
-    /**
-     * @brief
-     */
-    class ZipLogicError : public std::logic_error
-    {
-    public:
-        /**
-         * @brief
-         * @param err
-         */
-        inline explicit ZipLogicError(const std::string& err) : logic_error(err) {}
-
-        /**
-         * @brief
-         */
-        inline ~ZipLogicError() override = default;
-    };
-
-}    // namespace Zippy
+// 2024-09-15: removed Zippy ZipRuntimeError here to move it to the top of module because forward declaration did not work
 
 namespace Zippy::Impl
 {
@@ -9765,6 +9842,8 @@ namespace Zippy::Impl
 
 namespace Zippy
 {
+    using namespace ns_miniz;
+
     class ZipArchive;
 
     class ZipEntry;
@@ -10478,7 +10557,8 @@ namespace Zippy
             // ===== Validate the temporary file
             mz_zip_error errordata;
             if (!mz_zip_validate_file_archive(fileName.c_str(), 0, &errordata)) {
-                throw ZipRuntimeError(mz_zip_get_error_string(errordata));
+                // throw ZipRuntimeError(mz_zip_get_error_string(errordata));
+                throw ZipRuntimeError(std::string(mz_zip_get_error_string(errordata)) + " (m_ArchivePath: " + m_ArchivePath + ")");
             }
 
             // ===== If everything is OK, open the newly created archive.
@@ -10502,7 +10582,8 @@ namespace Zippy
             }
             m_ArchivePath = fileName;
             if (!mz_zip_reader_init_file(&m_Archive, m_ArchivePath.c_str(), 0)) {
-                throw ZipRuntimeError(mz_zip_get_error_string(m_Archive.m_last_error));
+                // throw ZipRuntimeError(mz_zip_get_error_string(m_Archive.m_last_error));
+                throw ZipRuntimeError(std::string(mz_zip_get_error_string(m_Archive.m_last_error)) + " (m_ArchivePath: " + m_ArchivePath + ")");
             }
             m_IsOpen = true;
 
@@ -10510,7 +10591,8 @@ namespace Zippy
             for (unsigned int i = 0; i < mz_zip_reader_get_num_files(&m_Archive); i++) {
                 ZipEntryInfo info;
                 if (!mz_zip_reader_file_stat(&m_Archive, i, &info)) {
-                    throw ZipRuntimeError(mz_zip_get_error_string(m_Archive.m_last_error));
+                    // throw ZipRuntimeError(mz_zip_get_error_string(m_Archive.m_last_error));
+                    throw ZipRuntimeError(std::string(mz_zip_get_error_string(m_Archive.m_last_error)) + " (m_ArchivePath: " + m_ArchivePath + ")");
                 }
 
                 m_ZipEntries.emplace_back(Impl::ZipEntry(info));
@@ -10761,7 +10843,7 @@ namespace Zippy
 #           endif
             std::string tempPath{};
             if (pathPos != std::string::npos) tempPath = filename.substr(0, pathPos + 1);
-				else tempPath = localFolder; // prepend explicit identification of local folder in case path did not contain a folder
+            else tempPath = localFolder; // prepend explicit identification of local folder in case path did not contain a folder
 
             // ===== Generate a random file name with the same path as the current file
             tempPath = tempPath + Impl::GenerateRandomName(20);
@@ -10814,9 +10896,9 @@ namespace Zippy
          */
         void Save(std::ostream& stream)
         {
-            if (!IsOpen()) throw ZipLogicError("Cannot call Save on empty ZipArchive object!");
-
-            // TODO: To be implemented
+            if (!IsOpen()) throw ZipLogicError("Cannot call ZipArchive::Save(std::ostream&) on empty ZipArchive object!");
+            throw ZipLogicError("ZipArchive::Save(std::ostream&) is not yet implemented!"); // TODO: To be implemented
+            (void) stream; // 2024-08-18: suppress -Wunused-parameter
         }
 
         /**
@@ -10904,7 +10986,9 @@ namespace Zippy
          */
         void ExtractDir(const std::string& dir, const std::string& dest)
         {
-            if (!IsOpen()) throw ZipLogicError("Cannot call ExtractDir on empty ZipArchive object!");
+            if (!IsOpen()) throw ZipLogicError("Cannot call ZipArchive::ExtractDir(const std::string&, const std::string&) on empty ZipArchive object!");
+            throw ZipLogicError("ZipArchive::ExtractDir(const std::string&, const std::string&) is not yet implemented!"); // TODO: To be implemented
+            (void) dir; (void) dest; // 2024-08-18: suppress -Wunused-parameter
         }
 
         /**
@@ -10914,7 +10998,9 @@ namespace Zippy
          */
         void ExtractAll(const std::string& dest)
         {
-            if (!IsOpen()) throw ZipLogicError("Cannot call ExtractAll on empty ZipArchive object!");
+            if (!IsOpen()) throw ZipLogicError("Cannot call ZipArchive::ExtractAll(const std::string&) on empty ZipArchive object!");
+            throw ZipLogicError("ZipArchive::ExtractAll(std::string const &) is not yet implemented!"); // TODO: To be implemented
+            (void) dest; // 2024-08-18: suppress -Wunused-parameter
         }
 
         /**
@@ -11010,5 +11096,8 @@ namespace Zippy
     };
 }    // namespace Zippy
 
-#pragma warning(pop)
+#ifdef _MSC_VER // avoid other compilers complaining about MSVC-only pragmas being unknown
+#   pragma warning(pop)
+#endif // _MSC_VER
+
 #endif    // ZIPPYHEADERONLY_ZIPPY_HPP

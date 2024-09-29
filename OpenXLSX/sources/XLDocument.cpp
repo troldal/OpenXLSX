@@ -50,13 +50,16 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #endif
 #if defined(_WIN32)
 #    include <random>
+#    define stat _stat    // _stat should be available in standard environment on Windows
 #endif
 #include <pugixml.hpp>
+#include <sys/stat.h>     // for stat, to test if a file exists and if a file is a directory
 
 // ===== OpenXLSX Includes ===== //
 #include "XLContentTypes.hpp"
 #include "XLDocument.hpp"
 #include "XLSheet.hpp"
+#include "XLStyles.hpp"
 #include "utilities/XLUtilities.hpp"
 
 using namespace OpenXLSX;
@@ -420,12 +423,16 @@ namespace
 
 }    // namespace
 
-XLDocument::XLDocument(const IZipArchive& zipArchive) : m_archive(zipArchive) {}
+XLDocument::XLDocument(const IZipArchive& zipArchive) : m_xmlSavingDeclaration{}, m_archive(zipArchive) {}
 
 /**
  * @details An alternative constructor, taking a std::string with the path to the .xlsx package as an argument.
  */
-XLDocument::XLDocument(const std::string& docPath, const IZipArchive& zipArchive) : m_archive(zipArchive) { open(docPath); }
+XLDocument::XLDocument(const std::string& docPath, const IZipArchive& zipArchive)
+    : m_xmlSavingDeclaration{}, m_archive(zipArchive)
+{
+    open(docPath); 
+}
 
 /**
  * @details The destructor calls the closeDocument method before the object is destroyed.
@@ -450,29 +457,78 @@ void XLDocument::open(const std::string& fileName)
     m_archive.open(m_filePath);
 
     // ===== Add and open the Relationships and [Content_Types] files for the document level.
+    std::string relsFilename = "_rels/.rels";
     m_data.emplace_back(this, "[Content_Types].xml");
-    m_data.emplace_back(this, "_rels/.rels");
-    m_data.emplace_back(this, "xl/_rels/workbook.xml.rels");
+    m_data.emplace_back(this, relsFilename);
 
     m_contentTypes     = XLContentTypes(getXmlData("[Content_Types].xml"));
-    m_docRelationships = XLRelationships(getXmlData("_rels/.rels"));
-    m_wbkRelationships = XLRelationships(getXmlData("xl/_rels/workbook.xml.rels"));
+    m_docRelationships = XLRelationships(getXmlData(relsFilename), relsFilename);
+    std::string workbookPath = "xl/workbook.xml";
+    bool workbookAdded = false;
+    for (auto& item : m_docRelationships.relationships()) {
+        if (item.type() == XLRelationshipType::Workbook) {
+            workbookPath = item.target();
+            if( workbookPath[ 0 ] == '/' ) workbookPath = workbookPath.substr(1); // NON STANDARD FORMATS: strip leading '/'
+            m_data.emplace_back(this, workbookPath, item.id(), XLContentType::Workbook);
+            workbookAdded = true;
+    break;
+        }
+    }
 
+    // ===== Determine workbook relationships path based on workbookPath, and construct m_wbkRelationships
+    size_t pos = workbookPath.find_last_of('/');
+    if( pos == std::string::npos ) {
+        using namespace std::literals::string_literals;
+        throw XLInputError(std::string("workbook path from "s + relsFilename + " has no folder name: "s) + workbookPath);
+    }
+    std::string workbookRelsFilename = std::string("xl/_rels/") + workbookPath.substr(pos + 1) + std::string(".rels");
+    m_data.emplace_back(this, workbookRelsFilename); // m_data.emplace_back(this, "xl/_rels/workbook.xml.rels");
+    m_wbkRelationships = XLRelationships(getXmlData(workbookRelsFilename), workbookRelsFilename);
+
+    // ===== Create xl/styles.xml if missing
+    if (!m_archive.hasEntry("xl/styles.xml")) execCommand(XLCommand(XLCommandType::AddStyles));
+
+    // ===== Create xl/sharedStrings.xml from scratch if missing
     if (!m_archive.hasEntry("xl/sharedStrings.xml")) execCommand(XLCommand(XLCommandType::AddSharedStrings));
 
     // ===== Add remaining spreadsheet elements to the vector of XLXmlData objects.
     for (auto& item : m_contentTypes.getContentItems()) {
-        if (item.path().substr(0, 4) == "/xl/" && item.path() != "/xl/workbook.xml")
-            m_data.emplace_back(/* parentDoc */ this,
-                                /* xmlPath   */ item.path().substr(1),
-                                /* xmlID     */ m_wbkRelationships.relationshipByTarget(item.path().substr(4)).id(),
-                                /* xmlType   */ item.type());
+        // ===== 2024-07-26 BUGFIX: ignore content item entries for relationship files, that have already been read above
+        if (item.path().substr(1) == relsFilename) continue;            // always ignore relsFilename - would have thrown above if not found
+        if (item.path().substr(1) == workbookRelsFilename) continue;    // always ignore workbookRelsFilename - would have thrown
 
-        else
+        // ===== Test if item is not in a known and handled subfolder (e.g. /customXml/*)
+        if (size_t pos = item.path().substr(1).find_first_of('/'); pos != std::string::npos) {
+            std::string subdirectory = item.path().substr(1, pos);
+            if (subdirectory != "xl" && subdirectory != "docProps") continue; // ignore items in unhandled subfolders
+        }
+
+        bool isWorkbookPath = (item.path().substr(1) == workbookPath);      // determine once, use twice
+        if (!isWorkbookPath && item.path().substr(0, 4) == "/xl/") {
+            if (item.path().substr(4, 7) == "comment") {
+                std::cout << "XLDocument::" << __func__ << ": ignoring comment xml file " << item.path() << std::endl;
+            }
+            else if ((item.path().substr(4, 16) == "worksheets/sheet")
+                   ||(item.path().substr(4)     == "sharedStrings.xml")
+                   ||(item.path().substr(4)     == "styles.xml")
+                   ||(item.path().substr(4, 11) == "theme/theme"))
+            {
+                m_data.emplace_back(/* parentDoc */ this,
+                                    /* xmlPath   */ item.path().substr(1),
+                                    /* xmlID     */ m_wbkRelationships.relationshipByTarget(item.path().substr(4)).id(),
+                                    /* xmlType   */ item.type());
+            }
+            else {
+                std::cout << "ignoring currently unhandled workbook item " << item.path() << std::endl;
+            }
+        }
+        else if (!isWorkbookPath || !workbookAdded) { // do not re-add workbook if it was previously added via m_docRelationships
             m_data.emplace_back(/* parentDoc */ this,
                                 /* xmlPath   */ item.path().substr(1),
                                 /* xmlID     */ m_docRelationships.relationshipByTarget(item.path().substr(1)).id(),
                                 /* xmlType   */ item.type());
+            if (item.path() == workbookPath) workbookAdded = true;
+        }
     }
 
     // ===== Read shared strings table.
@@ -520,7 +576,7 @@ void XLDocument::open(const std::string& fileName)
     }
 
     // ===== Open the workbook and document property items
-    m_workbook       = XLWorkbook(getXmlData("xl/workbook.xml"));
+    m_workbook       = XLWorkbook(getXmlData(workbookPath));
     // 2024-05-31: moved XLWorkbook object creation up in code worksheets info can be used for XLAppProperties generation from scratch
 
     // ===== 2024-06-03: creating core and extended properties if they do not exist
@@ -532,15 +588,63 @@ void XLDocument::open(const std::string& fileName)
 
     m_coreProperties = XLProperties(getXmlData("docProps/core.xml"));
     m_appProperties  = XLAppProperties(getXmlData("docProps/app.xml"), m_workbook.xmlDocument());
+    // ===== 2024-09-02: ensure that all worksheets are contained in app.xml <TitlesOfParts> and reflected in <HeadingPairs> value for Worksheets
+    m_appProperties.alignWorksheets(m_workbook.sheetNames());
 
     m_sharedStrings  = XLSharedStrings(getXmlData("xl/sharedStrings.xml"), &m_sharedStringCache);
+    m_styles         = XLStyles(getXmlData("xl/styles.xml"));
 }
+
+namespace {
+    /**
+     * @brief Test if path exists as either a file or a directory
+     * @param path Check for existence of this
+     * @return true if path exists as a file or directory
+     */
+    bool pathExists(const std::string& path)
+    {
+        struct stat info;
+        if (stat(path.c_str(), &info ) == 0)    // test if path exists
+            return true;
+        return false;
+    }
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
+    /**
+     * @brief Test if fileName exists and is not a directory
+     * @param fileName The path to check for existence (as a file)
+     * @return true if fileName exists and is a file, otherwise false
+     */
+    bool fileExists(const std::string& fileName)
+    {
+        struct stat info;
+        if (stat(fileName.c_str(), &info ) == 0)    // test if path exists
+            if ((info.st_mode & S_IFDIR) == 0)          // test if it is NOT a directory
+                return true;
+        return false;
+    }
+    bool isDirectory(const std::string& fileName)
+    {
+        struct stat info;
+        if (stat(fileName.c_str(), &info ) == 0)    // test if path exists
+            if ((info.st_mode & S_IFDIR) != 0)          // test if it is a directory
+                return true;
+        return false;
+    }
+#pragma GCC diagnostic pop
+} // anonymous namespace
 
 /**
  * @details Create a new document. This is done by saving the data in XLTemplate.h in binary format.
  */
-void XLDocument::create(const std::string& fileName)
+void XLDocument::create(const std::string& fileName, bool forceOverwrite)
 {
+    // 2024-07-26: prevent silent overwriting of existing files
+    if (!forceOverwrite && pathExists(fileName)) {
+        using namespace std::literals::string_literals;
+        throw XLException("XLDocument::create: refusing to overwrite existing file "s + fileName);
+    }
+
     // ===== Create a temporary output file stream.
 #ifdef ENABLE_NOWIDE
     nowide::ofstream outfile(fileName, std::ios::binary);
@@ -555,6 +659,13 @@ void XLDocument::create(const std::string& fileName)
 
     open(fileName);
 }
+
+/**
+ * @details Legacy function to create a new document
+ * @deprecated use instead XLDocument::create(const std::string& fileName, bool forceOverwrite)
+ * @warning This deprecated function overwrites an existing file without prompt
+ */
+void XLDocument::create(const std::string& fileName) { create( fileName, XLForceOverwrite ); }
 
 /**
  * @details The document is closed by deleting the temporary folder structure.
@@ -576,15 +687,21 @@ void XLDocument::close()
 /**
  * @details Save the document with the same name. The existing file will be overwritten.
  */
-void XLDocument::save() { saveAs(m_filePath); }
+void XLDocument::save() { saveAs(m_filePath, XLForceOverwrite); }
 
 /**
  * @details Save the document with a new name. If present, the 'calcChain.xml file will be ignored. The reason for this
  * is that changes to the document may invalidate the calcChain.xml file. Deleting will force Excel to re-create the
  * file. This will happen automatically, without the user noticing.
  */
-void XLDocument::saveAs(const std::string& fileName)
+void XLDocument::saveAs(const std::string& fileName, bool forceOverwrite)
 {
+    // 2024-07-26: prevent silent overwriting of existing files
+    if (!forceOverwrite && pathExists(fileName)) {
+        using namespace std::literals::string_literals;
+        throw XLException("XLDocument::saveAs: refusing to overwrite existing file "s + fileName);
+    }
+
     m_filePath = fileName;
 
     // ===== Delete the calcChain.xml file in order to force re-calculation of the sheet
@@ -592,9 +709,24 @@ void XLDocument::saveAs(const std::string& fileName)
     execCommand(XLCommand(XLCommandType::ResetCalcChain));
 
     // ===== Add all xml items to archive and save the archive.
-    for (auto& item : m_data) m_archive.addEntry(item.getXmlPath(), item.getRawData());
+    for (auto& item : m_data) {
+        bool xmlIsStandalone = m_xmlSavingDeclaration.standalone_as_bool();
+        if ((item.getXmlPath() == "docProps/core.xml")
+          ||(item.getXmlPath() == "docProps/app.xml"))
+            xmlIsStandalone = XLXmlStandalone;
+        // m_archive.addEntry(item.getXmlPath(), item.getRawData(XLXmlSavingDeclaration("1.0", "UTF-8", xmlIsStandalone)));
+        m_archive.addEntry(item.getXmlPath(),
+            item.getRawData(XLXmlSavingDeclaration(m_xmlSavingDeclaration.version(), m_xmlSavingDeclaration.encoding(),xmlIsStandalone)));
+    }
     m_archive.save(m_filePath);
 }
+
+/**
+ * @details Legacy function to save the document with a new name
+ * @deprecated use instead void XLDocument::saveAs(const std::string& fileName, bool forceOverwrite)
+ * @warning This deprecated function overwrites an existing file without prompt
+ */
+void XLDocument::saveAs(const std::string& fileName) { saveAs( fileName, XLForceOverwrite ); }
 
 /**
  * @details
@@ -837,6 +969,24 @@ void XLDocument::setProperty(XLProperty prop, const std::string& value)    // NO
 void XLDocument::deleteProperty(XLProperty theProperty) { setProperty(theProperty, ""); }
 
 /**
+ * @details
+ */
+XLDocument::operator bool() const
+{
+    return m_archive.isValid();    // NOLINT
+}
+
+/**
+ * @details
+ */
+bool XLDocument::isOpen() const { return this->operator bool(); }
+
+/**
+* @details fetch a reference to m_styles
+*/
+XLStyles& XLDocument::styles() { return m_styles; }
+
+/**
  * @details return value defaults to true, false only where the XLCommandType implements it
  */
 bool XLDocument::execCommand(const XLCommand& command)
@@ -913,19 +1063,10 @@ bool XLDocument::execCommand(const XLCommand& command)
             }
         } break;
         case XLCommandType::AddSharedStrings: {
-            const std::string sharedStrings {
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-                // "<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"1\" uniqueCount=\"1\">\n"
-                "<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\">\n"    // pull request #192 -> remove count &
-                                                                                                 // uniqueCount as they are optional
-                "  <si>\n"
-                "    <t/>\n"
-                "  </si>\n"
-                "</sst>"
-            };
             m_contentTypes.addOverride("/xl/sharedStrings.xml", XLContentType::SharedStrings);
             m_wbkRelationships.addRelationship(XLRelationshipType::SharedStrings, "sharedStrings.xml");
-            m_archive.addEntry("xl/sharedStrings.xml", sharedStrings);
+            // ===== Add empty archive entry for shared strings, XLSharedStrings constructor will create a default document when no document element is found
+            m_archive.addEntry("xl/sharedStrings.xml", "");
         } break;
         case XLCommandType::AddWorksheet: {
             const std::string emptyWorksheet {
@@ -1005,6 +1146,12 @@ bool XLDocument::execCommand(const XLCommand& command)
 
             m_workbook.prepareSheetMetadata(command.getParam<std::string>("cloneName"), internalID);
         } break;
+        case XLCommandType::AddStyles: {
+            m_contentTypes.addOverride("/xl/styles.xml", XLContentType::Styles);
+            m_wbkRelationships.addRelationship(XLRelationshipType::Styles, "styles.xml");
+            // ===== Add empty archive entry for styles, XLStyles constructor will create a default document when no document element is found
+            m_archive.addEntry("xl/styles.xml", "");
+        } break;
     }
 
     return true;    // default: command claims success unless otherwise implemented in switch-clauses
@@ -1070,24 +1217,28 @@ XLQuery XLDocument::execQuery(const XLQuery& query) const
 XLQuery XLDocument::execQuery(const XLQuery& query) { return static_cast<const XLDocument&>(*this).execQuery(query); }
 
 /**
- * @details
- */
-XLDocument::operator bool() const
-{
-    return m_archive.isValid();    // NOLINT
-}
+* @details assign savingDeclaration to m_xmlSavingDeclaration
+*/
+void XLDocument::setSavingDeclaration(XLXmlSavingDeclaration const& savingDeclaration) { m_xmlSavingDeclaration = savingDeclaration; }
+
+//----------------------------------------------------------------------------------------------------------------------
+//           Protected Member Functions
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * @details
  */
-bool XLDocument::isOpen() const { return this->operator bool(); }
+std::string XLDocument::extractXmlFromArchive(const std::string& path)
+{
+    return (m_archive.hasEntry(path) ? m_archive.getEntry(path) : "");
+}
 
 /**
  * @details
  */
 XLXmlData* XLDocument::getXmlData(const std::string& path)
 {
-    if (!hasXmlData(path)) throw XLInternalError("Path does not exist in zip archive.");
+    if (!hasXmlData(path)) throw XLInternalError("Path " + path + " does not exist in zip archive.");
     return &*std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) { return item.getXmlPath() == path; });
     //    auto result = std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) { return item.getXmlPath() == path; });
     //    if (result == m_data.end()) throw XLInternalError("Path does not exist in zip archive.");
@@ -1099,7 +1250,7 @@ XLXmlData* XLDocument::getXmlData(const std::string& path)
  */
 const XLXmlData* XLDocument::getXmlData(const std::string& path) const
 {
-    if (!hasXmlData(path)) throw XLInternalError("Path does not exist in zip archive.");
+    if (!hasXmlData(path)) throw XLInternalError("Path " + path + " does not exist in zip archive.");
     return &*std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) { return item.getXmlPath() == path; });
     //    if (result == m_data.end()) throw XLInternalError("Path does not exist in zip archive.");
     //    return &*result;
@@ -1111,12 +1262,4 @@ const XLXmlData* XLDocument::getXmlData(const std::string& path) const
 bool XLDocument::hasXmlData(const std::string& path) const
 {
     return std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) { return item.getXmlPath() == path; }) != m_data.end();
-}
-
-/**
- * @details
- */
-std::string XLDocument::extractXmlFromArchive(const std::string& path)
-{
-    return (m_archive.hasEntry(path) ? m_archive.getEntry(path) : "");
 }

@@ -85,7 +85,13 @@ bool XLZipArchive::isOpen() const
 void XLZipArchive::open(const std::string& fileName)
 {
     m_archive = std::make_shared<Zippy::ZipArchive>();
-    m_archive->Open(fileName);
+    try {
+        m_archive->Open(fileName);
+    }
+    catch( ... ) {    // catch all exceptions
+        m_archive.reset();    // make m_archive invalid again
+        throw;                // re-throw
+    }
 }
 
 /**
@@ -94,7 +100,7 @@ void XLZipArchive::open(const std::string& fileName)
 void XLZipArchive::close()
 {
     m_archive->Close();
-    m_archive = nullptr;
+    m_archive.reset();
 }
 
 /**

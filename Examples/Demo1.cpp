@@ -17,7 +17,7 @@ int main()
     // First, create a new document and access the sheet named 'Sheet1'.
     // New documents contain a single worksheet named 'Sheet1'
     XLDocument doc;
-    doc.create("./Demo01.xlsx");
+    doc.create("./Demo01.xlsx", XLForceOverwrite);
     auto wks = doc.workbook().worksheet("Sheet1");
 
     // The individual cells can be accessed by using the .cell() method on the worksheet object.

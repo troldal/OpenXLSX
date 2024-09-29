@@ -21,7 +21,7 @@ int main()
 
     // First, create a new document and store the workbook object in a variable. Print the sheet names.
     XLDocument doc;
-    doc.create("./Demo03.xlsx");
+    doc.create("./Demo03.xlsx", XLForceOverwrite);
     auto wbk = doc.workbook();
     printWorkbook(wbk);
 

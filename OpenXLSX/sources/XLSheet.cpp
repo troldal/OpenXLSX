@@ -50,6 +50,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 // ===== OpenXLSX Includes ===== //
 #include "XLCellRange.hpp"
 #include "XLDocument.hpp"
+#include "XLMergeCells.hpp"
 #include "XLSheet.hpp"
 #include "utilities/XLUtilities.hpp"
 
@@ -291,9 +292,41 @@ XLWorksheet::XLWorksheet(XLXmlData* xmlData) : XLSheetBase(xmlData)
 }
 
 /**
- * @details Destructor. Default implementation.
+ * @details copy-construct an XLWorksheet from other
  */
-XLWorksheet::~XLWorksheet() = default;
+XLWorksheet::XLWorksheet(const XLWorksheet& other) : XLSheetBase<XLWorksheet>(other)
+{
+    m_merges = other.m_merges;    // invoke XLMergeCells copy assignment operator
+}
+
+/**
+ * @details move-construct an XLWorksheet from other
+ */
+XLWorksheet::XLWorksheet(XLWorksheet&& other) : XLSheetBase< XLWorksheet >( other )
+{
+    m_merges = std::move(other.m_merges);    // invoke XLMergeCells move assignment operator
+}
+
+/**
+ * @details copy-assign an XLWorksheet from other
+ */
+XLWorksheet& XLWorksheet::operator=(const XLWorksheet& other)
+{
+    XLSheetBase<XLWorksheet>::operator=(other); // invoke base class copy assignment operator
+    m_merges = other.m_merges;
+    return *this;
+}
+
+/**
+ * @details move-assign an XLWorksheet from other
+ */
+XLWorksheet& XLWorksheet::operator=(XLWorksheet&& other)
+{
+    XLSheetBase<XLWorksheet>::operator=(other); // invoke base class move assignment operator
+    m_merges = std::move(other.m_merges);
+    return *this;
+}
+
 
 /**
  * @details
@@ -337,27 +370,23 @@ bool XLWorksheet::setActive_impl()
 /**
  * @details
  */
-XLCellAssignable XLWorksheet::cell(const std::string& ref) const
-{
-    return XLCellAssignable(cell(XLCellReference(ref))); // move-construct XLCellAssignable from temporary XLCell
-}
+XLCellAssignable XLWorksheet::cell(const std::string& ref) const { return cell(XLCellReference(ref)); }
 
 /**
  * @details
  */
-XLCell XLWorksheet::cell(const XLCellReference& ref) const { return cell(ref.row(), ref.column()); }
+XLCellAssignable XLWorksheet::cell(const XLCellReference& ref) const { return cell(ref.row(), ref.column()); }
 
 /**
  * @details This function returns a pointer to an XLCell object in the worksheet. This particular overload
  * also serves as the main function, called by the other overloads.
  */
-XLCell XLWorksheet::cell(uint32_t rowNumber, uint16_t columnNumber) const
+XLCellAssignable XLWorksheet::cell(uint32_t rowNumber, uint16_t columnNumber) const
 {
     const XMLNode rowNode  = getRowNode(xmlDocument().document_element().child("sheetData"), rowNumber);
     const XMLNode cellNode = getCellNode(rowNode, columnNumber, rowNumber);
-    return XLCell { cellNode, parentDoc().execQuery(XLQuery(XLQueryType::QuerySharedStrings)).result<XLSharedStrings>() };
-
-    /*** removed obsolete section with code identical to XLUtilities.hpp::getCellNode ***/
+    // ===== Move-construct XLCellAssignable from temporary XLCell
+    return XLCellAssignable(XLCell(cellNode, parentDoc().execQuery(XLQuery(XLQueryType::QuerySharedStrings)).result<XLSharedStrings>()));
 }
 
 /**
@@ -374,6 +403,23 @@ XLCellRange XLWorksheet::range(const XLCellReference& topLeft, const XLCellRefer
                        topLeft,
                        bottomRight,
                        parentDoc().execQuery(XLQuery(XLQueryType::QuerySharedStrings)).result<XLSharedStrings>());
+}
+
+/**
+ * @details Get a range based on two cell reference strings
+ */
+XLCellRange XLWorksheet::range(std::string const& topLeft, std::string const& bottomRight) const
+{
+    return range(XLCellReference(topLeft), XLCellReference(bottomRight));
+}
+
+/**
+ * @details Get a range based on a reference string
+ */
+XLCellRange XLWorksheet::range(std::string const& rangeReference) const
+{
+    size_t pos = rangeReference.find_first_of(':');
+    return range(rangeReference.substr(0, pos), rangeReference.substr(pos + 1, std::string::npos));
 }
 
 /**
@@ -437,6 +483,9 @@ XLRow XLWorksheet::row(uint32_t rowNumber) const
 XLColumn XLWorksheet::column(uint16_t columnNumber) const
 {
     using namespace std::literals::string_literals;
+
+    if (columnNumber < 1 || columnNumber > OpenXLSX::MAX_COLS)    // 2024-08-05: added range check
+        throw XLException("XLWorksheet::column: columnNumber "s + std::to_string(columnNumber) + " is outside allowed range [1;"s + std::to_string(MAX_COLS) + "]"s);
 
     // If no columns exists, create the <cols> node in the XML document.
     if (xmlDocument().document_element().child("cols").empty())
@@ -515,6 +564,12 @@ XLColumn XLWorksheet::column(uint16_t columnNumber) const
 }
 
 /**
+ * @details Get the column with the given column reference by converting the columnRef into a column number
+ *          and forwarding the implementation to XLColumn XLWorksheet::column(uint16_t columnNumber) const
+ */
+XLColumn XLWorksheet::column(std::string const& columnRef) const { return column(XLCellReference::columnAsNumber(columnRef)); }
+
+/**
  * @details Returns an XLCellReference to the last cell using rowCount() and columnCount() methods.
  */
 XLCellReference XLWorksheet::lastCell() const noexcept { return { rowCount(), columnCount() }; }
@@ -580,6 +635,125 @@ void XLWorksheet::updateSheetName(const std::string& oldName, const std::string&
             }
         }
     }
+}
+
+/**
+ * @details upon first access, ensure that the worksheet's <mergeCells> tag exists, and create an XLMergeCells object
+ */
+XLMergeCells & XLWorksheet::merges()
+{
+    if( m_merges.uninitialized() ) {
+        XMLNode mergeCellsNode = xmlDocument().document_element().child("mergeCells");
+        if (mergeCellsNode.empty())
+            mergeCellsNode = xmlDocument().document_element().append_child("mergeCells");
+        m_merges = XLMergeCells(mergeCellsNode);
+    }
+    return m_merges;
+}
+
+/**
+ * @details create a new mergeCell element in the worksheet mergeCells array, with the only
+ *          attribute being ref="A1:D6" (with the top left and bottom right cells of the range)
+ *          The mergeCell element otherwise remains empty (no value)
+ *          The mergeCells attribute count will be increased by one
+ *          If emptyHiddenCells is true (XLEmptyHiddenCells), the values of all but the top left cell of the range
+ *          will be deleted (not from shared strings)
+ *          If any cell within the range is the sheet's active cell, the active cell will be set to the
+ *          top left corner of rangeToMerge
+ */
+void XLWorksheet::mergeCells(XLCellRange const& rangeToMerge, bool emptyHiddenCells)
+{
+    if (rangeToMerge.numRows() * rangeToMerge.numColumns() < 2) {
+        using namespace std::literals::string_literals;
+        throw XLInputError("XLWorksheet::"s + __func__ + ": rangeToMerge must comprise at least 2 cells"s);
+    }
+
+    merges().appendMerge(rangeToMerge.address());
+    if (emptyHiddenCells) {
+        // ===== Iterate over rangeToMerge, delete values & attributes (except r and s) for all but the first cell in the range
+        XLCellIterator it = rangeToMerge.begin();
+        ++it; // leave first cell untouched
+        while (it != rangeToMerge.end()) {
+            // ===== When merging with emptyHiddenCells in LO, subsequent unmerging restores the cell styles -> so keep them here as well
+            it->clear(XLKeepCellStyle);    // clear cell contents except style
+            ++it;
+        }
+    }
+}
+
+/**
+ * @details Convenience wrapper for the previous function, using a std::string range reference
+ */
+void XLWorksheet::mergeCells(const std::string& rangeReference, bool emptyHiddenCells) {
+    mergeCells(range(rangeReference), emptyHiddenCells);
+}
+
+/**
+ * @details check if rangeToUnmerge exists in mergeCells array & remove it
+ */
+void XLWorksheet::unmergeCells(XLCellRange const& rangeToUnmerge)
+{
+    int32_t mergeIndex = merges().findMerge(rangeToUnmerge.address());
+    if (mergeIndex != -1)
+        merges().deleteMerge(mergeIndex);
+    else {
+        using namespace std::literals::string_literals;
+        throw XLInputError("XLWorksheet::"s + __func__ + ": merged range "s + rangeToUnmerge.address() + " does not exist"s);
+    }
+}
+
+/**
+ * @details Convenience wrapper for the previous function, using a std::string range reference
+ */
+void XLWorksheet::unmergeCells(const std::string& rangeReference)
+{
+    unmergeCells(range(rangeReference));
+}
+
+/**
+ * @details Retrieve the column's format
+ */
+XLStyleIndex XLWorksheet::getColumnFormat(uint16_t columnNumber) const { return column(columnNumber).format(); }
+XLStyleIndex XLWorksheet::getColumnFormat(const std::string& columnNumber) const { return getColumnFormat(XLCellReference::columnAsNumber(columnNumber)); }
+
+/**
+ * @details Set the style for the identified column,
+ *          then iterate over all rows to set the same style for existing cells in that column
+ */
+bool XLWorksheet::setColumnFormat(uint16_t columnNumber, XLStyleIndex cellFormatIndex)
+{
+    if (!column(columnNumber).setFormat(cellFormatIndex)) // attempt to set column format
+        return false; // early fail
+    
+    XLRowRange allRows = rows();
+    for (XLRowIterator rowIt = allRows.begin(); rowIt != allRows.end(); ++rowIt) {
+        XLCell curCell = rowIt->findCell(columnNumber);
+        if (curCell && !curCell.setCellFormat(cellFormatIndex))    // attempt to set cell format for a non empty cell
+            return false; // failure to set cell format
+    }
+    return true; // if loop finished nominally: success
+}
+bool XLWorksheet::setColumnFormat(const std::string& columnNumber, XLStyleIndex cellFormatIndex) { return setColumnFormat( XLCellReference::columnAsNumber(columnNumber), cellFormatIndex); }
+
+/**
+ * @details Retrieve the row's format
+ */
+XLStyleIndex XLWorksheet::getRowFormat(uint16_t rowNumber) const { return row(rowNumber).format(); }
+
+/**
+ * @details Set the style for the identified row,
+ *          then iterate over all existing cells in the row to set the same style 
+ */
+bool XLWorksheet::setRowFormat(uint32_t rowNumber, XLStyleIndex cellFormatIndex)
+{
+    if (!row(rowNumber).setFormat(cellFormatIndex)) // attempt to set row format
+        return false; // early fail
+
+    XLRowDataRange rowCells = row(rowNumber).cells();
+    for (XLRowDataIterator cellIt = rowCells.begin(); cellIt != rowCells.end(); ++cellIt)
+        if (!cellIt->setCellFormat(cellFormatIndex)) // attempt to set cell format
+            return false;
+    return true; // if loop finished nominally: success
 }
 
 /**

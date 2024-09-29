@@ -1,0 +1,108 @@
+How to find TBDs in the source code:
+====================================
+  $ grep -rni "todo\|tbd\|caution"
+
+Planned features:
+=================
+* comments support: each xl/comments##.xml file refers to the corresponding xl/worksheets/sheets##.xml file with comments structured like so:
+  <x:commentList>
+    <x:comment ref="M5" authorId="0">
+      <x:text>
+        <x:t>Enabling this option will reduce memory usage by 
+saving some intermediate data from memory onto the
+computer's hard disk.</x:t>
+      </x:text>
+    </x:comment>
+  </x:commentList>
+
+  NOTE: each comments file should be listed in [Content_Types].xml:
+  * Types::Override node: <Override PartName="/xl/comments1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.comments+xml"/>
+* support for worksheet specific relationships (comments, drawings)
+  <?xml version="1.0" encoding="utf-8"?>
+  <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+    <Relationship Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/comments" Target="/xl/comments10.xml" Id="Rd57c507abdc84ad0"/>
+    <Relationship Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/vmlDrawing" Target="/xl/drawings/vmldrawing10.vml" Id="Re5068d6e0dbe4bec"/>
+  </Relationships>
+
+TBD features (low priority):
+============================
+* support for rich-text cell contents (see idea for an implementation of rich-text cell contents at end of file)
+* replace leap year logic per XLDateTime.cpp with c++ built-in date functions
+* related to random 64bit identifiers: check [Content_Types].xml "support" (in that saving the file does not break anything):
+  ---------------------------------------------------------------------------------------------------------------------------
+  * Types::Default node: <Default Extension="xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>
+    (alternative entry to ContentType="application/xml")
+  * Types::Default node: <Default Extension="vml" ContentType="application/vnd.openxmlformats-officedocument.vmlDrawing"/>
+  * Types::Default node: <Default Extension="dat" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.template.main+xml"/>
+
+
+
+Notes on status of random 64bit ID support in hex format for worksheet r:id values
+==================================================================================
+DONE:
+* XLRelationships: void UseRandomIDs() and void UseSequentialIDs() to switch between one and the other IDs implementation
+* [DONE] _rels/.rels <Relationship <!-- other attributes --> Id="R1089e9da7ec94cca"/>
+  --> used for relevant xml targets in the workbook
+* [DONE] xl/workbook##.xml sheets::sheet node: <x:sheet name="Workspace" sheetId="1" r:id="R4b78b06d10804515"/>
+  --> regular sheet Ids
+* xl/_rels/workbook##.xml.rels: <Relationship <!-- other attributes --> Id="Rca50407821924816"/>
+   workbook relationships: xl/sharedStrings.xml, xl/styles.xml, xl/theme/theme##.xml, and all worksheets
+   [DONE] --> regular sheet Ids for worksheets
+   TODO --> for the other xml files, it appears the IDs here are not used elsewhere
+* [NOT TOUCHED BY OpenXLSX] xl/worksheets/_rels/sheet##.xml.rels <Relationship <!-- other attributes --> Id="Rc3c7515c124f4337"/> 
+   each sheet needs a relationship entry for 
+   - Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/comments"
+     --> it appears the ID here is not used elsewhere
+   - Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/vmlDrawing"
+     --> the target for a vmlDrawing is referenced by this ID in the worksheet (see below)
+* [NOT TOUCHED BY OpenXLSX] xl/worksheets/sheet##.xml worksheet node "<x:legacyDrawing r:id="Rc3c7515c124f4337"/>"
+  --> refers to the ID defined in the worksheet relationships (above) no support needed atm
+
+
+
+Idea for an implementation of rich-text cell contents:
+======================================================
+based on: formatted text is rich-text in XML, so one element node per unique style
+  - user gets to "get style" for a given position in text (character):
+   XLRichText.rows() / .row(index i) -> allows to extract text rows by index, removing the ambiguity of how to count a line break index
+   XLRichText.row( i ) returns XLRichTextRow
+   XLRichTextRow exposes:
+    - std::string functionality for text manipulation, and on top of that:
+	 - .formatAt( size_t index ) which returns an XLStyle object that contains the style applicable to that character
+   XLRichText::insertText( XLRichTextRow row, XLRichText text ) // insert before row with given style
+   XLRichText::insertText( XLRichTextRow row, std::string text, XLStyle style == __next__ )
+   - when a row is inserted, it inherits the format as specified:
+      __previous__: use style of the previous row
+      __next__:     use style of row
+      (custom XLStyle): use custom style (can be default, e.g. XLStyle{})
+   XLRichText::insertText( XLRichTextRow row, int index, XLStyle style == __next__ )
+      __previous__: use style of the previous character
+      __next__:     use style of the next character
+      (custom XLStyle): use custom style (can be default)
+
+   XLRichText::prependText( XLRichTextRow row, std::string text, XLStyle style == __next__ )
+    - equivalent to XLRichText::insertText( XLRichText.row( 0 ), text, style ) // NOTE: style == __previous__ is not allowed here
+   XLRichText::appendText( XLRichTextRow row, std::string text, XLStyle style == __previous__ )
+    - equivalent to XLRichText::insertText( XLRichText.row( XLRichText.rows().count() - 1 ), text, style ) // NOTE: style == __next__ is not allowed here
+
+   XLRichText::format( int fromRow, int fromIndex, int toRow, int toIndex, XLStyle style )
+    - applies the given style to the indicated range -> if it overlaps with other styles, this will split rich text sections as needed, e.g.:
+      * assume simplified XLRichTextPos pos_i( row_i, index_i )
+      * existing style_a from pos_i to pos_j
+      * new style_b applied to pos_k to pos_l with pos_k > pos_i and pos_l < pos_j
+      * resulting style sections:
+        [pos_i;pos_k[ style_a
+        [pos_k;pos_l] style_b
+        ]pos_l;pos_j] style_a
+
+   NOTE: for all inserts, text can have line breaks & will be inserted into the XLRichText accordingly
+   The underlying cell string value is updated accordingly (with the access logic to shared strings)
+
+   For such manipulations, the user has to create an XLRichText by accessing a cell intentionally as rich text, which will load the cell contents into the above structure and allow according manipulations on the underlying XML. For repeated access, it would be recommended to *not* work on temporary objects, but keep the XLRichText alive until operations on the cell are complete.
+
+   A bunch of helper functions could then be added one after another, e.g.:
+   * introduce XLRichTextCharacter with iterator traits (and a parent property that points to the row)
+   * auto-select format ranges based on an XLRichTextRow or XLRichTextCharacters
+     --> XLRichText::format( XLRichTextRow row ), XLRichText::format( XLRichTextRow fromRow, toRow ), XLRichText::format( XLRichTextCharacter fromChar, XLRichTextCharacter toChar )
+
+   TBD: how to decide on duplication / deduplication of XLStyles in the styles table

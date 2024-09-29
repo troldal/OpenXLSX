@@ -46,9 +46,14 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_XLSHEET_HPP
 #define OPENXLSX_XLSHEET_HPP
 
-#pragma warning(push)
-#pragma warning(disable : 4251)
-#pragma warning(disable : 4275)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunknown-pragmas" // disable warning about below #pragma warning being unknown
+#ifdef _MSC_VER                                    // additional condition because the previous line does not work on gcc 12.2
+#   pragma warning(push)
+#   pragma warning(disable : 4251)
+#   pragma warning(disable : 4275)
+#endif // _MSC_VER
+#pragma GCC diagnostic pop
 
 // ===== External Includes ===== //
 #include <cstdint>    // uint8_t, uint16_t, uint32_t
@@ -65,11 +70,14 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLCommandQuery.hpp"
 #include "XLDocument.hpp"
 #include "XLException.hpp"
+#include "XLMergeCells.hpp"
 #include "XLRow.hpp"
 #include "XLXmlFile.hpp"
 
 namespace OpenXLSX
 {
+    constexpr const bool XLEmptyHiddenCells = true; // readability constant for XLWorksheet::mergeCells parameter emptyHiddenCells
+
     /**
      * @brief The XLSheetState is an enumeration of the possible (visibility) states, e.g. Visible or Hidden.
      */
@@ -323,33 +331,30 @@ namespace OpenXLSX
         explicit XLWorksheet(XLXmlData* xmlData);
 
         /**
-         * @brief Copy Constructor.
-         * @note The copy constructor has been explicitly deleted.
+         * @brief Destructor.
          */
-        XLWorksheet(const XLWorksheet& other) = default;
+        ~XLWorksheet() = default;
+
+        /**
+         * @brief Copy Constructor.
+         */
+        XLWorksheet(const XLWorksheet& other);
 
         /**
          * @brief Move Constructor.
-         * @note The move constructor has been explicitly deleted.
          */
-        XLWorksheet(XLWorksheet&& other) = default;
-
-        /**
-         * @brief Destructor.
-         */
-        ~XLWorksheet();
+        XLWorksheet(XLWorksheet&& other);
 
         /**
          * @brief Copy assignment operator.
-         * @note The copy assignment operator has been explicitly deleted.
          */
-        XLWorksheet& operator=(const XLWorksheet& other) = default;
+        XLWorksheet& operator=(const XLWorksheet& other);
 
         /**
          * @brief Move assignment operator.
-         * @note The move assignment operator has been explicitly deleted.
          */
-        XLWorksheet& operator=(XLWorksheet&& other) = default;
+        XLWorksheet& operator=(XLWorksheet&& other);
+
 
         /**
          * @brief
@@ -359,11 +364,11 @@ namespace OpenXLSX
         XLCellAssignable cell(const std::string& ref) const;
 
         /**
-         * @brief Get a pointer to the XLCell object for the given cell reference.
+         * @brief Get an XLCell object for the given cell reference.
          * @param ref An XLCellReference object with the address of the cell to get.
-         * @return A const reference to the requested XLCell object.
+         * @return A reference to the requested XLCell object.
          */
-        XLCell cell(const XLCellReference& ref) const;
+        XLCellAssignable cell(const XLCellReference& ref) const;
 
         /**
          * @brief Get the cell at the given coordinates.
@@ -371,11 +376,11 @@ namespace OpenXLSX
          * @param columnNumber The column number (index base 1).
          * @return A reference to the XLCell object at the given coordinates.
          */
-        XLCell cell(uint32_t rowNumber, uint16_t columnNumber) const;
+        XLCellAssignable cell(uint32_t rowNumber, uint16_t columnNumber) const;
 
         /**
          * @brief Get a range for the area currently in use (i.e. from cell A1 to the last cell being in use).
-         * @return A const XLCellRange object with the entire range.
+         * @return An XLCellRange object with the entire range.
          */
         XLCellRange range() const;
 
@@ -383,9 +388,25 @@ namespace OpenXLSX
          * @brief Get a range with the given coordinates.
          * @param topLeft An XLCellReference object with the coordinates to the top left cell.
          * @param bottomRight An XLCellReference object with the coordinates to the bottom right cell.
-         * @return A const XLCellRange object with the requested range.
+         * @return An XLCellRange object with the requested range.
          */
         XLCellRange range(const XLCellReference& topLeft, const XLCellReference& bottomRight) const;
+
+        /**
+         * @brief Get a range with the given coordinates.
+         * @param topLeft A std::string that is convertible to an XLCellReference to the top left cell
+         * @param bottomRight A std::string that is convertible to an XLCellReference to the bottom right cell.
+         * @return An XLCellRange object with the requested range.
+         */
+        XLCellRange range(std::string const& topLeft, std::string const& bottomRight) const;
+   
+        /**
+         * @brief Get a range with the given coordinates.
+         * @param rangeReference A std::string that contains two XLCellReferences separated by a delimiter ':'
+         *                       Example "A2:B5"
+         * @return An XLCellRange object with the requested range.
+         */
+        XLCellRange range(std::string const& rangeReference) const;
 
         /**
          * @brief
@@ -411,16 +432,23 @@ namespace OpenXLSX
         /**
          * @brief Get the row with the given row number.
          * @param rowNumber The number of the row to retrieve.
-         * @return A pointer to the XLRow object.
+         * @return A reference to the XLRow object.
          */
         XLRow row(uint32_t rowNumber) const;
 
         /**
          * @brief Get the column with the given column number.
          * @param columnNumber The number of the column to retrieve.
-         * @return A pointer to the XLColumn object.
+         * @return A reference to the XLColumn object.
          */
         XLColumn column(uint16_t columnNumber) const;
+
+        /**
+         * @brief Get the column with the given column reference
+         * @param columnRef The letters referencing the given column
+         * @return A reference to the XLColumn object.
+         */
+        XLColumn column(std::string const& columnRef) const;
 
         /**
          * @brief Get an XLCellReference to the last (bottom right) cell in the worksheet.
@@ -446,6 +474,75 @@ namespace OpenXLSX
          * @param newName
          */
         void updateSheetName(const std::string& oldName, const std::string& newName);
+
+        /**
+         * @brief get an XLMergeCells object to directly access the member functions
+         * @returns an XLMergeCells object for this worksheet
+         */
+        XLMergeCells & merges();
+
+        /**
+         * @brief merge the cells indicated by range
+         * @param rangeToMerge the XLCellRange to merge, can be obtained from XLWorksheet::range functions
+         * @param emptyHiddenCells if true (XLEmptyHiddenCells), the values of hidden cells will be deleted
+         *                         (only from the cells, not from the shared strings table, if used)
+         * @throws XLInputException if range comprises < 2 cells or any cell within rangeToMerge is already part of an existing range
+         */
+        void mergeCells(XLCellRange const& rangeToMerge, bool emptyHiddenCells = false);
+        /**
+         * @brief Convenience wrapper for mergeCells with a std::string range reference
+         * @param rangeReference A range reference string for the cells to merge
+         * @param emptyHiddenCells as above
+         */
+        void mergeCells(const std::string& rangeReference, bool emptyHiddenCells = false);
+
+        /**
+         * @brief remove the merge setting for the indicated range
+         * @param rangeToUnmerge the XLCellRange to unmerge, can be obtained from XLWorksheet::range functions
+         * @throws XLInputException if no merged range exists that matches rangeToMerge precisely
+         */
+        void unmergeCells(XLCellRange const& rangeToUnmerge);
+        /**
+         * @brief Convenience wrapper for unmergeCells with a std::string range reference
+         * @param rangeReference A range reference string for the cells to unmerge
+         */
+        void unmergeCells(const std::string& rangeReference);
+
+        /**
+         * @brief Get the array index of xl/styles.xml:<styleSheet>:<cellXfs> for the style assigned to a column.
+         *        This value is stored in the col attributes like so: style="2"
+         * @param column The column letter(s) or index (1-based)
+         * @returns The index of the applicable format style
+         */
+        XLStyleIndex getColumnFormat(uint16_t column) const;
+        XLStyleIndex getColumnFormat(const std::string& column) const;
+
+        /**
+         * @brief set the column style as a reference to the array index of xl/styles.xml:<styleSheet>:<cellXfs>
+         *        Subsequently, set the same style for all existing(!) cells in that column
+         * @param column the column letter(s) or index (1-based)
+         * @param cellFormatIndex the style to set, corresponding to the index of XLStyles::cellStyles()
+         * @returns true on success, false on failure
+         */
+        bool setColumnFormat(uint16_t column, XLStyleIndex cellFormatIndex);
+        bool setColumnFormat(const std::string& column, XLStyleIndex cellFormatIndex);
+
+        /**
+         * @brief get the array index of xl/styles.xml:<styleSheet>:<cellXfs> for the style assigned to a row
+         *        this value is stored in the row attributes like so: s="2"
+         * @param row the row index (1-based)
+         * @returns the index of the applicable format style
+         */
+        XLStyleIndex getRowFormat(uint16_t row) const;
+
+        /**
+         * @brief set the row style as a reference to the array index of xl/styles.xml:<styleSheet>:<cellXfs>
+         *        Subsequently, set the same style for all existing(!) cells in that row
+         * @param row the row index (1-based)
+         * @param cellFormatIndex the style to set, corresponding to the index of XLStyles::cellStyles()
+         * @returns true on success, false on failure
+         */
+        bool setRowFormat(uint32_t row, XLStyleIndex cellFormatIndex);
 
     private:
 
@@ -483,6 +580,8 @@ namespace OpenXLSX
          * @brief
          */
         bool setActive_impl();
+
+        XLMergeCells m_merges;    /**< class handling the <mergeCells> */
     };
 
     /**
@@ -730,7 +829,7 @@ namespace OpenXLSX
         operator XLChartsheet() const;    // NOLINT
 
         /**
-         * @brief print the XML contents of the XLSheet using the underlying XMLNode print function
+         * @brief Print the XML contents of the XLSheet using the underlying XMLNode print function
          */
         void print(std::basic_ostream<char>& ostr) const;
 
@@ -743,5 +842,11 @@ namespace OpenXLSX
     };
 }    // namespace OpenXLSX
 
-#pragma warning(pop)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunknown-pragmas" // disable warning about below #pragma warning being unknown
+#ifdef _MSC_VER                                    // additional condition because the previous line does not work on gcc 12.2
+#   pragma warning(pop)
+#endif // _MSC_VER
+#pragma GCC diagnostic pop
+
 #endif    // OPENXLSX_XLSHEET_HPP

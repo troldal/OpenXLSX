@@ -125,8 +125,8 @@ namespace OpenXLSX
     XLRowDataIterator& XLRowDataIterator::operator++()
     {
         // ===== Compute the column number, and move the m_cellNode to the next sibling.
-        const auto cellNumber = m_currentCell.cellReference().column() + 1;
-        auto       cellNode   = m_currentCell.m_cellNode->next_sibling_of_type(pugi::node_element);
+        const uint16_t cellNumber = m_currentCell.cellReference().column() + 1;
+        XMLNode        cellNode   = m_currentCell.m_cellNode->next_sibling_of_type(pugi::node_element);
 
         // ===== If the cellNumber exceeds the last column in the range,
         // ===== m_currentCell is set to an empty XLCell, indicating the end of the range has been reached.
@@ -138,11 +138,10 @@ namespace OpenXLSX
         //       because the modified XLCellReference throws an exception on invalid parameter
         else if (cellNode.empty() || XLCellReference(cellNode.attribute("r").value()).column() > cellNumber) {
             cellNode = m_dataRange->m_rowNode->insert_child_after("c", *m_currentCell.m_cellNode);
-            cellNode.append_attribute("r").set_value(
-                XLCellReference(static_cast<uint32_t>(m_dataRange->m_rowNode->attribute("r").as_ullong()),
-                                static_cast<uint16_t>(cellNumber))
-                    .address()
-                    .c_str());
+            setDefaultCellAttributes(cellNode, XLCellReference(
+            /**/                                   static_cast<uint32_t>(m_dataRange->m_rowNode->attribute("r").as_ullong()), cellNumber
+            /**/                               ).address(),
+            /**/                               *m_dataRange->m_rowNode, cellNumber);
             m_currentCell = XLCell(cellNode, m_dataRange->m_sharedStrings);
         }
 
@@ -380,12 +379,11 @@ namespace OpenXLSX
         deleteCellValues(static_cast<uint16_t>(values.size()));    // 2024-04-30: whitespace support
 
         // ===== prepend new cell nodes to current row node
-        auto curNode = XMLNode();
-        auto colNo   = values.size();
+        XMLNode curNode{};
+        uint16_t colNo = values.size();
         for (auto value = values.rbegin(); value != values.rend(); ++value) {    // NOLINT
             curNode = m_rowNode->prepend_child("c");
-            curNode.append_attribute("r").set_value(
-                XLCellReference(static_cast<uint32_t>(m_row->rowNumber()), static_cast<uint16_t>(colNo)).address().c_str());
+            setDefaultCellAttributes(curNode, XLCellReference(static_cast<uint32_t>(m_row->rowNumber()), colNo).address(), *m_rowNode, colNo);
             XLCell(curNode, m_row->m_sharedStrings).value() = *value;
             --colNo;
         }
@@ -524,8 +522,8 @@ namespace OpenXLSX
         // else
         //     curNode = m_rowNode->insert_child_before("c", first_child);
 
-        auto curNode = m_rowNode->prepend_child("c");    // this will correctly insert a new cell directly at the beginning of the row
-        curNode.append_attribute("r").set_value(XLCellReference(static_cast<uint32_t>(m_row->rowNumber()), col).address().c_str());
+        XMLNode curNode = m_rowNode->prepend_child("c");    // this will correctly insert a new cell directly at the beginning of the row
+        setDefaultCellAttributes(curNode, XLCellReference(static_cast<uint32_t>(m_row->rowNumber()), col).address(), *m_rowNode, col);
         XLCell(curNode, m_row->m_sharedStrings).value() = value;
     }
 

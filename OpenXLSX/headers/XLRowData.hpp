@@ -5,9 +5,14 @@
 #ifndef OPENXLSX_XLROWDATA_HPP
 #define OPENXLSX_XLROWDATA_HPP
 
-#pragma warning(push)
-#pragma warning(disable : 4251)
-#pragma warning(disable : 4275)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunknown-pragmas" // disable warning about below #pragma warning being unknown
+#ifdef _MSC_VER                                    // additional condition because the previous line does not work on gcc 12.2
+#   pragma warning(push)
+#   pragma warning(disable : 4251)
+#   pragma warning(disable : 4275)
+#endif // _MSC_VER
+#pragma GCC diagnostic pop
 
 // ===== External Includes ===== //
 #include <deque>
@@ -185,6 +190,25 @@ namespace OpenXLSX
          * @return An XLRowDataIterator pointing to (one past) the last element.
          */
         XLRowDataIterator end();
+
+        /**
+         * @brief Templated assignment operator - assign value to all existing cells in the row
+         * @note CAUTION: non-existing cells will not be assigned
+         * @tparam T The type of the value argument.
+         * @param value The value.
+         * @return A reference to the assigned-to object.
+         */
+        template<typename T,
+                 typename = std::enable_if_t<
+                     std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<std::decay_t<T>, std::string> ||
+                     std::is_same_v<std::decay_t<T>, std::string_view> || std::is_same_v<std::decay_t<T>, const char*> ||
+                     std::is_same_v<std::decay_t<T>, char*> || std::is_same_v<T, XLDateTime>>>
+        XLRowDataRange& operator=(T value)
+        {
+            // forward implementation to templated XLCellValue& XLCellValue::operator=(T value)
+            for (auto it = begin(); it != end(); ++it) it->value() = value;
+            return *this;
+        }
 
     private:
         /**
@@ -448,5 +472,11 @@ namespace OpenXLSX
 
 }    // namespace OpenXLSX
 
-#pragma warning(pop)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunknown-pragmas" // disable warning about below #pragma warning being unknown
+#ifdef _MSC_VER                                    // additional condition because the previous line does not work on gcc 12.2
+#   pragma warning(pop)
+#endif // _MSC_VER
+#pragma GCC diagnostic pop
+
 #endif    // OPENXLSX_XLROWDATA_HPP

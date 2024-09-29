@@ -46,9 +46,14 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_XLDOCUMENT_HPP
 #define OPENXLSX_XLDOCUMENT_HPP
 
-#pragma warning(push)
-#pragma warning(disable : 4251)
-#pragma warning(disable : 4275)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunknown-pragmas" // disable warning about below #pragma warning being unknown
+#ifdef _MSC_VER                                    // additional condition because the previous line does not work on gcc 12.2
+#   pragma warning(push)
+#   pragma warning(disable : 4251)
+#   pragma warning(disable : 4275)
+#endif // _MSC_VER
+#pragma GCC diagnostic pop
 
 // ===== External Includes ===== //
 #include <algorithm> // std::find_if
@@ -63,12 +68,18 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLProperties.hpp"
 #include "XLRelationships.hpp"
 #include "XLSharedStrings.hpp"
+#include "XLStyles.hpp"
 #include "XLWorkbook.hpp"
 #include "XLXmlData.hpp"
 #include "XLZipArchive.hpp"
 
 namespace OpenXLSX
 {
+    constexpr const unsigned int pugi_parse_settings = pugi::parse_default | pugi::parse_ws_pcdata; // TBD: | pugi::parse_comments
+
+    constexpr const bool XLForceOverwrite = true;    // readability constant for 2nd parameter of XLDocument::saveAs
+    constexpr const bool XLDoNotOverwrite = false;   //  "
+
     /**
      * @brief The XLDocumentProperties class is an enumeration of the possible properties (metadata) that can be set
      * for a XLDocument object (and .xlsx file)
@@ -165,8 +176,19 @@ namespace OpenXLSX
         /**
          * @brief Create a new .xlsx file with the given name.
          * @param fileName The path of the new .xlsx file.
+         * @param forceOverwrite If not true (XLForceOverwrite) and fileName exists, create will throw an exception
+         * @throw XLException (OpenXLSX failed checks)
+         * @throw ZipRuntimeError (zippy failed archive / file access)
          */
-        void create(const std::string& fileName);
+        void create(const std::string& fileName, bool forceOverwrite);
+
+        /**
+         * @brief Create a new .xlsx file with the given name. Legacy interface, invokes create( fileName, XLForceOverwrite )
+         * @param fileName The path of the new .xlsx file.
+         * @deprecated use instead void create(const std::string& fileName, bool forceOverwrite)
+         * @warning Overwriting an existing file is retained as legacy behavior, but can lead to data loss!
+         */
+        [[deprecated]] void create(const std::string& fileName);
 
         /**
          * @brief Close the current document
@@ -175,6 +197,7 @@ namespace OpenXLSX
 
         /**
          * @brief Save the current document using the current filename, overwriting the existing file.
+         * @throw XLException (OpenXLSX failed checks)
          * @throw ZipRuntimeError (zippy failed archive / file access)
          */
         void save();
@@ -182,9 +205,19 @@ namespace OpenXLSX
         /**
          * @brief Save the document with a new name. If a file exists with that name, it will be overwritten.
          * @param fileName The path of the file
+         * @param forceOverwrite If not true (XLForceOverwrite) and fileName exists, saveAs will throw an exception
+         * @throw XLException (OpenXLSX failed checks)
          * @throw ZipRuntimeError (zippy failed archive / file access)
          */
-        void saveAs(const std::string& fileName);
+        void saveAs(const std::string& fileName, bool forceOverwrite);
+
+        /**
+         * @brief Save the document with a new name. Legacy interface, invokes saveAs( fileName, XLForceOverwrite )
+         * @param fileName The path of the file
+         * @deprecated use instead void saveAs(const std::string& fileName, bool forceOverwrite)
+         * @warning Overwriting an existing file is retained as legacy behavior, but can lead to data loss!
+         */
+        [[deprecated]] void saveAs(const std::string& fileName);
 
         /**
          * @brief Get the filename of the current document, e.g. "spreadsheet.xlsx".
@@ -221,6 +254,12 @@ namespace OpenXLSX
         void setProperty(XLProperty prop, const std::string& value);
 
         /**
+         * @brief Delete the property from the document
+         * @param theProperty The property to delete from the document
+         */
+        void deleteProperty(XLProperty theProperty);
+
+        /**
          * @brief
          * @return
          */
@@ -233,10 +272,10 @@ namespace OpenXLSX
         bool isOpen() const;
 
         /**
-         * @brief Delete the property from the document
-         * @param theProperty The property to delete from the document
+         * @brief return a handle on the workbook's styles
+         * @return a reference to m_styles
          */
-        void deleteProperty(XLProperty theProperty);
+        XLStyles& styles();
 
         /**
          * @brief
@@ -258,6 +297,13 @@ namespace OpenXLSX
          * @return
          */
         XLQuery execQuery(const XLQuery& query);
+
+        /**
+         * @brief configure an alternative XML saving declaration to be used with pugixml
+         * @param savingDeclaration An XLXmlSavingDeclaration object with the configuration to use
+         * @return
+         */
+        void setSavingDeclaration(XLXmlSavingDeclaration const& savingDeclaration);
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Protected Member Functions
@@ -300,6 +346,8 @@ namespace OpenXLSX
         std::string m_filePath {}; /**< The path to the original file*/
         std::string m_realPath {}; /**<  */
 
+        XLXmlSavingDeclaration m_xmlSavingDeclaration;  /**< The xml saving declaration that will be passed to pugixml before generating the XML output data*/
+
         mutable std::list<XLXmlData>    m_data {};              /**<  */
         mutable std::deque<std::string> m_sharedStringCache {}; /**<  */
         mutable XLSharedStrings         m_sharedStrings {};     /**<  */
@@ -309,11 +357,18 @@ namespace OpenXLSX
         XLContentTypes  m_contentTypes {};     /**< A pointer to the content types object*/
         XLAppProperties m_appProperties {};    /**< A pointer to the App properties object */
         XLProperties    m_coreProperties {};   /**< A pointer to the Core properties object*/
+        XLStyles        m_styles {};           /**< A pointer to the document styles object*/
         XLWorkbook      m_workbook {};         /**< A pointer to the workbook object */
         IZipArchive     m_archive {};          /**<  */
     };
 
 }    // namespace OpenXLSX
 
-#pragma warning(pop)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunknown-pragmas" // disable warning about below #pragma warning being unknown
+#ifdef _MSC_VER                                    // additional condition because the previous line does not work on gcc 12.2
+#   pragma warning(pop)
+#endif // _MSC_VER
+#pragma GCC diagnostic pop
+
 #endif    // OPENXLSX_XLDOCUMENT_HPP

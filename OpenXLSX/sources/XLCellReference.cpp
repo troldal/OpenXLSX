@@ -274,7 +274,7 @@ std::string XLCellReference::rowAsString(uint32_t row)
         row = row / 10;
     }
 
-    for (int i = 0; i < result.length() / 2; i++) std::swap(result[i], result[result.length() - i - 1]);
+    for (unsigned int i = 0; i < result.length() / 2; i++) std::swap(result[i], result[result.length() - i - 1]);
 
     return result;
 #endif
@@ -346,12 +346,12 @@ uint16_t XLCellReference::columnAsNumber(const std::string& column)
     /* 2024-06-19 OBSOLETE CODE:
     // uint16_t result = 0;
     // uint16_t factor = 1;
-    //
+    // 
     // for (int16_t i = static_cast<int16_t>(column.size() - 1); i >= 0; --i) {
     //     result += static_cast<uint16_t>((column[static_cast<uint64_t>(i)] - asciiOffset) * factor);
     //     factor *= alphabetSize;
     // }
-    //
+    // 
     // return result;
     */
 }

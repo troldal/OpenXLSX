@@ -22,7 +22,7 @@ int main()
     // First, create a new document and access the sheet named 'Sheet1'.
     cout << "\nGenerating spreadsheet ..." << endl;
     XLDocument doc;
-    doc.create("./Demo08.xlsx");
+    doc.create("./Demo08.xlsx", XLForceOverwrite);
     auto wks = doc.workbook().worksheet("Sheet1");
 
     // A std::vector holding values that are convertible to a cell value can be assigned to an XLRow

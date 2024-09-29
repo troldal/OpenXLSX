@@ -112,6 +112,7 @@ std::string XLXmlFile::relationshipID() const
 XMLDocument& XLXmlFile::xmlDocument()
 {
     return const_cast<XMLDocument&>(static_cast<const XLXmlFile*>(this)->xmlDocument());    // NOLINT
+    // return *m_xmlData->getXmlDocument();    // <- why not this easy version?
 }
 
 /**
