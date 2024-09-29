@@ -1,109 +1,108 @@
-$ grep -rni "todo\|tbd\|caution" > ../todo-list.txt
-----------------------------------------------------
-	external/zippy/zippy.hpp:188:    /* TODO: Work around "error: include file 'sys\utime.h' when compiling with tcc on Linux */
-	external/zippy/zippy.hpp:1379:    /* TODO */
-	external/zippy/zippy.hpp:1529:        /* TODO: Perhaps add an option to leave the existing central dir in place in case the add dies? We could then truncate the file (so
-	external/zippy/zippy.hpp:5580:            /* TODO: Better sanity check archive_size and the # of actual remaining bytes */
-	external/zippy/zippy.hpp:7042:            /* TODO: parse local header extra data when local_header_comp_size is 0xFFFFFFFF! (big_descriptor.zip) */
-	external/zippy/zippy.hpp:7633:            /* TODO: We could add a flag that lets the user start writing immediately AFTER the existing central dir - this would be safer.
-	external/zippy/zippy.hpp:7640:            /* TODO: We could easily maintain the sorted central directory offsets. */
-	external/zippy/zippy.hpp:7653:        /* TODO: pArchive_name is a terrible name here! */
-	external/zippy/zippy.hpp:8765:        /* TODO: This func is now pretty freakin complex due to zip64, split it up? */
-	external/zippy/zippy.hpp:8810:            /* TODO: We don't support central dir's >= MZ_UINT32_MAX bytes right now (+32 fudge factor in case we need to add more extra
-	external/zippy/zippy.hpp:8825:                /* TODO: Our zip64 support still has some 32-bit limits that may not be worth fixing. */
-	external/zippy/zippy.hpp:9135:                /* TODO: Support central dirs >= 32-bits in size */
-	external/zippy/zippy.hpp:9200:                MZ_WRITE_LE16(hdr + MZ_ZIP64_ECDH_VERSION_MADE_BY_OFS, 0x031E); /* TODO: always Unix */
-	external/zippy/zippy.hpp:9951:                }    // TODO: Should this use reinterpret_cast instead?
-	external/zippy/zippy.hpp:10174:         * @todo Can this be made private?
-	external/zippy/zippy.hpp:10306:         * @todo Consider renaming to GetName and add a SetName member function.
-	external/zippy/zippy.hpp:10789:                if (file.IsDirectory()) continue;    // TODO: Ensure this is the right thing to do (Excel issue)
-	external/zippy/zippy.hpp:10831:            throw ZipLogicError("ZipArchive::Save(std::ostream&) is not yet implemented!"); // TODO: To be implemented
-	external/zippy/zippy.hpp:10916:         * @todo To be implemented
-	external/zippy/zippy.hpp:10921:            throw ZipLogicError("ZipArchive::ExtractDir(const std::string&, const std::string&) is not yet implemented!"); // TODO: To be implemented
-	external/zippy/zippy.hpp:10928:         * @todo To be implemented
-	external/zippy/zippy.hpp:10933:            throw ZipLogicError("ZipArchive::ExtractAll(std::string const &) is not yet implemented!"); // TODO: To be implemented
+How to find TBDs in the source code:
+====================================
+  $ grep -rni "todo\|tbd\|caution"
 
-sources/XLWorkbook.cpp:183:                                                              // CAUTION: execCommand on underlying XML with whitespaces not verified
-sources/XLWorkbook.cpp:248: * @todo If the original sheet's tabSelected attribute is set, ensure it is un-set in the clone.
-sources/XLWorkbook.cpp:249: *       TBD: See comment in XLWorkbook::setSheetActive - should the tabSelected actually be un-set? It's not the same as the active tab,
-sources/XLWorkbook.cpp:442:    // ===== Updated defined names with worksheet scopes. TBD what this does
-	sources/XLWorkbook.cpp:445:        // TBD: is the current definedName actually associated with the sheet that was moved?
-	sources/XLWorkbook.cpp:610: * @todo Currently, this function only searches through defined names. Consider using this function to update the
-	sources/XLWorkbook.cpp:615:    const std::string& newName)    // 2024-05-01: whitespace support with TBD to verify definedNames logic
-sources/XLWorkbook.cpp:635:    // ===== Iterate through all defined names // TODO 2024-05-01: verify definedNames logic
-sources/XLWorkbook.cpp:715:    //     - TBD with Kenneth if this is desired behavior
-sources/XLSharedStrings.cpp:141:    /* 2024-04-30 CAUTION: performance critical - with whitespace support, the function can no longer know the exact iterator position of
-sources/XLSharedStrings.cpp:142:     *   the shared string to be cleared - TBD what to do instead?
-sources/XLProperties.cpp:225:    //       TBD: use hardcoded string?
-sources/XLProperties.cpp:351:    //       TBD: use hardcoded string?
-sources/XLProperties.cpp:376:    vecHP.append_child("vt:variant").append_child("vt:i4").text().set(1); // TBD: should this be count of worksheets?
-	sources/XLDocument.cpp:455:    if (m_archive.isOpen()) close(); // TBD: consider throwing if a file is already open.
-sources/XLDocument.cpp:490:    // 2024-07-19: TBD whether styles.xml should be created from scratch (relatively easy as most code is already in XLStyles.cpp)
-	sources/XLDocument.cpp:703:    // TODO: Is this the best way to do it? Maybe there is a flag that can be set, that forces re-calculalion.
-	sources/XLDocument.cpp:993:            // TODO: To be implemented
-	sources/XLDocument.cpp:1099:            // TODO: To be implemented
-sources/XLStyles.cpp:744:    // TBD what "theme" is and whether it should be supported at all
-sources/XLStyles.cpp:908:        // TODO: implement font defaults
-sources/XLStyles.cpp:1150:        // TODO: implement stop defaults
-sources/XLStyles.cpp:1474:        // TODO: implement fill defaults
-sources/XLStyles.cpp:1778:        // TODO: implement border defaults
-sources/XLStyles.cpp:2140:        // TODO: implement cell format defaults
-sources/XLStyles.cpp:2320:        // TODO: implement cell style defaults
-sources/XLCell.cpp:186: * @todo 2024-08-10 TBD whether body can be replaced with !empty() (performance?)
-	sources/XLSheet.cpp:457: * @todo Consider simplifying this function. Can any standard algorithms be used?
-sources/XLSheet.cpp:632:    // TBD: determine if XLMergeCells can somehow be stored with the document / worksheet instead of created on each call
-sources/XLSheet.cpp:663:    // TBD: determine if XLMergeCells can somehow be stored with the document / worksheet instead of created on each call
-sources/XLRelationships.cpp:160:        // TODO 2024-08-09: support dumb applications that implemented relationship Type in different case (e.g. vmldrawing instead of vmlDrawing)
-sources/XLRelationships.cpp:342:    // 2024-07-29 TODO TBD: should a relative path be considered here, as for relationshipByTarget?
-sources/XLRow.cpp:220:     *       CAUTION: there is no validity check on the underlying XML (nor was there ever one in case a value was inconsistent with OpenXLSX::MAX_ROWS)
-sources/XLXmlData.cpp:56:const unsigned int pugi_parse_settings = pugi::parse_default | pugi::parse_ws_pcdata; // TBD: | pugi::parse_comments
-sources/XLCellIterator.cpp:351:    // 2024-06-03 TBD TODO: why ref > m_bottomRight - that shouldn't be possible? --> added exception to test for this
-sources/XLCellIterator.cpp:357:    else if (ref > m_bottomRight || ref.row() == m_currentCell.cellReference().row()) {    // TBD: remove ref > m_bottomRight condition unless I overlooked something
-sources/XLCellIterator.cpp:437:    // CAUTION: for performance reasons, disabled all checks whether this and rhs are iterators on the same worksheet & range
-sources/XLCellIterator.cpp:440:    // if (*m_dataNode != *rhs.m_dataNode) return false;     // TBD: iterators over different worksheets may never match
-sources/XLCellIterator.cpp:441:    // TBD if iterators shall be considered not equal if they were created on different XLCellRanges
-sources/XLCellIterator.cpp:445:    // CAUTION: in the current code, that means iterators that point to the same column & row in different worksheets,
-	sources/XLCellReference.cpp:92: * @todo consider swapping the arguments.
-	sources/XLCellReference.cpp:102: * @todo consider swapping the arguments.
-	headers/XLCellValue.hpp:72:    XLCellValueType;    // TBD: typedef std::variant< std::string, int64_t, double, bool, struct timestamp > XLCellValueType;
-	headers/XLCellValue.hpp:105:        // TODO: Consider template functions to compare to ints, floats etc.
-	headers/XLCellValue.hpp:127:         * @todo Consider changing the enable_if statement to check for objects with a .c_str() member function.
-	headers/XLCellValue.hpp:462:         * @todo Is an explicit conversion operator needed as well?
-	headers/XLCellValue.hpp:601:// TODO: Consider comparison operators on fundamental datatypes
-headers/XLComments.hpp:78:// TBD if the XLRelationships functionality can be re-used, or GetNewRelsID needs to be exported (currently local to the module in
-headers/XLCell.hpp:347:        // TODO: send to stream different data types based on cell data type
-headers/XLCell.hpp:360:        // TODO: send to stream different data types based on cell data type
-headers/XLStyles.hpp:93:    constexpr const char *   XLDefaultFontColorTheme = "";         // TBD what this means / how it is used
-headers/XLStyles.hpp:95:    constexpr const uint32_t XLDefaultFontFamily     = 0;          // TBD what this means / how it is used
-headers/XLStyles.hpp:96:    constexpr const uint32_t XLDefaultFontCharset    = 1;          // TBD what this means / how it is used
-headers/XLStyles.hpp:410:         * @todo: TBD assign a unique, non-reserved uint32_t numFmtId. Alternatively, the user should configure it manually via setNumberFormatId
-headers/XLStyles.hpp:411:         * @todo: TBD implement a "getFreeNumberFormatId()" method that skips reserved identifiers and iterates over m_numberFormats to avoid
-headers/XLStyles.hpp:544:         * @return a TBD bool
-headers/XLStyles.hpp:545:         * @todo need to find a use case for this
-headers/XLStyles.hpp:551:         * @return a TBD bool
-headers/XLStyles.hpp:552:         * @todo need to find a use case for this
-headers/XLStyles.hpp:558:         * @return a TBD bool
-headers/XLStyles.hpp:559:         * @todo need to find a use case for this
-headers/XLStyles.hpp:565:         * @return a TBD bool
-headers/XLStyles.hpp:566:         * @todo need to find a use case for this
-headers/XLStyles.hpp:1167:        // friend class TBD: XLBorder or XLBorders;    // for access to m_lineNode in TBD
-headers/XLStyles.hpp:1471:        // friend class TBD: XLCellFormat or XLCellFormats;    // for access to m_alignmentNode in TBD
-headers/XLStyles.hpp:1529:         * @return A value in degrees (TBD: clockwise? counter-clockwise?)
-headers/XLStyles.hpp:1736:         * @todo need to find a use case for this
-headers/XLStyles.hpp:1954:         * @return The id referring to an index in cell style formats (cellStyleXfs) - TBD to be confirmed
-headers/XLStyles.hpp:1961:         * @todo need to find a use case for this
-headers/XLStyles.hpp:1968:         * @todo need to find a use case for this
-	headers/XLRowData.hpp:40:     * @todo Consider implementing a const iterator also
-headers/XLRowData.hpp:196:         * @note CAUTION: non-existing cells will not be assigned
-headers/XLXmlParser.hpp:109:     * @note CAUTION: this setting should be established before any other OpenXLSX function is used
-headers/XLXmlParser.hpp:115:     * @note CAUTION: this setting should be established before any other OpenXLSX function is used
-headers/XLXmlParser.hpp:155:        // explicit OpenXLSX_xml_node(base b) : xml_node(b) // TBD
-headers/XLXmlParser.hpp:160:        // ===== CAUTION: this section is incomplete, only implementing those functions actually used by OpenXLSX to date
-headers/XLXmlParser.hpp:168:        // explicit OpenXLSX_xml_node(base b) : pugi::xml_node(b), name_begin(0) // TBD on explicit keyword
-headers/XLXmlParser.hpp:204:        // ===== CAUTION: this section might be incomplete, only functions actually used by OpenXLSX to date have been checked
-headers/XLXmlParser.hpp:324:        // explicit OpenXLSX_xml_document(base b) : xml_document(b) // TBD
-headers/XLXmlParser.hpp:329:        // ===== CAUTION: this section is incomplete, only implementing those functions actually used by OpenXLSX to date
-	headers/XLFormula.hpp:83:     * @todo Enable handling of shared and array formulas.
-headers/XLSharedStrings.hpp:167:        // 2024-06-18 TBD if this is ever needed
-	headers/XLSheet.hpp:194:         * @todo To be implemented.
-	headers/XLSheet.hpp:583:     * @todo This class is largely unimplemented and works just as a placeholder.
+Planned features:
+=================
+* comments support: each xl/comments##.xml file refers to the corresponding xl/worksheets/sheets##.xml file with comments structured like so:
+  <x:commentList>
+    <x:comment ref="M5" authorId="0">
+      <x:text>
+        <x:t>Enabling this option will reduce memory usage by 
+saving some intermediate data from memory onto the
+computer's hard disk.</x:t>
+      </x:text>
+    </x:comment>
+  </x:commentList>
+
+  NOTE: each comments file should be listed in [Content_Types].xml:
+  * Types::Override node: <Override PartName="/xl/comments1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.comments+xml"/>
+* support for worksheet specific relationships (comments, drawings)
+  <?xml version="1.0" encoding="utf-8"?>
+  <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+    <Relationship Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/comments" Target="/xl/comments10.xml" Id="Rd57c507abdc84ad0"/>
+    <Relationship Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/vmlDrawing" Target="/xl/drawings/vmldrawing10.vml" Id="Re5068d6e0dbe4bec"/>
+  </Relationships>
+
+TBD features (low priority):
+============================
+* support for rich-text cell contents (see idea for an implementation of rich-text cell contents at end of file)
+* replace leap year logic per XLDateTime.cpp with c++ built-in date functions
+* related to random 64bit identifiers: check [Content_Types].xml "support" (in that saving the file does not break anything):
+  ---------------------------------------------------------------------------------------------------------------------------
+  * Types::Default node: <Default Extension="xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>
+    (alternative entry to ContentType="application/xml")
+  * Types::Default node: <Default Extension="vml" ContentType="application/vnd.openxmlformats-officedocument.vmlDrawing"/>
+  * Types::Default node: <Default Extension="dat" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.template.main+xml"/>
+
+
+
+Notes on status of random 64bit ID support in hex format for worksheet r:id values
+==================================================================================
+DONE:
+* XLRelationships: void UseRandomIDs() and void UseSequentialIDs() to switch between one and the other IDs implementation
+* [DONE] _rels/.rels <Relationship <!-- other attributes --> Id="R1089e9da7ec94cca"/>
+  --> used for relevant xml targets in the workbook
+* [DONE] xl/workbook##.xml sheets::sheet node: <x:sheet name="Workspace" sheetId="1" r:id="R4b78b06d10804515"/>
+  --> regular sheet Ids
+* xl/_rels/workbook##.xml.rels: <Relationship <!-- other attributes --> Id="Rca50407821924816"/>
+   workbook relationships: xl/sharedStrings.xml, xl/styles.xml, xl/theme/theme##.xml, and all worksheets
+   [DONE] --> regular sheet Ids for worksheets
+   TODO --> for the other xml files, it appears the IDs here are not used elsewhere
+* [NOT TOUCHED BY OpenXLSX] xl/worksheets/_rels/sheet##.xml.rels <Relationship <!-- other attributes --> Id="Rc3c7515c124f4337"/> 
+   each sheet needs a relationship entry for 
+   - Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/comments"
+     --> it appears the ID here is not used elsewhere
+   - Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/vmlDrawing"
+     --> the target for a vmlDrawing is referenced by this ID in the worksheet (see below)
+* [NOT TOUCHED BY OpenXLSX] xl/worksheets/sheet##.xml worksheet node "<x:legacyDrawing r:id="Rc3c7515c124f4337"/>"
+  --> refers to the ID defined in the worksheet relationships (above) no support needed atm
+
+
+
+Idea for an implementation of rich-text cell contents:
+======================================================
+based on: formatted text is rich-text in XML, so one element node per unique style
+  - user gets to "get style" for a given position in text (character):
+   XLRichText.rows() / .row(index i) -> allows to extract text rows by index, removing the ambiguity of how to count a line break index
+   XLRichText.row( i ) returns XLRichTextRow
+   XLRichTextRow exposes:
+    - std::string functionality for text manipulation, and on top of that:
+	 - .formatAt( size_t index ) which returns an XLStyle object that contains the style applicable to that character
+   XLRichText::insertText( XLRichTextRow row, XLRichText text ) // insert before row with given style
+   XLRichText::insertText( XLRichTextRow row, std::string text, XLStyle style == __next__ )
+   - when a row is inserted, it inherits the format as specified:
+      __previous__: use style of the previous row
+      __next__:     use style of row
+      (custom XLStyle): use custom style (can be default, e.g. XLStyle{})
+   XLRichText::insertText( XLRichTextRow row, int index, XLStyle style == __next__ )
+      __previous__: use style of the previous character
+      __next__:     use style of the next character
+      (custom XLStyle): use custom style (can be default)
+
+   XLRichText::prependText( XLRichTextRow row, std::string text, XLStyle style == __next__ )
+    - equivalent to XLRichText::insertText( XLRichText.row( 0 ), text, style ) // NOTE: style == __previous__ is not allowed here
+   XLRichText::appendText( XLRichTextRow row, std::string text, XLStyle style == __previous__ )
+    - equivalent to XLRichText::insertText( XLRichText.row( XLRichText.rows().count() - 1 ), text, style ) // NOTE: style == __next__ is not allowed here
+
+   XLRichText::format( int fromRow, int fromIndex, int toRow, int toIndex, XLStyle style )
+    - applies the given style to the indicated range -> if it overlaps with other styles, this will split rich text sections as needed, e.g.:
+      * assume simplified XLRichTextPos pos_i( row_i, index_i )
+      * existing style_a from pos_i to pos_j
+      * new style_b applied to pos_k to pos_l with pos_k > pos_i and pos_l < pos_j
+      * resulting style sections:
+        [pos_i;pos_k[ style_a
+        [pos_k;pos_l] style_b
+        ]pos_l;pos_j] style_a
+
+   NOTE: for all inserts, text can have line breaks & will be inserted into the XLRichText accordingly
+   The underlying cell string value is updated accordingly (with the access logic to shared strings)
+
+   For such manipulations, the user has to create an XLRichText by accessing a cell intentionally as rich text, which will load the cell contents into the above structure and allow according manipulations on the underlying XML. For repeated access, it would be recommended to *not* work on temporary objects, but keep the XLRichText alive until operations on the cell are complete.
+
+   A bunch of helper functions could then be added one after another, e.g.:
+   * introduce XLRichTextCharacter with iterator traits (and a parent property that points to the row)
+   * auto-select format ranges based on an XLRichTextRow or XLRichTextCharacters
+     --> XLRichText::format( XLRichTextRow row ), XLRichText::format( XLRichTextRow fromRow, toRow ), XLRichText::format( XLRichTextCharacter fromChar, XLRichTextCharacter toChar )
+
+   TBD: how to decide on duplication / deduplication of XLStyles in the styles table

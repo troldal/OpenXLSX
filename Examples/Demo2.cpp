@@ -12,7 +12,7 @@ int main()
     cout << "********************************************************************************\n";
 
     XLDocument doc;
-    doc.create("./Demo02.xlsx");
+    doc.create("./Demo02.xlsx", XLForceOverwrite);
     auto wks = doc.workbook().worksheet("Sheet1");
 
     // Similar cell values, which are represented by XLCellValue objects, formulas are represented

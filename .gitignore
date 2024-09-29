@@ -10,15 +10,9 @@
 !/README.md
 
 # include root directory files
-!/cmake-cleanup.sh
 !/CMakeLists.txt
 !/Makefile.GNU
-!/make-gnu.sh
 !/vcpkg.json
-
-# include root directory helper files
-!/test.xlsx
-!/xml-format.sh
 
 # include Benchmarks folder
 !/Benchmarks
@@ -73,6 +67,8 @@
 # re-include specifically what is desired from Notes folder
 !/Notes/styles-missing-support.xml
 !/Notes/todo-list.txt
+!/Notes/confirmed-TBCs.txt
+!/Notes/TBDs.txt
 
 # include OpenXLSX folder
 !/OpenXLSX
@@ -88,6 +84,16 @@
 !/OpenXLSX/OpenXLSX.hpp
 !/OpenXLSX/sources
 !/OpenXLSX/sources/*
+
+# include Scripts folder
+!/Scripts
+# exclude everything *in* Scripts folder
+/Scripts/*
+# re-include specifically what is desired from Scripts folder
+!/Scripts/cmake-cleanup.sh
+!/Scripts/demos-cleanup.sh
+!/Scripts/make-gnu.sh
+!/Scripts/xml-format.sh
 
 # include Tests folder
 !/Tests

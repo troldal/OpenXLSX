@@ -78,6 +78,7 @@ namespace OpenXLSX
     constexpr const unsigned int pugi_parse_settings = pugi::parse_default | pugi::parse_ws_pcdata; // TBD: | pugi::parse_comments
 
     constexpr const bool XLForceOverwrite = true;    // readability constant for 2nd parameter of XLDocument::saveAs
+    constexpr const bool XLDoNotOverwrite = false;   //  "
 
     /**
      * @brief The XLDocumentProperties class is an enumeration of the possible properties (metadata) that can be set
@@ -179,7 +180,15 @@ namespace OpenXLSX
          * @throw XLException (OpenXLSX failed checks)
          * @throw ZipRuntimeError (zippy failed archive / file access)
          */
-        void create(const std::string& fileName, bool forceOverwrite = false);
+        void create(const std::string& fileName, bool forceOverwrite);
+
+        /**
+         * @brief Create a new .xlsx file with the given name. Legacy interface, invokes create( fileName, XLForceOverwrite )
+         * @param fileName The path of the new .xlsx file.
+         * @deprecated use instead void create(const std::string& fileName, bool forceOverwrite)
+         * @warning Overwriting an existing file is retained as legacy behavior, but can lead to data loss!
+         */
+        [[deprecated]] void create(const std::string& fileName);
 
         /**
          * @brief Close the current document
@@ -200,7 +209,15 @@ namespace OpenXLSX
          * @throw XLException (OpenXLSX failed checks)
          * @throw ZipRuntimeError (zippy failed archive / file access)
          */
-        void saveAs(const std::string& fileName, bool forceOverwrite = false);
+        void saveAs(const std::string& fileName, bool forceOverwrite);
+
+        /**
+         * @brief Save the document with a new name. Legacy interface, invokes saveAs( fileName, XLForceOverwrite )
+         * @param fileName The path of the file
+         * @deprecated use instead void saveAs(const std::string& fileName, bool forceOverwrite)
+         * @warning Overwriting an existing file is retained as legacy behavior, but can lead to data loss!
+         */
+        [[deprecated]] void saveAs(const std::string& fileName);
 
         /**
          * @brief Get the filename of the current document, e.g. "spreadsheet.xlsx".

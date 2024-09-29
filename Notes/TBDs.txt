@@ -1,0 +1,16 @@
+TBD:
+----
+* in XLWorkbook::setSheetIndex: What does this section do: // ===== Updated defined names with worksheet scopes. ???
+* in XLWorkbook::updateSheetReferences: What does this function actually do (TBD to verify definedNames logic)???
+* how to invoke non-const XMLDocument* getXmlDocument()? Had to use a const_cast because the compiler insisted on
+  using the const version for the assignment to a non-const XMLDocument pointer
+
+
+TBC:
+----
+* Does zippy.hpp line 10614 have bug in the return statement of the lambda to erase files from the result:
+                                            return (subFolderDepth == rootDepth && filename.back() != '/') || (subFolderDepth > rootDepth);
+?
+If I don't misread this, the condition filename.back() != '/' would delete all filenames from the result that are not directories, which would be in contradiction to the function description
+         * @brief Get a list of the entries in a specific directory of the archive. Depending on the input parameters,
+         * the list will include directories, files or both.
