@@ -503,7 +503,7 @@ void XLDocument::open(const std::string& fileName)
             if (subdirectory != "xl" && subdirectory != "docProps") continue; // ignore items in unhandled subfolders
         }
 
-        bool isWorkbookPath = (item.path().substr(1) == workbookPath);      // determine once, use twice
+        bool isWorkbookPath = (item.path().substr(1) == workbookPath);      // determine once, use thrice
         if (!isWorkbookPath && item.path().substr(0, 4) == "/xl/") {
             if (item.path().substr(4, 7) == "comment") {
                 std::cout << "XLDocument::" << __func__ << ": ignoring comment xml file " << item.path() << std::endl;
@@ -523,11 +523,15 @@ void XLDocument::open(const std::string& fileName)
             }
         }
         else if (!isWorkbookPath || !workbookAdded) { // do not re-add workbook if it was previously added via m_docRelationships
+            if (isWorkbookPath) {    // if workbook is found but workbook relationship did not exist in m_docRelationships
+                workbookAdded = true; // 2024-09-30 bugfix: was set to true after checking item.path() == workbookPath, not item.path().substr(1) as above
+                std::cerr << "adding missing workbook relationship to _rels/.rels" << std::endl;
+                m_docRelationships.addRelationship(XLRelationshipType::Workbook, workbookPath);    // Pull request #185: Fix missing workbook relationship
+            }
             m_data.emplace_back(/* parentDoc */ this,
                                 /* xmlPath   */ item.path().substr(1),
                                 /* xmlID     */ m_docRelationships.relationshipByTarget(item.path().substr(1)).id(),
                                 /* xmlType   */ item.type());
-            if (item.path() == workbookPath) workbookAdded = true;
         }
     }
 

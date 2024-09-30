@@ -428,7 +428,10 @@ transition to the new version instead.
 
 <h2 id="detailed-change-log">Detailed change log</h2>
 
-## (aral-matrix) 29 September 2024 - prepare merge into main repository
+### (aral-matrix) 30 September 2024 - Pull request #185 - create workbook relationship in _rels/.rels if missing
+* ```XLDocument::open``` will create a missing workbook relationship in ```_rels/.rels``` if, and only if, a workbook with the default path xl/workbook.xml exists in the archive
+
+### (aral-matrix) 29 September 2024 - prepare merge into main repository
 * modified Demo9 to match style / behavior of other Demo programs
 * re-created legacy ```XLDocument::create``` and ```XLDocument::saveAs``` function interfaces, but marked them as ```[[deprecated]]```. The new interfaces require explicit specification of ```XLForceOverwrite``` or ```XLDoNotOverwrite```. Once the deprecated function definitions can be removed, ```XLDoNotOverwrite``` could become the new default behavior
 * moved nowide back into the correct location ```OpenXLSX/external/nowide/nowide```
