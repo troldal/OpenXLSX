@@ -56,7 +56,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #pragma GCC diagnostic pop
 
 // ===== External Includes ===== //
-#include <stdexcept>
+#include <stdexcept>    // std::runtime_error
+#include <string>       // std::string - Issue #278 should be resolved by this
 
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
