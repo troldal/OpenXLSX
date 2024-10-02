@@ -428,6 +428,9 @@ transition to the new version instead.
 
 <h2 id="detailed-change-log">Detailed change log</h2>
 
+### (aral-matrix) 02 October 2024 - Issue #278 - missing include statement in XLException
+* ```XLException.hpp```: added missing ```#include <string>```
+
 ### (aral-matrix) 30 September 2024 - Pull request #185 - create workbook relationship in _rels/.rels if missing
 * ```XLDocument::open``` will create a missing workbook relationship in ```_rels/.rels``` if, and only if, a workbook with the default path xl/workbook.xml exists in the archive
 
