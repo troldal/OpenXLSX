@@ -3,6 +3,10 @@
 OpenXLSX is a C++ library for reading, writing, creating and modifying
 Microsoft Excel® files, with the .xlsx format.
 
+## (aral-matrix) 14 October 2024 - Added capability to suppress some non-critical warnings
+
+See [detailed change log](#detailed-change-log).
+
 ## (aral-matrix) 29 September 2024 - Support for styles, merging cells (and more)
 
 Today the features from the development branch finally made it into the main branch :) For details, please refer to the [detailed change log](#detailed-change-log) below.
@@ -427,6 +431,12 @@ branch of this repository. However, I strongly recommend that you
 transition to the new version instead.
 
 <h2 id="detailed-change-log">Detailed change log</h2>
+
+### (aral-matrix) 14 October 2024 - added basic support to suppress harmless warnings (e.g. about XLSX unsupported features)
+* ```XLDocument.hpp```: added ```showWarnings()``` (default setting) and ```suppressWarnings()```
+* ```XLStyles.hpp```: added ```suppressWarnings``` parameter to constructor (default: ```false```)
+* ```XLDocument::open```: if ```suppressWarnings()``` was called, suppress warnings about ignored comment xml files and unhandled workbook items
+* ```XLDocument::open```: ```m_suppressWarnings``` setting is forwarded to XLStyles constructor
 
 ### (aral-matrix) 02 October 2024 - Issue #278 - missing include statement in XLException
 * ```XLException.hpp```: added missing ```#include <string>```

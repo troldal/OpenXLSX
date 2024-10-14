@@ -2333,8 +2333,9 @@ XLStyleIndex XLCellStyles::create(XLCellStyle copyFrom, std::string styleEntries
 /**
  * @details Creates an XLStyles object, which will initialize from the given xmlData
  */
-XLStyles::XLStyles(XLXmlData* xmlData, std::string stylesPrefix)
-    : XLXmlFile(xmlData)
+XLStyles::XLStyles(XLXmlData* xmlData, bool suppressWarnings, std::string stylesPrefix)
+    : XLXmlFile(xmlData),
+      m_suppressWarnings( suppressWarnings )
 {
     XMLDocument & doc = xmlDocument();
     if (doc.document_element().empty())    // handle a bad (no document element) xl/styles.xml
@@ -2382,11 +2383,13 @@ XLStyles::XLStyles(XLXmlData* xmlData, std::string stylesPrefix)
             case XLStylesFormats:     [[fallthrough]];
             case XLStylesTableStyles: [[fallthrough]];
             case XLStylesExtLst:
-                std::cout << "XLStyles: Ignoring currently unsupported <" << XLStylesEntryTypeToString(e) + "> node" << std::endl;
+                if( !m_suppressWarnings )
+                    std::cout << "XLStyles: Ignoring currently unsupported <" << XLStylesEntryTypeToString(e) + "> node" << std::endl;
                 break;
             case XLStylesInvalid: [[fallthrough]];
             default:
-                std::cerr << "WARNING: XLStyles constructor: invalid styles subnode \"" << node.name() << "\"" << std::endl;
+                if( !m_suppressWarnings )
+                    std::cerr << "WARNING: XLStyles constructor: invalid styles subnode \"" << node.name() << "\"" << std::endl;
                 break;
         }
         node = node.next_sibling_of_type(pugi::node_element);
