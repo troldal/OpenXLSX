@@ -49,8 +49,9 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifdef CHARCONV_ENABLED
 #    include <charconv>
 #endif
+#include <cctype>     // std::isdigit
 #include <cstdint>    // pull requests #216, #232
-#include <locale>     // std::isdigit
+
 
 // ===== OpenXLSX Includes ===== //
 #include "XLCellReference.hpp"
