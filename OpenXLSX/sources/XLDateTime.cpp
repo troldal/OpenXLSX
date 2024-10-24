@@ -1,11 +1,13 @@
 //
 // Created by Kenneth Balslev on 28/08/2021.
 //
+#include <stdint.h>
+#include <string>
+#include <cmath>
 
 #include "XLDateTime.hpp"
 #include "XLException.hpp"
-#include <string>
-#include <cmath>
+
 
 namespace {
 
