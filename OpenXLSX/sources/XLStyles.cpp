@@ -2137,9 +2137,24 @@ XLStyleIndex XLCellFormats::create(XLCellFormat copyFrom, std::string styleEntri
     XLCellFormat newCellFormat(newNode, m_permitXfId);
     if (copyFrom.m_cellFormatNode->empty()) {    // if no template is given
         // ===== Create a cell format with default values
-        // TODO: implement cell format defaults
-        // newStyle.setProperty(defaultValue);
-        // ...
+        // default index 0 for other style elements should protect from exceptions
+        newCellFormat.setNumberFormatId   (0);
+        newCellFormat.setFontIndex        (0);
+        newCellFormat.setFillIndex        (0);
+        newCellFormat.setBorderIndex      (0);
+        newCellFormat.setXfId             (0);
+        newCellFormat.setApplyNumberFormat(false);
+        newCellFormat.setApplyFont        (false);
+        newCellFormat.setApplyFill        (false);
+        newCellFormat.setApplyBorder      (false);
+        newCellFormat.setApplyAlignment   (false);
+        newCellFormat.setApplyProtection  (false);
+        newCellFormat.setQuotePrefix      (false);
+        newCellFormat.setPivotButton      (false);
+        newCellFormat.setLocked           (false);
+        newCellFormat.setHidden           (false);
+        // Unsupported setter
+        newCellFormat.setExtLst          (XLUnsupportedElement {});
     }
     else
         copyXMLNode(newNode, *copyFrom.m_cellFormatNode); // will use copyFrom as template, does nothing if copyFrom is empty
