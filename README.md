@@ -3,6 +3,10 @@
 OpenXLSX is a C++ library for reading, writing, creating and modifying
 Microsoft Excel® files, with the .xlsx format.
 
+## (aral-matrix) 26 October 2024 - Testing a bugfix for XLSheet::mergeCells
+
+Updated XLSheet::mergeCells to ensure that for all cells in the range, an entry exists in the worksheet xml. If cells need to be created, they use the same style as the top left cell in the range.
+
 ## (aral-matrix) 25 October 2024 - Added default values to a newly created XLCellFormat (from XLCellFormats::create, when no template is provided)
 
 These missing defaults could lead to followup errors when any style index of this cell was later assumed valid to access said style by index (Exception if the index was not in a valid range). All style indexes available in a cell format are now zero-initialized (with no assumptions what the style with index 0 may be configured as, normally it's defaults - if you want to be sure, provide a cell with a known format as copyFrom template to XLCellFormats::create).
