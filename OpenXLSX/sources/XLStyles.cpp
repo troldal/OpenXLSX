@@ -2137,9 +2137,24 @@ XLStyleIndex XLCellFormats::create(XLCellFormat copyFrom, std::string styleEntri
     XLCellFormat newCellFormat(newNode, m_permitXfId);
     if (copyFrom.m_cellFormatNode->empty()) {    // if no template is given
         // ===== Create a cell format with default values
-        // TODO: implement cell format defaults
-        // newStyle.setProperty(defaultValue);
-        // ...
+        // default index 0 for other style elements should protect from exceptions
+        newCellFormat.setNumberFormatId   (0);
+        newCellFormat.setFontIndex        (0);
+        newCellFormat.setFillIndex        (0);
+        newCellFormat.setBorderIndex      (0);
+        newCellFormat.setXfId             (0);
+        newCellFormat.setApplyNumberFormat(false);
+        newCellFormat.setApplyFont        (false);
+        newCellFormat.setApplyFill        (false);
+        newCellFormat.setApplyBorder      (false);
+        newCellFormat.setApplyAlignment   (false);
+        newCellFormat.setApplyProtection  (false);
+        newCellFormat.setQuotePrefix      (false);
+        newCellFormat.setPivotButton      (false);
+        newCellFormat.setLocked           (false);
+        newCellFormat.setHidden           (false);
+        // Unsupported setter
+        newCellFormat.setExtLst          (XLUnsupportedElement {});
     }
     else
         copyXMLNode(newNode, *copyFrom.m_cellFormatNode); // will use copyFrom as template, does nothing if copyFrom is empty
@@ -2333,8 +2348,9 @@ XLStyleIndex XLCellStyles::create(XLCellStyle copyFrom, std::string styleEntries
 /**
  * @details Creates an XLStyles object, which will initialize from the given xmlData
  */
-XLStyles::XLStyles(XLXmlData* xmlData, std::string stylesPrefix)
-    : XLXmlFile(xmlData)
+XLStyles::XLStyles(XLXmlData* xmlData, bool suppressWarnings, std::string stylesPrefix)
+    : XLXmlFile(xmlData),
+      m_suppressWarnings( suppressWarnings )
 {
     XMLDocument & doc = xmlDocument();
     if (doc.document_element().empty())    // handle a bad (no document element) xl/styles.xml
@@ -2382,11 +2398,13 @@ XLStyles::XLStyles(XLXmlData* xmlData, std::string stylesPrefix)
             case XLStylesFormats:     [[fallthrough]];
             case XLStylesTableStyles: [[fallthrough]];
             case XLStylesExtLst:
-                std::cout << "XLStyles: Ignoring currently unsupported <" << XLStylesEntryTypeToString(e) + "> node" << std::endl;
+                if( !m_suppressWarnings )
+                    std::cout << "XLStyles: Ignoring currently unsupported <" << XLStylesEntryTypeToString(e) + "> node" << std::endl;
                 break;
             case XLStylesInvalid: [[fallthrough]];
             default:
-                std::cerr << "WARNING: XLStyles constructor: invalid styles subnode \"" << node.name() << "\"" << std::endl;
+                if( !m_suppressWarnings )
+                    std::cerr << "WARNING: XLStyles constructor: invalid styles subnode \"" << node.name() << "\"" << std::endl;
                 break;
         }
         node = node.next_sibling_of_type(pugi::node_element);

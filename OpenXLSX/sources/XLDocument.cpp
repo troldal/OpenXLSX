@@ -443,6 +443,16 @@ XLDocument::~XLDocument()
 }
 
 /**
+* @details disable m_suppressWarnings
+*/
+void XLDocument::showWarnings() { m_suppressWarnings = false; }
+
+/**
+* @details enable m_suppressWarnings
+*/
+void XLDocument::suppressWarnings() { m_suppressWarnings = true; }
+
+/**
  * @details The openDocument method opens the .xlsx package in the following manner:
  * - Check if a document is already open. If yes, close it.
  * - Create a temporary folder for the contents of the .xlsx package
@@ -506,7 +516,8 @@ void XLDocument::open(const std::string& fileName)
         bool isWorkbookPath = (item.path().substr(1) == workbookPath);      // determine once, use thrice
         if (!isWorkbookPath && item.path().substr(0, 4) == "/xl/") {
             if (item.path().substr(4, 7) == "comment") {
-                std::cout << "XLDocument::" << __func__ << ": ignoring comment xml file " << item.path() << std::endl;
+                if( !m_suppressWarnings )
+                    std::cout << "XLDocument::" << __func__ << ": ignoring comment xml file " << item.path() << std::endl;
             }
             else if ((item.path().substr(4, 16) == "worksheets/sheet")
                    ||(item.path().substr(4)     == "sharedStrings.xml")
@@ -519,7 +530,8 @@ void XLDocument::open(const std::string& fileName)
                                     /* xmlType   */ item.type());
             }
             else {
-                std::cout << "ignoring currently unhandled workbook item " << item.path() << std::endl;
+                if( !m_suppressWarnings )
+                    std::cout << "ignoring currently unhandled workbook item " << item.path() << std::endl;
             }
         }
         else if (!isWorkbookPath || !workbookAdded) { // do not re-add workbook if it was previously added via m_docRelationships
@@ -596,7 +608,7 @@ void XLDocument::open(const std::string& fileName)
     m_appProperties.alignWorksheets(m_workbook.sheetNames());
 
     m_sharedStrings  = XLSharedStrings(getXmlData("xl/sharedStrings.xml"), &m_sharedStringCache);
-    m_styles         = XLStyles(getXmlData("xl/styles.xml"));
+    m_styles         = XLStyles(getXmlData("xl/styles.xml"), m_suppressWarnings); // 2024-10-14: forward supress warnings setting to XLStyles
 }
 
 namespace {

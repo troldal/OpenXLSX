@@ -3,6 +3,12 @@
 OpenXLSX is a C++ library for reading, writing, creating and modifying
 Microsoft Excel® files, with the .xlsx format.
 
+## (aral-matrix) 25 October 2024 - Added default values to a newly created XLCellFormat (from XLCellFormats::create, when no template is provided)
+
+These missing defaults could lead to followup errors when any style index of this cell was later assumed valid to access said style by index (Exception if the index was not in a valid range). All style indexes available in a cell format are now zero-initialized (with no assumptions what the style with index 0 may be configured as, normally it's defaults - if you want to be sure, provide a cell with a known format as copyFrom template to XLCellFormats::create).
+
+Change history is found in the [detailed change log](#detailed-change-log).
+
 ## (aral-matrix) 29 September 2024 - Support for styles, merging cells (and more)
 
 Today the features from the development branch finally made it into the main branch :) For details, please refer to the [detailed change log](#detailed-change-log) below.
@@ -427,6 +433,12 @@ branch of this repository. However, I strongly recommend that you
 transition to the new version instead.
 
 <h2 id="detailed-change-log">Detailed change log</h2>
+
+### (aral-matrix) 14 October 2024 - added basic support to suppress harmless warnings (e.g. about XLSX unsupported features)
+* ```XLDocument.hpp```: added ```showWarnings()``` (default setting) and ```suppressWarnings()```
+* ```XLStyles.hpp```: added ```suppressWarnings``` parameter to constructor (default: ```false```)
+* ```XLDocument::open```: if ```suppressWarnings()``` was called, suppress warnings about ignored comment xml files and unhandled workbook items
+* ```XLDocument::open```: ```m_suppressWarnings``` setting is forwarded to XLStyles constructor
 
 ### (aral-matrix) 02 October 2024 - Issue #278 - missing include statement in XLException
 * ```XLException.hpp```: added missing ```#include <string>```
