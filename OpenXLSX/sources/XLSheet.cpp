@@ -675,26 +675,15 @@ void XLWorksheet::mergeCells(XLCellRange const& rangeToMerge, bool emptyHiddenCe
     }
 
     merges().appendMerge(rangeToMerge.address());
-
-    // 2024-10-26: BUGFIX to ensure that all cells in a merged range have an XML entry - it appears MS Office complains with an error otherwise
-    XLCellIterator it = rangeToMerge.begin();
-    XLStyleIndex topLeftFormat = it->cellFormat();    // get format index of top left cell of range
-    // NOTE: by dereferencing the XLCellIterator to get the format, it is also ensured that the top left cell is created in XML if it does not exist (cellFormat then returns 0)
-
-    ++it;    // leave first cell untouched
-
-    // ===== Iterate over rangeToMerge
-    while (it != rangeToMerge.end()) {
-        // ===== Ensure existance of at least an empty cell entry for each cell in the range
-        if( !it.cellExists() ) it->setCellFormat( topLeftFormat ); // create entries for non-existing cells in the range with the style of the top left cell
-
-        // If desired: delete values & attributes (except r and s) for all but the first cell in the range
-        if (emptyHiddenCells) {
+    if (emptyHiddenCells) {
+        // ===== Iterate over rangeToMerge, delete values & attributes (except r and s) for all but the first cell in the range
+        XLCellIterator it = rangeToMerge.begin();
+        ++it; // leave first cell untouched
+        while (it != rangeToMerge.end()) {
             // ===== When merging with emptyHiddenCells in LO, subsequent unmerging restores the cell styles -> so keep them here as well
             it->clear(XLKeepCellStyle);    // clear cell contents except style
+            ++it;
         }
-
-        ++it;
     }
 }
 
