@@ -46,14 +46,18 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_XLCELL_HPP
 #define OPENXLSX_XLCELL_HPP
 
+#if __GNUC__>=5
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunknown-pragmas" // disable warning about below #pragma warning being unknown
+#endif // __GNUC__
 #ifdef _MSC_VER                                    // additional condition because the previous line does not work on gcc 12.2
 #   pragma warning(push)
 #   pragma warning(disable : 4251)
 #   pragma warning(disable : 4275)
 #endif // _MSC_VER
+#if __GNUC__>=5
 #pragma GCC diagnostic pop
+#endif // __GNUC__
 
 #include <iostream> // std::ostream
 #include <ostream>  // std::basic_ostream
@@ -362,10 +366,14 @@ namespace OpenXLSX
     }
 }    // namespace OpenXLSX
 
+#if __GNUC__>=5
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunknown-pragmas" // disable warning about below #pragma warning being unknown
+#endif // __GNUC__
 #ifdef _MSC_VER                                    // additional condition because the previous line does not work on gcc 12.2
 #   pragma warning(pop)
 #endif // _MSC_VER
+#if __GNUC__>=5
 #pragma GCC diagnostic pop
+#endif // __GNUC__
 #endif    // OPENXLSX_XLCELL_HPP

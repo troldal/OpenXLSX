@@ -1,10 +1,14 @@
+#if __GNUC__>=5
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunknown-pragmas" // disable warning about below #pragma warning being unknown
+#endif // __GNUC__
 #ifdef _MSC_VER                                    // additional condition because the previous line does not work on gcc 12.2
 #   pragma warning(push)
 #   pragma warning(disable : 4244)
 #endif // _MSC_VER
+#if __GNUC__>=5
 #pragma GCC diagnostic pop
+#endif // __GNUC__
 
 #include <OpenXLSX.hpp>
 #include <iostream>
@@ -74,9 +78,13 @@ int main()
     return 0;
 }
 
+#if __GNUC__>=5
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunknown-pragmas" // disable warning about below #pragma warning being unknown
+#endif // __GNUC__
 #ifdef _MSC_VER                                    // additional condition because the previous line does not work on gcc 12.2
 #   pragma warning(pop)
 #endif // _MSC_VER
+#if __GNUC__>=5
 #pragma GCC diagnostic pop
+#endif // __GNUC__
