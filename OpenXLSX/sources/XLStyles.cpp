@@ -286,7 +286,7 @@ namespace     // anonymous namespace for module local functions
     }
 #if __GNUC__>=5
 #pragma GCC diagnostic pop
-#endif
+#endif // __GNUC__
 
     std::string XLLineTypeToString(XLLineType lineType)
     {
