@@ -5,7 +5,7 @@
 #ifndef OPENXLSX_XLROWDATA_HPP
 #define OPENXLSX_XLROWDATA_HPP
 
-#if __GNUC__>=5
+#ifdef __GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunknown-pragmas" // disable warning about below #pragma warning being unknown
 #endif // __GNUC__
@@ -14,7 +14,7 @@
 #   pragma warning(disable : 4251)
 #   pragma warning(disable : 4275)
 #endif // _MSC_VER
-#if __GNUC__>=5
+#ifdef __GNUC__
 #pragma GCC diagnostic pop
 #endif // __GNUC__
 
@@ -476,14 +476,14 @@ namespace OpenXLSX
 
 }    // namespace OpenXLSX
 
-#if __GNUC__>=5
+#ifdef __GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunknown-pragmas" // disable warning about below #pragma warning being unknown
 #endif // __GNUC__
 #ifdef _MSC_VER                                    // additional condition because the previous line does not work on gcc 12.2
 #   pragma warning(pop)
 #endif // _MSC_VER
-#if __GNUC__>=5
+#ifdef __GNUC__
 #pragma GCC diagnostic pop
 #endif // __GNUC__
 

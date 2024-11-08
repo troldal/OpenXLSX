@@ -268,7 +268,7 @@ namespace     // anonymous namespace for module local functions
         }
     }
 
-#if __GNUC__>=5
+#ifdef __GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-function"
 #endif // __GNUC__
@@ -284,7 +284,7 @@ namespace     // anonymous namespace for module local functions
         std::cerr << __func__ << ": invalid line type" << lineType << std::endl;
         return XLLineInvalid;
     }
-#if __GNUC__>=5
+#ifdef __GNUC__
 #pragma GCC diagnostic pop
 #endif // __GNUC__
 

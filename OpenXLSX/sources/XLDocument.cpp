@@ -624,7 +624,7 @@ namespace {
             return true;
         return false;
     }
-#if __GNUC__>=5
+#ifdef __GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-function"
 #endif // __GNUC__
@@ -649,7 +649,7 @@ namespace {
                 return true;
         return false;
     }
-#if __GNUC__>=5
+#ifdef __GNUC__
 #pragma GCC diagnostic pop
 #endif // __GNUC__
 } // anonymous namespace
