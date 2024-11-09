@@ -1,4 +1,4 @@
-#ifdef _MSC_VER                                    // additional condition because the previous line does not work on gcc 12.2
+#ifdef _MSC_VER
 #   pragma warning(push)
 #   pragma warning(disable : 4244)
 #endif // _MSC_VER
@@ -71,6 +71,6 @@ int main()
     return 0;
 }
 
-#ifdef _MSC_VER                                    // additional condition because the previous line does not work on gcc 12.2
+#ifdef _MSC_VER
 #   pragma warning(pop)
 #endif // _MSC_VER

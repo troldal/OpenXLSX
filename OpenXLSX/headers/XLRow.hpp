@@ -46,7 +46,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_XLROW_HPP
 #define OPENXLSX_XLROW_HPP
 
-#ifdef _MSC_VER                                    // additional condition because the previous line does not work on gcc 12.2
+#ifdef _MSC_VER
 #   pragma warning(push)
 #   pragma warning(disable : 4251)
 #   pragma warning(disable : 4275)
@@ -496,7 +496,7 @@ namespace OpenXLSX
 
 }    // namespace OpenXLSX
 
-#ifdef _MSC_VER                                    // additional condition because the previous line does not work on gcc 12.2
+#ifdef _MSC_VER
 #   pragma warning(pop)
 #endif // _MSC_VER
 
