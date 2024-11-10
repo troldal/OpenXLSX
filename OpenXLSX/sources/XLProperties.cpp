@@ -121,8 +121,10 @@ namespace    // anonymous namespace for module local functions
         return docNode.child("HeadingPairs").first_child_of_type(pugi::node_element).attribute("size");
     }
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-function"
+#ifdef __GNUC__    // conditionally enable GCC specific pragmas to suppress unused function warning
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wunused-function"
+#endif // __GNUC__
     std::vector<std::string> headingPairsCategoriesStrings(XMLNode docNode)
     {
         // 2024-05-28 DONE: tested this code with two pairs in headingPairsNode
@@ -136,7 +138,9 @@ namespace    // anonymous namespace for module local functions
         return result; // 2024-05-28: std::move should not be used when the operand of a return statement is the name of a local variable
                        // as this can prevent named return value optimization (NRVO, copy elision)
     }
-#pragma GCC diagnostic pop
+#ifdef __GNUC__    // conditionally enable GCC specific pragmas to suppress unused function warning
+#   pragma GCC diagnostic pop
+#endif // __GNUC__
 
     /**
      * @brief fetch the <TitlesOfParts><vt:vector> XML node, create if not existing

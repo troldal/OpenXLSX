@@ -1,10 +1,7 @@
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunknown-pragmas" // disable warning about below #pragma warning being unknown
-#ifdef _MSC_VER                                    // additional condition because the previous line does not work on gcc 12.2
+#ifdef _MSC_VER    // conditionally enable MSVC specific pragmas to avoid other compilers warning about unknown pragmas
 #   pragma warning(push)
 #   pragma warning(disable : 4244)
 #endif // _MSC_VER
-#pragma GCC diagnostic pop
 
 #include <OpenXLSX.hpp>
 #include <iostream>
@@ -74,9 +71,6 @@ int main()
     return 0;
 }
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunknown-pragmas" // disable warning about below #pragma warning being unknown
-#ifdef _MSC_VER                                    // additional condition because the previous line does not work on gcc 12.2
+#ifdef _MSC_VER    // conditionally enable MSVC specific pragmas to avoid other compilers warning about unknown pragmas
 #   pragma warning(pop)
 #endif // _MSC_VER
-#pragma GCC diagnostic pop

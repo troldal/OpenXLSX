@@ -268,8 +268,10 @@ namespace     // anonymous namespace for module local functions
         }
     }
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-function"
+#ifdef __GNUC__    // conditionally enable GCC specific pragmas to suppress unused function warning
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wunused-function"
+#endif // __GNUC__
     XLLineType XLLineTypeFromString(std::string lineType)
     {
         if (lineType == "left")       return XLLineLeft;
@@ -282,7 +284,9 @@ namespace     // anonymous namespace for module local functions
         std::cerr << __func__ << ": invalid line type" << lineType << std::endl;
         return XLLineInvalid;
     }
-#pragma GCC diagnostic pop
+#ifdef __GNUC__    // conditionally enable GCC specific pragmas to suppress unused function warning
+#   pragma GCC diagnostic pop
+#endif // __GNUC__
 
     std::string XLLineTypeToString(XLLineType lineType)
     {

@@ -46,14 +46,11 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_XLFORMULA_HPP
 #define OPENXLSX_XLFORMULA_HPP
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunknown-pragmas" // disable warning about below #pragma warning being unknown
-#ifdef _MSC_VER                                    // additional condition because the previous line does not work on gcc 12.2
+#ifdef _MSC_VER    // conditionally enable MSVC specific pragmas to avoid other compilers warning about unknown pragmas
 #   pragma warning(push)
 #   pragma warning(disable : 4251)
 #   pragma warning(disable : 4275)
 #endif // _MSC_VER
-#pragma GCC diagnostic pop
 
 // ===== External Includes ===== //
 #include <iostream>
@@ -368,11 +365,8 @@ namespace OpenXLSX
     inline std::ostream& operator<<(std::ostream& os, const XLFormulaProxy& value) { return os << value.get(); }
 }    // namespace OpenXLSX
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunknown-pragmas" // disable warning about below #pragma warning being unknown
-#ifdef _MSC_VER                                    // additional condition because the previous line does not work on gcc 12.2
+#ifdef _MSC_VER    // conditionally enable MSVC specific pragmas to avoid other compilers warning about unknown pragmas
 #   pragma warning(pop)
 #endif // _MSC_VER
-#pragma GCC diagnostic pop
 
 #endif    // OPENXLSX_XLFORMULA_HPP

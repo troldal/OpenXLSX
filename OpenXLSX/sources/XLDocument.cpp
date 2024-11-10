@@ -624,8 +624,10 @@ namespace {
             return true;
         return false;
     }
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-function"
+#ifdef __GNUC__    // conditionally enable GCC specific pragmas to suppress unused function warning
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wunused-function"
+#endif // __GNUC__
     /**
      * @brief Test if fileName exists and is not a directory
      * @param fileName The path to check for existence (as a file)
@@ -647,7 +649,9 @@ namespace {
                 return true;
         return false;
     }
-#pragma GCC diagnostic pop
+#ifdef __GNUC__    // conditionally enable GCC specific pragmas to suppress unused function warning
+#   pragma GCC diagnostic pop
+#endif // __GNUC__
 } // anonymous namespace
 
 /**

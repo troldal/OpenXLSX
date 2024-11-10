@@ -46,14 +46,11 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #ifndef OPENXLSX_XLCELLREFERENCE_HPP
 #define OPENXLSX_XLCELLREFERENCE_HPP
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunknown-pragmas" // disable warning about below #pragma warning being unknown
-#ifdef _MSC_VER                                    // additional condition because the previous line does not work on gcc 12.2
+#ifdef _MSC_VER    // conditionally enable MSVC specific pragmas to avoid other compilers warning about unknown pragmas
 #   pragma warning(push)
 #   pragma warning(disable : 4251)
 #   pragma warning(disable : 4275)
 #endif // _MSC_VER
-#pragma GCC diagnostic pop
 
 // ===== External Includes ===== //
 #include <cstdint>    // Pull request #276
@@ -313,11 +310,8 @@ namespace OpenXLSX
     inline bool operator>=(const XLCellReference& lhs, const XLCellReference& rhs) { return !(lhs < rhs); }
 }    // namespace OpenXLSX
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunknown-pragmas" // disable warning about below #pragma warning being unknown
-#ifdef _MSC_VER                                    // additional condition because the previous line does not work on gcc 12.2
+#ifdef _MSC_VER    // conditionally enable MSVC specific pragmas to avoid other compilers warning about unknown pragmas
 #   pragma warning(pop)
 #endif // _MSC_VER
-#pragma GCC diagnostic pop
 
 #endif    // OPENXLSX_XLCELLREFERENCE_HPP
