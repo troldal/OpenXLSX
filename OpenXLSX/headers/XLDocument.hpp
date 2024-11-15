@@ -59,7 +59,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== OpenXLSX Includes ===== //
 #include "IZipArchive.hpp"
-#include "OpenXLSX-Exports.hpp"
+#include "include-exports-header.hpp"
 #include "XLCommandQuery.hpp"
 #include "XLContentTypes.hpp"
 #include "XLProperties.hpp"

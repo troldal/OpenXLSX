@@ -233,7 +233,7 @@ void XLCell::print(std::basic_ostream<char>& ostr) const { m_cellNode->print(ost
 /**
  * @details
  */
-XLCellAssignable::XLCellAssignable (XLCell const & other) : XLCell(other) {}
+XLCellAssignable::XLCellAssignable (XLCellAssignable const & other) : XLCell(other) {}
 
 /**
  * @details

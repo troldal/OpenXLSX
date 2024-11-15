@@ -53,7 +53,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #endif // _MSC_VER
 
 // ===== OpenXLSX Includes ===== //
-#include "OpenXLSX-Exports.hpp"
+#include "include-exports-header.hpp"
 
 #include <memory>
 #include <string>

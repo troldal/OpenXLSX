@@ -58,7 +58,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <utility>
 
 // ===== OpenXLSX Includes ===== //
-#include "OpenXLSX-Exports.hpp"
+#include "include-exports-header.hpp"
 
 namespace OpenXLSX
 {

@@ -57,7 +57,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <memory>
 
 // ===== OpenXLSX Includes ===== //
-#include "OpenXLSX-Exports.hpp"
+#include "include-exports-header.hpp"
 #include "XLCellReference.hpp"
 #include "XLCellValue.hpp"
 #include "XLFormula.hpp"
@@ -259,7 +259,7 @@ namespace OpenXLSX
          * @brief Copy constructor. Constructs an assignable XLCell from an existing cell
          * @param other the cell to construct from
          */
-        XLCellAssignable (XLCell const & other);
+        XLCellAssignable (XLCellAssignable const & other);
 
         /**
          * @brief Move constructor. Constructs an assignable XLCell from a temporary (r)value

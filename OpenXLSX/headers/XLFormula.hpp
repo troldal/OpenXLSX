@@ -58,7 +58,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <variant>
 
 // ===== OpenXLSX Includes ===== //
-#include "OpenXLSX-Exports.hpp"
+#include "include-exports-header.hpp"
 #include "XLXmlParser.hpp"
 
 // ========== CLASS AND ENUM TYPE DEFINITIONS ========== //

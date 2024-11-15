@@ -50,7 +50,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== pugixml.hpp needed for pugi::impl::xml_memory_page_type_mask, pugi::xml_node_type, pugi::char_t, pugi::node_element, pugi::xml_node, pugi::xml_attribute, pugi::xml_document
 #include <external/pugixml/pugixml.hpp> // not sure why the full include path is needed within the header file
-#include <XLException.hpp>
+#include "XLException.hpp"
 
 namespace { // anonymous namespace to define constants / functions that shall not be exported from this module
     constexpr const int XLMaxNamespacedNameLen = 100;

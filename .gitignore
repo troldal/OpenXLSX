@@ -79,6 +79,9 @@
 !/OpenXLSX/external/*
 !/OpenXLSX/headers
 !/OpenXLSX/headers/*
+!/OpenXLSX/module.modulemap
+!/OpenXLSX/swiftpm
+!/OpenXLSX/swiftpm/*
 !/OpenXLSX/OpenXLSXConfig.cmake
 !/OpenXLSX/OpenXLSX.hpp
 !/OpenXLSX/sources
@@ -103,3 +106,5 @@
 !/Tests/catch/*.hpp
 !/Tests/CMakeLists.txt
 !/Tests/*.cpp
+
+!/Package.swift

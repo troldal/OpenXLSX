@@ -185,6 +185,7 @@ if ("${OPENXLSX_LIBRARY_TYPE}" STREQUAL "SHARED")
 
 endif()
 
+target_compile_definitions(OpenXLSX PUBLIC OPENXLSX_CMAKE)
 
 if (OPENXLSX_ENABLE_NOWIDE)
     target_compile_definitions(OpenXLSX PRIVATE ENABLE_NOWIDE)

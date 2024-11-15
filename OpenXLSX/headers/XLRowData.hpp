@@ -19,7 +19,7 @@
 #include <vector>
 
 // ===== OpenXLSX Includes ===== //
-#include "OpenXLSX-Exports.hpp"
+#include "include-exports-header.hpp"
 #include "XLCell.hpp"
 #include "XLConstants.hpp"
 #include "XLException.hpp"
