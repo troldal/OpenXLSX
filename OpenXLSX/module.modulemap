@@ -1,4 +1,4 @@
-module OpenXLSX {
+module CxxOpenXLSX {
     header "OpenXLSX.hpp"
     export *
     requires cplusplus

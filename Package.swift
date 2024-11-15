@@ -4,11 +4,11 @@ import PackageDescription
 let package = Package(
     name: "OpenXLSX",
     products: [
-        .library(name: "OpenXLSX", targets: ["OpenXLSX"]),
+        .library(name: "CxxOpenXLSX", targets: ["CxxOpenXLSX"]),
     ],
     targets: [
         .target(
-            name: "OpenXLSX",
+            name: "CxxOpenXLSX",
             path: "OpenXLSX",
             sources: [
                 "sources/XLCell.cpp",
