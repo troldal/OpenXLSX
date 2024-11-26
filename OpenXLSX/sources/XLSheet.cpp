@@ -644,8 +644,14 @@ XLMergeCells & XLWorksheet::merges()
 {
     if( m_merges.uninitialized() ) {
         XMLNode mergeCellsNode = xmlDocument().document_element().child("mergeCells");
-        if (mergeCellsNode.empty())
-            mergeCellsNode = xmlDocument().document_element().append_child("mergeCells");
+        if (mergeCellsNode.empty()) {
+            // ===== 2024-10-27 BUGFIX: MS Office does not tolerate page formatting nodes before the mergeCells node,
+            //   therefore, insert the mergeCells node directly after the sheetData node
+            XMLNode sheetDataNode = xmlDocument().document_element().child("sheetData");
+            if (sheetDataNode.empty())
+                throw XLInternalError("XLWorksheet::merges: sheetData XML node is not initialized. Can not proceed.");
+            mergeCellsNode = xmlDocument().document_element().insert_child_after("mergeCells", sheetDataNode);
+        }
         m_merges = XLMergeCells(mergeCellsNode);
     }
     return m_merges;
