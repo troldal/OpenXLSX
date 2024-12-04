@@ -633,10 +633,15 @@ namespace ns_miniz
 #endif
 #pragma once
 
+} // namespace ns_miniz
+
 #include <assert.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+
+namespace ns_miniz
+{
 
     /* ------------------- Types and macros */
     typedef unsigned char mz_uint8;
@@ -4657,7 +4662,19 @@ common_exit:
 #        define MZ_FILE void*
 #    else
 
+#    ifdef __cplusplus
+    }
+#    endif
+} // namespace ns_miniz
+
 #        include <sys/stat.h>
+
+namespace ns_miniz
+{
+#    ifdef __cplusplus
+    extern "C"
+    {
+#    endif
 
 #        if defined(_MSC_VER) || defined(__MINGW64__)
     static FILE* mz_fopen(const char* pFilename, const char* pMode)
@@ -4738,7 +4755,19 @@ common_exit:
 #        elif defined(__APPLE__)
 #            ifndef MINIZ_NO_TIME
 
+#    ifdef __cplusplus
+    }
+#    endif
+} // namespace ns_miniz
+
 #                include <utime.h>
+
+namespace ns_miniz
+{
+#    ifdef __cplusplus
+    extern "C"
+    {
+#    endif
 
 #            endif
 
