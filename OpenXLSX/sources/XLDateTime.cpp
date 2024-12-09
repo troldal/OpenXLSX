@@ -18,7 +18,7 @@ namespace
      */
     bool isLeapYear(int year)
     {
-        if (year == 1900) return true;
+        if (year == 1900) return true; // historical Excel Date error inherited from older spreadsheet apps
         if (year % 400 == 0 || (year % 4 == 0 && year % 100 != 0)) return true;
         return false;
     }
@@ -86,7 +86,7 @@ namespace OpenXLSX
      */
     XLDateTime::XLDateTime(double serial) : m_serial(serial)
     {
-        if (serial < 1.0) throw XLDateTimeError("Excel date/time serial number is invalid (must be >= 1.0.)");
+        if (serial < 1.0) throw XLDateTimeError("Excel date/time serial number is invalid (must be >= 1.0.)"); // don't permit dates before 1900-01-01T00:00:00.000
     }
 
     /**
@@ -129,7 +129,7 @@ namespace OpenXLSX
     {
         // There are 86400 seconds in a day
         // There are 25569 days between 1/1/1970 and 30/12/1899 (the epoch used by Excel)
-        m_serial = static_cast<double>(unixtime) / 86400 + 25569;
+        m_serial = ( static_cast<double>(unixtime) / 86400 ) + 25569;
     }
 
     /**
@@ -207,8 +207,8 @@ namespace OpenXLSX
 
         // ===== Count the number of whole years since 1900.
         while (true) {
-            const auto days = (isLeapYear(result.tm_year + 1900) ? 366 : 365);
-            if (days > serial) break;
+            const int days = (isLeapYear(result.tm_year + 1900) ? 366 : 365);
+            if (days >= serial) break; // 2024-12-09 BUGFIX: break on days >= serial (was: days > serial, getting last days of a year wrong)
             serial -= days;
             ++result.tm_year;
         }
@@ -219,8 +219,8 @@ namespace OpenXLSX
 
         // ===== Count the number of whole months in the year.
         while (true) {
-            auto days = daysInMonth(result.tm_mon + 1, 1900 + result.tm_year);
-            if (days > serial) break;
+            int days = daysInMonth(result.tm_mon + 1, 1900 + result.tm_year);
+            if (days >= serial) break; // 2024-12-09 BUGFIX: break on days >= serial (was: days > serial, getting last days of a month wrong)
             serial -= days;
             ++result.tm_mon;
         }
