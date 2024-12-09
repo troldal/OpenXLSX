@@ -3,13 +3,11 @@
 OpenXLSX is a C++ library for reading, writing, creating and modifying
 Microsoft Excel® files, with the .xlsx format.
 
-## (aral-matrix) 27 October 2024 - Bugfix for XLSheet::mergeCells
+## (aral-matrix) 09 December 2024 - Bugfix for XLDateTime (hopefully final ;)
 
-It appears that MS Office does not tolerate any formatting XML nodes prior to the ```<mergeCells>``` XML node - in order to get rid of an according error message, the latest commit modifies the ```XLSheet::merges``` function to insert a newly created ```<mergeCells>``` node directly after the ```<sheetData>``` node.
+Reviewed the XLDateTime code in response to https://github.com/troldal/OpenXLSX/issues/299 and fixed a bug that I think I may have introduced myself. Apologies, dates should now correctly construct from ```double```, ```struct tm``` and ```time_t``` and convert back to ```struct tm```.
 
-## (aral-matrix) 25 October 2024 - Added default values to a newly created XLCellFormat (from XLCellFormats::create, when no template is provided)
-
-These missing defaults could lead to followup errors when any style index of this cell was later assumed valid to access said style by index (Exception if the index was not in a valid range). All style indexes available in a cell format are now zero-initialized (with no assumptions what the style with index 0 may be configured as, normally it's defaults - if you want to be sure, provide a cell with a known format as copyFrom template to XLCellFormats::create).
+## Change history
 
 Change history is found in the [detailed change log](#detailed-change-log).
 
@@ -437,6 +435,14 @@ branch of this repository. However, I strongly recommend that you
 transition to the new version instead.
 
 <h2 id="detailed-change-log">Detailed change log</h2>
+
+### (aral-matrix) 27 October 2024 - Bugfix for XLSheet::mergeCells
+
+It appears that MS Office does not tolerate any formatting XML nodes prior to the ```<mergeCells>``` XML node - in order to get rid of an according error message, the latest commit modifies the ```XLSheet::merges``` function to insert a newly created ```<mergeCells>``` node directly after the ```<sheetData>``` node.
+
+### (aral-matrix) 25 October 2024 - Added default values to a newly created XLCellFormat (from XLCellFormats::create, when no template is provided)
+
+These missing defaults could lead to followup errors when any style index of this cell was later assumed valid to access said style by index (Exception if the index was not in a valid range). All style indexes available in a cell format are now zero-initialized (with no assumptions what the style with index 0 may be configured as, normally it's defaults - if you want to be sure, provide a cell with a known format as copyFrom template to XLCellFormats::create).
 
 ### (aral-matrix) 14 October 2024 - added basic support to suppress harmless warnings (e.g. about XLSX unsupported features)
 * ```XLDocument.hpp```: added ```showWarnings()``` (default setting) and ```suppressWarnings()```
