@@ -3,6 +3,10 @@
 OpenXLSX is a C++ library for reading, writing, creating and modifying
 Microsoft Excel® files, with the .xlsx format.
 
+## (aral-matrix) 26 November 2024 - NOTE: "Releases" are severely outdated - do not use them
+
+As the heading says - the latest "Release" that is shown on https://github.com/troldal/OpenXLSX/releases is from 2021-11-06, and severely outdated - please pull / download the latest SW version directly from the repository in its current state. Link for those that do not want to use ```git```: https://github.com/troldal/OpenXLSX/archive/refs/heads/master.zip
+
 ## (aral-matrix) 09 December 2024 - Bugfix for XLDateTime (hopefully final ;)
 
 Reviewed the XLDateTime code in response to https://github.com/troldal/OpenXLSX/issues/299 and fixed a bug that I think I may have introduced myself. Apologies, dates should now correctly construct from ```double```, ```struct tm``` and ```time_t``` and convert back to ```struct tm```.
@@ -373,7 +377,7 @@ filenames, where it turned out that the ***source code*** for the test program
 was in a non-UTF-8 encoding, and hence the input string to OpenXLSX was also
 non-UTF-8. To stay sane, I recommend that source code files are always 
 in UTF-8 files; all IDE's I know of can handle source code files in UTF-8 
-encoding. Welcome to the wonderful world of unicode on Windows 🤮
+encoding. Welcome to the wonderful world of unicode on Windows 
 
 ### Zip Library
 An Excel-file is essentially just a bunch of .xml files wrapped in a .zip archive. OpenXLSX uses a 3rd party library to extract the .xml files from the .zip archive. The default library used by OpenXLSX is Zippy, which is an object-oriented wrapper around miniz. The miniz library is fast, and is header-only, which is ideal for OpenXLSX. 
