@@ -325,10 +325,9 @@ XLRelationshipType XLRelationshipItem::type() const { return GetTypeFromString(m
  */
 std::string XLRelationshipItem::target() const
 {
-    std::string targetVal = m_relationshipNode->attribute("Target").value();
-    // 2024-07-29 TODO TBD: should a relative path be considered here, as for relationshipByTarget?
-    // Does an XLRelationshipItem need info about the path context (m_path in XLRelationships)?
-    return targetVal.substr(targetVal[0] == '/' ? 1 : 0, std::string::npos); // 2024-07-24: strip a potential leading slash
+    // 2024-12-15 Returned to old behavior: do not strip leading slashes as this loses info about path being absolute.
+    //            Instead, treat absolute vs. relative path distinction in caller
+    return m_relationshipNode->attribute("Target").value();
 }
 
 /**

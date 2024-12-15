@@ -1119,7 +1119,8 @@ bool XLDocument::execCommand(const XLCommand& command)
             break;
         case XLCommandType::DeleteSheet: {
             m_appProperties.deleteSheetName(command.getParam<std::string>("sheetName"));
-            const auto sheetPath = "/xl/" + m_wbkRelationships.relationshipById(command.getParam<std::string>("sheetID")).target();
+            std::string sheetPath = m_wbkRelationships.relationshipById(command.getParam<std::string>("sheetID")).target();
+            if (sheetPath.substr(0, 4) != "/xl/") sheetPath = "/xl/" + sheetPath; // 2024-12-15: respect absolute sheet path
             m_archive.deleteEntry(sheetPath.substr(1));
             m_contentTypes.deleteOverride(sheetPath);
             m_wbkRelationships.deleteRelationship(command.getParam<std::string>("sheetID"));
@@ -1133,14 +1134,17 @@ bool XLDocument::execCommand(const XLCommand& command)
             if (m_workbook.sheetExists(command.getParam<std::string>("cloneName")))
                 throw XLInternalError("Sheet named \"" + command.getParam<std::string>("cloneName") + "\" already exists.");
 
+            // ===== 2024-12-15: handle absolute sheet path: ensure relative sheet path
+            std::string sheetToClonePath = m_wbkRelationships.relationshipById(command.getParam<std::string>("sheetID")).target();
+            if (sheetToClonePath.substr(0, 4) == "/xl/") sheetToClonePath = sheetToClonePath.substr(4);
+
             if (m_wbkRelationships.relationshipById(command.getParam<std::string>("sheetID")).type() == XLRelationshipType::Worksheet) {
                 m_contentTypes.addOverride(sheetPath, XLContentType::Worksheet);
                 m_wbkRelationships.addRelationship(XLRelationshipType::Worksheet, sheetPath.substr(4));
                 m_appProperties.appendSheetName(command.getParam<std::string>("cloneName"));
                 m_archive.addEntry(sheetPath.substr(1),
                                    std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& data) {
-                                       return data.getXmlPath().substr(3) ==
-                                              m_wbkRelationships.relationshipById(command.getParam<std::string>("sheetID")).target();
+                                       return data.getXmlPath().substr(3) == sheetToClonePath; // 2024-12-15: ensure relative sheet path
                                    })->getRawData());
                 m_data.emplace_back(
                     /* parentDoc */ this,
@@ -1154,8 +1158,7 @@ bool XLDocument::execCommand(const XLCommand& command)
                 m_appProperties.appendSheetName(command.getParam<std::string>("cloneName"));
                 m_archive.addEntry(sheetPath.substr(1),
                                    std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& data) {
-                                       return data.getXmlPath().substr(3) ==
-                                              m_wbkRelationships.relationshipById(command.getParam<std::string>("sheetID")).target();
+                                       return data.getXmlPath().substr(3) == sheetToClonePath; // 2024-12-15: ensure relative sheet path
                                    })->getRawData());
                 m_data.emplace_back(
                     /* parentDoc */ this,
@@ -1211,6 +1214,9 @@ XLQuery XLDocument::execQuery(const XLQuery& query) const
                 m_wbkRelationships.relationshipByTarget(query.getParam<std::string>("sheetPath").substr(4)).id());
 
         case XLQueryType::QuerySheetRelsTarget:
+            // ===== 2024-12-15: XLRelationshipItem::target() returns the unmodified Relationship "Target" property
+            //                     - can be absolute or relative and must be handled by the caller
+            //                   The only invocation as of today is in XLWorkbook::sheet(const std::string& sheetName) and handles this
             return XLQuery(query).setResult(m_wbkRelationships.relationshipById(query.getParam<std::string>("sheetID")).target());
 
         case XLQueryType::QuerySharedStrings:
