@@ -350,10 +350,10 @@ namespace OpenXLSX
         //----------------------------------------------------------------------------------------------------------------------
 
     private:
-        bool m_suppressWarnings {false};       /**< If true, will suppress output of warnings where supported */
+        bool m_suppressWarnings {true}; /**< If true, will suppress output of warnings where supported */
 
-        std::string m_filePath {}; /**< The path to the original file*/
-        std::string m_realPath {}; /**<  */
+        std::string m_filePath {};      /**< The path to the original file*/
+        std::string m_realPath {};      /**<  */
 
         XLXmlSavingDeclaration m_xmlSavingDeclaration;  /**< The xml saving declaration that will be passed to pugixml before generating the XML output data*/
 
