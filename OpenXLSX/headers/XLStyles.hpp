@@ -2123,7 +2123,7 @@ namespace OpenXLSX
          * @brief
          * @param other
          */
-        XLStyles(const XLStyles& other) = default;
+        XLStyles(const XLStyles& other) = delete;
 
         /**
          * @brief
@@ -2136,7 +2136,7 @@ namespace OpenXLSX
          * @param other
          * @return
          */
-        XLStyles& operator=(const XLStyles& other) = default;
+        XLStyles& operator=(const XLStyles& other) = delete;
 
         /**
          * @brief
