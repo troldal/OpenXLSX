@@ -47,13 +47,13 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #define OPENXLSX_XLSTYLES_HPP
 
 #ifdef _MSC_VER    // conditionally enable MSVC specific pragmas to avoid other compilers warning about unknown pragmas
-#    pragma warning(push)
-#    pragma warning(disable : 4251)
-#    pragma warning(disable : 4275)
-#endif    // _MSC_VER
+#   pragma warning(push)
+#   pragma warning(disable : 4251)
+#   pragma warning(disable : 4275)
+#endif // _MSC_VER
 
 // ===== External Includes ===== //
-#include <cstdint>    // uint32_t etc
+#include <cstdint>   // uint32_t etc
 #include <string>
 #include <vector>
 
@@ -65,37 +65,37 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 namespace OpenXLSX
 {
-    using XLStyleIndex = size_t;    // custom data type for XLStyleIndex
+    using XLStyleIndex = size_t; // custom data type for XLStyleIndex
 
-    constexpr const uint32_t XLInvalidUInt16 = 0xffff;        // used to signal "value not defined" for uint16_t return types
-    constexpr const uint32_t XLInvalidUInt32 = 0xffffffff;    // used to signal "value not defined" for uint32_t return types
+    constexpr const uint32_t XLInvalidUInt16 = 0xffff;     // used to signal "value not defined" for uint16_t return types
+    constexpr const uint32_t XLInvalidUInt32 = 0xffffffff; // used to signal "value not defined" for uint32_t return types
 
-    constexpr const bool XLPermitXfID = true;    // use with XLCellFormat constructor to enable xfId() getter and setXfId() setter
+    constexpr const bool XLPermitXfID      = true;         // use with XLCellFormat constructor to enable xfId() getter and setXfId() setter
 
-    constexpr const bool XLCreateIfMissing = true;     // use with XLCellFormat::alignment(XLCreateIfMissing)
-    constexpr const bool XLDoNotCreate     = false;    // use with XLCellFormat::alignment(XLDoNotCreate)
+    constexpr const bool XLCreateIfMissing = true;         // use with XLCellFormat::alignment(XLCreateIfMissing)
+    constexpr const bool XLDoNotCreate     = false;        // use with XLCellFormat::alignment(XLDoNotCreate)
 
-    constexpr const bool XLForceFillType = true;
+    constexpr const bool XLForceFillType   = true;
 
-    constexpr const char* XLDefaultStylesPrefix       = "\n\t";      // indentation to use for newly created root level style node tags
-    constexpr const char* XLDefaultStyleEntriesPrefix = "\n\t\t";    // indentation to use for newly created style entry nodes
+    constexpr const char * XLDefaultStylesPrefix       = "\n\t";   // indentation to use for newly created root level style node tags
+    constexpr const char * XLDefaultStyleEntriesPrefix = "\n\t\t"; // indentation to use for newly created style entry nodes
 
-    constexpr const XLStyleIndex XLDefaultCellFormat = 0;    // default cell format index in xl/styles.xml:<styleSheet>:<cellXfs>
+    constexpr const XLStyleIndex XLDefaultCellFormat = 0;          // default cell format index in xl/styles.xml:<styleSheet>:<cellXfs>
 
     // ===== As pugixml attributes are not guaranteed to support value range of XLStyleIndex, use 32 bit unsigned int
     constexpr const XLStyleIndex XLInvalidStyleIndex = XLInvalidUInt32;    // as a function return value, indicates no valid index
 
-    constexpr const uint32_t XLDefaultFontSize       = 12;            //
-    constexpr const char*    XLDefaultFontColor      = "ff000000";    // default font color
-    constexpr const char*    XLDefaultFontColorTheme = "";            // TBD what this means / how it is used
-    constexpr const char*    XLDefaultFontName       = "Arial";       //
-    constexpr const uint32_t XLDefaultFontFamily     = 0;             // TBD what this means / how it is used
-    constexpr const uint32_t XLDefaultFontCharset    = 1;             // TBD what this means / how it is used
+    constexpr const uint32_t XLDefaultFontSize       = 12;         //
+    constexpr const char *   XLDefaultFontColor      = "ff000000"; // default font color
+    constexpr const char *   XLDefaultFontColorTheme = "";         // TBD what this means / how it is used
+    constexpr const char *   XLDefaultFontName       = "Arial";    //
+    constexpr const uint32_t XLDefaultFontFamily     = 0;          // TBD what this means / how it is used
+    constexpr const uint32_t XLDefaultFontCharset    = 1;          // TBD what this means / how it is used
 
-    constexpr const char* XLDefaultLineStyle = "";    // empty string = line not set
+    constexpr const char * XLDefaultLineStyle = ""; // empty string = line not set
 
     // forward declarations of all classes in this header
-    class XLUnsupportedElement;    // used for stub getter / setter functions for unsupported style options
+    class XLUnsupportedElement; // used for stub getter / setter functions for unsupported style options
     class XLNumberFormat;
     class XLNumberFormats;
     class XLFont;
@@ -112,101 +112,115 @@ namespace OpenXLSX
     class XLCellStyles;
     class XLStyles;
 
-    enum XLUnderlineStyle : uint8_t { XLUnderlineNone = 0, XLUnderlineSingle = 1, XLUnderlineDouble = 2, XLUnderlineInvalid = 255 };
+    enum XLUnderlineStyle : uint8_t {
+        XLUnderlineNone    = 0,
+        XLUnderlineSingle  = 1,
+        XLUnderlineDouble  = 2,
+        XLUnderlineInvalid = 255
+    };
 
     enum XLFontSchemeStyle : uint8_t {
-        XLFontSchemeNone    = 0,     // <scheme val="none"/>
-        XLFontSchemeMajor   = 1,     // <scheme val="major"/>
-        XLFontSchemeMinor   = 2,     // <scheme val="minor"/>
-        XLFontSchemeInvalid = 255    // all other values
+        XLFontSchemeNone    =   0, // <scheme val="none"/>
+        XLFontSchemeMajor   =   1, // <scheme val="major"/>
+        XLFontSchemeMinor   =   2, // <scheme val="minor"/>
+        XLFontSchemeInvalid = 255  // all other values
     };
 
     enum XLVerticalAlignRunStyle : uint8_t {
-        XLBaseline                = 0,    // <vertAlign val="baseline"/>
-        XLSubscript               = 1,    // <vertAlign val="subscript"/>
-        XLSuperscript             = 2,    // <vertAlign val="superscript"/>
+        XLBaseline                =   0, // <vertAlign val="baseline"/>
+        XLSubscript               =   1, // <vertAlign val="subscript"/>
+        XLSuperscript             =   2, // <vertAlign val="superscript"/>
         XLVerticalAlignRunInvalid = 255
     };
 
     enum XLFillType : uint8_t {
-        XLGradientFill    = 0,      // <gradientFill />
-        XLPatternFill     = 1,      // <patternFill />
-        XLFillTypeInvalid = 255,    // any child of <fill> that is not one of the above
+        XLGradientFill     =   0,    // <gradientFill />
+        XLPatternFill      =   1,    // <patternFill />
+        XLFillTypeInvalid  = 255,    // any child of <fill> that is not one of the above
     };
 
-    enum XLGradientType : uint8_t { XLGradientLinear = 0, XLGradientPath = 1, XLGradientTypeInvalid = 255 };
+    enum XLGradientType : uint8_t {
+        XLGradientLinear      =   0,
+        XLGradientPath        =   1,
+        XLGradientTypeInvalid = 255
+    };
 
-    enum XLPatternType : uint8_t {
-        XLPatternNone            = 0,     // "none"
-        XLPatternSolid           = 1,     // "solid"
-        XLPatternMediumGray      = 2,     // "mediumGray"
-        XLPatternDarkGray        = 3,     // "darkGray"
-        XLPatternLightGray       = 4,     // "lightGray"
-        XLPatternDarkHorizontal  = 5,     // "darkHorizontal"
-        XLPatternDarkVertical    = 6,     // "darkVertical"
-        XLPatternDarkDown        = 7,     // "darkDown"
-        XLPatternDarkUp          = 8,     // "darkUp"
-        XLPatternDarkGrid        = 9,     // "darkGrid"
-        XLPatternDarkTrellis     = 10,    // "darkTrellis"
-        XLPatternLightHorizontal = 11,    // "lightHorizontal"
-        XLPatternLightVertical   = 12,    // "lightVertical"
-        XLPatternLightDown       = 13,    // "lightDown"
-        XLPatternLightUp         = 14,    // "lightUp"
-        XLPatternLightGrid       = 15,    // "lightGrid"
-        XLPatternLightTrellis    = 16,    // "lightTrellis"
-        XLPatternGray125         = 17,    // "gray125"
-        XLPatternGray0625        = 18,    // "gray0625"
+    enum XLPatternType: uint8_t {
+        XLPatternNone            =   0,   // "none"
+        XLPatternSolid           =   1,   // "solid"
+        XLPatternMediumGray      =   2,   // "mediumGray"
+        XLPatternDarkGray        =   3,   // "darkGray"
+        XLPatternLightGray       =   4,   // "lightGray"
+        XLPatternDarkHorizontal  =   5,   // "darkHorizontal"
+        XLPatternDarkVertical    =   6,   // "darkVertical"
+        XLPatternDarkDown        =   7,   // "darkDown"
+        XLPatternDarkUp          =   8,   // "darkUp"
+        XLPatternDarkGrid        =   9,   // "darkGrid"
+        XLPatternDarkTrellis     =  10,   // "darkTrellis"
+        XLPatternLightHorizontal =  11,   // "lightHorizontal"
+        XLPatternLightVertical   =  12,   // "lightVertical"
+        XLPatternLightDown       =  13,   // "lightDown"
+        XLPatternLightUp         =  14,   // "lightUp"
+        XLPatternLightGrid       =  15,   // "lightGrid"
+        XLPatternLightTrellis    =  16,   // "lightTrellis"
+        XLPatternGray125         =  17,   // "gray125"
+        XLPatternGray0625        =  18,   // "gray0625"
         XLPatternTypeInvalid     = 255    // any patternType that is not one of the above
     };
-    constexpr const XLFillType    XLDefaultFillType       = XLPatternFill;    // node name for the pattern description is derived from this
-    constexpr const XLPatternType XLDefaultPatternType    = XLPatternNone;    // attribute patternType default value: no fill
-    constexpr const char*         XLDefaultPatternFgColor = "ffffffff";       // child node fgcolor attribute rgb value
-    constexpr const char*         XLDefaultPatternBgColor = "ff000000";       // child node bgcolor attribute rgb value
+    constexpr const XLFillType    XLDefaultFillType       = XLPatternFill; // node name for the pattern description is derived from this
+    constexpr const XLPatternType XLDefaultPatternType    = XLPatternNone; // attribute patternType default value: no fill
+    constexpr const char*         XLDefaultPatternFgColor = "ffffffff";    // child node fgcolor attribute rgb value
+    constexpr const char*         XLDefaultPatternBgColor = "ff000000";    // child node bgcolor attribute rgb value
 
-    enum XLLineType : uint8_t {
-        XLLineLeft       = 0,
-        XLLineRight      = 1,
-        XLLineTop        = 2,
-        XLLineBottom     = 3,
-        XLLineDiagonal   = 4,
-        XLLineVertical   = 5,
-        XLLineHorizontal = 6,
+
+    enum XLLineType: uint8_t {
+        XLLineLeft       =   0,
+        XLLineRight      =   1,
+        XLLineTop        =   2,
+        XLLineBottom     =   3,
+        XLLineDiagonal   =   4,
+        XLLineVertical   =   5,
+        XLLineHorizontal =   6,
         XLLineInvalid    = 255
     };
 
     enum XLLineStyle : uint8_t {
-        XLLineStyleNone             = 0,
-        XLLineStyleThin             = 1,
-        XLLineStyleMedium           = 2,
-        XLLineStyleDashed           = 3,
-        XLLineStyleDotted           = 4,
-        XLLineStyleThick            = 5,
-        XLLineStyleDouble           = 6,
-        XLLineStyleHair             = 7,
-        XLLineStyleMediumDashed     = 8,
-        XLLineStyleDashDot          = 9,
-        XLLineStyleMediumDashDot    = 10,
-        XLLineStyleDashDotDot       = 11,
-        XLLineStyleMediumDashDotDot = 12,
-        XLLineStyleSlantDashDot     = 13,
+        XLLineStyleNone             =   0,
+        XLLineStyleThin             =   1,
+        XLLineStyleMedium           =   2,
+        XLLineStyleDashed           =   3,
+        XLLineStyleDotted           =   4,
+        XLLineStyleThick            =   5,
+        XLLineStyleDouble           =   6,
+        XLLineStyleHair             =   7,
+        XLLineStyleMediumDashed     =   8,
+        XLLineStyleDashDot          =   9,
+        XLLineStyleMediumDashDot    =  10,
+        XLLineStyleDashDotDot       =  11,
+        XLLineStyleMediumDashDotDot =  12,
+        XLLineStyleSlantDashDot     =  13,
         XLLineStyleInvalid          = 255
     };
 
     enum XLAlignmentStyle : uint8_t {
-        XLAlignGeneral          = 0,     // value="general",          horizontal only
-        XLAlignLeft             = 1,     // value="left",             horizontal only
-        XLAlignRight            = 2,     // value="right",            horizontal only
-        XLAlignCenter           = 3,     // value="center",           both
-        XLAlignTop              = 4,     // value="top",              vertical only
-        XLAlignBottom           = 5,     // value="bottom",           vertical only
-        XLAlignFill             = 6,     // value="fill",             horizontal only
-        XLAlignJustify          = 7,     // value="justify",          both
-        XLAlignCenterContinuous = 8,     // value="centerContinuous", horizontal only
-        XLAlignDistributed      = 9,     // value="distributed",      both
-        XLAlignInvalid          = 255    // all other values
+        XLAlignGeneral          =   0, // value="general",          horizontal only
+        XLAlignLeft             =   1, // value="left",             horizontal only
+        XLAlignRight            =   2, // value="right",            horizontal only
+        XLAlignCenter           =   3, // value="center",           both
+        XLAlignTop              =   4, // value="top",              vertical only
+        XLAlignBottom           =   5, // value="bottom",           vertical only
+        XLAlignFill             =   6, // value="fill",             horizontal only
+        XLAlignJustify          =   7, // value="justify",          both
+        XLAlignCenterContinuous =   8, // value="centerContinuous", horizontal only
+        XLAlignDistributed      =   9, // value="distributed",      both
+        XLAlignInvalid          = 255  // all other values
     };
 
-    enum XLReadingOrder : uint32_t { XLReadingOrderContextual = 0, XLReadingOrderLeftToRight = 1, XLReadingOrderRightToLeft = 2 };
+    enum XLReadingOrder : uint32_t {
+        XLReadingOrderContextual  = 0,
+        XLReadingOrderLeftToRight = 1,
+        XLReadingOrderRightToLeft = 2
+    };
 
     // ================================================================================
     // XLUnsupportedElement Class
@@ -228,7 +242,7 @@ namespace OpenXLSX
     class OPENXLSX_EXPORT XLNumberFormat
     {
         friend class XLNumberFormats;    // for access to m_numberFormatNode in XLNumberFormats::create
-    public:                              // ---------- Public Member Functions ---------- //
+    public:    // ---------- Public Member Functions ---------- //
         /**
          * @brief
          */
@@ -300,6 +314,7 @@ namespace OpenXLSX
     private:                                         // ---------- Private Member Variables ---------- //
         std::unique_ptr<XMLNode> m_numberFormatNode; /**< An XMLNode object with the number format item */
     };
+
 
     /**
      * @brief An encapsulation of the XLSX number formats (numFmts)
@@ -389,17 +404,18 @@ namespace OpenXLSX
          * @param copyFrom Can provide an XLNumberFormat to use as template for the new style
          * @param styleEntriesPrefix Prefix the newly created cell style XMLNode with this pugi::node_pcdata text
          * @returns The index of the new style as used by operator[]
-         * @todo: TBD assign a unique, non-reserved uint32_t numFmtId. Alternatively, the user should configure it manually via
-         * setNumberFormatId
-         * @todo: TBD implement a "getFreeNumberFormatId()" method that skips reserved identifiers and iterates over m_numberFormats to
-         * avoid all existing number format Ids.
+         * @todo: TBD assign a unique, non-reserved uint32_t numFmtId. Alternatively, the user should configure it manually via setNumberFormatId
+         * @todo: TBD implement a "getFreeNumberFormatId()" method that skips reserved identifiers and iterates over m_numberFormats to avoid
+         *         all existing number format Ids.
          */
-        XLStyleIndex create(XLNumberFormat copyFrom = XLNumberFormat {}, std::string styleEntriesPrefix = XLDefaultStyleEntriesPrefix);
+        XLStyleIndex create(XLNumberFormat copyFrom = XLNumberFormat{}, std::string styleEntriesPrefix = XLDefaultStyleEntriesPrefix);
 
-    private:                                             // ---------- Private Member Variables ---------- //
-        std::unique_ptr<XMLNode>    m_numberFormatsNode; /**< An XMLNode object with the number formats item */
+
+    private:                                         // ---------- Private Member Variables ---------- //
+        std::unique_ptr<XMLNode> m_numberFormatsNode; /**< An XMLNode object with the number formats item */
         std::vector<XLNumberFormat> m_numberFormats;
     };
+
 
     // ================================================================================
     // XLFonts Class
@@ -411,7 +427,7 @@ namespace OpenXLSX
     class OPENXLSX_EXPORT XLFont
     {
         friend class XLFonts;    // for access to m_fontNode in XLFonts::create
-    public:                      // ---------- Public Member Functions ---------- //
+    public:    // ---------- Public Member Functions ---------- //
         /**
          * @brief
          */
@@ -548,6 +564,7 @@ namespace OpenXLSX
          */
         bool extend() const;
 
+
         /**
          * @brief Setter functions for style parameters
          * @param value that shall be set
@@ -575,9 +592,10 @@ namespace OpenXLSX
          */
         std::string summary() const;
 
-    private:                                 // ---------- Private Member Variables ---------- //
-        std::unique_ptr<XMLNode> m_fontNode; /**< An XMLNode object with the font item */
+    private:                                         // ---------- Private Member Variables ---------- //
+        std::unique_ptr<XMLNode> m_fontNode;         /**< An XMLNode object with the font item */
     };
+
 
     /**
      * @brief An encapsulation of the XLSX fonts
@@ -653,12 +671,13 @@ namespace OpenXLSX
          * @param styleEntriesPrefix Prefix the newly created cell style XMLNode with this pugi::node_pcdata text
          * @returns The index of the new style as used by operator[]
          */
-        XLStyleIndex create(XLFont copyFrom = XLFont {}, std::string styleEntriesPrefix = XLDefaultStyleEntriesPrefix);
+        XLStyleIndex create(XLFont copyFrom = XLFont{}, std::string styleEntriesPrefix = XLDefaultStyleEntriesPrefix);
 
-    private:                                  // ---------- Private Member Variables ---------- //
-        std::unique_ptr<XMLNode> m_fontsNode; /**< An XMLNode object with the fonts item */
-        std::vector<XLFont>      m_fonts;
+    private:                                         // ---------- Private Member Variables ---------- //
+        std::unique_ptr<XMLNode> m_fontsNode;        /**< An XMLNode object with the fonts item */
+        std::vector<XLFont> m_fonts;
     };
+
 
     // ================================================================================
     // XLDataBarColor Class
@@ -717,7 +736,7 @@ namespace OpenXLSX
          * @return An XLColor object
          */
         XLColor rgb() const;
-
+  
         /**
          * @brief Get the line color tint
          * @return A double value as stored in the "tint" attribute (should be between [-1.0;+1.0]), 0.0 if attribute does not exist
@@ -727,21 +746,21 @@ namespace OpenXLSX
         /**
          * @brief currently unsupported getter stubs
          */
-        bool     automatic() const;    // <color auto="true" />
-        uint32_t indexed() const;      // <color indexed="1" />
-        uint32_t theme() const;        // <color theme="1" />
+        bool     automatic() const; // <color auto="true" />
+        uint32_t indexed()   const; // <color indexed="1" />
+        uint32_t theme()     const; // <color theme="1" />
 
         /**
          * @brief Setter functions for data bar color parameters
          * @param value that shall be set
          * @return true for success, false for failure
          */
-        bool setRgb(XLColor newColor);
-        bool set(XLColor newColor) { return setRgb(newColor); }    // alias for setRgb
-        bool setTint(double newTint);
+        bool setRgb      (XLColor newColor);
+        bool set         (XLColor newColor) { return setRgb(newColor); } // alias for setRgb
+        bool setTint     (double newTint);
         bool setAutomatic(bool set = true);
-        bool setIndexed(uint32_t newIndex);
-        bool setTheme(uint32_t newTheme);
+        bool setIndexed  (uint32_t newIndex);
+        bool setTheme    (uint32_t newTheme);
 
         /**
          * @brief Return a string summary of the color properties
@@ -749,9 +768,10 @@ namespace OpenXLSX
          */
         std::string summary() const;
 
-    private:                                  // ---------- Private Member Variables ---------- //
-        std::unique_ptr<XMLNode> m_colorNode; /**< An XMLNode object with the color item */
+    private:                                         // ---------- Private Member Variables ---------- //
+        std::unique_ptr<XMLNode> m_colorNode;        /**< An XMLNode object with the color item */
     };
+
 
     // ================================================================================
     // XLFills Class
@@ -763,7 +783,7 @@ namespace OpenXLSX
     class OPENXLSX_EXPORT XLGradientStop
     {
         friend class XLGradientStops;    // for access to m_stopNode in XLGradientStops::create
-    public:                              // ---------- Public Member Functions ----------- //
+    public:                                          // ---------- Public Member Functions ----------- //
         /**
          * @brief
          */
@@ -810,8 +830,8 @@ namespace OpenXLSX
          * @brief Getter functions
          * @return The requested gradient stop property
          */
-        XLDataBarColor color() const;       // <stop><color /></stop>
-        double         position() const;    // <stop position="1.2" />
+        XLDataBarColor color() const; // <stop><color /></stop>
+        double position()      const; // <stop position="1.2" />
 
         /**
          * @brief Setter functions
@@ -827,8 +847,8 @@ namespace OpenXLSX
          */
         std::string summary() const;
 
-    private:                                 // ---------- Private Member Variables ---------- //
-        std::unique_ptr<XMLNode> m_stopNode; /**< An XMLNode object with the stop item */
+    private:                                         // ---------- Private Member Variables ---------- //
+        std::unique_ptr<XMLNode> m_stopNode;         /**< An XMLNode object with the stop item */
     };
 
     /**
@@ -905,12 +925,12 @@ namespace OpenXLSX
          * @param stopEntriesPrefix Prefix the newly created stop XMLNode with this pugi::node_pcdata text
          * @returns The index of the new style as used by operator[]
          */
-        XLStyleIndex create(XLGradientStop copyFrom = XLGradientStop {}, std::string styleEntriesPrefix = "");
+        XLStyleIndex create(XLGradientStop copyFrom = XLGradientStop{}, std::string styleEntriesPrefix = "");
 
         std::string summary() const;
 
     private:
-        std::unique_ptr<XMLNode>    m_gradientNode; /**< An XMLNode object with the gradientFill item */
+        std::unique_ptr<XMLNode> m_gradientNode;        /**< An XMLNode object with the gradientFill item */
         std::vector<XLGradientStop> m_gradientStops;
     };
 
@@ -920,7 +940,7 @@ namespace OpenXLSX
     class OPENXLSX_EXPORT XLFill
     {
         friend class XLFills;    // for access to m_fillNode in XLFills::create
-    public:                      // ---------- Public Member Functions ----------- //
+    public:                                          // ---------- Public Member Functions ----------- //
         /**
          * @brief
          */
@@ -977,13 +997,13 @@ namespace OpenXLSX
          */
         bool setFillType(XLFillType newFillType, bool force = false);
 
-    private:    // ---------- Switch to private context for two Methods  --------- //
+    private:                                         // ---------- Switch to private context for two Methods  --------- //
         /**
          * @brief Throw XLException if fillType() matches typeToThrowOn
          * @param typeToThrowOn throw on this
          * @param functionName include this (calling function name) in the exception
          */
-        void throwOnFillType(XLFillType typeToThrowOn, const char* functionName) const;
+        void throwOnFillType(XLFillType typeToThrowOn, const char *functionName) const;
 
         /**
          * @brief Fetch a valid first element child of m_fillNode. Create with default if needed
@@ -992,19 +1012,20 @@ namespace OpenXLSX
          * @return An XMLNode containing a fill description
          * @throw XLException if fillTypeIfEmpty is in conflict with a current fillType()
          */
-        XMLNode getValidFillDescription(XLFillType fillTypeIfEmpty, const char* functionName);
+        XMLNode getValidFillDescription(XLFillType fillTypeIfEmpty, const char *functionName);
 
-    public:    // ---------- Switch back to public context ---------------------- //
+    public:                                          // ---------- Switch back to public context ---------------------- //
+
         /**
          * @brief Getter functions for gradientFill - will throwOnFillType(XLPatternFill, __func__)
          * @return The requested gradientFill property
          */
-        XLGradientType  gradientType();    // <gradientFill type="path" />
-        double          degree();
-        double          left();
-        double          right();
-        double          top();
-        double          bottom();
+        XLGradientType gradientType(); // <gradientFill type="path" />
+        double degree();
+        double left();
+        double right();
+        double top();
+        double bottom();
         XLGradientStops stops();
 
         /**
@@ -1012,8 +1033,8 @@ namespace OpenXLSX
          * @return The requested patternFill property
          */
         XLPatternType patternType();
-        XLColor       color();
-        XLColor       backgroundColor();
+        XLColor color();
+        XLColor backgroundColor();
 
         /**
          * @brief Setter functions for gradientFill - will throwOnFillType(XLPatternFill, __func__)
@@ -1044,9 +1065,10 @@ namespace OpenXLSX
          */
         std::string summary();
 
-    private:                                 // ---------- Private Member Variables ---------- //
-        std::unique_ptr<XMLNode> m_fillNode; /**< An XMLNode object with the fill item */
+    private:                                         // ---------- Private Member Variables ---------- //
+        std::unique_ptr<XMLNode> m_fillNode;         /**< An XMLNode object with the fill item */
     };
+
 
     /**
      * @brief An encapsulation of the XLSX fills
@@ -1122,12 +1144,13 @@ namespace OpenXLSX
          * @param styleEntriesPrefix Prefix the newly created cell style XMLNode with this pugi::node_pcdata text
          * @returns The index of the new style as used by operator[]
          */
-        XLStyleIndex create(XLFill copyFrom = XLFill {}, std::string styleEntriesPrefix = XLDefaultStyleEntriesPrefix);
+        XLStyleIndex create(XLFill copyFrom = XLFill{}, std::string styleEntriesPrefix = XLDefaultStyleEntriesPrefix);
 
-    private:                                  // ---------- Private Member Variables ---------- //
-        std::unique_ptr<XMLNode> m_fillsNode; /**< An XMLNode object with the fills item */
-        std::vector<XLFill>      m_fills;
+    private:                                         // ---------- Private Member Variables ---------- //
+        std::unique_ptr<XMLNode> m_fillsNode;        /**< An XMLNode object with the fills item */
+        std::vector<XLFill> m_fills;
     };
+
 
     // ================================================================================
     // XLBorders Class
@@ -1144,58 +1167,57 @@ namespace OpenXLSX
          * @brief
          */
         XLLine();
-
+  
         /**
          * @brief Constructor. New items should only be created through an XLBorder object.
          * @param node An XMLNode object with the line XMLNode. If no input is provided, a null node is used.
          */
         explicit XLLine(const XMLNode& node);
-
+  
         /**
          * @brief Copy Constructor.
          * @param other Object to be copied.
          */
         XLLine(const XLLine& other);
-
+  
         /**
          * @brief Move Constructor.
          * @param other Object to be moved.
          */
         XLLine(XLLine&& other) noexcept = default;
-
+  
         /**
          * @brief
          */
         ~XLLine();
-
+  
         /**
          * @brief Copy assignment operator.
          * @param other Right hand side of assignment operation.
          * @return A reference to the lhs object.
          */
         XLLine& operator=(const XLLine& other);
-
+  
         /**
          * @brief Move assignment operator.
          * @param other Right hand side of assignment operation.
          * @return A reference to lhs object.
          */
         XLLine& operator=(XLLine&& other) noexcept = default;
-
+  
         /**
          * @brief Get the line style
          * @return An XLLineStyle enum
          */
         XLLineStyle style() const;
-
+  
         /**
          * @brief Evaluate XLLine as bool
          * @return true if line is set, false if not
          */
         explicit operator bool() const;
-
-        XLDataBarColor
-            color() const;    // <line><color /></line> where node can be left, right, top, bottom, diagonal, vertical, horizontal
+  
+        XLDataBarColor color() const; // <line><color /></line> where node can be left, right, top, bottom, diagonal, vertical, horizontal
 
         /**
          * @note Regarding setter functions for style parameters:
@@ -1208,148 +1230,150 @@ namespace OpenXLSX
          * @return string with info about the line object
          */
         std::string summary() const;
-
-    private:                                 // ---------- Private Member Variables ---------- //
-        std::unique_ptr<XMLNode> m_lineNode; /**< An XMLNode object with the line item */
-    };
-
+  
+    private:                                         // ---------- Private Member Variables ---------- //
+        std::unique_ptr<XMLNode> m_lineNode;         /**< An XMLNode object with the line item */
+     };
+  
+  
     /**
      * @brief An encapsulation of a border item
      */
     class OPENXLSX_EXPORT XLBorder
     {
         friend class XLBorders;    // for access to m_borderNode in XLBorders::create
-    public:                        // ---------- Public Member Functions ---------- //
+    public:    // ---------- Public Member Functions ---------- //
         /**
          * @brief
          */
         XLBorder();
-
+  
         /**
          * @brief Constructor. New items should only be created through an XLStyles object.
          * @param node An XMLNode object with the border XMLNode. If no input is provided, a null node is used.
          */
         explicit XLBorder(const XMLNode& node);
-
+  
         /**
          * @brief Copy Constructor.
          * @param other Object to be copied.
          */
         XLBorder(const XLBorder& other);
-
+  
         /**
          * @brief Move Constructor.
          * @param other Object to be moved.
          */
         XLBorder(XLBorder&& other) noexcept = default;
-
+  
         /**
          * @brief
          */
         ~XLBorder();
-
+  
         /**
          * @brief Copy assignment operator.
          * @param other Right hand side of assignment operation.
          * @return A reference to the lhs object.
          */
         XLBorder& operator=(const XLBorder& other);
-
+  
         /**
          * @brief Move assignment operator.
          * @param other Right hand side of assignment operation.
          * @return A reference to lhs object.
          */
         XLBorder& operator=(XLBorder&& other) noexcept = default;
-
+  
         /**
          * @brief Get the diagonal up property
          * @return true if set, otherwise false
          */
         bool diagonalUp() const;
-
+  
         /**
          * @brief Get the diagonal down property
          * @return true if set, otherwise false
          */
         bool diagonalDown() const;
-
+  
         /**
          * @brief Get the outline property
          * @return true if set, otherwise false
          */
         bool outline() const;
-
+  
         /**
          * @brief Get the left line property
          * @return An XLLine object
          */
         XLLine left() const;
-
+  
         /**
          * @brief Get the left line property
          * @return An XLLine object
          */
         XLLine right() const;
-
+  
         /**
          * @brief Get the left line property
          * @return An XLLine object
          */
         XLLine top() const;
-
+  
         /**
          * @brief Get the bottom line property
          * @return An XLLine object
          */
         XLLine bottom() const;
-
+  
         /**
          * @brief Get the diagonal line property
          * @return An XLLine object
          */
         XLLine diagonal() const;
-
+  
         /**
          * @brief Get the vertical line property
          * @return An XLLine object
          */
         XLLine vertical() const;
-
+  
         /**
          * @brief Get the horizontal line property
          * @return An XLLine object
          */
         XLLine horizontal() const;
-
+  
         /**
          * @brief Setter functions for style parameters
          * @param value that shall be set
          * @param value2 (optional) that shall be set
          * @return true for success, false for failure
          */
-        bool setDiagonalUp(bool set = true);
+        bool setDiagonalUp  (bool set = true);
         bool setDiagonalDown(bool set = true);
-        bool setOutline(bool set = true);
-        bool setLine(XLLineType lineType, XLLineStyle lineStyle, XLColor lineColor, double lineTint = 0.0);
-        bool setLeft(XLLineStyle lineStyle, XLColor lineColor, double lineTint = 0.0);
-        bool setRight(XLLineStyle lineStyle, XLColor lineColor, double lineTint = 0.0);
-        bool setTop(XLLineStyle lineStyle, XLColor lineColor, double lineTint = 0.0);
-        bool setBottom(XLLineStyle lineStyle, XLColor lineColor, double lineTint = 0.0);
-        bool setDiagonal(XLLineStyle lineStyle, XLColor lineColor, double lineTint = 0.0);
-        bool setVertical(XLLineStyle lineStyle, XLColor lineColor, double lineTint = 0.0);
-        bool setHorizontal(XLLineStyle lineStyle, XLColor lineColor, double lineTint = 0.0);
+        bool setOutline     (bool set = true);
+        bool setLine        (XLLineType lineType, XLLineStyle lineStyle, XLColor lineColor, double lineTint = 0.0);
+        bool setLeft        (                     XLLineStyle lineStyle, XLColor lineColor, double lineTint = 0.0);
+        bool setRight       (                     XLLineStyle lineStyle, XLColor lineColor, double lineTint = 0.0);
+        bool setTop         (                     XLLineStyle lineStyle, XLColor lineColor, double lineTint = 0.0);
+        bool setBottom      (                     XLLineStyle lineStyle, XLColor lineColor, double lineTint = 0.0);
+        bool setDiagonal    (                     XLLineStyle lineStyle, XLColor lineColor, double lineTint = 0.0);
+        bool setVertical    (                     XLLineStyle lineStyle, XLColor lineColor, double lineTint = 0.0);
+        bool setHorizontal  (                     XLLineStyle lineStyle, XLColor lineColor, double lineTint = 0.0);
 
         /**
          * @brief Return a string summary of the font properties
          * @return string with info about the font object
          */
         std::string summary() const;
-
-    private:                                   // ---------- Private Member Variables ---------- //
-        std::unique_ptr<XMLNode> m_borderNode; /**< An XMLNode object with the font item */
+  
+    private:                                         // ---------- Private Member Variables ---------- //
+        std::unique_ptr<XMLNode> m_borderNode;       /**< An XMLNode object with the font item */
     };
-
+  
+  
     /**
      * @brief An encapsulation of the XLSX borders
      */
@@ -1360,76 +1384,77 @@ namespace OpenXLSX
          * @brief
          */
         XLBorders();
-
+  
         /**
          * @brief Constructor. New items should only be created through an XLStyles object.
          * @param node An XMLNode object with the borders item. If no input is provided, a null node is used.
          */
         explicit XLBorders(const XMLNode& node);
-
+  
         /**
          * @brief Copy Constructor.
          * @param other Object to be copied.
          */
         XLBorders(const XLBorders& other);
-
+  
         /**
          * @brief Move Constructor.
          * @param other Object to be moved.
          */
         XLBorders(XLBorders&& other);
-
+  
         /**
          * @brief
          */
         ~XLBorders();
-
+  
         /**
          * @brief Copy assignment operator.
          * @param other Right hand side of assignment operation.
          * @return A reference to the lhs object.
          */
         XLBorders& operator=(const XLBorders& other);
-
+  
         /**
          * @brief Move assignment operator.
          * @param other Right hand side of assignment operation.
          * @return A reference to lhs object.
          */
         XLBorders& operator=(XLBorders&& other) noexcept = default;
-
+  
         /**
          * @brief Get the count of border descriptions
          * @return The amount of border description entries
          */
         size_t count() const;
-
+  
         /**
          * @brief Get the border description identified by index
          * @param index The index within the XML sequence
          * @return An XLBorder object
          */
         XLBorder borderByIndex(XLStyleIndex index) const;
-
+  
         /**
          * @brief Operator overload: allow [] as shortcut access to borderByIndex
          * @param index The index within the XML sequence
          * @return An XLBorder object
          */
         XLBorder operator[](XLStyleIndex index) const { return borderByIndex(index); }
-
+  
         /**
          * @brief Append a new XLBorder, based on copyFrom, and return its index in borders node
          * @param copyFrom Can provide an XLBorder to use as template for the new style
          * @param styleEntriesPrefix Prefix the newly created cell style XMLNode with this pugi::node_pcdata text
          * @returns The index of the new style as used by operator[]
          */
-        XLStyleIndex create(XLBorder copyFrom = XLBorder {}, std::string styleEntriesPrefix = XLDefaultStyleEntriesPrefix);
+        XLStyleIndex create(XLBorder copyFrom = XLBorder{}, std::string styleEntriesPrefix = XLDefaultStyleEntriesPrefix);
 
-    private:                                    // ---------- Private Member Variables ---------- //
-        std::unique_ptr<XMLNode> m_bordersNode; /**< An XMLNode object with the borders item */
-        std::vector<XLBorder>    m_borders;
+    private:                                         // ---------- Private Member Variables ---------- //
+        std::unique_ptr<XMLNode> m_bordersNode;      /**< An XMLNode object with the borders item */
+        std::vector<XLBorder> m_borders;
     };
+
 
     // ================================================================================
     // XLCellFormats Class
@@ -1452,38 +1477,38 @@ namespace OpenXLSX
          * @param node An XMLNode object with the alignment XMLNode. If no input is provided, a null node is used.
          */
         explicit XLAlignment(const XMLNode& node);
-
+  
         /**
          * @brief Copy Constructor.
          * @param other Object to be copied.
          */
         XLAlignment(const XLAlignment& other);
-
+  
         /**
          * @brief Move Constructor.
          * @param other Object to be moved.
          */
         XLAlignment(XLAlignment&& other) noexcept = default;
-
+  
         /**
          * @brief
          */
         ~XLAlignment();
-
+  
         /**
          * @brief Copy assignment operator.
          * @param other Right hand side of assignment operation.
          * @return A reference to the lhs object.
          */
         XLAlignment& operator=(const XLAlignment& other);
-
+  
         /**
          * @brief Move assignment operator.
          * @param other Right hand side of assignment operation.
          * @return A reference to lhs object.
          */
         XLAlignment& operator=(XLAlignment&& other) noexcept = default;
-
+  
         /**
          * @brief Get the horizontal alignment
          * @return An XLAlignmentStyle
@@ -1544,35 +1569,35 @@ namespace OpenXLSX
          * @param value that shall be set
          * @return true for success, false for failure
          */
-        bool setHorizontal(XLAlignmentStyle newStyle);
-        bool setVertical(XLAlignmentStyle newStyle);
+        bool setHorizontal     (XLAlignmentStyle newStyle);
+        bool setVertical       (XLAlignmentStyle newStyle);
         /**
          * @details on setTextRotation from XLSX specification:
-         * Text rotation in cells. Expressed in degrees. Values range from 0 to 180. The first letter of the text
+         * Text rotation in cells. Expressed in degrees. Values range from 0 to 180. The first letter of the text 
          *  is considered the center-point of the arc.
          * For 0 - 90, the value represents degrees above horizon. For 91-180 the degrees below the horizon is calculated as:
          * [degrees below horizon] = 90 - [newRotation].
          * Examples: setTextRotation( 45): / (text is formatted along a line from lower left to upper right)
          *           setTextRotation(135): \ (text is formatted along a line from upper left to lower right)
          */
-        bool setTextRotation(uint16_t newRotation);
-        bool setWrapText(bool set = true);
-        bool setIndent(uint32_t newIndent);
-        bool setRelativeIndent(int32_t newIndent);
+        bool setTextRotation   (uint16_t newRotation);
+        bool setWrapText       (bool set = true);
+        bool setIndent         (uint32_t newIndent);
+        bool setRelativeIndent (int32_t newIndent);
         bool setJustifyLastLine(bool set = true);
-        bool setShrinkToFit(bool set = true);
-        bool setReadingOrder(
-            uint32_t newReadingOrder);    // can be used with XLReadingOrderContextual, XLReadingOrderLeftToRight, XLReadingOrderRightToLeft
+        bool setShrinkToFit    (bool set = true);
+        bool setReadingOrder   (uint32_t newReadingOrder); // can be used with XLReadingOrderContextual, XLReadingOrderLeftToRight, XLReadingOrderRightToLeft
 
         /**
          * @brief Return a string summary of the alignment properties
          * @return string with info about the alignment object
          */
         std::string summary() const;
-
-    private:                                      // ---------- Private Member Variables ---------- //
-        std::unique_ptr<XMLNode> m_alignmentNode; /**< An XMLNode object with the alignment item */
+  
+    private:                                         // ---------- Private Member Variables ---------- //
+        std::unique_ptr<XMLNode> m_alignmentNode;    /**< An XMLNode object with the alignment item */
     };
+
 
     /**
      * @brief An encapsulation of a cell format item
@@ -1586,51 +1611,51 @@ namespace OpenXLSX
          * @brief
          */
         XLCellFormat();
-
+  
         /**
          * @brief Constructor. New items should only be created through an XLStyles object.
          * @param node An XMLNode object with the xf XMLNode. If no input is provided, a null node is used.
          * @param permitXfId true (XLPermitXfID) -> getter xfId and setter setXfId are enabled, otherwise will throw XLException if invoked
          */
         explicit XLCellFormat(const XMLNode& node, bool permitXfId);
-
+  
         /**
          * @brief Copy Constructor.
          * @param other Object to be copied.
          */
         XLCellFormat(const XLCellFormat& other);
-
+  
         /**
          * @brief Move Constructor.
          * @param other Object to be moved.
          */
         XLCellFormat(XLCellFormat&& other) noexcept = default;
-
+  
         /**
          * @brief
          */
         ~XLCellFormat();
-
+  
         /**
          * @brief Copy assignment operator.
          * @param other Right hand side of assignment operation.
          * @return A reference to the lhs object.
          */
         XLCellFormat& operator=(const XLCellFormat& other);
-
+  
         /**
          * @brief Move assignment operator.
          * @param other Right hand side of assignment operation.
          * @return A reference to lhs object.
          */
         XLCellFormat& operator=(XLCellFormat&& other) noexcept = default;
-
+  
         /**
          * @brief Get the number format id
          * @return The identifier of a number format, built-in (predefined by office) or defind in XLNumberFormats
          */
         uint32_t numberFormatId() const;
-
+  
         /**
          * @brief Get the font index
          * @return The index(!) of a font as defined in XLFonts
@@ -1731,43 +1756,44 @@ namespace OpenXLSX
         /**
          * @brief Unsupported getter
          */
-        XLUnsupportedElement extLst() const { return XLUnsupportedElement {}; }    // <xf><extLst>...</extLst></xf>
+        XLUnsupportedElement extLst() const { return XLUnsupportedElement{}; } // <xf><extLst>...</extLst></xf>
 
         /**
          * @brief Setter functions for style parameters
          * @param value that shall be set
          * @return true for success, false for failure
          */
-        bool setNumberFormatId(uint32_t newNumFmtId);
-        bool setFontIndex(XLStyleIndex newFontIndex);
-        bool setFillIndex(XLStyleIndex newFillIndex);
-        bool setBorderIndex(XLStyleIndex newBorderIndex);
-        bool setXfId(XLStyleIndex newXfId);    // NOTE: throws when invoked from cellStyleFormats
+        bool setNumberFormatId   (uint32_t newNumFmtId);
+        bool setFontIndex        (XLStyleIndex newFontIndex);
+        bool setFillIndex        (XLStyleIndex newFillIndex);
+        bool setBorderIndex      (XLStyleIndex newBorderIndex);
+        bool setXfId             (XLStyleIndex newXfId); // NOTE: throws when invoked from cellStyleFormats
         bool setApplyNumberFormat(bool set = true);
-        bool setApplyFont(bool set = true);
-        bool setApplyFill(bool set = true);
-        bool setApplyBorder(bool set = true);
-        bool setApplyAlignment(bool set = true);
-        bool setApplyProtection(bool set = true);
-        bool setQuotePrefix(bool set = true);
-        bool setPivotButton(bool set = true);
-        bool setLocked(bool set = true);
-        bool setHidden(bool set = true);
+        bool setApplyFont        (bool set = true);
+        bool setApplyFill        (bool set = true);
+        bool setApplyBorder      (bool set = true);
+        bool setApplyAlignment   (bool set = true);
+        bool setApplyProtection  (bool set = true);
+        bool setQuotePrefix      (bool set = true);
+        bool setPivotButton      (bool set = true);
+        bool setLocked           (bool set = true);
+        bool setHidden           (bool set = true);
         /**
          * @brief Unsupported setter
          */
-        bool setExtLst(XLUnsupportedElement const& newExtLst);
+        bool setExtLst          (XLUnsupportedElement const& newExtLst);
 
         /**
          * @brief Return a string summary of the cell format properties
          * @return string with info about the cell format object
          */
         std::string summary() const;
-
-    private:                                       // ---------- Private Member Variables ---------- //
-        std::unique_ptr<XMLNode> m_cellFormatNode; /**< An XMLNode object with the cell format (xf) item */
-        bool                     m_permitXfId { false };
+  
+    private:                                         // ---------- Private Member Variables ---------- //
+        std::unique_ptr<XMLNode> m_cellFormatNode;   /**< An XMLNode object with the cell format (xf) item */
+        bool m_permitXfId{false};
     };
+
 
     /**
      * @brief An encapsulation of the XLSX cell style formats
@@ -1779,65 +1805,65 @@ namespace OpenXLSX
          * @brief
          */
         XLCellFormats();
-
+  
         /**
          * @brief Constructor. New items should only be created through an XLStyles object.
          * @param node An XMLNode object with the cell formats (cellXfs or cellStyleXfs) item. If no input is provided, a null node is used.
          * @param permitXfId Pass-through to XLCellFormat constructor: true (XLPermitXfID) -> setter setXfId is enabled, otherwise throws
          */
         explicit XLCellFormats(const XMLNode& node, bool permitXfId = false);
-
+  
         /**
          * @brief Copy Constructor.
          * @param other Object to be copied.
          */
         XLCellFormats(const XLCellFormats& other);
-
+  
         /**
          * @brief Move Constructor.
          * @param other Object to be moved.
          */
         XLCellFormats(XLCellFormats&& other);
-
+  
         /**
          * @brief
          */
         ~XLCellFormats();
-
+  
         /**
          * @brief Copy assignment operator.
          * @param other Right hand side of assignment operation.
          * @return A reference to the lhs object.
          */
         XLCellFormats& operator=(const XLCellFormats& other);
-
+  
         /**
          * @brief Move assignment operator.
          * @param other Right hand side of assignment operation.
          * @return A reference to lhs object.
          */
         XLCellFormats& operator=(XLCellFormats&& other) noexcept = default;
-
+  
         /**
          * @brief Get the count of cell style format descriptions
          * @return The amount of cell style format description entries
          */
         size_t count() const;
-
+  
         /**
          * @brief Get the cell style format description identified by index
          * @param index The index within the XML sequence
          * @return An XLCellFormat object
          */
         XLCellFormat cellFormatByIndex(XLStyleIndex index) const;
-
+  
         /**
          * @brief Operator overload: allow [] as shortcut access to cellFormatByIndex
          * @param index The index within the XML sequence
          * @return An XLCellFormat object
          */
         XLCellFormat operator[](XLStyleIndex index) const { return cellFormatByIndex(index); }
-
+  
         /**
          * @brief Append a new XLCellFormat, based on copyFrom, and return its index
          *       in cellXfs (for XLStyles::cellFormats) or cellStyleXfs (for XLStyles::cellStyleFormats)
@@ -1845,13 +1871,14 @@ namespace OpenXLSX
          * @param styleEntriesPrefix Prefix the newly created cell style XMLNode with this pugi::node_pcdata text
          * @returns The index of the new style as used by operator[]
          */
-        XLStyleIndex create(XLCellFormat copyFrom = XLCellFormat {}, std::string styleEntriesPrefix = XLDefaultStyleEntriesPrefix);
+        XLStyleIndex create(XLCellFormat copyFrom = XLCellFormat{}, std::string styleEntriesPrefix = XLDefaultStyleEntriesPrefix);
 
     private:                                         // ---------- Private Member Variables ---------- //
-        std::unique_ptr<XMLNode>  m_cellFormatsNode; /**< An XMLNode object with the cell formats item */
+        std::unique_ptr<XMLNode> m_cellFormatsNode;  /**< An XMLNode object with the cell formats item */
         std::vector<XLCellFormat> m_cellFormats;
-        bool                      m_permitXfId { false };
+        bool m_permitXfId{false};
     };
+
 
     // ================================================================================
     // XLCellStyles Class
@@ -1954,33 +1981,34 @@ namespace OpenXLSX
         /**
          * @brief Unsupported getter
          */
-        XLUnsupportedElement extLst() const { return XLUnsupportedElement {}; }    // <cellStyle><extLst>...</extLst></cellStyle>
+        XLUnsupportedElement extLst() const { return XLUnsupportedElement{}; } // <cellStyle><extLst>...</extLst></cellStyle>
 
         /**
          * @brief Setter functions for style parameters
          * @param value that shall be set
          * @return true for success, false for failure
          */
-        bool setName(std::string newName);
-        bool setXfId(XLStyleIndex newXfId);
-        bool setBuiltinId(uint32_t newBuiltinId);
-        bool setOutlineStyle(uint32_t newOutlineStyle);
-        bool setHidden(bool set = true);
+        bool setName         (std::string newName);
+        bool setXfId         (XLStyleIndex newXfId);
+        bool setBuiltinId    (uint32_t newBuiltinId);
+        bool setOutlineStyle (uint32_t newOutlineStyle);
+        bool setHidden       (bool set = true);
         bool setCustomBuiltin(bool set = true);
         /**
          * @brief Unsupported setter
          */
-        bool setExtLst(XLUnsupportedElement const& newExtLst);
+        bool setExtLst   (XLUnsupportedElement const& newExtLst);
 
         /**
          * @brief Return a string summary of the cell style properties
          * @return string with info about the cell style object
          */
         std::string summary() const;
-
-    private:                                      // ---------- Private Member Variables ---------- //
-        std::unique_ptr<XMLNode> m_cellStyleNode; /**< An XMLNode object with the cell style item */
+  
+    private:                                         // ---------- Private Member Variables ---------- //
+        std::unique_ptr<XMLNode> m_cellStyleNode;    /**< An XMLNode object with the cell style item */
     };
+
 
     /**
      * @brief An encapsulation of the XLSX cell styles
@@ -2055,12 +2083,13 @@ namespace OpenXLSX
          * @param styleEntriesPrefix Prefix the newly created cell style XMLNode with this pugi::node_pcdata text
          * @returns The index of the new style as used by operator[]
          */
-        XLStyleIndex create(XLCellStyle copyFrom = XLCellStyle {}, std::string styleEntriesPrefix = XLDefaultStyleEntriesPrefix);
+        XLStyleIndex create(XLCellStyle copyFrom = XLCellStyle{}, std::string styleEntriesPrefix = XLDefaultStyleEntriesPrefix);
 
-    private:                                       // ---------- Private Member Variables ---------- //
-        std::unique_ptr<XMLNode> m_cellStylesNode; /**< An XMLNode object with the cell styles item */
+    private:                                         // ---------- Private Member Variables ---------- //
+        std::unique_ptr<XMLNode> m_cellStylesNode;   /**< An XMLNode object with the cell styles item */
         std::vector<XLCellStyle> m_cellStyles;
     };
+
 
     // ================================================================================
     // XLStyles Class
@@ -2080,8 +2109,7 @@ namespace OpenXLSX
         /**
          * @brief
          * @param xmlData
-         * @param suppressWarnings if true (SUPRESS_WARNINGS), messages such as "XLStyles: Ignoring currently unsupported <dxfs> node" will
-         * be silenced
+         * @param suppressWarnings if true (SUPRESS_WARNINGS), messages such as "XLStyles: Ignoring currently unsupported <dxfs> node" will be silenced
          * @param stylesPrefix Prefix any newly created root style nodes with this text as pugi::node_pcdata
          */
         explicit XLStyles(XLXmlData* xmlData, bool suppressWarnings = false, std::string stylesPrefix = XLDefaultStylesPrefix);
@@ -2161,19 +2189,19 @@ namespace OpenXLSX
 
         // ---------- Protected Member Functions ---------- //
     private:
-        bool                             m_suppressWarnings;    // if true, will suppress output of warnings where supported
-        std::unique_ptr<XLNumberFormats> m_numberFormats;       // handle to the underlying number formats
-        std::unique_ptr<XLFonts>         m_fonts;               // handle to the underlying fonts
-        std::unique_ptr<XLFills>         m_fills;               // handle to the underlying fills
-        std::unique_ptr<XLBorders>       m_borders;             // handle to the underlying border descriptions
-        std::unique_ptr<XLCellFormats>   m_cellStyleFormats;    // handle to the underlying cell style formats descriptions
-        std::unique_ptr<XLCellFormats>   m_cellFormats;         // handle to the underlying cell formats descriptions
-        std::unique_ptr<XLCellStyles>    m_cellStyles;          // handle to the underlying cell styles
+        bool                                m_suppressWarnings; // if true, will suppress output of warnings where supported
+        std::unique_ptr<XLNumberFormats>    m_numberFormats;    // handle to the underlying number formats
+        std::unique_ptr<XLFonts>            m_fonts;            // handle to the underlying fonts
+        std::unique_ptr<XLFills>            m_fills;            // handle to the underlying fills
+        std::unique_ptr<XLBorders>          m_borders;          // handle to the underlying border descriptions
+        std::unique_ptr<XLCellFormats>      m_cellStyleFormats; // handle to the underlying cell style formats descriptions
+        std::unique_ptr<XLCellFormats>      m_cellFormats;      // handle to the underlying cell formats descriptions
+        std::unique_ptr<XLCellStyles>       m_cellStyles;       // handle to the underlying cell styles
     };
 }    // namespace OpenXLSX
 
 #ifdef _MSC_VER    // conditionally enable MSVC specific pragmas to avoid other compilers warning about unknown pragmas
-#    pragma warning(pop)
-#endif    // _MSC_VER
+#   pragma warning(pop)
+#endif // _MSC_VER
 
 #endif    // OPENXLSX_XLSTYLES_HPP
