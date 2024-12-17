@@ -7,6 +7,11 @@ Microsoft Excel® files, with the .xlsx format.
 
 As the heading says - the latest "Release" that is shown on https://github.com/troldal/OpenXLSX/releases is from 2021-11-06, and severely outdated - please pull / download the latest SW version directly from the repository in its current state. Link for those that do not want to use ```git```: https://github.com/troldal/OpenXLSX/archive/refs/heads/master.zip
 
+## (aral-matrix) 17 December 2024 - Added exemplary use of XLBorder to Examples/Demo10.cpp
+* in response to #309, added use of XLBorder to Demo10
+
+**CAUTION**: Until resolution of #304, MS Office may refuse to open a file created with such a formatting due to an unnecessary restriction on the sequence of XML elements (borders).
+
 ## (aral-matrix) 15 December 2024 - Bugfix for Issues 306 and #297, default-disable XLDocument & XLStyles warnings about unsupported tags (#296)
 
 * BUGFIX: document relationships in ```xl/_rels/workbook.xml.rels``` should again open without errors for both relative (to ```xl/``` folder) and absolute archive paths
