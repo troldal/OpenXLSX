@@ -10,6 +10,9 @@ As the heading says - the latest "Release" that is shown on https://github.com/t
 ## (aral-matrix) 18 December 2024 - Bugfix for Issue #283 - shared strings cache was not cleared upon XLDocument::Close
 * BUGFIX XLDocument::close: shared strings cache is now being cleared on doc close, this addresses issue #283
 * zippy.hpp minor bugfix in ZipArchive::Close: m_IsOpen was not set to false
+* Demo10: improved borders demo
+* XLStyles: XLDataBarColor::setTheme now supports parameter ```XLDeleteProperty == XLInvalidUInt32 == 0xffffffff``` to delete the theme attribute from XML. This was necessary because even an empty ```theme=""``` attribute affects formatting.
+* XLStyles appendAndGetAttribute / appendAndSetAttribute: removed a redundant check for ```not node.empty()```
 
 ## (aral-matrix) 17 December 2024 - Added exemplary use of XLBorder to Examples/Demo10.cpp
 * in response to #309, added use of XLBorder to Demo10

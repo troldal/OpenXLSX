@@ -402,7 +402,7 @@ namespace     // anonymous namespace for module local functions
     {
         if (node.empty()) return XMLAttribute{};
         XMLAttribute attr = node.attribute(attrName.c_str());
-        if (attr.empty() && not node.empty()) {
+        if (attr.empty()) {
             attr = node.append_attribute(attrName.c_str());
             attr.set_value(attrDefaultVal.c_str());
         }
@@ -413,7 +413,7 @@ namespace     // anonymous namespace for module local functions
     {
         if (node.empty()) return XMLAttribute{};
         XMLAttribute attr = node.attribute(attrName.c_str());
-        if (attr.empty() && not node.empty())
+        if (attr.empty())
             attr = node.append_attribute(attrName.c_str());
         attr.set_value(attrVal.c_str()); // silently fails on empty attribute, which is intended here
         return attr;
@@ -978,7 +978,10 @@ bool XLDataBarColor::setTint(double newTint)
 }
 bool XLDataBarColor::setAutomatic(bool set)        { return appendAndSetAttribute(*m_colorNode, "auto",      (set ? "true" : "false")     ).empty() == false; }
 bool XLDataBarColor::setIndexed(uint32_t newIndex) { return appendAndSetAttribute(*m_colorNode, "indexed",   std::to_string(newIndex)     ).empty() == false; }
-bool XLDataBarColor::setTheme(uint32_t newTheme)   { return appendAndSetAttribute(*m_colorNode, "theme",     std::to_string(newTheme)     ).empty() == false; }
+bool XLDataBarColor::setTheme(uint32_t newTheme)   {
+    if( newTheme == XLDeleteProperty ) return m_colorNode->remove_attribute("theme");
+    return appendAndSetAttribute(*m_colorNode, "theme",     std::to_string(newTheme)     ).empty() == false;
+}
 
 /**
  * @details assemble a string summary about the color
