@@ -696,12 +696,19 @@ void XLDocument::close()
     m_filePath.clear();
     m_data.clear();
 
-    m_wbkRelationships = XLRelationships();
+    m_xmlSavingDeclaration = XLXmlSavingDeclaration();
+
+    m_sharedStringCache.clear();             // 2024-12-18 BUGFIX: clear shared strings cache - addresses issue #283
+    m_sharedStrings    = XLSharedStrings();  //
+
     m_docRelationships = XLRelationships();
+    m_wbkRelationships = XLRelationships();
     m_contentTypes     = XLContentTypes();
     m_appProperties    = XLAppProperties();
     m_coreProperties   = XLProperties();
+    m_styles           = XLStyles();
     m_workbook         = XLWorkbook();
+    // m_archive          = IZipArchive(); // keep IZipArchive class intact throughout close/open
 }
 
 /**
@@ -734,7 +741,6 @@ void XLDocument::saveAs(const std::string& fileName, bool forceOverwrite)
         if ((item.getXmlPath() == "docProps/core.xml")
           ||(item.getXmlPath() == "docProps/app.xml"))
             xmlIsStandalone = XLXmlStandalone;
-        // m_archive.addEntry(item.getXmlPath(), item.getRawData(XLXmlSavingDeclaration("1.0", "UTF-8", xmlIsStandalone)));
         m_archive.addEntry(item.getXmlPath(),
             item.getRawData(XLXmlSavingDeclaration(m_xmlSavingDeclaration.version(), m_xmlSavingDeclaration.encoding(),xmlIsStandalone)));
     }
