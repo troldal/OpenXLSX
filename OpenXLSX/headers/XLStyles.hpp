@@ -69,6 +69,9 @@ namespace OpenXLSX
 
     constexpr const uint32_t XLInvalidUInt16 = 0xffff;     // used to signal "value not defined" for uint16_t return types
     constexpr const uint32_t XLInvalidUInt32 = 0xffffffff; // used to signal "value not defined" for uint32_t return types
+    constexpr const uint32_t XLDeleteProperty = XLInvalidUInt32;  // when 0 or "" is not the same as "property does not exist", this value
+    //                                                            //  can be passed to setter functions to delete the property from XML
+    //                                                            //  currently supported in: XLDataBarColor::setTheme
 
     constexpr const bool XLPermitXfID      = true;         // use with XLCellFormat constructor to enable xfId() getter and setXfId() setter
 

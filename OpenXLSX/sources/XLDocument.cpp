@@ -696,12 +696,19 @@ void XLDocument::close()
     m_filePath.clear();
     m_data.clear();
 
-    m_wbkRelationships = XLRelationships();
+    m_xmlSavingDeclaration = XLXmlSavingDeclaration();
+
+    m_sharedStringCache.clear();             // 2024-12-18 BUGFIX: clear shared strings cache - addresses issue #283
+    m_sharedStrings    = XLSharedStrings();  //
+
     m_docRelationships = XLRelationships();
+    m_wbkRelationships = XLRelationships();
     m_contentTypes     = XLContentTypes();
     m_appProperties    = XLAppProperties();
     m_coreProperties   = XLProperties();
+    m_styles           = XLStyles();
     m_workbook         = XLWorkbook();
+    // m_archive          = IZipArchive(); // keep IZipArchive class intact throughout close/open
 }
 
 /**
@@ -734,7 +741,6 @@ void XLDocument::saveAs(const std::string& fileName, bool forceOverwrite)
         if ((item.getXmlPath() == "docProps/core.xml")
           ||(item.getXmlPath() == "docProps/app.xml"))
             xmlIsStandalone = XLXmlStandalone;
-        // m_archive.addEntry(item.getXmlPath(), item.getRawData(XLXmlSavingDeclaration("1.0", "UTF-8", xmlIsStandalone)));
         m_archive.addEntry(item.getXmlPath(),
             item.getRawData(XLXmlSavingDeclaration(m_xmlSavingDeclaration.version(), m_xmlSavingDeclaration.encoding(),xmlIsStandalone)));
     }
@@ -1119,7 +1125,8 @@ bool XLDocument::execCommand(const XLCommand& command)
             break;
         case XLCommandType::DeleteSheet: {
             m_appProperties.deleteSheetName(command.getParam<std::string>("sheetName"));
-            const auto sheetPath = "/xl/" + m_wbkRelationships.relationshipById(command.getParam<std::string>("sheetID")).target();
+            std::string sheetPath = m_wbkRelationships.relationshipById(command.getParam<std::string>("sheetID")).target();
+            if (sheetPath.substr(0, 4) != "/xl/") sheetPath = "/xl/" + sheetPath; // 2024-12-15: respect absolute sheet path
             m_archive.deleteEntry(sheetPath.substr(1));
             m_contentTypes.deleteOverride(sheetPath);
             m_wbkRelationships.deleteRelationship(command.getParam<std::string>("sheetID"));
@@ -1133,14 +1140,17 @@ bool XLDocument::execCommand(const XLCommand& command)
             if (m_workbook.sheetExists(command.getParam<std::string>("cloneName")))
                 throw XLInternalError("Sheet named \"" + command.getParam<std::string>("cloneName") + "\" already exists.");
 
+            // ===== 2024-12-15: handle absolute sheet path: ensure relative sheet path
+            std::string sheetToClonePath = m_wbkRelationships.relationshipById(command.getParam<std::string>("sheetID")).target();
+            if (sheetToClonePath.substr(0, 4) == "/xl/") sheetToClonePath = sheetToClonePath.substr(4);
+
             if (m_wbkRelationships.relationshipById(command.getParam<std::string>("sheetID")).type() == XLRelationshipType::Worksheet) {
                 m_contentTypes.addOverride(sheetPath, XLContentType::Worksheet);
                 m_wbkRelationships.addRelationship(XLRelationshipType::Worksheet, sheetPath.substr(4));
                 m_appProperties.appendSheetName(command.getParam<std::string>("cloneName"));
                 m_archive.addEntry(sheetPath.substr(1),
                                    std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& data) {
-                                       return data.getXmlPath().substr(3) ==
-                                              m_wbkRelationships.relationshipById(command.getParam<std::string>("sheetID")).target();
+                                       return data.getXmlPath().substr(3) == sheetToClonePath; // 2024-12-15: ensure relative sheet path
                                    })->getRawData());
                 m_data.emplace_back(
                     /* parentDoc */ this,
@@ -1154,8 +1164,7 @@ bool XLDocument::execCommand(const XLCommand& command)
                 m_appProperties.appendSheetName(command.getParam<std::string>("cloneName"));
                 m_archive.addEntry(sheetPath.substr(1),
                                    std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& data) {
-                                       return data.getXmlPath().substr(3) ==
-                                              m_wbkRelationships.relationshipById(command.getParam<std::string>("sheetID")).target();
+                                       return data.getXmlPath().substr(3) == sheetToClonePath; // 2024-12-15: ensure relative sheet path
                                    })->getRawData());
                 m_data.emplace_back(
                     /* parentDoc */ this,
@@ -1211,6 +1220,9 @@ XLQuery XLDocument::execQuery(const XLQuery& query) const
                 m_wbkRelationships.relationshipByTarget(query.getParam<std::string>("sheetPath").substr(4)).id());
 
         case XLQueryType::QuerySheetRelsTarget:
+            // ===== 2024-12-15: XLRelationshipItem::target() returns the unmodified Relationship "Target" property
+            //                     - can be absolute or relative and must be handled by the caller
+            //                   The only invocation as of today is in XLWorkbook::sheet(const std::string& sheetName) and handles this
             return XLQuery(query).setResult(m_wbkRelationships.relationshipById(query.getParam<std::string>("sheetID")).target());
 
         case XLQueryType::QuerySharedStrings:

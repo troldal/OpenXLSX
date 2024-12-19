@@ -219,6 +219,58 @@ int main( int argc, char *argv[] )
 
 	myCellRange.setFormat( newCellStyle ); // assign the new format to the full range of cells
 
+	// ===== BEGIN cell borders demo
+	{
+		// create a new cell format based on the current C3 format & assign it back to C3
+		XLStyleIndex borderedCellFormat = cellFormats.create( cellFormats[ wks.cell("C7").cellFormat() ] );
+		wks.cell("C7").setCellFormat( borderedCellFormat );
+		wks.cell("C7") = "borders demo";
+
+		// create a new border format style & assign it to the new cell format
+		XLStyleIndex borderFormat = borders.create( borders[ cellFormats[ borderedCellFormat ].borderIndex() ] );
+		cellFormats[ borderedCellFormat ].setBorderIndex( borderFormat );
+
+		borders[ borderFormat ].setDiagonalUp( false );    // setting this to true will apply the diagonal line style
+		borders[ borderFormat ].setDiagonalDown( true );   //  - both diagonals can be applied simultaneously, but only with the same style
+		borders[ borderFormat ].setOutline( true );        // not sure if this is needed at all
+		borders[ borderFormat ].setLeft      ( XLLineStyleThin,   XLColor( "ff112222" ) );
+		borders[ borderFormat ].setRight     ( XLLineStyleMedium, XLColor( "ff113333" ) );
+		borders[ borderFormat ].setTop       ( XLLineStyleDashed, XLColor( "ff114444" ) );
+		borders[ borderFormat ].setBottom    ( XLLineStyleDotted, XLColor( "ff222222" ), 0.25 );
+		borders[ borderFormat ].setDiagonal  ( XLLineStyleThick,  XLColor( "ff332222" ), -0.25 );
+		borders[ borderFormat ].setVertical  ( XLLineStyleDouble, XLColor( "ff443322" ) );
+		borders[ borderFormat ].setHorizontal( XLLineStyleHair,   XLColor( "ff446688" ) );
+		std::cout << "#1 borders[ " << borderFormat << " ] summary: " << borders[ borderFormat ].summary() << std::endl;
+
+		// test additional line styles with setter function:
+		borders[ borderFormat ].setLine      ( XLLineLeft,     XLLineStyleMediumDashed,     XLColor( XLDefaultFontColor ) );
+		borders[ borderFormat ].setLine      ( XLLineRight,    XLLineStyleDashDot,          XLColor( XLDefaultFontColor ), 1.0 );
+		borders[ borderFormat ].setLine      ( XLLineTop,      XLLineStyleMediumDashDot,    green );
+		borders[ borderFormat ].setLine      ( XLLineBottom,   XLLineStyleDashDotDot,       XLColor( XLDefaultFontColor ), -0.1 );
+		borders[ borderFormat ].setLine      ( XLLineDiagonal, XLLineStyleMediumDashDotDot, XLColor( XLDefaultFontColor ), -1.0 );
+		borders[ borderFormat ].setLine      ( XLLineVertical, XLLineStyleSlantDashDot,     XLColor( XLDefaultFontColor ) );
+		std::cout << "#2 borders[ " << borderFormat << " ] summary: " << borders[ borderFormat ].summary() << std::endl;
+
+		// test direct access to line properties (read: the XLDataBarColor)
+		XLLine leftLine = borders[ borderFormat ].left();
+		XLDataBarColor leftLineColor = leftLine.color();
+		leftLineColor.setRgb( blue );
+		leftLineColor.setTint( -0.2 );
+		leftLineColor.setAutomatic();
+		leftLineColor.setIndexed( 606 );
+		leftLineColor.setTheme( 707 );
+		std::cout << "#2 borders, leftLine summary: " << leftLine.summary() << std::endl;
+		// unset some properties
+		leftLineColor.setTint( -0.1 );
+		leftLineColor.setAutomatic( false );
+		leftLineColor.setIndexed( 0 );
+		leftLineColor.setTheme( XLDeleteProperty );
+		// NOTE: XLDeleteProperty can be used to remove a property from XML where a value of 0 would not accomplish the same
+		//       formatting. Currently, only XLDataBarColor::setTheme supports this functionality. More can be added as properties
+		//       are discovered that have the same problem (theme="" still overrides e.g. the line color)
+		std::cout << "#2 borders, leftLineColor summary: " << leftLineColor.summary() << std::endl;
+	}
+	// ===== END cell borders demo ===== //
 
 	// enable testBasics = true to create/modify at least one entry in each known styles array
 	// disable testBasics = false to stop the demo execution here and save the document
@@ -287,43 +339,6 @@ int main( int argc, char *argv[] )
 		// output summary of newly created style
 		std::cout << "fills[ " << nodeIndex << " ] summary: " << fills[ nodeIndex ].summary() << std::endl;
 
-		nodeIndex = ( createAll ? borders.create() : borders.count() - 1 );
-		borders[ nodeIndex ].setDiagonalUp( false );
-		borders[ nodeIndex ].setDiagonalDown( true );
-		borders[ nodeIndex ].setOutline( true );
-		borders[ nodeIndex ].setLeft      ( XLLineStyleThin,   XLColor( "ff112222" ) );
-		borders[ nodeIndex ].setRight     ( XLLineStyleMedium, XLColor( "ff113333" ) );
-		borders[ nodeIndex ].setTop       ( XLLineStyleDashed, XLColor( "ff114444" ) );
-		borders[ nodeIndex ].setBottom    ( XLLineStyleDotted, XLColor( "ff222222" ), 0.25 );
-		borders[ nodeIndex ].setDiagonal  ( XLLineStyleThick,  XLColor( "ff332222" ), -0.25 );
-		borders[ nodeIndex ].setVertical  ( XLLineStyleDouble, XLColor( "ff443322" ) );
-		borders[ nodeIndex ].setHorizontal( XLLineStyleHair,   XLColor( "ff446688" ) );
-		std::cout << "#1 borders[ " << nodeIndex << " ] summary: " << borders[ nodeIndex ].summary() << std::endl;
-
-		// test additional line styles with setter function:
-		borders[ nodeIndex ].setLine      ( XLLineLeft,     XLLineStyleMediumDashed,     XLColor( XLDefaultFontColor ) );
-		borders[ nodeIndex ].setLine      ( XLLineRight,    XLLineStyleDashDot,          XLColor( XLDefaultFontColor ), 1.0 );
-		borders[ nodeIndex ].setLine      ( XLLineTop,      XLLineStyleMediumDashDot,    XLColor( XLDefaultFontColor ) );
-		borders[ nodeIndex ].setLine      ( XLLineBottom,   XLLineStyleDashDotDot,       XLColor( XLDefaultFontColor ), -0.1 );
-		borders[ nodeIndex ].setLine      ( XLLineDiagonal, XLLineStyleMediumDashDotDot, XLColor( XLDefaultFontColor ), -1.0 );
-		borders[ nodeIndex ].setLine      ( XLLineVertical, XLLineStyleSlantDashDot,     XLColor( XLDefaultFontColor ) );
-		std::cout << "#2 borders[ " << nodeIndex << " ] summary: " << borders[ nodeIndex ].summary() << std::endl;
-
-		// test direct access to line properties (read: the XLDataBarColor)
-		XLLine leftLine = borders[ nodeIndex ].left();
-		XLDataBarColor leftLineColor = leftLine.color();
-		leftLineColor.setRgb( blue );
-		leftLineColor.setTint( -0.2 );
-		leftLineColor.setAutomatic();
-		leftLineColor.setIndexed( 606 );
-		leftLineColor.setTheme( 707 );
-		std::cout << "#2 borders, leftLine summary: " << leftLine.summary() << std::endl;
-		// unset some properties
-		leftLineColor.setTint( 0 );
-		leftLineColor.setAutomatic( false );
-		leftLineColor.setIndexed( 0 );
-		leftLineColor.setTheme( 0 );
-		std::cout << "#2 borders, leftLineColor summary: " << leftLineColor.summary() << std::endl;
 
 		nodeIndex = ( createAll ? cellStyleFormats.create() : cellStyleFormats.count() - 1 );
 		cellStyleFormats[ nodeIndex ].setNumberFormatId( 5 );

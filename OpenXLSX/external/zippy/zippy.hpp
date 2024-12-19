@@ -10621,8 +10621,9 @@ namespace Zippy
             if (IsOpen()) {
                 mz_zip_reader_end(&m_Archive);
             }
-            m_ZipEntries.clear();
             m_ArchivePath = "";
+            m_IsOpen = false;       // 2024-12-18: minor bugfix, m_IsOpen was not set to false
+            m_ZipEntries.clear();
         }
 
         /**

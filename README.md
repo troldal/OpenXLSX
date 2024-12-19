@@ -7,6 +7,23 @@ Microsoft Excel® files, with the .xlsx format.
 
 As the heading says - the latest "Release" that is shown on https://github.com/troldal/OpenXLSX/releases is from 2021-11-06, and severely outdated - please pull / download the latest SW version directly from the repository in its current state. Link for those that do not want to use ```git```: https://github.com/troldal/OpenXLSX/archive/refs/heads/master.zip
 
+## (aral-matrix) 18 December 2024 - Bugfix for Issue #283 - shared strings cache was not cleared upon XLDocument::Close
+* BUGFIX XLDocument::close: shared strings cache is now being cleared on doc close, this addresses issue https://github.com/troldal/OpenXLSX/issues/283
+* zippy.hpp minor bugfix in ZipArchive::Close: m_IsOpen was not set to false
+* Demo10: improved borders demo
+* XLStyles: XLDataBarColor::setTheme now supports parameter ```XLDeleteProperty == XLInvalidUInt32 == 0xffffffff``` to delete the theme attribute from XML. This was necessary because even an empty ```theme=""``` attribute affects formatting.
+* XLStyles appendAndGetAttribute / appendAndSetAttribute: removed a redundant check for ```not node.empty()```
+
+## (aral-matrix) 17 December 2024 - Added exemplary use of XLBorder to Examples/Demo10.cpp
+* in response to https://github.com/troldal/OpenXLSX/issues/309, added use of XLBorder to Demo10
+
+**CAUTION**: Until resolution of https://github.com/troldal/OpenXLSX/issues/304, MS Office may refuse to open a file created with such a formatting due to an unnecessary restriction on the sequence of XML elements (borders).
+
+## (aral-matrix) 15 December 2024 - Bugfix for Issues 306 and #297, default-disable XLDocument & XLStyles warnings about unsupported tags (#296)
+
+* BUGFIX: document relationships in ```xl/_rels/workbook.xml.rels``` should again open without errors for both relative (to ```xl/``` folder) and absolute archive paths
+* warnings about unsupported archive contents and styles elements are now disabled by default and can be enabled using XLDocument::showWarnings() prior to opening an XLSX file
+
 ## (aral-matrix) 09 December 2024 - Bugfix for XLDateTime (hopefully final ;)
 
 Reviewed the XLDateTime code in response to https://github.com/troldal/OpenXLSX/issues/299 and fixed a bug that I think I may have introduced myself. Apologies, dates should now correctly construct from ```double```, ```struct tm``` and ```time_t``` and convert back to ```struct tm```.
