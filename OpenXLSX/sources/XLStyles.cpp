@@ -64,7 +64,8 @@ using namespace OpenXLSX;
 
 namespace     // anonymous namespace for module local functions
 {
-    constexpr const bool XLRemoveAttributes = true;
+    constexpr const bool XLRemoveAttributes = true;   // helper variables for appendAndSetNodeAttribute, parameter removeAttributes
+    constexpr const bool XLKeepAttributes   = false;  //
 
     enum XLStylesEntryType : uint8_t {
         XLStylesNumberFormats    =   0,
@@ -390,15 +391,81 @@ namespace     // anonymous namespace for module local functions
         }
     }
 
-    XMLNode appendAndGetNode(XMLNode & parent, std::string nodeName)
+    // find the index of nodeName in nodeOrder - return -1 if not found
+    constexpr const int SORT_INDEX_NOT_FOUND = -1;
+    int findSortIndex( std::string const & nodeName, std::vector< std::string_view > const & nodeOrder )
+    {
+        for (int i = 0; static_cast< size_t >( i ) < nodeOrder.size(); ++i)
+            if (nodeName == nodeOrder[ i ]) return i;
+        return SORT_INDEX_NOT_FOUND;
+    }
+
+    /**
+     * @brief copy all leading pc_data nodes from fromNode to toNode
+     * @param parent parent node that can perform sibling insertions
+     * @param fromNode node whose preceeding whitespaces shall be duplicated
+     * @param toNode node before which the duplicated whitespaces shall be inserted
+     * @returns N/A
+     */
+    void copyLeadingWhitespaces( XMLNode & parent, XMLNode fromNode, XMLNode toNode )
+    {
+        fromNode = fromNode.previous_sibling(); // move to preceeding whitespace node, if any
+        // loop from back to front, inserting in the same order before toNode
+        while (fromNode.type() == pugi::node_pcdata) { // loop ends on pugi::node_element or node_null
+            toNode = parent.insert_child_before(pugi::node_pcdata, toNode);   // prepend as toNode a new pcdata node
+            toNode.set_value(fromNode.value());                               //  with the value of fromNode
+            fromNode = fromNode.previous_sibling();
+        }
+    }
+
+    /**
+     * @brief ensure that node with nodeName exists in parent and return it
+     * @param parent parent node that can perform sibling insertions
+     * @param nodename name of the node to be (created &) returned
+     * @param nodeOrder optional vector of a predefined element node sequence required by MS Office
+     * @returns the requested XMLNode or an empty node if the insert operation failed
+     * @note 2024-12-19: appendAndGetNode will attempt to perform an ordered insert per nodeOrder if provided
+     *       Once sufficiently tested, this functionality might be generalized (e.g. in XLXmlParser OpenXLSX_xml_node)
+     */
+    XMLNode appendAndGetNode(XMLNode & parent, std::string const & nodeName, std::vector< std::string_view > const & nodeOrder = {} )
     {
         if (parent.empty()) return XMLNode{};
-        XMLNode node = parent.child(nodeName.c_str());
-        if (node.empty()) node = parent.append_child(nodeName.c_str());
+
+        XMLNode nextNode = parent.first_child_of_type(pugi::node_element);
+        if (nextNode.empty()) return parent.prepend_child(nodeName.c_str());  // nothing to sort, whitespaces "belong" to parent closing tag
+
+        XMLNode node{}; // empty until successfully created;
+
+        int nodeSortIndex = (nodeOrder.size() > 1 ? findSortIndex(nodeName, nodeOrder) : SORT_INDEX_NOT_FOUND);
+        if (nodeSortIndex != SORT_INDEX_NOT_FOUND) { // can't sort anything if nodeOrder contains less than 2 entries or does not contain nodeName
+            // ===== Find first node to follow nodeName per nodeOrder
+            while (not nextNode.empty() && findSortIndex(nextNode.name(), nodeOrder) < nodeSortIndex)
+                nextNode = nextNode.next_sibling_of_type(pugi::node_element);
+            // ===== Evaluate search result
+            if (not nextNode.empty()) {   // found nodeName or a node before which nodeName should be inserted
+                if( nextNode.name() == nodeName )  // if nodeName was found
+                    node = nextNode;                  // use existing node
+                else {                             // else: a node was found before which nodeName must be inserted
+                    node = parent.insert_child_before(nodeName.c_str(), nextNode); // insert before nextNode without whitespaces
+                    copyLeadingWhitespaces(parent, node, nextNode);
+                }
+            }
+            // else: no node was found before which nodeName should be inserted: proceed as usual
+        }
+        else // no possibility to perform ordered insert - attempt to locate existing node:
+            node = parent.child(nodeName.c_str());
+
+        if( node.empty() ) {  // neither nodeName, nor a node following per nodeOrder was found
+            // ===== There is no reference to perform an ordered insert for nodeName
+            nextNode = parent.last_child_of_type(pugi::node_element);      // at least one element node must exist, tested at begin of function
+            node = parent.insert_child_after(nodeName.c_str(), nextNode);  // append as the last element node, but before final whitespaces
+            copyLeadingWhitespaces( parent, nextNode, node );  // duplicate the prefix whitespaces of nextNode to node
+        }
+
         return node;
     }
 
-    XMLAttribute appendAndGetAttribute(XMLNode & node, std::string attrName, std::string attrDefaultVal)
+    XMLAttribute appendAndGetAttribute(XMLNode & node, std::string const & attrName, std::string const & attrDefaultVal)
     {
         if (node.empty()) return XMLAttribute{};
         XMLAttribute attr = node.attribute(attrName.c_str());
@@ -409,7 +476,7 @@ namespace     // anonymous namespace for module local functions
         return attr;
     }
 
-    XMLAttribute appendAndSetAttribute(XMLNode & node, std::string attrName, std::string attrVal)
+    XMLAttribute appendAndSetAttribute(XMLNode & node, std::string const & attrName, std::string const & attrVal)
     {
         if (node.empty()) return XMLAttribute{};
         XMLAttribute attr = node.attribute(attrName.c_str());
@@ -419,17 +486,38 @@ namespace     // anonymous namespace for module local functions
         return attr;
     }
 
-    XMLAttribute appendAndGetNodeAttribute(XMLNode & parent, std::string nodeName, std::string attrName, std::string attrDefaultVal)
+    /**
+     * @brief ensure that node with nodeName exists in parent, has an attribute with attrName and return that attribute
+     * @param parent parent node that can perform sibling insertions
+     * @param nodename name of the node under which attribute attrName shall exist
+     * @param attrName name of the attribute to get for node nodeName
+     * @param attrDefaultVal value to assign to the attribute if it has to be created
+     * @param nodeOrder optional vector of a predefined element node sequence required by MS Office, passed through to appendAndGetNode
+     * @returns the requested XMLAttribute or an empty node if the operation failed
+     */
+    XMLAttribute appendAndGetNodeAttribute(XMLNode & parent, std::string const & nodeName, std::string const & attrName, std::string const & attrDefaultVal,
+    /**/                                   std::vector< std::string_view > const & nodeOrder = {})
     {
         if (parent.empty()) return XMLAttribute{};
-        XMLNode node = appendAndGetNode(parent, nodeName);
+        XMLNode node = appendAndGetNode(parent, nodeName, nodeOrder);
         return appendAndGetAttribute(node, attrName, attrDefaultVal);
     }
 
-    XMLAttribute appendAndSetNodeAttribute(XMLNode & parent, std::string nodeName, std::string attrName, std::string attrVal, bool removeAttributes = false)
+    /**
+     * @brief ensure that node with nodeName exists in parent, has an attribute with attrName, set attribute value and return that attribute
+     * @param parent parent node that can perform sibling insertions
+     * @param nodename name of the node under which attribute attrName shall exist
+     * @param attrName name of the attribute to set for node nodeName
+     * @param attrVal value to assign to the attribute
+     * @param removeAttributes if true, all other attributes of the node with nodeName will be deleted
+     * @param nodeOrder optional vector of a predefined element node sequence required by MS Office, passed through to appendAndGetNode
+     * @returns the XMLAttribute that was modified or an empty node if the operation failed
+     */
+    XMLAttribute appendAndSetNodeAttribute(XMLNode & parent, std::string const & nodeName, std::string const & attrName, std::string const & attrVal,
+    /**/                                   bool removeAttributes = XLKeepAttributes, std::vector< std::string_view > const & nodeOrder = {})
     {
         if (parent.empty()) return XMLAttribute{};
-        XMLNode node = appendAndGetNode(parent, nodeName);
+        XMLNode node = appendAndGetNode(parent, nodeName, nodeOrder);
         if (removeAttributes) node.remove_attributes();
         return appendAndSetAttribute(node, attrName, attrVal);
     }
@@ -446,7 +534,7 @@ namespace     // anonymous namespace for module local functions
         }
     }
 
-    void wrapNode(XMLNode parentNode, XMLNode & node, std::string prefix)
+    void wrapNode(XMLNode parentNode, XMLNode & node, std::string const & prefix)
     {
         if (not node.empty() && prefix.length() > 0) {
             parentNode.insert_child_before(pugi::node_pcdata, node).set_value(prefix.c_str());    // insert prefix before node opening tag
@@ -465,7 +553,7 @@ namespace     // anonymous namespace for module local functions
         std::string result = std::to_string(val);
         size_t decimalPos = result.find_first_of('.');
         assert(decimalPos < result.length()); // this should never throw
-    
+
         // ===== Return the string representation of val with the decimal separator and decimalPlaces digits following
         return result.substr(0, decimalPos + 1 + decimalPlaces);
     }
@@ -1631,16 +1719,8 @@ bool XLBorder::setDiagonalDown(bool set) { return appendAndSetAttribute(*m_borde
 bool XLBorder::setOutline     (bool set) { return appendAndSetAttribute(*m_borderNode, "outline",      (set ? "true" : "false")).empty() == false; }
 bool XLBorder::setLine(XLLineType lineType, XLLineStyle lineStyle, XLColor lineColor, double lineTint)
 {
-    // std::string tintString = "";
-    // if (lineTint != 0.0) {
-    //     tintString = checkAndFormatDoubleAsString(lineTint, -1.0, +1.0, 0.01);
-    //     if (tintString.length() == 0) {
-    //         using namespace std::literals::string_literals;
-    //         throw XLException("XLBorder::setLine: line tint "s + std::to_string(lineTint) + " is not in range [-1.0;+1.0]"s);
-    //     }
-    // }
-
-    XMLNode lineNode = appendAndGetNode(*m_borderNode, XLLineTypeToString(lineType));    // generate line node if not present
+    XMLNode lineNode = appendAndGetNode(*m_borderNode, XLLineTypeToString(lineType), m_nodeOrder); // generate line node if not present
+    // 2024-12-19: non-existing lines are added using an ordered insert to address issue #304
     bool success = (lineNode.empty() == false);
     if (success) success = (appendAndSetAttribute(lineNode, "style", XLLineStyleToString(lineStyle)).empty() == false); // set style attribute
     XMLNode colorNode{}; // empty node
@@ -1649,11 +1729,6 @@ bool XLBorder::setLine(XLLineType lineType, XLLineStyle lineStyle, XLColor lineC
     success = (colorNode.empty() == false);
     if (success) success = colorObject.setRgb(lineColor);
     if (success) success = colorObject.setTint(lineTint);
-    // if (success) success = (appendAndSetAttribute(colorNode, "rgb", lineColor.hex()).empty() == false);                 // set rgb attribute
-    // if (success) {
-    //     if (tintString.length() == 0) success = colorNode.remove_attribute("tint");                                     // unset: remove tint attribute
-    //     else success = (appendAndSetAttribute(colorNode, "tint", tintString).empty() == false);                         // set tint attribute
-    // }
     return success;
 }
 bool XLBorder::setLeft      (XLLineStyle lineStyle, XLColor lineColor, double lineTint) { return setLine(XLLineLeft,       lineStyle, lineColor, lineTint); }
@@ -1983,7 +2058,7 @@ XLAlignment XLCellFormat::alignment(bool createIfMissing) const
 {
     XMLNode nodeAlignment = m_cellFormatNode->child("alignment");
     if (nodeAlignment.empty() && createIfMissing)
-        nodeAlignment = m_cellFormatNode->append_child("alignment");
+        nodeAlignment = appendAndGetNode(*m_cellFormatNode, "alignment", m_nodeOrder); // 2024-12-19: ordered insert to address issue #305
     return XLAlignment(nodeAlignment);
 }
 
@@ -2007,8 +2082,16 @@ bool XLCellFormat::setApplyAlignment   (bool set)            { return appendAndS
 bool XLCellFormat::setApplyProtection  (bool set)            { return appendAndSetAttribute    (*m_cellFormatNode, "applyProtection",             (set ? "true" : "false")).empty() == false; }
 bool XLCellFormat::setQuotePrefix      (bool set)            { return appendAndSetAttribute    (*m_cellFormatNode, "quotePrefix",                 (set ? "true" : "false")).empty() == false; }
 bool XLCellFormat::setPivotButton      (bool set)            { return appendAndSetAttribute    (*m_cellFormatNode, "pivotButton",                 (set ? "true" : "false")).empty() == false; }
-bool XLCellFormat::setLocked           (bool set)            { return appendAndSetNodeAttribute(*m_cellFormatNode, "protection",        "locked", (set ? "true" : "false")).empty() == false; }
-bool XLCellFormat::setHidden           (bool set)            { return appendAndSetNodeAttribute(*m_cellFormatNode, "protection",        "hidden", (set ? "true" : "false")).empty() == false; }
+bool XLCellFormat::setLocked(bool set)
+{
+    return appendAndSetNodeAttribute(*m_cellFormatNode, "protection", "locked", (set ? "true" : "false"),
+    /**/                             XLKeepAttributes, m_nodeOrder).empty() == false;  // 2024-12-19: ordered insert to address issue #305
+}
+bool XLCellFormat::setHidden(bool set)
+{
+    return appendAndSetNodeAttribute(*m_cellFormatNode, "protection", "hidden", (set ? "true" : "false"),
+    /**/                             XLKeepAttributes, m_nodeOrder).empty() == false;  // 2024-12-19: ordered insert to address issue #305
+}
 
 /**
  * @brief Unsupported setter function

@@ -7,6 +7,11 @@ Microsoft Excel® files, with the .xlsx format.
 
 As the heading says - the latest "Release" that is shown on https://github.com/troldal/OpenXLSX/releases is from 2021-11-06, and severely outdated - please pull / download the latest SW version directly from the repository in its current state. Link for those that do not want to use ```git```: https://github.com/troldal/OpenXLSX/archive/refs/heads/master.zip
 
+## (aral-matrix) 19 December 2024 - XLStyles enhancement to address issues #304 and #305 - artificial ordering of XML elements
+* In order to address https://github.com/troldal/OpenXLSX/issues/304 and https://github.com/troldal/OpenXLSX/issues/305, some XLStyles classes now support a strict predefined XML element node order
+
+Note: For now, this only concerns the reported nodes ```XLBorder``` and ```XLCellFormat```. The implementation uses a const class member array ```m_nodeOrder``` of type ```std::string_view```, which will allow relatively easy extension to other classes when discovered that MS Office expects a fixed XML node sequence.
+
 ## (aral-matrix) 18 December 2024 - Bugfix for Issue #283 - shared strings cache was not cleared upon XLDocument::Close
 * BUGFIX XLDocument::close: shared strings cache is now being cleared on doc close, this addresses issue https://github.com/troldal/OpenXLSX/issues/283
 * zippy.hpp minor bugfix in ZipArchive::Close: m_IsOpen was not set to false

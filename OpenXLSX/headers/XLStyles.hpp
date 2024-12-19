@@ -53,8 +53,10 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #endif // _MSC_VER
 
 // ===== External Includes ===== //
+#include <array>     // std::array for use with string_views in a constexpr
 #include <cstdint>   // uint32_t etc
 #include <string>
+#include <string_view>  // std::string_view
 #include <vector>
 
 // ===== OpenXLSX Includes ===== //
@@ -65,6 +67,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 namespace OpenXLSX
 {
+    using namespace std::literals::string_view_literals; // enables sv suffix only
+
     using XLStyleIndex = size_t; // custom data type for XLStyleIndex
 
     constexpr const uint32_t XLInvalidUInt16 = 0xffff;     // used to signal "value not defined" for uint16_t return types
@@ -739,7 +743,7 @@ namespace OpenXLSX
          * @return An XLColor object
          */
         XLColor rgb() const;
-  
+
         /**
          * @brief Get the line color tint
          * @return A double value as stored in the "tint" attribute (should be between [-1.0;+1.0]), 0.0 if attribute does not exist
@@ -1170,56 +1174,56 @@ namespace OpenXLSX
          * @brief
          */
         XLLine();
-  
+
         /**
          * @brief Constructor. New items should only be created through an XLBorder object.
          * @param node An XMLNode object with the line XMLNode. If no input is provided, a null node is used.
          */
         explicit XLLine(const XMLNode& node);
-  
+
         /**
          * @brief Copy Constructor.
          * @param other Object to be copied.
          */
         XLLine(const XLLine& other);
-  
+
         /**
          * @brief Move Constructor.
          * @param other Object to be moved.
          */
         XLLine(XLLine&& other) noexcept = default;
-  
+
         /**
          * @brief
          */
         ~XLLine();
-  
+
         /**
          * @brief Copy assignment operator.
          * @param other Right hand side of assignment operation.
          * @return A reference to the lhs object.
          */
         XLLine& operator=(const XLLine& other);
-  
+
         /**
          * @brief Move assignment operator.
          * @param other Right hand side of assignment operation.
          * @return A reference to lhs object.
          */
         XLLine& operator=(XLLine&& other) noexcept = default;
-  
+
         /**
          * @brief Get the line style
          * @return An XLLineStyle enum
          */
         XLLineStyle style() const;
-  
+
         /**
          * @brief Evaluate XLLine as bool
          * @return true if line is set, false if not
          */
         explicit operator bool() const;
-  
+
         XLDataBarColor color() const; // <line><color /></line> where node can be left, right, top, bottom, diagonal, vertical, horizontal
 
         /**
@@ -1233,12 +1237,12 @@ namespace OpenXLSX
          * @return string with info about the line object
          */
         std::string summary() const;
-  
+
     private:                                         // ---------- Private Member Variables ---------- //
         std::unique_ptr<XMLNode> m_lineNode;         /**< An XMLNode object with the line item */
      };
-  
-  
+
+
     /**
      * @brief An encapsulation of a border item
      */
@@ -1250,104 +1254,104 @@ namespace OpenXLSX
          * @brief
          */
         XLBorder();
-  
+
         /**
          * @brief Constructor. New items should only be created through an XLStyles object.
          * @param node An XMLNode object with the border XMLNode. If no input is provided, a null node is used.
          */
         explicit XLBorder(const XMLNode& node);
-  
+
         /**
          * @brief Copy Constructor.
          * @param other Object to be copied.
          */
         XLBorder(const XLBorder& other);
-  
+
         /**
          * @brief Move Constructor.
          * @param other Object to be moved.
          */
         XLBorder(XLBorder&& other) noexcept = default;
-  
+
         /**
          * @brief
          */
         ~XLBorder();
-  
+
         /**
          * @brief Copy assignment operator.
          * @param other Right hand side of assignment operation.
          * @return A reference to the lhs object.
          */
         XLBorder& operator=(const XLBorder& other);
-  
+
         /**
          * @brief Move assignment operator.
          * @param other Right hand side of assignment operation.
          * @return A reference to lhs object.
          */
         XLBorder& operator=(XLBorder&& other) noexcept = default;
-  
+
         /**
          * @brief Get the diagonal up property
          * @return true if set, otherwise false
          */
         bool diagonalUp() const;
-  
+
         /**
          * @brief Get the diagonal down property
          * @return true if set, otherwise false
          */
         bool diagonalDown() const;
-  
+
         /**
          * @brief Get the outline property
          * @return true if set, otherwise false
          */
         bool outline() const;
-  
+
         /**
          * @brief Get the left line property
          * @return An XLLine object
          */
         XLLine left() const;
-  
+
         /**
          * @brief Get the left line property
          * @return An XLLine object
          */
         XLLine right() const;
-  
+
         /**
          * @brief Get the left line property
          * @return An XLLine object
          */
         XLLine top() const;
-  
+
         /**
          * @brief Get the bottom line property
          * @return An XLLine object
          */
         XLLine bottom() const;
-  
+
         /**
          * @brief Get the diagonal line property
          * @return An XLLine object
          */
         XLLine diagonal() const;
-  
+
         /**
          * @brief Get the vertical line property
          * @return An XLLine object
          */
         XLLine vertical() const;
-  
+
         /**
          * @brief Get the horizontal line property
          * @return An XLLine object
          */
         XLLine horizontal() const;
-  
+
         /**
          * @brief Setter functions for style parameters
          * @param value that shall be set
@@ -1371,12 +1375,13 @@ namespace OpenXLSX
          * @return string with info about the font object
          */
         std::string summary() const;
-  
+
     private:                                         // ---------- Private Member Variables ---------- //
         std::unique_ptr<XMLNode> m_borderNode;       /**< An XMLNode object with the font item */
+        const std::vector< std::string_view > m_nodeOrder = { "left", "right", "top", "bottom", "diagonal", "vertical", "horizontal" };
     };
-  
-  
+
+
     /**
      * @brief An encapsulation of the XLSX borders
      */
@@ -1387,64 +1392,64 @@ namespace OpenXLSX
          * @brief
          */
         XLBorders();
-  
+
         /**
          * @brief Constructor. New items should only be created through an XLStyles object.
          * @param node An XMLNode object with the borders item. If no input is provided, a null node is used.
          */
         explicit XLBorders(const XMLNode& node);
-  
+
         /**
          * @brief Copy Constructor.
          * @param other Object to be copied.
          */
         XLBorders(const XLBorders& other);
-  
+
         /**
          * @brief Move Constructor.
          * @param other Object to be moved.
          */
         XLBorders(XLBorders&& other);
-  
+
         /**
          * @brief
          */
         ~XLBorders();
-  
+
         /**
          * @brief Copy assignment operator.
          * @param other Right hand side of assignment operation.
          * @return A reference to the lhs object.
          */
         XLBorders& operator=(const XLBorders& other);
-  
+
         /**
          * @brief Move assignment operator.
          * @param other Right hand side of assignment operation.
          * @return A reference to lhs object.
          */
         XLBorders& operator=(XLBorders&& other) noexcept = default;
-  
+
         /**
          * @brief Get the count of border descriptions
          * @return The amount of border description entries
          */
         size_t count() const;
-  
+
         /**
          * @brief Get the border description identified by index
          * @param index The index within the XML sequence
          * @return An XLBorder object
          */
         XLBorder borderByIndex(XLStyleIndex index) const;
-  
+
         /**
          * @brief Operator overload: allow [] as shortcut access to borderByIndex
          * @param index The index within the XML sequence
          * @return An XLBorder object
          */
         XLBorder operator[](XLStyleIndex index) const { return borderByIndex(index); }
-  
+
         /**
          * @brief Append a new XLBorder, based on copyFrom, and return its index in borders node
          * @param copyFrom Can provide an XLBorder to use as template for the new style
@@ -1480,38 +1485,38 @@ namespace OpenXLSX
          * @param node An XMLNode object with the alignment XMLNode. If no input is provided, a null node is used.
          */
         explicit XLAlignment(const XMLNode& node);
-  
+
         /**
          * @brief Copy Constructor.
          * @param other Object to be copied.
          */
         XLAlignment(const XLAlignment& other);
-  
+
         /**
          * @brief Move Constructor.
          * @param other Object to be moved.
          */
         XLAlignment(XLAlignment&& other) noexcept = default;
-  
+
         /**
          * @brief
          */
         ~XLAlignment();
-  
+
         /**
          * @brief Copy assignment operator.
          * @param other Right hand side of assignment operation.
          * @return A reference to the lhs object.
          */
         XLAlignment& operator=(const XLAlignment& other);
-  
+
         /**
          * @brief Move assignment operator.
          * @param other Right hand side of assignment operation.
          * @return A reference to lhs object.
          */
         XLAlignment& operator=(XLAlignment&& other) noexcept = default;
-  
+
         /**
          * @brief Get the horizontal alignment
          * @return An XLAlignmentStyle
@@ -1596,7 +1601,7 @@ namespace OpenXLSX
          * @return string with info about the alignment object
          */
         std::string summary() const;
-  
+
     private:                                         // ---------- Private Member Variables ---------- //
         std::unique_ptr<XMLNode> m_alignmentNode;    /**< An XMLNode object with the alignment item */
     };
@@ -1614,51 +1619,51 @@ namespace OpenXLSX
          * @brief
          */
         XLCellFormat();
-  
+
         /**
          * @brief Constructor. New items should only be created through an XLStyles object.
          * @param node An XMLNode object with the xf XMLNode. If no input is provided, a null node is used.
          * @param permitXfId true (XLPermitXfID) -> getter xfId and setter setXfId are enabled, otherwise will throw XLException if invoked
          */
         explicit XLCellFormat(const XMLNode& node, bool permitXfId);
-  
+
         /**
          * @brief Copy Constructor.
          * @param other Object to be copied.
          */
         XLCellFormat(const XLCellFormat& other);
-  
+
         /**
          * @brief Move Constructor.
          * @param other Object to be moved.
          */
         XLCellFormat(XLCellFormat&& other) noexcept = default;
-  
+
         /**
          * @brief
          */
         ~XLCellFormat();
-  
+
         /**
          * @brief Copy assignment operator.
          * @param other Right hand side of assignment operation.
          * @return A reference to the lhs object.
          */
         XLCellFormat& operator=(const XLCellFormat& other);
-  
+
         /**
          * @brief Move assignment operator.
          * @param other Right hand side of assignment operation.
          * @return A reference to lhs object.
          */
         XLCellFormat& operator=(XLCellFormat&& other) noexcept = default;
-  
+
         /**
          * @brief Get the number format id
          * @return The identifier of a number format, built-in (predefined by office) or defind in XLNumberFormats
          */
         uint32_t numberFormatId() const;
-  
+
         /**
          * @brief Get the font index
          * @return The index(!) of a font as defined in XLFonts
@@ -1791,10 +1796,11 @@ namespace OpenXLSX
          * @return string with info about the cell format object
          */
         std::string summary() const;
-  
+
     private:                                         // ---------- Private Member Variables ---------- //
         std::unique_ptr<XMLNode> m_cellFormatNode;   /**< An XMLNode object with the cell format (xf) item */
         bool m_permitXfId{false};
+        const std::vector< std::string_view > m_nodeOrder = { "alignment", "protection" };
     };
 
 
@@ -1808,65 +1814,65 @@ namespace OpenXLSX
          * @brief
          */
         XLCellFormats();
-  
+
         /**
          * @brief Constructor. New items should only be created through an XLStyles object.
          * @param node An XMLNode object with the cell formats (cellXfs or cellStyleXfs) item. If no input is provided, a null node is used.
          * @param permitXfId Pass-through to XLCellFormat constructor: true (XLPermitXfID) -> setter setXfId is enabled, otherwise throws
          */
         explicit XLCellFormats(const XMLNode& node, bool permitXfId = false);
-  
+
         /**
          * @brief Copy Constructor.
          * @param other Object to be copied.
          */
         XLCellFormats(const XLCellFormats& other);
-  
+
         /**
          * @brief Move Constructor.
          * @param other Object to be moved.
          */
         XLCellFormats(XLCellFormats&& other);
-  
+
         /**
          * @brief
          */
         ~XLCellFormats();
-  
+
         /**
          * @brief Copy assignment operator.
          * @param other Right hand side of assignment operation.
          * @return A reference to the lhs object.
          */
         XLCellFormats& operator=(const XLCellFormats& other);
-  
+
         /**
          * @brief Move assignment operator.
          * @param other Right hand side of assignment operation.
          * @return A reference to lhs object.
          */
         XLCellFormats& operator=(XLCellFormats&& other) noexcept = default;
-  
+
         /**
          * @brief Get the count of cell style format descriptions
          * @return The amount of cell style format description entries
          */
         size_t count() const;
-  
+
         /**
          * @brief Get the cell style format description identified by index
          * @param index The index within the XML sequence
          * @return An XLCellFormat object
          */
         XLCellFormat cellFormatByIndex(XLStyleIndex index) const;
-  
+
         /**
          * @brief Operator overload: allow [] as shortcut access to cellFormatByIndex
          * @param index The index within the XML sequence
          * @return An XLCellFormat object
          */
         XLCellFormat operator[](XLStyleIndex index) const { return cellFormatByIndex(index); }
-  
+
         /**
          * @brief Append a new XLCellFormat, based on copyFrom, and return its index
          *       in cellXfs (for XLStyles::cellFormats) or cellStyleXfs (for XLStyles::cellStyleFormats)
@@ -2007,7 +2013,7 @@ namespace OpenXLSX
          * @return string with info about the cell style object
          */
         std::string summary() const;
-  
+
     private:                                         // ---------- Private Member Variables ---------- //
         std::unique_ptr<XMLNode> m_cellStyleNode;    /**< An XMLNode object with the cell style item */
     };

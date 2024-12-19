@@ -451,7 +451,7 @@ XLRelationshipItem XLRelationships::addRelationship(XLRelationshipType type, con
             copyWhitespaceFrom = copyWhitespaceFrom.previous_sibling();
             // ===== Insert a whitespace node
             insertBefore = xmlDocument().document_element().insert_child_before(pugi::node_pcdata, insertBefore);
-            insertBefore.set_value(copyWhitespaceFrom.value());            // copy the a whitespace in sequence node value
+            insertBefore.set_value(copyWhitespaceFrom.value());            // copy the whitespace node value in sequence
         }
     }
     node.append_attribute("Id").set_value(id.c_str());
