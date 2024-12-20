@@ -649,7 +649,6 @@ XLNumberFormats::XLNumberFormats(const XMLNode& numberFormats)
     XMLNode node = numberFormats.first_child_of_type(pugi::node_element);
     while (not node.empty()) {
         std::string nodeName = node.name();
-        // std::cout << "XMLNumberFormats constructor, node name is " << nodeName << std::endl;
         if (nodeName == "numFmt")
             m_numberFormats.push_back(XLNumberFormat(node));
         else
@@ -666,16 +665,12 @@ XLNumberFormats::~XLNumberFormats()
 XLNumberFormats::XLNumberFormats(const XLNumberFormats& other)
     : m_numberFormatsNode(std::make_unique<XMLNode>(*other.m_numberFormatsNode)),
       m_numberFormats(other.m_numberFormats)
-{
-    // std::cout << __func__ << " copy constructor" << std::endl;
-}
+{}
 
 XLNumberFormats::XLNumberFormats(XLNumberFormats&& other)
     : m_numberFormatsNode(std::move(other.m_numberFormatsNode)),
       m_numberFormats(std::move(other.m_numberFormats))
-{
-    // std::cout << __func__ << " move constructor" << std::endl;
-}
+{}
 
 
 /**
@@ -683,7 +678,6 @@ XLNumberFormats::XLNumberFormats(XLNumberFormats&& other)
  */
 XLNumberFormats& XLNumberFormats::operator=(const XLNumberFormats& other)
 {
-    // std::cout << "XLNumberFormats::" << __func__ << " copy assignment" << std::endl;
     if (&other != this) {
         *m_numberFormatsNode = *other.m_numberFormatsNode;
         m_numberFormats.clear();
@@ -932,16 +926,12 @@ XLFonts::~XLFonts()
 XLFonts::XLFonts(const XLFonts& other)
     : m_fontsNode(std::make_unique<XMLNode>(*other.m_fontsNode)),
       m_fonts(other.m_fonts)
-{
-    // std::cout << __func__ << " copy constructor" << std::endl;
-}
+{}
 
 XLFonts::XLFonts(XLFonts&& other)
     : m_fontsNode(std::move(other.m_fontsNode)),
       m_fonts(std::move(other.m_fonts))
-{
-    // std::cout << __func__ << " move constructor" << std::endl;
-}
+{}
 
 
 /**
@@ -949,7 +939,6 @@ XLFonts::XLFonts(XLFonts&& other)
  */
 XLFonts& XLFonts::operator=(const XLFonts& other)
 {
-    // std::cout << "XLFonts::" << __func__ << " copy assignment" << std::endl;
     if (&other != this) {
         *m_fontsNode = *other.m_fontsNode;
         m_fonts.clear();
@@ -1177,16 +1166,12 @@ XLGradientStops::~XLGradientStops()
 XLGradientStops::XLGradientStops(const XLGradientStops& other)
     : m_gradientNode(std::make_unique<XMLNode>(*other.m_gradientNode)),
       m_gradientStops(other.m_gradientStops)
-{
-    // std::cout << __func__ << " copy constructor" << std::endl;
-}
+{}
 
 XLGradientStops::XLGradientStops(XLGradientStops&& other)
     : m_gradientNode(std::move(other.m_gradientNode)),
       m_gradientStops(std::move(other.m_gradientStops))
-{
-    // std::cout << __func__ << " move constructor" << std::endl;
-}
+{}
 
 
 /**
@@ -1194,7 +1179,6 @@ XLGradientStops::XLGradientStops(XLGradientStops&& other)
  */
 XLGradientStops& XLGradientStops::operator=(const XLGradientStops& other)
 {
-    // std::cout << "XLGradientStops::" << __func__ << " copy assignment" << std::endl;
     if (&other != this) {
         *m_gradientNode = *other.m_gradientNode;
         m_gradientStops.clear();
@@ -1501,16 +1485,12 @@ XLFills::~XLFills()
 XLFills::XLFills(const XLFills& other)
     : m_fillsNode(std::make_unique<XMLNode>(*other.m_fillsNode)),
       m_fills(other.m_fills)
-{
-    // std::cout << __func__ << " copy constructor" << std::endl;
-}
+{}
 
 XLFills::XLFills(XLFills&& other)
     : m_fillsNode(std::move(other.m_fillsNode)),
       m_fills(std::move(other.m_fills))
-{
-    // std::cout << __func__ << " move constructor" << std::endl;
-}
+{}
 
 
 /**
@@ -1518,7 +1498,6 @@ XLFills::XLFills(XLFills&& other)
  */
 XLFills& XLFills::operator=(const XLFills& other)
 {
-    // std::cout << "XLFills::" << __func__ << " copy assignment" << std::endl;
     if (&other != this) {
         *m_fillsNode = *other.m_fillsNode;
         m_fills.clear();
@@ -1792,16 +1771,12 @@ XLBorders::~XLBorders()
 XLBorders::XLBorders(const XLBorders& other)
     : m_bordersNode(std::make_unique<XMLNode>(*other.m_bordersNode)),
       m_borders(other.m_borders)
-{
-    // std::cout << __func__ << " copy constructor" << std::endl;
-}
+{}
 
 XLBorders::XLBorders(XLBorders&& other)
     : m_bordersNode(std::move(other.m_bordersNode)),
       m_borders(std::move(other.m_borders))
-{
-    // std::cout << __func__ << " move constructor" << std::endl;
-}
+{}
 
 
 /**
@@ -1809,7 +1784,6 @@ XLBorders::XLBorders(XLBorders&& other)
  */
 XLBorders& XLBorders::operator=(const XLBorders& other)
 {
-    // std::cout << "XLBorders::" << __func__ << " copy assignment" << std::endl;
     if (&other != this) {
         *m_bordersNode = *other.m_bordersNode;
         m_borders.clear();
@@ -2159,17 +2133,13 @@ XLCellFormats::XLCellFormats(const XLCellFormats& other)
     : m_cellFormatsNode(std::make_unique<XMLNode>(*other.m_cellFormatsNode)),
       m_cellFormats(other.m_cellFormats),
       m_permitXfId(other.m_permitXfId)
-{
-    // std::cout << __func__ << " copy constructor" << std::endl;
-}
+{}
 
 XLCellFormats::XLCellFormats(XLCellFormats&& other)
     : m_cellFormatsNode(std::move(other.m_cellFormatsNode)),
       m_cellFormats(std::move(other.m_cellFormats)),
       m_permitXfId(other.m_permitXfId)
-{
-    // std::cout << __func__ << " move constructor" << std::endl;
-}
+{}
 
 
 /**
@@ -2177,7 +2147,6 @@ XLCellFormats::XLCellFormats(XLCellFormats&& other)
  */
 XLCellFormats& XLCellFormats::operator=(const XLCellFormats& other)
 {
-    // std::cout << "XLCellFormats::" << __func__ << " copy assignment" << std::endl;
     if (&other != this) {
         *m_cellFormatsNode = *other.m_cellFormatsNode;
         m_cellFormats.clear();
@@ -2339,7 +2308,6 @@ XLCellStyles::XLCellStyles(const XMLNode& cellStyles)
     XMLNode node = cellStyles.first_child_of_type(pugi::node_element);
     while (not node.empty()) {
         std::string nodeName = node.name();
-        // std::cout << "XLCellStyles constructor, node name is " << nodeName << std::endl;
         if (nodeName == "cellStyle")
             m_cellStyles.push_back(XLCellStyle(node));
         else
@@ -2356,16 +2324,12 @@ XLCellStyles::~XLCellStyles()
 XLCellStyles::XLCellStyles(const XLCellStyles& other)
     : m_cellStylesNode(std::make_unique<XMLNode>(*other.m_cellStylesNode)),
       m_cellStyles(other.m_cellStyles)
-{
-    // std::cout << __func__ << " copy constructor" << std::endl;
-}
+{}
 
 XLCellStyles::XLCellStyles(XLCellStyles&& other)
     : m_cellStylesNode(std::move(other.m_cellStylesNode)),
       m_cellStyles(std::move(other.m_cellStyles))
-{
-    // std::cout << __func__ << " move constructor" << std::endl;
-}
+{}
 
 
 /**
@@ -2373,7 +2337,6 @@ XLCellStyles::XLCellStyles(XLCellStyles&& other)
  */
 XLCellStyles& XLCellStyles::operator=(const XLCellStyles& other)
 {
-    // std::cout << "XLCellStyles::" << __func__ << " copy assignment" << std::endl;
     if (&other != this) {
         *m_cellStylesNode = *other.m_cellStylesNode;
         m_cellStyles.clear();
@@ -2436,10 +2399,15 @@ XLStyleIndex XLCellStyles::create(XLCellStyle copyFrom, std::string styleEntries
 
 
 /**
+ * @details Default constructor
+ */
+XLStyles::XLStyles() : XLXmlFile(nullptr, m_classFile) {}
+
+/**
  * @details Creates an XLStyles object, which will initialize from the given xmlData
  */
 XLStyles::XLStyles(XLXmlData* xmlData, bool suppressWarnings, std::string stylesPrefix)
-    : XLXmlFile(xmlData),
+    : XLXmlFile(xmlData, m_classFile),
       m_suppressWarnings( suppressWarnings )
 {
     XMLDocument & doc = xmlDocument();
@@ -2550,6 +2518,67 @@ XLStyles::XLStyles(XLXmlData* xmlData, bool suppressWarnings, std::string styles
 
 XLStyles::~XLStyles()
 {
+}
+
+/**
+ * @details copy-construct an XLStyles object
+ */
+XLStyles::XLStyles(const XLStyles& other)
+    : XLXmlFile(other),
+      m_suppressWarnings(other.m_suppressWarnings),
+      m_numberFormats   (std::make_unique<XLNumberFormats>(*other.m_numberFormats)   ),
+      m_fonts           (std::make_unique<XLFonts        >(*other.m_fonts)           ),
+      m_fills           (std::make_unique<XLFills        >(*other.m_fills)           ),
+      m_borders         (std::make_unique<XLBorders      >(*other.m_borders)         ),
+      m_cellStyleFormats(std::make_unique<XLCellFormats  >(*other.m_cellStyleFormats)),
+      m_cellFormats     (std::make_unique<XLCellFormats  >(*other.m_cellFormats)     ),
+      m_cellStyles      (std::make_unique<XLCellStyles   >(*other.m_cellStyles)      )
+{}
+
+/**
+ * @details move-construct an XLStyles object
+ */
+XLStyles::XLStyles(XLStyles&& other) noexcept
+    : XLXmlFile(other),
+      m_suppressWarnings(other.m_suppressWarnings),
+      m_numberFormats   (std::move(other.m_numberFormats)   ),
+      m_fonts           (std::move(other.m_fonts)           ),
+      m_fills           (std::move(other.m_fills)           ),
+      m_borders         (std::move(other.m_borders)         ),
+      m_cellStyleFormats(std::move(other.m_cellStyleFormats)),
+      m_cellFormats     (std::move(other.m_cellFormats)     ),
+      m_cellStyles      (std::move(other.m_cellStyles)      )
+{}
+
+/**
+ * @details copy-assign an XLStyles object
+ */
+XLStyles& XLStyles::operator=(const XLStyles& other)
+{
+    if (&other != this) {
+        XLStyles temp = other;   // copy-construct
+        *this = std::move(temp); // move-assign & invalidate temp
+    }
+    return *this;
+}
+
+/**
+ * @details move-assign an XLStyles object
+ */
+XLStyles& XLStyles::operator=(XLStyles&& other) noexcept
+{
+    if (&other != this) {
+        XLXmlFile::operator=(std::move(other));
+        m_suppressWarnings = other.m_suppressWarnings;
+        m_numberFormats    = std::move(other.m_numberFormats   );
+        m_fonts            = std::move(other.m_fonts           );
+        m_fills            = std::move(other.m_fills           );
+        m_borders          = std::move(other.m_borders         );
+        m_cellStyleFormats = std::move(other.m_cellStyleFormats);
+        m_cellFormats      = std::move(other.m_cellFormats     );
+        m_cellStyles       = std::move(other.m_cellStyles      );
+    }
+    return *this;
 }
 
 /**

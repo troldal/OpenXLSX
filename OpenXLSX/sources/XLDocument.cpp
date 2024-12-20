@@ -592,7 +592,7 @@ void XLDocument::open(const std::string& fileName)
     }
 
     // ===== Open the workbook and document property items
-    m_workbook       = XLWorkbook(getXmlData(workbookPath));
+    m_workbook       = XLWorkbook(getXmlData(workbookPath), workbookPath);
     // 2024-05-31: moved XLWorkbook object creation up in code worksheets info can be used for XLAppProperties generation from scratch
 
     // ===== 2024-06-03: creating core and extended properties if they do not exist
@@ -693,11 +693,13 @@ void XLDocument::create(const std::string& fileName) { create( fileName, XLForce
 void XLDocument::close()
 {
     if (m_archive.isValid()) m_archive.close();
+    // m_suppressWarnings shall remain in the configured setting
+
     m_filePath.clear();
-    m_data.clear();
 
     m_xmlSavingDeclaration = XLXmlSavingDeclaration();
 
+    m_data.clear();
     m_sharedStringCache.clear();             // 2024-12-18 BUGFIX: clear shared strings cache - addresses issue #283
     m_sharedStrings    = XLSharedStrings();  //
 

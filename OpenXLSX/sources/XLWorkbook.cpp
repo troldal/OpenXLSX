@@ -68,10 +68,16 @@ namespace
 }    // namespace
 
 /**
+ * @details Default constructor
+ */
+XLWorkbook::XLWorkbook() : XLXmlFile(nullptr, m_classFileDefault), m_classFile(m_classFileDefault) {}
+
+/**
  * @details The constructor initializes the member variables and calls the loadXMLData from the
  * XLAbstractXMLFile base class.
  */
-XLWorkbook::XLWorkbook(XLXmlData* xmlData) : XLXmlFile(xmlData) {}
+XLWorkbook::XLWorkbook(XLXmlData* xmlData) : XLXmlFile(xmlData, m_classFileDefault), m_classFile(m_classFileDefault) {}
+XLWorkbook::XLWorkbook(XLXmlData* xmlData, std::string pathTo) : XLXmlFile(xmlData, pathTo), m_classFile(pathTo) {}
 
 /**
  * @details

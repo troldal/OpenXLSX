@@ -93,15 +93,17 @@ namespace OpenXLSX
         /**
          * @brief Constructor
          */
-        XLSheetBase() : XLXmlFile(nullptr) {};
+        XLSheetBase() : XLXmlFile(nullptr, m_classFile) {};
 
         /**
          * @brief The constructor. There are no default constructor, so all parameters must be provided for
          * constructing an XLAbstractSheet object. Since this is a pure abstract class, instantiation is only
          * possible via one of the derived classes.
          * @param xmlData
+         * @param classFile base name of the underlying base class (without sheet numbering)
          */
-        explicit XLSheetBase(XLXmlData* xmlData) : XLXmlFile(xmlData) {};
+        explicit XLSheetBase(XLXmlData* xmlData) : XLXmlFile(xmlData, m_classFile) {};
+        explicit XLSheetBase(XLXmlData* xmlData, std::string classFile) : XLXmlFile(xmlData, classFile) {};
 
         /**
          * @brief The copy constructor.
@@ -299,6 +301,12 @@ namespace OpenXLSX
                                         .setParam("sheetID", relationshipID())
                                         .setParam("cloneName", newName));
         }
+
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Private Member Variables
+        //----------------------------------------------------------------------------------------------------------------------
+    private:
+        static constexpr const char *m_classFile = "(XLSheetBase: uninitialized)";  // passed to XLXmlFile constructor for underlying m_xmlName
     };
 
     /**
@@ -319,7 +327,7 @@ namespace OpenXLSX
         /**
          * @brief Default constructor
          */
-        XLWorksheet() : XLSheetBase(nullptr) {};
+        XLWorksheet() : XLSheetBase(nullptr, m_classFile) {};
 
         /**
          * @brief
@@ -578,7 +586,13 @@ namespace OpenXLSX
          */
         bool setActive_impl();
 
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Private Member Variables
+        //----------------------------------------------------------------------------------------------------------------------
+    private:
         XLMergeCells m_merges;    /**< class handling the <mergeCells> */
+
+        static constexpr const char *m_classFile = "xl/worksheets/sheet#.xml";   // passed to XLXmlFile constructor for underlying m_xmlName
     };
 
     /**
@@ -597,7 +611,7 @@ namespace OpenXLSX
         /**
          * @brief Default constructor
          */
-        XLChartsheet() : XLSheetBase(nullptr) {};
+        XLChartsheet() : XLSheetBase(nullptr, m_classFile) {};
 
         /**
          * @brief
@@ -660,6 +674,12 @@ namespace OpenXLSX
          * @param selected
          */
         void setSelected_impl(bool selected);
+
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Private Member Variables
+        //----------------------------------------------------------------------------------------------------------------------
+    private:
+        static constexpr const char *m_classFile = "XLChartsheet class: refer to ::name() for details"; // passed to XLXmlFile constructor for underlying m_xmlName
     };
 
     /**
@@ -833,9 +853,10 @@ namespace OpenXLSX
         //----------------------------------------------------------------------------------------------------------------------
         //           Private Member Variables
         //----------------------------------------------------------------------------------------------------------------------
-
     private:
         std::variant<XLWorksheet, XLChartsheet> m_sheet; /**<  */
+
+        static constexpr const char *m_classFile = "(XLSheet: uninitialized)";   // passed to XLXmlFile constructor for underlying m_xmlName
     };
 }    // namespace OpenXLSX
 

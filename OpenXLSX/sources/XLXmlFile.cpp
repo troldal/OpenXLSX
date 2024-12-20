@@ -59,6 +59,7 @@ using namespace OpenXLSX;
  * the data will be read from the .zip file, using the given path.
  */
 XLXmlFile::XLXmlFile(XLXmlData* xmlData) : m_xmlData(xmlData) {}
+XLXmlFile::XLXmlFile(XLXmlData* xmlData, std::string xmlName) : m_xmlData(xmlData), m_xmlName(xmlName) {}
 
 XLXmlFile::~XLXmlFile() = default;
 

@@ -7,6 +7,11 @@ Microsoft Excel® files, with the .xlsx format.
 
 As the heading says - the latest "Release" that is shown on https://github.com/troldal/OpenXLSX/releases is from 2021-11-06, and severely outdated - please pull / download the latest SW version directly from the repository in its current state. Link for those that do not want to use ```git```: https://github.com/troldal/OpenXLSX/archive/refs/heads/master.zip
 
+## (aral-matrix) 20 December 2024 - XLXmlFile and derived classes (XLWorksheet!) now expose a ::valid() and ::xmlName() method
+* addressed https://github.com/troldal/OpenXLSX/issues/312 on a lower level, all classes derived from XLXmlFile now have a bool valid() method that will return true if a non-nullptr XML data block is linked to the class. For the user, this mostly matters in XLWorksheet, XLWorkbook & XLStyles
+* additionally, all these classes now expose a std::string const & xmlName() method which serves mostly debugging purposes and - apart from worksheets / chartsheets - should point to the source XML file within the document archive
+* while addressing issue #312, implemented explicit copy/move constructors and assignment operators for XLStyles, which should also address https://github.com/troldal/OpenXLSX/issues/310
+
 ## (aral-matrix) 19 December 2024 - XLStyles enhancement to address issues #304 and #305 - artificial ordering of XML elements
 * In order to address https://github.com/troldal/OpenXLSX/issues/304 and https://github.com/troldal/OpenXLSX/issues/305, some XLStyles classes now support a strict predefined XML element node order
 

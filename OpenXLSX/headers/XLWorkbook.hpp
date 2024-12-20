@@ -89,14 +89,16 @@ namespace OpenXLSX
         /**
          * @brief Default constructor. Creates an empty ('null') XLWorkbook object.
          */
-        XLWorkbook() = default;
+        XLWorkbook();
 
         /**
          * @brief Constructor. Takes a pointer to an XLXmlData object (stored in the parent XLDocument object).
          * @param xmlData A pointer to the underlying XLXmlData object, which holds the XML data.
-         * @note Do not create an XLWorkbook object directly. Get access through the an XLDocument object.
+         * @param pathTo the path to the workbook file origin of xmlData, used to initialize m_classFile
+         * @note Do not create an XLWorkbook object directly. Access via XLDocument::workbook().
          */
         explicit XLWorkbook(XLXmlData* xmlData);
+        explicit XLWorkbook(XLXmlData* xmlData, std::string pathTo);
 
         /**
          * @brief Copy Constructor.
@@ -394,6 +396,10 @@ namespace OpenXLSX
          * @return true if sheetNode can be considered visible (and could be activated)
          */
         bool isVisible(XMLNode const& sheetNode) const;
+
+    private:   // ---------- Private Member Variables ---------- //
+        static constexpr const char * m_classFileDefault = "xl/workbook.xml";
+        std::string m_classFile; // passed to XLXmlFile constructor for underlying m_xmlName, defaults to m_classFileDefault
     };
 }    // namespace OpenXLSX
 

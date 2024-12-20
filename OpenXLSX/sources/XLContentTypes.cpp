@@ -224,12 +224,12 @@ std::string XLContentItem::path() const { return m_contentNode->attribute("PartN
 /**
  * @details
  */
-XLContentTypes::XLContentTypes() = default;
+XLContentTypes::XLContentTypes() : XLXmlFile(nullptr, m_classFile) {}
 
 /**
  * @details
  */
-XLContentTypes::XLContentTypes(XLXmlData* xmlData) : XLXmlFile(xmlData) {}
+XLContentTypes::XLContentTypes(XLXmlData* xmlData) : XLXmlFile(xmlData, m_classFile) {}
 
 /**
  * @details

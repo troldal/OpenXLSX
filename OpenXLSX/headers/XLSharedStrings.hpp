@@ -80,7 +80,7 @@ namespace OpenXLSX
         /**
          * @brief
          */
-        XLSharedStrings() = default;
+        XLSharedStrings();
 
         /**
          * @brief
@@ -172,6 +172,8 @@ namespace OpenXLSX
 
     private:
         std::deque<std::string>* m_stringCache {}; /** < Each string must have an unchanging memory address; hence the use of std::deque */
+
+        static constexpr const char *m_classFile = "xl/sharedStrings.xml"; // passed to XLXmlFile constructor for underlying m_xmlName
     };
 }    // namespace OpenXLSX
 

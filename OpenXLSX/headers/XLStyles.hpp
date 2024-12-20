@@ -2113,7 +2113,7 @@ namespace OpenXLSX
         /**
          * @brief
          */
-        XLStyles() = default;
+        XLStyles();
 
         /**
          * @brief
@@ -2129,30 +2129,30 @@ namespace OpenXLSX
         ~XLStyles();
 
         /**
-         * @brief
-         * @param other
+         * @brief The copy constructor.
+         * @param other an existing styles object other will be also referred by this
          */
-        XLStyles(const XLStyles& other) = default;
+        XLStyles(const XLStyles& other);
 
         /**
-         * @brief
-         * @param other
+         * @brief The move constructor.
+         * @param other an existing styles object other will be assigned to this
          */
-        XLStyles(XLStyles&& other) noexcept = default;
+        XLStyles(XLStyles&& other) noexcept;
 
         /**
-         * @brief
+         * @brief copy assignment
          * @param other
          * @return
          */
-        XLStyles& operator=(const XLStyles& other) = default;
+        XLStyles& operator=(const XLStyles& other);
 
         /**
-         * @brief
+         * @brief move assignment
          * @param other
          * @return
          */
-        XLStyles& operator=(XLStyles&& other) noexcept = default;
+        XLStyles& operator=(XLStyles&& other) noexcept;
 
         /**
          * @brief Get the number formats object
@@ -2206,6 +2206,8 @@ namespace OpenXLSX
         std::unique_ptr<XLCellFormats>      m_cellStyleFormats; // handle to the underlying cell style formats descriptions
         std::unique_ptr<XLCellFormats>      m_cellFormats;      // handle to the underlying cell formats descriptions
         std::unique_ptr<XLCellStyles>       m_cellStyles;       // handle to the underlying cell styles
+
+        static constexpr const char *m_classFile = "xl/styles.xml";  // passed to XLXmlFile constructor for underlying m_xmlName
     };
 }    // namespace OpenXLSX
 
