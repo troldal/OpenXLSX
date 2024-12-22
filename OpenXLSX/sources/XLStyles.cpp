@@ -2521,21 +2521,6 @@ XLStyles::~XLStyles()
 }
 
 /**
- * @details copy-construct an XLStyles object
- */
-XLStyles::XLStyles(const XLStyles& other)
-    : XLXmlFile(other),
-      m_suppressWarnings(other.m_suppressWarnings),
-      m_numberFormats   (std::make_unique<XLNumberFormats>(*other.m_numberFormats)   ),
-      m_fonts           (std::make_unique<XLFonts        >(*other.m_fonts)           ),
-      m_fills           (std::make_unique<XLFills        >(*other.m_fills)           ),
-      m_borders         (std::make_unique<XLBorders      >(*other.m_borders)         ),
-      m_cellStyleFormats(std::make_unique<XLCellFormats  >(*other.m_cellStyleFormats)),
-      m_cellFormats     (std::make_unique<XLCellFormats  >(*other.m_cellFormats)     ),
-      m_cellStyles      (std::make_unique<XLCellStyles   >(*other.m_cellStyles)      )
-{}
-
-/**
  * @details move-construct an XLStyles object
  */
 XLStyles::XLStyles(XLStyles&& other) noexcept
@@ -2551,16 +2536,19 @@ XLStyles::XLStyles(XLStyles&& other) noexcept
 {}
 
 /**
- * @details copy-assign an XLStyles object
+ * @details copy-construct an XLStyles object
  */
-XLStyles& XLStyles::operator=(const XLStyles& other)
-{
-    if (&other != this) {
-        XLStyles temp = other;   // copy-construct
-        *this = std::move(temp); // move-assign & invalidate temp
-    }
-    return *this;
-}
+XLStyles::XLStyles(const XLStyles& other)
+    : XLXmlFile(other),
+      m_suppressWarnings(other.m_suppressWarnings),
+      m_numberFormats   (std::make_unique<XLNumberFormats>(*other.m_numberFormats)   ),
+      m_fonts           (std::make_unique<XLFonts        >(*other.m_fonts)           ),
+      m_fills           (std::make_unique<XLFills        >(*other.m_fills)           ),
+      m_borders         (std::make_unique<XLBorders      >(*other.m_borders)         ),
+      m_cellStyleFormats(std::make_unique<XLCellFormats  >(*other.m_cellStyleFormats)),
+      m_cellFormats     (std::make_unique<XLCellFormats  >(*other.m_cellFormats)     ),
+      m_cellStyles      (std::make_unique<XLCellStyles   >(*other.m_cellStyles)      )
+{}
 
 /**
  * @details move-assign an XLStyles object
@@ -2577,6 +2565,18 @@ XLStyles& XLStyles::operator=(XLStyles&& other) noexcept
         m_cellStyleFormats = std::move(other.m_cellStyleFormats);
         m_cellFormats      = std::move(other.m_cellFormats     );
         m_cellStyles       = std::move(other.m_cellStyles      );
+    }
+    return *this;
+}
+
+/**
+ * @details copy-assign an XLStyles object
+ */
+XLStyles& XLStyles::operator=(const XLStyles& other)
+{
+    if (&other != this) {
+        XLStyles temp = other;   // copy-construct
+        *this = std::move(temp); // move-assign & invalidate temp
     }
     return *this;
 }

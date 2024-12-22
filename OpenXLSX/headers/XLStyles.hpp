@@ -2129,23 +2129,16 @@ namespace OpenXLSX
         ~XLStyles();
 
         /**
-         * @brief The copy constructor.
-         * @param other an existing styles object other will be also referred by this
-         */
-        XLStyles(const XLStyles& other);
-
-        /**
          * @brief The move constructor.
          * @param other an existing styles object other will be assigned to this
          */
         XLStyles(XLStyles&& other) noexcept;
 
         /**
-         * @brief copy assignment
-         * @param other
-         * @return
+         * @brief The copy constructor.
+         * @param other an existing styles object other will be also referred by this
          */
-        XLStyles& operator=(const XLStyles& other);
+        XLStyles(const XLStyles& other);
 
         /**
          * @brief move assignment
@@ -2153,6 +2146,13 @@ namespace OpenXLSX
          * @return
          */
         XLStyles& operator=(XLStyles&& other) noexcept;
+
+        /**
+         * @brief copy assignment
+         * @param other
+         * @return
+         */
+        XLStyles& operator=(const XLStyles& other);
 
         /**
          * @brief Get the number formats object
