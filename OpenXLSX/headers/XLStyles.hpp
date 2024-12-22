@@ -1378,7 +1378,7 @@ namespace OpenXLSX
 
     private:                                         // ---------- Private Member Variables ---------- //
         std::unique_ptr<XMLNode> m_borderNode;       /**< An XMLNode object with the font item */
-        const std::vector< std::string_view > m_nodeOrder = { "left", "right", "top", "bottom", "diagonal", "vertical", "horizontal" };
+        inline static const std::vector< std::string_view > m_nodeOrder = { "left", "right", "top", "bottom", "diagonal", "vertical", "horizontal" };
     };
 
 
@@ -1800,7 +1800,7 @@ namespace OpenXLSX
     private:                                         // ---------- Private Member Variables ---------- //
         std::unique_ptr<XMLNode> m_cellFormatNode;   /**< An XMLNode object with the cell format (xf) item */
         bool m_permitXfId{false};
-        const std::vector< std::string_view > m_nodeOrder = { "alignment", "protection" };
+        inline static const std::vector< std::string_view > m_nodeOrder = { "alignment", "protection" };
     };
 
 
