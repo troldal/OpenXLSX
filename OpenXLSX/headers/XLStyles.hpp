@@ -53,7 +53,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #endif // _MSC_VER
 
 // ===== External Includes ===== //
-#include <array>     // std::array for use with string_views in a constexpr
 #include <cstdint>   // uint32_t etc
 #include <string>
 #include <string_view>  // std::string_view

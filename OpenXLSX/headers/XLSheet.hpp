@@ -53,10 +53,12 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #endif // _MSC_VER
 
 // ===== External Includes ===== //
-#include <cstdint>    // uint8_t, uint16_t, uint32_t
-#include <ostream>    // std::basic_ostream
+#include <cstdint>      // uint8_t, uint16_t, uint32_t
+#include <ostream>      // std::basic_ostream
+#include <string_view>  // std::string_view
 #include <type_traits>
 #include <variant>
+#include <vector>       // std::vector< std::string_view >
 
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
@@ -593,6 +595,20 @@ namespace OpenXLSX
         XLMergeCells m_merges;    /**< class handling the <mergeCells> */
 
         static constexpr const char *m_classFile = "xl/worksheets/sheet#.xml";   // passed to XLXmlFile constructor for underlying m_xmlName
+        inline static const std::vector< std::string_view > m_nodeOrder = {      // worksheet XML root node required child sequence
+            "sheetPr",
+            "dimension",
+            "sheetViews",
+            "sheetFormatPr",
+            "cols",
+            "sheetData",
+            "sheetProtection",
+            "mergeCells",
+            "printOptions",
+            "pageMargins",
+            "pageSetup",
+            "headerFooter"
+        };
     };
 
     /**

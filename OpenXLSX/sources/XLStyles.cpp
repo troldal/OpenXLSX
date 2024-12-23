@@ -56,17 +56,13 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLColor.hpp"
 #include "XLDocument.hpp"
 #include <XLException.hpp>
-#include "utilities/XLUtilities.hpp"    // OpenXLSX::ignore
+#include "utilities/XLUtilities.hpp"    // OpenXLSX::ignore, ::XL(Keep|Remove)Attributes, appendAndGetNode, appendAnd(G|S)etAttribute, appendAnd(G|S)etNodeAttribute
 #include "XLStyles.hpp"
 
 using namespace OpenXLSX;
 
-
 namespace     // anonymous namespace for module local functions
 {
-    constexpr const bool XLRemoveAttributes = true;   // helper variables for appendAndSetNodeAttribute, parameter removeAttributes
-    constexpr const bool XLKeepAttributes   = false;  //
-
     enum XLStylesEntryType : uint8_t {
         XLStylesNumberFormats    =   0,
         XLStylesFonts            =   1,
@@ -389,137 +385,6 @@ namespace     // anonymous namespace for module local functions
             case XLReadingOrderRightToLeft: return "right-to-left";
             default: return "(unknown)";
         }
-    }
-
-    // find the index of nodeName in nodeOrder - return -1 if not found
-    constexpr const int SORT_INDEX_NOT_FOUND = -1;
-    int findSortIndex( std::string const & nodeName, std::vector< std::string_view > const & nodeOrder )
-    {
-        for (int i = 0; static_cast< size_t >( i ) < nodeOrder.size(); ++i)
-            if (nodeName == nodeOrder[ i ]) return i;
-        return SORT_INDEX_NOT_FOUND;
-    }
-
-    /**
-     * @brief copy all leading pc_data nodes from fromNode to toNode
-     * @param parent parent node that can perform sibling insertions
-     * @param fromNode node whose preceeding whitespaces shall be duplicated
-     * @param toNode node before which the duplicated whitespaces shall be inserted
-     * @returns N/A
-     */
-    void copyLeadingWhitespaces( XMLNode & parent, XMLNode fromNode, XMLNode toNode )
-    {
-        fromNode = fromNode.previous_sibling(); // move to preceeding whitespace node, if any
-        // loop from back to front, inserting in the same order before toNode
-        while (fromNode.type() == pugi::node_pcdata) { // loop ends on pugi::node_element or node_null
-            toNode = parent.insert_child_before(pugi::node_pcdata, toNode);   // prepend as toNode a new pcdata node
-            toNode.set_value(fromNode.value());                               //  with the value of fromNode
-            fromNode = fromNode.previous_sibling();
-        }
-    }
-
-    /**
-     * @brief ensure that node with nodeName exists in parent and return it
-     * @param parent parent node that can perform sibling insertions
-     * @param nodename name of the node to be (created &) returned
-     * @param nodeOrder optional vector of a predefined element node sequence required by MS Office
-     * @returns the requested XMLNode or an empty node if the insert operation failed
-     * @note 2024-12-19: appendAndGetNode will attempt to perform an ordered insert per nodeOrder if provided
-     *       Once sufficiently tested, this functionality might be generalized (e.g. in XLXmlParser OpenXLSX_xml_node)
-     */
-    XMLNode appendAndGetNode(XMLNode & parent, std::string const & nodeName, std::vector< std::string_view > const & nodeOrder = {} )
-    {
-        if (parent.empty()) return XMLNode{};
-
-        XMLNode nextNode = parent.first_child_of_type(pugi::node_element);
-        if (nextNode.empty()) return parent.prepend_child(nodeName.c_str());  // nothing to sort, whitespaces "belong" to parent closing tag
-
-        XMLNode node{}; // empty until successfully created;
-
-        int nodeSortIndex = (nodeOrder.size() > 1 ? findSortIndex(nodeName, nodeOrder) : SORT_INDEX_NOT_FOUND);
-        if (nodeSortIndex != SORT_INDEX_NOT_FOUND) { // can't sort anything if nodeOrder contains less than 2 entries or does not contain nodeName
-            // ===== Find first node to follow nodeName per nodeOrder
-            while (not nextNode.empty() && findSortIndex(nextNode.name(), nodeOrder) < nodeSortIndex)
-                nextNode = nextNode.next_sibling_of_type(pugi::node_element);
-            // ===== Evaluate search result
-            if (not nextNode.empty()) {   // found nodeName or a node before which nodeName should be inserted
-                if( nextNode.name() == nodeName )  // if nodeName was found
-                    node = nextNode;                  // use existing node
-                else {                             // else: a node was found before which nodeName must be inserted
-                    node = parent.insert_child_before(nodeName.c_str(), nextNode); // insert before nextNode without whitespaces
-                    copyLeadingWhitespaces(parent, node, nextNode);
-                }
-            }
-            // else: no node was found before which nodeName should be inserted: proceed as usual
-        }
-        else // no possibility to perform ordered insert - attempt to locate existing node:
-            node = parent.child(nodeName.c_str());
-
-        if( node.empty() ) {  // neither nodeName, nor a node following per nodeOrder was found
-            // ===== There is no reference to perform an ordered insert for nodeName
-            nextNode = parent.last_child_of_type(pugi::node_element);      // at least one element node must exist, tested at begin of function
-            node = parent.insert_child_after(nodeName.c_str(), nextNode);  // append as the last element node, but before final whitespaces
-            copyLeadingWhitespaces( parent, nextNode, node );  // duplicate the prefix whitespaces of nextNode to node
-        }
-
-        return node;
-    }
-
-    XMLAttribute appendAndGetAttribute(XMLNode & node, std::string const & attrName, std::string const & attrDefaultVal)
-    {
-        if (node.empty()) return XMLAttribute{};
-        XMLAttribute attr = node.attribute(attrName.c_str());
-        if (attr.empty()) {
-            attr = node.append_attribute(attrName.c_str());
-            attr.set_value(attrDefaultVal.c_str());
-        }
-        return attr;
-    }
-
-    XMLAttribute appendAndSetAttribute(XMLNode & node, std::string const & attrName, std::string const & attrVal)
-    {
-        if (node.empty()) return XMLAttribute{};
-        XMLAttribute attr = node.attribute(attrName.c_str());
-        if (attr.empty())
-            attr = node.append_attribute(attrName.c_str());
-        attr.set_value(attrVal.c_str()); // silently fails on empty attribute, which is intended here
-        return attr;
-    }
-
-    /**
-     * @brief ensure that node with nodeName exists in parent, has an attribute with attrName and return that attribute
-     * @param parent parent node that can perform sibling insertions
-     * @param nodename name of the node under which attribute attrName shall exist
-     * @param attrName name of the attribute to get for node nodeName
-     * @param attrDefaultVal value to assign to the attribute if it has to be created
-     * @param nodeOrder optional vector of a predefined element node sequence required by MS Office, passed through to appendAndGetNode
-     * @returns the requested XMLAttribute or an empty node if the operation failed
-     */
-    XMLAttribute appendAndGetNodeAttribute(XMLNode & parent, std::string const & nodeName, std::string const & attrName, std::string const & attrDefaultVal,
-    /**/                                   std::vector< std::string_view > const & nodeOrder = {})
-    {
-        if (parent.empty()) return XMLAttribute{};
-        XMLNode node = appendAndGetNode(parent, nodeName, nodeOrder);
-        return appendAndGetAttribute(node, attrName, attrDefaultVal);
-    }
-
-    /**
-     * @brief ensure that node with nodeName exists in parent, has an attribute with attrName, set attribute value and return that attribute
-     * @param parent parent node that can perform sibling insertions
-     * @param nodename name of the node under which attribute attrName shall exist
-     * @param attrName name of the attribute to set for node nodeName
-     * @param attrVal value to assign to the attribute
-     * @param removeAttributes if true, all other attributes of the node with nodeName will be deleted
-     * @param nodeOrder optional vector of a predefined element node sequence required by MS Office, passed through to appendAndGetNode
-     * @returns the XMLAttribute that was modified or an empty node if the operation failed
-     */
-    XMLAttribute appendAndSetNodeAttribute(XMLNode & parent, std::string const & nodeName, std::string const & attrName, std::string const & attrVal,
-    /**/                                   bool removeAttributes = XLKeepAttributes, std::vector< std::string_view > const & nodeOrder = {})
-    {
-        if (parent.empty()) return XMLAttribute{};
-        XMLNode node = appendAndGetNode(parent, nodeName, nodeOrder);
-        if (removeAttributes) node.remove_attributes();
-        return appendAndSetAttribute(node, attrName, attrVal);
     }
 
     void copyXMLNode(XMLNode & destination, XMLNode & source)
