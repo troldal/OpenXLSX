@@ -3,6 +3,15 @@
 OpenXLSX is a C++ library for reading, writing, creating and modifying
 Microsoft Excel® files, with the .xlsx format.
 
+## (aral-matrix) 25 December 2024 - XLStyles: fixed implementation of ```strike```(through) font property to address issue #314
+* XLStyles: if the attribute ```val``` is omitted in the ```<strike>``` XML tag, the value is now interpreted as ```true``` as described in the format specification - previously this was wrongly interpreted as "strikethrough is not set". This addresses issue https://github.com/troldal/OpenXLSX/issues/314
+
+## (aral-matrix) Development note 23 December 2024 - Performance issue: XLSharedStrings is instantiated too much
+TODO:
+* replace XLSharedStrings instantiations with smart pointers / reference variables
+* because of the above, a std::string variable (m_xmlName) in XLSharedStrings is a major performance impact
+  (3-7 extra seconds on Demo7 runtime - 1m53 vs. 1m56-2m00)
+
 ## (aral-matrix) 26 November 2024 - NOTE: "Releases" are severely outdated - do not use them
 
 As the heading says - the latest "Release" that is shown on https://github.com/troldal/OpenXLSX/releases is from 2021-11-06, and severely outdated - please pull / download the latest SW version directly from the repository in its current state. Link for those that do not want to use ```git```: https://github.com/troldal/OpenXLSX/archive/refs/heads/master.zip
