@@ -246,7 +246,6 @@ namespace OpenXLSX
         std::vector<XLContentItem> getContentItems();
 
     private:   // ---------- Private Member Variables ---------- //
-        static constexpr const char *m_classFile = "[Content_Types].xml";  // passed to XLXmlFile constructor for underlying m_xmlName
     };
 }    // namespace OpenXLSX
 

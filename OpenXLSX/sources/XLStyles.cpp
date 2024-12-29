@@ -2281,13 +2281,13 @@ XLStyleIndex XLCellStyles::create(XLCellStyle copyFrom, std::string styleEntries
 /**
  * @details Default constructor
  */
-XLStyles::XLStyles() : XLXmlFile(nullptr, m_classFile) {}
+XLStyles::XLStyles() : XLXmlFile(nullptr) {}
 
 /**
  * @details Creates an XLStyles object, which will initialize from the given xmlData
  */
 XLStyles::XLStyles(XLXmlData* xmlData, bool suppressWarnings, std::string stylesPrefix)
-    : XLXmlFile(xmlData, m_classFile),
+    : XLXmlFile(xmlData),
       m_suppressWarnings( suppressWarnings )
 {
     XMLDocument & doc = xmlDocument();

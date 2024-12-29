@@ -65,6 +65,7 @@ int main()
     cout << "Cell count: " << std::distance(rng.begin(), rng.end()) << endl;
     cout << "Sum of cell values: "
          << accumulate(rng.begin(), rng.end(), 0, [](uint64_t a, XLCell& b) { return a + b.value().get<int64_t>(); });
+    cout << endl;
 
     doc.close();
 

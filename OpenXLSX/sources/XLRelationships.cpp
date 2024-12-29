@@ -347,7 +347,7 @@ bool XLRelationshipItem::empty() const { return m_relationshipNode->empty(); }
  *   used to return all relationship targets as absolute paths within the XLSX archive
  */
 XLRelationships::XLRelationships(XLXmlData* xmlData, std::string pathTo)
- : XLXmlFile(xmlData, pathTo)
+ : XLXmlFile(xmlData)
 {
     constexpr const char *relFolder = "_rels/";    // all relationships are stored in a (sub-)folder named "_rels/"
     static const size_t relFolderLen = strlen(relFolder); // 2024-08-23: strlen seems to not be accepted in a constexpr in VS2019 with c++17

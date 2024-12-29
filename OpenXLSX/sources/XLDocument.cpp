@@ -592,7 +592,7 @@ void XLDocument::open(const std::string& fileName)
     }
 
     // ===== Open the workbook and document property items
-    m_workbook       = XLWorkbook(getXmlData(workbookPath), workbookPath);
+    m_workbook       = XLWorkbook(getXmlData(workbookPath));
     // 2024-05-31: moved XLWorkbook object creation up in code worksheets info can be used for XLAppProperties generation from scratch
 
     // ===== 2024-06-03: creating core and extended properties if they do not exist

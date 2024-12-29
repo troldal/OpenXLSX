@@ -78,10 +78,8 @@ namespace OpenXLSX
         /**
          * @brief Constructor. Creates an object based on the xmlData input.
          * @param xmlData An XLXmlData object with the XML data to be represented by the object.
-         * @param xmlName optional name of the underlying XML file within the document
          */
         explicit XLXmlFile(XLXmlData* xmlData);
-        explicit XLXmlFile(XLXmlData* xmlData, std::string xmlName);
 
         /**
          * @brief Copy constructor. Default implementation used.
@@ -107,12 +105,6 @@ namespace OpenXLSX
          * @note for example, if an XLSheet is created with a default constructor, XLSheetBase::valid() (derived from XLXmlFile) would return false
          */
         bool valid() const { return m_xmlData != nullptr; }
-
-        /**
-         * @brief Method to retrieve a descriptive name of the class link to the document XML
-         * @return A std::string with the document's XML file
-         */
-        std::string const & xmlName() const { return m_xmlName; }
 
         /**
          * @brief The copy assignment operator. The default implementation has been used.
@@ -172,9 +164,8 @@ namespace OpenXLSX
          */
         const XMLDocument& xmlDocument() const;
 
-    protected:                                     // ===== PRIVATE MEMBER VARIABLES
-        XLXmlData* m_xmlData  { nullptr };         /**< The underlying XML data object. */
-        std::string m_xmlName { "uninitialized" }; /**< informational: should be initialized with path to the underlying XML file within the document */
+    protected:                            // ===== PROTECTED MEMBER VARIABLES
+        XLXmlData* m_xmlData { nullptr }; /**< The underlying XML data object. */
     };
 }    // namespace OpenXLSX
 

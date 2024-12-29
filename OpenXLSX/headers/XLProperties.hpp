@@ -67,8 +67,6 @@ namespace OpenXLSX
     class OPENXLSX_EXPORT XLProperties : public XLXmlFile
     {
     private:
-        static constexpr const char *m_classFile = "docProps/core.xml"; // passed to XLXmlFile constructor for underlying m_xmlName
-
         /**
          * @brief constructor helper function: create core.xml content from template
          * @param workbook
@@ -83,7 +81,7 @@ namespace OpenXLSX
         /**
          * @brief
          */
-        XLProperties();
+        XLProperties() = default;
 
         /**
          * @brief
@@ -171,8 +169,6 @@ namespace OpenXLSX
     class OPENXLSX_EXPORT XLAppProperties : public XLXmlFile
     {
     private:
-        static constexpr const char *m_classFile = "docProps/app.xml";  // passed to XLXmlFile constructor for underlying m_xmlName
-
         /**
          * @brief constructor helper function: create app.xml content from template
          * @param workbook
@@ -187,7 +183,7 @@ namespace OpenXLSX
         /**
          * @brief
          */
-        XLAppProperties();
+        XLAppProperties() = default;
 
         /**
          * @brief enable XLAppProperties to re-create a worksheet list in docProps/app.xml <TitlesOfParts> element from workbookXml

@@ -2205,8 +2205,6 @@ namespace OpenXLSX
         std::unique_ptr<XLCellFormats>      m_cellStyleFormats; // handle to the underlying cell style formats descriptions
         std::unique_ptr<XLCellFormats>      m_cellFormats;      // handle to the underlying cell formats descriptions
         std::unique_ptr<XLCellStyles>       m_cellStyles;       // handle to the underlying cell styles
-
-        static constexpr const char *m_classFile = "xl/styles.xml";  // passed to XLXmlFile constructor for underlying m_xmlName
     };
 }    // namespace OpenXLSX
 

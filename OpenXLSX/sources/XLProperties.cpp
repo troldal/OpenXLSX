@@ -247,14 +247,9 @@ void XLProperties::createFromTemplate()
 }
 
 /**
- * @details default constructor
- */
-XLProperties::XLProperties() : XLXmlFile(nullptr, m_classFile) {}
-
-/**
  * @details
  */
-XLProperties::XLProperties(XLXmlData* xmlData) : XLXmlFile(xmlData, m_classFile)
+XLProperties::XLProperties(XLXmlData* xmlData) : XLXmlFile(xmlData)
 {
     XMLNode doc = xmlData->getXmlDocument()->document_element();
     XMLNode child = doc.first_child_of_type(pugi::node_element);
@@ -388,15 +383,10 @@ void XLAppProperties::createFromTemplate(XMLDocument const & workbookXml)
 }
 
 /**
- * @details default constructor
- */
-XLAppProperties::XLAppProperties() : XLXmlFile(nullptr, m_classFile) {}
-
-/**
  * @details
  */
 XLAppProperties::XLAppProperties(XLXmlData* xmlData, XMLDocument const & workbookXml)
-    : XLXmlFile(xmlData, m_classFile)
+    : XLXmlFile(xmlData)
 {
     XMLNode doc = xmlData->getXmlDocument()->document_element();
     XMLNode child = doc.first_child_of_type(pugi::node_element);
