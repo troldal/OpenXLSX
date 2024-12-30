@@ -312,6 +312,12 @@ namespace OpenXLSX
          */
         void setSavingDeclaration(XLXmlSavingDeclaration const& savingDeclaration);
 
+        /**
+         * @brief
+         * @return
+         */
+        const XLSharedStrings& sharedStrings() const { return m_sharedStrings; }
+
         //----------------------------------------------------------------------------------------------------------------------
         //           Protected Member Functions
         //----------------------------------------------------------------------------------------------------------------------

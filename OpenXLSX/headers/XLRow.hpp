@@ -219,7 +219,7 @@ namespace OpenXLSX
          * @param columNumber The column at which to check for an existing cell
          * @return An XLCell object (that bool-evaluates to false if cell was not found)
          */
-        XLCell findCell(uint16_t columNumber) const;
+        XLCell findCell(uint16_t columNumber);
 
         /**
          * @brief Get the array index of xl/styles.xml:<styleSheet>:<cellXfs> for the style assigned to the row.
@@ -254,7 +254,7 @@ namespace OpenXLSX
 
         //---------- PRIVATE MEMBER VARIABLES ----------//
         std::unique_ptr<XMLNode> m_rowNode;       /**< The XMLNode object for the row. */
-        XLSharedStrings          m_sharedStrings; /**< */
+        XLSharedStringsRef       m_sharedStrings; /**< */
         XLRowDataProxy           m_rowDataProxy;  /**< */
     };
 
@@ -357,7 +357,7 @@ namespace OpenXLSX
         uint32_t                 m_firstRow { 1 }; /**< The cell reference of the first cell in the range */
         uint32_t                 m_lastRow { 1 };  /**< The cell reference of the last cell in the range */
         XLRow                    m_currentRow;     /**< */
-        XLSharedStrings          m_sharedStrings;  /**< */
+        XLSharedStringsRef       m_sharedStrings;  /**< */
     };
 
     /**
@@ -438,7 +438,7 @@ namespace OpenXLSX
         std::unique_ptr<XMLNode> m_dataNode;      /**< */
         uint32_t                 m_firstRow;      /**< The cell reference of the first cell in the range */
         uint32_t                 m_lastRow;       /**< The cell reference of the last cell in the range */
-        XLSharedStrings          m_sharedStrings; /**< */
+        XLSharedStringsRef       m_sharedStrings; /**< */
     };
 
 }    // namespace OpenXLSX

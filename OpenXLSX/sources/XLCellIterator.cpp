@@ -139,6 +139,24 @@ XLCellIterator& XLCellIterator::operator=(const XLCellIterator& other)
  * @details
  */
 XLCellIterator& XLCellIterator::operator=(XLCellIterator&& other) noexcept = default;
+// {
+//     if (&other != this) {
+//         m_dataNode      = std::move(other.m_dataNode);
+//         m_topLeft       = std::move(other.m_topLeft);
+//         m_bottomRight   = std::move(other.m_bottomRight);
+//         m_sharedStrings = std::move(other.m_sharedStrings);
+//         m_endReached    = other.m_endReached;
+//         m_hintNode      = std::move(other.m_hintNode);
+//         m_hintRow       = other.m_currentRow;
+//         m_currentCell   = std::move(other.m_currentCell);
+//         m_currentCellStatus = other.m_currentCellStatus;
+//         m_currentRow    =  other.m_currentRow;
+//         m_currentColumn =  other.m_currentColumn;
+//         m_colStyles     =  other.m_colStyles;
+//     }
+//
+//     return *this;
+// }
 
 namespace { // anonymous namespace for local functions findRowNode and findCellNode
     /**
@@ -240,9 +258,9 @@ void XLCellIterator::updateCurrentCell(bool createIfMissing)
 
     if (m_hintNode.empty()) { // no hint has been established: fetch first cell node the "tedious" way
         if (createIfMissing)      // getCellNode / getRowNode create missing cells
-            m_currentCell = XLCell(getCellNode(getRowNode(*m_dataNode, m_currentRow), m_currentColumn, 0, *m_colStyles), m_sharedStrings);
+            m_currentCell = XLCell(getCellNode(getRowNode(*m_dataNode, m_currentRow), m_currentColumn, 0, *m_colStyles), m_sharedStrings.get());
         else                      // findCellNode / findRowNode return an empty cell for missing cells
-            m_currentCell = XLCell(findCellNode(findRowNode(*m_dataNode, m_currentRow), m_currentColumn), m_sharedStrings);
+            m_currentCell = XLCell(findCellNode(findRowNode(*m_dataNode, m_currentRow), m_currentColumn), m_sharedStrings.get());
     }
     else {
         // ===== Find or create, and fetch an XLCell at m_currentRow, m_currentColumn
@@ -262,7 +280,7 @@ void XLCellIterator::updateCurrentCell(bool createIfMissing)
                 setDefaultCellAttributes(cellNode, XLCellReference(m_currentRow, m_currentColumn).address(), m_hintNode.parent(),
                 /**/                      m_currentColumn, *m_colStyles);
             }
-            m_currentCell = XLCell(cellNode, m_sharedStrings); // cellNode.empty() can be true if createIfMissing == false and cell is not found
+            m_currentCell = XLCell(cellNode, m_sharedStrings.get()); // cellNode.empty() can be true if createIfMissing == false and cell is not found
         }
         else if (m_currentRow > m_hintRow) {
             // ===== Start from m_hintNode parent row and search forwards...
@@ -284,10 +302,10 @@ void XLCellIterator::updateCurrentCell(bool createIfMissing)
             else {                  // else: row found
                 if (createIfMissing) {
                     // ===== Pass the already known m_currentRow to getCellNode so that it does not have to be fetched again
-                    m_currentCell = XLCell(getCellNode (rowNode, m_currentColumn, m_currentRow, *m_colStyles), m_sharedStrings);
+                    m_currentCell = XLCell(getCellNode (rowNode, m_currentColumn, m_currentRow, *m_colStyles), m_sharedStrings.get());
                 }
                 else // ===== Do a "soft find" if a missing cell shall not be created
-                    m_currentCell = XLCell(findCellNode(rowNode, m_currentColumn), m_sharedStrings);
+                    m_currentCell = XLCell(findCellNode(rowNode, m_currentColumn), m_sharedStrings.get());
             }
         }
         else

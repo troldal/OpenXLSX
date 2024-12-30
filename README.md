@@ -7,11 +7,13 @@ Microsoft Excel® files, with the .xlsx format.
 
 As the heading says - the latest "Release" that is shown on https://github.com/troldal/OpenXLSX/releases is from 2021-11-06, and severely outdated - please pull / download the latest SW version directly from the repository in its current state. Link for those that do not want to use ```git```: https://github.com/troldal/OpenXLSX/archive/refs/heads/master.zip
 
-## TODO: Performance issue: XLSharedStrings is instantiated too much
-* replace XLSharedStrings instantiations with smart pointers / reference variables
-* since XLSharedStrings is currently instantiated once per row/cell constructor (= very frequently on mass cell operations), adding any new member variables to XLSharedStrings or XLXmlFile would be a significant performance impact (when adding e.g. a std::string to XLXmlFile: 3-7 extra seconds on Demo7 runtime - 1m53 vs. 1m56-2m00)
-
 ## Recent changes
+
+### (aral-matrix) 30 December 2024 - removed ```XLWorkbook::sharedStrings``` and ```XLWorkbook::hasSharedStrings```
+* removed these (pointless) functions in the hopes that no one was using them - please report an issue if this causes a problem for you - if you can change the access method, ```XLDocument::sharedStrings()``` returns the same, and ```hasSharedStrings``` was always returning true anyways.
+
+### (aral-matrix) 30 December 2024 - XLSharedStrings passed as const reference everywhere, stored in std::reference_wrapper
+* this is a library internal patch that avoids constructing (& destroying) a new XLSharedStrings instance for every row/cell access
 
 ### (aral-matrix) 29 December 2024 - XLXmlFile and derived classes: undid 2024-12-20 addition of xmlName() function
 * this was a function mainly foreseen for debugging purposes, but not serving any practical purpose, it was removed again

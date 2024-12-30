@@ -2278,10 +2278,12 @@ XLStyleIndex XLCellStyles::create(XLCellStyle copyFrom, std::string styleEntries
 }
 
 
+// ===== XLStyles, master class
+
 /**
  * @details Default constructor
  */
-XLStyles::XLStyles() : XLXmlFile(nullptr) {}
+XLStyles::XLStyles() {} // TBD if defaulting this constructor again would reintroduce issue #310
 
 /**
  * @details Creates an XLStyles object, which will initialize from the given xmlData

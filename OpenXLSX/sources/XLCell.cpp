@@ -58,6 +58,7 @@ using namespace OpenXLSX;
  */
 XLCell::XLCell()
     : m_cellNode(nullptr),
+      m_sharedStrings(XLSharedStringsDefaulted),
       m_valueProxy(XLCellValueProxy(this, m_cellNode.get())),
       m_formulaProxy(XLFormulaProxy(this, m_cellNode.get()))
 {}
@@ -120,7 +121,7 @@ XLCell& XLCell::operator=(XLCell&& other) noexcept
 {
     if (&other != this) {
         m_cellNode      = std::move(other.m_cellNode);
-        m_sharedStrings = other.m_sharedStrings;
+        m_sharedStrings = std::move(other.m_sharedStrings);
         m_valueProxy    = XLCellValueProxy(this, m_cellNode.get());
         m_formulaProxy  = XLFormulaProxy(this, m_cellNode.get());    // pull request #160
     }
@@ -137,7 +138,7 @@ void XLCell::copyFrom(XLCell const& other)
     if (!m_cellNode) {
         // copyFrom invoked by empty XLCell: create a new cell with reference & m_cellNode from other
         m_cellNode      = std::make_unique<XMLNode>(*other.m_cellNode);
-        m_sharedStrings = other.m_sharedStrings;
+        m_sharedStrings = other.m_sharedStrings; // TBD: check for XLSharedStringsDefaulted and avoid copy?
         m_valueProxy    = XLCellValueProxy(this, m_cellNode.get());
         m_formulaProxy  = XLFormulaProxy(this, m_cellNode.get());
         return;
@@ -191,7 +192,7 @@ XLCell XLCell::offset(uint16_t rowOffset, uint16_t colOffset) const
     const XLCellReference offsetRef(cellReference().row() + rowOffset, cellReference().column() + colOffset);
     const auto            rownode  = getRowNode(m_cellNode->parent().parent(), offsetRef.row());
     const auto            cellnode = getCellNode(rownode, offsetRef.column());
-    return XLCell { cellnode, m_sharedStrings };
+    return XLCell { cellnode, m_sharedStrings.get() };
 }
 
 /**

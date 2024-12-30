@@ -17,11 +17,11 @@ bool nowide_status()
 using namespace std;
 using namespace OpenXLSX;
 
-int main( int argc, char *argv[] )
+int main()
 {
-	// ignore command line params without warning:
-	static_cast< void >( argc );
-	static_cast< void >( argv );
+	cout << "********************************************************************************\n";
+	cout << "DEMO PROGRAM #10: XLStyles Usage\n";
+	cout << "********************************************************************************\n";
 
 	std::cout << "nowide is " << ( nowide_status() ? "enabled" : "disabled" ) << std::endl;
 

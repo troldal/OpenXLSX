@@ -75,7 +75,6 @@ namespace OpenXLSX
     constexpr const uint32_t XLKeepCellFormula =  8; // formula (child node f)
 
     class XLCellRange;
-    class XLSharedStrings;
 
     /**
      * @brief An implementation class encapsulating the properties and behaviours of a spreadsheet cell.
@@ -242,7 +241,7 @@ namespace OpenXLSX
 
         //---------- Private Member Variables ---------- //
         std::unique_ptr<XMLNode> m_cellNode;      /**< A pointer to the root XMLNode for the cell. */
-        XLSharedStrings          m_sharedStrings; /**< */
+        XLSharedStringsRef       m_sharedStrings; /**< */
         XLCellValueProxy         m_valueProxy;    /**< */
         XLFormulaProxy           m_formulaProxy;  /**< */
     };

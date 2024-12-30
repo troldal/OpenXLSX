@@ -7,11 +7,11 @@ Saving spreadsheet ...
 Re-opening spreadsheet ...
 Reading data from spreadsheet ...
 Cell count: 8388608
-Sum of cell values: 415183689
+Sum of cell values: 415320507
 
-real	1m16.475s
-user	1m14.693s
-sys	0m1.548s
+real	1m16.171s
+user	1m14.657s
+sys	0m1.484s
 
 
 ********************************************************************************
@@ -23,11 +23,11 @@ Saving spreadsheet ...
 Re-opening spreadsheet ...
 Reading data from spreadsheet ...
 Cell count: 8388608
-Sum of cell values: 415298692
+Sum of cell values: 415254417
 
-real	1m22.542s
-user	1m20.651s
-sys	0m1.613s
+real	1m22.334s
+user	1m20.745s
+sys	0m1.576s
 
 
 ********************************************************************************
@@ -39,8 +39,8 @@ Saving spreadsheet ...
 Re-opening spreadsheet ...
 Reading data from spreadsheet ...
 Cell count: 8388608
-Sum of cell values: 415295943
+Sum of cell values: 415250547
 
-real	1m55.292s
-user	1m53.279s
-sys	0m1.738s
+real	1m54.755s
+user	1m53.196s
+sys	0m1.504s

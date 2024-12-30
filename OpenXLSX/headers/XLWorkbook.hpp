@@ -62,7 +62,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 namespace OpenXLSX
 {
-    class XLSharedStrings;
+    // class XLSharedStrings;
 
     class XLSheet;
 
@@ -291,18 +291,18 @@ namespace OpenXLSX
          */
         void updateSheetReferences(const std::string& oldName, const std::string& newName);
 
-        /**
-         * @brief
-         * @return
-         */
-        XLSharedStrings sharedStrings();
-
-        /**
-         * @brief
-         * @return
-         */
-        bool hasSharedStrings() const;
-
+        // /**
+        //  * @brief
+        //  * @return
+        //  */
+        // XLSharedStrings sharedStrings();
+        //
+        // /**
+        //  * @brief
+        //  * @return
+        //  */
+        // bool hasSharedStrings() const;
+        //
         /**
          * @brief
          */

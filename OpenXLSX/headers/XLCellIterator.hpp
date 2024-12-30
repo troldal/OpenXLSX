@@ -191,7 +191,7 @@ namespace OpenXLSX
         std::unique_ptr<XMLNode> m_dataNode;             /**< */
         XLCellReference          m_topLeft;              /**< The cell reference of the first cell in the range */
         XLCellReference          m_bottomRight;          /**< The cell reference of the last cell in the range */
-        XLSharedStrings          m_sharedStrings;        /**< */
+        XLSharedStringsRef       m_sharedStrings;        /**< */
         bool                     m_endReached;           /**< */
         XMLNode                  m_hintNode;             /**< The cell node of the last existing cell found up to current iterator position */
         uint32_t                 m_hintRow;              /**<   the row number for m_hintCell */

@@ -53,6 +53,10 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 #include <XLException.hpp>
 
+namespace OpenXLSX {
+    const XLSharedStrings XLSharedStringsDefaulted{};
+}    // namespace OpenXLSX
+
 using namespace OpenXLSX;
 
 /**
@@ -114,7 +118,7 @@ const char* XLSharedStrings::getString(int32_t index) const
  * @details Append a string by creating a new node in the XML file and adding the string to it. The index to the
  * shared string is returned
  */
-int32_t XLSharedStrings::appendString(const std::string& str)
+int32_t XLSharedStrings::appendString(const std::string& str) const
 {
     // size_t stringCacheSize = std::distance(m_stringCache->begin(), m_stringCache->end()); // any reason why .size() would not work?
     size_t stringCacheSize = m_stringCache->size();    // 2024-05-31: analogous with already added range check in getString
@@ -141,7 +145,7 @@ void XLSharedStrings::print(std::basic_ostream<char>& ostr) const { xmlDocument(
  * is used, it will be erased.
  * @note: 2024-05-31 DONE: index now int32_t everywhere, 2 billion shared strings should be plenty
  */
-void XLSharedStrings::clearString(int32_t index)    // 2024-04-30: whitespace support
+void XLSharedStrings::clearString(int32_t index) const   // 2024-04-30: whitespace support
 {
     if (index < 0 || static_cast<size_t>(index) >= m_stringCache->size()) { // 2024-04-30: added range check
         using namespace std::literals::string_literals;
