@@ -417,7 +417,8 @@ namespace     // anonymous namespace for module local functions
     {
         std::string result = std::to_string(val);
         size_t decimalPos = result.find_first_of('.');
-        assert(decimalPos < result.length()); // this should never throw
+        if (decimalPos >= result.length())
+            throw XLException("formatDoubleAsString: return value of std::to_string(double val) contains no decimal separator - this should never happen");
 
         // ===== Return the string representation of val with the decimal separator and decimalPlaces digits following
         return result.substr(0, decimalPos + 1 + decimalPlaces);

@@ -45,6 +45,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== External Includes ===== //
 #include <cstdint>      // uint32_t
+#include <cstring>      // strlen
 #include <memory>       // std::make_unique
 #include <pugixml.hpp>
 #include <random>       // std::mt19937, std::random_device

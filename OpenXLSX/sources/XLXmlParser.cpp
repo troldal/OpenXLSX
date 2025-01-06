@@ -44,6 +44,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
  */
 
 // ===== External Includes ===== //
+#include <cstring>      // strlen, memcpy, strcpy
 #include <pugixml.hpp>
 
 // // ===== OpenXLSX Includes ===== //
