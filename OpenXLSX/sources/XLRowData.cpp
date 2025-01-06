@@ -67,7 +67,7 @@ namespace OpenXLSX
         : m_dataRange(std::make_unique<XLRowDataRange>(rowDataRange)),
           m_cellNode(std::make_unique<XMLNode>(
               getCellNode((m_dataRange->size() ? *m_dataRange->m_rowNode : XMLNode {}), m_dataRange->m_firstCol))),
-          m_currentCell(loc == XLIteratorLocation::End ? XLCell() : XLCell(*m_cellNode, m_dataRange->m_sharedStrings))
+          m_currentCell(loc == XLIteratorLocation::End ? XLCell() : XLCell(*m_cellNode, m_dataRange->m_sharedStrings.get()))
     {}
 
     /**
@@ -142,13 +142,13 @@ namespace OpenXLSX
             /**/                                   static_cast<uint32_t>(m_dataRange->m_rowNode->attribute("r").as_ullong()), cellNumber
             /**/                               ).address(),
             /**/                               *m_dataRange->m_rowNode, cellNumber);
-            m_currentCell = XLCell(cellNode, m_dataRange->m_sharedStrings);
+            m_currentCell = XLCell(cellNode, m_dataRange->m_sharedStrings.get());
         }
 
         // ===== Otherwise, the cell node and the column number match.
         else {
             assert(XLCellReference(cellNode.attribute("r").value()).column() == cellNumber);
-            m_currentCell = XLCell(cellNode, m_dataRange->m_sharedStrings);
+            m_currentCell = XLCell(cellNode, m_dataRange->m_sharedStrings.get());
         }
 
         return *this;
@@ -233,7 +233,7 @@ namespace OpenXLSX
         : m_rowNode(nullptr),
           m_firstCol(1),    // first col of 1
           m_lastCol(0),     // and last col of 0 will ensure that size returns 0
-          m_sharedStrings()
+          m_sharedStrings(XLSharedStringsDefaulted)
     {
         // nothing to do
     }
@@ -384,7 +384,7 @@ namespace OpenXLSX
         for (auto value = values.rbegin(); value != values.rend(); ++value) {    // NOLINT
             curNode = m_rowNode->prepend_child("c");
             setDefaultCellAttributes(curNode, XLCellReference(static_cast<uint32_t>(m_row->rowNumber()), colNo).address(), *m_rowNode, colNo);
-            XLCell(curNode, m_row->m_sharedStrings).value() = *value;
+            XLCell(curNode, m_row->m_sharedStrings.get()).value() = *value;
             --colNo;
         }
 
@@ -404,7 +404,7 @@ namespace OpenXLSX
         if (values.size() > MAX_COLS) throw XLOverflowError("vector<bool> size exceeds maximum number of columns.");
         if (values.empty()) return *this;
 
-        auto range = XLRowDataRange(*m_rowNode, 1, static_cast<uint16_t>(values.size()), getSharedStrings());
+        auto range = XLRowDataRange(*m_rowNode, 1, static_cast<uint16_t>(values.size()), m_row->m_sharedStrings.get());
         auto dst   = range.begin();    // 2024-04-30: whitespace support: safe because XLRowDataRange::begin invokes whitespace-safe
                                        // getCellNode for column 1
         auto src = values.begin();
@@ -457,7 +457,7 @@ namespace OpenXLSX
             XMLNode node = lastElementChild;    // avoid unneeded call to first_child_of_type by iterating backwards, vector is random
                                                 // access so it doesn't matter
             while (not node.empty()) {
-                result[XLCellReference(node.attribute("r").value()).column() - 1] = XLCell(node, m_row->m_sharedStrings).value();
+                result[XLCellReference(node.attribute("r").value()).column() - 1] = XLCell(node, m_row->m_sharedStrings.get()).value();
                 node                                                              = node.previous_sibling_of_type(pugi::node_element);
             }
         }
@@ -467,12 +467,12 @@ namespace OpenXLSX
     }
 
     /**
-     * @details The function returns a pointer to an XLSharedStrings object embedded in the m_row member.
+     * @details The function returns a reference to the XLSharedStrings object embedded in the m_row member.
      * This is required because the XLRow class internals is not visible in the header file.
      * @pre
      * @post
      */
-    XLSharedStrings XLRowDataProxy::getSharedStrings() const { return m_row->m_sharedStrings; }
+    const XLSharedStrings& XLRowDataProxy::getSharedStrings() const { return m_row->m_sharedStrings.get(); }
 
     /**
      * @details The deleteCellValues is a convenience function used solely by the templated operator= function.
@@ -524,7 +524,7 @@ namespace OpenXLSX
 
         XMLNode curNode = m_rowNode->prepend_child("c");    // this will correctly insert a new cell directly at the beginning of the row
         setDefaultCellAttributes(curNode, XLCellReference(static_cast<uint32_t>(m_row->rowNumber()), col).address(), *m_rowNode, col);
-        XLCell(curNode, m_row->m_sharedStrings).value() = value;
+        XLCell(curNode, m_row->m_sharedStrings.get()).value() = value;
     }
 
     /**

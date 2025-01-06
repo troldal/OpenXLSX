@@ -386,7 +386,7 @@ XLCellAssignable XLWorksheet::cell(uint32_t rowNumber, uint16_t columnNumber) co
     const XMLNode rowNode  = getRowNode(xmlDocument().document_element().child("sheetData"), rowNumber);
     const XMLNode cellNode = getCellNode(rowNode, columnNumber, rowNumber);
     // ===== Move-construct XLCellAssignable from temporary XLCell
-    return XLCellAssignable(XLCell(cellNode, parentDoc().execQuery(XLQuery(XLQueryType::QuerySharedStrings)).result<XLSharedStrings>()));
+    return XLCellAssignable(XLCell(cellNode, parentDoc().sharedStrings()));
 }
 
 /**
@@ -402,7 +402,7 @@ XLCellRange XLWorksheet::range(const XLCellReference& topLeft, const XLCellRefer
     return XLCellRange(xmlDocument().document_element().child("sheetData"),
                        topLeft,
                        bottomRight,
-                       parentDoc().execQuery(XLQuery(XLQueryType::QuerySharedStrings)).result<XLSharedStrings>());
+                       parentDoc().sharedStrings());
 }
 
 /**
@@ -435,7 +435,7 @@ XLRowRange XLWorksheet::rows() const    // 2024-04-29: patched for whitespace
                       (sheetDataNode.last_child_of_type(pugi::node_element).empty()
                            ? 1
                            : static_cast<uint32_t>(sheetDataNode.last_child_of_type(pugi::node_element).attribute("r").as_ullong())),
-                      parentDoc().execQuery(XLQuery(XLQueryType::QuerySharedStrings)).result<XLSharedStrings>());
+                      parentDoc().sharedStrings());
 }
 
 /**
@@ -448,7 +448,7 @@ XLRowRange XLWorksheet::rows(uint32_t rowCount) const
     return XLRowRange(xmlDocument().document_element().child("sheetData"),
                       1,
                       rowCount,
-                      parentDoc().execQuery(XLQuery(XLQueryType::QuerySharedStrings)).result<XLSharedStrings>());
+                      parentDoc().sharedStrings());
 }
 
 /**
@@ -461,7 +461,7 @@ XLRowRange XLWorksheet::rows(uint32_t firstRow, uint32_t lastRow) const
     return XLRowRange(xmlDocument().document_element().child("sheetData"),
                       firstRow,
                       lastRow,
-                      parentDoc().execQuery(XLQuery(XLQueryType::QuerySharedStrings)).result<XLSharedStrings>());
+                      parentDoc().sharedStrings());
 }
 
 /**
@@ -472,7 +472,7 @@ XLRowRange XLWorksheet::rows(uint32_t firstRow, uint32_t lastRow) const
 XLRow XLWorksheet::row(uint32_t rowNumber) const
 {
     return XLRow { getRowNode(xmlDocument().document_element().child("sheetData"), rowNumber),
-                   parentDoc().execQuery(XLQuery(XLQueryType::QuerySharedStrings)).result<XLSharedStrings>() };
+                   parentDoc().sharedStrings() };
 }
 
 /**
@@ -621,9 +621,9 @@ void XLWorksheet::updateSheetName(const std::string& oldName, const std::string&
              not cell.empty();
              cell         = cell.next_sibling_of_type(pugi::node_element))
         {
-            if (!XLCell(cell, XLSharedStrings()).hasFormula()) continue;
+            if (!XLCell(cell, parentDoc().sharedStrings()).hasFormula()) continue;
 
-            formula = XLCell(cell, XLSharedStrings()).formula().get();
+            formula = XLCell(cell, parentDoc().sharedStrings()).formula().get();
 
             // ===== Skip if formula contains a '[' and ']' (means that the defined refers to external workbook)
             if (formula.find('[') == std::string::npos && formula.find(']') == std::string::npos) {
@@ -631,7 +631,7 @@ void XLWorksheet::updateSheetName(const std::string& oldName, const std::string&
                 while (formula.find(oldNameTemp) != std::string::npos) {    // NOLINT
                     formula.replace(formula.find(oldNameTemp), oldNameTemp.length(), newNameTemp);
                 }
-                XLCell(cell, XLSharedStrings()).formula() = formula;
+                XLCell(cell, parentDoc().sharedStrings()).formula() = formula;
             }
         }
     }
@@ -642,17 +642,9 @@ void XLWorksheet::updateSheetName(const std::string& oldName, const std::string&
  */
 XLMergeCells & XLWorksheet::merges()
 {
-    if( m_merges.uninitialized() ) {
-        XMLNode mergeCellsNode = xmlDocument().document_element().child("mergeCells");
-        if (mergeCellsNode.empty()) {
-            // ===== 2024-10-27 BUGFIX: MS Office does not tolerate page formatting nodes before the mergeCells node,
-            //   therefore, insert the mergeCells node directly after the sheetData node
-            XMLNode sheetDataNode = xmlDocument().document_element().child("sheetData");
-            if (sheetDataNode.empty())
-                throw XLInternalError("XLWorksheet::merges: sheetData XML node is not initialized. Can not proceed.");
-            mergeCellsNode = xmlDocument().document_element().insert_child_after("mergeCells", sheetDataNode);
-        }
-        m_merges = XLMergeCells(mergeCellsNode);
+    if (m_merges.uninitialized()) {
+        XMLNode rootNode = xmlDocument().document_element(); // until I learn how to make appendAndGetNode take by reference but not fail on rvalue document_element
+        m_merges = XLMergeCells(appendAndGetNode(rootNode, "mergeCells", m_nodeOrder));
     }
     return m_merges;
 }

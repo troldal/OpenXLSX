@@ -53,6 +53,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #endif // _MSC_VER
 
 #include <deque>
+#include <functional> // std::reference_wrapper
 #include <limits>     // std::numeric_limits
 #include <ostream>    // std::basic_ostream
 #include <string>
@@ -64,6 +65,11 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 namespace OpenXLSX
 {
     constexpr size_t XLMaxSharedStrings = (std::numeric_limits< int32_t >::max)();    // pull request #261: wrapped max in parentheses to prevent expansion of windows.h "max" macro
+
+    class XLSharedStrings; // forward declaration
+    typedef std::reference_wrapper< const XLSharedStrings > XLSharedStringsRef;
+
+    extern const XLSharedStrings XLSharedStringsDefaulted; // to be used for default initialization of all references of type XLSharedStrings
 
     /**
      * @brief This class encapsulate the Excel concept of Shared Strings. In Excel, instead of havig individual strings
@@ -146,7 +152,7 @@ namespace OpenXLSX
          * @param str The string to append.
          * @return An int32_t with the index of the appended string
          */
-        int32_t appendString(const std::string& str);
+        int32_t appendString(const std::string& str) const;
 
         /**
          * @brief Clear the string at the given index.
@@ -155,7 +161,7 @@ namespace OpenXLSX
          * shared string indices for the cells in the spreadsheet. Instead use this member functions, which clears
          * the contents of the string, but keeps the XMLNode holding the string.
          */
-        void clearString(int32_t index);
+        void clearString(int32_t index) const;
 
         // 2024-06-18 TBD if this is ever needed
         // /**

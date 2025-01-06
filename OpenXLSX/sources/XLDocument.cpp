@@ -693,11 +693,13 @@ void XLDocument::create(const std::string& fileName) { create( fileName, XLForce
 void XLDocument::close()
 {
     if (m_archive.isValid()) m_archive.close();
+    // m_suppressWarnings shall remain in the configured setting
+
     m_filePath.clear();
-    m_data.clear();
 
     m_xmlSavingDeclaration = XLXmlSavingDeclaration();
 
+    m_data.clear();
     m_sharedStringCache.clear();             // 2024-12-18 BUGFIX: clear shared strings cache - addresses issue #283
     m_sharedStrings    = XLSharedStrings();  //
 

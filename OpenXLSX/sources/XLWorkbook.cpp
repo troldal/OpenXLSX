@@ -147,23 +147,23 @@ XLChartsheet XLWorkbook::chartsheet(const std::string& sheetName) { return sheet
  */
 XLChartsheet XLWorkbook::chartsheet(uint16_t index) { return sheet(index).get<XLChartsheet>(); }
 
-/**
- * @details
- */
-bool XLWorkbook::hasSharedStrings() const
-{
-    return true;    // parentDoc().executeQuery(XLQuerySharedStrings()).sharedStrings() != nullptr;
-}
-
-/**
- * @details
- */
-XLSharedStrings XLWorkbook::sharedStrings()
-{
-    const XLQuery query(XLQueryType::QuerySharedStrings);
-    return parentDoc().execQuery(query).result<XLSharedStrings>();
-}
-
+// /**
+//  * @details
+//  */
+// bool XLWorkbook::hasSharedStrings() const
+// {
+//     return true;    // always true
+// }
+//
+// /**
+//  * @details
+//  */
+// XLSharedStrings XLWorkbook::sharedStrings()
+// {
+//     const XLQuery query(XLQueryType::QuerySharedStrings);
+//     return parentDoc().execQuery(query).result<XLSharedStrings>();
+// }
+//
 /**
  * @details
  */

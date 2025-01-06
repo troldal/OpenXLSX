@@ -53,10 +53,12 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #endif // _MSC_VER
 
 // ===== External Includes ===== //
-#include <cstdint>    // uint8_t, uint16_t, uint32_t
-#include <ostream>    // std::basic_ostream
+#include <cstdint>      // uint8_t, uint16_t, uint32_t
+#include <ostream>      // std::basic_ostream
+#include <string_view>  // std::string_view
 #include <type_traits>
 #include <variant>
+#include <vector>       // std::vector< std::string_view >
 
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
@@ -101,7 +103,7 @@ namespace OpenXLSX
          * possible via one of the derived classes.
          * @param xmlData
          */
-        explicit XLSheetBase(XLXmlData* xmlData) : XLXmlFile(xmlData) {};
+        explicit XLSheetBase(XLXmlData* xmlData) : XLXmlFile(xmlData) {}
 
         /**
          * @brief The copy constructor.
@@ -299,6 +301,8 @@ namespace OpenXLSX
                                         .setParam("sheetID", relationshipID())
                                         .setParam("cloneName", newName));
         }
+
+    private:   // ---------- Private Member Variables ---------- //
     };
 
     /**
@@ -578,7 +582,23 @@ namespace OpenXLSX
          */
         bool setActive_impl();
 
+    private:   // ---------- Private Member Variables ---------- //
         XLMergeCells m_merges;    /**< class handling the <mergeCells> */
+
+        inline static const std::vector< std::string_view > m_nodeOrder = {      // worksheet XML root node required child sequence
+            "sheetPr",
+            "dimension",
+            "sheetViews",
+            "sheetFormatPr",
+            "cols",
+            "sheetData",
+            "sheetProtection",
+            "mergeCells",
+            "printOptions",
+            "pageMargins",
+            "pageSetup",
+            "headerFooter"
+        };
     };
 
     /**
@@ -660,6 +680,8 @@ namespace OpenXLSX
          * @param selected
          */
         void setSelected_impl(bool selected);
+
+    private:   // ---------- Private Member Variables ---------- //
     };
 
     /**
@@ -830,11 +852,7 @@ namespace OpenXLSX
          */
         void print(std::basic_ostream<char>& ostr) const;
 
-        //----------------------------------------------------------------------------------------------------------------------
-        //           Private Member Variables
-        //----------------------------------------------------------------------------------------------------------------------
-
-    private:
+    private:   // ---------- Private Member Variables ---------- //
         std::variant<XLWorksheet, XLChartsheet> m_sheet; /**<  */
     };
 }    // namespace OpenXLSX

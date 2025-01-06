@@ -99,6 +99,14 @@ namespace OpenXLSX
         ~XLXmlFile();
 
         /**
+         * @brief check whether class is linked to a valid XML file
+         * @return true if the class should have a link to valid data
+         * @return false if accessing any other sheet properties / methods could cause a segmentation fault
+         * @note for example, if an XLSheet is created with a default constructor, XLSheetBase::valid() (derived from XLXmlFile) would return false
+         */
+        bool valid() const { return m_xmlData != nullptr; }
+
+        /**
          * @brief The copy assignment operator. The default implementation has been used.
          * @param other The object to copy.
          * @return A reference to the new object.
@@ -156,7 +164,7 @@ namespace OpenXLSX
          */
         const XMLDocument& xmlDocument() const;
 
-    protected:                              // ===== PRIVATE MEMBER VARIABLES
+    protected:                            // ===== PROTECTED MEMBER VARIABLES
         XLXmlData* m_xmlData { nullptr }; /**< The underlying XML data object. */
     };
 }    // namespace OpenXLSX

@@ -418,8 +418,9 @@ void XLCellValueProxy::setString(const char* stringValue) // NOLINT
     m_cellNode->attribute("t").set_value("s");
 
     // ===== Get or create the index in the XLSharedStrings object.
-    const auto index = (m_cell->m_sharedStrings.stringExists(stringValue) ? m_cell->m_sharedStrings.getStringIndex(stringValue)
-                                                                     : m_cell->m_sharedStrings.appendString(stringValue));
+    const auto index = (m_cell->m_sharedStrings.get().stringExists(stringValue)
+    /**/                                                    ?          m_cell->m_sharedStrings.get().getStringIndex(stringValue)
+    /**/                                                             : m_cell->m_sharedStrings.get().appendString(stringValue));
 
     // ===== Set the text of the value node.
     m_cellNode->child("v").text().set(index);
@@ -466,7 +467,9 @@ XLCellValue XLCellValueProxy::getValue() const
 
         case XLValueType::String:
             if (strcmp(m_cellNode->attribute("t").value(), "s") == 0)
-                return XLCellValue { m_cell->m_sharedStrings.getString(static_cast<uint32_t>(m_cellNode->child("v").text().as_ullong())) };
+                return XLCellValue {
+                    m_cell->m_sharedStrings.get().getString(static_cast<uint32_t>(m_cellNode->child("v").text().as_ullong()))
+                };
             else if (strcmp(m_cellNode->attribute("t").value(), "str") == 0)
                 return XLCellValue { m_cellNode->child("v").text().get() };
             else if (strcmp(m_cellNode->attribute("t").value(), "inlineStr") == 0)
@@ -479,7 +482,7 @@ XLCellValue XLCellValueProxy::getValue() const
 
         case XLValueType::Error:
             return XLCellValue().setError(m_cellNode->child("v").text().as_string());
-            
+
         default:
             return XLCellValue().setError("");
     }

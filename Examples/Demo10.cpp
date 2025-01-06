@@ -17,11 +17,11 @@ bool nowide_status()
 using namespace std;
 using namespace OpenXLSX;
 
-int main( int argc, char *argv[] )
+int main()
 {
-	// ignore command line params without warning:
-	static_cast< void >( argc );
-	static_cast< void >( argv );
+	cout << "********************************************************************************\n";
+	cout << "DEMO PROGRAM #10: XLStyles Usage\n";
+	cout << "********************************************************************************\n";
 
 	std::cout << "nowide is " << ( nowide_status() ? "enabled" : "disabled" ) << std::endl;
 
@@ -226,29 +226,34 @@ int main( int argc, char *argv[] )
 		wks.cell("C7").setCellFormat( borderedCellFormat );
 		wks.cell("C7") = "borders demo";
 
-		// create a new border format style & assign it to the new cell format
-		XLStyleIndex borderFormat = borders.create( borders[ cellFormats[ borderedCellFormat ].borderIndex() ] );
+		// ===== Create a new border format style & assign it to the new cell format
+		XLStyleIndex borderFormat = borders.create();
+		// NOTE: the new border format uses a default (empty) borders object to demonstrate OpenXLSX ordered inserts.
+		//       Using an existing border style as a template would copy the OpenXLSX default border style which
+		//       already contains elements in the correct sequence, so that inserts could not be demonstrated.
 		cellFormats[ borderedCellFormat ].setBorderIndex( borderFormat );
 
 		borders[ borderFormat ].setDiagonalUp( false );    // setting this to true will apply the diagonal line style
 		borders[ borderFormat ].setDiagonalDown( true );   //  - both diagonals can be applied simultaneously, but only with the same style
 		borders[ borderFormat ].setOutline( true );        // not sure if this is needed at all
-		borders[ borderFormat ].setLeft      ( XLLineStyleThin,   XLColor( "ff112222" ) );
-		borders[ borderFormat ].setRight     ( XLLineStyleMedium, XLColor( "ff113333" ) );
-		borders[ borderFormat ].setTop       ( XLLineStyleDashed, XLColor( "ff114444" ) );
-		borders[ borderFormat ].setBottom    ( XLLineStyleDotted, XLColor( "ff222222" ), 0.25 );
-		borders[ borderFormat ].setDiagonal  ( XLLineStyleThick,  XLColor( "ff332222" ), -0.25 );
-		borders[ borderFormat ].setVertical  ( XLLineStyleDouble, XLColor( "ff443322" ) );
+
+		// ===== Insert lines in a "wrong" sequence that MS Office would refuse to accept, to demonstrate XLStyles ordered inserting capability
 		borders[ borderFormat ].setHorizontal( XLLineStyleHair,   XLColor( "ff446688" ) );
+		borders[ borderFormat ].setVertical  ( XLLineStyleDouble, XLColor( "ff443322" ) );
+		borders[ borderFormat ].setDiagonal  ( XLLineStyleThick,  XLColor( "ff332222" ), -0.25 );
+		borders[ borderFormat ].setBottom    ( XLLineStyleDotted, XLColor( "ff222222" ), 0.25 );
+		borders[ borderFormat ].setTop       ( XLLineStyleDashed, XLColor( "ff114444" ) );
+		borders[ borderFormat ].setRight     ( XLLineStyleMedium, XLColor( "ff113333" ) );
+		borders[ borderFormat ].setLeft      ( XLLineStyleThin,   XLColor( "ff112222" ) );
 		std::cout << "#1 borders[ " << borderFormat << " ] summary: " << borders[ borderFormat ].summary() << std::endl;
 
 		// test additional line styles with setter function:
-		borders[ borderFormat ].setLine      ( XLLineLeft,     XLLineStyleMediumDashed,     XLColor( XLDefaultFontColor ) );
-		borders[ borderFormat ].setLine      ( XLLineRight,    XLLineStyleDashDot,          XLColor( XLDefaultFontColor ), 1.0 );
-		borders[ borderFormat ].setLine      ( XLLineTop,      XLLineStyleMediumDashDot,    green );
-		borders[ borderFormat ].setLine      ( XLLineBottom,   XLLineStyleDashDotDot,       XLColor( XLDefaultFontColor ), -0.1 );
-		borders[ borderFormat ].setLine      ( XLLineDiagonal, XLLineStyleMediumDashDotDot, XLColor( XLDefaultFontColor ), -1.0 );
 		borders[ borderFormat ].setLine      ( XLLineVertical, XLLineStyleSlantDashDot,     XLColor( XLDefaultFontColor ) );
+		borders[ borderFormat ].setLine      ( XLLineDiagonal, XLLineStyleMediumDashDotDot, XLColor( XLDefaultFontColor ), -1.0 );
+		borders[ borderFormat ].setLine      ( XLLineBottom,   XLLineStyleDashDotDot,       XLColor( XLDefaultFontColor ), -0.1 );
+		borders[ borderFormat ].setLine      ( XLLineTop,      XLLineStyleMediumDashDot,    green );
+		borders[ borderFormat ].setLine      ( XLLineRight,    XLLineStyleDashDot,          XLColor( XLDefaultFontColor ), 1.0 );
+		borders[ borderFormat ].setLine      ( XLLineLeft,     XLLineStyleMediumDashed,     XLColor( XLDefaultFontColor ) );
 		std::cout << "#2 borders[ " << borderFormat << " ] summary: " << borders[ borderFormat ].summary() << std::endl;
 
 		// test direct access to line properties (read: the XLDataBarColor)

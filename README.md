@@ -7,26 +7,20 @@ Microsoft Excel® files, with the .xlsx format.
 
 As the heading says - the latest "Release" that is shown on https://github.com/troldal/OpenXLSX/releases is from 2021-11-06, and severely outdated - please pull / download the latest SW version directly from the repository in its current state. Link for those that do not want to use ```git```: https://github.com/troldal/OpenXLSX/archive/refs/heads/master.zip
 
-## (aral-matrix) 18 December 2024 - Bugfix for Issue #283 - shared strings cache was not cleared upon XLDocument::Close
-* BUGFIX XLDocument::close: shared strings cache is now being cleared on doc close, this addresses issue https://github.com/troldal/OpenXLSX/issues/283
-* zippy.hpp minor bugfix in ZipArchive::Close: m_IsOpen was not set to false
-* Demo10: improved borders demo
-* XLStyles: XLDataBarColor::setTheme now supports parameter ```XLDeleteProperty == XLInvalidUInt32 == 0xffffffff``` to delete the theme attribute from XML. This was necessary because even an empty ```theme=""``` attribute affects formatting.
-* XLStyles appendAndGetAttribute / appendAndSetAttribute: removed a redundant check for ```not node.empty()```
+## Recent changes
 
-## (aral-matrix) 17 December 2024 - Added exemplary use of XLBorder to Examples/Demo10.cpp
-* in response to https://github.com/troldal/OpenXLSX/issues/309, added use of XLBorder to Demo10
+### (aral-matrix) 30 December 2024 - removed ```XLWorkbook::sharedStrings``` and ```XLWorkbook::hasSharedStrings```
+* removed these (pointless) functions in the hopes that no one was using them - please report an issue if this causes a problem for you - if you can change the access method, ```XLDocument::sharedStrings()``` returns the same, and ```hasSharedStrings``` was always returning true anyways.
 
-**CAUTION**: Until resolution of https://github.com/troldal/OpenXLSX/issues/304, MS Office may refuse to open a file created with such a formatting due to an unnecessary restriction on the sequence of XML elements (borders).
+### (aral-matrix) 25 December 2024 - XLStyles: fixed implementation of ```strike```(through) font property to address issue #314
+* XLStyles: if the attribute ```val``` is omitted in the ```<strike>``` XML tag, the value is now interpreted as ```true``` as described in the format specification - previously this was wrongly interpreted as "strikethrough is not set". This addresses issue https://github.com/troldal/OpenXLSX/issues/314
 
-## (aral-matrix) 15 December 2024 - Bugfix for Issues 306 and #297, default-disable XLDocument & XLStyles warnings about unsupported tags (#296)
+### (aral-matrix) 20 December 2024 - XLXmlFile and derived classes (XLWorksheet!) now expose a ::valid() method
+* addressed https://github.com/troldal/OpenXLSX/issues/312 on a lower level, all classes derived from XLXmlFile now have a bool valid() method that will return true if a non-nullptr XML data block is linked to the class. For the user, this mostly matters in XLWorksheet, XLWorkbook & XLStyles
+* while addressing issue #312, implemented explicit copy/move constructors and assignment operators for XLStyles, which should also address https://github.com/troldal/OpenXLSX/issues/310
 
-* BUGFIX: document relationships in ```xl/_rels/workbook.xml.rels``` should again open without errors for both relative (to ```xl/``` folder) and absolute archive paths
-* warnings about unsupported archive contents and styles elements are now disabled by default and can be enabled using XLDocument::showWarnings() prior to opening an XLSX file
-
-## (aral-matrix) 09 December 2024 - Bugfix for XLDateTime (hopefully final ;)
-
-Reviewed the XLDateTime code in response to https://github.com/troldal/OpenXLSX/issues/299 and fixed a bug that I think I may have introduced myself. Apologies, dates should now correctly construct from ```double```, ```struct tm``` and ```time_t``` and convert back to ```struct tm```.
+### (aral-matrix) 19 December 2024 - XLStyles enhancement to address issues #304 and #305 - artificial ordering of XML elements
+* In order to address https://github.com/troldal/OpenXLSX/issues/304 and https://github.com/troldal/OpenXLSX/issues/305, some XLStyles classes now support a strict predefined XML element node order
 
 ## Change history
 
@@ -456,6 +450,47 @@ branch of this repository. However, I strongly recommend that you
 transition to the new version instead.
 
 <h2 id="detailed-change-log">Detailed change log</h2>
+
+### (aral-matrix) 30 December 2024 - removed ```XLWorkbook::sharedStrings``` and ```XLWorkbook::hasSharedStrings```
+* removed these (pointless) functions in the hopes that no one was using them - please report an issue if this causes a problem for you - if you can change the access method, ```XLDocument::sharedStrings()``` returns the same, and ```hasSharedStrings``` was always returning true anyways.
+
+### (aral-matrix) 30 December 2024 - XLSharedStrings passed as const reference everywhere, stored in std::reference_wrapper
+* this is a library internal patch that avoids constructing (& destroying) a new XLSharedStrings instance for every row/cell access
+
+### (aral-matrix) 29 December 2024 - XLXmlFile and derived classes: undid 2024-12-20 addition of xmlName() function
+* this was a function mainly foreseen for debugging purposes, but not serving any practical purpose, it was removed again
+
+### (aral-matrix) 25 December 2024 - XLStyles: fixed implementation of ```strike```(through) font property to address issue #314
+* XLStyles: if the attribute ```val``` is omitted in the ```<strike>``` XML tag, the value is now interpreted as ```true``` as described in the format specification - previously this was wrongly interpreted as "strikethrough is not set". This addresses issue https://github.com/troldal/OpenXLSX/issues/314
+
+### (aral-matrix) 23 December 2024 - XLStyles, XLSheet, XLUtilities: moved XML node insertion functions to XLUtilities, introduced m_nodeOrder in XLSheet for ordered insert of root nodes
+* XLSheet now also uses the ordered insert functionality added on 2024-12-19. Required functions were moved from XLStyles to XLUtilities.
+
+### (aral-matrix) 20 December 2024 - XLXmlFile and derived classes (XLWorksheet!) now expose a ::valid() method
+* addressed https://github.com/troldal/OpenXLSX/issues/312 on a lower level, all classes derived from XLXmlFile now have a bool valid() method that will return true if a non-nullptr XML data block is linked to the class. For the user, this mostly matters in XLWorksheet, XLWorkbook & XLStyles
+* while addressing issue #312, implemented explicit copy/move constructors and assignment operators for XLStyles, which should also address https://github.com/troldal/OpenXLSX/issues/310
+
+### (aral-matrix) 19 December 2024 - XLStyles enhancement to address issues #304 and #305 - artificial ordering of XML elements
+* In order to address https://github.com/troldal/OpenXLSX/issues/304 and https://github.com/troldal/OpenXLSX/issues/305, some XLStyles classes now support a strict predefined XML element node order
+
+### (aral-matrix) 18 December 2024 - Bugfix for Issue #283 - shared strings cache was not cleared upon XLDocument::Close
+* BUGFIX XLDocument::close: shared strings cache is now being cleared on doc close, this addresses issue https://github.com/troldal/OpenXLSX/issues/283
+* zippy.hpp minor bugfix in ZipArchive::Close: m_IsOpen was not set to false
+* Demo10: improved borders demo
+* XLStyles: XLDataBarColor::setTheme now supports parameter ```XLDeleteProperty == XLInvalidUInt32 == 0xffffffff``` to delete the theme attribute from XML. This was necessary because even an empty ```theme=""``` attribute affects formatting.
+* XLStyles appendAndGetAttribute / appendAndSetAttribute: removed a redundant check for ```not node.empty()```
+
+### (aral-matrix) 17 December 2024 - Added exemplary use of XLBorder to Examples/Demo10.cpp
+* in response to https://github.com/troldal/OpenXLSX/issues/309, added use of XLBorder to Demo10
+
+### (aral-matrix) 15 December 2024 - Bugfix for Issues 306 and #297, default-disable XLDocument & XLStyles warnings about unsupported tags (#296)
+
+* BUGFIX: document relationships in ```xl/_rels/workbook.xml.rels``` should again open without errors for both relative (to ```xl/``` folder) and absolute archive paths
+* warnings about unsupported archive contents and styles elements are now disabled by default and can be enabled using XLDocument::showWarnings() prior to opening an XLSX file
+
+### (aral-matrix) 09 December 2024 - Bugfix for XLDateTime (hopefully final ;)
+
+Reviewed the XLDateTime code in response to https://github.com/troldal/OpenXLSX/issues/299 and fixed a bug that I think I may have introduced myself. Apologies, dates should now correctly construct from ```double```, ```struct tm``` and ```time_t``` and convert back to ```struct tm```.
 
 ### (aral-matrix) 27 October 2024 - Bugfix for XLSheet::mergeCells
 

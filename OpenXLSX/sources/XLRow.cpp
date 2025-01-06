@@ -62,7 +62,11 @@ namespace OpenXLSX
      * @pre
      * @post
      */
-    XLRow::XLRow() : m_rowNode(nullptr), m_rowDataProxy(this, m_rowNode.get()) {}
+    XLRow::XLRow()
+        : m_rowNode(nullptr),
+          m_sharedStrings(XLSharedStringsDefaulted),
+          m_rowDataProxy(this, m_rowNode.get())
+    {}
 
     /**
      * @details Constructs a new XLRow object from information in the underlying XML file. A pointer to the corresponding
@@ -130,7 +134,7 @@ namespace OpenXLSX
     {
         if (&other != this) {
             m_rowNode       = std::move(other.m_rowNode);
-            m_sharedStrings = other.m_sharedStrings;
+            m_sharedStrings = std::move(other.m_sharedStrings);
             m_rowDataProxy  = XLRowDataProxy(this, m_rowNode.get());
         }
         return *this;
@@ -256,7 +260,7 @@ namespace OpenXLSX
     {
         const XMLNode node = m_rowNode->last_child_of_type(pugi::node_element);
         if (node.empty()) return XLRowDataRange();    // empty range
-        return XLRowDataRange(*m_rowNode, 1, XLCellReference(node.attribute("r").value()).column(), m_sharedStrings);
+        return XLRowDataRange(*m_rowNode, 1, XLCellReference(node.attribute("r").value()).column(), m_sharedStrings.get());
     }
 
     /**
@@ -264,7 +268,7 @@ namespace OpenXLSX
      * @pre
      * @post
      */
-    XLRowDataRange XLRow::cells(uint16_t cellCount) const { return XLRowDataRange(*m_rowNode, 1, cellCount, m_sharedStrings); }
+    XLRowDataRange XLRow::cells(uint16_t cellCount) const { return XLRowDataRange(*m_rowNode, 1, cellCount, m_sharedStrings.get()); }
 
     /**
      * @details
@@ -273,13 +277,13 @@ namespace OpenXLSX
      */
     XLRowDataRange XLRow::cells(uint16_t firstCell, uint16_t lastCell) const
     {
-        return XLRowDataRange(*m_rowNode, firstCell, lastCell, m_sharedStrings);
+        return XLRowDataRange(*m_rowNode, firstCell, lastCell, m_sharedStrings.get());
     }
 
     /**
      * @details Find & return a cell in indicated column
      */
-    XLCell XLRow::findCell(uint16_t columnNumber) const
+    XLCell XLRow::findCell(uint16_t columnNumber)
     {
         if (m_rowNode->empty()) return XLCell{};
 
@@ -309,7 +313,7 @@ namespace OpenXLSX
             if (XLCellReference(cellNode.attribute("r").value()).column() > columnNumber)
                 return XLCell{}; // fail
         }
-        return XLCell(cellNode, m_sharedStrings);
+        return XLCell(cellNode, m_sharedStrings.get());
     }
 
     /**
@@ -378,7 +382,7 @@ namespace OpenXLSX
         if (loc == XLIteratorLocation::End)
             m_currentRow = XLRow();
         else {
-            m_currentRow = XLRow(getRowNode(*m_dataNode, m_firstRow), m_sharedStrings);
+            m_currentRow = XLRow(getRowNode(*m_dataNode, m_firstRow), m_sharedStrings.get());
         }
     }
 
@@ -447,11 +451,11 @@ namespace OpenXLSX
         else if (rowNode.empty() || rowNode.attribute("r").as_ullong() != rowNumber) {
             rowNode = m_dataNode->insert_child_after("row", *m_currentRow.m_rowNode);
             rowNode.append_attribute("r").set_value(rowNumber);
-            m_currentRow = XLRow(rowNode, m_sharedStrings);
+            m_currentRow = XLRow(rowNode, m_sharedStrings.get());
         }
 
         else
-            m_currentRow = XLRow(rowNode, m_sharedStrings);
+            m_currentRow = XLRow(rowNode, m_sharedStrings.get());
 
         return *this;
     }
@@ -513,7 +517,7 @@ namespace OpenXLSX
      * @pre
      * @post
      */
-    XLRowRange::XLRowRange(const XMLNode& dataNode, uint32_t first, uint32_t last, const OpenXLSX::XLSharedStrings& sharedStrings)
+    XLRowRange::XLRowRange(const XMLNode& dataNode, uint32_t first, uint32_t last, const XLSharedStrings& sharedStrings)
         : m_dataNode(std::make_unique<XMLNode>(dataNode)),
           m_firstRow(first),
           m_lastRow(last),

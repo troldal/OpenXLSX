@@ -245,7 +245,7 @@ namespace OpenXLSX
          */
         std::vector<XLContentItem> getContentItems();
 
-        // ---------- Protected Member Functions ---------- //
+    private:   // ---------- Private Member Variables ---------- //
     };
 }    // namespace OpenXLSX
 

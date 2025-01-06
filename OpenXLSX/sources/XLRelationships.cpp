@@ -45,6 +45,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== External Includes ===== //
 #include <cstdint>      // uint32_t
+#include <cstring>      // strlen
 #include <memory>       // std::make_unique
 #include <pugixml.hpp>
 #include <random>       // std::mt19937, std::random_device
@@ -451,7 +452,7 @@ XLRelationshipItem XLRelationships::addRelationship(XLRelationshipType type, con
             copyWhitespaceFrom = copyWhitespaceFrom.previous_sibling();
             // ===== Insert a whitespace node
             insertBefore = xmlDocument().document_element().insert_child_before(pugi::node_pcdata, insertBefore);
-            insertBefore.set_value(copyWhitespaceFrom.value());            // copy the a whitespace in sequence node value
+            insertBefore.set_value(copyWhitespaceFrom.value());            // copy the whitespace node value in sequence
         }
     }
     node.append_attribute("Id").set_value(id.c_str());

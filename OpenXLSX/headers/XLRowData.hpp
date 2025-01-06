@@ -225,7 +225,7 @@ namespace OpenXLSX
         std::unique_ptr<XMLNode> m_rowNode;        /**< */
         uint16_t                 m_firstCol { 1 }; /**< The cell reference of the first cell in the range */
         uint16_t                 m_lastCol { 1 };  /**< The cell reference of the last cell in the range */
-        XLSharedStrings          m_sharedStrings;  /**< */
+        XLSharedStringsRef       m_sharedStrings;  /**< */
     };
 
     /**
@@ -411,10 +411,11 @@ namespace OpenXLSX
         std::vector<XLCellValue> getValues() const;
 
         /**
-         * @brief Helper function for getting a pointer to the shared strings repository.
-         * @return A pointer to an XLSharedStrings object.
+         * @brief Helper function for getting a reference to the shared strings repository.
+         * @return A reference to the XLSharedStrings object.
+         * @note needed for templated XLRowDataProxy& operator=
          */
-        XLSharedStrings getSharedStrings() const;
+        const XLSharedStrings& getSharedStrings() const;
 
         /**
          * @brief Convenience function for erasing the first 'count' numbers of values in the row.

@@ -62,7 +62,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 namespace OpenXLSX
 {
-    class XLSharedStrings;
+    // class XLSharedStrings;
 
     class XLSheet;
 
@@ -94,7 +94,7 @@ namespace OpenXLSX
         /**
          * @brief Constructor. Takes a pointer to an XLXmlData object (stored in the parent XLDocument object).
          * @param xmlData A pointer to the underlying XLXmlData object, which holds the XML data.
-         * @note Do not create an XLWorkbook object directly. Get access through the an XLDocument object.
+         * @note Do not create an XLWorkbook object directly. Access via XLDocument::workbook().
          */
         explicit XLWorkbook(XLXmlData* xmlData);
 
@@ -291,18 +291,18 @@ namespace OpenXLSX
          */
         void updateSheetReferences(const std::string& oldName, const std::string& newName);
 
-        /**
-         * @brief
-         * @return
-         */
-        XLSharedStrings sharedStrings();
-
-        /**
-         * @brief
-         * @return
-         */
-        bool hasSharedStrings() const;
-
+        // /**
+        //  * @brief
+        //  * @return
+        //  */
+        // XLSharedStrings sharedStrings();
+        //
+        // /**
+        //  * @brief
+        //  * @return
+        //  */
+        // bool hasSharedStrings() const;
+        //
         /**
          * @brief
          */
