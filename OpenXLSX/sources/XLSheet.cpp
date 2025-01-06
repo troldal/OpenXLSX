@@ -244,6 +244,209 @@ XLSheet::operator XLChartsheet() const { return this->get<XLChartsheet>(); }
 void XLSheet::print(std::basic_ostream<char>& ostr) const { xmlDocument().document_element().print( ostr ); }
 
 
+// ========== XLConditionalFormats Member Functions
+/**
+ * @details Constructor. Initializes an empty XLCfRules object
+ */
+XLCfRules::XLCfRules() : m_conditionalFormattingNode(std::make_unique<XMLNode>()) {}
+
+/**
+ * @details Constructor. Initializes the member variables for the new XLCellStyle object.
+ */
+XLCfRules::XLCfRules(const XMLNode& node) : m_conditionalFormattingNode(std::make_unique<XMLNode>(node)) {}
+
+XLCfRules::XLCfRules(const XLCfRules& other)
+    : m_conditionalFormattingNode(std::make_unique<XMLNode>(*other.m_conditionalFormattingNode))
+{}
+
+XLCfRules::~XLCfRules() = default;
+
+XLCfRules& XLCfRules::operator=(const XLCfRules& other)
+{
+    if (&other != this) *m_conditionalFormattingNode = *other.m_conditionalFormattingNode;
+    return *this;
+}
+
+/**
+ * @details Returns the style empty status
+ */
+bool XLCfRules::empty() const { return m_conditionalFormattingNode->empty(); }
+
+/**
+ * @details Getter functions
+ */
+// TODO
+
+/**
+ * @details Setter functions
+ */
+// TODO / N/A
+
+
+/**
+ * @details assemble a string summary about the conditional formatting rules
+ */
+std::string XLCfRules::summary() const
+{
+    using namespace std::literals::string_literals;
+    return ""; // TODO: loop over XLCfRule entries and concatenate their summary
+}
+
+
+/**
+ * @details Constructor. Initializes an empty XLConditionalFormat object
+ */
+XLConditionalFormat::XLConditionalFormat() : m_conditionalFormattingNode(std::make_unique<XMLNode>()) {}
+
+/**
+ * @details Constructor. Initializes the member variables for the new XLCellStyle object.
+ */
+XLConditionalFormat::XLConditionalFormat(const XMLNode& node) : m_conditionalFormattingNode(std::make_unique<XMLNode>(node)) {}
+
+XLConditionalFormat::XLConditionalFormat(const XLConditionalFormat& other)
+    : m_conditionalFormattingNode(std::make_unique<XMLNode>(*other.m_conditionalFormattingNode))
+{}
+
+XLConditionalFormat::~XLConditionalFormat() = default;
+
+XLConditionalFormat& XLConditionalFormat::operator=(const XLConditionalFormat& other)
+{
+    if (&other != this) *m_conditionalFormattingNode = *other.m_conditionalFormattingNode;
+    return *this;
+}
+
+/**
+ * @details Returns the style empty status
+ */
+bool XLConditionalFormat::empty() const { return m_conditionalFormattingNode->empty(); }
+
+/**
+ * @details Getter functions
+ */
+std::string  XLConditionalFormat::sqref  () const { return m_conditionalFormattingNode->attribute("sqref").value(); }
+XLCfRules    XLConditionalFormat::cfRules() const { return XLCfRules( *m_conditionalFormattingNode );               }
+
+/**
+ * @details Setter functions
+ */
+bool XLConditionalFormat::setSqref(std::string newSqref) { return appendAndSetAttribute(*m_conditionalFormattingNode, "sqref", newSqref).empty() == false; }
+
+/**
+ * @brief Unsupported setter function
+ */
+bool XLConditionalFormat::setExtLst(XLUnsupportedElement const& newExtLst) { OpenXLSX::ignore(newExtLst); return false; }
+
+/**
+ * @details assemble a string summary about the conditional formatting
+ */
+std::string XLConditionalFormat::summary() const
+{
+    using namespace std::literals::string_literals;
+    return "sqref="s + sqref()
+         + ", cfRules="s + cfRules().summary();
+}
+
+// ===== XLConditionalFormats, parent of XLConditionalFormat
+
+/**
+ * @details Constructor. Initializes an empty XLConditionalFormats object
+ */
+XLConditionalFormats::XLConditionalFormats() : m_sheetNode(std::make_unique<XMLNode>()) {}
+
+/**
+ * @details Constructor. Initializes the member variables for the new XLConditionalFormats object.
+ */
+XLConditionalFormats::XLConditionalFormats(const XMLNode& sheet)
+    : m_sheetNode(std::make_unique<XMLNode>(sheet))
+{}
+
+XLConditionalFormats::~XLConditionalFormats() {}
+
+XLConditionalFormats::XLConditionalFormats(const XLConditionalFormats& other)
+    : m_sheetNode(std::make_unique<XMLNode>(*other.m_sheetNode))
+{}
+
+XLConditionalFormats::XLConditionalFormats(XLConditionalFormats&& other)
+    : m_sheetNode(std::move(other.m_sheetNode))
+{}
+
+
+/**
+ * @details Copy assignment operator
+ */
+XLConditionalFormats& XLConditionalFormats::operator=(const XLConditionalFormats& other)
+{
+    if (&other != this) {
+        *m_sheetNode = *other.m_sheetNode;
+    }
+    return *this;
+}
+
+/**
+ * @details Returns the amount of numberFormats held by the class
+ */
+size_t XLConditionalFormats::count() const
+{
+    XMLNode node = m_sheetNode->first_child_of_type(pugi::node_element);
+    while( not node.empty() && std::string(node.name()) != "conditionalFormatting" )
+        node = node.next_sibling_of_type(pugi::node_element);
+    size_t count = 0;
+    while( not node.empty() && std::string(node.name()) == "conditionalFormatting" ) {
+        ++count;
+        node = node.next_sibling_of_type(pugi::node_element);
+    }
+    return count;
+}
+
+/**
+ * @details fetch XLCellStyle from m_cellStyles by index
+ */
+XLConditionalFormat XLConditionalFormats::conditionalFormatByIndex(size_t index) const
+{
+    XMLNode node = m_sheetNode->first_child_of_type(pugi::node_element);
+    while( not node.empty() && std::string(node.name()) != "conditionalFormatting" )
+        node = node.next_sibling_of_type(pugi::node_element);
+
+    if (not node.empty()) {
+        size_t count = 0;
+        while( not node.empty() && std::string(node.name()) == "conditionalFormatting" && count < index ) {
+            ++count;
+            node = node.next_sibling_of_type(pugi::node_element);
+        }
+        if( count == index && std::string(node.name()) == "conditionalFormatting" )
+            return XLConditionalFormat( node );
+    }
+    using namespace std::literals::string_literals;
+    throw XLException("XLConditionalFormats::"s + __func__ + ": conditional format with index "s + std::to_string( index ) + " does not exist");
+}
+
+/**
+ * @details append a new XLConditionalFormat to m_sheetNode, based on copyFrom
+ */
+size_t XLConditionalFormats::create([[maybe_unused]] XLConditionalFormat copyFrom, std::string conditionalFormattingPrefix)
+{
+    size_t index = count();   // index for the cell style to be created
+    XMLNode newNode{};        // scope declaration
+
+    // ===== Append new node prior to final whitespaces, if any
+    if (index == 0) newNode = appendAndGetNode(*m_sheetNode, "conditionalFormatting", m_nodeOrder);
+    else {
+        XMLNode lastConditionalFormat = *conditionalFormatByIndex( index - 1 ).m_conditionalFormattingNode;
+        if( not lastConditionalFormat.empty() )
+            newNode = m_sheetNode->insert_child_after( "conditionalFormatting", lastConditionalFormat );
+    }
+    if( newNode.empty() ) {
+        using namespace std::literals::string_literals;
+        throw XLException("XLConditionalFormats::"s + __func__ + ": failed to create a new conditional formatting entry");
+	 }
+
+    // copyXMLNode(newNode, *copyFrom.m_conditionalFormattingNode); // will use copyFrom as template, does nothing if copyFrom is empty
+    m_sheetNode->insert_child_before(pugi::node_pcdata, newNode).set_value(conditionalFormattingPrefix.c_str());    // prefix the new node with conditionalFormattingPrefix
+
+    return index;
+}
+
+
 // ========== XLWorksheet Member Functions
 
 /**
@@ -753,6 +956,11 @@ bool XLWorksheet::setRowFormat(uint32_t rowNumber, XLStyleIndex cellFormatIndex)
             return false;
     return true; // if loop finished nominally: success
 }
+
+/**
+ * @details Provide access to worksheet conditional formats
+ */
+XLConditionalFormats XLWorksheet::conditionalFormats() const { return XLConditionalFormats( xmlDocument().document_element() ); }
 
 /**
  * @details Constructor

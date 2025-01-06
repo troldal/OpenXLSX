@@ -305,6 +305,270 @@ namespace OpenXLSX
     private:   // ---------- Private Member Variables ---------- //
     };
 
+
+    // ================================================================================
+    // XLConditionalFormats Class
+    // ================================================================================
+
+    /**
+     * @brief An encapsulation of a conditional formatting rules item
+     */
+    class OPENXLSX_EXPORT XLCfRules
+    {
+    public:
+        /**
+         * @brief
+         */
+        XLCfRules();
+
+        /**
+         * @brief Constructor. New items should only be created through an XLConditionalFormat object.
+         * @param node An XMLNode object with the conditionalFormatting item. If no input is provided, a null node is used.
+         */
+        explicit XLCfRules(const XMLNode& node);
+
+        /**
+         * @brief Copy Constructor.
+         * @param other Object to be copied.
+         */
+        XLCfRules(const XLCfRules& other);
+
+        /**
+         * @brief Move Constructor.
+         * @param other Object to be moved.
+         */
+        XLCfRules(XLCfRules&& other) noexcept = default;
+
+        /**
+         * @brief
+         */
+        ~XLCfRules();
+
+        /**
+         * @brief Copy assignment operator.
+         * @param other Right hand side of assignment operation.
+         * @return A reference to the lhs object.
+         */
+        XLCfRules& operator=(const XLCfRules& other);
+
+        /**
+         * @brief Move assignment operator.
+         * @param other Right hand side of assignment operation.
+         * @return A reference to lhs object.
+         */
+        XLCfRules& operator=(XLCfRules&& other) noexcept = default;
+
+        /**
+         * @brief Test if this is an empty node
+         * @return true if underlying XMLNode is empty
+         */
+        bool empty() const;
+
+        // TODO: provide getter/setter functions to the underlying XLCfRule entries by index
+
+        /**
+         * @brief Return a string summary of the conditional formatting rules properties
+         * @return string with info about the cell style object
+         */
+        std::string summary() const;
+
+    private:                                                   // ---------- Private Member Variables ---------- //
+        std::unique_ptr<XMLNode> m_conditionalFormattingNode;  /**< An XMLNode object with the conditional formatting item */
+    };
+
+    /**
+     * @brief An encapsulation of a conditional formatting item
+     */
+    class OPENXLSX_EXPORT XLConditionalFormat
+    {
+        friend class XLConditionalFormats;    // for access to m_conditionalFormattingNode in XLConditionalFormats::create
+    public:    // ---------- Public Member Functions ---------- //
+        /**
+         * @brief
+         */
+        XLConditionalFormat();
+
+        /**
+         * @brief Constructor. New items should only be created through an XLWorksheet object.
+         * @param node An XMLNode object with the conditionalFormatting item. If no input is provided, a null node is used.
+         */
+        explicit XLConditionalFormat(const XMLNode& node);
+
+        /**
+         * @brief Copy Constructor.
+         * @param other Object to be copied.
+         */
+        XLConditionalFormat(const XLConditionalFormat& other);
+
+        /**
+         * @brief Move Constructor.
+         * @param other Object to be moved.
+         */
+        XLConditionalFormat(XLConditionalFormat&& other) noexcept = default;
+
+        /**
+         * @brief
+         */
+        ~XLConditionalFormat();
+
+        /**
+         * @brief Copy assignment operator.
+         * @param other Right hand side of assignment operation.
+         * @return A reference to the lhs object.
+         */
+        XLConditionalFormat& operator=(const XLConditionalFormat& other);
+
+        /**
+         * @brief Move assignment operator.
+         * @param other Right hand side of assignment operation.
+         * @return A reference to lhs object.
+         */
+        XLConditionalFormat& operator=(XLConditionalFormat&& other) noexcept = default;
+
+        /**
+         * @brief Test if this is an empty node
+         * @return true if underlying XMLNode is empty
+         */
+        bool empty() const;
+
+        /**
+         * @brief Get the sqref property - the range over which these conditional formatting rules apply
+         * @return string of the sqref property
+         */
+        std::string sqref() const;
+
+        /**
+         * @brief Get the conditional formatting rules to be applied to sqref
+         * @return the conditional formatting rules applicable to sqref
+         */
+        XLCfRules cfRules() const;
+
+
+        /**
+         * @brief Unsupported getter
+         */
+        XLUnsupportedElement extLst() const { return XLUnsupportedElement{}; } // <conditionalFormatting><extLst>...</extLst></conditionalFormatting>
+
+        /**
+         * @brief Setter functions for conditional formatting parameters
+         * @param value that shall be set
+         * @return true for success, false for failure
+         */
+        bool setSqref        (std::string newSqref);
+
+        /**
+         * @brief Unsupported setter
+         */
+        bool setExtLst   (XLUnsupportedElement const& newExtLst);
+
+        /**
+         * @brief Return a string summary of the cell style properties
+         * @return string with info about the cell style object
+         */
+        std::string summary() const;
+
+    private:                                                   // ---------- Private Member Variables ---------- //
+        std::unique_ptr<XMLNode> m_conditionalFormattingNode;  /**< An XMLNode object with the conditional formatting item */
+    };
+
+
+    constexpr const char * XLDefaultConditionalFormattingPrefix = "\n\t"; // indentation to use for newly created conditional formatting nodes
+
+    /**
+     * @brief An encapsulation of the XLSX conditional formats
+     */
+    class OPENXLSX_EXPORT XLConditionalFormats
+    {
+    public:    // ---------- Public Member Functions ---------- //
+        /**
+         * @brief
+         */
+        XLConditionalFormats();
+
+        /**
+         * @brief Constructor. New items should only be created through an XLWorksheet object.
+         * @param node An XMLNode object with the worksheet root node. Required to access / manipulate any conditional formats
+         */
+        explicit XLConditionalFormats(const XMLNode& node);
+
+        /**
+         * @brief Copy Constructor.
+         * @param other Object to be copied.
+         */
+        XLConditionalFormats(const XLConditionalFormats& other);
+
+        /**
+         * @brief Move Constructor.
+         * @param other Object to be moved.
+         */
+        XLConditionalFormats(XLConditionalFormats&& other);
+
+        /**
+         * @brief
+         */
+        ~XLConditionalFormats();
+
+        /**
+         * @brief Copy assignment operator.
+         * @param other Right hand side of assignment operation.
+         * @return A reference to the lhs object.
+         */
+        XLConditionalFormats& operator=(const XLConditionalFormats& other);
+
+        /**
+         * @brief Move assignment operator.
+         * @param other Right hand side of assignment operation.
+         * @return A reference to lhs object.
+         */
+        XLConditionalFormats& operator=(XLConditionalFormats&& other) noexcept = default;
+
+        /**
+         * @brief Get the count of conditional formatting settings
+         * @return The amount of <conditionalFormatting> nodes in the worksheet
+         */
+        size_t count() const;
+
+        /**
+         * @brief Get the conditional format identified by index
+         * @return An XLConditionalFormat object
+         */
+        XLConditionalFormat conditionalFormatByIndex(size_t index) const;
+
+        /**
+         * @brief Operator overload: allow [] as shortcut access to conditionalFormatByIndex
+         * @param index The index within the XML sequence
+         * @return An XLConditionalFormat object
+         */
+        XLConditionalFormat operator[](size_t index) const { return conditionalFormatByIndex(index); }
+
+        /**
+         * @brief Append a new XLConditionalFormat, based on copyFrom, and return its index in the worksheet's conditional formats
+         * @param copyFrom Can provide an XLConditionalFormat to use as template for the new condition
+         * @param conditionalFormattingPrefix Prefix the newly created conditionalFormatting XMLNode with this pugi::node_pcdata text
+         * @returns The index of the new conditional formatting as used by operator[]
+         */
+        size_t create(XLConditionalFormat copyFrom = XLConditionalFormat{}, std::string conditionalFormattingPrefix = XLDefaultConditionalFormattingPrefix);
+
+    private:                                    // ---------- Private Member Variables ---------- //
+        std::unique_ptr<XMLNode> m_sheetNode;   /**< An XMLNode object with the sheet item */
+        // TODO: pass in m_nodeOrder from XLWorksheet
+        inline static const std::vector< std::string_view > m_nodeOrder = {      // worksheet XML root node required child sequence
+            "sheetPr",
+            "dimension",
+            "sheetViews",
+            "sheetFormatPr",
+            "cols",
+            "sheetData",
+            "sheetProtection",
+            "mergeCells",
+            "conditionalFormatting",
+            "printOptions",
+            "pageMargins",
+            "pageSetup",
+            "headerFooter"
+        };
+    };
+
     /**
      * @brief A class encapsulating an Excel worksheet. Access to XLWorksheet objects should be via the workbook object.
      */
@@ -400,7 +664,7 @@ namespace OpenXLSX
          * @return An XLCellRange object with the requested range.
          */
         XLCellRange range(std::string const& topLeft, std::string const& bottomRight) const;
-   
+
         /**
          * @brief Get a range with the given coordinates.
          * @param rangeReference A std::string that contains two XLCellReferences separated by a delimiter ':'
@@ -545,6 +809,13 @@ namespace OpenXLSX
          */
         bool setRowFormat(uint32_t row, XLStyleIndex cellFormatIndex);
 
+        /**
+         * @brief Get the conditional formats object
+         * @return An XLConditionalFormats object
+         */
+        XLConditionalFormats conditionalFormats() const;
+
+
     private:
 
         /**
@@ -594,6 +865,7 @@ namespace OpenXLSX
             "sheetData",
             "sheetProtection",
             "mergeCells",
+            "conditionalFormatting",
             "printOptions",
             "pageMargins",
             "pageSetup",
