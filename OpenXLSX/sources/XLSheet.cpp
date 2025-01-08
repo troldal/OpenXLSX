@@ -44,7 +44,9 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
  */
 
 // ===== External Includes ===== //
-#include <algorithm>
+#include <algorithm> // std::max
+#include <limits>    // std::numeric_limits
+#include <map>       // std::multimap
 #include <pugixml.hpp>
 
 // ===== OpenXLSX Includes ===== //
@@ -109,6 +111,152 @@ namespace OpenXLSX
             .as_bool();    // BUGFIX 2024-05-01: .value() "0" was evaluating to true
     }
 
+
+    /**
+     * @brief get the correct XLCfType from the OOXML cfRule type attribute string
+     * @param typeString the string as used in the OOXML
+     * @return the corresponding XLCfType enum value
+     */
+    XLCfType XLCfTypeFromString(std::string const& typeString)
+    {
+        if (typeString == "expression")        return XLCfType::Expression;
+        if (typeString == "cellIs")            return XLCfType::CellIs;
+        if (typeString == "colorScale")        return XLCfType::ColorScale;
+        if (typeString == "dataBar")           return XLCfType::DataBar;
+        if (typeString == "iconSet")           return XLCfType::IconSet;
+        if (typeString == "top10")             return XLCfType::Top10;
+        if (typeString == "uniqueValues")      return XLCfType::UniqueValues;
+        if (typeString == "duplicateValues")   return XLCfType::DuplicateValues;
+        if (typeString == "containsText")      return XLCfType::ContainsText;
+        if (typeString == "notContainsText")   return XLCfType::NotContainsText;
+        if (typeString == "beginsWith")        return XLCfType::BeginsWith;
+        if (typeString == "endsWith")          return XLCfType::EndsWith;
+        if (typeString == "containsBlanks")    return XLCfType::ContainsBlanks;
+        if (typeString == "notContainsBlanks") return XLCfType::NotContainsBlanks;
+        if (typeString == "containsErrors")    return XLCfType::ContainsErrors;
+        if (typeString == "notContainsErrors") return XLCfType::NotContainsErrors;
+        if (typeString == "timePeriod")        return XLCfType::TimePeriod;
+        if (typeString == "aboveAverage")      return XLCfType::AboveAverage;
+        return XLCfType::Invalid;
+    }
+
+    /**
+     * @brief inverse of XLCfTypeFromString
+     * @param cfType the type for which to get the OOXML string
+     */
+    std::string XLCfTypeToString(XLCfType cfType)
+    {
+        switch (cfType) {
+            case XLCfType::Expression:         return "expression";
+            case XLCfType::CellIs:             return "cellIs";
+            case XLCfType::ColorScale:         return "colorScale";
+            case XLCfType::DataBar:            return "dataBar";
+            case XLCfType::IconSet:            return "iconSet";
+            case XLCfType::Top10:              return "top10";
+            case XLCfType::UniqueValues:       return "uniqueValues";
+            case XLCfType::DuplicateValues:    return "duplicateValues";
+            case XLCfType::ContainsText:       return "containsText";
+            case XLCfType::NotContainsText:    return "notContainsText";
+            case XLCfType::BeginsWith:         return "beginsWith";
+            case XLCfType::EndsWith:           return "endsWith";
+            case XLCfType::ContainsBlanks:     return "containsBlanks";
+            case XLCfType::NotContainsBlanks:  return "notContainsBlanks";
+            case XLCfType::ContainsErrors:     return "containsErrors";
+            case XLCfType::NotContainsErrors:  return "notContainsErrors";
+            case XLCfType::TimePeriod:         return "timePeriod";
+            case XLCfType::AboveAverage:       return "aboveAverage";
+            case XLCfType::Invalid:            [[fallthrough]];
+            default:                           return "(invalid)";
+        }
+    }
+
+    /**
+     * @brief get the correct XLCfOperator from the OOXML cfRule operator attribute string
+     * @param operatorString the string as used in the OOXML
+     * @return the corresponding XLCfOperator enum value
+     */
+    XLCfOperator XLCfOperatorFromString(std::string const& operatorString)
+    {
+        if (operatorString == "lessThan")           return XLCfOperator::LessThan;
+        if (operatorString == "lessThanOrEqual")    return XLCfOperator::LessThanOrEqual;
+        if (operatorString == "equal")              return XLCfOperator::Equal;
+        if (operatorString == "notEqual")           return XLCfOperator::NotEqual;
+        if (operatorString == "greaterThanOrEqual") return XLCfOperator::GreaterThanOrEqual;
+        if (operatorString == "greaterThan")        return XLCfOperator::GreaterThan;
+        if (operatorString == "between")            return XLCfOperator::Between;
+        if (operatorString == "notBetween")         return XLCfOperator::NotBetween;
+        if (operatorString == "containsText")       return XLCfOperator::ContainsText;
+        if (operatorString == "notContains")        return XLCfOperator::NotContains;
+        if (operatorString == "beginsWith")         return XLCfOperator::BeginsWith;
+        if (operatorString == "endsWith")           return XLCfOperator::EndsWith;
+        return XLCfOperator::Invalid;
+    }
+
+    /**
+     * @brief inverse of XLCfOperatorFromString
+     * @param cfOperator the XLCfOperator for which to get the OOXML string
+     */
+    std::string XLCfOperatorToString(XLCfOperator cfOperator)
+    {
+        switch (cfOperator) {
+            case XLCfOperator::LessThan:            return "lessThan";
+            case XLCfOperator::LessThanOrEqual:     return "lessThanOrEqual";
+            case XLCfOperator::Equal:               return "equal";
+            case XLCfOperator::NotEqual:            return "notEqual";
+            case XLCfOperator::GreaterThanOrEqual:  return "greaterThanOrEqual";
+            case XLCfOperator::GreaterThan:         return "greaterThan";
+            case XLCfOperator::Between:             return "between";
+            case XLCfOperator::NotBetween:          return "notBetween";
+            case XLCfOperator::ContainsText:        return "containsText";
+            case XLCfOperator::NotContains:         return "notContains";
+            case XLCfOperator::BeginsWith:          return "beginsWith";
+            case XLCfOperator::EndsWith:            return "endsWith";
+            case XLCfOperator::Invalid:             [[fallthrough]];
+            default:                                return "(invalid)";
+        }
+    }
+
+    /**
+     * @brief get the correct XLCfTimePeriod from the OOXML cfRule timePeriod attribute string
+     * @param operatorString the string as used in the OOXML
+     * @return the corresponding XLCfTimePeriod enum value
+     */
+    XLCfTimePeriod XLCfTimePeriodFromString(std::string const& timePeriodString)
+    {
+        if (timePeriodString == "today")     return XLCfTimePeriod::Today;
+        if (timePeriodString == "yesterday") return XLCfTimePeriod::Yesterday;
+        if (timePeriodString == "tomorrow")  return XLCfTimePeriod::Tomorrow;
+        if (timePeriodString == "last7Days") return XLCfTimePeriod::Last7Days;
+        if (timePeriodString == "thisMonth") return XLCfTimePeriod::ThisMonth;
+        if (timePeriodString == "lastMonth") return XLCfTimePeriod::LastMonth;
+        if (timePeriodString == "nextMonth") return XLCfTimePeriod::NextMonth;
+        if (timePeriodString == "thisWeek")  return XLCfTimePeriod::ThisWeek;
+        if (timePeriodString == "lastWeek")  return XLCfTimePeriod::LastWeek;
+        if (timePeriodString == "nextWeek")  return XLCfTimePeriod::NextWeek;
+        return XLCfTimePeriod::Invalid;
+    }
+
+    /**
+     * @brief inverse of XLCfOperatorFromString
+     * @param cfOperator the XLCfTimePeriod for which to get the OOXML string
+     */
+    std::string XLCfTimePeriodToString(XLCfTimePeriod cfTimePeriod)
+    {
+        switch (cfTimePeriod) {
+            case XLCfTimePeriod::Today:     return "today";
+            case XLCfTimePeriod::Yesterday: return "yesterday";
+            case XLCfTimePeriod::Tomorrow:  return "tomorrow";
+            case XLCfTimePeriod::Last7Days: return "last7Days";
+            case XLCfTimePeriod::ThisMonth: return "thisMonth";
+            case XLCfTimePeriod::LastMonth: return "lastMonth";
+            case XLCfTimePeriod::NextMonth: return "nextMonth";
+            case XLCfTimePeriod::ThisWeek:  return "thisWeek";
+            case XLCfTimePeriod::LastWeek:  return "lastWeek";
+            case XLCfTimePeriod::NextWeek:  return "nextWeek";
+            case XLCfTimePeriod::Invalid:   [[fallthrough]];
+            default:                        return "(invalid)";
+        }
+    }
 }    // namespace OpenXLSX
 
 // ========== XLSheet Member Functions
@@ -241,10 +389,138 @@ XLSheet::operator XLChartsheet() const { return this->get<XLChartsheet>(); }
 /**
  * @details Print the underlying XML using pugixml::xml_node::print
  */
-void XLSheet::print(std::basic_ostream<char>& ostr) const { xmlDocument().document_element().print( ostr ); }
+void XLSheet::print(std::basic_ostream<char>& ostr) const { xmlDocument().document_element().print(ostr); }
 
 
-// ========== XLConditionalFormats Member Functions
+// ========== BEGIN <conditionalFormatting> related member function definitions
+
+// ========== XLCfRule member functions
+/**
+ * @details Constructor. Initializes an empty XLCfRule object
+ */
+XLCfRule::XLCfRule() : m_cfRuleNode(std::make_unique<XMLNode>()) {}
+
+/**
+ * @details Constructor. Initializes the member variables for the new XLCfRule object.
+ */
+XLCfRule::XLCfRule(const XMLNode& node) : m_cfRuleNode(std::make_unique<XMLNode>(node)) {}
+
+XLCfRule::XLCfRule(const XLCfRule& other)
+    : m_cfRuleNode(std::make_unique<XMLNode>(*other.m_cfRuleNode))
+{}
+
+XLCfRule::~XLCfRule() = default;
+
+XLCfRule& XLCfRule::operator=(const XLCfRule& other)
+{
+    if (&other != this) *m_cfRuleNode = *other.m_cfRuleNode;
+    return *this;
+}
+
+/**
+ * @details Returns the node empty status
+ */
+bool XLCfRule::empty() const { return m_cfRuleNode->empty(); }
+
+/**
+ * @details Element getter functions
+ */
+std::string XLCfRule::formula() const
+{
+    // XMLNode formulaTextNode = 
+    return m_cfRuleNode->child("formula").first_child_of_type(pugi::node_pcdata).value();
+}
+
+/**
+ * @details Unsupported element getter functions
+ */
+XLUnsupportedElement XLCfRule::colorScale() const { return XLUnsupportedElement(); } // <cfRule><colorScale>...</colorScale></cfRule>
+XLUnsupportedElement XLCfRule::dataBar()    const { return XLUnsupportedElement(); } // <cfRule><dataBar>...</dataBar></cfRule>
+XLUnsupportedElement XLCfRule::iconSet()    const { return XLUnsupportedElement(); } // <cfRule><iconSet>...</iconSet></cfRule>
+XLUnsupportedElement XLCfRule::extLst()     const { return XLUnsupportedElement{}; } // <cfRule><extLst>...</extLst></cfRule>
+
+/**
+ * @details Attribute getter functions
+ */
+XLCfType       XLCfRule::type()         const { return XLCfTypeFromString      (m_cfRuleNode->attribute("type").value()                     ); }
+XLStyleIndex   XLCfRule::dxfId()        const { return                          m_cfRuleNode->attribute("dxfId").as_uint(XLInvalidStyleIndex); }
+uint16_t       XLCfRule::priority()     const { return                          m_cfRuleNode->attribute("priority").as_uint(XLPriorityNotSet); }
+bool           XLCfRule::stopIfTrue()   const { return                          m_cfRuleNode->attribute("stopIfTrue").as_bool(false)         ; }
+// TODO TBD: how does true default value manifest itself for aboveAverage? Evaluate as true if aboveAverage=""?
+bool           XLCfRule::aboveAverage() const { return                          m_cfRuleNode->attribute("aboveAverage").as_bool(false)       ; }
+bool           XLCfRule::percent()      const { return                          m_cfRuleNode->attribute("percent").as_bool(false)            ; }
+bool           XLCfRule::bottom()       const { return                          m_cfRuleNode->attribute("bottom").as_bool(false)             ; }
+XLCfOperator   XLCfRule::Operator()     const { return XLCfOperatorFromString  (m_cfRuleNode->attribute("operator").value()                 ); }
+std::string    XLCfRule::text()         const { return                          m_cfRuleNode->attribute("text").value()                      ; }
+XLCfTimePeriod XLCfRule::timePeriod()   const { return XLCfTimePeriodFromString(m_cfRuleNode->attribute("timePeriod").value()               ); }
+uint16_t       XLCfRule::rank()         const { return                          m_cfRuleNode->attribute("rank").as_uint()                    ; }
+int16_t        XLCfRule::stdDev()       const { return                          m_cfRuleNode->attribute("stdDev").as_int()                   ; }
+bool           XLCfRule::equalAverage() const { return                          m_cfRuleNode->attribute("equalAverage").as_bool(false)       ; }
+
+/**
+* @brief Element setter functions
+*/
+bool XLCfRule::setFormula(std::string const& newFormula)
+{
+    XMLNode formula = appendAndGetNode(*m_cfRuleNode, "formula", m_nodeOrder);
+    if (formula.empty()) return false;
+    formula.remove_children(); // no-op if no children
+    return formula.append_child(pugi::node_pcdata).set_value(newFormula.c_str());
+}
+
+/**
+ * @brief Unsupported element setter function
+ */
+bool XLCfRule::setColorScale(XLUnsupportedElement const& newColorScale) { OpenXLSX::ignore(newColorScale); return false; }
+bool XLCfRule::setDataBar(   XLUnsupportedElement const& newDataBar   ) { OpenXLSX::ignore(newDataBar   ); return false; }
+bool XLCfRule::setIconSet(   XLUnsupportedElement const& newIconSet   ) { OpenXLSX::ignore(newIconSet   ); return false; }
+bool XLCfRule::setExtLst(    XLUnsupportedElement const& newExtLst    ) { OpenXLSX::ignore(newExtLst    ); return false; }
+
+/**
+ * @details Attribute setter functions
+ */
+bool XLCfRule::setType        (XLCfType newType    )         { return appendAndSetAttribute(*m_cfRuleNode, "type",         XLCfTypeToString(        newType      )).empty() == false; }
+bool XLCfRule::setDxfId       (XLStyleIndex newDxfId)        { return appendAndSetAttribute(*m_cfRuleNode, "dxfId",        std::to_string(          newDxfId     )).empty() == false; }
+bool XLCfRule::setPriority    (uint16_t newPriority)         { return appendAndSetAttribute(*m_cfRuleNode, "priority",     std::to_string(          newPriority  )).empty() == false; }
+// TODO TBD whether true / false work with MS Office booleans here, or if 1 and 0 are mandatory
+bool XLCfRule::setStopIfTrue  (bool set)                     { return appendAndSetAttribute(*m_cfRuleNode, "stopIfTrue",   (set ? "true" : "false")               ).empty() == false; }
+bool XLCfRule::setAboveAverage(bool set)                     { return appendAndSetAttribute(*m_cfRuleNode, "aboveAverage", (set ? "true" : "false")               ).empty() == false; }
+bool XLCfRule::setPercent     (bool set)                     { return appendAndSetAttribute(*m_cfRuleNode, "percent",      (set ? "true" : "false")               ).empty() == false; }
+bool XLCfRule::setBottom      (bool set)                     { return appendAndSetAttribute(*m_cfRuleNode, "bottom",       (set ? "true" : "false")               ).empty() == false; }
+bool XLCfRule::setOperator    (XLCfOperator newOperator)     { return appendAndSetAttribute(*m_cfRuleNode, "operator",     XLCfOperatorToString(  newOperator    )).empty() == false; }
+bool XLCfRule::setText        (std::string const& newText)   { return appendAndSetAttribute(*m_cfRuleNode, "text",                                newText.c_str() ).empty() == false; }
+bool XLCfRule::setTimePeriod  (XLCfTimePeriod newTimePeriod) { return appendAndSetAttribute(*m_cfRuleNode, "timePeriod",   XLCfTimePeriodToString(newTimePeriod)  ).empty() == false; }
+bool XLCfRule::setRank        (uint16_t newRank)             { return appendAndSetAttribute(*m_cfRuleNode, "rank",         std::to_string(          newRank      )).empty() == false; }
+bool XLCfRule::setStdDev      (int16_t newStdDev)            { return appendAndSetAttribute(*m_cfRuleNode, "stdDev",       std::to_string(          newStdDev    )).empty() == false; }
+bool XLCfRule::setEqualAverage(bool set)                     { return appendAndSetAttribute(*m_cfRuleNode, "equalAverage", (set ? "true" : "false")               ).empty() == false; }
+
+
+/**
+ * @details assemble a string summary about the conditional formatting
+ */
+std::string XLCfRule::summary() const
+{
+    using namespace std::literals::string_literals;
+    XLStyleIndex dxfIndex = dxfId();
+    return "formula is "s + formula()
+         + ", type is "s + XLCfTypeToString(type())
+         + ", dxfId is "s + (dxfIndex == XLInvalidStyleIndex ? "(invalid)"s : std::to_string(dxfId()))
+         + ", priority is "s + std::to_string(priority())
+         + ", stopIfTrue: "s + (stopIfTrue() ? "true"s : "false"s)
+         + ", aboveAverage: "s + (aboveAverage() ? "true"s : "false"s)
+         + ", percent: "s + (percent() ? "true"s : "false"s)
+         + ", bottom: "s + (bottom() ? "true"s : "false"s)
+         + ", operator is "s + XLCfOperatorToString(Operator())
+         + ", text is \""s + text() + "\""s
+         + ", timePeriod is "s + XLCfTimePeriodToString(timePeriod())
+         + ", rank is "s + std::to_string(rank())
+         + ", stdDev is "s + std::to_string(stdDev())
+         + ", equalAverage: "s + (equalAverage() ? "true"s : "false"s)
+    ;
+}
+
+
+// ========== XLCfRules member functions, parent of XLCfRule
 /**
  * @details Constructor. Initializes an empty XLCfRules object
  */
@@ -268,9 +544,171 @@ XLCfRules& XLCfRules::operator=(const XLCfRules& other)
 }
 
 /**
- * @details Returns the style empty status
+ * @details Returns the node empty status
  */
 bool XLCfRules::empty() const { return m_conditionalFormattingNode->empty(); }
+
+/**
+ * @details Returns the maximum numerical priority value that a cfRule is using (= lowest rule priority)
+ */
+uint16_t XLCfRules::maxPriorityValue() const
+{
+    XMLNode node = m_conditionalFormattingNode->first_child_of_type(pugi::node_element);
+    while (not node.empty() && std::string(node.name()) != "cfRule")
+        node = node.next_sibling_of_type(pugi::node_element);
+    uint16_t maxPriority = XLPriorityNotSet;
+    while (not node.empty() && std::string(node.name()) == "cfRule") {
+        maxPriority = std::max(maxPriority, XLCfRule(node).priority());
+        node = node.next_sibling_of_type(pugi::node_element);
+    }
+    return maxPriority;
+}
+
+/**
+ * @details ensures that newPriority is unique (by incrementing all existing priorities >= newPriority),
+ *  then assigns newPriority to the rule with cfRuleIndex
+ * @note has a check for no-op if desired priority is already set
+ */
+bool XLCfRules::setPriority(size_t cfRuleIndex, uint16_t newPriority)
+{
+    XLCfRule affectedRule = cfRuleByIndex(cfRuleIndex);        // throws for cfRuleIndex out of bounds
+    if (newPriority == affectedRule.priority()) return true;   // no-op if priority is already set
+
+    XMLNode node = m_conditionalFormattingNode->first_child_of_type(pugi::node_element);
+    while (not node.empty() && std::string(node.name()) != "cfRule") // skip past non cfRule elements
+        node = node.next_sibling_of_type(pugi::node_element);
+
+    // iterate once over rules to check if newPriority is in use by another rule
+    XMLNode node2 = node;
+    bool newPriorityFree = true;
+    while (newPriorityFree && not node2.empty() && std::string(node2.name()) == "cfRule") {
+        if (XLCfRule(node2).priority() == newPriority) newPriorityFree = false; // check if newPriority is in use
+        node2 = node2.next_sibling_of_type(pugi::node_element);
+    }
+
+    if (!newPriorityFree) { // need to free up newPriority
+        size_t index = 0;
+        while (not node.empty() && std::string(node.name()) == "cfRule") { // loop over cfRule elements
+            if (index != cfRuleIndex) { // for all rules that are not at cfRuleIndex: increase priority if >= newPriority
+                XLCfRule rule(node);
+                uint16_t prio = rule.priority();
+                if (prio >= newPriority) rule.setPriority(prio + 1);
+            }
+            node = node.next_sibling_of_type(pugi::node_element);
+            ++index;
+        }
+    }
+    return affectedRule.setPriority(newPriority);
+}
+
+/**
+ * @details sort cfRule entries by priority and assign a continuous sequence of values using a given increment
+ * @note this mimics the BASIC functionality of line renumbering
+ */
+void XLCfRules::renumberPriorities(uint16_t increment)
+{
+    if (increment == 0)   // not allowed
+        throw XLException("XLCfRules::renumberPriorities: increment must not be 0");
+
+    std::multimap< uint16_t, XLCfRule > rules;
+
+    XMLNode node = m_conditionalFormattingNode->first_child_of_type(pugi::node_element);
+    while (not node.empty() && std::string(node.name()) != "cfRule") // skip past non cfRule elements
+        node = node.next_sibling_of_type(pugi::node_element);
+
+    while (not node.empty() && std::string(node.name()) == "cfRule") { // loop over cfRule elements
+        XLCfRule rule(node);
+        rules.insert(std::pair(rule.priority(), std::move(rule)));
+        node = node.next_sibling_of_type(pugi::node_element);
+    }
+
+    if (rules.size() * increment > std::numeric_limits< uint16_t >::max()) { // first rule always gets assigned "1*increment"
+        using namespace std::literals::string_literals;
+        throw XLException("XLCfRules::renumberPriorities: amount of rules "s + std::to_string(rules.size())
+        /**/              + " with given increment "s + std::to_string(increment) + " exceeds max range of uint16_t"s);
+    }
+
+    uint16_t prio = 0;
+    for (auto& [key, rule]: rules) {
+        prio += increment;
+        rule.setPriority(prio);
+    }
+    rules.clear();
+}
+
+/**
+ * @details Returns the amount of cfRule entries held by the class
+ */
+size_t XLCfRules::count() const
+{
+    XMLNode node = m_conditionalFormattingNode->first_child_of_type(pugi::node_element);
+    while (not node.empty() && std::string(node.name()) != "cfRule")
+        node = node.next_sibling_of_type(pugi::node_element);
+    size_t count = 0;
+    while (not node.empty() && std::string(node.name()) == "cfRule") {
+        ++count;
+        node = node.next_sibling_of_type(pugi::node_element);
+    }
+    return count;
+}
+
+/**
+ * @details fetch XLCfRule from m_conditionalFormattingNode by index
+ */
+XLCfRule XLCfRules::cfRuleByIndex(size_t index) const
+{
+    XMLNode node = m_conditionalFormattingNode->first_child_of_type(pugi::node_element);
+    while (not node.empty() && std::string(node.name()) != "cfRule")
+        node = node.next_sibling_of_type(pugi::node_element);
+
+    if (not node.empty()) {
+        size_t count = 0;
+        while (not node.empty() && std::string(node.name()) == "cfRule" && count < index) {
+            ++count;
+            node = node.next_sibling_of_type(pugi::node_element);
+        }
+        if (count == index && std::string(node.name()) == "cfRule")
+            return XLCfRule(node);
+    }
+    using namespace std::literals::string_literals;
+    throw XLException("XLCfRules::"s + __func__ + ": cfRule with index "s + std::to_string(index) + " does not exist");
+}
+
+/**
+ * @details append a new XLCfRule to m_conditionalFormattingNode, based on copyFrom
+ */
+size_t XLCfRules::create([[maybe_unused]] XLCfRule copyFrom, std::string cfRulePrefix)
+{
+    uint16_t maxPrio = maxPriorityValue();
+    if( maxPrio == std::numeric_limits< uint16_t >::max() ) {
+        using namespace std::literals::string_literals;
+        throw XLException("XLCfRules::"s + __func__
+         + ": can not create a new cfRule entry: no available priority value - please renumberPriorities or otherwise free up the highest value"s);
+    }
+
+    size_t index = count();   // index for the cfRule to be created
+    XMLNode newNode{};        // scope declaration
+
+    // ===== Append new node prior to final whitespaces, if any
+    if (index == 0) newNode = appendAndGetNode(*m_conditionalFormattingNode, "cfRule", m_nodeOrder);
+    else {
+        XMLNode lastCfRule = *cfRuleByIndex(index - 1).m_cfRuleNode;
+        if (not lastCfRule.empty())
+            newNode = m_conditionalFormattingNode->insert_child_after("cfRule", lastCfRule);
+    }
+    if (newNode.empty()) {
+        using namespace std::literals::string_literals;
+        throw XLException("XLCfRules::"s + __func__ + ": failed to create a new cfRule entry");
+    }
+
+    // copyXMLNode(newNode, *copyFrom.m_cfRuleNode); // will use copyFrom as template, does nothing if copyFrom is empty
+    m_conditionalFormattingNode->insert_child_before(pugi::node_pcdata, newNode).set_value(cfRulePrefix.c_str()); // prefix the new node with
+
+    // regardless of whether a template was provided or not: set the newest rule to the lowest possible priority == highest value in use plus 1
+    cfRuleByIndex(index).setPriority(maxPrio + 1);
+
+    return index;
+}
 
 /**
  * @details Getter functions
@@ -289,10 +727,20 @@ bool XLCfRules::empty() const { return m_conditionalFormattingNode->empty(); }
 std::string XLCfRules::summary() const
 {
     using namespace std::literals::string_literals;
-    return ""; // TODO: loop over XLCfRule entries and concatenate their summary
+    size_t rulesCount = count();
+    if (rulesCount == 0)
+        return "(no cfRule entries)";
+    std::string result = "";
+    for (size_t idx = 0; idx < rulesCount; ++idx) {
+        using namespace std::literals::string_literals;
+        result += "cfRule["s + std::to_string(idx) + "] "s + cfRuleByIndex(idx).summary();
+        if (idx + 1 < rulesCount) result += ", ";
+    }
+    return result;
 }
 
 
+// ========== XLConditionalFormat Member Functions
 /**
  * @details Constructor. Initializes an empty XLConditionalFormat object
  */
@@ -316,7 +764,7 @@ XLConditionalFormat& XLConditionalFormat::operator=(const XLConditionalFormat& o
 }
 
 /**
- * @details Returns the style empty status
+ * @details Returns the node empty status
  */
 bool XLConditionalFormat::empty() const { return m_conditionalFormattingNode->empty(); }
 
@@ -324,7 +772,7 @@ bool XLConditionalFormat::empty() const { return m_conditionalFormattingNode->em
  * @details Getter functions
  */
 std::string  XLConditionalFormat::sqref  () const { return m_conditionalFormattingNode->attribute("sqref").value(); }
-XLCfRules    XLConditionalFormat::cfRules() const { return XLCfRules( *m_conditionalFormattingNode );               }
+XLCfRules    XLConditionalFormat::cfRules() const { return XLCfRules(*m_conditionalFormattingNode);                 }
 
 /**
  * @details Setter functions
@@ -342,12 +790,11 @@ bool XLConditionalFormat::setExtLst(XLUnsupportedElement const& newExtLst) { Ope
 std::string XLConditionalFormat::summary() const
 {
     using namespace std::literals::string_literals;
-    return "sqref="s + sqref()
-         + ", cfRules="s + cfRules().summary();
+    return "sqref is "s + sqref()
+         + ", cfRules: "s + cfRules().summary();
 }
 
-// ===== XLConditionalFormats, parent of XLConditionalFormat
-
+// ========== XLConditionalFormats member functions, parent of XLConditionalFormat
 /**
  * @details Constructor. Initializes an empty XLConditionalFormats object
  */
@@ -383,15 +830,20 @@ XLConditionalFormats& XLConditionalFormats::operator=(const XLConditionalFormats
 }
 
 /**
- * @details Returns the amount of numberFormats held by the class
+ * @details Returns the node empty status
+ */
+bool XLConditionalFormats::empty() const { return m_sheetNode->empty(); }
+
+/**
+ * @details Returns the amount of conditionalFormatting entries held by the class
  */
 size_t XLConditionalFormats::count() const
 {
     XMLNode node = m_sheetNode->first_child_of_type(pugi::node_element);
-    while( not node.empty() && std::string(node.name()) != "conditionalFormatting" )
+    while (not node.empty() && std::string(node.name()) != "conditionalFormatting")
         node = node.next_sibling_of_type(pugi::node_element);
     size_t count = 0;
-    while( not node.empty() && std::string(node.name()) == "conditionalFormatting" ) {
+    while (not node.empty() && std::string(node.name()) == "conditionalFormatting") {
         ++count;
         node = node.next_sibling_of_type(pugi::node_element);
     }
@@ -399,25 +851,25 @@ size_t XLConditionalFormats::count() const
 }
 
 /**
- * @details fetch XLCellStyle from m_cellStyles by index
+ * @details fetch XLConditionalFormat from m_sheetNode by index
  */
 XLConditionalFormat XLConditionalFormats::conditionalFormatByIndex(size_t index) const
 {
     XMLNode node = m_sheetNode->first_child_of_type(pugi::node_element);
-    while( not node.empty() && std::string(node.name()) != "conditionalFormatting" )
+    while (not node.empty() && std::string(node.name()) != "conditionalFormatting")
         node = node.next_sibling_of_type(pugi::node_element);
 
     if (not node.empty()) {
         size_t count = 0;
-        while( not node.empty() && std::string(node.name()) == "conditionalFormatting" && count < index ) {
+        while (not node.empty() && std::string(node.name()) == "conditionalFormatting" && count < index) {
             ++count;
             node = node.next_sibling_of_type(pugi::node_element);
         }
-        if( count == index && std::string(node.name()) == "conditionalFormatting" )
-            return XLConditionalFormat( node );
+        if (count == index && std::string(node.name()) == "conditionalFormatting")
+            return XLConditionalFormat(node);
     }
     using namespace std::literals::string_literals;
-    throw XLException("XLConditionalFormats::"s + __func__ + ": conditional format with index "s + std::to_string( index ) + " does not exist");
+    throw XLException("XLConditionalFormats::"s + __func__ + ": conditional format with index "s + std::to_string(index) + " does not exist");
 }
 
 /**
@@ -425,17 +877,17 @@ XLConditionalFormat XLConditionalFormats::conditionalFormatByIndex(size_t index)
  */
 size_t XLConditionalFormats::create([[maybe_unused]] XLConditionalFormat copyFrom, std::string conditionalFormattingPrefix)
 {
-    size_t index = count();   // index for the cell style to be created
+    size_t index = count();   // index for the conditional formatting to be created
     XMLNode newNode{};        // scope declaration
 
     // ===== Append new node prior to final whitespaces, if any
     if (index == 0) newNode = appendAndGetNode(*m_sheetNode, "conditionalFormatting", m_nodeOrder);
     else {
-        XMLNode lastConditionalFormat = *conditionalFormatByIndex( index - 1 ).m_conditionalFormattingNode;
-        if( not lastConditionalFormat.empty() )
-            newNode = m_sheetNode->insert_child_after( "conditionalFormatting", lastConditionalFormat );
+        XMLNode lastConditionalFormat = *conditionalFormatByIndex(index - 1).m_conditionalFormattingNode;
+        if (not lastConditionalFormat.empty())
+            newNode = m_sheetNode->insert_child_after("conditionalFormatting", lastConditionalFormat);
     }
-    if( newNode.empty() ) {
+    if (newNode.empty()) {
         using namespace std::literals::string_literals;
         throw XLException("XLConditionalFormats::"s + __func__ + ": failed to create a new conditional formatting entry");
 	 }
@@ -445,6 +897,25 @@ size_t XLConditionalFormats::create([[maybe_unused]] XLConditionalFormat copyFro
 
     return index;
 }
+
+/**
+ * @details assemble a string summary about the conditional formattings
+ */
+std::string XLConditionalFormats::summary() const
+{
+    using namespace std::literals::string_literals;
+    size_t conditionalFormatsCount = count();
+    if (conditionalFormatsCount == 0)
+        return "(no conditionalFormatting entries)";
+    std::string result = "";
+    for (size_t idx = 0; idx < conditionalFormatsCount; ++idx) {
+        using namespace std::literals::string_literals;
+        result += "conditionalFormatting["s + std::to_string(idx) + "] "s + conditionalFormatByIndex(idx).summary();
+        if (idx + 1 < conditionalFormatsCount) result += ", ";
+    }
+    return result;
+}
+// ========== END <conditionalFormatting> related member function definitions
 
 
 // ========== XLWorksheet Member Functions
@@ -505,7 +976,7 @@ XLWorksheet::XLWorksheet(const XLWorksheet& other) : XLSheetBase<XLWorksheet>(ot
 /**
  * @details move-construct an XLWorksheet from other
  */
-XLWorksheet::XLWorksheet(XLWorksheet&& other) : XLSheetBase< XLWorksheet >( other )
+XLWorksheet::XLWorksheet(XLWorksheet&& other) : XLSheetBase< XLWorksheet >(other)
 {
     m_merges = std::move(other.m_merges);    // invoke XLMergeCells move assignment operator
 }
@@ -925,7 +1396,7 @@ bool XLWorksheet::setColumnFormat(uint16_t columnNumber, XLStyleIndex cellFormat
 {
     if (!column(columnNumber).setFormat(cellFormatIndex)) // attempt to set column format
         return false; // early fail
-    
+
     XLRowRange allRows = rows();
     for (XLRowIterator rowIt = allRows.begin(); rowIt != allRows.end(); ++rowIt) {
         XLCell curCell = rowIt->findCell(columnNumber);
@@ -934,7 +1405,7 @@ bool XLWorksheet::setColumnFormat(uint16_t columnNumber, XLStyleIndex cellFormat
     }
     return true; // if loop finished nominally: success
 }
-bool XLWorksheet::setColumnFormat(const std::string& columnNumber, XLStyleIndex cellFormatIndex) { return setColumnFormat( XLCellReference::columnAsNumber(columnNumber), cellFormatIndex); }
+bool XLWorksheet::setColumnFormat(const std::string& columnNumber, XLStyleIndex cellFormatIndex) { return setColumnFormat(XLCellReference::columnAsNumber(columnNumber), cellFormatIndex); }
 
 /**
  * @details Retrieve the row's format
@@ -960,7 +1431,7 @@ bool XLWorksheet::setRowFormat(uint32_t rowNumber, XLStyleIndex cellFormatIndex)
 /**
  * @details Provide access to worksheet conditional formats
  */
-XLConditionalFormats XLWorksheet::conditionalFormats() const { return XLConditionalFormats( xmlDocument().document_element() ); }
+XLConditionalFormats XLWorksheet::conditionalFormats() const { return XLConditionalFormats(xmlDocument().document_element()); }
 
 /**
  * @details Constructor

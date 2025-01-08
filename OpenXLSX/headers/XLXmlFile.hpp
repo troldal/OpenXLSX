@@ -62,6 +62,18 @@ namespace OpenXLSX
     class XLDocument;
 
     /**
+     * @brief The XLUnsupportedElement class provides a stub implementation that can be used as function
+	  *  parameter or return type for currently unsupported XML features.
+     */
+    class OPENXLSX_EXPORT XLUnsupportedElement
+    {
+    public:
+        XLUnsupportedElement() {}
+        bool empty() const { return true; }
+        std::string summary() const { return "XLUnsupportedElement"; }
+    };
+
+    /**
      * @brief The XLXmlFile class provides an interface for derived classes to use.
      * It functions as an ancestor to all classes which are represented by an .xml file in an .xlsx package.
      * @warning The XLXmlFile class is not intended to be instantiated on it's own, but to provide an interface for

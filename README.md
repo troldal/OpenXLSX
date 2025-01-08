@@ -7,7 +7,29 @@ Microsoft Excel® files, with the .xlsx format.
 
 As the heading says - the latest "Release" that is shown on https://github.com/troldal/OpenXLSX/releases is from 2021-11-06, and severely outdated - please pull / download the latest SW version directly from the repository in its current state. Link for those that do not want to use ```git```: https://github.com/troldal/OpenXLSX/archive/refs/heads/master.zip
 
+## (aral-matrix) 08 January 2025 - Support for XLWorksheet conditional formatting (experimental)
+This is a major patch to address https://github.com/troldal/OpenXLSX/issues/315 - conditional formatting is now implemented in an experimental stage.
+
+Please refer to ```Demo10.cpp``` lines 454ff for an example on how to use the functionality.
+
+***Experimental*** in this case means:
+* users are kindly requested to verify that the generated OOXML behaves well with MS Office (I can't promise yet I got the node order right for all scenarios)
+* it appears that the <cfRule><formula> may appear up to 3 times per cfRule - the current implementation only supports a single entry for <formula>
+* as the conditional formatting uses differential formats, and I am re-using XLStyles classes, there is currently an automatism that by accessing a format property, that property node gets created if it does not yet exist. For differential formats, this is undesired when testing whether a given setting exists. I have yet to implement something along the lines of ```bool settingExists(std::string settingName)```
+* I have implemented boolean values to be stored in XML as ```"true"``` and ```"false"``` - whereas LibreOffice appears to store them (for cfRules) as ```1``` and ```0```). The reason is: I want to know if this works, and if it does, stay consistent in how OpenXLSX stores boolean values. I may have to modify this as I learn more
+* Another boolean "gotcha": I do not yet know how MS Office evalutes attribute names that exist with an empty value, e.g. ```aboveAverage=""``` when for ```aboveAverage```, the documentation defines ```true``` as the default - does that mean an empty string gets evaluted as ```true```?
+
+Very close on the to-be-resolved list now: resolution of issue https://github.com/troldal/OpenXLSX/issues/311 as I am now working on XLSheet anyways.
+
+To be tested: https://github.com/troldal/OpenXLSX/issues/316 with this new patch, it *might* be resolved (no promise :)
+
 ## Recent changes
+
+### (aral-matrix) 08 January 2025 - experimental support for XLSheet conditional formatting
+* XLSheet: added support for conditional formatting (rules)
+* XLStyles: added differential cell formats (dxfs) support required by conditional formatting
+* moved class ```XLUnsupportedElement``` from XLStyles to XLXmlFile header, so that XLSheet can use it for conditional formatting functionality
+* XLChartSheet: added ```bool isActive_impl()``` and ```bool setActive_impl()``` as no-op function stubs in the hopes this resolves https://github.com/troldal/OpenXLSX/issues/316
 
 ### (aral-matrix) 30 December 2024 - removed ```XLWorkbook::sharedStrings``` and ```XLWorkbook::hasSharedStrings```
 * removed these (pointless) functions in the hopes that no one was using them - please report an issue if this causes a problem for you - if you can change the access method, ```XLDocument::sharedStrings()``` returns the same, and ```hasSharedStrings``` was always returning true anyways.

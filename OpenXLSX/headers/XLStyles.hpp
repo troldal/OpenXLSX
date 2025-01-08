@@ -101,7 +101,6 @@ namespace OpenXLSX
     constexpr const char * XLDefaultLineStyle = ""; // empty string = line not set
 
     // forward declarations of all classes in this header
-    class XLUnsupportedElement; // used for stub getter / setter functions for unsupported style options
     class XLNumberFormat;
     class XLNumberFormats;
     class XLFont;
@@ -226,16 +225,6 @@ namespace OpenXLSX
         XLReadingOrderContextual  = 0,
         XLReadingOrderLeftToRight = 1,
         XLReadingOrderRightToLeft = 2
-    };
-
-    // ================================================================================
-    // XLUnsupportedElement Class
-    // ================================================================================
-    class OPENXLSX_EXPORT XLUnsupportedElement
-    {
-    public:
-        XLUnsupportedElement() {}
-        bool empty() { return true; }
     };
 
     // ================================================================================
@@ -2100,6 +2089,184 @@ namespace OpenXLSX
 
 
     // ================================================================================
+    // XLDiffCellFormats Class
+    // ================================================================================
+
+    /**
+     * @brief An encapsulation of a differential cell format item
+     */
+    class OPENXLSX_EXPORT XLDiffCellFormat
+    {
+        friend class XLDiffCellFormats;    // for access to m_diffCellFormatNode in XLDiffCellFormats::create
+
+    public:    // ---------- Public Member Functions ---------- //
+        /**
+         * @brief
+         */
+        XLDiffCellFormat();
+
+        /**
+         * @brief Constructor. New items should only be created through an XLStyles object.
+         * @param node An XMLNode object with the dxf item. If no input is provided, a null node is used.
+         */
+        explicit XLDiffCellFormat(const XMLNode& node);
+
+        /**
+         * @brief Copy Constructor.
+         * @param other Object to be copied.
+         */
+        XLDiffCellFormat(const XLDiffCellFormat& other);
+
+        /**
+         * @brief Move Constructor.
+         * @param other Object to be moved.
+         */
+        XLDiffCellFormat(XLDiffCellFormat&& other) noexcept = default;
+
+        /**
+         * @brief
+         */
+        ~XLDiffCellFormat();
+
+        /**
+         * @brief Copy assignment operator.
+         * @param other Right hand side of assignment operation.
+         * @return A reference to the lhs object.
+         */
+        XLDiffCellFormat& operator=(const XLDiffCellFormat& other);
+
+        /**
+         * @brief Move assignment operator.
+         * @param other Right hand side of assignment operation.
+         * @return A reference to lhs object.
+         */
+        XLDiffCellFormat& operator=(XLDiffCellFormat&& other) noexcept = default;
+
+        /**
+         * @brief Test if this is an empty node
+         * @return true if underlying XMLNode is empty
+         */
+        bool empty() const;
+
+        /**
+         * @brief Getter functions, will create empty object on access and can be used to manipulate underlying setters
+         */
+        XLFont font() const;
+        XLNumberFormat numFmt() const;
+        XLFill fill() const;
+        XLAlignment alignment() const;
+        XLBorder border() const;
+        // setProtection   ();
+
+        /**
+         * @brief Unsupported getter
+         */
+        XLUnsupportedElement extLst() const { return XLUnsupportedElement{}; } // <cellStyle><extLst>...</extLst></cellStyle>
+
+        /**
+         * @brief Setter functions for differential cell format protection settings
+         * @return true for success, false for failure
+         */
+        // bool setProtection   ();
+
+        /**
+         * @brief Unsupported setter
+         */
+        bool setExtLst   (XLUnsupportedElement const& newExtLst);
+
+        /**
+         * @brief Return a string summary of the differential cell format properties
+         * @return string with info about the differential cell format object
+         */
+        std::string summary() const;
+
+    private:                                              // ---------- Private Member Variables ---------- //
+        std::unique_ptr<XMLNode> m_diffCellFormatNode;    /**< An XMLNode object with the cell style item */
+    };
+
+
+    /**
+     * @brief An encapsulation of the XLSX differential cell formats
+     */
+    class OPENXLSX_EXPORT XLDiffCellFormats
+    {
+    public:    // ---------- Public Member Functions ---------- //
+        /**
+         * @brief
+         */
+        XLDiffCellFormats();
+
+        /**
+         * @brief Constructor. New items should only be created through an XLStyles object.
+         * @param node An XMLNode object with the dxfs item. If no input is provided, a null node is used.
+         */
+        explicit XLDiffCellFormats(const XMLNode& node);
+
+        /**
+         * @brief Copy Constructor.
+         * @param other Object to be copied.
+         */
+        XLDiffCellFormats(const XLDiffCellFormats& other);
+
+        /**
+         * @brief Move Constructor.
+         * @param other Object to be moved.
+         */
+        XLDiffCellFormats(XLDiffCellFormats&& other);
+
+        /**
+         * @brief
+         */
+        ~XLDiffCellFormats();
+
+        /**
+         * @brief Copy assignment operator.
+         * @param other Right hand side of assignment operation.
+         * @return A reference to the lhs object.
+         */
+        XLDiffCellFormats& operator=(const XLDiffCellFormats& other);
+
+        /**
+         * @brief Move assignment operator.
+         * @param other Right hand side of assignment operation.
+         * @return A reference to lhs object.
+         */
+        XLDiffCellFormats& operator=(XLDiffCellFormats&& other) noexcept = default;
+
+        /**
+         * @brief Get the count of differential cell formats
+         * @return The amount of entries in the differential cell formats
+         */
+        size_t count() const;
+
+        /**
+         * @brief Get the differential cell format identified by index
+         * @return An XLDiffCellFormat object
+         */
+        XLDiffCellFormat diffCellFormatByIndex(XLStyleIndex index) const;
+
+        /**
+         * @brief Operator overload: allow [] as shortcut access to diffCellFormatByIndex
+         * @param index The index within the XML sequence
+         * @return An XLDiffCellFormat object
+         */
+        XLDiffCellFormat operator[](XLStyleIndex index) const { return diffCellFormatByIndex(index); }
+
+        /**
+         * @brief Append a new XLDiffCellFormat, based on copyFrom, and return its index in dxfs node
+         * @param copyFrom Can provide an XLDiffCellFormat to use as template for the new style
+         * @param styleEntriesPrefix Prefix the newly created cell style XMLNode with this pugi::node_pcdata text
+         * @returns The index of the new differential cell format as used by operator[]
+         */
+        XLStyleIndex create(XLDiffCellFormat copyFrom = XLDiffCellFormat{}, std::string styleEntriesPrefix = XLDefaultStyleEntriesPrefix);
+
+    private:                                              // ---------- Private Member Variables ---------- //
+        std::unique_ptr<XMLNode> m_diffCellFormatsNode;   /**< An XMLNode object with the cell styles item */
+        std::vector<XLDiffCellFormat> m_diffCellFormats;
+    };
+
+
+    // ================================================================================
     // XLStyles Class
     // ================================================================================
 
@@ -2195,6 +2362,12 @@ namespace OpenXLSX
          */
         XLCellStyles& cellStyles() const;
 
+        /**
+         * @brief Get the differential cell formats object
+         * @return An XLDiffCellFormats object
+         */
+        XLDiffCellFormats& diffCellFormats() const;
+
         // ---------- Protected Member Functions ---------- //
     private:
         bool                                m_suppressWarnings; // if true, will suppress output of warnings where supported
@@ -2205,6 +2378,7 @@ namespace OpenXLSX
         std::unique_ptr<XLCellFormats>      m_cellStyleFormats; // handle to the underlying cell style formats descriptions
         std::unique_ptr<XLCellFormats>      m_cellFormats;      // handle to the underlying cell formats descriptions
         std::unique_ptr<XLCellStyles>       m_cellStyles;       // handle to the underlying cell styles
+        std::unique_ptr<XLDiffCellFormats>  m_diffCellFormats;  // handle to the underlying differential cell formats
     };
 }    // namespace OpenXLSX
 

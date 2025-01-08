@@ -20,7 +20,7 @@ using namespace OpenXLSX;
 int main()
 {
 	cout << "********************************************************************************\n";
-	cout << "DEMO PROGRAM #10: XLStyles Usage\n";
+	cout << "DEMO PROGRAM #10: XLStyles Usage and XLSheet conditional formatting\n";
 	cout << "********************************************************************************\n";
 
 	std::cout << "nowide is " << ( nowide_status() ? "enabled" : "disabled" ) << std::endl;
@@ -449,6 +449,85 @@ int main()
 	wks.cell("J5") = "merged red range #2\n - hidden cell contents have been deleted!";
    wks.mergeCells("J5:L8", XLEmptyHiddenCells); // merge cells    with deletion of contents
 	wks.cell("J5").setCellFormat( mergedCellFormat );
+
+	
+	// ===== BEGIN conditional formatting demo
+	{
+		XLDiffCellFormats & diffCellFormats = doc.styles().diffCellFormats(); // get a handle on differential cell formats
+
+		// Create some differential cell formats that can be used for conditional formatting
+		XLStyleIndex lowStyle       = diffCellFormats.create();
+		XLStyleIndex justRightStyle = diffCellFormats.create();
+		XLStyleIndex highStyle      = diffCellFormats.create();
+
+		XLColor gray( "dddddddd" );
+		XLColor orange( "00ffcc00" );
+
+		diffCellFormats[ lowStyle ].font().setFontColor( blue );
+		diffCellFormats[ lowStyle ].fill().setPatternType( XLPatternSolid );
+		diffCellFormats[ lowStyle ].fill().setColor( gray );
+		diffCellFormats[ lowStyle ].fill().setBackgroundColor( gray );
+
+		diffCellFormats[ justRightStyle ].font().setFontColor( green );
+		diffCellFormats[ justRightStyle ].fill().setPatternType( XLPatternNone );
+		// diffCellFormats[ justRightStyle ].fill().setColor( yellow );
+
+		diffCellFormats[ highStyle ].font().setFontColor( red );
+		diffCellFormats[ highStyle ].fill().setPatternType( XLPatternSolid );
+		diffCellFormats[ highStyle ].fill().setColor( orange );
+
+		// Now create some rules applying conditional formatting to a range
+		XLConditionalFormats fmts = wks.conditionalFormats();
+		size_t newFmtIndex = fmts.create(); // will be 0 for this demo
+		XLConditionalFormat fmt = fmts[ newFmtIndex ];
+		fmt.setSqref("B13:B19");
+		XLCfRules fmtRules = fmt.cfRules();
+		// make 3 cfRule entries
+		fmtRules.create();
+		fmtRules.create();
+		fmtRules.create();
+		fmtRules[ 0 ].setType( XLCfType::CellIs );
+		fmtRules[ 0 ].setOperator( XLCfOperator::LessThanOrEqual );
+		fmtRules[ 0 ].setFormula("4");
+		fmtRules[ 0 ].setDxfId(lowStyle);
+		fmtRules[ 1 ].setType( XLCfType::CellIs );
+		fmtRules[ 1 ].setOperator( XLCfOperator::Equal );
+		fmtRules[ 1 ].setFormula("5");
+		fmtRules[ 1 ].setDxfId(justRightStyle);
+		fmtRules[ 2 ].setType( XLCfType::CellIs );
+		fmtRules[ 2 ].setOperator( XLCfOperator::GreaterThanOrEqual );
+		fmtRules[ 2 ].setFormula("6");
+		fmtRules[ 2 ].setDxfId(highStyle);
+
+		// Manipulating rule priorities manually:
+		//                 priorities: 1, 2, 3
+		fmtRules.setPriority(1, 1); // 2, 1, 4 // "mess up" the sequence
+		fmtRules.setPriority(0, 1); // 1, 2, 5 // insert an existing priority at index 0
+		fmtRules.setPriority(2, 3); // 1, 2, 3 // re-assign the priority 3
+		fmtRules.setPriority(1, 1); // 2, 1, 4 // "mess up" the sequence
+		fmtRules.setPriority(2, 3); // 2, 1, 3 // re-assign the priority 3
+		fmtRules.setPriority(1, 4); // 2, 4, 3 // temp-assign priority 4 to index 1
+		fmtRules.setPriority(0, 1); // 1, 4, 3 // re-assign priority 1 to index 0
+		fmtRules.setPriority(1, 2); // 1, 2, 3 // re-assign priority 2 to index 1
+		fmtRules.setPriority(1, 1); // 2, 1, 4 // "mess up" the sequence
+
+		// renumber priorities while retaining the sequence:
+		fmtRules.renumberPriorities(10); // 20, 10, 30 // renumber priorities with higher increment
+		fmtRules.renumberPriorities(21845); // 21845, 43690, 65535 - max possible priority value used
+		// not allowed:
+		// fmtRules.create(); // triggers an error because no priority value can be assigned anymore
+		// fmtRules.renumberPriorities(21846); // triggers an error because 3*21846 exceeds uint16_t range
+		fmtRules.renumberPriorities(); // 2, 1, 3 // renumber priorities while retaining the sequence
+
+		std::cout << std::endl << "conditionalFormatting entries summary: " << wks.conditionalFormats().summary() << std::endl;
+
+		// Finally, set some exemplary values in the range
+		wks.cell("B12") = "conditional formatting example";
+		wks.cell("B12").setCellFormat( boldDefault );
+		int cellValue = 1;
+		for( XLCellAssignable c : wks.range("B13:B19") ) c = cellValue++;
+	}
+	// ===== END conditional formatting demo
 
 	doc.saveAs("./Demo10.xlsx", XLForceOverwrite);
 	doc.close();

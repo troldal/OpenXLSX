@@ -71,6 +71,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLException.hpp"
 #include "XLMergeCells.hpp"
 #include "XLRow.hpp"
+#include "XLStyles.hpp" // XLStyleIndex
 #include "XLXmlFile.hpp"
 
 namespace OpenXLSX
@@ -81,6 +82,70 @@ namespace OpenXLSX
      * @brief The XLSheetState is an enumeration of the possible (visibility) states, e.g. Visible or Hidden.
      */
     enum class XLSheetState : uint8_t { Visible, Hidden, VeryHidden };
+
+    constexpr const uint16_t XLPriorityNotSet = 0; // readability constant for XLCfRule::priority()
+
+    enum class XLCfType : uint8_t {
+        Expression        =   0,
+        CellIs            =   1,
+        ColorScale        =   2,
+        DataBar           =   3,
+        IconSet           =   4,
+        Top10             =   5,
+        UniqueValues      =   6,
+        DuplicateValues   =   7,
+        ContainsText      =   8,
+        NotContainsText   =   9,
+        BeginsWith        =  10,
+        EndsWith          =  11,
+        ContainsBlanks    =  12,
+        NotContainsBlanks =  13,
+        ContainsErrors    =  14,
+        NotContainsErrors =  15,
+        TimePeriod        =  16,
+        AboveAverage      =  17,
+        Invalid           = 255
+    };
+
+    enum class XLCfOperator : uint8_t {
+        LessThan           =   0,
+        LessThanOrEqual    =   1,
+        Equal              =   2,
+        NotEqual           =   3,
+        GreaterThanOrEqual =   4,
+        GreaterThan        =   5,
+        Between            =   6,
+        NotBetween         =   7,
+        ContainsText       =   8,
+        NotContains        =   9,
+        BeginsWith         =  10,
+        EndsWith           =  11,
+        Invalid            = 255
+    };
+
+    enum class XLCfTimePeriod : uint8_t {
+        Today     =   0,
+        Yesterday =   1,
+        Tomorrow  =   2,
+        Last7Days =   3,
+        ThisMonth =   4,
+        LastMonth =   5,
+        NextMonth =   6,
+        ThisWeek  =   7,
+        LastWeek  =   8,
+        NextWeek  =   9,
+        Invalid   = 255
+    };
+
+    // ================================================================================
+    // Converter functions between OpenXLSX class specific enum class types and OOXML values
+    // ================================================================================
+    XLCfType       XLCfTypeFromString      (std::string const& typeString      );
+    std::string    XLCfTypeToString        (XLCfType           cfType          );
+    XLCfOperator   XLCfOperatorFromString  (std::string const& operatorString  );
+    std::string    XLCfOperatorToString    (XLCfOperator       cfOperator      );
+    XLCfTimePeriod XLCfTimePeriodFromString(std::string const& timePeriodString);
+    std::string    XLCfTimePeriodToString  (XLCfTimePeriod     cfTimePeriod    );
 
     /**
      * @brief The XLSheetBase class is the base class for the XLWorksheet and XLChartsheet classes. However,
@@ -311,6 +376,137 @@ namespace OpenXLSX
     // ================================================================================
 
     /**
+     * @brief An encapsulation of a cfRule item
+     */
+    class OPENXLSX_EXPORT XLCfRule
+    {
+        friend class XLCfRules;    // for access to m_cfRuleNode in XLCfRules::create
+    public:    // ---------- Public Member Functions ---------- //
+        /**
+         * @brief
+         */
+        XLCfRule();
+
+        /**
+         * @brief Constructor. New items should only be created through an XLCfRules object.
+         * @param node An XMLNode object with the <cfRule> item. If no input is provided, a null node is used.
+         */
+        explicit XLCfRule(const XMLNode& node);
+
+        /**
+         * @brief Copy Constructor.
+         * @param other Object to be copied.
+         */
+        XLCfRule(const XLCfRule& other);
+
+        /**
+         * @brief Move Constructor.
+         * @param other Object to be moved.
+         */
+        XLCfRule(XLCfRule&& other) noexcept = default;
+
+        /**
+         * @brief
+         */
+        ~XLCfRule();
+
+        /**
+         * @brief Copy assignment operator.
+         * @param other Right hand side of assignment operation.
+         * @return A reference to the lhs object.
+         */
+        XLCfRule& operator=(const XLCfRule& other);
+
+        /**
+         * @brief Move assignment operator.
+         * @param other Right hand side of assignment operation.
+         * @return A reference to lhs object.
+         */
+        XLCfRule& operator=(XLCfRule&& other) noexcept = default;
+
+        /**
+         * @brief Test if this is an empty node
+         * @return true if underlying XMLNode is empty
+         */
+        bool empty() const;
+
+        /**
+         * @brief Element getter functions
+         */
+        std::string formula() const;
+        XLUnsupportedElement colorScale() const;
+        XLUnsupportedElement dataBar()    const;
+        XLUnsupportedElement iconSet()    const;
+        XLUnsupportedElement extLst()     const;
+
+        /**
+         * @brief Attribute getter functions
+         */
+
+        XLCfType type() const;
+        XLStyleIndex dxfId() const;
+        uint16_t priority() const; // >= 1
+        bool stopIfTrue() const;   // default: false
+        bool aboveAverage() const; // default: true
+        bool percent() const; // default: false
+        bool bottom() const; // default: false
+        XLCfOperator Operator() const; // Valid only when @type = cellIs
+        std::string text() const; // The text value in a "text contains" conditional formatting rule. Valid only for @type = containsText.
+        XLCfTimePeriod timePeriod() const; // The applicable time period in a "date occurring..." conditional formatting rule. Valid only for @type = timePeriod.
+        uint16_t rank() const; // The value of "n" in a "top/bottom n" conditional formatting rule. Valid only for @type = top10.
+        int16_t stdDev() const; // The number of standard deviations to include above or below the average in the conditional formatting rule. Valid only for @type = aboveAverage
+        bool equalAverage() const; // default: false. Flag indicating whether the 'aboveAverage' and 'belowAverage' criteria
+        //                             is inclusive of the average itself, or exclusive of that value. '1' indicates to include
+        //                             the average value in the criteria. Valid only for @type = aboveAverage.
+
+        /**
+         * @brief Element setter functions
+         */
+        bool setFormula   (std::string const& newFormula);
+        bool setColorScale(XLUnsupportedElement const& newColorScale); // unsupported
+        bool setDataBar   (XLUnsupportedElement const& newDataBar   ); // unsupported
+        bool setIconSet   (XLUnsupportedElement const& newIconSet   ); // unsupported
+        bool setExtLst    (XLUnsupportedElement const& newExtLst    ); // unsupported
+
+        /**
+         * @brief Attribute setter functions
+         */
+        bool setType(XLCfType newType);
+        bool setDxfId(XLStyleIndex newDxfId);
+    private: // Protect setPriority from access by any but the parent XLCfRules class
+        bool setPriority(uint16_t newPriority); // internal function, user access through XLCfRules::setPriority
+    public:
+        bool setStopIfTrue(bool set = true);
+        bool setAboveAverage(bool set = true);
+        bool setPercent(bool set = true);
+        bool setBottom(bool set = true);
+        bool setOperator(XLCfOperator newOperator);
+        bool setText(std::string const& newText);
+        bool setTimePeriod(XLCfTimePeriod newTimePeriod);
+        bool setRank(uint16_t newRank);
+        bool setStdDev(int16_t newStdDev);
+        bool setEqualAverage(bool set = true);
+
+        /**
+         * @brief Return a string summary of the cfRule properties
+         * @return string with info about the cfRule object
+         */
+        std::string summary() const;
+
+    private:                                    // ---------- Private Member Variables ---------- //
+        std::unique_ptr<XMLNode> m_cfRuleNode;  /**< An XMLNode object with the conditional formatting item */
+        inline static const std::vector< std::string_view > m_nodeOrder = {      // cfRule XML node required child sequence
+            "formula", // TODO: maxOccurs = 3!
+            "colorScale",
+            "dataBar",
+            "iconSet",
+            "extLst"
+        };
+    };
+
+
+    constexpr const char * XLDefaultCfRulePrefix = "\n\t\t"; // indentation to use for newly created cfRule nodes
+    /**
      * @brief An encapsulation of a conditional formatting rules item
      */
     class OPENXLSX_EXPORT XLCfRules
@@ -364,17 +560,68 @@ namespace OpenXLSX
          */
         bool empty() const;
 
-        // TODO: provide getter/setter functions to the underlying XLCfRule entries by index
+        /**
+         * @brief Get the count highest priority value currently in use by a rule
+         * @return The highest value that a cfRule has set for attribute priority
+         */
+        uint16_t maxPriorityValue() const;
+
+        /**
+         * @brief Provide a duplication-free interface to setting rule priorities: if a newPriority value exists, increment all existing priorities >= newPriority by 1
+         * @param cfRuleIndex the index of the rule for which to set the priority
+         * @param newPriority the priority value to assign
+         * @return true on success, false if ruleIndex does not exist
+         */
+        bool setPriority(size_t cfRuleIndex, uint16_t newPriority);
+
+        /**
+         * @brief Renumber all existing rule priorities to a clean sequence in steps of increment
+         * @param increment increase the priority value by this much between rules
+         */
+        void renumberPriorities(uint16_t increment = 1);
+
+        /**
+         * @brief Get the count of rules for this conditional formatting
+         * @return The amount of <cfRule> nodes in the <conditionalFormatting> node
+         */
+        size_t count() const;
+
+        /**
+         * @brief Get the conditional format identified by index
+         * @return An XLCfRule object
+         */
+        XLCfRule cfRuleByIndex(size_t index) const;
+
+        /**
+         * @brief Operator overload: allow [] as shortcut access to cfRuleByIndex
+         * @param index The index within the XML sequence
+         * @return An XLCfRule object
+         */
+        XLCfRule operator[](size_t index) const { return cfRuleByIndex(index); }
+
+        /**
+         * @brief Append a new XLCfRule, based on copyFrom, and return its index in the <conditionalFormatting> list of <cfRule> entries
+         * @param copyFrom Can provide an XLCfRule to use as template for the new condition
+         * @param conditionalFormattingPrefix Prefix the newly created conditionalFormatting XMLNode with this pugi::node_pcdata text
+         * @returns The index of the new conditional formatting as used by operator[]
+         */
+        size_t create(XLCfRule copyFrom = XLCfRule{}, std::string cfRulePrefix = XLDefaultCfRulePrefix);
 
         /**
          * @brief Return a string summary of the conditional formatting rules properties
-         * @return string with info about the cell style object
+         * @return string with info about the conditional formatting rules object
          */
         std::string summary() const;
 
     private:                                                   // ---------- Private Member Variables ---------- //
         std::unique_ptr<XMLNode> m_conditionalFormattingNode;  /**< An XMLNode object with the conditional formatting item */
+        // TODO: pass in m_nodeOrder from XLConditionalFormat
+        inline static const std::vector< std::string_view > m_nodeOrder = {      // conditionalFormatting XML node required child sequence
+            "cfRule",
+            "extLst"
+        };
     };
+
 
     /**
      * @brief An encapsulation of a conditional formatting item
@@ -462,18 +709,21 @@ namespace OpenXLSX
         bool setExtLst   (XLUnsupportedElement const& newExtLst);
 
         /**
-         * @brief Return a string summary of the cell style properties
-         * @return string with info about the cell style object
+         * @brief Return a string summary of the conditional format properties
+         * @return string with info about the conditional formatting object
          */
         std::string summary() const;
 
     private:                                                   // ---------- Private Member Variables ---------- //
         std::unique_ptr<XMLNode> m_conditionalFormattingNode;  /**< An XMLNode object with the conditional formatting item */
+        inline static const std::vector< std::string_view > m_nodeOrder = {   // conditionalFormatting XML node required child sequence
+            "cfRule",
+            "extLst"
+        };
     };
 
 
     constexpr const char * XLDefaultConditionalFormattingPrefix = "\n\t"; // indentation to use for newly created conditional formatting nodes
-
     /**
      * @brief An encapsulation of the XLSX conditional formats
      */
@@ -523,6 +773,12 @@ namespace OpenXLSX
         XLConditionalFormats& operator=(XLConditionalFormats&& other) noexcept = default;
 
         /**
+         * @brief Test if this is an empty node
+         * @return true if underlying XMLNode is empty
+         */
+        bool empty() const;
+
+        /**
          * @brief Get the count of conditional formatting settings
          * @return The amount of <conditionalFormatting> nodes in the worksheet
          */
@@ -548,6 +804,12 @@ namespace OpenXLSX
          * @returns The index of the new conditional formatting as used by operator[]
          */
         size_t create(XLConditionalFormat copyFrom = XLConditionalFormat{}, std::string conditionalFormattingPrefix = XLDefaultConditionalFormattingPrefix);
+
+        /**
+         * @brief Return a string summary of the conditional formattings properties
+         * @return string with info about the conditional formattings object
+         */
+        std::string summary() const;
 
     private:                                    // ---------- Private Member Variables ---------- //
         std::unique_ptr<XMLNode> m_sheetNode;   /**< An XMLNode object with the sheet item */
@@ -952,6 +1214,16 @@ namespace OpenXLSX
          * @param selected
          */
         void setSelected_impl(bool selected);
+
+        /**
+         * @brief test issue #316 resolution
+         */
+        bool isActive_impl() const { return false; } // TODO: implement actual function body, if possible for chartsheets
+
+        /**
+         * @brief test issue #316 resolution
+         */
+        bool setActive_impl() { return true; } // TODO: implement actual function body, if possible for chartsheets
 
     private:   // ---------- Private Member Variables ---------- //
     };
