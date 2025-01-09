@@ -1434,6 +1434,134 @@ bool XLWorksheet::setRowFormat(uint32_t rowNumber, XLStyleIndex cellFormatIndex)
 XLConditionalFormats XLWorksheet::conditionalFormats() const { return XLConditionalFormats(xmlDocument().document_element()); }
 
 /**
+ * @brief Set the <sheetProtection> attributes sheet, objects and scenarios respectively
+ */
+bool XLWorksheet::protectSheet(bool set) {
+    XMLNode sheetNode = xmlDocument().document_element();
+    return appendAndSetNodeAttribute(sheetNode, "sheetProtection", "sheet",     (set ? "true" : "false"),
+    /**/                             XLKeepAttributes, m_nodeOrder).empty() == false;
+}
+bool XLWorksheet::protectObjects(bool set) {
+    XMLNode sheetNode = xmlDocument().document_element();
+    return appendAndSetNodeAttribute(sheetNode, "sheetProtection", "objects",   (set ? "true" : "false"),
+    /**/                             XLKeepAttributes, m_nodeOrder).empty() == false;
+}
+bool XLWorksheet::protectScenarios(bool set) {
+    XMLNode sheetNode = xmlDocument().document_element();
+    return appendAndSetNodeAttribute(sheetNode, "sheetProtection", "scenarios", (set ? "true" : "false"),
+    /**/                             XLKeepAttributes, m_nodeOrder).empty() == false;
+}
+
+
+/**
+ * @brief Set the <sheetProtection> attributes insertColumns, insertRows, deleteColumns, deleteRows, selectLockedCells, selectUnlockedCells
+ */
+bool XLWorksheet::allowInsertColumns(bool set) {
+    XMLNode sheetNode = xmlDocument().document_element();
+    return appendAndSetNodeAttribute(sheetNode, "sheetProtection", "insertColumns",       (!set ? "true" : "false"), // invert allow set(ting) for the protect setting
+    /**/                             XLKeepAttributes, m_nodeOrder).empty() == false;
+}
+bool XLWorksheet::allowInsertRows(bool set) {
+    XMLNode sheetNode = xmlDocument().document_element();
+    return appendAndSetNodeAttribute(sheetNode, "sheetProtection", "insertRows",          (!set ? "true" : "false"), // invert allow set(ting) for the protect setting
+    /**/                             XLKeepAttributes, m_nodeOrder).empty() == false;
+}
+bool XLWorksheet::allowDeleteColumns(bool set) {
+    XMLNode sheetNode = xmlDocument().document_element();
+    return appendAndSetNodeAttribute(sheetNode, "sheetProtection", "deleteColumns",       (!set ? "true" : "false"), // invert allow set(ting) for the protect setting
+    /**/                             XLKeepAttributes, m_nodeOrder).empty() == false;
+}
+bool XLWorksheet::allowDeleteRows(bool set) {
+    XMLNode sheetNode = xmlDocument().document_element();
+    return appendAndSetNodeAttribute(sheetNode, "sheetProtection", "deleteRows",          (!set ? "true" : "false"), // invert allow set(ting) for the protect setting
+    /**/                             XLKeepAttributes, m_nodeOrder).empty() == false;
+}
+bool XLWorksheet::allowSelectLockedCells(bool set) {
+    XMLNode sheetNode = xmlDocument().document_element();
+    return appendAndSetNodeAttribute(sheetNode, "sheetProtection", "selectLockedCells",   (!set ? "true" : "false"), // invert allow set(ting) for the protect setting
+    /**/                             XLKeepAttributes, m_nodeOrder).empty() == false;
+}
+bool XLWorksheet::allowSelectUnlockedCells(bool set) {
+    XMLNode sheetNode = xmlDocument().document_element();
+    return appendAndSetNodeAttribute(sheetNode, "sheetProtection", "selectUnlockedCells", (!set ? "true" : "false"), // invert allow set(ting) for the protect setting
+    /**/                             XLKeepAttributes, m_nodeOrder).empty() == false;
+}
+
+/**
+ * @details store the password hash to the underlying XML node
+ */
+bool XLWorksheet::setPasswordHash(std::string hash)
+{
+    XMLNode sheetNode = xmlDocument().document_element();
+    return appendAndSetNodeAttribute(sheetNode, "sheetProtection", "password", hash,
+    /**/                             XLKeepAttributes, m_nodeOrder).empty() == false;
+}
+
+/**
+ * @details calculate the password hash and store it to the underlying XML node
+ */
+bool XLWorksheet::setPassword(std::string password) {
+    return setPasswordHash(password.length() ? ExcelPasswordHashAsString( password ) : std::string(""));
+}
+/**
+ * @details
+ */
+bool XLWorksheet::clearPassword() { return setPasswordHash(""); }
+
+/**
+ * @details
+ */
+bool XLWorksheet::clearSheetProtection() { return xmlDocument().document_element().remove_child("sheetProtection"); }
+
+/**
+ * @details
+*/
+bool XLWorksheet::sheetProtected()     const { return xmlDocument().document_element().child("sheetProtection").attribute("sheet").as_bool(false);     }
+bool XLWorksheet::objectsProtected()   const { return xmlDocument().document_element().child("sheetProtection").attribute("objects").as_bool(false);   }
+bool XLWorksheet::scenariosProtected() const { return xmlDocument().document_element().child("sheetProtection").attribute("scenarios").as_bool(false); }
+
+/**
+ * @details the following settings are inverted to get from "protected" meaning in OOXML to "allowed" meaning in the OpenXLSX API
+ * @details insertColumns, insertRows, deleteColumns, deleteRows are protected by default
+ * @details selectLockedCells, selectUnlockedCells are allowed by default
+*/
+bool XLWorksheet::insertColumnsAllowed()       const { return not xmlDocument().document_element().child("sheetProtection").attribute("insertColumns").as_bool(true);        }
+bool XLWorksheet::insertRowsAllowed()          const { return not xmlDocument().document_element().child("sheetProtection").attribute("insertRows").as_bool(true);           }
+bool XLWorksheet::deleteColumnsAllowed()       const { return not xmlDocument().document_element().child("sheetProtection").attribute("deleteColumns").as_bool(true);        }
+bool XLWorksheet::deleteRowsAllowed()          const { return not xmlDocument().document_element().child("sheetProtection").attribute("deleteRows").as_bool(true);           }
+bool XLWorksheet::selectLockedCellsAllowed()   const { return not xmlDocument().document_element().child("sheetProtection").attribute("selectLockedCells").as_bool(false);   }
+bool XLWorksheet::selectUnlockedCellsAllowed() const { return not xmlDocument().document_element().child("sheetProtection").attribute("selectUnlockedCells").as_bool(false); }
+/**
+ * @details
+*/
+std::string XLWorksheet::passwordHash()        const { return     xmlDocument().document_element().child("sheetProtection").attribute("password").value();                   }
+
+/**
+ * @details
+ */
+bool XLWorksheet::passwordIsSet()              const { return passwordHash().length() > 0; }
+
+/**
+ * @details
+ */
+std::string XLWorksheet::sheetProtectionSummary() const
+{
+    using namespace std::literals::string_literals;
+    return   "sheet is"s               + ( sheetProtected()             ? ""s : " not"s ) + " protected"s
+         + ", objects are"s            + ( objectsProtected()           ? ""s : " not"s ) + " protected"s
+         + ", scenarios are"s          + ( scenariosProtected()         ? ""s : " not"s ) + " protected"s
+         + ", insertColumns is"s       + ( insertColumnsAllowed()       ? ""s : " not"s ) + " allowed"s
+         + ", insertRows is"s          + ( insertRowsAllowed()          ? ""s : " not"s ) + " allowed"s
+         + ", deleteColumns is"s       + ( deleteColumnsAllowed()       ? ""s : " not"s ) + " allowed"s
+         + ", deleteRows is"s          + ( deleteRowsAllowed()          ? ""s : " not"s ) + " allowed"s
+         + ", selectLockedCells is"s   + ( selectLockedCellsAllowed()   ? ""s : " not"s ) + " allowed"s
+         + ", selectUnlockedCells is"s + ( selectUnlockedCellsAllowed() ? ""s : " not"s ) + " allowed"s
+         + ", password is"s + ( passwordIsSet() ? ""s : " not"s ) + " set"s
+         + ( passwordIsSet() ? ( ", passwordHash is "s + passwordHash() ) : ""s )
+    ;
+}
+
+/**
  * @details Constructor
  */
 XLChartsheet::XLChartsheet(XLXmlData* xmlData) : XLSheetBase(xmlData) {}

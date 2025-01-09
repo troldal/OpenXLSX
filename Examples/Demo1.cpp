@@ -8,7 +8,7 @@ using namespace OpenXLSX;
 int main()
 {
     cout << "********************************************************************************\n";
-    cout << "DEMO PROGRAM #01: Basic Usage\n";
+    cout << "DEMO PROGRAM #01: Basic Usage and XLWorksheet protection\n";
     cout << "********************************************************************************\n";
 
     // This example program illustrates basic usage of OpenXLSX, for example creation of a new workbook, and read/write
@@ -118,6 +118,38 @@ int main()
     // Using the .tm() method, the corresponding std::tm object can be retrieved.
     auto tmo = result.tm();
     cout << "Cell G1: (" << G1.typeAsString() << ") " << std::asctime(&tmo);
+
+    std::cout << std::endl;
+    std::cout << "XLWorksheet protection settings demo" << std::endl;
+    std::cout << "====================================" << std::endl;
+    std::cout << "Default worksheet " << wks.name() << " protection settings: " << std::endl
+    /**/      << wks.sheetProtectionSummary() << std::endl;
+    std::string password = "test";
+    std::string pwHash = ExcelPasswordHashAsString(password);
+    wks.setPassword(password);            // set password directly
+    wks.setPasswordHash(pwHash);          // set password via hash
+    wks.protectSheet();                   // protects all cells that have protected=true
+    // protectObjects(bool set = false);     // not sure what this would do
+    // protectScenarios(bool set = false);   // not sure what this would do
+    wks.allowSelectUnlockedCells();       // user can select unlocked cells (default)
+    wks.denySelectLockedCells();          // user can not select any cells except those that are explicitly unlocked
+    // wks.denySelectUnlockedCells();        // somehow this setting REALLY does not make any sense
+    // wks.clearPassword();                  // clear a password - this will not(!) disable sheet protection but will no longer require a password to unprotect the sheet in a GUI
+    // wks.protectSheet(false);              // remove sheet protection - this will disable the other protect settings
+    // wks.clearSheetProtection();           // this will ALL protection settings, including the password hash
+    std::cout << "---" << std::endl;
+    std::cout << "Configured worksheet " << wks.name() << " protection settings: " << std::endl
+    /**/      << wks.sheetProtectionSummary() << std::endl;
+
+    // Create a new cell format that unlocks cells
+    XLCellFormats & cellFormats = doc.styles().cellFormats();
+    XLStyleIndex newCellFormatIndex = cellFormats.create( cellFormats[ wks.cell("C1").cellFormat() ] );
+    // cellFormats[ newCellFormatIndex ].setApplyProtection( true ); // seems to be irrelevant
+    // cellFormats[ newCellFormatIndex ].setLocked( true );  // locked seems to be default behavior if attribute is not set
+    cellFormats[ newCellFormatIndex ].setLocked( false ); // unprotect a cell
+
+    // wks.cell("D1").setCellFormat(newCellFormatIndex);
+    wks.range("C1:D1").setFormat(newCellFormatIndex); // unlock two cells
 
     doc.save();
     doc.close();

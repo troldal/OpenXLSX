@@ -7,6 +7,9 @@ Microsoft Excel® files, with the .xlsx format.
 
 As the heading says - the latest "Release" that is shown on https://github.com/troldal/OpenXLSX/releases is from 2021-11-06, and severely outdated - please pull / download the latest SW version directly from the repository in its current state. Link for those that do not want to use ```git```: https://github.com/troldal/OpenXLSX/archive/refs/heads/master.zip
 
+## (aral-matrix) 09 January 2025 - Support for XLWorksheet protection
+This patch addresses https://github.com/troldal/OpenXLSX/issues/311 by enabling worksheet protection. Exemplary usage has been added to Demo1.
+
 ## (aral-matrix) 08 January 2025 - Support for XLWorksheet conditional formatting (experimental)
 This is a major patch to address https://github.com/troldal/OpenXLSX/issues/315 - conditional formatting is now implemented in an experimental stage.
 
@@ -19,16 +22,54 @@ Please refer to ```Demo10.cpp``` lines 454ff for an example on how to use the fu
 * I have implemented boolean values to be stored in XML as ```"true"``` and ```"false"``` - whereas LibreOffice appears to store them (for cfRules) as ```1``` and ```0```). The reason is: I want to know if this works, and if it does, stay consistent in how OpenXLSX stores boolean values. I may have to modify this as I learn more
 * Another boolean "gotcha": I do not yet know how MS Office evalutes attribute names that exist with an empty value, e.g. ```aboveAverage=""``` when for ```aboveAverage```, the documentation defines ```true``` as the default - does that mean an empty string gets evaluted as ```true```?
 
-Very close on the to-be-resolved list now: resolution of issue https://github.com/troldal/OpenXLSX/issues/311 as I am now working on XLSheet anyways.
-
 To be tested: https://github.com/troldal/OpenXLSX/issues/316 with this new patch, it *might* be resolved (no promise :)
 
 ## Recent changes
 
-### (aral-matrix) 08 January 2025 - experimental support for XLSheet conditional formatting
-* XLSheet: added support for conditional formatting (rules)
+### (aral-matrix) 09 January 2025 - support for XLWorksheet protection
+* addresses https://github.com/troldal/OpenXLSX/issues/311
+* moved functions ```hexDigit``` and ```BinaryAsHexString``` from XLRelationships to XLDocument as global utility functions so that XLWorksheet can use them as well
+* added ```ExcelPasswordHash``` and ```ExcelPasswordHashAsString``` to XLDocument as global utility functions
+* added XLWorksheet protection settings demo to Demo1
+* added sheet protection & password (hash) functionality to XLWorksheet (exclusive, not for XLChartsheet) - see Demo1 for usage
+ * setter functions:
+  * ```bool protectSheet(bool set = true)```
+  * ```bool protectObjects(bool set = true)```
+  * ```bool protectScenarios(bool set = true)```
+  * ```bool allowInsertColumns(bool set = true)```
+  * ```bool allowInsertRows(bool set = true)```
+  * ```bool allowDeleteColumns(bool set = true)```
+  * ```bool allowDeleteRows(bool set = true)```
+  * ```bool allowSelectLockedCells(bool set = true)```
+  * ```bool allowSelectUnlockedCells(bool set = true)```
+  * ```bool denyInsertColumns()```
+  * ```bool denyInsertRows()```
+  * ```bool denyDeleteColumns()```
+  * ```bool denyDeleteRows()```
+  * ```bool denySelectLockedCells()```
+  * ```bool denySelectUnlockedCells()```
+  * ```bool setPasswordHash(std::string hash)```
+  * ```bool setPassword(std::string password)```
+  * ```bool clearPassword()```
+  * ```bool clearSheetProtection()```
+ * getter functions:
+  * ```bool sheetProtected()```
+  * ```bool objectsProtected()```
+  * ```bool scenariosProtected()```
+  * ```bool insertColumnsAllowed()```
+  * ```bool insertRowsAllowed()```
+  * ```bool deleteColumnsAllowed()```
+  * ```bool deleteRowsAllowed()```
+  * ```bool selectLockedCellsAllowed()```
+  * ```bool selectUnlockedCellsAllowed()```
+  * ```std::string passwordHash()```
+  * ```bool passwordIsSet()```
+* added ```std::string XLWorksheet::sheetProtectionSummary()``` for easy control of established settings
+
+### (aral-matrix) 08 January 2025 - experimental support for XLWorksheet conditional formatting
+* XLWorksheet: added support for conditional formatting (rules)
 * XLStyles: added differential cell formats (dxfs) support required by conditional formatting
-* moved class ```XLUnsupportedElement``` from XLStyles to XLXmlFile header, so that XLSheet can use it for conditional formatting functionality
+* moved class ```XLUnsupportedElement``` from XLStyles to XLXmlFile header, so that XLWorksheet can use it for conditional formatting functionality
 * XLChartSheet: added ```bool isActive_impl()``` and ```bool setActive_impl()``` as no-op function stubs in the hopes this resolves https://github.com/troldal/OpenXLSX/issues/316
 
 ### (aral-matrix) 30 December 2024 - removed ```XLWorkbook::sharedStrings``` and ```XLWorkbook::hasSharedStrings```

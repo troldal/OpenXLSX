@@ -1297,3 +1297,71 @@ bool XLDocument::hasXmlData(const std::string& path) const
 {
     return std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) { return item.getXmlPath() == path; }) != m_data.end();
 }
+
+
+//----------------------------------------------------------------------------------------------------------------------
+//           Global utility functions
+//----------------------------------------------------------------------------------------------------------------------
+
+/**
+ * @details assuming value is a value < 16, return the equivalent hex digit
+ */
+char hexDigit(unsigned int value)
+{
+    if (value > 0xf) return 0;
+    if (value < 0xa) return value + '0';    // return value as number digit
+    return (value - 0xa) + 'a';             // return value as letter digit
+}
+
+/**
+ * @details create a hex string from data
+ */
+std::string BinaryAsHexString(const uint8_t *data, const size_t size)
+{
+    // ===== Allocate memory for string assembly - each byte takes two hex digits = 2 characters in string
+    std::string strAssemble(size * 2, 0); // zero-initialize (alternative would be to default-construct a string and .reserve(size * 2);
+
+    // ===== assemble a string of hex digits
+    for (size_t pos = 0; pos < size * 2; ++pos) {
+        int valueByte = data[pos / 2];
+        int valueHalfByte = (valueByte & (pos & 1 ? 0x0f : 0xf0)) >> (pos & 1 ? 0 : 4);
+        strAssemble[pos] = hexDigit(valueHalfByte); // convert each half-byte into a hex digit
+    }
+    return strAssemble;
+}
+
+/**
+ * @brief Overload for BinaryAsHexString to permit data being of any pointer type
+ */
+std::string BinaryAsHexString(void *data, size_t size) { return BinaryAsHexString(static_cast<uint8_t *>(data), size); }
+
+/**
+ * @details apply the XLSX password hashing algorithm to password
+ */
+uint16_t ExcelPasswordHash (std::string password)
+{
+    uint16_t wPasswordHash = 0;
+    uint16_t cchPassword = static_cast<uint16_t>(password.length());
+
+    for (uint16_t pos = 0; pos < cchPassword; ++pos) {
+        uint32_t byteHash = password[pos] << ((pos + 1) % 15);
+        byteHash = (byteHash >> 15) | (byteHash & 0x7fff);
+        wPasswordHash ^= static_cast<uint16_t>(byteHash);
+    }
+    wPasswordHash ^= cchPassword ^ 0xce4b;
+    // wPasswordHash ^= (0x8000 | ('N' << 8) | 'K'); // 'N' = 0x4e, 'K' = 0x4b, 0x8000 | 0x4e000 | 0x004b == 0xce4b, XOR'ed above
+
+    return wPasswordHash;
+}
+
+/**
+ * @details same as ExcelPasswordHash but return the result as a hex string
+ */
+std::string ExcelPasswordHashAsString (std::string password)
+{
+    uint16_t pw = ExcelPasswordHash(password);
+    uint8_t hashData[2];
+    hashData[0] = pw >> 8;   // MSB first
+    hashData[1] = pw & 0xff; // LSB second
+    return BinaryAsHexString(hashData, 2);
+}

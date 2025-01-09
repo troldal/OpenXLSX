@@ -1077,6 +1077,96 @@ namespace OpenXLSX
          */
         XLConditionalFormats conditionalFormats() const;
 
+        /**
+         * @brief Set the <sheetProtection> attributes sheet, objects and scenarios respectively
+         * @return true upon success, false in case of any failure
+         */
+        bool protectSheet(bool set = true);
+        bool protectObjects(bool set = true);
+        bool protectScenarios(bool set = true);
+
+        /**
+         * @brief Set the XML properties that allow the according modification of the worksheet
+         * @param set if true, action will be allowed despite sheet protection, if false, action will be denied / protected
+         * @note #1 default for all (if attribute is not present) is "true" = the action is protected / not allowed
+         * @note #2 none of the sheet protection settings have any effect if protectSheet is not set
+         * @note (library internal) counter-intuitively, the underlying bool attributes need to be set to "false" to "disable protection" for these actions
+         */
+        bool allowInsertColumns(bool set = true);       // default: not allowed in a protected worksheet
+        bool allowInsertRows(bool set = true);          //   "    :  "
+        bool allowDeleteColumns(bool set = true);       //   "    :  "
+        bool allowDeleteRows(bool set = true);          //   "    :  "
+        bool allowSelectLockedCells(bool set = true);   // default: allowed in a protected worksheet
+        bool allowSelectUnlockedCells(bool set = true); //   "    :  "
+        /**
+         * @brief Convenience shortcuts for allow<*>( false );
+         */
+        bool denyInsertColumns()       { return allowInsertColumns      (false); }
+        bool denyInsertRows()          { return allowInsertRows         (false); }
+        bool denyDeleteColumns()       { return allowDeleteColumns      (false); }
+        bool denyDeleteRows()          { return allowDeleteRows         (false); }
+        bool denySelectLockedCells()   { return allowSelectLockedCells  (false); }
+        bool denySelectUnlockedCells() { return allowSelectUnlockedCells(false); }
+
+        /**
+         * @brief Set the sheetProtection password attribute
+         * @param hash directly stores a password hash to the password attribute, for use cases where the password shall not be used in clear text in the API
+         * @note ExcelPasswordHash or ExcelPasswordHashAsString (defined in XLDocument header) can be used to calculate the hash
+         * @note an empty password hash can be used to clear any password protection
+         * @return true upon success, false in case of any failure
+         */
+        bool setPasswordHash(std::string hash);
+
+        /**
+         * @brief Set the sheetProtection password attribute
+         * @param password the XLSX password hash for this string will be stored in the password attribute
+         * @note an empty password clears the password attribute
+         * @return true upon success, false in case of any failure
+         */
+        bool setPassword(std::string password);
+
+        /**
+         * @brief Clear the sheetProtection password attribute
+         */
+        bool clearPassword();
+
+        /**
+         * @brief Clear the sheetProtection completely
+         */
+        bool clearSheetProtection();
+
+        /**
+         * @brief getter functions for sheet protection settings
+         * @return true if setting is "action allowed"
+         */
+        bool sheetProtected()     const;
+        bool objectsProtected()   const;
+        bool scenariosProtected() const;
+
+        /**
+         * @brief getter functions for detailed sheet protections
+         * @note none of the sheet protection settings have any effect if protectSheet is not set
+         */
+        bool insertColumnsAllowed()       const;
+        bool insertRowsAllowed()          const;
+        bool deleteColumnsAllowed()       const;
+        bool deleteRowsAllowed()          const;
+        bool selectLockedCellsAllowed()   const;
+        bool selectUnlockedCellsAllowed() const;
+
+        /**
+         * @brief get sheet password hash
+         */
+        std::string passwordHash() const;
+        /**
+         * @brief check sheet password protection
+         */
+        bool passwordIsSet() const;
+
+        /**
+         * @brief assemble a string summary about the sheet protection settings
+         */
+        std::string sheetProtectionSummary() const;
 
     private:
 

@@ -64,44 +64,6 @@ using namespace OpenXLSX;
 namespace { // anonymous namespace: do not export these symbols
     bool RandomIDs{false};             // default: use sequential IDs
     bool RandomizerInitialized{false}; // will be initialized by GetNewRelsID, if XLRand32 / XLRand64 are used elsewhere, user should invoke XLInitRandom
-
-    /**
-     * @brief Return a hexadecimal digit as character that is the equivalent of value
-     * @param value The number to convert, must be 0 <= value <= 15
-     * @return 0 if value > 15, otherwise the hex digit equivalent to value, as a character
-     */
-    char hexDigit(unsigned int value)
-    {
-        if (value > 0xf) return 0;
-        if (value < 0xa) return value + '0';    // return value as number digit
-        return (value - 0xa) + 'a';             // return value as letter digit
-    }
-
-    /**
-     * @brief Get a hexadecimal representation of size bytes, starting at data 
-     * @param data A pointer to the data bytes to format
-     * @param size The amount of data bytes to format
-     * @return A string with the base-16 representation of the data bytes
-     * @note 2024-08-18 BUGFIX: replaced char array with std::string, as ISO C++ standard does not permit variable size arrays
-     */
-    std::string BinaryAsHexString(const uint8_t *data, const size_t size)
-    {
-        // ===== Allocate memory for string assembly - each byte takes two hex digits = 2 characters in string
-        std::string strAssemble(size * 2, 0); // zero-initialize (alternative would be to default-construct a string and .reserve(size * 2);
-
-        // ===== assemble a string of hex digits
-        for (size_t pos = 0; pos < size * 2; ++pos) {
-            int valueByte = data[pos / 2];
-            int valueHalfByte = (valueByte & (pos & 1 ? 0x0f : 0xf0)) >> (pos & 1 ? 0 : 4);
-            strAssemble[pos] = hexDigit(valueHalfByte); // convert each half-byte into a hex digit
-        }
-        return strAssemble;
-    }
-
-    /**
-     * @brief Overload for BinaryAsHexString to permit data being of any pointer type
-     */
-    std::string BinaryAsHexString(void *data, size_t size) { return BinaryAsHexString(static_cast<uint8_t *>(data), size); }
 } // anonymous namespace
 
 
