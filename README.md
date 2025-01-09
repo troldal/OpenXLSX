@@ -52,7 +52,7 @@ To be tested: https://github.com/troldal/OpenXLSX/issues/316 with this new patch
         * ```bool setPassword(std::string password)```
         * ```bool clearPassword()```
         * ```bool clearSheetProtection()```
- * getter functions:
+    * getter functions:
         * ```bool sheetProtected()```
         * ```bool objectsProtected()```
         * ```bool scenariosProtected()```
