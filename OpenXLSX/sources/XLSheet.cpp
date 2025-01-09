@@ -348,6 +348,24 @@ void XLSheet::setSelected(bool selected)
 }
 
 /**
+ * @details This reports the active state of the sheet, by calling the isActive()
+ * member function of the underlying sheet object (XLWorksheet or XLChartsheet).
+ */
+bool XLSheet::isActive() const
+{
+    return std::visit([](auto&& arg) { return arg.isActive(); }, m_sheet);
+}
+
+/**
+ * @details This method sets the active state of the sheet, by calling the setActive()
+ * member function of the underlying sheet object (XLWorksheet or XLChartsheet).
+ */
+bool XLSheet::setActive()
+{
+    return std::visit([&](auto&& arg) { return arg.setActive(); }, m_sheet);
+}
+
+/**
  * @details Clones the sheet by calling the clone() method in the underlying sheet object
  * (XLWorksheet or XLChartsheet), using the visitor pattern.
  */

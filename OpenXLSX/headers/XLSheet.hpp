@@ -140,12 +140,12 @@ namespace OpenXLSX
     // ================================================================================
     // Converter functions between OpenXLSX class specific enum class types and OOXML values
     // ================================================================================
-    XLCfType       XLCfTypeFromString      (std::string const& typeString      );
-    std::string    XLCfTypeToString        (XLCfType           cfType          );
-    XLCfOperator   XLCfOperatorFromString  (std::string const& operatorString  );
-    std::string    XLCfOperatorToString    (XLCfOperator       cfOperator      );
-    XLCfTimePeriod XLCfTimePeriodFromString(std::string const& timePeriodString);
-    std::string    XLCfTimePeriodToString  (XLCfTimePeriod     cfTimePeriod    );
+    OPENXLSX_EXPORT XLCfType       XLCfTypeFromString      (std::string const& typeString      );
+    OPENXLSX_EXPORT std::string    XLCfTypeToString        (XLCfType           cfType          );
+    OPENXLSX_EXPORT XLCfOperator   XLCfOperatorFromString  (std::string const& operatorString  );
+    OPENXLSX_EXPORT std::string    XLCfOperatorToString    (XLCfOperator       cfOperator      );
+    OPENXLSX_EXPORT XLCfTimePeriod XLCfTimePeriodFromString(std::string const& timePeriodString);
+    OPENXLSX_EXPORT std::string    XLCfTimePeriodToString  (XLCfTimePeriod     cfTimePeriod    );
 
     /**
      * @brief The XLSheetBase class is the base class for the XLWorksheet and XLChartsheet classes. However,
@@ -1427,6 +1427,17 @@ namespace OpenXLSX
          * @param selected
          */
         void setSelected(bool selected);
+
+        /**
+         * @brief
+         * @return
+         */
+        bool isActive() const;
+
+        /**
+         * @brief
+         */
+        bool setActive();
 
         /**
          * @brief Method to get the type of the sheet.

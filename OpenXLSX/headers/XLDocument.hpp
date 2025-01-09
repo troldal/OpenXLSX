@@ -376,43 +376,33 @@ namespace OpenXLSX
         IZipArchive     m_archive {};          /**<  */
     };
 
+
+    //----------------------------------------------------------------------------------------------------------------------
+    //           Global utility functions
+    //----------------------------------------------------------------------------------------------------------------------
+
+    /**
+     * @brief Get a hexadecimal representation of size bytes, starting at data
+     * @param data A pointer to the data bytes to format
+     * @param size The amount of data bytes to format
+     * @return A string with the base-16 representation of the data bytes
+     * @note 2024-08-18 BUGFIX: replaced char array with std::string, as ISO C++ standard does not permit variable size arrays
+     */
+    OPENXLSX_EXPORT std::string BinaryAsHexString(const void *data, const size_t size);
+
+    /**
+     * @brief Calculate the two-byte XLSX password hash for password
+     * @param password the string to hash
+     * @return the two byte value calculated according to the XLSX password hashing algorithm
+     */
+    OPENXLSX_EXPORT uint16_t ExcelPasswordHash (std::string password);
+    /**
+     * @brief Same as ExcelPasswordHash but format the output as a 4-digit hexadecimal string
+     * @param password the string to hash
+     * @return a string that can be stored in OOXML as a password hash
+     */
+    OPENXLSX_EXPORT std::string ExcelPasswordHashAsString (std::string password);
 }    // namespace OpenXLSX
-
-
-//----------------------------------------------------------------------------------------------------------------------
-//           Global utility functions
-//----------------------------------------------------------------------------------------------------------------------
-
-/**
- * @brief Return a hexadecimal digit as character that is the equivalent of value
- * @param value The number to convert, must be 0 <= value <= 15
- * @return 0 if value > 15, otherwise the hex digit equivalent to value, as a character
- */
-char hexDigit(unsigned int value);
-
-/**
- * @brief Get a hexadecimal representation of size bytes, starting at data
- * @param data A pointer to the data bytes to format
- * @param size The amount of data bytes to format
- * @return A string with the base-16 representation of the data bytes
- * @note 2024-08-18 BUGFIX: replaced char array with std::string, as ISO C++ standard does not permit variable size arrays
- * @note the second function declaration serves as an overload to permit data being of any pointer type
- */
-std::string BinaryAsHexString(const uint8_t *data, const size_t size);
-std::string BinaryAsHexString(void *data, size_t size);
-
-/**
- * @brief Calculate the two-byte XLSX password hash for password
- * @param password the string to hash
- * @return the two byte value calculated according to the XLSX password hashing algorithm
- */
-uint16_t ExcelPasswordHash (std::string password);
-/**
- * @brief Same as ExcelPasswordHash but format the output as a 4-digit hexadecimal string
- * @param password the string to hash
- * @return a string that can be stored in OOXML as a password hash
- */
-std::string ExcelPasswordHashAsString (std::string password);
 
 #ifdef _MSC_VER    // conditionally enable MSVC specific pragmas to avoid other compilers warning about unknown pragmas
 #   pragma warning(pop)

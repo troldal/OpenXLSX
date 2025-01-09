@@ -9,6 +9,7 @@ As the heading says - the latest "Release" that is shown on https://github.com/t
 
 ## (aral-matrix) 09 January 2025 - Support for XLWorksheet protection
 This patch addresses https://github.com/troldal/OpenXLSX/issues/311 by enabling worksheet protection. Exemplary usage has been added to Demo1.
+The latest patch also fixes some missing symbol exports when building the shared library - this addresses https://github.com/troldal/OpenXLSX/issues/316.
 
 ## (aral-matrix) 08 January 2025 - Support for XLWorksheet conditional formatting (experimental)
 This is a major patch to address https://github.com/troldal/OpenXLSX/issues/315 - conditional formatting is now implemented in an experimental stage.
@@ -22,16 +23,17 @@ Please refer to ```Demo10.cpp``` lines 454ff for an example on how to use the fu
 * I have implemented boolean values to be stored in XML as ```"true"``` and ```"false"``` - whereas LibreOffice appears to store them (for cfRules) as ```1``` and ```0```). The reason is: I want to know if this works, and if it does, stay consistent in how OpenXLSX stores boolean values. I may have to modify this as I learn more
 * Another boolean "gotcha": I do not yet know how MS Office evalutes attribute names that exist with an empty value, e.g. ```aboveAverage=""``` when for ```aboveAverage```, the documentation defines ```true``` as the default - does that mean an empty string gets evaluted as ```true```?
 
-To be tested: https://github.com/troldal/OpenXLSX/issues/316 with this new patch, it *might* be resolved (no promise :)
-
 ## Recent changes
 
 ### (aral-matrix) 09 January 2025 - support for XLWorksheet protection
-* addresses https://github.com/troldal/OpenXLSX/issues/311
-* moved functions ```hexDigit``` and ```BinaryAsHexString``` from XLRelationships to XLDocument as global utility functions so that XLWorksheet can use them as well
+* ensured that utility functions get exported to shared library build: ```XLCfTypeFromString```, ```XLCfTypeToString```, ```XLCfOperatorFromString```, ```XLCfOperatorToString```, ```XLCfTimePeriodFromString```, ```XLCfTimePeriodToString```
+* BUGFIX XLSheet: added ```XLSheet::isActive``` and ```XLSheet::setActive``` function definitions to ensure bug-free export of symbols to shared library - this addresses https://github.com/troldal/OpenXLSX/issues/316 - please do not ask me why this was never a problem for the static build, I am simply not smart enough to understand that :P
+* BUGFIX XLDocument: added explicit OPENXLSX_EXPORT macro to new global utility functions ```BinaryAsHexString```, ```ExcelPasswordHash```, ```ExcelPasswordHashAsString``` so that they are also exported when the shared library is being built
 * added ```ExcelPasswordHash``` and ```ExcelPasswordHashAsString``` to XLDocument as global utility functions
+* made ```BinaryAsHexString``` a global utility function so that XLWorksheet can use them as well
+* moved functions ```hexDigit``` and ```BinaryAsHexString``` from XLRelationships to XLDocument
 * added XLWorksheet protection settings demo to Demo1
-* added sheet protection & password (hash) functionality to XLWorksheet (exclusive, not for XLChartsheet) - see Demo1 for usage
+* added sheet protection & password (hash) functionality to XLWorksheet (exclusive, not for XLChartsheet) - see Demo1 for usage. This addresses https://github.com/troldal/OpenXLSX/issues/311
     * setter functions:
         * ```bool protectSheet(bool set = true)```
         * ```bool protectObjects(bool set = true)```
