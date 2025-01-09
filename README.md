@@ -3,7 +3,7 @@
 OpenXLSX is a C++ library for reading, writing, creating and modifying
 Microsoft Excel® files, with the .xlsx format.
 
-## (aral-matrix) 26 November 2024 - NOTE: "Releases" are severely outdated - do not use them
+## NOTE: "Releases" are severely outdated - do not use them
 
 As the heading says - the latest "Release" that is shown on https://github.com/troldal/OpenXLSX/releases is from 2021-11-06, and severely outdated - please pull / download the latest SW version directly from the repository in its current state. Link for those that do not want to use ```git```: https://github.com/troldal/OpenXLSX/archive/refs/heads/master.zip
 
@@ -32,38 +32,38 @@ To be tested: https://github.com/troldal/OpenXLSX/issues/316 with this new patch
 * added ```ExcelPasswordHash``` and ```ExcelPasswordHashAsString``` to XLDocument as global utility functions
 * added XLWorksheet protection settings demo to Demo1
 * added sheet protection & password (hash) functionality to XLWorksheet (exclusive, not for XLChartsheet) - see Demo1 for usage
- * setter functions:
-  * ```bool protectSheet(bool set = true)```
-  * ```bool protectObjects(bool set = true)```
-  * ```bool protectScenarios(bool set = true)```
-  * ```bool allowInsertColumns(bool set = true)```
-  * ```bool allowInsertRows(bool set = true)```
-  * ```bool allowDeleteColumns(bool set = true)```
-  * ```bool allowDeleteRows(bool set = true)```
-  * ```bool allowSelectLockedCells(bool set = true)```
-  * ```bool allowSelectUnlockedCells(bool set = true)```
-  * ```bool denyInsertColumns()```
-  * ```bool denyInsertRows()```
-  * ```bool denyDeleteColumns()```
-  * ```bool denyDeleteRows()```
-  * ```bool denySelectLockedCells()```
-  * ```bool denySelectUnlockedCells()```
-  * ```bool setPasswordHash(std::string hash)```
-  * ```bool setPassword(std::string password)```
-  * ```bool clearPassword()```
-  * ```bool clearSheetProtection()```
+    * setter functions:
+        * ```bool protectSheet(bool set = true)```
+        * ```bool protectObjects(bool set = true)```
+        * ```bool protectScenarios(bool set = true)```
+        * ```bool allowInsertColumns(bool set = true)```
+        * ```bool allowInsertRows(bool set = true)```
+        * ```bool allowDeleteColumns(bool set = true)```
+        * ```bool allowDeleteRows(bool set = true)```
+        * ```bool allowSelectLockedCells(bool set = true)```
+        * ```bool allowSelectUnlockedCells(bool set = true)```
+        * ```bool denyInsertColumns()```
+        * ```bool denyInsertRows()```
+        * ```bool denyDeleteColumns()```
+        * ```bool denyDeleteRows()```
+        * ```bool denySelectLockedCells()```
+        * ```bool denySelectUnlockedCells()```
+        * ```bool setPasswordHash(std::string hash)```
+        * ```bool setPassword(std::string password)```
+        * ```bool clearPassword()```
+        * ```bool clearSheetProtection()```
  * getter functions:
-  * ```bool sheetProtected()```
-  * ```bool objectsProtected()```
-  * ```bool scenariosProtected()```
-  * ```bool insertColumnsAllowed()```
-  * ```bool insertRowsAllowed()```
-  * ```bool deleteColumnsAllowed()```
-  * ```bool deleteRowsAllowed()```
-  * ```bool selectLockedCellsAllowed()```
-  * ```bool selectUnlockedCellsAllowed()```
-  * ```std::string passwordHash()```
-  * ```bool passwordIsSet()```
+        * ```bool sheetProtected()```
+        * ```bool objectsProtected()```
+        * ```bool scenariosProtected()```
+        * ```bool insertColumnsAllowed()```
+        * ```bool insertRowsAllowed()```
+        * ```bool deleteColumnsAllowed()```
+        * ```bool deleteRowsAllowed()```
+        * ```bool selectLockedCellsAllowed()```
+        * ```bool selectUnlockedCellsAllowed()```
+        * ```std::string passwordHash()```
+        * ```bool passwordIsSet()```
 * added ```std::string XLWorksheet::sheetProtectionSummary()``` for easy control of established settings
 
 ### (aral-matrix) 08 January 2025 - experimental support for XLWorksheet conditional formatting
@@ -606,7 +606,7 @@ These missing defaults could lead to followup errors when any style index of thi
 
 * ```XLMergeCells```: added methods
   * ```int32_t XLMergeCells::findMerge(const std::string& reference)``` - find a merge matching reference
-  * ```bool mergeExists(const std::string& reference)``` - test if a merge with reference exists
+        * ```bool mergeExists(const std::string& reference)``` - test if a merge with reference exists
   * ```int32_t XLMergeCells::findMergeByCell(const std::string& cellRef)``` - find a merge containing std::string cellRef
   * ```int32_t XLMergeCells::findMergeByCell(XLCellReference cellRef)``` - find a merge containing XLCellReference cellRef
   * ```size_t count()``` - get count of merges defined in the worksheet
@@ -632,7 +632,7 @@ These missing defaults could lead to followup errors when any style index of thi
 * support for ```workbook##.xml```, XML namespaces and random 64bit (relationship) identifiers
   * a non-standard (== not ```xl/workbook.xml```) workbook XML name is now accepted if it is correctly referenced in ```_rels/.rels```
   * XLSX documents that use namespaces throughout their XML files are now supported in the following way:
-    * ```bool OpenXLSX::enable_xml_namespaces()``` must be used to enable namespace support *before* opening a document using e.g. a namespace ```x``` (like so: ```<x:row r="1">```) everywhere
+          * ```bool OpenXLSX::enable_xml_namespaces()``` must be used to enable namespace support *before* opening a document using e.g. a namespace ```x``` (like so: ```<x:row r="1">```) everywhere
     * the document is then opened normally
     * any and all node creations will expose to the user normal node names (as if the namespaces were not in use) and will save/create elements with the correct namespace (of their parent node)
     * if a node is accessed with a namespace, the leading namespace will be stripped and then the node name will be checked based on the parent node's name
