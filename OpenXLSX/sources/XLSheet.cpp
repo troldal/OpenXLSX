@@ -1289,6 +1289,33 @@ uint32_t XLWorksheet::rowCount() const noexcept
 }
 
 /**
+ * @details finds a given row and deletes it
+ */
+bool XLWorksheet::deleteRow(uint32_t rowNumber)
+{
+    XMLNode row = xmlDocument().document_element().child("sheetData").first_child_of_type(pugi::node_element);
+    XMLNode lastRow = xmlDocument().document_element().child("sheetData").last_child_of_type(pugi::node_element);
+
+    // ===== Fail if rowNumber is not in XML
+    if( rowNumber < row.attribute("r").as_ullong() || rowNumber > lastRow.attribute("r").as_ullong() ) return false;
+
+    // ===== If rowNumber is closer to first (existing) row than to last row, search forwards
+    if (rowNumber - row.attribute("r").as_ullong() < lastRow.attribute("r").as_ullong() - rowNumber)
+        while (not row.empty() && (row.attribute("r").as_ullong() < rowNumber)) row = row.next_sibling_of_type(pugi::node_element);
+
+    // ===== Otherwise, search backwards
+    else {
+        row = lastRow;
+        while (not row.empty() && (row.attribute("r").as_ullong() > rowNumber)) row = row.previous_sibling_of_type(pugi::node_element);
+    }
+
+    if (row.attribute("r").as_ullong() != rowNumber) return false;    // row not found in XML
+
+    // ===== If row was located: remove it
+    return xmlDocument().document_element().child("sheetData").remove_child(row);
+}
+
+/**
  * @details
  */
 void XLWorksheet::updateSheetName(const std::string& oldName, const std::string& newName)    // 2024-04-29: patched for whitespace

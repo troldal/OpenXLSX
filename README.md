@@ -25,6 +25,9 @@ Please refer to ```Demo10.cpp``` lines 454ff for an example on how to use the fu
 
 ## Recent changes
 
+### (aral-matrix) 10 January 2025 deletion of worksheet rows from OOXML to address https://github.com/troldal/OpenXLSX/issues/156
+* added bool XLWorksheet::deleteRow(uint32_t rowNumber) - can be used to eliminate rows from OOXML - no renumbering of rows behind is performed, the row entry is simply removed from OOXML
+
 ### (aral-matrix) 10 January 2025 - bugfixes to XLDateTime, implicit conversion to double for integer, bool cell values
 * XLDateTime::tm() BUGFIX: added overflow handling in rounded seconds at the end of a minute to address https://github.com/troldal/OpenXLSX/issues/138
 * XLDateTime::tm() BUGFIX: account for fractions (time of day) in loops counting year & month

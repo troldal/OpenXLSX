@@ -996,6 +996,13 @@ namespace OpenXLSX
         uint32_t rowCount() const noexcept;
 
         /**
+         * @brief Delete the row with the given row number from the underlying OOXML.
+         * @return true if a row entry existed in OOXML & was deleted, otherwise false
+         * @warning this will break all existing references to that row (formulas etc)
+         */
+        bool deleteRow(uint32_t rowNumber);
+
+        /**
          * @brief
          * @param oldName
          * @param newName
