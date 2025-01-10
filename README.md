@@ -26,7 +26,7 @@ Please refer to ```Demo10.cpp``` lines 454ff for an example on how to use the fu
 ## Recent changes
 
 ### (aral-matrix) 10 January 2025 - bugfixes to XLDateTime, implicit conversion to double for integer, bool cell values
-* XLDateTime::tm() BUGFIX: added overflow handling in rounded seconds at the end of a minute to address issue #138
+* XLDateTime::tm() BUGFIX: added overflow handling in rounded seconds at the end of a minute to address https://github.com/troldal/OpenXLSX/issues/138
 * XLDateTime::tm() BUGFIX: account for fractions (time of day) in loops counting year & month
 * XLDateTime::tm() precaution: added safeguards against infinite loops counting year & month
 * XLCellValue: added implicit conversion from integer & bool for ```XLCellValue::get<double>()``` and ```XLCellValue::get<XLDateTime>()```. Note: implicit conversion from string is available in ```VisitXLCellValueTypeToDouble```, but disabled (forced throw)
