@@ -32,6 +32,7 @@
 !/Benchmarks/2024-12-19-benchmarks
 !/Benchmarks/2024-12-30-benchmarks-post-XLSharedStrings-by-ref
 !/Benchmarks/2025-01-09-benchmarks-post-conditionalFormatsAndSheetProtection
+!/Benchmarks/2025-01-10-benchmarks-post-XLCellValue-bugfix
 
 # include Documentation folder
 !/Documentation

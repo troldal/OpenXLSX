@@ -75,11 +75,13 @@ int main()
     cout << "Cell E1: (" << E1.typeAsString() << ") " << E1.get<double>() << endl << endl;
 
     // XLCellValue objects can also be copied and assigned to other cells. This following line
-    // will copy and assign the value of cell C1 to cell E1. Note tha only the value is copied;
+    // will copy and assign the value of cell C1 to cell E1. Note that only the value is copied;
     // other cell properties of the target cell remain unchanged.
+
     wks.cell("F1").value() = wks.cell(XLCellReference("C1")).value();
+
     XLCellValue F1 = wks.cell("F1").value();
-    cout << "Cell F1: (" << F1.typeAsString() << ") " << F1.get<std::string_view>() << endl << endl;
+    cout << "Cell F1: (" << F1.typeAsString() << ") " << F1.get<std::string>() << endl << endl;
 
     // Date/time values is a special case. In Excel, date/time values are essentially just a
     // 64-bit floating point value, that is rendered as a date/time string using special

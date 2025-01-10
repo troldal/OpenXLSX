@@ -25,8 +25,11 @@ Please refer to ```Demo10.cpp``` lines 454ff for an example on how to use the fu
 
 ## Recent changes
 
-### (aral-matrix) 10 January 2025 deletion of worksheet rows from OOXML to address https://github.com/troldal/OpenXLSX/issues/156
-* added bool XLWorksheet::deleteRow(uint32_t rowNumber) - can be used to eliminate rows from OOXML - no renumbering of rows behind is performed, the row entry is simply removed from OOXML
+### (aral-matrix) 10 January 2025 deletion of worksheet rows from OOXML, bugfix for XLCellValue(Proxy)::get
+* added bool XLWorksheet::deleteRow(uint32_t rowNumber) - can be used to eliminate rows from OOXML - no renumbering of rows behind is performed, the row entry is simply removed from OOXML, this addresses https://github.com/troldal/OpenXLSX/issues/156
+* templated getter T XLCellValue(Proxy)::get() now uses a workaround (due to undefined behavior) when getting a temporary string_view or (const) char * - this functionality was only safe when called with a persistent XLCellValue(Proxy) variable - users should not use this template to fetch a string reference type as it may be removed in the future
+* introduced ```XLKeepCellValue::privateGet``` as a library internal that can be used with the old behavior for performance reasons, from functions that can guarantee the validity of the XLCellValue for the duration of access to the string reference
+* in line with the change to the templated getter, the ```std::ostream& operator<<```for XLCellValue and XLCellValueProxy now fetch string types as ```std::string```, this addresses https://github.com/troldal/OpenXLSX/issues/166
 
 ### (aral-matrix) 10 January 2025 - bugfixes to XLDateTime, implicit conversion to double for integer, bool cell values
 * XLDateTime::tm() BUGFIX: added overflow handling in rounded seconds at the end of a minute to address https://github.com/troldal/OpenXLSX/issues/138

@@ -274,6 +274,40 @@ namespace OpenXLSX
         T get() const
         {
             try {
+                // BUGFIX 2025-01-10: can not return const char* of a temporary object - use a static variable as workaround
+                // CAUTION: This is not thread-safe and this template return type really shouldn't be used.
+                //          Accordingly, an exception should be thrown in the future
+                if constexpr (std::is_same_v<std::decay_t<T>, std::string_view> ||
+                              std::is_same_v<std::decay_t<T>, const char*> ||
+                              (std::is_same_v<std::decay_t<T>, char*> && !std::is_same_v<T, bool>)) {
+                    // throw XLValueTypeError("(temporary) XLCellValue should not be requested as a reference type (string_view, (const) char*) - please fetch std::string");
+                    static std::string s = std::get<std::string>(m_value);
+                    return s.c_str();
+                }
+                // for all other template types, use the private getter:
+                return privateGet<T>();
+            }
+
+            catch (const std::bad_variant_access&) {
+                throw XLValueTypeError("XLCellValue object does not contain the requested type.");
+            }
+        }
+
+    private:
+        /**
+         * @brief private templated getter - only to be used by functions that know for certain that *this is valid until the return value has been used
+         * @tparam T The type of the value to be returned.
+         * @return The value as a type T object.
+         * @throws XLValueTypeError if the XLCellValue object does not contain a compatible type.
+         */
+        template<typename T,
+                 typename = std::enable_if_t<
+                     std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<std::decay_t<T>, std::string> ||
+                     std::is_same_v<std::decay_t<T>, std::string_view> || std::is_same_v<std::decay_t<T>, const char*> ||
+                     std::is_same_v<std::decay_t<T>, char*> || std::is_same_v<T, XLDateTime>>>
+        T privateGet() const
+        {
+            try {
                 if constexpr (std::is_integral_v<T> && std::is_same_v<T, bool>) return std::get<bool>(m_value);
 
                 if constexpr (std::is_integral_v<T> && !std::is_same_v<T, bool>) return static_cast<T>(std::get<int64_t>(m_value));
@@ -297,6 +331,7 @@ namespace OpenXLSX
                 throw XLValueTypeError("XLCellValue object does not contain the requested type.");
             }
         }
+    public:
 
         /**
          * @brief get the cell value as a double, regardless of value type
@@ -460,7 +495,7 @@ namespace OpenXLSX
                         setFloat(value.template get<double>());
                         break;
                     case XLValueType::String:
-                        setString(value.template get<const char*>());
+                        setString(value.template privateGet<const char*>());
                         break;
                     case XLValueType::Empty:
                         clear();
@@ -702,7 +737,7 @@ namespace OpenXLSX
             case XLValueType::Float:
                 return os << value.get<double>();
             case XLValueType::String:
-                return os << value.get<std::string_view>();
+                return os << value.get<std::string>(); // 2025-01-10 BUGFIX: for temporary value objects, this was undefined behavior due to returning a string_view
             default:
                 return os << "";
         }
@@ -720,7 +755,7 @@ namespace OpenXLSX
             case XLValueType::Float:
                 return os << value.get<double>();
             case XLValueType::String:
-                return os << value.get<std::string_view>();
+                return os << value.get<std::string>(); // 2025-01-10 BUGFIX: for temporary value objects, this was undefined behavior due to returning a string_view
             default:
                 return os << "";
         }
@@ -733,7 +768,7 @@ struct std::hash<OpenXLSX::XLCellValue>    // NOLINT
 {
     std::size_t operator()(const OpenXLSX::XLCellValue& value) const noexcept
     {
-        return std::hash<std::variant<std::string, int64_t, double, bool>> {}(value.m_value);
+        return std::hash<XLCellValueType> {}(value.m_value);
     }
 };
 
