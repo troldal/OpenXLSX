@@ -80,6 +80,26 @@ namespace OpenXLSX
      */
     enum class XLValueType { Empty, Boolean, Integer, Float, Error, String };
 
+    //---------- Private Struct to enable XLValueType conversion to double ---------- //
+    struct VisitXLCellValueTypeToDouble
+    {
+        std::string packageName = "VisitXLCellValueTypeToDouble";
+        double operator()(int64_t v) const { return v; }
+        double operator()(double v) const { return v; }
+        double operator()(bool v) const { return v; }
+        // double operator()( struct timestamp v ) { /* to be implemented if this type ever gets supported */ }
+        double operator()(std::string v) const {
+            throw XLValueTypeError("string is not convertible to double."); // disable if implicit conversion of string to double shall be allowed
+            size_t pos;
+            double dVal = stod(v, &pos);
+            while (v[ pos ] == ' ' || v[ pos ] == '\t') ++pos; // skip over potential trailing whitespaces
+            // NOTE: std::string zero-termination is guaranteed, so the above loop will halt
+            if (pos != v.length())
+                throw XLValueTypeError("string is not convertible to double."); // throw if the *full value* does not convert to double
+            return dVal;
+        }
+    };
+
     //---------- Private Struct to enable XLValueType conversion to std::string ---------- //
     struct VisitXLCellValueTypeToString
     {
@@ -205,7 +225,7 @@ namespace OpenXLSX
         XLCellValue& operator=(XLCellValue&& other) noexcept;
 
         /**
-         * @brief Templated copy assignment operator.
+         * @brief Templated assignment operator.
          * @tparam T The type of the value argument.
          * @param value The value.
          * @return A reference to the assigned-to object.
@@ -259,8 +279,9 @@ namespace OpenXLSX
                 if constexpr (std::is_integral_v<T> && !std::is_same_v<T, bool>) return static_cast<T>(std::get<int64_t>(m_value));
 
                 if constexpr (std::is_floating_point_v<T>) {
-                    if (m_type == XLValueType::Error) return static_cast<T>(std::nan("1"));
-                    return static_cast<T>(std::get<double>(m_value));
+                    return static_cast<T>(getDouble());  // 2025-01-10: allow implicit conversion of int and bool to double (string conversion disabled for now)
+                    // if (m_type == XLValueType::Error) return static_cast<T>(std::nan("1"));
+                    // return static_cast<T>(std::get<double>(m_value));
                 }
 
                 if constexpr (std::is_same_v<std::decay_t<T>, std::string> || std::is_same_v<std::decay_t<T>, std::string_view> ||
@@ -268,11 +289,27 @@ namespace OpenXLSX
                               (std::is_same_v<std::decay_t<T>, char*> && !std::is_same_v<T, bool>))
                     return std::get<std::string>(m_value).c_str();
 
-                if constexpr (std::is_same_v<T, XLDateTime>) return XLDateTime(std::get<double>(m_value));
+                if constexpr (std::is_same_v<T, XLDateTime>)
+                    return XLDateTime(getDouble());      // 2025-01-10: allow implicit conversion of int and bool to double (string conversion disabled for now)
             }
 
             catch (const std::bad_variant_access&) {
                 throw XLValueTypeError("XLCellValue object does not contain the requested type.");
+            }
+        }
+
+        /**
+         * @brief get the cell value as a double, regardless of value type
+         * @return A double representation of value
+         * @throws XLValueTypeError if the XLCellValue object is not convertible to double.
+         */
+        double getDouble() const {
+            if (m_type == XLValueType::Error) return static_cast<double>(std::nan("1"));
+            try {
+                return std::visit(VisitXLCellValueTypeToDouble(), m_value);
+            }
+            catch (...) {
+                throw XLValueTypeError("XLCellValue object is not convertible to double.");
             }
         }
 

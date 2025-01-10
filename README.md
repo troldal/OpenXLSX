@@ -25,6 +25,12 @@ Please refer to ```Demo10.cpp``` lines 454ff for an example on how to use the fu
 
 ## Recent changes
 
+## (aral-matrix) 10 January 2025 - bugfixes to XLDateTime, implicit conversion to double for integer, bool cell values
+* XLDateTime::tm() BUGFIX: added overflow handling in rounded seconds at the end of a minute to address issue #138
+* XLDateTime::tm() BUGFIX: account for fractions (time of day) in loops counting year & month
+* XLDateTime::tm() precaution: added safeguards against infinite loops counting year & month
+* XLCellValue: added implicit conversion from integer & bool for ```XLCellValue::get<double>()``` and ```XLCellValue::get<XLDateTime>()```. Note: implicit conversion from string is available in ```VisitXLCellValueTypeToDouble```, but disabled (forced throw)
+
 ### (aral-matrix) 09 January 2025 - support for XLWorksheet protection
 * ensured that utility functions get exported to shared library build: ```XLCfTypeFromString```, ```XLCfTypeToString```, ```XLCfOperatorFromString```, ```XLCfOperatorToString```, ```XLCfTimePeriodFromString```, ```XLCfTimePeriodToString```
 * BUGFIX XLSheet: added ```XLSheet::isActive``` and ```XLSheet::setActive``` function definitions to ensure bug-free export of symbols to shared library - this addresses https://github.com/troldal/OpenXLSX/issues/316 - please do not ask me why this was never a problem for the static build, I am simply not smart enough to understand that :P

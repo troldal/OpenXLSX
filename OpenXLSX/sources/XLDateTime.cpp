@@ -206,9 +206,9 @@ namespace OpenXLSX
         double serial   = m_serial;
 
         // ===== Count the number of whole years since 1900.
-        while (true) {
+        while (serial > 1) {  // 2025-01-10: safeguard against infinite loop (preemptive)
             const int days = (isLeapYear(result.tm_year + 1900) ? 366 : 365);
-            if (days >= serial) break; // 2024-12-09 BUGFIX: break on days >= serial (was: days > serial, getting last days of a year wrong)
+            if (days + 1 > serial) break; // 2025-01-10: BUGFIX: break on days + 1 > serial (was days >= serial) to account for fractions
             serial -= days;
             ++result.tm_year;
         }
@@ -218,9 +218,9 @@ namespace OpenXLSX
         result.tm_wday = dayOfWeek(m_serial);
 
         // ===== Count the number of whole months in the year.
-        while (true) {
+        while (result.tm_mon < 11) {   // 2025-01-10 BUGFIX: break on December to prevent infinite loop after adjusted bugfix below
             int days = daysInMonth(result.tm_mon + 1, 1900 + result.tm_year);
-            if (days >= serial) break; // 2024-12-09 BUGFIX: break on days >= serial (was: days > serial, getting last days of a month wrong)
+            if (days + 1 > serial) break; // 2025-01-10: BUGFIX: break on days + 1 > serial (was days >= serial) to account for fractions
             serial -= days;
             ++result.tm_mon;
         }
@@ -239,6 +239,29 @@ namespace OpenXLSX
 
         // ===== Calculate the number of seconds.
         result.tm_sec = static_cast<int>(lround(serial * 24 * 60 * 60));
+
+        // ===== BEGIN: pass rounded overflow back up the date components. BUGFIX 2025-01-10: added this overflow handling to address issue #138
+        if (result.tm_sec >= 60) {
+            result.tm_sec -= 60;
+            ++result.tm_min;
+            if (result.tm_min >= 60) {
+                result.tm_min -= 60;
+                ++result.tm_hour;
+                if (result.tm_hour >= 24) {
+                    result.tm_hour -= 24;
+                    ++result.tm_mday;
+                    int days = daysInMonth(result.tm_mon + 1, 1900 + result.tm_year);
+                    if (result.tm_mday >= days) {
+                        result.tm_mday -= days;
+                        ++result.tm_mon;
+                        if (result.tm_mon >= 12) {
+                            result.tm_mon -= 12;
+                            ++result.tm_year;
+                        }
+                    }
+                }
+            }
+        } // END: pass rounded overflow back up the date components
 
         return result;
     }
