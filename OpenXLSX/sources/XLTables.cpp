@@ -50,7 +50,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 // ===== OpenXLSX Includes ===== //
 // #include "XLCellRange.hpp"
 // #include "XLDocument.hpp"
-#include "XLComments.hpp"
+#include "XLTables.hpp"
 #include "utilities/XLUtilities.hpp"    // OpenXLSX::ignore
 
 using namespace OpenXLSX;
@@ -61,37 +61,40 @@ namespace OpenXLSX
 
 }    // namespace OpenXLSX
 
-// ========== XLComments Member Functions
+// ========== XLTables Member Functions
 
 /**
  * @details The constructor creates an instance of the superclass, XLXmlFile
  */
-XLComments::XLComments(XLXmlData* xmlData) : XLXmlFile(xmlData)
+XLTables::XLTables(XLXmlData* xmlData) : XLXmlFile(xmlData)
 {
-    if (xmlData->getXmlType() != XLContentType::Comments)
-        throw XLInternalError("XLComments constructor: Invalid XML data.");
+    if (xmlData->getXmlType() != XLContentType::Table)
+        throw XLInternalError("XLTables constructor: Invalid XML data.");
 }
 
 /**
- * @details fetch a comment (if any) for the referenced cell
+ * @details getters
  */
-std::string XLComments::get(std::string cellRef) const
+/*
+std::string XLTables::get(std::string cellRef) const
 {
     OpenXLSX::ignore(cellRef);
     return "";
 }
+*/
 
 /**
- * @details create (if it doesn't exist) & set the comment for the referenced cell
+ * @details setters
  */
-bool XLComments::set(std::string cellRef, std::string comment)
+/*
+bool XLTables::set(std::string cellRef)
 {
     OpenXLSX::ignore(cellRef);
-    OpenXLSX::ignore(comment);
     return false;
 }
+*/
 
 /**
  * @details Print the underlying XML using pugixml::xml_node::print
  */
-void XLComments::print(std::basic_ostream<char>& ostr) const { xmlDocument().document_element().print( ostr ); }
+void XLTables::print(std::basic_ostream<char>& ostr) const { xmlDocument().document_element().print( ostr ); }

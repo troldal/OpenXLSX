@@ -155,8 +155,6 @@ namespace
                 return XLRelationshipType::VMLDrawing;
             if (typeString.substr(comparePos) == (comparePos ? "" : relationshipDomainOpenXml2006) + "/relationships/ctrlProp")
                 return XLRelationshipType::ControlProperties;
-            if (typeString.substr(comparePos) == (comparePos ? "" : relationshipDomainOpenXml2006) + "/relationships/comments")
-                return XLRelationshipType::Comments;
             if (typeString.substr(comparePos) == (comparePos ? "" : relationshipDomainOpenXml2006CoreProps) + "/relationships/metadata/core-properties")
                 return XLRelationshipType::CoreProperties;
             if (typeString.substr(comparePos) == (comparePos ? "" : relationshipDomainMicrosoft2006) + "/relationships/vbaProject")
@@ -165,6 +163,10 @@ namespace
                 return XLRelationshipType::ChartStyle;
             if (typeString.substr(comparePos) == (comparePos ? "" : relationshipDomainMicrosoft2011) + "/relationships/chartColorStyle")
                 return XLRelationshipType::ChartColorStyle;
+            if (typeString.substr(comparePos) == (comparePos ? "" : relationshipDomainOpenXml2006) + "/relationships/comments")
+                return XLRelationshipType::Comments;
+            if (typeString.substr(comparePos) == (comparePos ? "" : relationshipDomainOpenXml2006) + "/relationships/table")
+                return XLRelationshipType::Table;
 
             // ===== relationship could not be identified
             if (comparePos == 0 )    // If fallback solution has not yet been tried
@@ -202,11 +204,12 @@ namespace OpenXLSX_XLRelationships {    // make GetStringFromType accessible thr
             case XLRelationshipType::PrinterSettings:    return relationshipDomainOpenXml2006 + "/relationships/printerSettings";
             case XLRelationshipType::VMLDrawing:         return relationshipDomainOpenXml2006 + "/relationships/vmlDrawing";
             case XLRelationshipType::ControlProperties:  return relationshipDomainOpenXml2006 + "/relationships/ctrlProp";
-            case XLRelationshipType::Comments:           return relationshipDomainOpenXml2006 + "/relationships/comments";
             case XLRelationshipType::CoreProperties:     return relationshipDomainOpenXml2006CoreProps + "/relationships/metadata/core-properties";
             case XLRelationshipType::VBAProject:         return relationshipDomainMicrosoft2006 + "/relationships/vbaProject";
             case XLRelationshipType::ChartStyle:         return relationshipDomainMicrosoft2011 + "/relationships/chartStyle";
             case XLRelationshipType::ChartColorStyle:    return relationshipDomainMicrosoft2011 + "/relationships/chartColorStyle";
+            case XLRelationshipType::Comments:           return relationshipDomainOpenXml2006 + "/relationships/comments";
+            case XLRelationshipType::Table:              return relationshipDomainOpenXml2006 + "/relationships/table";
             default:
                 throw XLInternalError("RelationshipType not recognized!");
         }

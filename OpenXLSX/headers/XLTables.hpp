@@ -43,55 +43,94 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
+#ifndef OPENXLSX_XLCOMMENTS_HPP
+#define OPENXLSX_XLCOMMENTS_HPP
+
 // ===== External Includes ===== //
-// #include <algorithm>
-#include <pugixml.hpp>
+#include <cstdint>    // uint8_t, uint16_t, uint32_t
+#include <ostream>    // std::basic_ostream
+// #include <type_traits>
+// #include <variant>
 
 // ===== OpenXLSX Includes ===== //
-// #include "XLCellRange.hpp"
-// #include "XLDocument.hpp"
-#include "XLComments.hpp"
-#include "utilities/XLUtilities.hpp"    // OpenXLSX::ignore
-
-using namespace OpenXLSX;
+#include "OpenXLSX-Exports.hpp"
+// #include "XLCell.hpp"
+// #include "XLCellReference.hpp"
+// #include "XLColor.hpp"
+// #include "XLColumn.hpp"
+// #include "XLCommandQuery.hpp"
+#include "XLDocument.hpp"
+#include "XLException.hpp"
+// #include "XLRow.hpp"
+#include "XLXmlFile.hpp"
 
 namespace OpenXLSX
 {
-    // placeholder for utility functions
+    /**
+     * @brief The XLTables class is the base class for worksheet tables
+     */
+    class OPENXLSX_EXPORT XLTables : public XLXmlFile
+    {
+    public:
+        /**
+         * @brief Constructor
+         */
+        XLTables() : XLXmlFile(nullptr) {};
 
+        /**
+         * @brief The constructor.
+         * @param xmlData the source XML of the table file
+         */
+        XLTables(XLXmlData* xmlData);
+
+        /**
+         * @brief The copy constructor.
+         * @param other The object to be copied.
+         * @note The default copy constructor is used, i.e. only shallow copying of pointer data members.
+         */
+        XLTables(const XLTables& other) = default;
+
+        /**
+         * @brief
+         * @param other
+         */
+        XLTables(XLTables&& other) noexcept = default;
+
+        /**
+         * @brief The destructor
+         * @note The default destructor is used, since cleanup of pointer data members is not required.
+         */
+        ~XLTables() = default;
+
+        /**
+         * @brief Assignment operator
+         * @return A reference to the new object.
+         * @note The default assignment operator is used, i.e. only shallow copying of pointer data members.
+         */
+        XLTables& operator=(const XLTables&) = default;
+
+        /**
+         * @brief
+         * @param other
+         * @return
+         */
+        XLTables& operator=(XLTables&& other) noexcept = default;
+
+        // /**
+        //  * @brief getters
+        //  */
+        // std::string get(std::string cellRef) const;
+        // 
+        // /**
+        //  * @brief setters
+        //  */
+        // bool set(std::string cellRef);
+
+        /**
+         * @brief Print the XML contents of this XLTables instance using the underlying XMLNode print function
+         */
+        void print(std::basic_ostream<char>& ostr) const;
+    };
 }    // namespace OpenXLSX
 
-// ========== XLComments Member Functions
-
-/**
- * @details The constructor creates an instance of the superclass, XLXmlFile
- */
-XLComments::XLComments(XLXmlData* xmlData) : XLXmlFile(xmlData)
-{
-    if (xmlData->getXmlType() != XLContentType::Comments)
-        throw XLInternalError("XLComments constructor: Invalid XML data.");
-}
-
-/**
- * @details fetch a comment (if any) for the referenced cell
- */
-std::string XLComments::get(std::string cellRef) const
-{
-    OpenXLSX::ignore(cellRef);
-    return "";
-}
-
-/**
- * @details create (if it doesn't exist) & set the comment for the referenced cell
- */
-bool XLComments::set(std::string cellRef, std::string comment)
-{
-    OpenXLSX::ignore(cellRef);
-    OpenXLSX::ignore(comment);
-    return false;
-}
-
-/**
- * @details Print the underlying XML using pugixml::xml_node::print
- */
-void XLComments::print(std::basic_ostream<char>& ostr) const { xmlDocument().document_element().print( ostr ); }
+#endif    // OPENXLSX_XLCOMMENTS_HPP

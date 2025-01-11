@@ -97,9 +97,9 @@ namespace OpenXLSX
             case XLContentType::CoreProperties: return "CoreProperties";
             case XLContentType::ExtendedProperties: return "ExtendedProperties";
             case XLContentType::CustomProperties: return "CustomProperties";
+            case XLContentType::VMLDrawing: return "VMLDrawing";
             case XLContentType::Comments: return "Comments";
             case XLContentType::Table: return "Table";
-            case XLContentType::VMLDrawing: return "VMLDrawing";
             case XLContentType::Unknown: return "Unknown";
         }
         return "invalid";
@@ -138,6 +138,7 @@ namespace OpenXLSX
             case XLRelationshipType::VBAProject: return "VBAProject";
             case XLRelationshipType::ControlProperties: return "ControlProperties";
             case XLRelationshipType::Comments: return "Comments";
+            case XLRelationshipType::Table: return "Table";
             case XLRelationshipType::Unknown: return "Unknown";
         }
         return "invalid";

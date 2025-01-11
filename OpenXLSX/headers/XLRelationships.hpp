@@ -125,6 +125,7 @@ namespace OpenXLSX
         VBAProject,
         ControlProperties,
         Comments,
+        Table,
         Unknown
     };
 } //     namespace OpenXLSX

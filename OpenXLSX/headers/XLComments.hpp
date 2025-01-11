@@ -81,8 +81,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 namespace OpenXLSX
 {
     /**
-     * @brief The XLComments class is the base class for the 
-     * @tparam T Type that will inherit functionality. Restricted to types XLWorksheet and XLChartsheet.
+     * @brief The XLComments class is the base class for worksheet comments
      */
     class OPENXLSX_EXPORT XLComments : public XLXmlFile
     {
@@ -141,12 +140,13 @@ namespace OpenXLSX
         /**
          * @brief set the comment for the referenced cell
          * @param cellRef the cell address to set
+         * @param comment set this text as comment for the cell
          * @return true upon success, false on failure
          */
-        bool set(std::string cellRef);
+        bool set(std::string cellRef, std::string comment);
 
         /**
-         * @brief Print the XML contents of the XLSheet using the underlying XMLNode print function
+         * @brief Print the XML contents of this XLComments instance using the underlying XMLNode print function
          */
         void print(std::basic_ostream<char>& ostr) const;
     };

@@ -137,6 +137,47 @@ namespace OpenXLSX
         Invalid   = 255
     };
 
+    const std::vector< std::string_view > XLWorksheetNodeOrder = {      // worksheet XML root node required child sequence
+            "sheetPr",
+            "dimension",
+            "sheetViews",
+            "sheetFormatPr",
+            "cols",
+            "sheetData",
+            "sheetCalcPr",
+            "sheetProtection",
+            "protectedRanges",
+            "scenarios",
+            "autoFilter",
+            "sortState",
+            "dataConsolidate",
+            "customSheetViews",
+            "mergeCells",
+            "phoneticPr",
+            "conditionalFormatting",
+            "dataValidations",
+            "hyperlinks",
+            "printOptions",
+            "pageMargins",
+            "pageSetup",
+            "headerFooter",
+            "rowBreaks",
+            "colBreaks",
+            "customProperties",
+            "cellWatches",
+            "ignoredErrors",
+            "smartTags",
+            "drawing",
+            "legacyDrawing",
+            "legacyDrawingHF",
+            "picture",
+            "oleObjects",
+            "controls",
+            "webPublishItems",
+            "tableParts",
+            "extLst"
+    }; // END: const std::vector< std::string_view > XLWorksheetNodeOrder
+
     // ================================================================================
     // Converter functions between OpenXLSX class specific enum class types and OOXML values
     // ================================================================================
@@ -813,22 +854,7 @@ namespace OpenXLSX
 
     private:                                    // ---------- Private Member Variables ---------- //
         std::unique_ptr<XMLNode> m_sheetNode;   /**< An XMLNode object with the sheet item */
-        // TODO: pass in m_nodeOrder from XLWorksheet
-        inline static const std::vector< std::string_view > m_nodeOrder = {      // worksheet XML root node required child sequence
-            "sheetPr",
-            "dimension",
-            "sheetViews",
-            "sheetFormatPr",
-            "cols",
-            "sheetData",
-            "sheetProtection",
-            "mergeCells",
-            "conditionalFormatting",
-            "printOptions",
-            "pageMargins",
-            "pageSetup",
-            "headerFooter"
-        };
+        const std::vector< std::string_view >& m_nodeOrder = XLWorksheetNodeOrder;  // worksheet XML root node required child sequence
     };
 
     /**
@@ -1214,22 +1240,7 @@ namespace OpenXLSX
 
     private:   // ---------- Private Member Variables ---------- //
         XLMergeCells m_merges;    /**< class handling the <mergeCells> */
-
-        inline static const std::vector< std::string_view > m_nodeOrder = {      // worksheet XML root node required child sequence
-            "sheetPr",
-            "dimension",
-            "sheetViews",
-            "sheetFormatPr",
-            "cols",
-            "sheetData",
-            "sheetProtection",
-            "mergeCells",
-            "conditionalFormatting",
-            "printOptions",
-            "pageMargins",
-            "pageSetup",
-            "headerFooter"
-        };
+        const std::vector< std::string_view >& m_nodeOrder = XLWorksheetNodeOrder;  // worksheet XML root node required child sequence
     };
 
     /**
