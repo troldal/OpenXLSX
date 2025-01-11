@@ -43,8 +43,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
  */
 
-#ifndef OPENXLSX_XLCOMMENTS_HPP
-#define OPENXLSX_XLCOMMENTS_HPP
+#ifndef OPENXLSX_XLTABLES_HPP
+#define OPENXLSX_XLTABLES_HPP
 
 // ===== External Includes ===== //
 #include <cstdint>    // uint8_t, uint16_t, uint32_t
@@ -133,4 +133,4 @@ namespace OpenXLSX
     };
 }    // namespace OpenXLSX
 
-#endif    // OPENXLSX_XLCOMMENTS_HPP
+#endif    // OPENXLSX_XLTABLES_HPP

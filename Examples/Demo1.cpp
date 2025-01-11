@@ -153,6 +153,11 @@ int main()
     // wks.cell("D1").setCellFormat(newCellFormatIndex);
     wks.range("C1:D1").setFormat(newCellFormatIndex); // unlock two cells
 
+    // XLComments &wksComments = wks.comments();
+    // std::cout << "wks.comments()      is " << (wksComments.valid() ? "valid" : "not valid") << std::endl;
+    // XLTables &wksTables = wks.tables();
+    // std::cout << "wks.tables()        is " << (wksTables.valid()   ? "valid" : "not valid") << std::endl;
+
     doc.save();
     doc.close();
 

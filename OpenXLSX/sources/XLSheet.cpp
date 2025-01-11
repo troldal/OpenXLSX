@@ -984,19 +984,25 @@ XLWorksheet::XLWorksheet(XLXmlData* xmlData) : XLSheetBase(xmlData)
 }
 
 /**
- * @details copy-construct an XLWorksheet from other
+ * @details copy-construct an XLWorksheet object from other
  */
 XLWorksheet::XLWorksheet(const XLWorksheet& other) : XLSheetBase<XLWorksheet>(other)
 {
-    m_merges = other.m_merges;    // invoke XLMergeCells copy assignment operator
+    m_relationships = other.m_relationships;  // invoke XLRelationships copy assignment operator
+    m_merges        = other.m_merges;         //  "     XLMergeCells       "
+    m_comments      = other.m_comments;       //  "     XLComments         "
+    m_tables        = other.m_tables;         //  "     XLTables           "
 }
 
 /**
- * @details move-construct an XLWorksheet from other
+ * @details move-construct an XLWorksheet object from other
  */
 XLWorksheet::XLWorksheet(XLWorksheet&& other) : XLSheetBase< XLWorksheet >(other)
 {
-    m_merges = std::move(other.m_merges);    // invoke XLMergeCells move assignment operator
+    m_relationships = std::move(other.m_relationships);  // invoke XLRelationships move assignment operator
+    m_merges        = std::move(other.m_merges);         //  "     XLMergeCells       "
+    m_comments      = std::move(other.m_comments);       //  "     XLComments         "
+    m_tables        = std::move(other.m_tables);         //  "     XLTables           "
 }
 
 /**
@@ -1005,7 +1011,10 @@ XLWorksheet::XLWorksheet(XLWorksheet&& other) : XLSheetBase< XLWorksheet >(other
 XLWorksheet& XLWorksheet::operator=(const XLWorksheet& other)
 {
     XLSheetBase<XLWorksheet>::operator=(other); // invoke base class copy assignment operator
-    m_merges = other.m_merges;
+    m_relationships = other.m_relationships;
+    m_merges        = other.m_merges;
+    m_comments      = other.m_comments;
+    m_tables        = other.m_tables;
     return *this;
 }
 
@@ -1015,7 +1024,10 @@ XLWorksheet& XLWorksheet::operator=(const XLWorksheet& other)
 XLWorksheet& XLWorksheet::operator=(XLWorksheet&& other)
 {
     XLSheetBase<XLWorksheet>::operator=(other); // invoke base class move assignment operator
-    m_merges = std::move(other.m_merges);
+    m_relationships = std::move(other.m_relationships);
+    m_merges        = std::move(other.m_merges);
+    m_comments      = std::move(other.m_comments);
+    m_tables        = std::move(other.m_tables);
     return *this;
 }
 
@@ -1604,6 +1616,50 @@ std::string XLWorksheet::sheetProtectionSummary() const
          + ", password is"s + ( passwordIsSet() ? ""s : " not"s ) + " set"s
          + ( passwordIsSet() ? ( ", passwordHash is "s + passwordHash() ) : ""s )
     ;
+}
+
+/**
+ * @details fetches XLComments for the sheet - creates & assigns the class if empty
+ */
+XLComments& XLWorksheet::comments()
+{
+    if(!m_comments.valid()){
+        // trigger parentDoc to create comments XML file and relationship and return it
+        // m_comments = parentDoc().fetchComments(index()); // fetch comments for this worksheet
+        // relationships().set ... // configure whatever needs to be done
+    }
+    if(!m_comments.valid())
+        throw XLException("XLWorksheet::comments(): could not create comments XML");
+    return m_comments;
+}
+
+/**
+ * @details fetches XLTables for the sheet - creates & assigns the class if empty
+ */
+XLTables& XLWorksheet::tables()
+{
+    if(!m_tables.valid()){
+        // trigger parentDoc to create tables XML file and relationship and return it
+        // m_tables = parentDoc().fetchTables(index()); // fetch tables for this worksheet
+        // relationships().set ... // configure whatever needs to be done
+    }
+    if(!m_tables.valid())
+        throw XLException("XLWorksheet::tables(): could not create tables XML");
+    return m_tables;
+}
+
+/**
+ * @details fetches XLRelationships for the sheet - creates & assigns the class if empty
+ */
+XLRelationships& XLWorksheet::relationships()
+{
+    if(!m_relationships.valid()){
+        // trigger parentDoc to create relationships XML file and relationship and return it
+        // m_relationships = parentDoc().fetchRelationships(index()); // fetch relationships for this worksheet
+    }
+    if(!m_relationships.valid())
+        throw XLException("XLWorksheet::relationships(): could not create relationships XML");
+    return m_relationships;
 }
 
 /**

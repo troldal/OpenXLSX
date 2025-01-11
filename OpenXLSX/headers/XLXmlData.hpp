@@ -133,6 +133,13 @@ namespace OpenXLSX
         ~XLXmlData();
 
         /**
+         * @brief check whether class is linked to a valid XML document
+         * @return true if the class should have a link to valid data
+         * @return false if accessing any other properties / methods could cause a segmentation fault
+         */
+        bool valid() const { return m_xmlDoc != nullptr; }
+
+        /**
          * @brief Copy constructor. The m_xmlDoc data member is a XMLDocument object, which is non-copyable. Hence,
          * the XLXmlData objects have a explicitly deleted copy constructor.
          * @param other
@@ -218,6 +225,12 @@ namespace OpenXLSX
          * @return A const pointer to the XMLDocument object.
          */
         const XMLDocument* getXmlDocument() const;
+
+        /**
+         * @brief Test whether there is an XML file linked to this object
+         * @return true if there is no underlying XML file, otherwise false
+         */
+        bool empty() const;
 
     private:
         // ===== PRIVATE MEMBER VARIABLES ===== //

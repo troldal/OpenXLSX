@@ -122,3 +122,4 @@ const XMLDocument& XLXmlFile::xmlDocument() const
 {
     return *m_xmlData->getXmlDocument();
 }
+

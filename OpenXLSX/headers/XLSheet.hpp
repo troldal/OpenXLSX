@@ -67,11 +67,13 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLColor.hpp"
 #include "XLColumn.hpp"
 #include "XLCommandQuery.hpp"
+#include "XLComments.hpp" // XLComments
 #include "XLDocument.hpp"
 #include "XLException.hpp"
 #include "XLMergeCells.hpp"
 #include "XLRow.hpp"
-#include "XLStyles.hpp" // XLStyleIndex
+#include "XLStyles.hpp"   // XLStyleIndex
+#include "XLTables.hpp"   // XLTables
 #include "XLXmlFile.hpp"
 
 namespace OpenXLSX
@@ -1201,7 +1203,23 @@ namespace OpenXLSX
          */
         std::string sheetProtectionSummary() const;
 
+        /**
+         * @brief fetch a reference to the worksheet comments
+         */
+        XLComments& comments();
+
+        /**
+         * @brief fetch a reference to the worksheet tables
+         */
+        XLTables& tables();
+
     private:
+
+        /**
+         * @brief fetch a reference to the worksheet relationships
+         * @note private because transparent to the user
+         */
+        XLRelationships& relationships();
 
         /**
          * @brief
@@ -1239,7 +1257,10 @@ namespace OpenXLSX
         bool setActive_impl();
 
     private:   // ---------- Private Member Variables ---------- //
-        XLMergeCells m_merges;    /**< class handling the <mergeCells> */
+        XLRelationships m_relationships;    /**< class handling the worksheet relationships */
+        XLMergeCells    m_merges;           /**< class handling the <mergeCells> */
+        XLComments      m_comments;         /**< class handling the worksheet comments */
+        XLTables        m_tables;           /**< class handling the worksheet table settings */
         const std::vector< std::string_view >& m_nodeOrder = XLWorksheetNodeOrder;  // worksheet XML root node required child sequence
     };
 
