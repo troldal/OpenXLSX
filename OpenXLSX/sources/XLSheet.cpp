@@ -380,6 +380,7 @@ void XLSheet::clone(const std::string& newName)
  */
 uint16_t XLSheet::index() const
 {
+std::cout << "XLSheet::index(), getXmlPath is " << getXmlPath() << std::endl;
     return std::visit([](auto&& arg) { return arg.index(); }, m_sheet);
 }
 
@@ -1623,10 +1624,15 @@ std::string XLWorksheet::sheetProtectionSummary() const
  */
 XLComments& XLWorksheet::comments()
 {
-    if(!m_comments.valid()){
-        // trigger parentDoc to create comments XML file and relationship and return it
-        // m_comments = parentDoc().fetchComments(index()); // fetch comments for this worksheet
-        // relationships().set ... // configure whatever needs to be done
+// std::cout << "m_comments.valid() is " << ( m_comments.valid() ? "true" : "false" ) << std::endl;
+    if (!m_comments.valid()) {
+        uint16_t sheetXmlNo = sheetXmlNumber();
+        if (!parentDoc().hasSheetRelationships(sheetXmlNo))
+            std::ignore = relationships(); // create sheet relationships if not existing
+
+        // trigger parentDoc to create comments XML file and return it
+        std::cout << "worksheet comments for sheetId " << sheetXmlNo << std::endl;
+        m_comments = parentDoc().sheetComments(sheetXmlNo); // fetch comments for this worksheet
     }
     if(!m_comments.valid())
         throw XLException("XLWorksheet::comments(): could not create comments XML");
@@ -1638,9 +1644,14 @@ XLComments& XLWorksheet::comments()
  */
 XLTables& XLWorksheet::tables()
 {
-    if(!m_tables.valid()){
+    if(!m_tables.valid()) {
+        uint16_t sheetXmlNo = sheetXmlNumber();
+        if (!parentDoc().hasSheetRelationships(sheetXmlNo))
+            std::ignore = relationships(); // create sheet relationships if not existing
+
         // trigger parentDoc to create tables XML file and relationship and return it
-        // m_tables = parentDoc().fetchTables(index()); // fetch tables for this worksheet
+        std::cout << "worksheet tables for sheetId " << sheetXmlNo << std::endl;
+        m_tables = parentDoc().sheetTables(sheetXmlNo); // fetch tables for this worksheet
         // relationships().set ... // configure whatever needs to be done
     }
     if(!m_tables.valid())
@@ -1649,13 +1660,32 @@ XLTables& XLWorksheet::tables()
 }
 
 /**
+ * @details perform a pattern matching on getXmlPath for (regex) .*xl/worksheets/sheet([0-9]*)\.xml$ and extract the numeric part \1
+ */
+uint16_t XLWorksheet::sheetXmlNumber() const
+{
+   constexpr const char *searchPattern = "xl/worksheets/sheet";
+   std::string xmlPath = getXmlPath();
+   size_t pos = xmlPath.find(searchPattern);                         // ensure compatibility with expected path
+   if( pos == std::string::npos ) return 0;
+   pos += strlen( searchPattern );
+   size_t pos2 = pos;
+   while (std::isdigit(xmlPath[pos2])) ++pos2;                       // find sheet number in xmlPath - aborts on end of string
+   if (pos2 == pos || xmlPath.substr( pos2 ) != ".xml" ) return 0;   // ensure compatibility with expected path
+
+   // success: convert the sheet number part of xmlPath to uint16_t
+   return static_cast<uint16_t>(std::stoi(xmlPath.substr(pos, pos2 - pos)));
+}
+
+/**
  * @details fetches XLRelationships for the sheet - creates & assigns the class if empty
  */
 XLRelationships& XLWorksheet::relationships()
 {
+// std::cout << "line " << __LINE__ << ": attempting to get sheet relationships" << std::endl;
     if(!m_relationships.valid()){
         // trigger parentDoc to create relationships XML file and relationship and return it
-        // m_relationships = parentDoc().fetchRelationships(index()); // fetch relationships for this worksheet
+        m_relationships = parentDoc().sheetRelationships(sheetXmlNumber()); // fetch relationships for this worksheet
     }
     if(!m_relationships.valid())
         throw XLException("XLWorksheet::relationships(): could not create relationships XML");

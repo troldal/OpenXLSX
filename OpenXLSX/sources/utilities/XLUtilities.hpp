@@ -16,6 +16,7 @@
 #include "XLCellValue.hpp"        // OpenXLSX::XLValueType
 #include "XLContentTypes.hpp"     // OpenXLSX::XLContentType
 #include "XLRelationships.hpp"    // OpenXLSX::XLRelationshipType
+#include "XLStyles.hpp"           // OpenXLSX::XLStyleIndex
 #include "XLXmlParser.hpp"
 
 namespace OpenXLSX

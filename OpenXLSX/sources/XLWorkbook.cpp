@@ -183,7 +183,11 @@ void XLWorkbook::deleteSheet(const std::string& sheetName)    // 2024-05-02: whi
                                                               // CAUTION: execCommand on underlying XML with whitespaces not verified
 {
     // ===== Determine ID and type of sheet, as well as current worksheet count.
-    auto    sheetID = sheetsNode(xmlDocument()).find_child_by_attribute("name", sheetName.c_str()).attribute("r:id").value();    // NOLINT
+    std::string sheetID = sheetsNode(xmlDocument()).find_child_by_attribute("name", sheetName.c_str()).attribute("r:id").value();    // NOLINT
+    if (sheetID.length() == 0) { // 2025-01-12 BUGFIX: prevent segfault by throwing
+        using namespace std::literals::string_literals;
+        throw XLException("XLWorkbook::deleteSheet: workbook has no sheet with name \""s + sheetName + "\""s);
+    }
     XLQuery sheetTypeQuery(XLQueryType::QuerySheetType);
     sheetTypeQuery.setParam("sheetID", std::string(sheetID));    // BUGFIX 2024-05-02: was using relationshipID() instead of sheetID,
                                                                  // leading to a bad sheetType & a failed check to not delete last worksheet

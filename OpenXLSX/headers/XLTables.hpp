@@ -54,14 +54,9 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
-// #include "XLCell.hpp"
-// #include "XLCellReference.hpp"
-// #include "XLColor.hpp"
-// #include "XLColumn.hpp"
-// #include "XLCommandQuery.hpp"
-#include "XLDocument.hpp"
+// #include "XLDocument.hpp"
 #include "XLException.hpp"
-// #include "XLRow.hpp"
+#include "XLXmlData.hpp"
 #include "XLXmlFile.hpp"
 
 namespace OpenXLSX

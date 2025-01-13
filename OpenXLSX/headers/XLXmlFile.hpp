@@ -176,6 +176,12 @@ namespace OpenXLSX
          */
         const XMLDocument& xmlDocument() const;
 
+        /**
+         * @brief Retrieve the path of the XML data in the .xlsx zip archive via m_xmlData->getXmlPath
+         * @return A std::string with the path. Empty string if m_xmlData is nullptr
+         */
+        std::string getXmlPath() const;
+
     protected:                            // ===== PROTECTED MEMBER VARIABLES
         XLXmlData* m_xmlData { nullptr }; /**< The underlying XML data object. */
     };

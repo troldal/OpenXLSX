@@ -61,11 +61,13 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "IZipArchive.hpp"
 #include "OpenXLSX-Exports.hpp"
 #include "XLCommandQuery.hpp"
+#include "XLComments.hpp"
 #include "XLContentTypes.hpp"
 #include "XLProperties.hpp"
 #include "XLRelationships.hpp"
 #include "XLSharedStrings.hpp"
 #include "XLStyles.hpp"
+#include "XLTables.hpp"
 #include "XLWorkbook.hpp"
 #include "XLXmlData.hpp"
 #include "XLZipArchive.hpp"
@@ -283,6 +285,34 @@ namespace OpenXLSX
          * @return a reference to m_styles
          */
         XLStyles& styles();
+
+        /**
+         * @brief determine whether a worksheet relationships file exists for sheetXmlNo
+         * @param sheetXmlNo check for this sheet number # (xl/worksheets/_reals/sheet#.xml.rels)
+         * @return true if relationships file exists
+         */
+        bool hasSheetRelationships(uint16_t sheetXmlNo);
+
+        /**
+         * @brief fetch the worksheet relationships for sheetXmlNo, create the file if it does not exist
+         * @param sheetXmlNo fetch for this sheet #
+         * @return an XLRelationships object initialized with the sheet relationships
+         */
+        XLRelationships sheetRelationships(uint16_t sheetXmlNo);
+
+        /**
+         * @brief fetch the worksheet comments for sheetXmlNo, create the file if it does not exist
+         * @param sheetXmlNo fetch for this sheet #
+         * @return an XLComments object initialized with the sheet comments
+         */
+        XLComments sheetComments(uint16_t sheetXmlNo);
+
+        /**
+         * @brief fetch the worksheet tables for sheetXmlNo, create the file if it does not exist
+         * @param sheetXmlNo fetch for this sheet #
+         * @return an XLTables object initialized with the sheet tables
+         */
+        XLTables sheetTables(uint16_t sheetXmlNo);
 
         /**
          * @brief

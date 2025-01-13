@@ -449,3 +449,8 @@ bool XLRelationships::idExists(const std::string& id) const
 {
     return xmlDocument().document_element().find_child_by_attribute("Id", id.c_str()) != nullptr;
 }
+
+/**
+ * @details Print the underlying XML using pugixml::xml_node::print
+ */
+void XLRelationships::print(std::basic_ostream<char>& ostr) const { xmlDocument().document_element().print(ostr); }

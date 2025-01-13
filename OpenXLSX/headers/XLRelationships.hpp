@@ -325,6 +325,11 @@ namespace OpenXLSX {
          */
         bool idExists(const std::string& id) const;
 
+        /**
+         * @brief print the XML contents of the relationships document using the underlying XMLNode print function
+         */
+        void print(std::basic_ostream<char>& ostr) const;
+
         // ---------- Protected Member Functions ---------- //
     protected:
 

@@ -123,3 +123,10 @@ const XMLDocument& XLXmlFile::xmlDocument() const
     return *m_xmlData->getXmlDocument();
 }
 
+/**
+ * @details provide access to the underlying XLXmlData::getXmlPath() function
+ */
+std::string XLXmlFile::getXmlPath() const
+{
+    return m_xmlData == nullptr ? "" : m_xmlData->getXmlPath();
+}

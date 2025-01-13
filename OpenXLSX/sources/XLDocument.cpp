@@ -1014,6 +1014,59 @@ bool XLDocument::isOpen() const { return this->operator bool(); }
 */
 XLStyles& XLDocument::styles() { return m_styles; }
 
+
+/**
+* @details determine - without creation - whether the document contains a sheet relationships file for sheet with sheetXmlNo
+*/
+bool XLDocument::hasSheetRelationships(uint16_t sheetXmlNo)
+{
+    using namespace std::literals::string_literals;
+    return m_archive.hasEntry("xl/worksheets/_rels/sheet"s + std::to_string(sheetXmlNo) + ".xml.rels"s);
+}
+
+/**
+* @details return an XLRelationships item for sheet with sheetXmlNo - create the underlying XML and add it to the archive if needed
+*/
+XLRelationships XLDocument::sheetRelationships(uint16_t sheetXmlNo)
+{
+    using namespace std::literals::string_literals;
+    std::string relsFilename = "xl/worksheets/_rels/sheet"s + std::to_string(sheetXmlNo) + ".xml.rels"s;
+    if (!m_archive.hasEntry(relsFilename)) {
+        // ===== Create the sheet relationships file within the archive and add it to the managed files
+        m_archive.addEntry(relsFilename, "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");    // create empty rels file, class constructor will do the rest
+        m_data.emplace_back(this, relsFilename, "", XLContentType::CustomProperties);
+    }
+
+    return XLRelationships(getXmlData(relsFilename), relsFilename);
+}
+
+XLComments XLDocument::sheetComments(uint16_t sheetXmlNo)
+{
+    using namespace std::literals::string_literals;
+    std::string commentsFilename = "xl/comments"s + std::to_string(sheetXmlNo) + ".xml"s;
+
+    if (!m_archive.hasEntry(commentsFilename)) {
+        // ===== Create the sheet comments file within the archive and add it to the managed files
+        m_archive.addEntry(commentsFilename, "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");    // create empty rels file, class constructor will do the rest
+        m_data.emplace_back(this, commentsFilename, "", XLContentType::Comments);
+    }
+
+    return XLComments(getXmlData(commentsFilename));
+}
+
+XLTables XLDocument::sheetTables(uint16_t sheetXmlNo)
+{
+    using namespace std::literals::string_literals;
+    std::string tablesFilename = "xl/tables/table"s + std::to_string(sheetXmlNo) + ".xml"s;
+
+    if (!m_archive.hasEntry(tablesFilename)) {
+        // ===== Create the sheet tables file within the archive and add it to the managed files
+        m_archive.addEntry(tablesFilename, "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");    // create empty rels file, class constructor will do the rest
+        m_data.emplace_back(this, tablesFilename, "", XLContentType::Table);
+    }
+    return XLTables(getXmlData(tablesFilename));
+}
+
 /**
  * @details return value defaults to true, false only where the XLCommandType implements it
  */
@@ -1197,9 +1250,18 @@ XLQuery XLDocument::execQuery(const XLQuery& query) const
         case XLQueryType::QuerySheetName:
             return XLQuery(query).setResult(m_workbook.sheetName(query.getParam<std::string>("sheetID")));
 
-        case XLQueryType::QuerySheetIndex:
-            return query;
+        case XLQueryType::QuerySheetIndex: { // 2025-01-13: implemented query - previously no index was determined at all
+            std::string queriedSheetName = m_workbook.sheetName(query.getParam<std::string>("sheetID"));
+            for( uint16_t sheetIndex = 1; sheetIndex <= workbook().sheetCount(); ++sheetIndex ) {
+                if (workbook().sheet(sheetIndex).name() == queriedSheetName)
+                    return XLQuery(query).setResult(std::to_string(sheetIndex));
+            }
 
+            { // if loop failed to locate queriedSheetName:
+                using namespace std::literals::string_literals;
+                throw XLInternalError("Could not determine a sheet index for sheet named \"" + queriedSheetName + "\"");
+            }
+        }
         case XLQueryType::QuerySheetVisibility:
             return XLQuery(query).setResult(m_workbook.sheetVisibility(query.getParam<std::string>("sheetID")));
 

@@ -316,13 +316,11 @@ namespace OpenXLSX
         }
 
         /**
-         * @brief
-         * @return
+         * @brief look up sheet name via relationshipID, then attempt to match that to a sheet in XLWorkbook::sheet(uint16_t index), looping over index
+         * @return the index by which the sheet could be accessed from XLWorkbook::sheet
          */
         uint16_t index() const
         {
-//            return uint16_t(std::stoi(parentDoc().execQuery(R"({ "query": "QuerySheetIndex", "sheetID": ")" + relationshipID() + "\"}")));
-
             XLQuery query(XLQueryType::QuerySheetIndex);
             query.setParam("sheetID", relationshipID());
             return static_cast<uint16_t>(std::stoi(parentDoc().execQuery(query).template result<std::string>()));
@@ -910,7 +908,6 @@ namespace OpenXLSX
          */
         XLWorksheet& operator=(XLWorksheet&& other);
 
-
         /**
          * @brief
          * @param ref
@@ -1216,6 +1213,11 @@ namespace OpenXLSX
     private:
 
         /**
+         * @brief fetch the # number from the xml path xl/worksheets/sheet#.xml
+         */
+        uint16_t sheetXmlNumber() const;
+
+        /**
          * @brief fetch a reference to the worksheet relationships
          * @note private because transparent to the user
          */
@@ -1257,10 +1259,10 @@ namespace OpenXLSX
         bool setActive_impl();
 
     private:   // ---------- Private Member Variables ---------- //
-        XLRelationships m_relationships;    /**< class handling the worksheet relationships */
-        XLMergeCells    m_merges;           /**< class handling the <mergeCells> */
-        XLComments      m_comments;         /**< class handling the worksheet comments */
-        XLTables        m_tables;           /**< class handling the worksheet table settings */
+        XLRelationships m_relationships{};    /**< class handling the worksheet relationships */
+        XLMergeCells    m_merges{};           /**< class handling the <mergeCells> */
+        XLComments      m_comments{};         /**< class handling the worksheet comments */
+        XLTables        m_tables{};           /**< class handling the worksheet table settings */
         const std::vector< std::string_view >& m_nodeOrder = XLWorksheetNodeOrder;  // worksheet XML root node required child sequence
     };
 
