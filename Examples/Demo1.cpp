@@ -158,6 +158,30 @@ int main()
     XLTables &wksTables = wks.tables();
     std::cout << "wks.tables()        is " << (wksTables.valid()   ? "valid" : "not valid") << std::endl;
 
+// // 2025-01-13: XLComments in preparation: needs ^%$%#^ vmlDrawing support next :(
+// std::string authors[10] { "Edgar Allan Poe", "Agatha Christie", "J.R.R. Tolkien", "David Eddings", "Daniel Suarez",
+// /**/                      "Mary Shelley", "George Orwell", "Stanislaw Lem", "Ray Bradbury", "William Shakespeare" };
+// 
+// for( std::string author : authors ) {
+// 	wksComments.addAuthor( author );
+// 	uint16_t authorCount = wksComments.authorCount();
+// 	std::cout << "wksComments.authorCount is " << authorCount << std::endl;
+// 	std::cout << "wksComments.author(" << (authorCount - 1) << ") is " << wksComments.author(authorCount - 1) << std::endl;
+// }
+// 
+// wksComments.deleteAuthor(7);
+// wksComments.deleteAuthor(5);
+// wksComments.deleteAuthor(3);
+// uint16_t authorCount = wksComments.authorCount();
+// std::cout << "wksComments.authorCount is " << authorCount << " after deleting authors 7, 5 and 3" << std::endl;
+// for( uint16_t index = 0; index < authorCount; ++index )
+// 	std::cout << "wksComments.author(" << (index) << ") is " << wksComments.author(index) << std::endl;
+// 
+// wksComments.set("A1", "this comment is for author #1", 0);
+// wksComments.set("B2", "this comment is for author #2", 1);
+// wksComments.set("C3", "this comment is for author #3", 2);
+// wksComments.set("D1", "this comment is for author #5", 4);
+
     doc.save();
     doc.close();
 

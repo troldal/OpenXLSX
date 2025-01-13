@@ -78,6 +78,7 @@ namespace OpenXLSX
      */
     class OPENXLSX_EXPORT XLComments : public XLXmlFile
     {
+        friend class XLWorksheet;   // for access to XLXmlFile::getXmlPath
     public:
         /**
          * @brief Constructor
@@ -123,6 +124,32 @@ namespace OpenXLSX
          */
         XLComments& operator=(XLComments&& other) noexcept = default;
 
+    private: // helper functions with repeating code
+        XMLNode authorNode(uint16_t index) const;
+        XMLNode commentNode(const std::string& cellRef) const;
+
+    public:
+
+        uint16_t authorCount() const;
+
+        std::string author(uint16_t index) const;
+
+        bool deleteAuthor(uint16_t index);
+
+        uint16_t addAuthor(const std::string& authorName);
+
+        /**
+         * @brief get the amount of comments
+         * @return the amount of comments for the worksheet
+         */
+        size_t count() const;
+
+        uint16_t authorId(const std::string& cellRef) const;
+
+        bool deleteComment(const std::string& cellRef);
+
+        std::string get(const std::string& cellRef) const;
+
         /**
          * @brief get the comment (if any) for the referenced cell
          * @param cellRef the cell address to check
@@ -134,14 +161,23 @@ namespace OpenXLSX
          * @brief set the comment for the referenced cell
          * @param cellRef the cell address to set
          * @param comment set this text as comment for the cell
+         * @param authorId set this author
          * @return true upon success, false on failure
          */
-        bool set(std::string cellRef, std::string comment);
+        bool set(std::string cellRef, std::string comment, uint16_t authorId = 0);
 
         /**
          * @brief Print the XML contents of this XLComments instance using the underlying XMLNode print function
          */
         void print(std::basic_ostream<char>& ostr) const;
+
+    private:
+        XMLNode m_authors{};
+        XMLNode m_commentList{};
+        inline static const std::vector< std::string_view > m_nodeOrder = {      // comments XML node required child sequence
+            "authors",
+            "commentList"
+        };
     };
 }    // namespace OpenXLSX
 

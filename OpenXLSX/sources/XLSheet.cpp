@@ -1623,7 +1623,6 @@ std::string XLWorksheet::sheetProtectionSummary() const
  */
 XLComments& XLWorksheet::comments()
 {
-// std::cout << "m_comments.valid() is " << ( m_comments.valid() ? "true" : "false" ) << std::endl;
     if (!m_comments.valid()) {
         uint16_t sheetXmlNo = sheetXmlNumber();
         if (!parentDoc().hasSheetRelationships(sheetXmlNo))
@@ -1635,6 +1634,7 @@ XLComments& XLWorksheet::comments()
     }
     if (!m_comments.valid())
         throw XLException("XLWorksheet::comments(): could not create comments XML");
+
     return m_comments;
 }
 
@@ -1655,6 +1655,7 @@ XLTables& XLWorksheet::tables()
     }
     if (!m_tables.valid())
         throw XLException("XLWorksheet::tables(): could not create tables XML");
+
     return m_tables;
 }
 
@@ -1681,7 +1682,6 @@ uint16_t XLWorksheet::sheetXmlNumber() const
  */
 XLRelationships& XLWorksheet::relationships()
 {
-// std::cout << "line " << __LINE__ << ": attempting to get sheet relationships" << std::endl;
     if (!m_relationships.valid()){
         // trigger parentDoc to create relationships XML file and relationship and return it
         m_relationships = parentDoc().sheetRelationships(sheetXmlNumber()); // fetch relationships for this worksheet
