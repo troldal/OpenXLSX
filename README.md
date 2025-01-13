@@ -25,6 +25,9 @@ Please refer to ```Demo10.cpp``` lines 454ff for an example on how to use the fu
 
 ## Recent changes
 
+### (aral-matrix) 13 January 2025 BUGFIX XLSheetBase::index() / XLDocument::execQuery: implemented XLQueryType::QuerySheetIndex
+* as the title says - the XLQueryType::QuerySheetIndex query implementation was missing from XLDocument::execQuery, meaning XLSheetBase::index() would either throw or return nonsense - today's patch finally implemented the function
+
 ### (aral-matrix) 10 January 2025 deletion of worksheet rows from OOXML, bugfix for XLCellValue(Proxy)::get
 * added bool XLWorksheet::deleteRow(uint32_t rowNumber) - can be used to eliminate rows from OOXML - no renumbering of rows behind is performed, the row entry is simply removed from OOXML, this addresses https://github.com/troldal/OpenXLSX/issues/156
 * templated getter T XLCellValue(Proxy)::get() now uses a workaround (due to undefined behavior) when getting a temporary string_view or (const) char * - this functionality was only safe when called with a persistent XLCellValue(Proxy) variable - users should not use this template to fetch a string reference type as it may be removed in the future

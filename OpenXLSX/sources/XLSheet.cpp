@@ -380,7 +380,6 @@ void XLSheet::clone(const std::string& newName)
  */
 uint16_t XLSheet::index() const
 {
-std::cout << "XLSheet::index(), getXmlPath is " << getXmlPath() << std::endl;
     return std::visit([](auto&& arg) { return arg.index(); }, m_sheet);
 }
 
