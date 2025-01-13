@@ -698,7 +698,7 @@ XLCfRule XLCfRules::cfRuleByIndex(size_t index) const
 size_t XLCfRules::create([[maybe_unused]] XLCfRule copyFrom, std::string cfRulePrefix)
 {
     uint16_t maxPrio = maxPriorityValue();
-    if( maxPrio == std::numeric_limits< uint16_t >::max() ) {
+    if (maxPrio == std::numeric_limits< uint16_t >::max()) {
         using namespace std::literals::string_literals;
         throw XLException("XLCfRules::"s + __func__
          + ": can not create a new cfRule entry: no available priority value - please renumberPriorities or otherwise free up the highest value"s);
@@ -1309,7 +1309,7 @@ bool XLWorksheet::deleteRow(uint32_t rowNumber)
     XMLNode lastRow = xmlDocument().document_element().child("sheetData").last_child_of_type(pugi::node_element);
 
     // ===== Fail if rowNumber is not in XML
-    if( rowNumber < row.attribute("r").as_ullong() || rowNumber > lastRow.attribute("r").as_ullong() ) return false;
+    if (rowNumber < row.attribute("r").as_ullong() || rowNumber > lastRow.attribute("r").as_ullong()) return false;
 
     // ===== If rowNumber is closer to first (existing) row than to last row, search forwards
     if (rowNumber - row.attribute("r").as_ullong() < lastRow.attribute("r").as_ullong() - rowNumber)
@@ -1558,7 +1558,7 @@ bool XLWorksheet::setPasswordHash(std::string hash)
  * @details calculate the password hash and store it to the underlying XML node
  */
 bool XLWorksheet::setPassword(std::string password) {
-    return setPasswordHash(password.length() ? ExcelPasswordHashAsString( password ) : std::string(""));
+    return setPasswordHash(password.length() ? ExcelPasswordHashAsString(password) : std::string(""));
 }
 /**
  * @details
@@ -1633,7 +1633,7 @@ XLComments& XLWorksheet::comments()
         std::cout << "worksheet comments for sheetId " << sheetXmlNo << std::endl;
         m_comments = parentDoc().sheetComments(sheetXmlNo); // fetch comments for this worksheet
     }
-    if(!m_comments.valid())
+    if (!m_comments.valid())
         throw XLException("XLWorksheet::comments(): could not create comments XML");
     return m_comments;
 }
@@ -1643,7 +1643,7 @@ XLComments& XLWorksheet::comments()
  */
 XLTables& XLWorksheet::tables()
 {
-    if(!m_tables.valid()) {
+    if (!m_tables.valid()) {
         uint16_t sheetXmlNo = sheetXmlNumber();
         if (!parentDoc().hasSheetRelationships(sheetXmlNo))
             std::ignore = relationships(); // create sheet relationships if not existing
@@ -1653,7 +1653,7 @@ XLTables& XLWorksheet::tables()
         m_tables = parentDoc().sheetTables(sheetXmlNo); // fetch tables for this worksheet
         // relationships().set ... // configure whatever needs to be done
     }
-    if(!m_tables.valid())
+    if (!m_tables.valid())
         throw XLException("XLWorksheet::tables(): could not create tables XML");
     return m_tables;
 }
@@ -1665,12 +1665,12 @@ uint16_t XLWorksheet::sheetXmlNumber() const
 {
    constexpr const char *searchPattern = "xl/worksheets/sheet";
    std::string xmlPath = getXmlPath();
-   size_t pos = xmlPath.find(searchPattern);                         // ensure compatibility with expected path
-   if( pos == std::string::npos ) return 0;
-   pos += strlen( searchPattern );
+   size_t pos = xmlPath.find(searchPattern);                      // ensure compatibility with expected path
+   if (pos == std::string::npos) return 0;
+   pos += strlen(searchPattern);
    size_t pos2 = pos;
-   while (std::isdigit(xmlPath[pos2])) ++pos2;                       // find sheet number in xmlPath - aborts on end of string
-   if (pos2 == pos || xmlPath.substr( pos2 ) != ".xml" ) return 0;   // ensure compatibility with expected path
+   while (std::isdigit(xmlPath[pos2])) ++pos2;                    // find sheet number in xmlPath - aborts on end of string
+   if (pos2 == pos || xmlPath.substr(pos2) != ".xml" ) return 0;  // ensure compatibility with expected path
 
    // success: convert the sheet number part of xmlPath to uint16_t
    return static_cast<uint16_t>(std::stoi(xmlPath.substr(pos, pos2 - pos)));
@@ -1682,11 +1682,11 @@ uint16_t XLWorksheet::sheetXmlNumber() const
 XLRelationships& XLWorksheet::relationships()
 {
 // std::cout << "line " << __LINE__ << ": attempting to get sheet relationships" << std::endl;
-    if(!m_relationships.valid()){
+    if (!m_relationships.valid()){
         // trigger parentDoc to create relationships XML file and relationship and return it
         m_relationships = parentDoc().sheetRelationships(sheetXmlNumber()); // fetch relationships for this worksheet
     }
-    if(!m_relationships.valid())
+    if (!m_relationships.valid())
         throw XLException("XLWorksheet::relationships(): could not create relationships XML");
     return m_relationships;
 }
