@@ -63,6 +63,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLCommandQuery.hpp"
 #include "XLComments.hpp"
 #include "XLContentTypes.hpp"
+#include "XLDrawing.hpp"
 #include "XLProperties.hpp"
 #include "XLRelationships.hpp"
 #include "XLSharedStrings.hpp"
@@ -299,6 +300,13 @@ namespace OpenXLSX
          * @return an XLRelationships object initialized with the sheet relationships
          */
         XLRelationships sheetRelationships(uint16_t sheetXmlNo);
+
+        /**
+         * @brief fetch the worksheet drawing for sheetXmlNo, create the file if it does not exist
+         * @param sheetXmlNo fetch for this sheet #
+         * @return an XLDrawing object initialized with the sheet drawing
+         */
+        XLDrawing sheetDrawing(uint16_t sheetXmlNo);
 
         /**
          * @brief fetch the worksheet comments for sheetXmlNo, create the file if it does not exist

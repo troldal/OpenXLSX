@@ -1201,6 +1201,11 @@ namespace OpenXLSX
         std::string sheetProtectionSummary() const;
 
         /**
+         * @brief fetch a reference to the worksheet drawing object
+         */
+        XLDrawing& drawing();
+
+        /**
          * @brief fetch a reference to the worksheet comments
          */
         XLComments& comments();
@@ -1261,6 +1266,7 @@ namespace OpenXLSX
     private:   // ---------- Private Member Variables ---------- //
         XLRelationships m_relationships{};    /**< class handling the worksheet relationships */
         XLMergeCells    m_merges{};           /**< class handling the <mergeCells> */
+        XLDrawing       m_drawing{};          /**< class handling the worksheet drawing object */
         XLComments      m_comments{};         /**< class handling the worksheet comments */
         XLTables        m_tables{};           /**< class handling the worksheet table settings */
         const std::vector< std::string_view >& m_nodeOrder = XLWorksheetNodeOrder;  // worksheet XML root node required child sequence

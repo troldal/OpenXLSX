@@ -7,6 +7,10 @@ Microsoft Excel® files, with the .xlsx format.
 
 As the heading says - the latest "Release" that is shown on https://github.com/troldal/OpenXLSX/releases is from 2021-11-06, and severely outdated - please pull / download the latest SW version directly from the repository in its current state. Link for those that do not want to use ```git```: https://github.com/troldal/OpenXLSX/archive/refs/heads/master.zip
 
+## (aral-matrix) 14 January 2025 - Support for comments is work in progress - unstable :)
+As the title says - I am working on comments support and will do the occasional commit to save my progress (aside from local backups). I will only submit patches that should not affect existing code stability, but if I break something (last patch I forgot to add a new module dependency to the cmake instructions), apologies for that - feel free to open an issue right away & I will try to fix it ASAP.
+I hope to finalize comments support (and possibly tables / filters) by the weekend.
+
 ## (aral-matrix) 09 January 2025 - Support for XLWorksheet protection
 This patch addresses https://github.com/troldal/OpenXLSX/issues/311 by enabling worksheet protection. Exemplary usage has been added to Demo1.
 The latest patch also fixes some missing symbol exports when building the shared library - this addresses https://github.com/troldal/OpenXLSX/issues/316.
