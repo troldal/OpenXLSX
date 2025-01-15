@@ -95,7 +95,9 @@
 # re-include specifically what is desired from Scripts folder
 !/Scripts/cmake-cleanup.sh
 !/Scripts/demos-cleanup.sh
+!/Scripts/guarded-xml-format.sh
 !/Scripts/make-gnu.sh
+!/Scripts/xml-format-all.sh
 !/Scripts/xml-format.sh
 
 # include Tests folder
