@@ -36,5 +36,3 @@ if [ "$?" = "0" ]; then
 else
   rm "$1.formatted"
 fi
-
-exit 0

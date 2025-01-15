@@ -45,4 +45,3 @@ else
 #     echo "script may only be called on files with extensions [$EXTENSIONS], invalid extension \"$extension\" on $FILE"
     exit 1
 fi
-

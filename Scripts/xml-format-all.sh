@@ -17,5 +17,3 @@ done
 echo "applying xmllint recursively to all files in folder ending in any of [$EXTENSIONS_FOR_ECHO]"
 # echo "find . -type f -exec $SCRIPT_PATH/guarded-xml-format.sh {} $EXTENSIONS \;"
 find . -type f -exec "$SCRIPT_PATH/guarded-xml-format.sh" {} $EXTENSIONS \;
-
-exit 0
