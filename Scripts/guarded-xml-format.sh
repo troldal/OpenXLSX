@@ -1,22 +1,17 @@
 #!/bin/sh
 
+if [ -z $1 ]; then
+	echo "need to provide a command line parameter"
+	exit 1
+fi
+
 if [ ! -e $1 ]; then
 	echo "provided argument \"$1\" does not exist"
 	exit 1
 fi
 
-# ===== BEGIN Detect script path and store in SCRIPT_PATH =====
-ELIMINATE_SLASHLESS=`echo "$0" | sed 's|[^/]*$||'`
-# echo "ELIMINATE_SLASHLESS is $ELIMINATE_SLASHLESS"
-if [ "$ELIMINATE_SLASHLESS" = "" ]; then
-    SCRIPT_PATH="."
-else
-    SCRIPT_PATH=`echo "$0" | sed 's|/[^/]*$||'`
-fi
-
+SCRIPT_PATH=`dirname "$0"`
 # echo "SCRIPT_PATH is $SCRIPT_PATH"
-# ===== END Detect script path and store in SCRIPT_PATH =====
-
 
 EXTENSIONS=""
 ALLOWED_EXTENSION="false"
