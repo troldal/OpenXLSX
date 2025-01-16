@@ -350,16 +350,17 @@ namespace OpenXLSX
      * @param parent parent node that can perform sibling insertions
      * @param nodename name of the node to be (created &) returned
      * @param nodeOrder optional vector of a predefined element node sequence required by MS Office
+     * @param force_ns optional force nodeName namespace
      * @return the requested XMLNode or an empty node if the insert operation failed
      * @note 2024-12-19: appendAndGetNode will attempt to perform an ordered insert per nodeOrder if provided
      *       Once sufficiently tested, this functionality might be generalized (e.g. in XLXmlParser OpenXLSX_xml_node)
      */
-    inline XMLNode appendAndGetNode(XMLNode & parent, std::string const & nodeName, std::vector< std::string_view > const & nodeOrder = {} )
+    inline XMLNode appendAndGetNode(XMLNode & parent, std::string const & nodeName, std::vector< std::string_view > const & nodeOrder = {}, bool force_ns = false )
     {
         if (parent.empty()) return XMLNode{};
 
         XMLNode nextNode = parent.first_child_of_type(pugi::node_element);
-        if (nextNode.empty()) return parent.prepend_child(nodeName.c_str());  // nothing to sort, whitespaces "belong" to parent closing tag
+        if (nextNode.empty()) return parent.prepend_child(nodeName.c_str(), force_ns); // nothing to sort, whitespaces "belong" to parent closing tag
 
         XMLNode node{}; // empty until successfully created;
 
@@ -373,7 +374,7 @@ namespace OpenXLSX
                 if( nextNode.name() == nodeName )  // if nodeName was found
                     node = nextNode;                  // use existing node
                 else {                             // else: a node was found before which nodeName must be inserted
-                    node = parent.insert_child_before(nodeName.c_str(), nextNode); // insert before nextNode without whitespaces
+                    node = parent.insert_child_before(nodeName.c_str(), nextNode, force_ns); // insert before nextNode without whitespaces
                     copyLeadingWhitespaces(parent, node, nextNode);
                 }
             }
@@ -384,9 +385,9 @@ namespace OpenXLSX
 
         if( node.empty() ) {  // neither nodeName, nor a node following per nodeOrder was found
             // ===== There is no reference to perform an ordered insert for nodeName
-            nextNode = parent.last_child_of_type(pugi::node_element);      // at least one element node must exist, tested at begin of function
-            node = parent.insert_child_after(nodeName.c_str(), nextNode);  // append as the last element node, but before final whitespaces
-            copyLeadingWhitespaces( parent, nextNode, node );  // duplicate the prefix whitespaces of nextNode to node
+            nextNode = parent.last_child_of_type(pugi::node_element);               // at least one element node must exist, tested at begin of function
+            node = parent.insert_child_after(nodeName.c_str(), nextNode, force_ns); // append as the last element node, but before final whitespaces
+            copyLeadingWhitespaces( parent, nextNode, node );                       // duplicate the prefix whitespaces of nextNode to node
         }
 
         return node;

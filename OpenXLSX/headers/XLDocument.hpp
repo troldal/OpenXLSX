@@ -323,11 +323,11 @@ namespace OpenXLSX
         XLRelationships sheetRelationships(uint16_t sheetXmlNo);
 
         /**
-         * @brief fetch the worksheet drawing for sheetXmlNo, create the file if it does not exist
+         * @brief fetch the worksheet VML drawing for sheetXmlNo, create the file if it does not exist
          * @param sheetXmlNo fetch for this sheet #
-         * @return an XLDrawing object initialized with the sheet drawing
+         * @return an XLVmlDrawing object initialized with the sheet drawing
          */
-        XLDrawing sheetDrawing(uint16_t sheetXmlNo);
+        XLVmlDrawing sheetVmlDrawing(uint16_t sheetXmlNo);
 
         /**
          * @brief fetch the worksheet comments for sheetXmlNo, create the file if it does not exist

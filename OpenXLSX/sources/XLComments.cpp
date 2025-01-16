@@ -62,10 +62,17 @@ namespace OpenXLSX
 
 // ========== XLComments Member Functions
 
+XLComments::XLComments()
+ : XLXmlFile(nullptr),
+   m_vmlDrawing(std::make_unique<XLVmlDrawing>())
+ {}
+
 /**
  * @details The constructor creates an instance of the superclass, XLXmlFile
  */
-XLComments::XLComments(XLXmlData* xmlData) : XLXmlFile(xmlData)
+XLComments::XLComments(XLXmlData* xmlData)
+ : XLXmlFile(xmlData),
+   m_vmlDrawing(std::make_unique<XLVmlDrawing>())
 {
     if (xmlData->getXmlType() != XLContentType::Comments)
         throw XLInternalError("XLComments constructor: Invalid XML data.");
@@ -91,6 +98,59 @@ XLComments::XLComments(XLXmlData* xmlData) : XLXmlFile(xmlData)
     if (m_commentList.first_child().empty()) m_commentList.append_child(pugi::node_pcdata).set_value("\n\t");
 }
 
+/**
+ * @details copy-construct an XLComments object
+ */
+XLComments::XLComments(const XLComments& other)
+    : XLXmlFile(other),
+      m_authors(other.m_authors),
+      m_commentList(other.m_commentList),
+      m_vmlDrawing(std::make_unique<XLVmlDrawing>(*other.m_vmlDrawing))
+      // m_vmlDrawing(std::make_unique<XLVmlDrawing>(other.m_vmlDrawing ? *other.m_vmlDrawing : XLVmlDrawing())) // this can be used if other.m_vmlDrawing can be uninitialized
+{}
+
+/**
+ * @details move-construct an XLComments object
+ */
+XLComments::XLComments(XLComments&& other) noexcept
+    : XLXmlFile(other),
+      m_authors(std::move(other.m_authors)),
+      m_commentList(std::move(other.m_commentList)),
+      m_vmlDrawing(std::move(other.m_vmlDrawing))
+{}
+
+/**
+ * @details move-assign an XLComments object
+ */
+XLComments& XLComments::operator=(XLComments&& other) noexcept
+{
+    if (&other != this) {
+        XLXmlFile::operator=(std::move(other));
+        m_authors          = std::move(other.m_authors);
+        m_commentList      = std::move(other.m_commentList);
+        m_vmlDrawing       = std::move(other.m_vmlDrawing);
+    }
+    return *this;
+}
+
+/**
+ * @details copy-assign an XLComments object
+ */
+XLComments& XLComments::operator=(const XLComments& other)
+{
+    if (&other != this) {
+        XLComments temp = other; // copy-construct
+        *this = std::move(temp); // move-assign & invalidate temp
+    }
+    return *this;
+}
+
+
+bool XLComments::setVmlDrawing(XLVmlDrawing &vmlDrawing)
+{
+    m_vmlDrawing = std::make_unique<XLVmlDrawing>(vmlDrawing);
+    return true;
+}
 
 /**
  * @details TODO: write doxygen headers for functions in this module
@@ -311,6 +371,47 @@ bool XLComments::set(std::string cellRef, std::string commentText, uint16_t auth
     XMLNode tNode = comment.prepend_child("text").prepend_child("t");      // insert <text><t/></text> nodes
     tNode.append_attribute("xml:space").set_value("preserve");             // set <t> node attribute xml:space
     tNode.prepend_child(pugi::node_pcdata).set_value(commentText.c_str()); // finally, insert <t> node_pcdata value
+
+    if (m_vmlDrawing->valid()) {
+        std::cout << "XLWorksheet::vmlDrawing: m_vmlDrawing is accessible and valid!" << std::endl;
+
+        XLShape cShape = m_vmlDrawing->createShape();
+        std::cout << "created a new comment shape with id " << cShape.shapeId() << std::endl;
+        cShape.setFillColor("#ffffc0");
+        cShape.setStroked(true);
+        // setType: already done by XLVmlDrawing::createShape
+        cShape.setAllowInCell(false);
+        cShape.setStyle(
+            "position:absolute;margin-left:258pt;margin-top:0pt;width:81.65pt;height:50.9pt;mso-wrap-style:none;v-text-anchor:middle;visibility:hidden"
+        );
+        XLShapeClientData clientData = cShape.clientData();
+        clientData.setObjectType("Note");
+        clientData.setMoveWithCells();
+        clientData.setSizeWithCells();
+        clientData.setAnchor("3, 23, 0, 0, 4, 25, 3, 5");
+        clientData.setAutoFill(false);
+        clientData.setTextVAlign(XLShapeTextVAlign::Top);
+        clientData.setTextHAlign(XLShapeTextHAlign::Left);
+        clientData.setRow(destRow - 1);    // row and column are zero-indexed in XLShapeClientData
+        clientData.setColumn(destCol - 1); // ..
+
+	// 	<v:shadow on="t" obscured="t" color="black"/>
+	// 	<v:fill o:detectmouseclick="t" type="solid" color2="#00003f"/>
+	// 	<v:stroke color="#3465a4" startarrow="block" startarrowwidth="medium" startarrowlength="medium" joinstyle="round" endcap="flat"/>
+	// 	<x:ClientData ObjectType="Note">
+	// 		<x:MoveWithCells/>
+	// 		<x:SizeWithCells/>
+	// 		<x:Anchor>3, 23, 0, 0, 4, 25, 3, 5</x:Anchor>
+	// 		<x:AutoFill>False</x:AutoFill>
+	// 		<x:TextVAlign>Top</x:TextVAlign>
+	// 		<x:TextHAlign>Left</x:TextHAlign>
+	// 		<x:Row>0</x:Row>
+	// 		<x:Column>2</x:Column>
+	// 	</x:ClientData>
+	// </v:shape>
+    }
+    else
+        std::cout << "XLWorksheet::vmlDrawing: m_vmlDrawing is not ready yet!" << std::endl;
 
     return true;
 }

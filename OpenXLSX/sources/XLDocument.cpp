@@ -1068,18 +1068,18 @@ XLRelationships XLDocument::sheetRelationships(uint16_t sheetXmlNo)
     return XLRelationships(getXmlData(relsFilename), relsFilename);
 }
 
-XLDrawing XLDocument::sheetDrawing(uint16_t sheetXmlNo)
+XLVmlDrawing XLDocument::sheetVmlDrawing(uint16_t sheetXmlNo)
 {
     using namespace std::literals::string_literals;
-    std::string drawingFilename = "xl/drawings/vmlDrawing"s + std::to_string(sheetXmlNo) + ".vml"s;
+    std::string vmlDrawingFilename = "xl/drawings/vmlDrawing"s + std::to_string(sheetXmlNo) + ".vml"s;
 
-    if (!m_archive.hasEntry(drawingFilename)) {
+    if (!m_archive.hasEntry(vmlDrawingFilename)) {
         // ===== Create the sheet drawing file within the archive and add it to the managed files
-        m_archive.addEntry(drawingFilename, "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");    // create empty rels file, class constructor will do the rest
-        m_data.emplace_back(this, drawingFilename, "", XLContentType::VMLDrawing);
+        m_archive.addEntry(vmlDrawingFilename, "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");    // create empty rels file, class constructor will do the rest
+        m_data.emplace_back(this, vmlDrawingFilename, "", XLContentType::VMLDrawing);
     }
 
-    return XLDrawing(getXmlData(drawingFilename));
+    return XLVmlDrawing(getXmlData(vmlDrawingFilename));
 }
 
 XLComments XLDocument::sheetComments(uint16_t sheetXmlNo)

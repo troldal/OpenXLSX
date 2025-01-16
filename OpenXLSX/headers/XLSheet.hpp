@@ -1201,7 +1201,7 @@ namespace OpenXLSX
         std::string sheetProtectionSummary() const;
 
         /**
-         * @brief test whether a VML drawings XML file exists for this worksheet
+         * @brief test whether a VML drawing XML file exists for this worksheet
          */
         bool hasVmlDrawing()  const;
 
@@ -1216,9 +1216,9 @@ namespace OpenXLSX
         bool hasTables()   const;
 
         /**
-         * @brief fetch a reference to the worksheet drawing object
+         * @brief fetch a reference to the worksheet VML drawing object
          */
-        XLDrawing& drawing();
+        XLVmlDrawing& vmlDrawing();
 
         /**
          * @brief fetch a reference to the worksheet comments
@@ -1281,7 +1281,7 @@ namespace OpenXLSX
     private:   // ---------- Private Member Variables ---------- //
         XLRelationships m_relationships{};    /**< class handling the worksheet relationships */
         XLMergeCells    m_merges{};           /**< class handling the <mergeCells> */
-        XLDrawing       m_drawing{};          /**< class handling the worksheet drawing object */
+        XLVmlDrawing    m_vmlDrawing{};       /**< class handling the worksheet VML drawing object */
         XLComments      m_comments{};         /**< class handling the worksheet comments */
         XLTables        m_tables{};           /**< class handling the worksheet table settings */
         const std::vector< std::string_view >& m_nodeOrder = XLWorksheetNodeOrder;  // worksheet XML root node required child sequence

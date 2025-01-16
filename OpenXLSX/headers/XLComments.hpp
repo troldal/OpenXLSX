@@ -53,6 +53,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
 // #include "XLDocument.hpp"
+#include "XLDrawing.hpp"   // XLVmlDrawing
 #include "XLException.hpp"
 #include "XLXmlData.hpp"
 #include "XLXmlFile.hpp"
@@ -83,7 +84,7 @@ namespace OpenXLSX
         /**
          * @brief Constructor
          */
-        XLComments() : XLXmlFile(nullptr) {};
+        XLComments();
 
         /**
          * @brief The constructor.
@@ -94,15 +95,14 @@ namespace OpenXLSX
         /**
          * @brief The copy constructor.
          * @param other The object to be copied.
-         * @note The default copy constructor is used, i.e. only shallow copying of pointer data members.
          */
-        XLComments(const XLComments& other) = default;
+        XLComments(const XLComments& other);
 
         /**
          * @brief
          * @param other
          */
-        XLComments(XLComments&& other) noexcept = default;
+        XLComments(XLComments&& other) noexcept;
 
         /**
          * @brief The destructor
@@ -111,18 +111,24 @@ namespace OpenXLSX
         ~XLComments() = default;
 
         /**
-         * @brief Assignment operator
-         * @return A reference to the new object.
-         * @note The default assignment operator is used, i.e. only shallow copying of pointer data members.
-         */
-        XLComments& operator=(const XLComments&) = default;
-
-        /**
          * @brief
          * @param other
          * @return
          */
-        XLComments& operator=(XLComments&& other) noexcept = default;
+        XLComments& operator=(XLComments&& other) noexcept;
+
+        /**
+         * @brief Assignment operator
+         * @return A reference to the new object.
+         */
+        XLComments& operator=(const XLComments&);
+
+        /**
+         * @brief associate the worksheet's VML drawing object with the comments so it can be modified from here
+         * @param vmlDrawing the worksheet's previously created XLVmlDrawing object
+         * @return true upon success
+         */
+        bool setVmlDrawing(XLVmlDrawing &vmlDrawing);
 
     private: // helper functions with repeating code
         XMLNode authorNode(uint16_t index) const;
@@ -174,6 +180,7 @@ namespace OpenXLSX
     private:
         XMLNode m_authors{};
         XMLNode m_commentList{};
+        std::unique_ptr<XLVmlDrawing> m_vmlDrawing;
         inline static const std::vector< std::string_view > m_nodeOrder = {      // comments XML node required child sequence
             "authors",
             "commentList"

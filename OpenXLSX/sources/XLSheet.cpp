@@ -990,6 +990,7 @@ XLWorksheet::XLWorksheet(const XLWorksheet& other) : XLSheetBase<XLWorksheet>(ot
 {
     m_relationships = other.m_relationships;  // invoke XLRelationships copy assignment operator
     m_merges        = other.m_merges;         //  "     XLMergeCells       "
+    m_vmlDrawing    = other.m_vmlDrawing;     //  "     XLVmlDrawing
     m_comments      = other.m_comments;       //  "     XLComments         "
     m_tables        = other.m_tables;         //  "     XLTables           "
 }
@@ -1001,6 +1002,7 @@ XLWorksheet::XLWorksheet(XLWorksheet&& other) : XLSheetBase< XLWorksheet >(other
 {
     m_relationships = std::move(other.m_relationships);  // invoke XLRelationships move assignment operator
     m_merges        = std::move(other.m_merges);         //  "     XLMergeCells       "
+    m_vmlDrawing    = std::move(other.m_vmlDrawing);     //  "     XLVmlDrawing
     m_comments      = std::move(other.m_comments);       //  "     XLComments         "
     m_tables        = std::move(other.m_tables);         //  "     XLTables           "
 }
@@ -1013,6 +1015,7 @@ XLWorksheet& XLWorksheet::operator=(const XLWorksheet& other)
     XLSheetBase<XLWorksheet>::operator=(other); // invoke base class copy assignment operator
     m_relationships = other.m_relationships;
     m_merges        = other.m_merges;
+    m_vmlDrawing    = other.m_vmlDrawing;
     m_comments      = other.m_comments;
     m_tables        = other.m_tables;
     return *this;
@@ -1026,6 +1029,7 @@ XLWorksheet& XLWorksheet::operator=(XLWorksheet&& other)
     XLSheetBase<XLWorksheet>::operator=(other); // invoke base class move assignment operator
     m_relationships = std::move(other.m_relationships);
     m_merges        = std::move(other.m_merges);
+    m_vmlDrawing    = std::move(other.m_vmlDrawing);
     m_comments      = std::move(other.m_comments);
     m_tables        = std::move(other.m_tables);
     return *this;
@@ -1626,11 +1630,11 @@ bool XLWorksheet::hasComments()   const { return parentDoc().hasSheetComments(  
 bool XLWorksheet::hasTables()     const { return parentDoc().hasSheetTables(    sheetXmlNumber()); }
 
 /**
- * @details fetches XLDrawing for the sheet - creates & assigns the class if empty
+ * @details fetches XLVmlDrawing for the sheet - creates & assigns the class if empty
  */
-XLDrawing& XLWorksheet::drawing()
+XLVmlDrawing& XLWorksheet::vmlDrawing()
 {
-    if (!m_drawing.valid()) {
+    if (!m_vmlDrawing.valid()) {
         // ===== Append xdr namespace attribute to worksheet if not present
         XMLNode docElement = xmlDocument().document_element();
         XMLAttribute xdrNamespace = appendAndGetAttribute(docElement, "xmlns:xdr", "");
@@ -1643,15 +1647,15 @@ XLDrawing& XLWorksheet::drawing()
         std::cout << "worksheet drawing for sheetId " << sheetXmlNo << std::endl;
 
         // ===== Trigger parentDoc to create drawing XML file and return it
-        m_drawing = parentDoc().sheetDrawing(sheetXmlNo); // fetch drawing for this worksheet
-        if (!m_drawing.valid())
-            throw XLException("XLWorksheet::drawing(): could not create drawing XML");
-        std::string drawingRelativePath = getPathARelativeToPathB( m_drawing.getXmlPath(), getXmlPath() );
+        m_vmlDrawing = parentDoc().sheetVmlDrawing(sheetXmlNo); // fetch drawing for this worksheet
+        if (!m_vmlDrawing.valid())
+            throw XLException("XLWorksheet::vmlDrawing(): could not create drawing XML");
+        std::string drawingRelativePath = getPathARelativeToPathB( m_vmlDrawing.getXmlPath(), getXmlPath() );
         if (!m_relationships.targetExists(drawingRelativePath))
             m_relationships.addRelationship(XLRelationshipType::VMLDrawing, drawingRelativePath);
     }
 
-    return m_drawing;
+    return m_vmlDrawing;
 }
 
 /**
@@ -1661,15 +1665,15 @@ XLComments& XLWorksheet::comments()
 {
     if (!m_comments.valid()) {
 
-        if (!m_drawing.valid()) {
+        if (!m_vmlDrawing.valid()) {
             // ===== Unfortunately, xl/vmlDrawing#.vml is needed to support comments: append xdr namespace attribute to worksheet if not present
-            std::ignore = drawing(); // create sheet drawing if not existing
+            std::ignore = vmlDrawing(); // create sheet VML drawing if not existing
         }
 
         // test code for new shape object:
-        // uint32_t newShapeIndex = m_drawing.createShape();
+        // uint32_t newShapeIndex = m_vmlDrawing.createShape();
         // std::cout << "created a new XLShape with index " << newShapeIndex << std::endl;
-        // XLShape shape = m_drawing.shape(newShapeIndex);
+        // XLShape shape = m_vmlDrawing.shape(newShapeIndex);
 
         uint16_t sheetXmlNo = sheetXmlNumber();
         if (!parentDoc().hasSheetRelationships(sheetXmlNo))
@@ -1681,6 +1685,7 @@ XLComments& XLWorksheet::comments()
         m_comments = parentDoc().sheetComments(sheetXmlNo); // fetch comments for this worksheet
         if (!m_comments.valid())
             throw XLException("XLWorksheet::comments(): could not create comments XML");
+        m_comments.setVmlDrawing(m_vmlDrawing); // link XLVmlDrawing object to the comments so it can be modified from there
         std::string commentsRelativePath = getPathARelativeToPathB( m_comments.getXmlPath(), getXmlPath() );
         if (!m_relationships.targetExists(commentsRelativePath))
             m_relationships.addRelationship(XLRelationshipType::Comments, commentsRelativePath);
