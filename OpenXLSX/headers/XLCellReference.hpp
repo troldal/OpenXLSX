@@ -56,6 +56,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <cstdint>    // Pull request #276
 #include <string>
 #include <utility>
+#include <cstdint>
 
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
