@@ -153,10 +153,21 @@ int main()
     // wks.cell("D1").setCellFormat(newCellFormatIndex);
     wks.range("C1:D1").setFormat(newCellFormatIndex); // unlock two cells
 
-    XLComments &wksComments = wks.comments();
+    std::cout << std::endl;
+    std::cout << "XLWorksheet comments demo" << std::endl;
+    std::cout << "=========================" << std::endl;
+    std::cout <<   "wks.hasComments()   is " << (wks.hasComments()   ? " TRUE" : "FALSE")
+              << ", wks.hasVmlDrawing() is " << (wks.hasVmlDrawing() ? " TRUE" : "FALSE")
+              << ", wks.hasTables()     is " << (wks.hasTables()     ? " TRUE" : "FALSE") << std::endl;
+
+    XLComments &wksComments = wks.comments();   // fetch comments (and create if missing)
     std::cout << "wks.comments()      is " << (wksComments.valid() ? "valid" : "not valid") << std::endl;
-    XLTables &wksTables = wks.tables();
+    XLTables &wksTables = wks.tables();         // fetch tables (and create if missing)
     std::cout << "wks.tables()        is " << (wksTables.valid()   ? "valid" : "not valid") << std::endl;
+
+    std::cout <<   "wks.hasComments()   is " << (wks.hasComments()   ? " TRUE" : "FALSE")
+              << ", wks.hasVmlDrawing() is " << (wks.hasVmlDrawing() ? " TRUE" : "FALSE")
+              << ", wks.hasTables()     is " << (wks.hasTables()     ? " TRUE" : "FALSE") << std::endl;
 
 // // 2025-01-13: XLComments in preparation: needs ^%$%#^ vmlDrawing support next :(
 // std::string authors[10] { "Edgar Allan Poe", "Agatha Christie", "J.R.R. Tolkien", "David Eddings", "Daniel Suarez",

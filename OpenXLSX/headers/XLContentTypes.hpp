@@ -94,6 +94,13 @@ namespace OpenXLSX
     };
 
     /**
+     * @brief utility function: determine the name of an XLContentType value
+     * @param type the XLContentType to get a name for
+     * @return a string with the name of type
+     */
+    std::string XLContentTypeToString( XLContentType type );
+
+    /**
      * @brief
      */
     class OPENXLSX_EXPORT XLContentItem

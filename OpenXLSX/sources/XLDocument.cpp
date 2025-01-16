@@ -54,6 +54,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #endif
 #include <pugixml.hpp>
 #include <sys/stat.h>     // for stat, to test if a file exists and if a file is a directory
+#include <vector>         // std::vector
 
 // ===== OpenXLSX Includes ===== //
 #include "XLContentTypes.hpp"
@@ -1018,10 +1019,37 @@ XLStyles& XLDocument::styles() { return m_styles; }
 /**
 * @details determine - without creation - whether the document contains a sheet relationships file for sheet with sheetXmlNo
 */
-bool XLDocument::hasSheetRelationships(uint16_t sheetXmlNo)
+bool XLDocument::hasSheetRelationships(uint16_t sheetXmlNo) const
 {
     using namespace std::literals::string_literals;
     return m_archive.hasEntry("xl/worksheets/_rels/sheet"s + std::to_string(sheetXmlNo) + ".xml.rels"s);
+}
+
+/**
+* @details determine - without creation - whether the document contains a VML drawing file for sheet with sheetXmlNo
+*/
+bool XLDocument::hasSheetVmlDrawing(uint16_t sheetXmlNo) const
+{
+    using namespace std::literals::string_literals;
+    return m_archive.hasEntry("xl/drawings/vmlDrawing"s + std::to_string(sheetXmlNo) + ".vml"s);
+}
+
+/**
+* @details determine - without creation - whether the document contains a comments file for sheet with sheetXmlNo
+*/
+bool XLDocument::hasSheetComments(uint16_t sheetXmlNo) const
+{
+    using namespace std::literals::string_literals;
+    return m_archive.hasEntry("xl/comments"s + std::to_string(sheetXmlNo) + ".xml"s);
+}
+
+/**
+* @details determine - without creation - whether the document contains a table(s) file for sheet with sheetXmlNo
+*/
+bool XLDocument::hasSheetTables(uint16_t sheetXmlNo) const
+{
+    using namespace std::literals::string_literals;
+    return m_archive.hasEntry("xl/tables/table"s + std::to_string(sheetXmlNo) + ".xml"s);
 }
 
 /**
@@ -1441,4 +1469,86 @@ namespace OpenXLSX
         hashData[1] = pw & 0xff; // LSB second
         return BinaryAsHexString(hashData, 2);
     }
+
+    /**
+     * @brief local function: split a path into a vector of strings each containing a subdirectory (or finally: a filename) - ignore leading and trailing slashes
+     * @param path split this path by '/' characters
+     * @param eliminateDots if true (default), will ignore "." entries and will pop a subdirectory from the vector for each ".." entry
+     * @return a vector of non-empty subdirectories
+     * @throw XLInternalError upon invalid path - e.g. containing "//" or trying to escape via ".." beyond the context of path
+     */
+    constexpr const bool DISASSEMBLE_PATH_ELIMINATE_DOTS = true;  // helper constants for code readability
+    constexpr const bool DISASSEMBLE_PATH_KEEP_DOTS      = false; //
+    std::vector<std::string> disassemblePath(std::string const& path, bool eliminateDots = DISASSEMBLE_PATH_ELIMINATE_DOTS)
+    {
+        std::vector< std::string > result;
+        size_t startpos = (path[ 0 ] == '/' ? 1 : 0); // skip a leading slash
+        size_t pos;
+        do {
+            pos = path.find( '/', startpos );
+            if (pos == startpos)
+                throw XLInternalError("eliminateDotAndDotDotFromPath: path must not contain two subsequent forward slashes");
+            else {
+                std::string dirEntry = path.substr(startpos, pos - startpos); // get folder name
+                if (dirEntry.length() > 0 ) {
+                    if (eliminateDots) {
+                        // handle . and .. folders
+                        if (dirEntry == ".") {} // no-op
+                        else if (dirEntry == "..") {
+                            if (result.size() > 0)
+                                result.pop_back(); // remove previous folder from result
+                            else throw std::string( "eliminateDotAndDotDotFromPath: no remaining directory to exit with .." );
+                        }
+                        else result.push_back(dirEntry);
+                    }
+                    else result.push_back(dirEntry);
+                }
+                startpos = pos + 1;
+            }
+        } while (pos != std::string::npos);
+
+        return result;
+    }
+
+    /**
+     * @details
+     */
+    std::string getPathARelativeToPathB(std::string const& pathA, std::string const& pathB)
+    {
+        size_t startpos = 0;
+        while (pathA[startpos] == pathB[startpos]) ++startpos;          // find position where pathA and pathB differ
+        while (startpos > 0 && pathA[startpos - 1] != '/') --startpos;  // then iterate back to last slash before that position
+        if(startpos == 0)
+            throw XLInternalError("getPathARelativeToPathB: pathA and pathB have no common beginning");
+
+        std::vector<std::string> dirEntriesB = disassemblePath(pathB.substr(startpos));   // disassemble unique part of pathB into a vector of strings
+        if (dirEntriesB.size() > 0 && pathB.back() != '/') dirEntriesB.pop_back();        // a filename in pathB isn't needed for the relative path generation
+
+        std::string result("");                                                           // assemble result:
+        for (auto it = dirEntriesB.rbegin(); it != dirEntriesB.rend(); ++it)              // for each subdirectory unique to pathB
+            result += "../";                                                                 // add one ../ to escape it
+        result += pathA.substr(startpos);                                                 // finally, append unique part of pathA
+
+        return result;
+    }
+
+    /**
+     * @details
+     */
+    std::string eliminateDotAndDotDotFromPath(const std::string& path)
+    {
+        std::vector< std::string > dirEntries = disassemblePath( path ); // disassemble path into a vector of strings with subdirectory names
+
+        // assemble path from dirEntries
+        std::string result = path.front() == '/' ? "/" : "";
+        if( dirEntries.size() > 0 ) {
+            auto it = dirEntries.begin();
+            result += *it;
+            while( ++it != dirEntries.end() ) { result += "/" + *it; } // concatenate dirnames
+        }
+
+        // in return value: avoid appending a trailing slash if a path was already reduced to "/"
+        return ((result.length() > 1 || result.front() != '/') && path.back() == '/') ? result + "/" : result;
+    }
+
 }    // namespace OpenXLSX

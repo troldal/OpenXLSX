@@ -66,6 +66,7 @@ namespace OpenXLSX
      */
     class OPENXLSX_EXPORT XLTables : public XLXmlFile
     {
+        friend class XLWorksheet;   // for access to XLXmlFile::getXmlPath
     public:
         /**
          * @brief Constructor

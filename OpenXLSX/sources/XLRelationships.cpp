@@ -327,6 +327,15 @@ XLRelationships::XLRelationships(XLXmlData* xmlData, std::string pathTo)
         using namespace std::literals::string_literals;
         throw XLException("XLRelationships constructor: pathTo \""s + pathTo + "\" does not point to a file in a folder named \"" + relFolder + "\""s);
     }
+
+    XMLDocument & doc = xmlDocument();
+    if (doc.document_element().empty())    // handle a bad (no document element) relationships XML file
+        doc.load_string(
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                "<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"\n"
+                "</Relationships>",
+                pugi_parse_settings
+        );
 }
 
 XLRelationships::~XLRelationships() = default;
@@ -345,11 +354,14 @@ XLRelationshipItem XLRelationships::relationshipById(const std::string& id) cons
  */
 XLRelationshipItem XLRelationships::relationshipByTarget(const std::string& target, bool throwIfNotFound) const
 {
-    std::string absoluteTarget = (target[0] == '/' ? target : m_path + target);    // turn relative path into an absolute
+    // turn relative path into an absolute and resolve . and .. entries
+    std::string absoluteTarget = eliminateDotAndDotDotFromPath(target[0] == '/' ? target : m_path + target);
+
     XMLNode relationshipNode = xmlDocument().document_element().first_child_of_type(pugi::node_element);
     while (not relationshipNode.empty()) {
         std::string relationTarget = relationshipNode.attribute("Target").value();
         if (relationTarget[0] != '/') relationTarget = m_path + relationTarget;    // turn relative path into an absolute
+        relationTarget = eliminateDotAndDotDotFromPath(relationTarget);            // and resolve . and .. entries, if any
 
         // ===== Attempt to match absoluteTarget & relationTarget
         if (absoluteTarget == relationTarget) return XLRelationshipItem(relationshipNode);    // found!

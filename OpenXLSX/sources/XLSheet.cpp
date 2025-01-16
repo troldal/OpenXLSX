@@ -1619,35 +1619,37 @@ std::string XLWorksheet::sheetProtectionSummary() const
 }
 
 /**
+ * @details functions to test whether a VMLDrawing / Comments / Tables entry exists for this worksheet (without creating those entries)
+ */
+bool XLWorksheet::hasVmlDrawing() const { return parentDoc().hasSheetVmlDrawing(sheetXmlNumber()); }
+bool XLWorksheet::hasComments()   const { return parentDoc().hasSheetComments(  sheetXmlNumber()); }
+bool XLWorksheet::hasTables()     const { return parentDoc().hasSheetTables(    sheetXmlNumber()); }
+
+/**
  * @details fetches XLDrawing for the sheet - creates & assigns the class if empty
  */
 XLDrawing& XLWorksheet::drawing()
 {
     if (!m_drawing.valid()) {
-        uint16_t sheetXmlNo = sheetXmlNumber();
-        if (!parentDoc().hasSheetRelationships(sheetXmlNo))
-            std::ignore = relationships(); // create sheet relationships if not existing
-
         // ===== Append xdr namespace attribute to worksheet if not present
         XMLNode docElement = xmlDocument().document_element();
         XMLAttribute xdrNamespace = appendAndGetAttribute(docElement, "xmlns:xdr", "");
         xdrNamespace = "http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing";
 
+        uint16_t sheetXmlNo = sheetXmlNumber();
+        if (!parentDoc().hasSheetRelationships(sheetXmlNo))
+            std::ignore = relationships(); // create sheet relationships if not existing
+
         std::cout << "worksheet drawing for sheetId " << sheetXmlNo << std::endl;
 
         // ===== Trigger parentDoc to create drawing XML file and return it
         m_drawing = parentDoc().sheetDrawing(sheetXmlNo); // fetch drawing for this worksheet
-        if (!m_relationships.targetExists(m_drawing.getXmlPath())) {
-            // TODO: make sure that relative folders (../) can be resolved by XLRelationships::targetExists / ::relationshipByTarget
-            // create relationship here
-        }
-        // XLRelationshipItem m_relationships.relationshipByTarget(m_drawing.getXmlPath(), bool throwIfNotFound) const
-        // <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/comments" Target="../comments1.xml"/>
-        // <Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/vmlDrawing" Target="../drawings/vmlDrawing1.vml"/>
-
+        if (!m_drawing.valid())
+            throw XLException("XLWorksheet::drawing(): could not create drawing XML");
+        std::string drawingRelativePath = getPathARelativeToPathB( m_drawing.getXmlPath(), getXmlPath() );
+        if (!m_relationships.targetExists(drawingRelativePath))
+            m_relationships.addRelationship(XLRelationshipType::VMLDrawing, drawingRelativePath);
     }
-    if (!m_drawing.valid())
-        throw XLException("XLWorksheet::drawing(): could not create drawing XML");
 
     return m_drawing;
 }
@@ -1658,10 +1660,6 @@ XLDrawing& XLWorksheet::drawing()
 XLComments& XLWorksheet::comments()
 {
     if (!m_comments.valid()) {
-        uint16_t sheetXmlNo = sheetXmlNumber();
-
-        if (!parentDoc().hasSheetRelationships(sheetXmlNo))
-            std::ignore = relationships(); // create sheet relationships if not existing
 
         if (!m_drawing.valid()) {
             // ===== Unfortunately, xl/vmlDrawing#.vml is needed to support comments: append xdr namespace attribute to worksheet if not present
@@ -1673,13 +1671,20 @@ XLComments& XLWorksheet::comments()
         // std::cout << "created a new XLShape with index " << newShapeIndex << std::endl;
         // XLShape shape = m_drawing.shape(newShapeIndex);
 
+        uint16_t sheetXmlNo = sheetXmlNumber();
+        if (!parentDoc().hasSheetRelationships(sheetXmlNo))
+            std::ignore = relationships(); // create sheet relationships if not existing
+
         std::cout << "worksheet comments for sheetId " << sheetXmlNo << std::endl;
 
         // ===== Trigger parentDoc to create comment XML file and return it
         m_comments = parentDoc().sheetComments(sheetXmlNo); // fetch comments for this worksheet
+        if (!m_comments.valid())
+            throw XLException("XLWorksheet::comments(): could not create comments XML");
+        std::string commentsRelativePath = getPathARelativeToPathB( m_comments.getXmlPath(), getXmlPath() );
+        if (!m_relationships.targetExists(commentsRelativePath))
+            m_relationships.addRelationship(XLRelationshipType::Comments, commentsRelativePath);
     }
-    if (!m_comments.valid())
-        throw XLException("XLWorksheet::comments(): could not create comments XML");
 
     return m_comments;
 }
@@ -1694,13 +1699,16 @@ XLTables& XLWorksheet::tables()
         if (!parentDoc().hasSheetRelationships(sheetXmlNo))
             std::ignore = relationships(); // create sheet relationships if not existing
 
-        // trigger parentDoc to create tables XML file and relationship and return it
         std::cout << "worksheet tables for sheetId " << sheetXmlNo << std::endl;
+
+        // ===== Trigger parentDoc to create tables XML file and return it
         m_tables = parentDoc().sheetTables(sheetXmlNo); // fetch tables for this worksheet
-        // relationships().set ... // configure whatever needs to be done
+        if (!m_tables.valid())
+            throw XLException("XLWorksheet::tables(): could not create tables XML");
+        std::string tablesRelativePath = getPathARelativeToPathB( m_tables.getXmlPath(), getXmlPath() );
+        if (!m_relationships.targetExists(tablesRelativePath))
+            m_relationships.addRelationship(XLRelationshipType::Table, tablesRelativePath);
     }
-    if (!m_tables.valid())
-        throw XLException("XLWorksheet::tables(): could not create tables XML");
 
     return m_tables;
 }

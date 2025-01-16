@@ -292,7 +292,28 @@ namespace OpenXLSX
          * @param sheetXmlNo check for this sheet number # (xl/worksheets/_reals/sheet#.xml.rels)
          * @return true if relationships file exists
          */
-        bool hasSheetRelationships(uint16_t sheetXmlNo);
+        bool hasSheetRelationships(uint16_t sheetXmlNo) const;
+
+        /**
+         * @brief determine whether a worksheet vml drawing file exists for sheetXmlNo
+         * @param sheetXmlNo check for this sheet number # (xl/drawings/vmlDrawing#.xml)
+         * @return true if vml drawing file exists
+         */
+        bool hasSheetVmlDrawing(uint16_t sheetXmlNo) const;
+
+        /**
+         * @brief determine whether a worksheet comments file exists for sheetXmlNo
+         * @param sheetXmlNo check for this sheet number # (xl/comments#.xml)
+         * @return true if comments file exists
+         */
+        bool hasSheetComments(uint16_t sheetXmlNo) const;
+
+        /**
+         * @brief determine whether a worksheet table(s) file exists for sheetXmlNo
+         * @param sheetXmlNo check for this sheet number # (xl/tables/table#.xml)
+         * @return true if table(s) file exists
+         */
+        bool hasSheetTables(uint16_t sheetXmlNo) const;
 
         /**
          * @brief fetch the worksheet relationships for sheetXmlNo, create the file if it does not exist
@@ -440,6 +461,24 @@ namespace OpenXLSX
      * @return a string that can be stored in OOXML as a password hash
      */
     OPENXLSX_EXPORT std::string ExcelPasswordHashAsString (std::string password);
+
+    /**
+     * @brief eliminate from pathA leading subdirectories shared with pathB and find a path from pathB to pathA destination
+     * @param pathA return a relative path to here
+     * @param pathB escape this path via "../" until the common branch with pathA is reached
+     * @return a string that leads via a relative path from pathA to pathB
+     * @throw XLInternalError if pathA and pathB have no common leading (sub)directory
+     */
+    std::string getPathARelativeToPathB(std::string const& pathA, std::string const& pathB);
+
+    /**
+     * @brief eliminate from path any . and .. subdirectories by ignoring them (.) or escaping to the parent directory (..)
+     * @param path the path to normalize in this way
+     * @return a normalized path (no longer contains . or .. entries)
+     * @throw XLInternalError upon invalid path - e.g. containing "//" or trying to escape via ".." beyond the context of path
+     */
+    std::string eliminateDotAndDotDotFromPath(const std::string& path);
+
 }    // namespace OpenXLSX
 
 #ifdef _MSC_VER    // conditionally enable MSVC specific pragmas to avoid other compilers warning about unknown pragmas

@@ -55,6 +55,37 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 using namespace OpenXLSX;
 
+namespace OpenXLSX {
+    std::string XLContentTypeToString( XLContentType type )
+    {
+        switch( type ) {
+            case XLContentType::Workbook: return "Workbook";
+            case XLContentType::WorkbookMacroEnabled: return "WorkbookMacroEnabled";
+            case XLContentType::Worksheet: return "Worksheet";
+            case XLContentType::Chartsheet: return "Chartsheet";
+            case XLContentType::ExternalLink: return "ExternalLink";
+            case XLContentType::Theme: return "Theme";
+            case XLContentType::Styles: return "Styles";
+            case XLContentType::SharedStrings: return "SharedStrings";
+            case XLContentType::Drawing: return "Drawing";
+            case XLContentType::Chart: return "Chart";
+            case XLContentType::ChartStyle: return "ChartStyle";
+            case XLContentType::ChartColorStyle: return "ChartColorStyle";
+            case XLContentType::ControlProperties: return "ControlProperties";
+            case XLContentType::CalculationChain: return "CalculationChain";
+            case XLContentType::VBAProject: return "VBAProject";
+            case XLContentType::CoreProperties: return "CoreProperties";
+            case XLContentType::ExtendedProperties: return "ExtendedProperties";
+            case XLContentType::CustomProperties: return "CustomProperties";
+            case XLContentType::Comments: return "Comments";
+            case XLContentType::Table: return "Table";
+            case XLContentType::VMLDrawing: return "VMLDrawing";
+            case XLContentType::Unknown: [[fallthrough]];
+            default: return "(unknown)";
+        }
+    }
+} // namespace OpenXLSX
+
 namespace
 {
     const std::string applicationOpenXmlOfficeDocument = "application/vnd.openxmlformats-officedocument";
