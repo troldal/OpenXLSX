@@ -516,12 +516,14 @@ void XLDocument::open(const std::string& fileName)
 
         bool isWorkbookPath = (item.path().substr(1) == workbookPath);      // determine once, use thrice
         if (!isWorkbookPath && item.path().substr(0, 4) == "/xl/") {
-            if      ((item.path().substr(4, 16) == "worksheets/sheet")
+            if ((item.path().substr(4, 7) == "comment")
+                   ||(item.path().substr(4, 18) == "drawing/vmlDrawing")
+                   ||(item.path().substr(4, 12) == "tables/table")) {
+                // no-op - TODO: implement proper loading of worksheet dependencies - m_wbkRelationships would not find these
+            }
+            else if ((item.path().substr(4, 16) == "worksheets/sheet")
                    ||(item.path().substr(4)     == "sharedStrings.xml")
                    ||(item.path().substr(4)     == "styles.xml")
-                   ||(item.path().substr(4, 7)  == "comment")
-                   ||(item.path().substr(4, 18) == "drawing/vmlDrawing")
-                   ||(item.path().substr(4, 12) == "tables/table")
                    ||(item.path().substr(4, 11) == "theme/theme"))
             {
                 m_data.emplace_back(/* parentDoc */ this,
