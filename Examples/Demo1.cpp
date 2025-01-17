@@ -122,6 +122,52 @@ int main()
     cout << "Cell G1: (" << G1.typeAsString() << ") " << std::asctime(&tmo);
 
     std::cout << std::endl;
+    std::cout << "XLWorksheet comments demo" << std::endl;
+    std::cout << "=========================" << std::endl;
+    std::cout <<   "wks.hasComments()   is " << (wks.hasComments()   ? " TRUE" : "FALSE")
+              << ", wks.hasVmlDrawing() is " << (wks.hasVmlDrawing() ? " TRUE" : "FALSE")
+              << ", wks.hasTables()     is " << (wks.hasTables()     ? " TRUE" : "FALSE") << std::endl;
+
+    XLComments &wksComments = wks.comments();   // fetch comments (and create if missing)
+    std::cout << "wks.comments()      is " << (wksComments.valid() ? "valid" : "not valid") << std::endl;
+    XLTables &wksTables = wks.tables();         // fetch tables (and create if missing)
+    std::cout << "wks.tables()        is " << (wksTables.valid()   ? "valid" : "not valid") << std::endl;
+
+    std::cout <<   "wks.hasComments()   is " << (wks.hasComments()   ? " TRUE" : "FALSE")
+              << ", wks.hasVmlDrawing() is " << (wks.hasVmlDrawing() ? " TRUE" : "FALSE")
+              << ", wks.hasTables()     is " << (wks.hasTables()     ? " TRUE" : "FALSE") << std::endl;
+
+    // 2025-01-17: LibreOffice displays all comments with the same, LibreOffice, author - regardless of author id - to be tested with MS Office
+    std::string authors[10] { "Edgar Allan Poe", "Agatha Christie", "J.R.R. Tolkien", "David Eddings", "Daniel Suarez",
+    /**/                      "Mary Shelley", "George Orwell", "Stanislaw Lem", "Ray Bradbury", "William Shakespeare" };
+
+    for( std::string author : authors ) {
+        wksComments.addAuthor( author );
+        uint16_t authorCount = wksComments.authorCount();
+        std::cout << "wksComments.authorCount is " << authorCount << std::endl;
+        std::cout << "wksComments.author(" << (authorCount - 1) << ") is " << wksComments.author(authorCount - 1) << std::endl;
+    }
+
+    wksComments.deleteAuthor(7);
+    wksComments.deleteAuthor(5);
+    wksComments.deleteAuthor(3);
+    uint16_t authorCount = wksComments.authorCount();
+    std::cout << "wksComments.authorCount is " << authorCount << " after deleting authors 7, 5 and 3" << std::endl;
+    for( uint16_t index = 0; index < authorCount; ++index )
+        std::cout << "wksComments.author(" << (index) << ") is " << wksComments.author(index) << std::endl;
+
+    wksComments.set("A1", "this comment is for author #1", 0);
+    wksComments.set("B2", "this comment is for author #2", 1);
+    wksComments.shape("B2").style().show(); // bit cumbersome to access, but it reflects the XML: <v:shape style="[..];visibility=visible">[..]</v:shape>
+    wksComments.set("C3", "this comment is for author #3", 2);
+    wksComments.set("C3", "this is an updated comment for author #3", 2); // overwrite a comment
+    wksComments.shape("C3").style().show();
+    wksComments.set("D1", "this comment is for author #5", 4);
+    std::cout << std::endl;
+    std::cout << "the comment in cell C4 is \"" << wksComments.get("C4") << "\"" << std::endl;
+    std::cout << "the comment in cell B2 is \"" << wksComments.get("B2") << "\"" << std::endl;
+
+    std::cout << std::endl;
     std::cout << "XLWorksheet protection settings demo" << std::endl;
     std::cout << "====================================" << std::endl;
     std::cout << "Default worksheet " << wks.name() << " protection settings: " << std::endl
@@ -152,46 +198,9 @@ int main()
 
     // wks.cell("D1").setCellFormat(newCellFormatIndex);
     wks.range("C1:D1").setFormat(newCellFormatIndex); // unlock two cells
-
+    std::cout << "====================================" << std::endl;
+    std::cout << "==> the worksheet " << wks.name() << " is now protected with the password " << password << std::endl;
     std::cout << std::endl;
-    std::cout << "XLWorksheet comments demo" << std::endl;
-    std::cout << "=========================" << std::endl;
-    std::cout <<   "wks.hasComments()   is " << (wks.hasComments()   ? " TRUE" : "FALSE")
-              << ", wks.hasVmlDrawing() is " << (wks.hasVmlDrawing() ? " TRUE" : "FALSE")
-              << ", wks.hasTables()     is " << (wks.hasTables()     ? " TRUE" : "FALSE") << std::endl;
-
-    XLComments &wksComments = wks.comments();   // fetch comments (and create if missing)
-    std::cout << "wks.comments()      is " << (wksComments.valid() ? "valid" : "not valid") << std::endl;
-    XLTables &wksTables = wks.tables();         // fetch tables (and create if missing)
-    std::cout << "wks.tables()        is " << (wksTables.valid()   ? "valid" : "not valid") << std::endl;
-
-    std::cout <<   "wks.hasComments()   is " << (wks.hasComments()   ? " TRUE" : "FALSE")
-              << ", wks.hasVmlDrawing() is " << (wks.hasVmlDrawing() ? " TRUE" : "FALSE")
-              << ", wks.hasTables()     is " << (wks.hasTables()     ? " TRUE" : "FALSE") << std::endl;
-
-// // 2025-01-13: XLComments in preparation: needs ^%$%#^ vmlDrawing support next :(
-// std::string authors[10] { "Edgar Allan Poe", "Agatha Christie", "J.R.R. Tolkien", "David Eddings", "Daniel Suarez",
-// /**/                      "Mary Shelley", "George Orwell", "Stanislaw Lem", "Ray Bradbury", "William Shakespeare" };
-// 
-// for( std::string author : authors ) {
-// 	wksComments.addAuthor( author );
-// 	uint16_t authorCount = wksComments.authorCount();
-// 	std::cout << "wksComments.authorCount is " << authorCount << std::endl;
-// 	std::cout << "wksComments.author(" << (authorCount - 1) << ") is " << wksComments.author(authorCount - 1) << std::endl;
-// }
-// 
-// wksComments.deleteAuthor(7);
-// wksComments.deleteAuthor(5);
-// wksComments.deleteAuthor(3);
-// uint16_t authorCount = wksComments.authorCount();
-// std::cout << "wksComments.authorCount is " << authorCount << " after deleting authors 7, 5 and 3" << std::endl;
-// for( uint16_t index = 0; index < authorCount; ++index )
-// 	std::cout << "wksComments.author(" << (index) << ") is " << wksComments.author(index) << std::endl;
-// 
-// wksComments.set("A1", "this comment is for author #1", 0);
-// wksComments.set("B2", "this comment is for author #2", 1);
-// wksComments.set("C3", "this comment is for author #3", 2);
-// wksComments.set("D1", "this comment is for author #5", 4);
 
     doc.save();
     doc.close();

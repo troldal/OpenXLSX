@@ -7,6 +7,22 @@ Microsoft Excel® files, with the .xlsx format.
 
 As the heading says - the latest "Release" that is shown on https://github.com/troldal/OpenXLSX/releases is from 2021-11-06, and severely outdated - please pull / download the latest SW version directly from the repository in its current state. Link for those that do not want to use ```git```: https://github.com/troldal/OpenXLSX/archive/refs/heads/master.zip
 
+## (aral-matrix) 17 January 2025 - Basic support for comments is implemented - testing stage
+The support for comments is now in a stage where it can be used - please refer to Demo01 line 124ff for a quick "howto".
+This feature is still in alpha stage, with a few open TBDs:
+* the library currently assumes that comment entries are well sorted, first by row, then by column - if this is not the case, existing comments might not be readable / be found
+* the VML Drawing support is basic at best, for lack of documentation. I have made most features available through ```XLShape XLComments::shape(std::string const& cellRef)``` - for methods of XLShape please refer to the ```XLDrawing``` header file
+* missing support in XLShape for now:
+```
+    // XLShapeShadow& shadow();          // v:shape subnode v:shadow
+    // XLShapeFill& fill();              // v:shape subnode v:fill
+    // XLShapeStroke& stroke();          // v:shape subnode v:stroke
+    // XLShapePath& path();              // v:shape subnode v:path
+    // XLShapeTextbox& textbox();        // v:shape subnode v:textbox
+```
+* missing: library still needs to add ```Override``` entries for the worksheet dependencies (comments, vmlDrawing, table)
+* to be replaced with proper logic: library (XLDocument) currently loads worksheets dependencies in a workaround
+
 ## (aral-matrix) 14 January 2025 - Support for comments is work in progress - unstable :)
 As the title says - I am working on comments support and will do the occasional commit to save my progress (aside from local backups). I will only submit patches that should not affect existing code stability, but if I break something (last patch I forgot to add a new module dependency to the cmake instructions), apologies for that - feel free to open an issue right away & I will try to fix it ASAP.
 I hope to finalize comments support (and possibly tables / filters) by the weekend.

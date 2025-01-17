@@ -327,11 +327,12 @@ std::string XLComments::get(const std::string& cellRef) const
 /**
  * @details TODO: write doxygen headers for functions in this module
  */
-bool XLComments::set(std::string cellRef, std::string commentText, uint16_t authorId)
+bool XLComments::set(std::string const& cellRef, std::string const& commentText, uint16_t authorId)
 {
     XLCellReference destRef(cellRef);
     uint32_t destRow = destRef.row();
     uint16_t destCol = destRef.column();
+    bool newCommentCreated = false; // if false, try to find an existing shape before creating one
 
     using namespace std::literals::string_literals;
     XMLNode comment = m_commentList.first_child_of_type(pugi::node_element);
@@ -353,12 +354,14 @@ bool XLComments::set(std::string cellRef, std::string commentText, uint16_t auth
             comment = m_commentList.insert_child_after("comment", comment);                     // insert new comment at end of list
             copyLeadingWhitespaces(m_commentList, comment.previous_sibling(), comment);         // and copy whitespaces prefix from previous comment
         }
+        newCommentCreated = true;
     }
     else {
         XLCellReference ref(comment.attribute("ref").value());
         if(ref.row() != destRow || ref.column() != destCol) {                 // if node has to be inserted *before* this one
             comment = m_commentList.insert_child_before("comment", comment);        // insert new comment
             copyLeadingWhitespaces(m_commentList, comment, comment.next_sibling()); // and copy whitespaces prefix from next node
+            newCommentCreated = true;
         }
         else // node exists / was found
             comment.remove_children();    // clear node content
@@ -373,22 +376,82 @@ bool XLComments::set(std::string cellRef, std::string commentText, uint16_t auth
     tNode.prepend_child(pugi::node_pcdata).set_value(commentText.c_str()); // finally, insert <t> node_pcdata value
 
     if (m_vmlDrawing->valid()) {
-        std::cout << "XLWorksheet::vmlDrawing: m_vmlDrawing is accessible and valid!" << std::endl;
+        XLShape cShape{};
+        bool newShapeNeeded = newCommentCreated; // on new comments: create new shape
+        if (!newCommentCreated) {
+           try {
+               cShape = shape(cellRef); // for existing comments, try to access existing shape
+           }
+           catch (XLException const& e) {
+               newShapeNeeded = true; // not found: create fresh
+           }
+        }
+        if (newShapeNeeded)
+            cShape = m_vmlDrawing->createShape();
 
-        XLShape cShape = m_vmlDrawing->createShape();
-        std::cout << "created a new comment shape with id " << cShape.shapeId() << std::endl;
         cShape.setFillColor("#ffffc0");
         cShape.setStroked(true);
         // setType: already done by XLVmlDrawing::createShape
         cShape.setAllowInCell(false);
-        cShape.setStyle(
-            "position:absolute;margin-left:258pt;margin-top:0pt;width:81.65pt;height:50.9pt;mso-wrap-style:none;v-text-anchor:middle;visibility:hidden"
-        );
+        {
+            // XLShapeStyle shapeStyle("position:absolute;margin-left:100pt;margin-top:0pt;width:50pt;height:50.0pt;mso-wrap-style:none;v-text-anchor:middle;visibility:hidden");
+            XLShapeStyle shapeStyle{}; // default construct with meaningful values
+            cShape.setStyle(shapeStyle);
+        }
+
         XLShapeClientData clientData = cShape.clientData();
         clientData.setObjectType("Note");
         clientData.setMoveWithCells();
         clientData.setSizeWithCells();
-        clientData.setAnchor("3, 23, 0, 0, 4, 25, 3, 5");
+
+        {
+            constexpr const uint16_t leftColOffset = 1;
+            constexpr const uint16_t widthCols = 2;
+            constexpr const uint16_t topRowOffset = 1;
+            constexpr const uint16_t heightRows = 2;
+
+            uint16_t anchorLeftCol, anchorRightCol;
+            if( OpenXLSX::MAX_COLS - destCol > leftColOffset + widthCols ) {
+                anchorLeftCol  = (destCol - 1) + leftColOffset;
+                anchorRightCol = (destCol - 1) + leftColOffset + widthCols;
+            }
+            else { // if anchor would overflow MAX_COLS: move column anchor to the left of destCol
+                anchorLeftCol  = (destCol - 1) - leftColOffset - widthCols;
+                anchorRightCol = (destCol - 1) - leftColOffset;
+            }
+
+            uint32_t anchorTopRow, anchorBottomRow;
+            if( OpenXLSX::MAX_ROWS - destRow > topRowOffset + heightRows ) {
+                anchorTopRow    = (destRow - 1) + topRowOffset;
+                anchorBottomRow = (destRow - 1) + topRowOffset + heightRows;
+            }
+            else { // if anchor would overflow MAX_ROWS: move row anchor to the top of destCol
+                anchorTopRow    = (destRow - 1) - topRowOffset - heightRows;
+                anchorBottomRow = (destRow - 1) - topRowOffset;
+            }
+            if (anchorRightCol > MAX_SHAPE_ANCHOR_COLUMN)
+                std::cout << "XLComments::set WARNING: anchoring comment shapes beyond column "s
+                /**/          + XLCellReference::columnAsString(MAX_SHAPE_ANCHOR_COLUMN) + " may not get displayed correctly (LO Calc, TBD in Excel)"s << std::endl;
+            if (anchorBottomRow > MAX_SHAPE_ANCHOR_ROW)
+                std::cout << "XLComments::set WARNING: anchoring comment shapes beyond row "s
+                /**/          +                  std::to_string(MAX_SHAPE_ANCHOR_ROW   ) + " may not get displayed correctly (LO Calc, TBD in Excel)"s << std::endl;
+
+            uint16_t anchorLeftOffsetInCell = 10, anchorRightOffsetInCell = 10;
+            uint16_t anchorTopOffsetInCell = 5, anchorBottomOffsetInCell = 5;
+
+            // clientData.setAnchor("3, 23, 0, 0, 4, 25, 3, 5");
+            using namespace std::literals::string_literals;
+            clientData.setAnchor(
+                  std::to_string(anchorLeftCol)           + ","s
+                + std::to_string(anchorLeftOffsetInCell)  + ","s
+                + std::to_string(anchorTopRow)            + ","s
+                + std::to_string(anchorTopOffsetInCell)   + ","s
+                + std::to_string(anchorRightCol)          + ","s
+                + std::to_string(anchorRightOffsetInCell) + ","s
+                + std::to_string(anchorBottomRow)         + ","s
+                + std::to_string(anchorBottomOffsetInCell)
+            );
+        }
         clientData.setAutoFill(false);
         clientData.setTextVAlign(XLShapeTextVAlign::Top);
         clientData.setTextHAlign(XLShapeTextHAlign::Left);
@@ -414,6 +477,33 @@ bool XLComments::set(std::string cellRef, std::string commentText, uint16_t auth
         std::cout << "XLWorksheet::vmlDrawing: m_vmlDrawing is not ready yet!" << std::endl;
 
     return true;
+}
+
+/**
+ * @details
+ */
+XLShape XLComments::shape(std::string const& cellRef)
+{
+    if (!m_vmlDrawing->valid())
+        throw XLException("XLComments::shape: can not access any shapes when VML Drawing object is invalid");
+
+    XLCellReference destRef(cellRef);
+    uint32_t destRow = destRef.row() - 1;    // for accessing a shape: x:Row and x:Column are zero-indexed
+    uint16_t destCol = destRef.column() - 1; // ..
+
+    XMLNode shape = m_vmlDrawing->firstShapeNode();
+    while (not shape.empty()) {
+        if ((destRow == shape.child("x:ClientData").child("x:Row").text().as_uint())
+          &&(destCol == shape.child("x:ClientData").child("x:Column").text().as_uint()))
+            return XLShape(shape);
+        do {
+            shape = shape.next_sibling_of_type(pugi::node_element);
+        } while (not shape.empty() && shape.name() != OpenXLSX::ShapeNodeName);
+    }
+
+    using namespace std::literals::string_literals;
+    throw XLException("XLComments::shape: not found for cell "s + cellRef + " - was XLComment::set invoked first?"s);
+    return XLShape();
 }
 
 /**

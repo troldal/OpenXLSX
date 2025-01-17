@@ -58,19 +58,9 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLXmlData.hpp"
 #include "XLXmlFile.hpp"
 
-// workbook XML: <sheets><sheet>: get sheetId where name == <worksheet name>
-// --> sheetId should be equal comment ID ## in xl/comments##.xml
-// new comments XML:
+// TODO:
 //   add to [Content_Types].xml:
 //     <Override PartName="/xl/comments1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.comments+xml"/>
-//   create file xl/worksheets/_rels/sheet1.xml.rels, including directory, if it does not exist
-//   add to sheet relationships:
-// <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-//     <Relationship Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/comments" Target="/xl/comments1.xml" Id="R31ace4858b334db2"/>
-// </Relationships>
-// Id seems to be unused, so... whatever :)  but should use GetNewRelsID
-// TBD if the XLRelationships functionality can be re-used, or GetNewRelsID needs to be exported (currently local to the module in
-//  an anonymous namespace)
 
 namespace OpenXLSX
 {
@@ -154,14 +144,12 @@ namespace OpenXLSX
 
         bool deleteComment(const std::string& cellRef);
 
-        std::string get(const std::string& cellRef) const;
-
         /**
          * @brief get the comment (if any) for the referenced cell
          * @param cellRef the cell address to check
          * @return the comment for this cell - an empty string if no comment is set
          */
-        std::string get(std::string cellRef) const;
+        std::string get(std::string const& cellRef) const;
 
         /**
          * @brief set the comment for the referenced cell
@@ -170,7 +158,12 @@ namespace OpenXLSX
          * @param authorId set this author
          * @return true upon success, false on failure
          */
-        bool set(std::string cellRef, std::string comment, uint16_t authorId = 0);
+        bool set(std::string const& cellRef, std::string const& comment, uint16_t authorId = 0);
+
+        /**
+         * @brief get the XLShape object for this comment
+         */
+        XLShape shape(std::string const& cellRef);
 
         /**
          * @brief Print the XML contents of this XLComments instance using the underlying XMLNode print function

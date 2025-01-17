@@ -68,6 +68,9 @@ namespace OpenXLSX
 		// 	<div style="text-align:left;"/>
 		// </v:textbox>
 
+    extern const std::string ShapeNodeName;     // = "v:shape"
+    extern const std::string ShapeTypeNodeName; // = "v:shapetype"
+
     // NOTE: numerical values of XLShapeTextVAlign and XLShapeTextHAlign are shared with the same alignments from XLAlignmentStyle (XLStyles.hpp)
     enum class XLShapeTextVAlign : uint8_t {
         Center           =   3, // value="center",           both
@@ -181,6 +184,91 @@ namespace OpenXLSX
      };
 
 
+    struct XLShapeStyleAttribute {
+        std::string name;
+        std::string value;
+    };
+
+    class OPENXLSX_EXPORT XLShapeStyle {
+    public:
+        /**
+         * @brief
+         */
+        XLShapeStyle();
+
+        /**
+         * @brief Constructor. Init XLShapeStyle properties from styleAttribute
+         * @param styleAttribute a string with the value of the style attribute of a v:shape element
+         */
+        explicit XLShapeStyle(const std::string& styleAttribute);
+
+        /**
+         * @brief Constructor. Init XLShapeStyle properties from styleAttribute and link to the attribute so that setter functions directly modify it
+         * @param styleAttribute an XMLAttribute constructed with the style attribute of a v:shape element
+         */
+        explicit XLShapeStyle(const XMLAttribute& styleAttribute);
+
+    private:
+        /**
+         * @brief get index of an attribute name within m_nodeOrder
+         * @return index of attribute in m_nodeOrder
+         * @return -1 if not found
+         */
+        int16_t attributeOrderIndex(std::string const& attributeName) const;
+        /**
+         * @brief XLShapeStyle internal generic getter & setter functions
+         */
+        XLShapeStyleAttribute getAttribute(std::string const& attributeName, std::string const& valIfNotFound = "") const;
+        bool setAttribute(std::string const& attributeName, std::string const& attributeValue);
+        // bool setAttribute(XLShapeStyleAttribute const& attribute);
+
+    public:
+        /**
+         * @brief XLShapeStyle getter functions
+         */
+        std::string position() const;
+        uint16_t marginLeft() const;
+        uint16_t marginTop() const;
+        uint16_t width() const;
+        uint16_t height() const;
+        std::string msoWrapStyle() const;
+        std::string vTextAnchor() const;
+        bool hidden() const;
+        bool visible() const;
+
+        std::string raw() const { return m_style; }
+
+        /**
+         * @brief XLShapeStyle setter functions
+         */
+        bool setPosition(std::string newPosition);
+        bool setMarginLeft(uint16_t newMarginLeft);
+        bool setMarginTop(uint16_t newMarginTop);
+        bool setWidth(uint16_t newWidth);
+        bool setHeight(uint16_t newHeight);
+        bool setMsoWrapStyle(std::string newMsoWrapStyle);
+        bool setVTextAnchor(std::string newVTextAnchor);
+        bool hide(); // set visibility:hidden
+        bool show(); // set visibility:visible
+
+        bool setRaw(std::string newStyle) { m_style = newStyle; return true; }
+
+    private:
+        mutable std::string m_style; // mutable so getter functions can update it from m_styleAttribute if the latter is not empty
+        std::unique_ptr<XMLAttribute> m_styleAttribute;
+        inline static const std::vector< std::string_view > m_nodeOrder = {
+            "position",
+            "margin-left",
+            "margin-top",
+            "width",
+            "height",
+            "mso-wrap-style",
+            "v-text-anchor",
+            "visibility"
+        };
+    };
+
+
     class OPENXLSX_EXPORT XLShape {
         friend class XLVmlDrawing;    // for access to m_shapeNode in XLVmlDrawing::addShape
     public:    // ---------- Public Member Functions ---------- //
@@ -234,9 +322,7 @@ namespace OpenXLSX
         bool stroked() const;          // v:shape attribute stroked "t" ("f"?)
         std::string type() const;      // v:shape attribute type, link to v:shapetype attribute id
         bool allowInCell() const;      // v:shape attribute o:allowincell "f"
-        std::string style() const;     // v:shape attribute style
-        // // Example: style="position:absolute;margin-left:258pt;margin-top:0pt;width:81.65pt;height:50.9pt;mso-wrap-style:none;v-text-anchor:middle;visibility:hidden">
-        // // ==> should probably create a subclass XLShapeStyle to further disassemble this attribute
+        XLShapeStyle style();          // v:shape attribute style, but constructed from the XMLAttribute
 
         // XLShapeShadow& shadow();          // v:shape subnode v:shadow
         // XLShapeFill& fill();              // v:shape subnode v:fill
@@ -251,11 +337,12 @@ namespace OpenXLSX
          * @return true for success, false for failure
          */
         // NOTE: setShapeId is not available because shape id is managed by the parent class in createShape
-        bool setFillColor(std::string newFillColor);
+        bool setFillColor(std::string const& newFillColor);
         bool setStroked(bool set);
-        bool setType(std::string newType);
+        bool setType(std::string const& newType);
         bool setAllowInCell(bool set);
-        bool setStyle(std::string newStyle);
+        bool setStyle(std::string const& newStyle);
+        bool setStyle(XLShapeStyle const& newStyle);
 
     private:                                         // ---------- Private Member Variables ---------- //
         std::unique_ptr<XMLNode> m_shapeNode;        /**< An XMLNode object with the v:shape item */
@@ -275,6 +362,7 @@ namespace OpenXLSX
     class OPENXLSX_EXPORT XLVmlDrawing : public XLXmlFile
     {
         friend class XLWorksheet;   // for access to XLXmlFile::getXmlPath
+        friend class XLComments;    // for access to firstShapeNode
     public:
         /**
          * @brief Constructor
