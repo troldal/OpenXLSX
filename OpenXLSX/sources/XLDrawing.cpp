@@ -487,7 +487,6 @@ XLVmlDrawing::XLVmlDrawing(XLXmlData* xmlData)
             shapeTypeNode = shapeTypeNode.next_sibling_of_type(pugi::node_element);
     }
     if (shapeTypeNode.empty()) {
-        std::cout << "XLVmlDrawing constructor found no v:shadetype node yet" << std::endl;
         shapeTypeNode = rootNode.prepend_child(ShapeTypeNodeName.c_str(), XLForceNamespace);
         rootNode.prepend_child(pugi::node_pcdata).set_value("\n\t");
     }

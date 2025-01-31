@@ -70,6 +70,7 @@ namespace OpenXLSX
      */
     enum class XLContentType : uint8_t {
         Workbook,
+        Relationships,
         WorkbookMacroEnabled,
         Worksheet,
         Chartsheet,

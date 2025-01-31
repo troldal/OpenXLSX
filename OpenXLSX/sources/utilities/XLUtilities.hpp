@@ -81,6 +81,7 @@ namespace OpenXLSX
         using namespace OpenXLSX;
         switch (t) {
             case XLContentType::Workbook: return "Workbook";
+            case XLContentType::Relationships: return "Relationships";
             case XLContentType::WorkbookMacroEnabled: return "WorkbookMacroEnabled";
             case XLContentType::Worksheet: return "Worksheet";
             case XLContentType::Chartsheet: return "Chartsheet";

@@ -55,39 +55,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 using namespace OpenXLSX;
 
-namespace OpenXLSX {
-    std::string XLContentTypeToString( XLContentType type )
-    {
-        switch( type ) {
-            case XLContentType::Workbook: return "Workbook";
-            case XLContentType::WorkbookMacroEnabled: return "WorkbookMacroEnabled";
-            case XLContentType::Worksheet: return "Worksheet";
-            case XLContentType::Chartsheet: return "Chartsheet";
-            case XLContentType::ExternalLink: return "ExternalLink";
-            case XLContentType::Theme: return "Theme";
-            case XLContentType::Styles: return "Styles";
-            case XLContentType::SharedStrings: return "SharedStrings";
-            case XLContentType::Drawing: return "Drawing";
-            case XLContentType::Chart: return "Chart";
-            case XLContentType::ChartStyle: return "ChartStyle";
-            case XLContentType::ChartColorStyle: return "ChartColorStyle";
-            case XLContentType::ControlProperties: return "ControlProperties";
-            case XLContentType::CalculationChain: return "CalculationChain";
-            case XLContentType::VBAProject: return "VBAProject";
-            case XLContentType::CoreProperties: return "CoreProperties";
-            case XLContentType::ExtendedProperties: return "ExtendedProperties";
-            case XLContentType::CustomProperties: return "CustomProperties";
-            case XLContentType::Comments: return "Comments";
-            case XLContentType::Table: return "Table";
-            case XLContentType::VMLDrawing: return "VMLDrawing";
-            case XLContentType::Unknown: [[fallthrough]];
-            default: return "(unknown)";
-        }
-    }
-} // namespace OpenXLSX
+namespace { // anonymous namespace for local functions
 
-namespace
-{
     const std::string applicationOpenXmlOfficeDocument = "application/vnd.openxmlformats-officedocument";
     const std::string applicationOpenXmlPackage        = "application/vnd.openxmlformats-package";
     const std::string applicationMicrosoftExcel        = "application/vnd.ms-excel";
@@ -106,6 +75,8 @@ namespace
             type = XLContentType::WorkbookMacroEnabled;
         else if (typeString == applicationOpenXmlOfficeDocument + ".spreadsheetml.sheet.main+xml")
             type = XLContentType::Workbook;
+        else if (typeString == applicationOpenXmlPackage + ".relationships+xml")
+            type = XLContentType::Relationships;
         else if (typeString == applicationOpenXmlOfficeDocument + ".spreadsheetml.worksheet+xml")
             type = XLContentType::Worksheet;
         else if (typeString == applicationOpenXmlOfficeDocument + ".spreadsheetml.chartsheet+xml")
@@ -161,6 +132,8 @@ namespace
             typeString = applicationMicrosoftExcel + ".Sheet.macroEnabled.main+xml";
         else if (type == XLContentType::Workbook)
             typeString = applicationOpenXmlOfficeDocument + ".spreadsheetml.sheet.main+xml";
+        else if (type == XLContentType::Relationships)
+            typeString = applicationOpenXmlPackage + ".relationships+xml";
         else if (type == XLContentType::Worksheet)
             typeString = applicationOpenXmlOfficeDocument + ".spreadsheetml.worksheet+xml";
         else if (type == XLContentType::Chartsheet)
@@ -204,7 +177,7 @@ namespace
 
         return typeString;
     }
-}    // namespace
+}    // anonymous namespace
 
 /**
  * @details

@@ -1625,9 +1625,10 @@ std::string XLWorksheet::sheetProtectionSummary() const
 /**
  * @details functions to test whether a VMLDrawing / Comments / Tables entry exists for this worksheet (without creating those entries)
  */
-bool XLWorksheet::hasVmlDrawing() const { return parentDoc().hasSheetVmlDrawing(sheetXmlNumber()); }
-bool XLWorksheet::hasComments()   const { return parentDoc().hasSheetComments(  sheetXmlNumber()); }
-bool XLWorksheet::hasTables()     const { return parentDoc().hasSheetTables(    sheetXmlNumber()); }
+bool XLWorksheet::hasRelationships() const { return parentDoc().hasSheetRelationships(sheetXmlNumber()); }
+bool XLWorksheet::hasVmlDrawing()    const { return parentDoc().hasSheetVmlDrawing(   sheetXmlNumber()); }
+bool XLWorksheet::hasComments()      const { return parentDoc().hasSheetComments(     sheetXmlNumber()); }
+bool XLWorksheet::hasTables()        const { return parentDoc().hasSheetTables(       sheetXmlNumber()); }
 
 /**
  * @details fetches XLVmlDrawing for the sheet - creates & assigns the class if empty

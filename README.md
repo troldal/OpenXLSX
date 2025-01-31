@@ -7,6 +7,13 @@ Microsoft Excel® files, with the .xlsx format.
 
 As the heading says - the latest "Release" that is shown on https://github.com/troldal/OpenXLSX/releases is from 2021-11-06, and severely outdated - please pull / download the latest SW version directly from the repository in its current state. Link for those that do not want to use ```git```: https://github.com/troldal/OpenXLSX/archive/refs/heads/master.zip
 
+## (aral-matrix) 31 January 2025 - Support for comments mostly complete - still in testing stage
+Sorry for the long silence, I had some other obligations to attend to. Today I implemented the correct "overrides" for spreadsheet dependencies in the document global ```[Content Types].xml```. The override for worksheet relationships required a new XLContentType::Relationship, which I added (and in the process I removed a redundant ```XLContentTypeToString``` function from ```XLContentTypes.cpp```, as a function ```XLContentTypeString``` already exists in ```utilities/XLUtilities.hpp```).
+
+Also implemented:
+* XLComment class and the possibility to iterate over only *existing* comments in a worksheet (see ```Examples/Demo1.cpp```) as they appear in the underlying XML. This is much more practical when searching for comments in a worksheet created by another application.
+* proper "load upon access" for worksheet dependencies, so that worksheet relationships, comments, table and vmlDrawing files will not be loaded into the XMLDocument managed objects unless actually accessed by the user. The files will still remain unchanged in the archive if not accessed.
+
 ## (aral-matrix) 17 January 2025 - Basic support for comments is implemented - testing stage
 The support for comments is now in a stage where it can be used - please refer to Demo01 line 124ff for a quick "howto".
 This feature is still in alpha stage, with a few open TBDs:

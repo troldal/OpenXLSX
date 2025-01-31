@@ -390,18 +390,20 @@ namespace OpenXLSX
         std::string extractXmlFromArchive(const std::string& path);
 
         /**
-         * @brief
-         * @param path
-         * @return
+         * @brief fetch the XLXmlData object as stored in m_data, throw XLInternalError if path is not found
+         * @param path The relative path of the file.
+         * @param doNotThrow if true, will return a nullptr if path is not found
+         * @return a pointer to the XLXmlData object stored in m_data (or nullptr, see doNotThrow)
          */
-        XLXmlData* getXmlData(const std::string& path);
+        XLXmlData* getXmlData(const std::string& path, bool doNotThrow = false);
 
         /**
-         * @brief
+         * @brief const overload of getXmlData
          * @param path
+         * @param doNotThrow
          * @return
          */
-        const XLXmlData* getXmlData(const std::string& path) const;
+        const XLXmlData* getXmlData(const std::string& path, bool doNotThrow = false) const;
 
         /**
          * @brief

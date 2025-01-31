@@ -54,11 +54,75 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 using namespace OpenXLSX;
 
-namespace OpenXLSX
-{
-    // placeholder for utility functions
+namespace {
+    // module-local utility functions
+    /**
+     * @details TODO: write doxygen headers for functions in this module
+     */
+    std::string getCommentString(XMLNode const & commentNode)
+    {
+        std::string result{};
 
-}    // namespace OpenXLSX
+        using namespace std::literals::string_literals;
+        XMLNode textElement = commentNode.child("text").first_child_of_type(pugi::node_element);
+        while (not textElement.empty()) {
+            if (textElement.name() == "t"s) {
+                result += textElement.first_child().value();
+            }
+            else if (textElement.name() == "r"s) { // rich text
+                XMLNode richTextSubnode = textElement.first_child_of_type(pugi::node_element);
+                while (not richTextSubnode.empty()) {
+                    if (textElement.name() == "t"s) {
+                        result += textElement.first_child().value();
+                    }
+                    else if (textElement.name() == "rPr"s) {} // ignore rich text formatting info
+                    else {} // ignore other nodes
+                    richTextSubnode = richTextSubnode.next_sibling_of_type(pugi::node_element);
+                }
+            }
+            else {} // ignore other elements (for now)
+            textElement = textElement.next_sibling_of_type(pugi::node_element);
+        }
+        return result;
+    }
+}    // namespace
+
+
+// ========== XLComment Member Functions
+
+/**
+ * @details
+ */
+// XLComment::XLComment()
+//  : m_commentNode(std::make_unique<XMLNode>())
+//  {}
+
+/**
+* @details
+*/
+XLComment::XLComment(const XMLNode& node)
+ : m_commentNode(std::make_unique<XMLNode>(node))
+ {}
+
+/**
+ * @brief Getter functions
+ */
+std::string XLComment::ref() const { return m_commentNode->attribute("ref").value(); }
+std::string XLComment::text() const { return getCommentString(*m_commentNode); }
+uint16_t XLComment::authorId() const { return static_cast<uint16_t>(m_commentNode->attribute("authorId").as_uint()); }
+
+/**
+ * @brief Setter functions
+ */
+bool XLComment::setText(std::string newText)
+{
+    m_commentNode->remove_children(); // clear previous text
+    XMLNode tNode = m_commentNode->prepend_child("text").prepend_child("t");   // insert <text><t/></text> nodes
+    tNode.append_attribute("xml:space").set_value("preserve");                // set <t> node attribute xml:space
+    return tNode.prepend_child(pugi::node_pcdata).set_value(newText.c_str()); // finally, insert <t> node_pcdata value
+}
+bool XLComment::setAuthorId(uint16_t newAuthorId) { return appendAndSetAttribute(*m_commentNode, "authorId", std::to_string(newAuthorId)).empty() == false; }
+
 
 // ========== XLComments Member Functions
 
@@ -105,8 +169,10 @@ XLComments::XLComments(const XLComments& other)
     : XLXmlFile(other),
       m_authors(other.m_authors),
       m_commentList(other.m_commentList),
-      m_vmlDrawing(std::make_unique<XLVmlDrawing>(*other.m_vmlDrawing))
+      m_vmlDrawing(std::make_unique<XLVmlDrawing>(*other.m_vmlDrawing)),
       // m_vmlDrawing(std::make_unique<XLVmlDrawing>(other.m_vmlDrawing ? *other.m_vmlDrawing : XLVmlDrawing())) // this can be used if other.m_vmlDrawing can be uninitialized
+      m_hintNode(other.m_hintNode),
+      m_hintIndex(other.m_hintIndex)
 {}
 
 /**
@@ -116,7 +182,9 @@ XLComments::XLComments(XLComments&& other) noexcept
     : XLXmlFile(other),
       m_authors(std::move(other.m_authors)),
       m_commentList(std::move(other.m_commentList)),
-      m_vmlDrawing(std::move(other.m_vmlDrawing))
+      m_vmlDrawing(std::move(other.m_vmlDrawing)),
+      m_hintNode(other.m_hintNode),
+      m_hintIndex(other.m_hintIndex)
 {}
 
 /**
@@ -129,6 +197,8 @@ XLComments& XLComments::operator=(XLComments&& other) noexcept
         m_authors          = std::move(other.m_authors);
         m_commentList      = std::move(other.m_commentList);
         m_vmlDrawing       = std::move(other.m_vmlDrawing);
+        m_hintNode         = std::move(other.m_hintNode);
+        m_hintIndex        = other.m_hintIndex;
     }
     return *this;
 }
@@ -164,6 +234,29 @@ XMLNode XLComments::authorNode(uint16_t index) const
         auth = auth.next_sibling_of_type(pugi::node_element);
     }
     return auth; // auth.empty() will be true if not found
+}
+
+/**
+ * @brief find a comment XML node by index (sequence within source XML)
+ * @param index the position (0-based) of the comment node to return
+ * @throws XLException if index is out of bounds vs. XLComments::count()
+ */
+XMLNode XLComments::commentNode(size_t index) const
+{
+    if( m_hintNode.empty() || m_hintIndex > index ) { // check if m_hintNode can be used - otherwise initialize it
+        m_hintNode = m_commentList.first_child_of_type(pugi::node_element);
+        m_hintIndex = 0;
+    }
+
+    while (not m_hintNode.empty() && m_hintIndex < index) {
+        ++m_hintIndex;
+        m_hintNode = m_hintNode.next_sibling_of_type(pugi::node_element);
+    }
+    if (m_hintNode.empty()) {
+        using namespace std::literals::string_literals;
+        throw XLException("XLComments::commentNode: index "s + std::to_string(index) + " is out of bounds"s);
+    }
+    return m_hintNode; // can be empty XMLNode if index is >= count
 }
 
 /**
@@ -274,8 +367,11 @@ bool XLComments::deleteComment(const std::string& cellRef)
 {
     XMLNode comment = commentNode(cellRef);
     if (comment.empty()) return false;
-    else
+    else {
         m_commentList.remove_child(comment);
+        m_hintNode = XMLNode{}; // reset hint after modification of comment list
+        m_hintIndex = 0;
+    }
     return true;
 }
 
@@ -296,38 +392,13 @@ bool XLComments::deleteComment(const std::string& cellRef)
 /**
  * @details TODO: write doxygen headers for functions in this module
  */
-std::string XLComments::get(const std::string& cellRef) const
-{
-    std::string result{};
-    XMLNode comment = commentNode(cellRef);
-
-    using namespace std::literals::string_literals;
-    XMLNode textElement = comment.child("text").first_child_of_type(pugi::node_element);
-    while (not textElement.empty()) {
-        if (textElement.name() == "t"s) {
-            result += textElement.first_child().value();
-        }
-        else if (textElement.name() == "r"s) { // rich text
-            XMLNode richTextSubnode = textElement.first_child_of_type(pugi::node_element);
-            while (not richTextSubnode.empty()) {
-                if (textElement.name() == "t"s) {
-                    result += textElement.first_child().value();
-                }
-                else if (textElement.name() == "rPr"s) {} // ignore rich text formatting info
-                else {} // ignore other nodes
-                richTextSubnode = richTextSubnode.next_sibling_of_type(pugi::node_element);
-            }
-        }
-        else {} // ignore other elements (for now)
-        textElement = textElement.next_sibling_of_type(pugi::node_element);
-    }
-    return result;
-}
+XLComment XLComments::get(size_t index) const { return XLComment(commentNode(index)); }
+std::string XLComments::get(const std::string& cellRef) const { return getCommentString(commentNode(cellRef)); }
 
 /**
  * @details TODO: write doxygen headers for functions in this module
  */
-bool XLComments::set(std::string const& cellRef, std::string const& commentText, uint16_t authorId)
+bool XLComments::set(std::string const& cellRef, std::string const& commentText, uint16_t authorId_)
 {
     XLCellReference destRef(cellRef);
     uint32_t destRow = destRef.row();
@@ -367,10 +438,16 @@ bool XLComments::set(std::string const& cellRef, std::string const& commentText,
             comment.remove_children();    // clear node content
     }
 
+    // ===== If the list of nodes was modified, re-set m_hintNode that is used to access nodes by index
+    if (newCommentCreated) {
+        m_hintNode = XMLNode{}; // reset hint after modification of comment list
+        m_hintIndex = 0;
+    }
+
     // now that we have a valid comment node: update attributes and content
     if (comment.attribute("ref").empty())                                  // if ref has to be created
         comment.append_attribute("ref").set_value(destRef.address().c_str()); // then do so - otherwise it can remain untouched
-    appendAndSetAttribute(comment, "authorId", std::to_string(authorId));  // update authorId
+    appendAndSetAttribute(comment, "authorId", std::to_string(authorId_)); // update authorId
     XMLNode tNode = comment.prepend_child("text").prepend_child("t");      // insert <text><t/></text> nodes
     tNode.append_attribute("xml:space").set_value("preserve");             // set <t> node attribute xml:space
     tNode.prepend_child(pugi::node_pcdata).set_value(commentText.c_str()); // finally, insert <t> node_pcdata value
@@ -474,7 +551,7 @@ bool XLComments::set(std::string const& cellRef, std::string const& commentText,
 	// </v:shape>
     }
     else
-        std::cout << "XLWorksheet::vmlDrawing: m_vmlDrawing is not ready yet!" << std::endl;
+        throw XLException("XLComments::set: can not set (format) any comments when VML Drawing object is invalid");
 
     return true;
 }

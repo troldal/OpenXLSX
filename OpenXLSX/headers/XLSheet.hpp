@@ -1201,9 +1201,14 @@ namespace OpenXLSX
         std::string sheetProtectionSummary() const;
 
         /**
+         * @brief test whether a worksheet relationships XML file exists for this worksheet
+         */
+        bool hasRelationships() const;
+
+        /**
          * @brief test whether a VML drawing XML file exists for this worksheet
          */
-        bool hasVmlDrawing()  const;
+        bool hasVmlDrawing() const;
 
         /**
          * @brief test whether a comments XML file exists for this worksheet
@@ -1213,7 +1218,7 @@ namespace OpenXLSX
         /**
          * @brief test whether a tables XML file exists for this worksheet
          */
-        bool hasTables()   const;
+        bool hasTables() const;
 
         /**
          * @brief fetch a reference to the worksheet VML drawing object

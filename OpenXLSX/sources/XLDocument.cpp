@@ -517,9 +517,11 @@ void XLDocument::open(const std::string& fileName)
         bool isWorkbookPath = (item.path().substr(1) == workbookPath);      // determine once, use thrice
         if (!isWorkbookPath && item.path().substr(0, 4) == "/xl/") {
             if ((item.path().substr(4, 7) == "comment")
-                   ||(item.path().substr(4, 18) == "drawing/vmlDrawing")
-                   ||(item.path().substr(4, 12) == "tables/table")) {
-                // no-op - TODO: implement proper loading of worksheet dependencies - m_wbkRelationships would not find these
+                   ||(item.path().substr(4, 12) == "tables/table")
+                   ||(item.path().substr(4, 19) == "drawings/vmlDrawing")
+                   ||(item.path().substr(4, 22) == "worksheets/_rels/sheet")
+               ) {
+                // no-op - worksheet dependencies will be loaded on access through the worksheet
             }
             else if ((item.path().substr(4, 16) == "worksheets/sheet")
                    ||(item.path().substr(4)     == "sharedStrings.xml")
@@ -530,48 +532,6 @@ void XLDocument::open(const std::string& fileName)
                                     /* xmlPath   */ item.path().substr(1),
                                     /* xmlID     */ m_wbkRelationships.relationshipByTarget(item.path().substr(4)).id(),
                                     /* xmlType   */ item.type());
-
-                /*** BEGIN: dirty workaround to load worksheet dependencies ***/
-                if (item.path().substr(4, 16) == "worksheets/sheet") {
-                    // TODO: implement actual content type overrides (and/or check sheet dependencies from sheet relationships)
-                    size_t pos = item.path().rfind(".xml");
-                    if (pos != std::string::npos) {
-                        uint16_t sheetXmlNo = static_cast<uint16_t>(std::stoi(
-                            item.path().substr(20, pos - 20)  // determine number between /xl/worksheets/sheet and .xml
-                        ));
-                        // std::cout << "loaded a worksheet with sheetXmlNo " << sheetXmlNo << std::endl;
-
-                        using namespace std::literals::string_literals;
-                        std::string relsFilename = "xl/worksheets/_rels/sheet"s + std::to_string(sheetXmlNo) + ".xml.rels"s;
-                        if (m_archive.hasEntry(relsFilename)) {
-                            // only add to m_data if not already contained
-                            if (m_data.end() == std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& theItem) { return theItem.getXmlPath() == relsFilename; }))
-                                m_data.emplace_back(this, relsFilename, "", XLContentType::CustomProperties);
-                        }
-
-                        std::string vmlDrawingFilename = "xl/drawings/vmlDrawing"s + std::to_string(sheetXmlNo) + ".vml"s;
-                        if (m_archive.hasEntry(vmlDrawingFilename)) {
-                            // only add to m_data if not already contained
-                            if (m_data.end() == std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& theItem) { return theItem.getXmlPath() == vmlDrawingFilename; }))
-                                m_data.emplace_back(this, vmlDrawingFilename, "", XLContentType::VMLDrawing);
-                        }
-
-                        std::string commentsFilename = "xl/comments"s + std::to_string(sheetXmlNo) + ".xml"s;
-                        if (m_archive.hasEntry(commentsFilename)) {
-                            // only add to m_data if not already contained
-                            if (m_data.end() == std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& theItem) { return theItem.getXmlPath() == commentsFilename; }))
-                                m_data.emplace_back(this, commentsFilename, "", XLContentType::Comments);
-                        }
-
-                        std::string tablesFilename = "xl/tables/table"s + std::to_string(sheetXmlNo) + ".xml"s;
-                        if (m_archive.hasEntry(tablesFilename)) {
-                            // only add to m_data if not already contained
-                            if (m_data.end() == std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& theItem) { return theItem.getXmlPath() == tablesFilename; }))
-                                m_data.emplace_back(this, tablesFilename, "", XLContentType::Table);
-                        }
-                    }
-                }
-                /*** END: dirty workaround to load worksheet dependencies ***/
             }
             else {
                 if( !m_suppressWarnings )
@@ -1102,54 +1062,81 @@ XLRelationships XLDocument::sheetRelationships(uint16_t sheetXmlNo)
 {
     using namespace std::literals::string_literals;
     std::string relsFilename = "xl/worksheets/_rels/sheet"s + std::to_string(sheetXmlNo) + ".xml.rels"s;
-    if (!m_archive.hasEntry(relsFilename)) {
-        // ===== Create the sheet relationships file within the archive and add it to the managed files
-        m_archive.addEntry(relsFilename, "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");    // create empty rels file, class constructor will do the rest
-        m_data.emplace_back(this, relsFilename, "", XLContentType::CustomProperties);
-    }
 
-    return XLRelationships(getXmlData(relsFilename), relsFilename);
+    if (!m_archive.hasEntry(relsFilename)) {
+        // ===== Create the sheet relationships file within the archive
+        m_archive.addEntry(relsFilename, "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");  // empty XML file, class constructor will do the rest
+        m_contentTypes.addOverride("/" + relsFilename, XLContentType::Relationships);                       // add content types entry
+    }
+    constexpr const bool DO_NOT_THROW = true;
+    XLXmlData *xmlData = getXmlData(relsFilename, DO_NOT_THROW);
+    if (xmlData == nullptr) // if not yet managed: add the sheet relationships file to the managed files
+        xmlData = &m_data.emplace_back(this, relsFilename, "", XLContentType::Relationships);
+
+    return XLRelationships(xmlData, relsFilename);
 }
 
+/**
+* @details return an XLVmlDrawing item for sheet with sheetXmlNo - create the underlying XML and add it to the archive if needed
+*/
 XLVmlDrawing XLDocument::sheetVmlDrawing(uint16_t sheetXmlNo)
 {
     using namespace std::literals::string_literals;
     std::string vmlDrawingFilename = "xl/drawings/vmlDrawing"s + std::to_string(sheetXmlNo) + ".vml"s;
 
     if (!m_archive.hasEntry(vmlDrawingFilename)) {
-        // ===== Create the sheet drawing file within the archive and add it to the managed files
-        m_archive.addEntry(vmlDrawingFilename, "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");    // create empty rels file, class constructor will do the rest
-        m_data.emplace_back(this, vmlDrawingFilename, "", XLContentType::VMLDrawing);
+        // ===== Create the sheet drawing file within the archive
+        m_archive.addEntry(vmlDrawingFilename, "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");  // empty XML file, class constructor will do the rest
+        m_contentTypes.addOverride("/" + vmlDrawingFilename, XLContentType::VMLDrawing);                          // add content types entry
     }
+    constexpr const bool DO_NOT_THROW = true;
+    XLXmlData *xmlData = getXmlData(vmlDrawingFilename, DO_NOT_THROW);
+    if (xmlData == nullptr) // if not yet managed: add the sheet drawing file to the managed files
+        xmlData = &m_data.emplace_back(this, vmlDrawingFilename, "", XLContentType::VMLDrawing);
 
-    return XLVmlDrawing(getXmlData(vmlDrawingFilename));
+    return XLVmlDrawing(xmlData);
 }
 
+/**
+* @details return an XLComments item for sheet with sheetXmlNo - create the underlying XML and add it to the archive if needed
+*/
 XLComments XLDocument::sheetComments(uint16_t sheetXmlNo)
 {
     using namespace std::literals::string_literals;
     std::string commentsFilename = "xl/comments"s + std::to_string(sheetXmlNo) + ".xml"s;
 
     if (!m_archive.hasEntry(commentsFilename)) {
-        // ===== Create the sheet comments file within the archive and add it to the managed files
-        m_archive.addEntry(commentsFilename, "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");    // create empty rels file, class constructor will do the rest
-        m_data.emplace_back(this, commentsFilename, "", XLContentType::Comments);
+        // ===== Create the sheet comments file within the archive
+        m_archive.addEntry(commentsFilename, "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"); // empty XML file, class constructor will do the rest
+        m_contentTypes.addOverride("/" + commentsFilename, XLContentType::Comments);                           // add content types entry
     }
+    constexpr const bool DO_NOT_THROW = true;
+    XLXmlData *xmlData = getXmlData(commentsFilename, DO_NOT_THROW);
+    if (xmlData == nullptr) // if not yet managed: add the sheet comments file to the managed files
+        xmlData = &m_data.emplace_back(this, commentsFilename, "", XLContentType::Comments);
 
-    return XLComments(getXmlData(commentsFilename));
+    return XLComments(xmlData);
 }
 
+/**
+* @details return an XLTables item for sheet with sheetXmlNo - create the underlying XML and add it to the archive if needed
+*/
 XLTables XLDocument::sheetTables(uint16_t sheetXmlNo)
 {
     using namespace std::literals::string_literals;
     std::string tablesFilename = "xl/tables/table"s + std::to_string(sheetXmlNo) + ".xml"s;
 
     if (!m_archive.hasEntry(tablesFilename)) {
-        // ===== Create the sheet tables file within the archive and add it to the managed files
-        m_archive.addEntry(tablesFilename, "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");    // create empty rels file, class constructor will do the rest
-        m_data.emplace_back(this, tablesFilename, "", XLContentType::Table);
+        // ===== Create the sheet tables file within the archive
+        m_archive.addEntry(tablesFilename, "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");   // empty XML file, class constructor will do the rest
+        m_contentTypes.addOverride("/" + tablesFilename, XLContentType::Table);                                // add content types entry
     }
-    return XLTables(getXmlData(tablesFilename));
+    constexpr const bool DO_NOT_THROW = true;
+    XLXmlData *xmlData = getXmlData(tablesFilename, DO_NOT_THROW);
+    if (xmlData == nullptr) // if not yet managed: add the sheet tables file to the managed files
+        xmlData = &m_data.emplace_back(this, tablesFilename, "", XLContentType::Table);
+
+    return XLTables(xmlData);
 }
 
 /**
@@ -1417,24 +1404,25 @@ std::string XLDocument::extractXmlFromArchive(const std::string& path)
 /**
  * @details
  */
-XLXmlData* XLDocument::getXmlData(const std::string& path)
+XLXmlData* XLDocument::getXmlData(const std::string& path, bool doNotThrow)
 {
-    if (!hasXmlData(path)) throw XLInternalError("Path " + path + " does not exist in zip archive.");
-    return &*std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) { return item.getXmlPath() == path; });
-    //    auto result = std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) { return item.getXmlPath() == path; });
-    //    if (result == m_data.end()) throw XLInternalError("Path does not exist in zip archive.");
-    //    return &*result;
+    std::list<XLXmlData>::iterator result = std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) { return item.getXmlPath() == path; });
+    if (result == m_data.end()) {
+        if (doNotThrow) return nullptr; // use with caution
+        else throw XLInternalError("Path " + path + " does not exist in zip archive.");
+    }
+    return &*result;
+    // if (!hasXmlData(path)) throw XLInternalError("Path " + path + " does not exist in zip archive.");
+    // return &*std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) { return item.getXmlPath() == path; });
 }
 
 /**
  * @details
  */
-const XLXmlData* XLDocument::getXmlData(const std::string& path) const
+const XLXmlData* XLDocument::getXmlData(const std::string& path, bool doNotThrow) const
 {
-    if (!hasXmlData(path)) throw XLInternalError("Path " + path + " does not exist in zip archive.");
-    return &*std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) { return item.getXmlPath() == path; });
-    //    if (result == m_data.end()) throw XLInternalError("Path does not exist in zip archive.");
-    //    return &*result;
+    // avoid duplication of code: use const_cast to invoke the non-const function overload and return a const value
+    return const_cast<XLXmlData const *>(const_cast<XLDocument *>(this)->getXmlData(path, doNotThrow));
 }
 
 /**

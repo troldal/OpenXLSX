@@ -5,6 +5,27 @@
 using namespace std;
 using namespace OpenXLSX;
 
+/**
+ * @brief demo how to iterate over all worksheet comments by sequence in XML - for few comments, this is substantially faster than testing each cell for a non-empty comment
+ * @param doc the XLDocument
+ * @return n/a
+ */
+void printAllDocumentComments(XLDocument const & doc)
+{
+    for( size_t i = 1; i <= doc.workbook().worksheetCount(); ++i ) {
+        auto wks = doc.workbook().worksheet(i);
+        if( wks.hasComments() ) {
+            std::cout << "worksheet(" << i << ") with name \"" << wks.name() << "\" has comments" << std::endl;
+            XLComments wksComments = wks.comments();
+            size_t commentCount = wksComments.count();
+            for( size_t idx = 0; idx < commentCount; ++idx ) {
+                XLComment com = wksComments.get(idx);
+                std::cout << "comment in " << com.ref() << ": \"" << com.text() << "\" (author: " << wksComments.author(com.authorId()) << ")" << std::endl;
+            }
+        }
+    }
+}
+
 int main()
 {
     cout << "********************************************************************************\n";
@@ -156,16 +177,18 @@ int main()
     for( uint16_t index = 0; index < authorCount; ++index )
         std::cout << "wksComments.author(" << (index) << ") is " << wksComments.author(index) << std::endl;
 
-    wksComments.set("A1", "this comment is for author #1", 0);
-    wksComments.set("B2", "this comment is for author #2", 1);
+    wksComments.set("A1", "this comment is for author #0", 0);
+    wksComments.set("B2", "this comment is for author #1", 1);
     wksComments.shape("B2").style().show(); // bit cumbersome to access, but it reflects the XML: <v:shape style="[..];visibility=visible">[..]</v:shape>
-    wksComments.set("C3", "this comment is for author #3", 2);
-    wksComments.set("C3", "this is an updated comment for author #3", 2); // overwrite a comment
+    wksComments.set("C3", "this comment is for author #2", 2);
+    wksComments.set("C3", "this is an updated comment for author #2", 2); // overwrite a comment
     wksComments.shape("C3").style().show();
-    wksComments.set("D1", "this comment is for author #5", 4);
+    wksComments.set("D1", "this comment is for author #4", 4);
     std::cout << std::endl;
     std::cout << "the comment in cell C4 is \"" << wksComments.get("C4") << "\"" << std::endl;
     std::cout << "the comment in cell B2 is \"" << wksComments.get("B2") << "\"" << std::endl;
+    std::cout << std::endl;
+    printAllDocumentComments(doc);
 
     std::cout << std::endl;
     std::cout << "XLWorksheet protection settings demo" << std::endl;
