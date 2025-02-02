@@ -174,3 +174,20 @@ void XLSharedStrings::clearString(int32_t index) const   // 2024-04-30: whitespa
         sharedStringNode.append_child("t");    // append an empty text node
     }
 }
+
+/**
+ * @details
+ */
+int32_t XLSharedStrings::rewriteXmlFromCache()
+{
+    int32_t writtenStrings = 0;
+    xmlDocument().document_element().remove_children();  // clear all existing XML
+    for (std::string& s : *m_stringCache) {
+        XMLNode textNode = xmlDocument().document_element().append_child("si").append_child("t");
+        if ((!s.empty()) && (s.front() == ' ' || s.back() == ' '))
+            textNode.append_attribute("xml:space").set_value("preserve");    // preserve spaces at begin/end of string
+        textNode.text().set(s.c_str());
+        ++writtenStrings;
+    }
+    return writtenStrings;
+}

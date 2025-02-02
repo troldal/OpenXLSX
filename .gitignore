@@ -33,6 +33,8 @@
 !/Benchmarks/2024-12-30-benchmarks-post-XLSharedStrings-by-ref
 !/Benchmarks/2025-01-09-benchmarks-post-conditionalFormatsAndSheetProtection
 !/Benchmarks/2025-01-10-benchmarks-post-XLCellValue-bugfix
+!/Benchmarks/2025-01-31-benchmarks-post-XLComments-implementation
+!/Benchmarks/2025-02-02-benchmarks-post-XLRowIterator-Rework
 
 # include Documentation folder
 !/Documentation

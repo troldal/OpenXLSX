@@ -1389,6 +1389,62 @@ XLQuery XLDocument::execQuery(const XLQuery& query) { return static_cast<const X
 */
 void XLDocument::setSavingDeclaration(XLXmlSavingDeclaration const& savingDeclaration) { m_xmlSavingDeclaration = savingDeclaration; }
 
+/**
+ * @details iterate over all worksheets, all rows, all columns and re-create the shared strings table in that order based on first use
+ */
+void XLDocument::cleanupSharedStrings()
+{
+    int32_t oldStringCount = m_sharedStringCache.size();
+    std::vector< int32_t > indexMap(oldStringCount, -1);      // indexMap[ oldIndex ] :== newIndex, -1 = not yet assigned
+    int32_t newStringCount = 1; // reserve index 0 for empty string, count here +1 for each unique shared string index that is in use in the worksheet
+
+    unsigned int worksheetCount = m_workbook.worksheetCount();
+    for (unsigned int wIndex = 1; wIndex <= worksheetCount; ++wIndex) {
+        XLWorksheet wks = m_workbook.worksheet(wIndex);
+        XLCellRange cellRange = wks.range();
+        for (XLCellIterator cellIt = cellRange.begin(); cellIt != cellRange.end(); ++cellIt) {
+            if (!cellIt.cellExists()) continue; // prevent cell creation by access for non-existing cells
+
+            // ===== Cell exists: check for shared strings & update index as needed
+            XLCell& cell = *cellIt;
+            if (cell.value().type() == XLValueType::String) {
+                XLCellValueProxy val = cell.value();
+                int32_t si = val.stringIndex();
+                if (indexMap[si] == -1) {    // shared string was not yet flagged as "in use"
+                    if (m_sharedStringCache[si].length() > 0)  // if shared string is not empty
+                        indexMap[si] = newStringCount++;          // add this shared string to the end of the new cache being rewritten and increment the counter
+                    else                                       // else
+                        indexMap[si] = 0;                         // assign the hardcoded index 0 reserved for the empty string in newStringCache
+                }
+                if (indexMap[si] != si)   // if the index changed
+                    val.setStringIndex(indexMap[si]);    // then update it for the cell
+            }
+        }
+    }
+
+    // ===== After all cells have been reindexed, newStringCount is now the exact amount of remaining strings,
+    //        and indexMap now contains the mapping to applied for reindexing.
+
+    // ===== Create a new shared strings cache.
+    std::vector<std::string> newStringCache(newStringCount);   // store the re-indexed strings here
+    // NOTE: newStringCache is vector because m_sharedStringCache may eventually be changed from std::deque to something else (std::map) for performance
+
+    newStringCache[0] = "";                                    // store empty string in first position
+    for (int32_t oldIdx = 0; oldIdx < oldStringCount; ++oldIdx) { // "steal" all std::strings that are still in use from existing string cache
+        if (int32_t newIdx = indexMap[oldIdx]; newIdx > 0)           // if string is still in use
+            newStringCache[newIdx] = std::move(m_sharedStringCache[oldIdx]); // NOTE: std::move invalidates the shared string cache -> not thread safe
+    }
+    m_sharedStringCache.clear(); // TBD: is this safe with strings that were std::move assigned to newStringCache?
+    // refill m_sharedStringCache cache from newStringCache
+    std::move(
+        newStringCache.begin(),
+        newStringCache.end(),
+        std::back_inserter(m_sharedStringCache)
+    );
+    if (static_cast<int32_t>(newStringCache.size()) != m_sharedStrings.rewriteXmlFromCache())
+        throw XLInternalError("XLDocument::cleanupSharedStrings: failed to rewrite shared string table - document would be corrupted");
+}
+
 //----------------------------------------------------------------------------------------------------------------------
 //           Protected Member Functions
 //----------------------------------------------------------------------------------------------------------------------

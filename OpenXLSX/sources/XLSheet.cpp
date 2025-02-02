@@ -1288,9 +1288,12 @@ XLCellReference XLWorksheet::lastCell() const noexcept { return { rowCount(), co
 uint16_t XLWorksheet::columnCount() const noexcept
 {
     uint16_t maxCount = 0;    // Pull request: Update XLSheet.cpp with correct type #176, Explicitely cast to unsigned short int #163
-    for (const auto& row : rows()) {
-        uint16_t cellCount = row.cellCount();
-        maxCount = std::max(cellCount, maxCount);
+    XLRowRange rowsRange = rows();
+    for (XLRowIterator rowIt = rowsRange.begin(); rowIt != rowsRange.end(); ++rowIt ) {
+        if (rowIt.rowExists()) {
+            uint16_t cellCount = rowIt->cellCount();
+            maxCount = std::max(cellCount, maxCount);
+        }
     }
     return maxCount;
 }

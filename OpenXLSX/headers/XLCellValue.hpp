@@ -421,14 +421,14 @@ namespace OpenXLSX
 
     /**
      * @brief The XLCellValueProxy class is used for proxy (or placeholder) objects for XLCellValue objects.
-     * @details The XLCellValueProxy class is used for proxy (or placeholder) objects for XLCellValue objects.
-     * The purpose is to enable implicit conversion during assignment operations. XLCellValueProxy objects
+     * @details The purpose is to enable implicit conversion during assignment operations. XLCellValueProxy objects
      * can not be constructed manually by the user, only through XLCell objects.
      */
     class OPENXLSX_EXPORT XLCellValueProxy
     {
         friend class XLCell;
         friend class XLCellValue;
+        friend class XLDocument; // for reindexing shared strings
 
     public:
         //---------- Public Member Functions ----------//
@@ -658,6 +658,20 @@ namespace OpenXLSX
          * @return An XLCellValue object.
          */
         XLCellValue getValue() const;
+
+        /**
+         * @brief get the shared string index of value
+         * @return the index in the shared strings table
+         * @return -1 if cell value is not a shared string
+         */
+        int32_t stringIndex() const;
+
+        /**
+         * @brief directly set the shared string index for cell, bypassing XLSharedStrings
+         * @return true if newIndex could be set
+         * @return false if newIndex < 0 or value is not already a shared string
+         */
+        bool setStringIndex(int32_t newIndex);
 
         //---------- Private Member Variables ---------- //
 

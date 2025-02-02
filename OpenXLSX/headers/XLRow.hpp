@@ -121,6 +121,18 @@ namespace OpenXLSX
         XLRow& operator=(XLRow&& other) noexcept;
 
         /**
+         * @brief test if row object has no (valid) content
+         * @return
+         */
+        bool empty() const;
+
+        /**
+         * @brief opposite of empty()
+         * @return
+         */
+        explicit operator bool() const;
+
+        /**
          * @brief Get the height of the row.
          * @return the row height.
          */
@@ -308,6 +320,17 @@ namespace OpenXLSX
          */
         XLRowIterator& operator=(XLRowIterator&& other) noexcept;
 
+    private:    // ===== Switch to private method that is used by the XLRowIterator increment operator++ and the dereference operators * and ->
+        static constexpr const bool XLCreateIfMissing      = true;     // code readability for updateCurrentRow parameter createIfMissing
+        static constexpr const bool XLDoNotCreateIfMissing = false;    //   "
+        /**
+         * @brief update m_currentRow by fetching (or inserting) a row at m_currentRowNumber
+         * @param createIfMissing m_currentRow will only be inserted if createIfMissing is true
+         */
+        void updateCurrentRow(bool createIfMissing);
+
+    public:     // ===== Switch back to public methods
+
         /**
          * @brief
          * @return
@@ -352,12 +375,40 @@ namespace OpenXLSX
          */
         explicit operator bool() const;
 
+        /**
+         * @brief determine whether the row that the iterator points to exists (m_currentRowNumber)
+         * @return true if XML already has an entry for that cell, otherwise false
+         */
+        bool rowExists();
+
+        /**
+         * @brief determine whether iterator is at 1 beyond the last row in range
+         * @return
+         */
+        bool endReached() const { return m_endReached; }
+
+        /**
+         * @brief get the row number corresponding to the current iterator position
+         * @return a row number, with m_lastRow + 1 for the beyond-the-end iterator
+         */
+        uint32_t rowNumber() const { return m_endReached ? m_lastRow + 1 : m_currentRowNumber; }
+
     private:
         std::unique_ptr<XMLNode> m_dataNode;       /**< */
         uint32_t                 m_firstRow { 1 }; /**< The cell reference of the first cell in the range */
         uint32_t                 m_lastRow { 1 };  /**< The cell reference of the last cell in the range */
         XLRow                    m_currentRow;     /**< */
         XLSharedStringsRef       m_sharedStrings;  /**< */
+
+        // helper variables for non-creating iterator functionality
+        bool                     m_endReached;           /**< */
+        XMLNode                  m_hintRow;              /**< The cell node of the last existing row found up to current iterator position */
+        uint32_t                 m_hintRowNumber;        /**<   the row number for m_hintRow */
+        static constexpr const int XLNotLoaded  = 0;    // code readability for m_currentRowStatus
+        static constexpr const int XLNoSuchRow  = 1;    //   "
+        static constexpr const int XLLoaded     = 2;    //   "
+        int                      m_currentRowStatus;    /**< Status of m_currentRow: XLNotLoaded, XLNoSuchRow or XLLoaded */
+        uint32_t                 m_currentRowNumber;
     };
 
     /**

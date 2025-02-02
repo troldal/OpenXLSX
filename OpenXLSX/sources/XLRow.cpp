@@ -48,6 +48,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== OpenXLSX Includes ===== //
 #include "XLCell.hpp"
+#include "XLCellIterator.hpp"
 #include "XLCellReference.hpp"
 #include "XLRow.hpp"
 #include "XLStyles.hpp"          // XLDefaultCellFormat
@@ -139,6 +140,16 @@ namespace OpenXLSX
         }
         return *this;
     }
+
+    /**
+     * @details
+     */
+    bool XLRow::empty() const { return (!m_rowNode) || m_rowNode->empty(); }
+
+    /**
+     * @details
+     */
+    XLRow::operator bool() const { return m_rowNode && (not m_rowNode->empty() ); }
 
     /**
      * @details Returns the m_height member by getValue.
@@ -377,12 +388,18 @@ namespace OpenXLSX
         : m_dataNode(std::make_unique<XMLNode>(*rowRange.m_dataNode)),
           m_firstRow(rowRange.m_firstRow),
           m_lastRow(rowRange.m_lastRow),
-          m_sharedStrings(rowRange.m_sharedStrings)
+          m_currentRow(),
+          m_sharedStrings(rowRange.m_sharedStrings),
+          m_endReached(false),
+          m_hintRow(),
+          m_hintRowNumber(0),
+          m_currentRowStatus(XLNotLoaded),
+          m_currentRowNumber(0)
     {
         if (loc == XLIteratorLocation::End)
-            m_currentRow = XLRow();
+            m_endReached = true;
         else {
-            m_currentRow = XLRow(getRowNode(*m_dataNode, m_firstRow), m_sharedStrings.get());
+            m_currentRowNumber = m_firstRow;
         }
     }
 
@@ -403,7 +420,12 @@ namespace OpenXLSX
           m_firstRow(other.m_firstRow),
           m_lastRow(other.m_lastRow),
           m_currentRow(other.m_currentRow),
-          m_sharedStrings(other.m_sharedStrings)
+          m_sharedStrings(other.m_sharedStrings),
+          m_endReached(other.m_endReached),
+          m_hintRow(other.m_hintRow),
+          m_hintRowNumber(other.m_hintRowNumber),
+          m_currentRowStatus(other.m_currentRowStatus),
+          m_currentRowNumber(other.m_currentRowNumber)
     {}
 
     /**
@@ -436,26 +458,80 @@ namespace OpenXLSX
     XLRowIterator& XLRowIterator::operator=(XLRowIterator&& other) noexcept = default;
 
     /**
+     * @brief update m_currentRow by fetching (or inserting) a row at m_currentRowNumber
+     */
+    void XLRowIterator::updateCurrentRow(bool createIfMissing)
+    {
+        // ===== Quick exit checks - can't be true when m_endReached
+        if (m_currentRowStatus == XLLoaded) return;                           // nothing to do, row is already loaded
+        if (!createIfMissing && m_currentRowStatus == XLNoSuchRow) return;    // nothing to do, row has already been determined as missing
+
+        // ===== At this stage, m_currentRowStatus is XLUnloaded or XLNoSuchRow and createIfMissing == true
+
+        if (m_endReached)
+            throw XLInputError("XLRowIterator updateCurrentRow: iterator should not be dereferenced when endReached() == true");
+
+        // ===== Row needs to be updated
+
+        if (m_hintRow.empty()) {  // no hint has been established: fetch first row node the "tedious" way
+            if (createIfMissing)     // getRowNode creates missing rows
+                m_currentRow = XLRow(getRowNode(*m_dataNode, m_currentRowNumber), m_sharedStrings.get());
+            else                    // findRowNode returns an empty row for missing rows
+                m_currentRow = XLRow(findRowNode(*m_dataNode, m_currentRowNumber), m_sharedStrings.get());
+        }
+        else {
+            // ===== Find or create, and fetch an XLRow at m_currentRowNumber
+            if (m_currentRowNumber > m_hintRowNumber) {
+                // ===== Start from m_hintRow and search forwards...
+                XMLNode rowNode = m_hintRow.next_sibling_of_type(pugi::node_element);
+                uint32_t rowNo = 0;
+                while (not rowNode.empty()) {
+                    rowNo = rowNode.attribute("r").as_ullong();
+                    if (rowNo >= m_currentRowNumber) break; // if desired row was reached / passed, break before incrementing rowNode
+                    rowNode = rowNode.next_sibling_of_type(pugi::node_element);
+                }
+                if (rowNo != m_currentRowNumber) rowNode = XMLNode{}; // if a higher row number was found, set empty node (means: "missing")
+
+                // ===== Create missing row node if createIfMissing == true
+                if (createIfMissing && rowNode.empty()) {
+                    rowNode = m_dataNode->insert_child_after("row", m_hintRow);
+                    rowNode.append_attribute("r").set_value(m_currentRowNumber);
+                }
+                if (rowNode.empty())    // if row could not be found / created
+                    m_currentRow = XLRow{}; // make sure m_currentRow is set to an empty cell
+                else
+                    m_currentRow = XLRow(rowNode, m_sharedStrings.get());
+            }
+            else
+                throw XLInternalError("XLRowIterator::updateCurrentRow: an internal error occured (m_currentRowNumber <= m_hintRowNumber)");
+        }
+
+        if (m_currentRow.empty())   // if row is confirmed missing
+            m_currentRowStatus = XLNoSuchRow;   // mark this status for further calls to updateCurrentRow()
+        else {
+            // ===== If the current row exists, update the hints
+            m_hintRow          = *m_currentRow.m_rowNode;   // don't store a full XLRow, just the XMLNode, for better performance
+            m_hintRowNumber    = m_currentRowNumber;
+            m_currentRowStatus = XLLoaded;                  // mark row status for further calls to updateCurrentRow()
+        }
+    }
+
+    /**
      * @details
      * @pre
      * @post
      */
     XLRowIterator& XLRowIterator::operator++()    // 2024-04-29: patched for whitespace
     {
-        const auto rowNumber = m_currentRow.rowNumber() + 1;
-        auto       rowNode   = m_currentRow.m_rowNode->next_sibling_of_type(pugi::node_element);
+        if (m_endReached)
+            throw XLInputError("XLRowIterator: tried to increment beyond end operator");
 
-        if (rowNumber > m_lastRow)
-            m_currentRow = XLRow();
-
-        else if (rowNode.empty() || rowNode.attribute("r").as_ullong() != rowNumber) {
-            rowNode = m_dataNode->insert_child_after("row", *m_currentRow.m_rowNode);
-            rowNode.append_attribute("r").set_value(rowNumber);
-            m_currentRow = XLRow(rowNode, m_sharedStrings.get());
-        }
-
+        if(m_currentRowNumber < m_lastRow)
+            ++m_currentRowNumber;
         else
-            m_currentRow = XLRow(rowNode, m_sharedStrings.get());
+            m_endReached = true;
+
+        m_currentRowStatus = XLNotLoaded; // trigger a new attempt to locate / create the row via updateRowCell
 
         return *this;
     }
@@ -477,28 +553,53 @@ namespace OpenXLSX
      * @pre
      * @post
      */
-    XLRow& XLRowIterator::operator*() { return m_currentRow; }
+    XLRow& XLRowIterator::operator*()
+    {
+        updateCurrentRow(XLCreateIfMissing);
+        return m_currentRow;
+    }
 
     /**
      * @details
      * @pre
      * @post
      */
-    XLRowIterator::pointer XLRowIterator::operator->() { return &m_currentRow; }
+    XLRowIterator::pointer XLRowIterator::operator->()
+    {
+        updateCurrentRow(XLCreateIfMissing);
+        return &m_currentRow;
+    }
 
     /**
      * @details
      * @pre
      * @post
      */
-    bool XLRowIterator::operator==(const XLRowIterator& rhs) const { return m_currentRow == rhs.m_currentRow; }
+    bool XLRowIterator::operator==(const XLRowIterator& rhs) const
+    {
+        if (m_endReached && rhs.m_endReached) return true;    // If both iterators are end iterators
+
+        if (m_currentRowNumber != rhs.m_currentRowNumber)     // If iterators point to a different row
+            return false;                                         // that means no match
+
+        // CAUTION: for performance reasons, disabled all checks whether this and rhs are iterators on the same worksheet & row range
+        return true;
+
+        // if (*m_dataNode != *rhs.m_dataNode) return false;     // TBD: iterators over different worksheets may never match
+        // TBD if iterators shall be considered not equal if they were created on different XLRowRanges
+        // this would require checking the m_firstRow and m_lastRow, potentially costing CPU time
+
+        // return m_currentRow == rhs.m_currentRow;   // match only if row nodes are equal
+        // CAUTION: in the current code, that means iterators that point to the same row in different worksheets,
+        // and rows that do not exist in both sheets, will be considered equal
+    }
 
     /**
      * @details
      * @pre
      * @post
      */
-    bool XLRowIterator::operator!=(const XLRowIterator& rhs) const { return not(m_currentRow == rhs.m_currentRow); }    // NOLINT
+    bool XLRowIterator::operator!=(const XLRowIterator& rhs) const { return !(*this == rhs); }
 
     /**
      * @details
@@ -506,6 +607,16 @@ namespace OpenXLSX
      * @post
      */
     XLRowIterator::operator bool() const { return false; }
+
+    /**
+     * @details
+     */
+    bool XLRowIterator::rowExists()
+    {
+        // ===== Update m_currentRow once so that rowExists will always test the correct cell (an empty row if current row doesn't exist)
+        updateCurrentRow(XLDoNotCreateIfMissing);
+        return not m_currentRow.empty();
+    }
 
 }    // namespace OpenXLSX
 

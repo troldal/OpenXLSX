@@ -78,6 +78,9 @@ namespace OpenXLSX
      */
     class OPENXLSX_EXPORT XLSharedStrings : public XLXmlFile
     {
+        //---------- Friend Declarations ----------//
+        friend class XLDocument; // for access to protected function rewriteXmlFromCache
+
         //----------------------------------------------------------------------------------------------------------------------
         //           Public Member Functions
         //----------------------------------------------------------------------------------------------------------------------
@@ -125,6 +128,12 @@ namespace OpenXLSX
          * @return
          */
         XLSharedStrings& operator=(XLSharedStrings&& other) noexcept = default;
+
+        /**
+         * @brief return the amount of shared string entries currently in the cache
+         * @return
+         */
+        int32_t stringCount() const { return m_stringCache->size(); }
 
         /**
          * @brief
@@ -175,6 +184,13 @@ namespace OpenXLSX
          * @brief print the XML contents of the shared strings document using the underlying XMLNode print function
          */
         void print(std::basic_ostream<char>& ostr) const;
+
+    protected:
+        /**
+         * @brief clear & rewrite the full shared strings XML from the shared strings cache
+         * @return the amount of strings written to XML (should be equal to m_stringCache->size())
+         */
+        int32_t rewriteXmlFromCache();
 
     private:
         std::deque<std::string>* m_stringCache {}; /** < Each string must have an unchanging memory address; hence the use of std::deque */

@@ -62,6 +62,14 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 namespace OpenXLSX
 {
+    /**
+     * @brief locate the XML row node within sheetDataNode for the row at rowNumber
+     * @param sheetDataNode the XML sheetData node to search in
+     * @param rowNumber the number of the row to locate
+     * @return the XMLNode pointing to the row, or an empty XMLNode if the row does not exist
+     */
+    XMLNode findRowNode(XMLNode sheetDataNode, uint32_t rowNumber);
+
     class OPENXLSX_EXPORT XLCellIterator
     {
     public:

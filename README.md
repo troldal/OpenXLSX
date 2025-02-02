@@ -7,38 +7,36 @@ Microsoft Excel® files, with the .xlsx format.
 
 As the heading says - the latest "Release" that is shown on https://github.com/troldal/OpenXLSX/releases is from 2021-11-06, and severely outdated - please pull / download the latest SW version directly from the repository in its current state. Link for those that do not want to use ```git```: https://github.com/troldal/OpenXLSX/archive/refs/heads/master.zip
 
-## (aral-matrix) 31 January 2025 - Support for comments mostly complete - still in testing stage
+## Recent changes
+
+### (aral-matrix) 02 February 2025 - Support for cleaning up shared strings (issue #193), XLRowIterator no longer creates missing rows unless iterator is dereferenced
+* ```XLDocument``` now has a member function ```void cleanupSharedStrings()``` that will reindex shared strings for the complete workbook and remove all shared strings that are no longer referenced anywhere, or that have been set to the empty string. This addresses https://github.com/troldal/OpenXLSX/issues/193.
+* Added support for non-creating ```XLRowIterator```: can now iterate over a range of rows and test ```bool XLRowIterator::rowExists()``` before accessing it. This allows to skip non-existing rows without creating them. Functionality is analogous to ```XLCellIterator``` and ```bool XLCellIterator::cellExists()```
+* Accordingly, fetching an ```XLWorksheet::range(..)``` will no longer create all missing rows in the range
+
+### (aral-matrix) 31 January 2025 - Support for comments mostly complete - still in testing stage
 Sorry for the long silence, I had some other obligations to attend to. Today I implemented the correct "overrides" for spreadsheet dependencies in the document global ```[Content Types].xml```. The override for worksheet relationships required a new XLContentType::Relationship, which I added (and in the process I removed a redundant ```XLContentTypeToString``` function from ```XLContentTypes.cpp```, as a function ```XLContentTypeString``` already exists in ```utilities/XLUtilities.hpp```).
 
 Also implemented:
 * XLComment class and the possibility to iterate over only *existing* comments in a worksheet (see ```Examples/Demo1.cpp```) as they appear in the underlying XML. This is much more practical when searching for comments in a worksheet created by another application.
 * proper "load upon access" for worksheet dependencies, so that worksheet relationships, comments, table and vmlDrawing files will not be loaded into the XMLDocument managed objects unless actually accessed by the user. The files will still remain unchanged in the archive if not accessed.
+* ```Override``` entries for the worksheet dependencies (comments, vmlDrawing, table) in ```[Content Types].xml```
 
-## (aral-matrix) 17 January 2025 - Basic support for comments is implemented - testing stage
+### (aral-matrix) 17 January 2025 - Basic support for comments is implemented - testing stage
 The support for comments is now in a stage where it can be used - please refer to Demo01 line 124ff for a quick "howto".
 This feature is still in alpha stage, with a few open TBDs:
 * the library currently assumes that comment entries are well sorted, first by row, then by column - if this is not the case, existing comments might not be readable / be found
 * the VML Drawing support is basic at best, for lack of documentation. I have made most features available through ```XLShape XLComments::shape(std::string const& cellRef)``` - for methods of XLShape please refer to the ```XLDrawing``` header file
-* missing support in XLShape for now:
-```
-    // XLShapeShadow& shadow();          // v:shape subnode v:shadow
-    // XLShapeFill& fill();              // v:shape subnode v:fill
-    // XLShapeStroke& stroke();          // v:shape subnode v:stroke
-    // XLShapePath& path();              // v:shape subnode v:path
-    // XLShapeTextbox& textbox();        // v:shape subnode v:textbox
-```
-* missing: library still needs to add ```Override``` entries for the worksheet dependencies (comments, vmlDrawing, table)
-* to be replaced with proper logic: library (XLDocument) currently loads worksheets dependencies in a workaround
 
-## (aral-matrix) 14 January 2025 - Support for comments is work in progress - unstable :)
+### (aral-matrix) 14 January 2025 - Support for comments is work in progress - unstable :)
 As the title says - I am working on comments support and will do the occasional commit to save my progress (aside from local backups). I will only submit patches that should not affect existing code stability, but if I break something (last patch I forgot to add a new module dependency to the cmake instructions), apologies for that - feel free to open an issue right away & I will try to fix it ASAP.
 I hope to finalize comments support (and possibly tables / filters) by the weekend.
 
-## (aral-matrix) 09 January 2025 - Support for XLWorksheet protection
+### (aral-matrix) 09 January 2025 - Support for XLWorksheet protection
 This patch addresses https://github.com/troldal/OpenXLSX/issues/311 by enabling worksheet protection. Exemplary usage has been added to Demo1.
 The latest patch also fixes some missing symbol exports when building the shared library - this addresses https://github.com/troldal/OpenXLSX/issues/316.
 
-## (aral-matrix) 08 January 2025 - Support for XLWorksheet conditional formatting (experimental)
+### (aral-matrix) 08 January 2025 - Support for XLWorksheet conditional formatting (experimental)
 This is a major patch to address https://github.com/troldal/OpenXLSX/issues/315 - conditional formatting is now implemented in an experimental stage.
 
 Please refer to ```Demo10.cpp``` lines 454ff for an example on how to use the functionality.
@@ -49,85 +47,6 @@ Please refer to ```Demo10.cpp``` lines 454ff for an example on how to use the fu
 * as the conditional formatting uses differential formats, and I am re-using XLStyles classes, there is currently an automatism that by accessing a format property, that property node gets created if it does not yet exist. For differential formats, this is undesired when testing whether a given setting exists. I have yet to implement something along the lines of ```bool settingExists(std::string settingName)```
 * I have implemented boolean values to be stored in XML as ```"true"``` and ```"false"``` - whereas LibreOffice appears to store them (for cfRules) as ```1``` and ```0```). The reason is: I want to know if this works, and if it does, stay consistent in how OpenXLSX stores boolean values. I may have to modify this as I learn more
 * Another boolean "gotcha": I do not yet know how MS Office evalutes attribute names that exist with an empty value, e.g. ```aboveAverage=""``` when for ```aboveAverage```, the documentation defines ```true``` as the default - does that mean an empty string gets evaluted as ```true```?
-
-## Recent changes
-
-### (aral-matrix) 13 January 2025 BUGFIX XLSheetBase::index() / XLDocument::execQuery: implemented XLQueryType::QuerySheetIndex
-* as the title says - the XLQueryType::QuerySheetIndex query implementation was missing from XLDocument::execQuery, meaning XLSheetBase::index() would either throw or return nonsense - today's patch finally implemented the function
-
-### (aral-matrix) 10 January 2025 deletion of worksheet rows from OOXML, bugfix for XLCellValue(Proxy)::get
-* added bool XLWorksheet::deleteRow(uint32_t rowNumber) - can be used to eliminate rows from OOXML - no renumbering of rows behind is performed, the row entry is simply removed from OOXML, this addresses https://github.com/troldal/OpenXLSX/issues/156
-* templated getter T XLCellValue(Proxy)::get() now uses a workaround (due to undefined behavior) when getting a temporary string_view or (const) char * - this functionality was only safe when called with a persistent XLCellValue(Proxy) variable - users should not use this template to fetch a string reference type as it may be removed in the future
-* introduced ```XLKeepCellValue::privateGet``` as a library internal that can be used with the old behavior for performance reasons, from functions that can guarantee the validity of the XLCellValue for the duration of access to the string reference
-* in line with the change to the templated getter, the ```std::ostream& operator<<```for XLCellValue and XLCellValueProxy now fetch string types as ```std::string```, this addresses https://github.com/troldal/OpenXLSX/issues/166
-
-### (aral-matrix) 10 January 2025 - bugfixes to XLDateTime, implicit conversion to double for integer, bool cell values
-* XLDateTime::tm() BUGFIX: added overflow handling in rounded seconds at the end of a minute to address https://github.com/troldal/OpenXLSX/issues/138
-* XLDateTime::tm() BUGFIX: account for fractions (time of day) in loops counting year & month
-* XLDateTime::tm() precaution: added safeguards against infinite loops counting year & month
-* XLCellValue: added implicit conversion from integer & bool for ```XLCellValue::get<double>()``` and ```XLCellValue::get<XLDateTime>()```. Note: implicit conversion from string is available in ```VisitXLCellValueTypeToDouble```, but disabled (forced throw)
-
-### (aral-matrix) 09 January 2025 - support for XLWorksheet protection
-* ensured that utility functions get exported to shared library build: ```XLCfTypeFromString```, ```XLCfTypeToString```, ```XLCfOperatorFromString```, ```XLCfOperatorToString```, ```XLCfTimePeriodFromString```, ```XLCfTimePeriodToString```
-* BUGFIX XLSheet: added ```XLSheet::isActive``` and ```XLSheet::setActive``` function definitions to ensure bug-free export of symbols to shared library - this addresses https://github.com/troldal/OpenXLSX/issues/316 - please do not ask me why this was never a problem for the static build, I am simply not smart enough to understand that :P
-* BUGFIX XLDocument: added explicit OPENXLSX_EXPORT macro to new global utility functions ```BinaryAsHexString```, ```ExcelPasswordHash```, ```ExcelPasswordHashAsString``` so that they are also exported when the shared library is being built
-* added ```ExcelPasswordHash``` and ```ExcelPasswordHashAsString``` to XLDocument as global utility functions
-* made ```BinaryAsHexString``` a global utility function so that XLWorksheet can use them as well
-* moved functions ```hexDigit``` and ```BinaryAsHexString``` from XLRelationships to XLDocument
-* added XLWorksheet protection settings demo to Demo1
-* added sheet protection & password (hash) functionality to XLWorksheet (exclusive, not for XLChartsheet) - see Demo1 for usage. This addresses https://github.com/troldal/OpenXLSX/issues/311
-    * setter functions:
-        * ```bool protectSheet(bool set = true)```
-        * ```bool protectObjects(bool set = true)```
-        * ```bool protectScenarios(bool set = true)```
-        * ```bool allowInsertColumns(bool set = true)```
-        * ```bool allowInsertRows(bool set = true)```
-        * ```bool allowDeleteColumns(bool set = true)```
-        * ```bool allowDeleteRows(bool set = true)```
-        * ```bool allowSelectLockedCells(bool set = true)```
-        * ```bool allowSelectUnlockedCells(bool set = true)```
-        * ```bool denyInsertColumns()```
-        * ```bool denyInsertRows()```
-        * ```bool denyDeleteColumns()```
-        * ```bool denyDeleteRows()```
-        * ```bool denySelectLockedCells()```
-        * ```bool denySelectUnlockedCells()```
-        * ```bool setPasswordHash(std::string hash)```
-        * ```bool setPassword(std::string password)```
-        * ```bool clearPassword()```
-        * ```bool clearSheetProtection()```
-    * getter functions:
-        * ```bool sheetProtected()```
-        * ```bool objectsProtected()```
-        * ```bool scenariosProtected()```
-        * ```bool insertColumnsAllowed()```
-        * ```bool insertRowsAllowed()```
-        * ```bool deleteColumnsAllowed()```
-        * ```bool deleteRowsAllowed()```
-        * ```bool selectLockedCellsAllowed()```
-        * ```bool selectUnlockedCellsAllowed()```
-        * ```std::string passwordHash()```
-        * ```bool passwordIsSet()```
-* added ```std::string XLWorksheet::sheetProtectionSummary()``` for easy control of established settings
-
-### (aral-matrix) 08 January 2025 - experimental support for XLWorksheet conditional formatting
-* XLWorksheet: added support for conditional formatting (rules)
-* XLStyles: added differential cell formats (dxfs) support required by conditional formatting
-* moved class ```XLUnsupportedElement``` from XLStyles to XLXmlFile header, so that XLWorksheet can use it for conditional formatting functionality
-* XLChartSheet: added ```bool isActive_impl()``` and ```bool setActive_impl()``` as no-op function stubs in the hopes this resolves https://github.com/troldal/OpenXLSX/issues/316
-
-### (aral-matrix) 30 December 2024 - removed ```XLWorkbook::sharedStrings``` and ```XLWorkbook::hasSharedStrings```
-* removed these (pointless) functions in the hopes that no one was using them - please report an issue if this causes a problem for you - if you can change the access method, ```XLDocument::sharedStrings()``` returns the same, and ```hasSharedStrings``` was always returning true anyways.
-
-### (aral-matrix) 25 December 2024 - XLStyles: fixed implementation of ```strike```(through) font property to address issue #314
-* XLStyles: if the attribute ```val``` is omitted in the ```<strike>``` XML tag, the value is now interpreted as ```true``` as described in the format specification - previously this was wrongly interpreted as "strikethrough is not set". This addresses issue https://github.com/troldal/OpenXLSX/issues/314
-
-### (aral-matrix) 20 December 2024 - XLXmlFile and derived classes (XLWorksheet!) now expose a ::valid() method
-* addressed https://github.com/troldal/OpenXLSX/issues/312 on a lower level, all classes derived from XLXmlFile now have a bool valid() method that will return true if a non-nullptr XML data block is linked to the class. For the user, this mostly matters in XLWorksheet, XLWorkbook & XLStyles
-* while addressing issue #312, implemented explicit copy/move constructors and assignment operators for XLStyles, which should also address https://github.com/troldal/OpenXLSX/issues/310
-
-### (aral-matrix) 19 December 2024 - XLStyles enhancement to address issues #304 and #305 - artificial ordering of XML elements
-* In order to address https://github.com/troldal/OpenXLSX/issues/304 and https://github.com/troldal/OpenXLSX/issues/305, some XLStyles classes now support a strict predefined XML element node order
 
 ## Change history
 
@@ -557,6 +476,106 @@ branch of this repository. However, I strongly recommend that you
 transition to the new version instead.
 
 <h2 id="detailed-change-log">Detailed change log</h2>
+
+### (aral-matrix) 02 February 2025 - Support for cleaning up shared strings (issue #193), XLRowIterator no longer creates missing rows unless iterator is dereferenced
+* ```XLDocument``` now has a member function ```void cleanupSharedStrings()``` that will reindex shared strings for the complete workbook and remove all shared strings that are no longer referenced anywhere, or that have been set to the empty string.
+* Added support for non-creating ```XLRowIterator```: can now iterate over a range of rows and test ```bool XLRowIterator::rowExists()``` before accessing it. This allows to skip non-existing rows without creating them. Functionality is analogous to ```XLCellIterator``` and ```bool XLCellIterator::cellExists()```
+* Accordingly, fetching an ```XLWorksheet::range(..)``` will no longer create all missing rows in the range
+* Added to ```XLCellValueProxy``` two functions to manipulate shared string indexes directly, bypassing ```XLSharedStrings```:
+    * private: ```int32_t stringIndex() const```
+    * private: ```bool setStringIndex(int32_t newIndex)```
+* Added to ```XLSharedStrings```:
+    * public: ```int32_t stringCount() const``` - returns the amount of strings currently in the shared strings cache
+    * protected: ```int32_t rewriteXmlFromCache()``` - called from ```XLDocument::cleanupSharedStrings``` - triggers a full wipe of the shared strings XML & re-creation from the string cache. Returns the number of shared strings written to XML
+* Added to ```XLRowIterator```:
+    * public: ```bool rowExists()``` - test whether the ```XLRowIterator``` currently points to a row that already exists in the XML
+    * public: ```bool endReached()``` - equivalent to (XLRowIterator) it == (XLRowRange) range.end()
+    * public: ```uint32_t rowNumber() const``` - return the current row that the iterator is pointing to (m_lastRow + 1 if endReached() == true)
+* added to ```XLRow```:
+    * public: ```bool empty() const``` returns true if the ```XLRow``` instance is not linked to valid XML
+    * public: ```explicit operator bool() const``` the opposite of ```empty()```
+* added a missing include of ```XLCellRange.hpp``` to ```XLSheet.hpp```
+
+### (aral-matrix) 17 January 2025 - Basic support for comments is implemented - testing stage
+The support for comments is now in a stage where it can be used - please refer to Demo01 line 124ff for a quick "howto".
+This feature is still in alpha stage, with a few open TBDs:
+* the library currently assumes that comment entries are well sorted, first by row, then by column - if this is not the case, existing comments might not be readable / be found
+* the VML Drawing support is basic at best, for lack of documentation. I have made most features available through ```XLShape XLComments::shape(std::string const& cellRef)``` - for methods of XLShape please refer to the ```XLDrawing``` header file
+* missing support in XLShape for now:
+```
+    // XLShapeShadow& shadow();          // v:shape subnode v:shadow
+    // XLShapeFill& fill();              // v:shape subnode v:fill
+    // XLShapeStroke& stroke();          // v:shape subnode v:stroke
+    // XLShapePath& path();              // v:shape subnode v:path
+    // XLShapeTextbox& textbox();        // v:shape subnode v:textbox
+```
+* missing: library still needs to add ```Override``` entries for the worksheet dependencies (comments, vmlDrawing, table)
+* to be replaced with proper logic: library (XLDocument) currently loads worksheets dependencies in a workaround
+
+### (aral-matrix) 13 January 2025 BUGFIX XLSheetBase::index() / XLDocument::execQuery: implemented XLQueryType::QuerySheetIndex
+* as the title says - the XLQueryType::QuerySheetIndex query implementation was missing from XLDocument::execQuery, meaning XLSheetBase::index() would either throw or return nonsense - today's patch finally implemented the function
+
+### (aral-matrix) 10 January 2025 deletion of worksheet rows from OOXML, bugfix for XLCellValue(Proxy)::get
+* added bool XLWorksheet::deleteRow(uint32_t rowNumber) - can be used to eliminate rows from OOXML - no renumbering of rows behind is performed, the row entry is simply removed from OOXML, this addresses https://github.com/troldal/OpenXLSX/issues/156
+* templated getter T XLCellValue(Proxy)::get() now uses a workaround (due to undefined behavior) when getting a temporary string_view or (const) char * - this functionality was only safe when called with a persistent XLCellValue(Proxy) variable - users should not use this template to fetch a string reference type as it may be removed in the future
+* introduced ```XLKeepCellValue::privateGet``` as a library internal that can be used with the old behavior for performance reasons, from functions that can guarantee the validity of the XLCellValue for the duration of access to the string reference
+* in line with the change to the templated getter, the ```std::ostream& operator<<```for XLCellValue and XLCellValueProxy now fetch string types as ```std::string```, this addresses https://github.com/troldal/OpenXLSX/issues/166
+
+### (aral-matrix) 10 January 2025 - bugfixes to XLDateTime, implicit conversion to double for integer, bool cell values
+* XLDateTime::tm() BUGFIX: added overflow handling in rounded seconds at the end of a minute to address https://github.com/troldal/OpenXLSX/issues/138
+* XLDateTime::tm() BUGFIX: account for fractions (time of day) in loops counting year & month
+* XLDateTime::tm() precaution: added safeguards against infinite loops counting year & month
+* XLCellValue: added implicit conversion from integer & bool for ```XLCellValue::get<double>()``` and ```XLCellValue::get<XLDateTime>()```. Note: implicit conversion from string is available in ```VisitXLCellValueTypeToDouble```, but disabled (forced throw)
+
+### (aral-matrix) 09 January 2025 - Support for XLWorksheet protection
+* ensured that utility functions get exported to shared library build: ```XLCfTypeFromString```, ```XLCfTypeToString```, ```XLCfOperatorFromString```, ```XLCfOperatorToString```, ```XLCfTimePeriodFromString```, ```XLCfTimePeriodToString```
+* BUGFIX XLSheet: added ```XLSheet::isActive``` and ```XLSheet::setActive``` function definitions to ensure bug-free export of symbols to shared library - this addresses https://github.com/troldal/OpenXLSX/issues/316 - please do not ask me why this was never a problem for the static build, I am simply not smart enough to understand that :P
+* BUGFIX XLDocument: added explicit OPENXLSX_EXPORT macro to new global utility functions ```BinaryAsHexString```, ```ExcelPasswordHash```, ```ExcelPasswordHashAsString``` so that they are also exported when the shared library is being built
+* added XLWorksheet protection settings demo to Demo1
+* added ```ExcelPasswordHash``` and ```ExcelPasswordHashAsString``` to XLDocument as global utility functions
+* made ```BinaryAsHexString``` a global utility function so that XLWorksheet can use them as well
+* moved functions ```hexDigit``` and ```BinaryAsHexString``` from XLRelationships to XLDocument
+* added sheet protection & password (hash) functionality to XLWorksheet (exclusive, not for XLChartsheet) - see Demo1 for usage. This addresses https://github.com/troldal/OpenXLSX/issues/311
+    * setter functions:
+        * ```bool protectSheet(bool set = true)```
+        * ```bool protectObjects(bool set = true)```
+        * ```bool protectScenarios(bool set = true)```
+        * ```bool allowInsertColumns(bool set = true)```
+        * ```bool allowInsertRows(bool set = true)```
+        * ```bool allowDeleteColumns(bool set = true)```
+        * ```bool allowDeleteRows(bool set = true)```
+        * ```bool allowSelectLockedCells(bool set = true)```
+        * ```bool allowSelectUnlockedCells(bool set = true)```
+        * ```bool denyInsertColumns()```
+        * ```bool denyInsertRows()```
+        * ```bool denyDeleteColumns()```
+        * ```bool denyDeleteRows()```
+        * ```bool denySelectLockedCells()```
+        * ```bool denySelectUnlockedCells()```
+        * ```bool setPasswordHash(std::string hash)```
+        * ```bool setPassword(std::string password)```
+        * ```bool clearPassword()```
+        * ```bool clearSheetProtection()```
+    * getter functions:
+        * ```bool sheetProtected()```
+        * ```bool objectsProtected()```
+        * ```bool scenariosProtected()```
+        * ```bool insertColumnsAllowed()```
+        * ```bool insertRowsAllowed()```
+        * ```bool deleteColumnsAllowed()```
+        * ```bool deleteRowsAllowed()```
+        * ```bool selectLockedCellsAllowed()```
+        * ```bool selectUnlockedCellsAllowed()```
+        * ```std::string passwordHash()```
+        * ```bool passwordIsSet()```
+* added ```std::string XLWorksheet::sheetProtectionSummary()``` for easy control of established settings
+
+### (aral-matrix) 08 January 2025 - Support for XLWorksheet conditional formatting (experimental)
+This is a major patch to address https://github.com/troldal/OpenXLSX/issues/315 - conditional formatting is now implemented in an experimental stage.
+* XLWorksheet: added support for conditional formatting (rules)
+* XLStyles: added differential cell formats (dxfs) support required by conditional formatting
+* moved class ```XLUnsupportedElement``` from XLStyles to XLXmlFile header, so that XLWorksheet can use it for conditional formatting functionality
+* XLChartSheet: added ```bool isActive_impl()``` and ```bool setActive_impl()``` as no-op function stubs in the hopes this resolves https://github.com/troldal/OpenXLSX/issues/316
 
 ### (aral-matrix) 30 December 2024 - removed ```XLWorkbook::sharedStrings``` and ```XLWorkbook::hasSharedStrings```
 * removed these (pointless) functions in the hopes that no one was using them - please report an issue if this causes a problem for you - if you can change the access method, ```XLDocument::sharedStrings()``` returns the same, and ```hasSharedStrings``` was always returning true anyways.

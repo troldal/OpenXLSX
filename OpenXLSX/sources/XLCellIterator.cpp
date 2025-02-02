@@ -55,6 +55,87 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 using namespace OpenXLSX;
 
+namespace OpenXLSX { // utility functions findRowNode and findCellNode
+    /**
+     * @details
+     */
+    XMLNode findRowNode(XMLNode sheetDataNode, uint32_t rowNumber)
+    {
+        if (rowNumber < 1 || rowNumber > OpenXLSX::MAX_ROWS) {
+            using namespace std::literals::string_literals;
+            throw XLCellAddressError("rowNumber "s + std::to_string( rowNumber ) + " is outside valid range [1;"s + std::to_string(OpenXLSX::MAX_ROWS) + "]"s);
+        }
+
+        // ===== Get the last child of sheetDataNode that is of type node_element.
+        XMLNode rowNode = sheetDataNode.last_child_of_type(pugi::node_element);
+
+        // ===== If there are now rows in the worksheet, or the requested row is beyond the current max row, return an empty node
+        if (rowNode.empty() || (rowNumber > rowNode.attribute("r").as_ullong()))
+            return XMLNode{};
+
+        // ===== If the requested node is closest to the end, start from the end and search backwards.
+        if (rowNode.attribute("r").as_ullong() - rowNumber < rowNumber) {
+            while (not rowNode.empty() && (rowNode.attribute("r").as_ullong() > rowNumber)) rowNode = rowNode.previous_sibling_of_type(pugi::node_element);
+            if (rowNode.empty() || (rowNode.attribute("r").as_ullong() != rowNumber))
+                return XMLNode{};
+        }
+        // ===== Otherwise, start from the beginning
+        else {
+            // ===== At this point, it is guaranteed that there is at least one node_element in the row that is not empty.
+            rowNode = sheetDataNode.first_child_of_type(pugi::node_element);
+
+            // ===== It has been verified above that the requested rowNumber is <= the row number of the last node_element, therefore this loop will halt.
+            while (rowNode.attribute("r").as_ullong() < rowNumber) rowNode = rowNode.next_sibling_of_type(pugi::node_element);
+            if (rowNode.attribute("r").as_ullong() > rowNumber)
+                return XMLNode{};
+        }
+
+        return rowNode;
+    }
+
+    /**
+     * @brief locate the XML cell node within rownode for the cell at columnNumber
+     * @param rowNode the XML node of the row to search in
+     * @param columnNumber the column number of the cell to locate
+     * @return the XMLNode pointing to the cell, or an empty XMLNode if the cell does not exist
+     */
+    XMLNode findCellNode(XMLNode rowNode, uint16_t columnNumber)
+    {
+        if (columnNumber < 1 || columnNumber > OpenXLSX::MAX_COLS) {
+            using namespace std::literals::string_literals;
+            throw XLException("XLWorksheet::column: columnNumber "s + std::to_string(columnNumber) + " is outside allowed range [1;"s + std::to_string(MAX_COLS) + "]"s);
+        }
+        if (rowNode.empty()) return XMLNode{};
+
+        XMLNode cellNode = rowNode.last_child_of_type(pugi::node_element);
+
+        // ===== If there are no cells in the current row, or the requested cell is beyond the last cell in the row...
+        if (cellNode.empty() || (XLCellReference(cellNode.attribute("r").value()).column() < columnNumber))
+            return XMLNode{};
+
+        // ===== If the requested node is closest to the end, start from the end and search backwards...
+        if (XLCellReference(cellNode.attribute("r").value()).column() - columnNumber < columnNumber) {
+            while (not cellNode.empty() && (XLCellReference(cellNode.attribute("r").value()).column() > columnNumber))
+                cellNode = cellNode.previous_sibling_of_type(pugi::node_element);
+            if (cellNode.empty() || (XLCellReference(cellNode.attribute("r").value()).column() < columnNumber))
+                return XMLNode{};
+        }
+        // ===== Otherwise, start from the beginning
+        else {
+            // ===== At this point, it is guaranteed that there is at least one node_element in the row that is not empty.
+            cellNode = rowNode.first_child_of_type(pugi::node_element);
+
+            // ===== It has been verified above that the requested columnNumber is <= the column number of the last node_element, therefore this loop will halt:
+            while (XLCellReference(cellNode.attribute("r").value()).column() < columnNumber)
+                cellNode = cellNode.next_sibling_of_type(pugi::node_element);
+            if (XLCellReference(cellNode.attribute("r").value()).column() > columnNumber)
+                return XMLNode{};
+        }
+        return cellNode;
+    }
+}    // namespace OpenXLSX
+
+
 /**
  * @details
  */
@@ -158,101 +239,19 @@ XLCellIterator& XLCellIterator::operator=(XLCellIterator&& other) noexcept = def
 //     return *this;
 // }
 
-namespace { // anonymous namespace for local functions findRowNode and findCellNode
-    /**
-     * @brief locate the XML row node within sheetDataNode for the row at rowNumber
-     * @param sheetDataNode the XML sheetData node to search in
-     * @param rowNumber the number of the row to locate
-     * @return the XMLNode pointing to the row, or an empty XMLNode if the row does not exist
-     */
-    XMLNode findRowNode(XMLNode sheetDataNode, uint32_t rowNumber)
-    {
-        if (rowNumber < 1 || rowNumber > OpenXLSX::MAX_ROWS) {
-            using namespace std::literals::string_literals;
-            throw XLCellAddressError("rowNumber "s + std::to_string( rowNumber ) + " is outside valid range [1;"s + std::to_string(OpenXLSX::MAX_ROWS) + "]"s);
-        }
-
-        // ===== Get the last child of sheetDataNode that is of type node_element.
-        XMLNode rowNode = sheetDataNode.last_child_of_type(pugi::node_element);
-
-        // ===== If there are now rows in the worksheet, or the requested row is beyond the current max row, return an empty node
-        if (rowNode.empty() || (rowNumber > rowNode.attribute("r").as_ullong()))
-            return XMLNode{};
-
-        // ===== If the requested node is closest to the end, start from the end and search backwards.
-        if (rowNode.attribute("r").as_ullong() - rowNumber < rowNumber) {
-            while (not rowNode.empty() && (rowNode.attribute("r").as_ullong() > rowNumber)) rowNode = rowNode.previous_sibling_of_type(pugi::node_element);
-            if (rowNode.empty() || (rowNode.attribute("r").as_ullong() != rowNumber))
-                return XMLNode{};
-        }
-        // ===== Otherwise, start from the beginning
-        else {
-            // ===== At this point, it is guaranteed that there is at least one node_element in the row that is not empty.
-            rowNode = sheetDataNode.first_child_of_type(pugi::node_element);
-
-            // ===== It has been verified above that the requested rowNumber is <= the row number of the last node_element, therefore this loop will halt.
-            while (rowNode.attribute("r").as_ullong() < rowNumber) rowNode = rowNode.next_sibling_of_type(pugi::node_element);
-            if (rowNode.attribute("r").as_ullong() > rowNumber)
-                return XMLNode{};
-        }
-
-        return rowNode;
-    }
-
-    /**
-     * @brief locate the XML cell node within rownode for the cell at columnNumber
-     * @param rowNode the XML node of the row to search in
-     * @param columnNumber the column number of the cell to locate
-     * @return the XMLNode pointing to the cell, or an empty XMLNode if the cell does not exist
-     */
-    XMLNode findCellNode(XMLNode rowNode, uint16_t columnNumber)
-    {
-        if (columnNumber < 1 || columnNumber > OpenXLSX::MAX_COLS) {
-            using namespace std::literals::string_literals;
-            throw XLException("XLWorksheet::column: columnNumber "s + std::to_string(columnNumber) + " is outside allowed range [1;"s + std::to_string(MAX_COLS) + "]"s);
-        }
-        if (rowNode.empty()) return XMLNode{};
-
-        XMLNode cellNode = rowNode.last_child_of_type(pugi::node_element);
-
-        // ===== If there are no cells in the current row, or the requested cell is beyond the last cell in the row...
-        if (cellNode.empty() || (XLCellReference(cellNode.attribute("r").value()).column() < columnNumber))
-            return XMLNode{};
-
-        // ===== If the requested node is closest to the end, start from the end and search backwards...
-        if (XLCellReference(cellNode.attribute("r").value()).column() - columnNumber < columnNumber) {
-            while (not cellNode.empty() && (XLCellReference(cellNode.attribute("r").value()).column() > columnNumber))
-                cellNode = cellNode.previous_sibling_of_type(pugi::node_element);
-            if (cellNode.empty() || (XLCellReference(cellNode.attribute("r").value()).column() < columnNumber))
-                return XMLNode{};
-        }
-        // ===== Otherwise, start from the beginning
-        else {
-            // ===== At this point, it is guaranteed that there is at least one node_element in the row that is not empty.
-            cellNode = rowNode.first_child_of_type(pugi::node_element);
-
-            // ===== It has been verified above that the requested columnNumber is <= the column number of the last node_element, therefore this loop will halt:
-            while (XLCellReference(cellNode.attribute("r").value()).column() < columnNumber)
-                cellNode = cellNode.next_sibling_of_type(pugi::node_element);
-            if (XLCellReference(cellNode.attribute("r").value()).column() > columnNumber)
-                return XMLNode{};
-        }
-        return cellNode;
-    }
-}    // anonymous namespace
-
 /**
  * @brief update m_currentCell by fetching (or inserting) a cell at m_currentRow, m_currentColumn
  */
 void XLCellIterator::updateCurrentCell(bool createIfMissing)
 {
-    if (m_endReached)
-        throw XLInputError("XLCellIterator updateCurrentCell: iterator should not be dereferenced when endReached() == true");
-
+    // ===== Quick exit checks - can't be true when m_endReached
     if (m_currentCellStatus == XLLoaded) return;                         // nothing to do, cell is already loaded
     if (!createIfMissing && m_currentCellStatus == XLNoSuchCell) return; // nothing to do, cell has already been determined as missing
 
     // At this stage, m_currentCellStatus is XLUnloaded or XLNoSuchCell and createIfMissing == true
+
+    if (m_endReached)
+        throw XLInputError("XLCellIterator updateCurrentCell: iterator should not be dereferenced when endReached() == true");
 
     // ===== Cell needs to be updated
 
@@ -327,7 +326,6 @@ void XLCellIterator::updateCurrentCell(bool createIfMissing)
  */
 XLCellIterator& XLCellIterator::operator++()
 {
-// std::cout << "XLCellIterator operator++, m_currentColumn " << m_currentColumn << " and m_currentRow " << m_currentRow << std::endl;
     if (m_endReached)
         throw XLInputError("XLCellIterator: tried to increment beyond end operator");
 

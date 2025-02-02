@@ -377,6 +377,12 @@ namespace OpenXLSX
          */
         const XLSharedStrings& sharedStrings() const { return m_sharedStrings; }
 
+        /**
+         * @brief rewrite the shared strings cache (and update all cells referencing an index from the shared strings), dropping unused strings
+         * @note potentially time-intensive (on documents with many strings or many cells referring shared strings)
+         */
+        void cleanupSharedStrings();
+
         //----------------------------------------------------------------------------------------------------------------------
         //           Protected Member Functions
         //----------------------------------------------------------------------------------------------------------------------
