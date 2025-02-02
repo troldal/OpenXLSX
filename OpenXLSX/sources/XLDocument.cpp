@@ -1406,14 +1406,8 @@ std::string XLDocument::extractXmlFromArchive(const std::string& path)
  */
 XLXmlData* XLDocument::getXmlData(const std::string& path, bool doNotThrow)
 {
-    std::list<XLXmlData>::iterator result = std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) { return item.getXmlPath() == path; });
-    if (result == m_data.end()) {
-        if (doNotThrow) return nullptr; // use with caution
-        else throw XLInternalError("Path " + path + " does not exist in zip archive.");
-    }
-    return &*result;
-    // if (!hasXmlData(path)) throw XLInternalError("Path " + path + " does not exist in zip archive.");
-    // return &*std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) { return item.getXmlPath() == path; });
+    // avoid duplication of code: use const_cast to invoke the const function overload and return a non-const value
+    return const_cast<XLXmlData *>(const_cast<XLDocument const *>(this)->getXmlData(path, doNotThrow));
 }
 
 /**
@@ -1421,8 +1415,12 @@ XLXmlData* XLDocument::getXmlData(const std::string& path, bool doNotThrow)
  */
 const XLXmlData* XLDocument::getXmlData(const std::string& path, bool doNotThrow) const
 {
-    // avoid duplication of code: use const_cast to invoke the non-const function overload and return a const value
-    return const_cast<XLXmlData const *>(const_cast<XLDocument *>(this)->getXmlData(path, doNotThrow));
+    std::list<XLXmlData>::iterator result = std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) { return item.getXmlPath() == path; });
+    if (result == m_data.end()) {
+        if (doNotThrow) return nullptr; // use with caution
+        else throw XLInternalError("Path " + path + " does not exist in zip archive.");
+    }
+    return &*result;
 }
 
 /**
