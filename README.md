@@ -7,39 +7,23 @@ Microsoft Excel® files, with the .xlsx format.
 
 As the heading says - the latest "Release" that is shown on https://github.com/troldal/OpenXLSX/releases is from 2021-11-06, and severely outdated - please pull / download the latest SW version directly from the repository in its current state. Link for those that do not want to use ```git```: https://github.com/troldal/OpenXLSX/archive/refs/heads/master.zip
 
+## (aral-matrix) 03 February 2025
+
+Before I start working on the next items on my to-do list (tables/filters, hyperlink support), I am merging all recent patches into master. I have not yet had much feedback on whether the changes work with MS Office, but I am confident that if you discover any issues, I can fix them quickly.
+
+Should you experience stability issues, please revert to commit https://github.com/troldal/OpenXLSX/commit/4ed9c97ad613526bf1544296acd24639dcbe2846 and submit a bug report.
+
+***New features***
+* support for creating / reading / modifying / deleting comments is now implemented in ```XLComments``` -> see ```Demo1.cpp```
+* using an ```XLRowIterator``` no longer creates the XML for rows that do not exist until the iterator is dereferenced
+* ```XLDocument::cleanupSharedStrings()``` can now be called manually to rewrite the shared strings cache (and remove all strings that are no longer referenced from any cell)
+
 ## Recent changes
 
-### (aral-matrix) 02 February 2025 - Support for cleaning up shared strings (issue #193), XLRowIterator no longer creates missing rows unless iterator is dereferenced
-* ```XLDocument``` now has a member function ```void cleanupSharedStrings()``` that will reindex shared strings for the complete workbook and remove all shared strings that are no longer referenced anywhere, or that have been set to the empty string. This addresses https://github.com/troldal/OpenXLSX/issues/193.
-* Added support for non-creating ```XLRowIterator```: can now iterate over a range of rows and test ```bool XLRowIterator::rowExists()``` before accessing it. This allows to skip non-existing rows without creating them. Functionality is analogous to ```XLCellIterator``` and ```bool XLCellIterator::cellExists()```
-* Accordingly, fetching an ```XLWorksheet::range(..)``` will no longer create all missing rows in the range
-
-### (aral-matrix) 31 January 2025 - Support for comments mostly complete - still in testing stage
-Sorry for the long silence, I had some other obligations to attend to. Today I implemented the correct "overrides" for spreadsheet dependencies in the document global ```[Content Types].xml```. The override for worksheet relationships required a new XLContentType::Relationship, which I added (and in the process I removed a redundant ```XLContentTypeToString``` function from ```XLContentTypes.cpp```, as a function ```XLContentTypeString``` already exists in ```utilities/XLUtilities.hpp```).
-
-Also implemented:
-* XLComment class and the possibility to iterate over only *existing* comments in a worksheet (see ```Examples/Demo1.cpp```) as they appear in the underlying XML. This is much more practical when searching for comments in a worksheet created by another application.
-* proper "load upon access" for worksheet dependencies, so that worksheet relationships, comments, table and vmlDrawing files will not be loaded into the XMLDocument managed objects unless actually accessed by the user. The files will still remain unchanged in the archive if not accessed.
-* ```Override``` entries for the worksheet dependencies (comments, vmlDrawing, table) in ```[Content Types].xml```
-
-### (aral-matrix) 17 January 2025 - Basic support for comments is implemented - testing stage
-The support for comments is now in a stage where it can be used - please refer to Demo01 line 124ff for a quick "howto".
-This feature is still in alpha stage, with a few open TBDs:
-* the library currently assumes that comment entries are well sorted, first by row, then by column - if this is not the case, existing comments might not be readable / be found
-* the VML Drawing support is basic at best, for lack of documentation. I have made most features available through ```XLShape XLComments::shape(std::string const& cellRef)``` - for methods of XLShape please refer to the ```XLDrawing``` header file
-
-### (aral-matrix) 14 January 2025 - Support for comments is work in progress - unstable :)
-As the title says - I am working on comments support and will do the occasional commit to save my progress (aside from local backups). I will only submit patches that should not affect existing code stability, but if I break something (last patch I forgot to add a new module dependency to the cmake instructions), apologies for that - feel free to open an issue right away & I will try to fix it ASAP.
-I hope to finalize comments support (and possibly tables / filters) by the weekend.
-
-### (aral-matrix) 09 January 2025 - Support for XLWorksheet protection
-This patch addresses https://github.com/troldal/OpenXLSX/issues/311 by enabling worksheet protection. Exemplary usage has been added to Demo1.
-The latest patch also fixes some missing symbol exports when building the shared library - this addresses https://github.com/troldal/OpenXLSX/issues/316.
-
-### (aral-matrix) 08 January 2025 - Support for XLWorksheet conditional formatting (experimental)
-This is a major patch to address https://github.com/troldal/OpenXLSX/issues/315 - conditional formatting is now implemented in an experimental stage.
-
-Please refer to ```Demo10.cpp``` lines 454ff for an example on how to use the functionality.
+### 2025-02-02 Cleaning up shared strings, non-creating XLRowIterator
+### 2025-01-31 Support for XLWorksheet comments
+### 2025-01-09 Support for XLWorksheet protection
+### 2025-01-08 Support for XLWorksheet conditional formatting (experimental)
 
 ***Experimental*** in this case means:
 * users are kindly requested to verify that the generated OOXML behaves well with MS Office (I can't promise yet I got the node order right for all scenarios)
@@ -478,7 +462,7 @@ transition to the new version instead.
 <h2 id="detailed-change-log">Detailed change log</h2>
 
 ### (aral-matrix) 02 February 2025 - Support for cleaning up shared strings (issue #193), XLRowIterator no longer creates missing rows unless iterator is dereferenced
-* ```XLDocument``` now has a member function ```void cleanupSharedStrings()``` that will reindex shared strings for the complete workbook and remove all shared strings that are no longer referenced anywhere, or that have been set to the empty string.
+* ```XLDocument``` now has a member function ```void cleanupSharedStrings()``` that will reindex shared strings for the complete workbook and remove all shared strings that are no longer referenced anywhere, or that have been set to the empty string. This addresses https://github.com/troldal/OpenXLSX/issues/193.
 * Added support for non-creating ```XLRowIterator```: can now iterate over a range of rows and test ```bool XLRowIterator::rowExists()``` before accessing it. This allows to skip non-existing rows without creating them. Functionality is analogous to ```XLCellIterator``` and ```bool XLCellIterator::cellExists()```
 * Accordingly, fetching an ```XLWorksheet::range(..)``` will no longer create all missing rows in the range
 * Added to ```XLCellValueProxy``` two functions to manipulate shared string indexes directly, bypassing ```XLSharedStrings```:
@@ -496,8 +480,15 @@ transition to the new version instead.
     * public: ```explicit operator bool() const``` the opposite of ```empty()```
 * added a missing include of ```XLCellRange.hpp``` to ```XLSheet.hpp```
 
+### (aral-matrix) 31 January 2025 - Support for comments mostly complete - still in testing stage
+* for that, implemented a new XLContentType::Relationship
+* removed a redundant ```XLContentTypeToString``` function from ```XLContentTypes.cpp```, as a function ```XLContentTypeString``` already exists in ```utilities/XLUtilities.hpp```
+* implemented XLComment class and the possibility to iterate over only *existing* comments in a worksheet (see ```Examples/Demo1.cpp```) as they appear in the underlying XML. This is much more practical when searching for comments in a worksheet created by another application.
+* proper "load upon access" for worksheet dependencies, so that worksheet relationships, comments, table and vmlDrawing files will not be loaded into the XMLDocument managed objects unless actually accessed by the user. The files will still remain unchanged in the archive if not accessed.
+* ```Override``` entries for the worksheet dependencies (comments, vmlDrawing, table) in ```[Content Types].xml```
+
 ### (aral-matrix) 17 January 2025 - Basic support for comments is implemented - testing stage
-The support for comments is now in a stage where it can be used - please refer to Demo01 line 124ff for a quick "howto".
+The support for comments is now in a stage where it can be used - please refer to Demo1 line 124ff for a quick "howto".
 This feature is still in alpha stage, with a few open TBDs:
 * the library currently assumes that comment entries are well sorted, first by row, then by column - if this is not the case, existing comments might not be readable / be found
 * the VML Drawing support is basic at best, for lack of documentation. I have made most features available through ```XLShape XLComments::shape(std::string const& cellRef)``` - for methods of XLShape please refer to the ```XLDrawing``` header file
@@ -528,6 +519,7 @@ This feature is still in alpha stage, with a few open TBDs:
 * XLCellValue: added implicit conversion from integer & bool for ```XLCellValue::get<double>()``` and ```XLCellValue::get<XLDateTime>()```. Note: implicit conversion from string is available in ```VisitXLCellValueTypeToDouble```, but disabled (forced throw)
 
 ### (aral-matrix) 09 January 2025 - Support for XLWorksheet protection
+* fixed some missing symbol exports when building the shared library - this addresses https://github.com/troldal/OpenXLSX/issues/316.
 * ensured that utility functions get exported to shared library build: ```XLCfTypeFromString```, ```XLCfTypeToString```, ```XLCfOperatorFromString```, ```XLCfOperatorToString```, ```XLCfTimePeriodFromString```, ```XLCfTimePeriodToString```
 * BUGFIX XLSheet: added ```XLSheet::isActive``` and ```XLSheet::setActive``` function definitions to ensure bug-free export of symbols to shared library - this addresses https://github.com/troldal/OpenXLSX/issues/316 - please do not ask me why this was never a problem for the static build, I am simply not smart enough to understand that :P
 * BUGFIX XLDocument: added explicit OPENXLSX_EXPORT macro to new global utility functions ```BinaryAsHexString```, ```ExcelPasswordHash```, ```ExcelPasswordHashAsString``` so that they are also exported when the shared library is being built

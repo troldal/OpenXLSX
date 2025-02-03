@@ -568,6 +568,28 @@ XMLNode XLVmlDrawing::shapeNode(uint32_t index) const
 }
 
 /**
+ * @details
+ */
+XMLNode XLVmlDrawing::shapeNode(std::string const& cellRef) const
+{
+    XLCellReference destRef(cellRef);
+    uint32_t destRow = destRef.row() - 1;    // for accessing a shape: x:Row and x:Column are zero-indexed
+    uint16_t destCol = destRef.column() - 1; // ..
+
+    XMLNode node = firstShapeNode();
+    while (not node.empty()) {
+        if ((destRow == node.child("x:ClientData").child("x:Row").text().as_uint())
+          &&(destCol == node.child("x:ClientData").child("x:Column").text().as_uint()))
+    break; // found shape for cellRef
+
+        do { // locate next shape node
+            node = node.next_sibling_of_type(pugi::node_element);
+        } while (not node.empty() && node.name() != ShapeNodeName);
+    }
+    return node;
+}
+
+/**
  * @details TODO: write doxygen headers for functions in this module
  */
 uint32_t XLVmlDrawing::shapeCount() const { return m_shapeCount; }
@@ -583,8 +605,25 @@ XLShape XLVmlDrawing::shape(uint32_t index) const { return XLShape(shapeNode(ind
 bool XLVmlDrawing::deleteShape(uint32_t index)
 {
     XMLNode rootNode = xmlDocument().document_element();
-    XMLNode node = shapeNode(index); // returns a valid node or throws
-    --m_shapeCount; // if shape(index) did not throw: decrement shape count
+    XMLNode node = shapeNode(index);   // returns a valid node or throws
+    --m_shapeCount;                    // if shapeNode(index) did not throw: decrement shape count
+    while (node.previous_sibling().type() == pugi::node_pcdata) // remove leading whitespaces
+        rootNode.remove_child(node.previous_sibling());
+    rootNode.remove_child(node);                                // then remove shape node itself
+
+    return true;
+}
+
+/**
+ * @details TODO: write doxygen headers for functions in this module
+ */
+bool XLVmlDrawing::deleteShape(std::string const& cellRef)
+{
+    XMLNode rootNode = xmlDocument().document_element();
+    XMLNode node = shapeNode(cellRef);
+    if (node.empty()) return false;    // nothing found to delete
+
+    --m_shapeCount;                    // if shapeNode(cellRef) returned a non-empty node: decrement shape count
     while (node.previous_sibling().type() == pugi::node_pcdata) // remove leading whitespaces
         rootNode.remove_child(node.previous_sibling());
     rootNode.remove_child(node);                                // then remove shape node itself

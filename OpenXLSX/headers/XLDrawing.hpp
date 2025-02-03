@@ -415,11 +415,19 @@ namespace OpenXLSX
 
     public:
 
+        /**
+         * @brief Get the shape XML node that is associated with the cell indicated by cellRef
+         * @param cellRef the reference to the cell for which a shape shall be found
+         * @return the XMLNode that contains the desired shape, or an empty XMLNode if not found
+         */
+        XMLNode shapeNode(std::string const& cellRef) const;
+
         uint32_t shapeCount() const;
 
         XLShape shape(uint32_t index) const;
 
         bool deleteShape(uint32_t index);
+        bool deleteShape(std::string const& cellRef);
 
         XLShape createShape(const XLShape& shapeTemplate = XLShape());
 

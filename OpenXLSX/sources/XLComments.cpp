@@ -372,6 +372,8 @@ bool XLComments::deleteComment(const std::string& cellRef)
         m_hintNode = XMLNode{}; // reset hint after modification of comment list
         m_hintIndex = 0;
     }
+    // ===== Delete the shape associated with the comment.
+    OpenXLSX::ignore(m_vmlDrawing->deleteShape(cellRef)); // disregard if deleteShape fails
     return true;
 }
 
@@ -564,23 +566,12 @@ XLShape XLComments::shape(std::string const& cellRef)
     if (!m_vmlDrawing->valid())
         throw XLException("XLComments::shape: can not access any shapes when VML Drawing object is invalid");
 
-    XLCellReference destRef(cellRef);
-    uint32_t destRow = destRef.row() - 1;    // for accessing a shape: x:Row and x:Column are zero-indexed
-    uint16_t destCol = destRef.column() - 1; // ..
-
-    XMLNode shape = m_vmlDrawing->firstShapeNode();
-    while (not shape.empty()) {
-        if ((destRow == shape.child("x:ClientData").child("x:Row").text().as_uint())
-          &&(destCol == shape.child("x:ClientData").child("x:Column").text().as_uint()))
-            return XLShape(shape);
-        do {
-            shape = shape.next_sibling_of_type(pugi::node_element);
-        } while (not shape.empty() && shape.name() != OpenXLSX::ShapeNodeName);
+    XMLNode shape = m_vmlDrawing->shapeNode(cellRef);
+    if (shape.empty()) {
+        using namespace std::literals::string_literals;
+        throw XLException("XLComments::shape: not found for cell "s + cellRef + " - was XLComment::set invoked first?"s);
     }
-
-    using namespace std::literals::string_literals;
-    throw XLException("XLComments::shape: not found for cell "s + cellRef + " - was XLComment::set invoked first?"s);
-    return XLShape();
+    return XLShape(shape);
 }
 
 /**

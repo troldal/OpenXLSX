@@ -184,6 +184,9 @@ int main()
     wksComments.set("C3", "this is an updated comment for author #2", 2); // overwrite a comment
     wksComments.shape("C3").style().show();
     wksComments.set("D1", "this comment is for author #4", 4);
+    wksComments.set("E2", "this comment is also for author #4", 4);
+    bool deleteSuccess = wksComments.deleteComment("E2");
+    std::cout << "Deleting the comment in cell E2 " << ( deleteSuccess ? "succeeded" : "did not succeed" ) << "." << std::endl;
     std::cout << std::endl;
     std::cout << "the comment in cell C4 is \"" << wksComments.get("C4") << "\"" << std::endl;
     std::cout << "the comment in cell B2 is \"" << wksComments.get("B2") << "\"" << std::endl;
