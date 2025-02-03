@@ -7,7 +7,7 @@ Microsoft Excel® files, with the .xlsx format.
 
 As the heading says - the latest "Release" that is shown on https://github.com/troldal/OpenXLSX/releases is from 2021-11-06, and severely outdated - please pull / download the latest SW version directly from the repository in its current state. Link for those that do not want to use ```git```: https://github.com/troldal/OpenXLSX/archive/refs/heads/master.zip
 
-## (aral-matrix) 03 February 2025
+## (aral-matrix) 03 February 2025 - XLComments and shared strings cleanup
 
 Before I start working on the next items on my to-do list (tables/filters, hyperlink support), I am merging all recent patches into master. I have not yet had much feedback on whether the changes work with MS Office, but I am confident that if you discover any issues, I can fix them quickly.
 
