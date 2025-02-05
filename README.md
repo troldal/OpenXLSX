@@ -461,6 +461,9 @@ transition to the new version instead.
 
 <h2 id="detailed-change-log">Detailed change log</h2>
 
+### (aral-matrix) 05 February 2025 - XLDocument patch to address issue #279 about conflicting stat / _stat definitions
+* XLDocument is now using custom names (```STAT```, ```STATSTRUCT```) to link to the platform specific implementation of ```stat``` without naming conflicts
+
 ### (aral-matrix) 02 February 2025 - Support for cleaning up shared strings (issue #193), XLRowIterator no longer creates missing rows unless iterator is dereferenced
 * ```XLDocument``` now has a member function ```void cleanupSharedStrings()``` that will reindex shared strings for the complete workbook and remove all shared strings that are no longer referenced anywhere, or that have been set to the empty string. This addresses https://github.com/troldal/OpenXLSX/issues/193.
 * Added support for non-creating ```XLRowIterator```: can now iterate over a range of rows and test ```bool XLRowIterator::rowExists()``` before accessing it. This allows to skip non-existing rows without creating them. Functionality is analogous to ```XLCellIterator``` and ```bool XLCellIterator::cellExists()```

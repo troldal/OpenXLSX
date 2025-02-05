@@ -50,7 +50,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #endif
 #if defined(_WIN32)
 #    include <random>
-#    define stat _stat    // _stat should be available in standard environment on Windows
 #endif
 #include <pugixml.hpp>
 #include <sys/stat.h>     // for stat, to test if a file exists and if a file is a directory
@@ -62,6 +61,15 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLSheet.hpp"
 #include "XLStyles.hpp"
 #include "utilities/XLUtilities.hpp"
+
+// don't use "stat" directly because windows has compatibility-breaking defines
+#if defined(_WIN32)    // moved below includes to make it absolutely clear that this is module-local
+#    define STAT _stat                 // _stat should be available in standard environment on Windows
+#    define STATSTRUCT struct _stat    // struct _stat also exists - split the two names in case the struct _stat must not be used on windows
+#else
+#    define STAT stat
+#    define STATSTRUCT struct stat
+#endif
 
 using namespace OpenXLSX;
 
@@ -623,8 +631,8 @@ namespace {
      */
     bool pathExists(const std::string& path)
     {
-        struct stat info;
-        if (stat(path.c_str(), &info ) == 0)    // test if path exists
+        STATSTRUCT info;
+        if (STAT(path.c_str(), &info ) == 0)    // test if path exists
             return true;
         return false;
     }
@@ -639,16 +647,16 @@ namespace {
      */
     bool fileExists(const std::string& fileName)
     {
-        struct stat info;
-        if (stat(fileName.c_str(), &info ) == 0)    // test if path exists
+        STATSTRUCT info;
+        if (STAT(fileName.c_str(), &info ) == 0)    // test if path exists
             if ((info.st_mode & S_IFDIR) == 0)          // test if it is NOT a directory
                 return true;
         return false;
     }
     bool isDirectory(const std::string& fileName)
     {
-        struct stat info;
-        if (stat(fileName.c_str(), &info ) == 0)    // test if path exists
+        STATSTRUCT info;
+        if (STAT(fileName.c_str(), &info ) == 0)    // test if path exists
             if ((info.st_mode & S_IFDIR) != 0)          // test if it is a directory
                 return true;
         return false;
