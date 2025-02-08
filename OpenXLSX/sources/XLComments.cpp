@@ -105,6 +105,13 @@ XLComment::XLComment(const XMLNode& node)
  {}
 
 /**
+ * @details
+ * @note Function body moved to cpp module as it uses "not" keyword for readability, which MSVC sabotages with non-CPP compatibility.
+ * @note For the library it is reasonable to expect users to compile it with MSCV /permissive- flag, but for the user's own projects the header files shall "just work"
+ */
+bool XLComment::valid() const { return m_commentNode != nullptr &&(not m_commentNode->empty()); }
+
+/**
  * @brief Getter functions
  */
 std::string XLComment::ref() const { return m_commentNode->attribute("ref").value(); }

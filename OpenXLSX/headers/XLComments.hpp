@@ -116,7 +116,7 @@ namespace OpenXLSX
          * @brief Test if XLComment is linked to valid XML
          * @return true if comment was constructed on a valid XML node, otherwise false
          */
-        bool valid() const { return m_commentNode != nullptr &&(not m_commentNode->empty()); }
+        bool valid() const;
 
         /**
          * @brief Getter functions
