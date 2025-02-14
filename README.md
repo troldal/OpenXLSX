@@ -20,6 +20,9 @@ Should you experience stability issues, please revert to commit https://github.c
 
 ## Recent changes
 
+### 2025-02-14 Added cctype includes to XLSheet and XLDrawing, resolving issue #330
+* in response to https://github.com/troldal/OpenXLSX/issues/330, added ```#include <cctype>``` to ```XLSheet.cpp``` and ```XLDrawing.cpp```
+
 ### 2025-02-02 Cleaning up shared strings, non-creating XLRowIterator
 ### 2025-01-31 Support for XLWorksheet comments
 ### 2025-01-09 Support for XLWorksheet protection
@@ -460,6 +463,9 @@ branch of this repository. However, I strongly recommend that you
 transition to the new version instead.
 
 <h2 id="detailed-change-log">Detailed change log</h2>
+
+### (aral-matrix) 14 February 2025 Added cctype includes to XLSheet and XLDrawing, resolving issue #330
+* in response to https://github.com/troldal/OpenXLSX/issues/330, added ```#include <cctype>``` to ```XLSheet.cpp``` and ```XLDrawing.cpp```
 
 ### (aral-matrix) 05 February 2025 - XLDocument patch to address issue #279 about conflicting stat / _stat definitions
 * XLDocument is now using custom names (```STAT```, ```STATSTRUCT```) to link to the platform specific implementation of ```stat``` without naming conflicts

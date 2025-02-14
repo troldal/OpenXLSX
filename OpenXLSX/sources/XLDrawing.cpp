@@ -45,6 +45,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== External Includes ===== //
 // #include <algorithm>
+#include <cctype>       // std::isdigit (issue #330)
 #include <string>       // std::string
 #include <pugixml.hpp>
 
