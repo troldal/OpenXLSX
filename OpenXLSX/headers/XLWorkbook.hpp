@@ -158,7 +158,7 @@ namespace OpenXLSX
 
         /**
          * @brief Get the worksheet at the given index.
-         * @param index The index at which the desired sheet is located.
+         * @param index The index (1-based) at which the desired sheet is located.
          * @return
          */
         XLWorksheet worksheet(uint16_t index);
@@ -172,7 +172,7 @@ namespace OpenXLSX
 
         /**
          * @brief Get the chartsheet at the given index.
-         * @param index The index at which the desired sheet is located.
+         * @param index The index (1-based) at which the desired sheet is located.
          * @return
          */
         XLChartsheet chartsheet(uint16_t index);
@@ -202,14 +202,14 @@ namespace OpenXLSX
         /**
          * @brief
          * @param sheetName
-         * @param index
+         * @param index The index (1-based) where the sheet shall be moved to
          */
         void setSheetIndex(const std::string& sheetName, unsigned int index);
 
         /**
          * @brief
          * @param sheetName
-         * @return
+         * @return The index (1-based) of the sheet with sheetName
          */
         unsigned int indexOfSheet(const std::string& sheetName) const;
 
@@ -222,7 +222,7 @@ namespace OpenXLSX
 
         /**
          * @brief
-         * @param index
+         * @param index The index (1-based) at which the desired sheet is located.
          * @return
          */
         XLSheetType typeOfSheet(unsigned int index) const;

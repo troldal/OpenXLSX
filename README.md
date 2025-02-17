@@ -20,6 +20,9 @@ Should you experience stability issues, please revert to commit https://github.c
 
 ## Recent changes
 
+### 2025-02-17: added some comments to XLSheet class definition to clarify that the sheet index is 1-based (issue #332)
+* in response to https://github.com/troldal/OpenXLSX/issues/332, added (doxygen) documentation to ```XLSheet.hpp``` clarifying that sheet index is 1-based
+
 ### 2025-02-14 Added cctype includes to XLSheet and XLDrawing, resolving issue #330
 * in response to https://github.com/troldal/OpenXLSX/issues/330, added ```#include <cctype>``` to ```XLSheet.cpp``` and ```XLDrawing.cpp```
 
@@ -463,6 +466,9 @@ branch of this repository. However, I strongly recommend that you
 transition to the new version instead.
 
 <h2 id="detailed-change-log">Detailed change log</h2>
+
+### (aral-matrix) 17 February 2025 added some comments to XLSheet class definition to clarify that the sheet index is 1-based (issue #332)
+* in response to https://github.com/troldal/OpenXLSX/issues/332, added (doxygen) documentation to ```XLSheet.hpp``` clarifying that sheet index is 1-based
 
 ### (aral-matrix) 14 February 2025 Added cctype includes to XLSheet and XLDrawing, resolving issue #330
 * in response to https://github.com/troldal/OpenXLSX/issues/330, added ```#include <cctype>``` to ```XLSheet.cpp``` and ```XLDrawing.cpp```
