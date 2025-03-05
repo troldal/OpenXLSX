@@ -118,6 +118,7 @@ const char* XLSharedStrings::getString(int32_t index) const
  * @details Append a string by creating a new node in the XML file and adding the string to it. The index to the
  * shared string is returned
  */
+/*
 int32_t XLSharedStrings::appendString(const std::string& str) const
 {
     // size_t stringCacheSize = std::distance(m_stringCache->begin(), m_stringCache->end()); // any reason why .size() would not work?
@@ -130,6 +131,48 @@ int32_t XLSharedStrings::appendString(const std::string& str) const
     if ((!str.empty()) && (str.front() == ' ' || str.back() == ' '))
         textNode.append_attribute("xml:space").set_value("preserve");    // pull request #161
     textNode.text().set(str.c_str());
+    m_stringCache->emplace_back(textNode.text().get());    // index of this element = previous stringCacheSize
+
+    return static_cast<int32_t>(stringCacheSize);
+}
+*/
+
+/* Demo RTF - included
+<r>
+	<t>pri</t>
+</r>
+<r>
+	<rPr>
+		<u/>
+		<i/>
+		<b/>
+	</rPr>
+	<t>vet</t>
+</r>
+*/
+
+int32_t XLSharedStrings::appendString(const std::string& str) const
+{
+    // size_t stringCacheSize = std::distance(m_stringCache->begin(), m_stringCache->end()); // any reason why .size() would not work?
+    size_t stringCacheSize = m_stringCache->size();    // 2024-05-31: analogous with already added range check in getString
+    if (stringCacheSize >= XLMaxSharedStrings) {       // 2024-05-31: added range check
+        using namespace std::literals::string_literals;
+        throw XLInternalError("XLSharedStrings::"s + __func__ + ": exceeded max strings count "s + std::to_string(XLMaxSharedStrings));
+    }
+    XMLNode textNode;
+    int r = 0;
+    if (str.substr(0, 3) == "<r>") {
+        textNode = xmlDocument().document_element().append_child("si");
+        r = 1;
+    }
+    else
+        textNode = xmlDocument().document_element().append_child("si").append_child("t");
+    if ((!str.empty()) && (str.front() == ' ' || str.back() == ' '))
+        textNode.append_attribute("xml:space").set_value("preserve");    // pull request #161
+    if (r)
+        textNode.append_buffer((void*)str.c_str(), str.length(), 116U, pugi::encoding_auto);
+    else
+        textNode.text().set(str.c_str());
     m_stringCache->emplace_back(textNode.text().get());    // index of this element = previous stringCacheSize
 
     return static_cast<int32_t>(stringCacheSize);
