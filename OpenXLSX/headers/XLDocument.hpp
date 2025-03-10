@@ -69,6 +69,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLSharedStrings.hpp"
 #include "XLStyles.hpp"
 #include "XLTables.hpp"
+#include "XLPictures.hpp"
 #include "XLWorkbook.hpp"
 #include "XLXmlData.hpp"
 #include "XLZipArchive.hpp"
@@ -316,6 +317,13 @@ namespace OpenXLSX
         bool hasSheetTables(uint16_t sheetXmlNo) const;
 
         /**
+         * @brief determine whether a worksheet picture(s) file exists for sheetXmlNo
+         * @param sheetXmlNo check for this sheet number # (xl/media/image#.png)
+         * @return true if picture(s) file exists
+         */
+        bool hasSheetPictures(uint16_t sheetXmlNo) const;
+
+        /**
          * @brief fetch the worksheet relationships for sheetXmlNo, create the file if it does not exist
          * @param sheetXmlNo fetch for this sheet #
          * @return an XLRelationships object initialized with the sheet relationships
@@ -342,6 +350,13 @@ namespace OpenXLSX
          * @return an XLTables object initialized with the sheet tables
          */
         XLTables sheetTables(uint16_t sheetXmlNo);
+
+        /**
+         * @brief fetch the worksheet pictures for sheetXmlNo, create the file if it does not exist
+         * @param sheetXmlNo fetch for this sheet #
+         * @return an XLPictures object initialized with the sheet pictures
+         */
+        XLPictures sheetPictures(uint16_t sheetXmlNo);
 
         /**
          * @brief

@@ -196,6 +196,8 @@ namespace OpenXLSX
          * @return true upon success
          */
         bool setVmlDrawing(XLVmlDrawing &vmlDrawing);
+        bool setDrawing(XLDrawing &Drawing);
+
 
     private: // helper functions with repeating code
         XMLNode authorNode(uint16_t index) const;
@@ -259,6 +261,7 @@ namespace OpenXLSX
         XMLNode m_authors{};
         XMLNode m_commentList{};
         std::unique_ptr<XLVmlDrawing> m_vmlDrawing;
+        std::unique_ptr<XLDrawing> m_Drawing;
         mutable XMLNode m_hintNode{};                 // the last comment XML Node accessed by index is stored here, if any - will be reset when comments are inserted or deleted
         mutable size_t m_hintIndex{0};                // this has the index at which m_hintNode was accessed, only valid if not m_hintNode.empty()
         inline static const std::vector< std::string_view > m_nodeOrder = {      // comments XML node required child sequence

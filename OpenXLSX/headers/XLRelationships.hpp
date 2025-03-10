@@ -126,6 +126,7 @@ namespace OpenXLSX
         ControlProperties,
         Comments,
         Table,
+	    Picture,
         Unknown
     };
 } //     namespace OpenXLSX

@@ -91,6 +91,8 @@ namespace OpenXLSX
         Comments,
         Table,
         VMLDrawing,
+	Drawing,
+	Picture,
         Unknown
     };
 
