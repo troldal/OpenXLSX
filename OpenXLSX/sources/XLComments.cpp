@@ -204,6 +204,7 @@ XLComments& XLComments::operator=(XLComments&& other) noexcept
         m_authors          = std::move(other.m_authors);
         m_commentList      = std::move(other.m_commentList);
         m_vmlDrawing       = std::move(other.m_vmlDrawing);
+        m_Drawing          = std::move(other.m_Drawing);
         m_hintNode         = std::move(other.m_hintNode);
         m_hintIndex        = other.m_hintIndex;
     }
@@ -228,6 +229,12 @@ bool XLComments::setVmlDrawing(XLVmlDrawing &vmlDrawing)
     m_vmlDrawing = std::make_unique<XLVmlDrawing>(vmlDrawing);
     return true;
 }
+bool XLComments::setDrawing(XLDrawing &Drawing)
+{
+    m_Drawing = std::make_unique<XLDrawing>(Drawing);
+    return true;
+}
+
 
 /**
  * @details TODO: write doxygen headers for functions in this module

@@ -526,6 +526,8 @@ void XLDocument::open(const std::string& fileName)
         if (!isWorkbookPath && item.path().substr(0, 4) == "/xl/") {
             if ((item.path().substr(4, 7) == "comment")
                    ||(item.path().substr(4, 12) == "tables/table")
+		   ||(item.path().substr(4, 11) == "media/image")
+                   ||(item.path().substr(4, 16) == "drawings/Drawing")
                    ||(item.path().substr(4, 19) == "drawings/vmlDrawing")
                    ||(item.path().substr(4, 22) == "worksheets/_rels/sheet")
                ) {
@@ -1046,6 +1048,16 @@ bool XLDocument::hasSheetVmlDrawing(uint16_t sheetXmlNo) const
 }
 
 /**
+* @details determine - without creation - whether the document contains a drawing file for sheet with sheetXmlNo
+*/
+bool XLDocument::hasSheetDrawing(uint16_t sheetXmlNo) const
+{
+    using namespace std::literals::string_literals;
+    return m_archive.hasEntry("xl/drawings/Drawing"s + std::to_string(sheetXmlNo) + ".xml"s);
+}
+
+
+/**
 * @details determine - without creation - whether the document contains a comments file for sheet with sheetXmlNo
 */
 bool XLDocument::hasSheetComments(uint16_t sheetXmlNo) const
@@ -1062,6 +1074,16 @@ bool XLDocument::hasSheetTables(uint16_t sheetXmlNo) const
     using namespace std::literals::string_literals;
     return m_archive.hasEntry("xl/tables/table"s + std::to_string(sheetXmlNo) + ".xml"s);
 }
+
+/**
+* @details determine - without creation - whether the document contains a picture(s) file for sheet with sheetXmlNo
+*/
+bool XLDocument::hasSheetPictures(uint16_t sheetXmlNo) const
+{
+    using namespace std::literals::string_literals;
+    return m_archive.hasEntry("xl/media/image"s + std::to_string(sheetXmlNo) + ".png"s);
+}
+
 
 /**
 * @details return an XLRelationships item for sheet with sheetXmlNo - create the underlying XML and add it to the archive if needed
@@ -1104,6 +1126,28 @@ XLVmlDrawing XLDocument::sheetVmlDrawing(uint16_t sheetXmlNo)
 
     return XLVmlDrawing(xmlData);
 }
+/**
+* @details return an XLDrawing item for sheet with sheetXmlNo - create the underlying XML and add it to the archive if needed
+*/
+
+XLDrawing XLDocument::sheetDrawing(uint16_t sheetXmlNo)
+{
+    using namespace std::literals::string_literals;
+    std::string DrawingFilename = "xl/drawings/Drawing"s + std::to_string(sheetXmlNo) + ".xml"s;
+
+    if (!m_archive.hasEntry(DrawingFilename)) {
+        // ===== Create the sheet drawing file within the archive
+        m_archive.addEntry(DrawingFilename, "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");  // empty XML file, class constructor will do the rest
+        m_contentTypes.addOverride("/" + DrawingFilename, XLContentType::Drawing);                          // add content types entry
+    }
+    constexpr const bool DO_NOT_THROW = true;
+    XLXmlData *xmlData = getXmlData(DrawingFilename, DO_NOT_THROW);
+    if (xmlData == nullptr) // if not yet managed: add the sheet drawing file to the managed files
+        xmlData = &m_data.emplace_back(this, DrawingFilename, "", XLContentType::Drawing);
+
+    return XLDrawing(xmlData);
+}
+
 
 /**
 * @details return an XLComments item for sheet with sheetXmlNo - create the underlying XML and add it to the archive if needed
@@ -1146,6 +1190,28 @@ XLTables XLDocument::sheetTables(uint16_t sheetXmlNo)
 
     return XLTables(xmlData);
 }
+
+/**
+* @details return an XLPictures item for sheet with sheetXmlNo - create the underlying XML and add it to the archive if needed
+*/
+XLPictures XLDocument::sheetPictures(uint16_t sheetXmlNo)
+{
+    using namespace std::literals::string_literals;
+    std::string picturesFilename = "xl/media/image"s + std::to_string(sheetXmlNo) + ".png"s;
+
+    if (!m_archive.hasEntry(picturesFilename)) {
+        // ===== Create the sheet pictures file within the archive
+        m_archive.addEntry(picturesFilename, "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");   // empty XML file, class constructor will do the rest
+        m_contentTypes.addOverride("/" + picturesFilename, XLContentType::Picture);                                // add content types entry
+    }
+    constexpr const bool DO_NOT_THROW = true;
+    XLXmlData *xmlData = getXmlData(picturesFilename, DO_NOT_THROW);
+    if (xmlData == nullptr) // if not yet managed: add the sheet pictures file to the managed files
+        xmlData = &m_data.emplace_back(this, picturesFilename, "", XLContentType::Picture);
+
+    return XLPictures(xmlData);
+}
+
 
 /**
  * @details return value defaults to true, false only where the XLCommandType implements it
