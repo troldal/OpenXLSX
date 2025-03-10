@@ -1212,6 +1212,8 @@ namespace OpenXLSX
          * @brief test whether a VML drawing XML file exists for this worksheet
          */
         bool hasVmlDrawing() const;
+        bool hasDrawing() const;
+
 
         /**
          * @brief test whether a comments XML file exists for this worksheet
@@ -1233,6 +1235,8 @@ namespace OpenXLSX
          * @brief fetch a reference to the worksheet VML drawing object
          */
         XLVmlDrawing& vmlDrawing();
+        XLDrawing& Drawing();
+
 
         /**
          * @brief fetch a reference to the worksheet comments
@@ -1303,6 +1307,7 @@ namespace OpenXLSX
         XLVmlDrawing    m_vmlDrawing{};       /**< class handling the worksheet VML drawing object */
         XLComments      m_comments{};         /**< class handling the worksheet comments */
         XLTables        m_tables{};           /**< class handling the worksheet table settings */
+        XLDrawing       m_Drawing {};      /**< class handling the worksheet drawing object */
         XLPictures      m_pictures{};         /**< class handling the worksheet picture settings */
 	
         const std::vector< std::string_view >& m_nodeOrder = XLWorksheetNodeOrder;  // worksheet XML root node required child sequence

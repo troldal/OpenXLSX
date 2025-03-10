@@ -125,7 +125,9 @@ namespace OpenXLSX
         /**
          * @brief Print the XML contents of this XLPictures instance using the underlying XMLNode print function
          */
- 
+
+    void print(std::basic_ostream<char>& ostr) const;
+
 	int append(void *buffer,int bufferlen);
 
     };

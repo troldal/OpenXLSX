@@ -301,6 +301,7 @@ namespace OpenXLSX
          * @return true if vml drawing file exists
          */
         bool hasSheetVmlDrawing(uint16_t sheetXmlNo) const;
+        bool hasSheetDrawing(uint16_t sheetXmlNo) const;
 
         /**
          * @brief determine whether a worksheet comments file exists for sheetXmlNo
@@ -336,6 +337,7 @@ namespace OpenXLSX
          * @return an XLVmlDrawing object initialized with the sheet drawing
          */
         XLVmlDrawing sheetVmlDrawing(uint16_t sheetXmlNo);
+        XLDrawing sheetDrawing(uint16_t sheetXmlNo);
 
         /**
          * @brief fetch the worksheet comments for sheetXmlNo, create the file if it does not exist
