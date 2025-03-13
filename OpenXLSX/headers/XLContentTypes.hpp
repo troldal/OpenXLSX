@@ -91,7 +91,7 @@ namespace OpenXLSX
         Comments,
         Table,
         VMLDrawing,
-    	Picture,
+        Image,
         Unknown
     };
 
@@ -228,6 +228,7 @@ namespace OpenXLSX
          * @param type The getValue
          */
         void addOverride(const std::string& path, XLContentType type);
+        void addDefault(const std::string& path, XLContentType type);
 
         /**
          * @brief

@@ -69,7 +69,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLSharedStrings.hpp"
 #include "XLStyles.hpp"
 #include "XLTables.hpp"
-#include "XLPictures.hpp"
 #include "XLWorkbook.hpp"
 #include "XLXmlData.hpp"
 #include "XLZipArchive.hpp"
@@ -301,6 +300,7 @@ namespace OpenXLSX
          * @return true if vml drawing file exists
          */
         bool hasSheetVmlDrawing(uint16_t sheetXmlNo) const;
+
         bool hasSheetDrawing(uint16_t sheetXmlNo) const;
 
         /**
@@ -318,13 +318,6 @@ namespace OpenXLSX
         bool hasSheetTables(uint16_t sheetXmlNo) const;
 
         /**
-         * @brief determine whether a worksheet picture(s) file exists for sheetXmlNo
-         * @param sheetXmlNo check for this sheet number # (xl/media/image#.png)
-         * @return true if picture(s) file exists
-         */
-        bool hasSheetPictures(uint16_t sheetXmlNo) const;
-
-        /**
          * @brief fetch the worksheet relationships for sheetXmlNo, create the file if it does not exist
          * @param sheetXmlNo fetch for this sheet #
          * @return an XLRelationships object initialized with the sheet relationships
@@ -337,6 +330,12 @@ namespace OpenXLSX
          * @return an XLVmlDrawing object initialized with the sheet drawing
          */
         XLVmlDrawing sheetVmlDrawing(uint16_t sheetXmlNo);
+        /**
+          * @brief fetch the worksheet VML drawing for sheetXmlNo, create the file if it does not exist
+          * @param sheetXmlNo fetch for this sheet #
+          * @return an XLVmlDrawing object initialized with the sheet drawing
+          */
+ 
         XLDrawing sheetDrawing(uint16_t sheetXmlNo);
 
         /**
@@ -352,13 +351,6 @@ namespace OpenXLSX
          * @return an XLTables object initialized with the sheet tables
          */
         XLTables sheetTables(uint16_t sheetXmlNo);
-
-        /**
-         * @brief fetch the worksheet pictures for sheetXmlNo, create the file if it does not exist
-         * @param sheetXmlNo fetch for this sheet #
-         * @return an XLPictures object initialized with the sheet pictures
-         */
-        XLPictures sheetPictures(uint16_t sheetXmlNo);
 
         /**
          * @brief
@@ -399,6 +391,8 @@ namespace OpenXLSX
          * @note potentially time-intensive (on documents with many strings or many cells referring shared strings)
          */
         void cleanupSharedStrings();
+
+        int appendPictures(void* buffer, int bufferlen, char* ext,int col1,int row1,int col2,int row2);
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Protected Member Functions
@@ -452,6 +446,8 @@ namespace OpenXLSX
 
         XLRelationships m_docRelationships {}; /**< A pointer to the document relationships object*/
         XLRelationships m_wbkRelationships {}; /**< A pointer to the document relationships object*/
+        XLRelationships m_drwRelationships {}; /**< A pointer to the document relationships object*/
+        XLRelationships m_wrkRelationships {}; /**< A pointer to the document relationships object*/
         XLContentTypes  m_contentTypes {};     /**< A pointer to the content types object*/
         XLAppProperties m_appProperties {};    /**< A pointer to the App properties object */
         XLProperties    m_coreProperties {};   /**< A pointer to the Core properties object*/

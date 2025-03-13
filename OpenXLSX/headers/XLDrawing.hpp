@@ -408,6 +408,7 @@ namespace OpenXLSX
          */
         XLVmlDrawing& operator=(XLVmlDrawing&& other) noexcept = default;
 
+
     private: // helper functions with repeating code
         XMLNode firstShapeNode() const;
         XMLNode lastShapeNode() const;
@@ -441,9 +442,7 @@ namespace OpenXLSX
         uint32_t m_lastAssignedShapeId{0};
         std::string m_defaultShapeTypeId{};
     };
-    /**
-     * @brief The XLDrawing class is the base class for worksheet comments
-     */
+
     class OPENXLSX_EXPORT XLDrawing : public XLXmlFile
     {
         friend class XLWorksheet;   // for access to XLXmlFile::getXmlPath
@@ -453,37 +452,11 @@ namespace OpenXLSX
          * @brief Constructor
          */
         XLDrawing() : XLXmlFile(nullptr) {};
-
-        /**
-         * @brief The constructor.
-         * @param xmlData the source XML of the comments file
-         */
+        
         XLDrawing(XLXmlData* xmlData);
 
-        /**
-         * @brief The copy constructor.
-         * @param other The object to be copied.
-         * @note The default copy constructor is used, i.e. only shallow copying of pointer data members.
-         */
-        XLDrawing(const XLDrawing& other) = default;
-
-        /**
-         * @brief
-         * @param other
-         */
-        XLDrawing(XLDrawing&& other) noexcept = default;
-
-        /**
-         * @brief The destructor
-         * @note The default destructor is used, since cleanup of pointer data members is not required.
-         */
         ~XLDrawing() = default;
 
-        /**
-         * @brief Assignment operator
-         * @return A reference to the new object.
-         * @note The default assignment operator is used, i.e. only shallow copying of pointer data members.
-         */
         XLDrawing& operator=(const XLDrawing&) = default;
 
         /**
@@ -491,42 +464,10 @@ namespace OpenXLSX
          * @param other
          * @return
          */
+
         XLDrawing& operator=(XLDrawing&& other) noexcept = default;
 
-    private: // helper functions with repeating code
-        XMLNode firstShapeNode() const;
-        XMLNode lastShapeNode() const;
-        XMLNode shapeNode(uint32_t index) const;
-
-    public:
-
-        /**
-         * @brief Get the shape XML node that is associated with the cell indicated by cellRef
-         * @param cellRef the reference to the cell for which a shape shall be found
-         * @return the XMLNode that contains the desired shape, or an empty XMLNode if not found
-         */
-        XMLNode shapeNode(std::string const& cellRef) const;
-
-        uint32_t shapeCount() const;
-
-        XLShape shape(uint32_t index) const;
-
-        bool deleteShape(uint32_t index);
-        bool deleteShape(std::string const& cellRef);
-
-        XLShape createShape(const XLShape& shapeTemplate = XLShape());
-
-        /**
-         * @brief Print the XML contents of this XLDrawing instance using the underlying XMLNode print function
-         */
-        void print(std::basic_ostream<char>& ostr) const;
-
-    private:
-        uint32_t m_shapeCount{0};
-        uint32_t m_lastAssignedShapeId{0};
-        std::string m_defaultShapeTypeId{};
     };
 }    // namespace OpenXLSX
-
 
 #endif    // OPENXLSX_XLDRAWING_HPP

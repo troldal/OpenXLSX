@@ -75,8 +75,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLRow.hpp"
 #include "XLStyles.hpp"   // XLStyleIndex
 #include "XLTables.hpp"   // XLTables
-#include "XLPictures.hpp"   // XLPictures
-
 #include "XLXmlFile.hpp"
 
 namespace OpenXLSX
@@ -1212,8 +1210,11 @@ namespace OpenXLSX
          * @brief test whether a VML drawing XML file exists for this worksheet
          */
         bool hasVmlDrawing() const;
-        bool hasDrawing() const;
 
+        /**
+         * @brief test whether a drawing XML file exists for this worksheet
+         */
+        bool hasDrawing() const;
 
         /**
          * @brief test whether a comments XML file exists for this worksheet
@@ -1226,17 +1227,14 @@ namespace OpenXLSX
         bool hasTables() const;
 
         /**
-         * @brief test whether a pictures XML file exists for this worksheet
-         */
-        bool hasPictures() const;
-
-
-        /**
          * @brief fetch a reference to the worksheet VML drawing object
          */
-        XLVmlDrawing& vmlDrawing();
-        XLDrawing& Drawing();
-
+         XLVmlDrawing& vmlDrawing();
+ 
+         /**
+         * @brief fetch a reference to the worksheet VML drawing object
+         */
+        XLDrawing& drawing();
 
         /**
          * @brief fetch a reference to the worksheet comments
@@ -1247,11 +1245,6 @@ namespace OpenXLSX
          * @brief fetch a reference to the worksheet tables
          */
         XLTables& tables();
-
-        /**
-         * @brief fetch a reference to the worksheet picturees
-         */
-        XLPictures& pictures();
 
     private:
 
@@ -1307,9 +1300,7 @@ namespace OpenXLSX
         XLVmlDrawing    m_vmlDrawing{};       /**< class handling the worksheet VML drawing object */
         XLComments      m_comments{};         /**< class handling the worksheet comments */
         XLTables        m_tables{};           /**< class handling the worksheet table settings */
-        XLDrawing       m_Drawing {};      /**< class handling the worksheet drawing object */
-        XLPictures      m_pictures{};         /**< class handling the worksheet picture settings */
-	
+        XLDrawing       m_drawing{};          /**< class handling the worksheet drawing object */
         const std::vector< std::string_view >& m_nodeOrder = XLWorksheetNodeOrder;  // worksheet XML root node required child sequence
     };
 
