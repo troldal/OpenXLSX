@@ -994,8 +994,8 @@ XLWorksheet::XLWorksheet(const XLWorksheet& other) : XLSheetBase<XLWorksheet>(ot
     m_vmlDrawing    = other.m_vmlDrawing;     //  "     XLVmlDrawing
     m_comments      = other.m_comments;       //  "     XLComments         "
     m_tables        = other.m_tables;         //  "     XLTables           "
-    m_Drawing       = other.m_Drawing;        //  "     XLDrawing
-    m_pictures      = other.m_pictures;       //  "     XLPictures         "
+    m_drawing       = other.m_drawing;        //  "     XLDrawing
+
 }
 
 /**
@@ -1008,10 +1008,7 @@ XLWorksheet::XLWorksheet(XLWorksheet&& other) : XLSheetBase< XLWorksheet >(other
     m_vmlDrawing    = std::move(other.m_vmlDrawing);     //  "     XLVmlDrawing
     m_comments      = std::move(other.m_comments);       //  "     XLComments         "
     m_tables        = std::move(other.m_tables);         //  "     XLTables           "
-    m_Drawing       = std::move(other.m_Drawing);        //  "     XLDrawing
-    m_pictures      = std::move(other.m_pictures);       //  "     XLPictures         "
-
-
+    m_drawing       = std::move(other.m_drawing);        //  "     XLDrawing
 }
 
 /**
@@ -1025,8 +1022,7 @@ XLWorksheet& XLWorksheet::operator=(const XLWorksheet& other)
     m_vmlDrawing    = other.m_vmlDrawing;
     m_comments      = other.m_comments;
     m_tables        = other.m_tables;
-    m_Drawing       = other.m_Drawing;
-    m_pictures      = other.m_pictures;
+    m_drawing       = other.m_drawing;
 
     return *this;
 }
@@ -1042,8 +1038,7 @@ XLWorksheet& XLWorksheet::operator=(XLWorksheet&& other)
     m_vmlDrawing    = std::move(other.m_vmlDrawing);
     m_comments      = std::move(other.m_comments);
     m_tables        = std::move(other.m_tables);
-    m_Drawing       = std::move(other.m_Drawing);
-    m_pictures      = std::move(other.m_pictures);
+    m_drawing       = std::move(other.m_drawing);
 
     return *this;
 }
@@ -1639,15 +1634,13 @@ std::string XLWorksheet::sheetProtectionSummary() const
 }
 
 /**
- * @details functions to test whether a VMLDrawing / Comments / Tables /Drawing /Pictures entry exists for this worksheet (without creating those entries)
+ * @details functions to test whether a VMLDrawing / Comments / Tables entry exists for this worksheet (without creating those entries)
  */
 bool XLWorksheet::hasRelationships() const { return parentDoc().hasSheetRelationships(sheetXmlNumber()); }
 bool XLWorksheet::hasVmlDrawing()    const { return parentDoc().hasSheetVmlDrawing(   sheetXmlNumber()); }
 bool XLWorksheet::hasComments()      const { return parentDoc().hasSheetComments(     sheetXmlNumber()); }
 bool XLWorksheet::hasTables()        const { return parentDoc().hasSheetTables(       sheetXmlNumber()); }
 bool XLWorksheet::hasDrawing()       const { return parentDoc().hasSheetDrawing(      sheetXmlNumber()); }
-bool XLWorksheet::hasPictures()      const { return parentDoc().hasSheetPictures(     sheetXmlNumber()); }
-
 
 /**
  * @details fetches XLVmlDrawing for the sheet - creates & assigns the class if empty
@@ -1684,12 +1677,11 @@ XLVmlDrawing& XLWorksheet::vmlDrawing()
     return m_vmlDrawing;
 }
 /**
- * @details fetches XLVmlDrawing for the sheet - creates & assigns the class if empty
+ * @details fetches XLDrawing for the sheet - creates & assigns the class if empty
  */
-
-XLDrawing& XLWorksheet::Drawing()
+XLDrawing& XLWorksheet::drawing()
 {
-    if (!m_Drawing.valid()) {
+    if (!m_drawing.valid()) {
         // ===== Append xdr namespace attribute to worksheet if not present
         XMLNode docElement = xmlDocument().document_element();
         XMLAttribute xdrNamespace = appendAndGetAttribute(docElement, "xmlns:xdr", "");
@@ -1699,24 +1691,24 @@ XLDrawing& XLWorksheet::Drawing()
 
         // ===== Trigger parentDoc to create drawing XML file and return it
         uint16_t sheetXmlNo = sheetXmlNumber();
-        m_Drawing = parentDoc().sheetDrawing(sheetXmlNo); // fetch drawing for this worksheet
-        if (!m_Drawing.valid())
-            throw XLException("XLWorksheet::Drawing(): could not create drawing XML");
-        std::string drawingRelativePath = getPathARelativeToPathB( m_Drawing.getXmlPath(), getXmlPath() );
-        XLRelationshipItem DrawingRelationship;
+        m_drawing = parentDoc().sheetDrawing(sheetXmlNo); // fetch drawing for this worksheet
+        if (!m_drawing.valid())
+            throw XLException("XLWorksheet::drawing(): could not create drawing XML");
+        std::string drawingRelativePath = getPathARelativeToPathB(m_drawing.getXmlPath(), getXmlPath());
+        XLRelationshipItem drawingRelationship;
         if (!m_relationships.targetExists(drawingRelativePath))
-            DrawingRelationship = m_relationships.addRelationship(XLRelationshipType::Drawing, drawingRelativePath);
+            drawingRelationship = m_relationships.addRelationship(XLRelationshipType::Drawing, drawingRelativePath);
         else
-            DrawingRelationship = m_relationships.relationshipByTarget(drawingRelativePath);
-        if (DrawingRelationship.empty())
-            throw XLException("XLWorksheet::Drawing(): could not add determine sheet relationship for  Drawing");
+            drawingRelationship = m_relationships.relationshipByTarget(drawingRelativePath);
+        if (drawingRelationship.empty())
+            throw XLException("XLWorksheet::drawing(): could not add determine sheet relationship for Drawing");
         XMLNode legacyDrawing = appendAndGetNode(docElement, "legacyDrawing", m_nodeOrder);
         if (legacyDrawing.empty())
-            throw XLException("XLWorksheet::Drawing(): could not add <legacyDrawing> element to worksheet XML");
-        appendAndSetAttribute(legacyDrawing, "r:id", DrawingRelationship.id());
+            throw XLException("XLWorksheet::drawing(): could not add <legacyDrawing> element to worksheet XML");
+        appendAndSetAttribute(legacyDrawing, "r:id", drawingRelationship.id());
     }
 
-    return m_Drawing;
+    return m_drawing;
 }
 
 /**
@@ -1728,8 +1720,6 @@ XLComments& XLWorksheet::comments()
         std::ignore = relationships(); // create sheet relationships if not existing
         // ===== Unfortunately, xl/vmlDrawing#.vml is needed to support comments: append xdr namespace attribute to worksheet if not present
         std::ignore = vmlDrawing();    // create sheet VML drawing if not existing
-        std::ignore = Drawing();    // create sheet  drawing if not existing
-
 
 
         // ===== Trigger parentDoc to create comment XML file and return it
@@ -1739,7 +1729,6 @@ XLComments& XLWorksheet::comments()
         if (!m_comments.valid())
             throw XLException("XLWorksheet::comments(): could not create comments XML");
         m_comments.setVmlDrawing(m_vmlDrawing); // link XLVmlDrawing object to the comments so it can be modified from there
-        m_comments.setDrawing(m_Drawing); // link XLDrawing object to the comments so it can be modified from there
         std::string commentsRelativePath = getPathARelativeToPathB( m_comments.getXmlPath(), getXmlPath() );
         if (!m_relationships.targetExists(commentsRelativePath))
             m_relationships.addRelationship(XLRelationshipType::Comments, commentsRelativePath);
@@ -1770,30 +1759,6 @@ XLTables& XLWorksheet::tables()
 
     return m_tables;
 }
-
-/**
- * @details fetches XLPictures for the sheet - creates & assigns the class if empty
- */
-XLPictures& XLWorksheet::pictures()
-{
-    if (!m_pictures.valid()) {
-        std::ignore = relationships(); // create sheet relationships if not existing
-
-
-        // ===== Trigger parentDoc to create pictures XML file and return it
-        uint16_t sheetXmlNo = sheetXmlNumber();
-        // std::cout << "worksheet pictures for sheetId " << sheetXmlNo << std::endl;
-        m_pictures = parentDoc().sheetPictures(sheetXmlNo); // fetch pictures for this worksheet
-        if (!m_pictures.valid())
-            throw XLException("XLWorksheet::pictures(): could not create pictures XML");
-        std::string picturesRelativePath = getPathARelativeToPathB( m_pictures.getXmlPath(), getXmlPath() );
-        if (!m_relationships.targetExists(picturesRelativePath))
-            m_relationships.addRelationship(XLRelationshipType::Picture, picturesRelativePath);
-    }
-
-    return m_pictures;
-}
-
 
 /**
  * @details perform a pattern matching on getXmlPath for (regex) .*xl/worksheets/sheet([0-9]*)\.xml$ and extract the numeric part \1

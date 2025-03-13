@@ -139,15 +139,15 @@ int32_t XLSharedStrings::appendString(const std::string& str) const
 
 /* Demo RTF - included
 <r>
-	<t>pri</t>
+    <t>pri</t>
 </r>
 <r>
-	<rPr>
-		<u/>
-		<i/>
-		<b/>
-	</rPr>
-	<t>vet</t>
+    <rPr>
+        <u/>
+        <i/>
+        <b/>
+    </rPr>
+    <t>vet</t>
 </r>
 */
 
@@ -160,21 +160,17 @@ int32_t XLSharedStrings::appendString(const std::string& str) const
         throw XLInternalError("XLSharedStrings::"s + __func__ + ": exceeded max strings count "s + std::to_string(XLMaxSharedStrings));
     }
     XMLNode textNode;
-    int r = 0;
     if (str.substr(0, 3) == "<r>") {
         textNode = xmlDocument().document_element().append_child("si");
-        r = 1;
-    }
-    else
-        textNode = xmlDocument().document_element().append_child("si").append_child("t");
-    if ((!str.empty()) && (str.front() == ' ' || str.back() == ' '))
-        textNode.append_attribute("xml:space").set_value("preserve");    // pull request #161
-    if (r)
         textNode.append_buffer((void*)str.c_str(), str.length(), 116U, pugi::encoding_auto);
-    else
+    }
+    else {
+        textNode = xmlDocument().document_element().append_child("si").append_child("t");
+        if ((!str.empty()) && (str.front() == ' ' || str.back() == ' '))
+            textNode.append_attribute("xml:space").set_value("preserve");    // pull request #161
         textNode.text().set(str.c_str());
-    m_stringCache->emplace_back(textNode.text().get());    // index of this element = previous stringCacheSize
-
+        m_stringCache->emplace_back(textNode.text().get());    // index of this element = previous stringCacheSize
+    }
     return static_cast<int32_t>(stringCacheSize);
 }
 
