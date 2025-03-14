@@ -672,23 +672,16 @@ void XLVmlDrawing::print(std::basic_ostream<char>& ostr) const
 
 XLDrawing::XLDrawing(XLXmlData* xmlData) : XLXmlFile(xmlData)
 {
-    if (xmlData->getXmlType() != XLContentType::Drawing)
-        throw XLInternalError("XLDrawing constructor: Invalid XML data.");
-    /*
-        XMLDocument& doc = xmlDocument();
-        if (doc.document_element().empty())   // handle a bad (no document element) drawing XML file
-            doc.load_string(
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-                "<xml"
-                " xmlns:v=\"urn:schemas-microsoft-com:vml\""
-                " xmlns:o=\"urn:schemas-microsoft-com:office:office\""
-                " xmlns:x=\"urn:schemas-microsoft-com:office:excel\""
-                " xmlns:w10=\"urn:schemas-microsoft-com:office:word\""
-                ">"
-                "\n</xml>",
-                pugi_parse_settings
-            );
+	if (xmlData->getXmlType() != XLContentType::Drawing)
+		throw XLInternalError("XLDrawing constructor: Invalid XML data.");
+	XMLDocument& doc = xmlDocument();
+	if (doc.document_element().empty()) {  // handle a bad (no document element) drawing XML file
+    		std::string s1 = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>";
+    		std::string s2 = "<xdr:wsDr xmlns:xdr=\"http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"</xdr:wsDr>"; 
+        	doc.load_string((s1+"\n"+s2).data(),pugi_parse_settings);
+ 	}
 
+/*
         // ===== Re-sort the document: move all v:shapetype nodes to the beginning of the XML document element and eliminate duplicates
         // ===== Also: determine highest used shape id, regardless of basename (pattern [^0-9]*[0-9]*) and m_shapeCount
         using namespace std::literals::string_literals;
@@ -760,3 +753,83 @@ XLDrawing::XLDrawing(XLXmlData* xmlData) : XLXmlFile(xmlData)
      * @return
      */
 }
+
+/**
+ * @details get first shape node in document_element
+ * @return first shape node, empty node if none found
+ */
+XMLNode XLDrawing::firstShapeNode() const
+{
+    XMLNode node = xmlDocument().document_element().first_child_of_type(pugi::node_element);
+    return node;
+}
+
+/**
+ * @details get last shape node in document_element
+ * @return last shape node, empty node if none found
+ */
+XMLNode XLDrawing::lastShapeNode() const
+{
+    XMLNode node = xmlDocument().document_element().last_child_of_type(pugi::node_element);
+    return node;
+}
+
+/**
+ * @details get last shape node at index in document_element
+ * @return shape node at index - throws if index is out of bounds
+ */
+XMLNode XLDrawing::shapeNode(uint32_t index) const
+{
+    using namespace std::literals::string_literals;
+
+    XMLNode node{}; // scope declaration, ensures node.empty() when index >= m_shapeCount
+    if (index < m_shapeCount) {
+        uint16_t i = 0;
+        node = firstShapeNode();
+        while (i != index) {
+            ++i;
+            node = node.next_sibling_of_type(pugi::node_element);
+        }
+    }
+    if (node.empty())
+        throw XLException("XLDrawing: shape index "s + std::to_string(index) + " is out of bounds"s);
+
+    return node;
+}
+
+/**
+ * @details
+ */
+XMLNode XLDrawing::shapeNode(std::string const& cellRef) const
+{
+    XLCellReference destRef(cellRef);
+    uint32_t destRow = destRef.row() - 1;    // for accessing a shape: x:Row and x:Column are zero-indexed
+    uint16_t destCol = destRef.column() - 1; // ..
+
+    XMLNode node = firstShapeNode();
+    while (not node.empty()) {
+        if ((destRow == node.child("x:ClientData").child("x:Row").text().as_uint())
+            && (destCol == node.child("x:ClientData").child("x:Column").text().as_uint()))
+            break; // found shape for cellRef
+
+        do { // locate next shape node
+            node = node.next_sibling_of_type(pugi::node_element);
+        } while (not node.empty() && node.name() != ShapeNodeName);
+    }
+    return node;
+}
+
+uint32_t XLDrawing::shapeCount() const { return m_shapeCount; }
+/**
+ * @details insert shape and return index
+ */
+
+XMLNode XLDrawing::createShape()
+{
+    XMLNode rootNode = xmlDocument().document_element();
+    std::string ShapeNodeName("xdr:twoCellAnchor");
+    XMLNode node = rootNode.append_child(ShapeNodeName.c_str());
+    m_shapeCount++;
+    return node;
+}
+

@@ -361,3 +361,13 @@ std::vector<XLContentItem> XLContentTypes::getContentItems()
 
     return result;
 }
+
+bool XLContentTypes::PartNameExists(const std::string& path)
+{
+    return xmlDocument().document_element().find_child_by_attribute("PartName", path.c_str()) != nullptr;
+}
+
+bool XLContentTypes::ExtensionExists(const std::string& ext)
+{
+    return xmlDocument().document_element().find_child_by_attribute("Extension", ext.c_str()) != nullptr;
+}
