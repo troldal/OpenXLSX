@@ -255,6 +255,10 @@ namespace OpenXLSX
          */
         std::vector<XLContentItem> getContentItems();
 
+	bool PartNameExists(const std::string& path);
+	bool ExtensionExists(const std::string& ext);
+
+
     private:   // ---------- Private Member Variables ---------- //
     };
 }    // namespace OpenXLSX

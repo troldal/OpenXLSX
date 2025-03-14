@@ -271,6 +271,7 @@ namespace OpenXLSX
 
     class OPENXLSX_EXPORT XLShape {
         friend class XLVmlDrawing;    // for access to m_shapeNode in XLVmlDrawing::addShape
+        friend class XLDrawing;
     public:    // ---------- Public Member Functions ---------- //
         /**
          * @brief
@@ -466,6 +467,23 @@ namespace OpenXLSX
          */
 
         XLDrawing& operator=(XLDrawing&& other) noexcept = default;
+
+        XMLNode shapeNode(std::string const& cellRef) const;
+        XMLNode shapeNode(uint32_t index) const;
+
+        XMLNode createShape();
+
+        uint32_t shapeCount() const;
+
+    private: // helper functions with repeating code
+        XMLNode firstShapeNode() const;
+        XMLNode lastShapeNode() const;
+
+	private:
+		uint32_t m_shapeCount{0};
+        uint32_t m_lastAssignedShapeId{0};
+        std::string m_defaultShapeTypeId{};
+
 
     };
 }    // namespace OpenXLSX
