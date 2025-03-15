@@ -20,6 +20,9 @@ Should you experience stability issues, please revert to commit https://github.c
 
 ## Recent changes
 
+### 2025-03-15: XLSheet: fixed issue #337 - assign tabSelected value with newly created attribute if it didn't exist
+* in response to https://github.com/troldal/OpenXLSX/issues/337, added a forgotten assignment to ```XLSheet.cpp```
+
 ### 2025-02-17: added some comments to XLSheet class definition to clarify that the sheet index is 1-based (issue #332)
 * in response to https://github.com/troldal/OpenXLSX/issues/332, added (doxygen) documentation to ```XLSheet.hpp``` clarifying that sheet index is 1-based
 
