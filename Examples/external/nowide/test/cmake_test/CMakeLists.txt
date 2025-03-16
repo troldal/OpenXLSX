@@ -2,7 +2,7 @@
 # Distributed under the Nowide Software License, Version 1.0.
 # See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt
 
-cmake_minimum_required(VERSION 3.5...3.16)
+cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
 
 project(cmake_subdir_test LANGUAGES CXX)
 

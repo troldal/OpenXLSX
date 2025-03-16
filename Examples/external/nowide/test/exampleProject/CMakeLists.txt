@@ -1,5 +1,5 @@
 # Project testing to consume Nowide.Nowide
-cmake_minimum_required(VERSION 3.8.0)
+cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
 project(nowide_example_project)
 
 find_package(nowide 11.0 REQUIRED)
