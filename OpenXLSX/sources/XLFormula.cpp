@@ -140,7 +140,12 @@ void XLFormulaProxy::setFormulaString(const char* formulaString, bool resetValue
     assert(m_cellNode != nullptr);      // NOLINT
     assert(not m_cellNode->empty());    // NOLINT
 
-    // ===== If the cell node doesn't have a value child node, create it.
+    if (formulaString[0] == 0) {    // if formulaString is empty
+        m_cellNode->remove_child("f");    // clear the formula node
+        return;                           // and exit
+    }
+
+    // ===== If the cell node doesn't have formula or value child nodes, create them.
     if (m_cellNode->child("f").empty()) m_cellNode->append_child("f");
     if (m_cellNode->child("v").empty()) m_cellNode->append_child("v");
 
@@ -148,7 +153,7 @@ void XLFormulaProxy::setFormulaString(const char* formulaString, bool resetValue
     m_cellNode->child("f").remove_attribute("t");
     m_cellNode->child("f").remove_attribute("si");
 
-    // ===== Set the text of the value node.
+    // ===== Set the text of the formula and value nodes.
     m_cellNode->child("f").text().set(formulaString);
     if (resetValue) m_cellNode->child("v").text().set(0);
 

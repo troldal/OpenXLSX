@@ -161,6 +161,7 @@ namespace OpenXLSX
          * @brief clear all cell content and attributes except for the cell reference (attribute r)
          * @param keep do not clear cell properties whose flags are set in keep (XLKeepCellStyle, XLKeepCellType,
          *              XLKeepCellValue, XLKeepCellFormula), flags can be combined with bitwise OR
+         * @note due to the way OOXML separates comments from the cells, this function will *not* clear a cell comment - refer to XLComments& XLSheet::comments() for that
          */
         void clear(uint32_t keep);
 
@@ -189,8 +190,8 @@ namespace OpenXLSX
         XLCell offset(uint16_t rowOffset, uint16_t colOffset) const;
 
         /**
-         * @brief
-         * @return
+         * @brief test if cell has a formula (XML) node, even if it is an empty string
+         * @return true if XML has a formula node, empty or not - otherwise false
          */
         bool hasFormula() const;
 

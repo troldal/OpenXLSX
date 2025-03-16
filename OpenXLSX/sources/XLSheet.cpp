@@ -1101,6 +1101,24 @@ XLCellAssignable XLWorksheet::cell(uint32_t rowNumber, uint16_t columnNumber) co
 /**
  * @details
  */
+XLCellAssignable XLWorksheet::findCell(const std::string& ref) const { return findCell(XLCellReference(ref)); }
+
+/**
+ * @details
+ */
+XLCellAssignable XLWorksheet::findCell(const XLCellReference& ref) const { return findCell(ref.row(), ref.column()); }
+
+/**
+ * @details This function attempts to find a cell, but creates neither the row nor the cell XML if missing - and returns an empty XLCellAssignable instead
+ */
+XLCellAssignable XLWorksheet::findCell(uint32_t rowNumber, uint16_t columnNumber) const
+{
+    return XLCellAssignable(XLCell(findCellNode(findRowNode( xmlDocument().document_element().child("sheetData"), rowNumber ), columnNumber), parentDoc().sharedStrings()));
+}
+
+/**
+ * @details
+ */
 XLCellRange XLWorksheet::range() const { return range(XLCellReference("A1"), lastCell()); }
 
 /**

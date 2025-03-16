@@ -228,6 +228,49 @@ int main()
     std::cout << "==> the worksheet " << wks.name() << " is now protected with the password " << password << std::endl;
     std::cout << std::endl;
 
+    std::cout << std::endl;
+    std::cout << "XLWorksheet testing for empty cells demo.." << std::endl;
+    std::cout << "==========================================" << std::endl;
+    std::cout << "  using an XLCellIterator (recommended)" << std::endl;
+    std::cout << "  -----------------------------------" << std::endl;
+    XLCellRange cellRange = wks.range("A1:G2");
+    for (XLCellIterator cellIt = cellRange.begin(); cellIt != cellRange.end(); ++cellIt) {
+        if (!cellIt.cellExists()) continue; // prevent cell creation by access for non-existing cells
+        std::cout << "cell " << cellIt.address() << " exists!" << std::endl;
+    }
+
+    std::cout << std::endl;
+    std::cout << "  using XLSheet::findCell (lazy method, not recommended)" << std::endl;
+    std::cout << "  NOTE: this method should only be used for tests of individual cells when performance is not an issue" << std::endl;
+    std::cout << "  ------------------------------------------------------" << std::endl;
+    wks.cell("D2").formula().set("=A1+B1");
+    wks.cell("E2").formula().set(""); // setting an empty (zero-length) formula string will delete the formula node
+
+    for (int row = 1; row < 4; ++row) {
+        for (int col = 1; col < 8; ++col) {
+            XLCellReference ref(row, col);
+            XLCellAssignable c = wks.findCell(ref);
+            if (c.empty())
+        continue;
+
+            // It is up to the implementation to decide which tests shall be performed on a cell that exists - here are a few exemplary tests
+            std::string valueAsString = c.getString();
+            if (valueAsString == "" && !c.hasFormula())
+                cout << "cell " << ref.address() << " exists but has no value or formula" << std::endl;
+            else {
+                // cout << "cell " << ref.address() << " value is |" << c.value() << "|" << std::endl;
+                if (valueAsString.length() > 0)
+                    cout << "cell " << ref.address() << " value is |" << valueAsString << "|" << std::endl;
+                if (c.hasFormula()) {
+                    if (c.formula().get().length() > 0)
+                        cout << "cell " << ref.address() << " formula is |" << c.formula().get() << "|" << std::endl;
+                    else    // NOTE: this state can not be created with OpenXLSX setter functions, but possibly by other libraries / programs
+                        cout << "cell " << ref.address() << " has an empty formula" << std::endl;
+                }
+            }
+        }
+    }
+
     doc.save();
     doc.close();
 
