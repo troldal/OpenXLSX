@@ -392,7 +392,9 @@ namespace OpenXLSX
          */
         void cleanupSharedStrings();
 
-        int appendPictures(void* buffer, int bufferlen, char* ext,int col1,int row1,int col2,int row2);
+        int appendPictures(int sheetXmlNo,void* buffer, int bufferlen, char* ext,int col1,int row1,int col2,int row2);
+	    void setShapeAttribute(int sheetXmlNo,int shapeNo,char *path,char *attribute,char *value);
+
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Protected Member Functions
