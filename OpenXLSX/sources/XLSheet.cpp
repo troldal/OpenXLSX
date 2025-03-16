@@ -92,10 +92,8 @@ namespace OpenXLSX
         unsigned int value       = (selected ? 1 : 0);
         XMLNode      sheetView   = xmlDocument.document_element().child("sheetViews").first_child_of_type(pugi::node_element);
         XMLAttribute tabSelected = sheetView.attribute("tabSelected");
-        if (tabSelected.empty()) {
-            sheetView.prepend_attribute("tabSelected");    // BUGFIX 2024-05-01: create tabSelected attribute if it does not exist
-            tabSelected= sheetView.attribute("tabSelected");
-        }
+        if (tabSelected.empty())
+            tabSelected = sheetView.prepend_attribute("tabSelected");    // BUGFIX 2024-05-01: create tabSelected attribute if it does not exist
         tabSelected.set_value(value);
     }
 

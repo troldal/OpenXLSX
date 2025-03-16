@@ -45,6 +45,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== External Includes ===== //
 // #include <algorithm>
+
+
 #include <cctype>       // std::isdigit (issue #330)
 #include <string>       // std::string
 #include <pugixml.hpp>
@@ -60,7 +62,7 @@ namespace OpenXLSX
 {
     const std::string ShapeNodeName = "v:shape";
     const std::string ShapeTypeNodeName = "v:shapetype";
-
+    const std::string ShapeNodeNameDr = "xdr:twoCellAnchor";
     // utility functions
 
     /**
@@ -457,6 +459,7 @@ XLVmlDrawing::XLVmlDrawing(XLXmlData* xmlData)
     XMLNode rootNode = doc.document_element();
     XMLNode node = rootNode.first_child_of_type(pugi::node_element);
     XMLNode lastShapeTypeNode{};
+    m_shapeCount=0;
     while (not node.empty()) {
        XMLNode nextNode = node.next_sibling_of_type(pugi::node_element); // determine next node early because node may be invalidated by moveNode
        if (node.raw_name() == ShapeTypeNodeName) {
@@ -680,73 +683,15 @@ XLDrawing::XLDrawing(XLXmlData* xmlData) : XLXmlFile(xmlData)
     		std::string s2 = "<xdr:wsDr xmlns:xdr=\"http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"</xdr:wsDr>"; 
         	doc.load_string((s1+"\n"+s2).data(),pugi_parse_settings);
  	}
+    XMLNode rootNode = doc.document_element();
+    XMLNode node = rootNode.first_child_of_type(pugi::node_element);
 
-/*
-        // ===== Re-sort the document: move all v:shapetype nodes to the beginning of the XML document element and eliminate duplicates
-        // ===== Also: determine highest used shape id, regardless of basename (pattern [^0-9]*[0-9]*) and m_shapeCount
-        using namespace std::literals::string_literals;
+    while (not node.empty() && node.raw_name()==ShapeNodeNameDr) {
+      XMLNode nextNode = node.next_sibling_of_type(pugi::node_element); // determine next node early because node may be invalidated by moveNode
+        ++m_shapeCount;
+        node = nextNode;
+    }
 
-        XMLNode rootNode = doc.document_element();
-        XMLNode node = rootNode.first_child_of_type(pugi::node_element);
-        XMLNode lastShapeTypeNode{};
-        while (not node.empty()) {
-            XMLNode nextNode = node.next_sibling_of_type(pugi::node_element); // determine next node early because node may be invalidated by moveNode
-            if (node.raw_name() == ShapeTypeNodeName) {
-                if (wouldBeDuplicateShapeType(rootNode, node)) { // if shapetype attribute id already exists at begin of file
-                    while (node.previous_sibling().type() == pugi::node_pcdata) // delete preceeding whitespaces
-                        rootNode.remove_child(node.previous_sibling());        //  ...
-                    rootNode.remove_child(node);                               // and the v:shapetype node, as it can not be referenced for lack of a unique id
-                }
-                else
-                    lastShapeTypeNode = moveNode(rootNode, node, lastShapeTypeNode); // move node to end of continuous list of shapetype nodes
-            }
-            else if (node.raw_name() == ShapeNodeName) {
-                ++m_shapeCount;
-                std::string strNodeId = node.attribute("id").value();
-                size_t pos = strNodeId.length();
-                uint32_t nodeId = 0;
-                while (pos > 0 && std::isdigit(strNodeId[--pos])) // determine any trailing nodeId
-                    nodeId = 10 * nodeId + strNodeId[pos] - '0';
-                m_lastAssignedShapeId = std::max(m_lastAssignedShapeId, nodeId);
-            }
-            node = nextNode;
-        }
-        // Henceforth: assume that it is safe to consider shape nodes a continuous list (well - unless there are other node types as well)
-
-        XMLNode shapeTypeNode{};
-        if (not lastShapeTypeNode.empty()) {
-            shapeTypeNode = rootNode.first_child_of_type(pugi::node_element);
-            while (not shapeTypeNode.empty() && shapeTypeNode.raw_name() != ShapeTypeNodeName)
-                shapeTypeNode = shapeTypeNode.next_sibling_of_type(pugi::node_element);
-        }
-        if (shapeTypeNode.empty()) {
-            shapeTypeNode = rootNode.prepend_child(ShapeTypeNodeName.c_str(), XLForceNamespace);
-            rootNode.prepend_child(pugi::node_pcdata).set_value("\n\t");
-        }
-        if (shapeTypeNode.first_child().empty())
-            shapeTypeNode.append_child(pugi::node_pcdata).set_value("\n\t"); // insert indentation if node was empty
-
-        // ===== Ensure that attributes exist for first shapetype node, default-initialize if needed:
-        m_defaultShapeTypeId = appendAndGetAttribute(shapeTypeNode, "id", "_x0000_t202").value();
-        appendAndGetAttribute(shapeTypeNode, "coordsize", "21600,21600");
-        appendAndGetAttribute(shapeTypeNode, "o:spt", "202");
-        appendAndGetAttribute(shapeTypeNode, "path", "m,l,21600l21600,21600l21600,xe");
-
-        XMLNode strokeNode = shapeTypeNode.child("v:stroke");
-        if (strokeNode.empty()) {
-            strokeNode = shapeTypeNode.prepend_child("v:stroke", XLForceNamespace);
-            shapeTypeNode.prepend_child(pugi::node_pcdata).set_value("\n\t\t");
-        }
-        appendAndGetAttribute(strokeNode, "joinstyle", "miter");
-
-        XMLNode pathNode = shapeTypeNode.child("v:path");
-        if (pathNode.empty()) {
-            pathNode = shapeTypeNode.insert_child_after("v:path", strokeNode, XLForceNamespace);
-            copyLeadingWhitespaces(shapeTypeNode, strokeNode, pathNode);
-        }
-        appendAndGetAttribute(pathNode, "gradientshapeok", "t");
-        appendAndGetAttribute(pathNode, "o:connecttype", "rect");
-    */
     /**
      * @brief
      * @param other
@@ -758,9 +703,16 @@ XLDrawing::XLDrawing(XLXmlData* xmlData) : XLXmlFile(xmlData)
  * @details get first shape node in document_element
  * @return first shape node, empty node if none found
  */
+
+XMLNode XLDrawing::rootNode() const{
+    return xmlDocument().document_element();
+}
+
 XMLNode XLDrawing::firstShapeNode() const
 {
     XMLNode node = xmlDocument().document_element().first_child_of_type(pugi::node_element);
+    while (not node.empty() && node.raw_name() != ShapeNodeNameDr)   // skip non shape nodes
+        node = node.next_sibling_of_type(pugi::node_element);
     return node;
 }
 
@@ -771,7 +723,10 @@ XMLNode XLDrawing::firstShapeNode() const
 XMLNode XLDrawing::lastShapeNode() const
 {
     XMLNode node = xmlDocument().document_element().last_child_of_type(pugi::node_element);
+    while (not node.empty() && node.raw_name() != ShapeNodeNameDr)
+        node = node.previous_sibling_of_type(pugi::node_element);
     return node;
+
 }
 
 /**
@@ -783,15 +738,15 @@ XMLNode XLDrawing::shapeNode(uint32_t index) const
     using namespace std::literals::string_literals;
 
     XMLNode node{}; // scope declaration, ensures node.empty() when index >= m_shapeCount
-    if (index < m_shapeCount) {
+    if (index < shapeCount()) {
         uint16_t i = 0;
         node = firstShapeNode();
-        while (i != index) {
+        while (i != index && node.raw_name()==ShapeNodeNameDr) {
             ++i;
             node = node.next_sibling_of_type(pugi::node_element);
         }
     }
-    if (node.empty())
+    if (node.empty() || node.raw_name()!=ShapeNodeNameDr)
         throw XLException("XLDrawing: shape index "s + std::to_string(index) + " is out of bounds"s);
 
     return node;
@@ -807,14 +762,14 @@ XMLNode XLDrawing::shapeNode(std::string const& cellRef) const
     uint16_t destCol = destRef.column() - 1; // ..
 
     XMLNode node = firstShapeNode();
-    while (not node.empty()) {
+    while (not node.empty() && node.raw_name()==ShapeNodeNameDr) {
         if ((destRow == node.child("x:ClientData").child("x:Row").text().as_uint())
             && (destCol == node.child("x:ClientData").child("x:Column").text().as_uint()))
             break; // found shape for cellRef
 
         do { // locate next shape node
             node = node.next_sibling_of_type(pugi::node_element);
-        } while (not node.empty() && node.name() != ShapeNodeName);
+        } while (not node.empty() && node.name() != ShapeNodeNameDr);
     }
     return node;
 }
@@ -824,12 +779,12 @@ uint32_t XLDrawing::shapeCount() const { return m_shapeCount; }
  * @details insert shape and return index
  */
 
-XMLNode XLDrawing::createShape()
+XLShape XLDrawing::createShape()
 {
     XMLNode rootNode = xmlDocument().document_element();
-    std::string ShapeNodeName("xdr:twoCellAnchor");
-    XMLNode node = rootNode.append_child(ShapeNodeName.c_str());
+    XMLNode node = rootNode.append_child(ShapeNodeNameDr.c_str());
     m_shapeCount++;
-    return node;
+    return XLShape(node);
 }
 
+XLShape XLDrawing::shape(uint32_t index) const { return XLShape(shapeNode(index)); }

@@ -1486,20 +1486,70 @@ void XLDocument::cleanupSharedStrings()
         throw XLInternalError("XLDocument::cleanupSharedStrings: failed to rewrite shared string table - document would be corrupted");
 }
 
-int XLDocument::appendPictures(void* buffer, int bufferlen, char* ext,int col1,int row1,int col2,int row2)
+void XLDocument::setShapeAttribute(int sheetXmlNo,int shapeNo,char *path,char *attribute,char *value)
+{
+    char* s, * s0; int i, att = 0,val=0; XMLNode f; std::string ss,sa,sv;
+     XLDrawing dr = sheetDrawing((uint32_t)sheetXmlNo);
+     XMLNode n=dr.shapeNode((uint32_t)shapeNo-1);
+     s = s0 = path;
+     while (1) {
+         if (*s == '/' || *s=='@' || *s=='=' || *s==',' || !*s) {
+             i = s - s0;
+             if(i)ss=std::string((const char *)s0,(size_t)i);
+             s0 = s+1;
+             if (att && i) {
+                 if (*s == '=') {
+                     sa = ss;
+                }
+                 else {
+                     if (val) {
+                         sv = ss;
+                     }
+                 }
+             }
+             if (att && val && i) {
+                 n.append_attribute(sa.data()) = sv.data();
+                 att = 0;
+                 val = 0;
+                 if (!*s)break;
+                 s++;
+                 continue;
+             }
+             if (!att && !val && i) {
+                 f = n.first_child_of_type(pugi::node_element);
+                 while (!f.empty()) {
+                     if (f.raw_name() == ss)break;
+                     f = f.next_sibling_of_type(pugi::node_element);
+                 }
+                 if (f.empty()) {
+                     f = n.append_child(ss.c_str());
+                 }
+                 if(*s!=',') {
+                     n = f;
+                 }
+             }
+             if (*s == '@')att = 1;
+             if (*s == '=')val = 1;
+             if (!*s)break;
+         }
+         s++;
+     }
+     if (attribute && *attribute) {
+         const pugi::char_t* a = (const pugi::char_t*)attribute;
+         n.append_attribute(a) = value;
+     }
+     else {
+        if(value && *value)
+             n.text() = value;
+     }
+     return;
+}
+
+int XLDocument::appendPictures(int sheetXmlNo,void* buffer, int bufferlen, char* ext,int col1,int row1,int col2,int row2)
 {
     using namespace std::literals::string_literals;
     std::string xmlns="http://schemas.openxmlformats.org/officeDocument/2006/relationships";
     XLXmlData* xmlData; XMLDocument* xmlDocument; XMLNode root;
-    int16_t sheetXmlNo = 1;
-
-    for (int i = 1; i <= m_workbook.sheetCount(); i++) {
-        if (m_workbook.worksheet(i).isSelected()) {
-            sheetXmlNo = i;
-            break;
-        }
-    }
-
     int id = 1;
     std::string v;
     v.assign((const char*)buffer, (const size_t)bufferlen);
@@ -1541,10 +1591,8 @@ int XLDocument::appendPictures(void* buffer, int bufferlen, char* ext,int col1,i
         dr.append_attribute("r:id")= drwitem.id().data();
     }
     XLDrawing dr = sheetDrawing(sheetXmlNo);
-    root=dr.createShape();
-//    int16_t idshape = dr.shapeCount() - 1;
-//    root = dr.shapeNode(idshape);
-
+    dr.createShape();
+    root= dr.shapeNode(dr.shapeCount()-1);
     XMLNode from =root.append_child("xdr:from");
     from.append_child("xdr:col").text()=std::to_string(col1-1).data();
     from.append_child("xdr:colOff").text() = "0";
@@ -1560,16 +1608,29 @@ int XLDocument::appendPictures(void* buffer, int bufferlen, char* ext,int col1,i
     XMLNode pname=nvpicpr.append_child("xdr:cNvPr");
     pname.append_attribute("id") = std::to_string(id).data();
     pname.append_attribute("name") = (std::string("Picture ")+std::to_string(id)).data();
-    pname = nvpicpr.append_child("xdr:cNvPicPr");
-    XMLNode piclocks = pname.append_child("a:picLocks");
-    piclocks.append_attribute("noChangeAspect") = "1";
+    XMLNode cpname = nvpicpr.append_child("xdr:cNvPicPr");
+    XMLNode piclocks = cpname.append_child("a:picLocks");
+ //   piclocks.append_attribute("noChangeAspect") = "1";
     XMLNode bf=pic.append_child("xdr:blipFill");
     XMLNode blip = bf.append_child("a:blip");
     blip.append_attribute("xmlns:r")=xmlns.data();
     blip.append_attribute("r:embed")=imgitem.id().data();
-    XMLNode stretch= bf.append_child("a:stretch");
-    stretch.append_child("a:fillRect");
+// clrChange не должно быть пустое  
+//   XMLNode clr = blip.append_child("a:clrChange");
+//    XMLNode clrfrom=clr.append_child("a:clrFrom");
+//    XMLNode srgb = clrfrom.append_child("a:srgbClr");
+//    srgb.append_attribute("val")="FFFFFF";
+//    XMLNode clrto = clr.append_child("a:clrTo");
+//    srgb = clrfrom.append_child("a:srgbClr");
+//    srgb.append_attribute("val") = "FFFFFF";
+
+ //   XMLNode stretch= bf.append_child("a:stretch");
+//    stretch.append_child("a:fillRect");
     XMLNode sppr=pic.append_child("xdr:spPr");
+    XMLNode xfrm=sppr.append_child("a:xfrm");
+// a:off и a:ext не должны быть пустыми
+//    xfrm.append_child("a:off");
+//    xfrm.append_child("a:ext");
     XMLNode geom=sppr.append_child("a:prstGeom");
     geom.append_attribute("prst") = "rect";
     geom.append_child("a:avLst");
