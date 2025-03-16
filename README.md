@@ -20,6 +20,9 @@ Should you experience stability issues, please revert to commit https://github.c
 
 ## Recent changes
 
+### 2025-03-16: XLSheet: fixed issue #338 - align cmake_minimum_required to be VERSION 3.15 everywhere
+* in response to https://github.com/troldal/OpenXLSX/issues/338, updated all occurrences of ```CMakeLists.txt``` in ```Examples/external/nowide/*``` to have cmake_minimum_required VERSION 3.15
+
 ### 2025-03-15: XLSheet: fixed issue #337 - assign tabSelected value with newly created attribute if it didn't exist
 * in response to https://github.com/troldal/OpenXLSX/issues/337, added a forgotten assignment to ```XLSheet.cpp```
 
