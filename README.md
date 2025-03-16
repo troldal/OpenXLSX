@@ -9,6 +9,7 @@ As the heading says - the latest "Release" that is shown on https://github.com/t
 
 ## (aral-matrix) 16 March 2025 - XLSheet::findCell added to address #333, setting an XLFormula to an empty string now deletes the formula
 * added function(s) ```XLSheet::findCell``` that allow to try and fetch a cell without creating the row/cell XML (like the non-creating XLCellIterator). This function complements ```XLSheet::cell``` (which always creates the XML cell node and returns a valid object)
+* after using ```findCell```, the returned ```XLCellAssignable::empty()``` method must be checked to ensure success before accessing any cell properties
 * ```XLSheet::findCell``` provides a solution to https://github.com/troldal/OpenXLSX/issues/333, a demonstration of this solution has been added to ```Demo1.cpp```
 * setting ```XLFormula``` to an empty (zero-length) string will now delete the formula XML node from the cell without further actions
 
