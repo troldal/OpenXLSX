@@ -1508,7 +1508,9 @@ void XLDocument::setShapeAttribute(int sheetXmlNo,int shapeNo,char *path,char *a
                  }
              }
              if (att && val && i) {
-                 n.append_attribute(sa.data()) = sv.data();
+                 const pugi::char_t* a = (const pugi::char_t*)sa.data();
+                 if (n.attribute(a).empty())n.append_attribute(a) = sv.data();
+                 else n.attribute(a).set_value(sv.data());
                  att = 0;
                  val = 0;
                  if (!*s)break;
@@ -1536,7 +1538,8 @@ void XLDocument::setShapeAttribute(int sheetXmlNo,int shapeNo,char *path,char *a
      }
      if (attribute && *attribute) {
          const pugi::char_t* a = (const pugi::char_t*)attribute;
-         n.append_attribute(a) = value;
+         if(n.attribute(a).empty())n.append_attribute(a) = value;
+         else n.attribute(a).set_value(value);
      }
      else {
         if(value && *value)
@@ -1636,7 +1639,7 @@ int XLDocument::appendPictures(int sheetXmlNo,void* buffer, int bufferlen, char*
     geom.append_child("a:avLst");
     root.append_child("xdr:clientData");
  
-    return id;
+    return dr.shapeCount();
 }
 
 //----------------------------------------------------------------------------------------------------------------------

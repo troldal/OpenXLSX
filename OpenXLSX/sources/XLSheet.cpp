@@ -31,7 +31,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
     derived from this software without specific prior written permission.
 
   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IPLIED
   WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
   DISCLAIMED. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
   DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
@@ -69,6 +69,19 @@ namespace OpenXLSX
      * @param xmlDocument XMLDocument object
      * @param color Thr color to set
      */
+
+    float XLWorksheet::defaultColWidth() const
+    {
+        if (!xmlDocument().document_element().child("sheetFormatPr"))return 9.8;
+	    return xmlDocument().document_element().child("sheetFormatPr").attribute("defaultColWidth").as_float();
+    }
+
+    float XLWorksheet::defaultRowHeight() const 
+    {
+    if (!xmlDocument().document_element().child("sheetFormatPr"))return 0;
+	return xmlDocument().document_element().child("sheetFormatPr").attribute("defaultRowHeight").as_float();
+    }
+
     void setTabColor(const XMLDocument& xmlDocument, const XLColor& color)
     {
         if (!xmlDocument.document_element().child("sheetPr")) xmlDocument.document_element().prepend_child("sheetPr");
@@ -1215,6 +1228,7 @@ XLColumn XLWorksheet::column(uint16_t columnNumber) const
 
     uint16_t minColumn {};
     uint16_t maxColumn {};
+    auto dcw = defaultColWidth();
     if (not columnNode.empty()) {
         minColumn = columnNode.attribute("min").as_int();    // only look it up once for multiple access
         maxColumn = columnNode.attribute("max").as_int();    //   "
@@ -1258,7 +1272,7 @@ XLColumn XLWorksheet::column(uint16_t columnNumber) const
         columnNode                                 = xmlDocument().document_element().child("cols").insert_child_before("col", columnNode);
         columnNode.append_attribute("min")         = columnNumber;
         columnNode.append_attribute("max")         = columnNumber;
-        columnNode.append_attribute("width")       = 9.8;    // NOLINT
+        columnNode.append_attribute("width")       = dcw;    // NOLINT
         columnNode.append_attribute("customWidth") = 0;
     }
 
@@ -1267,7 +1281,7 @@ XLColumn XLWorksheet::column(uint16_t columnNumber) const
         columnNode                                 = xmlDocument().document_element().child("cols").append_child("col");
         columnNode.append_attribute("min")         = columnNumber;
         columnNode.append_attribute("max")         = columnNumber;
-        columnNode.append_attribute("width")       = 9.8;    // NOLINT
+        columnNode.append_attribute("width")       = dcw;    // NOLINT
         columnNode.append_attribute("customWidth") = 0;
     }
 
