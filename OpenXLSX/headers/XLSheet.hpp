@@ -966,6 +966,9 @@ namespace OpenXLSX
          * @return
          */
         XLRowRange rows() const;
+     
+        float defaultColWidth() const;
+        float defaultRowHeight() const;
 
         /**
          * @brief
