@@ -115,7 +115,7 @@ namespace
      * @note 2024-08-31: Included a "dumb" fallback solution in relationship tests to support
      *          previously unknown relationship domains, e.g. type="http://purl.oclc.org/ooxml/officeDocument/relationships/worksheet"
      */
-    XLRelationshipType GetTypeFromString(const std::string& typeString)
+    XLRelationshipType GetRelationshipTypeFromString(const std::string& typeString)
     {
         // TODO 2024-08-09: support dumb applications that implemented relationship Type in different case (e.g. vmldrawing instead of vmlDrawing)
         //                  easy approach: convert typestring and comparison string to all lower characters
@@ -284,7 +284,7 @@ XLRelationshipItem& XLRelationshipItem::operator=(const XLRelationshipItem& othe
 /**
  * @details Returns the m_relationshipType member variable by getValue.
  */
-XLRelationshipType XLRelationshipItem::type() const { return GetTypeFromString(m_relationshipNode->attribute("Type").value()); }
+XLRelationshipType XLRelationshipItem::type() const { return GetRelationshipTypeFromString(m_relationshipNode->attribute("Type").value()); }
 
 /**
  * @details Returns the m_relationshipTarget member variable by getValue.

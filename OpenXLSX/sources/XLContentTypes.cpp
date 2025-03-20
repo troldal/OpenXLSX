@@ -67,7 +67,7 @@ namespace { // anonymous namespace for local functions
      * @note 2024-08-31: In line with a change to hardcoded XML relationship domains in XLRelationships.cpp, replaced the repeating
      *          hardcoded strings here with the above declared constants, preparing a potential need for a similar "dumb" fallback implementation
      */
-    XLContentType GetTypeFromString(const std::string& typeString)
+    XLContentType GetContentTypeFromString(const std::string& typeString)
     {
         XLContentType type { XLContentType::Unknown };
 
@@ -218,7 +218,7 @@ XLContentItem& XLContentItem::operator=(XLContentItem&& other) noexcept = defaul
 /**
  * @details
  */
-XLContentType XLContentItem::type() const { return GetTypeFromString(m_contentNode->attribute("ContentType").value()); }
+XLContentType XLContentItem::type() const { return GetContentTypeFromString(m_contentNode->attribute("ContentType").value()); }
 
 /**
  * @details
