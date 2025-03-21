@@ -167,6 +167,9 @@ namespace
                 return XLRelationshipType::Comments;
             if (typeString.substr(comparePos) == (comparePos ? "" : relationshipDomainOpenXml2006) + "/relationships/table")
                 return XLRelationshipType::Table;
+            if (typeString.substr(comparePos) == (comparePos ? "" : relationshipDomainOpenXml2006) + "/relationships/hyperlink")
+                return XLRelationshipType::Hyperlink;
+
 
             // ===== relationship could not be identified
             if (comparePos == 0 )    // If fallback solution has not yet been tried
@@ -210,6 +213,8 @@ namespace OpenXLSX_XLRelationships {    // make GetStringFromType accessible thr
             case XLRelationshipType::ChartColorStyle:    return relationshipDomainMicrosoft2011 + "/relationships/chartColorStyle";
             case XLRelationshipType::Comments:           return relationshipDomainOpenXml2006 + "/relationships/comments";
             case XLRelationshipType::Table:              return relationshipDomainOpenXml2006 + "/relationships/table";
+            case XLRelationshipType::Hyperlink:          return relationshipDomainOpenXml2006 + "/relationships/hyperlink";
+
             default:
                 throw XLInternalError("RelationshipType not recognized!");
         }
@@ -297,6 +302,17 @@ std::string XLRelationshipItem::target() const
 }
 
 /**
+ * @details Returns the m_relationshipTarget member variable by getValue.
+ */
+
+std::string XLRelationshipItem::targetMode() const
+{
+    // 2024-12-15 Returned to old behavior: do not strip leading slashes as this loses info about path being absolute.
+    //            Instead, treat absolute vs. relative path distinction in caller
+    return m_relationshipNode->attribute("TargetMode").value();
+}
+
+/**
  * @details Returns the m_relationshipId member variable by getValue.
  */
 std::string XLRelationshipItem::id() const { return m_relationshipNode->attribute("Id").value(); }
@@ -355,14 +371,20 @@ XLRelationshipItem XLRelationships::relationshipById(const std::string& id) cons
 XLRelationshipItem XLRelationships::relationshipByTarget(const std::string& target, bool throwIfNotFound) const
 {
     // turn relative path into an absolute and resolve . and .. entries
-    std::string absoluteTarget = eliminateDotAndDotDotFromPath(target[0] == '/' ? target : m_path + target);
+    std::string absoluteTarget;
 
     XMLNode relationshipNode = xmlDocument().document_element().first_child_of_type(pugi::node_element);
     while (not relationshipNode.empty()) {
         std::string relationTarget = relationshipNode.attribute("Target").value();
-        if (relationTarget[0] != '/') relationTarget = m_path + relationTarget;    // turn relative path into an absolute
-        relationTarget = eliminateDotAndDotDotFromPath(relationTarget);            // and resolve . and .. entries, if any
-
+        std::string relationTargetMode = relationshipNode.attribute("TargetMode").value();
+        if (relationTargetMode=="External") {
+            absoluteTarget = target;
+        }
+        else{
+            absoluteTarget = eliminateDotAndDotDotFromPath(target[0] == '/' ? target : m_path + target);
+            if (relationTarget[0] != '/') relationTarget = m_path + relationTarget;    // turn relative path into an absolute
+            relationTarget = eliminateDotAndDotDotFromPath(relationTarget);            // and resolve . and .. entries, if any
+        }
         // ===== Attempt to match absoluteTarget & relationTarget
         if (absoluteTarget == relationTarget) return XLRelationshipItem(relationshipNode);    // found!
         relationshipNode = relationshipNode.next_sibling_of_type(pugi::node_element);
@@ -436,7 +458,7 @@ XLRelationshipItem XLRelationships::addRelationship(XLRelationshipType type, con
     node.append_attribute("Type").set_value(typeString.c_str());
     node.append_attribute("Target").set_value(target.c_str());
 
-    if (type == XLRelationshipType::ExternalLinkPath) {
+    if (type == XLRelationshipType::ExternalLinkPath || type== XLRelationshipType::Hyperlink) {
         node.append_attribute("TargetMode").set_value("External");
     }
 

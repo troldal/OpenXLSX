@@ -788,3 +788,10 @@ XLShape XLDrawing::createShape()
 }
 
 XLShape XLDrawing::shape(uint32_t index) const { return XLShape(shapeNode(index)); }
+
+
+std::string XLDrawing::data() const
+{
+    return xmlData();
+}
+

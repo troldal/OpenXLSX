@@ -1697,6 +1697,7 @@ XLDrawing& XLWorksheet::drawing()
 {
     if (!m_drawing.valid()) {
         // ===== Append xdr namespace attribute to worksheet if not present
+
         XMLNode docElement = xmlDocument().document_element();
         XMLAttribute xdrNamespace = appendAndGetAttribute(docElement, "xmlns:xdr", "");
         xdrNamespace = "http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing";
@@ -1716,10 +1717,13 @@ XLDrawing& XLWorksheet::drawing()
             drawingRelationship = m_relationships.relationshipByTarget(drawingRelativePath);
         if (drawingRelationship.empty())
             throw XLException("XLWorksheet::drawing(): could not add determine sheet relationship for Drawing");
-        XMLNode legacyDrawing = appendAndGetNode(docElement, "legacyDrawing", m_nodeOrder);
-        if (legacyDrawing.empty())
-            throw XLException("XLWorksheet::drawing(): could not add <legacyDrawing> element to worksheet XML");
-        appendAndSetAttribute(legacyDrawing, "r:id", drawingRelationship.id());
+        if(docElement.child("drawing").empty()) {
+            XMLNode drawing = appendAndGetNode(docElement, "drawing", m_nodeOrder);
+            if (drawing.empty())
+                throw XLException("XLWorksheet::drawing(): could not add <drawing> element to worksheet XML");
+            appendAndSetAttribute(drawing, "r:id", drawingRelationship.id());
+        }
+
     }
 
     return m_drawing;

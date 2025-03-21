@@ -228,6 +228,11 @@ XLContentType XLContentItem::type() const { return GetTypeFromString(m_contentNo
  * @details
  */
 std::string XLContentItem::path() const { return m_contentNode->attribute("PartName").value(); }
+/**
+ * @details
+ */
+
+std::string XLContentItem::ext() const { return m_contentNode->attribute("Extension").value(); }
 
 /**
  * @details
@@ -361,6 +366,22 @@ std::vector<XLContentItem> XLContentTypes::getContentItems()
 
     return result;
 }
+
+/**
+ * @details
+ */
+std::vector<XLContentItem> XLContentTypes::getContentDefItems()
+{
+    std::vector<XLContentItem> result;
+    XMLNode                    item = xmlDocument().document_element().first_child_of_type(pugi::node_element);
+    while (not item.empty()) {
+        if (strcmp(item.name(), "Default") == 0) result.emplace_back(item);
+        item = item.next_sibling_of_type(pugi::node_element);
+    }
+
+    return result;
+}
+
 
 bool XLContentTypes::PartNameExists(const std::string& path)
 {
