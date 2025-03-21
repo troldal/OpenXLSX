@@ -126,7 +126,7 @@ namespace OpenXLSX
         ControlProperties,
         Comments,
         Table,
-	    Picture,
+        Hyperlink,
         Unknown
     };
 } //     namespace OpenXLSX
@@ -200,6 +200,12 @@ namespace OpenXLSX {
          * @return An XMLAttribute object containing the Target getValue.
          */
         std::string target() const;
+        /**
+         * @brief Get the target, i.e. the path to the XML file the relationship item refers to.
+         * @return An XMLAttribute object containing the Target getValue.
+         */
+
+        std::string targetMode() const;
 
         /**
          * @brief Get the id of the relationship item.

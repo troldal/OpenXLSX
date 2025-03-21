@@ -75,6 +75,13 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 namespace OpenXLSX
 {
+    typedef struct XLRECT {
+        int32_t left;
+        int32_t top;
+        int32_t right;
+        int32_t bottom;
+    } XLRECT;
+
     constexpr const unsigned int pugi_parse_settings = pugi::parse_default | pugi::parse_ws_pcdata; // TBD: | pugi::parse_comments
 
     constexpr const bool XLForceOverwrite = true;    // readability constant for 2nd parameter of XLDocument::saveAs
@@ -392,8 +399,11 @@ namespace OpenXLSX
          */
         void cleanupSharedStrings();
 
-        int appendPictures(int sheetXmlNo,void* buffer, int bufferlen, char* ext,int col1,int row1,int col2,int row2);
+        int appendPictures(int sheetXmlNo,void* buffer, int bufferlen, char* ext,XLRECT *rect);
 	    void setShapeAttribute(int sheetXmlNo,int shapeNo,char *path,char *attribute,char *value);
+        char* shapeAttribute(int sheetXmlNo, int shapeNo, char* path);
+
+        void copyRange(int sheetXmlNo, XLRECT* from, XLRECT* to);
 
 
         //----------------------------------------------------------------------------------------------------------------------

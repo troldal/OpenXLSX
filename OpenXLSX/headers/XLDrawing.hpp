@@ -475,8 +475,10 @@ namespace OpenXLSX
         XLShape createShape();
 
         uint32_t shapeCount() const;
-
+         
         XMLNode rootNode() const;
+
+        std::string data() const;
 
     private: // helper functions with repeating code
         XMLNode firstShapeNode() const;

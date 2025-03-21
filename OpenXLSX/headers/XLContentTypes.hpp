@@ -166,6 +166,12 @@ namespace OpenXLSX
          */
         std::string path() const;
 
+        /**
+          * @brief
+          * @return
+          */
+        std::string ext() const;
+
     private:
         std::unique_ptr<XMLNode> m_contentNode; /**< */
     };
@@ -253,7 +259,15 @@ namespace OpenXLSX
          * @brief
          * @return
          */
+
         std::vector<XLContentItem> getContentItems();
+
+        /**
+         * @brief
+         * @return
+         */
+
+        std::vector<XLContentItem> getContentDefItems();
 
 	bool PartNameExists(const std::string& path);
 	bool ExtensionExists(const std::string& ext);
