@@ -450,6 +450,30 @@ namespace OpenXLSX
         if (removeAttributes) node.remove_attributes();
         return appendAndSetAttribute(node, attrName, attrVal);
     }
+
+    /**
+     * @brief special bool attribute getter function for tags that should have a val="true" or val="false" attribute,
+     *       but when omitted shall default to "true"
+     * @param parent node under which tagName shall be found
+     * @param tagName name of the boolean tag to evaluate
+     * @param attrName (default: "val") name of boolean attribute that shall default to true
+     * @returns true if parent & tagName exist, and attribute with attrName is either omitted or as_bool() returns true. Otherwise return false
+     * @note this will create and explicitly set attrName if omitted
+     */
+    inline bool getBoolAttributeWhenOmittedMeansTrue( XMLNode & parent, std::string const & tagName, std::string const & attrName = "val" )
+    {
+        if (parent.empty()) return false;     // can't do anything
+        XMLNode tagNode = parent.child(tagName.c_str());
+        if( tagNode.empty() ) return false;   // if tag does not exist: return false
+        XMLAttribute valAttr = tagNode.attribute(attrName.c_str());
+        if( valAttr.empty() ) {               // if no attribute with attrName exists: default to true
+            appendAndSetAttribute(tagNode, attrName, "true" ); // explicitly create & set attribute
+            return true;
+        }
+        // if execution gets here: attribute with attrName exists
+        return valAttr.as_bool(); // return attribute value
+    }
+
 }    // namespace OpenXLSX
 
 #endif    // OPENXLSX_XLUTILITIES_HPP
