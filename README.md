@@ -7,6 +7,10 @@ Microsoft Excel® files, with the .xlsx format.
 
 As the heading says - the latest "Release" that is shown on https://github.com/troldal/OpenXLSX/releases is from 2021-11-06, and severely outdated - please pull / download the latest SW version directly from the repository in its current state. Link for those that do not want to use ```git```: https://github.com/troldal/OpenXLSX/archive/refs/heads/master.zip
 
+## (aral-matrix) 24 March 2025 - XLStyles: XLFont fix attribute values underline, scheme, vertAlign
+* getters ```XLFont::underline, ::scheme, ::vertAlign```: fix default value to set for attribute val when tag doesn't exist
+* setter ```XLFont::setUnderline```: return correct "none" value for XLUnderlineNone from XLUnderlineStyleToString (was returning empty string)
+
 ## (aral-matrix) 23 March 2025 - XLStyles: get bool settings when omitted attribute shall default to true - addresses #347
 * added function ```getBoolAttributeWhenOmittedMeansTrue``` to ```XLUtilities```
 * ```XLStyles``` ```XLFont```: changed bool getter functions to return ```true``` when tag exists, but attribute ```val``` is omitted, to be in line with OOXML spec. This addresses https://github.com/troldal/OpenXLSX/issues/347. Affected getters: ```bold()```, ```italic()```, ```strikethrough()```, ```outline()```, ```shadow()```, ```condense()```, ```extend()```

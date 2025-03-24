@@ -126,7 +126,7 @@ namespace     // anonymous namespace for module local functions
     std::string XLUnderlineStyleToString(XLUnderlineStyle underline)
     {
         switch (underline) {
-            case XLUnderlineNone   : return "";
+            case XLUnderlineNone   : return "none";
             case XLUnderlineSingle : return "single";
             case XLUnderlineDouble : return "double";
             case XLUnderlineInvalid: [[fallthrough]];
@@ -704,9 +704,9 @@ XLColor XLFont::fontColor() const
 bool                    XLFont::bold()          const { return getBoolAttributeWhenOmittedMeansTrue(*m_fontNode, "b",        "val"); }
 bool                    XLFont::italic()        const { return getBoolAttributeWhenOmittedMeansTrue(*m_fontNode, "i",        "val"); }
 bool                    XLFont::strikethrough() const { return getBoolAttributeWhenOmittedMeansTrue(*m_fontNode, "strike",   "val"); }
-XLUnderlineStyle        XLFont::underline()     const { return XLUnderlineStyleFromString       (appendAndGetNodeAttribute(*m_fontNode, "u",         "val", ""     ).value()  ); }
-XLFontSchemeStyle       XLFont::scheme()        const { return XLFontSchemeStyleFromString      (appendAndGetNodeAttribute(*m_fontNode, "scheme",    "val", ""     ).value()  ); }
-XLVerticalAlignRunStyle XLFont::vertAlign()     const { return XLVerticalAlignRunStyleFromString(appendAndGetNodeAttribute(*m_fontNode, "vertAlign", "val", ""     ).value()  ); }
+XLUnderlineStyle        XLFont::underline()     const { return XLUnderlineStyleFromString       (appendAndGetNodeAttribute(*m_fontNode, "u",         "val", "none"    ).value()  ); }
+XLFontSchemeStyle       XLFont::scheme()        const { return XLFontSchemeStyleFromString      (appendAndGetNodeAttribute(*m_fontNode, "scheme",    "val", "none"    ).value()  ); }
+XLVerticalAlignRunStyle XLFont::vertAlign()     const { return XLVerticalAlignRunStyleFromString(appendAndGetNodeAttribute(*m_fontNode, "vertAlign", "val", "baseline").value()  ); }
 bool                    XLFont::outline()       const { return getBoolAttributeWhenOmittedMeansTrue(*m_fontNode, "outline",  "val"); }
 bool                    XLFont::shadow()        const { return getBoolAttributeWhenOmittedMeansTrue(*m_fontNode, "shadow",   "val"); }
 bool                    XLFont::condense()      const { return getBoolAttributeWhenOmittedMeansTrue(*m_fontNode, "condense", "val"); }
