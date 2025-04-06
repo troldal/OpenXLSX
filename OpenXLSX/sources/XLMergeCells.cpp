@@ -96,6 +96,11 @@ XLMergeCells::XLMergeCells(const XMLNode& node) : m_mergeCellsNode(std::make_uni
         // ===== Advance to next element mergeNode
         mergeNode = nextNode;
     }
+
+    // ===== Ensure initial array count attribute (if only 0) / issue #351
+    XMLAttribute attr = m_mergeCellsNode->attribute("count");
+    if (attr.empty()) attr = m_mergeCellsNode->append_attribute("count");
+    attr.set_value(m_referenceCache.size());
 }
 
 /**
