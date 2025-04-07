@@ -7,6 +7,9 @@ Microsoft Excel® files, with the .xlsx format.
 
 As the heading says - the latest "Release" that is shown on https://github.com/troldal/OpenXLSX/releases is from 2021-11-06, and severely outdated - please pull / download the latest SW version directly from the repository in its current state. Link for those that do not want to use ```git```: https://github.com/troldal/OpenXLSX/archive/refs/heads/master.zip
 
+## (aral-matrix) 07 April 2025 - Demo10: added a disabled use of borders with merged cells
+* enable Demo10 line 450 to experiment - but LibreOffice behaves weird (at least) with (diagonal) borders, so I have disabled this Demo functionality by default
+
 ## (aral-matrix) 24 March 2025 - XLStyles: XLFont fix attribute values underline, scheme, vertAlign
 * getters ```XLFont::underline, ::scheme, ::vertAlign```: fix default value to set for attribute val when tag doesn't exist
 * setter ```XLFont::setUnderline```: return correct "none" value for XLUnderlineNone from XLUnderlineStyleToString (was returning empty string)
