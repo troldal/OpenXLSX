@@ -1,5 +1,6 @@
 # ignore everything
 /*
+!/cmake
 
 # include generic files
 !/.clang-format

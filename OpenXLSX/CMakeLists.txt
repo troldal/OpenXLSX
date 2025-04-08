@@ -28,17 +28,6 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(IGNORE_ME ${CMAKE_C_COMPILER}) # Suppress CMake warning message
 
 #=======================================================================================================================
-# Fetch CPM package manager
-#=======================================================================================================================
-# download CPM.cmake
-file(
-        DOWNLOAD
-        https://github.com/cpm-cmake/CPM.cmake/releases/download/v0.40.8/CPM.cmake
-        ${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake
-)
-include(${CMAKE_CURRENT_BINARY_DIR}/cmake/CPM.cmake)
-
-#=======================================================================================================================
 # Add build options
 #=======================================================================================================================
 option(OPENXLSX_COMPACT_MODE "Build library in compact mode (slower, but uses less memory)" OFF)
