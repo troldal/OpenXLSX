@@ -53,7 +53,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLProperties.hpp"
 #include "XLRelationships.hpp"    // GetStringFromType
 
-#include <XLException.hpp>
+#include "XLException.hpp"
 
 using namespace OpenXLSX;
 

@@ -57,7 +57,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLDocument.hpp"
 #include "XLRelationships.hpp"
 
-#include <XLException.hpp>
+#include "XLException.hpp"
 
 using namespace OpenXLSX;
 

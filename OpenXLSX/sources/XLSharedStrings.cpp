@@ -51,7 +51,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLDocument.hpp"
 #include "XLSharedStrings.hpp"
 
-#include <XLException.hpp>
+#include "XLException.hpp"
 
 namespace OpenXLSX {
     const XLSharedStrings XLSharedStringsDefaulted{};

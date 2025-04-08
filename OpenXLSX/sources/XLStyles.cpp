@@ -55,7 +55,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 // ===== OpenXLSX Includes ===== //
 #include "XLColor.hpp"
 #include "XLDocument.hpp"
-#include <XLException.hpp>
+#include "XLException.hpp"
 #include "utilities/XLUtilities.hpp"    // OpenXLSX::ignore, ::XL(Keep|Remove)Attributes, appendAndGetNode, appendAnd(G|S)etAttribute, appendAnd(G|S)etNodeAttribute
 #include "XLStyles.hpp"
 
