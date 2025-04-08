@@ -7,6 +7,12 @@ Microsoft Excel® files, with the .xlsx format.
 
 As the heading says - the latest "Release" that is shown on https://github.com/troldal/OpenXLSX/releases is from 2021-11-06, and severely outdated - please pull / download the latest SW version directly from the repository in its current state. Link for those that do not want to use ```git```: https://github.com/troldal/OpenXLSX/archive/refs/heads/master.zip
 
+## (aral-matrix) 08 April 2025 - XLMergeCells: remove <mergeCells> element from worksheet XML when merge count is 0 - addresses #351
+* ```XLMergeCells``` is now constructed with the worksheet root XML node (unfortunately necessary) and will use this access to create/delete the <mergeCells> node as necessary, this addresses https://github.com/troldal/OpenXLSX/issues/351
+* added a function ```XLMergeCells::deleteAll``` to clear all merges in the worksheet
+* added a typedef ```XLMergeIndex``` as the parameter / return type for all functions using a merge index - the underlying ```int32_t``` remains unchanged
+* added a ```constexpr const XLMergeIndex XLMergeNotFound = -1``` for code readability
+
 ## (aral-matrix) 07 April 2025 - Demo10: added a disabled use of borders with merged cells
 * enable Demo10 line 450 to experiment - but LibreOffice behaves weird (at least) with (diagonal) borders, so I have disabled this Demo functionality by default
 

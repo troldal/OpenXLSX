@@ -1399,10 +1399,8 @@ void XLWorksheet::updateSheetName(const std::string& oldName, const std::string&
  */
 XLMergeCells & XLWorksheet::merges()
 {
-    if (m_merges.uninitialized()) {
-        XMLNode rootNode = xmlDocument().document_element(); // until I learn how to make appendAndGetNode take by reference but not fail on rvalue document_element
-        m_merges = XLMergeCells(appendAndGetNode(rootNode, "mergeCells", m_nodeOrder));
-    }
+    if (!m_merges.valid())
+        m_merges = XLMergeCells(xmlDocument().document_element(), m_nodeOrder);
     return m_merges;
 }
 
