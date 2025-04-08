@@ -44,7 +44,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
  */
 
 // ===== External Includes ===== //
-#include <zippy.hpp>
+// #include <zippy.hpp>
+#include "detail/Zippy.hpp"
 
 // ===== OpenXLSX Includes ===== //
 #include "XLZipArchive.hpp"
