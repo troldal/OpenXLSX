@@ -31,6 +31,7 @@ set(IGNORE_ME ${CMAKE_C_COMPILER}) # Suppress CMake warning message
 # Add build options
 #=======================================================================================================================
 option(OPENXLSX_COMPACT_MODE "Build library in compact mode (slower, but uses less memory)" OFF)
+option(OPENXLSX_ENABLE_LTO "Enables Link-Time Optimization (LTO)" ON)
 set(OPENXLSX_LIBRARY_TYPE "STATIC" CACHE STRING "Set the library type to SHARED or STATIC")
 
 #=======================================================================================================================
@@ -179,11 +180,13 @@ if ("${OPENXLSX_LIBRARY_TYPE}" STREQUAL "SHARED")
     endif ()
 
     # Enable Link-Time Optimization (LTO)
-    include(CheckIPOSupported)
-    check_ipo_supported(RESULT result OUTPUT output)
-    if (result)
-        set_property(TARGET OpenXLSX PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
-    endif ()
+    if(${OPENXLSX_ENABLE_LTO})
+        include(CheckIPOSupported)
+        check_ipo_supported(RESULT result OUTPUT output)
+        if (result)
+            set_property(TARGET OpenXLSX PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+        endif ()
+    endif()
 
 endif()
 
