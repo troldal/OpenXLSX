@@ -493,6 +493,7 @@ namespace OpenXLSX
          * @brief Get the font color
          * @return The font color
          */
+	bool hasFontColor();
         XLColor fontColor() const;
 
         /**
@@ -1030,6 +1031,9 @@ namespace OpenXLSX
         XLPatternType patternType();
         XLColor color();
         XLColor backgroundColor();
+        bool hasColor();
+        bool hasBackgroundColor();
+
 
         /**
          * @brief Setter functions for gradientFill - will throwOnFillType(XLPatternFill, __func__)

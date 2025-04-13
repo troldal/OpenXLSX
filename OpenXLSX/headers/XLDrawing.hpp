@@ -271,7 +271,6 @@ namespace OpenXLSX
 
     class OPENXLSX_EXPORT XLShape {
         friend class XLVmlDrawing;    // for access to m_shapeNode in XLVmlDrawing::addShape
-        friend class XLDrawing;
     public:    // ---------- Public Member Functions ---------- //
         /**
          * @brief
@@ -444,53 +443,6 @@ namespace OpenXLSX
         std::string m_defaultShapeTypeId{};
     };
 
-    class OPENXLSX_EXPORT XLDrawing : public XLXmlFile
-    {
-        friend class XLWorksheet;   // for access to XLXmlFile::getXmlPath
-        friend class XLComments;    // for access to firstShapeNode
-    public:
-        /**
-         * @brief Constructor
-         */
-        XLDrawing() : XLXmlFile(nullptr) {};
-        
-        XLDrawing(XLXmlData* xmlData);
-
-        ~XLDrawing() = default;
-
-        XLDrawing& operator=(const XLDrawing&) = default;
-
-        /**
-         * @brief
-         * @param other
-         * @return
-         */
-
-        XLDrawing& operator=(XLDrawing&& other) noexcept = default;
-
-        XMLNode shapeNode(std::string const& cellRef) const;
-        XMLNode shapeNode(uint32_t index) const;
-
-        XLShape shape(uint32_t index) const;
-        XLShape createShape();
-
-        uint32_t shapeCount() const;
-         
-        XMLNode rootNode() const;
-
-        std::string data() const;
-
-    private: // helper functions with repeating code
-        XMLNode firstShapeNode() const;
-        XMLNode lastShapeNode() const;
-
-	private:
-		uint32_t m_shapeCount{0};
-        uint32_t m_lastAssignedShapeId{0};
-        std::string m_defaultShapeTypeId{};
-
-
-    };
 }    // namespace OpenXLSX
 
 #endif    // OPENXLSX_XLDRAWING_HPP

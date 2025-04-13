@@ -57,6 +57,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <memory>     // std::unique_ptr
 #include <ostream>    // std::basic_ostream
 #include <string>
+#include <string_view>  // std::string_view
+#include <vector>       // std::vector
 
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
@@ -65,11 +67,17 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 namespace OpenXLSX
 {
-    constexpr size_t XLMaxMergeCells = (std::numeric_limits< int32_t >::max)();    // pull request #261: wrapped max in parentheses to prevent expansion of windows.h "max" macro
+    typedef int32_t XLMergeIndex;
+    constexpr const XLMergeIndex XLMergeNotFound = -1;
+
+    // pull request #261: wrapped max in parentheses to prevent expansion of windows.h "max" macro
+    constexpr size_t XLMaxMergeCells = (std::numeric_limits< XLMergeIndex >::max)();
 
     /**
      * @brief This class encapsulate the Excel concept of <mergeCells>. Each worksheet that has merged cells has a list of
      * (empty) <mergeCell> elements within that array, with a sole attribute ref="..." with ... being a range reference, e.g. A1:B5
+     * Unfortunately, since an empty <mergeCells> element is not allowed, the class must have access to the worksheet root node and
+     *  delete the <mergeCells> element each time the merge count is zero
      */
     class OPENXLSX_EXPORT XLMergeCells
     {
@@ -81,13 +89,14 @@ namespace OpenXLSX
         /**
          * @brief
          */
-        XLMergeCells() = default;
+        XLMergeCells();
 
         /**
          * @brief
-         * @param node The <mergeCells> node of the worksheet document - must not be an empty node
+         * @param node The root node of the worksheet document - must not be an empty node
+         * @param nodeOrder the worksheet node sequence to respect when inserting <mergeCells> node
          */
-        explicit XLMergeCells(const XMLNode& node);
+        explicit XLMergeCells(const XMLNode& rootNode, std::vector< std::string_view > const & nodeOrder);
 
         /**
          * @brief Destructor
@@ -98,54 +107,40 @@ namespace OpenXLSX
          * @brief
          * @param other
          */
-        XLMergeCells(const XLMergeCells& other)
-        {
-            m_mergeCellsNode = other.m_mergeCellsNode ? std::make_unique<XMLNode>( *other.m_mergeCellsNode ) : std::unique_ptr<XMLNode> {};
-            m_referenceCache = other.m_referenceCache;
-        }
+        XLMergeCells(const XLMergeCells& other);
 
         /**
          * @brief
          * @param other
          */
-        XLMergeCells(XLMergeCells&& other)
-        {
-            m_mergeCellsNode = std::move( other.m_mergeCellsNode );
-            m_referenceCache = std::move( other.m_referenceCache );
-        }
+        XLMergeCells(XLMergeCells&& other);
 
         /**
          * @brief
          * @param other
          * @return
          */
-        XLMergeCells& operator=(const XLMergeCells& other)
-        {
-            m_mergeCellsNode = other.m_mergeCellsNode ? std::make_unique<XMLNode>( *other.m_mergeCellsNode ) : std::unique_ptr<XMLNode> {};
-            m_referenceCache = other.m_referenceCache;
-            return *this;
-        }
+        XLMergeCells& operator=(const XLMergeCells& other);
 
         /**
          * @brief
          * @param other
          * @return
          */
-        XLMergeCells& operator=(XLMergeCells&& other)
-        {
-            m_mergeCellsNode = std::move( other.m_mergeCellsNode );
-            m_referenceCache = std::move( other.m_referenceCache );
-            return *this;
-        }
+        XLMergeCells& operator=(XLMergeCells&& other);
 
-        bool uninitialized() const { return ( !m_mergeCellsNode ); }
+        /**
+         * @brief test if XLMergeCells has been initialized with a valid XMLNode
+         * @return true if m_rootNode is neither nullptr nor an empty XMLNode
+         */
+        bool valid() const;
 
         /**
          * @brief get the index of a <mergeCell> entry by its reference
          * @param reference the reference to search for
-         * @return -1 if no such reference exists, 0-based index otherwise
+         * @return XLMergeNotFound (-1) if no such reference exists, 0-based index otherwise
          */
-        int32_t findMerge(const std::string& reference) const;
+        XLMergeIndex findMerge(const std::string& reference) const;
 
         /**
          * @brief test if a mergeCell with reference exists, equivalent to findMerge(reference) >= 0
@@ -157,10 +152,10 @@ namespace OpenXLSX
         /**
          * @brief get the index of a <mergeCell> entry of which cellReference is a part
          * @param cellRef the cell reference (string or XLCellReference) to search for in the merged ranges
-         * @return -1 if no such reference exists, 0-based index otherwise
+         * @return XLMergeNotFound (-1) if no such reference exists, 0-based index otherwise
          */
-        int32_t findMergeByCell(const std::string& cellRef) const;
-        int32_t findMergeByCell(XLCellReference cellRef) const;
+        XLMergeIndex findMergeByCell(const std::string& cellRef) const;
+        XLMergeIndex findMergeByCell(XLCellReference cellRef) const;
 
         /**
          * @brief get the amount of entries in <mergeCells>
@@ -173,20 +168,20 @@ namespace OpenXLSX
          * @param index
          * @return
          */
-        const char* merge(int32_t index) const;
+        const char* merge(XLMergeIndex index) const;
 
         /**
          * @brief Operator overload: allow [] as shortcut access to merge
          */
-        const char* operator[](int32_t index) const { return merge(index); }
+        const char* operator[](XLMergeIndex index) const { return merge(index); }
 
         /**
          * @brief Append a new merge to the list of merges
          * @param reference The reference to append.
-         * @return An int32_t with the index of the appended string
+         * @return An XLMergeIndex with the index of the appended merge
          * @throws XLInputException if the reference would overlap with an existing reference
          */
-        int32_t appendMerge(const std::string& reference);
+        XLMergeIndex appendMerge(const std::string& reference);
 
         /**
          * @brief Delete the merge at the given index.
@@ -194,7 +189,12 @@ namespace OpenXLSX
          * @note Previously obtained merge indexes will be invalidated when calling deleteMerge
          * @throws XLInputException if the index does not exist
          */
-        void deleteMerge(int32_t index);
+        void deleteMerge(XLMergeIndex index);
+
+        /**
+         * @brief Delete all merges of the worksheet
+         */
+        void deleteAll();
 
         /**
          * @brief print the XML contents of the mergeCells array using the underlying XMLNode print function
@@ -202,6 +202,8 @@ namespace OpenXLSX
         void print(std::basic_ostream<char>& ostr) const;
 
     private:
+        std::unique_ptr<XMLNode> m_rootNode;         /**< An XMLNode object with the worksheet root node (document element) */
+        std::vector< std::string_view > m_nodeOrder; /**< worksheet XML root node required child sequence as passed into constructor */
         std::unique_ptr<XMLNode> m_mergeCellsNode; /**< An XMLNode object with the mergeCells item */
         std::deque<std::string> m_referenceCache;
     };

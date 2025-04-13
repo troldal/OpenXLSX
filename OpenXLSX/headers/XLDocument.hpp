@@ -64,6 +64,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLComments.hpp"
 #include "XLContentTypes.hpp"
 #include "XLDrawing.hpp"
+#include "XLDrawing1.hpp"
 #include "XLProperties.hpp"
 #include "XLRelationships.hpp"
 #include "XLSharedStrings.hpp"
@@ -75,13 +76,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 namespace OpenXLSX
 {
-    typedef struct XLRECT {
-        int32_t left;
-        int32_t top;
-        int32_t right;
-        int32_t bottom;
-    } XLRECT;
-
+ 
     constexpr const unsigned int pugi_parse_settings = pugi::parse_default | pugi::parse_ws_pcdata; // TBD: | pugi::parse_comments
 
     constexpr const bool XLForceOverwrite = true;    // readability constant for 2nd parameter of XLDocument::saveAs
@@ -307,8 +302,7 @@ namespace OpenXLSX
          * @return true if vml drawing file exists
          */
         bool hasSheetVmlDrawing(uint16_t sheetXmlNo) const;
-
-        bool hasSheetDrawing(uint16_t sheetXmlNo) const;
+        bool hasSheetDrawing1(uint16_t sheetXmlNo) const;
 
         /**
          * @brief determine whether a worksheet comments file exists for sheetXmlNo
@@ -337,13 +331,7 @@ namespace OpenXLSX
          * @return an XLVmlDrawing object initialized with the sheet drawing
          */
         XLVmlDrawing sheetVmlDrawing(uint16_t sheetXmlNo);
-        /**
-          * @brief fetch the worksheet VML drawing for sheetXmlNo, create the file if it does not exist
-          * @param sheetXmlNo fetch for this sheet #
-          * @return an XLVmlDrawing object initialized with the sheet drawing
-          */
- 
-        XLDrawing sheetDrawing(uint16_t sheetXmlNo);
+        XLDrawing1 sheetDrawing1(uint16_t sheetXmlNo);
 
         /**
          * @brief fetch the worksheet comments for sheetXmlNo, create the file if it does not exist
@@ -399,13 +387,6 @@ namespace OpenXLSX
          */
         void cleanupSharedStrings();
 
-        int appendPictures(int sheetXmlNo,void* buffer, int bufferlen, char* ext,XLRECT *rect);
-	    void setShapeAttribute(int sheetXmlNo,int shapeNo,char *path,char *attribute,char *value);
-        char* shapeAttribute(int sheetXmlNo, int shapeNo, char* path);
-
-        void copyRange(int sheetXmlNo, XLRECT* from, XLRECT* to);
-
-
         //----------------------------------------------------------------------------------------------------------------------
         //           Protected Member Functions
         //----------------------------------------------------------------------------------------------------------------------
@@ -424,7 +405,8 @@ namespace OpenXLSX
          * @param doNotThrow if true, will return a nullptr if path is not found
          * @return a pointer to the XLXmlData object stored in m_data (or nullptr, see doNotThrow)
          */
-        XLXmlData* getXmlData(const std::string& path, bool doNotThrow = false);
+public:		 
+       XLXmlData* getXmlData(const std::string& path, bool doNotThrow = false);
 
         /**
          * @brief const overload of getXmlData
@@ -452,19 +434,24 @@ namespace OpenXLSX
 
         XLXmlSavingDeclaration m_xmlSavingDeclaration;  /**< The xml saving declaration that will be passed to pugixml before generating the XML output data*/
 
+public:
         mutable std::list<XLXmlData>    m_data {};              /**<  */
+private:
         mutable std::deque<std::string> m_sharedStringCache {}; /**<  */
         mutable XLSharedStrings         m_sharedStrings {};     /**<  */
 
         XLRelationships m_docRelationships {}; /**< A pointer to the document relationships object*/
         XLRelationships m_wbkRelationships {}; /**< A pointer to the document relationships object*/
-        XLRelationships m_drwRelationships {}; /**< A pointer to the document relationships object*/
         XLRelationships m_wrkRelationships {}; /**< A pointer to the document relationships object*/
-        XLContentTypes  m_contentTypes {};     /**< A pointer to the content types object*/
+public: 
+       XLRelationships m_drwRelationships {}; /**< A pointer to the document relationships object*/
+       XLContentTypes  m_contentTypes {};     /**< A pointer to the content types object*/
+private:
         XLAppProperties m_appProperties {};    /**< A pointer to the App properties object */
         XLProperties    m_coreProperties {};   /**< A pointer to the Core properties object*/
         XLStyles        m_styles {};           /**< A pointer to the document styles object*/
         XLWorkbook      m_workbook {};         /**< A pointer to the workbook object */
+public:
         IZipArchive     m_archive {};          /**<  */
     };
 

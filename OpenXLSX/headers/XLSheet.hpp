@@ -924,12 +924,37 @@ namespace OpenXLSX
         XLCellAssignable cell(const XLCellReference& ref) const;
 
         /**
-         * @brief Get the cell at the given coordinates.
+         * @brief Get the cell at the given coordinates. Create row & cell XML if missing.
          * @param rowNumber The row number (index base 1).
          * @param columnNumber The column number (index base 1).
          * @return A reference to the XLCell object at the given coordinates.
          */
         XLCellAssignable cell(uint32_t rowNumber, uint16_t columnNumber) const;
+
+        /**
+         * @brief overload for findCell(uint32_t rowNumber, uint16_t columnNumber)
+         * @param ref string with the address of the cell to find
+         * @return
+         */
+        XLCellAssignable findCell(const std::string& ref) const;
+
+        /**
+         * @brief overload for findCell(uint32_t rowNumber, uint16_t columnNumber)
+         * @param ref An XLCellReference object with the address of the cell to find
+         * @return
+         */
+        XLCellAssignable findCell(const XLCellReference& ref) const;
+
+        /**
+         * @brief Find the cell at the given coordinates. Do *not* create row & cell XML if missing and return an empty XLCellAssignable instead
+         * @param rowNumber The row number (index base 1).
+         * @param columnNumber The column number (index base 1).
+         * @return A reference to the XLCell object at the given coordinates or an empty XLCell object
+         * @note Must test (XLCell::empty() == false) before accessing any other methods of the returned object.
+         * @warning This is a usability feature with bad performance. When testing a large amounts of cells or working with large worksheets,
+         *           it is better to use an XLCellIterator with the cell range of interest.
+         */
+        XLCellAssignable findCell(uint32_t rowNumber, uint16_t columnNumber) const;
 
         /**
          * @brief Get a range for the area currently in use (i.e. from cell A1 to the last cell being in use).
@@ -966,9 +991,6 @@ namespace OpenXLSX
          * @return
          */
         XLRowRange rows() const;
-     
-        float defaultColWidth() const;
-        float defaultRowHeight() const;
 
         /**
          * @brief
@@ -1010,6 +1032,11 @@ namespace OpenXLSX
          * @brief Get an XLCellReference to the last (bottom right) cell in the worksheet.
          * @return An XLCellReference for the last cell.
          */
+
+        float defaultColWidth() const;
+        float defaultRowHeight() const; 
+
+
         XLCellReference lastCell() const noexcept;
 
         /**
@@ -1213,11 +1240,8 @@ namespace OpenXLSX
          * @brief test whether a VML drawing XML file exists for this worksheet
          */
         bool hasVmlDrawing() const;
+        bool hasDrawing1() const;
 
-        /**
-         * @brief test whether a drawing XML file exists for this worksheet
-         */
-        bool hasDrawing() const;
 
         /**
          * @brief test whether a comments XML file exists for this worksheet
@@ -1232,12 +1256,8 @@ namespace OpenXLSX
         /**
          * @brief fetch a reference to the worksheet VML drawing object
          */
-         XLVmlDrawing& vmlDrawing();
- 
-         /**
-         * @brief fetch a reference to the worksheet VML drawing object
-         */
-        XLDrawing& drawing();
+        XLVmlDrawing& vmlDrawing();
+         XLDrawing1& drawing1();
 
         /**
          * @brief fetch a reference to the worksheet comments
@@ -1301,9 +1321,9 @@ namespace OpenXLSX
         XLRelationships m_relationships{};    /**< class handling the worksheet relationships */
         XLMergeCells    m_merges{};           /**< class handling the <mergeCells> */
         XLVmlDrawing    m_vmlDrawing{};       /**< class handling the worksheet VML drawing object */
+        XLDrawing1      m_drawing1{};       /**< class handling the worksheet VML drawing object */
         XLComments      m_comments{};         /**< class handling the worksheet comments */
         XLTables        m_tables{};           /**< class handling the worksheet table settings */
-        XLDrawing       m_drawing{};          /**< class handling the worksheet drawing object */
         const std::vector< std::string_view >& m_nodeOrder = XLWorksheetNodeOrder;  // worksheet XML root node required child sequence
     };
 
