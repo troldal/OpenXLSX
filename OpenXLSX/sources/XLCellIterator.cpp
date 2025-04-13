@@ -94,10 +94,7 @@ namespace OpenXLSX { // utility functions findRowNode and findCellNode
     }
 
     /**
-     * @brief locate the XML cell node within rownode for the cell at columnNumber
-     * @param rowNode the XML node of the row to search in
-     * @param columnNumber the column number of the cell to locate
-     * @return the XMLNode pointing to the cell, or an empty XMLNode if the cell does not exist
+     * @details
      */
     XMLNode findCellNode(XMLNode rowNode, uint16_t columnNumber)
     {

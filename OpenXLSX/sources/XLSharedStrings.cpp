@@ -163,6 +163,7 @@ int32_t XLSharedStrings::appendString(const std::string& str) const
     if (str.substr(0, 3) == "<r>") {
         textNode = xmlDocument().document_element().append_child("si");
         textNode.append_buffer((void*)str.c_str(), str.length(), 116U, pugi::encoding_auto);
+        m_stringCache->emplace_back(str.c_str());    // index of this element = previous stringCacheSize
     }
     else {
         textNode = xmlDocument().document_element().append_child("si").append_child("t");

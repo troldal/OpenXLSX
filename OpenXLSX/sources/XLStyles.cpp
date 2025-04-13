@@ -126,7 +126,7 @@ namespace     // anonymous namespace for module local functions
     std::string XLUnderlineStyleToString(XLUnderlineStyle underline)
     {
         switch (underline) {
-            case XLUnderlineNone   : return "";
+            case XLUnderlineNone   : return "none";
             case XLUnderlineSingle : return "single";
             case XLUnderlineDouble : return "double";
             case XLUnderlineInvalid: [[fallthrough]];
@@ -689,6 +689,12 @@ size_t XLFont::fontSize() const
 /**
  * @details Returns the font color property
  */
+
+bool XLFont::hasFontColor()
+{
+    return hasNode(*m_fontNode, "color");
+}
+
 XLColor XLFont::fontColor() const
 {
     using namespace std::literals::string_literals;
@@ -701,31 +707,16 @@ XLColor XLFont::fontColor() const
 /**
  * @details getter functions: return the font's bold, italic, underline, strikethrough status
  */
-bool                    XLFont::bold()          const { return                                   appendAndGetNodeAttribute(*m_fontNode, "b",         "val", "false").as_bool() ; }
-bool                    XLFont::italic()        const { return                                   appendAndGetNodeAttribute(*m_fontNode, "i",         "val", "false").as_bool() ; }
-bool                    XLFont::strikethrough() const {
-    if (m_fontNode->empty()) return false;
-    XMLNode strikeNode = m_fontNode->child("strike");
-    if( strikeNode.empty() )  // no strike node: return false
-        return false;
-
-    // if execution gets here: strike node is not empty
-    XMLAttribute valAttr = strikeNode.attribute("val");
-    if( valAttr.empty() ) {     // if no val attribute exists: default to true as per specification
-        appendAndSetAttribute(strikeNode, "val", "true" );  // explicitly create & set attribute
-        return true;
-    }
-
-    // if execution gets here: attribute val exists
-    return valAttr.as_bool(); // return attribute value
-}
-XLUnderlineStyle        XLFont::underline()     const { return XLUnderlineStyleFromString       (appendAndGetNodeAttribute(*m_fontNode, "u",         "val", ""     ).value()  ); }
-XLFontSchemeStyle       XLFont::scheme()        const { return XLFontSchemeStyleFromString      (appendAndGetNodeAttribute(*m_fontNode, "scheme",    "val", ""     ).value()  ); }
-XLVerticalAlignRunStyle XLFont::vertAlign()     const { return XLVerticalAlignRunStyleFromString(appendAndGetNodeAttribute(*m_fontNode, "vertAlign", "val", ""     ).value()  ); }
-bool                    XLFont::outline()       const { return                                   appendAndGetNodeAttribute(*m_fontNode, "outline",   "val", "false").as_bool() ; }
-bool                    XLFont::shadow()        const { return                                   appendAndGetNodeAttribute(*m_fontNode, "shadow",    "val", "false").as_bool() ; }
-bool                    XLFont::condense()      const { return                                   appendAndGetNodeAttribute(*m_fontNode, "condense",  "val", "false").as_bool() ; }
-bool                    XLFont::extend()        const { return                                   appendAndGetNodeAttribute(*m_fontNode, "extend",    "val", "false").as_bool() ; }
+bool                    XLFont::bold()          const { return getBoolAttributeWhenOmittedMeansTrue(*m_fontNode, "b",        "val"); }
+bool                    XLFont::italic()        const { return getBoolAttributeWhenOmittedMeansTrue(*m_fontNode, "i",        "val"); }
+bool                    XLFont::strikethrough() const { return getBoolAttributeWhenOmittedMeansTrue(*m_fontNode, "strike",   "val"); }
+XLUnderlineStyle        XLFont::underline()     const { return XLUnderlineStyleFromString       (appendAndGetNodeAttribute(*m_fontNode, "u",         "val", "none"    ).value()  ); }
+XLFontSchemeStyle       XLFont::scheme()        const { return XLFontSchemeStyleFromString      (appendAndGetNodeAttribute(*m_fontNode, "scheme",    "val", "none"    ).value()  ); }
+XLVerticalAlignRunStyle XLFont::vertAlign()     const { return XLVerticalAlignRunStyleFromString(appendAndGetNodeAttribute(*m_fontNode, "vertAlign", "val", "baseline").value()  ); }
+bool                    XLFont::outline()       const { return getBoolAttributeWhenOmittedMeansTrue(*m_fontNode, "outline",  "val"); }
+bool                    XLFont::shadow()        const { return getBoolAttributeWhenOmittedMeansTrue(*m_fontNode, "shadow",   "val"); }
+bool                    XLFont::condense()      const { return getBoolAttributeWhenOmittedMeansTrue(*m_fontNode, "condense", "val"); }
+bool                    XLFont::extend()        const { return getBoolAttributeWhenOmittedMeansTrue(*m_fontNode, "extend",   "val"); }
 
 /**
  * @details Setter functions
@@ -1230,6 +1221,14 @@ XLPatternType XLFill::patternType()
     return XLPatternTypeFromString(attr.value());
 }
 
+bool XLFill::hasColor()
+{
+    XMLNode fillDescription = getValidFillDescription(XLPatternFill, __func__);
+    if (fillDescription.empty()) return false;
+    return hasNode(fillDescription, "fgColor");
+}
+
+
 XLColor XLFill::color()
 {
     XMLNode fillDescription = getValidFillDescription(XLPatternFill, __func__);
@@ -1237,6 +1236,14 @@ XLColor XLFill::color()
     XMLAttribute fgColorRGB = appendAndGetNodeAttribute(fillDescription, "fgColor", "rgb", XLDefaultPatternFgColor);
     return XLColor(fgColorRGB.value());
 }
+
+bool XLFill::hasBackgroundColor()
+{
+    XMLNode fillDescription = getValidFillDescription(XLPatternFill, __func__);
+    if (fillDescription.empty()) return false;
+    return hasNode(fillDescription, "bgColor");
+}
+
 XLColor XLFill::backgroundColor()
 {
     XMLNode fillDescription = getValidFillDescription(XLPatternFill, __func__);

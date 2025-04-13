@@ -31,7 +31,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
     derived from this software without specific prior written permission.
 
   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IPLIED
+  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
   WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
   DISCLAIMED. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
   DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
@@ -81,6 +81,7 @@ namespace OpenXLSX
     if (!xmlDocument().document_element().child("sheetFormatPr"))return 0;
 	return xmlDocument().document_element().child("sheetFormatPr").attribute("defaultRowHeight").as_float();
     }
+ 
 
     void setTabColor(const XMLDocument& xmlDocument, const XLColor& color)
     {
@@ -106,7 +107,7 @@ namespace OpenXLSX
         XMLNode      sheetView   = xmlDocument.document_element().child("sheetViews").first_child_of_type(pugi::node_element);
         XMLAttribute tabSelected = sheetView.attribute("tabSelected");
         if (tabSelected.empty())
-            tabSelected = sheetView.prepend_attribute("tabSelected");    // BUGFIX 2024-05-01: create tabSelected attribute if it does not exist
+            tabSelected = sheetView.prepend_attribute("tabSelected");    // BUGFIX 2025-03-15 issue #337: assign tabSelected value with newly created attribute if it didn't exist
         tabSelected.set_value(value);
     }
 
@@ -1007,7 +1008,8 @@ XLWorksheet::XLWorksheet(const XLWorksheet& other) : XLSheetBase<XLWorksheet>(ot
     m_vmlDrawing    = other.m_vmlDrawing;     //  "     XLVmlDrawing
     m_comments      = other.m_comments;       //  "     XLComments         "
     m_tables        = other.m_tables;         //  "     XLTables           "
-    m_drawing       = other.m_drawing;        //  "     XLDrawing
+    m_drawing1      = other.m_drawing1;
+
 
 }
 
@@ -1021,7 +1023,8 @@ XLWorksheet::XLWorksheet(XLWorksheet&& other) : XLSheetBase< XLWorksheet >(other
     m_vmlDrawing    = std::move(other.m_vmlDrawing);     //  "     XLVmlDrawing
     m_comments      = std::move(other.m_comments);       //  "     XLComments         "
     m_tables        = std::move(other.m_tables);         //  "     XLTables           "
-    m_drawing       = std::move(other.m_drawing);        //  "     XLDrawing
+    m_drawing1 = std::move(other.m_drawing1);            //  "     XLDrawing1
+
 }
 
 /**
@@ -1035,7 +1038,8 @@ XLWorksheet& XLWorksheet::operator=(const XLWorksheet& other)
     m_vmlDrawing    = other.m_vmlDrawing;
     m_comments      = other.m_comments;
     m_tables        = other.m_tables;
-    m_drawing       = other.m_drawing;
+    m_drawing1      = other.m_drawing1;
+
 
     return *this;
 }
@@ -1051,7 +1055,8 @@ XLWorksheet& XLWorksheet::operator=(XLWorksheet&& other)
     m_vmlDrawing    = std::move(other.m_vmlDrawing);
     m_comments      = std::move(other.m_comments);
     m_tables        = std::move(other.m_tables);
-    m_drawing       = std::move(other.m_drawing);
+    m_drawing1      = std::move(other.m_drawing1);
+
 
     return *this;
 }
@@ -1116,6 +1121,24 @@ XLCellAssignable XLWorksheet::cell(uint32_t rowNumber, uint16_t columnNumber) co
     const XMLNode cellNode = getCellNode(rowNode, columnNumber, rowNumber);
     // ===== Move-construct XLCellAssignable from temporary XLCell
     return XLCellAssignable(XLCell(cellNode, parentDoc().sharedStrings()));
+}
+
+/**
+ * @details
+ */
+XLCellAssignable XLWorksheet::findCell(const std::string& ref) const { return findCell(XLCellReference(ref)); }
+
+/**
+ * @details
+ */
+XLCellAssignable XLWorksheet::findCell(const XLCellReference& ref) const { return findCell(ref.row(), ref.column()); }
+
+/**
+ * @details This function attempts to find a cell, but creates neither the row nor the cell XML if missing - and returns an empty XLCellAssignable instead
+ */
+XLCellAssignable XLWorksheet::findCell(uint32_t rowNumber, uint16_t columnNumber) const
+{
+    return XLCellAssignable(XLCell(findCellNode(findRowNode( xmlDocument().document_element().child("sheetData"), rowNumber ), columnNumber), parentDoc().sharedStrings()));
 }
 
 /**
@@ -1228,7 +1251,6 @@ XLColumn XLWorksheet::column(uint16_t columnNumber) const
 
     uint16_t minColumn {};
     uint16_t maxColumn {};
-    auto dcw = defaultColWidth();
     if (not columnNode.empty()) {
         minColumn = columnNode.attribute("min").as_int();    // only look it up once for multiple access
         maxColumn = columnNode.attribute("max").as_int();    //   "
@@ -1272,7 +1294,7 @@ XLColumn XLWorksheet::column(uint16_t columnNumber) const
         columnNode                                 = xmlDocument().document_element().child("cols").insert_child_before("col", columnNode);
         columnNode.append_attribute("min")         = columnNumber;
         columnNode.append_attribute("max")         = columnNumber;
-        columnNode.append_attribute("width")       = dcw;    // NOLINT
+        columnNode.append_attribute("width")       = 9.8;    // NOLINT
         columnNode.append_attribute("customWidth") = 0;
     }
 
@@ -1281,7 +1303,7 @@ XLColumn XLWorksheet::column(uint16_t columnNumber) const
         columnNode                                 = xmlDocument().document_element().child("cols").append_child("col");
         columnNode.append_attribute("min")         = columnNumber;
         columnNode.append_attribute("max")         = columnNumber;
-        columnNode.append_attribute("width")       = dcw;    // NOLINT
+        columnNode.append_attribute("width")       = 9.8;    // NOLINT
         columnNode.append_attribute("customWidth") = 0;
     }
 
@@ -1402,10 +1424,8 @@ void XLWorksheet::updateSheetName(const std::string& oldName, const std::string&
  */
 XLMergeCells & XLWorksheet::merges()
 {
-    if (m_merges.uninitialized()) {
-        XMLNode rootNode = xmlDocument().document_element(); // until I learn how to make appendAndGetNode take by reference but not fail on rvalue document_element
-        m_merges = XLMergeCells(appendAndGetNode(rootNode, "mergeCells", m_nodeOrder));
-    }
+    if (!m_merges.valid())
+        m_merges = XLMergeCells(xmlDocument().document_element(), m_nodeOrder);
     return m_merges;
 }
 
@@ -1654,7 +1674,6 @@ bool XLWorksheet::hasRelationships() const { return parentDoc().hasSheetRelation
 bool XLWorksheet::hasVmlDrawing()    const { return parentDoc().hasSheetVmlDrawing(   sheetXmlNumber()); }
 bool XLWorksheet::hasComments()      const { return parentDoc().hasSheetComments(     sheetXmlNumber()); }
 bool XLWorksheet::hasTables()        const { return parentDoc().hasSheetTables(       sheetXmlNumber()); }
-bool XLWorksheet::hasDrawing()       const { return parentDoc().hasSheetDrawing(      sheetXmlNumber()); }
 
 /**
  * @details fetches XLVmlDrawing for the sheet - creates & assigns the class if empty
@@ -1689,44 +1708,6 @@ XLVmlDrawing& XLWorksheet::vmlDrawing()
     }
 
     return m_vmlDrawing;
-}
-/**
- * @details fetches XLDrawing for the sheet - creates & assigns the class if empty
- */
-XLDrawing& XLWorksheet::drawing()
-{
-    if (!m_drawing.valid()) {
-        // ===== Append xdr namespace attribute to worksheet if not present
-
-        XMLNode docElement = xmlDocument().document_element();
-        XMLAttribute xdrNamespace = appendAndGetAttribute(docElement, "xmlns:xdr", "");
-        xdrNamespace = "http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing";
-
-        std::ignore = relationships(); // create sheet relationships if not existing
-
-        // ===== Trigger parentDoc to create drawing XML file and return it
-        uint16_t sheetXmlNo = sheetXmlNumber();
-        m_drawing = parentDoc().sheetDrawing(sheetXmlNo); // fetch drawing for this worksheet
-        if (!m_drawing.valid())
-            throw XLException("XLWorksheet::drawing(): could not create drawing XML");
-        std::string drawingRelativePath = getPathARelativeToPathB(m_drawing.getXmlPath(), getXmlPath());
-        XLRelationshipItem drawingRelationship;
-        if (!m_relationships.targetExists(drawingRelativePath))
-            drawingRelationship = m_relationships.addRelationship(XLRelationshipType::Drawing, drawingRelativePath);
-        else
-            drawingRelationship = m_relationships.relationshipByTarget(drawingRelativePath);
-        if (drawingRelationship.empty())
-            throw XLException("XLWorksheet::drawing(): could not add determine sheet relationship for Drawing");
-        if(docElement.child("drawing").empty()) {
-            XMLNode drawing = appendAndGetNode(docElement, "drawing", m_nodeOrder);
-            if (drawing.empty())
-                throw XLException("XLWorksheet::drawing(): could not add <drawing> element to worksheet XML");
-            appendAndSetAttribute(drawing, "r:id", drawingRelationship.id());
-        }
-
-    }
-
-    return m_drawing;
 }
 
 /**
@@ -1842,3 +1823,40 @@ bool XLChartsheet::isSelected_impl() const { return tabIsSelected(xmlDocument())
  * @details Calls the setTabSelected() free function.
  */
 void XLChartsheet::setSelected_impl(bool selected) { setTabSelected(xmlDocument(), selected); }
+
+XLDrawing1& XLWorksheet::drawing1()
+{
+    if (!m_drawing1.valid()) {
+        // ===== Append xdr namespace attribute to worksheet if not present
+
+        XMLNode docElement = xmlDocument().document_element();
+        XMLAttribute xdrNamespace = appendAndGetAttribute(docElement, "xmlns:xdr", "");
+        xdrNamespace = "http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing";
+
+        std::ignore = relationships(); // create sheet relationships if not existing
+
+        // ===== Trigger parentDoc to create drawing XML file and return it
+        uint16_t sheetXmlNo = index();
+        m_drawing1 = parentDoc().sheetDrawing1(sheetXmlNo); // fetch drawing for this worksheet
+        if (!m_drawing1.valid())
+            throw XLException("XLWorksheet::drawing1(): could not create drawing XML");
+        std::string drawingRelativePath = getPathARelativeToPathB(m_drawing1.getXmlPath(), getXmlPath());
+        XLRelationshipItem drawingRelationship;
+        if (!relationships().targetExists(drawingRelativePath))
+            drawingRelationship = relationships().addRelationship(XLRelationshipType::Drawing, drawingRelativePath);
+        else
+            drawingRelationship = relationships().relationshipByTarget(drawingRelativePath);
+        if (drawingRelationship.empty())
+            throw XLException("XLWorksheet::drawing(): could not add determine sheet relationship for Drawing");
+        if (docElement.child("drawing").empty()) {
+            XMLNode drawing = appendAndGetNode(docElement, "drawing", m_nodeOrder);
+            if (drawing.empty())
+                throw XLException("XLWorksheet::drawing(): could not add <drawing> element to worksheet XML");
+            appendAndSetAttribute(drawing, "r:id", drawingRelationship.id());
+        }
+
+    }
+    return m_drawing1;
+}
+
+

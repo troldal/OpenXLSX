@@ -1045,17 +1045,7 @@ bool XLDocument::hasSheetVmlDrawing(uint16_t sheetXmlNo) const
     using namespace std::literals::string_literals;
     return m_archive.hasEntry("xl/drawings/vmlDrawing"s + std::to_string(sheetXmlNo) + ".vml"s);
 }
-
-/**
-* @details determine - without creation - whether the document contains a VML drawing file for sheet with sheetXmlNo
-*/
-bool XLDocument::hasSheetDrawing(uint16_t sheetXmlNo) const
-{
-    using namespace std::literals::string_literals;
-    return m_archive.hasEntry("xl/drawings/drawing"s + std::to_string(sheetXmlNo) + ".vml"s);
-}
-
-/**
+/*
 * @details determine - without creation - whether the document contains a comments file for sheet with sheetXmlNo
 */
 bool XLDocument::hasSheetComments(uint16_t sheetXmlNo) const
@@ -1113,29 +1103,6 @@ XLVmlDrawing XLDocument::sheetVmlDrawing(uint16_t sheetXmlNo)
         xmlData = &m_data.emplace_back(this, vmlDrawingFilename, "", XLContentType::VMLDrawing);
 
     return XLVmlDrawing(xmlData);
-}
-
-/**
-* @details return an XLVmlDrawing item for sheet with sheetXmlNo - create the underlying XML and add it to the archive if needed
-*/
-
-XLDrawing XLDocument::sheetDrawing(uint16_t sheetXmlNo)
-{
-    using namespace std::literals::string_literals;
-    std::string drawingFilename = "xl/drawings/drawing"s + std::to_string(sheetXmlNo) + ".xml"s;
-
-    if (!m_archive.hasEntry(drawingFilename)) {
-        // ===== Create the sheet drawing file within the archive
-        m_archive.addEntry(drawingFilename, "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");  // empty XML file, class constructor will do the rest
-        if(!m_contentTypes.PartNameExists("/" + drawingFilename))
-            m_contentTypes.addOverride("/" + drawingFilename, XLContentType::Drawing);                          // add content types entry
-    }
-    constexpr const bool DO_NOT_THROW = true;
-    XLXmlData* xmlData = getXmlData(drawingFilename, DO_NOT_THROW);
-    if (xmlData == nullptr) // if not yet managed: add the sheet drawing file to the managed files
-        xmlData = &m_data.emplace_back(this, drawingFilename, "", XLContentType::Drawing);
-
-    return XLDrawing(xmlData);
 }
 
 /**
@@ -1486,248 +1453,6 @@ void XLDocument::cleanupSharedStrings()
         throw XLInternalError("XLDocument::cleanupSharedStrings: failed to rewrite shared string table - document would be corrupted");
 }
 
-char * XLDocument::shapeAttribute(int sheetXmlNo,int shapeNo,char *path)
-{
-    char* s, * s0; int i, att = 0; XMLNode f; std::string ss,sa;
-
-    XLWorksheet wks = m_workbook.worksheet(sheetXmlNo);
-    wks.drawing();
-
-     XLDrawing dr = sheetDrawing((uint32_t)sheetXmlNo);
-     XMLNode n=dr.shapeNode((uint32_t)shapeNo-1);
-     s = s0 = path;
-     while (1) {
-         if (*s == '/' || *s=='@' || !*s) {
-             i = s - s0;
-             if(i)ss=std::string((const char *)s0,(size_t)i);
-             s0 = s+1;
-             if (att && i) {
-                 const pugi::char_t* a = (const pugi::char_t*)sa.data();
-                 if (n.attribute(a).empty())break;
-                 return (char *)n.attribute(a).as_string();
-             }
-             if (!att && i) {
-                 f = n.first_child_of_type(pugi::node_element);
-                 while (!f.empty()) {
-                     if (f.raw_name() == ss)break;
-                     f = f.next_sibling_of_type(pugi::node_element);
-                 }
-                 if (f.empty())break;
-                 n = f;
-             }
-             if (*s == '@')att = 1;
-             if (!*s)return (char *)n.text().as_string();
-         }
-         s++;
-     }
-     return (char *)"";
-}
-
-void XLDocument::setShapeAttribute(int sheetXmlNo, int shapeNo, char* path, char* attribute, char* value)
-{
-    char* s, * s0; int i, att = 0, val = 0; XMLNode f; 
-
-    std::string ss, sa, sv;
-
-    XLWorksheet wks = m_workbook.worksheet(sheetXmlNo);
-    wks.drawing();
-
-    XLDrawing dr = sheetDrawing((uint32_t)sheetXmlNo);
-    XMLNode n = dr.shapeNode((uint32_t)shapeNo - 1);
-    s = s0 = path;
-    while (1) {
-        if (*s == '/' || *s == '@' || *s == '=' || *s == ',' || !*s) {
-            i = s - s0;
-            if (i)ss = std::string((const char*)s0, (size_t)i);
-            s0 = s + 1;
-            if (att && i) {
-                if (*s == '=') {
-                    sa = ss;
-                }
-                else {
-                    if (val) {
-                        sv = ss;
-                    }
-                }
-            }
-            if (att && val && i) {
-                const pugi::char_t* a = (const pugi::char_t*)sa.data();
-                if (n.attribute(a).empty())n.append_attribute(a) = sv.data();
-                else n.attribute(a).set_value(sv.data());
-                att = 0;
-                val = 0;
-            }
-            else {
-                if (!att && !val && i) {
-                    f = n.first_child_of_type(pugi::node_element);
-                    while (!f.empty()) {
-                        if (f.raw_name() == ss)break;
-                        f = f.next_sibling_of_type(pugi::node_element);
-                    }
-                    if (f.empty()) {
-                        f = n.append_child(ss.c_str());
-                    }
-                    if (*s != ',') {
-                        n = f;
-                    }
-                }
-            }
-            if (!*s)break;
-            if (*s == '@')att = 1;
-            if (*s == '=')val = 1;
-            if (*s == '/') {
-                s0 = s + 1;
-            }
-        }
-        s++;
-    }
-    if (attribute && *attribute) {
-        const pugi::char_t* a = (const pugi::char_t*)attribute;
-        if (n.attribute(a).empty())n.append_attribute(a) = value;
-        else n.attribute(a).set_value(value);
-    }
-    else {
-        if (value && *value)
-            n.text() = value;
-    }
-
-    return;
-}
-
-int XLDocument::appendPictures(int sheetXmlNo,void* buffer, int bufferlen, char* ext,XLRECT *rect)
-{
-    using namespace std::literals::string_literals;
-    std::string xmlns="http://schemas.openxmlformats.org/officeDocument/2006/relationships";
-    XMLNode root;
-    int id = 1;
-    std::string v;
-    v.assign((const char*)buffer, (const size_t)bufferlen);
-    while (1) {
-        bool yes = false;
-        for (auto& item : m_contentTypes.getContentDefItems()) {
-            std::string picturesFilename = "xl/media/image" + std::to_string(id) + "." + item.ext();
-            if (m_archive.hasEntry(picturesFilename)) {
-                yes = true;
-                break;
-            }
-        }
-        if (!yes) {
-            std::string picturesFilename = "xl/media/image" + std::to_string(id) + "." + std::string(ext);
-            if (!m_archive.hasEntry(picturesFilename)) {
-                m_archive.addEntry(picturesFilename, v);
-                if (!m_contentTypes.ExtensionExists(ext))m_contentTypes.addDefault(ext, XLContentType::Image);
-                break;
-            }
-        }
-        id++;
-    }
-
-    std::string drawingsRelsFilename = std::string("xl/drawings/_rels/drawing") + std::to_string(sheetXmlNo) + std::string(".xml.rels");
-    m_data.emplace_back(this, drawingsRelsFilename);
-    m_drwRelationships = XLRelationships(getXmlData(drawingsRelsFilename), drawingsRelsFilename);
-    constexpr const bool DO_NOT_THROW = true;
-
-    std::string imgtarget = std::string("../media/image") + std::to_string(id) + "." + std::string(ext);
-    XLRelationshipItem imgitem = m_drwRelationships.addRelationship(XLRelationshipType::Image, imgtarget);
-
-    XLWorksheet wks=m_workbook.worksheet(sheetXmlNo);
-    wks.drawing();
-
-    XLDrawing dr = sheetDrawing(sheetXmlNo);
-    dr.createShape();
-    root= dr.shapeNode(dr.shapeCount()-1);
-    XMLNode from =root.append_child("xdr:from");
-    from.append_child("xdr:col").text()=std::to_string(rect->left-1).data();
-    from.append_child("xdr:colOff").text() = "0";
-    from.append_child("xdr:row").text()= std::to_string(rect->top-1).data();
-    from.append_child("xdr:rowOff").text() = "0";
-    XMLNode to =root.append_child("xdr:to");
-    to.append_child("xdr:col").text()= std::to_string(rect->right-1).data();
-    to.append_child("xdr:colOff").text() = "0";
-    to.append_child("xdr:row").text()= std::to_string(rect->bottom-1).data();
-    to.append_child("xdr:rowOff").text() = "0";
-    XMLNode pic =root.append_child("xdr:pic");
-    XMLNode nvpicpr=pic.append_child("xdr:nvPicPr");
-    XMLNode pname=nvpicpr.append_child("xdr:cNvPr");
-    pname.append_attribute("id") = std::to_string(id).data();
-    pname.append_attribute("name") = (std::string("Picture ")+std::to_string(id)).data();
-    XMLNode cpname = nvpicpr.append_child("xdr:cNvPicPr");
-    XMLNode piclocks = cpname.append_child("a:picLocks");
- //   piclocks.append_attribute("noChangeAspect") = "1";
-    XMLNode bf=pic.append_child("xdr:blipFill");
-    XMLNode blip = bf.append_child("a:blip");
-    blip.append_attribute("xmlns:r")=xmlns.data();
-    blip.append_attribute("r:embed")=imgitem.id().data();
-// clrChange не должно быть пустое  
-//   XMLNode clr = blip.append_child("a:clrChange");
-//    XMLNode clrfrom=clr.append_child("a:clrFrom");
-//    XMLNode srgb = clrfrom.append_child("a:srgbClr");
-//    srgb.append_attribute("val")="FFFFFF";
-//    XMLNode clrto = clr.append_child("a:clrTo");
-//    srgb = clrfrom.append_child("a:srgbClr");
-//    srgb.append_attribute("val") = "FFFFFF";
-
- //   XMLNode stretch= bf.append_child("a:stretch");
-//    stretch.append_child("a:fillRect");
-    XMLNode sppr=pic.append_child("xdr:spPr");
-    XMLNode xfrm=sppr.append_child("a:xfrm");
-// a:off и a:ext не должны быть пустыми
-//    xfrm.append_child("a:off");
-//    xfrm.append_child("a:ext");
-    XMLNode geom=sppr.append_child("a:prstGeom");
-    geom.append_attribute("prst") = "rect";
-    geom.append_child("a:avLst");
-    root.append_child("xdr:clientData");
-
-    return dr.shapeCount();
-}
-
-/*
-copy range with height,merge,attribute,value
-*/
-
-void XLDocument::copyRange(int sheetXmlNo, XLRECT* from, XLRECT* to)
-{
-    int row_from, row_to, col_from, col_to;
-
-    XLWorksheet ws = m_workbook.worksheet(sheetXmlNo);
-
-    for (row_from = from->bottom, row_to = to->bottom; row_from >= from->top; row_from--, row_to--) {
-        ws.row(row_to).setHeight(ws.row(row_from).height());
-        for (col_from = from->left, col_to = to->left; col_from <= from->right; col_from++, col_to++) {
-            XLCell c_to = ws.cell(row_to, col_to);
-            XLCellReference cr_to = c_to.cellReference();
-            int32_t mc = ws.merges().findMergeByCell(cr_to);
-            if (mc >= 0) {
-                ws.merges().deleteMerge(mc);
-            }
-        }
-        for (col_from = from->left, col_to = to->left; col_from <= from->right; col_from++, col_to++) {
-            XLCell c_from = ws.cell(row_from, col_from);
-            XLCell c_to = ws.cell(row_to, col_to);
-            XLCellReference cr_from = c_from.cellReference();
-            int32_t mc = ws.merges().findMergeByCell(cr_from);
-            if (mc >= 0) {
-                const char* s = ws.merges().merge(mc);
-                auto ss = std::string(s);
-                auto pos = ss.find(":");
-                if (pos) {
-                    XLCellReference cr_beg = XLCellReference(ss.substr(0, pos));
-                    XLCellReference cr_end = XLCellReference(ss.substr(pos + 1));
-                    cr_beg.setRow(row_to);
-                    cr_end.setRow(row_to);
-                    mc = ws.merges().findMergeByCell(cr_beg);
-                    if (mc >= 0) {
-                        ws.merges().deleteMerge(mc);
-                    }
-                    ws.merges().appendMerge(cr_beg.address() + ":" + cr_end.address());
-                }
-            }
-            c_to.copyFrom((const XLCell)c_from);
-        }
-    }
-}
-
 //----------------------------------------------------------------------------------------------------------------------
 //           Protected Member Functions
 //----------------------------------------------------------------------------------------------------------------------
@@ -1918,5 +1643,32 @@ namespace OpenXLSX
         // in return value: avoid appending a trailing slash if a path was already reduced to "/"
         return ((result.length() > 1 || result.front() != '/') && path.back() == '/') ? result + "/" : result;
     }
+
+    XLDrawing1 XLDocument::sheetDrawing1(uint16_t sheetXmlNo)
+    {
+        using namespace std::literals::string_literals;
+        std::string drawingFilename = "xl/drawings/drawing"s + std::to_string(sheetXmlNo) + ".xml"s;
+
+        if (!m_archive.hasEntry(drawingFilename)) {
+            // ===== Create the sheet drawing file within the archive
+            m_archive.addEntry(drawingFilename, "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");  // empty XML file, class constructor will do the rest
+            if (!m_contentTypes.PartNameExists("/" + drawingFilename))
+                m_contentTypes.addOverride("/" + drawingFilename, XLContentType::Drawing);                          // add content types entry
+        }
+        constexpr const bool DO_NOT_THROW = true;
+        XLXmlData* xmlData = getXmlData((const std::string&)drawingFilename, DO_NOT_THROW);
+        if (xmlData == nullptr) // if not yet managed: add the sheet drawing file to the managed files
+            xmlData = &m_data.emplace_back(this, drawingFilename, "", XLContentType::Drawing);
+
+        return XLDrawing1(xmlData);
+    }
+
+    bool XLDocument::hasSheetDrawing1(uint16_t sheetXmlNo) const
+    {
+        using namespace std::literals::string_literals;
+        return m_archive.hasEntry("xl/drawings/drawing"s + std::to_string(sheetXmlNo) + ".xml"s);
+    }
+
+
 
 }    // namespace OpenXLSX
