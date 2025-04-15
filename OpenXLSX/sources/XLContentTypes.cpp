@@ -129,7 +129,7 @@ namespace { // anonymous namespace for local functions
         std::string typeString;
 
         if (type == XLContentType::WorkbookMacroEnabled)
-            typeString = applicationMicrosoftExcel + ".Sheet.macroEnabled.main+xml";
+            typeString = applicationMicrosoftExcel + ".sheet.macroEnabled.main+xml";
         else if (type == XLContentType::Workbook)
             typeString = applicationOpenXmlOfficeDocument + ".spreadsheetml.sheet.main+xml";
         else if (type == XLContentType::Relationships)
