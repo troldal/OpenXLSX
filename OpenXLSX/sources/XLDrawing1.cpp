@@ -11,8 +11,17 @@
 
 using namespace OpenXLSX;
 
+const std::string ShapeNodeNameDr0 = "xdr:absoluteAnchor";
 const std::string ShapeNodeNameDr1 = "xdr:oneCellAnchor";
 const std::string ShapeNodeNameDr2 = "xdr:twoCellAnchor";
+
+static bool nodeDr(const std::string s)
+{
+	if(s==ShapeNodeNameDr1)return true;
+	if(s==ShapeNodeNameDr2)return true;
+	if(s==ShapeNodeNameDr0)return true;
+	return false;
+}
 
 
 XLDrawing1::XLDrawing1(XLXmlData* xmlData) : XLXmlFile(xmlData)
@@ -27,8 +36,8 @@ XLDrawing1::XLDrawing1(XLXmlData* xmlData) : XLXmlFile(xmlData)
 	}
 	XMLNode rootNode = doc.document_element();
 	XMLNode node = rootNode.first_child_of_type(pugi::node_element);
-
-	while (not node.empty() && (node.raw_name() == ShapeNodeNameDr1 || node.raw_name() == ShapeNodeNameDr2)) {
+	m_shapeCount=0;
+	while (not node.empty() && nodeDr(node.raw_name())) {
 		XMLNode nextNode = node.next_sibling_of_type(pugi::node_element); // determine next node early because node may be invalidated by moveNode
 		++m_shapeCount;
 		node = nextNode;
@@ -43,7 +52,7 @@ XMLNode XLDrawing1::rootNode() const {
 XMLNode XLDrawing1::firstShapeNode() const
 {
 	XMLNode node = xmlDocument().document_element().first_child_of_type(pugi::node_element);
-	while (not node.empty() && node.raw_name() != ShapeNodeNameDr1 && node.raw_name() != ShapeNodeNameDr2)   // skip non shape nodes
+	while (not node.empty() && !nodeDr(node.raw_name()))   // skip non shape nodes
 		node = node.next_sibling_of_type(pugi::node_element);
 	return node;
 }
@@ -51,7 +60,7 @@ XMLNode XLDrawing1::firstShapeNode() const
 XMLNode XLDrawing1::lastShapeNode() const
 {
 	XMLNode node = xmlDocument().document_element().last_child_of_type(pugi::node_element);
-	while (not node.empty() && node.raw_name() != ShapeNodeNameDr1 && node.raw_name() != ShapeNodeNameDr2)
+	while (not node.empty() && !nodeDr(node.raw_name()))
 		node = node.previous_sibling_of_type(pugi::node_element);
 	return node;
 
@@ -65,12 +74,12 @@ XMLNode XLDrawing1::shapeNode(uint32_t index) const
 	if (index < shapeCount()) {
 		uint16_t i = 0;
 		node = firstShapeNode();
-		while (i != index && (node.raw_name() == ShapeNodeNameDr1 || node.raw_name() == ShapeNodeNameDr1)) {
+		while (i != index && nodeDr(node.raw_name())) {
 			++i;
 			node = node.next_sibling_of_type(pugi::node_element);
 		}
 	}
-	if (node.empty() || (node.raw_name() != ShapeNodeNameDr1 && node.raw_name() != ShapeNodeNameDr2))
+	if (node.empty() || !nodeDr(node.raw_name()))
 		throw XLException("XLDrawing: shape index "s + std::to_string(index) + " is out of bounds"s);
 
 	return node;
@@ -83,14 +92,14 @@ XMLNode XLDrawing1::shapeNode(std::string const& cellRef) const
 	uint16_t destCol = destRef.column() - 1; // ..
 
 	XMLNode node = firstShapeNode();
-	while (not node.empty() && (node.raw_name() == ShapeNodeNameDr1 || node.raw_name() == ShapeNodeNameDr2)) {
+	while (not node.empty() && nodeDr(node.raw_name())) {
 		if ((destRow == node.child("x:ClientData").child("x:Row").text().as_uint())
 			&& (destCol == node.child("x:ClientData").child("x:Column").text().as_uint()))
 			break; // found shape for cellRef
 
 		do { // locate next shape node
 			node = node.next_sibling_of_type(pugi::node_element);
-		} while (not node.empty() && node.name() != ShapeNodeNameDr1 && node.name() != ShapeNodeNameDr2);
+		} while (not node.empty() && !nodeDr(node.name()));
 	}
 	return node;
 }
@@ -101,15 +110,11 @@ XLShape1 XLDrawing1::createShape(int32_t n)
 {
 	XMLNode rootNode = xmlDocument().document_element();
 	XMLNode node;
-	if (n == 1) {
-		node = rootNode.append_child(ShapeNodeNameDr1.c_str());
+	switch (n) {
+		case 0:node = rootNode.append_child(ShapeNodeNameDr0.c_str()); break;
+		case 1:node = rootNode.append_child(ShapeNodeNameDr1.c_str()); break;
+		case 2:node = rootNode.append_child(ShapeNodeNameDr2.c_str()); break;
 	}
-	else {
-		if (n == 2) {
-			node = rootNode.append_child(ShapeNodeNameDr2.c_str());
-		}
-	}
-
 	m_shapeCount++;
 	return XLShape1(node);
 }
