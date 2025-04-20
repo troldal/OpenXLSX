@@ -343,6 +343,15 @@ namespace OpenXLSX
          */
         XLTables sheetTables(uint16_t sheetXmlNo);
 
+    public:
+        /**
+         * @brief validate whether sheetName is a valid Excel worksheet name
+         * @param sheetName the desired name
+         * @param throwOnInvalid (default: false) if true, invalid sheetName will throw exception
+         * @return true if sheetName can be used, otherwise false
+         */
+        bool validateSheetName(std::string sheetName, bool throwOnInvalid = false);
+
         /**
          * @brief
          * @param command

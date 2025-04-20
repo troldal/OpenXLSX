@@ -1148,12 +1148,68 @@ XLTables XLDocument::sheetTables(uint16_t sheetXmlNo)
 }
 
 /**
+ * @details Worksheet names cannot:
+ *     Be blank.
+ *     Contain more than 31 characters.
+ *     Contain any of the following characters: / \ ? * : [ ]
+ *     For example, 02/17/2016 would not be a valid worksheet name, but 02-17-2016 would work fine.
+ *     Begin or end with an apostrophe ('), but they can be used in between text or numbers in a name.
+ *     Be named "History". This is a reserved word Excel uses internally.
+ */
+constexpr const bool THROW_ON_INVALID = true;
+bool XLDocument::validateSheetName(std::string sheetName, bool throwOnInvalid)
+{
+    using namespace std::literals::string_literals;
+    bool valid = true;
+
+    std::cout << "validating sheet name " << sheetName << std::endl;
+    try {
+        if (sheetName.length() > 31)
+            throw "contain more than 31 characters"s;
+
+        size_t pos = 0;
+        while (sheetName[pos] == ' ' || sheetName[pos] == '\t') ++pos; // aborts on sheetName[ sheetName.length() ], guaranteed to be \0
+        if (pos == sheetName.length())
+            throw "be blank"s;
+
+        if (sheetName.front() == '\'' || sheetName.back() == '\'')
+            throw "begin or end with an apostrophe (')"s;
+
+        if (sheetName == "History")
+            throw "be named \"History\" (Excel reserves this word for internal use)"s;
+
+        for (pos = 0; pos < sheetName.length(); ++pos) {
+            switch (sheetName[pos]) {
+                // test for disallowed characters:
+                case '/': [[fallthrough]];
+                case '\\': [[fallthrough]];
+                case '?': [[fallthrough]];
+                case '*': [[fallthrough]];
+                case ':': [[fallthrough]];
+                case '[': [[fallthrough]];
+                case ']':
+                    throw "contain any of the following characters: / \\ ? * : [ ]"s;
+                default: ; // no-op
+            }
+        }
+        // if execution gets here, sheetName is valid
+    }
+    catch( std::string const & err ) {
+        if (throwOnInvalid)
+            throw XLInputError("Sheet name \""s + sheetName + "\" violates naming rules: sheet name can not "s + err);
+        valid = false;
+    }
+    return valid;
+}
+
+/**
  * @details return value defaults to true, false only where the XLCommandType implements it
  */
 bool XLDocument::execCommand(const XLCommand& command)
 {
     switch (command.type()) {
         case XLCommandType::SetSheetName:
+            validateSheetName(command.getParam<std::string>("newName"), THROW_ON_INVALID);
             m_appProperties.setSheetName(command.getParam<std::string>("sheetName"), command.getParam<std::string>("newName"));
             m_workbook.setSheetName(command.getParam<std::string>("sheetID"), command.getParam<std::string>("newName"));
             break;
@@ -1230,6 +1286,7 @@ bool XLDocument::execCommand(const XLCommand& command)
             m_archive.addEntry("xl/sharedStrings.xml", "");
         } break;
         case XLCommandType::AddWorksheet: {
+            validateSheetName(command.getParam<std::string>("sheetName"), THROW_ON_INVALID);
             const std::string emptyWorksheet {
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
                 "<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\""
@@ -1270,6 +1327,7 @@ bool XLDocument::execCommand(const XLCommand& command)
             }));
         } break;
         case XLCommandType::CloneSheet: {
+            validateSheetName(command.getParam<std::string>("cloneName"), THROW_ON_INVALID);
             const auto internalID = m_workbook.createInternalSheetID();
             const auto sheetPath  = "/xl/worksheets/sheet" + std::to_string(internalID) + ".xml";
             if (m_workbook.sheetExists(command.getParam<std::string>("cloneName")))

@@ -7,6 +7,13 @@ Microsoft Excel® files, with the .xlsx format.
 
 As the heading says - the latest "Release" that is shown on https://github.com/troldal/OpenXLSX/releases is from 2021-11-06, and severely outdated - please pull / download the latest SW version directly from the repository in its current state. Link for those that do not want to use ```git```: https://github.com/troldal/OpenXLSX/archive/refs/heads/master.zip
 
+## (aral-matrix) 20 April 2025 - added validation of worksheet names when creating, renaming or cloning worksheets to address #358
+* added ```bool XLDocument::validateSheetName(std::string sheetName, bool throwOnInvalid = false)``` - can be called by the user to test whether a name would throw
+* if ```XLSheet::setName```, ```XLWorkbook.addWorksheet``` or ```XLWorkbook.cloneSheet``` are invoked with a name for which ```validateSheetName``` would return false, an ```XLInputError``` is thrown with the validation rule that was violated.
+* this change addresses https://github.com/troldal/OpenXLSX/issues/358
+
+**CAUTION**: this change is potentially code-breaking as it can throw an exception on code that previously executed without errors - However, when it throws, previous versions would have produced a workbook that Excel refuses to read.
+
 ## (aral-matrix) 12 April 2025 - added cmake option(OPENXLSX_ENABLE_LTO "Enables Link-Time Optimization (LTO)" ON)
 * merged pull request https://github.com/troldal/OpenXLSX/pull/355 adding the cmake option ```OPENXLSX_ENABLE_LTO``` that permits disabling link-time optimization altogether. It remains ```ON``` by default.
 
