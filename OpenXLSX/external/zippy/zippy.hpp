@@ -9857,7 +9857,7 @@ namespace Zippy::Impl
 
         std::random_device                 rand_dev;
         std::mt19937                       generator(rand_dev());
-        std::uniform_int_distribution<int> distr(0, letters.size() - 1);
+        std::uniform_int_distribution<int> distr(0, static_cast<int>(letters.size()) - 1);
 
         std::string result;
         for (int i = 0; i < length; ++i) {
@@ -10812,7 +10812,7 @@ namespace Zippy
         {
             if (!IsOpen()) throw ZipLogicError("Cannot call GetNumEntries on empty ZipArchive object!");
 
-            return GetEntryNames(includeDirs, includeFiles).size();
+            return static_cast<int>(GetEntryNames(includeDirs, includeFiles).size());
         }
 
         /**
@@ -10827,7 +10827,7 @@ namespace Zippy
         {
             if (!IsOpen()) throw ZipLogicError("Cannot call GetNumEntriesInDir on empty ZipArchive object!");
 
-            return GetEntryNamesInDir(dir, includeDirs, includeFiles).size();
+            return static_cast<int>(GetEntryNamesInDir(dir, includeDirs, includeFiles).size());
         }
 
         /**
@@ -11091,7 +11091,7 @@ namespace Zippy
             auto folders = GetEntryNames(true, false);
             auto pos     = 0;
             while (name.find('/', pos) != std::string::npos) {
-                pos         = name.find('/', pos) + 1;
+                pos         = static_cast<int>(name.find('/', pos)) + 1;
                 auto folder = name.substr(0, pos);
 
                 // ===== If folder isn't registered in the archive, add it.

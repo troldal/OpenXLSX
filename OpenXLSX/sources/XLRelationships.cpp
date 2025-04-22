@@ -130,7 +130,7 @@ namespace OpenXLSX { // anonymous namespace: do not export these symbols
      */
     void InitRandom(bool pseudoRandom)
     {
-        uint64_t rdSeed;
+        uint32_t rdSeed;
         if (pseudoRandom) rdSeed = 3744821255L; // in pseudo-random mode, always use the same seed
         else {
             std::random_device rd;
