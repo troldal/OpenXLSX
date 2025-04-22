@@ -71,7 +71,7 @@ namespace { // anonymous namespace for local functions
     {
         XLContentType type { XLContentType::Unknown };
 
-        if (typeString == applicationMicrosoftExcel + ".Sheet.macroEnabled.main+xml")
+        if (typeString == applicationMicrosoftExcel + ".sheet.macroEnabled.main+xml")
             type = XLContentType::WorkbookMacroEnabled;
         else if (typeString == applicationOpenXmlOfficeDocument + ".spreadsheetml.sheet.main+xml")
             type = XLContentType::Workbook;
@@ -131,7 +131,7 @@ namespace { // anonymous namespace for local functions
         std::string typeString;
 
         if (type == XLContentType::WorkbookMacroEnabled)
-            typeString = applicationMicrosoftExcel + ".Sheet.macroEnabled.main+xml";
+            typeString = applicationMicrosoftExcel + ".sheet.macroEnabled.main+xml";
         else if (type == XLContentType::Workbook)
             typeString = applicationOpenXmlOfficeDocument + ".spreadsheetml.sheet.main+xml";
         else if (type == XLContentType::Relationships)
