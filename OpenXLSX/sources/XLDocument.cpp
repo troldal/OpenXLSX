@@ -1162,7 +1162,6 @@ bool XLDocument::validateSheetName(std::string sheetName, bool throwOnInvalid)
     using namespace std::literals::string_literals;
     bool valid = true;
 
-    std::cout << "validating sheet name " << sheetName << std::endl;
     try {
         if (sheetName.length() > 31)
             throw "contain more than 31 characters"s;
