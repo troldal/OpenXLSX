@@ -23,13 +23,15 @@
 /*!
  * @program ziptest
  * @depends libzip
- * @version 2025-04-26 21:30 CET
+ * @version 2025-04-26 22:30 CET
  * @brief   provide a wrapper API for libzip to interface with OpenXLSX XLZipArchive
  * @disclaimer This module is in a draft stage, to be reviewed / tested
  */
 #include <cstdio>       // fprintf
+#include <filesystem>   // std::filesystem::remove, std::filesystem::rename
 #include <iostream>     // std::cout / std::cerr
 #include <memory>       // std::shared_ptr
+#include <random>       // std::random_device, std::mt19937, std::uniform_int_distribution
 #include <string>       // std::string
 #include <string.h>     // stderror
 #include <sys/stat.h>   // stat, struct stat
@@ -46,77 +48,112 @@
 #endif
 
 namespace LibZip {
-	static int loadArchiveData(void **datap, size_t *sizep, const char *archive)
-	{
-		/* example implementation that reads data from file */
-		struct stat st;
-		FILE *fp;
+    static int loadArchiveData(void **datap, size_t *sizep, const char *archive)
+    {
+        *sizep = 0; // init *sizep
 
-		if (stat(archive, &st) < 0) {
-			if (errno != ENOENT) {
-				fprintf(stderr, "can't stat %s: %s\n", archive, strerror(errno));
-				return -1;
-			}
+        struct stat st;
+        if (stat(archive, &st) < 0) {
+            if (errno != ENOENT) {
+                fprintf(stderr, "can't stat %s: %s\n", archive, strerror(errno));
+                return -1;
+            }
 
-			*datap = nullptr;
-			*sizep = 0;
-		
-			return 0;
-		}
+            *datap = nullptr;
+            return 0;
+        }
 
-		if ((*datap = malloc(static_cast<size_t>(st.st_size))) == nullptr) {
-			fprintf(stderr, "can't allocate buffer\n");
-			return -1;
-		}
+        if ((*datap = malloc(static_cast<size_t>(st.st_size))) == nullptr) {
+            fprintf(stderr, "can't allocate buffer\n");
+            return -1;
+        }
 
-		if ((fp=fopen(archive, "r")) == nullptr) {
-			free(*datap);
-			fprintf(stderr, "can't open %s: %s\n", archive, strerror(errno));
-			return -1;
-		}
+        FILE *fp = fopen(archive, "r");
+        if (fp == nullptr) {
+            free(*datap);
+            *datap = nullptr;
+            fprintf(stderr, "can't open %s: %s\n", archive, strerror(errno));
+            return -1;
+        }
 
-		if (fread(*datap, 1, (size_t)st.st_size, fp) < (size_t)st.st_size) {
-			free(*datap);
-			fprintf(stderr, "can't read %s: %s\n", archive, strerror(errno));
-			fclose(fp);
-			return -1;
-		}
+        if (fread(*datap, 1, (size_t)st.st_size, fp) < (size_t)st.st_size) {
+            free(*datap);
+            *datap = nullptr;
+            fprintf(stderr, "can't read %s: %s\n", archive, strerror(errno));
+            fclose(fp);
+            return -1;
+        }
 
-		fclose(fp);
+        fclose(fp);
 
-		*sizep = static_cast<size_t>(st.st_size);
-		return 0;
-	}
+        *sizep = static_cast<size_t>(st.st_size);
+        return 0;
+    }
 
-	static int saveArchiveFile(void *data, size_t size, const char *archive)
-	{
-		/* example implementation that writes data to file */
-		FILE *fp;
+    /**
+     * @brief Generates a random filename, which is used to generate a temporary archive when modifying and saving
+     * archive files.
+     * @param length The length of the filename to create.
+     * @return Returns the generated filenamen, appended with '.tmp'.
+     */
+    inline std::string GenerateRandomName(int length)
+    {
+        std::string letters = "abcdefghijklmnopqrstuvwxyz0123456789";
 
-		if (data == nullptr) {
-			if (remove(archive) < 0 && errno != ENOENT) {
-				fprintf(stderr, "can't remove %s: %s\n", archive, strerror(errno));
-				return -1;
-			}
-			return 0;
-		}
+        std::random_device                 rand_dev;
+        std::mt19937                       generator(rand_dev());
+        std::uniform_int_distribution<int> distr(0, letters.size() - 1);
 
-		if ((fp = fopen(archive, "wb")) == nullptr) {
-			fprintf(stderr, "can't open %s: %s\n", archive, strerror(errno));
-			return -1;
-		}
-		if (fwrite(data, 1, size, fp) < size) {
-			fprintf(stderr, "can't write %s: %s\n", archive, strerror(errno));
-			fclose(fp);
-			return -1;
-		}
-		if (fclose(fp) < 0) {
-			fprintf(stderr, "can't write %s: %s\n", archive, strerror(errno));
-			return -1;
-		}
+        std::string result;
+        for (int i = 0; i < length; ++i) {
+            result += letters[distr(generator)];
+        }
 
-		return 0;
-	}
+        return result + ".tmp";
+    }
+
+    static int saveArchiveFile(void *data, size_t size, std::string filename)
+    {
+#       ifdef _WIN32
+           std::replace( filename.begin(), filename.end(), '\\', '/' ); // pull request #210, alternate fix: fopen etc work fine with forward slashes
+#       endif
+
+        // ===== Determine path of the current file
+        size_t pathPos = filename.rfind('/');
+
+        // pull request #191, support AmigaOS style paths
+#       ifdef __amigaos__
+            constexpr const char * localFolder = "";    // local folder on AmigaOS can not be explicitly expressed in a path
+            if (pathPos == std::string::npos) pathPos = filename.rfind(':'); // if no '/' found, attempt to find amiga drive root path
+#       else
+            constexpr const char * localFolder = "./"; // local folder on _WIN32 && __linux__ is .
+#       endif
+        std::string tempPath{};
+        if (pathPos != std::string::npos) tempPath = filename.substr(0, pathPos + 1);
+        else tempPath = localFolder; // prepend explicit identification of local folder in case path did not contain a folder
+
+        // ===== Generate a random file name with the same path as the current file
+        tempPath = tempPath + GenerateRandomName(20);
+
+        FILE *fp = fopen(tempPath.c_str(), "wb");
+        if (fp  == nullptr) {
+            fprintf(stderr, "can't open %s: %s\n", tempPath.c_str(), strerror(errno));
+            return -1;
+        }
+        if (fwrite(data, 1, size, fp) < size) {
+            fprintf(stderr, "can't write %s: %s\n", tempPath.c_str(), strerror(errno));
+            fclose(fp);
+            return -1;
+        }
+        if (fclose(fp) < 0) {
+            fprintf(stderr, "can't write %s: %s\n", tempPath.c_str(), strerror(errno));
+            return -1;
+        }
+        std::filesystem::remove(filename.c_str());
+        std::filesystem::rename(tempPath.c_str(), filename.c_str());
+
+        return 0;
+    }
 
 
 	class ZipArchive {
