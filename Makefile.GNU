@@ -69,6 +69,8 @@ INCLUDE_DIR=headers
 OBJ_DIR=obj
 STATIC_LIBRARY=libOpenXLSX.a
 
+USE_LIBZIP=yes
+
 USE_NOWIDE=no
 ifeq ("$(Windows)", "yes")
 	# enable nowide on windows. CAUTION: do not append this comment to the variable assignment, it will break the ifeq check below
@@ -94,11 +96,14 @@ OBJS_OPENXLSX_PREFIXED=$(addprefix $(OBJ_DIR)/$(OPENXLSX_DIR)/,$(OBJS_OPENXLSX))
 # OBJS_DEMOS=$(OBJS_OPENXLSX_PREFIXED) # no longer needed - using static library instead
 OBJS_DEMOS=$(BIN_DIR)/$(STATIC_LIBRARY) # use static library for linking demos
 
-PROJECT_FLAGS=
-ifeq ("$(USE_NOWIDE)", "yes")
-	PROJECT_FLAGS=-DENABLE_NOWIDE
+ifeq ("$(USE_LIBZIP)", "yes")
+	ENABLE_LIBZIP=-DUSE_LIBZIP
+	LDLIBS_LIBZIP=-lzip
 endif
-
+ifeq ("$(USE_NOWIDE)", "yes")
+	ENABLE_NOWIDE=-DENABLE_NOWIDE
+endif
+PROJECT_FLAGS=$(ENABLE_LIBZIP) $(ENABLE_NOWIDE)
 
 # additional include directories for 1) OPENXLSX project headers and 2) external nowide (parent) folder
 ADDITIONAL_INCLUDE_FLAGS=-I$(OPENXLSX_DIR) -I$(OPENXLSX_DIR)/$(EXTERNAL_SUBDIR)
@@ -181,7 +186,7 @@ LDFLAGS=$(SANITIZE_FLAGS)
 
 
 # precompiled libs go here
-LDLIBS=$(SANITIZE_LIBS)
+LDLIBS=$(SANITIZE_LIBS) $(LDLIBS_LIBZIP)
 # LDLIBS=-lrt -pthread -lboost_program_options $(SANITIZE_LIBS) # example to add libraries if needed
 
 
@@ -350,6 +355,7 @@ echo:
 	@echo "OBJ_DIR: $(OBJ_DIR)"
 	@echo "STATIC_LIBRARY: $(STATIC_LIBRARY)"
 	@echo
+	@echo "USE_LIBZIP: $(USE_LIBZIP)"
 	@echo "USE_NOWIDE: $(USE_NOWIDE)"
 	@echo
 # 	@echo "SHARED_SUBDIR: $(SHARED_SUBDIR)"

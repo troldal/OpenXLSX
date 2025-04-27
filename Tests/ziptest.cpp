@@ -36,15 +36,13 @@
 #include <string.h>     // stderror
 #include <sys/stat.h>   // stat, struct stat
 
-#include <zip.h>        // libzip API
+#define USE_LIBZIP // default will be to use zippy
 
-
-#ifdef ZIPPY2_LIBRARY_H
-	#define ZIPPY_IN_USE
-	#define XLZipImplementation Zippy::ZipArchive
-#else
-	#undef ZIPPY_IN_USE
+#ifdef USE_LIBZIP
+	#include <zip.h>        // libzip API
 	#define XLZipImplementation LibZip::ZipArchive
+#else
+	#define XLZipImplementation Zippy::ZipArchive
 #endif
 
 #define OPENXLSX_EXPORT
@@ -559,11 +557,11 @@ namespace OpenXLSX
          * @param
          * @return true if zippy is used for the zip implementation, otherwise false
          */
-        bool isZippy() {
-        #ifdef ZIPPY_IN_USE
-            return true;
-        #else
+        bool usesZippy() {
+        #ifdef USE_LIBZIP
             return false;
+        #else
+            return true;
         #endif
         }
 
@@ -591,7 +589,7 @@ namespace OpenXLSX
          */
         void open(const std::string& fileName)
         {
-            if (isOpen()) throw 1;  // prevent double-open
+            if (isOpen()) throw XLInputError("XLZipArchive::open: archive is already open"); // prevent double open
             m_archive = std::make_shared<XLZipImplementation>();
             try {
                 m_archive->Open(fileName);
@@ -607,7 +605,7 @@ namespace OpenXLSX
          */
         void close()
         {
-            if (!m_archive) throw 1; // prevent SEGFAULT
+            if (!m_archive) throw XLInputError("XLZipArchive::close: archive is not open"); // prevent SEGFAULT
             m_archive->Close();
             m_archive.reset();
         }
@@ -660,10 +658,10 @@ namespace OpenXLSX
         std::string getEntry(const std::string& name) const
         {
             if (!m_archive) throw 1; // prevent SEGFAULT
-        #ifdef ZIPPY_IN_USE
-            return m_archive->GetEntry(name).GetDataAsString();
-        #else
+        #ifdef USE_LIBZIP
             return m_archive->GetEntryDataAsString(name);
+        #else
+            return m_archive->GetEntry(name).GetDataAsString();
         #endif
         }
 
@@ -694,7 +692,7 @@ int main(int argc, char *argv[])
 
 	OpenXLSX::XLZipArchive myArc{};
 
-	std::cout << "myArc.isZippy() is " << ( myArc.isZippy() ? "true" : "false" ) << std::endl;
+	std::cout << "myArc.usesZippy() is " << ( myArc.usesZippy() ? "true" : "false" ) << std::endl;
 	std::cout << "myArc.isOpen() is " << ( myArc.isOpen() ? "true" : "false" ) << std::endl;
 	myArc.open(archiveName + archiveExt);
 	std::cout << "myArc.isOpen() is " << ( myArc.isOpen() ? "true" : "false" ) << std::endl;
