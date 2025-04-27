@@ -375,7 +375,7 @@ namespace LibZip {
          * @brief Delete a file from the archive
          * @param entryName archive file to delete
          * @return N/A
-         * @throw LibZipInputError when called on a non-valid archive or if entryName does not exist in the archive
+         * @throw LibZipInputError when called on a non-valid archive
          * @throw LibZipInternalError upon any other failure
          */
         void DeleteEntry(const std::string& entryName)
@@ -387,7 +387,8 @@ namespace LibZip {
 
             int index = zip_name_locate(m_za, entryName.c_str(), 0);
             if (index == -1)
-                throw LibZipInputError("ZipArchive::DeleteEntry: archive does not contain file: "s + entryName);
+                // throw LibZipInputError("ZipArchive::DeleteEntry: archive does not contain file: "s + entryName);
+                return; // nothing to do
 
             if (0 != zip_delete(m_za, index))
                 throw LibZipInternalError("ZipArchive::DeleteEntry: failed to delete file "s + entryName + " from archive: "s + zip_error_strerror(zip_get_error(m_za)));

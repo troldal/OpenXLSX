@@ -163,6 +163,13 @@ namespace OpenXLSX
         void addEntry(const std::string& name, const std::string& data);
 
         /**
+         * @brief like addEntry, but call commitChanges() afterwards
+         * @param name
+         * @param data
+         */
+        void addEntryAndCommit(const std::string& name, const std::string& data);
+
+        /**
          * @brief
          * @param entryName
          */

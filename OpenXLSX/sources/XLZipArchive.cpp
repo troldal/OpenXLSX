@@ -151,6 +151,15 @@ void XLZipArchive::addEntry(const std::string& name, const std::string& data) //
 /**
  * @details
  */
+void XLZipArchive::addEntryAndCommit(const std::string& name, const std::string& data) // NOLINT
+{
+    addEntry(name, data);
+    commitChanges();       // ensure that entry name is directly available for calls to getEntry
+}
+
+/**
+ * @details
+ */
 void XLZipArchive::deleteEntry(const std::string& entryName) // NOLINT
 {
     if (!m_archive) throw XLInputError("XLZipArchive::deleteEntry: archive is not open"); // prevent SEGFAULT
