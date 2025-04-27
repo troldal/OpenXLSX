@@ -1,6 +1,6 @@
 /*
  * Program:  ziptest-with-libs
- * Compile instructions: g++ -DUSE_LIBZIP -IOpenXLSX -IOpenXLSX/headers ziptest-with-libs.cpp OpenXLSX/sources/XLZipArchive.cpp -lzip -o ziptest-with-libs
+ * Compile instructions: g++ -DUSE_LIBZIP -IOpenXLSX -IOpenXLSX/headers Tests/ziptest-with-libs.cpp OpenXLSX/sources/XLZipArchive.cpp -lzip -o ziptest-with-libs
  * Part of: OpenXLSX
  *
  * OpenXLSX Copyright (c) 2018, Kenneth Troldal Balslev
