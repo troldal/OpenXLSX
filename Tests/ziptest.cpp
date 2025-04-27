@@ -23,7 +23,7 @@
 /*!
  * @program ziptest
  * @depends libzip
- * @version 2025-04-27 13:30 CEST
+ * @version 2025-04-27 16:45 CEST
  * @brief   provide a wrapper API for libzip to interface with OpenXLSX XLZipArchive
  * @disclaimer This module is in a draft stage, to be reviewed / tested
  */
@@ -270,6 +270,21 @@ namespace LibZip {
 			if (!IsOpen())
 				throw XLInputError("ZipArchive::Close: archive is not open!");
 
+// struct zip_file_attributes {
+//     zip_uint64_t valid;                     /* which fields have valid values */
+//     zip_uint8_t version;                    /* version of this struct, currently 1 */
+//     zip_uint8_t host_system;                /* host system on which file was created */
+//     zip_uint8_t ascii;                      /* flag whether file is ASCII text */
+//     zip_uint8_t version_needed;             /* minimum version needed to extract file */
+//     zip_uint32_t external_file_attributes;  /* external file attributes (host-system specific) */
+//     zip_uint16_t general_purpose_bit_flags; /* general purpose big flags, only some bits are honored */
+//     zip_uint16_t general_purpose_bit_mask;  /* which bits in general_purpose_bit_flags are valid */
+// };
+// zip_file_attributes_t zipAttrs;
+// zipAttrs.general_purpose_bit_flags = 0;
+// zip_source_get_file_attributes(m_zipSrc, &zipAttrs);
+// printf( "zip_file_attributes::general_purpose_bit_flags is 0x%08x\n", static_cast< uint16_t >( zipAttrs.general_purpose_bit_flags ) );
+
 			closeZip();    // invalidates m_zipData and m_zipSrc because reference count for the underlying zip source should reach zero
 			m_zipData = nullptr;
 			m_zipSize = 0;
@@ -366,6 +381,7 @@ namespace LibZip {
 
 				free(saveData);         // free temporary buffer used for saving the archive
 			}
+
 			reopenFromZipSource();  // ensure that archive is valid again for further modifications
 		}
 		
@@ -382,8 +398,12 @@ namespace LibZip {
 			if (!IsOpen())
 				throw XLInputError("ZipArchive::AddEntry: archive is not open!");
 
+			void *buf = malloc(data.size());       // allocate memory for a persistent copy of data.data()
+			memcpy(buf, data.data(), data.size()); // copy data.data() to the allocated memory
+
 			// create the zip source for a single entry from data
-			struct zip_source *zipSrc = zip_source_buffer(m_za, data.c_str(), data.length(), 0);
+			struct zip_source *zipSrc = zip_source_buffer(m_za, buf, data.size(), 1);  // create zip source from buffer, flagging that buf shall be freed by libzip
+
 			if (!zipSrc)
 				throw XLInternalError("ZipArchive::AddEntry: failed to create a zip source from entry data");
 
@@ -702,7 +722,13 @@ int main(int argc, char *argv[])
 	std::cout << test << std::endl;
 	std::cout << "------------------------------------------------" << std::endl;
 
-	myArc.deleteEntry(testEntry);
+// TBD: for some reason, replacing any file except the ones that this program added itself, fixes the central general_purpose_bit_flags error that unzip reports
+// entryName = "_rels/.rels";
+// entryName = testEntry;
+// std::string eData = myArc.getEntry(entryName);
+// myArc.addEntry(entryName, eData); // replace archive contents
+// myArc.commitChanges();
+
 	myArc.save(archiveName + "_1" + archiveExt); // saves and re-opens from source
 	myArc.close();
 	std::cout << "myArc.isOpen() is " << ( myArc.isOpen() ? "true" : "false" ) << std::endl;
