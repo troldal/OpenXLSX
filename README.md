@@ -435,7 +435,7 @@ Using the Zippy/miniz library requires no special efforts; it will work straight
 
 In order to use a different zip-library, you must create a wrapper class that conforms to the interface specified by the IZipArchive class. Note that this is implemented using *type erasure*, meaning that no inheritance is required; the class just needs to have a conforming interface, thats all. After that, provide an object of the class and supply it to the OpenXLSX constructor.
 
-To see an example of how this is done, take a look at Demo1A in the Examples folder. This example uses a class called CustomZip (using libzip as the zip library) which can be found under Examples/external/CustomZip. In order to build the example program, make sure that libzip (and it's dependencies) is installed on your computer, and enable the OPENXLSX_ENABLE_LIBZIP option in the CMakeLists.txt file in the OpenXLSX root.
+To see an example of how this is done, take a look at Demo1A in the Examples folder. This example uses a class called CustomZip (using libzip as the zip library) which can be found under Examples/external/CustomZip. In order to build the example program, make sure that libzip (and its dependencies) is installed on your computer, and enable the OPENXLSX_ENABLE_LIBZIP_EXAMPLE option in the CMakeLists.txt file in the OpenXLSX root.
 
 As mentioned, the Demo1A example program uses libzip. libzip is a very stable library and widely used. However, my experience is that it is quite slow for large zip files, such as large spreadsheets. For that reason, libzip may not be the ideal solution, but it is useful for showing how a different zip library can be used.
 

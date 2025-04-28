@@ -31,6 +31,7 @@ set(IGNORE_ME ${CMAKE_C_COMPILER}) # Suppress CMake warning message
 # Add build options
 #=======================================================================================================================
 option(OPENXLSX_COMPACT_MODE "Build library in compact mode (slower, but uses less memory)" OFF)
+option(OPENXLSX_ENABLE_LTO "Enables Link-Time Optimization (LTO)" ON)
 set(OPENXLSX_LIBRARY_TYPE "STATIC" CACHE STRING "Set the library type to SHARED or STATIC")
 
 #=======================================================================================================================
@@ -44,11 +45,13 @@ if (OPENXLSX_ENABLE_NOWIDE)
     target_include_directories(NoWide SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/external/nowide/>)
 endif()
 
-CPMFindPackage(
-        NAME miniz
-        GITHUB_REPOSITORY richgel999/miniz
-        GIT_TAG 3.0.2
-)
+if (NOT OPENXLSX_ENABLE_LIBZIP)
+    CPMFindPackage(
+            NAME miniz
+            GITHUB_REPOSITORY richgel999/miniz
+            GIT_TAG 3.0.2
+    )
+endif ()
 
 add_library(PugiXML INTERFACE IMPORTED)
 target_include_directories(PugiXML SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/external/pugixml/>)
@@ -139,10 +142,19 @@ if ("${OPENXLSX_LIBRARY_TYPE}" STREQUAL "STATIC")
             $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
             $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
             $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)     # For export header
+    if (OPENXLSX_ENABLE_LIBZIP)
+        target_link_libraries(OpenXLSX
+                PRIVATE
+                -lzip)
+    else ()
+        target_link_libraries(OpenXLSX
+                PRIVATE
+#                $<BUILD_INTERFACE:Zippy>
+                miniz)
+    endif ()
+
     target_link_libraries(OpenXLSX
             PRIVATE
-            miniz
-#            $<BUILD_INTERFACE:Zippy>
             $<BUILD_INTERFACE:PugiXML>)
 
     if (OPENXLSX_ENABLE_NOWIDE)
@@ -168,10 +180,19 @@ if ("${OPENXLSX_LIBRARY_TYPE}" STREQUAL "SHARED")
             $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
             $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
             $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)     # For export header
+    if (OPENXLSX_ENABLE_LIBZIP)
+        target_link_libraries(OpenXLSX
+                PRIVATE
+                -lzip)
+    else ()
+        target_link_libraries(OpenXLSX
+                PRIVATE
+#                $<BUILD_INTERFACE:Zippy>
+                miniz)
+    endif ()
+
     target_link_libraries(OpenXLSX
             PRIVATE
-            miniz
-#            $<BUILD_INTERFACE:Zippy>
             $<BUILD_INTERFACE:PugiXML>)
 
     if (OPENXLSX_ENABLE_NOWIDE)
@@ -181,11 +202,13 @@ if ("${OPENXLSX_LIBRARY_TYPE}" STREQUAL "SHARED")
     endif ()
 
     # Enable Link-Time Optimization (LTO)
-    include(CheckIPOSupported)
-    check_ipo_supported(RESULT result OUTPUT output)
-    if (result)
-        set_property(TARGET OpenXLSX PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
-    endif ()
+    if(${OPENXLSX_ENABLE_LTO})
+        include(CheckIPOSupported)
+        check_ipo_supported(RESULT result OUTPUT output)
+        if (result)
+            set_property(TARGET OpenXLSX PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+        endif ()
+    endif()
 
 endif()
 
@@ -193,7 +216,9 @@ endif()
 if (OPENXLSX_ENABLE_NOWIDE)
     target_compile_definitions(OpenXLSX PRIVATE ENABLE_NOWIDE)
 endif ()
-
+if (OPENXLSX_ENABLE_LIBZIP)
+    target_compile_definitions(OpenXLSX PRIVATE USE_LIBZIP)
+endif ()
 
 # Generate export header
 include(GenerateExportHeader)
@@ -303,8 +328,14 @@ install(
 )
 
 # Targets
+if (OPENXLSX_ENABLE_LIBZIP)
+    set(CMAKE_INSTALL_TARGETS OpenXLSX)
+else ()
+    set(CMAKE_INSTALL_TARGETS OpenXLSX miniz)
+endif ()
+
 install(
-        TARGETS OpenXLSX miniz
+        TARGETS ${CMAKE_INSTALL_TARGETS}
         EXPORT OpenXLSXTargets
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         COMPONENT lib

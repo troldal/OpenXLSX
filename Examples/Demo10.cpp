@@ -220,6 +220,7 @@ int main()
 	myCellRange.setFormat( newCellStyle ); // assign the new format to the full range of cells
 
 	// ===== BEGIN cell borders demo
+	XLStyleIndex borderFormat = 0; // scope declaration
 	{
 		// create a new cell format based on the current C3 format & assign it back to C3
 		XLStyleIndex borderedCellFormat = cellFormats.create( cellFormats[ wks.cell("C7").cellFormat() ] );
@@ -227,7 +228,7 @@ int main()
 		wks.cell("C7") = "borders demo";
 
 		// ===== Create a new border format style & assign it to the new cell format
-		XLStyleIndex borderFormat = borders.create();
+		borderFormat = borders.create();
 		// NOTE: the new border format uses a default (empty) borders object to demonstrate OpenXLSX ordered inserts.
 		//       Using an existing border style as a template would copy the OpenXLSX default border style which
 		//       already contains elements in the correct sequence, so that inserts could not be demonstrated.
@@ -445,7 +446,10 @@ int main()
 		// output the value of the merge's top left cell
 		std::cout << "value of cell F6 by merge is \"" << wks.cell(topLeftRef) << "\"" << std::endl;
 	}
-	wks.cell("E4").setCellFormat( mergedCellFormat );
+	XLStyleIndex mergedCellFormatWithBorder = cellFormats.create( cellFormats[ mergedCellFormat ] );
+	if( false ) // enable this if you want to experiment with the borderFormat
+		cellFormats[ mergedCellFormatWithBorder ].setBorderIndex( borderFormat );
+	wks.cell("E4").setCellFormat( mergedCellFormatWithBorder );
 	wks.cell("J5") = "merged red range #2\n - hidden cell contents have been deleted!";
    wks.mergeCells("J5:L8", XLEmptyHiddenCells); // merge cells    with deletion of contents
 	wks.cell("J5").setCellFormat( mergedCellFormat );

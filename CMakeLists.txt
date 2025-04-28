@@ -35,6 +35,7 @@ option(OPENXLSX_BUILD_SAMPLES "Build sample programs" ON)
 option(OPENXLSX_BUILD_TESTS "Build and run library tests" ON)
 option(OPENXLSX_BUILD_BENCHMARKS "Build and run library benchmarks" OFF)
 option(OPENXLSX_ENABLE_LIBZIP "Enable using libzip" OFF)
+option(OPENXLSX_ENABLE_LIBZIP_EXAMPLE "Build Demo1A example using libzip" OFF)
 
 #=======================================================================================================================
 # Add project configurations (#ifdef / #ifndef testable)

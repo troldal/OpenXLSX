@@ -16,8 +16,8 @@ AR=ar
 RANLIB=ranlib
 
 
-OPTIMIZATION_FLAGS=
-#OPTIMIZATION_FLAGS=-O3
+# OPTIMIZATION_FLAGS=
+OPTIMIZATION_FLAGS=-O2
 
 # === BEGIN: Detect OS platform based on gcc compiler defines ===
 # Actual detection command:

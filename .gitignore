@@ -1,6 +1,5 @@
 # ignore everything
 /*
-!/cmake
 
 # include generic files
 !/.clang-format
@@ -36,6 +35,13 @@
 !/Benchmarks/2025-01-10-benchmarks-post-XLCellValue-bugfix
 !/Benchmarks/2025-01-31-benchmarks-post-XLComments-implementation
 !/Benchmarks/2025-02-02-benchmarks-post-XLRowIterator-Rework
+
+# include cmake folder
+!/cmake
+# exclude everything *in* cmake folder
+/cmake/*
+# re-include specifically what is desired from cmake folder
+!/cmake/CPM.cmake
 
 # include Documentation folder
 !/Documentation
