@@ -44,10 +44,15 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
  */
 
 // ===== External Includes ===== //
-#include <zippy.hpp>
+#ifdef USE_LIBZIP
+	#include "detail/LibZip.hpp"
+#else
+	#include "detail/Zippy.hpp"
+#endif
 
 // ===== OpenXLSX Includes ===== //
 #include "XLZipArchive.hpp"
+#include "XLException.hpp"
 
 using namespace OpenXLSX;
 
@@ -59,7 +64,14 @@ XLZipArchive::XLZipArchive() : m_archive(nullptr) {}
 /**
  * @details
  */
-XLZipArchive::~XLZipArchive() = default;
+bool XLZipArchive::usesZippy()
+{
+#ifdef USE_LIBZIP
+    return false;
+#else
+    return true;
+#endif
+}
 
 /**
  * @details
@@ -84,7 +96,8 @@ bool XLZipArchive::isOpen() const
  */
 void XLZipArchive::open(const std::string& fileName)
 {
-    m_archive = std::make_shared<Zippy::ZipArchive>();
+    if (isOpen()) throw XLInputError("XLZipArchive::open: archive is already open"); // prevent double open
+    m_archive = std::make_shared<XLZipImplementation>();
     try {
         m_archive->Open(fileName);
     }
@@ -99,6 +112,7 @@ void XLZipArchive::open(const std::string& fileName)
  */
 void XLZipArchive::close()
 {
+    if (!m_archive) throw XLInputError("XLZipArchive::close: archive is not open"); // prevent SEGFAULT
     m_archive->Close();
     m_archive.reset();
 }
@@ -106,8 +120,22 @@ void XLZipArchive::close()
 /**
  * @details
  */
+void XLZipArchive::commitChanges()
+{
+    if (!m_archive) throw XLInputError("XLZipArchive::commitChanges: archive is not open"); // prevent SEGFAULT
+#ifdef USE_LIBZIP
+    m_archive->CommitChanges(); // libzip needs a zip archive close & reopen
+#else
+    // no-op for zippy
+#endif
+}
+
+/**
+ * @details
+ */
 void XLZipArchive::save(const std::string& path) // NOLINT
 {
+    if (!m_archive) throw XLInputError("XLZipArchive::save: archive is not open"); // prevent SEGFAULT
     m_archive->Save(path);
 }
 
@@ -116,7 +144,17 @@ void XLZipArchive::save(const std::string& path) // NOLINT
  */
 void XLZipArchive::addEntry(const std::string& name, const std::string& data) // NOLINT
 {
+    if (!m_archive) throw XLInputError("XLZipArchive::addEntry: archive is not open"); // prevent SEGFAULT
     m_archive->AddEntry(name, data);
+}
+
+/**
+ * @details
+ */
+void XLZipArchive::addEntryAndCommit(const std::string& name, const std::string& data) // NOLINT
+{
+    addEntry(name, data);
+    commitChanges();       // ensure that entry name is directly available for calls to getEntry
 }
 
 /**
@@ -124,6 +162,7 @@ void XLZipArchive::addEntry(const std::string& name, const std::string& data) //
  */
 void XLZipArchive::deleteEntry(const std::string& entryName) // NOLINT
 {
+    if (!m_archive) throw XLInputError("XLZipArchive::deleteEntry: archive is not open"); // prevent SEGFAULT
     m_archive->DeleteEntry(entryName);
 }
 
@@ -131,12 +170,42 @@ void XLZipArchive::deleteEntry(const std::string& entryName) // NOLINT
  * @details
  */
 std::string XLZipArchive::getEntry(const std::string& name) const {
+    if (!m_archive) throw XLInputError("XLZipArchive::getEntry: archive is not open"); // prevent SEGFAULT
+#ifdef USE_LIBZIP
+    return m_archive->GetEntryDataAsString(name);
+#else
     return m_archive->GetEntry(name).GetDataAsString();
+#endif
 }
 
 /**
  * @details
  */
 bool XLZipArchive::hasEntry(const std::string& entryName) const {
+    if (!m_archive) throw XLInputError("XLZipArchive::hasEntry: archive is not open"); // prevent SEGFAULT
     return m_archive->HasEntry(entryName);
+}
+
+/**
+ * @details
+ */
+ssize_t XLZipArchive::entryCount() const
+{
+#ifdef USE_LIBZIP
+    return m_archive->EntryCount();
+#else
+    return 0; // TODO: can Zippy support this?
+#endif
+}
+
+/**
+ * @details
+ */
+std::string XLZipArchive::entryName( int index ) const
+{
+#ifdef USE_LIBZIP
+    return m_archive->EntryName(index);
+#else
+    return ""; // TODO: can Zippy support this?
+#endif
 }

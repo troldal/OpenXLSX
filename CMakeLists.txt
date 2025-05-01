@@ -16,6 +16,11 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(IGNORE_ME ${CMAKE_C_COMPILER}) # Suppress CMake warning message
 
 #=======================================================================================================================
+# Include CPM package manager
+#=======================================================================================================================
+include(${CMAKE_CURRENT_LIST_DIR}/cmake/CPM.cmake)
+
+#=======================================================================================================================
 # Output Directories.
 #=======================================================================================================================
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/output)
@@ -30,6 +35,7 @@ option(OPENXLSX_BUILD_SAMPLES "Build sample programs" ON)
 option(OPENXLSX_BUILD_TESTS "Build and run library tests" ON)
 option(OPENXLSX_BUILD_BENCHMARKS "Build and run library benchmarks" OFF)
 option(OPENXLSX_ENABLE_LIBZIP "Enable using libzip" OFF)
+option(OPENXLSX_ENABLE_LIBZIP_EXAMPLE "Build Demo1A example using libzip" OFF)
 
 #=======================================================================================================================
 # Add project configurations (#ifdef / #ifndef testable)

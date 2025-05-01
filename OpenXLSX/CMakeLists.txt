@@ -45,10 +45,12 @@ if (OPENXLSX_ENABLE_NOWIDE)
     target_include_directories(NoWide SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/external/nowide/>)
 endif()
 
-add_library(Zippy INTERFACE IMPORTED)
-target_include_directories(Zippy SYSTEM INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/external/zippy/>)
-if (OPENXLSX_ENABLE_NOWIDE)
-    target_compile_definitions(Zippy INTERFACE ENABLE_NOWIDE)
+if (NOT OPENXLSX_ENABLE_LIBZIP)
+    CPMFindPackage(
+            NAME miniz
+            GITHUB_REPOSITORY richgel999/miniz
+            GIT_TAG 3.0.2
+    )
 endif ()
 
 add_library(PugiXML INTERFACE IMPORTED)
@@ -140,9 +142,19 @@ if ("${OPENXLSX_LIBRARY_TYPE}" STREQUAL "STATIC")
             $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
             $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
             $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)     # For export header
+    if (OPENXLSX_ENABLE_LIBZIP)
+        target_link_libraries(OpenXLSX
+                PRIVATE
+                -lzip)
+    else ()
+        target_link_libraries(OpenXLSX
+                PRIVATE
+#                $<BUILD_INTERFACE:Zippy>
+                miniz)
+    endif ()
+
     target_link_libraries(OpenXLSX
             PRIVATE
-            $<BUILD_INTERFACE:Zippy>
             $<BUILD_INTERFACE:PugiXML>)
 
     if (OPENXLSX_ENABLE_NOWIDE)
@@ -168,9 +180,19 @@ if ("${OPENXLSX_LIBRARY_TYPE}" STREQUAL "SHARED")
             $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
             $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
             $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)     # For export header
+    if (OPENXLSX_ENABLE_LIBZIP)
+        target_link_libraries(OpenXLSX
+                PRIVATE
+                -lzip)
+    else ()
+        target_link_libraries(OpenXLSX
+                PRIVATE
+#                $<BUILD_INTERFACE:Zippy>
+                miniz)
+    endif ()
+
     target_link_libraries(OpenXLSX
             PRIVATE
-            $<BUILD_INTERFACE:Zippy>
             $<BUILD_INTERFACE:PugiXML>)
 
     if (OPENXLSX_ENABLE_NOWIDE)
@@ -194,7 +216,9 @@ endif()
 if (OPENXLSX_ENABLE_NOWIDE)
     target_compile_definitions(OpenXLSX PRIVATE ENABLE_NOWIDE)
 endif ()
-
+if (OPENXLSX_ENABLE_LIBZIP)
+    target_compile_definitions(OpenXLSX PRIVATE USE_LIBZIP)
+endif ()
 
 # Generate export header
 include(GenerateExportHeader)
@@ -304,8 +328,14 @@ install(
 )
 
 # Targets
+if (OPENXLSX_ENABLE_LIBZIP)
+    set(CMAKE_INSTALL_TARGETS OpenXLSX)
+else ()
+    set(CMAKE_INSTALL_TARGETS OpenXLSX miniz)
+endif ()
+
 install(
-        TARGETS OpenXLSX
+        TARGETS ${CMAKE_INSTALL_TARGETS}
         EXPORT OpenXLSXTargets
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         COMPONENT lib

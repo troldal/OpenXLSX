@@ -21,7 +21,7 @@ target_link_libraries(Demo1 PRIVATE OpenXLSX::OpenXLSX)
 #=======================================================================================================================
 # Define Demo1A target
 #=======================================================================================================================
-if(${OPENXLSX_ENABLE_LIBZIP})
+if(${OPENXLSX_ENABLE_LIBZIP_EXAMPLE})
     find_package(LIBZIP MODULE REQUIRED)
     add_executable(Demo1A Demo1A.cpp)
     target_link_libraries(Demo1A PRIVATE OpenXLSX::OpenXLSX libzip::zip)

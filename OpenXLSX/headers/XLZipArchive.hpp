@@ -55,10 +55,18 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
 
-namespace Zippy
-{
-    class ZipArchive;
-}    // namespace Zippy
+#ifdef USE_LIBZIP
+    namespace LibZip {
+        class ZipArchive;
+    } // namespace LibZip
+    #define XLZipImplementation LibZip::ZipArchive
+#else
+    namespace Zippy
+    {
+        class ZipArchive;
+    }   // namespace Zippy
+    #define XLZipImplementation Zippy::ZipArchive
+#endif
 
 namespace OpenXLSX
 {
@@ -88,7 +96,7 @@ namespace OpenXLSX
         /**
          * @brief
          */
-        ~XLZipArchive();
+        ~XLZipArchive() = default;
 
         /**
          * @brief
@@ -103,6 +111,13 @@ namespace OpenXLSX
          * @return
          */
         XLZipArchive& operator=(XLZipArchive&& other) = default;
+
+        /**
+         * @brief check if zippy is in use (or ziplib)
+         * @param
+         * @return true if zippy is used for the zip implementation, otherwise false
+         */
+        bool usesZippy();
 
         /**
          * @brief
@@ -130,6 +145,11 @@ namespace OpenXLSX
         void close();
 
         /**
+         * @brief make archive updates (from addEntry) available to calls via getEntry
+         */
+        void commitChanges();
+
+        /**
          * @brief
          * @param path
          */
@@ -141,6 +161,13 @@ namespace OpenXLSX
          * @param data
          */
         void addEntry(const std::string& name, const std::string& data);
+
+        /**
+         * @brief like addEntry, but call commitChanges() afterwards
+         * @param name
+         * @param data
+         */
+        void addEntryAndCommit(const std::string& name, const std::string& data);
 
         /**
          * @brief
@@ -162,8 +189,21 @@ namespace OpenXLSX
          */
         bool hasEntry(const std::string& entryName) const;
 
+        /**
+         * @brief get the amount of entries in the archive
+         * @return for libzip: amount of entries in archive, 0 for zippy
+         */
+        ssize_t entryCount() const;
+
+        /**
+         * @brief get the name of an archive entry by its index
+         * @param index the archive entry whose name to fetch
+         * @return for libzip: name of the archive entry (full path), "" for zippy
+         */
+        std::string entryName( int index ) const;
+
     private:
-        std::shared_ptr<Zippy::ZipArchive> m_archive; /**< */
+        std::shared_ptr<XLZipImplementation> m_archive; /**< */
     };
 }    // namespace OpenXLSX
 

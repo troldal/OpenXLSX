@@ -11,6 +11,21 @@ if [ "$1" = "doit" ]; then
 	if [ -e "$file" ]; then
 		rm $recurse "$file"
 	fi
+	file="_deps/miniz-subbuild/CMakeCache.txt"
+	recurse=""
+	if [ -e "$file" ]; then
+		rm $recurse "$file"
+	fi
+	file="_deps/miniz-src/.git"
+	recurse="-rf"
+	if [ -e "$file" ]; then
+		rm $recurse "$file"
+	fi
+	file="_deps/"
+	recurse="-r"
+	if [ -e "$file" ]; then
+		rm $recurse "$file"
+	fi
 	file="cmake-log"
 	recurse=""
 	if [ -e "$file" ]; then
@@ -39,6 +54,21 @@ else
 	# echo commands for deleting individual known files
 	file="CMakeCache.txt"
 	recurse=""
+	if [ -e "$file" ]; then
+		echo "rm $recurse \"$file\""
+	fi
+	file="_deps/miniz-subbuild/CMakeCache.txt"
+	recurse=""
+	if [ -e "$file" ]; then
+		echo "rm $recurse \"$file\""
+	fi
+	file="_deps/miniz-src/.git"
+	recurse="-rf"
+	if [ -e "$file" ]; then
+		echo "rm $recurse \"$file\""
+	fi
+	file="_deps/"
+	recurse="-r"
 	if [ -e "$file" ]; then
 		echo "rm $recurse \"$file\""
 	fi

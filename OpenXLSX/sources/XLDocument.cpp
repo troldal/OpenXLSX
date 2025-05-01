@@ -1073,8 +1073,8 @@ XLRelationships XLDocument::sheetRelationships(uint16_t sheetXmlNo)
 
     if (!m_archive.hasEntry(relsFilename)) {
         // ===== Create the sheet relationships file within the archive
-        m_archive.addEntry(relsFilename, "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");  // empty XML file, class constructor will do the rest
-        m_contentTypes.addOverride("/" + relsFilename, XLContentType::Relationships);                       // add content types entry
+        m_archive.addEntryAndCommit(relsFilename, "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");  // empty XML file, class constructor will do the rest
+        m_contentTypes.addOverride("/" + relsFilename, XLContentType::Relationships);                                // add content types entry
     }
     constexpr const bool DO_NOT_THROW = true;
     XLXmlData *xmlData = getXmlData(relsFilename, DO_NOT_THROW);
@@ -1094,8 +1094,8 @@ XLVmlDrawing XLDocument::sheetVmlDrawing(uint16_t sheetXmlNo)
 
     if (!m_archive.hasEntry(vmlDrawingFilename)) {
         // ===== Create the sheet drawing file within the archive
-        m_archive.addEntry(vmlDrawingFilename, "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");  // empty XML file, class constructor will do the rest
-        m_contentTypes.addOverride("/" + vmlDrawingFilename, XLContentType::VMLDrawing);                          // add content types entry
+        m_archive.addEntryAndCommit(vmlDrawingFilename, "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");  // empty XML file, class constructor will do the rest
+        m_contentTypes.addOverride("/" + vmlDrawingFilename, XLContentType::VMLDrawing);                                   // add content types entry
     }
     constexpr const bool DO_NOT_THROW = true;
     XLXmlData *xmlData = getXmlData(vmlDrawingFilename, DO_NOT_THROW);
@@ -1115,8 +1115,8 @@ XLComments XLDocument::sheetComments(uint16_t sheetXmlNo)
 
     if (!m_archive.hasEntry(commentsFilename)) {
         // ===== Create the sheet comments file within the archive
-        m_archive.addEntry(commentsFilename, "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"); // empty XML file, class constructor will do the rest
-        m_contentTypes.addOverride("/" + commentsFilename, XLContentType::Comments);                           // add content types entry
+        m_archive.addEntryAndCommit(commentsFilename, "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"); // empty XML file, class constructor will do the rest
+        m_contentTypes.addOverride("/" + commentsFilename, XLContentType::Comments);                                    // add content types entry
     }
     constexpr const bool DO_NOT_THROW = true;
     XLXmlData *xmlData = getXmlData(commentsFilename, DO_NOT_THROW);
@@ -1136,8 +1136,8 @@ XLTables XLDocument::sheetTables(uint16_t sheetXmlNo)
 
     if (!m_archive.hasEntry(tablesFilename)) {
         // ===== Create the sheet tables file within the archive
-        m_archive.addEntry(tablesFilename, "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");   // empty XML file, class constructor will do the rest
-        m_contentTypes.addOverride("/" + tablesFilename, XLContentType::Table);                                // add content types entry
+        m_archive.addEntryAndCommit(tablesFilename, "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");   // empty XML file, class constructor will do the rest
+        m_contentTypes.addOverride("/" + tablesFilename, XLContentType::Table);                                         // add content types entry
     }
     constexpr const bool DO_NOT_THROW = true;
     XLXmlData *xmlData = getXmlData(tablesFilename, DO_NOT_THROW);
@@ -1245,7 +1245,7 @@ bool XLDocument::execCommand(const XLCommand& command)
 
             // ===== If docProps/core.xml is missing
             if (!m_archive.hasEntry("docProps/core.xml"))
-                m_archive.addEntry("docProps/core.xml", "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");    // create empty docProps/core.xml
+                m_archive.addEntryAndCommit("docProps/core.xml", "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");  // create empty docProps/core.xml
                 // ===== XLProperties constructor will take care of adding template content
 
             // ===== If [Content Types].xml has no relationship for docProps/core.xml
@@ -1265,7 +1265,7 @@ bool XLDocument::execCommand(const XLCommand& command)
 
             // ===== If docProps/app.xml is missing
             if (!m_archive.hasEntry("docProps/app.xml"))
-                m_archive.addEntry("docProps/app.xml", "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");    // create empty docProps/app.xml
+                m_archive.addEntryAndCommit("docProps/app.xml", "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");   // create empty docProps/app.xml
                 // ===== XLAppProperties constructor will take care of adding template content
 
             // ===== If [Content Types].xml has no relationship for docProps/app.xml
@@ -1282,7 +1282,7 @@ bool XLDocument::execCommand(const XLCommand& command)
             m_contentTypes.addOverride("/xl/sharedStrings.xml", XLContentType::SharedStrings);
             m_wbkRelationships.addRelationship(XLRelationshipType::SharedStrings, "sharedStrings.xml");
             // ===== Add empty archive entry for shared strings, XLSharedStrings constructor will create a default document when no document element is found
-            m_archive.addEntry("xl/sharedStrings.xml", "");
+            m_archive.addEntryAndCommit("xl/sharedStrings.xml", "");
         } break;
         case XLCommandType::AddWorksheet: {
             validateSheetName(command.getParam<std::string>("sheetName"), THROW_ON_INVALID);
@@ -1304,7 +1304,7 @@ bool XLDocument::execCommand(const XLCommand& command)
             m_contentTypes.addOverride(command.getParam<std::string>("sheetPath"), XLContentType::Worksheet);
             m_wbkRelationships.addRelationship(XLRelationshipType::Worksheet, command.getParam<std::string>("sheetPath").substr(4));
             m_appProperties.appendSheetName(command.getParam<std::string>("sheetName"));
-            m_archive.addEntry(command.getParam<std::string>("sheetPath").substr(1), emptyWorksheet);
+            m_archive.addEntryAndCommit(command.getParam<std::string>("sheetPath").substr(1), emptyWorksheet);
             m_data.emplace_back(
                 /* parentDoc */ this,
                 /* xmlPath   */ command.getParam<std::string>("sheetPath").substr(1),
@@ -1340,7 +1340,7 @@ bool XLDocument::execCommand(const XLCommand& command)
                 m_contentTypes.addOverride(sheetPath, XLContentType::Worksheet);
                 m_wbkRelationships.addRelationship(XLRelationshipType::Worksheet, sheetPath.substr(4));
                 m_appProperties.appendSheetName(command.getParam<std::string>("cloneName"));
-                m_archive.addEntry(sheetPath.substr(1),
+                m_archive.addEntryAndCommit(sheetPath.substr(1),
                                    std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& data) {
                                        return data.getXmlPath().substr(3) == sheetToClonePath; // 2024-12-15: ensure relative sheet path
                                    })->getRawData());
@@ -1354,7 +1354,7 @@ bool XLDocument::execCommand(const XLCommand& command)
                 m_contentTypes.addOverride(sheetPath, XLContentType::Chartsheet);
                 m_wbkRelationships.addRelationship(XLRelationshipType::Chartsheet, sheetPath.substr(4));
                 m_appProperties.appendSheetName(command.getParam<std::string>("cloneName"));
-                m_archive.addEntry(sheetPath.substr(1),
+                m_archive.addEntryAndCommit(sheetPath.substr(1),
                                    std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& data) {
                                        return data.getXmlPath().substr(3) == sheetToClonePath; // 2024-12-15: ensure relative sheet path
                                    })->getRawData());
@@ -1371,7 +1371,7 @@ bool XLDocument::execCommand(const XLCommand& command)
             m_contentTypes.addOverride("/xl/styles.xml", XLContentType::Styles);
             m_wbkRelationships.addRelationship(XLRelationshipType::Styles, "styles.xml");
             // ===== Add empty archive entry for styles, XLStyles constructor will create a default document when no document element is found
-            m_archive.addEntry("xl/styles.xml", "");
+            m_archive.addEntryAndCommit("xl/styles.xml", "");
         } break;
     }
 
