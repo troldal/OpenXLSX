@@ -7,6 +7,15 @@ Microsoft Excel® files, with the .xlsx format.
 
 As the heading says - the latest "Release" that is shown on https://github.com/troldal/OpenXLSX/releases is from 2021-11-06, and severely outdated - please pull / download the latest SW version directly from the repository in its current state. Link for those that do not want to use ```git```: https://github.com/troldal/OpenXLSX/archive/refs/heads/master.zip
 
+## (aral-matrix) 01 May 2025 - replaced zippy implementation with the underlying miniz library (cmake) and added support for libzip (cmake, GNU make)
+* @troldal replaced the zippy implementation with a smaller zippy-wrapper for the actual dependency, the miniz library, and added the cmake support for automatically pulling in the dependency from the miniz repository
+* ```OpenXLSX/headers/detail/```: new headers ```LipZip.hpp``` (libzip wrapper) and ```Zippy.hpp``` (miniz wrapper)
+* ```CMakeLists.txt```: Option ```OPENXLSX_ENABLE_LIBZIP``` activates libzip use, disabling the option defaults to the miniz / Zippy wrapper
+* ```CMakeLists.txt```: Option ```OPENXLSX_ENABLE_LIBZIP_EXAMPLE``` replaces the prior use of OPENXLSX_ENABLE_LIBZIP for ```Demo1A```
+* API remains unchanged
+* fixes for old pull requests https://github.com/troldal/OpenXLSX/pull/191 (AmigaOS paths) and https://github.com/troldal/OpenXLSX/pull/210 (Windows style paths) have been incorporated into both zip library wrapper classes
+* **CAUTION**: for the libzip implementation, there is still a minor unresolved conflict when modifying archives created with other tools / prior versions of OpenXLSX (or the miniz version): The resulting archive's general purpose flag bits will not be set to UTF-8 when the flag is set for individual files. This works fine with LibreOffice, but ```unzip``` complains about the flag mismatch. *This issue is on my to-to list.*
+
 ## (aral-matrix) 20 April 2025 - added validation of worksheet names when creating, renaming or cloning worksheets to address #358
 * added ```bool XLDocument::validateSheetName(std::string sheetName, bool throwOnInvalid = false)``` - can be called by the user to test whether a name would throw
 * if ```XLSheet::setName```, ```XLWorkbook.addWorksheet``` or ```XLWorkbook.cloneSheet``` are invoked with a name for which ```validateSheetName``` would return false, an ```XLInputError``` is thrown with the validation rule that was violated.
