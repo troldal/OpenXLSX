@@ -45,14 +45,11 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== External Includes ===== //
 #include <algorithm>
-#ifdef ENABLE_NOWIDE
-#    include <nowide/fstream.hpp>
-#endif
 #if defined(_WIN32)
 #    include <random>
 #endif
 #include <pugixml.hpp>
-#include <sys/stat.h>     // for stat, to test if a file exists and if a file is a directory
+#include <unistd.h>       // unlink
 #include <vector>         // std::vector
 
 // ===== OpenXLSX Includes ===== //
@@ -60,16 +57,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLDocument.hpp"
 #include "XLSheet.hpp"
 #include "XLStyles.hpp"
+#include "detail/OpenXLSXFileSystemTools.hpp"   // pathExists, GenerateRandomNameInSamePath
 #include "utilities/XLUtilities.hpp"
-
-// don't use "stat" directly because windows has compatibility-breaking defines
-#if defined(_WIN32)    // moved below includes to make it absolutely clear that this is module-local
-#    define STAT _stat                 // _stat should be available in standard environment on Windows
-#    define STATSTRUCT struct _stat    // struct _stat also exists - split the two names in case the struct _stat must not be used on windows
-#else
-#    define STAT stat
-#    define STATSTRUCT struct stat
-#endif
 
 using namespace OpenXLSX;
 
@@ -429,7 +418,6 @@ namespace
         0x6b, 0x62, 0x6f, 0x6f, 0x6b, 0x2e, 0x78, 0x6d, 0x6c, 0x2e, 0x72, 0x65, 0x6c, 0x73, 0x50, 0x4b, 0x05, 0x06, 0x00, 0x00, 0x00, 0x00,
         0x0a, 0x00, 0x0a, 0x00, 0x80, 0x02, 0x00, 0x00, 0x8c, 0x1b, 0x00, 0x00, 0x00, 0x00
     };
-
 }    // namespace
 
 XLDocument::XLDocument(const IZipArchive& zipArchive) : m_xmlSavingDeclaration{}, m_archive(zipArchive) {}
@@ -623,48 +611,6 @@ void XLDocument::open(const std::string& fileName)
     m_styles         = XLStyles(getXmlData("xl/styles.xml"), m_suppressWarnings); // 2024-10-14: forward supress warnings setting to XLStyles
 }
 
-namespace {
-    /**
-     * @brief Test if path exists as either a file or a directory
-     * @param path Check for existence of this
-     * @return true if path exists as a file or directory
-     */
-    bool pathExists(const std::string& path)
-    {
-        STATSTRUCT info;
-        if (STAT(path.c_str(), &info ) == 0)    // test if path exists
-            return true;
-        return false;
-    }
-#ifdef __GNUC__    // conditionally enable GCC specific pragmas to suppress unused function warning
-#   pragma GCC diagnostic push
-#   pragma GCC diagnostic ignored "-Wunused-function"
-#endif // __GNUC__
-    /**
-     * @brief Test if fileName exists and is not a directory
-     * @param fileName The path to check for existence (as a file)
-     * @return true if fileName exists and is a file, otherwise false
-     */
-    bool fileExists(const std::string& fileName)
-    {
-        STATSTRUCT info;
-        if (STAT(fileName.c_str(), &info ) == 0)    // test if path exists
-            if ((info.st_mode & S_IFDIR) == 0)          // test if it is NOT a directory
-                return true;
-        return false;
-    }
-    bool isDirectory(const std::string& fileName)
-    {
-        STATSTRUCT info;
-        if (STAT(fileName.c_str(), &info ) == 0)    // test if path exists
-            if ((info.st_mode & S_IFDIR) != 0)          // test if it is a directory
-                return true;
-        return false;
-    }
-#ifdef __GNUC__    // conditionally enable GCC specific pragmas to suppress unused function warning
-#   pragma GCC diagnostic pop
-#endif // __GNUC__
-} // anonymous namespace
 
 /**
  * @details Create a new document. This is done by saving the data in XLTemplate.h in binary format.
@@ -672,24 +618,28 @@ namespace {
 void XLDocument::create(const std::string& fileName, bool forceOverwrite)
 {
     // 2024-07-26: prevent silent overwriting of existing files
-    if (!forceOverwrite && pathExists(fileName)) {
+    if (!forceOverwrite && pathExists(fileName)) { // 2025-05-04 TODO TBD: does pathExists even work with windows / unicode filenames?
         using namespace std::literals::string_literals;
         throw XLException("XLDocument::create: refusing to overwrite existing file "s + fileName);
     }
 
+    std::string tempFileName = GenerateRandomNameInSamePath(fileName, 20);
+
     // ===== Create a temporary output file stream.
-#ifdef ENABLE_NOWIDE
-    nowide::ofstream outfile(fileName, std::ios::binary);
-#else
-    std::ofstream outfile(fileName, std::ios::binary);
-#endif
+    std::ofstream outfile(tempFileName, std::ios::binary);
 
     // ===== Stream the binary data for an empty workbook to the output file.
     // ===== Casting, in particular reinterpret_cast, is discouraged, but in this case it is unfortunately unavoidable.
     outfile.write(reinterpret_cast<const char*>(templateData), templateSize);    // NOLINT
     outfile.close();
 
-    open(fileName);
+    open(tempFileName);    // open the template archive from the temporary file
+    m_filePath = fileName; // re-configure the document file path to point to the desired fileName
+
+    // 2025-05-04: the created (empty) archive is no longer saved implicitly, to remove the XLDocument dependency on nowide::ofstream
+    //     Instead, OpenXLSX shall rely on the underlying zip implementation (Zippy.hpp or LibZip.hpp) to support Unicode filenames
+    // NOTE: LibZip currently does not support Unicode filenames on Windows (no use of nowide), status of miniz is unknown
+    unlink(tempFileName.c_str()); // delete the temporary file used for archive creation
 }
 
 /**

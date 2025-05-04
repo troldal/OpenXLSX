@@ -7,6 +7,10 @@ Microsoft Excel® files, with the .xlsx format.
 
 As the heading says - the latest "Release" that is shown on https://github.com/troldal/OpenXLSX/releases is from 2021-11-06, and severely outdated - please pull / download the latest SW version directly from the repository in its current state. Link for those that do not want to use ```git```: https://github.com/troldal/OpenXLSX/archive/refs/heads/master.zip
 
+## (aral-matrix) 04 May 2025 - moved file system access functions (shared by zip implementations and XLDocument) to detail/OpenXLSXFileSystemTools.hpp
+* in preparation for localizing (if not removing) the boost::nowide dependency, the new header file ```detail/OpenXLSXFileSystemTools.hpp``` now comprises all functions where unicode (filename) support might be relevant, to be implemented centrally - currently on the To-Do list
+* ```XLDocument::create```: creating a new document no longer creates a file under that name until an explicit call of ```XLDocument::save``` or ```::saveAs```. This is to remove a dependency of XLDocument on boost::nowide on Windows.
+
 ## (aral-matrix) 01 May 2025 - replaced zippy implementation with the underlying miniz library (cmake) and added support for libzip (cmake, GNU make)
 * @troldal replaced the zippy implementation with a smaller zippy-wrapper for the actual dependency, the miniz library, and added the cmake support for automatically pulling in the dependency from the miniz repository
 * ```OpenXLSX/headers/detail/```: new headers ```LipZip.hpp``` (libzip wrapper) and ```Zippy.hpp``` (miniz wrapper)

@@ -15,6 +15,8 @@
 #include <direct.h>
 #endif
 
+#include "detail/OpenXLSXFileSystemTools.hpp"   // OpenXLSX::GenerateRandomNameInSamePath
+
 // 2024-09-15: moved Zippy exceptions to top of module to be able to use them earlier - forward declaration didn't seem
 // to work
 namespace Zippy
@@ -59,31 +61,6 @@ namespace Zippy
 
 }    // namespace Zippy
 
-namespace Zippy::Impl
-{
-    /**
-     * @brief Generates a random filename, which is used to generate a temporary archive when modifying and saving
-     * archive files.
-     * @param length The length of the filename to create.
-     * @return Returns the generated filenamen, appended with '.tmp'.
-     */
-    inline std::string GenerateRandomName(int length)
-    {
-        std::string letters = "abcdefghijklmnopqrstuvwxyz0123456789";
-
-        std::random_device                 rand_dev;
-        std::mt19937                       generator(rand_dev());
-        std::uniform_int_distribution<int> distr(0, letters.size() - 1);
-
-        std::string result;
-        for (int i = 0; i < length; ++i) {
-            result += letters[distr(generator)];
-        }
-
-        return result + ".tmp";
-    }
-
-}    // namespace Zippy::Impl
 
 namespace Zippy
 {
@@ -1073,26 +1050,8 @@ namespace Zippy
             if (filename.empty()) {
                 filename = m_ArchivePath;
             }
-#           ifdef _WIN32
-               std::replace( filename.begin(), filename.end(), '\\', '/' ); // pull request #210, alternate fix: fopen etc work fine with forward slashes
-#           endif
 
-            // ===== Determine path of the current file
-            size_t pathPos = filename.rfind('/');
-
-            // pull request #191, support AmigaOS style paths
-#           ifdef __amigaos__
-                constexpr const char * localFolder = "";    // local folder on AmigaOS can not be explicitly expressed in a path
-                if (pathPos == std::string::npos) pathPos = filename.rfind(':'); // if no '/' found, attempt to find amiga drive root path
-#           else
-                constexpr const char * localFolder = "./"; // local folder on _WIN32 && __linux__ is .
-#           endif
-            std::string tempPath{};
-            if (pathPos != std::string::npos) tempPath = filename.substr(0, pathPos + 1);
-            else tempPath = localFolder; // prepend explicit identification of local folder in case path did not contain a folder
-
-            // ===== Generate a random file name with the same path as the current file
-            tempPath = tempPath + Impl::GenerateRandomName(20);
+            std::string tempPath = OpenXLSX::GenerateRandomNameInSamePath(filename, 20);
 
             // ===== Prepare an temporary archive file with the random filename;
             mz_zip_archive tempArchive = mz_zip_archive();
