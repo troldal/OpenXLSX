@@ -72,10 +72,10 @@ namespace {
             else if (textElement.name() == "r"s) { // rich text
                 XMLNode richTextSubnode = textElement.first_child_of_type(pugi::node_element);
                 while (not richTextSubnode.empty()) {
-                    if (textElement.name() == "t"s) {
-                        result += textElement.first_child().value();
+                    if (richTextSubnode.name() == "t"s) {
+                        result += richTextSubnode.first_child().value();
                     }
-                    else if (textElement.name() == "rPr"s) {} // ignore rich text formatting info
+                    else if (richTextSubnode.name() == "rPr"s) {} // ignore rich text formatting info
                     else {} // ignore other nodes
                     richTextSubnode = richTextSubnode.next_sibling_of_type(pugi::node_element);
                 }
