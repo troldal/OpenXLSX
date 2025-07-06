@@ -492,7 +492,7 @@ XLVmlDrawing::XLVmlDrawing(XLXmlData* xmlData)
         rootNode.prepend_child(pugi::node_pcdata).set_value("\n\t");
     }
     if (shapeTypeNode.first_child().empty())
-        shapeTypeNode.append_child(pugi::node_pcdata).set_value("\n\t"); // insert indentation if node was empty
+        shapeTypeNode.append_child(xml_node_type::node_pcdata).set_value("\n\t"); // insert indentation if node was empty
 
     // ===== Ensure that attributes exist for first shapetype node, default-initialize if needed:
     m_defaultShapeTypeId = appendAndGetAttribute(shapeTypeNode, "id",        "_x0000_t202").value();

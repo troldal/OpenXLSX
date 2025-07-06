@@ -81,6 +81,23 @@ namespace OpenXLSX
 #       endif
     }
 
+    /**
+     * @brief translate OpenXLSX::xml_node_type into pugi::xml_node_type
+     */
+    inline pugi::xml_node_type pugi_node_type( xml_node_type type_ ) {
+        switch( type_ ) {
+            case xml_node_type::node_null        : return pugi::node_null;
+            case xml_node_type::node_document    : return pugi::node_document;
+            case xml_node_type::node_element     : return pugi::node_element;
+            case xml_node_type::node_pcdata      : return pugi::node_pcdata;
+            case xml_node_type::node_cdata       : return pugi::node_cdata;
+            case xml_node_type::node_comment     : return pugi::node_comment;
+            case xml_node_type::node_pi          : return pugi::node_pi;
+            case xml_node_type::node_declaration : return pugi::node_declaration;
+            case xml_node_type::node_doctype     : return pugi::node_doctype;
+            default : return pugi::node_null; // this should never happen
+        }
+    }
 
     /**
      * @details return the node name without a potentially(!) existing namespace
@@ -132,6 +149,7 @@ namespace OpenXLSX
         return namespaced_name_;
     }
 
+    XMLNode XMLNode::append_child(xml_node_type type_) { return xml_node::append_child(pugi_node_type( type_ )); }
     /**
      * @details determine the first xml_node child whose xml_node_type matches type_
      * @date 2024-04-25

@@ -403,7 +403,7 @@ namespace     // anonymous namespace for module local functions
     {
         if (not node.empty() && prefix.length() > 0) {
             parentNode.insert_child_before(pugi::node_pcdata, node).set_value(prefix.c_str());    // insert prefix before node opening tag
-            node.append_child(pugi::node_pcdata).set_value(prefix.c_str());                       // insert prefix before node closing tag (within node)
+            node.append_child(xml_node_type::node_pcdata).set_value(prefix.c_str());              // insert prefix before node closing tag (within node)
         }
     }
 

@@ -165,8 +165,8 @@ XLComments::XLComments(XLXmlData* xmlData)
     m_commentList = appendAndGetNode (rootNode, "commentList", m_nodeOrder);  // (insert and) get commentList node -> this should now copy the whitespace prefix of m_authors
 
     // whitespace formatting / indentation for closing tags:
-    if (    m_authors.first_child().empty())     m_authors.append_child(pugi::node_pcdata).set_value("\n\t");
-    if (m_commentList.first_child().empty()) m_commentList.append_child(pugi::node_pcdata).set_value("\n\t");
+    if (    m_authors.first_child().empty())     m_authors.append_child(xml_node_type::node_pcdata).set_value("\n\t");
+    if (m_commentList.first_child().empty()) m_commentList.append_child(xml_node_type::node_pcdata).set_value("\n\t");
 }
 
 /**

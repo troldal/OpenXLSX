@@ -484,7 +484,7 @@ bool XLCfRule::setFormula(std::string const& newFormula)
     XMLNode formula = appendAndGetNode(*m_cfRuleNode, "formula", m_nodeOrder);
     if (formula.empty()) return false;
     formula.remove_children(); // no-op if no children
-    return formula.append_child(pugi::node_pcdata).set_value(newFormula.c_str());
+    return formula.append_child(xml_node_type::node_pcdata).set_value(newFormula.c_str());
 }
 
 /**
