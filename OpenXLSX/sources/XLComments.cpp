@@ -124,9 +124,9 @@ uint16_t XLComment::authorId() const { return static_cast<uint16_t>(m_commentNod
 bool XLComment::setText(std::string newText)
 {
     m_commentNode->remove_children(); // clear previous text
-    XMLNode tNode = m_commentNode->prepend_child("text").prepend_child("t");   // insert <text><t/></text> nodes
-    tNode.append_attribute("xml:space").set_value("preserve");                // set <t> node attribute xml:space
-    return tNode.prepend_child(pugi::node_pcdata).set_value(newText.c_str()); // finally, insert <t> node_pcdata value
+    XMLNode tNode = m_commentNode->prepend_child("text").prepend_child("t");           // insert <text><t/></text> nodes
+    tNode.append_attribute("xml:space").set_value("preserve");                         // set <t> node attribute xml:space
+    return tNode.prepend_child(xml_node_type::node_pcdata).set_value(newText.c_str()); // finally, insert <t> node_pcdata value
 }
 bool XLComment::setAuthorId(uint16_t newAuthorId) { return appendAndSetAttribute(*m_commentNode, "authorId", std::to_string(newAuthorId)).empty() == false; }
 
@@ -159,10 +159,10 @@ XLComments::XLComments(XLXmlData* xmlData)
         );
 
     XMLNode rootNode = doc.document_element();
-    bool docNew = rootNode.first_child_of_type(pugi::node_element).empty();   // check and store status: was document empty?
-    m_authors = appendAndGetNode (rootNode, "authors", m_nodeOrder);          // (insert and) get authors node
-    if (docNew) rootNode.prepend_child(pugi::node_pcdata).set_value("\n\t");  // if document was empty: prefix the newly inserted authors node with a single tab
-    m_commentList = appendAndGetNode (rootNode, "commentList", m_nodeOrder);  // (insert and) get commentList node -> this should now copy the whitespace prefix of m_authors
+    bool docNew = rootNode.first_child_of_type(pugi::node_element).empty();            // check and store status: was document empty?
+    m_authors = appendAndGetNode (rootNode, "authors", m_nodeOrder);                   // (insert and) get authors node
+    if (docNew) rootNode.prepend_child(xml_node_type::node_pcdata).set_value("\n\t");  // if document was empty: prefix the newly inserted authors node with a single tab
+    m_commentList = appendAndGetNode (rootNode, "commentList", m_nodeOrder);           // (insert and) get commentList node -> this should now copy the whitespace prefix of m_authors
 
     // whitespace formatting / indentation for closing tags:
     if (    m_authors.first_child().empty())     m_authors.append_child(xml_node_type::node_pcdata).set_value("\n\t");
@@ -332,14 +332,14 @@ uint16_t XLComments::addAuthor(const std::string& authorName)
     }
     if (auth.empty()) { // if this is the first entry
         auth = m_authors.prepend_child("author"); // insert new node
-        m_authors.prepend_child(pugi::node_pcdata).set_value("\n\t\t");  // prefix first author with second level indentation
+        m_authors.prepend_child(xml_node_type::node_pcdata).set_value("\n\t\t"); // prefix first author with second level indentation
     }
     else { // found the last author node at index
         auth = m_authors.insert_child_after("author", auth);               // append a new author
         copyLeadingWhitespaces(m_authors, auth.previous_sibling(), auth ); // copy whitespaces prefix from previous author
         ++index;                                                           // increment index
     }
-    auth.prepend_child(pugi::node_pcdata).set_value(authorName.c_str());
+    auth.prepend_child(xml_node_type::node_pcdata).set_value(authorName.c_str());
     return index;
 }
 
@@ -459,7 +459,7 @@ bool XLComments::set(std::string const& cellRef, std::string const& commentText,
     appendAndSetAttribute(comment, "authorId", std::to_string(authorId_)); // update authorId
     XMLNode tNode = comment.prepend_child("text").prepend_child("t");      // insert <text><t/></text> nodes
     tNode.append_attribute("xml:space").set_value("preserve");             // set <t> node attribute xml:space
-    tNode.prepend_child(pugi::node_pcdata).set_value(commentText.c_str()); // finally, insert <t> node_pcdata value
+    tNode.prepend_child(xml_node_type::node_pcdata).set_value(commentText.c_str()); // finally, insert <t> node_pcdata value
 
     if (m_vmlDrawing->valid()) {
         XLShape cShape{};

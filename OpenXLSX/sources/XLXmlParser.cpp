@@ -102,7 +102,7 @@ namespace OpenXLSX
     /**
      * @details return the node name without a potentially(!) existing namespace
      */
-    const pugi::char_t* XMLNode::name_without_namespace(const pugi::char_t* name_) const
+    const char_t* XMLNode::name_without_namespace(const char_t* name_) const
     {
         if (NO_XML_NS) return name_;    // if node namespaces are not stripped: return immediately
         int pos = 0;
@@ -115,7 +115,7 @@ namespace OpenXLSX
      * @details for creation of node children: copy this node's namespace without thread safety, using
      *  a static character array to avoid smart pointer performance impact
      */
-    const pugi::char_t* XMLNode::namespaced_name_char(const pugi::char_t* name_, bool force_ns) const
+    const char_t* XMLNode::namespaced_name_char(const char_t* name_, bool force_ns) const
     {
         // ===== If node has no namespace: Early pass-through return
         if (!name_begin || force_ns) return name_;
@@ -137,7 +137,7 @@ namespace OpenXLSX
      *  smart pointer with a trade-off for ~15-20% performance impact (increased runtime)
      * @note // 2024-08-18: made lambda parameter unnamed to eliminate -Wunused-parameter
      */
-    std::shared_ptr<pugi::char_t> XMLNode::namespaced_name_shared_ptr(const pugi::char_t* name_, bool force_ns) const
+    std::shared_ptr<char_t> XMLNode::namespaced_name_shared_ptr(const char_t* name_, bool force_ns) const
     {
         // ===== If node has no namespace: Early pass-through return with noop-deleter
         if (!name_begin || force_ns) return std::shared_ptr<pugi::char_t>(const_cast<pugi::char_t*>(name_), [](pugi::char_t*){});
@@ -149,7 +149,49 @@ namespace OpenXLSX
         return namespaced_name_;
     }
 
-    XMLNode XMLNode::append_child(xml_node_type type_) { return xml_node::append_child(pugi_node_type( type_ )); }
+    /**
+     * @details
+     */
+    const char_t* XMLNode::name() const { return &xml_node::name()[name_begin]; }
+
+    /**
+     * @details
+     */
+    const char_t* XMLNode::raw_name() const { return xml_node::name(); }
+
+    /**
+     * @details pass-through functions to pImpl pugi::xml_node
+     */
+    XMLNode XMLNode::parent() { return pugi::xml_node::parent(); }
+    // template <typename Predicate> XMLNode XMLNode::find_child(Predicate pred) const { return pugi::xml_node::find_child(pred); }
+    XMLNode XMLNode::child(const char_t* name_) const { return xml_node::child(NAMESPACED_NAME(name_, false)); }
+    XMLNode XMLNode::next_sibling(const char_t* name_) const { return xml_node::next_sibling(NAMESPACED_NAME(name_, false)); }
+    XMLNode XMLNode::next_sibling() const { return xml_node::next_sibling(); }
+    XMLNode XMLNode::previous_sibling(const char_t* name_) const { return xml_node::previous_sibling(NAMESPACED_NAME(name_, false)); }
+    XMLNode XMLNode::previous_sibling() const { return xml_node::previous_sibling(); }
+    const char_t* XMLNode::child_value() const { return xml_node::child_value(); }
+    const char_t* XMLNode::child_value(const char_t* name_) const { return xml_node::child_value(NAMESPACED_NAME(name_, false)); }
+    bool XMLNode::set_name(const char_t* rhs, bool force_ns) { return xml_node::set_name(NAMESPACED_NAME(rhs, force_ns)); }
+    bool XMLNode::set_name(const char_t* rhs, size_t size, bool force_ns) { return xml_node::set_name(NAMESPACED_NAME(rhs, force_ns), size + name_begin); }
+    XMLNode XMLNode::append_child(xml_node_type type_) { return xml_node::append_child(pugi_node_type(type_)); }
+    XMLNode XMLNode::prepend_child(xml_node_type type_) { return xml_node::prepend_child(pugi_node_type(type_)); }
+    XMLNode XMLNode::append_child(const char_t* name_, bool force_ns) { return xml_node::append_child(NAMESPACED_NAME(name_, force_ns)); }
+    XMLNode XMLNode::prepend_child(const char_t* name_, bool force_ns) { return xml_node::prepend_child(NAMESPACED_NAME(name_, force_ns)); }
+    XMLNode XMLNode::insert_child_after(pugi::xml_node_type type_, const xml_node& node) { return xml_node::insert_child_after(type_, node); }
+    XMLNode XMLNode::insert_child_before(pugi::xml_node_type type_, const xml_node& node) { return xml_node::insert_child_before(type_, node); }
+    XMLNode XMLNode::insert_child_after(const char_t* name_, const xml_node& node, bool force_ns)
+        { return xml_node::insert_child_after(NAMESPACED_NAME(name_, force_ns), node); }
+    XMLNode XMLNode::insert_child_before(const char_t* name_, const xml_node& node, bool force_ns)
+        { return xml_node::insert_child_before(NAMESPACED_NAME(name_, force_ns), node); }
+    bool XMLNode::remove_child(const char_t* name_) { return xml_node::remove_child(NAMESPACED_NAME(name_, false)); }
+    bool XMLNode::remove_child(const xml_node& n) { return xml_node::remove_child(n); }
+    XMLNode XMLNode::find_child_by_attribute(const char_t* name_, const char_t* attr_name, const char_t* attr_value) const
+        { return xml_node::find_child_by_attribute(NAMESPACED_NAME(name_, false), attr_name, attr_value); }
+    XMLNode XMLNode::find_child_by_attribute(const char_t* attr_name, const char_t* attr_value) const
+        { return xml_node::find_child_by_attribute(attr_name, attr_value); }
+    // DISCLAIMER: unused by OpenXLSX, but theoretically impacted by xml namespaces:
+    // PUGI_IMPL_FN xml_node xml_node::first_element_by_path(const char_t* path_, char_t delimiter) const
+
     /**
      * @details determine the first xml_node child whose xml_node_type matches type_
      * @date 2024-04-25

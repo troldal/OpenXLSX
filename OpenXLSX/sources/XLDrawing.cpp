@@ -489,7 +489,7 @@ XLVmlDrawing::XLVmlDrawing(XLXmlData* xmlData)
     }
     if (shapeTypeNode.empty()) {
         shapeTypeNode = rootNode.prepend_child(ShapeTypeNodeName.c_str(), XLForceNamespace);
-        rootNode.prepend_child(pugi::node_pcdata).set_value("\n\t");
+        rootNode.prepend_child(xml_node_type::node_pcdata).set_value("\n\t");
     }
     if (shapeTypeNode.first_child().empty())
         shapeTypeNode.append_child(xml_node_type::node_pcdata).set_value("\n\t"); // insert indentation if node was empty
@@ -503,7 +503,7 @@ XLVmlDrawing::XLVmlDrawing(XLXmlData* xmlData)
     XMLNode strokeNode = shapeTypeNode.child("v:stroke");
     if (strokeNode.empty()) {
         strokeNode = shapeTypeNode.prepend_child("v:stroke", XLForceNamespace);
-        shapeTypeNode.prepend_child(pugi::node_pcdata).set_value("\n\t\t");
+        shapeTypeNode.prepend_child(xml_node_type::node_pcdata).set_value("\n\t\t");
     }
     appendAndGetAttribute(strokeNode, "joinstyle", "miter");
 
@@ -649,7 +649,7 @@ XLShape XLVmlDrawing::createShape([[maybe_unused]] const XLShape& shapeTemplate 
     }
     else {                                                                       // else: shouldn't happen - but just in case
         node = rootNode.prepend_child(ShapeNodeName.c_str(), XLForceNamespace);              // insert node prior to trailing whitespaces
-        rootNode.prepend_child(pugi::node_pcdata).set_value("\n\t");                         // prefix new node with whitespaces
+        rootNode.prepend_child(xml_node_type::node_pcdata).set_value("\n\t");                // prefix new node with whitespaces
     }
 
     // ===== Assign a new shape id & account for it in m_lastAssignedShapeId

@@ -1219,6 +1219,7 @@ XLColumn XLWorksheet::column(uint16_t columnNumber) const
         xmlDocument().document_element().insert_child_before("cols", xmlDocument().document_element().child("sheetData"));
 
     // ===== Find the column node, if it exists
+    // TODO: as this is the *only* use of templated XMLNode::find_child, replace this with non-template functions
     auto columnNode = xmlDocument().document_element().child("cols").find_child([&](const XMLNode node) {
         return (columnNumber >= node.attribute("min").as_int() && columnNumber <= node.attribute("max").as_int()) ||
                node.attribute("min").as_int() > columnNumber;

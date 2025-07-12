@@ -184,45 +184,50 @@ namespace OpenXLSX
          * @brief get node name while stripping namespace, if so configured (name_begin > 0)
          * @return the node name without a namespace
          */
-        const char_t* name() const { return &xml_node::name()[name_begin]; }
+        const char_t* name() const;
 
         /**
          * @brief get actual node name from pugi::xml_node::name, including namespace, if any
          * @return the raw node name
          */
-        const char_t* raw_name() const { return xml_node::name(); }
+        const char_t* raw_name() const;
 
         /**
          * @brief for all functions returning xml_node: invoke base class function, but with a return type of XMLNode (OpenXLSX_xml_node)
          */
-        XMLNode parent() { return pugi::xml_node::parent(); }
-        template <typename Predicate> XMLNode find_child(Predicate pred) const { return pugi::xml_node::find_child(pred); }
-        XMLNode child(const char_t* name_) const { return xml_node::child(NAMESPACED_NAME(name_, false)); }
-        XMLNode next_sibling(const char_t* name_) const { return xml_node::next_sibling(NAMESPACED_NAME(name_, false)); }
-        XMLNode next_sibling() const { return xml_node::next_sibling(); }
-        XMLNode previous_sibling(const char_t* name_) const { return xml_node::previous_sibling(NAMESPACED_NAME(name_, false)); }
-        XMLNode previous_sibling() const { return xml_node::previous_sibling(); }
-        const char_t* child_value() const { return xml_node::child_value(); }
-        const char_t* child_value(const char_t* name_) const { return xml_node::child_value(NAMESPACED_NAME(name_, false)); }
-        bool set_name(const char_t* rhs, bool force_ns = false) { return xml_node::set_name(NAMESPACED_NAME(rhs, force_ns)); }
-        bool set_name(const char_t* rhs, size_t size, bool force_ns = false) { return xml_node::set_name(NAMESPACED_NAME(rhs, force_ns), size + name_begin); }
-        // XMLNode append_child(pugi::xml_node_type type_) { return xml_node::append_child(type_); }
+        XMLNode parent();
+        // NOTE: find_child is used exactly once in XLSheet.cpp line 1222
+        template <typename Predicate> XMLNode find_child(Predicate pred) const {
+            if (!_root) return XMLNode();
+
+            for (XMLNode node = first_child(); node; node = node.next_sibling())
+                if (pred(node))
+                    return node;
+
+            return XMLNode();
+            // return pugi::xml_node::find_child(pred);
+        }
+        XMLNode child(const char_t* name_) const;
+        XMLNode next_sibling(const char_t* name_) const;
+        XMLNode next_sibling() const;
+        XMLNode previous_sibling(const char_t* name_) const;
+        XMLNode previous_sibling() const;
+        const char_t* child_value() const;
+        const char_t* child_value(const char_t* name_) const;
+        bool set_name(const char_t* rhs, bool force_ns = false);
+        bool set_name(const char_t* rhs, size_t size, bool force_ns = false);
         XMLNode append_child(xml_node_type type_);
-        XMLNode prepend_child(pugi::xml_node_type type_) { return xml_node::prepend_child(type_); }
-        XMLNode append_child(const char_t* name_, bool force_ns = false) { return xml_node::append_child(NAMESPACED_NAME(name_, force_ns)); }
-        XMLNode prepend_child(const char_t* name_, bool force_ns = false) { return xml_node::prepend_child(NAMESPACED_NAME(name_, force_ns)); }
-        XMLNode insert_child_after(pugi::xml_node_type type_, const xml_node& node) { return xml_node::insert_child_after(type_, node); }
-        XMLNode insert_child_before(pugi::xml_node_type type_, const xml_node& node) { return xml_node::insert_child_before(type_, node); }
-        XMLNode insert_child_after(const char_t* name_, const xml_node& node, bool force_ns = false)
-            { return xml_node::insert_child_after(NAMESPACED_NAME(name_, force_ns), node); }
-        XMLNode insert_child_before(const char_t* name_, const xml_node& node, bool force_ns = false)
-            { return xml_node::insert_child_before(NAMESPACED_NAME(name_, force_ns), node); }
-        bool remove_child(const char_t* name_) { return xml_node::remove_child(NAMESPACED_NAME(name_, false)); }
-        bool remove_child(const xml_node& n) { return xml_node::remove_child(n); }
-        XMLNode find_child_by_attribute(const char_t* name_, const char_t* attr_name, const char_t* attr_value) const
-            { return xml_node::find_child_by_attribute(NAMESPACED_NAME(name_, false), attr_name, attr_value); }
-        XMLNode find_child_by_attribute(const char_t* attr_name, const char_t* attr_value) const
-            { return xml_node::find_child_by_attribute(attr_name, attr_value); }
+        XMLNode prepend_child(xml_node_type type_);
+        XMLNode append_child(const char_t* name_, bool force_ns = false);
+        XMLNode prepend_child(const char_t* name_, bool force_ns = false);
+        XMLNode insert_child_after(pugi::xml_node_type type_, const xml_node& node);
+        XMLNode insert_child_before(pugi::xml_node_type type_, const xml_node& node);
+        XMLNode insert_child_after(const char_t* name_, const xml_node& node, bool force_ns = false);
+        XMLNode insert_child_before(const char_t* name_, const xml_node& node, bool force_ns = false);
+        bool remove_child(const char_t* name_);
+        bool remove_child(const xml_node& n);
+        XMLNode find_child_by_attribute(const char_t* name_, const char_t* attr_name, const char_t* attr_value) const;
+        XMLNode find_child_by_attribute(const char_t* attr_name, const char_t* attr_value) const;
         // DISCLAIMER: unused by OpenXLSX, but theoretically impacted by xml namespaces:
         // PUGI_IMPL_FN xml_node xml_node::first_element_by_path(const char_t* path_, char_t delimiter) const
         // ===== END: Wrappers for xml_node member functions
