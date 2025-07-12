@@ -57,28 +57,20 @@ namespace OpenXLSX
 
     bool NO_XML_NS = true; // default: no XML namespaces
     /**
-     * @details this function is meaningless when PUGI_AUGMENTED is not defined / used
+     * @details
      */
     bool enable_xml_namespaces()
     {
-#       ifdef PUGI_AUGMENTED
-            NO_XML_NS = false;
-            return true;
-#       else
-            return false;
-#       endif
+        NO_XML_NS = false;
+        return true;
     }
     /**
-     * @details this function is meaningless when PUGI_AUGMENTED is not defined / used
+     * @details
      */
     bool disable_xml_namespaces()
     {
-#       ifdef PUGI_AUGMENTED
-            NO_XML_NS = true;
-            return true;
-#       else
-            return false;
-#       endif
+        NO_XML_NS = true;
+        return true;
     }
 
     /**
@@ -96,6 +88,24 @@ namespace OpenXLSX
             case xml_node_type::node_declaration : return pugi::node_declaration;
             case xml_node_type::node_doctype     : return pugi::node_doctype;
             default : return pugi::node_null; // this should never happen
+        }
+    }
+
+    /**
+     * @brief translate pugi::xml_node_type into OpenXLSX::xml_node_type
+     */
+    inline xml_node_type OpenXLSX_node_type( pugi::xml_node_type type_ ) {
+        switch( type_ ) {
+            case pugi::node_null        : return xml_node_type::node_null;
+            case pugi::node_document    : return xml_node_type::node_document;
+            case pugi::node_element     : return xml_node_type::node_element;
+            case pugi::node_pcdata      : return xml_node_type::node_pcdata;
+            case pugi::node_cdata       : return xml_node_type::node_cdata;
+            case pugi::node_comment     : return xml_node_type::node_comment;
+            case pugi::node_pi          : return xml_node_type::node_pi;
+            case pugi::node_declaration : return xml_node_type::node_declaration;
+            case pugi::node_doctype     : return xml_node_type::node_doctype;
+            default : return xml_node_type::node_null; // this should never happen
         }
     }
 
@@ -124,7 +134,7 @@ namespace OpenXLSX
         throw XLException("OpenXLSX_xml_node::"s + __func__ + ": strlen of "s + name_ + " exceeds XLMaxNamespacedNameLen "s + std::to_string(XLMaxNamespacedNameLen));
         }
 
-        static pugi::char_t namespaced_name_[ XLMaxNamespacedNameLen + 1 ]; // static memory allocation for concatenating node namespace and name_
+        static char_t namespaced_name_[ XLMaxNamespacedNameLen + 1 ];   // static memory allocation for concatenating node namespace and name_
 
         // ===== If node has a namespace: create a namespaced version of name_
         memcpy(namespaced_name_, xml_node::name(), name_begin);    // copy the node namespace
@@ -140,12 +150,12 @@ namespace OpenXLSX
     std::shared_ptr<char_t> XMLNode::namespaced_name_shared_ptr(const char_t* name_, bool force_ns) const
     {
         // ===== If node has no namespace: Early pass-through return with noop-deleter
-        if (!name_begin || force_ns) return std::shared_ptr<pugi::char_t>(const_cast<pugi::char_t*>(name_), [](pugi::char_t*){});
+        if (!name_begin || force_ns) return std::shared_ptr<char_t>(const_cast<char_t*>(name_), [](char_t*){});
 
         // ===== If node has a namespace: allocate memory for concatenation and create a namespaced version of name_
-        std::shared_ptr<pugi::char_t> namespaced_name_ (new pugi::char_t[name_begin + strlen(name_) + 1], std::default_delete<pugi::char_t[]>());
+        std::shared_ptr<char_t> namespaced_name_ (new char_t[name_begin + strlen(name_) + 1], std::default_delete<char_t[]>());
         memcpy(namespaced_name_.get(), xml_node::name(), name_begin);    // copy the node namespace
-        strcpy(namespaced_name_.get() + name_begin, name_);          // concatenate the name_ with terminating zero
+        strcpy(namespaced_name_.get() + name_begin, name_);              // concatenate the name_ with terminating zero
         return namespaced_name_;
     }
 
@@ -158,6 +168,11 @@ namespace OpenXLSX
      * @details
      */
     const char_t* XMLNode::raw_name() const { return xml_node::name(); }
+
+    /**
+     * @details
+     */
+    xml_node_type XMLNode::type() const { return OpenXLSX_node_type( pugi::xml_node::type() ); }
 
     /**
      * @details pass-through functions to pImpl pugi::xml_node
@@ -177,8 +192,8 @@ namespace OpenXLSX
     XMLNode XMLNode::prepend_child(xml_node_type type_) { return xml_node::prepend_child(pugi_node_type(type_)); }
     XMLNode XMLNode::append_child(const char_t* name_, bool force_ns) { return xml_node::append_child(NAMESPACED_NAME(name_, force_ns)); }
     XMLNode XMLNode::prepend_child(const char_t* name_, bool force_ns) { return xml_node::prepend_child(NAMESPACED_NAME(name_, force_ns)); }
-    XMLNode XMLNode::insert_child_after(pugi::xml_node_type type_, const xml_node& node) { return xml_node::insert_child_after(type_, node); }
-    XMLNode XMLNode::insert_child_before(pugi::xml_node_type type_, const xml_node& node) { return xml_node::insert_child_before(type_, node); }
+    XMLNode XMLNode::insert_child_after(xml_node_type type_, const xml_node& node) { return xml_node::insert_child_after(pugi_node_type(type_), node); }
+    XMLNode XMLNode::insert_child_before(xml_node_type type_, const xml_node& node) { return xml_node::insert_child_before(pugi_node_type(type_), node); }
     XMLNode XMLNode::insert_child_after(const char_t* name_, const xml_node& node, bool force_ns)
         { return xml_node::insert_child_after(NAMESPACED_NAME(name_, force_ns), node); }
     XMLNode XMLNode::insert_child_before(const char_t* name_, const xml_node& node, bool force_ns)
@@ -196,7 +211,7 @@ namespace OpenXLSX
      * @details determine the first xml_node child whose xml_node_type matches type_
      * @date 2024-04-25
      */
-    XMLNode XMLNode::first_child_of_type(pugi::xml_node_type type_) const
+    XMLNode XMLNode::first_child_of_type(xml_node_type type_) const
     {
         if (_root) {
             XMLNode x = first_child();
@@ -212,7 +227,7 @@ namespace OpenXLSX
      * @details determine the last xml_node child whose xml_node_type matches type_
      * @date 2024-04-25
      */
-    XMLNode XMLNode::last_child_of_type(pugi::xml_node_type type_) const
+    XMLNode XMLNode::last_child_of_type(xml_node_type type_) const
     {
         if (_root) {
             XMLNode f = first_child();
@@ -228,7 +243,7 @@ namespace OpenXLSX
      * @details determine amount of xml_node children child whose xml_node_type matches type_
      * @date 2024-04-28
      */
-    size_t XMLNode::child_count_of_type(pugi::xml_node_type type_) const
+    size_t XMLNode::child_count_of_type(xml_node_type type_) const
     {
         size_t counter = 0;
         if (_root) {
@@ -245,11 +260,11 @@ namespace OpenXLSX
      * @details determine the next xml_node sibling whose xml_node_type matches type_
      * @date 2024-04-26
      */
-    XMLNode XMLNode::next_sibling_of_type(pugi::xml_node_type type_) const
+    XMLNode XMLNode::next_sibling_of_type(xml_node_type type_) const
     {
         if (_root) {
             pugi::xml_node_struct* next = _root->next_sibling;
-            while (next && (PUGI_IMPL_NODETYPE(next) != type_)) next = next->next_sibling;
+            while (next && (PUGI_IMPL_NODETYPE(next) != pugi_node_type(type_))) next = next->next_sibling;
             if (next)
                 return XMLNode(next);
         }
@@ -260,11 +275,11 @@ namespace OpenXLSX
      * @details determine the previous xml_node sibling whose xml_node_type matches type_
      * @date 2024-04-26
      */
-    XMLNode XMLNode::previous_sibling_of_type(pugi::xml_node_type type_) const
+    XMLNode XMLNode::previous_sibling_of_type(xml_node_type type_) const
     {
         if (_root) {
             pugi::xml_node_struct* prev = _root->prev_sibling_c;
-            while (prev->next_sibling && (PUGI_IMPL_NODETYPE(prev) != type_)) prev = prev->prev_sibling_c;
+            while (prev->next_sibling && (PUGI_IMPL_NODETYPE(prev) != pugi_node_type(type_))) prev = prev->prev_sibling_c;
             if (prev->next_sibling)
                 return XMLNode(prev);
         }
@@ -275,13 +290,13 @@ namespace OpenXLSX
      * @details determine the next xml_node sibling whose name() matches name_ and xml_node_type matches type_
      * @date 2024-04-26
      */
-    XMLNode XMLNode::next_sibling_of_type(const pugi::char_t* name_, pugi::xml_node_type type_) const
+    XMLNode XMLNode::next_sibling_of_type(const char_t* name_, xml_node_type type_) const
     {
         if (_root) {
             for (pugi::xml_node_struct* i = _root->next_sibling; i; i = i->next_sibling)
             {
-                const pugi::char_t* iname = i->name;
-                if (iname && pugi::impl::strequal(name_, iname) && (PUGI_IMPL_NODETYPE(i) == type_))
+                const char_t* iname = i->name;
+                if (iname && pugi::impl::strequal(name_, iname) && (PUGI_IMPL_NODETYPE(i) == pugi_node_type(type_)))
                     return XMLNode(i);
             }
         }
@@ -292,18 +307,29 @@ namespace OpenXLSX
      * @details determine the previous xml_node sibling whose name() matches name_ and xml_node_type matches type_
      * @date 2024-04-26
      */
-    XMLNode XMLNode::previous_sibling_of_type(const pugi::char_t* name_, pugi::xml_node_type type_) const
+    XMLNode XMLNode::previous_sibling_of_type(const char_t* name_, xml_node_type type_) const
     {
         if (_root) {
             for (pugi::xml_node_struct* i = _root->prev_sibling_c; i->next_sibling; i = i->prev_sibling_c)
             {
-                const pugi::char_t* iname = i->name;
-                if (iname && pugi::impl::strequal(name_, iname) && (PUGI_IMPL_NODETYPE(i) == type_))
+                const char_t* iname = i->name;
+                if (iname && pugi::impl::strequal(name_, iname) && (PUGI_IMPL_NODETYPE(i) == pugi_node_type(type_)))
                     return XMLNode(i);
             }
         }
         return XMLNode();    // if no node matching type_ was found: return an empty node
     }
+
+    /**
+     * @details get the document element as an XMLNode
+     */
+    XMLNode XMLDocument::document_element() const { return pugi::xml_document::document_element(); }
+
+    /**
+     * @details prepend a node in the XML document, translating the node type from xml_node_type
+     */
+    XMLNode XMLDocument::prepend_child(xml_node_type type_) { return XMLNode(pugi::xml_document::prepend_child(pugi_node_type(type_))); }
+    XMLNode XMLDocument::prepend_child(const char_t* name_) { return pugi::xml_document::xml_node::prepend_child(name_); }
 
 }    // namespace OpenXLSX
 

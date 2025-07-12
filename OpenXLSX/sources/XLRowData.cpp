@@ -126,7 +126,7 @@ namespace OpenXLSX
     {
         // ===== Compute the column number, and move the m_cellNode to the next sibling.
         const uint16_t cellNumber = m_currentCell.cellReference().column() + 1;
-        XMLNode        cellNode   = m_currentCell.m_cellNode->next_sibling_of_type(pugi::node_element);
+        XMLNode        cellNode   = m_currentCell.m_cellNode->next_sibling_of_type(xml_node_type::node_element);
 
         // ===== If the cellNumber exceeds the last column in the range,
         // ===== m_currentCell is set to an empty XLCell, indicating the end of the range has been reached.
@@ -448,7 +448,7 @@ namespace OpenXLSX
     std::vector<XLCellValue> XLRowDataProxy::getValues() const    // 2024-04-30: whitespace support
     {
         // ===== Determine the number of cells in the current row. Create a std::vector of the same size.
-        const XMLNode  lastElementChild = m_rowNode->last_child_of_type(pugi::node_element);
+        const XMLNode  lastElementChild = m_rowNode->last_child_of_type(xml_node_type::node_element);
         const uint16_t numCells = (lastElementChild.empty() ? 0 : XLCellReference(lastElementChild.attribute("r").value()).column());
         std::vector<XLCellValue> result(static_cast<uint64_t>(numCells));
 
@@ -458,7 +458,7 @@ namespace OpenXLSX
                                                 // access so it doesn't matter
             while (not node.empty()) {
                 result[XLCellReference(node.attribute("r").value()).column() - 1] = XLCell(node, m_row->m_sharedStrings.get()).value();
-                node                                                              = node.previous_sibling_of_type(pugi::node_element);
+                node                                                              = node.previous_sibling_of_type(xml_node_type::node_element);
             }
         }
 
@@ -484,12 +484,12 @@ namespace OpenXLSX
     {
         // ===== Mark cell nodes for deletion
         std::vector<XMLNode> toBeDeleted;
-        XMLNode              cellNode = m_rowNode->first_child_of_type(pugi::node_element);
+        XMLNode              cellNode = m_rowNode->first_child_of_type(xml_node_type::node_element);
         while (not cellNode.empty()) {
             if (XLCellReference(cellNode.attribute("r").value()).column() <= count) {
                 toBeDeleted.emplace_back(cellNode);
                 XMLNode nextNode = cellNode.next_sibling();    // get next "regular" sibling (any type) before advancing cellNode
-                cellNode         = cellNode.next_sibling_of_type(pugi::node_element);
+                cellNode         = cellNode.next_sibling_of_type(xml_node_type::node_element);
                 // ===== Iterate over non-element nodes and mark them for deletion
                 while (nextNode != cellNode)
                 {    // this also works with the empty node returned past last sibling, as for XMLNode a{}, b{}, ( a == b ) is true
@@ -498,7 +498,7 @@ namespace OpenXLSX
                 }
             }
             else
-                cellNode = cellNode.next_sibling_of_type(pugi::node_element);
+                cellNode = cellNode.next_sibling_of_type(xml_node_type::node_element);
         }
 
         // ===== Delete selected cell nodes
@@ -515,7 +515,7 @@ namespace OpenXLSX
     void XLRowDataProxy::prependCellValue(const XLCellValue& value, uint16_t col)    // NOLINT   // 2024-04-30: whitespace support
     {
         // ===== (disabled) Pretty formatting by inserting before an existing first child
-        // XMLNode first_child = m_rowNode->first_child_of_type(pugi::node_element);
+        // XMLNode first_child = m_rowNode->first_child_of_type(xml_node_type::node_element);
         // XMLNode curNode{};
         // if (first_child.empty())
         //     curNode = m_rowNode->prepend_child("c");

@@ -307,7 +307,7 @@ void  XLCell::clear(uint32_t keep)
     while (not node.empty()) {
         XMLNode nextNode = node.next_sibling();
         // ===== Only preserve non-whitespace nodes
-        if (node.type() == pugi::node_element) {
+        if (node.type() == xml_node_type::node_element) {
             std::string nodeName = node.name();
             if (((keep & XLKeepCellValue  ) && nodeName == "v")     // if value shall be kept & this is value
               ||((keep & XLKeepCellFormula) && nodeName == "f"))    // or formula shall be kept & this is formula

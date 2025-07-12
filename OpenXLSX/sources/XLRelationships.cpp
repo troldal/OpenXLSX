@@ -230,7 +230,7 @@ namespace { //    re-open anonymous namespace
         }
         using namespace std::literals::string_literals;
         // ===== workaround for pugi::xml_node currently not having an iterator for node_element only
-        XMLNode  relationship = relationshipsNode.first_child_of_type(pugi::node_element);
+        XMLNode  relationship = relationshipsNode.first_child_of_type(xml_node_type::node_element);
         uint64_t newId        = 1;    // default
         while (not relationship.empty()) {
             uint64_t id;
@@ -244,7 +244,7 @@ namespace { //    re-open anonymous namespace
                 throw XLInputError("GetNewRelsID could not convert attribute Id to uint32_t"s);
             }
             if (id >= newId) newId = id + 1;
-            relationship = relationship.next_sibling_of_type(pugi::node_element);
+            relationship = relationship.next_sibling_of_type(xml_node_type::node_element);
         }
         return newId;
     }
@@ -357,7 +357,7 @@ XLRelationshipItem XLRelationships::relationshipByTarget(const std::string& targ
     // turn relative path into an absolute and resolve . and .. entries
     std::string absoluteTarget = eliminateDotAndDotDotFromPath(target[0] == '/' ? target : m_path + target);
 
-    XMLNode relationshipNode = xmlDocument().document_element().first_child_of_type(pugi::node_element);
+    XMLNode relationshipNode = xmlDocument().document_element().first_child_of_type(xml_node_type::node_element);
     while (not relationshipNode.empty()) {
         std::string relationTarget = relationshipNode.attribute("Target").value();
         if (relationTarget[0] != '/') relationTarget = m_path + relationTarget;    // turn relative path into an absolute
@@ -365,7 +365,7 @@ XLRelationshipItem XLRelationships::relationshipByTarget(const std::string& targ
 
         // ===== Attempt to match absoluteTarget & relationTarget
         if (absoluteTarget == relationTarget) return XLRelationshipItem(relationshipNode);    // found!
-        relationshipNode = relationshipNode.next_sibling_of_type(pugi::node_element);
+        relationshipNode = relationshipNode.next_sibling_of_type(xml_node_type::node_element);
     }
 
     if (throwIfNotFound) {
@@ -382,10 +382,10 @@ std::vector<XLRelationshipItem> XLRelationships::relationships() const
 {
     // ===== workaround for pugi::xml_node currently not having an iterator for node_element only
     auto    result = std::vector<XLRelationshipItem>();
-    XMLNode item   = xmlDocument().document_element().first_child_of_type(pugi::node_element);
+    XMLNode item   = xmlDocument().document_element().first_child_of_type(xml_node_type::node_element);
     while (not item.empty()) {
         result.emplace_back(XLRelationshipItem(item));
-        item = item.next_sibling_of_type(pugi::node_element);
+        item = item.next_sibling_of_type(xml_node_type::node_element);
     }
     // ===== if a node_element iterator can be implemented for pugi::xml_node, the below code can be used again
     // for (const auto& item : xmlDocument().document_element().children()) result.emplace_back(XLRelationshipItem(item));
@@ -411,7 +411,7 @@ XLRelationshipItem XLRelationships::addRelationship(XLRelationshipType type, con
     // const std::string id         = "rId" + std::to_string(GetNewRelsID(xmlDocument().document_element()));
     const std::string id         = GetNewRelsIDString(xmlDocument().document_element()); // 2024-07-24: wrapper for relationship IDs with support for 64 bit random IDs
 
-    XMLNode lastRelationship = xmlDocument().document_element().last_child_of_type(pugi::node_element); // see if there's a last element
+    XMLNode lastRelationship = xmlDocument().document_element().last_child_of_type(xml_node_type::node_element); // see if there's a last element
     XMLNode node{};    // scope declaration
 
     // Create new node in the .rels file
@@ -424,11 +424,11 @@ XLRelationshipItem XLRelationships::addRelationship(XLRelationshipType type, con
         // ===== Using whitespace nodes prior to lastRelationship as a template, insert whitespaces between lastRelationship and the new node
         XMLNode copyWhitespaceFrom = lastRelationship;    // start looking for whitespace nodes before previous relationship
         XMLNode insertBefore = node;                      // start inserting the same whitespace nodes before new relationship
-        while (copyWhitespaceFrom.previous_sibling().type() == pugi::node_pcdata) { // empty node returns pugi::node_null
+        while (copyWhitespaceFrom.previous_sibling().type() == xml_node_type::node_pcdata) { // empty node returns xml_node_type::node_null
             // Advance to previous "template" whitespace node, ensured to exist in while-condition
             copyWhitespaceFrom = copyWhitespaceFrom.previous_sibling();
             // ===== Insert a whitespace node
-            insertBefore = xmlDocument().document_element().insert_child_before(pugi::node_pcdata, insertBefore);
+            insertBefore = xmlDocument().document_element().insert_child_before(xml_node_type::node_pcdata, insertBefore);
             insertBefore.set_value(copyWhitespaceFrom.value());            // copy the whitespace node value in sequence
         }
     }

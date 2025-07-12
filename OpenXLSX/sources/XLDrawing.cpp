@@ -72,11 +72,11 @@ namespace OpenXLSX
     bool wouldBeDuplicateShapeType(XMLNode const& rootNode, XMLNode const& shapeTypeNode)
     {
         std::string id = shapeTypeNode.attribute("id").value();
-        XMLNode node = rootNode.first_child_of_type(pugi::node_element);
+        XMLNode node = rootNode.first_child_of_type(xml_node_type::node_element);
         using namespace std::literals::string_literals;
         while (node != shapeTypeNode && node.raw_name() == ShapeTypeNodeName) { // do not compare shapeTypeNode with itself, and abort on first non-shapetype node
            if (node.attribute("id").value() == id) return true;                // found an existing shapetype with the same id
-           node = node.next_sibling_of_type(pugi::node_element);
+           node = node.next_sibling_of_type(xml_node_type::node_element);
         }
         return false;
     }
@@ -101,8 +101,8 @@ namespace OpenXLSX
             newNode = rootNode.insert_copy_after(node, insertAfter);
 
         if (withWhitespaces) {
-            copyLeadingWhitespaces(rootNode, node, newNode);            // copy leading whitespaces
-            while (node.previous_sibling().type() == pugi::node_pcdata) // then remove whitespaces that were just copied to newNode
+            copyLeadingWhitespaces(rootNode, node, newNode);                     // copy leading whitespaces
+            while (node.previous_sibling().type() == xml_node_type::node_pcdata) // then remove whitespaces that were just copied to newNode
                 rootNode.remove_child(node.previous_sibling());
         }
         rootNode.remove_child(node);                                    // remove node that was just copied to new location
@@ -455,15 +455,15 @@ XLVmlDrawing::XLVmlDrawing(XLXmlData* xmlData)
     using namespace std::literals::string_literals;
 
     XMLNode rootNode = doc.document_element();
-    XMLNode node = rootNode.first_child_of_type(pugi::node_element);
+    XMLNode node = rootNode.first_child_of_type(xml_node_type::node_element);
     XMLNode lastShapeTypeNode{};
     while (not node.empty()) {
-       XMLNode nextNode = node.next_sibling_of_type(pugi::node_element); // determine next node early because node may be invalidated by moveNode
+       XMLNode nextNode = node.next_sibling_of_type(xml_node_type::node_element); // determine next node early because node may be invalidated by moveNode
        if (node.raw_name() == ShapeTypeNodeName) {
-           if (wouldBeDuplicateShapeType(rootNode, node)) { // if shapetype attribute id already exists at begin of file
-               while(node.previous_sibling().type() == pugi::node_pcdata) // delete preceeding whitespaces
-                   rootNode.remove_child(node.previous_sibling());        //  ...
-               rootNode.remove_child(node);                               // and the v:shapetype node, as it can not be referenced for lack of a unique id
+           if (wouldBeDuplicateShapeType(rootNode, node)) {                               // if shapetype attribute id already exists at begin of file
+               while(node.previous_sibling().type() == xml_node_type::node_pcdata)            // delete preceeding whitespaces
+                   rootNode.remove_child(node.previous_sibling());                            //  ...
+               rootNode.remove_child(node);                                                   // and the v:shapetype node, as it can not be referenced for lack of a unique id
            }
            else
                lastShapeTypeNode = moveNode(rootNode, node, lastShapeTypeNode); // move node to end of continuous list of shapetype nodes
@@ -483,9 +483,9 @@ XLVmlDrawing::XLVmlDrawing(XLXmlData* xmlData)
 
     XMLNode shapeTypeNode{};
     if (not lastShapeTypeNode.empty()) {
-        shapeTypeNode = rootNode.first_child_of_type(pugi::node_element);
+        shapeTypeNode = rootNode.first_child_of_type(xml_node_type::node_element);
         while (not shapeTypeNode.empty() && shapeTypeNode.raw_name() != ShapeTypeNodeName)
-            shapeTypeNode = shapeTypeNode.next_sibling_of_type(pugi::node_element);
+            shapeTypeNode = shapeTypeNode.next_sibling_of_type(xml_node_type::node_element);
     }
     if (shapeTypeNode.empty()) {
         shapeTypeNode = rootNode.prepend_child(ShapeTypeNodeName.c_str(), XLForceNamespace);
@@ -525,9 +525,9 @@ XMLNode XLVmlDrawing::firstShapeNode() const
 {
     using namespace std::literals::string_literals;
 
-    XMLNode node = xmlDocument().document_element().first_child_of_type(pugi::node_element);
+    XMLNode node = xmlDocument().document_element().first_child_of_type(xml_node_type::node_element);
     while (not node.empty() && node.raw_name() != ShapeNodeName)   // skip non shape nodes
-        node = node.next_sibling_of_type(pugi::node_element);
+        node = node.next_sibling_of_type(xml_node_type::node_element);
     return node;
 }
 
@@ -539,9 +539,9 @@ XMLNode XLVmlDrawing::lastShapeNode() const
 {
     using namespace std::literals::string_literals;
 
-    XMLNode node = xmlDocument().document_element().last_child_of_type(pugi::node_element);
+    XMLNode node = xmlDocument().document_element().last_child_of_type(xml_node_type::node_element);
     while (not node.empty() && node.raw_name() != ShapeNodeName)
-        node = node.previous_sibling_of_type(pugi::node_element);
+        node = node.previous_sibling_of_type(xml_node_type::node_element);
     return node;
 }
 
@@ -559,7 +559,7 @@ XMLNode XLVmlDrawing::shapeNode(uint32_t index) const
         node = firstShapeNode();
         while (i != index && not node.empty() && node.raw_name() == ShapeNodeName) {   // follow shape index
             ++i;
-            node = node.next_sibling_of_type(pugi::node_element);
+            node = node.next_sibling_of_type(xml_node_type::node_element);
         }
     }
     if (node.empty() || node.raw_name() != ShapeNodeName)
@@ -584,7 +584,7 @@ XMLNode XLVmlDrawing::shapeNode(std::string const& cellRef) const
     break; // found shape for cellRef
 
         do { // locate next shape node
-            node = node.next_sibling_of_type(pugi::node_element);
+            node = node.next_sibling_of_type(xml_node_type::node_element);
         } while (not node.empty() && node.name() != ShapeNodeName);
     }
     return node;
@@ -608,9 +608,9 @@ bool XLVmlDrawing::deleteShape(uint32_t index)
     XMLNode rootNode = xmlDocument().document_element();
     XMLNode node = shapeNode(index);   // returns a valid node or throws
     --m_shapeCount;                    // if shapeNode(index) did not throw: decrement shape count
-    while (node.previous_sibling().type() == pugi::node_pcdata) // remove leading whitespaces
+    while (node.previous_sibling().type() == xml_node_type::node_pcdata)    // remove leading whitespaces
         rootNode.remove_child(node.previous_sibling());
-    rootNode.remove_child(node);                                // then remove shape node itself
+    rootNode.remove_child(node);                                            // then remove shape node itself
 
     return true;
 }
@@ -625,9 +625,9 @@ bool XLVmlDrawing::deleteShape(std::string const& cellRef)
     if (node.empty()) return false;    // nothing found to delete
 
     --m_shapeCount;                    // if shapeNode(cellRef) returned a non-empty node: decrement shape count
-    while (node.previous_sibling().type() == pugi::node_pcdata) // remove leading whitespaces
+    while (node.previous_sibling().type() == xml_node_type::node_pcdata)    // remove leading whitespaces
         rootNode.remove_child(node.previous_sibling());
-    rootNode.remove_child(node);                                // then remove shape node itself
+    rootNode.remove_child(node);                                            // then remove shape node itself
 
     return true;
 }
@@ -641,7 +641,7 @@ XLShape XLVmlDrawing::createShape([[maybe_unused]] const XLShape& shapeTemplate 
     XMLNode rootNode = xmlDocument().document_element();
     XMLNode node = lastShapeNode();
     if (node.empty()) {
-        node = rootNode.last_child_of_type(pugi::node_element);
+        node = rootNode.last_child_of_type(xml_node_type::node_element);
     }
     if (not node.empty()) {                                                      // default case: a previous element node exists
         node = rootNode.insert_child_after(ShapeNodeName.c_str(), node, XLForceNamespace);   // insert the node after the last shape node if any

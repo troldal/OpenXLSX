@@ -64,24 +64,24 @@ namespace {
         std::string result{};
 
         using namespace std::literals::string_literals;
-        XMLNode textElement = commentNode.child("text").first_child_of_type(pugi::node_element);
+        XMLNode textElement = commentNode.child("text").first_child_of_type(xml_node_type::node_element);
         while (not textElement.empty()) {
             if (textElement.name() == "t"s) {
                 result += textElement.first_child().value();
             }
             else if (textElement.name() == "r"s) { // rich text
-                XMLNode richTextSubnode = textElement.first_child_of_type(pugi::node_element);
+                XMLNode richTextSubnode = textElement.first_child_of_type(xml_node_type::node_element);
                 while (not richTextSubnode.empty()) {
                     if (textElement.name() == "t"s) {
                         result += textElement.first_child().value();
                     }
                     else if (textElement.name() == "rPr"s) {} // ignore rich text formatting info
                     else {} // ignore other nodes
-                    richTextSubnode = richTextSubnode.next_sibling_of_type(pugi::node_element);
+                    richTextSubnode = richTextSubnode.next_sibling_of_type(xml_node_type::node_element);
                 }
             }
             else {} // ignore other elements (for now)
-            textElement = textElement.next_sibling_of_type(pugi::node_element);
+            textElement = textElement.next_sibling_of_type(xml_node_type::node_element);
         }
         return result;
     }
@@ -159,7 +159,7 @@ XLComments::XLComments(XLXmlData* xmlData)
         );
 
     XMLNode rootNode = doc.document_element();
-    bool docNew = rootNode.first_child_of_type(pugi::node_element).empty();            // check and store status: was document empty?
+    bool docNew = rootNode.first_child_of_type(xml_node_type::node_element).empty();   // check and store status: was document empty?
     m_authors = appendAndGetNode (rootNode, "authors", m_nodeOrder);                   // (insert and) get authors node
     if (docNew) rootNode.prepend_child(xml_node_type::node_pcdata).set_value("\n\t");  // if document was empty: prefix the newly inserted authors node with a single tab
     m_commentList = appendAndGetNode (rootNode, "commentList", m_nodeOrder);           // (insert and) get commentList node -> this should now copy the whitespace prefix of m_authors
@@ -234,11 +234,11 @@ bool XLComments::setVmlDrawing(XLVmlDrawing &vmlDrawing)
  */
 XMLNode XLComments::authorNode(uint16_t index) const
 {
-    XMLNode auth = m_authors.first_child_of_type(pugi::node_element);
+    XMLNode auth = m_authors.first_child_of_type(xml_node_type::node_element);
     uint16_t i = 0;
     while (not auth.empty() && i != index) {
         ++i;
-        auth = auth.next_sibling_of_type(pugi::node_element);
+        auth = auth.next_sibling_of_type(xml_node_type::node_element);
     }
     return auth; // auth.empty() will be true if not found
 }
@@ -251,13 +251,13 @@ XMLNode XLComments::authorNode(uint16_t index) const
 XMLNode XLComments::commentNode(size_t index) const
 {
     if( m_hintNode.empty() || m_hintIndex > index ) { // check if m_hintNode can be used - otherwise initialize it
-        m_hintNode = m_commentList.first_child_of_type(pugi::node_element);
+        m_hintNode = m_commentList.first_child_of_type(xml_node_type::node_element);
         m_hintIndex = 0;
     }
 
     while (not m_hintNode.empty() && m_hintIndex < index) {
         ++m_hintIndex;
-        m_hintNode = m_hintNode.next_sibling_of_type(pugi::node_element);
+        m_hintNode = m_hintNode.next_sibling_of_type(xml_node_type::node_element);
     }
     if (m_hintNode.empty()) {
         using namespace std::literals::string_literals;
@@ -279,11 +279,11 @@ XMLNode XLComments::commentNode(const std::string& cellRef) const
  */
 uint16_t XLComments::authorCount() const
 {
-    XMLNode auth = m_authors.first_child_of_type(pugi::node_element);
+    XMLNode auth = m_authors.first_child_of_type(xml_node_type::node_element);
     uint16_t count = 0;
     while (not auth.empty()) {
         ++count;
-        auth = auth.next_sibling_of_type(pugi::node_element);
+        auth = auth.next_sibling_of_type(xml_node_type::node_element);
     }
     return count;
 }
@@ -312,7 +312,7 @@ bool XLComments::deleteAuthor(uint16_t index)
         throw XLException("XLComments::deleteAuthor: index "s + std::to_string(index) + " is out of bounds"s);
     }
     else {
-        while (auth.previous_sibling().type() == pugi::node_pcdata) // remove leading whitespaces
+        while (auth.previous_sibling().type() == xml_node_type::node_pcdata) // remove leading whitespaces
             m_authors.remove_child(auth.previous_sibling());
         m_authors.remove_child(auth);                             // then remove author node itself
     }
@@ -324,11 +324,11 @@ bool XLComments::deleteAuthor(uint16_t index)
  */
 uint16_t XLComments::addAuthor(const std::string& authorName)
 {
-    XMLNode auth = m_authors.first_child_of_type(pugi::node_element);
+    XMLNode auth = m_authors.first_child_of_type(xml_node_type::node_element);
     uint16_t index = 0;
-    while (not auth.next_sibling_of_type(pugi::node_element).empty()) {
+    while (not auth.next_sibling_of_type(xml_node_type::node_element).empty()) {
         ++index;
-        auth = auth.next_sibling_of_type(pugi::node_element);
+        auth = auth.next_sibling_of_type(xml_node_type::node_element);
     }
     if (auth.empty()) { // if this is the first entry
         auth = m_authors.prepend_child("author"); // insert new node
@@ -348,12 +348,12 @@ uint16_t XLComments::addAuthor(const std::string& authorName)
  */
 size_t XLComments::count() const
 {
-    XMLNode comment = m_commentList.first_child_of_type(pugi::node_element);
+    XMLNode comment = m_commentList.first_child_of_type(xml_node_type::node_element);
     size_t count = 0;
     while (not comment.empty()) {
         // if (comment.name() == "comment") // TBD: safe-guard against potential rogue node
         ++count;
-        comment = comment.next_sibling_of_type(pugi::node_element);
+        comment = comment.next_sibling_of_type(xml_node_type::node_element);
     }
     return count;
 }
@@ -415,20 +415,20 @@ bool XLComments::set(std::string const& cellRef, std::string const& commentText,
     bool newCommentCreated = false; // if false, try to find an existing shape before creating one
 
     using namespace std::literals::string_literals;
-    XMLNode comment = m_commentList.first_child_of_type(pugi::node_element);
+    XMLNode comment = m_commentList.first_child_of_type(xml_node_type::node_element);
     while (not comment.empty()) {
         if (comment.name() == "comment"s) { // safeguard against rogue nodes
             XLCellReference ref(comment.attribute("ref").value());
             if (ref.row() > destRow ||(ref.row() == destRow && ref.column() >= destCol)) // abort when node or a node behind it is found
     break;
         }
-        comment = comment.next_sibling_of_type(pugi::node_element);
+        comment = comment.next_sibling_of_type(xml_node_type::node_element);
     }
     if(comment.empty()) {                                                     // no comments yet or this will be the last comment
-        comment = m_commentList.last_child_of_type(pugi::node_element);
+        comment = m_commentList.last_child_of_type(xml_node_type::node_element);
         if (comment.empty()) {                                                   // if this is the only comment so far
-            comment = m_commentList.prepend_child("comment");                                   // prepend new comment
-            m_commentList.insert_child_before(pugi::node_pcdata, comment).set_value("\n\t\t");  // insert double indent before comment
+            comment = m_commentList.prepend_child("comment");                                              // prepend new comment
+            m_commentList.insert_child_before(xml_node_type::node_pcdata, comment).set_value("\n\t\t");    // insert double indent before comment
         }
         else {
             comment = m_commentList.insert_child_after("comment", comment);                     // insert new comment at end of list

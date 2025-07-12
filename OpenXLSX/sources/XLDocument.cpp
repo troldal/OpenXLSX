@@ -557,7 +557,7 @@ void XLDocument::open(const std::string& fileName)
             "count");          // pull request #192 -> remove count & uniqueCount as they are optional
 
     XMLNode node =
-        sharedStrings->document_element().first_child_of_type(pugi::node_element);    // pull request #186: Skip non-element nodes in sst.
+        sharedStrings->document_element().first_child_of_type(xml_node_type::node_element);    // pull request #186: Skip non-element nodes in sst.
     while (not node.empty()) {
         // ===== Validate si node name.
         using namespace std::literals::string_literals;
@@ -567,7 +567,7 @@ void XLDocument::open(const std::string& fileName)
         // This simplifies the loop while not doing any harm (obsolete inner loops for rich text and text elements removed).
 
         // ===== Find first node_element child of si node.
-        XMLNode elem = node.first_child_of_type(pugi::node_element);
+        XMLNode elem = node.first_child_of_type(xml_node_type::node_element);
         std::string result{}; // assemble a shared string entry here
         while (not elem.empty()) {
             // 2024-09-01: support a string composed of multiple <t> nodes in the same way as rich text <r> nodes, because LibreOffice accepts it
@@ -582,13 +582,13 @@ void XLDocument::open(const std::string& fileName)
             else                                       // For all other (unexpected) tags, throw an exception
                 throw XLInputError("xl/sharedStrings.xml si node \""s + elementName + "\" is none of \"r\", \"t\", \"rPh\", \"phoneticPr\""s);
 
-            elem = elem.next_sibling_of_type(pugi::node_element);    // advance to next child of <si>
+            elem = elem.next_sibling_of_type(xml_node_type::node_element);    // advance to next child of <si>
         }
         // ===== Append an empty string even if elem.empty(), to keep the index aligned with the <si> tag index in the shared strings table <sst>
         m_sharedStringCache.emplace_back(result); // 2024-09-01 TBC BUGFIX: previously, a shared strings table entry that had neither <t> nor
         /**/                                      //     <r> nodes would not have appended to m_sharedStringCache, causing an index misalignment
 
-        node = node.next_sibling_of_type(pugi::node_element);
+        node = node.next_sibling_of_type(xml_node_type::node_element);
     }
 
     // ===== Open the workbook and document property items

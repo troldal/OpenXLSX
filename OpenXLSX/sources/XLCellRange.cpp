@@ -156,7 +156,7 @@ void XLCellRange::fetchColumnStyles()
     XMLNode cols = m_dataNode->parent().child("cols");
 
     uint16_t vecPos = 0;
-    XMLNode col = cols.first_child_of_type(pugi::node_element);
+    XMLNode col = cols.first_child_of_type(xml_node_type::node_element);
     while (not col.empty()) {
         uint16_t minCol = col.attribute("min").as_int(0);
         uint16_t maxCol = col.attribute("max").as_int(0);
@@ -171,7 +171,7 @@ void XLCellRange::fetchColumnStyles()
         for( ; vecPos + 1 < minCol; ++vecPos ) m_columnStyles[ vecPos ] = XLDefaultCellFormat;    // set all non-defined columns to default
         XLStyleIndex colStyle = col.attribute("style").as_uint(XLDefaultCellFormat);              // acquire column style attribute
         for( ; vecPos < maxCol; ++vecPos ) m_columnStyles[ vecPos ] = colStyle;               // set all covered columns to defined style
-        col = col.next_sibling_of_type(pugi::node_element);    // advance to next <col> entry, if any
+        col = col.next_sibling_of_type(xml_node_type::node_element);    // advance to next <col> entry, if any
     }
 }
 

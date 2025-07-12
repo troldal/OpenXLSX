@@ -163,10 +163,10 @@ void XLSharedStrings::clearString(int32_t index) const   // 2024-04-30: whitespa
      * Potential solution: store the XML child position with each entry in m_stringCache in a std::deque<struct entry>
      *   with struct entry { std::string s; uint64_t xmlChildIndex; };
      */
-    XMLNode  sharedStringNode = xmlDocument().document_element().first_child_of_type(pugi::node_element);
+    XMLNode  sharedStringNode = xmlDocument().document_element().first_child_of_type(xml_node_type::node_element);
     int32_t sharedStringPos  = 0;
     while (sharedStringPos < index && not sharedStringNode.empty()) {
-        sharedStringNode = sharedStringNode.next_sibling_of_type(pugi::node_element);
+        sharedStringNode = sharedStringNode.next_sibling_of_type(xml_node_type::node_element);
         ++sharedStringPos;
     }
     if (not sharedStringNode.empty()) {    // index was found

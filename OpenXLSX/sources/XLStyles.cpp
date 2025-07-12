@@ -402,8 +402,8 @@ namespace     // anonymous namespace for module local functions
     void wrapNode(XMLNode parentNode, XMLNode & node, std::string const & prefix)
     {
         if (not node.empty() && prefix.length() > 0) {
-            parentNode.insert_child_before(pugi::node_pcdata, node).set_value(prefix.c_str());    // insert prefix before node opening tag
-            node.append_child(xml_node_type::node_pcdata).set_value(prefix.c_str());              // insert prefix before node closing tag (within node)
+            parentNode.insert_child_before(xml_node_type::node_pcdata, node).set_value(prefix.c_str());    // insert prefix before node opening tag
+            node.append_child(xml_node_type::node_pcdata).set_value(prefix.c_str());                       // insert prefix before node closing tag (within node)
         }
     }
 
@@ -512,14 +512,14 @@ XLNumberFormats::XLNumberFormats(const XMLNode& numberFormats)
     : m_numberFormatsNode(std::make_unique<XMLNode>(numberFormats))
 {
     // initialize XLNumberFormat entries and m_numberFormats here
-    XMLNode node = numberFormats.first_child_of_type(pugi::node_element);
+    XMLNode node = numberFormats.first_child_of_type(xml_node_type::node_element);
     while (not node.empty()) {
         std::string nodeName = node.name();
         if (nodeName == "numFmt")
             m_numberFormats.push_back(XLNumberFormat(node));
         else
             std::cerr << "WARNING: XLNumberFormats constructor: unknown subnode " << nodeName << std::endl;
-        node = node.next_sibling_of_type(pugi::node_element);
+        node = node.next_sibling_of_type(xml_node_type::node_element);
     }
 }
 
@@ -602,7 +602,7 @@ XLStyleIndex XLNumberFormats::create(XLNumberFormat copyFrom, std::string styleE
     XMLNode newNode{};               // scope declaration
 
     // ===== Append new node prior to final whitespaces, if any
-    XMLNode lastStyle = m_numberFormatsNode->last_child_of_type(pugi::node_element);
+    XMLNode lastStyle = m_numberFormatsNode->last_child_of_type(xml_node_type::node_element);
     if (lastStyle.empty()) newNode = m_numberFormatsNode->prepend_child("numFmt");
     else                   newNode = m_numberFormatsNode->insert_child_after("numFmt", lastStyle);
     if (newNode.empty()) {
@@ -610,7 +610,7 @@ XLStyleIndex XLNumberFormats::create(XLNumberFormat copyFrom, std::string styleE
         throw XLException("XLNumberFormats::"s + __func__ + ": failed to append a new numFmt node"s);
     }
     if (styleEntriesPrefix.length() > 0)    // if a whitespace prefix is configured
-        m_numberFormatsNode->insert_child_before(pugi::node_pcdata, newNode).set_value(styleEntriesPrefix.c_str());    // prefix the new node with styleEntriesPrefix
+        m_numberFormatsNode->insert_child_before(xml_node_type::node_pcdata, newNode).set_value(styleEntriesPrefix.c_str());    // prefix the new node with styleEntriesPrefix
 
     XLNumberFormat newNumberFormat(newNode);
     if (copyFrom.m_numberFormatNode->empty()) {    // if no template is given
@@ -773,14 +773,14 @@ XLFonts::XLFonts(const XMLNode& fonts)
     : m_fontsNode(std::make_unique<XMLNode>(fonts))
 {
     // initialize XLFonts entries and m_fonts here
-    XMLNode node = m_fontsNode->first_child_of_type(pugi::node_element);
+    XMLNode node = m_fontsNode->first_child_of_type(xml_node_type::node_element);
     while (not node.empty()) {
         std::string nodeName = node.name();
         if (nodeName == "font")
             m_fonts.push_back(XLFont(node));
         else
             std::cerr << "WARNING: XLFonts constructor: unknown subnode " << nodeName << std::endl;
-        node = node.next_sibling_of_type(pugi::node_element);
+        node = node.next_sibling_of_type(xml_node_type::node_element);
     }
 }
 
@@ -839,7 +839,7 @@ XLStyleIndex XLFonts::create(XLFont copyFrom, std::string styleEntriesPrefix)
     XMLNode newNode{};               // scope declaration
 
     // ===== Append new node prior to final whitespaces, if any
-    XMLNode lastStyle = m_fontsNode->last_child_of_type(pugi::node_element);
+    XMLNode lastStyle = m_fontsNode->last_child_of_type(xml_node_type::node_element);
     if (lastStyle.empty()) newNode = m_fontsNode->prepend_child("font");
     else                   newNode = m_fontsNode->insert_child_after("font", lastStyle);
     if (newNode.empty()) {
@@ -847,7 +847,7 @@ XLStyleIndex XLFonts::create(XLFont copyFrom, std::string styleEntriesPrefix)
         throw XLException("XLFonts::"s + __func__ + ": failed to append a new fonts node"s);
     }
     if (styleEntriesPrefix.length() > 0)    // if a whitespace prefix is configured
-        m_fontsNode->insert_child_before(pugi::node_pcdata, newNode).set_value(styleEntriesPrefix.c_str());    // prefix the new node with styleEntriesPrefix
+        m_fontsNode->insert_child_before(xml_node_type::node_pcdata, newNode).set_value(styleEntriesPrefix.c_str());    // prefix the new node with styleEntriesPrefix
 
     XLFont newFont(newNode);
     if (copyFrom.m_fontNode->empty()) {    // if no template is given
@@ -1013,14 +1013,14 @@ XLGradientStops::XLGradientStops(const XMLNode& gradient)
     : m_gradientNode(std::make_unique<XMLNode>(gradient))
 {
     // initialize XLGradientStops entries and m_gradientStops here
-    XMLNode node = m_gradientNode->first_child_of_type(pugi::node_element);
+    XMLNode node = m_gradientNode->first_child_of_type(xml_node_type::node_element);
     while (not node.empty()) {
         std::string nodeName = node.name();
         if (nodeName == "stop")
             m_gradientStops.push_back(XLGradientStop(node));
         else
             std::cerr << "WARNING: XLGradientStops constructor: unknown subnode " << nodeName << std::endl;
-        node = node.next_sibling_of_type(pugi::node_element);
+        node = node.next_sibling_of_type(xml_node_type::node_element);
     }
 }
 
@@ -1079,7 +1079,7 @@ XLStyleIndex XLGradientStops::create(XLGradientStop copyFrom, std::string styleE
     XMLNode newNode{};               // scope declaration
 
     // ===== Append new node prior to final whitespaces, if any
-    XMLNode lastStyle = m_gradientNode->last_child_of_type(pugi::node_element);
+    XMLNode lastStyle = m_gradientNode->last_child_of_type(xml_node_type::node_element);
     if (lastStyle.empty()) newNode = m_gradientNode->prepend_child("stop");
     else                   newNode = m_gradientNode->insert_child_after("stop", lastStyle);
     if (newNode.empty()) {
@@ -1087,7 +1087,7 @@ XLStyleIndex XLGradientStops::create(XLGradientStop copyFrom, std::string styleE
         throw XLException("XLGradientStops::"s + __func__ + ": failed to append a new stop node"s);
     }
     if (styleEntriesPrefix.length() > 0)    // if a whitespace prefix is configured
-        m_gradientNode->insert_child_before(pugi::node_pcdata, newNode).set_value(styleEntriesPrefix.c_str());    // prefix the new node with styleEntriesPrefix
+        m_gradientNode->insert_child_before(xml_node_type::node_pcdata, newNode).set_value(styleEntriesPrefix.c_str());    // prefix the new node with styleEntriesPrefix
 
     XLGradientStop newStop(newNode);
     if (copyFrom.m_stopNode->empty()) {    // if no template is given
@@ -1139,7 +1139,7 @@ XLFill& XLFill::operator=(const XLFill& other)
  * @details Returns the name of the first element child of fill
  * @note an empty node ::name() returns an empty string "", leading to XLFillTypeInvalid
  */
-XLFillType XLFill::fillType() const { return XLFillTypeFromString(m_fillNode->first_child_of_type(pugi::node_element).name()); }
+XLFillType XLFill::fillType() const { return XLFillTypeFromString(m_fillNode->first_child_of_type(xml_node_type::node_element).name()); }
 
 /**
  * @details set the fill type for a fill node - if force is true, delete any existing fill properties
@@ -1186,9 +1186,9 @@ XMLNode XLFill::getValidFillDescription(XLFillType fillTypeIfEmpty, const char *
         default: throw XLException("XLFill::getValidFillDescription was not invoked with XLPatternFill or XLGradientFill");
     }
     throwOnFillType(throwOnThis, functionName);
-    XMLNode fillDescription = m_fillNode->first_child_of_type(pugi::node_element); // fetch an existing fill description
-    if (fillDescription.empty() && setFillType(fillTypeIfEmpty))                   // if none exists, attempt to create a description
-        fillDescription = m_fillNode->first_child_of_type(pugi::node_element);         // fetch newly inserted description
+    XMLNode fillDescription = m_fillNode->first_child_of_type(xml_node_type::node_element); // fetch an existing fill description
+    if (fillDescription.empty() && setFillType(fillTypeIfEmpty))                            // if none exists, attempt to create a description
+        fillDescription = m_fillNode->first_child_of_type(xml_node_type::node_element);         // fetch newly inserted description
     return fillDescription;
 }
 
@@ -1332,14 +1332,14 @@ XLFills::XLFills(const XMLNode& fills)
     : m_fillsNode(std::make_unique<XMLNode>(fills))
 {
     // initialize XLFills entries and m_fills here
-    XMLNode node = fills.first_child_of_type(pugi::node_element);
+    XMLNode node = fills.first_child_of_type(xml_node_type::node_element);
     while (not node.empty()) {
         std::string nodeName = node.name();
         if (nodeName == "fill")
             m_fills.push_back(XLFill(node));
         else
             std::cerr << "WARNING: XLFills constructor: unknown subnode " << nodeName << std::endl;
-        node = node.next_sibling_of_type(pugi::node_element);
+        node = node.next_sibling_of_type(xml_node_type::node_element);
     }
 }
 
@@ -1398,7 +1398,7 @@ XLStyleIndex XLFills::create(XLFill copyFrom, std::string styleEntriesPrefix)
     XMLNode newNode{};               // scope declaration
 
     // ===== Append new node prior to final whitespaces, if any
-    XMLNode lastStyle = m_fillsNode->last_child_of_type(pugi::node_element);
+    XMLNode lastStyle = m_fillsNode->last_child_of_type(xml_node_type::node_element);
     if (lastStyle.empty()) newNode = m_fillsNode->prepend_child("fill");
     else                   newNode = m_fillsNode->insert_child_after("fill", lastStyle);
     if (newNode.empty()) {
@@ -1406,7 +1406,7 @@ XLStyleIndex XLFills::create(XLFill copyFrom, std::string styleEntriesPrefix)
         throw XLException("XLFills::"s + __func__ + ": failed to append a new fill node"s);
     }
     if (styleEntriesPrefix.length() > 0)    // if a whitespace prefix is configured
-        m_fillsNode->insert_child_before(pugi::node_pcdata, newNode).set_value(styleEntriesPrefix.c_str());    // prefix the new node with styleEntriesPrefix
+        m_fillsNode->insert_child_before(xml_node_type::node_pcdata, newNode).set_value(styleEntriesPrefix.c_str());    // prefix the new node with styleEntriesPrefix
 
     XLFill newFill(newNode);
     if (copyFrom.m_fillNode->empty()) {    // if no template is given
@@ -1618,14 +1618,14 @@ XLBorders::XLBorders(const XMLNode& borders)
     : m_bordersNode(std::make_unique<XMLNode>(borders))
 {
     // initialize XLBorders entries and m_borders here
-    XMLNode node = borders.first_child_of_type(pugi::node_element);
+    XMLNode node = borders.first_child_of_type(xml_node_type::node_element);
     while (not node.empty()) {
         std::string nodeName = node.name();
         if (nodeName == "border")
             m_borders.push_back(XLBorder(node));
         else
             std::cerr << "WARNING: XLBorders constructor: unknown subnode " << nodeName << std::endl;
-        node = node.next_sibling_of_type(pugi::node_element);
+        node = node.next_sibling_of_type(xml_node_type::node_element);
     }
 }
 
@@ -1684,7 +1684,7 @@ XLStyleIndex XLBorders::create(XLBorder copyFrom, std::string styleEntriesPrefix
     XMLNode newNode{};               // scope declaration
 
     // ===== Append new node prior to final whitespaces, if any
-    XMLNode lastStyle = m_bordersNode->last_child_of_type(pugi::node_element);
+    XMLNode lastStyle = m_bordersNode->last_child_of_type(xml_node_type::node_element);
     if (lastStyle.empty()) newNode = m_bordersNode->prepend_child("border");
     else                   newNode = m_bordersNode->insert_child_after("border", lastStyle);
     if (newNode.empty()) {
@@ -1692,7 +1692,7 @@ XLStyleIndex XLBorders::create(XLBorder copyFrom, std::string styleEntriesPrefix
         throw XLException("XLBorders::"s + __func__ + ": failed to append a new border node"s);
     }
     if (styleEntriesPrefix.length() > 0)    // if a whitespace prefix is configured
-        m_bordersNode->insert_child_before(pugi::node_pcdata, newNode).set_value(styleEntriesPrefix.c_str());    // prefix the new node with styleEntriesPrefix
+        m_bordersNode->insert_child_before(xml_node_type::node_pcdata, newNode).set_value(styleEntriesPrefix.c_str());    // prefix the new node with styleEntriesPrefix
 
     XLBorder newBorder(newNode);
     if (copyFrom.m_borderNode->empty()) {    // if no template is given
@@ -1979,14 +1979,14 @@ XLCellFormats::XLCellFormats(const XMLNode& cellStyleFormats, bool permitXfId)
       m_permitXfId(permitXfId)
 {
     // initialize XLCellFormats entries and m_cellFormats here
-    XMLNode node = cellStyleFormats.first_child_of_type(pugi::node_element);
+    XMLNode node = cellStyleFormats.first_child_of_type(xml_node_type::node_element);
     while (not node.empty()) {
         std::string nodeName = node.name();
         if (nodeName == "xf")
             m_cellFormats.push_back(XLCellFormat(node, m_permitXfId));
         else
             std::cerr << "WARNING: XLCellFormats constructor: unknown subnode " << nodeName << std::endl;
-        node = node.next_sibling_of_type(pugi::node_element);
+        node = node.next_sibling_of_type(xml_node_type::node_element);
     }
 }
 
@@ -2049,7 +2049,7 @@ XLStyleIndex XLCellFormats::create(XLCellFormat copyFrom, std::string styleEntri
     XMLNode newNode{};               // scope declaration
 
     // ===== Append new node prior to final whitespaces, if any
-    XMLNode lastStyle = m_cellFormatsNode->last_child_of_type(pugi::node_element);
+    XMLNode lastStyle = m_cellFormatsNode->last_child_of_type(xml_node_type::node_element);
     if (lastStyle.empty()) newNode = m_cellFormatsNode->prepend_child("xf");
     else                   newNode = m_cellFormatsNode->insert_child_after("xf", lastStyle);
     if (newNode.empty()) {
@@ -2057,7 +2057,7 @@ XLStyleIndex XLCellFormats::create(XLCellFormat copyFrom, std::string styleEntri
         throw XLException("XLCellFormats::"s + __func__ + ": failed to append a new xf node"s);
     }
     if (styleEntriesPrefix.length() > 0)    // if a whitespace prefix is configured
-        m_cellFormatsNode->insert_child_before(pugi::node_pcdata, newNode).set_value(styleEntriesPrefix.c_str());    // prefix the new node with styleEntriesPrefix
+        m_cellFormatsNode->insert_child_before(xml_node_type::node_pcdata, newNode).set_value(styleEntriesPrefix.c_str());    // prefix the new node with styleEntriesPrefix
 
     XLCellFormat newCellFormat(newNode, m_permitXfId);
     if (copyFrom.m_cellFormatNode->empty()) {    // if no template is given
@@ -2171,14 +2171,14 @@ XLCellStyles::XLCellStyles(const XMLNode& cellStyles)
     : m_cellStylesNode(std::make_unique<XMLNode>(cellStyles))
 {
     // initialize XLCellStyles entries and m_cellStyles here
-    XMLNode node = cellStyles.first_child_of_type(pugi::node_element);
+    XMLNode node = cellStyles.first_child_of_type(xml_node_type::node_element);
     while (not node.empty()) {
         std::string nodeName = node.name();
         if (nodeName == "cellStyle")
             m_cellStyles.push_back(XLCellStyle(node));
         else
             std::cerr << "WARNING: XLCellStyles constructor: unknown subnode " << nodeName << std::endl;
-        node = node.next_sibling_of_type(pugi::node_element);
+        node = node.next_sibling_of_type(xml_node_type::node_element);
     }
 }
 
@@ -2238,7 +2238,7 @@ XLStyleIndex XLCellStyles::create(XLCellStyle copyFrom, std::string styleEntries
     XMLNode newNode{};               // scope declaration
 
     // ===== Append new node prior to final whitespaces, if any
-    XMLNode lastStyle = m_cellStylesNode->last_child_of_type(pugi::node_element);
+    XMLNode lastStyle = m_cellStylesNode->last_child_of_type(xml_node_type::node_element);
     if (lastStyle.empty()) newNode = m_cellStylesNode->prepend_child("cellStyle");
     else                   newNode = m_cellStylesNode->insert_child_after("cellStyle", lastStyle);
     if (newNode.empty()) {
@@ -2246,7 +2246,7 @@ XLStyleIndex XLCellStyles::create(XLCellStyle copyFrom, std::string styleEntries
         throw XLException("XLCellStyles::"s + __func__ + ": failed to append a new cellStyle node"s);
     }
     if (styleEntriesPrefix.length() > 0)    // if a whitespace prefix is configured
-        m_cellStylesNode->insert_child_before(pugi::node_pcdata, newNode).set_value(styleEntriesPrefix.c_str());    // prefix the new node with styleEntriesPrefix
+        m_cellStylesNode->insert_child_before(xml_node_type::node_pcdata, newNode).set_value(styleEntriesPrefix.c_str());    // prefix the new node with styleEntriesPrefix
 
     XLCellStyle newCellStyle(newNode);
     if (copyFrom.m_cellStyleNode->empty()) {    // if no template is given
@@ -2358,14 +2358,14 @@ XLDiffCellFormats::XLDiffCellFormats(const XMLNode& diffCellFormats)
     : m_diffCellFormatsNode(std::make_unique<XMLNode>(diffCellFormats))
 {
     // initialize XLCellStyles entries and m_cellStyles here
-    XMLNode node = m_diffCellFormatsNode->first_child_of_type(pugi::node_element);
+    XMLNode node = m_diffCellFormatsNode->first_child_of_type(xml_node_type::node_element);
     while (not node.empty()) {
         std::string nodeName = node.name();
         if (nodeName == "dxf")
             m_diffCellFormats.push_back(XLDiffCellFormat(node));
         else
             std::cerr << "WARNING: XLDiffCellFormats constructor: unknown subnode " << nodeName << std::endl;
-        node = node.next_sibling_of_type(pugi::node_element);
+        node = node.next_sibling_of_type(xml_node_type::node_element);
     }
 }
 
@@ -2425,7 +2425,7 @@ XLStyleIndex XLDiffCellFormats::create(XLDiffCellFormat copyFrom, std::string st
     XMLNode newNode{};               // scope declaration
 
     // ===== Append new node prior to final whitespaces, if any
-    XMLNode lastDiffCellFormat = m_diffCellFormatsNode->last_child_of_type(pugi::node_element);
+    XMLNode lastDiffCellFormat = m_diffCellFormatsNode->last_child_of_type(xml_node_type::node_element);
     if (lastDiffCellFormat.empty()) newNode = m_diffCellFormatsNode->prepend_child("dxf");
     else                            newNode = m_diffCellFormatsNode->insert_child_after("dxf", lastDiffCellFormat);
     if (newNode.empty()) {
@@ -2433,7 +2433,7 @@ XLStyleIndex XLDiffCellFormats::create(XLDiffCellFormat copyFrom, std::string st
         throw XLException("XLDiffCellFormats::"s + __func__ + ": failed to append a new dxf node"s);
     }
     if (styleEntriesPrefix.length() > 0)    // if a whitespace prefix is configured
-        m_diffCellFormatsNode->insert_child_before(pugi::node_pcdata, newNode).set_value(styleEntriesPrefix.c_str());    // prefix the new node with styleEntriesPrefix
+        m_diffCellFormatsNode->insert_child_before(xml_node_type::node_pcdata, newNode).set_value(styleEntriesPrefix.c_str());    // prefix the new node with styleEntriesPrefix
 
     XLDiffCellFormat newDiffCellFormat(newNode);
     if (copyFrom.m_diffCellFormatNode->empty()) {    // if no template is given
@@ -2471,7 +2471,7 @@ XLStyles::XLStyles(XLXmlData* xmlData, bool suppressWarnings, std::string styles
                 pugi_parse_settings
         );
 
-    XMLNode node = doc.document_element().first_child_of_type(pugi::node_element);
+    XMLNode node = doc.document_element().first_child_of_type(xml_node_type::node_element);
     while (not node.empty()) {
         XLStylesEntryType e = XLStylesEntryTypeFromString (node.name());
         // std::cout << "node.name() is " << node.name() << ", resulting XLStylesEntryType is " << std::to_string(e) << std::endl;
@@ -2520,7 +2520,7 @@ XLStyles::XLStyles(XLXmlData* xmlData, bool suppressWarnings, std::string styles
                     std::cerr << "WARNING: XLStyles constructor: invalid styles subnode \"" << node.name() << "\"" << std::endl;
                 break;
         }
-        node = node.next_sibling_of_type(pugi::node_element);
+        node = node.next_sibling_of_type(xml_node_type::node_element);
     }
 
     // ===== Fallbacks: create root style nodes (in reverse order, using prepend_child)

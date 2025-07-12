@@ -75,7 +75,7 @@ XLMergeCells::XLMergeCells(const XMLNode& rootNode, std::vector< std::string_vie
         throw XLInternalError("XLMergeCells constructor: can not construct with an empty XML root node");
 
     m_mergeCellsNode = std::make_unique<XMLNode>(m_rootNode->child("mergeCells"));
-    XMLNode mergeNode = m_mergeCellsNode->first_child_of_type(pugi::node_element);
+    XMLNode mergeNode = m_mergeCellsNode->first_child_of_type(xml_node_type::node_element);
     while (not mergeNode.empty()) {
         bool invalidNode = true;
 
@@ -89,7 +89,7 @@ XLMergeCells::XLMergeCells(const XMLNode& rootNode, std::vector< std::string_vie
         }
 
         // ===== Determine next element mergeNode
-        XMLNode nextNode = mergeNode.next_sibling_of_type(pugi::node_element);
+        XMLNode nextNode = mergeNode.next_sibling_of_type(xml_node_type::node_element);
 
         // ===== In case of an invalid XML element: print an error and remove it from the XML, including whitespaces to the next sibling
         if (invalidNode) { // if mergeNode is not named mergeCell or does not have a valid ref attribute: remove it from the XML
@@ -291,7 +291,7 @@ XLMergeIndex XLMergeCells::appendMerge(const std::string& reference)
         m_mergeCellsNode = std::make_unique<XMLNode>(appendAndGetNode(*m_rootNode, "mergeCells", m_nodeOrder));
 
     // append new mergeCell element and set attribute ref
-    XMLNode insertAfter = m_mergeCellsNode->last_child_of_type(pugi::node_element);
+    XMLNode insertAfter = m_mergeCellsNode->last_child_of_type(xml_node_type::node_element);
     XMLNode newMerge{};
     if (insertAfter.empty()) newMerge = m_mergeCellsNode->prepend_child("mergeCell");
     else                     newMerge = m_mergeCellsNode->insert_child_after("mergeCell", insertAfter);
@@ -320,16 +320,16 @@ void XLMergeCells::deleteMerge(XLMergeIndex index)
         throw XLInputError("XLMergeCells::"s + __func__ + ": index "s + std::to_string(index) + " is out of range"s);
 
     XLMergeIndex curIndex = 0;
-    XMLNode node = m_mergeCellsNode->first_child_of_type(pugi::node_element);
+    XMLNode node = m_mergeCellsNode->first_child_of_type(xml_node_type::node_element);
     while(curIndex < index && not node.empty()) {
-        node = node.next_sibling_of_type(pugi::node_element);
+        node = node.next_sibling_of_type(xml_node_type::node_element);
         ++curIndex;
     }
     if (node.empty())
         throw XLInternalError("XLMergeCells::"s + __func__ + ": mismatch between size of mergeCells XML node and internal reference cache"s);
 
     // ===== node was found: delete preceeding whitespace nodes and the node itself
-    while (node.previous_sibling().type() == pugi::node_pcdata) m_mergeCellsNode->remove_child(node.previous_sibling());
+    while (node.previous_sibling().type() == xml_node_type::node_pcdata) m_mergeCellsNode->remove_child(node.previous_sibling());
     m_mergeCellsNode->remove_child(node);
 
     m_referenceCache.erase(m_referenceCache.begin() + curIndex);

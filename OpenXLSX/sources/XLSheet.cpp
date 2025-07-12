@@ -90,7 +90,7 @@ namespace OpenXLSX
     void setTabSelected(const XMLDocument& xmlDocument, bool selected)
     {    // 2024-04-30: whitespace support
         unsigned int value       = (selected ? 1 : 0);
-        XMLNode      sheetView   = xmlDocument.document_element().child("sheetViews").first_child_of_type(pugi::node_element);
+        XMLNode      sheetView   = xmlDocument.document_element().child("sheetViews").first_child_of_type(xml_node_type::node_element);
         XMLAttribute tabSelected = sheetView.attribute("tabSelected");
         if (tabSelected.empty())
             tabSelected = sheetView.prepend_attribute("tabSelected");    // BUGFIX 2025-03-15 issue #337: assign tabSelected value with newly created attribute if it didn't exist
@@ -107,7 +107,7 @@ namespace OpenXLSX
     {    // 2024-04-30: whitespace support
         return xmlDocument.document_element()
             .child("sheetViews")
-            .first_child_of_type(pugi::node_element)
+            .first_child_of_type(xml_node_type::node_element)
             .attribute("tabSelected")
             .as_bool();    // BUGFIX 2024-05-01: .value() "0" was evaluating to true
     }
@@ -447,7 +447,7 @@ bool XLCfRule::empty() const { return m_cfRuleNode->empty(); }
 std::string XLCfRule::formula() const
 {
     // XMLNode formulaTextNode = 
-    return m_cfRuleNode->child("formula").first_child_of_type(pugi::node_pcdata).value();
+    return m_cfRuleNode->child("formula").first_child_of_type(xml_node_type::node_pcdata).value();
 }
 
 /**
@@ -572,13 +572,13 @@ bool XLCfRules::empty() const { return m_conditionalFormattingNode->empty(); }
  */
 uint16_t XLCfRules::maxPriorityValue() const
 {
-    XMLNode node = m_conditionalFormattingNode->first_child_of_type(pugi::node_element);
+    XMLNode node = m_conditionalFormattingNode->first_child_of_type(xml_node_type::node_element);
     while (not node.empty() && std::string(node.name()) != "cfRule")
-        node = node.next_sibling_of_type(pugi::node_element);
+        node = node.next_sibling_of_type(xml_node_type::node_element);
     uint16_t maxPriority = XLPriorityNotSet;
     while (not node.empty() && std::string(node.name()) == "cfRule") {
         maxPriority = std::max(maxPriority, XLCfRule(node).priority());
-        node = node.next_sibling_of_type(pugi::node_element);
+        node = node.next_sibling_of_type(xml_node_type::node_element);
     }
     return maxPriority;
 }
@@ -593,16 +593,16 @@ bool XLCfRules::setPriority(size_t cfRuleIndex, uint16_t newPriority)
     XLCfRule affectedRule = cfRuleByIndex(cfRuleIndex);        // throws for cfRuleIndex out of bounds
     if (newPriority == affectedRule.priority()) return true;   // no-op if priority is already set
 
-    XMLNode node = m_conditionalFormattingNode->first_child_of_type(pugi::node_element);
+    XMLNode node = m_conditionalFormattingNode->first_child_of_type(xml_node_type::node_element);
     while (not node.empty() && std::string(node.name()) != "cfRule") // skip past non cfRule elements
-        node = node.next_sibling_of_type(pugi::node_element);
+        node = node.next_sibling_of_type(xml_node_type::node_element);
 
     // iterate once over rules to check if newPriority is in use by another rule
     XMLNode node2 = node;
     bool newPriorityFree = true;
     while (newPriorityFree && not node2.empty() && std::string(node2.name()) == "cfRule") {
         if (XLCfRule(node2).priority() == newPriority) newPriorityFree = false; // check if newPriority is in use
-        node2 = node2.next_sibling_of_type(pugi::node_element);
+        node2 = node2.next_sibling_of_type(xml_node_type::node_element);
     }
 
     if (!newPriorityFree) { // need to free up newPriority
@@ -613,7 +613,7 @@ bool XLCfRules::setPriority(size_t cfRuleIndex, uint16_t newPriority)
                 uint16_t prio = rule.priority();
                 if (prio >= newPriority) rule.setPriority(prio + 1);
             }
-            node = node.next_sibling_of_type(pugi::node_element);
+            node = node.next_sibling_of_type(xml_node_type::node_element);
             ++index;
         }
     }
@@ -631,14 +631,14 @@ void XLCfRules::renumberPriorities(uint16_t increment)
 
     std::multimap< uint16_t, XLCfRule > rules;
 
-    XMLNode node = m_conditionalFormattingNode->first_child_of_type(pugi::node_element);
+    XMLNode node = m_conditionalFormattingNode->first_child_of_type(xml_node_type::node_element);
     while (not node.empty() && std::string(node.name()) != "cfRule") // skip past non cfRule elements
-        node = node.next_sibling_of_type(pugi::node_element);
+        node = node.next_sibling_of_type(xml_node_type::node_element);
 
     while (not node.empty() && std::string(node.name()) == "cfRule") { // loop over cfRule elements
         XLCfRule rule(node);
         rules.insert(std::pair(rule.priority(), std::move(rule)));
-        node = node.next_sibling_of_type(pugi::node_element);
+        node = node.next_sibling_of_type(xml_node_type::node_element);
     }
 
     if (rules.size() * increment > std::numeric_limits< uint16_t >::max()) { // first rule always gets assigned "1*increment"
@@ -660,13 +660,13 @@ void XLCfRules::renumberPriorities(uint16_t increment)
  */
 size_t XLCfRules::count() const
 {
-    XMLNode node = m_conditionalFormattingNode->first_child_of_type(pugi::node_element);
+    XMLNode node = m_conditionalFormattingNode->first_child_of_type(xml_node_type::node_element);
     while (not node.empty() && std::string(node.name()) != "cfRule")
-        node = node.next_sibling_of_type(pugi::node_element);
+        node = node.next_sibling_of_type(xml_node_type::node_element);
     size_t count = 0;
     while (not node.empty() && std::string(node.name()) == "cfRule") {
         ++count;
-        node = node.next_sibling_of_type(pugi::node_element);
+        node = node.next_sibling_of_type(xml_node_type::node_element);
     }
     return count;
 }
@@ -676,15 +676,15 @@ size_t XLCfRules::count() const
  */
 XLCfRule XLCfRules::cfRuleByIndex(size_t index) const
 {
-    XMLNode node = m_conditionalFormattingNode->first_child_of_type(pugi::node_element);
+    XMLNode node = m_conditionalFormattingNode->first_child_of_type(xml_node_type::node_element);
     while (not node.empty() && std::string(node.name()) != "cfRule")
-        node = node.next_sibling_of_type(pugi::node_element);
+        node = node.next_sibling_of_type(xml_node_type::node_element);
 
     if (not node.empty()) {
         size_t count = 0;
         while (not node.empty() && std::string(node.name()) == "cfRule" && count < index) {
             ++count;
-            node = node.next_sibling_of_type(pugi::node_element);
+            node = node.next_sibling_of_type(xml_node_type::node_element);
         }
         if (count == index && std::string(node.name()) == "cfRule")
             return XLCfRule(node);
@@ -721,7 +721,7 @@ size_t XLCfRules::create([[maybe_unused]] XLCfRule copyFrom, std::string cfRuleP
     }
 
     // copyXMLNode(newNode, *copyFrom.m_cfRuleNode); // will use copyFrom as template, does nothing if copyFrom is empty
-    m_conditionalFormattingNode->insert_child_before(pugi::node_pcdata, newNode).set_value(cfRulePrefix.c_str()); // prefix the new node with
+    m_conditionalFormattingNode->insert_child_before(xml_node_type::node_pcdata, newNode).set_value(cfRulePrefix.c_str()); // prefix the new node with
 
     // regardless of whether a template was provided or not: set the newest rule to the lowest possible priority == highest value in use plus 1
     cfRuleByIndex(index).setPriority(maxPrio + 1);
@@ -858,13 +858,13 @@ bool XLConditionalFormats::empty() const { return m_sheetNode->empty(); }
  */
 size_t XLConditionalFormats::count() const
 {
-    XMLNode node = m_sheetNode->first_child_of_type(pugi::node_element);
+    XMLNode node = m_sheetNode->first_child_of_type(xml_node_type::node_element);
     while (not node.empty() && std::string(node.name()) != "conditionalFormatting")
-        node = node.next_sibling_of_type(pugi::node_element);
+        node = node.next_sibling_of_type(xml_node_type::node_element);
     size_t count = 0;
     while (not node.empty() && std::string(node.name()) == "conditionalFormatting") {
         ++count;
-        node = node.next_sibling_of_type(pugi::node_element);
+        node = node.next_sibling_of_type(xml_node_type::node_element);
     }
     return count;
 }
@@ -874,15 +874,15 @@ size_t XLConditionalFormats::count() const
  */
 XLConditionalFormat XLConditionalFormats::conditionalFormatByIndex(size_t index) const
 {
-    XMLNode node = m_sheetNode->first_child_of_type(pugi::node_element);
+    XMLNode node = m_sheetNode->first_child_of_type(xml_node_type::node_element);
     while (not node.empty() && std::string(node.name()) != "conditionalFormatting")
-        node = node.next_sibling_of_type(pugi::node_element);
+        node = node.next_sibling_of_type(xml_node_type::node_element);
 
     if (not node.empty()) {
         size_t count = 0;
         while (not node.empty() && std::string(node.name()) == "conditionalFormatting" && count < index) {
             ++count;
-            node = node.next_sibling_of_type(pugi::node_element);
+            node = node.next_sibling_of_type(xml_node_type::node_element);
         }
         if (count == index && std::string(node.name()) == "conditionalFormatting")
             return XLConditionalFormat(node);
@@ -912,7 +912,7 @@ size_t XLConditionalFormats::create([[maybe_unused]] XLConditionalFormat copyFro
 	 }
 
     // copyXMLNode(newNode, *copyFrom.m_conditionalFormattingNode); // will use copyFrom as template, does nothing if copyFrom is empty
-    m_sheetNode->insert_child_before(pugi::node_pcdata, newNode).set_value(conditionalFormattingPrefix.c_str());    // prefix the new node with conditionalFormattingPrefix
+    m_sheetNode->insert_child_before(xml_node_type::node_pcdata, newNode).set_value(conditionalFormattingPrefix.c_str());    // prefix the new node with conditionalFormattingPrefix
 
     return index;
 }
@@ -954,8 +954,8 @@ XLWorksheet::XLWorksheet(XLXmlData* xmlData) : XLSheetBase(xmlData)
         xmlDocument().document_element().child("dimension").set_value(dimensions.substr(dimensions.find(':') + 1).c_str());
 
     // If Column properties are grouped, divide them into properties for individual Columns.
-    if (xmlDocument().document_element().child("cols").type() != pugi::node_null) {
-        auto currentNode = xmlDocument().document_element().child("cols").first_child_of_type(pugi::node_element);
+    if (xmlDocument().document_element().child("cols").type() != xml_node_type::node_null) {
+        auto currentNode = xmlDocument().document_element().child("cols").first_child_of_type(xml_node_type::node_element);
         while (not currentNode.empty()) {
             uint16_t min {};
             uint16_t max {};
@@ -979,7 +979,7 @@ XLWorksheet::XLWorksheet(XLXmlData* xmlData) : XLSheetBase(xmlData)
                     newnode.attribute("max") = i;
                 }
             }
-            currentNode = currentNode.next_sibling_of_type(pugi::node_element);
+            currentNode = currentNode.next_sibling_of_type(xml_node_type::node_element);
         }
     }
 }
@@ -1159,9 +1159,9 @@ XLRowRange XLWorksheet::rows() const    // 2024-04-29: patched for whitespace
     const auto sheetDataNode = xmlDocument().document_element().child("sheetData");
     return XLRowRange(sheetDataNode,
                       1,
-                      (sheetDataNode.last_child_of_type(pugi::node_element).empty()
+                      (sheetDataNode.last_child_of_type(xml_node_type::node_element).empty()
                            ? 1
-                           : static_cast<uint32_t>(sheetDataNode.last_child_of_type(pugi::node_element).attribute("r").as_ullong())),
+                           : static_cast<uint32_t>(sheetDataNode.last_child_of_type(xml_node_type::node_element).attribute("r").as_ullong())),
                       parentDoc().sharedStrings());
 }
 
@@ -1253,13 +1253,13 @@ XLColumn XLWorksheet::column(uint16_t columnNumber) const
         // BUGFIX 2024-04-27: the original node should not be deleted, but - in line with XLWorksheet constructor - is now limited above to
         // min = max attribute
         // // ===== Delete the original node
-        // columnNode = columnNode.previous_sibling_of_type(pugi::node_element); // due to insert loop, previous node should be guaranteed
+        // columnNode = columnNode.previous_sibling_of_type(xml_node_type::node_element); // due to insert loop, previous node should be guaranteed
         // // to be an element node
         // xmlDocument().document_element().child("cols").remove_child(columnNode.next_sibling());
 
         // ===== Find the node corresponding to the column number - BUGFIX 2024-04-27: loop should abort on empty node
         while (not columnNode.empty() && columnNode.attribute("min").as_int() != columnNumber)
-            columnNode = columnNode.previous_sibling_of_type(pugi::node_element);
+            columnNode = columnNode.previous_sibling_of_type(xml_node_type::node_element);
         if (columnNode.empty())
             throw XLInternalError("XLWorksheet::"s + __func__ + ": column node for index "s + std::to_string(columnNumber) +
                                   "not found after splitting column nodes"s);
@@ -1324,7 +1324,7 @@ uint16_t XLWorksheet::columnCount() const noexcept
 uint32_t XLWorksheet::rowCount() const noexcept
 {
     return static_cast<uint32_t>(
-        xmlDocument().document_element().child("sheetData").last_child_of_type(pugi::node_element).attribute("r").as_ullong());
+        xmlDocument().document_element().child("sheetData").last_child_of_type(xml_node_type::node_element).attribute("r").as_ullong());
 }
 
 /**
@@ -1332,20 +1332,20 @@ uint32_t XLWorksheet::rowCount() const noexcept
  */
 bool XLWorksheet::deleteRow(uint32_t rowNumber)
 {
-    XMLNode row = xmlDocument().document_element().child("sheetData").first_child_of_type(pugi::node_element);
-    XMLNode lastRow = xmlDocument().document_element().child("sheetData").last_child_of_type(pugi::node_element);
+    XMLNode row = xmlDocument().document_element().child("sheetData").first_child_of_type(xml_node_type::node_element);
+    XMLNode lastRow = xmlDocument().document_element().child("sheetData").last_child_of_type(xml_node_type::node_element);
 
     // ===== Fail if rowNumber is not in XML
     if (rowNumber < row.attribute("r").as_ullong() || rowNumber > lastRow.attribute("r").as_ullong()) return false;
 
     // ===== If rowNumber is closer to first (existing) row than to last row, search forwards
     if (rowNumber - row.attribute("r").as_ullong() < lastRow.attribute("r").as_ullong() - rowNumber)
-        while (not row.empty() && (row.attribute("r").as_ullong() < rowNumber)) row = row.next_sibling_of_type(pugi::node_element);
+        while (not row.empty() && (row.attribute("r").as_ullong() < rowNumber)) row = row.next_sibling_of_type(xml_node_type::node_element);
 
     // ===== Otherwise, search backwards
     else {
         row = lastRow;
-        while (not row.empty() && (row.attribute("r").as_ullong() > rowNumber)) row = row.previous_sibling_of_type(pugi::node_element);
+        while (not row.empty() && (row.attribute("r").as_ullong() > rowNumber)) row = row.previous_sibling_of_type(xml_node_type::node_element);
     }
 
     if (row.attribute("r").as_ullong() != rowNumber) return false;    // row not found in XML
@@ -1373,11 +1373,11 @@ void XLWorksheet::updateSheetName(const std::string& oldName, const std::string&
     newNameTemp += '!';
 
     // ===== Iterate through all defined names
-    XMLNode row = xmlDocument().document_element().child("sheetData").first_child_of_type(pugi::node_element);
-    for (; not row.empty(); row = row.next_sibling_of_type(pugi::node_element)) {
-        for (XMLNode cell = row.first_child_of_type(pugi::node_element);
+    XMLNode row = xmlDocument().document_element().child("sheetData").first_child_of_type(xml_node_type::node_element);
+    for (; not row.empty(); row = row.next_sibling_of_type(xml_node_type::node_element)) {
+        for (XMLNode cell = row.first_child_of_type(xml_node_type::node_element);
              not cell.empty();
-             cell         = cell.next_sibling_of_type(pugi::node_element))
+             cell         = cell.next_sibling_of_type(xml_node_type::node_element))
         {
             if (!XLCell(cell, parentDoc().sharedStrings()).hasFormula()) continue;
 

@@ -74,12 +74,12 @@ namespace    // anonymous namespace for module local functions
 
         // ===== Find potential whitespaces preceeding insertBeforeThis
         XMLNode whitespaces = insertBeforeThis;
-        while (whitespaces.previous_sibling().type() == pugi::node_pcdata) whitespaces = whitespaces.previous_sibling();
+        while (whitespaces.previous_sibling().type() == xml_node_type::node_pcdata) whitespaces = whitespaces.previous_sibling();
 
         // ===== Insert the nodeNameToInsert before insertBeforeThis, "hijacking" the preceeding whitespace nodes
         XMLNode insertedNode = parentNode.insert_child_before(nodeNameToInsert.c_str(), insertBeforeThis);
         // ===== Copy all hijacked whitespaces to also preceed (again) the node insertBeforeThis
-        while( whitespaces.type() == pugi::node_pcdata ) {
+        while( whitespaces.type() == xml_node_type::node_pcdata ) {
             parentNode.insert_copy_before(whitespaces, insertBeforeThis);
             whitespaces = whitespaces.next_sibling();
         }
@@ -104,7 +104,7 @@ namespace    // anonymous namespace for module local functions
             if (headingPairs.empty())
                 throw XLInternalError("headingPairsNode was unable to create XML element HeadingPairs");
         }
-        XMLNode node = headingPairs.first_child_of_type(pugi::node_element);
+        XMLNode node = headingPairs.first_child_of_type(xml_node_type::node_element);
         if (node.empty()) { // heading pairs child "vt:vector" does not exist
             node = headingPairs.append_child("vt:vector", XLForceNamespace);
             if (node.empty())
@@ -118,7 +118,7 @@ namespace    // anonymous namespace for module local functions
 
     XMLAttribute headingPairsSize(XMLNode docNode)
     {
-        return docNode.child("HeadingPairs").first_child_of_type(pugi::node_element).attribute("size");
+        return docNode.child("HeadingPairs").first_child_of_type(xml_node_type::node_element).attribute("size");
     }
 
 #ifdef __GNUC__    // conditionally enable GCC specific pragmas to suppress unused function warning
@@ -129,11 +129,11 @@ namespace    // anonymous namespace for module local functions
     {
         // 2024-05-28 DONE: tested this code with two pairs in headingPairsNode
         std::vector<std::string> result;
-        XMLNode                  item = headingPairsNode(docNode).first_child_of_type(pugi::node_element);
+        XMLNode                  item = headingPairsNode(docNode).first_child_of_type(xml_node_type::node_element);
         while (not item.empty()) {
-            result.push_back(item.first_child_of_type(pugi::node_element).child_value());
-            item = item.next_sibling_of_type(pugi::node_element)
-                       .next_sibling_of_type(pugi::node_element);    // advance two elements to skip count node
+            result.push_back(item.first_child_of_type(xml_node_type::node_element).child_value());
+            item = item.next_sibling_of_type(xml_node_type::node_element)
+                       .next_sibling_of_type(xml_node_type::node_element);    // advance two elements to skip count node
         }
         return result; // 2024-05-28: std::move should not be used when the operand of a return statement is the name of a local variable
                        // as this can prevent named return value optimization (NRVO, copy elision)
@@ -153,7 +153,7 @@ namespace    // anonymous namespace for module local functions
         XMLNode titlesOfParts = docNode.child("TitlesOfParts");
         if (titlesOfParts.empty()) {
             // ===== Attempt to find a good position to insert TitlesOfParts
-            XMLNode node = docNode.first_child_of_type(pugi::node_element);
+            XMLNode node = docNode.first_child_of_type(xml_node_type::node_element);
             std::string nodeName = node.name();
             while (not node.empty() && (
             /**/                           nodeName == "Application"
@@ -164,7 +164,7 @@ namespace    // anonymous namespace for module local functions
             /**/                        || nodeName == "TotalTime"
             /**/                        || nodeName == "HeadingPairs"
             /**/   )) {
-                node = node.next_sibling_of_type(pugi::node_element);
+                node = node.next_sibling_of_type(xml_node_type::node_element);
                 nodeName = node.name();
             }
 
@@ -173,7 +173,7 @@ namespace    // anonymous namespace for module local functions
             else
                 titlesOfParts = prettyInsertXmlNodeBefore("TitlesOfParts", node);
         }
-        XMLNode vtVector = titlesOfParts.first_child_of_type(pugi::node_element);
+        XMLNode vtVector = titlesOfParts.first_child_of_type(xml_node_type::node_element);
         if (vtVector.empty()) {
             vtVector = titlesOfParts.prepend_child("vt:vector", XLForceNamespace);
             if (vtVector.empty())
@@ -195,16 +195,16 @@ namespace    // anonymous namespace for module local functions
      */
     XMLNode getHeadingPairsValue(XMLNode docNode, std::string name)
     {
-        XMLNode item = headingPairsNode(docNode).first_child_of_type(pugi::node_element);
-        while (not item.empty() && item.first_child_of_type(pugi::node_element).child_value() != name)
-            item = item.next_sibling_of_type(pugi::node_element)
-                       .next_sibling_of_type(pugi::node_element);    // advance two elements to skip count node
+        XMLNode item = headingPairsNode(docNode).first_child_of_type(xml_node_type::node_element);
+        while (not item.empty() && item.first_child_of_type(xml_node_type::node_element).child_value() != name)
+            item = item.next_sibling_of_type(xml_node_type::node_element)
+                       .next_sibling_of_type(xml_node_type::node_element);    // advance two elements to skip count node
         if (not item.empty())    // if name was found
-            item = item.next_sibling_of_type(pugi::node_element);    // advance once more to the value node
+            item = item.next_sibling_of_type(xml_node_type::node_element);    // advance once more to the value node
 
         // ===== Return the first element child of the <vt:variant> node containing the heading pair value
         //       (returns an empty node if item or first_child_of_type is empty)
-        return item.first_child_of_type(pugi::node_element);
+        return item.first_child_of_type(xml_node_type::node_element);
     }
 }    // anonymous namespace
 
@@ -252,11 +252,11 @@ void XLProperties::createFromTemplate()
 XLProperties::XLProperties(XLXmlData* xmlData) : XLXmlFile(xmlData)
 {
     XMLNode doc = xmlData->getXmlDocument()->document_element();
-    XMLNode child = doc.first_child_of_type(pugi::node_element);
+    XMLNode child = doc.first_child_of_type(xml_node_type::node_element);
     size_t childCount = 0;
     while (not child.empty()) {
         ++childCount;
-        child = child.next_sibling_of_type(pugi::node_element);
+        child = child.next_sibling_of_type(xml_node_type::node_element);
         break; // one child is enough to determine document is not empty.
     }
     if( !childCount ) createFromTemplate();
@@ -324,7 +324,7 @@ void XLAppProperties::createFromTemplate(XMLDocument const & workbookXml)
 
     std::map< uint32_t, std::string > sheetsOrderedById;
 
-    auto sheet = workbookXml.document_element().child("sheets").first_child_of_type(pugi::node_element);
+    auto sheet = workbookXml.document_element().child("sheets").first_child_of_type(xml_node_type::node_element);
     while (not sheet.empty()) {
         std::string sheetName = sheet.attribute("name").as_string();
         uint32_t sheetId = sheet.attribute("sheetId").as_uint();
@@ -389,11 +389,11 @@ XLAppProperties::XLAppProperties(XLXmlData* xmlData, XMLDocument const & workboo
     : XLXmlFile(xmlData)
 {
     XMLNode doc = xmlData->getXmlDocument()->document_element();
-    XMLNode child = doc.first_child_of_type(pugi::node_element);
+    XMLNode child = doc.first_child_of_type(xml_node_type::node_element);
     size_t childCount = 0;
     while (not child.empty()) {
         ++childCount;
-        child = child.next_sibling_of_type(pugi::node_element);
+        child = child.next_sibling_of_type(xml_node_type::node_element);
         break; // one child is enough to determine document is not empty.
     }
     if (!childCount) createFromTemplate(workbookXml); //    create fresh docProps/app.xml
@@ -434,21 +434,21 @@ void XLAppProperties::incrementSheetCount(int16_t increment)
 void XLAppProperties::alignWorksheets(std::vector<std::string> const & workbookSheetNames)
 {
     XMLNode titlesOfParts = sheetNames(xmlDocument().document_element()); // creates <TitlesOfParts><vt:vector> if not existing
-    XMLNode sheetName = titlesOfParts.first_child_of_type(pugi::node_element);
+    XMLNode sheetName = titlesOfParts.first_child_of_type(xml_node_type::node_element);
     // size_t sheetCount = workbookSheetNames.size();
     for (std::string workbookSheetName : workbookSheetNames) {
         if (sheetName.empty())
             sheetName = titlesOfParts.append_child("vt:lpstr", XLForceNamespace);
         sheetName.text().set(workbookSheetName.c_str());
-        sheetName = sheetName.next_sibling_of_type(pugi::node_element); // advance to next entry in <TitlesOfParts>, potentially becomes an empty XMLNode()
+        sheetName = sheetName.next_sibling_of_type(xml_node_type::node_element); // advance to next entry in <TitlesOfParts>, potentially becomes an empty XMLNode()
     }
 
     // ===== If there are any excess sheet names, clean up.
     if (not sheetName.empty()) {
         // ===== Delete all whitespace nodes prior to the sheet names to be deleted
-        while (sheetName.previous_sibling().type() == pugi::node_pcdata) titlesOfParts.remove_child(sheetName.previous_sibling());
+        while (sheetName.previous_sibling().type() == xml_node_type::node_pcdata) titlesOfParts.remove_child(sheetName.previous_sibling());
 
-        XMLNode lastSheetName = titlesOfParts.last_child_of_type(pugi::node_element); // delete up to & including this node, preserve whitespaces after
+        XMLNode lastSheetName = titlesOfParts.last_child_of_type(xml_node_type::node_element); // delete up to & including this node, preserve whitespaces after
         if (sheetName != lastSheetName) { // If lastSheetName is a node *behind* sheetName
             // ===== Delete all nodes (elements and whitespace) up until lastSheetName
             while (sheetName.next_sibling() != lastSheetName)
@@ -481,14 +481,14 @@ void XLAppProperties::addSheetName(const std::string& title)
 void XLAppProperties::deleteSheetName(const std::string& title)
 {
     if (m_xmlData == nullptr) return;
-    XMLNode theNode = sheetNames(xmlDocument().document_element()).first_child_of_type(pugi::node_element);
+    XMLNode theNode = sheetNames(xmlDocument().document_element()).first_child_of_type(xml_node_type::node_element);
     while (not theNode.empty()) {
         if (theNode.child_value() == title) {
             sheetNames(xmlDocument().document_element()).remove_child(theNode);
             incrementSheetCount(-1);
             return;
         }
-        theNode = theNode.next_sibling_of_type(pugi::node_element);
+        theNode = theNode.next_sibling_of_type(xml_node_type::node_element);
     }
 }
 
@@ -498,13 +498,13 @@ void XLAppProperties::deleteSheetName(const std::string& title)
 void XLAppProperties::setSheetName(const std::string& oldTitle, const std::string& newTitle)
 {
     if (m_xmlData == nullptr) return;
-    XMLNode theNode = sheetNames(xmlDocument().document_element()).first_child_of_type(pugi::node_element);
+    XMLNode theNode = sheetNames(xmlDocument().document_element()).first_child_of_type(xml_node_type::node_element);
     while (not theNode.empty()) {
         if (theNode.child_value() == oldTitle) {
             theNode.text().set(newTitle.c_str());
             return;
         }
-        theNode = theNode.next_sibling_of_type(pugi::node_element);
+        theNode = theNode.next_sibling_of_type(xml_node_type::node_element);
     }
 }
 
@@ -516,17 +516,17 @@ void XLAppProperties::addHeadingPair(const std::string& name, int value)
     if (m_xmlData == nullptr) return;
 
     XMLNode HeadingPairsNode = headingPairsNode(xmlDocument().document_element());
-    XMLNode item             = HeadingPairsNode.first_child_of_type(pugi::node_element);
-    while (not item.empty() && item.first_child_of_type(pugi::node_element).child_value() != name)
-        item = item.next_sibling_of_type(pugi::node_element)
-                   .next_sibling_of_type(pugi::node_element);    // advance two elements to skip count node
+    XMLNode item             = HeadingPairsNode.first_child_of_type(xml_node_type::node_element);
+    while (not item.empty() && item.first_child_of_type(xml_node_type::node_element).child_value() != name)
+        item = item.next_sibling_of_type(xml_node_type::node_element)
+                   .next_sibling_of_type(xml_node_type::node_element);    // advance two elements to skip count node
 
     XMLNode pairCategory = item;    // could be an empty node
     XMLNode pairValue {};           // initialize to empty node
     if (not pairCategory.empty())
-        pairValue = pairCategory.next_sibling_of_type(pugi::node_element).first_child_of_type(pugi::node_element);
+        pairValue = pairCategory.next_sibling_of_type(xml_node_type::node_element).first_child_of_type(xml_node_type::node_element);
     else {
-        item = HeadingPairsNode.last_child_of_type(pugi::node_element);
+        item = HeadingPairsNode.last_child_of_type(xml_node_type::node_element);
         if (not item.empty())
             pairCategory = HeadingPairsNode.insert_child_after("vt:variant", item, XLForceNamespace);
         else
@@ -554,27 +554,27 @@ void XLAppProperties::deleteHeadingPair(const std::string& name)
     if (m_xmlData == nullptr) return;
 
     XMLNode HeadingPairsNode = headingPairsNode(xmlDocument().document_element());
-    XMLNode item             = HeadingPairsNode.first_child_of_type(pugi::node_element);
-    while (not item.empty() && item.first_child_of_type(pugi::node_element).child_value() != name)
-        item = item.next_sibling_of_type(pugi::node_element)
-                   .next_sibling_of_type(pugi::node_element);    // advance two elements to skip count node
+    XMLNode item             = HeadingPairsNode.first_child_of_type(xml_node_type::node_element);
+    while (not item.empty() && item.first_child_of_type(xml_node_type::node_element).child_value() != name)
+        item = item.next_sibling_of_type(xml_node_type::node_element)
+                   .next_sibling_of_type(xml_node_type::node_element);    // advance two elements to skip count node
 
     // ===== If item with name was found, remove pair and update headingPairsSize
     if (not item.empty()) {
-        const XMLNode count = item.next_sibling_of_type(pugi::node_element);
+        const XMLNode count = item.next_sibling_of_type(xml_node_type::node_element);
         // ===== 2024-05-28: delete all (non-element) nodes between item and count node, *then* delete non-element nodes following a count node
         if (not count.empty()) {
             while (item.next_sibling() != count)
                 HeadingPairsNode.remove_child(item.next_sibling());     // remove nodes between item & count nodes to be deleted jointly
 
             // ===== Delete all non-element nodes following the count node
-            while ((not count.next_sibling().empty()) && (count.next_sibling().type() != pugi::node_element))
+            while ((not count.next_sibling().empty()) && (count.next_sibling().type() != xml_node_type::node_element))
                 HeadingPairsNode.remove_child(count.next_sibling());    // remove all non-element nodes following a count node
 
             HeadingPairsNode.remove_child(count);
         }
         // REMOVED: formatting doesn't get prettier by removing whitespaces on both sides of a pair
-        // while (item.previous_sibling().type() == pugi::node_pcdata) HeadingPairsNode.remove_child(item.previous_sibling());
+        // while (item.previous_sibling().type() == xml_node_type::node_pcdata) HeadingPairsNode.remove_child(item.previous_sibling());
 
         HeadingPairsNode.remove_child(item);
         headingPairsSize(xmlDocument().document_element()).set_value(HeadingPairsNode.child_count_of_type());
@@ -673,7 +673,7 @@ void XLAppProperties::insertSheetName(const std::string& sheetName, unsigned int
     if (index > sheetCount(xmlDocument().document_element()).as_uint()) {
         // ===== If at least one sheet node exists, apply some pretty formatting by appending new sheet name between last sheet and trailing
         // whitespaces.
-        const XMLNode lastSheet = sheetNames(xmlDocument().document_element()).last_child_of_type(pugi::node_element);
+        const XMLNode lastSheet = sheetNames(xmlDocument().document_element()).last_child_of_type(xml_node_type::node_element);
         if (not lastSheet.empty()) {
             XMLNode theNode = sheetNames(xmlDocument().document_element()).insert_child_after("vt:lpstr", lastSheet, XLForceNamespace);
             theNode.text().set(sheetName.c_str());
@@ -685,11 +685,11 @@ void XLAppProperties::insertSheetName(const std::string& sheetName, unsigned int
         return;
     }
 
-    XMLNode  curNode = sheetNames(xmlDocument().document_element()).first_child_of_type(pugi::node_element);
+    XMLNode  curNode = sheetNames(xmlDocument().document_element()).first_child_of_type(xml_node_type::node_element);
     unsigned idx     = 1;
     while (not curNode.empty()) {
         if (idx == index) break;
-        curNode = curNode.next_sibling_of_type(pugi::node_element);
+        curNode = curNode.next_sibling_of_type(xml_node_type::node_element);
         ++idx;
     }
 

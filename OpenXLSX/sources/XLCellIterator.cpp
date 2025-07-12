@@ -67,7 +67,7 @@ namespace OpenXLSX { // utility functions findRowNode and findCellNode
         }
 
         // ===== Get the last child of sheetDataNode that is of type node_element.
-        XMLNode rowNode = sheetDataNode.last_child_of_type(pugi::node_element);
+        XMLNode rowNode = sheetDataNode.last_child_of_type(xml_node_type::node_element);
 
         // ===== If there are now rows in the worksheet, or the requested row is beyond the current max row, return an empty node
         if (rowNode.empty() || (rowNumber > rowNode.attribute("r").as_ullong()))
@@ -75,17 +75,17 @@ namespace OpenXLSX { // utility functions findRowNode and findCellNode
 
         // ===== If the requested node is closest to the end, start from the end and search backwards.
         if (rowNode.attribute("r").as_ullong() - rowNumber < rowNumber) {
-            while (not rowNode.empty() && (rowNode.attribute("r").as_ullong() > rowNumber)) rowNode = rowNode.previous_sibling_of_type(pugi::node_element);
+            while (not rowNode.empty() && (rowNode.attribute("r").as_ullong() > rowNumber)) rowNode = rowNode.previous_sibling_of_type(xml_node_type::node_element);
             if (rowNode.empty() || (rowNode.attribute("r").as_ullong() != rowNumber))
                 return XMLNode{};
         }
         // ===== Otherwise, start from the beginning
         else {
             // ===== At this point, it is guaranteed that there is at least one node_element in the row that is not empty.
-            rowNode = sheetDataNode.first_child_of_type(pugi::node_element);
+            rowNode = sheetDataNode.first_child_of_type(xml_node_type::node_element);
 
             // ===== It has been verified above that the requested rowNumber is <= the row number of the last node_element, therefore this loop will halt.
-            while (rowNode.attribute("r").as_ullong() < rowNumber) rowNode = rowNode.next_sibling_of_type(pugi::node_element);
+            while (rowNode.attribute("r").as_ullong() < rowNumber) rowNode = rowNode.next_sibling_of_type(xml_node_type::node_element);
             if (rowNode.attribute("r").as_ullong() > rowNumber)
                 return XMLNode{};
         }
@@ -104,7 +104,7 @@ namespace OpenXLSX { // utility functions findRowNode and findCellNode
         }
         if (rowNode.empty()) return XMLNode{};
 
-        XMLNode cellNode = rowNode.last_child_of_type(pugi::node_element);
+        XMLNode cellNode = rowNode.last_child_of_type(xml_node_type::node_element);
 
         // ===== If there are no cells in the current row, or the requested cell is beyond the last cell in the row...
         if (cellNode.empty() || (XLCellReference(cellNode.attribute("r").value()).column() < columnNumber))
@@ -113,18 +113,18 @@ namespace OpenXLSX { // utility functions findRowNode and findCellNode
         // ===== If the requested node is closest to the end, start from the end and search backwards...
         if (XLCellReference(cellNode.attribute("r").value()).column() - columnNumber < columnNumber) {
             while (not cellNode.empty() && (XLCellReference(cellNode.attribute("r").value()).column() > columnNumber))
-                cellNode = cellNode.previous_sibling_of_type(pugi::node_element);
+                cellNode = cellNode.previous_sibling_of_type(xml_node_type::node_element);
             if (cellNode.empty() || (XLCellReference(cellNode.attribute("r").value()).column() < columnNumber))
                 return XMLNode{};
         }
         // ===== Otherwise, start from the beginning
         else {
             // ===== At this point, it is guaranteed that there is at least one node_element in the row that is not empty.
-            cellNode = rowNode.first_child_of_type(pugi::node_element);
+            cellNode = rowNode.first_child_of_type(xml_node_type::node_element);
 
             // ===== It has been verified above that the requested columnNumber is <= the column number of the last node_element, therefore this loop will halt:
             while (XLCellReference(cellNode.attribute("r").value()).column() < columnNumber)
-                cellNode = cellNode.next_sibling_of_type(pugi::node_element);
+                cellNode = cellNode.next_sibling_of_type(xml_node_type::node_element);
             if (XLCellReference(cellNode.attribute("r").value()).column() > columnNumber)
                 return XMLNode{};
         }
@@ -262,12 +262,12 @@ void XLCellIterator::updateCurrentCell(bool createIfMissing)
         // ===== Find or create, and fetch an XLCell at m_currentRow, m_currentColumn
         if (m_currentRow == m_hintRow) { // new cell is within the same row
             // ===== Start from m_hintNode and search forwards...
-            XMLNode cellNode = m_hintNode.next_sibling_of_type(pugi::node_element);
+            XMLNode cellNode = m_hintNode.next_sibling_of_type(xml_node_type::node_element);
             uint16_t colNo = 0;
             while (not cellNode.empty()) {
                 colNo = XLCellReference(cellNode.attribute("r").value()).column();
                 if(colNo >= m_currentColumn) break; // if desired cell was reached / passed, break before incrementing cellNode
-                cellNode = cellNode.next_sibling_of_type(pugi::node_element);
+                cellNode = cellNode.next_sibling_of_type(xml_node_type::node_element);
             }
             if (colNo != m_currentColumn) cellNode = XMLNode{}; // if a higher column number was found, set empty node (means: "missing")
             // ===== Create missing cell node if createIfMissing == true
@@ -280,12 +280,12 @@ void XLCellIterator::updateCurrentCell(bool createIfMissing)
         }
         else if (m_currentRow > m_hintRow) {
             // ===== Start from m_hintNode parent row and search forwards...
-            XMLNode rowNode = m_hintNode.parent().next_sibling_of_type(pugi::node_element);
+            XMLNode rowNode = m_hintNode.parent().next_sibling_of_type(xml_node_type::node_element);
             uint32_t rowNo = 0;
             while (not rowNode.empty()) {
                 rowNo = rowNode.attribute("r").as_ullong();
                 if (rowNo >= m_currentRow) break; // if desired row was reached / passed, break before incrementing rowNode
-                rowNode = rowNode.next_sibling_of_type(pugi::node_element);
+                rowNode = rowNode.next_sibling_of_type(xml_node_type::node_element);
             }
             if (rowNo != m_currentRow) rowNode = XMLNode{}; // if a higher row number was found, set empty node (means: "missing")
             // ===== Create missing row node if createIfMissing == true

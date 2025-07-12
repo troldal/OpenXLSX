@@ -157,7 +157,7 @@ namespace OpenXLSX
         }
 
         // ===== Get the last child of sheetDataNode that is of type node_element.
-        XMLNode result = sheetDataNode.last_child_of_type(pugi::node_element);
+        XMLNode result = sheetDataNode.last_child_of_type(xml_node_type::node_element);
 
         // ===== If there are now rows in the worksheet, or the requested row is beyond the current max row, append a new row to the end.
         if (result.empty() || (rowNumber > result.attribute("r").as_ullong())) {
@@ -169,7 +169,7 @@ namespace OpenXLSX
 
         // ===== If the requested node is closest to the end, start from the end and search backwards.
         else if (result.attribute("r").as_ullong() - rowNumber < rowNumber) {
-            while (not result.empty() && (result.attribute("r").as_ullong() > rowNumber)) result = result.previous_sibling_of_type(pugi::node_element);
+            while (not result.empty() && (result.attribute("r").as_ullong() > rowNumber)) result = result.previous_sibling_of_type(xml_node_type::node_element);
             // ===== If the backwards search failed to locate the requested row
             if (result.empty() || (result.attribute("r").as_ullong() != rowNumber)) {
                 if (result.empty())
@@ -185,10 +185,10 @@ namespace OpenXLSX
         // ===== Otherwise, start from the beginning
         else {
             // ===== At this point, it is guaranteed that there is at least one node_element in the row that is not empty.
-            result = sheetDataNode.first_child_of_type(pugi::node_element);
+            result = sheetDataNode.first_child_of_type(xml_node_type::node_element);
 
             // ===== It has been verified above that the requested rowNumber is <= the row number of the last node_element, therefore this loop will halt.
-            while (result.attribute("r").as_ullong() < rowNumber) result = result.next_sibling_of_type(pugi::node_element);
+            while (result.attribute("r").as_ullong() < rowNumber) result = result.next_sibling_of_type(xml_node_type::node_element);
             // ===== If the forwards search failed to locate the requested row
             if (result.attribute("r").as_ullong() > rowNumber) {
                 result = sheetDataNode.insert_child_before("row", result);
@@ -212,11 +212,11 @@ namespace OpenXLSX
     {
         XMLNode cols = rowNode.parent().parent().child("cols");
         if (not cols.empty()) {
-            XMLNode col = cols.first_child_of_type(pugi::node_element);
+            XMLNode col = cols.first_child_of_type(xml_node_type::node_element);
             while (not col.empty()) {
                 if (col.attribute("min").as_int(MAX_COLS+1) <= colNo && col.attribute("max").as_int(0) >= colNo) // found
                     return col.attribute("style").as_uint(XLDefaultCellFormat);
-               col = col.next_sibling_of_type(pugi::node_element);
+               col = col.next_sibling_of_type(xml_node_type::node_element);
             }
         }
         return XLDefaultCellFormat; // if no col style was found
@@ -270,7 +270,7 @@ namespace OpenXLSX
         }
         if (rowNode.empty()) return XMLNode{};    // 2024-05-28: return an empty node in case of empty rowNode
 
-        XMLNode cellNode = rowNode.last_child_of_type(pugi::node_element);
+        XMLNode cellNode = rowNode.last_child_of_type(xml_node_type::node_element);
         if (!rowNumber) rowNumber = rowNode.attribute("r").as_uint(); // if not provided, determine from rowNode
         auto cellRef  = XLCellReference(rowNumber, columnNumber);
 
@@ -283,7 +283,7 @@ namespace OpenXLSX
         // ===== If the requested node is closest to the end, start from the end and search backwards...
         else if (XLCellReference(cellNode.attribute("r").value()).column() - columnNumber < columnNumber) {
             while (not cellNode.empty() && (XLCellReference(cellNode.attribute("r").value()).column() > columnNumber))
-                cellNode = cellNode.previous_sibling_of_type(pugi::node_element);
+                cellNode = cellNode.previous_sibling_of_type(xml_node_type::node_element);
             // ===== If the backwards search failed to locate the requested cell
             if (cellNode.empty() || (XLCellReference(cellNode.attribute("r").value()).column() < columnNumber)) {
                 if (cellNode.empty()) // If between row begin and higher column number, only non-element nodes exist
@@ -296,11 +296,11 @@ namespace OpenXLSX
         // ===== Otherwise, start from the beginning
         else {
             // ===== At this point, it is guaranteed that there is at least one node_element in the row that is not empty.
-            cellNode = rowNode.first_child_of_type(pugi::node_element);
+            cellNode = rowNode.first_child_of_type(xml_node_type::node_element);
 
             // ===== It has been verified above that the requested columnNumber is <= the column number of the last node_element, therefore this loop will halt:
             while (XLCellReference(cellNode.attribute("r").value()).column() < columnNumber)
-                cellNode = cellNode.next_sibling_of_type(pugi::node_element);
+                cellNode = cellNode.next_sibling_of_type(xml_node_type::node_element);
             // ===== If the forwards search failed to locate the requested cell
             if (XLCellReference(cellNode.attribute("r").value()).column() > columnNumber) {
                 cellNode = rowNode.insert_child_before("c", cellNode);
@@ -339,9 +339,9 @@ namespace OpenXLSX
     {
         fromNode = fromNode.previous_sibling(); // move to preceeding whitespace node, if any
         // loop from back to front, inserting in the same order before toNode
-        while (fromNode.type() == pugi::node_pcdata) { // loop ends on pugi::node_element or node_null
-            toNode = parent.insert_child_before(pugi::node_pcdata, toNode);   // prepend as toNode a new pcdata node
-            toNode.set_value(fromNode.value());                               //  with the value of fromNode
+        while (fromNode.type() == xml_node_type::node_pcdata) { // loop ends on pugi::node_element or node_null
+            toNode = parent.insert_child_before(xml_node_type::node_pcdata, toNode);   // prepend as toNode a new pcdata node
+            toNode.set_value(fromNode.value());                                        //  with the value of fromNode
             fromNode = fromNode.previous_sibling();
         }
     }
@@ -360,7 +360,7 @@ namespace OpenXLSX
     {
         if (parent.empty()) return XMLNode{};
 
-        XMLNode nextNode = parent.first_child_of_type(pugi::node_element);
+        XMLNode nextNode = parent.first_child_of_type(xml_node_type::node_element);
         if (nextNode.empty()) return parent.prepend_child(nodeName.c_str(), force_ns); // nothing to sort, whitespaces "belong" to parent closing tag
 
         XMLNode node{}; // empty until successfully created;
@@ -369,7 +369,7 @@ namespace OpenXLSX
         if (nodeSortIndex != SORT_INDEX_NOT_FOUND) { // can't sort anything if nodeOrder contains less than 2 entries or does not contain nodeName
             // ===== Find first node to follow nodeName per nodeOrder
             while (not nextNode.empty() && findStringInVector(nextNode.name(), nodeOrder) < nodeSortIndex)
-                nextNode = nextNode.next_sibling_of_type(pugi::node_element);
+                nextNode = nextNode.next_sibling_of_type(xml_node_type::node_element);
             // ===== Evaluate search result
             if (not nextNode.empty()) {   // found nodeName or a node before which nodeName should be inserted
                 if( nextNode.name() == nodeName )  // if nodeName was found
@@ -386,7 +386,7 @@ namespace OpenXLSX
 
         if( node.empty() ) {  // neither nodeName, nor a node following per nodeOrder was found
             // ===== There is no reference to perform an ordered insert for nodeName
-            nextNode = parent.last_child_of_type(pugi::node_element);               // at least one element node must exist, tested at begin of function
+            nextNode = parent.last_child_of_type(xml_node_type::node_element);      // at least one element node must exist, tested at begin of function
             node = parent.insert_child_after(nodeName.c_str(), nextNode, force_ns); // append as the last element node, but before final whitespaces
             copyLeadingWhitespaces( parent, nextNode, node );                       // duplicate the prefix whitespaces of nextNode to node
         }

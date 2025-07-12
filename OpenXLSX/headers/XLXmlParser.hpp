@@ -101,34 +101,26 @@ namespace OpenXLSX
     extern bool NO_XML_NS; // defined in XLXmlParser.cpp - default: no XML namespaces
     /**
      * @brief Set NO_XML_NS to false
-     * @return true if PUGI_AUGMENTED is defined (success), false if PUGI_AUGMENTED is not in use (function would be pointless)
+     * @return always true
      * @note CAUTION: this setting should be established before any other OpenXLSX function is used
      */
     bool enable_xml_namespaces();
     /**
      * @brief Set NO_XML_NS to true
-     * @return true if PUGI_AUGMENTED is defined (success), false if PUGI_AUGMENTED is not in use (function would be pointless)
+     * @return always true
      * @note CAUTION: this setting should be established before any other OpenXLSX function is used
      */
     bool disable_xml_namespaces();
 
-    // disable this line to use original (non-augmented) pugixml - as of 2024-07-29 this is no longer a realistic option
-#   define PUGI_AUGMENTED
-
     // ===== Using statements to switch between pugixml and augmented pugixml implementation
-#   ifdef PUGI_AUGMENTED
-        // ===== Forward declarations for using statements below
-        class OpenXLSX_xml_node;
-        class OpenXLSX_xml_document;
 
-        using XMLNode      = OpenXLSX_xml_node;
-        using XMLAttribute = pugi::xml_attribute;
-        using XMLDocument  = OpenXLSX_xml_document;
-#   else
-        using XMLNode      = pugi::xml_node;
-        using XMLAttribute = pugi::xml_attribute;
-        using XMLDocument  = pugi::xml_document;
-#   endif
+    // ===== Forward declarations for using statements below
+    class OpenXLSX_xml_node;
+    class OpenXLSX_xml_document;
+
+    using XMLNode      = OpenXLSX_xml_node;
+    using XMLAttribute = pugi::xml_attribute;
+    using XMLDocument  = OpenXLSX_xml_document;
 
     // ===== Custom OpenXLSX_xml_node to add functionality to pugi::xml_node
     class OpenXLSX_xml_node : public pugi::xml_node {
@@ -187,16 +179,26 @@ namespace OpenXLSX
         const char_t* name() const;
 
         /**
-         * @brief get actual node name from pugi::xml_node::name, including namespace, if any
+         * @brief get actual node name, including namespace, if any
          * @return the raw node name
          */
         const char_t* raw_name() const;
 
         /**
+         * @brief get xml_node_type
+         * @return the raw node name
+         */
+        xml_node_type type() const;
+
+        /**
          * @brief for all functions returning xml_node: invoke base class function, but with a return type of XMLNode (OpenXLSX_xml_node)
          */
         XMLNode parent();
-        // NOTE: find_child is used exactly once in XLSheet.cpp line 1222
+
+        /**
+         * @brief wrapper for finding a node based on a predicate
+         * @note find_child is used exactly once in XLSheet.cpp line 1222
+         */
         template <typename Predicate> XMLNode find_child(Predicate pred) const {
             if (!_root) return XMLNode();
 
@@ -205,7 +207,6 @@ namespace OpenXLSX
                     return node;
 
             return XMLNode();
-            // return pugi::xml_node::find_child(pred);
         }
         XMLNode child(const char_t* name_) const;
         XMLNode next_sibling(const char_t* name_) const;
@@ -220,8 +221,8 @@ namespace OpenXLSX
         XMLNode prepend_child(xml_node_type type_);
         XMLNode append_child(const char_t* name_, bool force_ns = false);
         XMLNode prepend_child(const char_t* name_, bool force_ns = false);
-        XMLNode insert_child_after(pugi::xml_node_type type_, const xml_node& node);
-        XMLNode insert_child_before(pugi::xml_node_type type_, const xml_node& node);
+        XMLNode insert_child_after(xml_node_type type_, const xml_node& node);
+        XMLNode insert_child_before(xml_node_type type_, const xml_node& node);
         XMLNode insert_child_after(const char_t* name_, const xml_node& node, bool force_ns = false);
         XMLNode insert_child_before(const char_t* name_, const xml_node& node, bool force_ns = false);
         bool remove_child(const char_t* name_);
@@ -234,54 +235,54 @@ namespace OpenXLSX
 
         /**
          * @brief get first node child that matches type
-         * @param type_ the pugi::xml_node_type to match
+         * @param type_ the xml_node_type to match
          * @return a valid child matching the node type or an empty XMLNode
          */
-        XMLNode first_child_of_type(pugi::xml_node_type type_ = pugi::node_element) const;
+        XMLNode first_child_of_type(xml_node_type type_ = xml_node_type::node_element) const;
 
         /**
          * @brief get last node child that matches type
-         * @param type_ the pugi::xml_node_type to match
+         * @param type_ the xml_node_type to match
          * @return a valid child matching the node type or an empty XMLNode
          */
-        XMLNode last_child_of_type(pugi::xml_node_type type_ = pugi::node_element) const;
+        XMLNode last_child_of_type(xml_node_type type_ = xml_node_type::node_element) const;
 
         /**
          * @brief count node children that match type
-         * @param type_ the pugi::xml_node_type to match
+         * @param type_ the xml_node_type to match
          * @return the amount of node children matching type
          */
-        size_t child_count_of_type(pugi::xml_node_type type_ = pugi::node_element) const;
+        size_t child_count_of_type(xml_node_type type_ = xml_node_type::node_element) const;
 
         /**
          * @brief get next node sibling that matches type
-         * @param type_ the pugi::xml_node_type to match
+         * @param type_ the xml_node_type to match
          * @return a valid sibling matching the node type or an empty XMLNode
          */
-        XMLNode next_sibling_of_type(pugi::xml_node_type type_ = pugi::node_element) const;
+        XMLNode next_sibling_of_type(xml_node_type type_ = xml_node_type::node_element) const;
 
         /**
          * @brief get previous node sibling that matches type
-         * @param type_ the pugi::xml_node_type to match
+         * @param type_ the xml_node_type to match
          * @return a valid sibling matching the node type or an empty XMLNode
          */
-        XMLNode previous_sibling_of_type(pugi::xml_node_type type_ = pugi::node_element) const;
+        XMLNode previous_sibling_of_type(xml_node_type type_ = xml_node_type::node_element) const;
 
         /**
          * @brief get next node sibling that matches name_ and type
          * @param name_ the xml_node::name() to match
-         * @param type_ the pugi::xml_node_type to match
+         * @param type_ the xml_node_type to match
          * @return a valid sibling matching the node type or an empty XMLNode
          */
-        XMLNode next_sibling_of_type(const char_t* name_, pugi::xml_node_type type_ = pugi::node_element) const;
+        XMLNode next_sibling_of_type(const char_t* name_, xml_node_type type_ = xml_node_type::node_element) const;
 
         /**
          * @brief get previous node sibling that matches name_ and type
          * @param name_ the xml_node::name() to match
-         * @param type_ the pugi::xml_node_type to match
+         * @param type_ the xml_node_type to match
          * @return a valid sibling matching the node type or an empty XMLNode
          */
-        XMLNode previous_sibling_of_type(const char_t* name_, pugi::xml_node_type type_ = pugi::node_element) const;
+        XMLNode previous_sibling_of_type(const char_t* name_, xml_node_type type_ = xml_node_type::node_element) const;
 
     private:
         int  name_begin; // nameBegin holds the position in xml_node::name() where the actual node name begins - 0 for non-namespaced nodes
@@ -309,7 +310,9 @@ namespace OpenXLSX
         /**
          * @brief for all functions: invoke the base class function, but with a return type of OpenXLSX_xml_node
          */
-        XMLNode document_element() const { return pugi::xml_document::document_element(); }
+        XMLNode document_element() const;
+        XMLNode prepend_child(xml_node_type type_);
+        XMLNode prepend_child(const char_t* name_);
         // ===== END: Wrappers for xml_document member functions
     };
 
