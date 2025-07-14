@@ -62,6 +62,43 @@ using namespace OpenXLSX;
 XLZipArchive::XLZipArchive() : m_archive(nullptr) {}
 
 /**
+ * @details CAUTION: shallow copy (explicit default constructor)
+ */
+XLZipArchive::XLZipArchive(const XLZipArchive& other)
+ : m_archive(other.m_archive)
+{}
+
+/**
+ * @details
+ */
+XLZipArchive::XLZipArchive(XLZipArchive&& other) noexcept
+ : m_archive(std::move(other.m_archive))
+{}
+
+/**
+ * @details
+ */
+XLZipArchive::~XLZipArchive() = default;
+
+// /**
+//  * @details CAUTION: shallow copy (explicit default copy assignment)
+//  */
+// XLZipArchive& XLZipArchive::operator=(const XLZipArchive& other)
+// {
+//     m_archive = other.m_archive;
+//     return *this;
+// }
+
+/**
+ * @details
+ */
+XLZipArchive& XLZipArchive::operator=(XLZipArchive&& other) noexcept
+{
+    m_archive = std::move(other.m_archive);
+	 return *this;
+}
+
+/**
  * @details
  */
 bool XLZipArchive::usesZippy()

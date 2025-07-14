@@ -115,16 +115,17 @@ namespace OpenXLSX
         }
 
         /**
-         * @brief
+         * @brief copy assignment shall be disabled until a use case is found
          * @param other
          * @return
          */
-        inline IZipArchive& operator=(const IZipArchive& other)
-        {
-            IZipArchive copy(other);
-            *this = std::move(copy);
-            return *this;
-        }
+        inline IZipArchive& operator=(const IZipArchive& other) = delete;
+        // inline IZipArchive& operator=(const IZipArchive& other)
+        // {
+        //     IZipArchive copy(other);
+        //     *this = std::move(copy);
+        //     return *this;
+        // }
 
         /**
          * @brief

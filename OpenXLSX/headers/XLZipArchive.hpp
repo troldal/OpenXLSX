@@ -85,32 +85,32 @@ namespace OpenXLSX
          * @brief
          * @param other
          */
-        XLZipArchive(const XLZipArchive& other) = default;
+        XLZipArchive(const XLZipArchive& other);
 
         /**
          * @brief
          * @param other
          */
-        XLZipArchive(XLZipArchive&& other) = default;
+        XLZipArchive(XLZipArchive&& other) noexcept;
 
         /**
          * @brief
          */
-        ~XLZipArchive() = default;
+        ~XLZipArchive();
+
+        /**
+         * @brief copy assignment shall be disabled until a use case is found
+         * @param other
+         * @return
+         */
+        XLZipArchive& operator=(const XLZipArchive& other) = delete;
 
         /**
          * @brief
          * @param other
          * @return
          */
-        XLZipArchive& operator=(const XLZipArchive& other) = default;
-
-        /**
-         * @brief
-         * @param other
-         * @return
-         */
-        XLZipArchive& operator=(XLZipArchive&& other) = default;
+        XLZipArchive& operator=(XLZipArchive&& other) noexcept;
 
         /**
          * @brief check if zippy is in use (or ziplib)
