@@ -46,14 +46,13 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 // ===== External Includes ===== //
 #include <algorithm>
 #include <iostream>
-#include <pugixml.hpp>
 
 // ===== OpenXLSX Includes ===== //
 #include "XLMergeCells.hpp"
 #include "XLCellReference.hpp"
 #include "XLException.hpp"
-#include "XLXmlParser.hpp" // XMLNode, pugi node types
-#include "utilities/XLUtilities.hpp" // appendAndGetNode
+#include "XLXmlParser.hpp"              // pugixml wrapper
+#include "utilities/XLUtilities.hpp"    // appendAndGetNode
 
 using namespace OpenXLSX;
 

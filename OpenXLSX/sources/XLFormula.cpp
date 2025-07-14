@@ -4,12 +4,11 @@
 
 // ===== External Includes ===== //
 #include <cassert>
-#include <pugixml.hpp>
 
 // ===== OpenXLSX Includes ===== //
 #include "XLFormula.hpp"
 #include "XLException.hpp"
-#include "XLXmlParser.hpp"
+#include "XLXmlParser.hpp"              // pugixml wrapper
 
 using namespace OpenXLSX;
 

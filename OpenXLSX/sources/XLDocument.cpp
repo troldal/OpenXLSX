@@ -48,16 +48,16 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #if defined(_WIN32)
 #    include <random>
 #endif
-#include <pugixml.hpp>
 #include <unistd.h>       // unlink
 #include <vector>         // std::vector
 
 // ===== OpenXLSX Includes ===== //
+#include "detail/OpenXLSXFileSystemTools.hpp"   // pathExists, GenerateRandomNameInSamePath
 #include "XLContentTypes.hpp"
 #include "XLDocument.hpp"
 #include "XLSheet.hpp"
 #include "XLStyles.hpp"
-#include "detail/OpenXLSXFileSystemTools.hpp"   // pathExists, GenerateRandomNameInSamePath
+#include "XLXmlParser.hpp"              // pugixml wrapper
 #include "utilities/XLUtilities.hpp"
 
 using namespace OpenXLSX;

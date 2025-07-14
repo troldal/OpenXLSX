@@ -44,14 +44,13 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
  */
 
 // ===== External Includes ===== //
-#include <pugixml.hpp>
 
 // ===== OpenXLSX Includes ===== //
 #include "XLCellIterator.hpp"
 #include "XLCellRange.hpp"
 #include "XLCellReference.hpp"
 #include "XLException.hpp"
-#include "XLXmlParser.hpp"
+#include "XLXmlParser.hpp"              // pugixml wrapper
 #include "utilities/XLUtilities.hpp"
 
 using namespace OpenXLSX;

@@ -45,12 +45,11 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== External Includes ===== //
 #include <algorithm>
-#include <pugixml.hpp>
 
 // ===== OpenXLSX Includes ===== //
 #include "XLDocument.hpp"
 #include "XLSharedStrings.hpp"
-#include "XLXmlParser.hpp"
+#include "XLXmlParser.hpp"              // pugixml wrapper
 
 #include "XLException.hpp"
 

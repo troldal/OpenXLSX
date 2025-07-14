@@ -48,13 +48,13 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <cctype>    // std::isdigit (issue #330)
 #include <limits>    // std::numeric_limits
 #include <map>       // std::multimap
-#include <pugixml.hpp>
 
 // ===== OpenXLSX Includes ===== //
 #include "XLCellRange.hpp"
 #include "XLDocument.hpp"
 #include "XLMergeCells.hpp"
 #include "XLSheet.hpp"
+#include "XLXmlParser.hpp"              // pugixml wrapper
 #include "utilities/XLUtilities.hpp"
 
 using namespace OpenXLSX;

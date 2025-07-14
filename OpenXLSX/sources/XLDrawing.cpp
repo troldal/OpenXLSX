@@ -47,11 +47,11 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 // #include <algorithm>
 #include <cctype>       // std::isdigit (issue #330)
 #include <string>       // std::string
-#include <pugixml.hpp>
 
 // ===== OpenXLSX Includes ===== //
 #include "XLDocument.hpp"               // pugi_parse_settings
 #include "XLDrawing.hpp"
+#include "XLXmlParser.hpp"              // pugixml wrapper
 #include "utilities/XLUtilities.hpp"    // OpenXLSX::ignore, appendAndGetNode
 
 using namespace OpenXLSX;

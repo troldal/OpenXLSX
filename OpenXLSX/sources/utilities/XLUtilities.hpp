@@ -6,7 +6,6 @@
 #define OPENXLSX_XLUTILITIES_HPP
 
 #include <fstream>
-#include <pugixml.hpp>
 #include <string>       // 2024-04-25 needed for xml_node_type_string
 #include <string_view>  // std::string_view
 #include <vector>       // std::vector< std::string_view >
@@ -17,7 +16,7 @@
 #include "XLContentTypes.hpp"     // OpenXLSX::XLContentType
 #include "XLRelationships.hpp"    // OpenXLSX::XLRelationshipType
 #include "XLStyles.hpp"           // OpenXLSX::XLStyleIndex
-#include "XLXmlParser.hpp"
+#include "XLXmlParser.hpp"        // pugixml wrapper
 
 namespace OpenXLSX
 {

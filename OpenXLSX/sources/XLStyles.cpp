@@ -47,7 +47,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <cstdint>      // uint32_t
 #include <iostream>     // std::cout, std::cerr
 #include <memory>       // std::make_unique
-#include <pugixml.hpp>
 #include <stdexcept>    // std::invalid_argument
 #include <string>       // std::stoi, std::literals::string_literals
 #include <vector>       // std::vector
@@ -56,8 +55,9 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLColor.hpp"
 #include "XLDocument.hpp"
 #include "XLException.hpp"
-#include "utilities/XLUtilities.hpp"    // OpenXLSX::ignore, ::XL(Keep|Remove)Attributes, appendAndGetNode, appendAnd(G|S)etAttribute, appendAnd(G|S)etNodeAttribute
 #include "XLStyles.hpp"
+#include "XLXmlParser.hpp"              // pugixml wrapper
+#include "utilities/XLUtilities.hpp"    // OpenXLSX::ignore, ::XL(Keep|Remove)Attributes, appendAndGetNode, appendAnd(G|S)etAttribute, appendAnd(G|S)etNodeAttribute
 
 using namespace OpenXLSX;
 

@@ -44,15 +44,14 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
  */
 
 // ===== External Includes ===== //
-#include <pugixml.hpp>
 #include <string>
 #include <vector>
 
 // ===== OpenXLSX Includes ===== //
 #include "XLDocument.hpp"
 #include "XLProperties.hpp"
-#include "XLRelationships.hpp"    // GetStringFromType
-#include "XLXmlParser.hpp"
+#include "XLRelationships.hpp"          // GetStringFromType
+#include "XLXmlParser.hpp"              // pugixml wrapper
 
 #include "XLException.hpp"
 

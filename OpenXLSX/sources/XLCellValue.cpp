@@ -5,13 +5,12 @@
 // ===== External Includes ===== //
 #include <cassert>
 #include <cstring>
-#include <pugixml.hpp>
 
 // ===== OpenXLSX Includes ===== //
 #include "XLCell.hpp"
 #include "XLCellValue.hpp"
 #include "XLException.hpp"
-#include "XLXmlParser.hpp"
+#include "XLXmlParser.hpp"              // pugixml wrapper
 
 using namespace OpenXLSX;
 
