@@ -52,6 +52,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLMergeCells.hpp"
 #include "XLCellReference.hpp"
 #include "XLException.hpp"
+#include "XLXmlParser.hpp" // XMLNode, pugi node types
 #include "utilities/XLUtilities.hpp" // appendAndGetNode
 
 using namespace OpenXLSX;

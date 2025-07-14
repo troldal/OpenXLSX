@@ -51,6 +51,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLCell.hpp"
 #include "XLRow.hpp"
 #include "XLRowData.hpp"
+#include "XLXmlParser.hpp"
 #include "utilities/XLUtilities.hpp"
 
 // ========== XLRowDataIterator  ============================================ //

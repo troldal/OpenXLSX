@@ -402,7 +402,7 @@ namespace OpenXLSX
 
         // helper variables for non-creating iterator functionality
         bool                     m_endReached;           /**< */
-        XMLNode                  m_hintRow;              /**< The cell node of the last existing row found up to current iterator position */
+        std::unique_ptr<XMLNode> m_hintRow;              /**< The cell node of the last existing row found up to current iterator position */
         uint32_t                 m_hintRowNumber;        /**<   the row number for m_hintRow */
         static constexpr const int XLNotLoaded  = 0;    // code readability for m_currentRowStatus
         static constexpr const int XLNoSuchRow  = 1;    //   "

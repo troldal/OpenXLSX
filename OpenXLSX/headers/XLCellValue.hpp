@@ -63,7 +63,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "OpenXLSX-Exports.hpp"
 #include "XLDateTime.hpp"
 #include "XLException.hpp"
-#include "XLXmlParser.hpp"
+#include "XLXmlParserForwardDeclarations.hpp"
 
 typedef std::variant<std::string, int64_t, double, bool>
     XLCellValueType;    // TBD: typedef std::variant< std::string, int64_t, double, bool, struct timestamp > XLCellValueType;

@@ -11,6 +11,7 @@
 #include "XLCell.hpp"
 #include "XLCellValue.hpp"
 #include "XLException.hpp"
+#include "XLXmlParser.hpp"
 
 using namespace OpenXLSX;
 

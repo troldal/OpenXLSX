@@ -58,7 +58,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLCell.hpp"
 #include "XLCellReference.hpp"
 #include "XLIterator.hpp"
-#include "XLXmlParser.hpp"
+#include "XLXmlParserForwardDeclarations.hpp"
 
 namespace OpenXLSX
 {
@@ -209,7 +209,7 @@ namespace OpenXLSX
         XLCellReference          m_bottomRight;          /**< The cell reference of the last cell in the range */
         XLSharedStringsRef       m_sharedStrings;        /**< */
         bool                     m_endReached;           /**< */
-        XMLNode                  m_hintNode;             /**< The cell node of the last existing cell found up to current iterator position */
+        std::unique_ptr<XMLNode> m_hintNode;             /**< The cell node of the last existing cell found up to current iterator position */
         uint32_t                 m_hintRow;              /**<   the row number for m_hintCell */
         XLCell                   m_currentCell;          /**< The cell to which the iterator is currently pointing, if it exists, otherwise an empty XLCell */
         static constexpr const int XLNotLoaded  = 0;    // code readability for m_currentCellStatus

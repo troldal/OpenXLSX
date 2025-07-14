@@ -62,7 +62,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "OpenXLSX-Exports.hpp"
 #include "XLColor.hpp"
 #include "XLXmlFile.hpp"
-#include "XLXmlParser.hpp"
+#include "XLXmlParserForwardDeclarations.hpp"
 
 namespace OpenXLSX
 {
@@ -710,7 +710,7 @@ namespace OpenXLSX
         /**
          * @brief
          */
-        ~XLDataBarColor() = default;
+        ~XLDataBarColor();
 
         /**
          * @brief Copy assignment operator.
@@ -805,7 +805,7 @@ namespace OpenXLSX
         /**
          * @brief
          */
-        ~XLGradientStop() = default;
+        ~XLGradientStop();
 
         /**
          * @brief Copy assignment operator.

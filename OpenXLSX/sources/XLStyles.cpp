@@ -894,6 +894,12 @@ XLDataBarColor& XLDataBarColor::operator=(const XLDataBarColor& other)
 }
 
 /**
+ * @details
+ */
+XLDataBarColor::~XLDataBarColor() = default;
+
+
+/**
  * @details Getter functions
  */
 XLColor  XLDataBarColor::rgb()       const { return XLColor(m_colorNode->attribute("rgb"    ).as_string("ffffffff")); }
@@ -957,6 +963,11 @@ XLGradientStop::XLGradientStop(const XMLNode& node) : m_stopNode(std::make_uniqu
 XLGradientStop::XLGradientStop(const XLGradientStop& other)
     : m_stopNode(std::make_unique<XMLNode>(*other.m_stopNode))
 {}
+
+/**
+ * @brief
+ */
+XLGradientStop::~XLGradientStop() = default;
 
 /**
  * @details Assign values of other to this

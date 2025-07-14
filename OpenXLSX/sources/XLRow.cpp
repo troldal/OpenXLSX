@@ -391,7 +391,7 @@ namespace OpenXLSX
           m_currentRow(),
           m_sharedStrings(rowRange.m_sharedStrings),
           m_endReached(false),
-          m_hintRow(),
+          m_hintRow(std::make_unique<XMLNode>()),
           m_hintRowNumber(0),
           m_currentRowStatus(XLNotLoaded),
           m_currentRowNumber(0)
@@ -422,7 +422,7 @@ namespace OpenXLSX
           m_currentRow(other.m_currentRow),
           m_sharedStrings(other.m_sharedStrings),
           m_endReached(other.m_endReached),
-          m_hintRow(other.m_hintRow),
+          m_hintRow(std::make_unique<XMLNode>(*other.m_hintRow)),
           m_hintRowNumber(other.m_hintRowNumber),
           m_currentRowStatus(other.m_currentRowStatus),
           m_currentRowNumber(other.m_currentRowNumber)
@@ -473,7 +473,7 @@ namespace OpenXLSX
 
         // ===== Row needs to be updated
 
-        if (m_hintRow.empty()) {  // no hint has been established: fetch first row node the "tedious" way
+        if (m_hintRow->empty()) {  // no hint has been established: fetch first row node the "tedious" way
             if (createIfMissing)     // getRowNode creates missing rows
                 m_currentRow = XLRow(getRowNode(*m_dataNode, m_currentRowNumber), m_sharedStrings.get());
             else                    // findRowNode returns an empty row for missing rows
@@ -483,7 +483,7 @@ namespace OpenXLSX
             // ===== Find or create, and fetch an XLRow at m_currentRowNumber
             if (m_currentRowNumber > m_hintRowNumber) {
                 // ===== Start from m_hintRow and search forwards...
-                XMLNode rowNode = m_hintRow.next_sibling_of_type(pugi::node_element);
+                XMLNode rowNode = m_hintRow->next_sibling_of_type(pugi::node_element);
                 uint32_t rowNo = 0;
                 while (not rowNode.empty()) {
                     rowNo = rowNode.attribute("r").as_ullong();
@@ -494,7 +494,7 @@ namespace OpenXLSX
 
                 // ===== Create missing row node if createIfMissing == true
                 if (createIfMissing && rowNode.empty()) {
-                    rowNode = m_dataNode->insert_child_after("row", m_hintRow);
+                    rowNode = m_dataNode->insert_child_after("row", *m_hintRow);
                     rowNode.append_attribute("r").set_value(m_currentRowNumber);
                 }
                 if (rowNode.empty())    // if row could not be found / created
@@ -510,7 +510,7 @@ namespace OpenXLSX
             m_currentRowStatus = XLNoSuchRow;   // mark this status for further calls to updateCurrentRow()
         else {
             // ===== If the current row exists, update the hints
-            m_hintRow          = *m_currentRow.m_rowNode;   // don't store a full XLRow, just the XMLNode, for better performance
+            m_hintRow          = std::make_unique<XMLNode>(*m_currentRow.m_rowNode);   // don't store a full XLRow, just the XMLNode, for better performance
             m_hintRowNumber    = m_currentRowNumber;
             m_currentRowStatus = XLLoaded;                  // mark row status for further calls to updateCurrentRow()
         }

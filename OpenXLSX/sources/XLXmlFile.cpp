@@ -49,6 +49,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 // ===== OpenXLSX Includes ===== //
 #include "XLDocument.hpp"
 #include "XLXmlFile.hpp"
+#include "XLXmlParser.hpp"
 
 using namespace OpenXLSX;
 

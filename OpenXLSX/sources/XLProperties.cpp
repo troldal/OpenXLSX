@@ -52,6 +52,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLDocument.hpp"
 #include "XLProperties.hpp"
 #include "XLRelationships.hpp"    // GetStringFromType
+#include "XLXmlParser.hpp"
 
 #include "XLException.hpp"
 

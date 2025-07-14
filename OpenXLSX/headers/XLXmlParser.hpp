@@ -51,6 +51,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 // ===== pugixml.hpp needed for pugi::impl::xml_memory_page_type_mask, pugi::xml_node_type, pugi::char_t, pugi::node_element, pugi::xml_node, pugi::xml_attribute, pugi::xml_document
 #include <external/pugixml/pugixml.hpp> // not sure why the full include path is needed within the header file
 #include "XLException.hpp"
+#include "XLXmlParserForwardDeclarations.hpp"
 
 namespace { // anonymous namespace to define constants / functions that shall not be exported from this module
     constexpr const int XLMaxNamespacedNameLen = 100;
@@ -96,23 +97,9 @@ namespace OpenXLSX
      */
     bool disable_xml_namespaces();
 
-    // disable this line to use original (non-augmented) pugixml - as of 2024-07-29 this is no longer a realistic option
-#   define PUGI_AUGMENTED
 
-    // ===== Using statements to switch between pugixml and augmented pugixml implementation
-#   ifdef PUGI_AUGMENTED
-        // ===== Forward declarations for using statements below
-        class OpenXLSX_xml_node;
-        class OpenXLSX_xml_document;
+    // ===== 2025-07-14: moved forward declarations to XLXmlParserForwardDeclarations.hpp =====
 
-        using XMLNode      = OpenXLSX_xml_node;
-        using XMLAttribute = pugi::xml_attribute;
-        using XMLDocument  = OpenXLSX_xml_document;
-#   else
-        using XMLNode      = pugi::xml_node;
-        using XMLAttribute = pugi::xml_attribute;
-        using XMLDocument  = pugi::xml_document;
-#   endif
 
     // ===== Custom OpenXLSX_xml_node to add functionality to pugi::xml_node
     class OpenXLSX_xml_node : public pugi::xml_node {

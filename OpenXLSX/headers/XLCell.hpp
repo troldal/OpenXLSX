@@ -63,6 +63,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLFormula.hpp"
 #include "XLSharedStrings.hpp"
 #include "XLStyles.hpp"          // XLStyleIndex
+#include "XLXmlParserForwardDeclarations.hpp"
 
 // ========== CLASS AND ENUM TYPE DEFINITIONS ========== //
 namespace OpenXLSX

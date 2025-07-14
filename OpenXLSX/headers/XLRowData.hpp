@@ -24,7 +24,7 @@
 #include "XLConstants.hpp"
 #include "XLException.hpp"
 #include "XLIterator.hpp"
-#include "XLXmlParser.hpp"
+#include "XLXmlParserForwardDeclarations.hpp"
 
 // ========== CLASS AND ENUM TYPE DEFINITIONS ========== //
 namespace OpenXLSX

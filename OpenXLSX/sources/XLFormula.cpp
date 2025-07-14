@@ -9,6 +9,7 @@
 // ===== OpenXLSX Includes ===== //
 #include "XLFormula.hpp"
 #include "XLException.hpp"
+#include "XLXmlParser.hpp"
 
 using namespace OpenXLSX;
 

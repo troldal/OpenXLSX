@@ -56,7 +56,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLException.hpp"
 #include "XLXmlData.hpp"
 #include "XLXmlFile.hpp"
-
+#include "XLXmlParserForwardDeclarations.hpp"
 
 namespace OpenXLSX
 {
@@ -208,6 +208,11 @@ namespace OpenXLSX
          */
         explicit XLShapeStyle(const XMLAttribute& styleAttribute);
 
+        /**
+         * @brief
+         */
+        ~XLShapeStyle();
+
     private:
         /**
          * @brief get index of an attribute name within m_nodeOrder
@@ -298,7 +303,7 @@ namespace OpenXLSX
         /**
          * @brief
          */
-        ~XLShape() = default;
+        ~XLShape();
 
         /**
          * @brief Copy assignment operator.

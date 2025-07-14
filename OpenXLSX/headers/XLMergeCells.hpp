@@ -63,7 +63,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
 #include "XLCellReference.hpp"
-#include "XLXmlParser.hpp" // XMLNode, pugi node types
+#include "XLXmlParserForwardDeclarations.hpp"
 
 namespace OpenXLSX
 {

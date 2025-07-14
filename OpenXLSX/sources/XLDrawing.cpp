@@ -270,6 +270,11 @@ XLShapeStyle::XLShapeStyle(const XMLAttribute& styleAttribute)
 {}
 
 /**
+ * @brief
+ */
+XLShapeStyle::~XLShapeStyle() = default;
+
+/**
  * @details find attributeName in m_nodeOrder, then return index
  */
 int16_t XLShapeStyle::attributeOrderIndex(std::string const& attributeName) const
@@ -399,6 +404,8 @@ bool XLShapeStyle::show           ()                            { return setAttr
 XLShape::XLShape() : m_shapeNode(std::make_unique<XMLNode>(XMLNode())) {}
 
 XLShape::XLShape(const XMLNode& node) : m_shapeNode(std::make_unique<XMLNode>(node)) {}
+
+XLShape::~XLShape() = default;
 
 /**
  * @details getter functions: return the shape's attributes
