@@ -124,6 +124,9 @@ namespace OpenXLSX
      */
     XLRowDataIterator& XLRowDataIterator::operator++()
     {
+        if( not m_currentCell ) // 2025-07-14 BUGFIX issue #368: check that m_currentCell is valid
+            throw XLInputError("XLRowDataIterator: tried to increment beyond end operator");
+
         // ===== Compute the column number, and move the m_cellNode to the next sibling.
         const uint16_t cellNumber = m_currentCell.cellReference().column() + 1;
         XMLNode        cellNode   = m_currentCell.m_cellNode->next_sibling_of_type(pugi::node_element);
