@@ -32,7 +32,7 @@ if(${OPENXLSX_ENABLE_LIBZIP_EXAMPLE})
     target_link_libraries(Demo1A PRIVATE OpenXLSX::OpenXLSX libzip::zip)
     if (${OPENXLSX_ENABLE_NOWIDE})
 #        target_compile_definitions(Demo1A PRIVATE ENABLE_NOWIDE)
-        target_link_libraries(Demo4 PRIVATE nowide::nowide)
+        target_link_libraries(Demo1A PRIVATE nowide::nowide)
 #        if (${OPENXLSX_ENABLE_LIBBOOST_NOWIDE})
 #            # when libboost-nowide is used, a preprocessor directive is needed to change include path and namespace
 #            target_compile_definitions(Demo1A PRIVATE ENABLE_LIBBOOST_NOWIDE)

@@ -48,6 +48,38 @@ if(WIN32 OR ${OPENXLSX_FORCE_NOWIDE})
     set(OPENXLSX_ENABLE_NOWIDE ON)
 endif()
 
+#if(OPENXLSX_ENABLE_LIBZIP)
+##    CPMFindPackage(
+##            NAME ZLIB
+##            GITHUB_REPOSITORY madler/zlib
+##            GIT_TAG v1.3.1
+##    )
+##    message(zlib: ${ZLIB_SOURCE_DIR})
+##    add_library (ZLIB::ZLIB ALIAS zlibstatic)
+#
+#find_package(zlib REQUIRED)
+#
+##
+##    if(ZLIB_ADDED)
+##        target_include_directories(zlib
+##                PUBLIC $<BUILD_INTERFACE:${zlib_BINARY_DIR}>
+##                PUBLIC $<INSTALL_INTERFACE:include>)
+##        target_include_directories(zlibstatic
+##                PUBLIC $<BUILD_INTERFACE:${zlib_BINARY_DIR}>
+##                PUBLIC $<INSTALL_INTERFACE:include>)
+##
+##        message(STATUS "Cmake added local zlib: ${zlib_SOURCE_DIR}")
+##    else()
+##        message(FATAL_ERROR "Cmake failed to add local zlib")
+##    endif()
+#
+#    CPMFindPackage(
+#            NAME libzip
+#            GITHUB_REPOSITORY nih-at/libzip
+#            GIT_TAG v1.11.4
+#    )
+#endif()
+
 if(OPENXLSX_ENABLE_NOWIDE)
     CPMFindPackage(
             NAME nowide
