@@ -1,6 +1,8 @@
 #!/bin/sh
 echo "rm Demo01.xlsx 2>/dev/null"
 rm Demo01.xlsx 2>/dev/null
+echo "rm Demo01A.xlsx 2>/dev/null"
+rm Demo01A.xlsx 2>/dev/null
 echo "rm Demo02.xlsx 2>/dev/null"
 rm Demo02.xlsx 2>/dev/null
 echo "rm Demo03.xlsx 2>/dev/null"

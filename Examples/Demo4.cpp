@@ -1,13 +1,10 @@
 #include <OpenXLSX.hpp>
 
 #ifdef ENABLE_NOWIDE
-// #   ifdef ENABLE_LIBBOOST_NOWIDE
-//         #include <boost/nowide/iostream.hpp>
-//         using boost::nowide::cout;
-// #   else
-        #include <nowide/iostream.hpp>
-        using nowide::cout;
-// #   endif
+    #include <nowide/iostream.hpp>
+    namespace boost {}        // ensure that namespace exists, even if boost doesn't define it
+    using namespace boost;    // depending on library version, nowide namespace is hidden in boost::nowide
+    using nowide::cout;
 #else
     #include <iostream>
     using std::cout;

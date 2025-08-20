@@ -1,5 +1,6 @@
 # GNU Makefile for OpenXLSX modules & demos
-# Version: 2025-07-30 14:30 CEST
+# Version: 2025-08-16 15:30 CEST
+$(error 2025-08-16 15:30 CEST: With recent changes to the project configuration, the GNU Makefile is currently non-functional)
 
 # Makefile option OPENXLSX_ENABLE_LIBPUGIXML: Scripts/make-gnu.sh OPENXLSX_ENABLE_LIBPUGIXML=ON
 ifeq ("$(OPENXLSX_ENABLE_LIBPUGIXML)", "ON")

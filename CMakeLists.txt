@@ -30,17 +30,30 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/output)
 #=======================================================================================================================
 # Add build options
 #=======================================================================================================================
-option(OPENXLSX_CREATE_DOCS "Build library documentation (requires Doxygen and Graphviz/Dot to be installed)" ON)
-option(OPENXLSX_BUILD_SAMPLES "Build sample programs" ON)
-option(OPENXLSX_BUILD_TESTS "Build and run library tests" ON)
-option(OPENXLSX_BUILD_BENCHMARKS "Build and run library benchmarks" OFF)
-#option(OPENXLSX_ENABLE_LIBPUGIXML "Enable using libpugixml" OFF)
-option(OPENXLSX_ENABLE_LIBZIP "Enable using libzip" OFF)
-option(OPENXLSX_FORCE_NOWIDE "Force use of boost nowide, even on non-Windows systems (testing)" OFF)
-#option(OPENXLSX_ENABLE_LIBBOOST_NOWIDE "Enable using libboost-nowide" OFF)
+option(OPENXLSX_CREATE_DOCS           "Build library documentation (requires Doxygen and Graphviz/Dot to be installed)" ON)
+option(OPENXLSX_BUILD_SAMPLES         "Build sample programs" ON)
+option(OPENXLSX_BUILD_TESTS           "Build and run library tests" ON) # TBD: are these still functional?
+option(OPENXLSX_BUILD_BENCHMARKS      "Build and run library benchmarks" OFF)
+option(OPENXLSX_ENABLE_LIBZIP         "Enable using libzip" OFF) # when OFF, default zip library is miniz. NOTE: libzip currently does NOT support CPM_DOWNLOAD_ALL
+option(OPENXLSX_FORCE_NOWIDE          "Force use of boost nowide, even on non-Windows systems (testing)" OFF)
 option(OPENXLSX_ENABLE_LIBZIP_EXAMPLE "Build Demo1A example using libzip - requires libbz2-dev" OFF)
-option(OPENXLSX_SHARED_LIBRARY "Builds the shared library" OFF)
-option(OPENXLSX_COMPACT_MODE "Build library in compact mode (slower, but uses less memory)" OFF)
+option(         BUILD_SHARED_LIBS     "Builds the shared library" OFF) # replaced OPENXLSX_SHARED_LIBRARY with cmake option reserved for that purpose
+option(OPENXLSX_COMPACT_MODE          "Build library in compact mode (slower, but uses less memory)" OFF)
+
+# workaround option for CPM_LOCAL_PACKAGES_ONLY
+option(OPENXLSX_CPM_LOCAL_PACKAGES_ONLY "CPM shall only use packages already installed on the host OS, otherwise fail" OFF)
+if(${OPENXLSX_CPM_LOCAL_PACKAGES_ONLY})
+    set(CPM_LOCAL_PACKAGES_ONLY ON) # Defining this directly as an option in this file doesn't seem to work, as stupid as it is
+    set(NOWIDE_TARGET Boost::nowide)
+    set(NOWIDE_INSTALL_TARGET "")  # TBD: none needed?
+    set(PUGIXML_INSTALL_TARGET "") # TBD: none needed?
+else()
+    set(CPM_DOWNLOAD_ALL ON) # Force download so that a local package is not used while a component is missing (e.g. Boost::nowide)
+    set(NOWIDE_TARGET nowide::nowide)
+    set(NOWIDE_INSTALL_TARGET nowide)
+    set(PUGIXML_INSTALL_TARGET pugixml)
+endif()
+
 #=======================================================================================================================
 # Add project configurations (#ifdef / #ifndef testable)
 #=======================================================================================================================
@@ -48,88 +61,48 @@ if(WIN32 OR ${OPENXLSX_FORCE_NOWIDE})
     set(OPENXLSX_ENABLE_NOWIDE ON)
 endif()
 
-
-# Requires CMake 3.16+ (for robust target property usage); 3.21+ recommended.
-function(make_object_facade ORIG_TARGET OUT_OBJ_TARGET)
-    if (NOT TARGET ${ORIG_TARGET})
-        message(FATAL_ERROR "make_object_facade: target '${ORIG_TARGET}' not found")
-    endif()
-
-    set(OBJ "${OUT_OBJ_TARGET}")
-    add_library(${OBJ} OBJECT)  # empty for now
-
-    # 1) Reuse the upstream target's sources.
-    # This picks up sources added via add_library()/target_sources().
-    # (Generated sources still work if the subproject defines proper custom commands.)
-    target_sources(${OBJ} PRIVATE "$<TARGET_PROPERTY:${ORIG_TARGET},SOURCES>")
-
-    # 2) Mimic compile features/options/defs and include dirs (both PRIVATE & INTERFACE).
-    target_compile_features(${OBJ} PRIVATE
-            "$<TARGET_PROPERTY:${ORIG_TARGET},COMPILE_FEATURES>")
-    target_compile_options(${OBJ} PRIVATE
-            "$<TARGET_PROPERTY:${ORIG_TARGET},COMPILE_OPTIONS>"
-            "$<TARGET_PROPERTY:${ORIG_TARGET},INTERFACE_COMPILE_OPTIONS>")
-    target_compile_definitions(${OBJ} PRIVATE
-            "$<TARGET_PROPERTY:${ORIG_TARGET},COMPILE_DEFINITIONS>"
-            "$<TARGET_PROPERTY:${ORIG_TARGET},INTERFACE_COMPILE_DEFINITIONS>")
-    target_include_directories(${OBJ} PRIVATE
-            "$<TARGET_PROPERTY:${ORIG_TARGET},INCLUDE_DIRECTORIES>"
-            "$<TARGET_PROPERTY:${ORIG_TARGET},INTERFACE_INCLUDE_DIRECTORIES>")
-
-    # 3) Position-independent code: reflect upstream if set, or respect your global policy.
-    get_target_property(_pic ${ORIG_TARGET} POSITION_INDEPENDENT_CODE)
-    if (DEFINED _pic)
-        set_property(TARGET ${OBJ} PROPERTY POSITION_INDEPENDENT_CODE ${_pic})
-    endif()
-
-    # 4) Name it for the caller.
-    set(${OUT_OBJ_TARGET} ${OBJ} PARENT_SCOPE)
-endfunction()
-
-
-
-#if(OPENXLSX_ENABLE_LIBZIP)
-##    CPMFindPackage(
-##            NAME ZLIB
-##            GITHUB_REPOSITORY madler/zlib
-##            GIT_TAG v1.3.1
-##    )
-##    message(zlib: ${ZLIB_SOURCE_DIR})
-##    add_library (ZLIB::ZLIB ALIAS zlibstatic)
-#
-#find_package(zlib REQUIRED)
-#
-##
-##    if(ZLIB_ADDED)
-##        target_include_directories(zlib
-##                PUBLIC $<BUILD_INTERFACE:${zlib_BINARY_DIR}>
-##                PUBLIC $<INSTALL_INTERFACE:include>)
-##        target_include_directories(zlibstatic
-##                PUBLIC $<BUILD_INTERFACE:${zlib_BINARY_DIR}>
-##                PUBLIC $<INSTALL_INTERFACE:include>)
-##
-##        message(STATUS "Cmake added local zlib: ${zlib_SOURCE_DIR}")
-##    else()
-##        message(FATAL_ERROR "Cmake failed to add local zlib")
-##    endif()
-#
-#    CPMFindPackage(
-#            NAME libzip
-#            GITHUB_REPOSITORY nih-at/libzip
-#            GIT_TAG v1.11.4
-#    )
-#endif()
-
 if(OPENXLSX_ENABLE_NOWIDE)
     CPMFindPackage(
-            NAME nowide
+            NAME Boost
+            VERSION 1.73.0
             GITHUB_REPOSITORY boostorg/nowide
+            # NAME nowide
             GIT_TAG standalone
             OPTIONS
             "NOWIDE_INSTALL ON"
+            FIND_PACKAGE_ARGUMENTS "COMPONENTS nowide"
     )
-    message(nowide: ${nowide_SOURCE_DIR})
+    if(NOT "${Boost_INCLUDE_DIR}" STREQUAL "")
+        set(NOWIDE_INCLUDE_DIR "${Boost_INCLUDE_DIR}/boost")
+    endif()
 endif()
+
+if (OPENXLSX_ENABLE_LIBZIP)
+    # NOTE: libzip 1.11.4 is the newest version as of 2025-08-16 and not available on most host systems, so a lower version tag should be used.
+    #        However, 1.11.4 is the first version that allows building libzip separately from the (unneeded) components zipcmp zipmerge ziptool
+    #        Maybe check for available version & if 1.11.4 is available, exclude unneeded components - or does this happen automatically?
+    find_package(LibZip 1.7
+        CONFIG
+        COMPONENTS zip
+        QUIET OPTIONAL_COMPONENTS zipcmp zipmerge ziptool # requires the following tools to be installed: zipcmp zipmerge ziptool
+    )
+    set(ZIP_LIBRARY_INSTALL_TARGET "") # TBD: none needed?
+    # TODO: Help needed - how to make CPMFindPackage work with the libzip repo?
+    # CPMFindPackage(
+    #         NAME libzip
+    #         GITHUB_REPOSITORY nih-at/libzip
+    #         GIT_TAG 1.11.4
+    # )
+    # set(ZIP_LIBRARY_INSTALL_TARGET libzip)
+else()
+    CPMFindPackage(
+            NAME miniz
+            GITHUB_REPOSITORY richgel999/miniz
+            GIT_TAG 3.0.2
+            # use of reserved BUILD_SHARED_LIBS automatically passes this option through
+    )
+    set(ZIP_LIBRARY_INSTALL_TARGET miniz)
+endif ()
 
 CPMFindPackage(
         NAME pugixml
@@ -137,19 +110,8 @@ CPMFindPackage(
         GIT_TAG v1.15
         OPTIONS
         "PUGIXML_COMPACT ${OPENXLSX_COMPACT_MODE}"
+        # use of reserved BUILD_SHARED_LIBS automatically passes this option through
 )
-
-## Suppose the zlib target is 'zlibstatic' (common on Windows builds) or 'zlib'
-if (TARGET pugixml-static)
-    make_object_facade(pugixml-static pugixml_obj)
-else()
-    message(FATAL_ERROR "Couldn't find a pugixml target to wrap.")
-endif()
-
-
-
-message(pugixml: ${pugixml_SOURCE_DIR})
-
 
 
 #=======================================================================================================================
@@ -174,3 +136,53 @@ if(${OPENXLSX_BUILD_BENCHMARKS})
 endif()
 
 
+#=======================================================================================================================
+# Summarize OpenXLSX configuration
+#=======================================================================================================================
+message(     NOTICE     "-- OpenXLSX Configuration:" )
+message(     NOTICE     "   ++ Build library documentation:       ${OPENXLSX_CREATE_DOCS}" )
+message(     NOTICE     "   ++ Build sample programs:             ${OPENXLSX_BUILD_SAMPLES}" )
+message(     NOTICE     "   ++ Build and run library tests:       ${OPENXLSX_BUILD_TESTS}" )
+message(     NOTICE     "   ++ Build and run library benchmarks:  ${OPENXLSX_BUILD_BENCHMARKS}" )
+message(     NOTICE     "   ++ Build Demo1A example using libzip: ${OPENXLSX_ENABLE_LIBZIP_EXAMPLE}" )
+if(OPENXLSX_ENABLE_LIBZIP_EXAMPLE AND NOT OPENXLSX_BUILD_SAMPLES)
+    message( WARNING    "Demo1A will not be built because sample programs are disabled!" )
+endif()
+    message( NOTICE     "   ++ Build library in compact mode:     ${OPENXLSX_COMPACT_MODE}" )
+    message( NOTICE     "   ++" )
+
+if(BUILD_SHARED_LIBS)
+    message( NOTICE     "   ++ Library type:                shared" )
+else()
+    message( NOTICE     "   ++ Library type:                static" )
+endif()
+
+if(OPENXLSX_ENABLE_NOWIDE)
+    message( NOTICE     "   ++ Unicode support:             Boost nowide" )
+    if("${Boost_INCLUDE_DIR}" STREQUAL "")
+        message( NOTICE "   ++ Boost_INCLUDE_DIR:           (empty)" )
+    else()
+        message( NOTICE "   ++ Boost_INCLUDE_DIR:           ${Boost_INCLUDE_DIR}" )
+        message( NOTICE "   ++ NOWIDE_INCLUDE_DIR:          ${NOWIDE_INCLUDE_DIR}" )
+    endif()
+else()
+    message( NOTICE     "   ++ Unicode support:             (OS) native" )
+endif()
+
+if (OPENXLSX_ENABLE_LIBZIP)
+    message( NOTICE     "   ++ zip library:                 libzip" )
+else()
+    message( NOTICE     "   ++ zip library:                 miniz" )
+endif()
+if(CPM_LOCAL_PACKAGES_ONLY)
+    message( NOTICE     "   ++ CPM package source:          CPM_LOCAL_PACKAGES_ONLY" )
+endif()
+if(CPM_DOWNLOAD_ALL)
+    message( NOTICE     "   ++ CPM package source:          CPM_DOWNLOAD_ALL" )
+endif()
+
+# NOTE: for some reason, cmake with --log-level VERBOSE (or DEBUG) prefixes message output with "-- "
+message( VERBOSE        "   ++ pugixml_SOURCE_DIR:          ${pugixml_SOURCE_DIR}" )
+message( VERBOSE        "   ++ NOWIDE_INSTALL_TARGET:       ${NOWIDE_INSTALL_TARGET}" )
+message( VERBOSE        "   ++ ZIP_LIBRARY_INSTALL_TARGET:  ${ZIP_LIBRARY_INSTALL_TARGET}" )
+message( VERBOSE        "   ++ PUGIXML_INSTALL_TARGET:      ${PUGIXML_INSTALL_TARGET}" )

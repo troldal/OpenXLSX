@@ -142,6 +142,10 @@ int main()
     auto tmo = result.tm();
     cout << "Cell G1: (" << G1.typeAsString() << ") " << std::asctime(&tmo);
 
+    // Setting and deleting formula nodes
+    wks.cell("D2").formula().set("=A1+B1");
+    wks.cell("E2").formula().set(""); // setting an empty (zero-length) formula string will delete the formula node
+
     std::cout << std::endl;
     std::cout << "XLWorksheet comments demo" << std::endl;
     std::cout << "=========================" << std::endl;
@@ -243,9 +247,6 @@ int main()
     std::cout << "  using XLSheet::findCell (lazy method, not recommended)" << std::endl;
     std::cout << "  NOTE: this method should only be used for tests of individual cells when performance is not an issue" << std::endl;
     std::cout << "  ------------------------------------------------------" << std::endl;
-    wks.cell("D2").formula().set("=A1+B1");
-    wks.cell("E2").formula().set(""); // setting an empty (zero-length) formula string will delete the formula node
-
     for (int row = 1; row < 4; ++row) {
         for (int col = 1; col < 8; ++col) {
             XLCellReference ref(row, col);

@@ -7,12 +7,32 @@ Microsoft Excel® files, with the .xlsx format.
 
 As the heading says - the latest "Release" that is shown on https://github.com/troldal/OpenXLSX/releases is from 2021-11-06, and severely outdated - please pull / download the latest SW version directly from the repository in its current state. Link for those that do not want to use ```git```: https://github.com/troldal/OpenXLSX/archive/refs/heads/master.zip
 
+## NOTE: This development-tree is currently pending finalization of a code review hiding `pugixml` headers - use at your own risk
+After hiding `pugixml` headers from the library interface, a code review needs to elminate remaining destructors, constructors and assignment operators that are defaulted in OpenXLSX header files. Until then, a project may produce an error on compiling (when such defaulted functions are instantiated).
+If a project builds without errors, this version of the library is safe to use. But be aware that by using a not-yet-reviewed class, a compiler error may occur.
+
 ## TBD / TODO:
-* with cmake pulling in zippy, is `boost::nowide` still needed at all on Windows?
+* finalize code review after hiding `pugixml` headers from the library interface
 * use of ```nowide``` stat in OpenXLSXFileSystemTools?
 * if nowide is needed: `headers/detail/Zippy.hpp` for call to `mz_zip_reader_init_file` TBD: does miniz support unicode filenames on Windows?
-* is `add_subdirectory(external/nowide EXCLUDE_FROM_ALL)` needed in `Examples/CMakeLists.txt`?
-* implement `OPENXLSX_SHARED_LIBRARY` functionality in `Makefile.GNU`
+* restore `Makefile.GNU` functionality
+* implement `BUILD_SHARED_LIBS` functionality in `Makefile.GNU`
+
+## (aral-matrix) 16 August 2025 - dropped `external` source code from repository, refined cmake configuration
+* implemented changes from @troldal to drop external source code
+* as a result, `Makefile.GNU` is currently non-functional!
+* cmake build options are now (some renamed, some removed, new `OPENXLSX_CPM_LOCAL_PACKAGES_ONLY`):
+  * option(OPENXLSX_CREATE_DOCS           "Build library documentation (requires Doxygen and Graphviz/Dot to be installed)" ON)
+  * option(OPENXLSX_BUILD_SAMPLES         "Build sample programs" ON)
+  * option(OPENXLSX_BUILD_TESTS           "Build and run library tests" ON) # TBD: are these still functional?
+  * option(OPENXLSX_BUILD_BENCHMARKS      "Build and run library benchmarks" OFF)
+  * option(OPENXLSX_ENABLE_LIBZIP         "Enable using libzip" OFF) # when OFF, default zip library is miniz. NOTE: libzip currently does NOT support CPM_DOWNLOAD_ALL
+  * option(OPENXLSX_FORCE_NOWIDE          "Force use of boost nowide, even on non-Windows systems (testing)" OFF)
+  * option(OPENXLSX_ENABLE_LIBZIP_EXAMPLE "Build Demo1A example using libzip - requires libbz2-dev" OFF)
+  * option(         BUILD_SHARED_LIBS     "Builds the shared library" OFF) # replaced OPENXLSX_SHARED_LIBRARY with cmake option reserved for that purpose
+  * option(OPENXLSX_COMPACT_MODE          "Build library in compact mode (slower, but uses less memory)" OFF)
+  * option(OPENXLSX_CPM_LOCAL_PACKAGES_ONLY "CPM shall only use packages already installed on the host OS, otherwise fail" OFF)
+* minor code refactoring to work with different library interfaces depending on package source (different include paths, different namespaces)
 
 ## (aral-matrix) 31 July 2025 - added use of cmake `find_package` for `LibZip` and `PugiXML`
 * `OpenXLSX/CMakeLists.txt`: added `find_package` for `LibZip` and `PugiXML`. Unfortunately, for `LibZip`, this generates an error unless the unneeded components `zipcmp`, `zipmerge` & `ziptool` are also installed on the system. TBD how to ignore those missing.

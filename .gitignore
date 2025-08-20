@@ -103,8 +103,11 @@
 # exclude everything *in* Scripts folder
 /Scripts/*
 # re-include specifically what is desired from Scripts folder
-!/Scripts/cmake-cleanup.sh
 !/Scripts/demos-cleanup.sh
+!/Scripts/cmake-cleanup.sh
+!/Scripts/cmake-uninstall.sh
+!/Scripts/demos-cleanup.sh
+!/Scripts/demos-run-all.sh
 !/Scripts/guarded-xml-format.sh
 !/Scripts/make-gnu.sh
 !/Scripts/xml-format-all.sh

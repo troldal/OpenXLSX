@@ -3,14 +3,10 @@
 
 #ifdef ENABLE_NOWIDE
     // TODO: use boost nowide stat!
-// #   ifdef ENABLE_LIBBOOST_NOWIDE
-//         // #include <boost/nowide/stat.hpp>
-//         #include <boost/nowide/cstdio.hpp>    // nowide::fopen, nowide::remove, nowide::rename
-//         using namespace boost;
-// #   else
-        // #include <nowide/stat.hpp>
-        #include <nowide/cstdio.hpp>    // nowide::fopen, nowide::remove, nowide::rename
-// #   endif
+    // #include <nowide/stat.hpp>
+    #include <nowide/cstdio.hpp>    // nowide::fopen, nowide::remove, nowide::rename
+    namespace boost {}              // ensure that namespace exists, even if boost doesn't define it
+    using namespace boost;          // depending on library version, nowide namespace is hidden in boost::nowide
 #else
     #include <cstdio>       // std::fopen
     #include <filesystem>   // std::filesystem::remove, std::filesystem::rename
