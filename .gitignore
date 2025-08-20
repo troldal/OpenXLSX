@@ -40,9 +40,9 @@
 # include cmake folder
 !/cmake
 # exclude everything *in* cmake folder
-/cmake/*
+#/cmake/*
 # re-include specifically what is desired from cmake folder
-!/cmake/CPM.cmake
+#!/cmake/CPM.cmake
 
 # include Documentation folder
 !/Documentation

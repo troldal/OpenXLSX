@@ -19,6 +19,7 @@ set(IGNORE_ME ${CMAKE_C_COMPILER}) # Suppress CMake warning message
 # Include CPM package manager
 #=======================================================================================================================
 include(${CMAKE_CURRENT_LIST_DIR}/cmake/CPM.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/cmake/MakeObjectLib.cmake)
 
 #=======================================================================================================================
 # Output Directories.
@@ -104,15 +105,16 @@ else()
     set(ZIP_LIBRARY_INSTALL_TARGET miniz)
 endif ()
 
-CPMFindPackage(
-        NAME pugixml
-        GITHUB_REPOSITORY zeux/pugixml
-        GIT_TAG v1.15
-        OPTIONS
-        "PUGIXML_COMPACT ${OPENXLSX_COMPACT_MODE}"
-        # use of reserved BUILD_SHARED_LIBS automatically passes this option through
-)
+include(${CMAKE_CURRENT_LIST_DIR}/cmake/pugixmlObj.cmake)
 
+#CPMFindPackage(
+#        NAME pugixml
+#        GITHUB_REPOSITORY zeux/pugixml
+#        GIT_TAG v1.15
+#        OPTIONS
+#        "PUGIXML_COMPACT ${OPENXLSX_COMPACT_MODE}"
+#        # use of reserved BUILD_SHARED_LIBS automatically passes this option through
+#)
 
 #=======================================================================================================================
 # Add project subdirectories

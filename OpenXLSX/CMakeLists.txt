@@ -156,23 +156,26 @@ endif()
 if ("${OPENXLSX_LIBRARY_TYPE}" STREQUAL "STATIC")
     add_library(OpenXLSX STATIC "")
     add_library(OpenXLSX::OpenXLSX ALIAS OpenXLSX)
-    target_sources(OpenXLSX PRIVATE ${OPENXLSX_SOURCES})
+    target_sources(OpenXLSX PRIVATE ${OPENXLSX_SOURCES} $<TARGET_OBJECTS:pugixml-obj>)
     target_include_directories(OpenXLSX
             PUBLIC
             $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
             $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
             ${Boost_INCLUDE_DIR}    # just in case
             ${NOWIDE_INCLUDE_DIR}   # includes {Boost_INCLUDE_DIR}/boost
-            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)     # For export header
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}> # For export header
+            PRIVATE
+            $<TARGET_PROPERTY:pugixml-static,INTERFACE_INCLUDE_DIRECTORIES>
+    )
 #    if (OPENXLSX_ENABLE_LIBPUGIXML)
 #        target_link_libraries(OpenXLSX
 #                PRIVATE
 #                pugixml::pugixml)
 #    else()
         # pugixml is used in header only mode - so whatever this does...
-        target_link_libraries(OpenXLSX
-                PRIVATE
-                pugixml::static)
+#        target_link_libraries(OpenXLSX
+#                PRIVATE
+#                pugixml::static)
 #    endif()
     if (OPENXLSX_ENABLE_LIBZIP)
         target_link_libraries(OpenXLSX
@@ -213,23 +216,26 @@ endif ()
 if ("${OPENXLSX_LIBRARY_TYPE}" STREQUAL "SHARED")
     add_library(OpenXLSX SHARED "")
     add_library(OpenXLSX::OpenXLSX ALIAS OpenXLSX)
-    target_sources(OpenXLSX PRIVATE ${OPENXLSX_SOURCES})
+    target_sources(OpenXLSX PRIVATE ${OPENXLSX_SOURCES} $<TARGET_OBJECTS:pugixml-obj>)
     target_include_directories(OpenXLSX
             PUBLIC
             $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
             $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
             ${Boost_INCLUDE_DIR}    # just in case
             ${NOWIDE_INCLUDE_DIR}   # includes {Boost_INCLUDE_DIR}/boost
-            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)     # For export header
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}> # For export header
+            PRIVATE
+            $<TARGET_PROPERTY:pugixml-static,INTERFACE_INCLUDE_DIRECTORIES>
+    )
 #    if (OPENXLSX_ENABLE_LIBPUGIXML)
 #        target_link_libraries(OpenXLSX
 #                PRIVATE
 #                pugixml::pugixml)
 #    else()
         # pugixml is used in header only mode - so whatever this does...
-        target_link_libraries(OpenXLSX
-                PRIVATE
-                pugixml::shared)
+#        target_link_libraries(OpenXLSX
+#                PRIVATE
+#                pugixml::shared)
 #    endif()
     if (OPENXLSX_ENABLE_LIBZIP)
         target_link_libraries(OpenXLSX
