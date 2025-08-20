@@ -20,6 +20,7 @@ set(IGNORE_ME ${CMAKE_C_COMPILER}) # Suppress CMake warning message
 #=======================================================================================================================
 include(${CMAKE_CURRENT_LIST_DIR}/cmake/CPM.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/cmake/MakeObjectLib.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/cmake/IncludeObjectLib.cmake)
 
 #=======================================================================================================================
 # Output Directories.
