@@ -2,7 +2,7 @@
 # Preamble
 #=======================================================================================================================
 cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
-project(OpenXLSX VERSION 0.4.2 LANGUAGES CXX)
+project(OpenXLSX VERSION 0.4.2 LANGUAGES C CXX)
 
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN YES)
@@ -47,12 +47,12 @@ if(${OPENXLSX_CPM_LOCAL_PACKAGES_ONLY})
     set(CPM_LOCAL_PACKAGES_ONLY ON) # Defining this directly as an option in this file doesn't seem to work, as stupid as it is
     set(NOWIDE_TARGET Boost::nowide)
     set(NOWIDE_INSTALL_TARGET "")  # TBD: none needed?
-    set(PUGIXML_INSTALL_TARGET "") # TBD: none needed?
+#    set(PUGIXML_INSTALL_TARGET "") # TBD: none needed?
 else()
     set(CPM_DOWNLOAD_ALL ON) # Force download so that a local package is not used while a component is missing (e.g. Boost::nowide)
     set(NOWIDE_TARGET nowide::nowide)
     set(NOWIDE_INSTALL_TARGET nowide)
-    set(PUGIXML_INSTALL_TARGET pugixml)
+#    set(PUGIXML_INSTALL_TARGET pugixml)
 endif()
 
 set(OPENXLSX_DEPENDENCY_OBJECTS "")
@@ -66,16 +66,18 @@ if(WIN32 OR ${OPENXLSX_FORCE_NOWIDE})
 endif()
 
 if(OPENXLSX_ENABLE_NOWIDE)
-    CPMFindPackage(
-            NAME Boost
-            VERSION 1.73.0
-            GITHUB_REPOSITORY boostorg/nowide
-            # NAME nowide
-            GIT_TAG standalone
-            OPTIONS
-            "NOWIDE_INSTALL ON"
-            FIND_PACKAGE_ARGUMENTS "COMPONENTS nowide"
-    )
+#    CPMFindPackage(
+#            NAME Boost
+#            VERSION 1.73.0
+#            GITHUB_REPOSITORY boostorg/nowide
+#            # NAME nowide
+#            GIT_TAG standalone
+#            OPTIONS
+#            "NOWIDE_INSTALL ON"
+#            FIND_PACKAGE_ARGUMENTS "COMPONENTS nowide"
+#    )
+
+    include(${CMAKE_CURRENT_LIST_DIR}/cmake/nowideObj.cmake)
     if(NOT "${Boost_INCLUDE_DIR}" STREQUAL "")
         set(NOWIDE_INCLUDE_DIR "${Boost_INCLUDE_DIR}/boost")
     endif()
@@ -99,13 +101,14 @@ if (OPENXLSX_ENABLE_LIBZIP)
     # )
     # set(ZIP_LIBRARY_INSTALL_TARGET libzip)
 else()
-    CPMFindPackage(
-            NAME miniz
-            GITHUB_REPOSITORY richgel999/miniz
-            GIT_TAG 3.0.2
-            # use of reserved BUILD_SHARED_LIBS automatically passes this option through
-    )
-    set(ZIP_LIBRARY_INSTALL_TARGET miniz)
+#    CPMFindPackage(
+#            NAME miniz
+#            GITHUB_REPOSITORY richgel999/miniz
+#            GIT_TAG 3.0.2
+#            # use of reserved BUILD_SHARED_LIBS automatically passes this option through
+#    )
+#    set(ZIP_LIBRARY_INSTALL_TARGET miniz)
+    include(${CMAKE_CURRENT_LIST_DIR}/cmake/minizObj.cmake)
 endif ()
 
 include(${CMAKE_CURRENT_LIST_DIR}/cmake/pugixmlObj.cmake)
@@ -190,4 +193,4 @@ endif()
 message( VERBOSE        "   ++ pugixml_SOURCE_DIR:          ${pugixml_SOURCE_DIR}" )
 message( VERBOSE        "   ++ NOWIDE_INSTALL_TARGET:       ${NOWIDE_INSTALL_TARGET}" )
 message( VERBOSE        "   ++ ZIP_LIBRARY_INSTALL_TARGET:  ${ZIP_LIBRARY_INSTALL_TARGET}" )
-message( VERBOSE        "   ++ PUGIXML_INSTALL_TARGET:      ${PUGIXML_INSTALL_TARGET}" )
+#message( VERBOSE        "   ++ PUGIXML_INSTALL_TARGET:      ${PUGIXML_INSTALL_TARGET}" )

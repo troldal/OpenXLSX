@@ -181,11 +181,11 @@ if ("${OPENXLSX_LIBRARY_TYPE}" STREQUAL "STATIC")
         target_link_libraries(OpenXLSX
                 PRIVATE
                 libzip::zip)
-    else ()
-        target_link_libraries(OpenXLSX
-                PRIVATE
-#                $<BUILD_INTERFACE:Zippy>
-                miniz)
+#    else ()
+#        target_link_libraries(OpenXLSX
+#                PRIVATE
+##                $<BUILD_INTERFACE:Zippy>
+#                miniz)
     endif ()
 
     if (OPENXLSX_ENABLE_NOWIDE)
@@ -198,9 +198,9 @@ if ("${OPENXLSX_LIBRARY_TYPE}" STREQUAL "STATIC")
 #            target_link_libraries(OpenXLSX
 #                    PRIVATE
 #                    $<BUILD_INTERFACE:NoWide>)
-            target_link_libraries(OpenXLSX
-                    PRIVATE
-                    ${NOWIDE_TARGET})
+#            target_link_libraries(OpenXLSX
+#                    PRIVATE
+#                    ${NOWIDE_TARGET})
                     # nowide::nowide)
 #        endif()
     endif ()
@@ -241,11 +241,11 @@ if ("${OPENXLSX_LIBRARY_TYPE}" STREQUAL "SHARED")
         target_link_libraries(OpenXLSX
                 PRIVATE
                 libzip::zip)
-    else ()
-        target_link_libraries(OpenXLSX
-                PRIVATE
-#                $<BUILD_INTERFACE:Zippy>
-                miniz)
+#    else ()
+#        target_link_libraries(OpenXLSX
+#                PRIVATE
+##                $<BUILD_INTERFACE:Zippy>
+#                miniz)
     endif ()
 
     if (OPENXLSX_ENABLE_NOWIDE)
@@ -258,9 +258,9 @@ if ("${OPENXLSX_LIBRARY_TYPE}" STREQUAL "SHARED")
 #            target_link_libraries(OpenXLSX
 #                    PRIVATE
 #                    $<BUILD_INTERFACE:NoWide>)
-            target_link_libraries(OpenXLSX
-                    PRIVATE
-                    ${NOWIDE_TARGET})
+#            target_link_libraries(OpenXLSX
+#                    PRIVATE
+#                    ${NOWIDE_TARGET})
                     # nowide::nowide)
 #        endif()
     endif ()
@@ -400,15 +400,16 @@ install(
 
 
 # Targets
-set(CMAKE_INSTALL_TARGETS OpenXLSX ${PUGIXML_INSTALL_TARGET})
+#set(CMAKE_INSTALL_TARGETS OpenXLSX ${PUGIXML_INSTALL_TARGET})
+set(CMAKE_INSTALL_TARGETS OpenXLSX)
 
 if (NOT OPENXLSX_ENABLE_LIBZIP)
     set(CMAKE_INSTALL_TARGETS ${CMAKE_INSTALL_TARGETS} ${ZIP_LIBRARY_INSTALL_TARGET})
 endif ()
 
-if (OPENXLSX_ENABLE_NOWIDE)
-    set(CMAKE_INSTALL_TARGETS ${CMAKE_INSTALL_TARGETS} ${NOWIDE_INSTALL_TARGET})
-endif ()
+#if (OPENXLSX_ENABLE_NOWIDE)
+#    set(CMAKE_INSTALL_TARGETS ${CMAKE_INSTALL_TARGETS} ${NOWIDE_INSTALL_TARGET})
+#endif ()
 
 install(
         TARGETS ${CMAKE_INSTALL_TARGETS}
