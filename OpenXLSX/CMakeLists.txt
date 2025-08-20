@@ -156,7 +156,7 @@ endif()
 if ("${OPENXLSX_LIBRARY_TYPE}" STREQUAL "STATIC")
     add_library(OpenXLSX STATIC "")
     add_library(OpenXLSX::OpenXLSX ALIAS OpenXLSX)
-    target_sources(OpenXLSX PRIVATE ${OPENXLSX_SOURCES} $<TARGET_OBJECTS:pugixml-obj>)
+    target_sources(OpenXLSX PRIVATE ${OPENXLSX_SOURCES} ${OPENXLSX_DEPENDENCY_OBJECTS})
     target_include_directories(OpenXLSX
             PUBLIC
             $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
@@ -165,7 +165,7 @@ if ("${OPENXLSX_LIBRARY_TYPE}" STREQUAL "STATIC")
             ${NOWIDE_INCLUDE_DIR}   # includes {Boost_INCLUDE_DIR}/boost
             $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}> # For export header
             PRIVATE
-            $<TARGET_PROPERTY:pugixml-static,INTERFACE_INCLUDE_DIRECTORIES>
+            ${OPENXLSX_DEPENDENCY_HEADERS}
     )
 #    if (OPENXLSX_ENABLE_LIBPUGIXML)
 #        target_link_libraries(OpenXLSX
@@ -216,7 +216,7 @@ endif ()
 if ("${OPENXLSX_LIBRARY_TYPE}" STREQUAL "SHARED")
     add_library(OpenXLSX SHARED "")
     add_library(OpenXLSX::OpenXLSX ALIAS OpenXLSX)
-    target_sources(OpenXLSX PRIVATE ${OPENXLSX_SOURCES} $<TARGET_OBJECTS:pugixml-obj>)
+    target_sources(OpenXLSX PRIVATE ${OPENXLSX_SOURCES} ${OPENXLSX_DEPENDENCY_OBJECTS})
     target_include_directories(OpenXLSX
             PUBLIC
             $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
@@ -225,7 +225,7 @@ if ("${OPENXLSX_LIBRARY_TYPE}" STREQUAL "SHARED")
             ${NOWIDE_INCLUDE_DIR}   # includes {Boost_INCLUDE_DIR}/boost
             $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}> # For export header
             PRIVATE
-            $<TARGET_PROPERTY:pugixml-static,INTERFACE_INCLUDE_DIRECTORIES>
+            ${OPENXLSX_DEPENDENCY_HEADERS}
     )
 #    if (OPENXLSX_ENABLE_LIBPUGIXML)
 #        target_link_libraries(OpenXLSX

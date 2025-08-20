@@ -55,6 +55,9 @@ else()
     set(PUGIXML_INSTALL_TARGET pugixml)
 endif()
 
+set(OPENXLSX_DEPENDENCY_OBJECTS "")
+set(OPENXLSX_DEPENDENCY_HEADERS "")
+
 #=======================================================================================================================
 # Add project configurations (#ifdef / #ifndef testable)
 #=======================================================================================================================
