@@ -61,8 +61,21 @@ target_link_libraries(Demo3 PRIVATE OpenXLSX::OpenXLSX)
 add_executable(Demo4 Demo4.cpp)
 target_link_libraries(Demo4 PRIVATE OpenXLSX::OpenXLSX)
 if (${OPENXLSX_ENABLE_NOWIDE})
+
+    CPMFindPackage(
+            NAME Boost
+            VERSION 1.73.0
+            URI https://github.com/boostorg/nowide.git
+            # NAME nowide
+            GIT_TAG standalone
+            #       OPTIONS
+            #       "NOWIDE_INSTALL ON"
+            #       FIND_PACKAGE_ARGUMENTS "COMPONENTS nowide"
+    )
+
     target_compile_definitions(Demo4 PRIVATE ENABLE_NOWIDE)
-    target_link_libraries(Demo4 PRIVATE ${NOWIDE_TARGET})
+#    target_link_libraries(Demo4 PRIVATE ${NOWIDE_TARGET})
+    target_link_libraries(Demo4 PRIVATE nowide::nowide)
     # target_link_libraries(Demo4 PRIVATE nowide::nowide)
 #    if (${OPENXLSX_ENABLE_LIBBOOST_NOWIDE})
 #        # when libboost-nowide is used, a preprocessor directive is needed to change include path and namespace

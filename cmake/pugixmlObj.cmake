@@ -1,6 +1,6 @@
 CPMFindPackage(
         NAME pugixml
-        GITHUB_REPOSITORY zeux/pugixml
+        URI https://github.com/zeux/pugixml.git
         GIT_TAG v1.15
         OPTIONS
         "PUGIXML_COMPACT ${OPENXLSX_COMPACT_MODE}"

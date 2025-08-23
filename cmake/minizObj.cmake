@@ -1,6 +1,6 @@
 CPMFindPackage(
         NAME miniz
-        GITHUB_REPOSITORY richgel999/miniz
+        URI https://github.com/richgel999/miniz.git
         GIT_TAG 3.0.2
         OPTIONS
         "AMALGAMATE_SOURCES ON

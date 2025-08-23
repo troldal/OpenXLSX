@@ -1,7 +1,7 @@
 #=======================================================================================================================
 # Preamble
 #=======================================================================================================================
-cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.26 FATAL_ERROR)
 project(OpenXLSX VERSION 0.4.2 LANGUAGES C CXX)
 
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
@@ -20,7 +20,8 @@ set(IGNORE_ME ${CMAKE_C_COMPILER}) # Suppress CMake warning message
 #=======================================================================================================================
 include(${CMAKE_CURRENT_LIST_DIR}/cmake/CPM.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/cmake/MakeObjectLib.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/cmake/IncludeObjectLib.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/cmake/AddDependency.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/cmake/MessageColor.cmake)
 
 #=======================================================================================================================
 # Output Directories.
@@ -42,22 +43,44 @@ option(OPENXLSX_ENABLE_LIBZIP_EXAMPLE "Build Demo1A example using libzip - requi
 option(         BUILD_SHARED_LIBS     "Builds the shared library" OFF) # replaced OPENXLSX_SHARED_LIBRARY with cmake option reserved for that purpose
 option(OPENXLSX_COMPACT_MODE          "Build library in compact mode (slower, but uses less memory)" OFF)
 
+
+#=======================================================================================================================
+# Add dependencies
+#=======================================================================================================================
+
+# Global dependency mode
+set(DEP_MODE "REMOTE" CACHE STRING "Dependency resolution mode: AUTO | LOCAL | REMOTE")
+set_property(CACHE DEP_MODE PROPERTY STRINGS AUTO LOCAL REMOTE)
+
+# Bundle remote deps as object libraries (default OFF)
+set(BUNDLE_REMOTE_DEPS OFF CACHE BOOL "Build REMOTE dependencies as object libraries and bundle into main library")
+
+# Optionally override per package, e.g.:
+# set(fmt_BUNDLE_AS_OBJECT ON CACHE BOOL "Bundle fmt as object library")
+
+
+#========================================================================================================================
+# Add dependencies using CPMFindPackage
+#========================================================================================================================
+
 # workaround option for CPM_LOCAL_PACKAGES_ONLY
-option(OPENXLSX_CPM_LOCAL_PACKAGES_ONLY "CPM shall only use packages already installed on the host OS, otherwise fail" OFF)
-if(${OPENXLSX_CPM_LOCAL_PACKAGES_ONLY})
-    set(CPM_LOCAL_PACKAGES_ONLY ON) # Defining this directly as an option in this file doesn't seem to work, as stupid as it is
-    set(NOWIDE_TARGET Boost::nowide)
-    set(NOWIDE_INSTALL_TARGET "")  # TBD: none needed?
-#    set(PUGIXML_INSTALL_TARGET "") # TBD: none needed?
-else()
-    set(CPM_DOWNLOAD_ALL ON) # Force download so that a local package is not used while a component is missing (e.g. Boost::nowide)
-    set(NOWIDE_TARGET nowide::nowide)
-    set(NOWIDE_INSTALL_TARGET nowide)
-#    set(PUGIXML_INSTALL_TARGET pugixml)
-endif()
+#option(OPENXLSX_CPM_LOCAL_PACKAGES_ONLY "CPM shall only use packages already installed on the host OS, otherwise fail" OFF)
+#if(${OPENXLSX_CPM_LOCAL_PACKAGES_ONLY})
+#    set(CPM_LOCAL_PACKAGES_ONLY ON) # Defining this directly as an option in this file doesn't seem to work, as stupid as it is
+#    set(NOWIDE_TARGET Boost::nowide)
+#    set(NOWIDE_INSTALL_TARGET "")  # TBD: none needed?
+##    set(PUGIXML_INSTALL_TARGET "") # TBD: none needed?
+#else()
+#    set(CPM_DOWNLOAD_ALL ON) # Force download so that a local package is not used while a component is missing (e.g. Boost::nowide)
+#    set(NOWIDE_TARGET nowide::nowide)
+#    set(NOWIDE_INSTALL_TARGET nowide)
+##    set(PUGIXML_INSTALL_TARGET pugixml)
+#endif()
 
 set(OPENXLSX_DEPENDENCY_OBJECTS "")
 set(OPENXLSX_DEPENDENCY_HEADERS "")
+set(OPENXLSX_DEPENDENCY_LIBS "")
+
 
 #=======================================================================================================================
 # Add project configurations (#ifdef / #ifndef testable)
@@ -67,18 +90,25 @@ if(WIN32 OR ${OPENXLSX_FORCE_NOWIDE})
 endif()
 
 if(OPENXLSX_ENABLE_NOWIDE)
-#    CPMFindPackage(
-#            NAME Boost
-#            VERSION 1.73.0
-#            GITHUB_REPOSITORY boostorg/nowide
-#            # NAME nowide
-#            GIT_TAG standalone
-#            OPTIONS
-#            "NOWIDE_INSTALL ON"
-#            FIND_PACKAGE_ARGUMENTS "COMPONENTS nowide"
-#    )
 
-    include(${CMAKE_CURRENT_LIST_DIR}/cmake/nowideObj.cmake)
+    add_dependency(
+            NAME Boost
+            TARGET nowide
+            VERSION 1.73.0
+            GIT_REPOSITORY https://github.com/boostorg/nowide.git
+            GIT_TAG standalone
+#            FIND_PACKAGE_ARGUMENTS "REQUIRED CONFIG"
+            #    FIND_PACKAGE_ARGUMENTS "COMPONENTS nowide"
+            OPTIONS
+                "BUILD_SHARED_LIBS ON
+                NOWIDE_INSTALL ON"
+            OBJECT_LIST OPENXLSX_DEPENDENCY_OBJECTS
+            HEADER_LIST OPENXLSX_DEPENDENCY_HEADERS
+            LIBRARY_LIST OPENXLSX_DEPENDENCY_LIBS
+    )
+
+#include (${CMAKE_CURRENT_LIST_DIR}/cmake/nowideObj.cmake)
+
     if(NOT "${Boost_INCLUDE_DIR}" STREQUAL "")
         set(NOWIDE_INCLUDE_DIR "${Boost_INCLUDE_DIR}/boost")
     endif()
@@ -102,26 +132,37 @@ if (OPENXLSX_ENABLE_LIBZIP)
     # )
     # set(ZIP_LIBRARY_INSTALL_TARGET libzip)
 else()
-#    CPMFindPackage(
-#            NAME miniz
-#            GITHUB_REPOSITORY richgel999/miniz
-#            GIT_TAG 3.0.2
-#            # use of reserved BUILD_SHARED_LIBS automatically passes this option through
-#    )
-#    set(ZIP_LIBRARY_INSTALL_TARGET miniz)
-    include(${CMAKE_CURRENT_LIST_DIR}/cmake/minizObj.cmake)
+    add_dependency(
+            NAME miniz
+            TARGET miniz
+            VERSION 3.0.2
+            GIT_REPOSITORY https://github.com/richgel999/miniz.git
+            GIT_TAG 3.0.2
+            OPTIONS
+            "AMALGAMATE_SOURCES ON
+             BUILD_SHARED_LIBS OFF
+             BUILD_HEADER_ONLY OFF"
+            OBJECT_LIST OPENXLSX_DEPENDENCY_OBJECTS
+            HEADER_LIST OPENXLSX_DEPENDENCY_HEADERS
+            LIBRARY_LIST OPENXLSX_DEPENDENCY_LIBS
+            # use of reserved BUILD_SHARED_LIBS automatically passes this option through
+    )
 endif ()
 
-include(${CMAKE_CURRENT_LIST_DIR}/cmake/pugixmlObj.cmake)
+add_dependency(
+        NAME pugixml
+        TARGET pugixml::shared #pugixml-static
+        VERSION 1.15
+        GIT_REPOSITORY https://github.com/zeux/pugixml.git
+        GIT_TAG v1.15
+        OPTIONS
+            "BUILD_SHARED_LIBS ON
+            PUGIXML_COMPACT ${OPENXLSX_COMPACT_MODE}"
+        OBJECT_LIST OPENXLSX_DEPENDENCY_OBJECTS
+        HEADER_LIST OPENXLSX_DEPENDENCY_HEADERS
+        LIBRARY_LIST OPENXLSX_DEPENDENCY_LIBS
+)
 
-#CPMFindPackage(
-#        NAME pugixml
-#        GITHUB_REPOSITORY zeux/pugixml
-#        GIT_TAG v1.15
-#        OPTIONS
-#        "PUGIXML_COMPACT ${OPENXLSX_COMPACT_MODE}"
-#        # use of reserved BUILD_SHARED_LIBS automatically passes this option through
-#)
 
 #=======================================================================================================================
 # Add project subdirectories
@@ -192,6 +233,6 @@ endif()
 
 # NOTE: for some reason, cmake with --log-level VERBOSE (or DEBUG) prefixes message output with "-- "
 message( VERBOSE        "   ++ pugixml_SOURCE_DIR:          ${pugixml_SOURCE_DIR}" )
-message( VERBOSE        "   ++ NOWIDE_INSTALL_TARGET:       ${NOWIDE_INSTALL_TARGET}" )
+#message( VERBOSE        "   ++ NOWIDE_INSTALL_TARGET:       ${NOWIDE_INSTALL_TARGET}" )
 message( VERBOSE        "   ++ ZIP_LIBRARY_INSTALL_TARGET:  ${ZIP_LIBRARY_INSTALL_TARGET}" )
 #message( VERBOSE        "   ++ PUGIXML_INSTALL_TARGET:      ${PUGIXML_INSTALL_TARGET}" )

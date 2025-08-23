@@ -1,0 +1,53 @@
+# MessageColor.cmake
+string(ASCII 27 Esc)
+set(_RESET   "${Esc}[0m")
+set(_BLACK   "${Esc}[30m")
+set(_RED     "${Esc}[31m")
+set(_GREEN   "${Esc}[32m")
+set(_YELLOW  "${Esc}[33m")
+set(_BLUE    "${Esc}[34m")
+set(_MAGENTA "${Esc}[35m")
+set(_CYAN    "${Esc}[36m")
+set(_WHITE   "${Esc}[37m")
+
+# Same signature as message(), plus optional trailing:  COLOR <name>
+function(message_color)
+    set(args ${ARGV})
+
+    # Detect mode (STATUS, WARNING, etc.) like message()
+    set(mode "")
+    if(args)
+        list(GET args 0 first)
+        if(first MATCHES "^(STATUS|WARNING|AUTHOR_WARNING|SEND_ERROR|FATAL_ERROR|DEPRECATION|NOTICE|VERBOSE|DEBUG|TRACE)$")
+            set(mode "${first}")
+            list(REMOVE_AT args 0)
+        endif()
+    endif()
+
+    # Optional trailing: COLOR <name>
+    set(color "${_RESET}")
+    list(LENGTH args len)
+    if(len GREATER 1)
+        math(EXPR idx_color_kw   "${len}-2")
+        list(GET args ${idx_color_kw} maybe_kw)
+        if(maybe_kw STREQUAL "COLOR")
+            math(EXPR idx_color_name "${len}-1")
+            list(GET args ${idx_color_name} color_name)
+            string(TOUPPER "${color_name}" color_upper)
+            if(DEFINED _${color_upper})
+                set(color "${_${color_upper}}")
+            endif()
+            # Remove COLOR and its argument (remove higher index first)
+            list(REMOVE_AT args ${idx_color_name} ${idx_color_kw})
+        endif()
+    endif()
+
+    # Join remaining args into the message text
+    string(JOIN " " msg ${args})
+
+    if(mode STREQUAL "")
+        message("${color}${msg}${_RESET}")
+    else()
+        message(${mode} "${color}${msg}${_RESET}")
+    endif()
+endfunction()

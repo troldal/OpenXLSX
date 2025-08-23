@@ -1,7 +1,7 @@
 #=======================================================================================================================
 # Preamble
 #=======================================================================================================================
-cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.26 FATAL_ERROR)
 set(OPENXLSX_MAJOR_VERSION 0)
 set(OPENXLSX_MINOR_VERSION 4)
 set(OPENXLSX_MICRO_VERSION 2)
@@ -167,6 +167,7 @@ if ("${OPENXLSX_LIBRARY_TYPE}" STREQUAL "STATIC")
             PRIVATE
             ${OPENXLSX_DEPENDENCY_HEADERS}
     )
+    target_link_libraries(OpenXLSX PRIVATE ${OPENXLSX_DEPENDENCY_LIBS})
 #    if (OPENXLSX_ENABLE_LIBPUGIXML)
 #        target_link_libraries(OpenXLSX
 #                PRIVATE
@@ -227,6 +228,7 @@ if ("${OPENXLSX_LIBRARY_TYPE}" STREQUAL "SHARED")
             PRIVATE
             ${OPENXLSX_DEPENDENCY_HEADERS}
     )
+    target_link_libraries(OpenXLSX PRIVATE ${OPENXLSX_DEPENDENCY_LIBS})
 #    if (OPENXLSX_ENABLE_LIBPUGIXML)
 #        target_link_libraries(OpenXLSX
 #                PRIVATE
@@ -401,11 +403,11 @@ install(
 
 # Targets
 #set(CMAKE_INSTALL_TARGETS OpenXLSX ${PUGIXML_INSTALL_TARGET})
-set(CMAKE_INSTALL_TARGETS OpenXLSX)
+set(CMAKE_INSTALL_TARGETS OpenXLSX)# ${OPENXLSX_DEPENDENCY_LIBS})
 
-if (NOT OPENXLSX_ENABLE_LIBZIP)
-    set(CMAKE_INSTALL_TARGETS ${CMAKE_INSTALL_TARGETS} ${ZIP_LIBRARY_INSTALL_TARGET})
-endif ()
+#if (NOT OPENXLSX_ENABLE_LIBZIP)
+#    set(CMAKE_INSTALL_TARGETS ${CMAKE_INSTALL_TARGETS} ${ZIP_LIBRARY_INSTALL_TARGET})
+#endif ()
 
 #if (OPENXLSX_ENABLE_NOWIDE)
 #    set(CMAKE_INSTALL_TARGETS ${CMAKE_INSTALL_TARGETS} ${NOWIDE_INSTALL_TARGET})
