@@ -37,9 +37,9 @@ option(OPENXLSX_CREATE_DOCS           "Build library documentation (requires Dox
 option(OPENXLSX_BUILD_SAMPLES         "Build sample programs" ON)
 option(OPENXLSX_BUILD_TESTS           "Build and run library tests" ON) # TBD: are these still functional?
 option(OPENXLSX_BUILD_BENCHMARKS      "Build and run library benchmarks" OFF)
-option(OPENXLSX_ENABLE_LIBZIP         "Enable using libzip" OFF) # when OFF, default zip library is miniz. NOTE: libzip currently does NOT support CPM_DOWNLOAD_ALL
+option(OPENXLSX_ENABLE_LIBZIP         "Enable using libzip" ON) # when OFF, default zip library is miniz. NOTE: libzip currently does NOT support CPM_DOWNLOAD_ALL
 option(OPENXLSX_FORCE_NOWIDE          "Force use of boost nowide, even on non-Windows systems (testing)" OFF)
-option(OPENXLSX_ENABLE_LIBZIP_EXAMPLE "Build Demo1A example using libzip - requires libbz2-dev" OFF)
+option(OPENXLSX_ENABLE_LIBZIP_EXAMPLE "Build Demo1A example using libzip - requires libbz2-dev" ON)
 option(         BUILD_SHARED_LIBS     "Builds the shared library" OFF) # replaced OPENXLSX_SHARED_LIBRARY with cmake option reserved for that purpose
 option(OPENXLSX_COMPACT_MODE          "Build library in compact mode (slower, but uses less memory)" OFF)
 
@@ -115,15 +115,45 @@ if(OPENXLSX_ENABLE_NOWIDE)
 endif()
 
 if (OPENXLSX_ENABLE_LIBZIP)
+
+    add_dependency(
+            NAME zlib
+            TARGET ZLIB::ZLIB
+            VERSION 1.3.1
+            GIT_REPOSITORY https://github.com/madler/zlib.git
+            GIT_TAG develop
+            OPTIONS "ZLIB_INSTALL ON"
+            OBJECT_LIST OPENXLSX_DEPENDENCY_OBJECTS
+            HEADER_LIST OPENXLSX_DEPENDENCY_HEADERS
+            LIBRARY_LIST OPENXLSX_DEPENDENCY_LIBS
+            # use of reserved BUILD_SHARED_LIBS automatically passes this option through
+    )
+
+    add_dependency(
+            NAME libzip
+            TARGET libzip::zip
+            VERSION 1.11.4
+            GIT_REPOSITORY https://github.com/nih-at/libzip.git
+            GIT_TAG v1.11.4
+            OPTIONS
+            "BUILD_SHARED_LIBS ON
+            LIBZIP_DO_INSTALL ON"
+
+            OBJECT_LIST OPENXLSX_DEPENDENCY_OBJECTS
+            HEADER_LIST OPENXLSX_DEPENDENCY_HEADERS
+            LIBRARY_LIST OPENXLSX_DEPENDENCY_LIBS
+            # use of reserved BUILD_SHARED_LIBS automatically passes this option through
+    )
+
     # NOTE: libzip 1.11.4 is the newest version as of 2025-08-16 and not available on most host systems, so a lower version tag should be used.
     #        However, 1.11.4 is the first version that allows building libzip separately from the (unneeded) components zipcmp zipmerge ziptool
     #        Maybe check for available version & if 1.11.4 is available, exclude unneeded components - or does this happen automatically?
-    find_package(LibZip 1.7
-        CONFIG
-        COMPONENTS zip
-        QUIET OPTIONAL_COMPONENTS zipcmp zipmerge ziptool # requires the following tools to be installed: zipcmp zipmerge ziptool
-    )
-    set(ZIP_LIBRARY_INSTALL_TARGET "") # TBD: none needed?
+#    find_package(LibZip 1.7
+#        CONFIG
+#        COMPONENTS zip
+#        QUIET OPTIONAL_COMPONENTS zipcmp zipmerge ziptool # requires the following tools to be installed: zipcmp zipmerge ziptool
+#    )
+#    set(ZIP_LIBRARY_INSTALL_TARGET "") # TBD: none needed?
     # TODO: Help needed - how to make CPMFindPackage work with the libzip repo?
     # CPMFindPackage(
     #         NAME libzip
