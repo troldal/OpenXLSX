@@ -37,13 +37,13 @@ option(OPENXLSX_CREATE_DOCS           "Build library documentation (requires Dox
 option(OPENXLSX_BUILD_SAMPLES         "Build sample programs" ON)
 option(OPENXLSX_BUILD_TESTS           "Build and run library tests" ON) # TBD: are these still functional?
 option(OPENXLSX_BUILD_BENCHMARKS      "Build and run library benchmarks" OFF)
-#option(OPENXLSX_ENABLE_LIBZIP         "Enable using libzip" ON) # when OFF, default zip library is miniz. NOTE: libzip currently does NOT support CPM_DOWNLOAD_ALL
+
 option(OPENXLSX_FORCE_NOWIDE          "Force use of boost nowide, even on non-Windows systems (testing)" OFF)
 #option(OPENXLSX_ENABLE_LIBZIP_EXAMPLE "Build Demo1A example using libzip - requires libbz2-dev" ON)
 option(OPENXLSX_COMPACT_MODE          "Build library in compact mode (slower, but uses less memory)" OFF)
 
 # Global dependency mode
-set(DEP_MODE "REMOTE" CACHE STRING "Dependency resolution mode: AUTO | LOCAL | REMOTE")
+set(DEP_MODE "AUTO" CACHE STRING "Dependency resolution mode: AUTO | LOCAL | REMOTE")
 set_property(CACHE DEP_MODE PROPERTY STRINGS AUTO LOCAL REMOTE)
 
 # Set shared vs. static library build (For dependencies: only if supported by the dependency)
@@ -52,6 +52,10 @@ option(BUILD_SHARED_LIBS "Builds the shared library" OFF) # replaced OPENXLSX_SH
 # Bundle remote deps as object libraries
 if(DEP_MODE STREQUAL "AUTO" OR DEP_MODE STREQUAL "REMOTE")
     option(BUNDLE_REMOTE_DEPS "Build REMOTE dependencies as object libraries and bundle into main library" OFF)
+endif()
+
+if(NOT WIN32)
+    option(OPENXLSX_ENABLE_LIBZIP "Enable using libzip" ON) # when OFF, default zip library is miniz. NOTE: libzip currently does NOT support CPM_DOWNLOAD_ALL
 endif()
 
 #=======================================================================================================================
@@ -163,54 +167,23 @@ if(OPENXLSX_ENABLE_NOWIDE)
 #    endif()
 endif()
 
-#if (OPENXLSX_ENABLE_LIBZIP)
-#
-#    add_dependency(
-#            NAME zlib
-#            TARGET ZLIB::ZLIB
-#            VERSION 1.3.1
-#            GIT_REPOSITORY https://github.com/madler/zlib.git
-#            GIT_TAG develop
-#            OPTIONS "ZLIB_INSTALL ON"
-#            OBJECT_LIST OPENXLSX_DEPENDENCY_OBJECTS
-#            HEADER_LIST OPENXLSX_DEPENDENCY_HEADERS
-#            LIBRARY_LIST OPENXLSX_DEPENDENCY_LIBS
-#            # use of reserved BUILD_SHARED_LIBS automatically passes this option through
-#    )
-#
-#    add_dependency(
-#            NAME libzip
-#            TARGET libzip::zip
-#            VERSION 1.11.4
-#            GIT_REPOSITORY https://github.com/nih-at/libzip.git
-#            GIT_TAG v1.11.4
-#            OPTIONS
-#            "BUILD_SHARED_LIBS ON
-#            LIBZIP_DO_INSTALL ON"
-#
-#            OBJECT_LIST OPENXLSX_DEPENDENCY_OBJECTS
-#            HEADER_LIST OPENXLSX_DEPENDENCY_HEADERS
-#            LIBRARY_LIST OPENXLSX_DEPENDENCY_LIBS
-#            # use of reserved BUILD_SHARED_LIBS automatically passes this option through
-#    )
-#
-#    # NOTE: libzip 1.11.4 is the newest version as of 2025-08-16 and not available on most host systems, so a lower version tag should be used.
-#    #        However, 1.11.4 is the first version that allows building libzip separately from the (unneeded) components zipcmp zipmerge ziptool
-#    #        Maybe check for available version & if 1.11.4 is available, exclude unneeded components - or does this happen automatically?
-##    find_package(LibZip 1.7
-##        CONFIG
-##        COMPONENTS zip
-##        QUIET OPTIONAL_COMPONENTS zipcmp zipmerge ziptool # requires the following tools to be installed: zipcmp zipmerge ziptool
-##    )
-##    set(ZIP_LIBRARY_INSTALL_TARGET "") # TBD: none needed?
-#    # TODO: Help needed - how to make CPMFindPackage work with the libzip repo?
-#    # CPMFindPackage(
-#    #         NAME libzip
-#    #         GITHUB_REPOSITORY nih-at/libzip
-#    #         GIT_TAG 1.11.4
-#    # )
-#    # set(ZIP_LIBRARY_INSTALL_TARGET libzip)
-#else()
+if (OPENXLSX_ENABLE_LIBZIP)
+    add_dependency(
+            NAME libzip
+            TARGET libzip::zip
+            VERSION 1.11.3
+            GIT_REPOSITORY https://github.com/nih-at/libzip.git
+            GIT_TAG v1.11.3
+            OPTIONS
+            "BUILD_SHARED_LIBS ON
+            LIBZIP_DO_INSTALL ON"
+
+            PACKAGE_LIST OPENXLSX_DEPENDENCY_PACKAGES
+            OBJECT_LIST OPENXLSX_DEPENDENCY_OBJECTS
+            HEADER_LIST OPENXLSX_DEPENDENCY_HEADERS
+            LIBRARY_LIST OPENXLSX_DEPENDENCY_LIBS
+    )
+else()
     find_package(miniz CONFIG QUIET)
     if (miniz_FOUND AND NOT ${DEP_MODE} STREQUAL "REMOTE")
         set(MINIZ_TARGET miniz::miniz)
@@ -234,10 +207,9 @@ endif()
             OBJECT_LIST OPENXLSX_DEPENDENCY_OBJECTS
             HEADER_LIST OPENXLSX_DEPENDENCY_HEADERS
             LIBRARY_LIST OPENXLSX_DEPENDENCY_LIBS
-            # use of reserved BUILD_SHARED_LIBS automatically passes this option through
     )
 
-#endif ()
+endif ()
 
 # Set PUGIXML_TARGET based on availability and build type
 if (NOT ${DEP_MODE} STREQUAL "REMOTE")
@@ -258,9 +230,9 @@ add_dependency(
 #        TARGET pugixml
         FIND_PACKAGE_NAME pugixml
         FIND_PACKAGE_OPTIONS CONFIG
-        VERSION 1.15
+        VERSION 1.14
         GIT_REPOSITORY https://github.com/zeux/pugixml.git
-        GIT_TAG v1.15
+        GIT_TAG v1.14
         OPTIONS
 #            "BUILD_SHARED_LIBS OFF
             "PUGIXML_COMPACT ${OPENXLSX_COMPACT_MODE}"

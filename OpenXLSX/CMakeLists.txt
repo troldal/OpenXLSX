@@ -178,16 +178,16 @@ if ("${OPENXLSX_LIBRARY_TYPE}" STREQUAL "STATIC")
 #                PRIVATE
 #                pugixml::static)
 #    endif()
-    if (OPENXLSX_ENABLE_LIBZIP)
-        target_link_libraries(OpenXLSX
-                PRIVATE
-                libzip::zip)
+#    if (OPENXLSX_ENABLE_LIBZIP)
+#        target_link_libraries(OpenXLSX
+#                PRIVATE
+#                libzip::zip)
 #    else ()
 #        target_link_libraries(OpenXLSX
 #                PRIVATE
 ##                $<BUILD_INTERFACE:Zippy>
 #                miniz)
-    endif ()
+#    endif ()
 
     if (OPENXLSX_ENABLE_NOWIDE)
 #        if (OPENXLSX_ENABLE_LIBBOOST_NOWIDE)
@@ -316,14 +316,16 @@ if(NOWIDE_TARGET)
     endif()
 endif()
 
-get_target_property(MINIZ_INCLUDE_DIRS ${MINIZ_TARGET} INTERFACE_INCLUDE_DIRECTORIES)
-if(MINIZ_INCLUDE_DIRS)
-    # Check if boost/nowide/convert.hpp exists
-    find_file(MINIZ_HEADER "miniz/miniz.h"
-            PATHS ${MINIZ_INCLUDE_DIRS}
-            NO_DEFAULT_PATH)
-    if(MINIZ_HEADER)
-        target_compile_definitions(OpenXLSX PRIVATE OPENXLSX_LOCAL_MINIZ)
+if(NOT OPENXLSX_ENABLE_LIBZIP)
+    get_target_property(MINIZ_INCLUDE_DIRS ${MINIZ_TARGET} INTERFACE_INCLUDE_DIRECTORIES)
+    if(MINIZ_INCLUDE_DIRS)
+        # Check if boost/nowide/convert.hpp exists
+        find_file(MINIZ_HEADER "miniz/miniz.h"
+                PATHS ${MINIZ_INCLUDE_DIRS}
+                NO_DEFAULT_PATH)
+        if(MINIZ_HEADER)
+            target_compile_definitions(OpenXLSX PRIVATE OPENXLSX_LOCAL_MINIZ)
+        endif()
     endif()
 endif()
 
