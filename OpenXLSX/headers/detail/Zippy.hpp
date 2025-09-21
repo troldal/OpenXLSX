@@ -4,7 +4,12 @@
 #include <algorithm>
 #include <ctime>
 #include <fstream>
+#ifdef OPENXLSX_LOCAL_MINIZ
+#include <miniz/miniz.h>
+#else
 #include <miniz.h>
+#endif
+
 //#include <miniz_zip.h>
 #include <random>
 #include <stdexcept>

@@ -161,8 +161,8 @@ if ("${OPENXLSX_LIBRARY_TYPE}" STREQUAL "STATIC")
             PUBLIC
             $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
             $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
-            ${Boost_INCLUDE_DIR}    # just in case
-            ${NOWIDE_INCLUDE_DIR}   # includes {Boost_INCLUDE_DIR}/boost
+#            ${Boost_INCLUDE_DIR}    # just in case
+#            ${NOWIDE_INCLUDE_DIR}   # includes {Boost_INCLUDE_DIR}/boost
             $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}> # For export header
             PRIVATE
             ${OPENXLSX_DEPENDENCY_HEADERS}
@@ -222,8 +222,8 @@ if ("${OPENXLSX_LIBRARY_TYPE}" STREQUAL "SHARED")
             PUBLIC
             $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
             $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
-            ${Boost_INCLUDE_DIR}    # just in case
-            ${NOWIDE_INCLUDE_DIR}   # includes {Boost_INCLUDE_DIR}/boost
+#            ${Boost_INCLUDE_DIR}    # just in case
+#            ${NOWIDE_INCLUDE_DIR}   # includes {Boost_INCLUDE_DIR}/boost
             $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}> # For export header
             PRIVATE
             ${OPENXLSX_DEPENDENCY_HEADERS}
@@ -300,6 +300,32 @@ generate_export_header(OpenXLSX
         EXPORT_FILE_NAME OpenXLSX-Exports.hpp
         EXPORT_MACRO_NAME OPENXLSX_EXPORT
         NO_EXPORT_MACRO_NAME OPENXLSX_HIDDEN)
+
+
+if(NOWIDE_TARGET)
+    message("Using nowide target: ${NOWIDE_TARGET}")
+    get_target_property(BOOST_INCLUDE_DIRS ${NOWIDE_TARGET} INTERFACE_INCLUDE_DIRECTORIES)
+    if(BOOST_INCLUDE_DIRS)
+        # Check if boost/nowide/convert.hpp exists
+        find_file(BOOST_NOWIDE_HEADER "boost/nowide/convert.hpp"
+                PATHS ${BOOST_INCLUDE_DIRS}
+                NO_DEFAULT_PATH)
+        if(BOOST_NOWIDE_HEADER)
+            target_compile_definitions(OpenXLSX PRIVATE OPENXLSX_USE_BOOST_NOWIDE)
+        endif()
+    endif()
+endif()
+
+get_target_property(MINIZ_INCLUDE_DIRS ${MINIZ_TARGET} INTERFACE_INCLUDE_DIRECTORIES)
+if(MINIZ_INCLUDE_DIRS)
+    # Check if boost/nowide/convert.hpp exists
+    find_file(MINIZ_HEADER "miniz/miniz.h"
+            PATHS ${MINIZ_INCLUDE_DIRS}
+            NO_DEFAULT_PATH)
+    if(MINIZ_HEADER)
+        target_compile_definitions(OpenXLSX PRIVATE OPENXLSX_LOCAL_MINIZ)
+    endif()
+endif()
 
 #=======================================================================================================================
 # COMPILER FLAGS
@@ -402,19 +428,22 @@ install(
 
 
 # Targets
-#set(CMAKE_INSTALL_TARGETS OpenXLSX ${PUGIXML_INSTALL_TARGET})
-set(CMAKE_INSTALL_TARGETS OpenXLSX)# ${OPENXLSX_DEPENDENCY_LIBS})
+#set(OPENXLSX_INSTALL_TARGETS OpenXLSX ${PUGIXML_INSTALL_TARGET})
+set(OPENXLSX_INSTALL_TARGETS OpenXLSX)# nowide)# ${OPENXLSX_DEPENDENCY_LIBS})
+if(BUILD_SHARED_LIBS AND NOT BUNDLE_REMOTE_DEPS)
+    list(APPEND OPENXLSX_INSTALL_TARGETS ${OPENXLSX_DEPENDENCY_PACKAGES})
+endif()
 
 #if (NOT OPENXLSX_ENABLE_LIBZIP)
-#    set(CMAKE_INSTALL_TARGETS ${CMAKE_INSTALL_TARGETS} ${ZIP_LIBRARY_INSTALL_TARGET})
+#    set(OPENXLSX_INSTALL_TARGETS ${OPENXLSX_INSTALL_TARGETS} ${ZIP_LIBRARY_INSTALL_TARGET})
 #endif ()
 
 #if (OPENXLSX_ENABLE_NOWIDE)
-#    set(CMAKE_INSTALL_TARGETS ${CMAKE_INSTALL_TARGETS} ${NOWIDE_INSTALL_TARGET})
+#    set(OPENXLSX_INSTALL_TARGETS ${OPENXLSX_INSTALL_TARGETS} ${NOWIDE_INSTALL_TARGET})
 #endif ()
 
 install(
-        TARGETS ${CMAKE_INSTALL_TARGETS}
+        TARGETS ${OPENXLSX_INSTALL_TARGETS}
         EXPORT OpenXLSXTargets
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         COMPONENT lib

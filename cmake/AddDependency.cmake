@@ -122,9 +122,9 @@ function(add_dependency)
     set(options)
     set(oneValueArgs
             NAME TARGET VERSION GIT_REPOSITORY FIND_PACKAGE_NAME GIT_TAG
-            LIBRARY_LIST OBJECT_LIST HEADER_LIST
+            PACKAGE_LIST LIBRARY_LIST OBJECT_LIST HEADER_LIST
     )
-    set(multiValueArgs FIND_PACKAGE_ARGS OPTIONS)
+    set(multiValueArgs FIND_PACKAGE_ARGS FIND_PACKAGE_OPTIONS OPTIONS)
     cmake_parse_arguments(DEP "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
     if (NOT DEP_NAME OR NOT DEP_TARGET OR NOT DEP_GIT_REPOSITORY)
@@ -161,6 +161,8 @@ function(add_dependency)
         list(APPEND _cpm_args OPTIONS ${DEP_OPTIONS})
     endif ()
 
+
+
     # We’ll fill these and then append to the caller lists (if requested)
     set(_chosen_lib_target "")
     set(_created_obj_target "")
@@ -186,6 +188,11 @@ function(add_dependency)
             set(${DEP_HEADER_LIST} "${_incs}" PARENT_SCOPE)
 
         else()
+
+            set(_tgt "${${DEP_PACKAGE_LIST}}")
+            list(APPEND _tgt "${DEP_FIND_PACKAGE_NAME}")
+            set(${DEP_PACKAGE_LIST} "${_tgt}" PARENT_SCOPE)
+
             # If not bundling, just add the library target to the caller list (if requested)
             if (DEP_LIBRARY_LIST)
                 set(_libs "${${DEP_LIBRARY_LIST}}")
@@ -197,7 +204,7 @@ function(add_dependency)
         endif ()
 
     elseif (_mode STREQUAL "LOCAL")
-        find_package(${DEP_FIND_PACKAGE_NAME} ${DEP_VERSION} ${DEP_FIND_PACKAGE_ARGS} REQUIRED)
+        find_package(${DEP_FIND_PACKAGE_NAME} ${DEP_VERSION} ${DEP_FIND_PACKAGE_ARGS} ${DEP_FIND_PACKAGE_OPTIONS} QUIET)
         if (NOT TARGET ${DEP_TARGET})
             message(FATAL_ERROR "Local package '${DEP_FIND_PACKAGE_NAME}' found but target '${DEP_TARGET}' not provided.")
         endif ()
@@ -214,7 +221,7 @@ function(add_dependency)
         endif ()
 
     else () # AUTO: try local, else fetch
-        find_package(${DEP_FIND_PACKAGE_NAME} ${DEP_VERSION} ${DEP_FIND_PACKAGE_ARGS} QUIET)
+        find_package(${DEP_FIND_PACKAGE_NAME} ${DEP_VERSION} ${DEP_FIND_PACKAGE_ARGS} ${DEP_FIND_PACKAGE_OPTIONS} QUIET)
         if(${DEP_FIND_PACKAGE_NAME}_FOUND)
             message_color(STATUS
                     "Found local package '${DEP_FIND_PACKAGE_NAME}' (target '${DEP_TARGET}') in AUTO mode."
@@ -241,6 +248,8 @@ function(add_dependency)
                 endif()
             endforeach()
 
+
+
             message_color(
                     STATUS
                         "Local package '${DEP_FIND_PACKAGE_NAME}' not found. Fetching '${DEP_NAME}' via CPM in AUTO mode."
@@ -265,6 +274,11 @@ function(add_dependency)
                 list(APPEND _incs "$<TARGET_PROPERTY:${DEP_TARGET},INTERFACE_INCLUDE_DIRECTORIES>")
                 set(${DEP_HEADER_LIST} "${_incs}" PARENT_SCOPE)
             else()
+
+                set(_tgt "${${DEP_PACKAGE_LIST}}")
+                list(APPEND _tgt "${DEP_FIND_PACKAGE_NAME}")
+                set(${DEP_PACKAGE_LIST} "${_tgt}" PARENT_SCOPE)
+
                 # If not bundling, just add the library target to the caller list (if requested)
                 if (DEP_LIBRARY_LIST)
                     set(_libs "${${DEP_LIBRARY_LIST}}")

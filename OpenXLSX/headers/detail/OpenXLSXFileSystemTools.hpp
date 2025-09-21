@@ -4,7 +4,11 @@
 #ifdef ENABLE_NOWIDE
     // TODO: use boost nowide stat!
     // #include <nowide/stat.hpp>
-    #include <nowide/cstdio.hpp>    // nowide::fopen, nowide::remove, nowide::rename
+#    ifdef OPENXLSX_USE_BOOST_NOWIDE
+#        include <boost/nowide/cstdio.hpp> // nowide::fopen, nowide::remove, nowide::rename
+#    else
+#        include <nowide/cstdio.hpp> // nowide::fopen, nowide::remove, nowide::rename
+#    endif
     namespace boost {}              // ensure that namespace exists, even if boost doesn't define it
     using namespace boost;          // depending on library version, nowide namespace is hidden in boost::nowide
 #else
