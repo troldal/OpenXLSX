@@ -1459,7 +1459,7 @@ void XLDocument::setSavingDeclaration(XLXmlSavingDeclaration const& savingDeclar
  */
 void XLDocument::cleanupSharedStrings()
 {
-    int32_t oldStringCount = m_sharedStringCache.size();
+    int32_t oldStringCount = static_cast<int32_t>( m_sharedStringCache.size() );
     std::vector< int32_t > indexMap(oldStringCount, -1);      // indexMap[ oldIndex ] :== newIndex, -1 = not yet assigned
     int32_t newStringCount = 1; // reserve index 0 for empty string, count here +1 for each unique shared string index that is in use in the worksheet
 

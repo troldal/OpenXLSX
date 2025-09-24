@@ -245,6 +245,16 @@ XLCellAssignable::XLCellAssignable (XLCell && other) : XLCell(std::move(other)) 
 /**
  * @details
  */
+XLCellAssignable::XLCellAssignable (const XLCellAssignable& other) : XLCell(other) {}
+
+/**
+ * @details
+ */
+XLCellAssignable::XLCellAssignable (XLCellAssignable&& other) noexcept : XLCell(std::move(other)) {}
+
+/**
+ * @details
+ */
 XLCellAssignable& XLCellAssignable::operator=(const XLCell& other)
 {
     copyFrom(other);

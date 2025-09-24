@@ -486,7 +486,7 @@ namespace OpenXLSX
                 XMLNode rowNode = m_hintRow.next_sibling_of_type(pugi::node_element);
                 uint32_t rowNo = 0;
                 while (not rowNode.empty()) {
-                    rowNo = rowNode.attribute("r").as_ullong();
+                    rowNo = static_cast<uint32_t>(rowNode.attribute("r").as_ullong());
                     if (rowNo >= m_currentRowNumber) break; // if desired row was reached / passed, break before incrementing rowNode
                     rowNode = rowNode.next_sibling_of_type(pugi::node_element);
                 }

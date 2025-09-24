@@ -133,7 +133,7 @@ namespace OpenXLSX
          * @brief return the amount of shared string entries currently in the cache
          * @return
          */
-        int32_t stringCount() const { return m_stringCache->size(); }
+        int32_t stringCount() const { return static_cast<int32_t>( m_stringCache->size() ); }
 
         /**
          * @brief

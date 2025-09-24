@@ -383,7 +383,7 @@ namespace OpenXLSX
 
         // ===== prepend new cell nodes to current row node
         XMLNode curNode{};
-        uint16_t colNo = values.size();
+        uint16_t colNo = static_cast<uint16_t>(values.size());
         for (auto value = values.rbegin(); value != values.rend(); ++value) {    // NOLINT
             curNode = m_rowNode->prepend_child("c");
             setDefaultCellAttributes(curNode, XLCellReference(static_cast<uint32_t>(m_row->rowNumber()), colNo).address(), *m_rowNode, colNo);

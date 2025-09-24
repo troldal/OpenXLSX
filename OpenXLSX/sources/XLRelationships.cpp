@@ -99,7 +99,7 @@ namespace OpenXLSX { // anonymous namespace: do not export these symbols
             std::random_device rd;
             rdSeed = rd();
         }
-        Rand32.seed(rdSeed);
+        Rand32.seed(static_cast<std::mt19937::result_type>(rdSeed));
         RandomizerInitialized = true;
     }
 } // namespace OpenXLSX

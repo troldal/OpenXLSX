@@ -32,9 +32,9 @@ TEST_CASE("XLRow Tests", "[XLRow]")
 
         XLRow copy3;
         copy3 = copy2;
-        copy3.setHeight(height * 3);
+        copy3.setHeight(static_cast<float>(height * 3));
         REQUIRE(copy3.height() == height * 3);
-        copy3.setHeight(height * 4);
+        copy3.setHeight(static_cast<float>(height * 4));
         REQUIRE(copy3.height() == height * 4);
 
         XLRow copy4;
@@ -162,7 +162,7 @@ TEST_CASE("XLRowData Tests", "[XLRowData]")
 
         const auto row1c = row1;
 
-        auto val1sum = 0;
+        std::string::size_type val1sum = 0;
         const auto val1results1 = static_cast<std::vector<std::string>>(row1c.values());
         for (const auto v : val1results1) val1sum += v.size();
         REQUIRE(val1sum == 12);
@@ -294,7 +294,7 @@ TEST_CASE("XLRowData Tests", "[XLRowData]")
 
         const auto row1c = row1;
 
-        auto val1sum = 0;
+        std::string::size_type val1sum = 0;
         const auto val1results1 = static_cast<std::list<std::string>>(row1c.values());
         for (const auto v : val1results1) val1sum += v.size();
         REQUIRE(val1sum == 12);
@@ -426,7 +426,7 @@ TEST_CASE("XLRowData Tests", "[XLRowData]")
 
         const auto row1c = row1;
 
-        auto val1sum = 0;
+        std::string::size_type val1sum = 0;
         const auto val1results1 = static_cast<std::deque<std::string>>(row1c.values());
         for (const auto v : val1results1) val1sum += v.size();
         REQUIRE(val1sum == 12);

@@ -278,7 +278,7 @@ int16_t XLShapeStyle::attributeOrderIndex(std::string const& attributeName) cons
     auto attributeIterator = std::find(m_nodeOrder.begin(), m_nodeOrder.end(), attributeName);
     if (attributeIterator == m_nodeOrder.end())
         return -1;
-    return attributeIterator - m_nodeOrder.begin();
+    return static_cast<int16_t>( attributeIterator - m_nodeOrder.begin() );
 }
 
 /**
