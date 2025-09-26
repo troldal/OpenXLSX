@@ -33,60 +33,32 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/output)
 #=======================================================================================================================
 # Add build options
 #=======================================================================================================================
-option(OPENXLSX_CREATE_DOCS           "Build library documentation (requires Doxygen and Graphviz/Dot to be installed)" ON)
+option(BUILD_SHARED_LIBS "Builds the shared library" OFF) # replaced OPENXLSX_SHARED_LIBRARY with cmake option reserved for that purpose
 option(OPENXLSX_BUILD_SAMPLES         "Build sample programs" ON)
 option(OPENXLSX_BUILD_TESTS           "Build and run library tests" ON) # TBD: are these still functional?
+option(OPENXLSX_CREATE_DOCS           "Build library documentation (requires Doxygen and Graphviz/Dot to be installed)" ON)
 option(OPENXLSX_BUILD_BENCHMARKS      "Build and run library benchmarks" OFF)
-
 option(OPENXLSX_FORCE_NOWIDE          "Force use of boost nowide, even on non-Windows systems (testing)" OFF)
 #option(OPENXLSX_ENABLE_LIBZIP_EXAMPLE "Build Demo1A example using libzip - requires libbz2-dev" ON)
 option(OPENXLSX_COMPACT_MODE          "Build library in compact mode (slower, but uses less memory)" OFF)
 
-# Global dependency mode
-set(DEP_MODE "AUTO" CACHE STRING "Dependency resolution mode: AUTO | LOCAL | REMOTE")
+# Dependency resolution mode: AUTO | LOCAL | REMOTE
+set(DEP_MODE "LOCAL" CACHE STRING "Dependency resolution mode: AUTO | LOCAL | REMOTE")
 set_property(CACHE DEP_MODE PROPERTY STRINGS AUTO LOCAL REMOTE)
 
-# Set shared vs. static library build (For dependencies: only if supported by the dependency)
-option(BUILD_SHARED_LIBS "Builds the shared library" OFF) # replaced OPENXLSX_SHARED_LIBRARY with cmake option reserved for that purpose
-
-# Bundle remote deps as object libraries
+# Dependency inclusion options: BUNDLE_REMOTE_DEPS only makes sense if DEP_MODE is AUTO or REMOTE
 if(DEP_MODE STREQUAL "AUTO" OR DEP_MODE STREQUAL "REMOTE")
     option(BUNDLE_REMOTE_DEPS "Build REMOTE dependencies as object libraries and bundle into main library" OFF)
 endif()
 
+# zip library selection: libzip (requires additional dependencies) or miniz (header-only, no additional dependencies)
 if(NOT WIN32)
     option(OPENXLSX_ENABLE_LIBZIP "Enable using libzip" ON) # when OFF, default zip library is miniz. NOTE: libzip currently does NOT support CPM_DOWNLOAD_ALL
 endif()
 
 #=======================================================================================================================
-# Add dependencies
+# Initialize dependency accumulators
 #=======================================================================================================================
-
-
-
-
-
-# Optionally override per package, e.g.:
-# set(fmt_BUNDLE_AS_OBJECT ON CACHE BOOL "Bundle fmt as object library")
-
-
-#========================================================================================================================
-# Add dependencies using CPMFindPackage
-#========================================================================================================================
-
-# workaround option for CPM_LOCAL_PACKAGES_ONLY
-#option(OPENXLSX_CPM_LOCAL_PACKAGES_ONLY "CPM shall only use packages already installed on the host OS, otherwise fail" OFF)
-#if(${OPENXLSX_CPM_LOCAL_PACKAGES_ONLY})
-#    set(CPM_LOCAL_PACKAGES_ONLY ON) # Defining this directly as an option in this file doesn't seem to work, as stupid as it is
-#    set(NOWIDE_TARGET Boost::nowide)
-#    set(NOWIDE_INSTALL_TARGET "")  # TBD: none needed?
-##    set(PUGIXML_INSTALL_TARGET "") # TBD: none needed?
-#else()
-#    set(CPM_DOWNLOAD_ALL ON) # Force download so that a local package is not used while a component is missing (e.g. Boost::nowide)
-#    set(NOWIDE_TARGET nowide::nowide)
-#    set(NOWIDE_INSTALL_TARGET nowide)
-##    set(PUGIXML_INSTALL_TARGET pugixml)
-#endif()
 
 set(OPENXLSX_DEPENDENCY_PACKAGES "")
 set(OPENXLSX_DEPENDENCY_OBJECTS "")
@@ -98,7 +70,7 @@ if(BUILD_SHARED_LIBS)
 endif()
 
 #=======================================================================================================================
-# Add project configurations (#ifdef / #ifndef testable)
+# Add Boost.Nowide dependency (if needed)
 #=======================================================================================================================
 if(WIN32 OR ${OPENXLSX_FORCE_NOWIDE})
     set(OPENXLSX_ENABLE_NOWIDE ON)
@@ -106,32 +78,11 @@ endif()
 
 if(OPENXLSX_ENABLE_NOWIDE)
 
-
-
     # Check if package exists without errors or full loading
     find_package(Boost 1.73 COMPONENTS nowide QUIET)
     if (Boost_FOUND)
-    #    add_dependency(
-    #            NAME Boost
-    #            TARGET Boost::nowide
-    #            FIND_PACKAGE_NAME Boost
-    #            FIND_PACKAGE_OPTIONS REQUIRED COMPONENTS nowide
-    #            VERSION 1.73.0
-    #            GIT_REPOSITORY https://github.com/boostorg/boost.git
-    #            GIT_TAG boost-1.73.0
-    #            #            FIND_PACKAGE_ARGUMENTS "REQUIRED CONFIG"
-    #            #    FIND_PACKAGE_ARGUMENTS "COMPONENTS nowide"
-    #            #        OPTIONS
-    #            #        "BUILD_SHARED_LIBS ON
-    #            #                NOWIDE_INSTALL ON"
-    #            OBJECT_LIST OPENXLSX_DEPENDENCY_OBJECTS
-    #            HEADER_LIST OPENXLSX_DEPENDENCY_HEADERS
-    #            LIBRARY_LIST OPENXLSX_DEPENDENCY_LIBS
-    #    )
-    #    set(_libs "${${DEP_LIBRARY_LIST}}")
         list(APPEND OPENXLSX_DEPENDENCY_LIBS "$<BUILD_LOCAL_INTERFACE:Boost::nowide>")
         set(NOWIDE_TARGET Boost::nowide)
-    #    set(${DEP_LIBRARY_LIST} "${_libs}" PARENT_SCOPE)
     else ()
 
         set(INSTALL_NOWIDE_TARGET OFF)
@@ -143,15 +94,10 @@ if(OPENXLSX_ENABLE_NOWIDE)
                 NAME nowide
                 TARGET nowide::nowide
                 FIND_PACKAGE_NAME nowide
-                #FIND_PACKAGE_OPTIONS CONFIG REQUIRED
                 VERSION 11.3.0
                 GIT_REPOSITORY https://github.com/boostorg/nowide.git
                 GIT_TAG standalone
-                #            FIND_PACKAGE_ARGUMENTS "REQUIRED CONFIG"
-                #    FIND_PACKAGE_ARGUMENTS "COMPONENTS nowide"
-                OPTIONS
-#                "BUILD_SHARED_LIBS ON
-                            "NOWIDE_INSTALL ${INSTALL_NOWIDE_TARGET}"
+                OPTIONS "NOWIDE_INSTALL ${INSTALL_NOWIDE_TARGET}"
                 PACKAGE_LIST OPENXLSX_DEPENDENCY_PACKAGES
                 OBJECT_LIST OPENXLSX_DEPENDENCY_OBJECTS
                 HEADER_LIST OPENXLSX_DEPENDENCY_HEADERS
@@ -159,14 +105,11 @@ if(OPENXLSX_ENABLE_NOWIDE)
         )
         set(NOWIDE_TARGET nowide::nowide)
     endif ()
-
-#include (${CMAKE_CURRENT_LIST_DIR}/cmake/nowideObj.cmake)
-
-#    if(NOT "${Boost_INCLUDE_DIR}" STREQUAL "")
-#        set(NOWIDE_INCLUDE_DIR "${Boost_INCLUDE_DIR}/boost")
-#    endif()
 endif()
 
+#=======================================================================================================================
+# Add zip library dependency
+#=======================================================================================================================
 if (OPENXLSX_ENABLE_LIBZIP)
     add_dependency(
             NAME libzip
@@ -174,10 +117,7 @@ if (OPENXLSX_ENABLE_LIBZIP)
             VERSION 1.11.3
             GIT_REPOSITORY https://github.com/nih-at/libzip.git
             GIT_TAG v1.11.3
-            OPTIONS
-            "BUILD_SHARED_LIBS ON
-            LIBZIP_DO_INSTALL ON"
-
+            OPTIONS "BUILD_SHARED_LIBS ON LIBZIP_DO_INSTALL ON"
             PACKAGE_LIST OPENXLSX_DEPENDENCY_PACKAGES
             OBJECT_LIST OPENXLSX_DEPENDENCY_OBJECTS
             HEADER_LIST OPENXLSX_DEPENDENCY_HEADERS
@@ -199,10 +139,7 @@ else()
             VERSION 3.0.2
             GIT_REPOSITORY https://github.com/richgel999/miniz.git
             GIT_TAG 3.0.2
-            OPTIONS
-            "AMALGAMATE_SOURCES ON
-#             BUILD_SHARED_LIBS ON
-             BUILD_HEADER_ONLY OFF"
+            OPTIONS "AMALGAMATE_SOURCES ON BUILD_HEADER_ONLY OFF"
             PACKAGE_LIST OPENXLSX_DEPENDENCY_PACKAGES
             OBJECT_LIST OPENXLSX_DEPENDENCY_OBJECTS
             HEADER_LIST OPENXLSX_DEPENDENCY_HEADERS
@@ -211,7 +148,9 @@ else()
 
 endif ()
 
-# Set PUGIXML_TARGET based on availability and build type
+#=======================================================================================================================
+# Add pugixml dependency
+#=======================================================================================================================
 if (NOT ${DEP_MODE} STREQUAL "REMOTE")
     find_package(pugixml CONFIG QUIET)
 endif()
@@ -227,28 +166,22 @@ endif()
 add_dependency(
         NAME pugixml
         TARGET ${PUGIXML_TARGET}
-#        TARGET pugixml
         FIND_PACKAGE_NAME pugixml
         FIND_PACKAGE_OPTIONS CONFIG
         VERSION 1.14
         GIT_REPOSITORY https://github.com/zeux/pugixml.git
         GIT_TAG v1.14
-        OPTIONS
-#            "BUILD_SHARED_LIBS OFF
-            "PUGIXML_COMPACT ${OPENXLSX_COMPACT_MODE}"
+        OPTIONS "PUGIXML_COMPACT ${OPENXLSX_COMPACT_MODE}"
         PACKAGE_LIST OPENXLSX_DEPENDENCY_PACKAGES
         OBJECT_LIST OPENXLSX_DEPENDENCY_OBJECTS
         HEADER_LIST OPENXLSX_DEPENDENCY_HEADERS
         LIBRARY_LIST OPENXLSX_DEPENDENCY_LIBS
 )
 
-#list(TRANSFORM OPENXLSX_DEPENDENCY_LIBS PREPEND "$<BUILD_LOCAL_INTERFACE:")
-#list(TRANSFORM OPENXLSX_DEPENDENCY_LIBS APPEND ">")
-
-message(AUTHOR_WARNING "Dependency packages: ${OPENXLSX_DEPENDENCY_PACKAGES}")
-message(AUTHOR_WARNING "Dependency objects: ${OPENXLSX_DEPENDENCY_OBJECTS}")
-message(AUTHOR_WARNING "Dependency headers: ${OPENXLSX_DEPENDENCY_HEADERS}")
-message(AUTHOR_WARNING "Dependency libraries: ${OPENXLSX_DEPENDENCY_LIBS}")
+#message(AUTHOR_WARNING "Dependency packages: ${OPENXLSX_DEPENDENCY_PACKAGES}")
+#message(AUTHOR_WARNING "Dependency objects: ${OPENXLSX_DEPENDENCY_OBJECTS}")
+#message(AUTHOR_WARNING "Dependency headers: ${OPENXLSX_DEPENDENCY_HEADERS}")
+#message(AUTHOR_WARNING "Dependency libraries: ${OPENXLSX_DEPENDENCY_LIBS}")
 
 
 #=======================================================================================================================
