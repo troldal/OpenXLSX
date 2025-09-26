@@ -43,7 +43,7 @@ option(OPENXLSX_FORCE_NOWIDE          "Force use of boost nowide, even on non-Wi
 option(OPENXLSX_COMPACT_MODE          "Build library in compact mode (slower, but uses less memory)" OFF)
 
 # Dependency resolution mode: AUTO | LOCAL | REMOTE
-set(DEP_MODE "LOCAL" CACHE STRING "Dependency resolution mode: AUTO | LOCAL | REMOTE")
+set(DEP_MODE "REMOTE" CACHE STRING "Dependency resolution mode: AUTO | LOCAL | REMOTE")
 set_property(CACHE DEP_MODE PROPERTY STRINGS AUTO LOCAL REMOTE)
 
 # Dependency inclusion options: BUNDLE_REMOTE_DEPS only makes sense if DEP_MODE is AUTO or REMOTE
@@ -51,9 +51,9 @@ if(DEP_MODE STREQUAL "AUTO" OR DEP_MODE STREQUAL "REMOTE")
     option(BUNDLE_REMOTE_DEPS "Build REMOTE dependencies as object libraries and bundle into main library" OFF)
 endif()
 
-# zip library selection: libzip (requires additional dependencies) or miniz (header-only, no additional dependencies)
+# zip library selection: libzip (requires additional dependencies) or miniz (default, header-only, no additional dependencies)
 if(NOT WIN32)
-    option(OPENXLSX_ENABLE_LIBZIP "Enable using libzip" ON) # when OFF, default zip library is miniz. NOTE: libzip currently does NOT support CPM_DOWNLOAD_ALL
+    option(OPENXLSX_ENABLE_LIBZIP "Enable using libzip" OFF) # when OFF, default zip library is miniz. NOTE: libzip currently does NOT support CPM_DOWNLOAD_ALL
 endif()
 
 #=======================================================================================================================
