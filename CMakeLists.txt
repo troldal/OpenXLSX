@@ -43,7 +43,7 @@ option(OPENXLSX_FORCE_NOWIDE          "Force use of boost nowide, even on non-Wi
 option(OPENXLSX_COMPACT_MODE          "Build library in compact mode (slower, but uses less memory)" OFF)
 
 # Dependency resolution mode: AUTO | LOCAL | REMOTE
-set(DEP_MODE "REMOTE" CACHE STRING "Dependency resolution mode: AUTO | LOCAL | REMOTE")
+set(DEP_MODE "AUTO" CACHE STRING "Dependency resolution mode: AUTO | LOCAL | REMOTE")
 set_property(CACHE DEP_MODE PROPERTY STRINGS AUTO LOCAL REMOTE)
 
 # Dependency inclusion options: BUNDLE_REMOTE_DEPS only makes sense if DEP_MODE is AUTO or REMOTE
