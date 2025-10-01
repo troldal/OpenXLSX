@@ -337,6 +337,12 @@ namespace OpenXLSX
         XLComments sheetComments(uint16_t sheetXmlNo);
 
         /**
+         * @brief Generate the next globally unique image ID for this document
+         * @return The next sequential image ID (e.g., "img1", "img2", etc.)
+         */
+        std::string generateNextImageId() const;
+
+        /**
          * @brief fetch the worksheet tables for sheetXmlNo, create the file if it does not exist
          * @param sheetXmlNo fetch for this sheet #
          * @return an XLTables object initialized with the sheet tables
@@ -351,6 +357,38 @@ namespace OpenXLSX
          * @return true if sheetName can be used, otherwise false
          */
         bool validateSheetName(std::string sheetName, bool throwOnInvalid = false);
+
+        /**
+         * @brief Add an image entry to the archive
+         * @param imageFilename The filename for the image in the archive
+         * @param imageData The binary image data
+         * @param contentType The content type for the image
+         * @return true if successful, false otherwise
+         */
+        bool addImageEntry(const std::string& imageFilename, const std::vector<uint8_t>& imageData, XLContentType contentType);
+
+        /**
+         * @brief Add a drawing file to the archive
+         * @param drawingFilename The filename for the drawing in the archive
+         * @param drawingXml The drawing XML content
+         * @return true if successful, false otherwise
+         */
+        bool addDrawingFile(const std::string& drawingFilename, const std::string& drawingXml);
+
+        /**
+         * @brief Get XML data for a drawing file
+         * @param drawingFilename The filename for the drawing in the archive
+         * @return Pointer to XLXmlData, or nullptr if not found
+         */
+        XLXmlData* getDrawingXmlData(const std::string& drawingFilename);
+
+        /**
+         * @brief Add a relationships file to the archive
+         * @param relsFilename The filename for the relationships file in the archive
+         * @param relsXml The relationships XML content
+         * @return true if successful, false otherwise
+         */
+        bool addRelationshipsFile(const std::string& relsFilename, const std::string& relsXml);
 
         /**
          * @brief
@@ -450,6 +488,8 @@ namespace OpenXLSX
         XLStyles        m_styles {};           /**< A pointer to the document styles object*/
         XLWorkbook      m_workbook {};         /**< A pointer to the workbook object */
         IZipArchive     m_archive {};          /**<  */
+        
+        mutable uint32_t m_globalImageCounter {0}; /**< Global counter for unique image IDs across all worksheets */
     };
 
 

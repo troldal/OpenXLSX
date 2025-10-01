@@ -1202,6 +1202,78 @@ bool XLDocument::validateSheetName(std::string sheetName, bool throwOnInvalid)
 }
 
 /**
+ * @details Add an image entry to the archive
+ */
+bool XLDocument::addImageEntry(const std::string& imageFilename, const std::vector<uint8_t>& imageData, XLContentType contentType)
+{
+    try {
+        if (!m_archive.hasEntry(imageFilename)) {
+            // Convert vector<uint8_t> to string for addEntry
+            std::string imageDataString(imageData.begin(), imageData.end());
+            m_archive.addEntry(imageFilename, imageDataString);
+            m_contentTypes.addOverride("/" + imageFilename, contentType);
+        }
+        return true;
+    }
+    catch (const std::exception&) {
+        return false;
+    }
+}
+
+/**
+ * @details Add a drawing file to the archive
+ */
+bool XLDocument::addDrawingFile(const std::string& drawingFilename, const std::string& drawingXml)
+{
+    try {
+        if (!m_archive.hasEntry(drawingFilename)) {
+            m_archive.addEntry(drawingFilename, drawingXml);
+            m_contentTypes.addOverride("/" + drawingFilename, XLContentType::Drawing);
+            
+            // Add XLXmlData object to the data list so getXmlData can find it
+            m_data.emplace_back(this, drawingFilename, "", XLContentType::Drawing);
+        }
+        return true;
+    }
+    catch (const std::exception&) {
+        return false;
+    }
+}
+
+/**
+ * @details Get XML data for a drawing file
+ */
+XLXmlData* XLDocument::getDrawingXmlData(const std::string& drawingFilename)
+{
+    return getXmlData(drawingFilename, true); // Force loading the XML data
+}
+
+/**
+ * @details Add a relationships file to the archive
+ */
+bool XLDocument::addRelationshipsFile(const std::string& relsFilename, const std::string& relsXml)
+{
+    try {
+        bool isNewFile = !m_archive.hasEntry(relsFilename);
+        
+        // Always update the relationships file (allow overwriting)
+        m_archive.addEntry(relsFilename, relsXml);
+        
+        // Only add content type and XML data if this is a new file
+        if (isNewFile) {
+            m_contentTypes.addOverride("/" + relsFilename, XLContentType::Relationships);
+            
+            // Add XLXmlData object to the data list so getXmlData can find it
+            m_data.emplace_back(this, relsFilename, "", XLContentType::Relationships);
+        }
+        return true;
+    }
+    catch (const std::exception&) {
+        return false;
+    }
+}
+
+/**
  * @details return value defaults to true, false only where the XLCommandType implements it
  */
 bool XLDocument::execCommand(const XLCommand& command)
@@ -1699,6 +1771,14 @@ namespace OpenXLSX
 
         // in return value: avoid appending a trailing slash if a path was already reduced to "/"
         return ((result.length() > 1 || result.front() != '/') && path.back() == '/') ? result + "/" : result;
+    }
+
+    /**
+     * @details Generate the next globally unique image ID for this document
+     */
+    std::string XLDocument::generateNextImageId() const
+    {
+        return "img" + std::to_string(++m_globalImageCounter);
     }
 
 }    // namespace OpenXLSX

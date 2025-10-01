@@ -75,6 +75,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLRow.hpp"
 #include "XLStyles.hpp"   // XLStyleIndex
 #include "XLTables.hpp"   // XLTables
+#include "XLImage.hpp"    // XLImage
+#include "XLDrawingML.hpp" // XLDrawingML
 #include "XLXmlFile.hpp"
 
 namespace OpenXLSX
@@ -1252,6 +1254,12 @@ namespace OpenXLSX
         XLVmlDrawing& vmlDrawing();
 
         /**
+         * @brief Get the DrawingML object for this worksheet
+         * @return Reference to the DrawingML object
+         */
+        XLDrawingML& drawingML();
+
+        /**
          * @brief fetch a reference to the worksheet comments
          */
         XLComments& comments();
@@ -1261,7 +1269,158 @@ namespace OpenXLSX
          */
         XLTables& tables();
 
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Image Methods
+        //----------------------------------------------------------------------------------------------------------------------
+
+        /**
+         * @brief Add an image to the worksheet at the specified cell
+         * @param image The XLImage object to add
+         * @param cellRef The cell reference where to place the image (e.g., "A1")
+         * @return True if successful, false otherwise
+         */
+        bool addImage(const XLImage& image, const std::string& cellRef);
+
+        /**
+         * @brief Add an image to the worksheet at the specified cell
+         * @param image The XLImage object to add
+         * @param cellRef The XLCellReference where to place the image
+         * @return True if successful, false otherwise
+         */
+        bool addImage(const XLImage& image, const XLCellReference& cellRef);
+
+        /**
+         * @brief Add an image to the worksheet at the specified cell
+         * @param image The XLImage object to add
+         * @param row The row number (1-based)
+         * @param column The column number (1-based)
+         * @return True if successful, false otherwise
+         */
+        bool addImage(const XLImage& image, uint32_t row, uint16_t column);
+
+        /**
+         * @brief Add an image to the worksheet with precise positioning
+         * @param image The XLImage object to add
+         * @param row The row number (1-based)
+         * @param column The column number (1-based)
+         * @param rowOffset Offset from the top-left of the cell in EMUs
+         * @param colOffset Offset from the top-left of the cell in EMUs
+         * @return True if successful, false otherwise
+         */
+        bool addImageWithOffset(const XLImage& image, uint32_t row, uint16_t column, 
+                               int32_t rowOffset = 0, int32_t colOffset = 0);
+
+        /**
+         * @brief Add an image to the worksheet with two-cell anchoring
+         * @param image The XLImage object to add
+         * @param fromRow Starting row number (1-based)
+         * @param fromCol Starting column number (1-based)
+         * @param toRow Ending row number (1-based)
+         * @param toCol Ending column number (1-based)
+         * @param fromRowOffset Offset from top-left of starting cell in EMUs
+         * @param fromColOffset Offset from top-left of starting cell in EMUs
+         * @param toRowOffset Offset from top-left of ending cell in EMUs
+         * @param toColOffset Offset from top-left of ending cell in EMUs
+         * @return True if successful, false otherwise
+         */
+        bool addImageTwoCellAnchor(const XLImage& image, 
+                                  uint32_t fromRow, uint16_t fromCol,
+                                  uint32_t toRow, uint16_t toCol,
+                                  int32_t fromRowOffset = 0, int32_t fromColOffset = 0,
+                                  int32_t toRowOffset = 0, int32_t toColOffset = 0);
+
+        /**
+         * @brief Add an image from file to the worksheet at the specified cell
+         * @param imagePath Path to the image file
+         * @param cellRef The cell reference where to place the image (e.g., "A1")
+         * @return True if successful, false otherwise
+         */
+        bool addImageFromFile(const std::string& imagePath, const std::string& cellRef);
+
+        /**
+         * @brief Add an image from file to the worksheet at the specified cell
+         * @param imagePath Path to the image file
+         * @param cellRef The XLCellReference where to place the image
+         * @return True if successful, false otherwise
+         */
+        bool addImageFromFile(const std::string& imagePath, const XLCellReference& cellRef);
+
+        /**
+         * @brief Add an image from file to the worksheet at the specified cell
+         * @param imagePath Path to the image file
+         * @param row The row number (1-based)
+         * @param column The column number (1-based)
+         * @return True if successful, false otherwise
+         */
+        bool addImageFromFile(const std::string& imagePath, uint32_t row, uint16_t column);
+
+        /**
+         * @brief Get the number of images in the worksheet
+         * @return Number of images
+         */
+        size_t imageCount() const;
+
+        /**
+         * @brief Check if the worksheet has any images
+         * @return True if the worksheet has images, false otherwise
+         */
+        bool hasImages() const;
+
+        /**
+         * @brief Generate the next available image ID for this worksheet
+         * @return The next globally unique image ID (e.g., "img1", "img2", etc.)
+         * @note This uses the document-level counter to ensure uniqueness across all worksheets
+         */
+        std::string generateNextImageId() const;
+
     private:
+        /**
+         * @brief Add an image to the DrawingML
+         * @param image The image to add
+         * @param row The row number (1-based)
+         * @param column The column number (1-based)
+         * @param relationshipId The relationship ID for the image
+         */
+        void addImageToDrawingML(const XLImage& image, uint32_t row, uint16_t column, const std::string& relationshipId);
+
+        /**
+         * @brief Add an image to the DrawingML with precise positioning
+         * @param image The image to add
+         * @param row The row number (1-based)
+         * @param column The column number (1-based)
+         * @param relationshipId The relationship ID for the image
+         * @param rowOffset Offset from the top-left of the cell in EMUs
+         * @param colOffset Offset from the top-left of the cell in EMUs
+         */
+        void addImageToDrawingMLWithOffset(const XLImage& image, uint32_t row, uint16_t column, 
+                                          const std::string& relationshipId,
+                                          int32_t rowOffset = 0, int32_t colOffset = 0);
+
+        /**
+         * @brief Add an image to the DrawingML with two-cell anchoring
+         * @param image The image to add
+         * @param fromRow Starting row number (1-based)
+         * @param fromCol Starting column number (1-based)
+         * @param toRow Ending row number (1-based)
+         * @param toCol Ending column number (1-based)
+         * @param relationshipId The relationship ID for the image
+         * @param fromRowOffset Offset from top-left of starting cell in EMUs
+         * @param fromColOffset Offset from top-left of starting cell in EMUs
+         * @param toRowOffset Offset from top-left of ending cell in EMUs
+         * @param toColOffset Offset from top-left of ending cell in EMUs
+         */
+        void addImageToDrawingMLTwoCellAnchor(const XLImage& image,
+                                             uint32_t fromRow, uint16_t fromCol,
+                                             uint32_t toRow, uint16_t toCol,
+                                             const std::string& relationshipId,
+                                             int32_t fromRowOffset = 0, int32_t fromColOffset = 0,
+                                             int32_t toRowOffset = 0, int32_t toColOffset = 0);
+
+        /**
+         * @brief Create the drawing relationships file
+         * @param drawingFilename The drawing filename
+         */
+        void createDrawingRelationshipsFile(const std::string& drawingFilename);
 
         /**
          * @brief fetch the # number from the xml path xl/worksheets/sheet#.xml
@@ -1313,8 +1472,10 @@ namespace OpenXLSX
         XLRelationships m_relationships{};    /**< class handling the worksheet relationships */
         XLMergeCells    m_merges{};           /**< class handling the <mergeCells> */
         XLVmlDrawing    m_vmlDrawing{};       /**< class handling the worksheet VML drawing object */
+        XLDrawingML     m_drawingML{};        /**< class handling the worksheet DrawingML object */
         XLComments      m_comments{};         /**< class handling the worksheet comments */
         XLTables        m_tables{};           /**< class handling the worksheet table settings */
+        std::vector<XLImage> m_images{};      /**< vector storing images in the worksheet */
         const std::vector< std::string_view >& m_nodeOrder = XLWorksheetNodeOrder;  // worksheet XML root node required child sequence
     };
 

@@ -102,6 +102,10 @@ namespace OpenXLSX
             case XLContentType::VMLDrawing: return "VMLDrawing";
             case XLContentType::Comments: return "Comments";
             case XLContentType::Table: return "Table";
+            case XLContentType::ImagePNG: return "ImagePNG";
+            case XLContentType::ImageJPEG: return "ImageJPEG";
+            case XLContentType::ImageBMP: return "ImageBMP";
+            case XLContentType::ImageGIF: return "ImageGIF";
             case XLContentType::Unknown: return "Unknown";
         }
         return "invalid";

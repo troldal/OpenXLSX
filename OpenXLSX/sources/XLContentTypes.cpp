@@ -115,6 +115,14 @@ namespace { // anonymous namespace for local functions
             type = XLContentType::Table;
         else if (typeString == applicationOpenXmlOfficeDocument + ".vmlDrawing")
             type = XLContentType::VMLDrawing;
+        else if (typeString == "image/png")
+            type = XLContentType::ImagePNG;
+        else if (typeString == "image/jpeg")
+            type = XLContentType::ImageJPEG;
+        else if (typeString == "image/bmp")
+            type = XLContentType::ImageBMP;
+        else if (typeString == "image/gif")
+            type = XLContentType::ImageGIF;
         else
             type = XLContentType::Unknown;
 
@@ -172,6 +180,14 @@ namespace { // anonymous namespace for local functions
             typeString = applicationOpenXmlOfficeDocument + ".spreadsheetml.table+xml";
         else if (type == XLContentType::VMLDrawing)
             typeString = applicationOpenXmlOfficeDocument + ".vmlDrawing";
+        else if (type == XLContentType::ImagePNG)
+            typeString = "image/png";
+        else if (type == XLContentType::ImageJPEG)
+            typeString = "image/jpeg";
+        else if (type == XLContentType::ImageBMP)
+            typeString = "image/bmp";
+        else if (type == XLContentType::ImageGIF)
+            typeString = "image/gif";
         else
             throw XLInternalError("Unknown ContentType");
 

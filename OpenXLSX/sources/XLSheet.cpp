@@ -992,6 +992,7 @@ XLWorksheet::XLWorksheet(const XLWorksheet& other) : XLSheetBase<XLWorksheet>(ot
     m_relationships = other.m_relationships;  // invoke XLRelationships copy assignment operator
     m_merges        = other.m_merges;         //  "     XLMergeCells       "
     m_vmlDrawing    = other.m_vmlDrawing;     //  "     XLVmlDrawing
+    m_drawingML     = other.m_drawingML;      //  "     XLDrawingML
     m_comments      = other.m_comments;       //  "     XLComments         "
     m_tables        = other.m_tables;         //  "     XLTables           "
 }
@@ -1004,6 +1005,7 @@ XLWorksheet::XLWorksheet(XLWorksheet&& other) : XLSheetBase< XLWorksheet >(other
     m_relationships = std::move(other.m_relationships);  // invoke XLRelationships move assignment operator
     m_merges        = std::move(other.m_merges);         //  "     XLMergeCells       "
     m_vmlDrawing    = std::move(other.m_vmlDrawing);     //  "     XLVmlDrawing
+    m_drawingML     = std::move(other.m_drawingML);      //  "     XLDrawingML
     m_comments      = std::move(other.m_comments);       //  "     XLComments         "
     m_tables        = std::move(other.m_tables);         //  "     XLTables           "
 }
@@ -1017,6 +1019,7 @@ XLWorksheet& XLWorksheet::operator=(const XLWorksheet& other)
     m_relationships = other.m_relationships;
     m_merges        = other.m_merges;
     m_vmlDrawing    = other.m_vmlDrawing;
+    m_drawingML     = other.m_drawingML;
     m_comments      = other.m_comments;
     m_tables        = other.m_tables;
     return *this;
@@ -1031,6 +1034,7 @@ XLWorksheet& XLWorksheet::operator=(XLWorksheet&& other)
     m_relationships = std::move(other.m_relationships);
     m_merges        = std::move(other.m_merges);
     m_vmlDrawing    = std::move(other.m_vmlDrawing);
+    m_drawingML     = std::move(other.m_drawingML);
     m_comments      = std::move(other.m_comments);
     m_tables        = std::move(other.m_tables);
     return *this;
@@ -1686,6 +1690,73 @@ XLVmlDrawing& XLWorksheet::vmlDrawing()
 }
 
 /**
+ * @details Get the DrawingML object for this worksheet
+ */
+XLDrawingML& XLWorksheet::drawingML()
+{
+    if (!m_drawingML.valid()) {
+        // ===== Append xdr namespace attribute to worksheet if not present
+        XMLNode docElement = xmlDocument().document_element();
+        XMLAttribute xdrNamespace = appendAndGetAttribute(docElement, "xmlns:xdr", "");
+        xdrNamespace = "http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing";
+
+        std::ignore = relationships(); // create sheet relationships if not existing
+
+        // ===== Create DrawingML XML file
+        uint16_t sheetXmlNo = sheetXmlNumber();
+        std::string drawingFilename = "xl/drawings/drawing" + std::to_string(sheetXmlNo) + ".xml";
+        
+        // Create the DrawingML XML content
+        std::string drawingXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
+                                "<xdr:wsDr xmlns:xdr=\"http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing\" "
+                                "xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\" "
+                                "xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" "
+                                "xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\" "
+                                "xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\">\n"
+                                "</xdr:wsDr>";
+        
+        // Add to archive using public method
+        if (!parentDoc().addDrawingFile(drawingFilename, drawingXml)) {
+            throw XLException("XLWorksheet::drawingML(): could not create drawing file");
+        }
+        
+        // Create DrawingML object
+        XLXmlData* xmlData = parentDoc().getDrawingXmlData(drawingFilename);
+        if (!xmlData) {
+            throw XLException("XLWorksheet::drawingML(): could not get XML data for drawing");
+        }
+        m_drawingML = XLDrawingML(xmlData);
+        
+        // Ensure the XML document is loaded
+        if (!m_drawingML.valid()) {
+            throw XLException("XLWorksheet::drawingML(): could not initialize DrawingML object");
+        }
+        
+        // Add relationship
+        std::string drawingRelativePath = getPathARelativeToPathB(drawingFilename, getXmlPath());
+        XLRelationshipItem drawingRelationship;
+        if (!m_relationships.targetExists(drawingRelativePath))
+            drawingRelationship = m_relationships.addRelationship(XLRelationshipType::Drawing, drawingRelativePath);
+        else
+            drawingRelationship = m_relationships.relationshipByTarget(drawingRelativePath);
+        
+        if (drawingRelationship.empty())
+            throw XLException("XLWorksheet::drawingML(): could not add determine sheet relationship for Drawing");
+        
+        // Add <drawing> element to worksheet
+        XMLNode drawing = appendAndGetNode(docElement, "drawing", m_nodeOrder);
+        if (drawing.empty())
+            throw XLException("XLWorksheet::drawingML(): could not add <drawing> element to worksheet XML");
+        appendAndSetAttribute(drawing, "r:id", drawingRelationship.id());
+        
+        // Create drawing relationships file
+        createDrawingRelationshipsFile(drawingFilename);
+    }
+
+    return m_drawingML;
+}
+
+/**
  * @details fetches XLComments for the sheet - creates & assigns the class if empty
  */
 XLComments& XLWorksheet::comments()
@@ -1732,6 +1803,272 @@ XLTables& XLWorksheet::tables()
     }
 
     return m_tables;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+//           Image Methods
+//----------------------------------------------------------------------------------------------------------------------
+
+/**
+ * @details Add an image to the worksheet at the specified cell
+ */
+bool XLWorksheet::addImage(const XLImage& image, const std::string& cellRef)
+{
+    return addImage(image, XLCellReference(cellRef));
+}
+
+/**
+ * @details Add an image to the worksheet at the specified cell
+ */
+bool XLWorksheet::addImage(const XLImage& image, const XLCellReference& cellRef)
+{
+    return addImage(image, cellRef.row(), cellRef.column());
+}
+
+/**
+ * @details Add an image to the worksheet at the specified cell
+ */
+bool XLWorksheet::addImage(const XLImage& image, uint32_t row, uint16_t column)
+{
+    if (!image.isValid()) {
+        return false;
+    }
+
+    try {
+        // Create a copy of the image and set its ID
+        XLImage imageWithId = image;
+        imageWithId.setId(generateNextImageId());
+        
+        // Store the image in the vector
+        m_images.push_back(imageWithId);
+        
+        // Get the parent document
+        XLDocument& doc = parentDoc();
+        
+        // Create the image file path in the archive
+        std::string imageFilename = "xl/media/image_" + imageWithId.id() + imageWithId.extension();
+        
+        // Store the image binary data in the archive
+        if (!doc.addImageEntry(imageFilename, imageWithId.data(), imageWithId.contentType())) {
+            return false;
+        }
+        
+        // Ensure we have a DrawingML drawing
+        std::ignore = drawingML();
+        
+        // Add image to DrawingML
+        std::string relationshipId = "rId" + std::to_string(m_images.size());
+        addImageToDrawingML(imageWithId, row, column, relationshipId);
+        
+        return true;
+    }
+    catch (const std::exception&) {
+        return false;
+    }
+}
+
+/**
+ * @details Add an image from file to the worksheet at the specified cell
+ */
+bool XLWorksheet::addImageFromFile(const std::string& imagePath, const std::string& cellRef)
+{
+    return addImageFromFile(imagePath, XLCellReference(cellRef));
+}
+
+/**
+ * @details Add an image from file to the worksheet at the specified cell
+ */
+bool XLWorksheet::addImageFromFile(const std::string& imagePath, const XLCellReference& cellRef)
+{
+    return addImageFromFile(imagePath, cellRef.row(), cellRef.column());
+}
+
+/**
+ * @details Add an image from file to the worksheet at the specified cell
+ */
+bool XLWorksheet::addImageFromFile(const std::string& imagePath, uint32_t row, uint16_t column)
+{
+    XLImage image;
+    std::string imageId = generateNextImageId();
+    if (!image.loadFromFile(imagePath, imageId)) {
+        return false;
+    }
+    
+    return addImage(image, row, column);
+}
+
+/**
+ * @details Add an image to the worksheet with precise positioning
+ */
+bool XLWorksheet::addImageWithOffset(const XLImage& image, uint32_t row, uint16_t column, 
+                                    int32_t rowOffset, int32_t colOffset)
+{
+    // Create a copy of the image and set its ID
+    XLImage imageWithId = image;
+    imageWithId.setId(generateNextImageId());
+    
+    // Store the image
+    m_images.push_back(imageWithId);
+    
+    // Add image entry to document
+    std::string imageFilename = "xl/media/image_" + imageWithId.id() + imageWithId.extension();
+    if (!parentDoc().addImageEntry(imageFilename, imageWithId.data(), imageWithId.contentType())) {
+        throw XLException("XLWorksheet::addImageWithOffset(): could not add image entry to document");
+    }
+    
+    // Get or create DrawingML
+    XLDrawingML& drawing = drawingML();
+    
+    // Generate relationship ID
+    std::string relationshipId = "rId" + std::to_string(m_images.size());
+    
+    // Add image to DrawingML with offset
+    addImageToDrawingMLWithOffset(imageWithId, row, column, relationshipId, rowOffset, colOffset);
+    
+    return true;
+}
+
+/**
+ * @details Add an image to the worksheet with two-cell anchoring
+ */
+bool XLWorksheet::addImageTwoCellAnchor(const XLImage& image, 
+                                        uint32_t fromRow, uint16_t fromCol,
+                                        uint32_t toRow, uint16_t toCol,
+                                        int32_t fromRowOffset, int32_t fromColOffset,
+                                        int32_t toRowOffset, int32_t toColOffset)
+{
+    // Create a copy of the image and set its ID
+    XLImage imageWithId = image;
+    imageWithId.setId(generateNextImageId());
+    
+    // Store the image
+    m_images.push_back(imageWithId);
+    
+    // Add image entry to document
+    std::string imageFilename = "xl/media/image_" + imageWithId.id() + imageWithId.extension();
+    if (!parentDoc().addImageEntry(imageFilename, imageWithId.data(), imageWithId.contentType())) {
+        throw XLException("XLWorksheet::addImageTwoCellAnchor(): could not add image entry to document");
+    }
+    
+    // Get or create DrawingML
+    XLDrawingML& drawing = drawingML();
+    
+    // Generate relationship ID
+    std::string relationshipId = "rId" + std::to_string(m_images.size());
+    
+    // Add image to DrawingML with two-cell anchoring
+    addImageToDrawingMLTwoCellAnchor(imageWithId, fromRow, fromCol, toRow, toCol, relationshipId,
+                                     fromRowOffset, fromColOffset, toRowOffset, toColOffset);
+    
+    return true;
+}
+
+/**
+ * @details Get the number of images in the worksheet
+ */
+size_t XLWorksheet::imageCount() const
+{
+    return m_images.size();
+}
+
+/**
+ * @details Check if the worksheet has any images
+ */
+bool XLWorksheet::hasImages() const
+{
+    return !m_images.empty();
+}
+
+/**
+ * @details Generate the next available image ID for this worksheet
+ */
+std::string XLWorksheet::generateNextImageId() const
+{
+    return parentDoc().generateNextImageId();
+}
+
+/**
+ * @details Add an image to the DrawingML
+ */
+void XLWorksheet::addImageToDrawingML(const XLImage& image, uint32_t row, uint16_t column, const std::string& relationshipId)
+{
+    // Add image to DrawingML
+    m_drawingML.addImage(image, row, column, relationshipId);
+    
+    // Update the drawing relationships file to include all current images
+    uint16_t sheetXmlNo = sheetXmlNumber();
+    std::string drawingFilename = "xl/drawings/drawing" + std::to_string(sheetXmlNo) + ".xml";
+    createDrawingRelationshipsFile(drawingFilename);
+}
+
+/**
+ * @details Create the drawing relationships file
+ */
+void XLWorksheet::createDrawingRelationshipsFile(const std::string& drawingFilename)
+{
+    // Create the relationships filename
+    std::string drawingRelsFilename = drawingFilename.substr(0, drawingFilename.find_last_of('/') + 1) + 
+                                     "_rels/" + 
+                                     drawingFilename.substr(drawingFilename.find_last_of('/') + 1) + ".rels";
+    
+    // Create the relationships XML content
+    std::string relsXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
+                         "<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">\n";
+    
+    // Add relationships for each image
+    int relationshipId = 1;
+    for (const auto& image : m_images) {
+        std::string imageFilename = "xl/media/image_" + image.id() + image.extension();
+        std::string imageRelativePath = "../media/image_" + image.id() + image.extension();
+        
+        relsXml += "<Relationship Id=\"rId" + std::to_string(relationshipId) + 
+                   "\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" " +
+                   "Target=\"" + imageRelativePath + "\"/>\n";
+        relationshipId++;
+    }
+    
+    relsXml += "</Relationships>";
+    
+    // Add the relationships file to the archive
+    if (!parentDoc().addRelationshipsFile(drawingRelsFilename, relsXml)) {
+        throw XLException("XLWorksheet::createDrawingRelationshipsFile(): could not create drawing relationships file");
+    }
+}
+
+/**
+ * @details Add an image to the DrawingML with precise positioning
+ */
+void XLWorksheet::addImageToDrawingMLWithOffset(const XLImage& image, uint32_t row, uint16_t column, 
+                                               const std::string& relationshipId,
+                                               int32_t rowOffset, int32_t colOffset)
+{
+    // Add image to DrawingML
+    m_drawingML.addImageWithOffset(image, row, column, relationshipId, rowOffset, colOffset);
+    
+    // Update the drawing relationships file to include all current images
+    uint16_t sheetXmlNo = sheetXmlNumber();
+    std::string drawingFilename = "xl/drawings/drawing" + std::to_string(sheetXmlNo) + ".xml";
+    createDrawingRelationshipsFile(drawingFilename);
+}
+
+/**
+ * @details Add an image to the DrawingML with two-cell anchoring
+ */
+void XLWorksheet::addImageToDrawingMLTwoCellAnchor(const XLImage& image,
+                                                   uint32_t fromRow, uint16_t fromCol,
+                                                   uint32_t toRow, uint16_t toCol,
+                                                   const std::string& relationshipId,
+                                                   int32_t fromRowOffset, int32_t fromColOffset,
+                                                   int32_t toRowOffset, int32_t toColOffset)
+{
+    // Add image to DrawingML
+    m_drawingML.addImageTwoCellAnchor(image, fromRow, fromCol, toRow, toCol, relationshipId,
+                                     fromRowOffset, fromColOffset, toRowOffset, toColOffset);
+    
+    // Update the drawing relationships file to include all current images
+    uint16_t sheetXmlNo = sheetXmlNumber();
+    std::string drawingFilename = "xl/drawings/drawing" + std::to_string(sheetXmlNo) + ".xml";
+    createDrawingRelationshipsFile(drawingFilename);
 }
 
 /**
