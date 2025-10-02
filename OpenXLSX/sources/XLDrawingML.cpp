@@ -90,9 +90,26 @@ namespace OpenXLSX
         off.append_attribute("x").set_value("0");
         off.append_attribute("y").set_value("0");
         
+        // Calculate image size that preserves aspect ratio within the bounding box
+        uint32_t imageWidth = image.displayWidth();
+        uint32_t imageHeight = image.displayHeight();
+        
+        // Get the image's natural dimensions
+        uint32_t naturalWidth = image.widthPixels();
+        uint32_t naturalHeight = image.heightPixels();
+        
+        // Calculate scaling factor to fit within bounding box while preserving aspect ratio
+        double scaleX = static_cast<double>(imageWidth) / naturalWidth;
+        double scaleY = static_cast<double>(imageHeight) / naturalHeight;
+        double scale = std::min(scaleX, scaleY);  // Use smaller scale to fit within box
+        
+        // Calculate actual image size (preserving aspect ratio)
+        uint32_t actualWidth = static_cast<uint32_t>(naturalWidth * scale);
+        uint32_t actualHeight = static_cast<uint32_t>(naturalHeight * scale);
+        
         XMLNode xfrmExt = xfrm.append_child("a:ext");
-        xfrmExt.append_attribute("cx").set_value(std::to_string(image.displayWidth()).c_str());
-        xfrmExt.append_attribute("cy").set_value(std::to_string(image.displayHeight()).c_str());
+        xfrmExt.append_attribute("cx").set_value(std::to_string(actualWidth).c_str());
+        xfrmExt.append_attribute("cy").set_value(std::to_string(actualHeight).c_str());
         
         XMLNode prstGeom = spPr.append_child("a:prstGeom");
         prstGeom.append_attribute("prst").set_value("rect");

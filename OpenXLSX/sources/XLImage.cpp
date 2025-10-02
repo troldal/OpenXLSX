@@ -46,6 +46,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM    d'`MM.
 #include <fstream>    // std::ifstream
 #include <sstream>    // std::stringstream
 #include <algorithm>  // std::find
+#include <cmath>      // std::round, std::fabs
 
 // ===== OpenXLSX Includes ===== //
 #include "XLImage.hpp"
@@ -113,12 +114,12 @@ namespace OpenXLSX
 
         // Get image dimensions
         auto dimensions = getImageDimensions(m_imageData, m_mimeType);
-        m_width = dimensions.first;
-        m_height = dimensions.second;
+        m_widthPixels = dimensions.first;
+        m_heightPixels = dimensions.second;
 
         // Set default display size (same as original size)
-        m_displayWidth = pixelsToEMUs(m_width);
-        m_displayHeight = pixelsToEMUs(m_height);
+        m_displayWidth = pixelsToEMUs(m_widthPixels);
+        m_displayHeight = pixelsToEMUs(m_heightPixels);
 
         // Set the provided ID
         m_id = imageId;
@@ -147,12 +148,12 @@ namespace OpenXLSX
 
         // Get image dimensions
         auto dimensions = getImageDimensions(m_imageData, m_mimeType);
-        m_width = dimensions.first;
-        m_height = dimensions.second;
+        m_widthPixels = dimensions.first;
+        m_heightPixels = dimensions.second;
 
         // Set default display size (same as original size)
-        m_displayWidth = pixelsToEMUs(m_width);
-        m_displayHeight = pixelsToEMUs(m_height);
+        m_displayWidth = pixelsToEMUs(m_widthPixels);
+        m_displayHeight = pixelsToEMUs(m_heightPixels);
 
         // Set the provided ID
         m_id = imageId;
@@ -203,17 +204,17 @@ namespace OpenXLSX
     /**
      * @details Get the image width in pixels
      */
-    uint32_t XLImage::width() const
+    uint32_t XLImage::widthPixels() const
     {
-        return m_width;
+        return m_widthPixels;
     }
 
     /**
      * @details Get the image height in pixels
      */
-    uint32_t XLImage::height() const
+    uint32_t XLImage::heightPixels() const
     {
-        return m_height;
+        return m_heightPixels;
     }
 
     /**
@@ -273,10 +274,10 @@ namespace OpenXLSX
     /**
      * @details Generate a unique image ID
      */
-std::string XLImage::generateId(uint32_t imageNumber)
-{
-    return "img" + std::to_string(imageNumber);
-}
+    std::string XLImage::generateId(uint32_t imageNumber)
+    {
+        return "img" + std::to_string(imageNumber);
+    }
 
     /**
      * @details Determine MIME type from file extension
@@ -377,32 +378,73 @@ std::string XLImage::generateId(uint32_t imageNumber)
     /**
      * @details Set display size maintaining aspect ratio
      */
-    void XLImage::setDisplaySizeWithAspectRatio(uint32_t maxWidthPixels, uint32_t maxHeightPixels)
+    void XLImage::setDisplaySizeWithAspectRatio(uint32_t maxWidthEmus, uint32_t maxHeightEmus)
     {
-        if (m_width == 0 || m_height == 0) {
-            // If we don't have valid dimensions, use the current display size
-            return;
+        uint32_t targetWidth = pixelsToEmus(m_widthPixels);
+        uint32_t targetHeight = pixelsToEmus(m_heightPixels);
+
+        if (m_widthPixels > 0 || m_heightPixels > 0) {
+            double aspectRatio = static_cast<double>(m_widthPixels) / static_cast<double>(m_heightPixels);
+            assert(aspectRatio > 0.0);
+
+            const double maxWidth = static_cast<double>(maxWidthEmus);
+            const double maxHeight = static_cast<double>(maxHeightEmus);
+            const double widthA = maxHeight * aspectRatio;
+
+            if (widthA <= maxWidth) {
+                /*  
+                +------------+--------+
+                |            |        |
+                |            |        |
+                |            |        |
+                |            |        |maxHeight
+                |            |        |
+                |            |        |
+                |            |        |
+                |   widthA   |        |
+                +------------+--------+
+                       maxWidth 
+                */
+                targetWidth = static_cast<uint32_t>(round(widthA));
+                targetHeight = maxHeightEmus;
+            }
+            else {
+                /* 
+                +---------------------+
+                |                     |
+                |                     |
+                +---------------------+
+                |                     |maxHeight
+                |                     |
+                |              heightB|
+                |                     |
+                |                     |
+                +---------------------+
+                       maxWidth  
+                */
+                const double heightB = maxWidth / aspectRatio;
+                assert(heightB <= (1.00000001 * maxHeight));
+                targetWidth = maxWidthEmus;
+                targetHeight = static_cast<uint32_t>(round(heightB));
+            }
+
+            assert(fabs(aspectRatio - (static_cast<double>(targetWidth) / 
+                    static_cast<double>(targetHeight))) < 1e-4);
         }
 
-        double aspectRatio = static_cast<double>(m_width) / static_cast<double>(m_height);
-        
-        uint32_t targetWidth = m_width;
-        uint32_t targetHeight = m_height;
+        m_displayWidth = targetWidth;
+        m_displayHeight = targetHeight;
+    }
 
-        // Apply width constraint if specified
-        if (maxWidthPixels > 0 && targetWidth > maxWidthPixels) {
-            targetWidth = maxWidthPixels;
-            targetHeight = static_cast<uint32_t>(targetWidth / aspectRatio);
-        }
 
-        // Apply height constraint if specified
-        if (maxHeightPixels > 0 && targetHeight > maxHeightPixels) {
-            targetHeight = maxHeightPixels;
-            targetWidth = static_cast<uint32_t>(targetHeight * aspectRatio);
-        }
-
-        m_displayWidth = pixelsToEmus(targetWidth);
-        m_displayHeight = pixelsToEmus(targetHeight);
+    /**
+     * @details Set display size maintaining aspect ratio
+     */
+    void XLImage::setDisplaySizePixelsWithAspectRatio(uint32_t maxWidthPixels, uint32_t maxHeightPixels)
+    {
+        const uint32_t maxWidthEmus = pixelsToEmus(maxWidthPixels);
+        const uint32_t maxHeightEmus = pixelsToEmus(maxHeightPixels);
+        setDisplaySizeWithAspectRatio(maxWidthEmus, maxHeightEmus);
     }
 
     /**

@@ -177,13 +177,13 @@ namespace OpenXLSX
          * @brief Get the image width in pixels
          * @return The width in pixels
          */
-        uint32_t width() const;
+        uint32_t widthPixels() const;
 
         /**
          * @brief Get the image height in pixels
          * @return The height in pixels
          */
-        uint32_t height() const;
+        uint32_t heightPixels() const;
 
         /**
          * @brief Set the display width in Excel units (EMUs)
@@ -218,10 +218,18 @@ namespace OpenXLSX
 
         /**
          * @brief Set display size maintaining aspect ratio
+         * @param maxWidthEmus Maximum width in EMUs (0 = no limit)
+         * @param maxHeightEmus Maximum height in EMUs (0 = no limit)
+         */
+        void setDisplaySizeWithAspectRatio(uint32_t maxWidthEmus = 0, uint32_t maxHeightEmus = 0);
+
+        /**
+         * @brief Set display size maintaining aspect ratio
          * @param maxWidthPixels Maximum width in pixels (0 = no limit)
          * @param maxHeightPixels Maximum height in pixels (0 = no limit)
          */
-        void setDisplaySizeWithAspectRatio(uint32_t maxWidthPixels = 0, uint32_t maxHeightPixels = 0);
+        void setDisplaySizePixelsWithAspectRatio(uint32_t maxWidthPixels = 0, uint32_t maxHeightPixels = 0);
+
 
         /**
          * @brief Convert pixels to EMUs (Excel units)
@@ -254,8 +262,8 @@ namespace OpenXLSX
         std::string m_mimeType;               /**< MIME type of the image */
         std::string m_extension;              /**< File extension */
         std::string m_id;                     /**< Unique image ID */
-        uint32_t m_width{0};                  /**< Image width in pixels */
-        uint32_t m_height{0};                 /**< Image height in pixels */
+        uint32_t m_widthPixels{0};            /**< Image width in pixels */
+        uint32_t m_heightPixels{0};           /**< Image height in pixels */
         uint32_t m_displayWidth{0};           /**< Display width in EMUs */
         uint32_t m_displayHeight{0};          /**< Display height in EMUs */
 

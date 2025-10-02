@@ -474,22 +474,18 @@ int main()
     // Demonstrate size control
     std::cout << "\n2. Demonstrating size control..." << std::endl;
     
-    // Set custom display sizes (convert pixels to EMUs: 1 pixel = 9525 EMUs)
+    // Set custom display sizes using aspect ratio preservation
     // Note: EMU-to-pixel ratio may vary based on screen resolution.
     // Standard Excel cell height = 190500 EMUs (15 points × 12700 EMUs/point)
-    // Cell vertical spacing = 190500 × (26/25) EMUs (25 pixels white + 1 pixel divider)
-    // This allows sizing images to exact Excel cell heights: 1 cell = 190500 EMUs
-    image1.setDisplayWidth(50 * 9525);   // 50 pixels = 476,250 EMUs
-    image1.setDisplayHeight(30 * 9525); // 30 pixels = 285,750 EMUs
+    // Cell vertical spacing = 200000 ~= × (26/25) EMUs (25 pixels white + 1 pixel divider)
+    // This allows sizing images to exact Excel cell heights: 1 cell ~= 200000 EMUs
+    constexpr uint32_t EXCEL_CELL_Y_SPACING_EMUS = 200000;
     
-    image2.setDisplayWidth(40 * 9525);   // 40 pixels = 381,000 EMUs
-    image2.setDisplayHeight(40 * 9525);  // 40 pixels = 381,000 EMUs (square)
-    
-    image3.setDisplayWidth(60 * 9525);   // 60 pixels = 571,500 EMUs
-    image3.setDisplayHeight(20 * 9525);  // 20 pixels = 190,500 EMUs
-    
-    image4.setDisplayWidth(35 * 9525);   // 35 pixels = 333,375 EMUs
-    image4.setDisplayHeight(35 * 9525);  // 35 pixels = 333,375 EMUs (square)
+    // Set maximum dimensions and let the method preserve aspect ratio
+    image1.setDisplaySizePixelsWithAspectRatio(50, 30);  // Max 50×30 pixels, preserve aspect ratio
+    image2.setDisplaySizePixelsWithAspectRatio(40, 40);  // Max 40×40 pixels, preserve aspect ratio
+    image3.setDisplaySizePixelsWithAspectRatio(60, 20);  // Max 60×20 pixels, preserve aspect ratio
+    image4.setDisplaySizePixelsWithAspectRatio(70,70);  // Max 35×35 pixels, preserve aspect ratio
 
     std::cout << "Image 1 new display size: " << image1.displayWidth() << "x" << image1.displayHeight() << " EMUs" << std::endl;
     std::cout << "Image 2 new display size: " << image2.displayWidth() << "x" << image2.displayHeight() << " EMUs" << std::endl;
@@ -532,7 +528,7 @@ int main()
     std::cout << "  MIME Type: " << image1.mimeType() << std::endl;
     std::cout << "  Extension: " << image1.extension() << std::endl;
     std::cout << "  ID: " << image1.id() << " (temporary - actual ID in worksheet: img1)" << std::endl;
-    std::cout << "  Dimensions: " << image1.width() << "x" << image1.height() << " pixels" << std::endl;
+    std::cout << "  Dimensions: " << image1.widthPixels() << "x" << image1.heightPixels() << " pixels" << std::endl;
     std::cout << "  Display Size: " << image1.displayWidth() << "x" << image1.displayHeight() << " EMUs" << std::endl;
     std::cout << "  Valid: " << (image1.isValid() ? "Yes" : "No") << std::endl;
     std::cout << "  Content Type: " << XLContentTypeString(image1.contentType()) << std::endl;
@@ -541,7 +537,7 @@ int main()
     std::cout << "  MIME Type: " << image2.mimeType() << std::endl;
     std::cout << "  Extension: " << image2.extension() << std::endl;
     std::cout << "  ID: " << image2.id() << " (temporary - actual ID in worksheet: img2)" << std::endl;
-    std::cout << "  Dimensions: " << image2.width() << "x" << image2.height() << " pixels" << std::endl;
+    std::cout << "  Dimensions: " << image2.widthPixels() << "x" << image2.heightPixels() << " pixels" << std::endl;
     std::cout << "  Display Size: " << image2.displayWidth() << "x" << image2.displayHeight() << " EMUs" << std::endl;
     std::cout << "  Valid: " << (image2.isValid() ? "Yes" : "No") << std::endl;
     std::cout << "  Content Type: " << XLContentTypeString(image2.contentType()) << std::endl;
@@ -550,7 +546,7 @@ int main()
     std::cout << "  MIME Type: " << image3.mimeType() << std::endl;
     std::cout << "  Extension: " << image3.extension() << std::endl;
     std::cout << "  ID: " << image3.id() << " (temporary - actual ID in worksheet: img3)" << std::endl;
-    std::cout << "  Dimensions: " << image3.width() << "x" << image3.height() << " pixels" << std::endl;
+    std::cout << "  Dimensions: " << image3.widthPixels() << "x" << image3.heightPixels() << " pixels" << std::endl;
     std::cout << "  Display Size: " << image3.displayWidth() << "x" << image3.displayHeight() << " EMUs" << std::endl;
     std::cout << "  Valid: " << (image3.isValid() ? "Yes" : "No") << std::endl;
     std::cout << "  Content Type: " << XLContentTypeString(image3.contentType()) << std::endl;
@@ -559,7 +555,7 @@ int main()
     std::cout << "  MIME Type: " << image4.mimeType() << std::endl;
     std::cout << "  Extension: " << image4.extension() << std::endl;
     std::cout << "  ID: " << image4.id() << " (temporary - actual ID in worksheet: img4)" << std::endl;
-    std::cout << "  Dimensions: " << image4.width() << "x" << image4.height() << " pixels" << std::endl;
+    std::cout << "  Dimensions: " << image4.widthPixels() << "x" << image4.heightPixels() << " pixels" << std::endl;
     std::cout << "  Display Size: " << image4.displayWidth() << "x" << image4.displayHeight() << " EMUs" << std::endl;
     std::cout << "  Valid: " << (image4.isValid() ? "Yes" : "No") << std::endl;
     std::cout << "  Content Type: " << XLContentTypeString(image4.contentType()) << std::endl;
@@ -574,29 +570,25 @@ int main()
     std::cout << "  Added image from file: " << (fileSuccess ? "Success" : "Failed (expected)") << std::endl;
 
     // Test single-cell image with specific pixel dimensions
-    std::cout << "\n6. Testing single-cell image with specific dimensions:" << std::endl;
+    std::cout << "\n6. Testing single-cell image preserving aspect ratio, limiting height to about 3 cells:" << std::endl;
     
     // Create a new image for single-cell test
-    XLImage singleCellImage(pngData, ImageMimeTypes::PNG);
+    XLImage image6(pngData, ImageMimeTypes::PNG);
     
-        // Set specific pixel dimensions (200x100 pixels)
-        // Convert pixels to EMUs: 1 pixel = 9525 EMUs (standard)
-        // Note: For cell-based sizing, use 190500 EMUs per Excel cell height
-        uint32_t widthEMUs = 200 * 9525;   // 200 pixels = 1,905,000 EMUs
-        uint32_t heightEMUs = 100 * 9525;  // 100 pixels = 952,500 EMUs
-    singleCellImage.setDisplayWidth(widthEMUs);
-    singleCellImage.setDisplayHeight(heightEMUs);
+    // Set specific EMU dimensions, max ~3 cells high, with aspect ratio preservation
+    // Note: For cell-based sizing, use 200000 EMUs per Excel cell height
+    image6.setDisplaySizeWithAspectRatio(12 * EXCEL_CELL_Y_SPACING_EMUS, 3 * EXCEL_CELL_Y_SPACING_EMUS);  // Max 3 cells high
     
     // Add to cell E12 (single cell, not spanning)
-    bool singleCellSuccess = wks.addImage(singleCellImage, "E12");
-    std::cout << "  Added single-cell image (200x100 pixels) to E12: " << (singleCellSuccess ? "Success" : "Failed") << std::endl;
+    bool image6Success = wks.addImage(image6, "E12");
+    std::cout << "  Added image6 (3 rows high) to E12: " << (image6Success ? "Success" : "Failed") << std::endl;
 
     // Save the workbook
     doc.save();
     std::cout << "\nWorkbook saved as 'Demo11.xlsx'" << std::endl;
     std::cout << "\nNote: This demo shows the XLImage class and worksheet integration." << std::endl;
-    std::cout << "      Images are stored in memory but not yet embedded in the Excel file." << std::endl;
-    std::cout << "      Next step: implement drawing XML generation and binary storage." << std::endl;
+    std::cout << "      Images are embedded in the Excel file with proper aspect ratio preservation." << std::endl;
+    std::cout << "      The .xlsx file can be opened in Excel, OpenOffice Calc, and other compatible applications." << std::endl;
 
     return 0;
 }
