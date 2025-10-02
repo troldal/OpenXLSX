@@ -28,9 +28,8 @@ namespace OpenXLSX
         // Get the root element
         XMLNode rootNode = xmlDocument().document_element();
         
-        // Create a twoCellAnchor element
-        XMLNode anchor = rootNode.append_child("xdr:twoCellAnchor");
-        anchor.append_attribute("editAs").set_value("oneCell");
+        // Create a oneCellAnchor element for single-cell images
+        XMLNode anchor = rootNode.append_child("xdr:oneCellAnchor");
         
         // Create the 'from' element
         XMLNode from = anchor.append_child("xdr:from");
@@ -39,12 +38,10 @@ namespace OpenXLSX
         from.append_child("xdr:row").append_child(pugi::node_pcdata).set_value(std::to_string(row - 1).c_str());
         from.append_child("xdr:rowOff").append_child(pugi::node_pcdata).set_value("0");
         
-        // Create the 'to' element
-        XMLNode to = anchor.append_child("xdr:to");
-        to.append_child("xdr:col").append_child(pugi::node_pcdata).set_value(std::to_string(column).c_str());
-        to.append_child("xdr:colOff").append_child(pugi::node_pcdata).set_value("0");
-        to.append_child("xdr:row").append_child(pugi::node_pcdata).set_value(std::to_string(row).c_str());
-        to.append_child("xdr:rowOff").append_child(pugi::node_pcdata).set_value("0");
+        // Create the 'ext' element - this is crucial for oneCellAnchor!
+        XMLNode ext = anchor.append_child("xdr:ext");
+        ext.append_attribute("cx").set_value(std::to_string(image.displayWidth()).c_str());
+        ext.append_attribute("cy").set_value(std::to_string(image.displayHeight()).c_str());
         
         // Create the picture element
         XMLNode pic = anchor.append_child("xdr:pic");
@@ -103,7 +100,7 @@ namespace OpenXLSX
         
         spPr.append_child("a:noFill");
         
-        // Create client data
+        // Create client data - simple empty element as per Google example
         anchor.append_child("xdr:clientData");
     }
 
@@ -111,6 +108,9 @@ namespace OpenXLSX
     {
         XMLNode rootNode = xmlDocument().document_element();
         size_t count = 0;
+        for (XMLNode child : rootNode.children("xdr:oneCellAnchor")) {
+            count++;
+        }
         for (XMLNode child : rootNode.children("xdr:twoCellAnchor")) {
             count++;
         }

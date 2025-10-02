@@ -474,18 +474,22 @@ int main()
     // Demonstrate size control
     std::cout << "\n2. Demonstrating size control..." << std::endl;
     
-    // Set custom display sizes
-    image1.setDisplayWidth(50000);  // 50,000 EMUs
-    image1.setDisplayHeight(30000); // 30,000 EMUs
+    // Set custom display sizes (convert pixels to EMUs: 1 pixel = 9525 EMUs)
+    // Note: EMU-to-pixel ratio may vary based on screen resolution.
+    // Standard Excel cell height = 190500 EMUs (15 points × 12700 EMUs/point)
+    // Cell vertical spacing = 190500 × (26/25) EMUs (25 pixels white + 1 pixel divider)
+    // This allows sizing images to exact Excel cell heights: 1 cell = 190500 EMUs
+    image1.setDisplayWidth(50 * 9525);   // 50 pixels = 476,250 EMUs
+    image1.setDisplayHeight(30 * 9525); // 30 pixels = 285,750 EMUs
     
-    image2.setDisplayWidth(40000);  // 40,000 EMUs
-    image2.setDisplayHeight(40000); // 40,000 EMUs (square)
+    image2.setDisplayWidth(40 * 9525);   // 40 pixels = 381,000 EMUs
+    image2.setDisplayHeight(40 * 9525);  // 40 pixels = 381,000 EMUs (square)
     
-    image3.setDisplayWidth(60000);  // 60,000 EMUs
-    image3.setDisplayHeight(20000); // 20,000 EMUs
+    image3.setDisplayWidth(60 * 9525);   // 60 pixels = 571,500 EMUs
+    image3.setDisplayHeight(20 * 9525);  // 20 pixels = 190,500 EMUs
     
-    image4.setDisplayWidth(35000);  // 35,000 EMUs
-    image4.setDisplayHeight(35000); // 35,000 EMUs (square)
+    image4.setDisplayWidth(35 * 9525);   // 35 pixels = 333,375 EMUs
+    image4.setDisplayHeight(35 * 9525);  // 35 pixels = 333,375 EMUs (square)
 
     std::cout << "Image 1 new display size: " << image1.displayWidth() << "x" << image1.displayHeight() << " EMUs" << std::endl;
     std::cout << "Image 2 new display size: " << image2.displayWidth() << "x" << image2.displayHeight() << " EMUs" << std::endl;
@@ -568,6 +572,24 @@ int main()
     std::cout << "\n5. Testing addImageFromFile (will fail - no actual files):" << std::endl;
     bool fileSuccess = wks.addImageFromFile("nonexistent.png", "D1");
     std::cout << "  Added image from file: " << (fileSuccess ? "Success" : "Failed (expected)") << std::endl;
+
+    // Test single-cell image with specific pixel dimensions
+    std::cout << "\n6. Testing single-cell image with specific dimensions:" << std::endl;
+    
+    // Create a new image for single-cell test
+    XLImage singleCellImage(pngData, ImageMimeTypes::PNG);
+    
+        // Set specific pixel dimensions (200x100 pixels)
+        // Convert pixels to EMUs: 1 pixel = 9525 EMUs (standard)
+        // Note: For cell-based sizing, use 190500 EMUs per Excel cell height
+        uint32_t widthEMUs = 200 * 9525;   // 200 pixels = 1,905,000 EMUs
+        uint32_t heightEMUs = 100 * 9525;  // 100 pixels = 952,500 EMUs
+    singleCellImage.setDisplayWidth(widthEMUs);
+    singleCellImage.setDisplayHeight(heightEMUs);
+    
+    // Add to cell E12 (single cell, not spanning)
+    bool singleCellSuccess = wks.addImage(singleCellImage, "E12");
+    std::cout << "  Added single-cell image (200x100 pixels) to E12: " << (singleCellSuccess ? "Success" : "Failed") << std::endl;
 
     // Save the workbook
     doc.save();
