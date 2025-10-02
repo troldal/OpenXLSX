@@ -309,7 +309,7 @@ namespace OpenXLSX
      */
     uint32_t XLImage::pixelsToEMUs(uint32_t pixels)
     {
-        return pixels * 9525;
+        return pixels * EMU_TO_PIXEL_RATIO;
     }
 
     /**
@@ -453,7 +453,7 @@ namespace OpenXLSX
      */
     uint32_t XLImage::pixelsToEmus(uint32_t pixels)
     {
-        return pixels * 9525;
+        return pixels * EMU_TO_PIXEL_RATIO;
     }
 
     /**
@@ -461,7 +461,7 @@ namespace OpenXLSX
      */
     uint32_t XLImage::emusToPixels(uint32_t emus)
     {
-        return emus / 9525;
+        return emus / EMU_TO_PIXEL_RATIO;
     }
 
 }    // namespace OpenXLSX

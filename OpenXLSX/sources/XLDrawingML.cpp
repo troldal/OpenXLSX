@@ -182,6 +182,11 @@ namespace OpenXLSX
         to.append_child("xdr:row").append_child(pugi::node_pcdata).set_value(std::to_string(row).c_str());
         to.append_child("xdr:rowOff").append_child(pugi::node_pcdata).set_value("0");
         
+        // Create the 'ext' element (required for twoCellAnchor)
+        XMLNode ext = anchor.append_child("xdr:ext");
+        ext.append_attribute("cx").set_value(std::to_string(image.displayWidth()).c_str());
+        ext.append_attribute("cy").set_value(std::to_string(image.displayHeight()).c_str());
+        
         // Create the picture element (same as original addImage method)
         XMLNode pic = anchor.append_child("xdr:pic");
         
@@ -229,6 +234,9 @@ namespace OpenXLSX
         XMLNode lnSolidFill = ln.append_child("a:solidFill");
         XMLNode lnSrgbClr = lnSolidFill.append_child("a:srgbClr");
         lnSrgbClr.append_attribute("val").set_value("000000");
+        
+        // Add clientData element (required for Excel compatibility)
+        anchor.append_child("xdr:clientData");
     }
 
     /**
@@ -262,6 +270,11 @@ namespace OpenXLSX
         to.append_child("xdr:row").append_child(pugi::node_pcdata).set_value(std::to_string(toRow).c_str());
         to.append_child("xdr:rowOff").append_child(pugi::node_pcdata).set_value(std::to_string(toRowOffset).c_str());
         
+        // Create the 'ext' element (required for twoCellAnchor)
+        XMLNode ext = anchor.append_child("xdr:ext");
+        ext.append_attribute("cx").set_value(std::to_string(image.displayWidth()).c_str());
+        ext.append_attribute("cy").set_value(std::to_string(image.displayHeight()).c_str());
+        
         // Create the picture element (same as original addImage method)
         XMLNode pic = anchor.append_child("xdr:pic");
         
@@ -300,14 +313,10 @@ namespace OpenXLSX
         prstGeom.append_attribute("prst").set_value("rect");
         prstGeom.append_child("a:avLst");
         
-        XMLNode solidFill = spPr.append_child("a:solidFill");
-        XMLNode srgbClr = solidFill.append_child("a:srgbClr");
-        srgbClr.append_attribute("val").set_value("FFFFFF");
+        // Use noFill to match oneCellAnchor behavior (no borders)
+        spPr.append_child("a:noFill");
         
-        XMLNode ln = spPr.append_child("a:ln");
-        ln.append_attribute("w").set_value("9525");
-        XMLNode lnSolidFill = ln.append_child("a:solidFill");
-        XMLNode lnSrgbClr = lnSolidFill.append_child("a:srgbClr");
-        lnSrgbClr.append_attribute("val").set_value("000000");
+        // Add clientData element (required for Excel compatibility)
+        anchor.append_child("xdr:clientData");
     }
 }

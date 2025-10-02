@@ -1857,6 +1857,7 @@ bool XLWorksheet::addImage(const XLImage& image, uint32_t row, uint16_t column)
         std::ignore = drawingML();
         
         // Add image to DrawingML
+        // Use sequential relationship ID that matches createDrawingRelationshipsFile
         std::string relationshipId = "rId" + std::to_string(m_images.size());
         addImageToDrawingML(imageWithId, row, column, relationshipId);
         

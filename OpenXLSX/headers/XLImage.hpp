@@ -56,6 +56,25 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM    d'`MM.
 
 namespace OpenXLSX
 {
+    // ========== Excel Constants ========== //
+    
+    /**
+     * @brief Standard Excel cell height in EMUs (15 points × 12700 EMUs/point)
+     */
+    constexpr uint32_t EXCEL_CELL_HEIGHT_EMUS = 190500;
+    
+    /**
+     * @brief Excel cell vertical spacing in EMUs (includes cell height + divider)
+     * This is approximately 200000 EMUs (cell height × 26/25)
+     */
+    constexpr uint32_t EXCEL_CELL_Y_SPACING_EMUS = 200000;
+    
+    /**
+     * @brief Standard EMU-to-pixel conversion ratio (approximately)
+     * Note: This may vary based on screen resolution
+     */
+    constexpr uint32_t EMU_TO_PIXEL_RATIO = 9525;
+
     /**
      * @brief The XLImage class represents an image that can be embedded in a worksheet
      */
