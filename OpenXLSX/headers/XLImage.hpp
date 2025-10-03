@@ -54,6 +54,135 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM    d'`MM.
 #include "OpenXLSX-Exports.hpp"
 #include "XLContentTypes.hpp"
 
+/*
+ * ================================================================================
+ * IMAGE EMBEDDING RELATIONSHIP CREATION IN OPENXLSX
+ * ================================================================================
+ * 
+ * When images are embedded in Excel worksheets, OpenXLSX creates TWO types of
+ * relationships that work together to link worksheets → drawings → images.
+ * Each relationship type uses different ID management strategies appropriate
+ * to their scope and purpose.
+ * 
+ * ┌─────────────────────────────────────────────────────────────────────────────┐
+ * │  RELATIONSHIP CREATION FLOW                                                 │
+ * ├─────────────────────────────────────────────────────────────────────────────┤
+ * │                                                                             │
+ * │  1. Worksheet.addImage() called                                            │
+ * │     ↓                                                                       │
+ * │  2. drawingML() ensures drawing.xml exists                                  │
+ * │     ↓                                                                       │
+ * │  3. Creates Worksheet → Drawing relationship                                │
+ * │     ↓                                                                       │
+ * │  4. addImageToDrawingML() adds image to drawing.xml                        │
+ * │     ↓                                                                       │
+ * │  5. createDrawingRelationshipsFile() creates Drawing → Image relationships │
+ * │                                                                             │
+ * └─────────────────────────────────────────────────────────────────────────────┘
+ * 
+ * RELATIONSHIP TYPE 1: WORKSHEET-LEVEL RELATIONSHIPS
+ * ──────────────────────────────────────────────────────────────────────────────
+ * 
+ * Location: Lines 1735-1750 in XLWorksheet::drawingML()
+ * 
+ * Code:
+ *   std::string drawingRelativePath = getPathARelativeToPathB(drawingFilename, getXmlPath());
+ *   XLRelationshipItem drawingRelationship;
+ *   if (!m_relationships.targetExists(drawingRelativePath))
+ *       drawingRelationship = m_relationships.addRelationship(XLRelationshipType::Drawing, drawingRelativePath);
+ *   else
+ *       drawingRelationship = m_relationships.relationshipByTarget(drawingRelativePath);
+ *   
+ *   XMLNode drawing = appendAndGetNode(docElement, "drawing", m_nodeOrder);
+ *   appendAndSetAttribute(drawing, "r:id", drawingRelationship.id());
+ * 
+ * Creates:
+ *   File: xl/worksheets/_rels/sheet1.xml.rels
+ *   Content: <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing" Target="../drawings/drawing1.xml"/>
+ * 
+ * Purpose: Links worksheet to drawing.xml file
+ * Uses: XLRelationships::addRelationship() with intelligent ID management
+ * 
+ * ID Management Strategy:
+ *   - Uses GetNewRelsID() function with intelligent scanning
+ *   - Checks existing relationships to avoid conflicts
+ *   - Handles complex scenarios with multiple relationship types
+ *   - Ensures uniqueness within the worksheet's relationship file
+ * 
+ * RELATIONSHIP TYPE 2: DRAWING-LEVEL RELATIONSHIPS
+ * ──────────────────────────────────────────────────────────────────────────────
+ * 
+ * Location: Lines 2016-2045 in XLWorksheet::createDrawingRelationshipsFile()
+ * 
+ * Code:
+ *   int relationshipId = 1;
+ *   for (const auto& image : m_images) {
+ *       std::string imageFilename = "xl/media/image_" + image.id() + image.extension();
+ *       std::string imageRelativePath = "../media/image_" + image.id() + image.extension();
+ *       
+ *       relsXml += "<Relationship Id=\"rId" + std::to_string(relationshipId) + 
+ *                  "\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" " +
+ *                  "Target=\"" + imageRelativePath + "\"/>\n";
+ *       relationshipId++;
+ *   }
+ * 
+ * Creates:
+ *   File: xl/drawings/_rels/drawing1.xml.rels
+ *   Content: <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../media/image_img1.png"/>
+ * 
+ * Purpose: Links drawing.xml to image files
+ * Uses: Simple sequential counter (rId1, rId2, rId3...)
+ * 
+ * ID Management Strategy:
+ *   - Uses simple sequential numbering starting from 1
+ *   - Regenerates entire relationship file each time
+ *   - No conflict checking needed (file is recreated)
+ *   - Fast and predictable for drawing-specific relationships
+ * 
+ * WHY TWO DIFFERENT STRATEGIES?
+ * ──────────────────────────────────────────────────────────────────────────────
+ * 
+ * 1. SCOPE DIFFERENCES:
+ *    - Worksheet relationships: Complex, shared namespace with other worksheet parts
+ *    - Drawing relationships: Simple, isolated to drawing objects only
+ * 
+ * 2. FREQUENCY OF CHANGES:
+ *    - Worksheet relationships: Infrequent, stable (drawing, comments, tables)
+ *    - Drawing relationships: Frequent, dynamic (images added/removed often)
+ * 
+ * 3. COMPLEXITY REQUIREMENTS:
+ *    - Worksheet relationships: Must avoid conflicts with existing relationships
+ *    - Drawing relationships: Can use simple sequential approach
+ * 
+ * 4. PERFORMANCE CONSIDERATIONS:
+ *    - Worksheet relationships: Intelligent scanning for uniqueness
+ *    - Drawing relationships: Fast regeneration of entire file
+ * 
+ * RELATIONSHIP FILE STRUCTURE:
+ * ──────────────────────────────────────────────────────────────────────────────
+ * 
+ * xl/worksheets/_rels/sheet1.xml.rels:
+ *   <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+ *     <Relationship Id="rId1" Type="..." Target="../drawings/drawing1.xml"/>
+ *     <Relationship Id="rId2" Type="..." Target="../comments/comments1.xml"/>
+ *     <Relationship Id="rId3" Type="..." Target="../tables/table1.xml"/>
+ *   </Relationships>
+ * 
+ * xl/drawings/_rels/drawing1.xml.rels:
+ *   <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+ *     <Relationship Id="rId1" Type="..." Target="../media/image_img1.png"/>
+ *     <Relationship Id="rId2" Type="..." Target="../media/image_img2.jpg"/>
+ *     <Relationship Id="rId3" Type="..." Target="../media/image_img3.gif"/>
+ *   </Relationships>
+ * 
+ * KEY INSIGHT:
+ * Both relationship types can use the same ID (e.g., "rId1") because they exist
+ * in separate relationship files with independent namespaces. This is the
+ * fundamental principle of Excel's relationship scoping system.
+ * 
+ * ================================================================================
+ */
+
 namespace OpenXLSX
 {
     // ========== Excel Constants ========== //

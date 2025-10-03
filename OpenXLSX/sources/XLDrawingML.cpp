@@ -225,15 +225,8 @@ namespace OpenXLSX
         prstGeom.append_attribute("prst").set_value("rect");
         prstGeom.append_child("a:avLst");
         
-        XMLNode solidFill = spPr.append_child("a:solidFill");
-        XMLNode srgbClr = solidFill.append_child("a:srgbClr");
-        srgbClr.append_attribute("val").set_value("FFFFFF");
-        
-        XMLNode ln = spPr.append_child("a:ln");
-        ln.append_attribute("w").set_value("9525");
-        XMLNode lnSolidFill = ln.append_child("a:solidFill");
-        XMLNode lnSrgbClr = lnSolidFill.append_child("a:srgbClr");
-        lnSrgbClr.append_attribute("val").set_value("000000");
+        // Use noFill to match other methods (no borders)
+        spPr.append_child("a:noFill");
         
         // Add clientData element (required for Excel compatibility)
         anchor.append_child("xdr:clientData");

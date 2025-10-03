@@ -1306,6 +1306,11 @@ namespace OpenXLSX
          * @param rowOffset Offset from the top-left of the cell in EMUs
          * @param colOffset Offset from the top-left of the cell in EMUs
          * @return True if successful, false otherwise
+         * @note Images with offset positioning are constrained to fit within a single cell
+         *       by Excel/OpenOffice. This is the expected behavior - the offset positions
+         *       the image within the cell, but the image size is automatically scaled to
+         *       fit the cell dimensions. This is different from regular addImage() which
+         *       can span multiple cells.
          */
         bool addImageWithOffset(const XLImage& image, uint32_t row, uint16_t column, 
                                int32_t rowOffset = 0, int32_t colOffset = 0);
@@ -1372,6 +1377,13 @@ namespace OpenXLSX
          * @note This uses the document-level counter to ensure uniqueness across all worksheets
          */
         std::string generateNextImageId() const;
+
+        /**
+         * @brief Generate a relationship ID based on the current image count
+         * @return A relationship ID string (e.g., "rId1", "rId2", etc.)
+         * @note This generates IDs for DrawingML XML based on the current number of images
+         */
+        std::string getRelationshipIdFromImageCount() const;
 
     private:
         /**

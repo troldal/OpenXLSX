@@ -1858,7 +1858,7 @@ bool XLWorksheet::addImage(const XLImage& image, uint32_t row, uint16_t column)
         
         // Add image to DrawingML
         // Use sequential relationship ID that matches createDrawingRelationshipsFile
-        std::string relationshipId = "rId" + std::to_string(m_images.size());
+        std::string relationshipId = getRelationshipIdFromImageCount();
         addImageToDrawingML(imageWithId, row, column, relationshipId);
         
         return true;
@@ -1921,7 +1921,7 @@ bool XLWorksheet::addImageWithOffset(const XLImage& image, uint32_t row, uint16_
     XLDrawingML& drawing = drawingML();
     
     // Generate relationship ID
-    std::string relationshipId = "rId" + std::to_string(m_images.size());
+    std::string relationshipId = getRelationshipIdFromImageCount();
     
     // Add image to DrawingML with offset
     addImageToDrawingMLWithOffset(imageWithId, row, column, relationshipId, rowOffset, colOffset);
@@ -1955,7 +1955,7 @@ bool XLWorksheet::addImageTwoCellAnchor(const XLImage& image,
     XLDrawingML& drawing = drawingML();
     
     // Generate relationship ID
-    std::string relationshipId = "rId" + std::to_string(m_images.size());
+    std::string relationshipId = getRelationshipIdFromImageCount();
     
     // Add image to DrawingML with two-cell anchoring
     addImageToDrawingMLTwoCellAnchor(imageWithId, fromRow, fromCol, toRow, toCol, relationshipId,
@@ -1986,6 +1986,14 @@ bool XLWorksheet::hasImages() const
 std::string XLWorksheet::generateNextImageId() const
 {
     return parentDoc().generateNextImageId();
+}
+
+/**
+ * @details Generate a relationship ID based on the current image count
+ */
+std::string XLWorksheet::getRelationshipIdFromImageCount() const
+{
+    return "rId" + std::to_string(m_images.size());
 }
 
 /**
