@@ -79,9 +79,10 @@ namespace OpenXLSX
      */
     bool XLImage::loadFromFile(const std::string& imagePath)
     {
-        // Generate a temporary ID for backward compatibility
-        std::string tempId = "temp_id";
-        return loadFromFile(imagePath, tempId);
+        // Generate a proper sequential ID instead of temp_id
+        static int counter = 1;
+        std::string imageId = "img" + std::to_string(counter++);
+        return loadFromFile(imagePath, imageId);
     }
 
     /**
@@ -132,9 +133,10 @@ namespace OpenXLSX
      */
     bool XLImage::loadFromData(const std::vector<uint8_t>& imageData, const std::string& mimeType)
     {
-        // Generate a temporary ID for backward compatibility
-        std::string tempId = "temp_id";
-        return loadFromData(imageData, mimeType, tempId);
+        // Generate a proper sequential ID instead of temp_id
+        static int counter = 1;
+        std::string imageId = "img" + std::to_string(counter++);
+        return loadFromData(imageData, mimeType, imageId);
     }
 
     /**

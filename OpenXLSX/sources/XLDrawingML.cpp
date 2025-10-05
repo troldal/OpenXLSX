@@ -123,14 +123,20 @@ namespace OpenXLSX
 
     size_t XLDrawingML::imageCount() const
     {
+        if (!valid()) {
+            return 0;
+        }
+        
         XMLNode rootNode = xmlDocument().document_element();
         size_t count = 0;
+        
         for (XMLNode child : rootNode.children("xdr:oneCellAnchor")) {
             count++;
         }
         for (XMLNode child : rootNode.children("xdr:twoCellAnchor")) {
             count++;
         }
+        
         return count;
     }
 
@@ -164,7 +170,7 @@ namespace OpenXLSX
         // Get the root element
         XMLNode rootNode = xmlDocument().document_element();
         
-        // Create a twoCellAnchor element (but we'll use it as oneCell with offset)
+        // Create a twoCellAnchor element with proper oneCell editing (Excel standard)
         XMLNode anchor = rootNode.append_child("xdr:twoCellAnchor");
         anchor.append_attribute("editAs").set_value("oneCell");
         
@@ -247,7 +253,7 @@ namespace OpenXLSX
         
         // Create a twoCellAnchor element
         XMLNode anchor = rootNode.append_child("xdr:twoCellAnchor");
-        anchor.append_attribute("editAs").set_value("twoCell");
+        anchor.append_attribute("editAs").set_value("oneCell");
         
         // Create the 'from' element
         XMLNode from = anchor.append_child("xdr:from");

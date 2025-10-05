@@ -621,6 +621,9 @@ void XLDocument::open(const std::string& fileName)
 
     m_sharedStrings  = XLSharedStrings(getXmlData("xl/sharedStrings.xml"), &m_sharedStringCache);
     m_styles         = XLStyles(getXmlData("xl/styles.xml"), m_suppressWarnings); // 2024-10-14: forward supress warnings setting to XLStyles
+    
+    // ===== Load all remaining XML files from the archive (including drawing files)
+    loadAllXmlFilesFromArchive();
 }
 
 namespace {
@@ -1274,6 +1277,29 @@ bool XLDocument::addRelationshipsFile(const std::string& relsFilename, const std
 }
 
 /**
+ * @details Check if a relationships file exists in the archive
+ */
+bool XLDocument::hasRelationshipsFile(const std::string& relsFilename) const
+{
+    return m_archive.hasEntry(relsFilename);
+}
+
+/**
+ * @details Read the content of a relationships file from the archive
+ */
+std::string XLDocument::readRelationshipsFile(const std::string& relsFilename)
+{
+    try {
+        if (m_archive.hasEntry(relsFilename)) {
+            return m_archive.getEntry(relsFilename);
+        }
+    } catch (const std::exception&) {
+        // Return empty string if there's an error
+    }
+    return "";
+}
+
+/**
  * @details return value defaults to true, false only where the XLCommandType implements it
  */
 bool XLDocument::execCommand(const XLCommand& command)
@@ -1592,6 +1618,66 @@ void XLDocument::cleanupSharedStrings()
 std::string XLDocument::extractXmlFromArchive(const std::string& path)
 {
     return (m_archive.hasEntry(path) ? m_archive.getEntry(path) : "");
+}
+
+/**
+ * @details Load all XML files from the archive into m_data list
+ */
+void XLDocument::loadAllXmlFilesFromArchive()
+{
+    // Get all content items from the content types
+    auto contentItems = m_contentTypes.getContentItems();
+    
+    for (const auto& item : contentItems) {
+        std::string path = item.path();
+        
+        // Remove leading slash if present (standardize path format)
+        if (path.length() > 0 && path[0] == '/') {
+            path = path.substr(1);
+        }
+        
+        // Skip if already loaded
+        if (hasXmlData(path)) {
+            continue;
+        }
+        
+        // Load XML files and media files
+        bool shouldLoad = false;
+        XLContentType contentType = item.type();
+        
+        if (path.length() >= 4 && path.substr(path.length() - 4) == ".xml") {
+            // Load drawing files and other safe XML files
+            switch (contentType) {
+                case XLContentType::Drawing:
+                case XLContentType::Chart:
+                case XLContentType::Comments:
+                case XLContentType::Table:
+                case XLContentType::VMLDrawing:
+                    shouldLoad = true;
+                    break;
+                default:
+                    // Also load any XML file that starts with xl/drawings/, xl/charts/, or is a .rels file
+                    if (path.find("xl/drawings/") == 0 || path.find("xl/charts/") == 0 || 
+                        path.find("_rels/") != std::string::npos || path.find(".rels") != std::string::npos) {
+                        shouldLoad = true;
+                        // Set correct content type for relationship files
+                        if (path.find(".rels") != std::string::npos) {
+                            contentType = XLContentType::Relationships;
+                        }
+                    }
+                    break;
+            }
+        } else {
+            // Don't load media files (images) into m_data - they should remain as binary files in the archive
+            // Image files will be preserved automatically by the archive when saving
+            shouldLoad = false;
+        }
+        
+        if (shouldLoad) {
+            // Add to m_data list
+            m_data.emplace_back(this, path, "", contentType);
+        }
+    }
 }
 
 /**

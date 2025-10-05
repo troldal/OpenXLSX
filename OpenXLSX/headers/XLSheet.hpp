@@ -1258,6 +1258,12 @@ namespace OpenXLSX
          * @return Reference to the DrawingML object
          */
         XLDrawingML& drawingML();
+        
+        /**
+         * @brief Get the DrawingML object for this worksheet (const version)
+         * @return Reference to the DrawingML object
+         */
+        const XLDrawingML& drawingML() const;
 
         /**
          * @brief fetch a reference to the worksheet comments
@@ -1433,6 +1439,13 @@ namespace OpenXLSX
          * @param drawingFilename The drawing filename
          */
         void createDrawingRelationshipsFile(const std::string& drawingFilename);
+        
+        /**
+         * @brief Add a relationship for a new image to the existing relationships file
+         * @param image The image to add a relationship for
+         * @param relationshipId The relationship ID to use
+         */
+        void addImageRelationship(const XLImage& image, const std::string& relationshipId);
 
         /**
          * @brief fetch the # number from the xml path xl/worksheets/sheet#.xml

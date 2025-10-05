@@ -194,9 +194,9 @@ namespace OpenXLSX
     
     /**
      * @brief Excel cell vertical spacing in EMUs (includes cell height + divider)
-     * This is approximately 200000 EMUs (cell height × 26/25)
+     * This is approximately 198000 EMUs (cell height × 26/25)
      */
-    constexpr uint32_t EXCEL_CELL_Y_SPACING_EMUS = 200000;
+    constexpr uint32_t EXCEL_CELL_Y_SPACING_EMUS = 198000;
     
     /**
      * @brief Standard EMU-to-pixel conversion ratio (approximately)

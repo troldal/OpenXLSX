@@ -389,6 +389,20 @@ namespace OpenXLSX
          * @return true if successful, false otherwise
          */
         bool addRelationshipsFile(const std::string& relsFilename, const std::string& relsXml);
+        
+        /**
+         * @brief Check if a relationships file exists in the archive
+         * @param relsFilename The filename for the relationships file in the archive
+         * @return true if the file exists, false otherwise
+         */
+        bool hasRelationshipsFile(const std::string& relsFilename) const;
+        
+        /**
+         * @brief Read the content of a relationships file from the archive
+         * @param relsFilename The filename for the relationships file in the archive
+         * @return The content of the file, or empty string if not found
+         */
+        std::string readRelationshipsFile(const std::string& relsFilename);
 
         /**
          * @brief
@@ -457,6 +471,11 @@ namespace OpenXLSX
          * @return
          */
         const XLXmlData* getXmlData(const std::string& path, bool doNotThrow = false) const;
+
+        /**
+         * @brief Load all XML files from the archive into m_data list
+         */
+        void loadAllXmlFilesFromArchive();
 
         /**
          * @brief

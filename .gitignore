@@ -57,6 +57,10 @@
 !/Examples/*.cpp
 !/Examples/external
 !/Examples/external/*
+!/Examples/files
+!/Examples/files/*
+!/Examples/images
+!/Examples/images/*
 
 # include gnu-make-crutch folder
 !/gnu-make-crutch

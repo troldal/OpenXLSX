@@ -48,6 +48,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <cctype>    // std::isdigit (issue #330)
 #include <limits>    // std::numeric_limits
 #include <map>       // std::multimap
+#include <set>       // std::set
 #include <pugixml.hpp>
 
 // ===== OpenXLSX Includes ===== //
@@ -1749,8 +1750,15 @@ XLDrawingML& XLWorksheet::drawingML()
             throw XLException("XLWorksheet::drawingML(): could not add <drawing> element to worksheet XML");
         appendAndSetAttribute(drawing, "r:id", drawingRelationship.id());
         
-        // Create drawing relationships file
-        createDrawingRelationshipsFile(drawingFilename);
+        // Create drawing relationships file only if it doesn't exist
+        std::string drawingRelsFilename = drawingFilename.substr(0, drawingFilename.find_last_of('/') + 1) + 
+                                         "_rels/" + 
+                                         drawingFilename.substr(drawingFilename.find_last_of('/') + 1) + ".rels";
+        
+        // Only create relationships file if it doesn't exist
+        if (!parentDoc().hasRelationshipsFile(drawingRelsFilename)) {
+            createDrawingRelationshipsFile(drawingFilename);
+        }
     }
 
     return m_drawingML;
@@ -1837,7 +1845,10 @@ bool XLWorksheet::addImage(const XLImage& image, uint32_t row, uint16_t column)
     try {
         // Create a copy of the image and set its ID
         XLImage imageWithId = image;
-        imageWithId.setId(generateNextImageId());
+        // Only generate a new ID if the image doesn't already have one
+        if (imageWithId.id().empty()) {
+            imageWithId.setId(generateNextImageId());
+        }
         
         // Store the image in the vector
         m_images.push_back(imageWithId);
@@ -1906,7 +1917,10 @@ bool XLWorksheet::addImageWithOffset(const XLImage& image, uint32_t row, uint16_
 {
     // Create a copy of the image and set its ID
     XLImage imageWithId = image;
-    imageWithId.setId(generateNextImageId());
+    // Only generate a new ID if the image doesn't already have one
+    if (imageWithId.id().empty()) {
+        imageWithId.setId(generateNextImageId());
+    }
     
     // Store the image
     m_images.push_back(imageWithId);
@@ -1940,7 +1954,10 @@ bool XLWorksheet::addImageTwoCellAnchor(const XLImage& image,
 {
     // Create a copy of the image and set its ID
     XLImage imageWithId = image;
-    imageWithId.setId(generateNextImageId());
+    // Only generate a new ID if the image doesn't already have one
+    if (imageWithId.id().empty()) {
+        imageWithId.setId(generateNextImageId());
+    }
     
     // Store the image
     m_images.push_back(imageWithId);
@@ -1969,7 +1986,23 @@ bool XLWorksheet::addImageTwoCellAnchor(const XLImage& image,
  */
 size_t XLWorksheet::imageCount() const
 {
-    return m_images.size();
+    // For existing files, count images from DrawingML
+    // For newly created files, count from m_images vector
+    if (m_images.empty()) {
+        // Try to get count from existing DrawingML without creating it
+        try {
+            // Check if DrawingML already exists and is valid
+            if (m_drawingML.valid()) {
+                return m_drawingML.imageCount();
+            }
+            return 0;
+        } catch (...) {
+            return 0;
+        }
+    } else {
+        // Use the vector count for newly added images
+        return m_images.size();
+    }
 }
 
 /**
@@ -1993,7 +2026,20 @@ std::string XLWorksheet::generateNextImageId() const
  */
 std::string XLWorksheet::getRelationshipIdFromImageCount() const
 {
-    return "rId" + std::to_string(m_images.size());
+    // For existing files, count from DrawingML; for new files, use m_images
+    if (m_images.empty()) {
+        // Try to get count from existing DrawingML
+        try {
+            if (m_drawingML.valid()) {
+                return "rId" + std::to_string(m_drawingML.imageCount() + 1);
+            }
+        } catch (...) {
+            // Fall through to default
+        }
+        return "rId1"; // Default for first image
+    } else {
+        return "rId" + std::to_string(m_images.size() + 1);
+    }
 }
 
 /**
@@ -2004,10 +2050,8 @@ void XLWorksheet::addImageToDrawingML(const XLImage& image, uint32_t row, uint16
     // Add image to DrawingML
     m_drawingML.addImage(image, row, column, relationshipId);
     
-    // Update the drawing relationships file to include all current images
-    uint16_t sheetXmlNo = sheetXmlNumber();
-    std::string drawingFilename = "xl/drawings/drawing" + std::to_string(sheetXmlNo) + ".xml";
-    createDrawingRelationshipsFile(drawingFilename);
+    // Add relationship for the new image
+    addImageRelationship(image, relationshipId);
 }
 
 /**
@@ -2045,6 +2089,107 @@ void XLWorksheet::createDrawingRelationshipsFile(const std::string& drawingFilen
 }
 
 /**
+ * @details Add a relationship for a new image to the existing relationships file
+ */
+void XLWorksheet::addImageRelationship(const XLImage& image, const std::string& relationshipId)
+{
+    // Get the drawing filename for this worksheet
+    uint16_t sheetXmlNo = sheetXmlNumber();
+    std::string drawingFilename = "xl/drawings/drawing" + std::to_string(sheetXmlNo) + ".xml";
+    
+    // Create the relationships filename
+    std::string drawingRelsFilename = drawingFilename.substr(0, drawingFilename.find_last_of('/') + 1) + 
+                                     "_rels/" + 
+                                     drawingFilename.substr(drawingFilename.find_last_of('/') + 1) + ".rels";
+    
+    std::string relsXml;
+    
+    // Try to read existing relationships file
+    if (parentDoc().hasRelationshipsFile(drawingRelsFilename)) {
+        // Read existing content and add new relationship
+        try {
+            // Get existing content from archive
+            std::string existingContent = parentDoc().readRelationshipsFile(drawingRelsFilename);
+            
+            // Parse existing XML
+            XMLDocument relsDoc;
+            relsDoc.load_string(existingContent.c_str());
+            XMLNode relationshipsNode = relsDoc.document_element();
+            
+            if (relationshipsNode) {
+                // Start building new XML
+                relsXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
+                         "<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">\n";
+                
+                // Find the highest existing relationship ID to avoid duplicates
+                int maxId = 0;
+                std::set<std::string> existingIds;
+                
+                for (auto relNode : relationshipsNode.children("Relationship")) {
+                    std::string relId = relNode.attribute("Id").value();
+                    std::string relType = relNode.attribute("Type").value();
+                    std::string relTarget = relNode.attribute("Target").value();
+                    
+                    // Extract numeric part of ID
+                    if (relId.length() > 3 && relId.substr(0, 3) == "rId") {
+                        try {
+                            int idNum = std::stoi(relId.substr(3));
+                            maxId = std::max(maxId, idNum);
+                        } catch (...) {
+                            // Ignore non-numeric IDs
+                        }
+                    }
+                    
+                    existingIds.insert(relId);
+                    
+                    relsXml += "<Relationship Id=\"" + relId + 
+                               "\" Type=\"" + relType + 
+                               "\" Target=\"" + relTarget + "\"/>\n";
+                }
+                
+                // Generate a unique relationship ID
+                std::string uniqueRelId = relationshipId;
+                int idNum = maxId + 1;
+                while (existingIds.find(uniqueRelId) != existingIds.end()) {
+                    uniqueRelId = "rId" + std::to_string(idNum);
+                    idNum++;
+                }
+                
+                // Add new relationship with unique ID
+                std::string imageRelativePath = "../media/image_" + image.id() + image.extension();
+                relsXml += "<Relationship Id=\"" + uniqueRelId + 
+                           "\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" " +
+                           "Target=\"" + imageRelativePath + "\"/>\n";
+                
+                relsXml += "</Relationships>";
+            }
+        } catch (const std::exception&) {
+            // If parsing fails, fall back to creating new file
+            relsXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
+                     "<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">\n"
+                     "<Relationship Id=\"" + relationshipId + 
+                     "\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" " +
+                     "Target=\"../media/image_" + image.id() + image.extension() + "\"/>\n"
+                     "</Relationships>";
+        }
+    } else {
+        // Create new relationships file
+        std::string imageRelativePath = "../media/image_" + image.id() + image.extension();
+        relsXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
+                 "<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">\n"
+                 "<Relationship Id=\"" + relationshipId + 
+                 "\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" " +
+                 "Target=\"" + imageRelativePath + "\"/>\n"
+                 "</Relationships>";
+    }
+    
+    // Update the relationships file
+    if (!parentDoc().addRelationshipsFile(drawingRelsFilename, relsXml)) {
+        throw XLException("XLWorksheet::addImageRelationship(): could not update drawing relationships file");
+    }
+}
+
+/**
  * @details Add an image to the DrawingML with precise positioning
  */
 void XLWorksheet::addImageToDrawingMLWithOffset(const XLImage& image, uint32_t row, uint16_t column, 
@@ -2054,10 +2199,8 @@ void XLWorksheet::addImageToDrawingMLWithOffset(const XLImage& image, uint32_t r
     // Add image to DrawingML
     m_drawingML.addImageWithOffset(image, row, column, relationshipId, rowOffset, colOffset);
     
-    // Update the drawing relationships file to include all current images
-    uint16_t sheetXmlNo = sheetXmlNumber();
-    std::string drawingFilename = "xl/drawings/drawing" + std::to_string(sheetXmlNo) + ".xml";
-    createDrawingRelationshipsFile(drawingFilename);
+    // Add relationship for the new image
+    addImageRelationship(image, relationshipId);
 }
 
 /**
@@ -2074,10 +2217,8 @@ void XLWorksheet::addImageToDrawingMLTwoCellAnchor(const XLImage& image,
     m_drawingML.addImageTwoCellAnchor(image, fromRow, fromCol, toRow, toCol, relationshipId,
                                      fromRowOffset, fromColOffset, toRowOffset, toColOffset);
     
-    // Update the drawing relationships file to include all current images
-    uint16_t sheetXmlNo = sheetXmlNumber();
-    std::string drawingFilename = "xl/drawings/drawing" + std::to_string(sheetXmlNo) + ".xml";
-    createDrawingRelationshipsFile(drawingFilename);
+    // Add relationship for the new image
+    addImageRelationship(image, relationshipId);
 }
 
 /**

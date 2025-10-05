@@ -17,11 +17,11 @@
 using namespace OpenXLSX;
 
 /**
- * @brief Search upward through directory tree to find the images folder
- * @param relativePath The relative path to search for (e.g., "OpenXLSX/Examples/images/")
- * @return The full path to the images folder if found, empty string if not found
+ * @brief Search upward through directory tree to find a directory
+ * @param relativePath The relative path to search for
+ * @return The full path to the directory if found, empty string if not found
  */
-std::string findImagesDirectory(const std::string& relativePath = "OpenXLSX/Examples/images/")
+std::string findDirectory(const std::string& relativePath)
 {
     const std::filesystem::path currentPath = std::filesystem::current_path();
     std::filesystem::path testPath = currentPath;
@@ -564,7 +564,7 @@ int main()
     std::cout << "\n=== Sheet 5: Loading Images from Disk Files ===" << std::endl;
         
     // Find the images directory by searching upward through the directory tree
-    std::string imageDir = findImagesDirectory();
+    std::string imageDir = findDirectory("OpenXLSX/Examples/images/");
     if (imageDir.empty()) {
         std::cout << "  ERROR: Could not find images directory!" << std::endl;
         std::cout << "  Searched for: OpenXLSX/Examples/images/ in current "
@@ -669,14 +669,184 @@ int main()
     } // End of file loading tests
 
     // Save the workbook
-    doc.save();
-    std::cout << "\nWorkbook saved as '" << xlsxFileName << "'" << std::endl;
+    std::cout << "\nSaving workbook as '" << xlsxFileName << "'..." << std::endl;
+    try {
+        doc.save();
+        std::cout << "Workbook saved successfully!" << std::endl;
+    } catch (const std::exception& e) {
+        std::cout << "Error saving workbook: " << e.what() << std::endl;
+        return 1;
+    }
     std::cout << "\nTest Matrix Summary:" << std::endl;
     std::cout << "- Sheet 1: Anchor Types (oneCellAnchor vs twoCellAnchor)" << std::endl;
     std::cout << "- Sheet 2: File Formats (PNG, JPEG, GIF, BMP)" << std::endl;
     std::cout << "- Sheet 3: Sizing Strategies (aspect ratio, original, exact)" << std::endl;
     std::cout << "- Sheet 4: Units & Scaling (pixels, EMUs, cells)" << std::endl;
     std::cout << "- Sheet 5: File Loading (loading images from disk files)" << std::endl;
+    
+    // ================================================================================
+    // PHASE VI: READ-MODIFY-WRITE CYCLE
+    // ================================================================================
+    std::cout << "\n=== Phase VI: Read-Modify-Write Cycle ===" << std::endl;
+    
+    // Step 1: Read back the .xlsx file we just created
+    std::cout << "\n1. Reading back the .xlsx file..." << std::endl;
+    OpenXLSX::XLDocument readDoc;
+    try {
+        readDoc.open(xlsxFileName);
+        std::cout << "   Successfully opened: " << xlsxFileName << std::endl;
+        
+        // Step 2: Search for embedded images in all worksheets
+        std::cout << "\n2. Searching for embedded images..." << std::endl;
+        int totalImagesFound = 0;
+        std::vector<std::string> worksheetsWithImages;
+        
+        for (const auto& sheetName : readDoc.workbook().worksheetNames()) {
+            OpenXLSX::XLWorksheet sheet = readDoc.workbook().worksheet(sheetName);
+            
+            // Check if worksheet has images by checking if it has DrawingML with actual images
+            // (hasImages() only checks in-memory m_images vector, which is empty for loaded files)
+            try {
+                OpenXLSX::XLDrawingML& drawing = sheet.drawingML();
+                if (drawing.valid()) {
+                    // Use the public imageCount() method to check for images
+                    size_t imageCount = drawing.imageCount();
+                    std::cout << "   Worksheet '" << sheetName << "' DrawingML valid: " << (drawing.valid() ? "Yes" : "No") 
+                              << ", imageCount: " << imageCount << std::endl;
+                    if (imageCount > 0) {
+                        worksheetsWithImages.push_back(sheetName);
+                        std::cout << "   Found " << imageCount << " image(s) in worksheet: " << sheetName << std::endl;
+                        totalImagesFound++;
+                    }
+                } else {
+                    std::cout << "   Worksheet '" << sheetName << "' has no DrawingML" << std::endl;
+                }
+            } catch (const std::exception& e) {
+                std::cout << "   Worksheet '" << sheetName << "' DrawingML error: " << e.what() << std::endl;
+            }
+        }
+        
+        std::cout << "   Total worksheets with images: " << totalImagesFound << std::endl;
+        
+        // Step 3: Add a new image to the "File Loading" worksheet (object B)
+        std::cout << "\n3. Adding new image to 'File Loading' worksheet..." << std::endl;
+        
+        if (readDoc.workbook().worksheetExists("File Loading")) {
+            OpenXLSX::XLWorksheet fileLoadingSheet = readDoc.workbook().worksheet("File Loading");
+            std::cout << "   Found 'File Loading' worksheet" << std::endl;
+            
+            // Create a new test image (using the same PNG data as before)
+            OpenXLSX::XLImage newImage;
+            std::string newImageId = fileLoadingSheet.generateNextImageId();
+            std::cout << "   Generated new image ID: " << newImageId << std::endl;
+            
+            // Use the same PNG data from our static constants
+            if (newImage.loadFromData(pngData, "image/png", newImageId)) {
+                std::cout << "   Successfully loaded image data" << std::endl;
+                std::cout << "   Image ID before addImage(): " << newImage.id() << std::endl;
+                
+                // Set a distinctive size for this new image
+                newImage.setDisplaySizeWithAspectRatio(2 * EXCEL_CELL_Y_SPACING_EMUS, 1 * EXCEL_CELL_Y_SPACING_EMUS);
+                std::cout << "   Set image display size" << std::endl;
+                
+                // Add it to cell A37 (after the existing images)
+                fileLoadingSheet.cell("A37").value() = "NEW IMAGE - Added via Read-Modify-Write Cycle";
+                std::cout << "   Set cell A37 text" << std::endl;
+                
+                // Debug: Check if image is valid before adding
+                std::cout << "   Image valid: " << (newImage.isValid() ? "Yes" : "No") << std::endl;
+                std::cout << "   Image data size: " << newImage.data().size() << " bytes" << std::endl;
+                std::cout << "   Image MIME type: " << newImage.mimeType() << std::endl;
+                
+                bool addSuccess = fileLoadingSheet.addImage(newImage, "A38");
+                std::cout << "   addImage() returned: " << (addSuccess ? "Success" : "Failed") << std::endl;
+                std::cout << "   Image ID after addImage(): " << newImage.id() << std::endl;
+                
+                if (addSuccess) {
+                    std::cout << "   Successfully added new image to 'File Loading' worksheet" << std::endl;
+                    std::cout << "   New image ID: " << newImageId << std::endl;
+                    std::cout << "   Image positioned at: A38" << std::endl;
+                } else {
+                    std::cout << "   Failed to add new image to worksheet" << std::endl;
+                }
+            } else {
+                std::cout << "   Failed to create new image from data" << std::endl;
+            }
+        } else {
+            std::cout << "   'File Loading' worksheet not found!" << std::endl;
+        }
+        
+        // Step 4: Write the modified workbook to a new file
+        std::cout << "\n4. Writing modified workbook to new file..." << std::endl;
+        std::string modifiedFileName = "Demo11_Modified.xlsx";
+        try {
+            readDoc.saveAs(modifiedFileName);
+            std::cout << "   Modified workbook saved as: " << modifiedFileName << std::endl;
+        } catch (const std::exception& e) {
+            std::cout << "   Error saving modified workbook: " << e.what() << std::endl;
+        }
+        
+        // Step 5: Verify the modification
+        std::cout << "\n5. Verification summary:" << std::endl;
+        std::cout << "   - Original file: " << xlsxFileName << std::endl;
+        std::cout << "   - Modified file: " << modifiedFileName << std::endl;
+        std::cout << "   - Worksheets with images: " << totalImagesFound << std::endl;
+        std::cout << "   - New image added to: File Loading worksheet" << std::endl;
+        
+        readDoc.close();
+        
+    } catch (const std::exception& e) {
+        std::cout << "   Error during read-modify-write cycle: " << e.what() << std::endl;
+    }
+
+    /* read file generated by Excel.  Count the images in the file. */
+    std::cout << "\n=== Phase VII: Loading Excel-Generated File ===" << std::endl;
+    
+    // Find the Excel-generated file
+    std::string excelFileDir = findDirectory("OpenXLSX/Examples/files/");
+    std::string excelFilePath = excelFileDir + "from_excel_embedded_images.xlsx";
+    
+    if (excelFileDir.empty() || !std::filesystem::exists(excelFilePath)) {
+        std::cout << "  ERROR: Could not find Excel-generated file!" << std::endl;
+        std::cout << "  Expected: " << excelFilePath << std::endl;
+        std::cout << "  Searched for: OpenXLSX/Examples/files/ in current directory and up to 10 levels up" << std::endl;
+    } else {
+        std::cout << "  Found Excel file: " << excelFilePath << std::endl;
+        
+        // Load the Excel-generated file
+        XLDocument excelDoc;
+        try {
+            excelDoc.open(excelFilePath);
+            std::cout << "  Successfully opened Excel-generated file" << std::endl;
+            
+            // Count images in each worksheet
+            int totalImages = 0;
+            for (uint16_t i = 1; i <= excelDoc.workbook().sheetCount(); ++i) {
+                XLSheet sheet = excelDoc.workbook().sheet(i);
+                std::string sheetName = sheet.name();
+                
+                // Check if it's a worksheet (not a chartsheet)
+                if (sheet.isType<XLWorksheet>()) {
+                    XLWorksheet worksheet = sheet.get<XLWorksheet>();
+                    
+                    // Debug: Check if drawingML is valid
+                    bool drawingValid = worksheet.drawingML().valid();
+                    std::cout << "  DEBUG: About to call imageCount() for worksheet '" << sheetName << "'" << std::endl;
+                    int imageCount = static_cast<int>(worksheet.imageCount());
+                    std::cout << "  DEBUG: imageCount() returned: " << imageCount << std::endl;
+                    totalImages += imageCount;
+                    std::cout << "  Worksheet '" << sheetName << "': " << imageCount << " image(s) (drawingML valid: " << (drawingValid ? "Yes" : "No") << ")" << std::endl;
+                } else {
+                    std::cout << "  Sheet '" << sheetName << "': (not a worksheet, skipping)" << std::endl;
+                }
+            }
+            std::cout << "  Total images in Excel file: " << totalImages << std::endl;
+            
+            excelDoc.close();
+        } catch (const std::exception& e) {
+            std::cout << "  ERROR: Failed to open Excel file: " << e.what() << std::endl;
+        }
+    }
 
     return 0;
 }
