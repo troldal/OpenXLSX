@@ -185,6 +185,21 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM    d'`MM.
 
 namespace OpenXLSX
 {
+    // ========== Global Helper Functions ========== //
+    
+    /**
+     * @brief Helper function to append difference messages for debugging
+     * @param diffMsg Optional pointer to append difference message (up to 16384 characters)
+     * @param msg The message to append
+     */
+    inline void appendDiff(std::string* diffMsg, const std::string& msg)
+    {
+        if (diffMsg && diffMsg->length() < 16000) { // Leave some buffer
+            if (!diffMsg->empty()) *diffMsg += "; ";
+            *diffMsg += msg;
+        }
+    }
+
     // ========== Excel Constants ========== //
     
     /**
@@ -203,6 +218,69 @@ namespace OpenXLSX
      * Note: This may vary based on screen resolution
      */
     constexpr uint32_t EMU_TO_PIXEL_RATIO = 9525;
+
+    /**
+     * @brief Structure containing image metadata for query operations
+     * 
+     * This structure holds all the essential information about an embedded image
+     * that can be queried from a worksheet. It provides a unified interface
+     * for accessing image properties without needing to parse XML directly.
+     * 
+     * The structure is designed to be efficient for both storage and access,
+     * with all data pre-parsed and readily available for common operations.
+     */
+    struct OPENXLSX_EXPORT XLImageInfo
+    {
+        std::string imageId;           /**< Unique image identifier (e.g., "img1", "img2") */
+        std::string relationshipId;    /**< Relationship ID in drawing.xml.rels (e.g., "rId1", "rId2") */
+        std::string anchorCell;        /**< Primary anchor cell reference (e.g., "A1", "B5") */
+        std::string anchorType;        /**< Anchor type: "oneCellAnchor" or "twoCellAnchor" */
+        uint32_t widthPixels{0};       /**< Original image width in pixels */
+        uint32_t heightPixels{0};      /**< Original image height in pixels */
+        uint32_t displayWidthEMUs{0};  /**< Display width in Excel units (EMUs) */
+        uint32_t displayHeightEMUs{0}; /**< Display height in Excel units (EMUs) */
+        
+        /**
+         * @brief Default constructor
+         */
+        XLImageInfo() = default;
+        
+        /**
+         * @brief Constructor with all parameters
+         * @param id Image ID
+         * @param relId Relationship ID
+         * @param cell Anchor cell reference
+         * @param type Anchor type
+         * @param wPx Width in pixels
+         * @param hPx Height in pixels
+         * @param wEmu Display width in EMUs
+         * @param hEmu Display height in EMUs
+         */
+        XLImageInfo(const std::string& id, const std::string& relId, const std::string& cell,
+                   const std::string& type, uint32_t wPx, uint32_t hPx, uint32_t wEmu, uint32_t hEmu)
+            : imageId(id), relationshipId(relId), anchorCell(cell), anchorType(type),
+              widthPixels(wPx), heightPixels(hPx), displayWidthEMUs(wEmu), displayHeightEMUs(hEmu) {}
+        
+        /**
+         * @brief Check if this image info is valid (has non-empty imageId)
+         * @return True if valid, false otherwise
+         */
+        bool isValid() const { return !imageId.empty(); }
+        
+        /**
+         * @brief Check if this image info is empty (default constructed)
+         * @return True if empty, false otherwise
+         */
+        bool isEmpty() const { return imageId.empty(); }
+
+        /**
+         * @brief Compare two image info structures for debugging
+         * @param other The other XLImageInfo to compare with
+         * @param diffMsg Optional pointer to append difference message (up to 16384 characters)
+         * @return 0 if identical, <0 if this precedes other, >0 if this follows other
+         */
+        int compare(const XLImageInfo& other, std::string* diffMsg = nullptr) const;
+    };
 
     /**
      * @brief The XLImage class represents an image that can be embedded in a worksheet
@@ -404,6 +482,14 @@ namespace OpenXLSX
          * @return The XLContentType enum value
          */
         XLContentType contentType() const;
+
+        /**
+         * @brief Compare two images for debugging
+         * @param other The other XLImage to compare with
+         * @param diffMsg Optional pointer to append difference message (up to 16384 characters)
+         * @return 0 if identical, <0 if this precedes other, >0 if this follows other
+         */
+        int compare(const XLImage& other, std::string* diffMsg = nullptr) const;
 
     private:
         std::vector<uint8_t> m_imageData;     /**< Binary image data */

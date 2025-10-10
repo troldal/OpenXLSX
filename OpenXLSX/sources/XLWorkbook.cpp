@@ -130,12 +130,44 @@ XLSheet XLWorkbook::sheet(uint16_t index)    // 2024-04-30: whitespace support
 /**
  * @details
  */
-XLWorksheet XLWorkbook::worksheet(const std::string& sheetName) { return sheet(sheetName).get<XLWorksheet>(); }
+XLWorksheet XLWorkbook::worksheet(const std::string& sheetName) 
+{ 
+    XLWorksheet worksheet = sheet(sheetName).get<XLWorksheet>();
+    
+    // Only initialize DrawingML if the worksheet actually has images
+    // This avoids unnecessary XML modifications for worksheets without images
+    if (worksheet.hasImagesInXML()) {
+        try {
+            std::ignore = worksheet.drawingML(); // Initialize DrawingML
+        } catch (...) {
+            // DrawingML initialization failed, but worksheet is still usable
+        }
+    }
+    // If no images, leave DrawingML invalid (fast path)
+    
+    return worksheet;
+}
 
 /**
  * @details
  */
-XLWorksheet XLWorkbook::worksheet(uint16_t index) { return sheet(index).get<XLWorksheet>(); }
+XLWorksheet XLWorkbook::worksheet(uint16_t index) 
+{ 
+    XLWorksheet worksheet = sheet(index).get<XLWorksheet>();
+    
+    // Only initialize DrawingML if the worksheet actually has images
+    // This avoids unnecessary XML modifications for worksheets without images
+    if (worksheet.hasImagesInXML()) {
+        try {
+            std::ignore = worksheet.drawingML(); // Initialize DrawingML
+        } catch (...) {
+            // DrawingML initialization failed, but worksheet is still usable
+        }
+    }
+    // If no images, leave DrawingML invalid (fast path)
+    
+    return worksheet;
+}
 
 /**
  * @details

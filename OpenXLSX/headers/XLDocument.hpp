@@ -368,6 +368,14 @@ namespace OpenXLSX
         bool addImageEntry(const std::string& imageFilename, const std::vector<uint8_t>& imageData, XLContentType contentType);
 
         /**
+         * @brief Compare two documents for debugging
+         * @param other The other XLDocument to compare with
+         * @param diffMsg Optional pointer to append difference message (up to 16384 characters)
+         * @return 0 if identical, <0 if this precedes other, >0 if this follows other
+         */
+        int compare(const XLDocument& other, std::string* diffMsg = nullptr) const;
+
+        /**
          * @brief Add a drawing file to the archive
          * @param drawingFilename The filename for the drawing in the archive
          * @param drawingXml The drawing XML content
@@ -402,7 +410,21 @@ namespace OpenXLSX
          * @param relsFilename The filename for the relationships file in the archive
          * @return The content of the file, or empty string if not found
          */
-        std::string readRelationshipsFile(const std::string& relsFilename);
+        std::string readRelationshipsFile(const std::string& relsFilename) const;
+
+        /**
+         * @brief Read the content of any file from the archive
+         * @param filePath The path of the file in the archive
+         * @return The content of the file, or empty string if not found
+         */
+        std::string readFile(const std::string& filePath) const;
+
+        /**
+         * @brief Delete an entry from the archive
+         * @param entryPath The path of the entry to delete
+         * @return true if the entry was deleted successfully, false otherwise
+         */
+        bool deleteEntry(const std::string& entryPath);
 
         /**
          * @brief

@@ -12,6 +12,7 @@
 #include <vector>
 #include <string>
 #include <filesystem>
+#include <ctime>
 #include "OpenXLSX.hpp"
 
 using namespace OpenXLSX;
@@ -45,6 +46,39 @@ std::string findDirectory(const std::string& relativePath)
     return result; // Not found
 }
 
+
+/*  
+   a. get image ID 
+   b. get relationshiop ID
+   c. get anchor cell location(s)
+   d. get image width & height in pixels
+   e. get image displayed width and displayed height in EMUs
+
+Return image information in the following format
+"img_id:ABCD  r_id:EFGH   oneCellAnchor:C44   330x492 px   1249900x1700000 emu"
+*/
+std::string imageInfoStr( const XLImageInfo& imageInfo ){
+    std::string result;
+    
+    // a. get image ID
+    std::string imageId = imageInfo.imageId;
+    result += "img_id:" + imageId;
+    
+    // b. get relationship ID
+    result += "  r_id:" + imageInfo.relationshipId;
+    
+    // c. get anchor type
+    // d. get anchor cell location(s)
+    result += "  " + imageInfo.anchorType + ":" + imageInfo.anchorCell;
+    
+    // e. get image width & height in pixels
+    result += "  " + std::to_string(imageInfo.widthPixels) + "x" + std::to_string(imageInfo.heightPixels) + " px";
+    
+    // f. get image displayed width and displayed height in EMUs
+    result += "  " + std::to_string(imageInfo.displayWidthEMUs) + "x" + std::to_string(imageInfo.displayHeightEMUs) + " EMU";
+    
+    return result;
+}
 
 
     // These contain the binary data from the tiny image files in the images directory
@@ -672,7 +706,7 @@ int main()
     std::cout << "\nSaving workbook as '" << xlsxFileName << "'..." << std::endl;
     try {
         doc.save();
-        std::cout << "Workbook saved successfully!" << std::endl;
+        std::cout << "Workbook saved successfully." << std::endl;
     } catch (const std::exception& e) {
         std::cout << "Error saving workbook: " << e.what() << std::endl;
         return 1;
@@ -695,9 +729,24 @@ int main()
     try {
         readDoc.open(xlsxFileName);
         std::cout << "   Successfully opened: " << xlsxFileName << std::endl;
+         
+        // Step 2: Compare original and read documents for debugging
+        std::cout << "\n2. Comparing original and read documents for debugging..." << std::endl;
         
-        // Step 2: Search for embedded images in all worksheets
-        std::cout << "\n2. Searching for embedded images..." << std::endl;
+        // Compare the original doc (that was saved) with the readDoc (that was loaded)
+        std::string diffMsg;
+        int result = doc.compare(readDoc, &diffMsg);
+        
+        if (result == 0) {
+            std::cout << "   ✓ Documents are identical - no differences found" << std::endl;
+        } else {
+            std::cout << "   ✗ Documents differ (result: " << result << ")" << std::endl;
+            std::cout << "   Differences: " << diffMsg << std::endl;
+        }
+       
+        // Step 3: Search for embedded images in all worksheets
+        std::cout << "\n3. Searching for embedded images..." << std::endl;
+
         int totalImagesFound = 0;
         std::vector<std::string> worksheetsWithImages;
         
@@ -717,6 +766,16 @@ int main()
                         worksheetsWithImages.push_back(sheetName);
                         std::cout << "   Found " << imageCount << " image(s) in worksheet: " << sheetName << std::endl;
                         totalImagesFound++;
+                        
+                        // Iterate through images and print their information
+                        try {
+                            auto imageInfos = sheet.getImageInfos();
+                            for (size_t i = 0; i < imageInfos.size(); ++i) {
+                                std::cout << "     " << (i + 1) << ". " << imageInfoStr(imageInfos[i]) << std::endl;
+                            }
+                        } catch (const std::exception& e) {
+                            std::cout << "     Error getting image info: " << e.what() << std::endl;
+                        }
                     }
                 } else {
                     std::cout << "   Worksheet '" << sheetName << "' has no DrawingML" << std::endl;
@@ -728,17 +787,63 @@ int main()
         
         std::cout << "   Total worksheets with images: " << totalImagesFound << std::endl;
         
-        // Step 3: Add a new image to the "File Loading" worksheet (object B)
-        std::cout << "\n3. Adding new image to 'File Loading' worksheet..." << std::endl;
+        // Step 3b: Compare documents AFTER search operation (to test lazy initialization hypothesis)
+        std::cout << "\n3b. Comparing documents AFTER search operation..." << std::endl;
+        std::string diffMsgAfterSearch;
+        int resultAfterSearch = doc.compare(readDoc, &diffMsgAfterSearch);
+        
+        if (resultAfterSearch == 0) {
+            std::cout << "   ✓ Documents still identical after search" << std::endl;
+        } else {
+            std::cout << "   ✗ Documents differ after search (result: " << resultAfterSearch << ")" << std::endl;
+            std::cout << "   Differences: " << diffMsgAfterSearch << std::endl;
+        }
+        
+        // Step 4: Adding and removing images in 'File Loading' worksheet
+        std::cout << "\n4. Adding and removing images in 'File Loading' worksheet..." << std::endl;
+        
+        std::string newImageId = ""; // Declare outside the if block for use in verification summary
         
         if (readDoc.workbook().worksheetExists("File Loading")) {
             OpenXLSX::XLWorksheet fileLoadingSheet = readDoc.workbook().worksheet("File Loading");
             std::cout << "   Found 'File Loading' worksheet" << std::endl;
             
-            // Create a new test image (using the same PNG data as before)
+            // First, let's see what images we currently have
+            std::cout << "   Current images in worksheet:" << std::endl;
+            try {
+                const auto& currentImages = fileLoadingSheet.getImageInfos();
+                for (size_t i = 0; i < currentImages.size(); ++i) {
+                    std::cout << "     " << (i + 1) << ". " << imageInfoStr(currentImages[i]) << std::endl;
+                }
+            } catch (const std::exception& e) {
+                std::cout << "     Error getting current images: " << e.what() << std::endl;
+            }
+            
+            // Remove the third and fourth images (img3 and img4)
+            std::cout << "\n   Removing third and fourth images (img3 and img4)..." << std::endl;
+            bool removedImg3 = fileLoadingSheet.removeImageByImageID("img3");
+            bool removedImg4 = fileLoadingSheet.removeImageByImageID("img4");
+            std::cout << "   Removed img3: " << (removedImg3 ? "Success" : "Failed") << std::endl;
+            std::cout << "   Removed img4: " << (removedImg4 ? "Success" : "Failed") << std::endl;
+            
+            // Set "REMOVED" text above the cells where images were removed
+            fileLoadingSheet.cell("B13").value() = (removedImg3) ? "REMOVED" : "FAILED TO REMOVE"; // Near img3 at A14
+            fileLoadingSheet.cell("B19").value() = (removedImg4) ? "REMOVED" : "FAILED TO REMOVE"; // Near img4 at A20
+
+            
+            // Add a new image
+            std::cout << "\n   Adding new image..." << std::endl;
             OpenXLSX::XLImage newImage;
-            std::string newImageId = fileLoadingSheet.generateNextImageId();
+            newImageId = fileLoadingSheet.generateNextImageId();
             std::cout << "   Generated new image ID: " << newImageId << std::endl;
+            
+            // Check if the generated ID already exists and create a unique one if needed
+            if (fileLoadingSheet.hasImageWithId(newImageId)) {
+                std::cout << "   WARNING: Generated ID '" << newImageId << "' already exists, creating unique ID..." << std::endl;
+                // Create a unique ID by appending timestamp or counter
+                newImageId = "img_new_" + std::to_string(time(nullptr) % 10000);
+                std::cout << "   Using unique ID: " << newImageId << std::endl;
+            }
             
             // Use the same PNG data from our static constants
             if (newImage.loadFromData(pngData, "image/png", newImageId)) {
@@ -766,18 +871,61 @@ int main()
                     std::cout << "   Successfully added new image to 'File Loading' worksheet" << std::endl;
                     std::cout << "   New image ID: " << newImageId << std::endl;
                     std::cout << "   Image positioned at: A38" << std::endl;
+                    
+                    // Verify the image was actually added by checking the registry
+                    try {
+                        const auto& testImages = fileLoadingSheet.getImageInfos();
+                        std::cout << "   DEBUG: Registry now has " << testImages.size() << " images after addition" << std::endl;
+                        bool foundNewImage = false;
+                        for (const auto& img : testImages) {
+                            if (img.imageId == newImageId) {
+                                foundNewImage = true;
+                                std::cout << "   DEBUG: Found new image in registry: " << imageInfoStr(img) << std::endl;
+                                break;
+                            }
+                        }
+                        if (!foundNewImage) {
+                            std::cout << "   WARNING: New image not found in registry after addition!" << std::endl;
+                        }
+                    } catch (const std::exception& e) {
+                        std::cout << "   DEBUG: Error checking registry after addition: " << e.what() << std::endl;
+                    }
                 } else {
                     std::cout << "   Failed to add new image to worksheet" << std::endl;
                 }
             } else {
                 std::cout << "   Failed to create new image from data" << std::endl;
             }
+            
+            // Show final state
+            std::cout << "\n   Final images in worksheet:" << std::endl;
+            try {
+                const auto& finalImages = fileLoadingSheet.getImageInfos();
+                for (size_t i = 0; i < finalImages.size(); ++i) {
+                    std::cout << "     " << (i + 1) << ". " << imageInfoStr(finalImages[i]) << std::endl;
+                }
+                std::cout << "   Total images after modifications: " << finalImages.size() << std::endl;
+            } catch (const std::exception& e) {
+                std::cout << "     Error getting final images: " << e.what() << std::endl;
+            }
         } else {
             std::cout << "   'File Loading' worksheet not found!" << std::endl;
         }
         
-        // Step 4: Write the modified workbook to a new file
-        std::cout << "\n4. Writing modified workbook to new file..." << std::endl;
+        // Step 4b: Compare documents AFTER adding and removing images
+        std::cout << "\n4b. Comparing documents AFTER adding and removing images..." << std::endl;
+        std::string diffMsgAfterModify;
+        int resultAfterModify = doc.compare(readDoc, &diffMsgAfterModify);
+        
+        if (resultAfterModify == 0) {
+            std::cout << "   ✓ Documents still identical after modifications" << std::endl;
+        } else {
+            std::cout << "   ✗ Documents differ after modifications (result: " << resultAfterModify << ")" << std::endl;
+            std::cout << "   Differences: " << diffMsgAfterModify << std::endl;
+        }
+        
+        // Step 5: Write the modified workbook to a new file
+        std::cout << "\n5. Writing modified workbook to new file..." << std::endl;
         std::string modifiedFileName = "Demo11_Modified.xlsx";
         try {
             readDoc.saveAs(modifiedFileName);
@@ -786,12 +934,17 @@ int main()
             std::cout << "   Error saving modified workbook: " << e.what() << std::endl;
         }
         
-        // Step 5: Verify the modification
-        std::cout << "\n5. Verification summary:" << std::endl;
+        // Step 6: Verify the modification
+        std::cout << "\n6. Verification summary:" << std::endl;
         std::cout << "   - Original file: " << xlsxFileName << std::endl;
         std::cout << "   - Modified file: " << modifiedFileName << std::endl;
         std::cout << "   - Worksheets with images: " << totalImagesFound << std::endl;
-        std::cout << "   - New image added to: File Loading worksheet" << std::endl;
+        std::cout << "   - Images removed from 'File Loading': img3, img4" << std::endl;
+        if (!newImageId.empty()) {
+            std::cout << "   - New image added to 'File Loading': " << newImageId << std::endl;
+        } else {
+            std::cout << "   - New image added to 'File Loading': (none - worksheet not found)" << std::endl;
+        }
         
         readDoc.close();
         
@@ -828,14 +981,22 @@ int main()
                 // Check if it's a worksheet (not a chartsheet)
                 if (sheet.isType<XLWorksheet>()) {
                     XLWorksheet worksheet = sheet.get<XLWorksheet>();
-                    
-                    // Debug: Check if drawingML is valid
-                    bool drawingValid = worksheet.drawingML().valid();
-                    std::cout << "  DEBUG: About to call imageCount() for worksheet '" << sheetName << "'" << std::endl;
                     int imageCount = static_cast<int>(worksheet.imageCount());
-                    std::cout << "  DEBUG: imageCount() returned: " << imageCount << std::endl;
                     totalImages += imageCount;
-                    std::cout << "  Worksheet '" << sheetName << "': " << imageCount << " image(s) (drawingML valid: " << (drawingValid ? "Yes" : "No") << ")" << std::endl;
+                    std::cout << "  Worksheet '" << sheetName << "': " << imageCount << " image(s)" << std::endl;
+
+                    // Iterate through images and print their information
+                    if (imageCount > 0) {
+                        try {
+                            auto imageInfos = worksheet.getImageInfos();
+                            for (size_t i = 0; i < imageInfos.size(); ++i) {
+                                std::cout << "    " << (i + 1) << ". " << imageInfoStr(imageInfos[i]) << std::endl;
+                            }
+                        } catch (const std::exception& e) {
+                            std::cout << "    Error getting image info: " << e.what() << std::endl;
+                        }
+                    }
+
                 } else {
                     std::cout << "  Sheet '" << sheetName << "': (not a worksheet, skipping)" << std::endl;
                 }
@@ -846,6 +1007,78 @@ int main()
         } catch (const std::exception& e) {
             std::cout << "  ERROR: Failed to open Excel file: " << e.what() << std::endl;
         }
+    }
+
+    /* Test the new image query functionality */
+    std::cout << "\n=== Phase VIII: Testing Image Query Functionality ===" << std::endl;
+    
+    // Re-open the Demo11 file to test image queries
+    try {
+        XLDocument testDoc;
+        testDoc.open("Demo11.xlsx");
+        std::cout << "  Successfully opened Demo11.xlsx for query testing" << std::endl;
+        
+        // Test each worksheet with images
+        for (uint16_t i = 1; i <= testDoc.workbook().sheetCount(); ++i) {
+            XLSheet sheet = testDoc.workbook().sheet(i);
+            std::string sheetName = sheet.name();
+            
+            if (sheet.isType<XLWorksheet>()) {
+                XLWorksheet worksheet = sheet.get<XLWorksheet>();
+                int imageCount = static_cast<int>(worksheet.imageCount());
+                std::cout << "    DEBUG: Worksheet '" << sheetName << "' imageCount: " << imageCount << std::endl;
+                
+                if (imageCount > 0) {
+                    std::cout << "\n  Worksheet '" << sheetName << "' has " << imageCount << " image(s):" << std::endl;
+                    std::cout << "    DEBUG: About to call getImageInfos() for worksheet '" << sheetName << "'" << std::endl;
+                    std::cout << "    DEBUG: Calling getImageInfos() now..." << std::endl;
+                    
+                    // Test getImageInfos()
+                    const auto& imageInfos = worksheet.getImageInfos();
+                    std::cout << "    DEBUG: getImageInfos() completed, returned " << imageInfos.size() << " image(s)" << std::endl;
+                    
+                    // Test individual image queries
+                    for (size_t i = 0; i < imageInfos.size(); ++i) {
+                        const auto& imgInfo = imageInfos[i];
+                        std::cout << "    " << (i + 1) << ". " << imageInfoStr(imgInfo) << std::endl;
+                        
+                        // Test getImageInfoByImageID()
+                        const auto& foundImg = worksheet.getImageInfoByImageID(imgInfo.imageId);
+                        if (foundImg.isValid()) {
+                            std::cout << "      ✓ getImageInfoByImageID() found the image" << std::endl;
+                        } else {
+                            std::cout << "      ✗ getImageInfoByImageID() failed to find the image" << std::endl;
+                        }
+                        
+                        // Test getImageInfoByRelationshipId()
+                        const auto& foundRel = worksheet.getImageInfoByRelationshipId(imgInfo.relationshipId);
+                        if (foundRel.isValid()) {
+                            std::cout << "      ✓ getImageInfoByRelationshipId() found the image" << std::endl;
+                        } else {
+                            std::cout << "      ✗ getImageInfoByRelationshipId() failed to find the image" << std::endl;
+                        }
+                        
+                        // Test getImageInfosAtCell()
+                        const auto& cellImgs = worksheet.getImageInfosAtCell(imgInfo.anchorCell);
+                        std::cout << "      getImageInfosAtCell('" << imgInfo.anchorCell << "') returned " << cellImgs.size() << " image(s)" << std::endl;
+                    }
+                    
+                    // Test range queries
+                    const auto& rangeImgs = worksheet.getImageInfosInRange("A1:Z100");
+                    std::cout << "    getImageInfosInRange('A1:Z100') returned " << rangeImgs.size() << " image(s)" << std::endl;
+                    
+                    // Test validation
+                    bool isValid = worksheet.validateImageRegistry();
+                    std::cout << "    validateImageRegistry() returned: " << (isValid ? "Valid" : "Invalid") << std::endl;
+                }
+            }
+        }
+        
+        testDoc.close();
+        std::cout << "\n  Image query testing completed successfully!" << std::endl;
+        
+    } catch (const std::exception& e) {
+        std::cout << "  ERROR: Failed to test image queries: " << e.what() << std::endl;
     }
 
     return 0;

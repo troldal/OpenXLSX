@@ -1287,7 +1287,7 @@ bool XLDocument::hasRelationshipsFile(const std::string& relsFilename) const
 /**
  * @details Read the content of a relationships file from the archive
  */
-std::string XLDocument::readRelationshipsFile(const std::string& relsFilename)
+std::string XLDocument::readRelationshipsFile(const std::string& relsFilename) const
 {
     try {
         if (m_archive.hasEntry(relsFilename)) {
@@ -1297,6 +1297,37 @@ std::string XLDocument::readRelationshipsFile(const std::string& relsFilename)
         // Return empty string if there's an error
     }
     return "";
+}
+
+/**
+ * @details Read the content of any file from the archive
+ */
+std::string XLDocument::readFile(const std::string& filePath) const
+{
+    try {
+        if (m_archive.hasEntry(filePath)) {
+            return m_archive.getEntry(filePath);
+        }
+    } catch (const std::exception&) {
+        // Return empty string if there's an error
+    }
+    return "";
+}
+
+/**
+ * @details Delete an entry from the archive
+ */
+bool XLDocument::deleteEntry(const std::string& entryPath)
+{
+    try {
+        if (m_archive.hasEntry(entryPath)) {
+            m_archive.deleteEntry(entryPath);
+            return true;
+        }
+    } catch (const std::exception&) {
+        // Return false if there's an error
+    }
+    return false;
 }
 
 /**
@@ -1865,6 +1896,114 @@ namespace OpenXLSX
     std::string XLDocument::generateNextImageId() const
     {
         return "img" + std::to_string(++m_globalImageCounter);
+    }
+
+    /**
+     * @details Compare two documents for debugging
+     */
+    int XLDocument::compare(const XLDocument& other, std::string* diffMsg) const
+    {
+
+        // Compare document names/paths
+        std::string thisPath = path();
+        std::string otherPath = other.path();
+        int pathCompare = thisPath.compare(otherPath);
+        if (pathCompare != 0) {
+            appendDiff(diffMsg, "document path differs: '" + thisPath + "' vs '" + otherPath + "'");
+            return pathCompare;
+        }
+
+        // Compare workbook worksheets
+        if (m_workbook.valid() && other.m_workbook.valid()) {
+            // Get worksheet names
+            auto thisSheetNames = m_workbook.sheetNames();
+            auto otherSheetNames = other.m_workbook.sheetNames();
+            
+            if (thisSheetNames.size() != otherSheetNames.size()) {
+                appendDiff(diffMsg, "worksheet count differs: " + std::to_string(thisSheetNames.size()) + 
+                          " vs " + std::to_string(otherSheetNames.size()));
+                return thisSheetNames.size() < otherSheetNames.size() ? -1 : 1;
+            }
+
+            // Compare each worksheet
+            for (size_t i = 0; i < thisSheetNames.size(); ++i) {
+                if (thisSheetNames[i] != otherSheetNames[i]) {
+                    appendDiff(diffMsg, "worksheet name differs at index " + std::to_string(i) + 
+                              ": '" + thisSheetNames[i] + "' vs '" + otherSheetNames[i] + "'");
+                    return thisSheetNames[i].compare(otherSheetNames[i]);
+                }
+
+                // Compare worksheet content
+                try {
+                    // Use const_cast to access non-const worksheet method
+                    XLWorksheet thisSheet = const_cast<XLDocument*>(this)->m_workbook.worksheet(thisSheetNames[i]);
+                    XLWorksheet otherSheet = const_cast<XLDocument*>(&other)->m_workbook.worksheet(otherSheetNames[i]);
+                    
+                    int sheetCompare = thisSheet.compare(otherSheet, diffMsg);
+                    if (sheetCompare != 0) {
+                        appendDiff(diffMsg, "worksheet '" + thisSheetNames[i] + "' differs");
+                        return sheetCompare;
+                    }
+                } catch (const std::exception&) {
+                    appendDiff(diffMsg, "error comparing worksheet '" + thisSheetNames[i] + "'");
+                    return -1;
+                }
+            }
+        } else if (m_workbook.valid() != other.m_workbook.valid()) {
+            appendDiff(diffMsg, "workbook validity differs: " + std::string(m_workbook.valid() ? "valid" : "invalid") + 
+                      " vs " + std::string(other.m_workbook.valid() ? "valid" : "invalid"));
+            return m_workbook.valid() ? 1 : -1;
+        }
+
+        // Compare document-level relationships (simplified)
+        try {
+            // Just check if both have valid relationships objects
+            bool thisDocRelValid = m_docRelationships.valid();
+            bool otherDocRelValid = other.m_docRelationships.valid();
+            if (thisDocRelValid != otherDocRelValid) {
+                appendDiff(diffMsg, "document relationships validity differs: " + std::string(thisDocRelValid ? "valid" : "invalid") + 
+                          " vs " + std::string(otherDocRelValid ? "valid" : "invalid"));
+                return thisDocRelValid ? 1 : -1;
+            }
+
+            bool thisWbkRelValid = m_wbkRelationships.valid();
+            bool otherWbkRelValid = other.m_wbkRelationships.valid();
+            if (thisWbkRelValid != otherWbkRelValid) {
+                appendDiff(diffMsg, "workbook relationships validity differs: " + std::string(thisWbkRelValid ? "valid" : "invalid") + 
+                          " vs " + std::string(otherWbkRelValid ? "valid" : "invalid"));
+                return thisWbkRelValid ? 1 : -1;
+            }
+        } catch (const std::exception&) {
+            appendDiff(diffMsg, "error comparing document relationships");
+            return -1;
+        }
+
+        // Compare content types (simplified)
+        try {
+            // Just check if both have valid content types objects
+            bool thisContentTypeValid = m_contentTypes.valid();
+            bool otherContentTypeValid = other.m_contentTypes.valid();
+            if (thisContentTypeValid != otherContentTypeValid) {
+                appendDiff(diffMsg, "content types validity differs: " + std::string(thisContentTypeValid ? "valid" : "invalid") + 
+                          " vs " + std::string(otherContentTypeValid ? "valid" : "invalid"));
+                return thisContentTypeValid ? 1 : -1;
+            }
+        } catch (const std::exception&) {
+            appendDiff(diffMsg, "error comparing content types");
+            return -1;
+        }
+
+        // TODO: Compare other document properties
+        // - Core properties (m_coreProperties)
+        // - App properties (m_appProperties)
+        // - Styles (m_styles)
+        // - Shared strings (m_sharedStrings)
+        // - Content types (m_contentTypes)
+        // - Document relationships (m_docRelationships)
+        // - Workbook relationships (m_wbkRelationships)
+
+        // Documents are identical
+        return 0;
     }
 
 }    // namespace OpenXLSX

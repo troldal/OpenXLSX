@@ -1696,6 +1696,15 @@ XLVmlDrawing& XLWorksheet::vmlDrawing()
 XLDrawingML& XLWorksheet::drawingML()
 {
     if (!m_drawingML.valid()) {
+        // Only initialize DrawingML if the worksheet actually has images
+        // This prevents unnecessary initialization for worksheets without images
+        if (!hasImagesInXML()) {
+            // For worksheets without images, return an invalid DrawingML
+            // DrawingML will be created when addImage() is called
+            static XLDrawingML invalidDrawingML(nullptr);
+            return invalidDrawingML;
+        }
+        
         // ===== Append xdr namespace attribute to worksheet if not present
         XMLNode docElement = xmlDocument().document_element();
         XMLAttribute xdrNamespace = appendAndGetAttribute(docElement, "xmlns:xdr", "");
@@ -1703,11 +1712,24 @@ XLDrawingML& XLWorksheet::drawingML()
 
         std::ignore = relationships(); // create sheet relationships if not existing
 
-        // ===== Create DrawingML XML file
+        // ===== Check if DrawingML XML file already exists
         uint16_t sheetXmlNo = sheetXmlNumber();
         std::string drawingFilename = "xl/drawings/drawing" + std::to_string(sheetXmlNo) + ".xml";
         
-        // Create the DrawingML XML content
+        // Try to load existing DrawingML data first
+        try {
+            XLXmlData* xmlData = parentDoc().getDrawingXmlData(drawingFilename);
+            if (xmlData) {
+                m_drawingML = XLDrawingML(xmlData);
+                if (m_drawingML.valid()) {
+                    return m_drawingML; // Successfully loaded existing data
+                }
+            }
+        } catch (...) {
+            // DrawingML data doesn't exist or failed to load, will create new one below
+        }
+        
+        // If no existing data or loading failed, create new DrawingML XML file
         std::string drawingXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
                                 "<xdr:wsDr xmlns:xdr=\"http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing\" "
                                 "xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\" "
@@ -1761,6 +1783,74 @@ XLDrawingML& XLWorksheet::drawingML()
         }
     }
 
+    return m_drawingML;
+}
+
+/**
+ * @details Create an empty DrawingML object for worksheets without images
+ * This is needed when addImage() is called on a worksheet that doesn't have images yet
+ */
+XLDrawingML& XLWorksheet::createEmptyDrawingML()
+{
+    // ===== Append xdr namespace attribute to worksheet if not present
+    XMLNode docElement = xmlDocument().document_element();
+    XMLAttribute xdrNamespace = appendAndGetAttribute(docElement, "xmlns:xdr", "");
+    xdrNamespace = "http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing";
+
+    std::ignore = relationships(); // create sheet relationships if not existing
+
+    // Create new DrawingML XML file
+    std::string drawingXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
+                            "<xdr:wsDr xmlns:xdr=\"http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing\" "
+                            "xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\" "
+                            "xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" "
+                            "xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\" "
+                            "xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\">\n"
+                            "</xdr:wsDr>";
+    
+    // Add to archive using public method
+    uint16_t sheetXmlNo = sheetXmlNumber();
+    std::string drawingFilename = "xl/drawings/drawing" + std::to_string(sheetXmlNo) + ".xml";
+    
+    if (!parentDoc().addDrawingFile(drawingFilename, drawingXml)) {
+        throw XLException("XLWorksheet::createEmptyDrawingML(): could not create drawing file");
+    }
+    
+    // Create DrawingML object
+    XLXmlData* xmlData = parentDoc().getDrawingXmlData(drawingFilename);
+    if (!xmlData) {
+        throw XLException("XLWorksheet::createEmptyDrawingML(): could not get XML data for drawing");
+    }
+    m_drawingML = XLDrawingML(xmlData);
+    
+    // Ensure the XML document is loaded
+    if (!m_drawingML.valid()) {
+        throw XLException("XLWorksheet::createEmptyDrawingML(): could not initialize DrawingML object");
+    }
+    
+    // Add relationship
+    std::string drawingRelativePath = getPathARelativeToPathB(drawingFilename, getXmlPath());
+    XLRelationshipItem drawingRelationship;
+    if (!m_relationships.targetExists(drawingRelativePath))
+        drawingRelationship = m_relationships.addRelationship(XLRelationshipType::Drawing, drawingRelativePath);
+    else
+        drawingRelationship = m_relationships.relationshipByTarget(drawingRelativePath);
+    
+    if (drawingRelationship.empty())
+        throw XLException("XLWorksheet::createEmptyDrawingML(): could not add determine sheet relationship for Drawing");
+    
+    // Add <drawing> element to worksheet
+    XMLNode drawing = appendAndGetNode(docElement, "drawing", m_nodeOrder);
+    if (drawing.empty())
+        throw XLException("XLWorksheet::createEmptyDrawingML(): could not add <drawing> element to worksheet XML");
+    appendAndSetAttribute(drawing, "r:id", drawingRelationship.id());
+    
+    // Create drawing relationships file
+    std::string drawingRelsFilename = "xl/drawings/_rels/drawing" + std::to_string(sheetXmlNo) + ".xml.rels";
+    if (!parentDoc().hasRelationshipsFile(drawingRelsFilename)) {
+        createDrawingRelationshipsFile(drawingFilename);
+    }
+    
     return m_drawingML;
 }
 
@@ -1864,8 +1954,10 @@ bool XLWorksheet::addImage(const XLImage& image, uint32_t row, uint16_t column)
             return false;
         }
         
-        // Ensure we have a DrawingML drawing
-        std::ignore = drawingML();
+        // Ensure we have a DrawingML drawing - create it if needed
+        if (!m_drawingML.valid()) {
+            createEmptyDrawingML();
+        }
         
         // Add image to DrawingML
         // Use sequential relationship ID that matches createDrawingRelationshipsFile
@@ -1932,7 +2024,10 @@ bool XLWorksheet::addImageWithOffset(const XLImage& image, uint32_t row, uint16_
     }
     
     // Get or create DrawingML
-    XLDrawingML& drawing = drawingML();
+    if (!m_drawingML.valid()) {
+        createEmptyDrawingML();
+    }
+    XLDrawingML& drawing = m_drawingML;
     
     // Generate relationship ID
     std::string relationshipId = getRelationshipIdFromImageCount();
@@ -1969,7 +2064,10 @@ bool XLWorksheet::addImageTwoCellAnchor(const XLImage& image,
     }
     
     // Get or create DrawingML
-    XLDrawingML& drawing = drawingML();
+    if (!m_drawingML.valid()) {
+        createEmptyDrawingML();
+    }
+    XLDrawingML& drawing = m_drawingML;
     
     // Generate relationship ID
     std::string relationshipId = getRelationshipIdFromImageCount();
@@ -1986,17 +2084,23 @@ bool XLWorksheet::addImageTwoCellAnchor(const XLImage& image,
  */
 size_t XLWorksheet::imageCount() const
 {
-    // For existing files, count images from DrawingML
-    // For newly created files, count from m_images vector
     if (m_images.empty()) {
-        // Try to get count from existing DrawingML without creating it
-        try {
-            // Check if DrawingML already exists and is valid
-            if (m_drawingML.valid()) {
-                return m_drawingML.imageCount();
+        // Check if DrawingML is valid (was initialized because images exist)
+        if (m_drawingML.valid()) {
+            size_t count = m_drawingML.imageCount();
+            return count;
+        } else {
+            // DrawingML not initialized = no images in XML
+            // Debug assertion: if DrawingML is invalid, XML should not have <drawing> element
+            #if (defined(_DEBUG) || !defined(NDEBUG))
+            bool hasDrawingInXML = hasImagesInXML();
+            if (hasDrawingInXML) {
+                std::cerr << "WARNING: Worksheet '" << name() 
+                    << "' has <drawing> element in XML but DrawingML is invalid!" << std::endl;
+                std::cerr << "  This indicates DrawingML initialization failed despite XML having images." << std::endl;
             }
-            return 0;
-        } catch (...) {
+            #endif
+            
             return 0;
         }
     } else {
@@ -2011,6 +2115,18 @@ size_t XLWorksheet::imageCount() const
 bool XLWorksheet::hasImages() const
 {
     return !m_images.empty();
+}
+
+/**
+ * @details Check if the worksheet has images by examining the XML directly
+ * This method does not modify the document and can be called safely on temporary objects
+ */
+bool XLWorksheet::hasImagesInXML() const
+{
+    // Check if worksheet XML has a <drawing> element
+    XMLNode docElement = xmlDocument().document_element();
+    XMLNode drawingNode = docElement.child("drawing");
+    return !drawingNode.empty();
 }
 
 /**
@@ -2285,3 +2401,106 @@ bool XLChartsheet::isSelected_impl() const { return tabIsSelected(xmlDocument())
  * @details Calls the setTabSelected() free function.
  */
 void XLChartsheet::setSelected_impl(bool selected) { setTabSelected(xmlDocument(), selected); }
+
+/**
+ * @details Compare two worksheets for debugging
+ */
+int XLWorksheet::compare(const XLWorksheet& other, std::string* diffMsg) const
+{
+    // Compare worksheet names first (most important for human readability)
+    std::string thisName = name();
+    std::string otherName = other.name();
+    int nameCompare = thisName.compare(otherName);
+    if (nameCompare != 0) {
+        appendDiff(diffMsg, "worksheet name differs: '" + thisName + "' vs '" + otherName + "'");
+        return nameCompare;
+    }
+
+    // Compare DrawingML validity (crucial for image detection)
+    // DrawingML is now automatically initialized in XLWorkbook::worksheet() if images exist
+    bool thisDrawingMLValid = m_drawingML.valid();
+    bool otherDrawingMLValid = other.m_drawingML.valid();
+    if (thisDrawingMLValid != otherDrawingMLValid) {
+        appendDiff(diffMsg, "DrawingML validity differs: " + std::string(thisDrawingMLValid ? "valid" : "invalid") + 
+                  " vs " + std::string(otherDrawingMLValid ? "valid" : "invalid"));
+        return thisDrawingMLValid ? 1 : -1;
+    }
+
+    // Compare image count
+    size_t thisImageCount = imageCount();
+    size_t otherImageCount = other.imageCount();
+    if (thisImageCount != otherImageCount) {
+        appendDiff(diffMsg, "image count differs: " + std::to_string(thisImageCount) + 
+                  " vs " + std::to_string(otherImageCount));
+        return thisImageCount < otherImageCount ? -1 : 1;
+    }
+
+    // Compare image registry (parsed image metadata)
+    size_t thisRegistrySize = m_imageRegistry.size();
+    size_t otherRegistrySize = other.m_imageRegistry.size();
+    if (thisRegistrySize != otherRegistrySize) {
+        appendDiff(diffMsg, "image registry size differs: " + std::to_string(thisRegistrySize) + 
+                  " vs " + std::to_string(otherRegistrySize));
+        return thisRegistrySize < otherRegistrySize ? -1 : 1;
+    }
+
+    // Compare images if both worksheets have images in memory
+    size_t thisImagesInMemory = m_images.size();
+    size_t otherImagesInMemory = other.m_images.size();
+    if (thisImagesInMemory > 0 || otherImagesInMemory > 0) {
+        if (thisImagesInMemory != otherImagesInMemory) {
+            appendDiff(diffMsg, "images in memory count differs: " + std::to_string(thisImagesInMemory) + 
+                      " vs " + std::to_string(otherImagesInMemory));
+            return thisImagesInMemory < otherImagesInMemory ? -1 : 1;
+        }
+        
+        // Compare each image in memory
+        for (size_t i = 0; i < thisImagesInMemory && i < otherImagesInMemory; ++i) {
+            int imageCompare = m_images[i].compare(other.m_images[i], diffMsg);
+            if (imageCompare != 0) {
+                appendDiff(diffMsg, "image " + std::to_string(i) + " differs");
+                return imageCompare;
+            }
+        }
+    }
+
+    // Compare image registry entries if both have registry entries
+    if (thisRegistrySize > 0) {
+        for (size_t i = 0; i < thisRegistrySize && i < otherRegistrySize; ++i) {
+            int registryCompare = m_imageRegistry[i].compare(other.m_imageRegistry[i], diffMsg);
+            if (registryCompare != 0) {
+                appendDiff(diffMsg, "image registry entry " + std::to_string(i) + " differs");
+                return registryCompare;
+            }
+        }
+    }
+
+    // Compare relationships (crucial for image detection) - simplified
+    try {
+        // Just check if both have valid relationships objects
+        bool thisRelValid = m_relationships.valid();
+        bool otherRelValid = other.m_relationships.valid();
+        if (thisRelValid != otherRelValid) {
+            appendDiff(diffMsg, "relationships validity differs: " + std::string(thisRelValid ? "valid" : "invalid") + 
+                      " vs " + std::string(otherRelValid ? "valid" : "invalid"));
+            return thisRelValid ? 1 : -1;
+        }
+
+        // Skip DrawingML relationship check for now to avoid path issues
+        // TODO: Implement safer DrawingML relationship comparison
+    } catch (const std::exception&) {
+        appendDiff(diffMsg, "error comparing relationships");
+        return -1;
+    }
+
+    // TODO: Compare other worksheet properties
+    // - Cell content (would require extensive implementation)
+    // - Merge cells
+    // - Comments
+    // - Tables
+    // - DrawingML XML content (would require XML comparison)
+    // - VML drawing content
+
+    // Worksheets are identical
+    return 0;
+}
