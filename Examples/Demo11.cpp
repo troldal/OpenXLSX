@@ -702,11 +702,58 @@ int main()
     // and creates a foundation for more advanced sizing operations.
     } // End of file loading tests
 
+    std::cout << "\n=== Inspect Image Registry ===" << std::endl;
+    for (uint16_t sheet_idx = 1; sheet_idx <= doc.workbook().sheetCount(); ++sheet_idx) {
+        XLSheet sheet = doc.workbook().sheet(sheet_idx);
+        std::string sheetName = sheet.name();
+        if (sheet.isType<XLWorksheet>()) {
+            XLWorksheet worksheet = sheet.get<XLWorksheet>();
+            try {
+                const auto& imageInfos = worksheet.getImageInfos();
+                std::cout << "   sheet " << sheetName << " now has " << imageInfos.size() << " images in registry" << std::endl;
+                for (const auto& imgInfo : imageInfos) {
+                    std::cout << "      " << imageInfoStr( imgInfo ) << std::endl;
+                    }
+                } 
+            catch (const std::exception& e) {
+                std::cout << "   ERROR: Failed to query registry: " << e.what() << std::endl;
+            }
+        }
+    }
+
+
     // Save the workbook
     std::cout << "\nSaving workbook as '" << xlsxFileName << "'..." << std::endl;
+    
+    // Set document properties before saving
+    doc.setCreator("OpenXLSX Demo11");
+    doc.setTitle("Comprehensive Image Embedding Test Matrix");
+    doc.setSubject("Testing various image embedding options in Excel");
+    doc.setDescription("This document demonstrates different combinations of image embedding options including anchor types, file formats, sizing strategies, and units");
+    doc.setKeywords("OpenXLSX, images, embedding, Excel, testing, demo");
+    doc.setLastModifiedBy("Demo11 Application");
+    doc.setCategory("Test Document");
+    doc.setApplication("OpenXLSX Demo11 Application");
+    doc.setCreationDateToNow();
+    doc.setModificationDateToNow();
+    doc.setAbsPath("");
+    
     try {
         doc.save();
         std::cout << "Workbook saved successfully." << std::endl;
+        
+        // Display the properties that were set
+        std::cout << "\nDocument properties set:" << std::endl;
+        std::cout << "  Creator: " << doc.creator() << std::endl;
+        std::cout << "  Title: " << doc.title() << std::endl;
+        std::cout << "  Subject: " << doc.subject() << std::endl;
+        std::cout << "  Description: " << doc.description() << std::endl;
+        std::cout << "  Keywords: " << doc.keywords() << std::endl;
+        std::cout << "  Last Modified By: " << doc.lastModifiedBy() << std::endl;
+        std::cout << "  Category: " << doc.category() << std::endl;
+        std::cout << "  Application: " << doc.application() << std::endl;
+        std::cout << "  Creation Date: " << doc.creationDate() << std::endl;
+        std::cout << "  Modification Date: " << doc.modificationDate() << std::endl;
     } catch (const std::exception& e) {
         std::cout << "Error saving workbook: " << e.what() << std::endl;
         return 1;
@@ -819,31 +866,33 @@ int main()
                 std::cout << "     Error getting current images: " << e.what() << std::endl;
             }
             
-            // Remove the third and fourth images (img3 and img4)
-            std::cout << "\n   Removing third and fourth images (img3 and img4)..." << std::endl;
-            bool removedImg3 = fileLoadingSheet.removeImageByImageID("img3");
-            bool removedImg4 = fileLoadingSheet.removeImageByImageID("img4");
-            std::cout << "   Removed img3: " << (removedImg3 ? "Success" : "Failed") << std::endl;
-            std::cout << "   Removed img4: " << (removedImg4 ? "Success" : "Failed") << std::endl;
+            // Remove image 3 by Image ID and image 4 by Relationship ID (testing both methods)
+            std::cout << "\n   Removing image 3 by Image ID and image 4 by Relationship ID..." << std::endl;
+            bool removedImg3 = fileLoadingSheet.removeImageByImageID("img3");  // Third image (A14)
+            bool removedImg4 = fileLoadingSheet.removeImageByRelationshipId("rId5");  // Fourth image (A20)
+            std::cout << "   Removed img3 (by Image ID): " << (removedImg3 ? "Success" : "Failed") << std::endl;
+            std::cout << "   Removed img4 (by Relationship ID): " << (removedImg4 ? "Success" : "Failed") << std::endl;
             
             // Set "REMOVED" text above the cells where images were removed
             fileLoadingSheet.cell("B13").value() = (removedImg3) ? "REMOVED" : "FAILED TO REMOVE"; // Near img3 at A14
             fileLoadingSheet.cell("B19").value() = (removedImg4) ? "REMOVED" : "FAILED TO REMOVE"; // Near img4 at A20
 
-            
+            // Verify the images are removed by checking the registry
+            try {
+                const auto& imageInfos = fileLoadingSheet.getImageInfos();
+                std::cout << "   DEBUG: Registry now has " << imageInfos.size() << " images after removal" << std::endl;
+                for (const auto& imgInfo : imageInfos) {
+                    std::cout << "   " << imageInfoStr( imgInfo ) << std::endl;
+                    }
+                }catch (const std::exception& e) {
+                std::cout << "   ERROR: Failed to verify image removal: " << e.what() << std::endl;
+            }
+
             // Add a new image
             std::cout << "\n   Adding new image..." << std::endl;
             OpenXLSX::XLImage newImage;
             newImageId = fileLoadingSheet.generateNextImageId();
             std::cout << "   Generated new image ID: " << newImageId << std::endl;
-            
-            // Check if the generated ID already exists and create a unique one if needed
-            if (fileLoadingSheet.hasImageWithId(newImageId)) {
-                std::cout << "   WARNING: Generated ID '" << newImageId << "' already exists, creating unique ID..." << std::endl;
-                // Create a unique ID by appending timestamp or counter
-                newImageId = "img_new_" + std::to_string(time(nullptr) % 10000);
-                std::cout << "   Using unique ID: " << newImageId << std::endl;
-            }
             
             // Use the same PNG data from our static constants
             if (newImage.loadFromData(pngData, "image/png", newImageId)) {
@@ -874,21 +923,21 @@ int main()
                     
                     // Verify the image was actually added by checking the registry
                     try {
-                        const auto& testImages = fileLoadingSheet.getImageInfos();
-                        std::cout << "   DEBUG: Registry now has " << testImages.size() << " images after addition" << std::endl;
+                        const auto& imageInfos = fileLoadingSheet.getImageInfos();
+                        std::cout << "   DEBUG: Registry now has " << imageInfos.size() << " images after addition" << std::endl;
                         bool foundNewImage = false;
-                        for (const auto& img : testImages) {
-                            if (img.imageId == newImageId) {
+                        for (const auto& imgInfo : imageInfos) {
+                            std::cout << "   " << imageInfoStr( imgInfo ) << std::endl;
+                            if (imgInfo.imageId == newImageId) {
                                 foundNewImage = true;
-                                std::cout << "   DEBUG: Found new image in registry: " << imageInfoStr(img) << std::endl;
-                                break;
+                                std::cout << "   DEBUG: Found new image in registry: " << imageInfoStr(imgInfo) << std::endl;
                             }
                         }
                         if (!foundNewImage) {
-                            std::cout << "   WARNING: New image not found in registry after addition!" << std::endl;
+                            std::cout << "   WARNING: New image '" << newImageId << "' not found in registry after addition!" << std::endl;
                         }
                     } catch (const std::exception& e) {
-                        std::cout << "   DEBUG: Error checking registry after addition: " << e.what() << std::endl;
+                        std::cout << "   ERROR: Failed to verify image addition: " << e.what() << std::endl;
                     }
                 } else {
                     std::cout << "   Failed to add new image to worksheet" << std::endl;
@@ -927,9 +976,32 @@ int main()
         // Step 5: Write the modified workbook to a new file
         std::cout << "\n5. Writing modified workbook to new file..." << std::endl;
         std::string modifiedFileName = "Demo11_Modified.xlsx";
+        
+        // Set document properties for the modified version
+        readDoc.setCreator("OpenXLSX Demo11 - Modified");
+        readDoc.setTitle("Comprehensive Image Embedding Test Matrix - Modified");
+        readDoc.setSubject("Testing image embedding with modifications (add/remove operations)");
+        readDoc.setDescription("This document demonstrates image embedding operations including adding and removing images during read-modify-write cycles");
+        readDoc.setKeywords("OpenXLSX, images, embedding, Excel, testing, demo, modified, read-modify-write");
+        readDoc.setLastModifiedBy("Demo11 Application - Modified");
+        readDoc.setCategory("Test Document - Modified");
+        readDoc.setApplication("OpenXLSX Demo11 Application - Modified");
+        readDoc.setModificationDateToNow(); // Update modification date for the modified version
+        
         try {
             readDoc.saveAs(modifiedFileName);
             std::cout << "   Modified workbook saved as: " << modifiedFileName << std::endl;
+            
+            // Display the properties that were set for the modified version
+            std::cout << "\n   Modified document properties:" << std::endl;
+            std::cout << "     Creator: " << readDoc.creator() << std::endl;
+            std::cout << "     Title: " << readDoc.title() << std::endl;
+            std::cout << "     Subject: " << readDoc.subject() << std::endl;
+            std::cout << "     Keywords: " << readDoc.keywords() << std::endl;
+            std::cout << "     Last Modified By: " << readDoc.lastModifiedBy() << std::endl;
+            std::cout << "     Category: " << readDoc.category() << std::endl;
+            std::cout << "     Application: " << readDoc.application() << std::endl;
+            std::cout << "     Modification Date: " << readDoc.modificationDate() << std::endl;
         } catch (const std::exception& e) {
             std::cout << "   Error saving modified workbook: " << e.what() << std::endl;
         }

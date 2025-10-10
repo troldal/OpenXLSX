@@ -54,6 +54,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== External Includes ===== //
 #include <algorithm> // std::find_if
+#include <ctime>     // time_t
 #include <list>
 #include <string>
 
@@ -268,6 +269,152 @@ namespace OpenXLSX
          * @param theProperty The property to delete from the document
          */
         void deleteProperty(XLProperty theProperty);
+
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Convenience Property Methods
+        //----------------------------------------------------------------------------------------------------------------------
+
+        /**
+         * @brief Set the document creator (dc:creator)
+         * @param creator The creator name
+         */
+        void setCreator(const std::string& creator);
+
+        /**
+         * @brief Get the document creator (dc:creator)
+         * @return The creator name
+         */
+        std::string creator() const;
+
+        /**
+         * @brief Set the document title (dc:title)
+         * @param title The document title
+         */
+        void setTitle(const std::string& title);
+
+        /**
+         * @brief Get the document title (dc:title)
+         * @return The document title
+         */
+        std::string title() const;
+
+        /**
+         * @brief Set the document subject (dc:subject)
+         * @param subject The document subject
+         */
+        void setSubject(const std::string& subject);
+
+        /**
+         * @brief Get the document subject (dc:subject)
+         * @return The document subject
+         */
+        std::string subject() const;
+
+        /**
+         * @brief Set the document description (dc:description)
+         * @param description The document description
+         */
+        void setDescription(const std::string& description);
+
+        /**
+         * @brief Get the document description (dc:description)
+         * @return The document description
+         */
+        std::string description() const;
+
+        /**
+         * @brief Set the document keywords (cp:keywords)
+         * @param keywords The document keywords
+         */
+        void setKeywords(const std::string& keywords);
+
+        /**
+         * @brief Get the document keywords (cp:keywords)
+         * @return The document keywords
+         */
+        std::string keywords() const;
+
+        /**
+         * @brief Set the last modified by (cp:lastModifiedBy)
+         * @param lastModifiedBy The last modified by name
+         */
+        void setLastModifiedBy(const std::string& lastModifiedBy);
+
+        /**
+         * @brief Get the last modified by (cp:lastModifiedBy)
+         * @return The last modified by name
+         */
+        std::string lastModifiedBy() const;
+
+        /**
+         * @brief Set the document category (cp:category)
+         * @param category The document category
+         */
+        void setCategory(const std::string& category);
+
+        /**
+         * @brief Get the document category (cp:category)
+         * @return The document category
+         */
+        std::string category() const;
+
+        /**
+         * @brief Set the creation date to the current time (dcterms:created)
+         */
+        void setCreationDateToNow();
+
+        /**
+         * @brief Set the creation date to a specific time (dcterms:created)
+         * @param timestamp The time_t timestamp to set as creation date
+         */
+        void setCreationDate(time_t timestamp);
+
+        /**
+         * @brief Get the creation date (dcterms:created)
+         * @return The creation date in W3CDTF format
+         */
+        std::string creationDate() const;
+
+        /**
+         * @brief Set the modification date to the current time (dcterms:modified)
+         */
+        void setModificationDateToNow();
+
+        /**
+         * @brief Set the modification date to a specific time (dcterms:modified)
+         * @param timestamp The time_t timestamp to set as modification date
+         */
+        void setModificationDate(time_t timestamp);
+
+        /**
+         * @brief Get the modification date (dcterms:modified)
+         * @return The modification date in W3CDTF format
+         */
+        std::string modificationDate() const;
+
+        /**
+         * @brief Set the absolute path (x15ac:absPath)
+         * @param absPath The absolute path URL to set
+         */
+        void setAbsPath(const std::string& absPath);
+
+        /**
+         * @brief Get the absolute path (x15ac:absPath)
+         * @return The absolute path URL
+         */
+        std::string absPath() const;
+
+        /**
+         * @brief Set the application name (Application)
+         * @param application The application name
+         */
+        void setApplication(const std::string& application);
+
+        /**
+         * @brief Get the application name (Application)
+         * @return The application name
+         */
+        std::string application() const;
 
         /**
          * @brief

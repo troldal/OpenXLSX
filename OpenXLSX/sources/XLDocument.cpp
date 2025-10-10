@@ -45,6 +45,9 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== External Includes ===== //
 #include <algorithm>
+#include <ctime>
+#include <iomanip>
+#include <sstream>
 #ifdef ENABLE_NOWIDE
 #    include <nowide/fstream.hpp>
 #endif
@@ -1010,6 +1013,256 @@ void XLDocument::setProperty(XLProperty prop, const std::string& value)    // NO
  * @details Delete a property
  */
 void XLDocument::deleteProperty(XLProperty theProperty) { setProperty(theProperty, ""); }
+
+//----------------------------------------------------------------------------------------------------------------------
+//           Convenience Property Methods
+//----------------------------------------------------------------------------------------------------------------------
+
+/**
+ * @details Set the document creator (dc:creator)
+ */
+void XLDocument::setCreator(const std::string& creator)
+{
+    setProperty(XLProperty::Creator, creator);
+}
+
+/**
+ * @details Get the document creator (dc:creator)
+ */
+std::string XLDocument::creator() const
+{
+    return property(XLProperty::Creator);
+}
+
+/**
+ * @details Set the document title (dc:title)
+ */
+void XLDocument::setTitle(const std::string& title)
+{
+    setProperty(XLProperty::Title, title);
+}
+
+/**
+ * @details Get the document title (dc:title)
+ */
+std::string XLDocument::title() const
+{
+    return property(XLProperty::Title);
+}
+
+/**
+ * @details Set the document subject (dc:subject)
+ */
+void XLDocument::setSubject(const std::string& subject)
+{
+    setProperty(XLProperty::Subject, subject);
+}
+
+/**
+ * @details Get the document subject (dc:subject)
+ */
+std::string XLDocument::subject() const
+{
+    return property(XLProperty::Subject);
+}
+
+/**
+ * @details Set the document description (dc:description)
+ */
+void XLDocument::setDescription(const std::string& description)
+{
+    setProperty(XLProperty::Description, description);
+}
+
+/**
+ * @details Get the document description (dc:description)
+ */
+std::string XLDocument::description() const
+{
+    return property(XLProperty::Description);
+}
+
+/**
+ * @details Set the document keywords (cp:keywords)
+ */
+void XLDocument::setKeywords(const std::string& keywords)
+{
+    setProperty(XLProperty::Keywords, keywords);
+}
+
+/**
+ * @details Get the document keywords (cp:keywords)
+ */
+std::string XLDocument::keywords() const
+{
+    return property(XLProperty::Keywords);
+}
+
+/**
+ * @details Set the last modified by (cp:lastModifiedBy)
+ */
+void XLDocument::setLastModifiedBy(const std::string& lastModifiedBy)
+{
+    setProperty(XLProperty::LastModifiedBy, lastModifiedBy);
+}
+
+/**
+ * @details Get the last modified by (cp:lastModifiedBy)
+ */
+std::string XLDocument::lastModifiedBy() const
+{
+    return property(XLProperty::LastModifiedBy);
+}
+
+/**
+ * @details Set the document category (cp:category)
+ */
+void XLDocument::setCategory(const std::string& category)
+{
+    setProperty(XLProperty::Category, category);
+}
+
+/**
+ * @details Get the document category (cp:category)
+ */
+std::string XLDocument::category() const
+{
+    return property(XLProperty::Category);
+}
+
+/**
+ * @details Set the creation date to the current time (dcterms:created)
+ */
+void XLDocument::setCreationDateToNow()
+{
+    setCreationDate(std::time(nullptr));
+}
+
+/**
+ * @details Set the creation date to a specific time (dcterms:created)
+ */
+void XLDocument::setCreationDate(time_t timestamp)
+{
+    // Convert time_t to GMT tm struct
+    std::tm tm = *std::gmtime(&timestamp);
+    
+    // Format as W3CDTF (YYYY-MM-DDTHH:MM:SSZ)
+    std::ostringstream ss;
+    ss << std::put_time(&tm, "%FT%TZ");
+    std::string datetime = ss.str();
+    
+    setProperty(XLProperty::CreationDate, datetime);
+}
+
+/**
+ * @details Get the creation date (dcterms:created)
+ */
+std::string XLDocument::creationDate() const
+{
+    return property(XLProperty::CreationDate);
+}
+
+/**
+ * @details Set the modification date to the current time (dcterms:modified)
+ */
+void XLDocument::setModificationDateToNow()
+{
+    setModificationDate(std::time(nullptr));
+}
+
+/**
+ * @details Set the modification date to a specific time (dcterms:modified)
+ */
+void XLDocument::setModificationDate(time_t timestamp)
+{
+    // Convert time_t to GMT tm struct
+    std::tm tm = *std::gmtime(&timestamp);
+    
+    // Format as W3CDTF (YYYY-MM-DDTHH:MM:SSZ)
+    std::ostringstream ss;
+    ss << std::put_time(&tm, "%FT%TZ");
+    std::string datetime = ss.str();
+    
+    setProperty(XLProperty::ModificationDate, datetime);
+}
+
+/**
+ * @details Get the modification date (dcterms:modified)
+ */
+std::string XLDocument::modificationDate() const
+{
+    return property(XLProperty::ModificationDate);
+}
+
+/**
+ * @details Set the absolute path (x15ac:absPath)
+ */
+void XLDocument::setAbsPath(const std::string& absPath)
+{
+    if (m_workbook.xmlDocument().empty()) return;
+    
+    XMLNode workbookRoot = m_workbook.xmlDocument().document_element();
+    
+    // Find or create the mc:AlternateContent node
+    XMLNode alternateContent = workbookRoot.child("mc:AlternateContent");
+    if (alternateContent.empty()) {
+        alternateContent = workbookRoot.append_child("mc:AlternateContent");
+        alternateContent.append_attribute("xmlns:mc") = "http://schemas.openxmlformats.org/markup-compatibility/2006";
+    }
+    
+    // Find or create the mc:Choice node
+    XMLNode choice = alternateContent.child("mc:Choice");
+    if (choice.empty()) {
+        choice = alternateContent.append_child("mc:Choice");
+        choice.append_attribute("Requires") = "x15";
+    }
+    
+    // Find or create the x15ac:absPath node
+    XMLNode absPathNode = choice.child("x15ac:absPath");
+    if (absPathNode.empty()) {
+        absPathNode = choice.append_child("x15ac:absPath");
+        absPathNode.append_attribute("xmlns:x15ac") = "http://schemas.microsoft.com/office/spreadsheetml/2010/11/ac";
+    }
+    
+    // Set the url attribute
+    absPathNode.attribute("url").set_value(absPath.c_str());
+}
+
+/**
+ * @details Get the absolute path (x15ac:absPath)
+ */
+std::string XLDocument::absPath() const
+{
+    if (m_workbook.xmlDocument().empty()) return "";
+    
+    XMLNode workbookRoot = m_workbook.xmlDocument().document_element();
+    XMLNode alternateContent = workbookRoot.child("mc:AlternateContent");
+    if (alternateContent.empty()) return "";
+    
+    XMLNode choice = alternateContent.child("mc:Choice");
+    if (choice.empty()) return "";
+    
+    XMLNode absPathNode = choice.child("x15ac:absPath");
+    if (absPathNode.empty()) return "";
+    
+    return absPathNode.attribute("url").value();
+}
+
+/**
+ * @details Set the application name (Application)
+ */
+void XLDocument::setApplication(const std::string& application)
+{
+    setProperty(XLProperty::Application, application);
+}
+
+/**
+ * @details Get the application name (Application)
+ */
+std::string XLDocument::application() const
+{
+    return property(XLProperty::Application);
+}
 
 /**
  * @details
