@@ -85,6 +85,19 @@ namespace OpenXLSX
          */
         size_t imageCount() const;
 
+        /**
+         * @brief Verify internal data integrity and class invariants
+         * @param dbgMsg Optional pointer to append debug message explaining any errors found
+         * @return Number of errors found (0 = EXIT_SUCCESS, data integrity OK)
+         */
+        int verifyData(std::string* dbgMsg = nullptr) const;
+
+        /**
+         * @brief Get the XML root node for verification purposes
+         * @return XML root node (empty if invalid)
+         */
+        XMLNode getRootNode() const;
+
     private:
         // ===== Private Methods ===== //
         /**

@@ -139,6 +139,8 @@ XLWorksheet XLWorkbook::worksheet(const std::string& sheetName)
     if (worksheet.hasImagesInXML()) {
         try {
             std::ignore = worksheet.drawingML(); // Initialize DrawingML
+            // Populate m_images vector from existing XML data
+            worksheet.populateImagesFromXML();
         } catch (...) {
             // DrawingML initialization failed, but worksheet is still usable
         }
@@ -160,6 +162,8 @@ XLWorksheet XLWorkbook::worksheet(uint16_t index)
     if (worksheet.hasImagesInXML()) {
         try {
             std::ignore = worksheet.drawingML(); // Initialize DrawingML
+            // Populate m_images vector from existing XML data
+            worksheet.populateImagesFromXML();
         } catch (...) {
             // DrawingML initialization failed, but worksheet is still usable
         }

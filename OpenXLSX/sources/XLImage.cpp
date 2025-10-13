@@ -475,53 +475,53 @@ namespace OpenXLSX
         // Compare image ID (most important for identification)
         int idCompare = imageId.compare(other.imageId);
         if (idCompare != 0) {
-            appendDiff(diffMsg, "image ID differs: '" + imageId + "' vs '" + other.imageId + "'");
+            appendDbgMsg(diffMsg, "image ID differs: '" + imageId + "' vs '" + other.imageId + "'");
             return idCompare;
         }
 
         // Compare relationship ID
         int relIdCompare = relationshipId.compare(other.relationshipId);
         if (relIdCompare != 0) {
-            appendDiff(diffMsg, "relationship ID differs: '" + relationshipId + "' vs '" + other.relationshipId + "'");
+            appendDbgMsg(diffMsg, "relationship ID differs: '" + relationshipId + "' vs '" + other.relationshipId + "'");
             return relIdCompare;
         }
 
         // Compare anchor cell
         int cellCompare = anchorCell.compare(other.anchorCell);
         if (cellCompare != 0) {
-            appendDiff(diffMsg, "anchor cell differs: '" + anchorCell + "' vs '" + other.anchorCell + "'");
+            appendDbgMsg(diffMsg, "anchor cell differs: '" + anchorCell + "' vs '" + other.anchorCell + "'");
             return cellCompare;
         }
 
         // Compare anchor type
         int typeCompare = anchorType.compare(other.anchorType);
         if (typeCompare != 0) {
-            appendDiff(diffMsg, "anchor type differs: '" + anchorType + "' vs '" + other.anchorType + "'");
+            appendDbgMsg(diffMsg, "anchor type differs: '" + anchorType + "' vs '" + other.anchorType + "'");
             return typeCompare;
         }
 
         // Compare dimensions
         if (widthPixels != other.widthPixels) {
-            appendDiff(diffMsg, "width differs: " + std::to_string(widthPixels) + 
+            appendDbgMsg(diffMsg, "width differs: " + std::to_string(widthPixels) + 
                       " vs " + std::to_string(other.widthPixels) + " pixels");
             return widthPixels < other.widthPixels ? -1 : 1;
         }
 
         if (heightPixels != other.heightPixels) {
-            appendDiff(diffMsg, "height differs: " + std::to_string(heightPixels) + 
+            appendDbgMsg(diffMsg, "height differs: " + std::to_string(heightPixels) + 
                       " vs " + std::to_string(other.heightPixels) + " pixels");
             return heightPixels < other.heightPixels ? -1 : 1;
         }
 
         // Compare display dimensions
         if (displayWidthEMUs != other.displayWidthEMUs) {
-            appendDiff(diffMsg, "display width differs: " + std::to_string(displayWidthEMUs) + 
+            appendDbgMsg(diffMsg, "display width differs: " + std::to_string(displayWidthEMUs) + 
                       " vs " + std::to_string(other.displayWidthEMUs) + " EMUs");
             return displayWidthEMUs < other.displayWidthEMUs ? -1 : 1;
         }
 
         if (displayHeightEMUs != other.displayHeightEMUs) {
-            appendDiff(diffMsg, "display height differs: " + std::to_string(displayHeightEMUs) + 
+            appendDbgMsg(diffMsg, "display height differs: " + std::to_string(displayHeightEMUs) + 
                       " vs " + std::to_string(other.displayHeightEMUs) + " EMUs");
             return displayHeightEMUs < other.displayHeightEMUs ? -1 : 1;
         }
@@ -538,7 +538,7 @@ namespace OpenXLSX
 
         // Compare image data (most important for embedded images)
         if (m_imageData != other.m_imageData) {
-            appendDiff(diffMsg, "image data differs (size: " + std::to_string(m_imageData.size()) + 
+            appendDbgMsg(diffMsg, "image data differs (size: " + std::to_string(m_imageData.size()) + 
                       " vs " + std::to_string(other.m_imageData.size()) + " bytes)");
             return m_imageData.size() < other.m_imageData.size() ? -1 : 1;
         }
@@ -546,52 +546,119 @@ namespace OpenXLSX
         // Compare MIME type
         int mimeCompare = m_mimeType.compare(other.m_mimeType);
         if (mimeCompare != 0) {
-            appendDiff(diffMsg, "MIME type differs: '" + m_mimeType + "' vs '" + other.m_mimeType + "'");
+            appendDbgMsg(diffMsg, "MIME type differs: '" + m_mimeType + "' vs '" + other.m_mimeType + "'");
             return mimeCompare;
         }
 
         // Compare extension
         int extCompare = m_extension.compare(other.m_extension);
         if (extCompare != 0) {
-            appendDiff(diffMsg, "extension differs: '" + m_extension + "' vs '" + other.m_extension + "'");
+            appendDbgMsg(diffMsg, "extension differs: '" + m_extension + "' vs '" + other.m_extension + "'");
             return extCompare;
         }
 
         // Compare ID
         int idCompare = m_id.compare(other.m_id);
         if (idCompare != 0) {
-            appendDiff(diffMsg, "image ID differs: '" + m_id + "' vs '" + other.m_id + "'");
+            appendDbgMsg(diffMsg, "image ID differs: '" + m_id + "' vs '" + other.m_id + "'");
             return idCompare;
         }
 
         // Compare dimensions
         if (m_widthPixels != other.m_widthPixels) {
-            appendDiff(diffMsg, "width differs: " + std::to_string(m_widthPixels) + 
+            appendDbgMsg(diffMsg, "width differs: " + std::to_string(m_widthPixels) + 
                       " vs " + std::to_string(other.m_widthPixels) + " pixels");
             return m_widthPixels < other.m_widthPixels ? -1 : 1;
         }
 
         if (m_heightPixels != other.m_heightPixels) {
-            appendDiff(diffMsg, "height differs: " + std::to_string(m_heightPixels) + 
+            appendDbgMsg(diffMsg, "height differs: " + std::to_string(m_heightPixels) + 
                       " vs " + std::to_string(other.m_heightPixels) + " pixels");
             return m_heightPixels < other.m_heightPixels ? -1 : 1;
         }
 
         // Compare display dimensions
         if (m_displayWidth != other.m_displayWidth) {
-            appendDiff(diffMsg, "display width differs: " + std::to_string(m_displayWidth) + 
+            appendDbgMsg(diffMsg, "display width differs: " + std::to_string(m_displayWidth) + 
                       " vs " + std::to_string(other.m_displayWidth) + " EMUs");
             return m_displayWidth < other.m_displayWidth ? -1 : 1;
         }
 
         if (m_displayHeight != other.m_displayHeight) {
-            appendDiff(diffMsg, "display height differs: " + std::to_string(m_displayHeight) + 
+            appendDbgMsg(diffMsg, "display height differs: " + std::to_string(m_displayHeight) + 
                       " vs " + std::to_string(other.m_displayHeight) + " EMUs");
             return m_displayHeight < other.m_displayHeight ? -1 : 1;
         }
 
         // Images are identical
         return 0;
+    }
+
+    /**
+     * @details Verify internal data integrity and class invariants
+     */
+    int XLImage::verifyData(std::string* dbgMsg) const
+    {
+        int errorCount = 0;
+
+        // Check basic data integrity
+        if (m_imageData.empty()) {
+            appendDbgMsg(dbgMsg, "image data is empty");
+            errorCount++;
+        }
+
+        // Check MIME type consistency
+        if (m_mimeType.empty()) {
+            appendDbgMsg(dbgMsg, "MIME type is empty");
+            errorCount++;
+        }
+
+        // Check extension consistency
+        if (m_extension.empty()) {
+            appendDbgMsg(dbgMsg, "file extension is empty");
+            errorCount++;
+        }
+
+        // Check ID consistency
+        if (m_id.empty()) {
+            appendDbgMsg(dbgMsg, "image ID is empty");
+            errorCount++;
+        }
+
+        // Check dimension consistency
+        if (m_widthPixels == 0) {
+            appendDbgMsg(dbgMsg, "width in pixels is zero");
+            errorCount++;
+        }
+
+        if (m_heightPixels == 0) {
+            appendDbgMsg(dbgMsg, "height in pixels is zero");
+            errorCount++;
+        }
+
+        // Check display dimension consistency
+        if (m_displayWidth == 0) {
+            appendDbgMsg(dbgMsg, "display width in EMUs is zero");
+            errorCount++;
+        }
+
+        if (m_displayHeight == 0) {
+            appendDbgMsg(dbgMsg, "display height in EMUs is zero");
+            errorCount++;
+        }
+
+        // Check MIME type and extension consistency
+        if (!m_mimeType.empty() && !m_extension.empty()) {
+            if ((m_mimeType == "image/png" && m_extension != ".png") ||
+                (m_mimeType == "image/jpeg" && m_extension != ".jpg" && m_extension != ".jpeg") ||
+                (m_mimeType == "image/gif" && m_extension != ".gif") ||
+                (m_mimeType == "image/bmp" && m_extension != ".bmp")) {
+                appendDbgMsg(dbgMsg, "MIME type '" + m_mimeType + "' does not match extension '" + m_extension + "'");
+                errorCount++;
+            }
+        }
+
+        return errorCount;
     }
 
 }    // namespace OpenXLSX

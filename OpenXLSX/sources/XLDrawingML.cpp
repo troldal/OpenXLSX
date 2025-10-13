@@ -49,8 +49,9 @@ namespace OpenXLSX
         // Create non-visual picture properties
         XMLNode nvPicPr = pic.append_child("xdr:nvPicPr");
         XMLNode cNvPr = nvPicPr.append_child("xdr:cNvPr");
-        cNvPr.append_attribute("id").set_value(std::to_string(imageCount() + 2).c_str()); // Start from 2
-        cNvPr.append_attribute("name").set_value(("Picture " + std::to_string(imageCount() + 1)).c_str());
+        // Use the actual image ID directly (now numeric to match Microsoft Excel)
+        cNvPr.append_attribute("id").set_value(image.id().c_str());
+        cNvPr.append_attribute("name").set_value(("Picture " + image.id()).c_str());
         
         // Add extension list with creation ID for better compatibility
         // XMLNode cNvPrExtLst = cNvPr.append_child("a:extLst");
@@ -199,8 +200,9 @@ namespace OpenXLSX
         // Create non-visual picture properties
         XMLNode nvPicPr = pic.append_child("xdr:nvPicPr");
         XMLNode cNvPr = nvPicPr.append_child("xdr:cNvPr");
-        cNvPr.append_attribute("id").set_value(std::to_string(imageCount() + 2).c_str());
-        cNvPr.append_attribute("name").set_value(("Picture " + std::to_string(imageCount() + 1)).c_str());
+        // Use the actual image ID directly (now numeric to match Microsoft Excel)
+        cNvPr.append_attribute("id").set_value(image.id().c_str());
+        cNvPr.append_attribute("name").set_value(("Picture " + image.id()).c_str());
         
         XMLNode cNvPicPr = nvPicPr.append_child("xdr:cNvPicPr");
         XMLNode picLocks = cNvPicPr.append_child("a:picLocks");
@@ -280,8 +282,9 @@ namespace OpenXLSX
         // Create non-visual picture properties
         XMLNode nvPicPr = pic.append_child("xdr:nvPicPr");
         XMLNode cNvPr = nvPicPr.append_child("xdr:cNvPr");
-        cNvPr.append_attribute("id").set_value(std::to_string(imageCount() + 2).c_str());
-        cNvPr.append_attribute("name").set_value(("Picture " + std::to_string(imageCount() + 1)).c_str());
+        // Use the actual image ID directly (now numeric to match Microsoft Excel)
+        cNvPr.append_attribute("id").set_value(image.id().c_str());
+        cNvPr.append_attribute("name").set_value(("Picture " + image.id()).c_str());
         
         XMLNode cNvPicPr = nvPicPr.append_child("xdr:cNvPicPr");
         XMLNode picLocks = cNvPicPr.append_child("a:picLocks");
@@ -317,5 +320,73 @@ namespace OpenXLSX
         
         // Add clientData element (required for Excel compatibility)
         anchor.append_child("xdr:clientData");
+    }
+
+    int XLDrawingML::verifyData(std::string* dbgMsg) const
+    {
+        int errorCount = 0;
+
+        // Check if XML is valid
+        if (!valid()) {
+            appendDbgMsg(dbgMsg, "DrawingML XML is invalid");
+            errorCount++;
+            return errorCount;
+        }
+
+        try {
+            // Check XML structure
+            XMLNode rootNode = xmlDocument().document_element();
+            if (rootNode.empty()) {
+                appendDbgMsg(dbgMsg, "DrawingML root node is empty");
+                errorCount++;
+            }
+
+            // Count images in XML and verify structure
+            size_t xmlImageCount = 0;
+            for (auto anchor : rootNode.children()) {
+                if (anchor.name() == std::string("xdr:oneCellAnchor") || 
+                    anchor.name() == std::string("xdr:twoCellAnchor")) {
+                    xmlImageCount++;
+                    
+                    // Check for required elements
+                    if (anchor.child("xdr:pic").empty()) {
+                        appendDbgMsg(dbgMsg, "image anchor missing xdr:pic element");
+                        errorCount++;
+                    }
+                    
+                    if (anchor.child("xdr:clientData").empty()) {
+                        appendDbgMsg(dbgMsg, "image anchor missing xdr:clientData element");
+                        errorCount++;
+                    }
+                }
+            }
+
+            // Verify image count consistency
+            size_t reportedCount = imageCount();
+            if (xmlImageCount != reportedCount) {
+                appendDbgMsg(dbgMsg, "XML image count (" + std::to_string(xmlImageCount) + 
+                          ") does not match reported count (" + std::to_string(reportedCount) + ")");
+                errorCount++;
+            }
+
+        } catch (const std::exception&) {
+            appendDbgMsg(dbgMsg, "error parsing DrawingML XML");
+            errorCount++;
+        }
+
+        return errorCount;
+    }
+
+    XMLNode XLDrawingML::getRootNode() const
+    {
+        if (!valid()) {
+            return XMLNode(); // Return empty node if invalid
+        }
+        
+        try {
+            return xmlDocument().document_element();
+        } catch (const std::exception&) {
+            return XMLNode(); // Return empty node on error
+        }
     }
 }

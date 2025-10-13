@@ -996,6 +996,8 @@ XLWorksheet::XLWorksheet(const XLWorksheet& other) : XLSheetBase<XLWorksheet>(ot
     m_drawingML     = other.m_drawingML;      //  "     XLDrawingML
     m_comments      = other.m_comments;       //  "     XLComments         "
     m_tables        = other.m_tables;         //  "     XLTables           "
+    m_images        = other.m_images;         //  "     std::vector<XLImage>"
+    m_imageRegistry = other.m_imageRegistry;  //  "     std::vector<XLImageInfo>"
 }
 
 /**
@@ -1009,6 +1011,8 @@ XLWorksheet::XLWorksheet(XLWorksheet&& other) : XLSheetBase< XLWorksheet >(other
     m_drawingML     = std::move(other.m_drawingML);      //  "     XLDrawingML
     m_comments      = std::move(other.m_comments);       //  "     XLComments         "
     m_tables        = std::move(other.m_tables);         //  "     XLTables           "
+    m_images        = std::move(other.m_images);         //  "     std::vector<XLImage>"
+    m_imageRegistry = std::move(other.m_imageRegistry);  //  "     std::vector<XLImageInfo>"
 }
 
 /**
@@ -1023,6 +1027,8 @@ XLWorksheet& XLWorksheet::operator=(const XLWorksheet& other)
     m_drawingML     = other.m_drawingML;
     m_comments      = other.m_comments;
     m_tables        = other.m_tables;
+    m_images        = other.m_images;
+    m_imageRegistry = other.m_imageRegistry;
     return *this;
 }
 
@@ -1038,6 +1044,8 @@ XLWorksheet& XLWorksheet::operator=(XLWorksheet&& other)
     m_drawingML     = std::move(other.m_drawingML);
     m_comments      = std::move(other.m_comments);
     m_tables        = std::move(other.m_tables);
+    m_images        = std::move(other.m_images);
+    m_imageRegistry = std::move(other.m_imageRegistry);
     return *this;
 }
 
@@ -1786,6 +1794,11 @@ XLDrawingML& XLWorksheet::drawingML()
     return m_drawingML;
 }
 
+const XLDrawingML& XLWorksheet::drawingML() const{
+XLDrawingML& result = const_cast<XLWorksheet *>(this)->drawingML();
+return const_cast<const XLDrawingML&>(result);
+}
+
 /**
  * @details Create an empty DrawingML object for worksheets without images
  * This is needed when addImage() is called on a worksheet that doesn't have images yet
@@ -1935,11 +1948,11 @@ bool XLWorksheet::addImage(const XLImage& image, uint32_t row, uint16_t column)
     try {
         // Create a copy of the image and set its ID
         XLImage imageWithId = image;
-        // Only generate a new ID if the image doesn't already have one
-        if (imageWithId.id().empty()) {
-            imageWithId.setId(generateNextImageId());
-        }
-        
+        // Always generate a new worksheet-scoped unique ID (ignore existing ID)
+        std::string oldId = imageWithId.id();
+        std::string newId = generateNextImageId();
+        imageWithId.setId(newId);
+                
         // Store the image in the vector
         m_images.push_back(imageWithId);
         
@@ -1962,8 +1975,12 @@ bool XLWorksheet::addImage(const XLImage& image, uint32_t row, uint16_t column)
         // Add image to DrawingML
         // Use sequential relationship ID that matches createDrawingRelationshipsFile
         std::string relationshipId = getRelationshipIdFromImageCount();
+        
         addImageToDrawingML(imageWithId, row, column, relationshipId);
         
+        // invalidate registry
+        m_imageRegistry.clear();
+
         return true;
     }
     catch (const std::exception&) {
@@ -2034,7 +2051,10 @@ bool XLWorksheet::addImageWithOffset(const XLImage& image, uint32_t row, uint16_
     
     // Add image to DrawingML with offset
     addImageToDrawingMLWithOffset(imageWithId, row, column, relationshipId, rowOffset, colOffset);
-    
+     
+    // invalidate registry
+    m_imageRegistry.clear();
+
     return true;
 }
 
@@ -2049,10 +2069,9 @@ bool XLWorksheet::addImageTwoCellAnchor(const XLImage& image,
 {
     // Create a copy of the image and set its ID
     XLImage imageWithId = image;
-    // Only generate a new ID if the image doesn't already have one
-    if (imageWithId.id().empty()) {
-        imageWithId.setId(generateNextImageId());
-    }
+    // Always generate a new worksheet-scoped unique ID (ignore existing ID)
+    std::string oldId = imageWithId.id();
+    imageWithId.setId(generateNextImageId());
     
     // Store the image
     m_images.push_back(imageWithId);
@@ -2076,6 +2095,9 @@ bool XLWorksheet::addImageTwoCellAnchor(const XLImage& image,
     addImageToDrawingMLTwoCellAnchor(imageWithId, fromRow, fromCol, toRow, toCol, relationshipId,
                                      fromRowOffset, fromColOffset, toRowOffset, toColOffset);
     
+    // invalidate registry
+    m_imageRegistry.clear();
+
     return true;
 }
 
@@ -2131,10 +2153,22 @@ bool XLWorksheet::hasImagesInXML() const
 
 /**
  * @details Generate the next available image ID for this worksheet
+ * Ensures uniqueness within the worksheet scope
  */
 std::string XLWorksheet::generateNextImageId() const
 {
-    return parentDoc().generateNextImageId();
+    // Get all existing image IDs (sorted and unique)
+    std::vector<std::string> existingIds = getImageIDs();
+    
+    // Generate unique numeric ID using binary search for efficiency
+    // Microsoft Excel uses numeric IDs (e.g., "1", "2", "3") in DrawingML XML
+    int counter = 1;
+    std::string candidateId;
+    do {
+        candidateId = std::to_string(counter++);
+    } while (std::binary_search(existingIds.begin(), existingIds.end(), candidateId));
+    
+    return candidateId;
 }
 
 /**
@@ -2224,60 +2258,80 @@ void XLWorksheet::addImageRelationship(const XLImage& image, const std::string& 
     if (parentDoc().hasRelationshipsFile(drawingRelsFilename)) {
         // Read existing content and add new relationship
         try {
-            // Get existing content from archive
-            std::string existingContent = parentDoc().readRelationshipsFile(drawingRelsFilename);
+            // Get existing content from in-memory XML data
+            std::string relsFilename = "xl/drawings/_rels/drawing" + std::to_string(sheetXmlNumber()) + ".xml.rels";
             
-            // Parse existing XML
-            XMLDocument relsDoc;
-            relsDoc.load_string(existingContent.c_str());
-            XMLNode relationshipsNode = relsDoc.document_element();
-            
-            if (relationshipsNode) {
-                // Start building new XML
+            // Try to get the relationships XML data from in-memory cache
+            XLXmlData* relsXmlData = const_cast<XLDocument&>(parentDoc()).getRelationshipsXmlData(relsFilename);
+            if (!relsXmlData || !relsXmlData->valid()) {
+                // No existing relationships data, will create new file below
                 relsXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
-                         "<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">\n";
-                
-                // Find the highest existing relationship ID to avoid duplicates
-                int maxId = 0;
-                std::set<std::string> existingIds;
-                
-                for (auto relNode : relationshipsNode.children("Relationship")) {
-                    std::string relId = relNode.attribute("Id").value();
-                    std::string relType = relNode.attribute("Type").value();
-                    std::string relTarget = relNode.attribute("Target").value();
+                         "<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">\n"
+                         "<Relationship Id=\"" + relationshipId + 
+                         "\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" " +
+                         "Target=\"../media/image_" + image.id() + image.extension() + "\"/>\n"
+                         "</Relationships>";
+            } else {
+                // Parse existing XML from in-memory data
+                XMLDocument* relsDoc = relsXmlData->getXmlDocument();
+                if (!relsDoc || !relsDoc->document_element()) {
+                    // Invalid XML data, create new file
+                    relsXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
+                             "<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">\n"
+                             "<Relationship Id=\"" + relationshipId + 
+                             "\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" " +
+                             "Target=\"../media/image_" + image.id() + image.extension() + "\"/>\n"
+                             "</Relationships>";
+                } else {
+                    XMLNode relationshipsNode = relsDoc->document_element();
                     
-                    // Extract numeric part of ID
-                    if (relId.length() > 3 && relId.substr(0, 3) == "rId") {
-                        try {
-                            int idNum = std::stoi(relId.substr(3));
-                            maxId = std::max(maxId, idNum);
-                        } catch (...) {
-                            // Ignore non-numeric IDs
+                    // Start building new XML
+                    relsXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
+                             "<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">\n";
+                    
+                    // Find the highest existing relationship ID to avoid duplicates
+                    int maxId = 0;
+                    std::set<std::string> existingIds;
+                    
+                    for (auto relNode : relationshipsNode.children("Relationship")) {
+                        std::string relId = relNode.attribute("Id").value();
+                        std::string relType = relNode.attribute("Type").value();
+                        std::string relTarget = relNode.attribute("Target").value();
+                        
+                        // Copy existing relationships
+                        relsXml += "<Relationship Id=\"" + relId + 
+                                  "\" Type=\"" + relType + "\" Target=\"" + relTarget + "\"/>\n";
+                        
+                        // Track existing IDs for uniqueness check
+                        existingIds.insert(relId);
+                        
+                        // Extract numeric part for max ID calculation
+                        if (relId.substr(0, 3) == "rId") {
+                            try {
+                                int idNum = std::stoi(relId.substr(3));
+                                maxId = std::max(maxId, idNum);
+                            } catch (...) {
+                                // Ignore non-numeric IDs
+                            }
                         }
                     }
                     
-                    existingIds.insert(relId);
+                    // Generate unique relationship ID
+                    std::string uniqueRelId = relationshipId;
+                    int idNum = maxId + 1;
+                    while (existingIds.find(uniqueRelId) != existingIds.end()) {
+                        uniqueRelId = "rId" + std::to_string(idNum);
+                        idNum++;
+                    }
                     
-                    relsXml += "<Relationship Id=\"" + relId + 
-                               "\" Type=\"" + relType + 
-                               "\" Target=\"" + relTarget + "\"/>\n";
+                    // Add new relationship with unique ID
+                    std::string imageRelativePath = "../media/image_" + image.id() + image.extension();
+                    relsXml += "<Relationship Id=\"" + uniqueRelId + 
+                              "\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" " +
+                              "Target=\"" + imageRelativePath + "\"/>\n";
+                    
+                    relsXml += "</Relationships>";
                 }
-                
-                // Generate a unique relationship ID
-                std::string uniqueRelId = relationshipId;
-                int idNum = maxId + 1;
-                while (existingIds.find(uniqueRelId) != existingIds.end()) {
-                    uniqueRelId = "rId" + std::to_string(idNum);
-                    idNum++;
-                }
-                
-                // Add new relationship with unique ID
-                std::string imageRelativePath = "../media/image_" + image.id() + image.extension();
-                relsXml += "<Relationship Id=\"" + uniqueRelId + 
-                           "\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" " +
-                           "Target=\"" + imageRelativePath + "\"/>\n";
-                
-                relsXml += "</Relationships>";
             }
         } catch (const std::exception&) {
             // If parsing fails, fall back to creating new file
@@ -2300,7 +2354,7 @@ void XLWorksheet::addImageRelationship(const XLImage& image, const std::string& 
     }
     
     // Update the relationships file
-    if (!parentDoc().addRelationshipsFile(drawingRelsFilename, relsXml)) {
+    if (!const_cast<XLDocument&>(parentDoc()).updateRelationshipsXmlData(drawingRelsFilename, relsXml)) {
         throw XLException("XLWorksheet::addImageRelationship(): could not update drawing relationships file");
     }
 }
@@ -2412,7 +2466,7 @@ int XLWorksheet::compare(const XLWorksheet& other, std::string* diffMsg) const
     std::string otherName = other.name();
     int nameCompare = thisName.compare(otherName);
     if (nameCompare != 0) {
-        appendDiff(diffMsg, "worksheet name differs: '" + thisName + "' vs '" + otherName + "'");
+        appendDbgMsg(diffMsg, "worksheet name differs: '" + thisName + "' vs '" + otherName + "'");
         return nameCompare;
     }
 
@@ -2421,7 +2475,7 @@ int XLWorksheet::compare(const XLWorksheet& other, std::string* diffMsg) const
     bool thisDrawingMLValid = m_drawingML.valid();
     bool otherDrawingMLValid = other.m_drawingML.valid();
     if (thisDrawingMLValid != otherDrawingMLValid) {
-        appendDiff(diffMsg, "DrawingML validity differs: " + std::string(thisDrawingMLValid ? "valid" : "invalid") + 
+        appendDbgMsg(diffMsg, "DrawingML validity differs: " + std::string(thisDrawingMLValid ? "valid" : "invalid") + 
                   " vs " + std::string(otherDrawingMLValid ? "valid" : "invalid"));
         return thisDrawingMLValid ? 1 : -1;
     }
@@ -2430,7 +2484,7 @@ int XLWorksheet::compare(const XLWorksheet& other, std::string* diffMsg) const
     size_t thisImageCount = imageCount();
     size_t otherImageCount = other.imageCount();
     if (thisImageCount != otherImageCount) {
-        appendDiff(diffMsg, "image count differs: " + std::to_string(thisImageCount) + 
+        appendDbgMsg(diffMsg, "image count differs: " + std::to_string(thisImageCount) + 
                   " vs " + std::to_string(otherImageCount));
         return thisImageCount < otherImageCount ? -1 : 1;
     }
@@ -2439,7 +2493,7 @@ int XLWorksheet::compare(const XLWorksheet& other, std::string* diffMsg) const
     size_t thisRegistrySize = m_imageRegistry.size();
     size_t otherRegistrySize = other.m_imageRegistry.size();
     if (thisRegistrySize != otherRegistrySize) {
-        appendDiff(diffMsg, "image registry size differs: " + std::to_string(thisRegistrySize) + 
+        appendDbgMsg(diffMsg, "image registry size differs: " + std::to_string(thisRegistrySize) + 
                   " vs " + std::to_string(otherRegistrySize));
         return thisRegistrySize < otherRegistrySize ? -1 : 1;
     }
@@ -2449,7 +2503,7 @@ int XLWorksheet::compare(const XLWorksheet& other, std::string* diffMsg) const
     size_t otherImagesInMemory = other.m_images.size();
     if (thisImagesInMemory > 0 || otherImagesInMemory > 0) {
         if (thisImagesInMemory != otherImagesInMemory) {
-            appendDiff(diffMsg, "images in memory count differs: " + std::to_string(thisImagesInMemory) + 
+            appendDbgMsg(diffMsg, "images in memory count differs: " + std::to_string(thisImagesInMemory) + 
                       " vs " + std::to_string(otherImagesInMemory));
             return thisImagesInMemory < otherImagesInMemory ? -1 : 1;
         }
@@ -2458,7 +2512,7 @@ int XLWorksheet::compare(const XLWorksheet& other, std::string* diffMsg) const
         for (size_t i = 0; i < thisImagesInMemory && i < otherImagesInMemory; ++i) {
             int imageCompare = m_images[i].compare(other.m_images[i], diffMsg);
             if (imageCompare != 0) {
-                appendDiff(diffMsg, "image " + std::to_string(i) + " differs");
+                appendDbgMsg(diffMsg, "image " + std::to_string(i) + " differs");
                 return imageCompare;
             }
         }
@@ -2469,7 +2523,7 @@ int XLWorksheet::compare(const XLWorksheet& other, std::string* diffMsg) const
         for (size_t i = 0; i < thisRegistrySize && i < otherRegistrySize; ++i) {
             int registryCompare = m_imageRegistry[i].compare(other.m_imageRegistry[i], diffMsg);
             if (registryCompare != 0) {
-                appendDiff(diffMsg, "image registry entry " + std::to_string(i) + " differs");
+                appendDbgMsg(diffMsg, "image registry entry " + std::to_string(i) + " differs");
                 return registryCompare;
             }
         }
@@ -2481,7 +2535,7 @@ int XLWorksheet::compare(const XLWorksheet& other, std::string* diffMsg) const
         bool thisRelValid = m_relationships.valid();
         bool otherRelValid = other.m_relationships.valid();
         if (thisRelValid != otherRelValid) {
-            appendDiff(diffMsg, "relationships validity differs: " + std::string(thisRelValid ? "valid" : "invalid") + 
+            appendDbgMsg(diffMsg, "relationships validity differs: " + std::string(thisRelValid ? "valid" : "invalid") + 
                       " vs " + std::string(otherRelValid ? "valid" : "invalid"));
             return thisRelValid ? 1 : -1;
         }
@@ -2489,7 +2543,7 @@ int XLWorksheet::compare(const XLWorksheet& other, std::string* diffMsg) const
         // Skip DrawingML relationship check for now to avoid path issues
         // TODO: Implement safer DrawingML relationship comparison
     } catch (const std::exception&) {
-        appendDiff(diffMsg, "error comparing relationships");
+        appendDbgMsg(diffMsg, "error comparing relationships");
         return -1;
     }
 
@@ -2504,3 +2558,455 @@ int XLWorksheet::compare(const XLWorksheet& other, std::string* diffMsg) const
     // Worksheets are identical
     return 0;
 }
+
+int XLWorksheet::verifyData(std::string* dbgMsg) const
+{
+    int errorCount = 0;
+    std::string worksheetName = name();
+
+    // TODO: Verify sub-objects when verifyData() is implemented for them
+    // errorCount += m_relationships.verifyData(dbgMsg);
+    // errorCount += m_merges.verifyData(dbgMsg);
+    // errorCount += m_vmlDrawing.verifyData(dbgMsg);
+    
+    // Only verify DrawingML if the worksheet has images
+    // For worksheets without images, DrawingML can be invalid
+    if (!m_imageRegistry.empty() || !m_images.empty() || hasImagesInXML()) {
+        errorCount += m_drawingML.verifyData(dbgMsg);
+    }
+    // errorCount += m_comments.verifyData(dbgMsg);
+    // errorCount += m_tables.verifyData(dbgMsg);
+
+    // Verify images vector
+    for (size_t i = 0; i < m_images.size(); ++i) {
+        int imageErrors = m_images[i].verifyData(dbgMsg);
+        if (imageErrors > 0) {
+            appendDbgMsg(dbgMsg, "[" + worksheetName + "] image " + std::to_string(i) + " has " + std::to_string(imageErrors) + " errors");
+            errorCount += imageErrors;
+        }
+    }
+
+    // Verify image registry consistency
+    if (m_drawingML.valid()) {
+        try {
+            auto imageInfos = getImageInfos();
+            if (imageInfos.size() != m_images.size()) {
+                appendDbgMsg(dbgMsg, "[" + worksheetName + "] image registry size (" + std::to_string(imageInfos.size()) + 
+                          ") does not match images vector size (" + std::to_string(m_images.size()) + ")");
+                errorCount++;
+            }
+        } catch (const std::exception&) {
+            appendDbgMsg(dbgMsg, "[" + worksheetName + "] error accessing image registry");
+            errorCount++;
+        }
+    }
+
+    // Verify unique image IDs
+    errorCount += verifyUniqueImageIDs(dbgMsg);
+
+    // Verify DrawingML XML consistency with registry
+    errorCount += verifyDrawingMLConsistency(dbgMsg);
+
+    // Verify m_images vector consistency with XML
+    errorCount += verifyImagesVectorConsistency(dbgMsg);
+
+    // Verify binary image data exists in archive
+    errorCount += verifyBinaryImageData(dbgMsg);
+
+    return errorCount;
+}
+
+int XLWorksheet::verifyUniqueImageIDs(std::string* dbgMsg) const
+{
+    int duplicateCount = 0;
+    std::string worksheetName = name();
+
+    // Check 1: Image registry for duplicate IDs
+    if (m_drawingML.valid()) {
+        try {
+            auto imageInfos = getImageInfos();
+            std::set<std::string> registryIds;
+            
+            for (const auto& info : imageInfos) {
+                if (registryIds.find(info.imageId) != registryIds.end()) {
+                    // Duplicate found in registry
+                    appendDbgMsg(dbgMsg, "[" + worksheetName + "] duplicate image ID in registry: " + info.imageId);
+                    duplicateCount++;
+                } else {
+                    registryIds.insert(info.imageId);
+                }
+            }
+        } catch (const std::exception&) {
+            appendDbgMsg(dbgMsg, "[" + worksheetName + "] error accessing image registry for ID verification");
+            duplicateCount++;
+        }
+    }
+
+    // Check 2: m_images vector for duplicate IDs
+    std::set<std::string> imageIds;
+    for (size_t i = 0; i < m_images.size(); ++i) {
+        const std::string& imageId = m_images[i].id();
+        if (imageIds.find(imageId) != imageIds.end()) {
+            // Duplicate found in m_images vector
+            appendDbgMsg(dbgMsg, "[" + worksheetName + "] duplicate image ID in m_images vector: " + imageId);
+            duplicateCount++;
+        } else {
+            imageIds.insert(imageId);
+        }
+    }
+
+    return duplicateCount;
+}
+
+int XLWorksheet::verifyDrawingMLConsistency(std::string* dbgMsg) const
+{
+    int inconsistencyCount = 0;
+    std::string worksheetName = name();
+
+    // Check if DrawingML is valid
+    if (!m_drawingML.valid()) {
+        // If DrawingML is invalid but we have images in registry or m_images, that's an inconsistency
+        if (!m_imageRegistry.empty() || !m_images.empty()) {
+            appendDbgMsg(dbgMsg, "[" + worksheetName + "] DrawingML is invalid but has " + 
+                      std::to_string(m_imageRegistry.size()) + " registry entries and " + 
+                      std::to_string(m_images.size()) + " m_images entries");
+            inconsistencyCount++;
+        }
+        return inconsistencyCount; // No further checks possible
+    }
+
+    try {
+        // Get image registry data
+        auto imageInfos = getImageInfos();
+        size_t registryCount = imageInfos.size();
+
+        // Get DrawingML XML data
+        XMLNode rootNode = m_drawingML.getRootNode();
+        if (rootNode.empty()) {
+            // Empty root node is OK if there are no images
+            if (!m_imageRegistry.empty() || !m_images.empty()) {
+                appendDbgMsg(dbgMsg, "[" + worksheetName + "] DrawingML root node is empty but has " + 
+                          std::to_string(m_imageRegistry.size()) + " registry entries and " + 
+                          std::to_string(m_images.size()) + " m_images entries");
+                inconsistencyCount++;
+            }
+            return inconsistencyCount;
+        }
+
+        // Count anchors in XML
+        size_t xmlAnchorCount = 0;
+        std::vector<std::string> xmlImageIds;
+        std::vector<std::string> xmlRelationshipIds;
+
+        for (auto anchor : rootNode.children()) {
+            if (matchesElementName(anchor.name(), "oneCellAnchor") || 
+                matchesElementName(anchor.name(), "twoCellAnchor")) {
+                xmlAnchorCount++;
+
+                // Extract image ID from XML
+                XMLNode pic = anchor.child("xdr:pic");
+                if (!pic.empty()) {
+                    XMLNode nvPicPr = pic.child("xdr:nvPicPr");
+                    if (!nvPicPr.empty()) {
+                        XMLNode cNvPr = nvPicPr.child("xdr:cNvPr");
+                        if (!cNvPr.empty()) {
+                            XMLAttribute idAttr = cNvPr.attribute("id");
+                            if (!idAttr.empty()) {
+                                xmlImageIds.push_back(idAttr.value());
+                            }
+                        }
+                    }
+                }
+
+                // Extract relationship ID from XML
+                XMLNode blipFill = pic.child("xdr:blipFill");
+                if (!blipFill.empty()) {
+                    XMLNode blip = blipFill.child("a:blip");
+                    if (!blip.empty()) {
+                        XMLAttribute embedAttr = blip.attribute("r:embed");
+                        if (!embedAttr.empty()) {
+                            xmlRelationshipIds.push_back(embedAttr.value());
+                        }
+                    }
+                }
+            }
+        }
+
+        // Check 1: Anchor count consistency
+        if (xmlAnchorCount != registryCount) {
+            appendDbgMsg(dbgMsg, "[" + worksheetName + "] XML anchor count (" + std::to_string(xmlAnchorCount) + 
+                      ") does not match registry count (" + std::to_string(registryCount) + ")");
+            inconsistencyCount++;
+        }
+
+        // Check 2: Image ID consistency
+        std::set<std::string> registryImageIds;
+        for (const auto& info : imageInfos) {
+            registryImageIds.insert(info.imageId);
+        }
+
+        std::set<std::string> xmlImageIdSet(xmlImageIds.begin(), xmlImageIds.end());
+        
+        // Check for IDs in registry but not in XML
+        for (const auto& registryId : registryImageIds) {
+            if (xmlImageIdSet.find(registryId) == xmlImageIdSet.end()) {
+                appendDbgMsg(dbgMsg, "[" + worksheetName + "] image ID '" + registryId + "' in registry but not in XML");
+                inconsistencyCount++;
+            }
+        }
+
+        // Check for IDs in XML but not in registry
+        for (const auto& xmlId : xmlImageIdSet) {
+            if (registryImageIds.find(xmlId) == registryImageIds.end()) {
+                appendDbgMsg(dbgMsg, "[" + worksheetName + "] image ID '" + xmlId + "' in XML but not in registry");
+                inconsistencyCount++;
+            }
+        }
+
+        // Check 3: Relationship ID consistency
+        std::set<std::string> registryRelIds;
+        for (const auto& info : imageInfos) {
+            registryRelIds.insert(info.relationshipId);
+        }
+
+        std::set<std::string> xmlRelIdSet(xmlRelationshipIds.begin(), xmlRelationshipIds.end());
+
+        // Check for relationship IDs in registry but not in XML
+        for (const auto& registryRelId : registryRelIds) {
+            if (xmlRelIdSet.find(registryRelId) == xmlRelIdSet.end()) {
+                appendDbgMsg(dbgMsg, "[" + worksheetName + "] relationship ID '" + registryRelId + "' in registry but not in XML");
+                inconsistencyCount++;
+            }
+        }
+
+        // Check for relationship IDs in XML but not in registry
+        for (const auto& xmlRelId : xmlRelIdSet) {
+            if (registryRelIds.find(xmlRelId) == registryRelIds.end()) {
+                appendDbgMsg(dbgMsg, "[" + worksheetName + "] relationship ID '" + xmlRelId + "' in XML but not in registry");
+                inconsistencyCount++;
+            }
+        }
+
+    } catch (const std::exception& e) {
+        appendDbgMsg(dbgMsg, "[" + worksheetName + "] error during DrawingML consistency check: " + std::string(e.what()));
+        inconsistencyCount++;
+    }
+
+    return inconsistencyCount;
+}
+
+int XLWorksheet::verifyImagesVectorConsistency(std::string* dbgMsg) const
+{
+    int inconsistencyCount = 0;
+    std::string worksheetName = name();
+
+    // Check if DrawingML is valid
+    if (!m_drawingML.valid()) {
+        // If DrawingML is invalid but we have images in m_images, that's an inconsistency
+        if (!m_images.empty()) {
+            appendDbgMsg(dbgMsg, "[" + worksheetName + "] DrawingML is invalid but m_images has " + 
+                      std::to_string(m_images.size()) + " entries");
+            inconsistencyCount++;
+        }
+        return inconsistencyCount; // No further checks possible
+    }
+
+    try {
+        // Get DrawingML XML data
+        XMLNode rootNode = m_drawingML.getRootNode();
+        if (rootNode.empty()) {
+            // Empty root node is OK if there are no images
+            if (!m_images.empty()) {
+                appendDbgMsg(dbgMsg, "[" + worksheetName + "] DrawingML root node is empty but m_images has " + 
+                          std::to_string(m_images.size()) + " entries");
+                inconsistencyCount++;
+            }
+            return inconsistencyCount;
+        }
+
+        // Count anchors in XML
+        size_t xmlAnchorCount = 0;
+        std::vector<std::string> xmlImageIds;
+
+        for (auto anchor : rootNode.children()) {
+            if (matchesElementName(anchor.name(), "oneCellAnchor") || 
+                matchesElementName(anchor.name(), "twoCellAnchor")) {
+                xmlAnchorCount++;
+
+                // Extract image ID from XML
+                XMLNode pic = anchor.child("xdr:pic");
+                if (!pic.empty()) {
+                    XMLNode nvPicPr = pic.child("xdr:nvPicPr");
+                    if (!nvPicPr.empty()) {
+                        XMLNode cNvPr = nvPicPr.child("xdr:cNvPr");
+                        if (!cNvPr.empty()) {
+                            XMLAttribute idAttr = cNvPr.attribute("id");
+                            if (!idAttr.empty()) {
+                                xmlImageIds.push_back(idAttr.value());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Check 1: Anchor count consistency
+        if (xmlAnchorCount != m_images.size()) {
+            appendDbgMsg(dbgMsg, "[" + worksheetName + "] XML anchor count (" + std::to_string(xmlAnchorCount) + 
+                      ") does not match m_images count (" + std::to_string(m_images.size()) + ")");
+            inconsistencyCount++;
+        }
+
+        // Check 2: Image ID consistency
+        std::set<std::string> mImagesIds;
+        for (const auto& image : m_images) {
+            if (!image.id().empty()) {
+                mImagesIds.insert(image.id());
+            }
+        }
+
+        std::set<std::string> xmlImageIdSet(xmlImageIds.begin(), xmlImageIds.end());
+        
+        // Check for IDs in m_images but not in XML
+        for (const auto& mImageId : mImagesIds) {
+            if (xmlImageIdSet.find(mImageId) == xmlImageIdSet.end()) {
+                appendDbgMsg(dbgMsg, "[" + worksheetName + "] image ID '" + mImageId + "' in m_images but not in XML");
+                inconsistencyCount++;
+            }
+        }
+
+        // Check for IDs in XML but not in m_images
+        for (const auto& xmlId : xmlImageIdSet) {
+            if (mImagesIds.find(xmlId) == mImagesIds.end()) {
+                appendDbgMsg(dbgMsg, "[" + worksheetName + "] image ID '" + xmlId + "' in XML but not in m_images");
+                inconsistencyCount++;
+            }
+        }
+
+    } catch (const std::exception& e) {
+        appendDbgMsg(dbgMsg, "[" + worksheetName + "] error during m_images consistency check: " + std::string(e.what()));
+        inconsistencyCount++;
+    }
+
+    return inconsistencyCount;
+}
+
+int XLWorksheet::verifyBinaryImageData(std::string* dbgMsg) const
+{
+    int issueCount = 0;
+    std::string worksheetName = name();
+
+    // Only validate if we have images to check
+    if (m_imageRegistry.empty() && m_images.empty()) {
+        return issueCount; // No images to validate
+    }
+
+    try {
+        // Get the drawing relationships filename
+        std::string relsFilename = "xl/drawings/_rels/drawing" + std::to_string(sheetXmlNumber()) + ".xml.rels";
+
+        // Check if relationships file exists in archive
+        if (!parentDoc().hasRelationshipsFile(relsFilename)) {
+            // Check if we have images but no relationships file - this is a problem
+            if (m_images.size() > 0) {
+                appendDbgMsg(dbgMsg, "[" + worksheetName + "] has " + std::to_string(m_images.size()) + " images but no relationships file");
+                issueCount++;
+            }
+            // No relationships file means no binary data to validate
+            return issueCount;
+        }
+
+        // Read the relationships file
+        std::string relsContent = parentDoc().readRelationshipsFile(relsFilename);
+        if (relsContent.empty()) {
+            // Check if we have images but empty relationships file - this is a problem
+            if (m_images.size() > 0) {
+                appendDbgMsg(dbgMsg, "[" + worksheetName + "] has " + std::to_string(m_images.size()) + " images but relationships file is empty");
+                issueCount++;
+            }
+            return issueCount; // Empty relationships file means no binary data to validate
+        }
+
+        // Parse the relationships XML
+        pugi::xml_document relsDoc;
+        if (!relsDoc.load_string(relsContent.c_str())) {
+            appendDbgMsg(dbgMsg, "[" + worksheetName + "] failed to parse relationships XML");
+            issueCount++;
+            return issueCount;
+        }
+
+        // Collect unique image paths and verify binary files exist
+        std::set<std::string> referencedImagePaths;
+        
+        for (auto rel : relsDoc.document_element().children("Relationship")) {
+            std::string target = rel.attribute("Target").value();
+            std::string type = rel.attribute("Type").value();
+
+            // Only process image relationships
+            if (type == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image") {
+                referencedImagePaths.insert(target);
+            }
+        }
+
+        // Verify that each referenced binary file actually exists in the archive
+        for (const auto& imagePath : referencedImagePaths) {
+            // Convert relative path to absolute path for archive check
+            std::string absolutePath = "xl/media/" + imagePath.substr(imagePath.find_last_of('/') + 1);
+            
+            try {
+                std::string imageContent = parentDoc().readFile(absolutePath);
+                if (imageContent.empty()) {
+                    appendDbgMsg(dbgMsg, "[" + worksheetName + "] image file '" + absolutePath + "' referenced in relationships but binary file missing from archive");
+                    issueCount++;
+                }
+            } catch (const std::exception&) {
+                appendDbgMsg(dbgMsg, "[" + worksheetName + "] error checking image file '" + absolutePath + "' during relationships integrity verification");
+                issueCount++;
+            }
+        }
+
+    } catch (const std::exception& e) {
+        appendDbgMsg(dbgMsg, "[" + worksheetName + "] error during relationships integrity verification: " + std::string(e.what()));
+        issueCount++;
+    }
+
+    return issueCount;
+}
+
+std::vector<std::string> XLWorksheet::getImageIDs() const
+{
+    std::vector<std::string> imageIds;
+
+    // Get image IDs from m_images vector
+    for (const auto& image : m_images) {
+        if (!image.id().empty()) {
+            imageIds.push_back(image.id());
+        }
+    }
+
+    // Get image IDs from the image registry
+    if (m_drawingML.valid()) {
+        try {
+            auto imageInfos = getImageInfos();
+            for (const auto& info : imageInfos) {
+                if (!info.imageId.empty()) {
+                    imageIds.push_back(info.imageId);
+                }
+            }
+        } catch (const std::exception&) {
+            // Registry access failed, continue with m_images IDs only
+        }
+    }
+
+    // Sort the vector
+    std::sort(imageIds.begin(), imageIds.end());
+
+    // Remove duplicates using std::unique() and vector::erase()
+    auto it = std::unique(imageIds.begin(), imageIds.end());
+    imageIds.erase(it, imageIds.end());
+
+    return imageIds;
+}
+
+// Static const member definitions for XLWorksheet
+const XLImageInfo XLWorksheet::m_emptyImageInfo{};

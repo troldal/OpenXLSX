@@ -1437,18 +1437,16 @@ namespace OpenXLSX
         /**
          * @brief Get all image information at a specific cell
          * @param cellRef The cell reference (e.g., "A1", "B5")
-         * @return Const reference to vector of XLImageInfo objects at that cell
-         * @note Returns a const reference for efficiency - no copying of the vector
+         * @return Vector of XLImageInfo objects at that cell
          */
-        const std::vector<XLImageInfo>& getImageInfosAtCell(const std::string& cellRef) const;
+        std::vector<XLImageInfo> getImageInfosAtCell(const std::string& cellRef) const;
 
         /**
          * @brief Get all image information in a specific range
          * @param cellRange The cell range (e.g., "A1:B5", "C10:D20")
-         * @return Const reference to vector of XLImageInfo objects in that range
-         * @note Returns a const reference for efficiency - no copying of the vector
+         * @return Vector of XLImageInfo objects in that range
          */
-        const std::vector<XLImageInfo>& getImageInfosInRange(const std::string& cellRange) const;
+        std::vector<XLImageInfo> getImageInfosInRange(const std::string& cellRange) const;
 
         /**
          * @brief Get iterator to the beginning of the image information collection
@@ -1514,7 +1512,7 @@ namespace OpenXLSX
          * @param relationshipId The relationship ID of the image file to remove
          * @return True if the file was found and removed from archive
          */
-        bool removeImageFileFromArchive(const std::string& relationshipId) const;
+        bool removeImageFileFromArchiveIfUnreferenced(const std::string& relationshipId) const;
 
         /**
          * @brief Get image path from relationship ID
@@ -1528,7 +1526,7 @@ namespace OpenXLSX
          * @param imagePath The relative image path (e.g., "../media/image_img3.png")
          * @return True if the file was found and removed
          */
-        bool removeImageFileByPath(const std::string& imagePath) const;
+        bool removeImageFileIfUnreferenced(const std::string& imagePath) const;
 
     public:
         //----------------------------------------------------------------------------------------------------------------------
@@ -1542,6 +1540,14 @@ namespace OpenXLSX
          *       and the registry is empty), but this method can be called manually if needed.
          */
         void refreshImageRegistry() const;
+
+        /**
+         * @brief Populate m_images vector from existing XML data
+         * @note This method calls refreshImageRegistry() to get registry data,
+         *       then converts registry entries to XLImage objects and populates m_images.
+         *       Only populates if m_images is empty to avoid duplicates.
+         */
+        void populateImagesFromXML();
 
         /**
          * @brief Validate image registry for data integrity
@@ -1598,11 +1604,11 @@ namespace OpenXLSX
         void processTwoCellAnchor(const pugi::xml_node& anchor, const std::map<std::string, std::string>& relationshipMap) const;
 
         /**
-         * @brief Extract image ID from image file path
-         * @param imagePath The image file path (e.g., "../media/image_img1.png")
-         * @return The image ID (e.g., "img1")
+         * @brief Extract image ID from XML pic element
+         * @param pic The pic XML node containing the image information
+         * @return The image ID from the cNvPr id attribute
          */
-        std::string extractImageIdFromPath(const std::string& imagePath) const;
+        std::string extractImageIdFromXML(const pugi::xml_node& pic) const;
 
         /**
          * @brief Convert EMUs to pixels (approximate conversion)
@@ -1718,6 +1724,49 @@ namespace OpenXLSX
          */
         bool setActive_impl();
 
+    public:
+        /**
+         * @brief Get all image IDs in this worksheet
+         * @return Vector of all image ID strings, sorted and unique (duplicates removed)
+         */
+        std::vector<std::string> getImageIDs() const;
+
+        /**
+         * @brief Verify internal data integrity and class invariants
+         * @param dbgMsg Optional pointer to append debug message explaining any errors found
+         * @return Number of errors found (0 = EXIT_SUCCESS, data integrity OK)
+         */
+        int verifyData(std::string* dbgMsg = nullptr) const;
+
+        /**
+         * @brief Verify that all image IDs are unique within this worksheet
+         * @param dbgMsg Optional pointer to append debug message explaining any duplicate IDs found
+         * @return Number of duplicate IDs found (0 = all IDs are unique)
+         */
+        int verifyUniqueImageIDs(std::string* dbgMsg = nullptr) const;
+
+        /**
+         * @brief Verify DrawingML XML consistency with image registry data
+         * @param dbgMsg Optional pointer to append debug message explaining any inconsistencies found
+         * @return Number of inconsistencies found (0 = XML and registry are consistent)
+         */
+        int verifyDrawingMLConsistency(std::string* dbgMsg = nullptr) const;
+
+        /**
+         * @brief Verify m_images vector consistency with DrawingML XML data
+         * @param dbgMsg Optional pointer to append debug message explaining any inconsistencies found
+         * @return Number of inconsistencies found (0 = m_images and XML are consistent)
+         */
+        int verifyImagesVectorConsistency(std::string* dbgMsg = nullptr) const;
+
+        /**
+         * @brief Verify that binary image data exists in the archive
+         * @param dbgMsg Optional pointer to append debug message explaining any issues found
+         * @return Number of issues found (0 = all referenced image files exist in archive)
+         */
+        int verifyBinaryImageData(std::string* dbgMsg = nullptr) const;
+        bool isBinaryFileReferenced(const std::string& imagePath) const;
+
     private:   // ---------- Private Member Variables ---------- //
         XLRelationships m_relationships{};    /**< class handling the worksheet relationships */
         XLMergeCells    m_merges{};           /**< class handling the <mergeCells> */
@@ -1727,8 +1776,7 @@ namespace OpenXLSX
         XLTables        m_tables{};           /**< class handling the worksheet table settings */
         std::vector<XLImage> m_images{};      /**< vector storing images in the worksheet */
         mutable std::vector<XLImageInfo> m_imageRegistry{}; /**< vector storing parsed image metadata for query operations */
-        mutable XLImageInfo m_emptyImageInfo{}; /**< empty image info for returning when image not found */
-        mutable std::vector<XLImageInfo> m_emptyImageInfoVector{}; /**< empty image info vector for returning when no images found */
+        static const XLImageInfo m_emptyImageInfo; /**< empty image info for returning when image not found */
         const std::vector< std::string_view >& m_nodeOrder = XLWorksheetNodeOrder;  // worksheet XML root node required child sequence
     };
 
@@ -1983,6 +2031,8 @@ namespace OpenXLSX
                     if (worksheet.hasImagesInXML()) {
                         try {
                             std::ignore = worksheet.drawingML(); // Initialize DrawingML
+                            // Populate m_images vector from existing XML data
+                            worksheet.populateImagesFromXML();
                         } catch (...) {
                             // DrawingML initialization failed, but worksheet is still usable
                         }

@@ -496,6 +496,13 @@ namespace OpenXLSX
          */
         XLTables sheetTables(uint16_t sheetXmlNo);
 
+        /**
+         * @brief Verify internal data integrity and class invariants
+         * @param dbgMsg Optional pointer to append debug message explaining any errors found
+         * @return Number of errors found (0 = EXIT_SUCCESS, data integrity OK)
+         */
+        int verifyData(std::string* dbgMsg = nullptr) const;
+
     public:
         /**
          * @brief validate whether sheetName is a valid Excel worksheet name
@@ -523,6 +530,13 @@ namespace OpenXLSX
         int compare(const XLDocument& other, std::string* diffMsg = nullptr) const;
 
         /**
+         * @brief Verify XML data integrity for all XML files in m_data
+         * @param dbgMsg Optional pointer to append debug message explaining any errors found
+         * @return Number of errors found (0 = EXIT_SUCCESS, data integrity OK)
+         */
+        int verifyXLXmlData(std::string* dbgMsg = nullptr) const;
+
+        /**
          * @brief Add a drawing file to the archive
          * @param drawingFilename The filename for the drawing in the archive
          * @param drawingXml The drawing XML content
@@ -536,6 +550,21 @@ namespace OpenXLSX
          * @return Pointer to XLXmlData, or nullptr if not found
          */
         XLXmlData* getDrawingXmlData(const std::string& drawingFilename);
+
+        /**
+         * @brief Get XML data for a relationships file
+         * @param relsFilename The filename for the relationships file in the archive
+         * @return Pointer to XLXmlData, or nullptr if not found
+         */
+        XLXmlData* getRelationshipsXmlData(const std::string& relsFilename);
+
+        /**
+         * @brief Update relationships XML data in-memory without archive access
+         * @param relsFilename The filename for the relationships file
+         * @param relsXml The relationships XML content
+         * @return true if successful, false otherwise
+         */
+        bool updateRelationshipsXmlData(const std::string& relsFilename, const std::string& relsXml);
 
         /**
          * @brief Add a relationships file to the archive
@@ -572,6 +601,13 @@ namespace OpenXLSX
          * @return true if the entry was deleted successfully, false otherwise
          */
         bool deleteEntry(const std::string& entryPath);
+
+        /**
+         * @brief Check if a binary file is referenced by any relationships in any worksheet
+         * @param imagePath The relative image path (e.g., "../media/image_3.gif")
+         * @return True if the file is referenced by at least one relationship in any worksheet
+         */
+        bool isBinaryFileReferenced(const std::string& imagePath) const;
 
         /**
          * @brief
@@ -676,8 +712,6 @@ namespace OpenXLSX
         XLStyles        m_styles {};           /**< A pointer to the document styles object*/
         XLWorkbook      m_workbook {};         /**< A pointer to the workbook object */
         IZipArchive     m_archive {};          /**<  */
-        
-        mutable uint32_t m_globalImageCounter {0}; /**< Global counter for unique image IDs across all worksheets */
     };
 
 

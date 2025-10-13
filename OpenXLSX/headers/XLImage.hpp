@@ -188,15 +188,17 @@ namespace OpenXLSX
     // ========== Global Helper Functions ========== //
     
     /**
-     * @brief Helper function to append difference messages for debugging
-     * @param diffMsg Optional pointer to append difference message (up to 16384 characters)
+     * @brief Helper function to append debug messages for debugging
+     * @param dbgMsg Optional pointer to append debug message (up to 16384 characters)
      * @param msg The message to append
      */
-    inline void appendDiff(std::string* diffMsg, const std::string& msg)
+    inline void appendDbgMsg(std::string* dbgMsg, const std::string& msg)
     {
-        if (diffMsg && diffMsg->length() < 16000) { // Leave some buffer
-            if (!diffMsg->empty()) *diffMsg += "; ";
-            *diffMsg += msg;
+        if (dbgMsg && dbgMsg->length() < 16000) { // Leave some buffer
+            if (!dbgMsg->empty()){
+                dbgMsg->append("\n  ");
+            }
+            dbgMsg->append(msg);
         }
     }
 
@@ -490,6 +492,13 @@ namespace OpenXLSX
          * @return 0 if identical, <0 if this precedes other, >0 if this follows other
          */
         int compare(const XLImage& other, std::string* diffMsg = nullptr) const;
+
+        /**
+         * @brief Verify internal data integrity and class invariants
+         * @param dbgMsg Optional pointer to append debug message explaining any errors found
+         * @return Number of errors found (0 = EXIT_SUCCESS, data integrity OK)
+         */
+        int verifyData(std::string* dbgMsg = nullptr) const;
 
     private:
         std::vector<uint8_t> m_imageData;     /**< Binary image data */

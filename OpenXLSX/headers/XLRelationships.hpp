@@ -402,6 +402,13 @@ namespace OpenXLSX {
          */
         void print(std::basic_ostream<char>& ostr) const;
 
+        /**
+         * @brief Verify internal data integrity and class invariants
+         * @param dbgMsg Optional pointer to append debug message explaining any errors found
+         * @return Number of errors found (0 = EXIT_SUCCESS, data integrity OK)
+         */
+        int verifyData(std::string* dbgMsg = nullptr) const;
+
         // ---------- Protected Member Functions ---------- //
     protected:
 

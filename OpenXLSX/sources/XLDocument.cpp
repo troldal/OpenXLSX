@@ -1505,6 +1505,56 @@ XLXmlData* XLDocument::getDrawingXmlData(const std::string& drawingFilename)
 }
 
 /**
+ * @details Get XML data for a relationships file
+ */
+XLXmlData* XLDocument::getRelationshipsXmlData(const std::string& relsFilename)
+{
+    XLXmlData* result = getXmlData(relsFilename, true); // Force loading the XML data
+    
+    if (!result) {
+        // Try to load from archive if not in cache
+        if (hasRelationshipsFile(relsFilename)) {
+            std::string relsContent = readRelationshipsFile(relsFilename);
+            if (!relsContent.empty()) {
+                // Add to m_data cache
+                m_data.emplace_back(this, relsFilename, relsContent, XLContentType::Relationships);
+                result = &m_data.back();
+            }
+        }
+    }
+    
+    return result;
+}
+
+/**
+ * @details Update relationships XML data in-memory without archive access
+ */
+bool XLDocument::updateRelationshipsXmlData(const std::string& relsFilename, const std::string& relsXml)
+{
+    try {
+        // Get existing XLXmlData or create new one
+        XLXmlData* relsXmlData = getRelationshipsXmlData(relsFilename);
+        
+        if (!relsXmlData) {
+            // Create new XLXmlData entry if it doesn't exist
+            m_data.emplace_back(this, relsFilename, "", XLContentType::Relationships);
+            relsXmlData = &m_data.back();
+        }
+        
+        // Update the XML data using setRawData()
+        relsXmlData->setRawData(relsXml);
+        
+        // Add content type override if needed
+        m_contentTypes.addOverride("/" + relsFilename, XLContentType::Relationships);
+        
+        return true;
+    }
+    catch (const std::exception&) {
+        return false;
+    }
+}
+
+/**
  * @details Add a relationships file to the archive
  */
 bool XLDocument::addRelationshipsFile(const std::string& relsFilename, const std::string& relsXml)
@@ -1581,6 +1631,30 @@ bool XLDocument::deleteEntry(const std::string& entryPath)
         // Return false if there's an error
     }
     return false;
+}
+
+bool XLDocument::isBinaryFileReferenced(const std::string& imagePath) const
+{
+    try {
+        // Get all worksheet names
+        auto sheetNames = m_workbook.worksheetNames();
+        
+        // Check each worksheet's relationships
+        for (const auto& sheetName : sheetNames) {
+            // Use const_cast to access non-const worksheet() method
+            auto worksheet = const_cast<XLDocument*>(this)->m_workbook.worksheet(sheetName);
+            
+            // Check if this worksheet references the binary file
+            if (worksheet.isBinaryFileReferenced(imagePath)) {
+                return true; // Found a reference, early exit
+            }
+        }
+        
+        return false; // No references found in any worksheet
+    }
+    catch (const std::exception&) {
+        return false; // Error occurred, assume not referenced
+    }
 }
 
 /**
@@ -1919,7 +1993,7 @@ void XLDocument::loadAllXmlFilesFromArchive()
         if (path.length() > 0 && path[0] == '/') {
             path = path.substr(1);
         }
-        
+
         // Skip if already loaded
         if (hasXmlData(path)) {
             continue;
@@ -1929,7 +2003,14 @@ void XLDocument::loadAllXmlFilesFromArchive()
         bool shouldLoad = false;
         XLContentType contentType = item.type();
         
-        if (path.length() >= 4 && path.substr(path.length() - 4) == ".xml") {
+        // Extract file extension
+        std::string extension = "";
+        size_t dotPos = path.find_last_of('.');
+        if (dotPos != std::string::npos) {
+            extension = path.substr(dotPos);
+        }
+        
+        if (extension == ".xml" || extension == ".rels") {
             // Load drawing files and other safe XML files
             switch (contentType) {
                 case XLContentType::Drawing:
@@ -1937,6 +2018,7 @@ void XLDocument::loadAllXmlFilesFromArchive()
                 case XLContentType::Comments:
                 case XLContentType::Table:
                 case XLContentType::VMLDrawing:
+                case XLContentType::Relationships:
                     shouldLoad = true;
                     break;
                 default:
@@ -1969,7 +2051,6 @@ void XLDocument::loadAllXmlFilesFromArchive()
  */
 XLXmlData* XLDocument::getXmlData(const std::string& path, bool doNotThrow)
 {
-    // avoid duplication of code: use const_cast to invoke the const function overload and return a non-const value
     return const_cast<XLXmlData *>(const_cast<XLDocument const *>(this)->getXmlData(path, doNotThrow));
 }
 
@@ -2144,14 +2225,6 @@ namespace OpenXLSX
     }
 
     /**
-     * @details Generate the next globally unique image ID for this document
-     */
-    std::string XLDocument::generateNextImageId() const
-    {
-        return "img" + std::to_string(++m_globalImageCounter);
-    }
-
-    /**
      * @details Compare two documents for debugging
      */
     int XLDocument::compare(const XLDocument& other, std::string* diffMsg) const
@@ -2162,7 +2235,7 @@ namespace OpenXLSX
         std::string otherPath = other.path();
         int pathCompare = thisPath.compare(otherPath);
         if (pathCompare != 0) {
-            appendDiff(diffMsg, "document path differs: '" + thisPath + "' vs '" + otherPath + "'");
+            appendDbgMsg(diffMsg, "document path differs: '" + thisPath + "' vs '" + otherPath + "'");
             return pathCompare;
         }
 
@@ -2173,7 +2246,7 @@ namespace OpenXLSX
             auto otherSheetNames = other.m_workbook.sheetNames();
             
             if (thisSheetNames.size() != otherSheetNames.size()) {
-                appendDiff(diffMsg, "worksheet count differs: " + std::to_string(thisSheetNames.size()) + 
+                appendDbgMsg(diffMsg, "worksheet count differs: " + std::to_string(thisSheetNames.size()) + 
                           " vs " + std::to_string(otherSheetNames.size()));
                 return thisSheetNames.size() < otherSheetNames.size() ? -1 : 1;
             }
@@ -2181,29 +2254,28 @@ namespace OpenXLSX
             // Compare each worksheet
             for (size_t i = 0; i < thisSheetNames.size(); ++i) {
                 if (thisSheetNames[i] != otherSheetNames[i]) {
-                    appendDiff(diffMsg, "worksheet name differs at index " + std::to_string(i) + 
+                    appendDbgMsg(diffMsg, "worksheet name differs at index " + std::to_string(i) + 
                               ": '" + thisSheetNames[i] + "' vs '" + otherSheetNames[i] + "'");
                     return thisSheetNames[i].compare(otherSheetNames[i]);
                 }
 
                 // Compare worksheet content
                 try {
-                    // Use const_cast to access non-const worksheet method
-                    XLWorksheet thisSheet = const_cast<XLDocument*>(this)->m_workbook.worksheet(thisSheetNames[i]);
-                    XLWorksheet otherSheet = const_cast<XLDocument*>(&other)->m_workbook.worksheet(otherSheetNames[i]);
+                    const XLWorksheet thisSheet = const_cast<XLDocument*>(this)->m_workbook.worksheet(thisSheetNames[i]);
+                    const XLWorksheet otherSheet = const_cast<XLDocument*>(&other)->m_workbook.worksheet(otherSheetNames[i]);
                     
                     int sheetCompare = thisSheet.compare(otherSheet, diffMsg);
                     if (sheetCompare != 0) {
-                        appendDiff(diffMsg, "worksheet '" + thisSheetNames[i] + "' differs");
+                        appendDbgMsg(diffMsg, "worksheet '" + thisSheetNames[i] + "' differs");
                         return sheetCompare;
                     }
                 } catch (const std::exception&) {
-                    appendDiff(diffMsg, "error comparing worksheet '" + thisSheetNames[i] + "'");
+                    appendDbgMsg(diffMsg, "error comparing worksheet '" + thisSheetNames[i] + "'");
                     return -1;
                 }
             }
         } else if (m_workbook.valid() != other.m_workbook.valid()) {
-            appendDiff(diffMsg, "workbook validity differs: " + std::string(m_workbook.valid() ? "valid" : "invalid") + 
+            appendDbgMsg(diffMsg, "workbook validity differs: " + std::string(m_workbook.valid() ? "valid" : "invalid") + 
                       " vs " + std::string(other.m_workbook.valid() ? "valid" : "invalid"));
             return m_workbook.valid() ? 1 : -1;
         }
@@ -2214,7 +2286,7 @@ namespace OpenXLSX
             bool thisDocRelValid = m_docRelationships.valid();
             bool otherDocRelValid = other.m_docRelationships.valid();
             if (thisDocRelValid != otherDocRelValid) {
-                appendDiff(diffMsg, "document relationships validity differs: " + std::string(thisDocRelValid ? "valid" : "invalid") + 
+                appendDbgMsg(diffMsg, "document relationships validity differs: " + std::string(thisDocRelValid ? "valid" : "invalid") + 
                           " vs " + std::string(otherDocRelValid ? "valid" : "invalid"));
                 return thisDocRelValid ? 1 : -1;
             }
@@ -2222,12 +2294,12 @@ namespace OpenXLSX
             bool thisWbkRelValid = m_wbkRelationships.valid();
             bool otherWbkRelValid = other.m_wbkRelationships.valid();
             if (thisWbkRelValid != otherWbkRelValid) {
-                appendDiff(diffMsg, "workbook relationships validity differs: " + std::string(thisWbkRelValid ? "valid" : "invalid") + 
+                appendDbgMsg(diffMsg, "workbook relationships validity differs: " + std::string(thisWbkRelValid ? "valid" : "invalid") + 
                           " vs " + std::string(otherWbkRelValid ? "valid" : "invalid"));
                 return thisWbkRelValid ? 1 : -1;
             }
         } catch (const std::exception&) {
-            appendDiff(diffMsg, "error comparing document relationships");
+            appendDbgMsg(diffMsg, "error comparing document relationships");
             return -1;
         }
 
@@ -2237,12 +2309,12 @@ namespace OpenXLSX
             bool thisContentTypeValid = m_contentTypes.valid();
             bool otherContentTypeValid = other.m_contentTypes.valid();
             if (thisContentTypeValid != otherContentTypeValid) {
-                appendDiff(diffMsg, "content types validity differs: " + std::string(thisContentTypeValid ? "valid" : "invalid") + 
+                appendDbgMsg(diffMsg, "content types validity differs: " + std::string(thisContentTypeValid ? "valid" : "invalid") + 
                           " vs " + std::string(otherContentTypeValid ? "valid" : "invalid"));
                 return thisContentTypeValid ? 1 : -1;
             }
         } catch (const std::exception&) {
-            appendDiff(diffMsg, "error comparing content types");
+            appendDbgMsg(diffMsg, "error comparing content types");
             return -1;
         }
 
@@ -2256,7 +2328,59 @@ namespace OpenXLSX
         // - Workbook relationships (m_wbkRelationships)
 
         // Documents are identical
-        return 0;
+    return 0;
+}
+
+int XLDocument::verifyXLXmlData(std::string* dbgMsg) const
+{
+    int errorCount = 0;
+    
+    // Check each XLXmlData object for duplicates using verifyData()
+    for (const auto& xmlData : m_data) {
+        errorCount += xmlData.verifyData(dbgMsg);
+    }
+    
+    return errorCount;
+}
+
+int XLDocument::verifyData(std::string* dbgMsg) const
+    {
+        int errorCount = 0;
+
+        // Verify sub-objects that have verifyData() implemented
+        errorCount += m_contentTypes.verifyData(dbgMsg);
+        errorCount += m_docRelationships.verifyData(dbgMsg);
+        errorCount += m_wbkRelationships.verifyData(dbgMsg);
+        
+        // Verify all XML files in m_data (complete XML forest coverage)
+        errorCount += verifyXLXmlData(dbgMsg);
+        
+        // TODO: Add verifyData() methods to remaining classes
+        // errorCount += m_workbook.verifyData(dbgMsg);
+        // errorCount += m_coreProperties.verifyData(dbgMsg);
+        // errorCount += m_appProperties.verifyData(dbgMsg);
+        // errorCount += m_styles.verifyData(dbgMsg);
+        // errorCount += m_sharedStrings.verifyData(dbgMsg);
+
+
+        if (m_workbook.valid()) {
+            try {
+                auto sheetNames = m_workbook.worksheetNames();
+                for (const auto& sheetName : sheetNames) {
+                    const XLWorksheet worksheet = const_cast<XLDocument*>(this)->m_workbook.worksheet(sheetName);
+                    int worksheetErrors = worksheet.verifyData(dbgMsg);
+                    if (worksheetErrors > 0) {
+                        appendDbgMsg(dbgMsg, "worksheet '" + sheetName + "' has " + std::to_string(worksheetErrors) + " errors");
+                        errorCount += worksheetErrors;
+                    }
+                }
+            } catch (const std::exception&) {
+                appendDbgMsg(dbgMsg, "error accessing worksheets");
+                errorCount++;
+            }
+        }
+
+        return errorCount;
     }
 
 }    // namespace OpenXLSX
