@@ -435,13 +435,13 @@ namespace
 
 }    // namespace
 
-XLDocument::XLDocument(const IZipArchive& zipArchive) : m_xmlSavingDeclaration{}, m_archive(zipArchive) {}
+XLDocument::XLDocument(const IZipArchive& zipArchive) : m_xmlSavingDeclaration{}, m_archive(zipArchive), m_imageManager(this) {}
 
 /**
  * @details An alternative constructor, taking a std::string with the path to the .xlsx package as an argument.
  */
 XLDocument::XLDocument(const std::string& docPath, const IZipArchive& zipArchive)
-    : m_xmlSavingDeclaration{}, m_archive(zipArchive)
+    : m_xmlSavingDeclaration{}, m_archive(zipArchive), m_imageManager(this)
 {
     open(docPath); 
 }
@@ -764,6 +764,10 @@ void XLDocument::saveAs(const std::string& fileName, bool forceOverwrite)
         m_archive.addEntry(item.getXmlPath(),
             item.getRawData(XLXmlSavingDeclaration(m_xmlSavingDeclaration.version(), m_xmlSavingDeclaration.encoding(),xmlIsStandalone)));
     }
+    
+    // Prune unused images before saving
+    m_imageManager.prune();
+    
     m_archive.save(m_filePath);
 }
 
@@ -1774,6 +1778,10 @@ bool XLDocument::execCommand(const XLCommand& command)
             m_appProperties.deleteSheetName(command.getParam<std::string>("sheetName"));
             std::string sheetPath = m_wbkRelationships.relationshipById(command.getParam<std::string>("sheetID")).target();
             if (sheetPath.substr(0, 4) != "/xl/") sheetPath = "/xl/" + sheetPath; // 2024-12-15: respect absolute sheet path
+            
+            // Clean up embedded images for this worksheet before deleting the sheet
+            m_imageManager.eraseEmbImgsForSheetName(command.getParam<std::string>("sheetName"));
+            
             m_archive.deleteEntry(sheetPath.substr(1));
             m_contentTypes.deleteOverride(sheetPath);
             m_wbkRelationships.deleteRelationship(command.getParam<std::string>("sheetID"));

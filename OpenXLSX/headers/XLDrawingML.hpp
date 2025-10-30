@@ -12,13 +12,48 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+#include <utility>    // std::pair
 
 // ===== OpenXLSX Includes ===== //
 #include "XLXmlFile.hpp"
-#include "XLImage.hpp"
+#include "XLCellReference.hpp"
 
 namespace OpenXLSX
 {
+    // Forward declarations
+    class XLEmbeddedImage;
+    class XLImageAnchor;
+    enum class XLMimeType : uint8_t;
+
+    /**
+     * @brief Image anchor type enumeration
+     * @details Defines the types of image anchors supported in Excel worksheets
+     */
+    enum class XLImageAnchorType : uint8_t {
+        OneCellAnchor,  /**< Single cell anchor - image positioned relative to one cell */
+        TwoCellAnchor,  /**< Two cell anchor - image spans between two cells */
+        Unknown         /**< Unknown or unsupported anchor type */
+    };
+
+    /**
+     * @brief Utility functions for XLImageAnchorType enum
+     */
+    namespace XLImageAnchorUtils {
+        /**
+         * @brief Convert anchor type string to XLImageAnchorType enum
+         * @param anchorTypeStr Anchor type string (e.g., "oneCellAnchor", "twoCellAnchor")
+         * @return Corresponding XLImageAnchorType enum value
+         */
+        XLImageAnchorType stringToAnchorType(const std::string& anchorTypeStr);
+
+        /**
+         * @brief Convert XLImageAnchorType enum to anchor type string
+         * @param anchorType XLImageAnchorType enum value
+         * @return Corresponding anchor type string (e.g., "oneCellAnchor", "twoCellAnchor")
+         */
+        std::string anchorTypeToString(XLImageAnchorType anchorType);
+    }
+
     /**
      * @brief Class for managing DrawingML drawings in worksheets
      */
@@ -36,49 +71,9 @@ namespace OpenXLSX
         XLDrawingML& operator=(const XLDrawingML& other) = default;
         XLDrawingML& operator=(XLDrawingML&& other) noexcept = default;
 
+        void addImage(const XLEmbeddedImage& embImage);
+
         // ===== Public Methods ===== //
-        /**
-         * @brief Add an image to the drawing
-         * @param image The image to add
-         * @param row The row number (1-based)
-         * @param column The column number (1-based)
-         * @param relationshipId The relationship ID for the image
-         */
-        void addImage(const XLImage& image, uint32_t row, uint16_t column, const std::string& relationshipId);
-
-        /**
-         * @brief Add an image to the drawing with precise positioning
-         * @param image The image to add
-         * @param row The row number (1-based)
-         * @param column The column number (1-based)
-         * @param relationshipId The relationship ID for the image
-         * @param rowOffset Offset from the top-left of the cell in EMUs
-         * @param colOffset Offset from the top-left of the cell in EMUs
-         */
-        void addImageWithOffset(const XLImage& image, uint32_t row, uint16_t column, 
-                               const std::string& relationshipId,
-                               int32_t rowOffset = 0, int32_t colOffset = 0);
-
-        /**
-         * @brief Add an image to the drawing with two-cell anchoring
-         * @param image The image to add
-         * @param fromRow Starting row number (1-based)
-         * @param fromCol Starting column number (1-based)
-         * @param toRow Ending row number (1-based)
-         * @param toCol Ending column number (1-based)
-         * @param relationshipId The relationship ID for the image
-         * @param fromRowOffset Offset from top-left of starting cell in EMUs
-         * @param fromColOffset Offset from top-left of starting cell in EMUs
-         * @param toRowOffset Offset from top-left of ending cell in EMUs
-         * @param toColOffset Offset from top-left of ending cell in EMUs
-         */
-        void addImageTwoCellAnchor(const XLImage& image,
-                                  uint32_t fromRow, uint16_t fromCol,
-                                  uint32_t toRow, uint16_t toCol,
-                                  const std::string& relationshipId,
-                                  int32_t fromRowOffset = 0, int32_t fromColOffset = 0,
-                                  int32_t toRowOffset = 0, int32_t toColOffset = 0);
-
         /**
          * @brief Get the number of images in the drawing
          * @return Number of images
@@ -98,21 +93,34 @@ namespace OpenXLSX
          */
         XMLNode getRootNode() const;
 
+        // ===== Static Utility Functions ===== //
+        
+        /**
+         * @brief Create XML anchor node from XLImageAnchor data
+         * @param rootNode The root XML node to append the anchor to
+         * @param imgAnchorInfo The anchor data to convert to XML
+         * @return The created anchor XML node
+         */
+        static XMLNode createXMLNode(XMLNode rootNode, const XLImageAnchor& imgAnchorInfo);
+        
+        /**
+         * @brief Delete XML anchor node by relationship ID
+         * @param rootNode The root XML node to search in
+         * @param relationshipId The relationship ID to find and delete
+         * @return True if the anchor was found and deleted, false otherwise
+         */
+        static bool deleteXMLNode(XMLNode rootNode, const std::string& relationshipId);
+        
+        /**
+         * @brief Parse XML anchor node into XLImageAnchor data
+         * @param anchorXMLNode The XML node containing anchor data
+         * @param imgAnchorInfo Pointer to XLImageAnchor to populate
+         * @return True if parsing was successful, false otherwise
+         */
+        static bool parseXMLNode(const pugi::xml_node& anchorXMLNode, XLImageAnchor* imgAnchorInfo);
+
     private:
         // ===== Private Methods ===== //
-        /**
-         * @brief Convert EMUs to Excel units
-         * @param emus EMU value
-         * @return Excel unit value
-         */
-        uint32_t emusToExcelUnits(uint32_t emus) const;
-
-        /**
-         * @brief Convert points to EMUs
-         * @param points Point value
-         * @return EMU value
-         */
-        uint32_t pointsToEmus(double points) const;
 
         /**
          * @brief Calculate cell position in Excel units
@@ -121,6 +129,161 @@ namespace OpenXLSX
          * @return Position in Excel units
          */
         uint32_t calculateCellPosition(uint32_t row, uint16_t column) const;
+
+    };
+
+    // ========== XLImageAnchor Class ========== //
+    
+    /**
+     * @brief Represents data from <oneCellAnchor> and <twoCellAnchor> XML elements
+     * 
+     * This class directly maps to the XML structure found in Excel's DrawingML
+     * anchor elements. All data members correspond exactly to XML attributes and
+     * text content, with no automatic coordinate conversions.
+     */
+    class OPENXLSX_EXPORT XLImageAnchor
+    {
+    public:
+        // ===== Anchor Type and Identification ===== //
+        XLImageAnchorType anchorType;  /**< OneCellAnchor or TwoCellAnchor */
+        std::string imageId;           /**< Worksheet-level image identifier (e.g., "1", "2")
+                                            from xdr:cNvPr id attribute. Maps to XLEmbeddedImage::m_id. 
+                                            XML: <xdr:cNvPr id="1" name="Picture 1"/> */
+        std::string relationshipId;    /**< Relationship ID from a:blip r:embed attribute */
+        
+        // ===== Cell Positioning (From Element) - Direct XML mapping ===== //
+        uint32_t fromRow;             /**< Row number from xdr:row (0-based in XML) */
+        uint16_t fromCol;             /**< Column number from xdr:col (0-based in XML) */
+        int32_t fromRowOffset;        /**< Row offset from xdr:rowOff (in EMUs) */
+        int32_t fromColOffset;        /**< Column offset from xdr:colOff (in EMUs) */
+        
+        // ===== Cell Positioning (To Element) - for twoCellAnchor ===== //
+        uint32_t toRow;               /**< To row number from xdr:row (0-based in XML) */
+        uint16_t toCol;               /**< To column number from xdr:col (0-based in XML) */
+        int32_t toRowOffset;          /**< To row offset from xdr:rowOff (in EMUs) */
+        int32_t toColOffset;          /**< To column offset from xdr:colOff (in EMUs) */
+        
+        // ===== Display Dimensions (xdr:ext element) ===== //
+        uint32_t displayWidthEMUs;    /**< Display width from xdr:ext cx attribute (in EMUs) */
+        uint32_t displayHeightEMUs;   /**< Display height from xdr:ext cy attribute (in EMUs) */
+        
+        // ===== Actual Image Dimensions (a:xfrm/a:ext element) ===== //
+        uint32_t actualWidthEMUs;     /**< Actual image width from a:xfrm/a:ext cx (in EMUs) */
+        uint32_t actualHeightEMUs;    /**< Actual image height from a:xfrm/a:ext cy (in EMUs) */
+        
+        // ===== Constructors ===== //
+        XLImageAnchor() = default;
+        
+        /**
+         * @brief Construct from oneCellAnchor data
+         * @param imageId Image identifier
+         * @param relationshipId Relationship identifier
+         * @param row Row number (0-based, as in XML)
+         * @param col Column number (0-based, as in XML)
+         * @param rowOffset Row offset in EMUs
+         * @param colOffset Column offset in EMUs
+         * @param displayWidth Display width in EMUs
+         * @param displayHeight Display height in EMUs
+         */
+        XLImageAnchor(const std::string& imageId, const std::string& relationshipId,
+                     uint32_t row, uint16_t col, int32_t rowOffset, int32_t colOffset,
+                     uint32_t displayWidth, uint32_t displayHeight);
+        
+        /**
+         * @brief Construct from twoCellAnchor data
+         * @param imageId Image identifier
+         * @param relationshipId Relationship identifier
+         * @param fromRow From row number (0-based, as in XML)
+         * @param fromCol From column number (0-based, as in XML)
+         * @param toRow To row number (0-based, as in XML)
+         * @param toCol To column number (0-based, as in XML)
+         * @param fromRowOffset From row offset in EMUs
+         * @param fromColOffset From column offset in EMUs
+         * @param toRowOffset To row offset in EMUs
+         * @param toColOffset To column offset in EMUs
+         * @param displayWidth Display width in EMUs
+         * @param displayHeight Display height in EMUs
+         */
+        XLImageAnchor(const std::string& imageId, const std::string& relationshipId,
+                     uint32_t fromRow, uint16_t fromCol, uint32_t toRow, uint16_t toCol,
+                     int32_t fromRowOffset, int32_t fromColOffset,
+                     int32_t toRowOffset, int32_t toColOffset,
+                     uint32_t displayWidth, uint32_t displayHeight);
+
+        void reset();
+
+        void initOneCell( const XLCellReference& cellRef, int32_t rowOffset = 0,
+            int32_t colOffset = 0);
+
+        void initTwoCell( const XLCellReference& fromCellRef, 
+            const XLCellReference& toCellRef, int32_t fromROffset = 0,
+            int32_t fromCOffset = 0, int32_t toROffset = 0, int32_t toCOffset = 0);
+
+        
+        // ===== Utility Methods ===== //
+        
+        XLCellReference getFromCellReference() const;
+
+        void setFromCellReference( const XLCellReference& fromCellRef );
+
+        XLCellReference getToCellReference() const;
+
+        void setToCellReference( const XLCellReference& toCellRef );
+
+        void setDisplaySizeWithAspectRatio(
+            const uint32_t& widthPixels, const uint32_t& heightPixels,
+            const uint32_t& maxWidthEmus, const uint32_t& maxHeightEmus );
+
+        void setDisplaySizeWithAspectRatio(
+            const std::vector<uint8_t>& imageData, const XLMimeType& mimeType,
+            const uint32_t& maxWidthEmus, const uint32_t& maxHeightEmus );
+
+        void setDisplaySizeWithAspectRatio(
+            const std::string& imageFileName, const XLMimeType& mimeType,
+            const uint32_t& maxWidthEmus, const uint32_t& maxHeightEmus );
+
+        /**
+         * @brief Get the primary anchor cell reference (converts 0-based to 1-based)
+         * @return Cell reference string (e.g., "A2")
+         */
+        std::string getAnchorCellReference() const;
+        
+        /**
+         * @brief Check if this is a twoCellAnchor
+         * @return True if twoCellAnchor, false if oneCellAnchor
+         */
+        bool isTwoCell() const;
+        
+        /**
+         * @brief Get display dimensions as a pair
+         * @return Pair of (width, height) in EMUs
+         */
+        std::pair<uint32_t, uint32_t> getDisplayDimensions() const;
+        
+        /**
+         * @brief Get actual image dimensions as a pair
+         * @return Pair of (width, height) in EMUs
+         */
+        std::pair<uint32_t, uint32_t> getActualDimensions() const;
+        
+        /**
+         * @brief Set actual image dimensions
+         * @param width Width in EMUs
+         * @param height Height in EMUs
+         */
+        void setActualDimensions(uint32_t width, uint32_t height);
+        
+        /**
+         * @brief Convert EMUs to pixels for display dimensions
+         * @return Pair of (width, height) in pixels
+         */
+        std::pair<uint32_t, uint32_t> getDisplayDimensionsPixels() const;
+        
+        /**
+         * @brief Convert EMUs to pixels for actual dimensions
+         * @return Pair of (width, height) in pixels
+         */
+        std::pair<uint32_t, uint32_t> getActualDimensionsPixels() const;
     };
 }
 

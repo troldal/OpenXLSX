@@ -72,6 +72,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLTables.hpp"
 #include "XLWorkbook.hpp"
 #include "XLXmlData.hpp"
+#include "XLImage.hpp"
 #include "XLZipArchive.hpp"
 
 namespace OpenXLSX
@@ -682,6 +683,19 @@ namespace OpenXLSX
          */
         void loadAllXmlFilesFromArchive();
 
+    public:
+        /**
+         * @brief Get the image manager for this document
+         * @return Const reference to the XLImageManager
+         */
+        const XLImageManager& getImageManager() const { return m_imageManager; }
+
+        /**
+         * @brief Get the image manager for this document
+         * @return Reference to the XLImageManager
+         */
+        XLImageManager& getImageManager() { return m_imageManager; }
+
         /**
          * @brief
          * @param path
@@ -711,6 +725,7 @@ namespace OpenXLSX
         XLProperties    m_coreProperties {};   /**< A pointer to the Core properties object*/
         XLStyles        m_styles {};           /**< A pointer to the document styles object*/
         XLWorkbook      m_workbook {};         /**< A pointer to the workbook object */
+        XLImageManager  m_imageManager {this};    /**< A pointer to the image manager object */
         IZipArchive     m_archive {};          /**<  */
     };
 

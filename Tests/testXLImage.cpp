@@ -8,13 +8,13 @@
 
 using namespace OpenXLSX;
 
-TEST_CASE("XLImage", "[XLImage]")
+TEST_CASE("XLEmbeddedImage", "[XLEmbeddedImage]")
 {
     SECTION("Basic Image Embedding Test") {
         
         // Create a new workbook
         XLDocument doc;
-        doc.create("./testXLImage.xlsx");
+        doc.create("./testXLEmbeddedImage.xlsx");
         
         // Get the first worksheet and rename it
         XLWorksheet worksheet1 = doc.workbook().worksheet(1);
@@ -38,19 +38,16 @@ TEST_CASE("XLImage", "[XLImage]")
                 0x42, 0x60, 0x82
             };
             
-            // Create XLImage objects and load the PNG data
-            XLImage image1, image2, image3;
-            REQUIRE(image1.loadFromData(red1x1PNGData, "image/png"));
-            REQUIRE(image2.loadFromData(red1x1PNGData, "image/png"));
-            REQUIRE(image3.loadFromData(red1x1PNGData, "image/png"));
-            
-            // Add image to first worksheet
-            REQUIRE(worksheet1.addImage(image1, 2, 2)); // Row 2, Column 2
-            REQUIRE(worksheet1.addImage(image2, 5, 3)); // Row 5, Column 3
-            
-            // Add image to second worksheet
-            REQUIRE(worksheet2.addImage(image3, 1, 1)); // Row 1, Column 1
-            
+            const std::string imageId1 = worksheet1.embedImageFromImageData(
+                XLCellReference(2,2), red1x1PNGData, XLMimeType::PNG );
+            const std::string imageId2 = worksheet1.embedImageFromImageData(
+                XLCellReference(5,3), red1x1PNGData, XLMimeType::PNG );
+            const std::string imageId3 = worksheet2.embedImageFromImageData(
+                XLCellReference(1,1), red1x1PNGData, XLMimeType::PNG );
+            REQUIRE(!imageId1.empty());
+            REQUIRE(!imageId3.empty());
+            REQUIRE(!imageId3.empty());
+
             // Verify the document data integrity
             std::string dbgMsg;
             int result = doc.verifyData(&dbgMsg);
@@ -69,22 +66,22 @@ TEST_CASE("XLImage", "[XLImage]")
         doc.close();
         
         // Clean up
-        std::remove("./testXLImage.xlsx");
+        std::remove("./testXLEmbeddedImage.xlsx");
     }
 }
 
 /*
-COMPREHENSIVE XLImage UNIT TEST OUTLINE
+COMPREHENSIVE XLEmbeddedImage UNIT TEST OUTLINE
 =======================================
 
 This outline covers all functions related to embedded images in OpenXLSX:
 
 1. BASIC IMAGE CREATION AND EMBEDDING
-   - Test addImage() with different image formats (PNG, JPEG, GIF, BMP)
-   - Test addImage() with different data sources (vector<uint8_t>, file path)
-   - Test addImage() with different positioning (various row/column combinations)
-   - Test addImage() with different anchor types (oneCellAnchor, twoCellAnchor)
-   - Test addImage() with different sizing strategies (original, aspect ratio, exact dimensions)
+   - Test embedImage() with different image formats (PNG, JPEG, GIF, BMP)
+   - Test embedImage() with different data sources (vector<uint8_t>, file path)
+   - Test embedImage() with different positioning (various row/column combinations)
+   - Test embedImage() with different anchor types (oneCellAnchor, twoCellAnchor)
+   - Test embedImage() with different sizing strategies (original, aspect ratio, exact dimensions)
 
 2. IMAGE QUERY OPERATIONS
    - Test getImageInfos() - retrieve all images in worksheet

@@ -1,4 +1,4 @@
-/*
+﻿/*
 
    ____                               ____      ___ ____       ____  ____      ___
   6MMMMb                              `MM(      )M' `MM'      6MMMMb\`MM(      )M'
@@ -43,551 +43,690 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM    d'`MM.
  */
 
 // ===== External Includes ===== //
-#include <fstream>    // std::ifstream
-#include <sstream>    // std::stringstream
 #include <algorithm>  // std::find
 #include <cmath>      // std::round, std::fabs
+#include <iostream>    // std::ifstream
+#include <fstream>    // std::ifstream
+#include <set>    // std::stringstream
+#include <sstream>    // std::stringstream
 
 // ===== OpenXLSX Includes ===== //
 #include "XLImage.hpp"
+#include "XLDocument.hpp"
 #include "XLException.hpp"
+#include "XLCellReference.hpp"
+#include <memory>
+#include <list>
 
 using namespace OpenXLSX;
 
 namespace OpenXLSX
 {
-    // ========== XLImage Member Functions ========== //
+    //=============================================================================
+    // XLImage Implementation
+    //=============================================================================
+
+    XLImage::XLImage(XLDocument* parentDoc, size_t imageDataHash, XLMimeType mimeType, 
+                     const std::string& extension, const std::string& filePackagePath, 
+                     uint32_t widthPixels, uint32_t heightPixels)
+        : m_parentDoc(parentDoc)
+        , m_imageDataHash(imageDataHash)
+        , m_mimeType(mimeType)
+        , m_extension(extension)
+        , m_filePackagePath(filePackagePath)
+        , m_widthPixels(widthPixels)
+        , m_heightPixels(heightPixels)
+    {
+    }
+
+    std::vector<uint8_t> XLImage::getImageData() const
+    {
+        if (!m_parentDoc || m_filePackagePath.empty()) {
+            return {};
+        }
+        
+        try {
+            std::string dataStr = m_parentDoc->readFile(m_filePackagePath);
+            return std::vector<uint8_t>(dataStr.begin(), dataStr.end());
+        } catch (...) {
+            return {};
+        }
+    }
+
+    int XLImage::verifyData(std::string* dbgMsg) const
+    {
+        int issueCount = 0;
+        
+        if (!m_parentDoc) {
+            appendDbgMsg(dbgMsg, "XLImage: parentDoc is null");
+            issueCount++;
+            return issueCount;
+        }
+        
+        if (m_filePackagePath.empty()) {
+            appendDbgMsg(dbgMsg, "XLImage: filePackagePath is empty");
+            issueCount++;
+            return issueCount;
+        }
+        
+        // Get image data from archive
+        std::vector<uint8_t> imageData = getImageData();
+        if (imageData.empty()) {
+            appendDbgMsg(dbgMsg, "XLImage: image data is empty");
+            issueCount++;
+            return issueCount;
+        }
+        
+        // Verify hash matches
+        size_t computedHash = XLImageUtils::imageDataHash(imageData);
+        if (computedHash != m_imageDataHash) {
+            appendDbgMsg(dbgMsg, "XLImage: hash mismatch - stored: " + std::to_string(m_imageDataHash) + 
+                         ", computed: " + std::to_string(computedHash));
+            issueCount++;
+        }
+        
+        // Compute metadata from image data
+        XLMimeType computedMimeType = XLImageUtils::mimeTypeFromExtension(m_extension);
+        if (computedMimeType != m_mimeType) {
+            std::string storedMimeTypeStr = XLImageUtils::mimeTypeToString(m_mimeType);
+            std::string computedMimeTypeStr = XLImageUtils::mimeTypeToString(computedMimeType);
+            appendDbgMsg(dbgMsg, "XLImage: MIME type mismatch - stored: " + storedMimeTypeStr + 
+                         ", computed: " + computedMimeTypeStr);
+            issueCount++;
+        }
+        
+        // Get dimensions from image data
+        auto dimensions = XLImageUtils::getImageDimensions(imageData);
+        uint32_t computedWidth = dimensions.first;
+        uint32_t computedHeight = dimensions.second;
+        
+        if (computedWidth != m_widthPixels) {
+            appendDbgMsg(dbgMsg, "XLImage: width mismatch - stored: " + std::to_string(m_widthPixels) + 
+                         ", computed: " + std::to_string(computedWidth));
+            issueCount++;
+        }
+        if (computedHeight != m_heightPixels) {
+            appendDbgMsg(dbgMsg, "XLImage: height mismatch - stored: " + std::to_string(m_heightPixels) + 
+                         ", computed: " + std::to_string(computedHeight));
+            issueCount++;
+        }
+        
+        return issueCount;
+    }
+
+    //=============================================================================
+    // XLImageManager Implementation
+    //=============================================================================
+
+    XLImageManager::XLImageManager(XLDocument* parentDoc)
+        : m_parentDoc(parentDoc)
+    {
+    }
+
+    void XLImageManager::prune()
+    {
+        auto it = m_images.begin();
+        while (it != m_images.end()) {
+            if (!it->get() || it->use_count() <= 1) {
+                // Remove from archive if it has a file package path
+                if (it->get() && !it->get()->filePackagePath().empty()) {
+                    try {
+                        m_parentDoc->deleteEntry(it->get()->filePackagePath());
+                    } catch (...) {
+                        // Ignore deletion errors
+                    }
+                }
+                it = m_images.erase(it);
+            } else {
+                ++it;
+            }
+        }
+    }
+
+    XLImageShPtr XLImageManager::findOrAddImage(const std::string& packagePath, 
+                                                const std::vector<uint8_t>& imageData, 
+                                                XLContentType contentType)
+    {
+        // First, try to find existing image by data hash
+        XLImageShPtr existingImage = findImageByImageData(imageData);
+        if (existingImage) {
+            return existingImage;
+        }
+        
+        // Image doesn't exist, create new one
+        size_t imageDataHash = XLImageUtils::imageDataHash(imageData);
+        XLMimeType mimeType = XLImageUtils::contentTypeToMimeType(contentType);
+        std::string extension = XLImageUtils::extensionFromMimeType(mimeType);
+        
+        // Generate package filename
+        std::string packageImageFilename;
+        
+        if (!packagePath.empty()) {
+            // Use the provided package path (from XML when loading existing files)
+            packageImageFilename = packagePath;
+        } else {
+            // Generate unique package filename using efficient algorithm
+            packageImageFilename = generateUniquePackageFilename(extension);
+        }
+        
+        // Get image dimensions
+        auto dimensions = XLImageUtils::getImageDimensions(imageData);
+        uint32_t widthPixels = dimensions.first;
+        uint32_t heightPixels = dimensions.second;
+        
+        // Add image entry to document
+        if (!m_parentDoc->addImageEntry(packageImageFilename, imageData, contentType)) {
+            return nullptr;
+        }
+        
+        // Create new XLImage object
+        auto newImage = std::make_shared<XLImage>(m_parentDoc, imageDataHash, mimeType, extension,
+                                                  packageImageFilename, widthPixels, heightPixels);
+        
+        // Add to collection
+        m_images.push_back(newImage);
+        
+        return newImage;
+    }
+
+    XLImageShPtr XLImageManager::findImageByImageData(const std::vector<uint8_t>& imageData) const
+    {
+        size_t targetHash = XLImageUtils::imageDataHash(imageData);
+        
+        for (const auto& image : m_images) {
+            if (image && image->imageDataHash() == targetHash) {
+                return image;
+            }
+        }
+        
+        return nullptr;
+    }
+
+
+    std::string XLImageManager::generateUniquePackageFilename(const std::string& extension) const
+    {
+        // Collect all existing package filenames and extract base names (without extension)
+        std::vector<std::string> existingBaseNames;
+        for (const auto& image : m_images) {
+            if (image && !image->filePackagePath().empty()) {
+                std::string packagePath = image->filePackagePath();
+                // Extract filename from "xl/media/image1.png" -> "image1.png"
+                size_t lastSlash = packagePath.find_last_of('/');
+                if (lastSlash != std::string::npos) {
+                    std::string filename = packagePath.substr(lastSlash + 1);
+                    // Extract base name without extension: "image1.png" -> "image1"
+                    size_t lastDot = filename.find_last_of('.');
+                    if (lastDot != std::string::npos) {
+                        std::string baseName = filename.substr(0, lastDot);
+                        existingBaseNames.push_back(baseName);
+                    }
+                }
+            }
+        }
+        
+        // Sort the base names for efficient binary search
+        std::sort(existingBaseNames.begin(), existingBaseNames.end());
+        
+        // Find the next available image number
+        int imageNumber = 1;
+        std::string candidateBaseName;
+        
+        do {
+            candidateBaseName = "image" + std::to_string(imageNumber);
+            imageNumber++;
+        } while (std::binary_search(existingBaseNames.begin(), existingBaseNames.end(), candidateBaseName));
+        
+        // Return the unique package filename
+        return "xl/media/" + candidateBaseName + extension;
+    }
+
+
+    XLImageShPtr XLImageManager::findImageByFilePackagePath(const std::string& filePackagePath) const
+    {
+        for (const auto& image : m_images) {
+            if (image && image->filePackagePath() == filePackagePath) {
+                return image;
+            }
+        }
+        
+        return nullptr;
+    }
+
+    size_t XLImageManager::getImageCount() const
+    {
+        return m_images.size();
+    }
+
+    std::vector<XLImageShPtr>::const_iterator XLImageManager::begin() const
+    {
+        return m_images.begin();
+    }
+
+    std::vector<XLImageShPtr>::const_iterator XLImageManager::end() const
+    {
+        return m_images.end();
+    }
+
 
     /**
-     * @details Constructor from file path
+     * @brief Remove embedded image vector for worksheet
+     * @param sheetName The name of the worksheet
      */
-    XLImage::XLImage(const std::string& imagePath)
+    void XLImageManager::eraseEmbImgsForSheetName(const std::string& sheetName)
     {
-        loadFromFile(imagePath);
+        m_sheetNmEmbImgVMap.erase(sheetName);
     }
 
     /**
-     * @details Constructor from binary data
+     * @brief Find or create embedded image vector for worksheet
+     * @param sheetName The name of the worksheet
+     * @return Shared pointer to the embedded image vector
      */
-    XLImage::XLImage(const std::vector<uint8_t>& imageData, const std::string& mimeType)
+    XLEmbImgVecShPtr XLImageManager::getEmbImgsForSheetName(const std::string& sheetName)
     {
-        loadFromData(imageData, mimeType);
+        auto itr = m_sheetNmEmbImgVMap.lower_bound(sheetName);
+        if ((itr != m_sheetNmEmbImgVMap.end()) && (sheetName == itr->first)) {
+            return itr->second;
+        } else {
+            auto result = std::make_shared<XLEmbImgVec>();
+            m_sheetNmEmbImgVMap.insert(itr, std::make_pair(sheetName, result));
+            return result;
+        }
     }
 
     /**
-     * @details Load image from file (backward compatibility)
+     * @brief Find embedded image vector for worksheet, return null pointer if not found
+     * @param sheetName The name of the worksheet
+     * @return Shared pointer to the embedded image vector, or nullptr if not found
      */
-    bool XLImage::loadFromFile(const std::string& imagePath)
+    XLEmbImgVecShPtr XLImageManager::getEmbImgsForSheetName(const std::string& sheetName) const
     {
-        // Generate a proper sequential ID instead of temp_id
-        static int counter = 1;
-        std::string imageId = "img" + std::to_string(counter++);
-        return loadFromFile(imagePath, imageId);
+        auto itr = m_sheetNmEmbImgVMap.find(sheetName);
+        if (itr != m_sheetNmEmbImgVMap.end()) {
+            return itr->second;
+        }
+        return nullptr;
     }
 
-    /**
-     * @details Load image from file
-     */
-    bool XLImage::loadFromFile(const std::string& imagePath, const std::string& imageId)
+    int XLImageManager::verifyData(std::string* dbgMsg) const
     {
-        std::ifstream file(imagePath, std::ios::binary);
-        if (!file.is_open()) {
-            return false;
+        int totalIssues = 0;
+        
+        // Check each image has same parentDoc
+        for (const auto& image : m_images) {
+            if (image && image->parentDoc() != m_parentDoc) {
+                appendDbgMsg(dbgMsg, "XLImageManager: image has different parentDoc");
+                totalIssues++;
+            }
+        }
+        
+        
+        // Check each image has unique imageData hash
+        // TODO: allow for hash collision -- compare binary image data when hash values are same.
+        std::set<size_t> imageDataHashes;
+        for (const auto& image : m_images) {
+            if (image) {
+                if (imageDataHashes.find(image->imageDataHash()) != imageDataHashes.end()) {
+                    appendDbgMsg(dbgMsg, "XLImageManager: duplicate imageDataHash: " + std::to_string(image->imageDataHash()));
+                    totalIssues++;
+                } else {
+                    imageDataHashes.insert(image->imageDataHash());
+                }
+            }
+        }
+        
+        // Call verifyData() for each non-null image
+        for (const auto& image : m_images) {
+            if (image) {
+                totalIssues += image->verifyData(dbgMsg);
+            }
         }
 
-        // Read the entire file into a vector
-        file.seekg(0, std::ios::end);
-        size_t fileSize = file.tellg();
-        file.seekg(0, std::ios::beg);
-
-        m_imageData.resize(fileSize);
-        file.read(reinterpret_cast<char*>(m_imageData.data()), fileSize);
-        file.close();
-
-        // Determine file extension and MIME type
-        size_t dotPos = imagePath.find_last_of('.');
-        if (dotPos != std::string::npos) {
-            m_extension = imagePath.substr(dotPos);
-            std::transform(m_extension.begin(), m_extension.end(), m_extension.begin(), ::tolower);
+        // Check package path uniqueness and format
+        std::set<std::string> packagePaths;
+        for (const auto& image : m_images) {
+            if (image && !image->filePackagePath().empty()) {
+                std::string packagePath = image->filePackagePath();
+                
+                // Check format
+                if (packagePath.find("xl/media/") != 0) {
+                    appendDbgMsg(dbgMsg, "XLImageManager: package path '" + packagePath + "' does not start with 'xl/media/'");
+                    totalIssues++;
+                }
+                
+                // Check uniqueness
+                if (packagePaths.find(packagePath) != packagePaths.end()) {
+                    appendDbgMsg(dbgMsg, "XLImageManager: duplicate package path: " + packagePath);
+                    totalIssues++;
+                } else {
+                    packagePaths.insert(packagePath);
+                }
+            }
         }
 
-        m_mimeType = mimeTypeFromExtension(m_extension);
+        // Check that all images have valid parent document
+        for (const auto& image : m_images) {
+            if (image && !image->parentDoc()) {
+                appendDbgMsg(dbgMsg, "XLImageManager: image has null parentDoc");
+                totalIssues++;
+            }
+        }
 
-        // Get image dimensions
-        auto dimensions = getImageDimensions(m_imageData, m_mimeType);
-        m_widthPixels = dimensions.first;
-        m_heightPixels = dimensions.second;
+        // Check that all images have valid image data
+        for (const auto& image : m_images) {
+            if (image && image->getImageData().empty()) {
+                appendDbgMsg(dbgMsg, "XLImageManager: image has empty image data");
+                totalIssues++;
+            }
+        }
+        
+        // Check consistency between m_images vector and archive
+        if (m_parentDoc) {
+            // Check that all images in m_images actually exist in the archive
+            for (const auto& image : m_images) {
+                if (image && !image->filePackagePath().empty()) {
+                    std::string archiveContent = m_parentDoc->readFile(image->filePackagePath());
+                    if (archiveContent.empty()) {
+                        appendDbgMsg(dbgMsg, "XLImageManager: image '" + image->filePackagePath() + "' not found in archive");
+                        totalIssues++;
+                    }
+                }
+            }
+            
+            // Check for orphaned files in archive (files that exist in archive but not in m_images)
+            // This is more complex and would require iterating through all archive entries
+            // For now, we'll skip this check as it's expensive and the above check is more critical
+        }
 
-        // Set default display size (same as original size)
-        m_displayWidth = pixelsToEMUs(m_widthPixels);
-        m_displayHeight = pixelsToEMUs(m_heightPixels);
-
-        // Set the provided ID
-        m_id = imageId;
-
-        return true;
+        std::set<XLEmbImgVecShPtr> uniqueEmbImgPtrs;
+        // Check that each ptr in m_sheetNmEmbImgVMap is unique
+        std::set<XLEmbImgVecShPtr> uniquePtrs;
+        for (const auto& pair : m_sheetNmEmbImgVMap) {
+            if (pair.second) {
+                if (uniquePtrs.find(pair.second) != uniquePtrs.end()) {
+                    appendDbgMsg(dbgMsg, "XLImageManager: duplicate XLEmbImgVecShPtr for worksheet: " + pair.first);
+                    totalIssues++;
+                } else {
+                    uniquePtrs.insert(pair.second);
+                }
+            }
+        }
+        
+        // Check that each ptr in m_sheetNmEmbImgVMap is non-NULL
+        for (const auto& pair : m_sheetNmEmbImgVMap) {
+            if (!pair.second) {
+                appendDbgMsg(dbgMsg, "XLImageManager: NULL XLEmbImgVecShPtr for worksheet: " + pair.first);
+                totalIssues++;
+            }
+        }
+        
+        // For each ptr in m_sheetNmEmbImgVMap, call ptr->verifyData()
+        for (const auto& pair : m_sheetNmEmbImgVMap) {
+            if (pair.second) {
+                for (const auto& embImage : *pair.second) {
+                    std::string embImageDbgMsg;
+                    int embImageIssues = embImage.verifyData(&embImageDbgMsg);
+                    if (embImageIssues > 0) {
+                        appendDbgMsg(dbgMsg, "XLImageManager: worksheet '" + pair.first + "' has embedded image issues: " + embImageDbgMsg);
+                        totalIssues += embImageIssues;
+                    }
+                }
+            }
+        }
+        
+        return totalIssues;
     }
 
-    /**
-     * @details Load image from binary data (backward compatibility)
-     */
-    bool XLImage::loadFromData(const std::vector<uint8_t>& imageData, const std::string& mimeType)
+    void XLImageManager::printReferenceCounts(const std::string& title) const
     {
-        // Generate a proper sequential ID instead of temp_id
-        static int counter = 1;
-        std::string imageId = "img" + std::to_string(counter++);
-        return loadFromData(imageData, mimeType, imageId);
+        std::cout << "\n=== " << title << " ===" << std::endl;
+        std::cout << "Total XLImageShPtr objects: " << m_images.size() << std::endl;
+        
+        for (size_t i = 0; i < m_images.size(); ++i) {
+            const auto& image = m_images[i];
+            if (image) {
+                std::cout << "  [" << i << "] refs=" << image.use_count() 
+                          << " package=" << image->filePackagePath()
+                          << " mime=" << XLImageUtils::mimeTypeToString(image->mimeType())
+                          << " size=" << image->widthPixels() << "x" << image->heightPixels()
+                          << " hash=" << image->imageDataHash() << std::endl;
+            } else {
+                std::cout << "  [" << i << "] NULL pointer" << std::endl;
+            }
+        }
+        std::cout << "=== End " << title << " ===" << std::endl;
     }
 
-    /**
-     * @details Load image from binary data
-     */
-    bool XLImage::loadFromData(const std::vector<uint8_t>& imageData, const std::string& mimeType, const std::string& imageId)
-    {
-        m_imageData = imageData;
-        m_mimeType = mimeType;
-        m_extension = extensionFromMimeType(mimeType);
 
-        // Get image dimensions
-        auto dimensions = getImageDimensions(m_imageData, m_mimeType);
-        m_widthPixels = dimensions.first;
-        m_heightPixels = dimensions.second;
-
-        // Set default display size (same as original size)
-        m_displayWidth = pixelsToEMUs(m_widthPixels);
-        m_displayHeight = pixelsToEMUs(m_heightPixels);
-
-        // Set the provided ID
-        m_id = imageId;
-
-        return true;
-    }
+    // ========== XLEmbeddedImage Member Functions ========== //
 
     /**
      * @details Set the image ID
      */
-    void XLImage::setId(const std::string& imageId)
+    void XLEmbeddedImage::setId(const std::string& imageId)
     {
-        m_id = imageId;
+        m_imageAnchor.imageId = imageId;
     }
 
     /**
      * @details Get the image data
      */
-    const std::vector<uint8_t>& XLImage::data() const
+    std::vector<uint8_t> XLEmbeddedImage::data() const
     {
-        return m_imageData;
+        static const std::vector<uint8_t> empty;
+        if (!m_image) return empty;
+        return m_image->getImageData();
     }
 
     /**
      * @details Get the MIME type
      */
-    const std::string& XLImage::mimeType() const
-    {
-        return m_mimeType;
-    }
-
     /**
      * @details Get the file extension
      */
-    const std::string& XLImage::extension() const
+    const std::string& XLEmbeddedImage::extension() const
     {
-        return m_extension;
+        static std::string empty;
+        if (!m_image) return empty;
+        return m_image->extension();
     }
 
     /**
      * @details Get the unique image ID
      */
-    const std::string& XLImage::id() const
+    const std::string& XLEmbeddedImage::id() const
     {
-        return m_id;
+        return m_imageAnchor.imageId;
     }
 
     /**
      * @details Get the image width in pixels
      */
-    uint32_t XLImage::widthPixels() const
+    uint32_t XLEmbeddedImage::widthPixels() const
     {
-        return m_widthPixels;
+        if (!m_image) return 0;
+        return m_image->widthPixels();
     }
 
     /**
      * @details Get the image height in pixels
      */
-    uint32_t XLImage::heightPixels() const
+    uint32_t XLEmbeddedImage::heightPixels() const
     {
-        return m_heightPixels;
+        if (!m_image) return 0;
+        return m_image->heightPixels();
+    }
+
+    /**
+     * @details Get the image MIME type
+     */
+    XLMimeType XLEmbeddedImage::mimeType() const
+    {
+        if (!m_image) return XLMimeType::Unknown;
+        return m_image->mimeType();
     }
 
     /**
      * @details Set the display width in Excel units (EMUs)
      */
-    void XLImage::setDisplayWidth(uint32_t width)
+    void XLEmbeddedImage::setDisplayWidthEMUs(uint32_t width)
     {
-        m_displayWidth = width;
+        m_imageAnchor.displayWidthEMUs = width;
     }
 
     /**
      * @details Set the display height in Excel units (EMUs)
      */
-    void XLImage::setDisplayHeight(uint32_t height)
+    void XLEmbeddedImage::setDisplayHeightEMUs(uint32_t height)
     {
-        m_displayHeight = height;
+        m_imageAnchor.displayHeightEMUs = height;
     }
 
     /**
      * @details Get the display width in Excel units (EMUs)
      */
-    uint32_t XLImage::displayWidth() const
+    uint32_t XLEmbeddedImage::displayWidthEMUs() const
     {
-        return m_displayWidth;
+        return m_imageAnchor.displayWidthEMUs;
     }
 
     /**
      * @details Get the display height in Excel units (EMUs)
      */
-    uint32_t XLImage::displayHeight() const
+    uint32_t XLEmbeddedImage::displayHeightEMUs() const
     {
-        return m_displayHeight;
+        return m_imageAnchor.displayHeightEMUs;
     }
 
     /**
      * @details Check if the image is valid
      */
-    bool XLImage::isValid() const
+    bool XLEmbeddedImage::isValid() const
     {
-        return !m_imageData.empty() && !m_mimeType.empty() && !m_id.empty();
+        return m_image && !m_imageAnchor.imageId.empty();
     }
 
     /**
      * @details Get the content type for this image
      */
-    XLContentType XLImage::contentType() const
+    XLContentType XLEmbeddedImage::contentType() const
     {
-        if (m_mimeType == ImageMimeTypes::PNG) return XLContentType::ImagePNG;
-        if (m_mimeType == ImageMimeTypes::JPEG) return XLContentType::ImageJPEG;
-        if (m_mimeType == ImageMimeTypes::BMP) return XLContentType::ImageBMP;
-        if (m_mimeType == ImageMimeTypes::GIF) return XLContentType::ImageGIF;
-        return XLContentType::Unknown;
+        if (!m_image) return XLContentType::Unknown;
+        return XLImageUtils::mimeTypeToContentType(m_image->mimeType());
     }
 
-    // ========== XLImage Private Member Functions ========== //
+    // ========== XLEmbeddedImage Private Member Functions ========== //
 
     /**
      * @details Generate a unique image ID
      */
-    std::string XLImage::generateId(uint32_t imageNumber)
+    std::string XLEmbeddedImage::generateId(uint32_t imageNumber)
     {
         return "img" + std::to_string(imageNumber);
     }
 
     /**
-     * @details Determine MIME type from file extension
-     */
-    std::string XLImage::mimeTypeFromExtension(const std::string& extension)
-    {
-        if (extension == ".png") return ImageMimeTypes::PNG;
-        if (extension == ".jpg" || extension == ".jpeg") return ImageMimeTypes::JPEG;
-        if (extension == ".bmp") return ImageMimeTypes::BMP;
-        if (extension == ".gif") return ImageMimeTypes::GIF;
-        return "";
-    }
-
-    /**
-     * @details Determine file extension from MIME type
-     */
-    std::string XLImage::extensionFromMimeType(const std::string& mimeType)
-    {
-        if (mimeType == ImageMimeTypes::PNG) return ".png";
-        if (mimeType == ImageMimeTypes::JPEG) return ".jpg";
-        if (mimeType == ImageMimeTypes::BMP) return ".bmp";
-        if (mimeType == ImageMimeTypes::GIF) return ".gif";
-        return "";
-    }
-
-    /**
-     * @details Convert pixels to EMUs (Excel Measurement Units)
-     * 1 pixel = 9525 EMUs (approximately)
-     */
-    uint32_t XLImage::pixelsToEMUs(uint32_t pixels)
-    {
-        return pixels * EMU_TO_PIXEL_RATIO;
-    }
-
-    /**
-     * @details Get image dimensions from binary data
-     * This is a simplified implementation that works for basic cases
-     * For production use, consider using a proper image library like libpng, libjpeg, etc.
-     */
-    std::pair<uint32_t, uint32_t> XLImage::getImageDimensions(const std::vector<uint8_t>& data, const std::string& mimeType)
-    {
-        if (data.size() < 8) return {0, 0};
-
-        // PNG signature check and dimension extraction
-        if (mimeType == ImageMimeTypes::PNG) {
-            if (data.size() >= 24 && data[0] == 0x89 && data[1] == 0x50 && data[2] == 0x4E && data[3] == 0x47) {
-                // PNG IHDR chunk contains width and height at bytes 16-23
-                uint32_t width = (data[16] << 24) | (data[17] << 16) | (data[18] << 8) | data[19];
-                uint32_t height = (data[20] << 24) | (data[21] << 16) | (data[22] << 8) | data[23];
-                return {width, height};
-            }
-        }
-        // JPEG signature check and dimension extraction
-        else if (mimeType == ImageMimeTypes::JPEG) {
-            if (data.size() >= 2 && data[0] == 0xFF && data[1] == 0xD8) {
-                // For JPEG, we need to find the SOF0 marker (0xFFC0) and extract dimensions
-                for (size_t i = 2; i < data.size() - 8; ++i) {
-                    if (data[i] == 0xFF && data[i + 1] == 0xC0) {
-                        uint32_t height = (data[i + 5] << 8) | data[i + 6];
-                        uint32_t width = (data[i + 7] << 8) | data[i + 8];
-                        return {width, height};
-                    }
-                }
-            }
-        }
-        // BMP signature check and dimension extraction
-        else if (mimeType == ImageMimeTypes::BMP) {
-            if (data.size() >= 26 && data[0] == 0x42 && data[1] == 0x4D) {
-                // BMP header contains width and height at bytes 18-25
-                uint32_t width = data[18] | (data[19] << 8) | (data[20] << 16) | (data[21] << 24);
-                uint32_t height = data[22] | (data[23] << 8) | (data[24] << 16) | (data[25] << 24);
-                return {width, height};
-            }
-        }
-        // GIF signature check and dimension extraction
-        else if (mimeType == ImageMimeTypes::GIF) {
-            if (data.size() >= 10 && data[0] == 0x47 && data[1] == 0x49 && data[2] == 0x46) {
-                // GIF header contains width and height at bytes 6-9
-                uint32_t width = data[6] | (data[7] << 8);
-                uint32_t height = data[8] | (data[9] << 8);
-                return {width, height};
-            }
-        }
-
-        // Default fallback - assume square image
-        return {100, 100};
-    }
-
-    /**
      * @details Set display size in pixels (converts to EMUs automatically)
      */
-    void XLImage::setDisplaySizePixels(uint32_t widthPixels, uint32_t heightPixels)
+    void XLEmbeddedImage::setDisplaySizePixels(uint32_t widthPixels, uint32_t heightPixels)
     {
-        m_displayWidth = pixelsToEmus(widthPixels);
-        m_displayHeight = pixelsToEmus(heightPixels);
-    }
-
-    /**
-     * @details Set display size maintaining aspect ratio
-     */
-    void XLImage::setDisplaySizeWithAspectRatio(uint32_t maxWidthEmus, uint32_t maxHeightEmus)
-    {
-        uint32_t targetWidth = pixelsToEmus(m_widthPixels);
-        uint32_t targetHeight = pixelsToEmus(m_heightPixels);
-
-        if (m_widthPixels > 0 || m_heightPixels > 0) {
-            double aspectRatio = static_cast<double>(m_widthPixels) / static_cast<double>(m_heightPixels);
-            assert(aspectRatio > 0.0);
-
-            const double maxWidth = static_cast<double>(maxWidthEmus);
-            const double maxHeight = static_cast<double>(maxHeightEmus);
-            const double widthA = maxHeight * aspectRatio;
-
-            if (widthA <= maxWidth) {
-                /*  
-                +------------+--------+
-                |            |        |
-                |            |        |
-                |            |        |
-                |            |        |maxHeight
-                |            |        |
-                |            |        |
-                |            |        |
-                |   widthA   |        |
-                +------------+--------+
-                       maxWidth 
-                */
-                targetWidth = static_cast<uint32_t>(round(widthA));
-                targetHeight = maxHeightEmus;
-            }
-            else {
-                /* 
-                +---------------------+
-                |                     |
-                |                     |
-                +---------------------+
-                |                     |maxHeight
-                |                     |
-                |              heightB|
-                |                     |
-                |                     |
-                +---------------------+
-                       maxWidth  
-                */
-                const double heightB = maxWidth / aspectRatio;
-                assert(heightB <= (1.00000001 * maxHeight));
-                targetWidth = maxWidthEmus;
-                targetHeight = static_cast<uint32_t>(round(heightB));
-            }
-
-            assert(fabs(aspectRatio - (static_cast<double>(targetWidth) / 
-                    static_cast<double>(targetHeight))) < 1e-4);
-        }
-
-        m_displayWidth = targetWidth;
-        m_displayHeight = targetHeight;
-    }
-
-
-    /**
-     * @details Set display size maintaining aspect ratio
-     */
-    void XLImage::setDisplaySizePixelsWithAspectRatio(uint32_t maxWidthPixels, uint32_t maxHeightPixels)
-    {
-        const uint32_t maxWidthEmus = pixelsToEmus(maxWidthPixels);
-        const uint32_t maxHeightEmus = pixelsToEmus(maxHeightPixels);
-        setDisplaySizeWithAspectRatio(maxWidthEmus, maxHeightEmus);
-    }
-
-    /**
-     * @details Convert pixels to EMUs (Excel units)
-     * 1 pixel = 9525 EMUs (approximately)
-     */
-    uint32_t XLImage::pixelsToEmus(uint32_t pixels)
-    {
-        return pixels * EMU_TO_PIXEL_RATIO;
-    }
-
-    /**
-     * @details Convert EMUs to pixels
-     */
-    uint32_t XLImage::emusToPixels(uint32_t emus)
-    {
-        return emus / EMU_TO_PIXEL_RATIO;
-    }
-
-    /**
-     * @details Compare two image info structures for debugging
-     */
-    int XLImageInfo::compare(const XLImageInfo& other, std::string* diffMsg) const
-    {
-
-        // Compare image ID (most important for identification)
-        int idCompare = imageId.compare(other.imageId);
-        if (idCompare != 0) {
-            appendDbgMsg(diffMsg, "image ID differs: '" + imageId + "' vs '" + other.imageId + "'");
-            return idCompare;
-        }
-
-        // Compare relationship ID
-        int relIdCompare = relationshipId.compare(other.relationshipId);
-        if (relIdCompare != 0) {
-            appendDbgMsg(diffMsg, "relationship ID differs: '" + relationshipId + "' vs '" + other.relationshipId + "'");
-            return relIdCompare;
-        }
-
-        // Compare anchor cell
-        int cellCompare = anchorCell.compare(other.anchorCell);
-        if (cellCompare != 0) {
-            appendDbgMsg(diffMsg, "anchor cell differs: '" + anchorCell + "' vs '" + other.anchorCell + "'");
-            return cellCompare;
-        }
-
-        // Compare anchor type
-        int typeCompare = anchorType.compare(other.anchorType);
-        if (typeCompare != 0) {
-            appendDbgMsg(diffMsg, "anchor type differs: '" + anchorType + "' vs '" + other.anchorType + "'");
-            return typeCompare;
-        }
-
-        // Compare dimensions
-        if (widthPixels != other.widthPixels) {
-            appendDbgMsg(diffMsg, "width differs: " + std::to_string(widthPixels) + 
-                      " vs " + std::to_string(other.widthPixels) + " pixels");
-            return widthPixels < other.widthPixels ? -1 : 1;
-        }
-
-        if (heightPixels != other.heightPixels) {
-            appendDbgMsg(diffMsg, "height differs: " + std::to_string(heightPixels) + 
-                      " vs " + std::to_string(other.heightPixels) + " pixels");
-            return heightPixels < other.heightPixels ? -1 : 1;
-        }
-
-        // Compare display dimensions
-        if (displayWidthEMUs != other.displayWidthEMUs) {
-            appendDbgMsg(diffMsg, "display width differs: " + std::to_string(displayWidthEMUs) + 
-                      " vs " + std::to_string(other.displayWidthEMUs) + " EMUs");
-            return displayWidthEMUs < other.displayWidthEMUs ? -1 : 1;
-        }
-
-        if (displayHeightEMUs != other.displayHeightEMUs) {
-            appendDbgMsg(diffMsg, "display height differs: " + std::to_string(displayHeightEMUs) + 
-                      " vs " + std::to_string(other.displayHeightEMUs) + " EMUs");
-            return displayHeightEMUs < other.displayHeightEMUs ? -1 : 1;
-        }
-
-        // Image info structures are identical
-        return 0;
+        m_imageAnchor.displayWidthEMUs = XLImageUtils::pixelsToEmus(widthPixels);
+        m_imageAnchor.displayHeightEMUs = XLImageUtils::pixelsToEmus(heightPixels);
     }
 
     /**
      * @details Compare two images for debugging
      */
-    int XLImage::compare(const XLImage& other, std::string* diffMsg) const
+    int XLEmbeddedImage::compare(const XLEmbeddedImage& other, std::string* diffMsg) const
     {
 
         // Compare image data (most important for embedded images)
-        if (m_imageData != other.m_imageData) {
-            appendDbgMsg(diffMsg, "image data differs (size: " + std::to_string(m_imageData.size()) + 
-                      " vs " + std::to_string(other.m_imageData.size()) + " bytes)");
-            return m_imageData.size() < other.m_imageData.size() ? -1 : 1;
+        if (m_image != other.m_image) {
+            auto thisData = m_image ? m_image->getImageData() : std::vector<uint8_t>();
+            auto otherData = other.m_image ? other.m_image->getImageData() : std::vector<uint8_t>();
+            if (thisData != otherData) {
+                appendDbgMsg(diffMsg, "image data differs (size: " + std::to_string(thisData.size()) + 
+                          " vs " + std::to_string(otherData.size()) + " bytes)");
+                return thisData.size() < otherData.size() ? -1 : 1;
+            }
         }
 
         // Compare MIME type
-        int mimeCompare = m_mimeType.compare(other.m_mimeType);
+        const XLMimeType thisMimeType = mimeType();
+        const XLMimeType otherMimeType = other.mimeType();
+        int mimeCompare = static_cast<int>(thisMimeType) - static_cast<int>(otherMimeType);
         if (mimeCompare != 0) {
-            appendDbgMsg(diffMsg, "MIME type differs: '" + m_mimeType + "' vs '" + other.m_mimeType + "'");
+            std::string thisMimeTypeStr = m_image ? XLImageUtils::mimeTypeToString(m_image->mimeType()) : "";
+            std::string otherMimeTypeStr = other.m_image ? XLImageUtils::mimeTypeToString(other.m_image->mimeType()) : "";
+            appendDbgMsg(diffMsg, "MIME type differs: '" + thisMimeTypeStr + "' vs '" + otherMimeTypeStr + "'");
             return mimeCompare;
         }
 
         // Compare extension
-        int extCompare = m_extension.compare(other.m_extension);
+        std::string thisExtension = m_image ? m_image->extension() : "";
+        std::string otherExtension = other.m_image ? other.m_image->extension() : "";
+        int extCompare = thisExtension.compare(otherExtension);
         if (extCompare != 0) {
-            appendDbgMsg(diffMsg, "extension differs: '" + m_extension + "' vs '" + other.m_extension + "'");
+            appendDbgMsg(diffMsg, "extension differs: '" + thisExtension + "' vs '" + otherExtension + "'");
             return extCompare;
         }
 
         // Compare ID
-        int idCompare = m_id.compare(other.m_id);
+        int idCompare = m_imageAnchor.imageId.compare(other.m_imageAnchor.imageId);
         if (idCompare != 0) {
-            appendDbgMsg(diffMsg, "image ID differs: '" + m_id + "' vs '" + other.m_id + "'");
+            appendDbgMsg(diffMsg, "image ID differs: '" + m_imageAnchor.imageId + "' vs '" + other.m_imageAnchor.imageId + "'");
             return idCompare;
         }
 
         // Compare dimensions
-        if (m_widthPixels != other.m_widthPixels) {
-            appendDbgMsg(diffMsg, "width differs: " + std::to_string(m_widthPixels) + 
-                      " vs " + std::to_string(other.m_widthPixels) + " pixels");
-            return m_widthPixels < other.m_widthPixels ? -1 : 1;
+        uint32_t thisWidth = m_image ? m_image->widthPixels() : 0;
+        uint32_t otherWidth = other.m_image ? other.m_image->widthPixels() : 0;
+        if (thisWidth != otherWidth) {
+            appendDbgMsg(diffMsg, "width differs: " + std::to_string(thisWidth) + 
+                      " vs " + std::to_string(otherWidth) + " pixels");
+            return thisWidth < otherWidth ? -1 : 1;
         }
 
-        if (m_heightPixels != other.m_heightPixels) {
-            appendDbgMsg(diffMsg, "height differs: " + std::to_string(m_heightPixels) + 
-                      " vs " + std::to_string(other.m_heightPixels) + " pixels");
-            return m_heightPixels < other.m_heightPixels ? -1 : 1;
+        uint32_t thisHeight = m_image ? m_image->heightPixels() : 0;
+        uint32_t otherHeight = other.m_image ? other.m_image->heightPixels() : 0;
+        if (thisHeight != otherHeight) {
+            appendDbgMsg(diffMsg, "height differs: " + std::to_string(thisHeight) + 
+                      " vs " + std::to_string(otherHeight) + " pixels");
+            return thisHeight < otherHeight ? -1 : 1;
         }
 
         // Compare display dimensions
-        if (m_displayWidth != other.m_displayWidth) {
-            appendDbgMsg(diffMsg, "display width differs: " + std::to_string(m_displayWidth) + 
-                      " vs " + std::to_string(other.m_displayWidth) + " EMUs");
-            return m_displayWidth < other.m_displayWidth ? -1 : 1;
+        if (m_imageAnchor.displayWidthEMUs != other.m_imageAnchor.displayWidthEMUs) {
+            appendDbgMsg(diffMsg, "display width differs: " + std::to_string(m_imageAnchor.displayWidthEMUs) + 
+                      " vs " + std::to_string(other.m_imageAnchor.displayWidthEMUs) + " EMUs");
+            return m_imageAnchor.displayWidthEMUs < other.m_imageAnchor.displayWidthEMUs ? -1 : 1;
         }
 
-        if (m_displayHeight != other.m_displayHeight) {
-            appendDbgMsg(diffMsg, "display height differs: " + std::to_string(m_displayHeight) + 
-                      " vs " + std::to_string(other.m_displayHeight) + " EMUs");
-            return m_displayHeight < other.m_displayHeight ? -1 : 1;
+        if (m_imageAnchor.displayHeightEMUs != other.m_imageAnchor.displayHeightEMUs) {
+            appendDbgMsg(diffMsg, "display height differs: " + std::to_string(m_imageAnchor.displayHeightEMUs) + 
+                      " vs " + std::to_string(other.m_imageAnchor.displayHeightEMUs) + " EMUs");
+            return m_imageAnchor.displayHeightEMUs < other.m_imageAnchor.displayHeightEMUs ? -1 : 1;
+        }
+
+        // Compare registry/relationship fields
+        int relIdCompare = m_imageAnchor.relationshipId.compare(other.m_imageAnchor.relationshipId);
+        if (relIdCompare != 0) {
+            appendDbgMsg(diffMsg, "relationship ID differs: '" + m_imageAnchor.relationshipId + "' vs '" + other.m_imageAnchor.relationshipId + "'");
+            return relIdCompare;
+        }
+
+        int cellCompare = anchorCell().compare(other.anchorCell());
+        if (cellCompare != 0) {
+            appendDbgMsg(diffMsg, "anchor cell differs: '" + anchorCell() + "' vs '" + other.anchorCell() + "'");
+            return cellCompare;
+        }
+
+        int typeCompare = static_cast<int>(m_imageAnchor.anchorType) - static_cast<int>(other.m_imageAnchor.anchorType);
+        if (typeCompare != 0) {
+            std::string thisAnchorTypeStr = XLImageAnchorUtils::anchorTypeToString(m_imageAnchor.anchorType);
+            std::string otherAnchorTypeStr = XLImageAnchorUtils::anchorTypeToString(other.m_imageAnchor.anchorType);
+            appendDbgMsg(diffMsg, "anchor type differs: '" + thisAnchorTypeStr + "' vs '" + otherAnchorTypeStr + "'");
+            return typeCompare;
         }
 
         // Images are identical
@@ -597,68 +736,246 @@ namespace OpenXLSX
     /**
      * @details Verify internal data integrity and class invariants
      */
-    int XLImage::verifyData(std::string* dbgMsg) const
+    int XLEmbeddedImage::verifyData(std::string* dbgMsg) const
     {
         int errorCount = 0;
 
         // Check basic data integrity
-        if (m_imageData.empty()) {
+        if (!m_image || m_image->getImageData().empty()) {
             appendDbgMsg(dbgMsg, "image data is empty");
             errorCount++;
         }
 
-        // Check MIME type consistency
-        if (m_mimeType.empty()) {
-            appendDbgMsg(dbgMsg, "MIME type is empty");
-            errorCount++;
-        }
+        // MIME type
+        const XLMimeType thisMimeType = mimeType();
+        const std::string mimeTypeStr = XLImageUtils::mimeTypeToString(thisMimeType);
 
         // Check extension consistency
-        if (m_extension.empty()) {
+        std::string extension = m_image ? m_image->extension() : "";
+        if (extension.empty()) {
             appendDbgMsg(dbgMsg, "file extension is empty");
             errorCount++;
         }
 
         // Check ID consistency
-        if (m_id.empty()) {
+        if (m_imageAnchor.imageId.empty()) {
             appendDbgMsg(dbgMsg, "image ID is empty");
             errorCount++;
         }
 
+        // Check relationship ID consistency
+        if (m_imageAnchor.relationshipId.empty()) {
+            appendDbgMsg(dbgMsg, "relationship ID is empty");
+            errorCount++;
+        }
+
+        // Check anchor type consistency
+        if (m_imageAnchor.anchorType == XLImageAnchorType::Unknown) {
+            appendDbgMsg(dbgMsg, "anchor type is unknown");
+            errorCount++;
+        }
+
         // Check dimension consistency
-        if (m_widthPixels == 0) {
+        uint32_t widthPixels = m_image ? m_image->widthPixels() : 0;
+        uint32_t heightPixels = m_image ? m_image->heightPixels() : 0;
+        if (widthPixels == 0) {
             appendDbgMsg(dbgMsg, "width in pixels is zero");
             errorCount++;
         }
 
-        if (m_heightPixels == 0) {
+        if (heightPixels == 0) {
             appendDbgMsg(dbgMsg, "height in pixels is zero");
             errorCount++;
         }
 
         // Check display dimension consistency
-        if (m_displayWidth == 0) {
+        if (m_imageAnchor.displayWidthEMUs == 0) {
             appendDbgMsg(dbgMsg, "display width in EMUs is zero");
             errorCount++;
         }
 
-        if (m_displayHeight == 0) {
+        if (m_imageAnchor.displayHeightEMUs == 0) {
             appendDbgMsg(dbgMsg, "display height in EMUs is zero");
             errorCount++;
         }
 
         // Check MIME type and extension consistency
-        if (!m_mimeType.empty() && !m_extension.empty()) {
-            if ((m_mimeType == "image/png" && m_extension != ".png") ||
-                (m_mimeType == "image/jpeg" && m_extension != ".jpg" && m_extension != ".jpeg") ||
-                (m_mimeType == "image/gif" && m_extension != ".gif") ||
-                (m_mimeType == "image/bmp" && m_extension != ".bmp")) {
-                appendDbgMsg(dbgMsg, "MIME type '" + m_mimeType + "' does not match extension '" + m_extension + "'");
+        if ( (thisMimeType != XLMimeType::Unknown) && !extension.empty()) {
+            if (( XLMimeType::PNG ==  thisMimeType && extension != ".png") ||
+                ( XLMimeType::JPEG ==  thisMimeType && extension != ".jpg" && extension != ".jpeg") ||
+                ( XLMimeType::GIF == thisMimeType && extension != ".gif") ||
+                ( XLMimeType::BMP == thisMimeType && extension != ".bmp")) {
+                appendDbgMsg(dbgMsg, "MIME type '" + mimeTypeStr + 
+                    "' does not match extension '" + extension + "'");
+                errorCount++;
+            }
+        }
+
+        // Check package path consistency
+        if (m_image && !m_image->filePackagePath().empty()) {
+            std::string packagePath = m_image->filePackagePath();
+            if (packagePath.find("xl/media/") != 0) {
+                appendDbgMsg(dbgMsg, "package path '" + packagePath + "' does not start with 'xl/media/'");
                 errorCount++;
             }
         }
 
         return errorCount;
+    }
+
+    // Registry/relationship setter functions (for XLImageInfo compatibility)
+    /**
+     * @details Set the relationship ID
+     */
+    void XLEmbeddedImage::setRelationshipId(const std::string& relationshipId)
+    {
+        m_imageAnchor.relationshipId = relationshipId;
+    }
+
+    /**
+     * @details Set the anchor cell reference
+     */
+    void XLEmbeddedImage::setAnchorCell(const std::string& anchorCell)
+    {
+        auto [row, col] = cellRefToRowCol(anchorCell);
+        m_imageAnchor.fromRow = row;
+        m_imageAnchor.fromCol = col;
+    }
+
+    /**
+     * @details Set the anchor type
+     */
+    void XLEmbeddedImage::setAnchorType(XLImageAnchorType anchorType)
+    {
+        m_imageAnchor.anchorType = anchorType;
+    }
+
+    // Registry/relationship getter functions (for XLImageInfo compatibility)
+    /**
+     * @details Get the relationship ID
+     */
+    const std::string& XLEmbeddedImage::relationshipId() const
+    {
+        return m_imageAnchor.relationshipId;
+    }
+
+    /**
+     * @details Get the anchor cell reference
+     */
+    std::string XLEmbeddedImage::anchorCell() const
+    {
+        return rowColToCellRef(m_imageAnchor.fromRow, m_imageAnchor.fromCol);
+    }
+
+    /**
+     * @details Get the anchor type
+     */
+    const XLImageAnchorType& XLEmbeddedImage::anchorType() const
+    {
+        return m_imageAnchor.anchorType;
+    }
+
+    /**
+     * @details Check if this image is empty (default constructed)
+     */
+    bool XLEmbeddedImage::isEmpty() const
+    {
+        return m_imageAnchor.imageId.empty();
+    }
+
+    /**
+     * @details Get the shared pointer to the image data
+     */
+    XLImageShPtr XLEmbeddedImage::getImage() const
+    {
+        return m_image;
+    }
+
+    /**
+     * @details Set the shared pointer to the image data
+     */
+    void XLEmbeddedImage::setImage(XLImageShPtr image)
+    {
+        m_image = image;
+    }
+
+    /* TODO: add unit test */
+    std::string XLEmbeddedImage::rowColToCellRef(uint32_t row, uint16_t col)
+    {
+        std::string result;
+        
+        // Convert column to letters (A, B, C, ..., Z, AA, AB, ...)
+        ++col;
+        while (col > 0) {
+            col--; // Convert to 0-based first
+            result = static_cast<char>('A' + (col % 26)) + result;
+            col = col / 26;
+        }
+        
+        // Add row number (1-based)
+        result += std::to_string(row + 1);
+        
+        return result;
+    }
+
+    /* TODO: add unit test */
+    std::pair<uint32_t, uint16_t> XLEmbeddedImage::cellRefToRowCol(const std::string& cellRef)
+    {
+        uint32_t row = 0;
+        uint16_t col = 0;
+        
+        // Parse the cell reference (e.g., "A1", "B5", "AA10")
+        size_t i = 0;
+        while (i < cellRef.length() && std::isalpha(cellRef[i])) {
+            col = col * 26 + (cellRef[i] - 'A' + 1);
+            i++;
+        }
+        col--; // Convert to 0-based
+        
+        if (i < cellRef.length()) {
+            row = std::stoul(cellRef.substr(i)) - 1; // Convert to 0-based
+        }
+        
+        return {row, col};
+    }
+
+    /**
+     * @brief Robust XML element name matching that handles namespace prefixes
+     * @param elementName The actual element name (may include namespace prefix)
+     * @param targetName The target element name to match
+     * @return True if the element name matches the target (with or without namespace)
+     * 
+     * @example
+     * Exact match: "oneCellAnchor" matches "oneCellAnchor"
+     * Namespace prefix: "xdr:oneCellAnchor" matches "oneCellAnchor"
+     * Different namespace: "a:oneCellAnchor" matches "oneCellAnchor"
+     */
+    bool XLImageUtils::matchesElementName(const std::string& elementName, const std::string& targetName)
+    {
+        // Exact match
+        if (elementName == targetName) {
+            return true;
+        }
+        
+        // Check if element name ends with target name (handles namespace prefixes)
+        if (elementName.length() > targetName.length() + 1) {
+            size_t pos = elementName.find_last_of(':');
+            if (pos != std::string::npos && pos + 1 < elementName.length()) {
+                std::string localName = elementName.substr(pos + 1);
+                if (localName == targetName) {
+                    return true;
+                }
+            }
+        }
+        
+        // Check if element name starts with target name followed by colon
+        if (elementName.length() == targetName.length() + 1 && elementName[targetName.length()] == ':') {
+            if (elementName.substr(0, targetName.length()) == targetName) {
+                return true;
+            }
+        }
+        
+        return false;
     }
 
 }    // namespace OpenXLSX

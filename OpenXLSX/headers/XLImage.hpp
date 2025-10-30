@@ -47,12 +47,15 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM    d'`MM.
 
 // ===== External Includes ===== //
 #include <cstdint>    // uint8_t, uint16_t, uint32_t
+#include <map>        // std::map
 #include <string>     // std::string
 #include <vector>     // std::vector
+#include <utility>    // std::pair
 
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"
 #include "XLContentTypes.hpp"
+#include "XLDrawingML.hpp"
 
 /*
  * ================================================================================
@@ -185,6 +188,9 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM    d'`MM.
 
 namespace OpenXLSX
 {
+    // Forward declarations
+    class XLDocument;
+
     // ========== Global Helper Functions ========== //
     
     /**
@@ -222,73 +228,25 @@ namespace OpenXLSX
     constexpr uint32_t EMU_TO_PIXEL_RATIO = 9525;
 
     /**
-     * @brief Structure containing image metadata for query operations
-     * 
-     * This structure holds all the essential information about an embedded image
-     * that can be queried from a worksheet. It provides a unified interface
-     * for accessing image properties without needing to parse XML directly.
-     * 
-     * The structure is designed to be efficient for both storage and access,
-     * with all data pre-parsed and readily available for common operations.
+     * @brief MIME type enumeration for image formats
+     * @details This enum provides type-safe representation of image MIME types,
+     *          replacing string-based MIME types for better performance and type safety.
      */
-    struct OPENXLSX_EXPORT XLImageInfo
-    {
-        std::string imageId;           /**< Unique image identifier (e.g., "img1", "img2") */
-        std::string relationshipId;    /**< Relationship ID in drawing.xml.rels (e.g., "rId1", "rId2") */
-        std::string anchorCell;        /**< Primary anchor cell reference (e.g., "A1", "B5") */
-        std::string anchorType;        /**< Anchor type: "oneCellAnchor" or "twoCellAnchor" */
-        uint32_t widthPixels{0};       /**< Original image width in pixels */
-        uint32_t heightPixels{0};      /**< Original image height in pixels */
-        uint32_t displayWidthEMUs{0};  /**< Display width in Excel units (EMUs) */
-        uint32_t displayHeightEMUs{0}; /**< Display height in Excel units (EMUs) */
-        
-        /**
-         * @brief Default constructor
-         */
-        XLImageInfo() = default;
-        
-        /**
-         * @brief Constructor with all parameters
-         * @param id Image ID
-         * @param relId Relationship ID
-         * @param cell Anchor cell reference
-         * @param type Anchor type
-         * @param wPx Width in pixels
-         * @param hPx Height in pixels
-         * @param wEmu Display width in EMUs
-         * @param hEmu Display height in EMUs
-         */
-        XLImageInfo(const std::string& id, const std::string& relId, const std::string& cell,
-                   const std::string& type, uint32_t wPx, uint32_t hPx, uint32_t wEmu, uint32_t hEmu)
-            : imageId(id), relationshipId(relId), anchorCell(cell), anchorType(type),
-              widthPixels(wPx), heightPixels(hPx), displayWidthEMUs(wEmu), displayHeightEMUs(hEmu) {}
-        
-        /**
-         * @brief Check if this image info is valid (has non-empty imageId)
-         * @return True if valid, false otherwise
-         */
-        bool isValid() const { return !imageId.empty(); }
-        
-        /**
-         * @brief Check if this image info is empty (default constructed)
-         * @return True if empty, false otherwise
-         */
-        bool isEmpty() const { return imageId.empty(); }
-
-        /**
-         * @brief Compare two image info structures for debugging
-         * @param other The other XLImageInfo to compare with
-         * @param diffMsg Optional pointer to append difference message (up to 16384 characters)
-         * @return 0 if identical, <0 if this precedes other, >0 if this follows other
-         */
-        int compare(const XLImageInfo& other, std::string* diffMsg = nullptr) const;
+    enum class XLMimeType : uint8_t {
+        PNG,        /**< PNG image format */
+        JPEG,       /**< JPEG image format */
+        BMP,        /**< BMP image format */
+        GIF,        /**< GIF image format */
+        Unknown     /**< Unknown or unsupported image format */
     };
 
     /**
-     * @brief The XLImage class represents an image that can be embedded in a worksheet
+     * @brief Class representing shared binary data and metadata for an image file
+     * @details This class stores metadata about an image and provides access to shared binary data
+     *          through the parent document. It uses a hash-based approach to avoid storing
+     *          duplicate binary data in memory.
      */
-    class OPENXLSX_EXPORT XLImage
-    {
+    class OPENXLSX_EXPORT XLImage {
     public:
         /**
          * @brief Default constructor
@@ -296,80 +254,243 @@ namespace OpenXLSX
         XLImage() = default;
 
         /**
-         * @brief Constructor from file path
-         * @param imagePath Path to the image file
-         */
-        explicit XLImage(const std::string& imagePath);
-
-        /**
-         * @brief Constructor from binary data
-         * @param imageData Binary image data
+         * @brief Constructor with all parameters
+         * @param parentDoc Pointer to the parent XLDocument
+         * @param imageDataHash Hash of the image binary data
          * @param mimeType MIME type of the image
+         * @param extension File extension of the image
+         * @param filePackagePath Package path in archive
+         * @param widthPixels Width in pixels
+         * @param heightPixels Height in pixels
          */
-        XLImage(const std::vector<uint8_t>& imageData, const std::string& mimeType);
+        XLImage(XLDocument* parentDoc, size_t imageDataHash, XLMimeType mimeType, 
+                const std::string& extension, const std::string& filePackagePath, 
+                uint32_t widthPixels, uint32_t heightPixels);
 
         /**
-         * @brief Copy constructor
-         * @param other The XLImage to copy
+         * @brief Get the image binary data
+         * @return Vector containing the image binary data
          */
-        XLImage(const XLImage& other) = default;
+        std::vector<uint8_t> getImageData() const;
 
         /**
-         * @brief Move constructor
-         * @param other The XLImage to move
+         * @brief Verify the image data integrity and metadata consistency
+         * @param dbgMsg Optional pointer to append debug message
+         * @return Number of issues found (0 = no issues)
          */
-        XLImage(XLImage&& other) noexcept = default;
+        int verifyData(std::string* dbgMsg = nullptr) const;
+
+        // Getters
+        XLDocument* parentDoc() const { return m_parentDoc; }
+        size_t imageDataHash() const { return m_imageDataHash; }
+        XLMimeType mimeType() const { return m_mimeType; }
+        const std::string& extension() const { return m_extension; }
+        const std::string& filePackagePath() const { return m_filePackagePath; }
+        uint32_t widthPixels() const { return m_widthPixels; }
+        uint32_t heightPixels() const { return m_heightPixels; }
+
+        // Setters
+        void setParentDoc(XLDocument* parentDoc) { m_parentDoc = parentDoc; }
+        void setImageDataHash(size_t imageDataHash) { m_imageDataHash = imageDataHash; }
+        void setMimeType(XLMimeType mimeType) { m_mimeType = mimeType; }
+        void setExtension(const std::string& extension) { m_extension = extension; }
+        void setFilePackagePath(const std::string& filePackagePath) { m_filePackagePath = filePackagePath; }
+        void setWidthPixels(uint32_t widthPixels) { m_widthPixels = widthPixels; }
+        void setHeightPixels(uint32_t heightPixels) { m_heightPixels = heightPixels; }
+
+    private:
+        XLDocument* m_parentDoc = nullptr;        /**< Pointer to parent document */
+        size_t m_imageDataHash = 0;               /**< Hash of the image binary data */
+        XLMimeType m_mimeType = XLMimeType::Unknown; /**< MIME type of the image */
+        std::string m_extension;                  /**< File extension of the image */
+        std::string m_filePackagePath;           /**< Package path in archive */
+        uint32_t m_widthPixels = 0;               /**< Width in pixels */
+        uint32_t m_heightPixels = 0;             /**< Height in pixels */
+    };
+
+    /**
+     * @brief Shared pointer type for XLImage
+     */
+    using XLImageShPtr = std::shared_ptr<XLImage>;
+
+    /**
+     * @brief Vector type for embedded images
+     */
+    using XLEmbImgVec = std::vector<XLEmbeddedImage>;
+
+    /**
+     * @brief Shared pointer type for embedded image vector
+     */
+    using XLEmbImgVecShPtr = std::shared_ptr<XLEmbImgVec>;
+
+    /**
+     * @brief Class managing a collection of XLImage objects and caching XLEmbImgVec objects 
+     * @details This class manages a collection of shared pointers to XLImage objects,
+     *          providing functionality to find, add, and prune images based on usage.
+     *          In addition, it keeps XLEmbImgVec containers for XLWorksheet's when
+     *          the XLWorksheet's go out of scope.
+     */
+    class OPENXLSX_EXPORT XLImageManager {    
+    public:
+        /**
+         * @brief Constructor
+         * @param parentDoc Pointer to the parent XLDocument
+         */
+        explicit XLImageManager(XLDocument* parentDoc);
 
         /**
          * @brief Destructor
          */
-        ~XLImage() = default;
+        ~XLImageManager() = default;
+
+        /**
+         * @brief Remove unused images from the collection and archive
+         * @details For each XLImageShPtr image in images, if image.get() == nullptr or 
+         *          image->use_count() <= 1, then remove image from images and remove 
+         *          image from archive by calling parentDoc->deleteEntry()
+         */
+        void prune();
+
+        /**
+         * @brief Find or add an image to the collection
+         * @param packagePath The image package path (e.g., "xl/media/image1.png") or empty string to generate new
+         * @param imageData The image binary data
+         * @param contentType The content type of the image
+         * @return Shared pointer to the XLImage object
+         * @details If image already exists (findImageByImageData), return image from images.
+         *          Otherwise, call parentDoc->addImageEntry() and add image to images.
+         */
+        XLImageShPtr findOrAddImage(const std::string& packagePath, 
+                                   const std::vector<uint8_t>& imageData, 
+                                   XLContentType contentType);
+
+        /**
+         * @brief Find an image by its binary data hash
+         * @param imageData The image binary data to search for
+         * @return Shared pointer to the XLImage object, or nullptr if not found
+         */
+        XLImageShPtr findImageByImageData(const std::vector<uint8_t>& imageData) const;
+
+
+        /**
+         * @brief Generate a unique package filename for an image
+         * @param extension The file extension (e.g., ".png", ".jpg")
+         * @return A unique package filename (e.g., "xl/media/image1.png")
+         * @details Generates sequential filenames like Excel does, but ensures uniqueness
+         *          across all extensions (image1.jpg, image2.png, image3.gif, etc.)
+         *          Uses O(n log n) efficiency with sorted vector and binary search.
+         *          Relies on XLImageManager being the authoritative source for all image paths.
+         */
+        std::string generateUniquePackageFilename(const std::string& extension) const;
+
+
+        /**
+         * @brief Find an image by its file package path
+         * @param filePackagePath The file package path to search for
+         * @return Shared pointer to the XLImage object, or nullptr if not found
+         */
+        XLImageShPtr findImageByFilePackagePath(const std::string& filePackagePath) const;
+
+        /**
+         * @brief Get the number of images in the collection
+         * @return Number of images
+         */
+        size_t getImageCount() const;
+
+        /**
+         * @brief Get iterator to the beginning of the images collection
+         * @return Const iterator to the beginning
+         */
+        std::vector<XLImageShPtr>::const_iterator begin() const;
+
+        /**
+         * @brief Get iterator to the end of the images collection
+         * @return Const iterator to the end
+         */
+        std::vector<XLImageShPtr>::const_iterator end() const;
+
+        /**
+         * @brief Remove embedded image vector for worksheet
+         * @param sheetName The name of the worksheet
+         */
+        void eraseEmbImgsForSheetName(const std::string& sheetName);
+
+        /**
+         * @brief Find or create embedded image vector for worksheet
+         * @param sheetName The name of the worksheet
+         * @return Shared pointer to the embedded image vector
+         */
+        XLEmbImgVecShPtr getEmbImgsForSheetName(const std::string& sheetName);
+
+        /**
+         * @brief Find embedded image vector for worksheet, return null pointer if not found
+         * @param sheetName The name of the worksheet
+         * @return Shared pointer to the embedded image vector, or nullptr if not found
+         */
+        XLEmbImgVecShPtr getEmbImgsForSheetName(const std::string& sheetName) const;
+
+        /**
+         * @brief Verify data integrity for all images
+         * @param dbgMsg Optional pointer to append debug message
+         * @return Number of issues found (0 = no issues)
+         * @details Call verifyData() for each non-null image, check each image has same parentDoc,
+         *          check each image has unique imageData
+         */
+        int verifyData(std::string* dbgMsg = nullptr) const;
+
+        /**
+         * @brief Debug function to print reference counts and brief info for all XLImageShPtr objects
+         * @param title Optional title for the debug output
+         */
+        void printReferenceCounts(const std::string& title = "XLImageManager Reference Counts") const;
+
+    private:
+        XLDocument* m_parentDoc;                 /**< Pointer to parent document */
+        std::vector<XLImageShPtr> m_images;      /**< Collection of image shared pointers */
+        std::map<std::string, XLEmbImgVecShPtr> m_sheetNmEmbImgVMap; /* cache embedded images for each worksheet */
+    };
+
+    /**
+     * @brief The XLEmbeddedImage class represents an image that can be embedded in a worksheet
+     */
+    class OPENXLSX_EXPORT XLEmbeddedImage
+    {
+    public:
+        /**
+         * @brief Default constructor
+         */
+        XLEmbeddedImage() = default;
+
+        /**
+         * @brief Copy constructor
+         * @param other The XLEmbeddedImage to copy
+         */
+        XLEmbeddedImage(const XLEmbeddedImage& other) = default;
+
+        /**
+         * @brief Move constructor
+         * @param other The XLEmbeddedImage to move
+         */
+        XLEmbeddedImage(XLEmbeddedImage&& other) noexcept = default;
+
+        /**
+         * @brief Destructor
+         */
+        ~XLEmbeddedImage() = default;
 
         /**
          * @brief Copy assignment operator
-         * @param other The XLImage to copy
-         * @return Reference to this XLImage
+         * @param other The XLEmbeddedImage to copy
+         * @return Reference to this XLEmbeddedImage
          */
-        XLImage& operator=(const XLImage& other) = default;
+        XLEmbeddedImage& operator=(const XLEmbeddedImage& other) = default;
 
         /**
          * @brief Move assignment operator
-         * @param other The XLImage to move
-         * @return Reference to this XLImage
+         * @param other The XLEmbeddedImage to move
+         * @return Reference to this XLEmbeddedImage
          */
-        XLImage& operator=(XLImage&& other) noexcept = default;
-
-        /**
-         * @brief Load image from file
-         * @param imagePath Path to the image file
-         * @return True if successful, false otherwise
-         */
-        bool loadFromFile(const std::string& imagePath);
-
-        /**
-         * @brief Load image from file
-         * @param imagePath Path to the image file
-         * @param imageId The unique ID for this image
-         * @return True if successful, false otherwise
-         */
-        bool loadFromFile(const std::string& imagePath, const std::string& imageId);
-
-        /**
-         * @brief Load image from binary data
-         * @param imageData Binary image data
-         * @param mimeType MIME type of the image
-         * @return True if successful, false otherwise
-         */
-        bool loadFromData(const std::vector<uint8_t>& imageData, const std::string& mimeType);
-
-        /**
-         * @brief Load image from binary data
-         * @param imageData Binary image data
-         * @param mimeType MIME type of the image
-         * @param imageId The unique ID for this image
-         * @return True if successful, false otherwise
-         */
-        bool loadFromData(const std::vector<uint8_t>& imageData, const std::string& mimeType, const std::string& imageId);
+        XLEmbeddedImage& operator=(XLEmbeddedImage&& other) noexcept = default;
 
         /**
          * @brief Set the image ID
@@ -381,13 +502,7 @@ namespace OpenXLSX
          * @brief Get the image data
          * @return Reference to the image data vector
          */
-        const std::vector<uint8_t>& data() const;
-
-        /**
-         * @brief Get the MIME type
-         * @return The MIME type string
-         */
-        const std::string& mimeType() const;
+        std::vector<uint8_t> data() const;
 
         /**
          * @brief Get the file extension
@@ -414,28 +529,34 @@ namespace OpenXLSX
         uint32_t heightPixels() const;
 
         /**
+         * @brief Get the image MIME type
+         * @return The MIME type as enum
+         */
+        XLMimeType mimeType() const;
+
+        /**
          * @brief Set the display width in Excel units (EMUs)
          * @param width The display width in EMUs
          */
-        void setDisplayWidth(uint32_t width);
+        void setDisplayWidthEMUs(uint32_t width);
 
         /**
          * @brief Set the display height in Excel units (EMUs)
          * @param height The display height in EMUs
          */
-        void setDisplayHeight(uint32_t height);
+        void setDisplayHeightEMUs(uint32_t height);
 
         /**
          * @brief Get the display width in Excel units (EMUs)
          * @return The display width in EMUs
          */
-        uint32_t displayWidth() const;
+        uint32_t displayWidthEMUs() const;
 
         /**
          * @brief Get the display height in Excel units (EMUs)
          * @return The display height in EMUs
          */
-        uint32_t displayHeight() const;
+        uint32_t displayHeightEMUs() const;
 
         /**
          * @brief Set display size in pixels (converts to EMUs automatically)
@@ -443,35 +564,6 @@ namespace OpenXLSX
          * @param heightPixels The display height in pixels
          */
         void setDisplaySizePixels(uint32_t widthPixels, uint32_t heightPixels);
-
-        /**
-         * @brief Set display size maintaining aspect ratio
-         * @param maxWidthEmus Maximum width in EMUs (0 = no limit)
-         * @param maxHeightEmus Maximum height in EMUs (0 = no limit)
-         */
-        void setDisplaySizeWithAspectRatio(uint32_t maxWidthEmus = 0, uint32_t maxHeightEmus = 0);
-
-        /**
-         * @brief Set display size maintaining aspect ratio
-         * @param maxWidthPixels Maximum width in pixels (0 = no limit)
-         * @param maxHeightPixels Maximum height in pixels (0 = no limit)
-         */
-        void setDisplaySizePixelsWithAspectRatio(uint32_t maxWidthPixels = 0, uint32_t maxHeightPixels = 0);
-
-
-        /**
-         * @brief Convert pixels to EMUs (Excel units)
-         * @param pixels Number of pixels
-         * @return Equivalent EMUs
-         */
-        static uint32_t pixelsToEmus(uint32_t pixels);
-
-        /**
-         * @brief Convert EMUs to pixels
-         * @param emus Number of EMUs
-         * @return Equivalent pixels
-         */
-        static uint32_t emusToPixels(uint32_t emus);
 
         /**
          * @brief Check if the image is valid
@@ -487,11 +579,11 @@ namespace OpenXLSX
 
         /**
          * @brief Compare two images for debugging
-         * @param other The other XLImage to compare with
+         * @param other The other XLEmbeddedImage to compare with
          * @param diffMsg Optional pointer to append difference message (up to 16384 characters)
          * @return 0 if identical, <0 if this precedes other, >0 if this follows other
          */
-        int compare(const XLImage& other, std::string* diffMsg = nullptr) const;
+        int compare(const XLEmbeddedImage& other, std::string* diffMsg = nullptr) const;
 
         /**
          * @brief Verify internal data integrity and class invariants
@@ -500,35 +592,132 @@ namespace OpenXLSX
          */
         int verifyData(std::string* dbgMsg = nullptr) const;
 
+        // Registry/relationship setter functions (for XLImageInfo compatibility)
+        /**
+         * @brief Set the relationship ID
+         * @param relationshipId The relationship ID in drawing.xml.rels
+         */
+        void setRelationshipId(const std::string& relationshipId);
+
+        /**
+         * @brief Set the anchor cell reference
+         * @param anchorCell The primary anchor cell reference (e.g., "A1", "B5")
+         */
+        void setAnchorCell(const std::string& anchorCell);
+
+
+        /**
+         * @brief Set the anchor type
+         * @param anchorType The anchor type enum
+         */
+        void setAnchorType(XLImageAnchorType anchorType);
+
+        /**
+         * @brief Convert row/column coordinates to Excel cell reference
+         * @param row Row number (0-based)
+         * @param col Column number (0-based)
+         * @return Excel cell reference (e.g., "A1", "B5")
+         */
+        static std::string rowColToCellRef(uint32_t row, uint16_t col);
+
+        /**
+         * @brief Convert Excel cell reference to row/column coordinates
+         * @param cellRef Excel cell reference (e.g., "A1", "B5")
+         * @return Pair of (row, col) coordinates (0-based)
+         */
+        static std::pair<uint32_t, uint16_t> cellRefToRowCol(const std::string& cellRef);
+
+        // Registry/relationship getter functions (for XLImageInfo compatibility)
+        /**
+         * @brief Get the relationship ID
+         * @return The relationship ID string
+         */
+        const std::string& relationshipId() const;
+
+        /**
+         * @brief Get the anchor cell reference
+         * @return The anchor cell reference string
+         */
+        std::string anchorCell() const;
+
+        /**
+         * @brief Get the anchor type
+         * @return anchor type
+         */
+        const XLImageAnchorType& anchorType() const;
+
+        /**
+         * @brief Get the shared pointer to the image data
+         * @return Shared pointer to the XLImage
+         */
+        XLImageShPtr getImage() const;
+
+        /**
+         * @brief Set the shared pointer to the image data
+         * @param image Shared pointer to the XLImage
+         */
+        void setImage(XLImageShPtr image);
+
+        const XLImageAnchor& getImageAnchor() const{ return m_imageAnchor; }
+
+        void setImageAnchor(const XLImageAnchor& a){ m_imageAnchor = a; }
+
+        /**
+         * @brief Check if this image is empty (default constructed)
+         * @return True if empty, false otherwise
+         */
+        bool isEmpty() const;
+
     private:
-        std::vector<uint8_t> m_imageData;     /**< Binary image data */
-        std::string m_mimeType;               /**< MIME type of the image */
-        std::string m_extension;              /**< File extension */
-        std::string m_id;                     /**< Unique image ID */
-        uint32_t m_widthPixels{0};            /**< Image width in pixels */
-        uint32_t m_heightPixels{0};           /**< Image height in pixels */
-        uint32_t m_displayWidth{0};           /**< Display width in EMUs */
-        uint32_t m_displayHeight{0};          /**< Display height in EMUs */
+        XLImageShPtr m_image;                   /**< Shared pointer to the image data */
+        XLImageAnchor m_imageAnchor;           /**< Image anchor information (positioning, IDs, display dimensions) */
 
         /**
          * @brief Generate a unique image ID
          * @return A unique image ID string
          */
         static std::string generateId(uint32_t imageNumber);
+    };
+
+    /**
+     * @brief Utility class for image operations and test data
+     */
+    class OPENXLSX_EXPORT XLImageUtils
+    {
+    public:
+        // Static const sample binary data for testing
+        static const std::vector<uint8_t> png31x15Data;
+        static const std::vector<uint8_t> jpeg32x18Data;
+        static const std::vector<uint8_t> bmp33x16Data;
+        static const std::vector<uint8_t> gif26x16Data;
+
+        /**
+         * @brief Detect MIME type from binary image data
+         * @param data Binary image data
+         * @return MIME type string (e.g., "image/png")
+         */
+        static std::string detectMimeType(const std::vector<uint8_t>& data);
+
+        /**
+         * @brief Get file extension from MIME type
+         * @param mime MIME type string
+         * @return File extension (e.g., ".png")
+         */
+        static std::string extensionFromMime(const std::string& mime);
 
         /**
          * @brief Determine MIME type from file extension
          * @param extension File extension
-         * @return MIME type string
+         * @return MIME type
          */
-        static std::string mimeTypeFromExtension(const std::string& extension);
+        static XLMimeType mimeTypeFromExtension(const std::string& extension);
 
         /**
          * @brief Determine file extension from MIME type
          * @param mimeType MIME type string
          * @return File extension string
          */
-        static std::string extensionFromMimeType(const std::string& mimeType);
+        static std::string extensionFromMimeType(XLMimeType mimeType);
 
         /**
          * @brief Convert pixels to EMUs (Excel Measurement Units)
@@ -543,7 +732,124 @@ namespace OpenXLSX
          * @param mimeType MIME type of the image
          * @return Pair of (width, height) in pixels
          */
-        static std::pair<uint32_t, uint32_t> getImageDimensions(const std::vector<uint8_t>& data, const std::string& mimeType);
+        static std::pair<uint32_t, uint32_t> getImageDimensions(const std::vector<uint8_t>& data, XLMimeType mimeType);
+
+        /**
+         * @brief Convert pixels to EMUs (Excel units)
+         * @param pixels Number of pixels
+         * @return Equivalent EMUs
+         @deprecated  -- duplicate of pixelsToEMUs()
+         */
+        static uint32_t pixelsToEmus(uint32_t pixels);
+
+        /**
+         * @brief Convert EMUs to pixels
+         * @param emus Number of EMUs
+         * @return Equivalent pixels
+         */
+        static uint32_t emusToPixels(uint32_t emus);
+
+        /**
+         * @brief Convert EMUs to Excel units
+         * @param emus EMU value
+         * @return Excel unit value
+         */
+        static uint32_t emusToExcelUnits(uint32_t emus);
+
+        /**
+         * @brief Convert points to EMUs
+         * @param points Point value
+         * @return EMU value
+         */
+        static uint32_t pointsToEmus(double points);
+
+        /**
+         * @brief Validate image data integrity
+         * @param data Binary image data
+         * @param mimeType MIME type of the image
+         * @return True if image data is valid
+         */
+        static bool validateImageData(const std::vector<uint8_t>& data, const XLMimeType& mimeType);
+
+        /**
+         * @brief Calculate aspect ratio from dimensions
+         * @param width Width in pixels
+         * @param height Height in pixels
+         * @return Aspect ratio (width/height)
+         */
+        static double calculateAspectRatio(uint32_t width, uint32_t height);
+
+        /**
+         * @brief Get image dimensions from binary data (auto-detect MIME type)
+         * @param data Binary image data
+         * @return Pair of (width, height) in pixels, or {0,0} if detection fails
+         */
+        static std::pair<uint32_t, uint32_t> getImageDimensions(const std::vector<uint8_t>& data);
+
+        /**
+         * @brief Check if image dimensions are reasonable
+         * @param width Width in pixels
+         * @param height Height in pixels
+         * @return True if dimensions are within reasonable bounds
+         */
+        static bool isValidImageSize(uint32_t width, uint32_t height);
+
+        /**
+         * @brief Calculate hash value for binary image data
+         * @param imageData Binary image data as vector<uint8_t>
+         * @return Hash value for the image data
+         */
+        static size_t imageDataHash(const std::vector<uint8_t>& imageData);
+
+        /**
+         * @brief Calculate hash value for image data stored as string
+         * @param imageDataStr Binary image data as string
+         * @return Hash value for the image data (same as imageDataHash for equivalent data)
+         */
+        static size_t imageDataStrHash(const std::string& imageDataStr);
+
+        /**
+         * @brief Match XML element name with target name (handles namespace prefixes)
+         * @param elementName The XML element name (e.g., "xdr:oneCellAnchor")
+         * @param targetName The target name to match (e.g., "oneCellAnchor")
+         * @return True if the element name matches the target name
+         */
+        static bool matchesElementName(const std::string& elementName, const std::string& targetName);
+
+        /**
+         * @brief Convert MIME type to XLContentType enum
+         * @param mimeType MIME type enum
+         * @return Corresponding XLContentType enum value
+         */
+        static XLContentType mimeTypeToContentType(const XLMimeType& mimeType);
+
+        /**
+         * @brief Convert XLContentType enum to MIME type
+         * @param contentType XLContentType enum value
+         * @return Corresponding MIME type
+         */
+        static XLMimeType contentTypeToMimeType(XLContentType contentType);
+
+        /**
+         * @brief Convert MIME type string to XLMimeType enum
+         * @param mimeType MIME type string (e.g., "image/png")
+         * @return Corresponding XLMimeType enum value
+         */
+        static XLMimeType stringToMimeType(const std::string& mimeType);
+
+        /**
+         * @brief Convert XLMimeType enum to MIME type string
+         * @param mimeType XLMimeType enum value
+         * @return Corresponding MIME type string (e.g., "image/png")
+         */
+        static std::string mimeTypeToString(XLMimeType mimeType);
+
+        /**
+         * @brief Detect MIME type from binary image data and return as enum
+         * @param data Binary image data
+         * @return Corresponding XLMimeType enum value
+         */
+        static XLMimeType detectMimeTypeEnum(const std::vector<uint8_t>& data);
     };
 
 }    // namespace OpenXLSX

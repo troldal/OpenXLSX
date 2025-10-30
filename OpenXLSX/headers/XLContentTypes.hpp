@@ -99,16 +99,6 @@ namespace OpenXLSX
     };
 
     /**
-     * @brief Image MIME type constants
-     */
-    namespace ImageMimeTypes {
-        static const std::string PNG = "image/png";
-        static const std::string JPEG = "image/jpeg";
-        static const std::string BMP = "image/bmp";
-        static const std::string GIF = "image/gif";
-    }
-
-    /**
      * @brief utility function: determine the name of an XLContentType value
      * @param type the XLContentType to get a name for
      * @return a string with the name of type
