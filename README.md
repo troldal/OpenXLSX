@@ -3,6 +3,12 @@
 OpenXLSX is a C++ library for reading, writing, creating and modifying
 Microsoft Excel® files, with the .xlsx format.
 
+## NOTE: (aral-matrix) Please do not create unsolicited pull requests
+If we don't explicitly ask you to submit a pull request, please refrain from creating any, and submit a bug report / feature request instead, please. You are free to link to a fix in the issue, but generally, I do not merge pull requests for various reasons:
+* there is a lot of potential for introducing vulnerable code when making major changes, both intentionally and unintentionally. I don't blindly trust anyone's code, and I will not invest time reviewing all those changes
+* code written by other people more often than not breaks the coding conventions of a project (variable naming etc)
+* the most recent branch is more often than not a development branch, and pull requests submitted against the master branch can be quite messy to merge with changes in the development branch
+
 ## NOTE: "Releases" are severely outdated - do not use them
 
 As the heading says - the latest "Release" that is shown on https://github.com/troldal/OpenXLSX/releases is from 2021-11-06, and severely outdated - please pull / download the latest SW version directly from the repository in its current state. Link for those that do not want to use ```git```: https://github.com/troldal/OpenXLSX/archive/refs/heads/master.zip
