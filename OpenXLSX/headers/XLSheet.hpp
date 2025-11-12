@@ -1402,19 +1402,6 @@ namespace OpenXLSX
          */
         const std::vector<XLEmbeddedImage>& getEmbImages() const;
 
-        /**
-         * @brief Get iterator to the beginning of the embedded images collection
-         * @return Const iterator to the first embedded image
-         * @note Useful for range-based for loops and STL algorithms
-         */
-        std::vector<XLEmbeddedImage>::const_iterator embImagesBegin() const;
-
-        /**
-         * @brief Get iterator to the end of the embedded images collection
-         * @return Const iterator to the end of the embedded images collection
-         * @note Useful for range-based for loops and STL algorithms
-         */
-        std::vector<XLEmbeddedImage>::const_iterator embImagesEnd() const;
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Image Modification Methods
@@ -1463,6 +1450,12 @@ namespace OpenXLSX
          * @return True if the relationship was found and removed
          */
         bool removeImageFromRelationships(const std::string& relationshipId) const;
+
+        /**
+         * @brief Remove the <drawing> element from worksheet XML if there are no more images
+         * @note This is a helper function called after removing images to clean up the XML
+         */
+        void removeDrawingElementIfEmpty();
 
         /**
          * @brief Remove image file from archive (delete binary file entry)

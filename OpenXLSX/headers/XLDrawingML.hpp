@@ -173,43 +173,9 @@ namespace OpenXLSX
         
         // ===== Constructors ===== //
         XLImageAnchor() = default;
-        
-        /**
-         * @brief Construct from oneCellAnchor data
-         * @param imageId Image identifier
-         * @param relationshipId Relationship identifier
-         * @param row Row number (0-based, as in XML)
-         * @param col Column number (0-based, as in XML)
-         * @param rowOffset Row offset in EMUs
-         * @param colOffset Column offset in EMUs
-         * @param displayWidth Display width in EMUs
-         * @param displayHeight Display height in EMUs
-         */
-        XLImageAnchor(const std::string& imageId, const std::string& relationshipId,
-                     uint32_t row, uint16_t col, int32_t rowOffset, int32_t colOffset,
-                     uint32_t displayWidth, uint32_t displayHeight);
-        
-        /**
-         * @brief Construct from twoCellAnchor data
-         * @param imageId Image identifier
-         * @param relationshipId Relationship identifier
-         * @param fromRow From row number (0-based, as in XML)
-         * @param fromCol From column number (0-based, as in XML)
-         * @param toRow To row number (0-based, as in XML)
-         * @param toCol To column number (0-based, as in XML)
-         * @param fromRowOffset From row offset in EMUs
-         * @param fromColOffset From column offset in EMUs
-         * @param toRowOffset To row offset in EMUs
-         * @param toColOffset To column offset in EMUs
-         * @param displayWidth Display width in EMUs
-         * @param displayHeight Display height in EMUs
-         */
-        XLImageAnchor(const std::string& imageId, const std::string& relationshipId,
-                     uint32_t fromRow, uint16_t fromCol, uint32_t toRow, uint16_t toCol,
-                     int32_t fromRowOffset, int32_t fromColOffset,
-                     int32_t toRowOffset, int32_t toColOffset,
-                     uint32_t displayWidth, uint32_t displayHeight);
 
+        bool operator==( const XLImageAnchor& other ) const = default;
+        
         void reset();
 
         void initOneCell( const XLCellReference& cellRef, int32_t rowOffset = 0,
@@ -241,12 +207,6 @@ namespace OpenXLSX
         void setDisplaySizeWithAspectRatio(
             const std::string& imageFileName, const XLMimeType& mimeType,
             const uint32_t& maxWidthEmus, const uint32_t& maxHeightEmus );
-
-        /**
-         * @brief Get the primary anchor cell reference (converts 0-based to 1-based)
-         * @return Cell reference string (e.g., "A2")
-         */
-        std::string getAnchorCellReference() const;
         
         /**
          * @brief Check if this is a twoCellAnchor

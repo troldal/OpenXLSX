@@ -55,6 +55,16 @@ using namespace OpenXLSX;
 
 // These contain the binary data from the tiny image files in the images directory
 
+// 1x1 red PNG (minimal)
+const std::vector<uint8_t> XLImageUtils::red1x1PNGData = {
+        0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D,
+        0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,
+        0x08, 0x02, 0x00, 0x00, 0x00, 0x90, 0x77, 0x53, 0xDE, 0x00, 0x00, 0x00,
+        0x0C, 0x49, 0x44, 0x41, 0x54, 0x08, 0xD7, 0x63, 0xF8, 0x0F, 0x00, 0x00,
+        0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44, 0xAE,
+        0x42, 0x60, 0x82
+};
+
 // tiny_png.png - Small PNG image
 const std::vector<uint8_t> XLImageUtils::png31x15Data = {
         0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d,
@@ -447,59 +457,64 @@ const std::vector<uint8_t> XLImageUtils::png31x15Data = {
 // ========== XLImageUtils Member Functions ========== //
 
 /**
- * @brief Detect MIME type from binary image data
+ * @brief Detect MIME type from binary image data and return as enum
  * @param data Binary image data
- * @return MIME type string (e.g., "image/png")
+ * @return Corresponding XLMimeType enum value
  */
-std::string XLImageUtils::detectMimeType(const std::vector<uint8_t>& data)
+XLMimeType XLImageUtils::detectMimeType(const std::vector<uint8_t>& data)
 {
-    if (data.size() >= 8 && data[0] == 0x89 && data[1] == 0x50 && data[2] == 0x4e && data[3] == 0x47) {
-        return "image/png";
+    if (data.size() >= 8 && data[0] == 0x89 && data[1] == 0x50 && data[2] == 0x4E && data[3] == 0x47) {
+        return XLMimeType::PNG;
     }
     if (data.size() >= 2 && data[0] == 0xFF && data[1] == 0xD8) {
-        return "image/jpeg";
+        return XLMimeType::JPEG;
     }
     if (data.size() >= 2 && data[0] == 0x42 && data[1] == 0x4D) {
-        return "image/bmp";
+        return XLMimeType::BMP;
     }
     if (data.size() >= 3 && data[0] == 0x47 && data[1] == 0x49 && data[2] == 0x46) {
-        return "image/gif";
+        return XLMimeType::GIF;
     }
-    return "";
-}
-
-/**
- * @brief Get file extension from MIME type
- * @param mime MIME type string
- * @return File extension (e.g., ".png")
- */
-std::string XLImageUtils::extensionFromMime(const std::string& mime)
-{
-    if (mime == "image/png") return ".png";
-    if (mime == "image/jpeg") return ".jpg";
-    if (mime == "image/bmp") return ".bmp";
-    if (mime == "image/gif") return ".gif";
-    return "";
-}
-
-/**
- * @brief Determine MIME type from file extension
- * @param extension File extension
- * @return MIME type
- */
-XLMimeType XLImageUtils::mimeTypeFromExtension(const std::string& extension)
-{
-    if (extension.find("png") != std::string::npos ) return XLMimeType::PNG;
-    if ((extension.find("jpg") != std::string::npos ) || 
-        (extension.find("jpeg") != std::string::npos )) return XLMimeType::JPEG;
-    if (extension.find("bmp") != std::string::npos ) return XLMimeType::BMP;
-    if (extension.find("gif") != std::string::npos ) return XLMimeType::GIF;
     return XLMimeType::Unknown;
 }
 
+/**
+ * @brief Convert XLMimeType enum to MIME type string
+ * @param mimeType XLMimeType enum value
+ * @return Corresponding MIME type string (e.g., "image/png")
+ */
+std::string XLImageUtils::mimeTypeToString(XLMimeType mimeType)
+{
+    switch (mimeType) {
+        case XLMimeType::PNG: return "image/png";
+        case XLMimeType::JPEG: return "image/jpeg";
+        case XLMimeType::BMP: return "image/bmp";
+        case XLMimeType::GIF: return "image/gif";
+        case XLMimeType::Unknown:
+        default: return "";
+    }
+}
 
+/**
+ * @brief Convert MIME type string to XLMimeType enum
+ * @param mimeType MIME type string (e.g., "image/png")
+ * @return Corresponding XLMimeType enum value
+ */
+XLMimeType XLImageUtils::stringToMimeType(const std::string& mimeTypeStr)
+{
+    if (mimeTypeStr == "image/png") return XLMimeType::PNG;
+    if (mimeTypeStr == "image/jpeg") return XLMimeType::JPEG;
+    if (mimeTypeStr == "image/bmp") return XLMimeType::BMP;
+    if (mimeTypeStr == "image/gif") return XLMimeType::GIF;
+    return XLMimeType::Unknown;
+}
 
-std::string XLImageUtils::extensionFromMimeType(XLMimeType mimeType)
+/**
+ * @brief Determine file extension from MIME type
+ * @param mimeType MIME type string
+ * @return File extension string
+ */
+std::string XLImageUtils::mimeTypeToExtension(XLMimeType mimeType)
 {
     switch (mimeType) {
         case XLMimeType::PNG: return ".png";
@@ -512,13 +527,91 @@ std::string XLImageUtils::extensionFromMimeType(XLMimeType mimeType)
 }
 
 /**
- * @brief Convert pixels to EMUs (Excel Measurement Units)
- * @param pixels Number of pixels
- * @return Number of EMUs
+ * @brief Determine MIME type from file extension
+ * @param extension File extension
+ * @return MIME type
  */
-uint32_t XLImageUtils::pixelsToEMUs(uint32_t pixels)
+XLMimeType XLImageUtils::extensionToMimeType(const std::string& extension)
 {
-    return pixels * 9525; // EMU_TO_PIXEL_RATIO
+    if (extension.find("png") != std::string::npos ) return XLMimeType::PNG;
+    if ((extension.find("jpg") != std::string::npos ) || 
+        (extension.find("jpeg") != std::string::npos )) return XLMimeType::JPEG;
+    if (extension.find("bmp") != std::string::npos ) return XLMimeType::BMP;
+    if (extension.find("gif") != std::string::npos ) return XLMimeType::GIF;
+    return XLMimeType::Unknown;
+}
+
+/**
+ * @brief Convert MIME type to XLContentType enum
+ * @param mimeType MIME type enum
+ * @return Corresponding XLContentType enum value
+ */
+XLContentType XLImageUtils::mimeTypeToContentType(const XLMimeType& mimeType)
+{
+    if (mimeType == XLMimeType::PNG) return XLContentType::ImagePNG;
+    if (mimeType == XLMimeType::JPEG) return XLContentType::ImageJPEG;
+    if (mimeType == XLMimeType::BMP) return XLContentType::ImageBMP;
+    if (mimeType == XLMimeType::GIF) return XLContentType::ImageGIF;
+    return XLContentType::Unknown;
+}
+
+/**
+ * @brief Convert XLContentType enum to MIME type
+ * @param contentType XLContentType enum value
+ * @return Corresponding MIME type
+ */
+XLMimeType XLImageUtils::contentTypeToMimeType(XLContentType contentType)
+{
+    switch (contentType) {
+        case XLContentType::ImagePNG: return XLMimeType::PNG;
+        case XLContentType::ImageJPEG: return XLMimeType::JPEG;
+        case XLContentType::ImageBMP: return XLMimeType::BMP;
+        case XLContentType::ImageGIF: return XLMimeType::GIF;
+        default: return XLMimeType::Unknown;
+    }
+}
+
+/**
+ * @brief Convert pixels to EMUs (Excel units)
+ * @param pixels Number of pixels
+ * @return Equivalent EMUs
+ */
+uint32_t XLImageUtils::pixelsToEmus(uint32_t pixels)
+{
+    return pixels * EMU_TO_PIXEL_RATIO;
+}
+
+/**
+ * @brief Convert EMUs to pixels
+ * @param emus Number of EMUs
+ * @return Equivalent pixels
+ */
+uint32_t XLImageUtils::emusToPixels(uint32_t emus)
+{
+    return emus / EMU_TO_PIXEL_RATIO;
+}
+
+/**
+ * @brief Convert points to EMUs
+ * @param points Point value
+ * @return EMU value
+ */
+uint32_t XLImageUtils::pointsToEmus(double points)
+{
+    // Convert points to EMUs (1 point = 12700 EMUs)
+    return static_cast<uint32_t>(points * 12700);
+}
+
+/**
+ * @brief Calculate aspect ratio from dimensions
+ * @param width Width in pixels
+ * @param height Height in pixels
+ * @return Aspect ratio (width/height)
+ */
+double XLImageUtils::calculateAspectRatio(uint32_t width, uint32_t height)
+{
+    if (height == 0) return 0.0;
+    return static_cast<double>(width) / static_cast<double>(height);
 }
 
 /**
@@ -577,45 +670,32 @@ std::pair<uint32_t, uint32_t> XLImageUtils::getImageDimensions(const std::vector
 }
 
 /**
- * @brief Convert pixels to EMUs (Excel units)
- * @param pixels Number of pixels
- * @return Equivalent EMUs
+ * @brief Get image dimensions from binary data (auto-detect MIME type)
+ * @param data Binary image data
+ * @return Pair of (width, height) in pixels, or {0,0} if detection fails
  */
-uint32_t XLImageUtils::pixelsToEmus(uint32_t pixels)
+std::pair<uint32_t, uint32_t> XLImageUtils::getImageDimensions(const std::vector<uint8_t>& data)
 {
-    return pixels * 9525; // EMU_TO_PIXEL_RATIO
+    // Auto-detect MIME type first
+    const XLMimeType mimeType = detectMimeType(data);
+    if (mimeType == XLMimeType::Unknown) {
+        return {0, 0};
+    }
+    
+    // Use the existing function with detected MIME type
+    return getImageDimensions(data, mimeType);
 }
 
 /**
- * @brief Convert EMUs to pixels
- * @param emus Number of EMUs
- * @return Equivalent pixels
+ * @brief Check if image dimensions are reasonable
+ * @param width Width in pixels
+ * @param height Height in pixels
+ * @return True if dimensions are within reasonable bounds
  */
-uint32_t XLImageUtils::emusToPixels(uint32_t emus)
+bool XLImageUtils::isValidImageSize(uint32_t width, uint32_t height)
 {
-    return emus / 9525; // EMU_TO_PIXEL_RATIO
-}
-
-/**
- * @brief Convert EMUs to Excel units
- * @param emus EMU value
- * @return Excel unit value
- */
-uint32_t XLImageUtils::emusToExcelUnits(uint32_t emus)
-{
-    // Convert EMUs to Excel units (1 EMU = 1/9525 Excel units)
-    return emus / 9525;
-}
-
-/**
- * @brief Convert points to EMUs
- * @param points Point value
- * @return EMU value
- */
-uint32_t XLImageUtils::pointsToEmus(double points)
-{
-    // Convert points to EMUs (1 point = 12700 EMUs)
-    return static_cast<uint32_t>(points * 12700);
+    // Reasonable bounds: 1x1 to 10000x10000 pixels
+    return width > 0 && height > 0 && width <= 10000 && height <= 10000;
 }
 
 /**
@@ -646,47 +726,6 @@ bool XLImageUtils::validateImageData(const std::vector<uint8_t>& data, const XLM
 }
 
 /**
- * @brief Calculate aspect ratio from dimensions
- * @param width Width in pixels
- * @param height Height in pixels
- * @return Aspect ratio (width/height)
- */
-double XLImageUtils::calculateAspectRatio(uint32_t width, uint32_t height)
-{
-    if (height == 0) return 0.0;
-    return static_cast<double>(width) / static_cast<double>(height);
-}
-
-/**
- * @brief Get image dimensions from binary data (auto-detect MIME type)
- * @param data Binary image data
- * @return Pair of (width, height) in pixels, or {0,0} if detection fails
- */
-std::pair<uint32_t, uint32_t> XLImageUtils::getImageDimensions(const std::vector<uint8_t>& data)
-{
-    // Auto-detect MIME type first
-    XLMimeType mimeType = detectMimeTypeEnum(data);
-    if (mimeType == XLMimeType::Unknown) {
-        return {0, 0};
-    }
-    
-    // Use the existing function with detected MIME type
-    return getImageDimensions(data, mimeType);
-}
-
-/**
- * @brief Check if image dimensions are reasonable
- * @param width Width in pixels
- * @param height Height in pixels
- * @return True if dimensions are within reasonable bounds
- */
-bool XLImageUtils::isValidImageSize(uint32_t width, uint32_t height)
-{
-    // Reasonable bounds: 1x1 to 10000x10000 pixels
-    return width > 0 && height > 0 && width <= 10000 && height <= 10000;
-}
-
-/**
  * @brief Calculate hash value for binary image data
  * @param imageData Binary image data as vector<uint8_t>
  * @return Hash value for the image data
@@ -713,67 +752,4 @@ size_t XLImageUtils::imageDataStrHash(const std::string& imageDataStr)
         h = hasher(imageDataStr);
     }
     return h;
-}
-
-/**
- * @brief Convert MIME type string to XLContentType enum
- * @param mimeType MIME type string (e.g., "image/png")
- * @return Corresponding XLContentType enum value
- */
-XLContentType XLImageUtils::mimeTypeToContentType(const XLMimeType& mimeType)
-{
-    if (mimeType == XLMimeType::PNG) return XLContentType::ImagePNG;
-    if (mimeType == XLMimeType::JPEG) return XLContentType::ImageJPEG;
-    if (mimeType == XLMimeType::BMP) return XLContentType::ImageBMP;
-    if (mimeType == XLMimeType::GIF) return XLContentType::ImageGIF;
-    return XLContentType::Unknown;
-}
-
-XLMimeType XLImageUtils::contentTypeToMimeType(XLContentType contentType)
-{
-    switch (contentType) {
-        case XLContentType::ImagePNG: return XLMimeType::PNG;
-        case XLContentType::ImageJPEG: return XLMimeType::JPEG;
-        case XLContentType::ImageBMP: return XLMimeType::BMP;
-        case XLContentType::ImageGIF: return XLMimeType::GIF;
-        default: return XLMimeType::Unknown;
-    }
-}
-
-XLMimeType XLImageUtils::stringToMimeType(const std::string& mimeTypeStr)
-{
-    if (mimeTypeStr == "image/png") return XLMimeType::PNG;
-    if (mimeTypeStr == "image/jpeg") return XLMimeType::JPEG;
-    if (mimeTypeStr == "image/bmp") return XLMimeType::BMP;
-    if (mimeTypeStr == "image/gif") return XLMimeType::GIF;
-    return XLMimeType::Unknown;
-}
-
-std::string XLImageUtils::mimeTypeToString(XLMimeType mimeType)
-{
-    switch (mimeType) {
-        case XLMimeType::PNG: return "image/png";
-        case XLMimeType::JPEG: return "image/jpeg";
-        case XLMimeType::BMP: return "image/bmp";
-        case XLMimeType::GIF: return "image/gif";
-        case XLMimeType::Unknown:
-        default: return "";
-    }
-}
-
-XLMimeType XLImageUtils::detectMimeTypeEnum(const std::vector<uint8_t>& data)
-{
-    if (data.size() >= 8 && data[0] == 0x89 && data[1] == 0x50 && data[2] == 0x4E && data[3] == 0x47) {
-        return XLMimeType::PNG;
-    }
-    if (data.size() >= 2 && data[0] == 0xFF && data[1] == 0xD8) {
-        return XLMimeType::JPEG;
-    }
-    if (data.size() >= 2 && data[0] == 0x42 && data[1] == 0x4D) {
-        return XLMimeType::BMP;
-    }
-    if (data.size() >= 3 && data[0] == 0x47 && data[1] == 0x49 && data[2] == 0x46) {
-        return XLMimeType::GIF;
-    }
-    return XLMimeType::Unknown;
 }

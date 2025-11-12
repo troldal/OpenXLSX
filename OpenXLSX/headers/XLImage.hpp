@@ -86,7 +86,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM    d'`MM.
  * RELATIONSHIP TYPE 1: WORKSHEET-LEVEL RELATIONSHIPS
  * ──────────────────────────────────────────────────────────────────────────────
  * 
- * Location: Lines 1735-1750 in XLWorksheet::drawingML()
+ * Location: Lines 1764-1778 in XLWorksheet::drawingML()
  * 
  * Code:
  *   std::string drawingRelativePath = getPathARelativeToPathB(drawingFilename, getXmlPath());
@@ -115,13 +115,13 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM    d'`MM.
  * RELATIONSHIP TYPE 2: DRAWING-LEVEL RELATIONSHIPS
  * ──────────────────────────────────────────────────────────────────────────────
  * 
- * Location: Lines 2016-2045 in XLWorksheet::createDrawingRelationshipsFile()
+ * Location: Lines 2147-2175 in XLWorksheet::createDrawingRelationshipsFile()
  * 
  * Code:
  *   int relationshipId = 1;
- *   for (const auto& image : m_images) {
- *       std::string imageFilename = "xl/media/image_" + image.id() + image.extension();
- *       std::string imageRelativePath = "../media/image_" + image.id() + image.extension();
+ *   for (const auto& embImage : getEmbImages()) {
+ *       std::string packageFilename = embImage.getImage()->filePackagePath();
+ *       std::string imageRelativePath = "../media/" + packageFilename.substr(packageFilename.find_last_of('/') + 1);
  *       
  *       relsXml += "<Relationship Id=\"rId" + std::to_string(relationshipId) + 
  *                  "\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" " +
@@ -492,6 +492,8 @@ namespace OpenXLSX
          */
         XLEmbeddedImage& operator=(XLEmbeddedImage&& other) noexcept = default;
 
+        bool operator==( const XLEmbeddedImage& other ) const = default;
+
         /**
          * @brief Set the image ID
          * @param imageId The unique ID for this image
@@ -686,53 +688,60 @@ namespace OpenXLSX
     {
     public:
         // Static const sample binary data for testing
+        static const std::vector<uint8_t> red1x1PNGData;
         static const std::vector<uint8_t> png31x15Data;
         static const std::vector<uint8_t> jpeg32x18Data;
         static const std::vector<uint8_t> bmp33x16Data;
         static const std::vector<uint8_t> gif26x16Data;
 
         /**
-         * @brief Detect MIME type from binary image data
+         * @brief Detect MIME type from binary image data and return as enum
          * @param data Binary image data
-         * @return MIME type string (e.g., "image/png")
+         * @return Corresponding XLMimeType enum value
          */
-        static std::string detectMimeType(const std::vector<uint8_t>& data);
+        static XLMimeType detectMimeType(const std::vector<uint8_t>& data);
 
         /**
-         * @brief Get file extension from MIME type
-         * @param mime MIME type string
-         * @return File extension (e.g., ".png")
+         * @brief Convert XLMimeType enum to MIME type string
+         * @param mimeType XLMimeType enum value
+         * @return Corresponding MIME type string (e.g., "image/png")
          */
-        static std::string extensionFromMime(const std::string& mime);
+        static std::string mimeTypeToString(XLMimeType mimeType);
 
         /**
-         * @brief Determine MIME type from file extension
-         * @param extension File extension
-         * @return MIME type
+         * @brief Convert MIME type string to XLMimeType enum
+         * @param mimeType MIME type string (e.g., "image/png")
+         * @return Corresponding XLMimeType enum value
          */
-        static XLMimeType mimeTypeFromExtension(const std::string& extension);
+        static XLMimeType stringToMimeType(const std::string& mimeType);
 
         /**
          * @brief Determine file extension from MIME type
          * @param mimeType MIME type string
          * @return File extension string
          */
-        static std::string extensionFromMimeType(XLMimeType mimeType);
+        static std::string mimeTypeToExtension(XLMimeType mimeType);
 
         /**
-         * @brief Convert pixels to EMUs (Excel Measurement Units)
-         * @param pixels Number of pixels
-         * @return Number of EMUs
+         * @brief Determine MIME type from file extension
+         * @param extension File extension
+         * @return MIME type
          */
-        static uint32_t pixelsToEMUs(uint32_t pixels);
+        static XLMimeType extensionToMimeType(const std::string& extension);
 
         /**
-         * @brief Get image dimensions from binary data
-         * @param data Binary image data
-         * @param mimeType MIME type of the image
-         * @return Pair of (width, height) in pixels
+         * @brief Convert MIME type to XLContentType enum
+         * @param mimeType MIME type enum
+         * @return Corresponding XLContentType enum value
          */
-        static std::pair<uint32_t, uint32_t> getImageDimensions(const std::vector<uint8_t>& data, XLMimeType mimeType);
+        static XLContentType mimeTypeToContentType(const XLMimeType& mimeType);
+
+        /**
+         * @brief Convert XLContentType enum to MIME type
+         * @param contentType XLContentType enum value
+         * @return Corresponding MIME type
+         */
+        static XLMimeType contentTypeToMimeType(XLContentType contentType);
 
         /**
          * @brief Convert pixels to EMUs (Excel units)
@@ -750,26 +759,11 @@ namespace OpenXLSX
         static uint32_t emusToPixels(uint32_t emus);
 
         /**
-         * @brief Convert EMUs to Excel units
-         * @param emus EMU value
-         * @return Excel unit value
-         */
-        static uint32_t emusToExcelUnits(uint32_t emus);
-
-        /**
          * @brief Convert points to EMUs
          * @param points Point value
          * @return EMU value
          */
         static uint32_t pointsToEmus(double points);
-
-        /**
-         * @brief Validate image data integrity
-         * @param data Binary image data
-         * @param mimeType MIME type of the image
-         * @return True if image data is valid
-         */
-        static bool validateImageData(const std::vector<uint8_t>& data, const XLMimeType& mimeType);
 
         /**
          * @brief Calculate aspect ratio from dimensions
@@ -778,6 +772,14 @@ namespace OpenXLSX
          * @return Aspect ratio (width/height)
          */
         static double calculateAspectRatio(uint32_t width, uint32_t height);
+
+        /**
+         * @brief Get image dimensions from binary data
+         * @param data Binary image data
+         * @param mimeType MIME type of the image
+         * @return Pair of (width, height) in pixels
+         */
+        static std::pair<uint32_t, uint32_t> getImageDimensions(const std::vector<uint8_t>& data, XLMimeType mimeType);
 
         /**
          * @brief Get image dimensions from binary data (auto-detect MIME type)
@@ -793,6 +795,14 @@ namespace OpenXLSX
          * @return True if dimensions are within reasonable bounds
          */
         static bool isValidImageSize(uint32_t width, uint32_t height);
+
+        /**
+         * @brief Validate image data integrity
+         * @param data Binary image data
+         * @param mimeType MIME type of the image
+         * @return True if image data is valid
+         */
+        static bool validateImageData(const std::vector<uint8_t>& data, const XLMimeType& mimeType);
 
         /**
          * @brief Calculate hash value for binary image data
@@ -817,39 +827,25 @@ namespace OpenXLSX
         static bool matchesElementName(const std::string& elementName, const std::string& targetName);
 
         /**
-         * @brief Convert MIME type to XLContentType enum
-         * @param mimeType MIME type enum
-         * @return Corresponding XLContentType enum value
+         * @brief Get file extension from MIME type
+         * @param mime MIME type string
+         * @return File extension (e.g., ".png")
          */
-        static XLContentType mimeTypeToContentType(const XLMimeType& mimeType);
+        static std::string extensionFromMime(const std::string& mime);
 
         /**
-         * @brief Convert XLContentType enum to MIME type
-         * @param contentType XLContentType enum value
-         * @return Corresponding MIME type
+         * @brief Convert pixels to EMUs (Excel Measurement Units)
+         * @param pixels Number of pixels
+         * @return Number of EMUs
          */
-        static XLMimeType contentTypeToMimeType(XLContentType contentType);
+        static uint32_t pixelsToEMUs(uint32_t pixels);
 
         /**
-         * @brief Convert MIME type string to XLMimeType enum
-         * @param mimeType MIME type string (e.g., "image/png")
-         * @return Corresponding XLMimeType enum value
+         * @brief Convert EMUs to Excel units
+         * @param emus EMU value
+         * @return Excel unit value
          */
-        static XLMimeType stringToMimeType(const std::string& mimeType);
-
-        /**
-         * @brief Convert XLMimeType enum to MIME type string
-         * @param mimeType XLMimeType enum value
-         * @return Corresponding MIME type string (e.g., "image/png")
-         */
-        static std::string mimeTypeToString(XLMimeType mimeType);
-
-        /**
-         * @brief Detect MIME type from binary image data and return as enum
-         * @param data Binary image data
-         * @return Corresponding XLMimeType enum value
-         */
-        static XLMimeType detectMimeTypeEnum(const std::vector<uint8_t>& data);
+        static uint32_t emusToExcelUnits(uint32_t emus);
     };
 
 }    // namespace OpenXLSX

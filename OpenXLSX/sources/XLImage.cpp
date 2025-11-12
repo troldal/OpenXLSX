@@ -126,7 +126,7 @@ namespace OpenXLSX
         }
         
         // Compute metadata from image data
-        XLMimeType computedMimeType = XLImageUtils::mimeTypeFromExtension(m_extension);
+        XLMimeType computedMimeType = XLImageUtils::extensionToMimeType(m_extension);
         if (computedMimeType != m_mimeType) {
             std::string storedMimeTypeStr = XLImageUtils::mimeTypeToString(m_mimeType);
             std::string computedMimeTypeStr = XLImageUtils::mimeTypeToString(computedMimeType);
@@ -196,7 +196,7 @@ namespace OpenXLSX
         // Image doesn't exist, create new one
         size_t imageDataHash = XLImageUtils::imageDataHash(imageData);
         XLMimeType mimeType = XLImageUtils::contentTypeToMimeType(contentType);
-        std::string extension = XLImageUtils::extensionFromMimeType(mimeType);
+        std::string extension = XLImageUtils::mimeTypeToExtension(mimeType);
         
         // Generate package filename
         std::string packageImageFilename;
@@ -795,8 +795,12 @@ namespace OpenXLSX
         }
 
         if (m_imageAnchor.displayHeightEMUs == 0) {
-            appendDbgMsg(dbgMsg, "display height in EMUs is zero");
-            errorCount++;
+            // For twoCellAnchor, Excel may legitimately store zero values in the ext element
+            // Excel handles the sizing based on cell positions, so zero is acceptable
+            if (!m_imageAnchor.isTwoCell()) {
+                appendDbgMsg(dbgMsg, "display height in EMUs is zero");
+                errorCount++;
+            }
         }
 
         // Check MIME type and extension consistency

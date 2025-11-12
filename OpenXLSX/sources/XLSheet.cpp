@@ -1948,7 +1948,7 @@ std::string XLWorksheet::embedImageFromImageData(const XLImageAnchor& imageAncho
     // Auto-detect MIME type if unknown
     XLMimeType detectedMimeType = mimeType;
     if (mimeType == XLMimeType::Unknown) {
-        detectedMimeType = XLImageUtils::detectMimeTypeEnum(imageData);
+        detectedMimeType = XLImageUtils::detectMimeType(imageData);
     }
     
     XLImageShPtr image = parentDoc().getImageManager().findOrAddImage("",
@@ -2004,7 +2004,7 @@ std::string XLWorksheet::embedImageFromFile(const XLImageAnchor& imageAnchor,
         // Auto-detect MIME type if unknown
         XLMimeType detectedMimeType = mimeType;
         if (mimeType == XLMimeType::Unknown) {
-            detectedMimeType = XLImageUtils::detectMimeTypeEnum(imageData);
+            detectedMimeType = XLImageUtils::detectMimeType(imageData);
         }
         
         XLImageShPtr image = parentDoc().getImageManager().findOrAddImage("",
@@ -3245,12 +3245,6 @@ std::string XLWorksheet::getImageMediaPathFromFilename(const std::string& imageP
     return "xl/media/" + imagePath.substr(imagePath.find_last_of('/') + 1);
 }
 
-const std::vector<XLEmbeddedImage>& XLWorksheet::getEmbImages() const
-{   
-    const std::vector<XLEmbeddedImage>& embImages = const_cast<XLWorksheet *>(this)->getEmbImages();
-    return embImages;
-}
-
 std::vector<XLEmbeddedImage>& XLWorksheet::getEmbImages()
 {
     if (!m_embImages) {
@@ -3262,4 +3256,9 @@ std::vector<XLEmbeddedImage>& XLWorksheet::getEmbImages()
     return *m_embImages;
 }
 
-// Static const member definitions for XLWorksheet
+const std::vector<XLEmbeddedImage>& XLWorksheet::getEmbImages() const
+{   
+    const std::vector<XLEmbeddedImage>& embImages = const_cast<XLWorksheet *>(this)->getEmbImages();
+    return embImages;
+}
+

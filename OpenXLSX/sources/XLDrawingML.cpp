@@ -130,50 +130,6 @@ namespace OpenXLSX
 
     // ========== XLImageAnchor Implementation ========== //
 
-    XLImageAnchor::XLImageAnchor(const std::string& imageId, const std::string& relationshipId,
-                                 uint32_t row, uint16_t col, int32_t rowOffset, int32_t colOffset,
-                                 uint32_t displayWidth, uint32_t displayHeight)
-        : anchorType(XLImageAnchorType::OneCellAnchor)
-        , imageId(imageId)
-        , relationshipId(relationshipId)
-        , fromRow(row)          // Store as-is (0-based from XML)
-        , fromCol(col)          // Store as-is (0-based from XML)
-        , fromRowOffset(rowOffset)
-        , fromColOffset(colOffset)
-        , toRow(row)            // For oneCellAnchor, to = from
-        , toCol(col)            // For oneCellAnchor, to = from
-        , toRowOffset(0)        // No offset for 'to' in oneCellAnchor
-        , toColOffset(0)        // No offset for 'to' in oneCellAnchor
-        , displayWidthEMUs(displayWidth)
-        , displayHeightEMUs(displayHeight)
-        , actualWidthEMUs(displayWidth)
-        , actualHeightEMUs(displayHeight)
-    {
-    }
-
-    XLImageAnchor::XLImageAnchor(const std::string& imageId, const std::string& relationshipId,
-                                 uint32_t fromRow, uint16_t fromCol, uint32_t toRow, uint16_t toCol,
-                                 int32_t fromRowOffset, int32_t fromColOffset,
-                                 int32_t toRowOffset, int32_t toColOffset,
-                                 uint32_t displayWidth, uint32_t displayHeight)
-        : anchorType(XLImageAnchorType::TwoCellAnchor)
-        , imageId(imageId)
-        , relationshipId(relationshipId)
-        , fromRow(fromRow)      // Store as-is (0-based from XML)
-        , fromCol(fromCol)      // Store as-is (0-based from XML)
-        , fromRowOffset(fromRowOffset)
-        , fromColOffset(fromColOffset)
-        , toRow(toRow)          // Store as-is (0-based from XML)
-        , toCol(toCol)          // Store as-is (0-based from XML)
-        , toRowOffset(toRowOffset)
-        , toColOffset(toColOffset)
-        , displayWidthEMUs(displayWidth)
-        , displayHeightEMUs(displayHeight)
-        , actualWidthEMUs(displayWidth)
-        , actualHeightEMUs(displayHeight)
-    {
-    }
-
     void XLImageAnchor::reset(){
         anchorType = XLImageAnchorType::Unknown;
         imageId.erase();
@@ -304,7 +260,7 @@ namespace OpenXLSX
         // Convert string mimeType to enum, auto-detect if unknown
         XLMimeType mimeTypeEnum = mimeType;
         if (mimeTypeEnum == XLMimeType::Unknown) {
-            mimeTypeEnum = XLImageUtils::detectMimeTypeEnum(imageData);
+            mimeTypeEnum = XLImageUtils::detectMimeType(imageData);
         }
 
         const std::pair<uint32_t, uint32_t> imageDims =
@@ -332,13 +288,6 @@ namespace OpenXLSX
             setDisplaySizeWithAspectRatio( imageData, mimeType, maxWidthEmus,
                 maxHeightEmus );
         }
-    }
-
-
-    std::string XLImageAnchor::getAnchorCellReference() const
-    {
-        // Convert 0-based coordinates to 1-based for cell reference
-        return XLCellReference(fromRow + 1, fromCol + 1).address();
     }
 
     bool XLImageAnchor::isTwoCell() const

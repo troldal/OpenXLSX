@@ -26,6 +26,7 @@ target_sources(OpenXLSXTests
         testXLColor.cpp
         testXLDateTime.cpp
         testXLFormula.cpp
+        testXLImage.cpp
         testXLRow.cpp
         testXLSheet.cpp
         )

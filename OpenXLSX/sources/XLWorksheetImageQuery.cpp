@@ -186,14 +186,6 @@ namespace OpenXLSX
         return result;
     }
 
-    /**
-     * @brief Get iterator to the end of the embedded images collection
-     * @return Const iterator to the end of the embedded images collection
-     */
-    std::vector<XLEmbeddedImage>::const_iterator XLWorksheet::embImagesEnd() const
-    {
-        return getEmbImages().end();
-    }
 
     //----------------------------------------------------------------------------------------------------------------------
     //           Image Modification Methods Implementation
@@ -227,6 +219,11 @@ namespace OpenXLSX
         // Remove from m_embImages vector (in-memory cache)
         getEmbImages().erase(it);
 
+        // If this was the last image, remove the <drawing> element from worksheet XML
+        if (getEmbImages().empty()) {
+            removeDrawingElementIfEmpty();
+        }
+
         // Note: XLDocument.getImageManager()->prune() will delete binary image data files from archive as needed.
 
         // Return true if all critical operations succeeded
@@ -258,6 +255,11 @@ namespace OpenXLSX
         // Remove from m_embImages vector (in-memory cache)
         getEmbImages().erase(it);
 
+        // If this was the last image, remove the <drawing> element from worksheet XML
+        if (getEmbImages().empty()) {
+            removeDrawingElementIfEmpty();
+        }
+
         // Note: XLDocument.getImageManager()->prune() will delete binary image data files from archive as needed.
 
         // Return true if all critical operations succeeded
@@ -270,17 +272,54 @@ namespace OpenXLSX
      */
     void XLWorksheet::clearImages()
     {
-        // Ensure m_embImages vector is cleared (safety check)
+        const std::vector<XLEmbeddedImage> embImgs = getEmbImages();
+        std::vector<XLEmbeddedImage>::const_iterator embImgItr = embImgs.begin();
+        for( ; embImgs.end() != embImgItr; ++embImgItr ){
+            const XLEmbeddedImage& embImg = *embImgItr;
+            const std::string& relationshipId = embImg.relationshipId();
+
+            // Remove from DrawingML XML (in-memory XML document)
+            removeImageFromDrawingXML(relationshipId);
+        
+            // Remove from relationships file (in-memory XML document)
+            removeImageFromRelationships(relationshipId);
+            }
+
         getEmbImages().clear();
         
-        // TODO: Add verification checks to ensure complete cleanup:
-        // 1. Check that DrawingML XML has no image nodes
-        // 2. Check that relationships file has no image relationships
-        // 3. Check that no image files remain in the archive
-        // 5. Verify that getImageIDs() returns empty vector
-        // 6. Verify that imageCount() returns 0
-        
-        return;
+        // After clearing all images, remove the <drawing> element from worksheet XML
+        removeDrawingElementIfEmpty();
+    }
+    
+    /**
+     * @brief Remove the <drawing> element from worksheet XML if there are no more images
+     * @note This is a helper function called after removing images to clean up the XML
+     */
+    void XLWorksheet::removeDrawingElementIfEmpty()
+    {
+        // Only remove if there are no images left and the drawing element exists
+        if (getEmbImages().empty() && hasImagesInXML()) {
+            XMLNode docElement = xmlDocument().document_element();
+            XMLNode drawingNode = docElement.child("drawing");
+            if (!drawingNode.empty()) {
+                // Get the relationship ID from the drawing element
+                XMLAttribute rIdAttr = drawingNode.attribute("r:id");
+                if (!rIdAttr.empty()) {
+                    std::string drawingRelId = rIdAttr.value();
+                    // Remove the relationship from worksheet relationships
+                    try {
+                        relationships().deleteRelationship(drawingRelId);
+                    } catch (...) {
+                        // Relationship might not exist, ignore
+                    }
+                }
+                // Remove the <drawing> element from worksheet XML
+                docElement.remove_child(drawingNode);
+                
+                // Invalidate m_drawingML since the drawing element no longer exists
+                m_drawingML = XLDrawingML(nullptr);
+            }
+        }
     }
 
     //----------------------------------------------------------------------------------------------------------------------
@@ -432,9 +471,9 @@ namespace OpenXLSX
             
             // Determine MIME type from file extension ot imageData
             std::string extension = packagePath.substr(packagePath.find_last_of('.'));
-            XLMimeType mimeType = XLImageUtils::mimeTypeFromExtension(extension);
+            XLMimeType mimeType = XLImageUtils::extensionToMimeType(extension);
             if (XLMimeType::Unknown == mimeType) {
-                mimeType = XLImageUtils::detectMimeTypeEnum(imageData);
+                mimeType = XLImageUtils::detectMimeType(imageData);
             }
         
             // Convert enum back to XLContentType for findOrAddImage
@@ -625,8 +664,8 @@ std::string XLWorksheet::embedImage(const XLImageAnchor& imageAnchor, XLImageShP
         if ((0 == anchor.displayWidthEMUs) || (0 == anchor.displayHeightEMUs)) {
             const uint32_t widthPixels = image->widthPixels();
             const uint32_t heightPixels = image->heightPixels();
-            anchor.displayWidthEMUs = XLImageUtils::pixelsToEMUs(widthPixels);
-            anchor.displayHeightEMUs = XLImageUtils::pixelsToEMUs(heightPixels);
+            anchor.displayWidthEMUs = XLImageUtils::pixelsToEmus(widthPixels);
+            anchor.displayHeightEMUs = XLImageUtils::pixelsToEmus(heightPixels);
         }
         if ((0 == anchor.actualWidthEMUs) || (0 == anchor.actualHeightEMUs)) {
             anchor.actualWidthEMUs = anchor.displayWidthEMUs;

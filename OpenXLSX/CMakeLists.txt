@@ -112,7 +112,9 @@ set(OPENXLSX_SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLStyles.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLTables.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLImage.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLImageUtils.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLDrawingML.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/sources/XLWorksheetImageQuery.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLWorkbook.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLXmlData.cpp
         ${CMAKE_CURRENT_LIST_DIR}/sources/XLXmlFile.cpp
