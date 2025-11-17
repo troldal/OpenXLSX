@@ -264,7 +264,7 @@ namespace OpenXLSX
         }
 
         const std::pair<uint32_t, uint32_t> imageDims =
-            XLImageUtils::getImageDimensions(imageData, mimeType);
+            XLImageUtils::getImageDimensions(imageData, mimeTypeEnum);
 
         setDisplaySizeWithAspectRatio( imageDims.first, imageDims.second,
             maxWidthEmus, maxHeightEmus );
