@@ -130,3 +130,15 @@ std::string XLXmlFile::getXmlPath() const
 {
     return m_xmlData == nullptr ? "" : m_xmlData->getXmlPath();
 }
+
+int XLXmlFile::verifyData(std::string* dbgMsg) const
+{
+    int errorCount = 0;
+    
+    // Call m_xmlData->verifyData() if m_xmlData is not null
+    if (m_xmlData != nullptr) {
+        errorCount += m_xmlData->verifyData(dbgMsg);
+    }
+    
+    return errorCount;
+}

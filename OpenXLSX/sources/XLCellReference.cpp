@@ -382,7 +382,7 @@ XLCoordinates XLCellReference::coordinatesFromAddress(const std::string& address
         for (; pos < address.length() && std::isdigit(address[pos]); ++pos) // check digits
             rowNo = rowNo * 10 + (address[pos] - '0');
         if (pos == address.length() && rowNo <= MAX_ROWS)    // full address was < 4 letters + only digits
-            return std::make_pair(rowNo, colNo);
+            return XLCoordinates(static_cast<uint32_t>(rowNo), static_cast<uint16_t>(colNo));
     }
     throw XLInputError("XLCellReference::coordinatesFromAddress - address \"" + address + "\" is invalid");
 

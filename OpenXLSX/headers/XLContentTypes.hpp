@@ -91,6 +91,10 @@ namespace OpenXLSX
         Comments,
         Table,
         VMLDrawing,
+        ImagePNG,
+        ImageJPEG,
+        ImageBMP,
+        ImageGIF,
         Unknown
     };
 
@@ -229,6 +233,13 @@ namespace OpenXLSX
         void addOverride(const std::string& path, XLContentType type);
 
         /**
+         * @brief Check if an override with the given path already exists
+         * @param path The path to check for
+         * @return true if override exists, false otherwise
+         */
+        bool hasOverride(const std::string& path) const;
+
+        /**
          * @brief
          * @param path
          */
@@ -252,6 +263,13 @@ namespace OpenXLSX
          * @return
          */
         std::vector<XLContentItem> getContentItems();
+
+        /**
+         * @brief Verify internal data integrity and class invariants
+         * @param dbgMsg Optional pointer to append debug message explaining any errors found
+         * @return Number of errors found (0 = EXIT_SUCCESS, data integrity OK)
+         */
+        int verifyData(std::string* dbgMsg = nullptr) const;
 
     private:   // ---------- Private Member Variables ---------- //
     };

@@ -99,7 +99,7 @@ namespace OpenXLSX { // anonymous namespace: do not export these symbols
             std::random_device rd;
             rdSeed = rd();
         }
-        Rand32.seed(rdSeed);
+        Rand32.seed(static_cast<std::mt19937::result_type>(rdSeed));
         RandomizerInitialized = true;
     }
 } // namespace OpenXLSX
@@ -466,3 +466,13 @@ bool XLRelationships::idExists(const std::string& id) const
  * @details Print the underlying XML using pugixml::xml_node::print
  */
 void XLRelationships::print(std::basic_ostream<char>& ostr) const { xmlDocument().document_element().print(ostr); }
+
+int XLRelationships::verifyData(std::string* dbgMsg) const
+{
+    int errorCount = 0;
+    
+    // Call base class verifyData() which calls m_xmlData->verifyData()
+    errorCount += XLXmlFile::verifyData(dbgMsg);
+    
+    return errorCount;
+}

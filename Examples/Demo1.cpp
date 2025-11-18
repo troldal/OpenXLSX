@@ -13,7 +13,7 @@ using namespace OpenXLSX;
 void printAllDocumentComments(XLDocument const & doc)
 {
     for( size_t i = 1; i <= doc.workbook().worksheetCount(); ++i ) {
-        auto wks = doc.workbook().worksheet(i);
+        auto wks = doc.workbook().worksheet(static_cast<uint16_t>(i));
         if( wks.hasComments() ) {
             std::cout << "worksheet(" << i << ") with name \"" << wks.name() << "\" has comments" << std::endl;
             XLComments wksComments = wks.comments();
@@ -114,7 +114,7 @@ int main()
     // date/time data. See https://en.cppreference.com/w/cpp/chrono/c/tm for more information.
 
     // An XLDateTime object can be created from a std::tm object:
-    std::tm tm;
+    std::tm tm = {};  // Initialize all members to zero
     tm.tm_year = 121;
     tm.tm_mon = 8;
     tm.tm_mday = 1;

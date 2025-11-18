@@ -267,6 +267,18 @@ namespace OpenXLSX
          */
         XLCellAssignable (XLCell && other);
 
+        /**
+         * @brief Copy constructor for XLCellAssignable
+         * @param other the XLCellAssignable to construct from
+         */
+        XLCellAssignable (const XLCellAssignable& other);
+
+        /**
+         * @brief Move constructor for XLCellAssignable
+         * @param other the XLCellAssignable to construct from
+         */
+        XLCellAssignable (XLCellAssignable&& other) noexcept;
+
         // /**
         //  * @brief Inherit all constructors with parameters from XLCell
         //  */

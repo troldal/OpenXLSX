@@ -84,9 +84,9 @@ namespace OpenXLSX
     struct VisitXLCellValueTypeToDouble
     {
         std::string packageName = "VisitXLCellValueTypeToDouble";
-        double operator()(int64_t v) const { return v; }
+        double operator()(int64_t v) const { return static_cast<double>(v); }
         double operator()(double v) const { return v; }
-        double operator()(bool v) const { return v; }
+        double operator()(bool v) const { return static_cast<double>(v); }
         // double operator()( struct timestamp v ) { /* to be implemented if this type ever gets supported */ }
         double operator()(std::string v) const {
             throw XLValueTypeError("string is not convertible to double."); // disable if implicit conversion of string to double shall be allowed

@@ -234,8 +234,8 @@ void XLProperties::createFromTemplate()
     props.append_attribute("xmlns:dcmitype") = "http://purl.org/dc/dcmitype/";
     props.append_attribute("xmlns:xsi") = "http://www.w3.org/2001/XMLSchema-instance";
 
-    props.append_child("dc:creator").text().set("Kenneth Balslev");
-    props.append_child("cp:lastModifiedBy").text().set("Kenneth Balslev");
+    props.append_child("dc:creator").text().set("OpenXLSX");
+    props.append_child("cp:lastModifiedBy").text().set("OpenXLSX");
 
     XMLNode prop {};
     prop = props.append_child("dcterms:created");

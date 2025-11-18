@@ -46,8 +46,10 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 // ===== External Includes ===== //
 #include <algorithm> // std::max
 #include <cctype>    // std::isdigit (issue #330)
+#include <iostream>  // std::cout
 #include <limits>    // std::numeric_limits
 #include <map>       // std::multimap
+#include <set>       // std::set
 #include <pugixml.hpp>
 
 // ===== OpenXLSX Includes ===== //
@@ -992,8 +994,10 @@ XLWorksheet::XLWorksheet(const XLWorksheet& other) : XLSheetBase<XLWorksheet>(ot
     m_relationships = other.m_relationships;  // invoke XLRelationships copy assignment operator
     m_merges        = other.m_merges;         //  "     XLMergeCells       "
     m_vmlDrawing    = other.m_vmlDrawing;     //  "     XLVmlDrawing
+    m_drawingML     = other.m_drawingML;      //  "     XLDrawingML
     m_comments      = other.m_comments;       //  "     XLComments         "
     m_tables        = other.m_tables;         //  "     XLTables           "
+    m_embImages     = other.m_embImages;         //  "     XLEmbImgVecShPtr"
 }
 
 /**
@@ -1004,8 +1008,10 @@ XLWorksheet::XLWorksheet(XLWorksheet&& other) : XLSheetBase< XLWorksheet >(other
     m_relationships = std::move(other.m_relationships);  // invoke XLRelationships move assignment operator
     m_merges        = std::move(other.m_merges);         //  "     XLMergeCells       "
     m_vmlDrawing    = std::move(other.m_vmlDrawing);     //  "     XLVmlDrawing
+    m_drawingML     = std::move(other.m_drawingML);      //  "     XLDrawingML
     m_comments      = std::move(other.m_comments);       //  "     XLComments         "
     m_tables        = std::move(other.m_tables);         //  "     XLTables           "
+    m_embImages     = std::move(other.m_embImages);         //  "     XLEmbImgVecShPtr"
 }
 
 /**
@@ -1017,8 +1023,10 @@ XLWorksheet& XLWorksheet::operator=(const XLWorksheet& other)
     m_relationships = other.m_relationships;
     m_merges        = other.m_merges;
     m_vmlDrawing    = other.m_vmlDrawing;
+    m_drawingML     = other.m_drawingML;
     m_comments      = other.m_comments;
     m_tables        = other.m_tables;
+    m_embImages     = other.m_embImages;
     return *this;
 }
 
@@ -1031,8 +1039,10 @@ XLWorksheet& XLWorksheet::operator=(XLWorksheet&& other)
     m_relationships = std::move(other.m_relationships);
     m_merges        = std::move(other.m_merges);
     m_vmlDrawing    = std::move(other.m_vmlDrawing);
+    m_drawingML     = std::move(other.m_drawingML);
     m_comments      = std::move(other.m_comments);
     m_tables        = std::move(other.m_tables);
+    m_embImages     = std::move(other.m_embImages);
     return *this;
 }
 
@@ -1686,6 +1696,173 @@ XLVmlDrawing& XLWorksheet::vmlDrawing()
 }
 
 /**
+ * @details Get the DrawingML object for this worksheet
+ */
+XLDrawingML& XLWorksheet::drawingML()
+{
+    if (!m_drawingML.valid()) {
+        // Only initialize DrawingML if the worksheet actually has images
+        // This prevents unnecessary initialization for worksheets without images
+        if (!hasImagesInXML()) {
+            // For worksheets without images, return an invalid DrawingML
+            // DrawingML will be created when addImage() is called
+            static XLDrawingML invalidDrawingML(nullptr);
+            return invalidDrawingML;
+        }
+        
+        // ===== Append xdr namespace attribute to worksheet if not present
+        XMLNode docElement = xmlDocument().document_element();
+        XMLAttribute xdrNamespace = appendAndGetAttribute(docElement, "xmlns:xdr", "");
+        xdrNamespace = "http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing";
+
+        std::ignore = relationships(); // create sheet relationships if not existing
+
+        // ===== Check if DrawingML XML file already exists
+        uint16_t sheetXmlNo = sheetXmlNumber();
+        std::string drawingFilename = getDrawingFilename();
+        
+        // Try to load existing DrawingML data first
+        try {
+            XLXmlData* xmlData = parentDoc().getDrawingXmlData(drawingFilename);
+            if (xmlData) {
+                m_drawingML = XLDrawingML(xmlData);
+                if (m_drawingML.valid()) {
+                    return m_drawingML; // Successfully loaded existing data
+                }
+            }
+        } catch (...) {
+            // DrawingML data doesn't exist or failed to load, will create new one below
+        }
+        
+        // If no existing data or loading failed, create new DrawingML XML file
+        std::string drawingXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
+                                "<xdr:wsDr xmlns:xdr=\"http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing\" "
+                                "xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\" "
+                                "xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" "
+                                "xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\" "
+                                "xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\">\n"
+                                "</xdr:wsDr>";
+        
+        // Add to archive using public method
+        if (!parentDoc().addDrawingFile(drawingFilename, drawingXml)) {
+            throw XLException("XLWorksheet::drawingML(): could not create drawing file");
+        }
+        
+        // Create DrawingML object
+        XLXmlData* xmlData = parentDoc().getDrawingXmlData(drawingFilename);
+        if (!xmlData) {
+            throw XLException("XLWorksheet::drawingML(): could not get XML data for drawing");
+        }
+        m_drawingML = XLDrawingML(xmlData);
+        
+        // Ensure the XML document is loaded
+        if (!m_drawingML.valid()) {
+            throw XLException("XLWorksheet::drawingML(): could not initialize DrawingML object");
+        }
+        
+        // Add relationship
+        std::string drawingRelativePath = getPathARelativeToPathB(drawingFilename, getXmlPath());
+        XLRelationshipItem drawingRelationship;
+        if (!m_relationships.targetExists(drawingRelativePath))
+            drawingRelationship = m_relationships.addRelationship(XLRelationshipType::Drawing, drawingRelativePath);
+        else
+            drawingRelationship = m_relationships.relationshipByTarget(drawingRelativePath);
+        
+        if (drawingRelationship.empty())
+            throw XLException("XLWorksheet::drawingML(): could not add determine sheet relationship for Drawing");
+        
+        // Add <drawing> element to worksheet
+        XMLNode drawing = appendAndGetNode(docElement, "drawing", m_nodeOrder);
+        if (drawing.empty())
+            throw XLException("XLWorksheet::drawingML(): could not add <drawing> element to worksheet XML");
+        appendAndSetAttribute(drawing, "r:id", drawingRelationship.id());
+        
+        // Create drawing relationships file only if it doesn't exist
+        std::string drawingRelsFilename = getDrawingRelsFilename();
+        
+        // Only create relationships file if it doesn't exist
+        if (!parentDoc().hasRelationshipsFile(drawingRelsFilename)) {
+            createDrawingRelationshipsFile(drawingFilename);
+        }
+    }
+
+    return m_drawingML;
+}
+
+const XLDrawingML& XLWorksheet::drawingML() const{
+XLDrawingML& result = const_cast<XLWorksheet *>(this)->drawingML();
+return const_cast<const XLDrawingML&>(result);
+}
+
+/**
+ * @details Create an empty DrawingML object for worksheets without images
+ * This is needed when addImage() is called on a worksheet that doesn't have images yet
+ */
+XLDrawingML& XLWorksheet::createEmptyDrawingML()
+{
+    // ===== Append xdr namespace attribute to worksheet if not present
+    XMLNode docElement = xmlDocument().document_element();
+    XMLAttribute xdrNamespace = appendAndGetAttribute(docElement, "xmlns:xdr", "");
+    xdrNamespace = "http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing";
+
+    std::ignore = relationships(); // create sheet relationships if not existing
+
+    // Create new DrawingML XML file
+    std::string drawingXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
+                            "<xdr:wsDr xmlns:xdr=\"http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing\" "
+                            "xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\" "
+                            "xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" "
+                            "xmlns:a14=\"http://schemas.microsoft.com/office/drawing/2010/main\" "
+                            "xmlns:a16=\"http://schemas.microsoft.com/office/drawing/2014/main\">\n"
+                            "</xdr:wsDr>";
+    
+    // Add to archive using public method
+    uint16_t sheetXmlNo = sheetXmlNumber();
+    std::string drawingFilename = getDrawingFilename();
+    
+    if (!parentDoc().addDrawingFile(drawingFilename, drawingXml)) {
+        throw XLException("XLWorksheet::createEmptyDrawingML(): could not create drawing file");
+    }
+    
+    // Create DrawingML object
+    XLXmlData* xmlData = parentDoc().getDrawingXmlData(drawingFilename);
+    if (!xmlData) {
+        throw XLException("XLWorksheet::createEmptyDrawingML(): could not get XML data for drawing");
+    }
+    m_drawingML = XLDrawingML(xmlData);
+    
+    // Ensure the XML document is loaded
+    if (!m_drawingML.valid()) {
+        throw XLException("XLWorksheet::createEmptyDrawingML(): could not initialize DrawingML object");
+    }
+    
+    // Add relationship
+    std::string drawingRelativePath = getPathARelativeToPathB(drawingFilename, getXmlPath());
+    XLRelationshipItem drawingRelationship;
+    if (!m_relationships.targetExists(drawingRelativePath))
+        drawingRelationship = m_relationships.addRelationship(XLRelationshipType::Drawing, drawingRelativePath);
+    else
+        drawingRelationship = m_relationships.relationshipByTarget(drawingRelativePath);
+    
+    if (drawingRelationship.empty())
+        throw XLException("XLWorksheet::createEmptyDrawingML(): could not add determine sheet relationship for Drawing");
+    
+    // Add <drawing> element to worksheet
+    XMLNode drawing = appendAndGetNode(docElement, "drawing", m_nodeOrder);
+    if (drawing.empty())
+        throw XLException("XLWorksheet::createEmptyDrawingML(): could not add <drawing> element to worksheet XML");
+    appendAndSetAttribute(drawing, "r:id", drawingRelationship.id());
+    
+    // Create drawing relationships file
+    std::string drawingRelsFilename = getDrawingRelsFilename();
+    if (!parentDoc().hasRelationshipsFile(drawingRelsFilename)) {
+        createDrawingRelationshipsFile(drawingFilename);
+    }
+    
+    return m_drawingML;
+}
+
+/**
  * @details fetches XLComments for the sheet - creates & assigns the class if empty
  */
 XLComments& XLWorksheet::comments()
@@ -1732,6 +1909,481 @@ XLTables& XLWorksheet::tables()
     }
 
     return m_tables;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+//           Image Methods
+//----------------------------------------------------------------------------------------------------------------------
+
+/**
+ * @brief Embed an image from image data at the specified cell location
+ * @details Constructs a oneCellAnchor XLImageAnchor from cellRef and creates XLImage from imageData and mimeType
+ * @param cellRef Cell reference where the image should be anchored
+ * @param imageData Vector containing the image binary data
+ * @param mimeType MIME type of the image (PNG, JPEG, etc.)
+ * @return Image ID string
+ */
+std::string XLWorksheet::embedImageFromImageData(const XLCellReference& cellRef,
+                                                  const std::vector<uint8_t>& imageData,
+                                                  XLMimeType mimeType)
+{
+    XLImageAnchor imageAnchor;
+    imageAnchor.initOneCell(cellRef, 0, 0);
+    const std::string imageId = embedImageFromImageData(imageAnchor, imageData, mimeType);
+    return imageId;
+}
+
+/**
+ * @brief Embed an image from image data using the specified anchor
+ * @details Creates XLImage from imageData and mimeType using the provided anchor configuration
+ * @param imageAnchor Anchor configuration specifying position and dimensions
+ * @param imageData Vector containing the image binary data
+ * @param mimeType MIME type of the image (PNG, JPEG, etc.)
+ * @return Image ID string
+ */
+std::string XLWorksheet::embedImageFromImageData(const XLImageAnchor& imageAnchor,
+                                                  const std::vector<uint8_t>& imageData,
+                                                  XLMimeType mimeType)
+{
+    // Auto-detect MIME type if unknown
+    XLMimeType detectedMimeType = mimeType;
+    if (mimeType == XLMimeType::Unknown) {
+        detectedMimeType = XLImageUtils::detectMimeType(imageData);
+    }
+    
+    XLImageShPtr image = parentDoc().getImageManager().findOrAddImage("",
+                                                                      imageData,
+                                                                      XLImageUtils::mimeTypeToContentType(detectedMimeType));
+    const std::string imageId = embedImage(imageAnchor, image);
+    return imageId;
+}
+
+/**
+ * @brief Embed an image from file at the specified cell location
+ * @details Constructs a oneCellAnchor XLImageAnchor from cellRef and creates XLImage from file and mimeType
+ * @param cellRef Cell reference where the image should be anchored
+ * @param imageFileName Path to the image file on disk
+ * @param mimeType MIME type of the image (PNG, JPEG, etc.)
+ * @return Image ID string
+ */
+std::string XLWorksheet::embedImageFromFile(const XLCellReference& cellRef,
+                                            const std::string& imageFileName,
+                                            XLMimeType mimeType)
+{
+    XLImageAnchor imageAnchor;
+    imageAnchor.initOneCell(cellRef, 0, 0);
+    const std::string imageId = embedImageFromFile(imageAnchor, imageFileName, mimeType);
+    return imageId;
+}
+
+/**
+ * @brief Embed an image from file using the specified anchor
+ * @details Creates XLImage from file and mimeType using the provided anchor configuration
+ * @param imageAnchor Anchor configuration specifying position and dimensions
+ * @param imageFileName Path to the image file on disk
+ * @param mimeType MIME type of the image (PNG, JPEG, etc.)
+ * @return Image ID string
+ */
+std::string XLWorksheet::embedImageFromFile(const XLImageAnchor& imageAnchor,
+                                            const std::string& imageFileName,
+                                            XLMimeType mimeType)
+{
+    std::string imageId;
+    
+    std::ifstream file(imageFileName, std::ios::binary);
+    if (file.is_open()) {
+        // Read the entire file into a vector
+        file.seekg(0, std::ios::end);
+        size_t fileSize = file.tellg();
+        file.seekg(0, std::ios::beg);
+        
+        std::vector<uint8_t> imageData(fileSize);
+        file.read(reinterpret_cast<char*>(imageData.data()), fileSize);
+        file.close();
+        
+        // Auto-detect MIME type if unknown
+        XLMimeType detectedMimeType = mimeType;
+        if (mimeType == XLMimeType::Unknown) {
+            detectedMimeType = XLImageUtils::detectMimeType(imageData);
+        }
+        
+        XLImageShPtr image = parentDoc().getImageManager().findOrAddImage("",
+            imageData, XLImageUtils::mimeTypeToContentType(detectedMimeType));
+
+        imageId = embedImage(imageAnchor, image);
+    }
+    return imageId;
+}
+
+/**
+ * @details Get the number of images in the worksheet
+ */
+size_t XLWorksheet::imageCount() const
+{
+    if (getEmbImages().empty()) {
+        // Check if DrawingML is valid (was initialized because images exist)
+        if (m_drawingML.valid()) {
+            size_t count = m_drawingML.imageCount();
+            return count;
+        } else {
+            // DrawingML not initialized = no images in XML
+            // Debug assertion: if DrawingML is invalid, XML should not have <drawing> element
+            #if (defined(_DEBUG) || !defined(NDEBUG))
+            bool hasDrawingInXML = hasImagesInXML();
+            if (hasDrawingInXML) {
+                std::cerr << "WARNING: Worksheet '" << name() 
+                    << "' has <drawing> element in XML but DrawingML is invalid!" << std::endl;
+                std::cerr << "  This indicates DrawingML initialization failed despite XML having images." << std::endl;
+            }
+            #endif
+            
+            return 0;
+        }
+    } else {
+        // Use the vector count for newly added images
+        return getEmbImages().size();
+    }
+}
+
+/**
+ * @details Check if the worksheet has any images
+ */
+bool XLWorksheet::hasImages() const
+{
+    return !getEmbImages().empty();
+}
+
+/**
+ * @details Check if the worksheet has images by examining the XML directly
+ * This method does not modify the document and can be called safely on temporary objects
+ */
+bool XLWorksheet::hasImagesInXML() const
+{
+    // Check if worksheet XML has a <drawing> element
+    XMLNode docElement = xmlDocument().document_element();
+    XMLNode drawingNode = docElement.child("drawing");
+    return !drawingNode.empty();
+}
+
+/**
+ * @details Generate the next available image ID for this worksheet
+ * Ensures uniqueness within the worksheet scope
+ */
+std::string XLWorksheet::generateNextImageId() const
+{
+    // Get all existing image IDs (sorted and unique)
+    std::vector<std::string> existingIds = getImageIDs();
+    
+    // Microsoft Excel uses numeric IDs (e.g., "1", "2", "3") in DrawingML XML
+    int counter = 1;
+    std::string candidateId;
+    do {
+        candidateId = std::to_string(counter++);
+    } while (std::binary_search(existingIds.begin(), existingIds.end(), candidateId));
+    
+    return candidateId;
+}
+
+/**
+ * @details Generate a unique relationship ID
+ */
+std::string XLWorksheet::getNextUnusedRelationshipId() const
+{
+    // Collect all existing relationship IDs
+    std::set<std::string> existingRelIds;
+    
+    // Get relationship IDs from getEmbImages()
+    for (const auto& embImage : getEmbImages()) {
+        if (!embImage.relationshipId().empty()) {
+            existingRelIds.insert(embImage.relationshipId());
+        }
+    }
+    
+    // Get relationship IDs from DrawingML XML (for existing files)
+    // TODO: this is not needed - we should only be using the m_embImages vector for relationship IDs
+    if (m_drawingML.valid()) {
+        try {
+            XMLNode rootNode = m_drawingML.getRootNode();
+            if (!rootNode.empty()) {
+                for (auto anchor : rootNode.children()) {
+                    // Check anchor type using enum conversion
+                    XLImageAnchorType anchorType = XLImageAnchorUtils::stringToAnchorType(anchor.name());
+                    if (anchorType != XLImageAnchorType::Unknown) {
+                        XMLNode pic = anchor.child("xdr:pic");
+                        if (!pic.empty()) {
+                            XMLNode blipFill = pic.child("xdr:blipFill");
+                            if (!blipFill.empty()) {
+                                XMLNode blip = blipFill.child("a:blip");
+                                if (!blip.empty()) {
+                                    XMLAttribute embedAttr = blip.attribute("r:embed");
+                                    if (!embedAttr.empty()) {
+                                        // TODO: add check that the relationship ID is not already in existingRelIds
+                                        existingRelIds.insert(embedAttr.value());
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (...) {
+            // Fall through to default
+        }
+    }
+    
+    // Find the next available relationship ID
+    int counter = 1;
+    std::string candidateId;
+    do {
+        candidateId = "rId" + std::to_string(counter++);
+    } while (existingRelIds.find(candidateId) != existingRelIds.end());
+    
+    return candidateId;
+}
+
+/**
+ * @details Create the drawing relationships file
+ */
+void XLWorksheet::createDrawingRelationshipsFile(const std::string& drawingFilename)
+{
+    // Create the relationships filename
+    std::string drawingRelsFilename = getDrawingRelsFilename();
+    
+    // Create the relationships XML content
+    std::string relsXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
+                         "<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">\n";
+    
+    // Add relationships for each image
+    int relationshipId = 1;
+    for (const auto& embImage : getEmbImages()) {
+        // Use the actual package filename from the XLImage object, not constructed from ID/extension
+        std::string packageFilename = embImage.getImage()->filePackagePath();
+        std::string imageRelativePath = "../media/" + packageFilename.substr(packageFilename.find_last_of('/') + 1);
+        
+        relsXml += "<Relationship Id=\"rId" + std::to_string(relationshipId) + 
+                   "\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" " +
+                   "Target=\"" + imageRelativePath + "\"/>\n";
+        relationshipId++;
+    }
+    
+    relsXml += "</Relationships>";
+    
+    // Add the relationships file to the archive
+    if (!parentDoc().addRelationshipsFile(drawingRelsFilename, relsXml)) {
+        throw XLException("XLWorksheet::createDrawingRelationshipsFile(): could not create drawing relationships file");
+    }
+}
+
+/**
+ * @details Helper function to create new relationships XML with a single relationship
+ */
+std::string XLWorksheet::createNewRelationshipsXml(const std::string& relationshipId, const std::string& imageRelativePath)
+{
+    return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
+           "<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">\n"
+           "<Relationship Id=\"" + relationshipId + 
+           "\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" " +
+           "Target=\"" + imageRelativePath + "\"/>\n"
+           "</Relationships>";
+}
+
+/**
+ * @details Add a relationship for a new image to the existing relationships file
+ */
+void XLWorksheet::addImageRelationship(const XLEmbeddedImage& embImage)
+{
+    // Get the drawing relationships filename
+    std::string drawingRelsFilename = getDrawingRelsFilename();
+    
+    // Get the image's package path and convert to relative path for relationships
+    std::string packageFilename = embImage.getImage()->filePackagePath();
+    std::string imageRelativePath = "../media/" + packageFilename.substr(packageFilename.find_last_of('/') + 1);
+    
+    /* get relationship ID */
+    const std::string& relationshipId = embImage.relationshipId();
+
+    std::string relsXml;
+    
+    // Try to read existing relationships file
+    if (this->parentDoc().hasRelationshipsFile(drawingRelsFilename)) {
+        // Read existing content and add new relationship
+        try {
+            // Get existing content from in-memory XML data
+            std::string relsFilename = getDrawingRelsFilename();
+            
+            // Try to get the relationships XML data from in-memory cache
+            XLXmlData* relsXmlData = const_cast<XLDocument&>(this->parentDoc()).getRelationshipsXmlData(relsFilename);
+            if (!relsXmlData || !relsXmlData->valid()) {
+                // No existing relationships data, create new file
+                relsXml = createNewRelationshipsXml(relationshipId, imageRelativePath);
+            } else {
+                // Parse existing XML from in-memory data
+                XMLDocument* relsDoc = relsXmlData->getXmlDocument();
+                if (!relsDoc || !relsDoc->document_element()) {
+                    // Invalid XML data, create new file
+                    relsXml = createNewRelationshipsXml(relationshipId, imageRelativePath);
+                } else {
+                    XMLNode relationshipsNode = relsDoc->document_element();
+                    
+                    // Start building new XML
+                    relsXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
+                             "<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">\n";
+                    
+                    // Find the highest existing relationship ID to avoid duplicates
+                    int maxId = 0;
+                    std::set<std::string> existingIds;
+                    
+                    for (auto relNode : relationshipsNode.children("Relationship")) {
+                        std::string relId = relNode.attribute("Id").value();
+                        std::string relType = relNode.attribute("Type").value();
+                        std::string relTarget = relNode.attribute("Target").value();
+                        
+                        // Copy existing relationships
+                        relsXml += "<Relationship Id=\"" + relId + 
+                                  "\" Type=\"" + relType + "\" Target=\"" + relTarget + "\"/>\n";
+                        
+                        // Track existing IDs for uniqueness check
+                        // TODO: this should not be needed and could cause a problem if different than relationhipId in embImage
+                        existingIds.insert(relId);
+                        
+                        // Extract numeric part for max ID calculation
+                        if (relId.substr(0, 3) == "rId") {
+                            try {
+                                int idNum = std::stoi(relId.substr(3));
+                                maxId = std::max(maxId, idNum);
+                            } catch (...) {
+                                // Ignore non-numeric IDs
+                            }
+                        }
+                    }
+                    
+                    // Generate unique relationship ID
+                    // TODO: this should not be needed and could cause a problem if different than relationhipId in embImage
+                    std::string uniqueRelId = relationshipId;
+                    int idNum = maxId + 1;
+                    while (existingIds.find(uniqueRelId) != existingIds.end()) {
+                        uniqueRelId = "rId" + std::to_string(idNum);
+                        idNum++;
+                    }
+                    
+                    // Add new relationship with unique ID
+                    relsXml += "<Relationship Id=\"" + uniqueRelId +
+                              "\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" " +
+                              "Target=\"" + imageRelativePath + "\"/>\n";
+                    
+                    relsXml += "</Relationships>";
+                }
+            }
+        } catch (const std::exception&) {
+            // If parsing fails, fall back to creating new file
+            relsXml = createNewRelationshipsXml(relationshipId, imageRelativePath);
+        }
+    } else {
+        // Create new relationships file
+        relsXml = createNewRelationshipsXml(relationshipId, imageRelativePath);
+    }
+    
+    // Update the relationships file
+    if (!const_cast<XLDocument&>(parentDoc()).updateRelationshipsXmlData(drawingRelsFilename, relsXml)) {
+        throw XLException("XLWorksheet::addImageRelationship(): could not update drawing relationships file");
+    }
+}
+
+/**
+ * @details Add a relationship for a new image to the existing relationships file
+ */
+void XLWorksheet::addImageRelationship(const XLEmbeddedImage& embImage, const std::string& relationshipId)
+{
+    // Get the drawing relationships filename
+    std::string drawingRelsFilename = getDrawingRelsFilename();
+    
+    // Get the image's package path and convert to relative path for relationships
+    std::string packageFilename = embImage.getImage()->filePackagePath();
+    std::string imageRelativePath = "../media/" + packageFilename.substr(packageFilename.find_last_of('/') + 1);
+    
+    std::string relsXml;
+    
+    // Try to read existing relationships file
+    if (this->parentDoc().hasRelationshipsFile(drawingRelsFilename)) {
+        // Read existing content and add new relationship
+        try {
+            // Get existing content from in-memory XML data
+            std::string relsFilename = getDrawingRelsFilename();
+            
+            // Try to get the relationships XML data from in-memory cache
+            XLXmlData* relsXmlData = const_cast<XLDocument&>(this->parentDoc()).getRelationshipsXmlData(relsFilename);
+            if (!relsXmlData || !relsXmlData->valid()) {
+                // No existing relationships data, create new file
+                relsXml = createNewRelationshipsXml(relationshipId, imageRelativePath);
+            } else {
+                // Parse existing XML from in-memory data
+                XMLDocument* relsDoc = relsXmlData->getXmlDocument();
+                if (!relsDoc || !relsDoc->document_element()) {
+                    // Invalid XML data, create new file
+                    relsXml = createNewRelationshipsXml(relationshipId, imageRelativePath);
+                } else {
+                    XMLNode relationshipsNode = relsDoc->document_element();
+                    
+                    // Start building new XML
+                    relsXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
+                             "<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">\n";
+                    
+                    // Find the highest existing relationship ID to avoid duplicates
+                    int maxId = 0;
+                    std::set<std::string> existingIds;
+                    
+                    for (auto relNode : relationshipsNode.children("Relationship")) {
+                        std::string relId = relNode.attribute("Id").value();
+                        std::string relType = relNode.attribute("Type").value();
+                        std::string relTarget = relNode.attribute("Target").value();
+                        
+                        // Copy existing relationships
+                        relsXml += "<Relationship Id=\"" + relId + 
+                                  "\" Type=\"" + relType + "\" Target=\"" + relTarget + "\"/>\n";
+                        
+                        // Track existing IDs for uniqueness check
+                        existingIds.insert(relId);
+                        
+                        // Extract numeric part for max ID calculation
+                        if (relId.substr(0, 3) == "rId") {
+                            try {
+                                int idNum = std::stoi(relId.substr(3));
+                                maxId = std::max(maxId, idNum);
+                            } catch (...) {
+                                // Ignore non-numeric IDs
+                            }
+                        }
+                    }
+                    
+                    // Generate unique relationship ID
+                    std::string uniqueRelId = relationshipId;
+                    int idNum = maxId + 1;
+                    while (existingIds.find(uniqueRelId) != existingIds.end()) {
+                        uniqueRelId = "rId" + std::to_string(idNum);
+                        idNum++;
+                    }
+                    
+                    // Add new relationship with unique ID
+                    relsXml += "<Relationship Id=\"" + uniqueRelId +
+                              "\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\" " +
+                              "Target=\"" + imageRelativePath + "\"/>\n";
+                    
+                    relsXml += "</Relationships>";
+                }
+            }
+        } catch (const std::exception&) {
+            // If parsing fails, fall back to creating new file
+            relsXml = createNewRelationshipsXml(relationshipId, imageRelativePath);
+        }
+    } else {
+        // Create new relationships file
+        relsXml = createNewRelationshipsXml(relationshipId, imageRelativePath);
+    }
+    
+    // Update the relationships file
+    if (!const_cast<XLDocument&>(parentDoc()).updateRelationshipsXmlData(drawingRelsFilename, relsXml)) {
+        throw XLException("XLWorksheet::addImageRelationship(): could not update drawing relationships file");
+    }
 }
 
 /**
@@ -1798,3 +2450,815 @@ bool XLChartsheet::isSelected_impl() const { return tabIsSelected(xmlDocument())
  * @details Calls the setTabSelected() free function.
  */
 void XLChartsheet::setSelected_impl(bool selected) { setTabSelected(xmlDocument(), selected); }
+
+/**
+ * @details Compare two worksheets for debugging
+ */
+int XLWorksheet::compare(const XLWorksheet& other, std::string* diffMsg) const
+{
+    // Compare worksheet names first (most important for human readability)
+    std::string thisName = name();
+    std::string otherName = other.name();
+    int nameCompare = thisName.compare(otherName);
+    if (nameCompare != 0) {
+        appendDbgMsg(diffMsg, "worksheet name differs: '" + thisName + "' vs '" + otherName + "'");
+        return nameCompare;
+    }
+
+    // Compare DrawingML validity (crucial for image detection)
+    // DrawingML is now automatically initialized in XLWorkbook::worksheet() if images exist
+    bool thisDrawingMLValid = m_drawingML.valid();
+    bool otherDrawingMLValid = other.m_drawingML.valid();
+    if (thisDrawingMLValid != otherDrawingMLValid) {
+        appendDbgMsg(diffMsg, "DrawingML validity differs: " + std::string(thisDrawingMLValid ? "valid" : "invalid") + 
+                  " vs " + std::string(otherDrawingMLValid ? "valid" : "invalid"));
+        return thisDrawingMLValid ? 1 : -1;
+    }
+
+    // Compare image count
+    size_t thisImageCount = imageCount();
+    size_t otherImageCount = other.imageCount();
+    if (thisImageCount != otherImageCount) {
+        appendDbgMsg(diffMsg, "image count differs: " + std::to_string(thisImageCount) + 
+                  " vs " + std::to_string(otherImageCount));
+        return thisImageCount < otherImageCount ? -1 : 1;
+    }
+
+    // Compare embedded images (parsed image metadata)
+    size_t thisEmbImagesSize = getEmbImages().size();
+    size_t otherEmbImagesSize = other.getEmbImages().size();
+    if (thisEmbImagesSize != otherEmbImagesSize) {
+        appendDbgMsg(diffMsg, "embedded images size differs: " + std::to_string(thisEmbImagesSize) + 
+                  " vs " + std::to_string(otherEmbImagesSize));
+        return thisEmbImagesSize < otherEmbImagesSize ? -1 : 1;
+    }
+
+    // Compare images if both worksheets have images in memory
+    size_t thisImagesInMemory = getEmbImages().size();
+    size_t otherImagesInMemory = other.getEmbImages().size();
+    if (thisImagesInMemory > 0 || otherImagesInMemory > 0) {
+        if (thisImagesInMemory != otherImagesInMemory) {
+            appendDbgMsg(diffMsg, "images in memory count differs: " + std::to_string(thisImagesInMemory) + 
+                      " vs " + std::to_string(otherImagesInMemory));
+            return thisImagesInMemory < otherImagesInMemory ? -1 : 1;
+        }
+        
+        // Compare each image in memory
+        for (size_t i = 0; i < thisImagesInMemory && i < otherImagesInMemory; ++i) {
+            int imageCompare = getEmbImages()[i].compare(other.getEmbImages()[i], diffMsg);
+            if (imageCompare != 0) {
+                appendDbgMsg(diffMsg, "image " + std::to_string(i) + " differs");
+                return imageCompare;
+            }
+        }
+    }
+
+    // Compare embedded images entries if both have embedded images entries
+    if (thisEmbImagesSize > 0) {
+        for (size_t i = 0; i < thisEmbImagesSize && i < otherEmbImagesSize; ++i) {
+            int embImagesCompare = getEmbImages()[i].compare(other.getEmbImages()[i], diffMsg);
+            if (embImagesCompare != 0) {
+                appendDbgMsg(diffMsg, "embedded images entry " + std::to_string(i) + " differs");
+                return embImagesCompare;
+            }
+        }
+    }
+
+    // Compare relationships (crucial for image detection) - simplified
+    try {
+        // Just check if both have valid relationships objects
+        bool thisRelValid = m_relationships.valid();
+        bool otherRelValid = other.m_relationships.valid();
+        if (thisRelValid != otherRelValid) {
+            appendDbgMsg(diffMsg, "relationships validity differs: " + std::string(thisRelValid ? "valid" : "invalid") + 
+                      " vs " + std::string(otherRelValid ? "valid" : "invalid"));
+            return thisRelValid ? 1 : -1;
+        }
+
+        // Skip DrawingML relationship check for now to avoid path issues
+        // TODO: Implement safer DrawingML relationship comparison
+    } catch (const std::exception&) {
+        appendDbgMsg(diffMsg, "error comparing relationships");
+        return -1;
+    }
+
+    // TODO: Compare other worksheet properties
+    // - Cell content (would require extensive implementation)
+    // - Merge cells
+    // - Comments
+    // - Tables
+    // - DrawingML XML content (would require XML comparison)
+    // - VML drawing content
+
+    // Worksheets are identical
+    return 0;
+}
+
+int XLWorksheet::verifyData(std::string* dbgMsg) const
+{
+    int errorCount = 0;
+    std::string worksheetName = name();
+
+    // TODO: Verify sub-objects when verifyData() is implemented for them
+    // errorCount += m_relationships.verifyData(dbgMsg);
+    // errorCount += m_merges.verifyData(dbgMsg);
+    // errorCount += m_vmlDrawing.verifyData(dbgMsg);
+    
+    // Only verify DrawingML if the worksheet has images
+    // For worksheets without images, DrawingML can be invalid
+    if (!getEmbImages().empty() || hasImagesInXML()) {
+        errorCount += m_drawingML.verifyData(dbgMsg);
+    }
+    // errorCount += m_comments.verifyData(dbgMsg);
+    // errorCount += m_tables.verifyData(dbgMsg);
+
+    // Verify images vector
+    for (size_t i = 0; i < getEmbImages().size(); ++i) {
+        int imageErrors = getEmbImages()[i].verifyData(dbgMsg);
+        if (imageErrors > 0) {
+            appendDbgMsg(dbgMsg, "[" + worksheetName + "] image " + std::to_string(i) + " has " + std::to_string(imageErrors) + " errors");
+            errorCount += imageErrors;
+        }
+    }
+
+    // Verify embedded images consistency
+    if (m_drawingML.valid()) {
+        try {
+            // Check that embedded images vector is populated
+            if (getEmbImages().empty()) {
+                appendDbgMsg(dbgMsg, "[" + worksheetName + "] embedded images vector is empty but drawing is valid");
+                errorCount++;
+            }
+        } catch (const std::exception&) {
+            appendDbgMsg(dbgMsg, "[" + worksheetName + "] error accessing embedded images");
+            errorCount++;
+        }
+    }
+
+    // Verify unique image IDs
+    errorCount += verifyUniqueImageIDs(dbgMsg);
+
+    // Verify DrawingML XML consistency with registry
+    errorCount += verifyDrawingMLConsistency(dbgMsg);
+
+    // Verify m_embImages vector consistency with XML
+    errorCount += verifyImagesVectorConsistency(dbgMsg);
+
+    // Verify binary image data exists in archive
+    errorCount += verifyBinaryImageData(dbgMsg);
+
+    return errorCount;
+}
+
+int XLWorksheet::verifyUniqueImageIDs(std::string* dbgMsg) const
+{
+    int duplicateCount = 0;
+    std::string worksheetName = name();
+
+    // Check 1: Embedded images for duplicate IDs
+    if (m_drawingML.valid()) {
+        try {
+            std::set<std::string> registryIds;
+            
+            for (const auto& embImage : getEmbImages()) {
+                if (registryIds.find(embImage.id()) != registryIds.end()) {
+                    // Duplicate found in embedded images
+                    appendDbgMsg(dbgMsg, "[" + worksheetName + "] duplicate image ID in embedded images: " + embImage.id());
+                    duplicateCount++;
+                } else {
+                    registryIds.insert(embImage.id());
+                }
+            }
+        } catch (const std::exception&) {
+            appendDbgMsg(dbgMsg, "[" + worksheetName + "] error accessing image registry for ID verification");
+            duplicateCount++;
+        }
+    }
+
+    // Check 2: m_embImages vector for duplicate IDs
+    std::set<std::string> imageIds;
+    for (size_t i = 0; i < getEmbImages().size(); ++i) {
+        const std::string& imageId = getEmbImages()[i].id();
+        if (imageIds.find(imageId) != imageIds.end()) {
+            // Duplicate found in m_embImages vector
+            appendDbgMsg(dbgMsg, "[" + worksheetName + "] duplicate image ID in m_embImages vector: " + imageId);
+            duplicateCount++;
+        } else {
+            imageIds.insert(imageId);
+        }
+    }
+
+    return duplicateCount;
+}
+
+int XLWorksheet::verifyDrawingMLConsistency(std::string* dbgMsg) const
+{
+    int inconsistencyCount = 0;
+    std::string worksheetName = name();
+
+    // Check if DrawingML is valid
+    if (!m_drawingML.valid()) {
+        // If DrawingML is invalid but we have embedded images, that's an inconsistency
+        if (!getEmbImages().empty()) {
+            appendDbgMsg(dbgMsg, "[" + worksheetName + "] DrawingML is invalid but has " + 
+                      std::to_string(getEmbImages().size()) + " embedded images");
+            inconsistencyCount++;
+        }
+        return inconsistencyCount; // No further checks possible
+    }
+
+    try {
+        // Get embedded images data
+        size_t embeddedCount = getEmbImages().size();
+
+        // Get DrawingML XML data
+        XMLNode rootNode = m_drawingML.getRootNode();
+        if (rootNode.empty()) {
+            // Empty root node is OK if there are no images
+            if (!getEmbImages().empty()) {
+                appendDbgMsg(dbgMsg, "[" + worksheetName + "] DrawingML root node is empty but has " + 
+                          std::to_string(getEmbImages().size()) + " embedded images");
+                inconsistencyCount++;
+            }
+            return inconsistencyCount;
+        }
+
+        // Count anchors in XML
+        size_t xmlAnchorCount = 0;
+        std::vector<std::string> xmlImageIds;
+        std::vector<std::string> xmlRelationshipIds;
+
+        for (auto anchor : rootNode.children()) {
+            // Check anchor type using enum conversion
+            XLImageAnchorType anchorType = XLImageAnchorUtils::stringToAnchorType(anchor.name());
+            if (anchorType != XLImageAnchorType::Unknown) {
+                xmlAnchorCount++;
+
+                // Extract image ID from XML
+                XMLNode pic = anchor.child("xdr:pic");
+                if (!pic.empty()) {
+                    XMLNode nvPicPr = pic.child("xdr:nvPicPr");
+                    if (!nvPicPr.empty()) {
+                        XMLNode cNvPr = nvPicPr.child("xdr:cNvPr");
+                        if (!cNvPr.empty()) {
+                            XMLAttribute idAttr = cNvPr.attribute("id");
+                            if (!idAttr.empty()) {
+                                xmlImageIds.push_back(idAttr.value());
+                            }
+                        }
+                    }
+                }
+
+                // Extract relationship ID from XML
+                XMLNode blipFill = pic.child("xdr:blipFill");
+                if (!blipFill.empty()) {
+                    XMLNode blip = blipFill.child("a:blip");
+                    if (!blip.empty()) {
+                        XMLAttribute embedAttr = blip.attribute("r:embed");
+                        if (!embedAttr.empty()) {
+                            xmlRelationshipIds.push_back(embedAttr.value());
+                        }
+                    }
+                }
+            }
+        }
+
+        // Check 1: Anchor count consistency
+        if (xmlAnchorCount != embeddedCount) {
+            appendDbgMsg(dbgMsg, "[" + worksheetName + "] XML anchor count (" + std::to_string(xmlAnchorCount) + 
+                      ") does not match embedded images count (" + std::to_string(embeddedCount) + ")");
+            inconsistencyCount++;
+        }
+
+        // Check 2: Image ID consistency
+        std::set<std::string> embeddedImageIds;
+        for (const auto& embImage : getEmbImages()) {
+            embeddedImageIds.insert(embImage.id());
+        }
+
+        std::set<std::string> xmlImageIdSet(xmlImageIds.begin(), xmlImageIds.end());
+        
+        // Check for IDs in registry but not in XML
+        // Check for IDs in embedded images but not in XML
+        for (const auto& embeddedId : embeddedImageIds) {
+            if (xmlImageIdSet.find(embeddedId) == xmlImageIdSet.end()) {
+                appendDbgMsg(dbgMsg, "[" + worksheetName + "] image ID '" + embeddedId + "' in embedded images but not in XML");
+                inconsistencyCount++;
+            }
+        }
+
+        // Check for IDs in XML but not in embedded images
+        for (const auto& xmlId : xmlImageIdSet) {
+            if (embeddedImageIds.find(xmlId) == embeddedImageIds.end()) {
+                appendDbgMsg(dbgMsg, "[" + worksheetName + "] image ID '" + xmlId + "' in XML but not in embedded images");
+                inconsistencyCount++;
+            }
+        }
+
+        // Check 3: Relationship ID consistency
+        std::set<std::string> embeddedRelIds;
+        for (const auto& embImage : getEmbImages()) {
+            embeddedRelIds.insert(embImage.relationshipId());
+        }
+
+        std::set<std::string> xmlRelIdSet(xmlRelationshipIds.begin(), xmlRelationshipIds.end());
+
+        // Check for relationship IDs in embedded images but not in XML
+        for (const auto& embeddedRelId : embeddedRelIds) {
+            if (xmlRelIdSet.find(embeddedRelId) == xmlRelIdSet.end()) {
+                appendDbgMsg(dbgMsg, "[" + worksheetName + "] relationship ID '" + embeddedRelId + "' in embedded images but not in XML");
+                inconsistencyCount++;
+            }
+        }
+
+        // Check for relationship IDs in XML but not in embedded images
+        for (const auto& xmlRelId : xmlRelIdSet) {
+            if (embeddedRelIds.find(xmlRelId) == embeddedRelIds.end()) {
+                appendDbgMsg(dbgMsg, "[" + worksheetName + "] relationship ID '" + xmlRelId + "' in XML but not in embedded images");
+                inconsistencyCount++;
+            }
+        }
+
+    } catch (const std::exception& e) {
+        appendDbgMsg(dbgMsg, "[" + worksheetName + "] error during DrawingML consistency check: " + std::string(e.what()));
+        inconsistencyCount++;
+    }
+
+    return inconsistencyCount;
+}
+
+int XLWorksheet::verifyImagesVectorConsistency(std::string* dbgMsg) const
+{
+    int inconsistencyCount = 0;
+    std::string worksheetName = name();
+
+    // Check if DrawingML is valid
+    if (!m_drawingML.valid()) {
+        // If DrawingML is invalid but we have images in m_embImages, that's an inconsistency
+        if (!getEmbImages().empty()) {
+            appendDbgMsg(dbgMsg, "[" + worksheetName + "] DrawingML is invalid but m_embImages has " + 
+                      std::to_string(getEmbImages().size()) + " entries");
+            inconsistencyCount++;
+        }
+        return inconsistencyCount; // No further checks possible
+    }
+
+    try {
+        // Get DrawingML XML data
+        XMLNode rootNode = m_drawingML.getRootNode();
+        if (rootNode.empty()) {
+            // Empty root node is OK if there are no images
+            if (!getEmbImages().empty()) {
+                appendDbgMsg(dbgMsg, "[" + worksheetName + "] DrawingML root node is empty but m_embImages has " + 
+                          std::to_string(getEmbImages().size()) + " entries");
+                inconsistencyCount++;
+            }
+            return inconsistencyCount;
+        }
+
+        // Count anchors in XML and extract detailed information
+        size_t xmlAnchorCount = 0;
+        std::vector<std::string> xmlImageIds;
+        std::vector<std::string> xmlRelationshipIds;
+        std::vector<XLImageAnchorType> xmlAnchorTypes;
+
+        for (auto anchor : rootNode.children()) {
+            // Check anchor type using enum conversion
+            XLImageAnchorType anchorType = XLImageAnchorUtils::stringToAnchorType(anchor.name());
+            if (anchorType != XLImageAnchorType::Unknown) {
+                xmlAnchorCount++;
+
+                // Extract anchor type
+                xmlAnchorTypes.push_back(anchorType);
+
+                // Extract image ID from XML
+                std::string xmlImageId;
+                XMLNode pic = anchor.child("xdr:pic");
+                if (!pic.empty()) {
+                    XMLNode nvPicPr = pic.child("xdr:nvPicPr");
+                    if (!nvPicPr.empty()) {
+                        XMLNode cNvPr = nvPicPr.child("xdr:cNvPr");
+                        if (!cNvPr.empty()) {
+                            XMLAttribute idAttr = cNvPr.attribute("id");
+                            if (!idAttr.empty()) {
+                                xmlImageId = idAttr.value();
+                                xmlImageIds.push_back(xmlImageId);
+                            }
+                        }
+                    }
+                }
+
+                // Extract relationship ID from XML
+                std::string xmlRelId;
+                if (!pic.empty()) {
+                    XMLNode blipFill = pic.child("xdr:blipFill");
+                    if (!blipFill.empty()) {
+                        XMLNode blip = blipFill.child("a:blip");
+                        if (!blip.empty()) {
+                            XMLAttribute embedAttr = blip.attribute("r:embed");
+                            if (!embedAttr.empty()) {
+                                xmlRelId = embedAttr.value();
+                                xmlRelationshipIds.push_back(xmlRelId);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Check 1: Anchor count consistency
+        if (xmlAnchorCount != getEmbImages().size()) {
+            appendDbgMsg(dbgMsg, "[" + worksheetName + "] XML anchor count (" + std::to_string(xmlAnchorCount) + 
+                      ") does not match m_embImages count (" + std::to_string(getEmbImages().size()) + ")");
+            inconsistencyCount++;
+        }
+
+        // Check 2: Image ID consistency
+        std::set<std::string> mImagesIds;
+        for (const auto& embImage : getEmbImages()) {
+            if (!embImage.id().empty()) {
+                mImagesIds.insert(embImage.id());
+            }
+        }
+
+        std::set<std::string> xmlImageIdSet(xmlImageIds.begin(), xmlImageIds.end());
+        
+        // Check for IDs in m_embImages but not in XML
+        for (const auto& mImageId : mImagesIds) {
+            if (xmlImageIdSet.find(mImageId) == xmlImageIdSet.end()) {
+                appendDbgMsg(dbgMsg, "[" + worksheetName + "] image ID '" + mImageId + "' in m_embImages but not in XML");
+                inconsistencyCount++;
+            }
+        }
+
+        // Check for IDs in XML but not in m_embImages
+        for (const auto& xmlId : xmlImageIdSet) {
+            if (mImagesIds.find(xmlId) == mImagesIds.end()) {
+                appendDbgMsg(dbgMsg, "[" + worksheetName + "] image ID '" + xmlId + "' in XML but not in m_embImages");
+                inconsistencyCount++;
+            }
+        }
+
+        // Check 3: Detailed cross-reference validation for each embedded image
+        for (size_t i = 0; i < getEmbImages().size() && i < xmlImageIds.size(); ++i) {
+            const auto& embImage = getEmbImages()[i];
+            const std::string& xmlImageId = xmlImageIds[i];
+            const std::string& xmlRelId = (i < xmlRelationshipIds.size()) ? xmlRelationshipIds[i] : "";
+            XLImageAnchorType xmlAnchorType = (i < xmlAnchorTypes.size()) ? xmlAnchorTypes[i] : XLImageAnchorType::Unknown;
+
+            // Check image ID match
+            if (embImage.id() != xmlImageId) {
+                appendDbgMsg(dbgMsg, "[" + worksheetName + "] image " + std::to_string(i) + 
+                          " ID mismatch: m_embImages='" + embImage.id() + "', XML='" + xmlImageId + "'");
+                inconsistencyCount++;
+            }
+
+            // Check relationship ID match
+            if (!xmlRelId.empty() && embImage.relationshipId() != xmlRelId) {
+                appendDbgMsg(dbgMsg, "[" + worksheetName + "] image " + std::to_string(i) + 
+                          " relationship ID mismatch: m_embImages='" + embImage.relationshipId() + "', XML='" + xmlRelId + "'");
+                inconsistencyCount++;
+            }
+
+            // Check anchor type match
+            if (xmlAnchorType != XLImageAnchorType::Unknown && embImage.getImageAnchor().anchorType != xmlAnchorType) {
+                std::string embAnchorTypeStr = XLImageAnchorUtils::anchorTypeToString(embImage.getImageAnchor().anchorType);
+                std::string xmlAnchorTypeStr = XLImageAnchorUtils::anchorTypeToString(xmlAnchorType);
+                appendDbgMsg(dbgMsg, "[" + worksheetName + "] image " + std::to_string(i) + 
+                          " anchor type mismatch: m_embImages='" + embAnchorTypeStr + "', XML='" + xmlAnchorTypeStr + "'");
+                inconsistencyCount++;
+            }
+
+            // Check if embedded image has valid XLImage object
+            if (!embImage.getImage()) {
+                appendDbgMsg(dbgMsg, "[" + worksheetName + "] image " + std::to_string(i) + 
+                          " has no associated XLImage object");
+                inconsistencyCount++;
+            } else {
+                // Check package path format
+                std::string packagePath = embImage.getImage()->filePackagePath();
+                if (!packagePath.empty() && packagePath.find("xl/media/") != 0) {
+                    appendDbgMsg(dbgMsg, "[" + worksheetName + "] image " + std::to_string(i) + 
+                              " package path '" + packagePath + "' does not start with 'xl/media/'");
+                    inconsistencyCount++;
+                }
+            }
+        }
+
+        // Check 4: Relationship ID uniqueness
+        std::set<std::string> uniqueRelIds;
+        for (const auto& relId : xmlRelationshipIds) {
+            if (!relId.empty()) {
+                if (uniqueRelIds.find(relId) != uniqueRelIds.end()) {
+                    appendDbgMsg(dbgMsg, "[" + worksheetName + "] duplicate relationship ID '" + relId + "' in XML");
+                    inconsistencyCount++;
+                } else {
+                    uniqueRelIds.insert(relId);
+                }
+            }
+        }
+
+        // Check 5: Image ID uniqueness
+        std::set<std::string> uniqueImageIds;
+        for (const auto& imgId : xmlImageIds) {
+            if (!imgId.empty()) {
+                if (uniqueImageIds.find(imgId) != uniqueImageIds.end()) {
+                    appendDbgMsg(dbgMsg, "[" + worksheetName + "] duplicate image ID '" + imgId + "' in XML");
+                    inconsistencyCount++;
+                } else {
+                    uniqueImageIds.insert(imgId);
+                }
+            }
+        }
+
+        // Check 6: Package path consistency with relationship XML
+        try {
+            // Get the drawing relationships filename
+            std::string relsFilename = getDrawingRelsFilename();
+            
+            // Check if relationships file exists
+            if (parentDoc().hasRelationshipsFile(relsFilename)) {
+                // Use in-memory XML data instead of parsing file content
+                XLXmlData* relsXmlData = const_cast<XLDocument&>(parentDoc()).getRelationshipsXmlData(relsFilename);
+                if (relsXmlData && relsXmlData->valid()) {
+                    // Parse the relationships XML from in-memory data
+                    XMLDocument* relsDoc = relsXmlData->getXmlDocument();
+                    if (relsDoc && relsDoc->document_element()) {
+                        // Create a map of relationship ID to target path
+                        std::map<std::string, std::string> relIdToTarget;
+                        for (auto rel : relsDoc->document_element().children("Relationship")) {
+                            std::string relId = rel.attribute("Id").value();
+                            std::string target = rel.attribute("Target").value();
+                            std::string type = rel.attribute("Type").value();
+                            
+                            // Only process image relationships
+                            if (type == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image") {
+                                if (!relId.empty() && !target.empty()) {
+                                    relIdToTarget[relId] = target;
+                                }
+                            }
+                        }
+                        
+                        // Check each embedded image's package path against XML target
+                        for (size_t i = 0; i < getEmbImages().size() && i < xmlRelationshipIds.size(); ++i) {
+                            const auto& embImage = getEmbImages()[i];
+                            const std::string& xmlRelId = xmlRelationshipIds[i];
+                            
+                            if (!xmlRelId.empty() && embImage.getImage()) {
+                                auto targetIt = relIdToTarget.find(xmlRelId);
+                                if (targetIt != relIdToTarget.end()) {
+                                    std::string xmlTarget = targetIt->second;
+                                    
+                                    // Convert XML target path to expected package path
+                                    // XML target is like "../media/image1.png", package path should be "xl/media/image1.png"
+                                    std::string expectedPackagePath;
+                                    if (xmlTarget.find("../media/") == 0) {
+                                        expectedPackagePath = "xl/media/" + xmlTarget.substr(9); // Remove "../media/"
+                                    } else if (xmlTarget.find("media/") == 0) {
+                                        expectedPackagePath = "xl/media/" + xmlTarget.substr(6); // Remove "media/"
+                                    } else {
+                                        // Handle other possible formats
+                                        size_t lastSlash = xmlTarget.find_last_of('/');
+                                        if (lastSlash != std::string::npos) {
+                                            expectedPackagePath = "xl/media/" + xmlTarget.substr(lastSlash + 1);
+                                        } else {
+                                            expectedPackagePath = "xl/media/" + xmlTarget;
+                                        }
+                                    }
+                                    
+                                    std::string actualPackagePath = embImage.getImage()->filePackagePath();
+                                    
+                                    if (actualPackagePath != expectedPackagePath) {
+                                        appendDbgMsg(dbgMsg, "[" + worksheetName + "] image " + std::to_string(i) + 
+                                                  " package path mismatch: XLImage='" + actualPackagePath + 
+                                                  "', XML target='" + xmlTarget + "' (expected='" + expectedPackagePath + "')");
+                                        inconsistencyCount++;
+                                    }
+                                } else {
+                                    if (relIdToTarget.empty()) {
+                                        appendDbgMsg(dbgMsg, "[" + worksheetName + "] image " + std::to_string(i) + 
+                                                  " relationship ID '" + xmlRelId + "' not found in relationships XML (file is empty)");
+                                    } else {
+                                        appendDbgMsg(dbgMsg, "[" + worksheetName + "] image " + std::to_string(i) + 
+                                                  " relationship ID '" + xmlRelId + "' not found in relationships XML");
+                                    }
+                                    inconsistencyCount++;
+                                }
+                            }
+                        }
+                    } else {
+                        appendDbgMsg(dbgMsg, "[" + worksheetName + "] relationships XML document is invalid");
+                        inconsistencyCount++;
+                    }
+                } else {
+                    appendDbgMsg(dbgMsg, "[" + worksheetName + "] relationships XML data is not available");
+                    inconsistencyCount++;
+                }
+            } else {
+                // No relationships file - this might be OK if there are no images
+                if (!getEmbImages().empty()) {
+                    appendDbgMsg(dbgMsg, "[" + worksheetName + "] has " + std::to_string(getEmbImages().size()) + 
+                              " images but no relationships file");
+                    inconsistencyCount++;
+                }
+            }
+        } catch (const std::exception& e) {
+            appendDbgMsg(dbgMsg, "[" + worksheetName + "] error during package path consistency check: " + std::string(e.what()));
+            inconsistencyCount++;
+        }
+
+    } catch (const std::exception& e) {
+        appendDbgMsg(dbgMsg, "[" + worksheetName + "] error during m_embImages consistency check: " + std::string(e.what()));
+        inconsistencyCount++;
+    }
+
+    return inconsistencyCount;
+}
+
+int XLWorksheet::verifyBinaryImageData(std::string* dbgMsg) const
+{
+    int issueCount = 0;
+    std::string worksheetName = name();
+
+    // Only validate if we have images to check
+    if (getEmbImages().empty()) {
+        return issueCount; // No images to validate
+    }
+
+    try {
+        // Get the drawing relationships filename
+        std::string relsFilename = getDrawingRelsFilename();
+
+        // Check if relationships file exists in archive
+        if (!parentDoc().hasRelationshipsFile(relsFilename)) {
+            // Check if we have images but no relationships file - this is a problem
+            if (getEmbImages().size() > 0) {
+                appendDbgMsg(dbgMsg, "[" + worksheetName + "] has " + std::to_string(getEmbImages().size()) + " images but no relationships file");
+                issueCount++;
+            }
+            // No relationships file means no binary data to validate
+            return issueCount;
+        }
+
+        // Read the relationships file
+        std::string relsContent = parentDoc().readRelationshipsFile(relsFilename);
+        if (relsContent.empty()) {
+            // Check if we have images but empty relationships file - this is a problem
+            if (getEmbImages().size() > 0) {
+                appendDbgMsg(dbgMsg, "[" + worksheetName + "] has " + std::to_string(getEmbImages().size()) + " images but relationships file is empty");
+                issueCount++;
+            }
+            return issueCount; // Empty relationships file means no binary data to validate
+        }
+
+        // Parse the relationships XML
+        pugi::xml_document relsDoc;
+        if (!relsDoc.load_string(relsContent.c_str())) {
+            appendDbgMsg(dbgMsg, "[" + worksheetName + "] failed to parse relationships XML");
+            issueCount++;
+            return issueCount;
+        }
+
+        // Collect unique image paths and verify binary files exist
+        std::set<std::string> referencedImagePaths;
+        
+        for (auto rel : relsDoc.document_element().children("Relationship")) {
+            std::string target = rel.attribute("Target").value();
+            std::string type = rel.attribute("Type").value();
+
+            // Only process image relationships
+            if (type == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image") {
+                referencedImagePaths.insert(target);
+            }
+        }
+
+        // Verify that each referenced binary file actually exists in the archive
+        for (const auto& imagePath : referencedImagePaths) {
+            // Convert relative path to absolute path for archive check
+            std::string absolutePath = getImageMediaPathFromFilename(imagePath);
+            
+            try {
+                std::string imageContent = parentDoc().readFile(absolutePath);
+                if (imageContent.empty()) {
+                    appendDbgMsg(dbgMsg, "[" + worksheetName + "] image file '" + absolutePath + "' referenced in relationships but binary file missing from archive");
+                    issueCount++;
+                }
+            } catch (const std::exception&) {
+                appendDbgMsg(dbgMsg, "[" + worksheetName + "] error checking image file '" + absolutePath + "' during relationships integrity verification");
+                issueCount++;
+            }
+        }
+
+    } catch (const std::exception& e) {
+        appendDbgMsg(dbgMsg, "[" + worksheetName + "] error during relationships integrity verification: " + std::string(e.what()));
+        issueCount++;
+    }
+
+    return issueCount;
+}
+
+std::vector<std::string> XLWorksheet::getImageIDs() const
+{
+    std::vector<std::string> imageIds;
+
+    // Get image IDs from m_embImages vector
+    for (const auto& embImage : getEmbImages()) {
+        if (!embImage.id().empty()) {
+            imageIds.push_back(embImage.id());
+        }
+    }
+
+    // Get image IDs from embedded images
+    if (m_drawingML.valid()) {
+        try {
+            for (const auto& embImage : getEmbImages()) {
+                if (!embImage.id().empty()) {
+                    imageIds.push_back(embImage.id());
+                }
+            }
+        } catch (const std::exception&) {
+            // Embedded images access failed, continue with empty list
+        }
+    }
+
+    // Sort the vector
+    std::sort(imageIds.begin(), imageIds.end());
+
+    // Remove duplicates using std::unique() and vector::erase()
+    auto it = std::unique(imageIds.begin(), imageIds.end());
+    imageIds.erase(it, imageIds.end());
+
+    return imageIds;
+}
+
+/**
+ * @brief Get the drawing relationships filename for this worksheet
+ * @return The relationships filename (e.g., "xl/drawings/_rels/drawing1.xml.rels")
+ */
+std::string XLWorksheet::getDrawingRelsFilename() const
+{
+    return "xl/drawings/_rels/drawing" + std::to_string(sheetXmlNumber()) + ".xml.rels";
+}
+
+/**
+ * @brief Get the drawing filename for this worksheet
+ * @return The drawing filename (e.g., "xl/drawings/drawing1.xml")
+ */
+std::string XLWorksheet::getDrawingFilename() const
+{
+    return "xl/drawings/drawing" + std::to_string(sheetXmlNumber()) + ".xml";
+}
+
+/**
+ * @brief Get the image media filename for an embedded image
+ * @param imageId The image ID
+ * @param extension The image file extension (e.g., ".png", ".jpg")
+ * @return The image media filename (e.g., "xl/media/image_1.png")
+ */
+std::string XLWorksheet::getImageMediaFilename(const std::string& imageId, const std::string& extension)
+{
+    return "xl/media/image_" + imageId + extension;
+}
+
+/**
+ * @brief Convert a relative image path to absolute archive path
+ * @param relativePath The relative path (e.g., "../media/image_1.png" or "media/image_1.png")
+ * @return The absolute archive path (e.g., "xl/media/image_1.png")
+ */
+std::string XLWorksheet::getAbsoluteImagePath(const std::string& relativePath)
+{
+    if (relativePath.substr(0, 3) == "../") {
+        return "xl/" + relativePath.substr(3); // Convert "../media/image_1.png" to "xl/media/image_1.png"
+    } else if (relativePath.substr(0, 4) != "xl/") {
+        return "xl/" + relativePath; // Add xl/ prefix if missing
+    }
+    return relativePath; // Already absolute
+}
+
+/**
+ * @brief Extract filename from a full image path
+ * @param imagePath The full image path
+ * @return The absolute archive path with extracted filename (e.g., "xl/media/image_1.png")
+ */
+std::string XLWorksheet::getImageMediaPathFromFilename(const std::string& imagePath)
+{
+    return "xl/media/" + imagePath.substr(imagePath.find_last_of('/') + 1);
+}
+
+std::vector<XLEmbeddedImage>& XLWorksheet::getEmbImages()
+{
+    if (!m_embImages) {
+        m_embImages = parentDoc().getImageManager().getEmbImgsForSheetName(name());
+        if(!m_embImages){
+            throw XLInternalError( std::string("failed to initialize m_embImages for") + name() );
+        }
+    }
+    return *m_embImages;
+}
+
+const std::vector<XLEmbeddedImage>& XLWorksheet::getEmbImages() const
+{   
+    const std::vector<XLEmbeddedImage>& embImages = const_cast<XLWorksheet *>(this)->getEmbImages();
+    return embImages;
+}
+

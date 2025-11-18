@@ -115,6 +115,14 @@ namespace { // anonymous namespace for local functions
             type = XLContentType::Table;
         else if (typeString == applicationOpenXmlOfficeDocument + ".vmlDrawing")
             type = XLContentType::VMLDrawing;
+        else if (typeString == "image/png")
+            type = XLContentType::ImagePNG;
+        else if (typeString == "image/jpeg")
+            type = XLContentType::ImageJPEG;
+        else if (typeString == "image/bmp")
+            type = XLContentType::ImageBMP;
+        else if (typeString == "image/gif")
+            type = XLContentType::ImageGIF;
         else
             type = XLContentType::Unknown;
 
@@ -172,6 +180,14 @@ namespace { // anonymous namespace for local functions
             typeString = applicationOpenXmlOfficeDocument + ".spreadsheetml.table+xml";
         else if (type == XLContentType::VMLDrawing)
             typeString = applicationOpenXmlOfficeDocument + ".vmlDrawing";
+        else if (type == XLContentType::ImagePNG)
+            typeString = "image/png";
+        else if (type == XLContentType::ImageJPEG)
+            typeString = "image/jpeg";
+        else if (type == XLContentType::ImageBMP)
+            typeString = "image/bmp";
+        else if (type == XLContentType::ImageGIF)
+            typeString = "image/gif";
         else
             throw XLInternalError("Unknown ContentType");
 
@@ -266,6 +282,11 @@ XLContentTypes& XLContentTypes::operator=(XLContentTypes&& other) noexcept = def
  */
 void XLContentTypes::addOverride(const std::string& path, XLContentType type)
 {
+    // Check if Override already exists to prevent duplicates
+    if (hasOverride(path)) {
+        return; // Don't add duplicate
+    }
+    
     const std::string typeString = GetStringFromType(type);
 
     XMLNode lastOverride = xmlDocument().document_element().last_child_of_type(pugi::node_element); // see if there's a last element
@@ -291,6 +312,15 @@ void XLContentTypes::addOverride(const std::string& path, XLContentType type)
     }
     node.append_attribute("PartName").set_value(path.c_str());
     node.append_attribute("ContentType").set_value(typeString.c_str());
+}
+
+/**
+ * @details Check if an override with the given path already exists
+ */
+bool XLContentTypes::hasOverride(const std::string& path) const
+{
+    XMLNode existingOverride = xmlDocument().document_element().find_child_by_attribute("PartName", path.c_str());
+    return !existingOverride.empty();
 }
 
 /**
@@ -327,4 +357,14 @@ std::vector<XLContentItem> XLContentTypes::getContentItems()
     }
 
     return result;
+}
+
+int XLContentTypes::verifyData(std::string* dbgMsg) const
+{
+    int errorCount = 0;
+    
+    // Call base class verifyData() which calls m_xmlData->verifyData()
+    errorCount += XLXmlFile::verifyData(dbgMsg);
+    
+    return errorCount;
 }

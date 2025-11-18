@@ -185,7 +185,7 @@ TEST_CASE("XLCellValue Tests", "[XLCellValue]")
         XLCellValue value;
         XLDocument doc;
         doc.create("./testXLCellValue.xlsx");
-        XLWorksheet wks = doc.workbook().sheet(1);
+        XLWorksheet wks = doc.workbook().worksheet(1);
 
         wks.cell("A1").value() = "Hello OpenXLSX!";
         value = wks.cell("A1").value();

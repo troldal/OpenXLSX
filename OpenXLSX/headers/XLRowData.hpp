@@ -283,12 +283,12 @@ namespace OpenXLSX
             // ===== If the container value_type is XLCellValue, the values can be copied directly.
             if constexpr (std::is_same_v<typename T::value_type, XLCellValue>) {
                 // ===== First, delete the values in the first N columns.
-                deleteCellValues(values.size());    // 2024-04-30: whitespace support
+                deleteCellValues(static_cast<uint16_t>(values.size()));    // 2024-04-30: whitespace support
 
                 // ===== Then, prepend new cell nodes to current row node
                 auto colNo = values.size();
                 for (auto value = values.rbegin(); value != values.rend(); ++value) {    // NOLINT
-                    prependCellValue(*value, colNo);    // 2024-04-30: whitespace support: this is safe because only prependCellValue (with
+                    prependCellValue(*value, static_cast<uint16_t>(colNo));    // 2024-04-30: whitespace support: this is safe because only prependCellValue (with
                                                         // whitespace support) touches the row data
                     --colNo;
                 }
@@ -296,7 +296,7 @@ namespace OpenXLSX
 
             // ===== If the container value_type is a POD type, use the overloaded operator= on each cell.
             else {
-                auto range = XLRowDataRange(*m_rowNode, 1, values.size(), getSharedStrings());
+                auto range = XLRowDataRange(*m_rowNode, 1, static_cast<uint16_t>(values.size()), getSharedStrings());
                 auto dst   = range.begin();    // 2024-04-30: whitespace support: safe because XLRowDataRange::begin invokes whitespace-safe
                                                // getCellNode for column 1
                 auto src = values.begin();

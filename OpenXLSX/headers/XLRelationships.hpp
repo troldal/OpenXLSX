@@ -62,6 +62,78 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLXmlFile.hpp"
 #include "XLXmlParser.hpp"
 
+/*
+ * ================================================================================
+ * RELATIONSHIP ID SCOPING IN OPENXLSX
+ * ================================================================================
+ * 
+ * In .xlsx files, relationship IDs are scoped to specific XML parts and exist in
+ * separate namespaces. Each XML part has its own corresponding .rels file containing
+ * relationship definitions for that specific part.
+ * 
+ * ┌─────────────────────────────────────────────────────────────────────────────┐
+ * │  HIERARCHICAL RELATIONSHIP STRUCTURE                                        │
+ * ├─────────────────────────────────────────────────────────────────────────────┤
+ * │                                                                             │
+ * │  _rels/.rels                    (Package-level relationships)               │
+ * │  ├─ rId1 → xl/workbook.xml                                                  │
+ * │  ├─ rId2 → docProps/core.xml                                                │
+ * │  └─ rId3 → docProps/app.xml                                                 │
+ * │                                                                             │
+ * │  xl/_rels/workbook.xml.rels     (Workbook-level relationships)             │
+ * │  ├─ rId1 → worksheets/sheet1.xml                                           │
+ * │  ├─ rId2 → worksheets/sheet2.xml                                           │
+ * │  ├─ rId3 → sharedStrings.xml                                               │
+ * │  ├─ rId4 → styles.xml                                                      │
+ * │  └─ rId5 → theme/theme1.xml                                                │
+ * │                                                                             │
+ * │  xl/worksheets/_rels/sheet1.xml.rels  (Worksheet-level relationships)     │
+ * │  ├─ rId1 → ../drawings/drawing1.xml                                       │
+ * │  ├─ rId2 → ../comments/comments1.xml                                       │
+ * │  └─ rId3 → ../tables/table1.xml                                            │
+ * │                                                                             │
+ * │  xl/drawings/_rels/drawing1.xml.rels  (Drawing-level relationships)       │
+ * │  ├─ rId1 → ../media/image_img1.png                                        │
+ * │  ├─ rId2 → ../media/image_img2.jpg                                        │
+ * │  └─ rId3 → ../media/image_img3.gif                                        │
+ * │                                                                             │
+ * └─────────────────────────────────────────────────────────────────────────────┘
+ * 
+ * RELATIONSHIP ID USAGE IN OPENXLSX:
+ * 
+ * 1. DOCUMENT-LEVEL RELATIONSHIPS (XLRelationships class):
+ *    - Location: _rels/.rels, xl/_rels/workbook.xml.rels, etc.
+ *    - Purpose: Link core document components (worksheets, styles, themes)
+ *    - ID Generation: Uses GetNewRelsID() with intelligent scanning
+ *    - Scope: Per relationship file
+ *    - Example: rId1 in workbook.xml.rels ≠ rId1 in sheet1.xml.rels
+ * 
+ * 2. DRAWING-LEVEL RELATIONSHIPS (createDrawingRelationshipsFile):
+ *    - Location: xl/drawings/_rels/drawing1.xml.rels, etc.
+ *    - Purpose: Link drawing objects (images, shapes) to media files
+ *    - ID Generation: Simple sequential counter (rId1, rId2, rId3...)
+ *    - Scope: Per drawing file
+ *    - Example: rId1 in drawing1.xml.rels ≠ rId1 in drawing2.xml.rels
+ * 
+ * 3. WORKSHEET-LEVEL RELATIONSHIPS (XLWorksheet relationships):
+ *    - Location: xl/worksheets/_rels/sheet1.xml.rels, etc.
+ *    - Purpose: Link worksheet-specific parts (drawings, comments, tables)
+ *    - ID Generation: Uses XLRelationships::addRelationship()
+ *    - Scope: Per worksheet
+ * 
+ * KEY PRINCIPLES:
+ * - Each relationship file maintains its own ID namespace
+ * - IDs are unique only within their respective .rels file
+ * - Different relationship types use different management strategies
+ * - Document relationships use complex ID management
+ * - Drawing relationships use simple sequential numbering
+ * 
+ * This scoping system ensures that relationship IDs don't conflict across
+ * different parts of the Excel document structure.
+ * 
+ * ================================================================================
+ */
+
 namespace OpenXLSX
 {
     /**
@@ -329,6 +401,13 @@ namespace OpenXLSX {
          * @brief print the XML contents of the relationships document using the underlying XMLNode print function
          */
         void print(std::basic_ostream<char>& ostr) const;
+
+        /**
+         * @brief Verify internal data integrity and class invariants
+         * @param dbgMsg Optional pointer to append debug message explaining any errors found
+         * @return Number of errors found (0 = EXIT_SUCCESS, data integrity OK)
+         */
+        int verifyData(std::string* dbgMsg = nullptr) const;
 
         // ---------- Protected Member Functions ---------- //
     protected:

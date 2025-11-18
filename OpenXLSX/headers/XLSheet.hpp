@@ -75,6 +75,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLRow.hpp"
 #include "XLStyles.hpp"   // XLStyleIndex
 #include "XLTables.hpp"   // XLTables
+#include "XLImage.hpp"    // XLImage
+#include "XLDrawingML.hpp" // XLDrawingML
 #include "XLXmlFile.hpp"
 
 namespace OpenXLSX
@@ -910,6 +912,14 @@ namespace OpenXLSX
         XLWorksheet& operator=(XLWorksheet&& other);
 
         /**
+         Compare two worksheets -- for debugging
+         Result = 0 => worksheets same
+         Result < 0 => this worksheet precedes other, in a sorted list -- (arbitrary sorting method)
+         @param diffMsg (optional) if result is non-zero, message exlaining difference will be appended here, up to maximum of 16384 charcaters
+         */
+        int compare(const XLWorksheet& other, std::string *diffMsg = nullptr) const;
+
+        /**
          * @brief
          * @param ref
          * @return
@@ -1252,6 +1262,18 @@ namespace OpenXLSX
         XLVmlDrawing& vmlDrawing();
 
         /**
+         * @brief Get the DrawingML object for this worksheet
+         * @return Reference to the DrawingML object
+         */
+        XLDrawingML& drawingML();
+        
+        /**
+         * @brief Get the DrawingML object for this worksheet (const version)
+         * @return Reference to the DrawingML object
+         */
+        const XLDrawingML& drawingML() const;
+
+        /**
          * @brief fetch a reference to the worksheet comments
          */
         XLComments& comments();
@@ -1261,7 +1283,305 @@ namespace OpenXLSX
          */
         XLTables& tables();
 
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Image Methods
+        //----------------------------------------------------------------------------------------------------------------------
+
+        /* 
+        Construct oneCellAnchor XLImageAnchor from cellRef.
+        Construct XLImage from imageData and mimeType
+        return Image ID 
+        */ 
+        std::string embedImageFromImageData( const XLCellReference& cellRef, 
+            const std::vector<uint8_t>& imageData,
+            XLMimeType mimeType = XLMimeType::Unknown );
+
+        /* 
+        Construct XLImage from imageData and mimeType
+        return Image ID 
+        */ 
+        std::string embedImageFromImageData( const XLImageAnchor& imageAnchor, 
+            const std::vector<uint8_t>& imageData,
+            XLMimeType mimeType = XLMimeType::Unknown );
+
+        /*  
+        Construct oneCellAnchor XLImageAnchor from cellRef.
+        Construct XLImage from imageFileName and mimeType
+        return Image ID 
+        */ 
+        std::string embedImageFromFile( const XLCellReference& cellRef, 
+            const std::string& imageFileName,
+            XLMimeType mimeType = XLMimeType::Unknown );
+
+        /*  
+        Construct XLImage from imageFileName and mimeType
+        return Image ID
+        */ 
+        std::string embedImageFromFile( const XLImageAnchor& imageAnchor, 
+            const std::string& imageFileName,
+            XLMimeType mimeType = XLMimeType::Unknown );
+
+        /**
+         * @brief Get the number of images in the worksheet
+         * @return Number of images
+         */
+        size_t imageCount() const;
+
+        /**
+         * @brief Check if the worksheet has any images
+         * @return True if the worksheet has images, false otherwise
+         */
+        bool hasImages() const;
+
+        /**
+         * @brief Check if the worksheet has images by examining the XML directly
+         * @return True if the worksheet XML contains a <drawing> element, false otherwise
+         * @note This method does not modify the document and can be called safely on temporary objects
+         */
+        bool hasImagesInXML() const;
+
+        /**
+         * @brief Generate the next available image ID for this worksheet
+         * @return The next globally unique image ID (e.g., "img1", "img2", etc.)
+         * @note This uses the document-level counter to ensure uniqueness across all worksheets
+         */
+        std::string generateNextImageId() const;
+
+        /**
+         * @brief Generate a relationship ID based on the current image count
+         * @return A relationship ID string (e.g., "rId1", "rId2", etc.)
+         * @note This generates IDs for DrawingML XML based on the current number of images
+         */
+        std::string getNextUnusedRelationshipId() const;
+
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Image Query Methods
+        //----------------------------------------------------------------------------------------------------------------------
+
+        /**
+         * @brief Get specific embedded image by its image ID
+         * @param imageId The unique image ID (e.g., "img1", "img2")
+         * @return Const reference to XLEmbeddedImage object, or empty XLEmbeddedImage if not found
+         * @note Returns a const reference for efficiency - no copying of the object
+         */
+        const XLEmbeddedImage& getEmbImageByImageID(const std::string& imageId) const;
+
+        /**
+         * @brief Get specific embedded image by its relationship ID
+         * @param relationshipId The relationship ID in drawing.xml.rels (e.g., "rId1", "rId2")
+         * @return Const reference to XLEmbeddedImage object, or empty XLEmbeddedImage if not found
+         * @note Returns a const reference for efficiency - no copying of the object
+         */
+        const XLEmbeddedImage& getEmbImageByRelationshipId(const std::string& relationshipId) const;
+
+        /**
+         * @brief Get all embedded images at a specific cell
+         * @param cellRef The cell reference (e.g., "A1", "B5")
+         * @return Vector of XLEmbeddedImage objects at that cell
+         */
+        std::vector<XLEmbeddedImage> getEmbImagesAtCell(const std::string& cellRef) const;
+
+        /**
+         * @brief Get all embedded images in a specific range
+         * @param cellRange The cell range (e.g., "A1:B5", "C10:D20")
+         * @return Vector of XLEmbeddedImage objects in that range
+         */
+        std::vector<XLEmbeddedImage> getEmbImagesInRange(const std::string& cellRange) const;
+
+        /**
+         * @brief Get the embedded images vector, ensuring it's initialized
+         * @return Reference to the embedded images vector
+         * @details This function ensures m_embImages is properly initialized from XLImageManager
+         */
+        std::vector<XLEmbeddedImage>& getEmbImages();
+
+        /**
+         * @brief Get the embedded images vector, ensuring it's initialized (const version)
+         * @return Const reference to the embedded images vector
+         * @details This function ensures m_embImages is properly initialized from XLImageManager
+         */
+        const std::vector<XLEmbeddedImage>& getEmbImages() const;
+
+
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Image Modification Methods
+        //----------------------------------------------------------------------------------------------------------------------
+
+        /**
+         * @brief Remove an image by its ID
+         * @param imageId The unique image identifier to remove
+         * @return True if the image was found and removed, false otherwise
+         * @note This will update the image registry and remove the image from DrawingML
+         */
+        bool removeImageByImageID(const std::string& imageId);
+
+        /**
+         * @brief Remove an image by its relationship ID
+         * @param relationshipId The relationship ID to remove
+         * @return True if the image was found and removed, false otherwise
+         * @note This will update the image registry and remove the image from DrawingML
+         */
+        bool removeImageByRelationshipId(const std::string& relationshipId);
+
+        /**
+         * @brief Remove all images from the worksheet
+         * @note This will clear the image registry and remove all images from DrawingML
+         */
+        void clearImages();
+
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Image Removal Helper Functions (Private)
+        //----------------------------------------------------------------------------------------------------------------------
+
     private:
+        /* add Embedded Image, assuming imageAnchor and image are ready to add */
+        std::string embedImage( const XLImageAnchor& imageAnchor, XLImageShPtr image );
+
+        /**
+         * @brief Remove image node from DrawingML XML (in-memory document)
+         * @param relationshipId The relationship ID of the image to remove
+         * @return True if the image node was found and removed
+         */
+        bool removeImageFromDrawingXML(const std::string& relationshipId) const;
+
+        /**
+         * @brief Remove image relationship from relationships file (in-memory document)
+         * @param relationshipId The relationship ID to remove
+         * @return True if the relationship was found and removed
+         */
+        bool removeImageFromRelationships(const std::string& relationshipId) const;
+
+        /**
+         * @brief Remove the <drawing> element from worksheet XML if there are no more images
+         * @note This is a helper function called after removing images to clean up the XML
+         */
+        void removeDrawingElementIfEmpty();
+
+        /**
+         * @brief Remove image file from archive (delete binary file entry)
+         * @param relationshipId The relationship ID of the image file to remove
+         * @return True if the file was found and removed from archive
+         */
+
+        /**
+         * @brief Get image path from relationship ID
+         * @param relationshipId The relationship ID to look up
+         * @return The image path, or empty string if not found
+         */
+        std::string getImagePathFromRelationship(const std::string& relationshipId) const;
+
+        /**
+         * @brief Remove image file by direct path
+         * @param imagePath The relative image path (e.g., "../media/image_img3.png")
+         * @return True if the file was found and removed
+         */
+
+    public:
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Image Registry Management
+        //----------------------------------------------------------------------------------------------------------------------
+
+        /**
+         * @brief Refresh the image registry from DrawingML XML
+         * @note This method parses the DrawingML XML and rebuilds the image registry.
+         *       The registry is automatically refreshed when needed (when images are queried
+         *       and the registry is empty), but this method can be called manually if needed.
+         */
+        void refreshImageRegistry() const;
+
+        /**
+         * @brief Populate m_images vector from existing XML data
+         * @note This method calls refreshImageRegistry() to get registry data,
+         *       then converts registry entries to XLImage objects and populates m_images.
+         *       Only populates if m_images is empty to avoid duplicates.
+         */
+        void populateImagesFromXML();
+
+        /**
+         * @brief Validate image registry for data integrity
+         * @return True if registry is valid (no duplicate IDs), false otherwise
+         * @note Checks for duplicate image IDs, relationship IDs, and other corruption
+         */
+        bool validateImageRegistry() const;
+
+        /**
+         * @brief Check if an image ID already exists
+         * @param imageId The image ID to check
+         * @return True if the ID exists, false otherwise
+         */
+        bool hasEmbImageWithId(const std::string& imageId) const;
+
+        /**
+         * @brief Check if a relationship ID already exists
+         * @param relationshipId The relationship ID to check
+         * @return True if the ID exists, false otherwise
+         */
+        bool hasImageWithRelationshipId(const std::string& relationshipId) const;
+
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Private Helper Methods for Image Registry
+        //----------------------------------------------------------------------------------------------------------------------
+
+    private:
+        /**
+         * @brief Read the drawing relationships file to map relationship IDs to image files
+         * @param relationshipMap Output map of relationship ID to image file path
+         */
+        void readDrawingRelationships(std::map<std::string, std::string>& relationshipMap) const;
+
+        /**
+         * @brief Process a single XLImageAnchor into an XLEmbeddedImage and add to m_embImages
+         * @param anchorInfo The parsed anchor information
+         * @param relationshipMap Map of relationship IDs to image files
+         */
+        void processAnchorToEmbeddedImage(const XLImageAnchor& anchorInfo, const std::map<std::string, std::string>& relationshipMap);
+
+        /**
+         * @brief Extract image ID from XML pic element
+         * @param pic The pic XML node containing the image information
+         * @return The image ID from the cNvPr id attribute
+         */
+        std::string extractImageIdFromXML(const pugi::xml_node& pic) const;
+
+        /**
+         * @brief Convert EMUs to pixels (approximate conversion)
+         * @param emus EMUs value
+         * @return Approximate pixel value
+         @deprected -> move to XLImageUtils
+         */
+        uint32_t emusToPixels(uint32_t emus) const;
+
+        /**
+         * @brief Create the drawing relationships file
+         * @param drawingFilename The drawing filename
+         */
+        void createDrawingRelationshipsFile(const std::string& drawingFilename);
+
+        /**
+         * @brief Create an empty DrawingML object for worksheets without images
+         * This is needed when embedImage() is called on a worksheet that doesn't have images yet
+         * @return Reference to the newly created DrawingML object
+         */
+        XLDrawingML& createEmptyDrawingML();
+     
+        void addImageRelationship(const XLEmbeddedImage& image);
+
+   
+        /**
+         * @brief Add a relationship for a new image to the existing relationships file
+         * @param image The image to add a relationship for
+         * @param relationshipId The relationship ID to use
+*        @deprecated
+         */
+        void addImageRelationship(const XLEmbeddedImage& image, const std::string& relationshipId);
+
+        /**
+         * @brief Helper function to create new relationships XML with a single relationship
+         * @param relationshipId The relationship ID to use
+         * @param imageRelativePath The relative path to the image file
+         * @return The complete XML string for the relationships file
+         */
+        std::string createNewRelationshipsXml(const std::string& relationshipId, const std::string& imageRelativePath);
 
         /**
          * @brief fetch the # number from the xml path xl/worksheets/sheet#.xml
@@ -1309,12 +1629,91 @@ namespace OpenXLSX
          */
         bool setActive_impl();
 
+    public:
+        /**
+         * @brief Get all image IDs in this worksheet
+         * @return Vector of all image ID strings, sorted and unique (duplicates removed)
+         */
+        std::vector<std::string> getImageIDs() const;
+
+        /**
+         * @brief Verify internal data integrity and class invariants
+         * @param dbgMsg Optional pointer to append debug message explaining any errors found
+         * @return Number of errors found (0 = EXIT_SUCCESS, data integrity OK)
+         */
+        int verifyData(std::string* dbgMsg = nullptr) const;
+
+        /**
+         * @brief Verify that all image IDs are unique within this worksheet
+         * @param dbgMsg Optional pointer to append debug message explaining any duplicate IDs found
+         * @return Number of duplicate IDs found (0 = all IDs are unique)
+         */
+        int verifyUniqueImageIDs(std::string* dbgMsg = nullptr) const;
+
+        /**
+         * @brief Verify DrawingML XML consistency with image registry data
+         * @param dbgMsg Optional pointer to append debug message explaining any inconsistencies found
+         * @return Number of inconsistencies found (0 = XML and registry are consistent)
+         */
+        int verifyDrawingMLConsistency(std::string* dbgMsg = nullptr) const;
+
+        /**
+         * @brief Verify m_images vector consistency with DrawingML XML data
+         * @param dbgMsg Optional pointer to append debug message explaining any inconsistencies found
+         * @return Number of inconsistencies found (0 = m_images and XML are consistent)
+         */
+        int verifyImagesVectorConsistency(std::string* dbgMsg = nullptr) const;
+
+        /**
+         * @brief Verify that binary image data exists in the archive
+         * @param dbgMsg Optional pointer to append debug message explaining any issues found
+         * @return Number of issues found (0 = all referenced image files exist in archive)
+         */
+        int verifyBinaryImageData(std::string* dbgMsg = nullptr) const;
+        bool isBinaryFileReferenced(const std::string& imagePath) const;
+
+        /**
+         * @brief Get the drawing relationships filename for this worksheet
+         * @return The relationships filename (e.g., "xl/drawings/_rels/drawing1.xml.rels")
+         */
+        std::string getDrawingRelsFilename() const;
+
+        /**
+         * @brief Get the drawing filename for this worksheet
+         * @return The drawing filename (e.g., "xl/drawings/drawing1.xml")
+         */
+        std::string getDrawingFilename() const;
+
+        /**
+         * @brief Get the image media filename for an embedded image
+         * @param imageId The image ID
+         * @param extension The image file extension (e.g., ".png", ".jpg")
+         * @return The image media filename (e.g., "xl/media/image_1.png")
+         */
+        static std::string getImageMediaFilename(const std::string& imageId, const std::string& extension);
+
+        /**
+         * @brief Convert a relative image path to absolute archive path
+         * @param relativePath The relative path (e.g., "../media/image_1.png" or "media/image_1.png")
+         * @return The absolute archive path (e.g., "xl/media/image_1.png")
+         */
+        static std::string getAbsoluteImagePath(const std::string& relativePath);
+
+        /**
+         * @brief Extract filename from a full image path
+         * @param imagePath The full image path
+         * @return The absolute archive path with extracted filename (e.g., "xl/media/image_1.png")
+         */
+        static std::string getImageMediaPathFromFilename(const std::string& imagePath);
+
     private:   // ---------- Private Member Variables ---------- //
         XLRelationships m_relationships{};    /**< class handling the worksheet relationships */
         XLMergeCells    m_merges{};           /**< class handling the <mergeCells> */
         XLVmlDrawing    m_vmlDrawing{};       /**< class handling the worksheet VML drawing object */
+        XLDrawingML     m_drawingML{};        /**< class handling the worksheet DrawingML object */
         XLComments      m_comments{};         /**< class handling the worksheet comments */
         XLTables        m_tables{};           /**< class handling the worksheet table settings */
+        XLEmbImgVecShPtr m_embImages;              /**< shared pointer to vector storing images in the worksheet */
         const std::vector< std::string_view >& m_nodeOrder = XLWorksheetNodeOrder;  // worksheet XML root node required child sequence
     };
 
@@ -1561,9 +1960,24 @@ namespace OpenXLSX
         T get() const
         {
             try {
-                if constexpr (std::is_same<T, XLWorksheet>::value)
-                    return std::get<XLWorksheet>(m_sheet);
-
+                if constexpr (std::is_same<T, XLWorksheet>::value) {
+                    XLWorksheet worksheet = std::get<XLWorksheet>(m_sheet);
+                    
+                    // Only initialize DrawingML if the worksheet actually has images
+                    // This avoids unnecessary XML modifications for worksheets without images
+                    if (worksheet.hasImagesInXML()) {
+                        try {
+                            std::ignore = worksheet.drawingML(); // Initialize DrawingML
+                            // Populate m_images vector from existing XML data
+                            worksheet.populateImagesFromXML();
+                        } catch (...) {
+                            // DrawingML initialization failed, but worksheet is still usable
+                        }
+                    }
+                    // If no images, leave DrawingML invalid (fast path)
+                    
+                    return worksheet;
+                }
                 else if constexpr (std::is_same<T, XLChartsheet>::value)
                     return std::get<XLChartsheet>(m_sheet);
             }

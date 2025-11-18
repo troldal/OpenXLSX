@@ -232,6 +232,44 @@ namespace OpenXLSX
          */
         bool empty() const;
 
+        /**
+         * @brief Verify internal data integrity and class invariants
+         * @param dbgMsg Optional pointer to append debug message explaining any errors found
+         * @return Number of errors found (0 = EXIT_SUCCESS, data integrity OK)
+         */
+        int verifyData(std::string* dbgMsg = nullptr) const;
+
+        /**
+         * @brief Verify unique XML records across the entire XML tree
+         * @param dbgMsg Optional pointer to append debug message explaining any errors found
+         * @return Number of errors found (0 = EXIT_SUCCESS, data integrity OK)
+         */
+        int verifyUniqueXMLRecords(std::string* dbgMsg = nullptr) const;
+
+        /**
+         * @brief Compare two XML nodes for ordering
+         * @param x First XML node to compare
+         * @param y Second XML node to compare
+         * @return -1 if x < y, 0 if x == y, 1 if x > y
+         */
+        static int compareXMLNode(const pugi::xml_node& x, const pugi::xml_node& y);
+
+        /**
+         * @brief Less-than comparison for XML nodes (for use with std::sort)
+         * @param x First XML node to compare
+         * @param y Second XML node to compare
+         * @return true if x < y, false otherwise
+         */
+        static bool lessXMLNode(const pugi::xml_node& x, const pugi::xml_node& y);
+
+        /**
+         * @brief Verify unique XML records recursively starting from a root node
+         * @param rootNode The root XML node to start verification from
+         * @param dbgMsg Optional pointer to append debug message explaining any errors found
+         * @return Number of errors found (0 = EXIT_SUCCESS, data integrity OK)
+         */
+        static int verifyUniqueXMLRecordsRecursive(const pugi::xml_node& rootNode, std::string* dbgMsg = nullptr);
+
     private:
         // ===== PRIVATE MEMBER VARIABLES ===== //
 

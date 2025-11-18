@@ -54,6 +54,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== External Includes ===== //
 #include <algorithm> // std::find_if
+#include <ctime>     // time_t
 #include <list>
 #include <string>
 
@@ -71,6 +72,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLTables.hpp"
 #include "XLWorkbook.hpp"
 #include "XLXmlData.hpp"
+#include "XLImage.hpp"
 #include "XLZipArchive.hpp"
 
 namespace OpenXLSX
@@ -269,6 +271,152 @@ namespace OpenXLSX
          */
         void deleteProperty(XLProperty theProperty);
 
+        //----------------------------------------------------------------------------------------------------------------------
+        //           Convenience Property Methods
+        //----------------------------------------------------------------------------------------------------------------------
+
+        /**
+         * @brief Set the document creator (dc:creator)
+         * @param creator The creator name
+         */
+        void setCreator(const std::string& creator);
+
+        /**
+         * @brief Get the document creator (dc:creator)
+         * @return The creator name
+         */
+        std::string creator() const;
+
+        /**
+         * @brief Set the document title (dc:title)
+         * @param title The document title
+         */
+        void setTitle(const std::string& title);
+
+        /**
+         * @brief Get the document title (dc:title)
+         * @return The document title
+         */
+        std::string title() const;
+
+        /**
+         * @brief Set the document subject (dc:subject)
+         * @param subject The document subject
+         */
+        void setSubject(const std::string& subject);
+
+        /**
+         * @brief Get the document subject (dc:subject)
+         * @return The document subject
+         */
+        std::string subject() const;
+
+        /**
+         * @brief Set the document description (dc:description)
+         * @param description The document description
+         */
+        void setDescription(const std::string& description);
+
+        /**
+         * @brief Get the document description (dc:description)
+         * @return The document description
+         */
+        std::string description() const;
+
+        /**
+         * @brief Set the document keywords (cp:keywords)
+         * @param keywords The document keywords
+         */
+        void setKeywords(const std::string& keywords);
+
+        /**
+         * @brief Get the document keywords (cp:keywords)
+         * @return The document keywords
+         */
+        std::string keywords() const;
+
+        /**
+         * @brief Set the last modified by (cp:lastModifiedBy)
+         * @param lastModifiedBy The last modified by name
+         */
+        void setLastModifiedBy(const std::string& lastModifiedBy);
+
+        /**
+         * @brief Get the last modified by (cp:lastModifiedBy)
+         * @return The last modified by name
+         */
+        std::string lastModifiedBy() const;
+
+        /**
+         * @brief Set the document category (cp:category)
+         * @param category The document category
+         */
+        void setCategory(const std::string& category);
+
+        /**
+         * @brief Get the document category (cp:category)
+         * @return The document category
+         */
+        std::string category() const;
+
+        /**
+         * @brief Set the creation date to the current time (dcterms:created)
+         */
+        void setCreationDateToNow();
+
+        /**
+         * @brief Set the creation date to a specific time (dcterms:created)
+         * @param timestamp The time_t timestamp to set as creation date
+         */
+        void setCreationDate(time_t timestamp);
+
+        /**
+         * @brief Get the creation date (dcterms:created)
+         * @return The creation date in W3CDTF format
+         */
+        std::string creationDate() const;
+
+        /**
+         * @brief Set the modification date to the current time (dcterms:modified)
+         */
+        void setModificationDateToNow();
+
+        /**
+         * @brief Set the modification date to a specific time (dcterms:modified)
+         * @param timestamp The time_t timestamp to set as modification date
+         */
+        void setModificationDate(time_t timestamp);
+
+        /**
+         * @brief Get the modification date (dcterms:modified)
+         * @return The modification date in W3CDTF format
+         */
+        std::string modificationDate() const;
+
+        /**
+         * @brief Set the absolute path (x15ac:absPath)
+         * @param absPath The absolute path URL to set
+         */
+        void setAbsPath(const std::string& absPath);
+
+        /**
+         * @brief Get the absolute path (x15ac:absPath)
+         * @return The absolute path URL
+         */
+        std::string absPath() const;
+
+        /**
+         * @brief Set the application name (Application)
+         * @param application The application name
+         */
+        void setApplication(const std::string& application);
+
+        /**
+         * @brief Get the application name (Application)
+         * @return The application name
+         */
+        std::string application() const;
+
         /**
          * @brief
          * @return
@@ -337,11 +485,24 @@ namespace OpenXLSX
         XLComments sheetComments(uint16_t sheetXmlNo);
 
         /**
+         * @brief Generate the next globally unique image ID for this document
+         * @return The next sequential image ID (e.g., "img1", "img2", etc.)
+         */
+        std::string generateNextImageId() const;
+
+        /**
          * @brief fetch the worksheet tables for sheetXmlNo, create the file if it does not exist
          * @param sheetXmlNo fetch for this sheet #
          * @return an XLTables object initialized with the sheet tables
          */
         XLTables sheetTables(uint16_t sheetXmlNo);
+
+        /**
+         * @brief Verify internal data integrity and class invariants
+         * @param dbgMsg Optional pointer to append debug message explaining any errors found
+         * @return Number of errors found (0 = EXIT_SUCCESS, data integrity OK)
+         */
+        int verifyData(std::string* dbgMsg = nullptr) const;
 
     public:
         /**
@@ -351,6 +512,103 @@ namespace OpenXLSX
          * @return true if sheetName can be used, otherwise false
          */
         bool validateSheetName(std::string sheetName, bool throwOnInvalid = false);
+
+        /**
+         * @brief Add an image entry to the archive
+         * @param imageFilename The filename for the image in the archive
+         * @param imageData The binary image data
+         * @param contentType The content type for the image
+         * @return true if successful, false otherwise
+         */
+        bool addImageEntry(const std::string& imageFilename, const std::vector<uint8_t>& imageData, XLContentType contentType);
+
+        /**
+         * @brief Compare two documents for debugging
+         * @param other The other XLDocument to compare with
+         * @param diffMsg Optional pointer to append difference message (up to 16384 characters)
+         * @return 0 if identical, <0 if this precedes other, >0 if this follows other
+         */
+        int compare(const XLDocument& other, std::string* diffMsg = nullptr) const;
+
+        /**
+         * @brief Verify XML data integrity for all XML files in m_data
+         * @param dbgMsg Optional pointer to append debug message explaining any errors found
+         * @return Number of errors found (0 = EXIT_SUCCESS, data integrity OK)
+         */
+        int verifyXLXmlData(std::string* dbgMsg = nullptr) const;
+
+        /**
+         * @brief Add a drawing file to the archive
+         * @param drawingFilename The filename for the drawing in the archive
+         * @param drawingXml The drawing XML content
+         * @return true if successful, false otherwise
+         */
+        bool addDrawingFile(const std::string& drawingFilename, const std::string& drawingXml);
+
+        /**
+         * @brief Get XML data for a drawing file
+         * @param drawingFilename The filename for the drawing in the archive
+         * @return Pointer to XLXmlData, or nullptr if not found
+         */
+        XLXmlData* getDrawingXmlData(const std::string& drawingFilename);
+
+        /**
+         * @brief Get XML data for a relationships file
+         * @param relsFilename The filename for the relationships file in the archive
+         * @return Pointer to XLXmlData, or nullptr if not found
+         */
+        XLXmlData* getRelationshipsXmlData(const std::string& relsFilename);
+
+        /**
+         * @brief Update relationships XML data in-memory without archive access
+         * @param relsFilename The filename for the relationships file
+         * @param relsXml The relationships XML content
+         * @return true if successful, false otherwise
+         */
+        bool updateRelationshipsXmlData(const std::string& relsFilename, const std::string& relsXml);
+
+        /**
+         * @brief Add a relationships file to the archive
+         * @param relsFilename The filename for the relationships file in the archive
+         * @param relsXml The relationships XML content
+         * @return true if successful, false otherwise
+         */
+        bool addRelationshipsFile(const std::string& relsFilename, const std::string& relsXml);
+        
+        /**
+         * @brief Check if a relationships file exists in the archive
+         * @param relsFilename The filename for the relationships file in the archive
+         * @return true if the file exists, false otherwise
+         */
+        bool hasRelationshipsFile(const std::string& relsFilename) const;
+        
+        /**
+         * @brief Read the content of a relationships file from the archive
+         * @param relsFilename The filename for the relationships file in the archive
+         * @return The content of the file, or empty string if not found
+         */
+        std::string readRelationshipsFile(const std::string& relsFilename) const;
+
+        /**
+         * @brief Read the content of any file from the archive
+         * @param filePath The path of the file in the archive
+         * @return The content of the file, or empty string if not found
+         */
+        std::string readFile(const std::string& filePath) const;
+
+        /**
+         * @brief Delete an entry from the archive
+         * @param entryPath The path of the entry to delete
+         * @return true if the entry was deleted successfully, false otherwise
+         */
+        bool deleteEntry(const std::string& entryPath);
+
+        /**
+         * @brief Check if a binary file is referenced by any relationships in any worksheet
+         * @param imagePath The relative image path (e.g., "../media/image_3.gif")
+         * @return True if the file is referenced by at least one relationship in any worksheet
+         */
+        bool isBinaryFileReferenced(const std::string& imagePath) const;
 
         /**
          * @brief
@@ -421,6 +679,24 @@ namespace OpenXLSX
         const XLXmlData* getXmlData(const std::string& path, bool doNotThrow = false) const;
 
         /**
+         * @brief Load all XML files from the archive into m_data list
+         */
+        void loadAllXmlFilesFromArchive();
+
+    public:
+        /**
+         * @brief Get the image manager for this document
+         * @return Const reference to the XLImageManager
+         */
+        const XLImageManager& getImageManager() const { return m_imageManager; }
+
+        /**
+         * @brief Get the image manager for this document
+         * @return Reference to the XLImageManager
+         */
+        XLImageManager& getImageManager() { return m_imageManager; }
+
+        /**
          * @brief
          * @param path
          * @return
@@ -449,6 +725,7 @@ namespace OpenXLSX
         XLProperties    m_coreProperties {};   /**< A pointer to the Core properties object*/
         XLStyles        m_styles {};           /**< A pointer to the document styles object*/
         XLWorkbook      m_workbook {};         /**< A pointer to the workbook object */
+        XLImageManager  m_imageManager {this};    /**< A pointer to the image manager object */
         IZipArchive     m_archive {};          /**<  */
     };
 

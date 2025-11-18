@@ -45,6 +45,9 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== External Includes ===== //
 #include <algorithm>
+#include <ctime>
+#include <iomanip>
+#include <sstream>
 #ifdef ENABLE_NOWIDE
 #    include <nowide/fstream.hpp>
 #endif
@@ -432,13 +435,13 @@ namespace
 
 }    // namespace
 
-XLDocument::XLDocument(const IZipArchive& zipArchive) : m_xmlSavingDeclaration{}, m_archive(zipArchive) {}
+XLDocument::XLDocument(const IZipArchive& zipArchive) : m_xmlSavingDeclaration{}, m_archive(zipArchive), m_imageManager(this) {}
 
 /**
  * @details An alternative constructor, taking a std::string with the path to the .xlsx package as an argument.
  */
 XLDocument::XLDocument(const std::string& docPath, const IZipArchive& zipArchive)
-    : m_xmlSavingDeclaration{}, m_archive(zipArchive)
+    : m_xmlSavingDeclaration{}, m_archive(zipArchive), m_imageManager(this)
 {
     open(docPath); 
 }
@@ -621,6 +624,9 @@ void XLDocument::open(const std::string& fileName)
 
     m_sharedStrings  = XLSharedStrings(getXmlData("xl/sharedStrings.xml"), &m_sharedStringCache);
     m_styles         = XLStyles(getXmlData("xl/styles.xml"), m_suppressWarnings); // 2024-10-14: forward supress warnings setting to XLStyles
+    
+    // ===== Load all remaining XML files from the archive (including drawing files)
+    loadAllXmlFilesFromArchive();
 }
 
 namespace {
@@ -758,6 +764,10 @@ void XLDocument::saveAs(const std::string& fileName, bool forceOverwrite)
         m_archive.addEntry(item.getXmlPath(),
             item.getRawData(XLXmlSavingDeclaration(m_xmlSavingDeclaration.version(), m_xmlSavingDeclaration.encoding(),xmlIsStandalone)));
     }
+    
+    // Prune unused images before saving
+    m_imageManager.prune();
+    
     m_archive.save(m_filePath);
 }
 
@@ -1008,6 +1018,256 @@ void XLDocument::setProperty(XLProperty prop, const std::string& value)    // NO
  */
 void XLDocument::deleteProperty(XLProperty theProperty) { setProperty(theProperty, ""); }
 
+//----------------------------------------------------------------------------------------------------------------------
+//           Convenience Property Methods
+//----------------------------------------------------------------------------------------------------------------------
+
+/**
+ * @details Set the document creator (dc:creator)
+ */
+void XLDocument::setCreator(const std::string& creator)
+{
+    setProperty(XLProperty::Creator, creator);
+}
+
+/**
+ * @details Get the document creator (dc:creator)
+ */
+std::string XLDocument::creator() const
+{
+    return property(XLProperty::Creator);
+}
+
+/**
+ * @details Set the document title (dc:title)
+ */
+void XLDocument::setTitle(const std::string& title)
+{
+    setProperty(XLProperty::Title, title);
+}
+
+/**
+ * @details Get the document title (dc:title)
+ */
+std::string XLDocument::title() const
+{
+    return property(XLProperty::Title);
+}
+
+/**
+ * @details Set the document subject (dc:subject)
+ */
+void XLDocument::setSubject(const std::string& subject)
+{
+    setProperty(XLProperty::Subject, subject);
+}
+
+/**
+ * @details Get the document subject (dc:subject)
+ */
+std::string XLDocument::subject() const
+{
+    return property(XLProperty::Subject);
+}
+
+/**
+ * @details Set the document description (dc:description)
+ */
+void XLDocument::setDescription(const std::string& description)
+{
+    setProperty(XLProperty::Description, description);
+}
+
+/**
+ * @details Get the document description (dc:description)
+ */
+std::string XLDocument::description() const
+{
+    return property(XLProperty::Description);
+}
+
+/**
+ * @details Set the document keywords (cp:keywords)
+ */
+void XLDocument::setKeywords(const std::string& keywords)
+{
+    setProperty(XLProperty::Keywords, keywords);
+}
+
+/**
+ * @details Get the document keywords (cp:keywords)
+ */
+std::string XLDocument::keywords() const
+{
+    return property(XLProperty::Keywords);
+}
+
+/**
+ * @details Set the last modified by (cp:lastModifiedBy)
+ */
+void XLDocument::setLastModifiedBy(const std::string& lastModifiedBy)
+{
+    setProperty(XLProperty::LastModifiedBy, lastModifiedBy);
+}
+
+/**
+ * @details Get the last modified by (cp:lastModifiedBy)
+ */
+std::string XLDocument::lastModifiedBy() const
+{
+    return property(XLProperty::LastModifiedBy);
+}
+
+/**
+ * @details Set the document category (cp:category)
+ */
+void XLDocument::setCategory(const std::string& category)
+{
+    setProperty(XLProperty::Category, category);
+}
+
+/**
+ * @details Get the document category (cp:category)
+ */
+std::string XLDocument::category() const
+{
+    return property(XLProperty::Category);
+}
+
+/**
+ * @details Set the creation date to the current time (dcterms:created)
+ */
+void XLDocument::setCreationDateToNow()
+{
+    setCreationDate(std::time(nullptr));
+}
+
+/**
+ * @details Set the creation date to a specific time (dcterms:created)
+ */
+void XLDocument::setCreationDate(time_t timestamp)
+{
+    // Convert time_t to GMT tm struct
+    std::tm tm = *std::gmtime(&timestamp);
+    
+    // Format as W3CDTF (YYYY-MM-DDTHH:MM:SSZ)
+    std::ostringstream ss;
+    ss << std::put_time(&tm, "%FT%TZ");
+    std::string datetime = ss.str();
+    
+    setProperty(XLProperty::CreationDate, datetime);
+}
+
+/**
+ * @details Get the creation date (dcterms:created)
+ */
+std::string XLDocument::creationDate() const
+{
+    return property(XLProperty::CreationDate);
+}
+
+/**
+ * @details Set the modification date to the current time (dcterms:modified)
+ */
+void XLDocument::setModificationDateToNow()
+{
+    setModificationDate(std::time(nullptr));
+}
+
+/**
+ * @details Set the modification date to a specific time (dcterms:modified)
+ */
+void XLDocument::setModificationDate(time_t timestamp)
+{
+    // Convert time_t to GMT tm struct
+    std::tm tm = *std::gmtime(&timestamp);
+    
+    // Format as W3CDTF (YYYY-MM-DDTHH:MM:SSZ)
+    std::ostringstream ss;
+    ss << std::put_time(&tm, "%FT%TZ");
+    std::string datetime = ss.str();
+    
+    setProperty(XLProperty::ModificationDate, datetime);
+}
+
+/**
+ * @details Get the modification date (dcterms:modified)
+ */
+std::string XLDocument::modificationDate() const
+{
+    return property(XLProperty::ModificationDate);
+}
+
+/**
+ * @details Set the absolute path (x15ac:absPath)
+ */
+void XLDocument::setAbsPath(const std::string& absPath)
+{
+    if (m_workbook.xmlDocument().empty()) return;
+    
+    XMLNode workbookRoot = m_workbook.xmlDocument().document_element();
+    
+    // Find or create the mc:AlternateContent node
+    XMLNode alternateContent = workbookRoot.child("mc:AlternateContent");
+    if (alternateContent.empty()) {
+        alternateContent = workbookRoot.append_child("mc:AlternateContent");
+        alternateContent.append_attribute("xmlns:mc") = "http://schemas.openxmlformats.org/markup-compatibility/2006";
+    }
+    
+    // Find or create the mc:Choice node
+    XMLNode choice = alternateContent.child("mc:Choice");
+    if (choice.empty()) {
+        choice = alternateContent.append_child("mc:Choice");
+        choice.append_attribute("Requires") = "x15";
+    }
+    
+    // Find or create the x15ac:absPath node
+    XMLNode absPathNode = choice.child("x15ac:absPath");
+    if (absPathNode.empty()) {
+        absPathNode = choice.append_child("x15ac:absPath");
+        absPathNode.append_attribute("xmlns:x15ac") = "http://schemas.microsoft.com/office/spreadsheetml/2010/11/ac";
+    }
+    
+    // Set the url attribute
+    absPathNode.attribute("url").set_value(absPath.c_str());
+}
+
+/**
+ * @details Get the absolute path (x15ac:absPath)
+ */
+std::string XLDocument::absPath() const
+{
+    if (m_workbook.xmlDocument().empty()) return "";
+    
+    XMLNode workbookRoot = m_workbook.xmlDocument().document_element();
+    XMLNode alternateContent = workbookRoot.child("mc:AlternateContent");
+    if (alternateContent.empty()) return "";
+    
+    XMLNode choice = alternateContent.child("mc:Choice");
+    if (choice.empty()) return "";
+    
+    XMLNode absPathNode = choice.child("x15ac:absPath");
+    if (absPathNode.empty()) return "";
+    
+    return absPathNode.attribute("url").value();
+}
+
+/**
+ * @details Set the application name (Application)
+ */
+void XLDocument::setApplication(const std::string& application)
+{
+    setProperty(XLProperty::Application, application);
+}
+
+/**
+ * @details Get the application name (Application)
+ */
+std::string XLDocument::application() const
+{
+    return property(XLProperty::Application);
+}
+
 /**
  * @details
  */
@@ -1202,6 +1462,206 @@ bool XLDocument::validateSheetName(std::string sheetName, bool throwOnInvalid)
 }
 
 /**
+ * @details Add an image entry to the archive
+ */
+bool XLDocument::addImageEntry(const std::string& imageFilename, const std::vector<uint8_t>& imageData, XLContentType contentType)
+{
+    try {
+        if (!m_archive.hasEntry(imageFilename)) {
+            // Convert vector<uint8_t> to string for addEntry
+            std::string imageDataString(imageData.begin(), imageData.end());
+            m_archive.addEntry(imageFilename, imageDataString);
+            m_contentTypes.addOverride("/" + imageFilename, contentType);
+        }
+        return true;
+    }
+    catch (const std::exception&) {
+        return false;
+    }
+}
+
+/**
+ * @details Add a drawing file to the archive
+ */
+bool XLDocument::addDrawingFile(const std::string& drawingFilename, const std::string& drawingXml)
+{
+    try {
+        if (!m_archive.hasEntry(drawingFilename)) {
+            m_archive.addEntry(drawingFilename, drawingXml);
+            m_contentTypes.addOverride("/" + drawingFilename, XLContentType::Drawing);
+            
+            // Add XLXmlData object to the data list so getXmlData can find it
+            m_data.emplace_back(this, drawingFilename, "", XLContentType::Drawing);
+        }
+        return true;
+    }
+    catch (const std::exception&) {
+        return false;
+    }
+}
+
+/**
+ * @details Get XML data for a drawing file
+ */
+XLXmlData* XLDocument::getDrawingXmlData(const std::string& drawingFilename)
+{
+    return getXmlData(drawingFilename, true); // Force loading the XML data
+}
+
+/**
+ * @details Get XML data for a relationships file
+ */
+XLXmlData* XLDocument::getRelationshipsXmlData(const std::string& relsFilename)
+{
+    XLXmlData* result = getXmlData(relsFilename, true); // Force loading the XML data
+    
+    if (!result) {
+        // Try to load from archive if not in cache
+        if (hasRelationshipsFile(relsFilename)) {
+            std::string relsContent = readRelationshipsFile(relsFilename);
+            if (!relsContent.empty()) {
+                // Add to m_data cache
+                m_data.emplace_back(this, relsFilename, relsContent, XLContentType::Relationships);
+                result = &m_data.back();
+            }
+        }
+    }
+    
+    return result;
+}
+
+/**
+ * @details Update relationships XML data in-memory without archive access
+ */
+bool XLDocument::updateRelationshipsXmlData(const std::string& relsFilename, const std::string& relsXml)
+{
+    try {
+        // Get existing XLXmlData or create new one
+        XLXmlData* relsXmlData = getRelationshipsXmlData(relsFilename);
+        
+        if (!relsXmlData) {
+            // Create new XLXmlData entry if it doesn't exist
+            m_data.emplace_back(this, relsFilename, "", XLContentType::Relationships);
+            relsXmlData = &m_data.back();
+        }
+        
+        // Update the XML data using setRawData()
+        relsXmlData->setRawData(relsXml);
+        
+        // Add content type override if needed
+        m_contentTypes.addOverride("/" + relsFilename, XLContentType::Relationships);
+        
+        return true;
+    }
+    catch (const std::exception&) {
+        return false;
+    }
+}
+
+/**
+ * @details Add a relationships file to the archive
+ */
+bool XLDocument::addRelationshipsFile(const std::string& relsFilename, const std::string& relsXml)
+{
+    try {
+        bool isNewFile = !m_archive.hasEntry(relsFilename);
+        
+        // Always update the relationships file (allow overwriting)
+        m_archive.addEntry(relsFilename, relsXml);
+        
+        // Only add content type and XML data if this is a new file
+        if (isNewFile) {
+            m_contentTypes.addOverride("/" + relsFilename, XLContentType::Relationships);
+            
+            // Add XLXmlData object to the data list so getXmlData can find it
+            m_data.emplace_back(this, relsFilename, "", XLContentType::Relationships);
+        }
+        return true;
+    }
+    catch (const std::exception&) {
+        return false;
+    }
+}
+
+/**
+ * @details Check if a relationships file exists in the archive
+ */
+bool XLDocument::hasRelationshipsFile(const std::string& relsFilename) const
+{
+    return m_archive.hasEntry(relsFilename);
+}
+
+/**
+ * @details Read the content of a relationships file from the archive
+ */
+std::string XLDocument::readRelationshipsFile(const std::string& relsFilename) const
+{
+    try {
+        if (m_archive.hasEntry(relsFilename)) {
+            return m_archive.getEntry(relsFilename);
+        }
+    } catch (const std::exception&) {
+        // Return empty string if there's an error
+    }
+    return "";
+}
+
+/**
+ * @details Read the content of any file from the archive
+ */
+std::string XLDocument::readFile(const std::string& filePath) const
+{
+    try {
+        if (m_archive.hasEntry(filePath)) {
+            return m_archive.getEntry(filePath);
+        }
+    } catch (const std::exception&) {
+        // Return empty string if there's an error
+    }
+    return "";
+}
+
+/**
+ * @details Delete an entry from the archive
+ */
+bool XLDocument::deleteEntry(const std::string& entryPath)
+{
+    try {
+        if (m_archive.hasEntry(entryPath)) {
+            m_archive.deleteEntry(entryPath);
+            return true;
+        }
+    } catch (const std::exception&) {
+        // Return false if there's an error
+    }
+    return false;
+}
+
+bool XLDocument::isBinaryFileReferenced(const std::string& imagePath) const
+{
+    try {
+        // Get all worksheet names
+        auto sheetNames = m_workbook.worksheetNames();
+        
+        // Check each worksheet's relationships
+        for (const auto& sheetName : sheetNames) {
+            // Use const_cast to access non-const worksheet() method
+            auto worksheet = const_cast<XLDocument*>(this)->m_workbook.worksheet(sheetName);
+            
+            // Check if this worksheet references the binary file
+            if (worksheet.isBinaryFileReferenced(imagePath)) {
+                return true; // Found a reference, early exit
+            }
+        }
+        
+        return false; // No references found in any worksheet
+    }
+    catch (const std::exception&) {
+        return false; // Error occurred, assume not referenced
+    }
+}
+
+/**
  * @details return value defaults to true, false only where the XLCommandType implements it
  */
 bool XLDocument::execCommand(const XLCommand& command)
@@ -1318,6 +1778,10 @@ bool XLDocument::execCommand(const XLCommand& command)
             m_appProperties.deleteSheetName(command.getParam<std::string>("sheetName"));
             std::string sheetPath = m_wbkRelationships.relationshipById(command.getParam<std::string>("sheetID")).target();
             if (sheetPath.substr(0, 4) != "/xl/") sheetPath = "/xl/" + sheetPath; // 2024-12-15: respect absolute sheet path
+            
+            // Clean up embedded images for this worksheet before deleting the sheet
+            m_imageManager.eraseEmbImgsForSheetName(command.getParam<std::string>("sheetName"));
+            
             m_archive.deleteEntry(sheetPath.substr(1));
             m_contentTypes.deleteOverride(sheetPath);
             m_wbkRelationships.deleteRelationship(command.getParam<std::string>("sheetID"));
@@ -1459,7 +1923,7 @@ void XLDocument::setSavingDeclaration(XLXmlSavingDeclaration const& savingDeclar
  */
 void XLDocument::cleanupSharedStrings()
 {
-    int32_t oldStringCount = m_sharedStringCache.size();
+    int32_t oldStringCount = static_cast<int32_t>( m_sharedStringCache.size() );
     std::vector< int32_t > indexMap(oldStringCount, -1);      // indexMap[ oldIndex ] :== newIndex, -1 = not yet assigned
     int32_t newStringCount = 1; // reserve index 0 for empty string, count here +1 for each unique shared string index that is in use in the worksheet
 
@@ -1523,11 +1987,78 @@ std::string XLDocument::extractXmlFromArchive(const std::string& path)
 }
 
 /**
+ * @details Load all XML files from the archive into m_data list
+ */
+void XLDocument::loadAllXmlFilesFromArchive()
+{
+    // Get all content items from the content types
+    auto contentItems = m_contentTypes.getContentItems();
+    
+    for (const auto& item : contentItems) {
+        std::string path = item.path();
+        
+        // Remove leading slash if present (standardize path format)
+        if (path.length() > 0 && path[0] == '/') {
+            path = path.substr(1);
+        }
+
+        // Skip if already loaded
+        if (hasXmlData(path)) {
+            continue;
+        }
+        
+        // Load XML files and media files
+        bool shouldLoad = false;
+        XLContentType contentType = item.type();
+        
+        // Extract file extension
+        std::string extension = "";
+        size_t dotPos = path.find_last_of('.');
+        if (dotPos != std::string::npos) {
+            extension = path.substr(dotPos);
+        }
+        
+        if (extension == ".xml" || extension == ".rels") {
+            // Load drawing files and other safe XML files
+            switch (contentType) {
+                case XLContentType::Drawing:
+                case XLContentType::Chart:
+                case XLContentType::Comments:
+                case XLContentType::Table:
+                case XLContentType::VMLDrawing:
+                case XLContentType::Relationships:
+                    shouldLoad = true;
+                    break;
+                default:
+                    // Also load any XML file that starts with xl/drawings/, xl/charts/, or is a .rels file
+                    if (path.find("xl/drawings/") == 0 || path.find("xl/charts/") == 0 || 
+                        path.find("_rels/") != std::string::npos || path.find(".rels") != std::string::npos) {
+                        shouldLoad = true;
+                        // Set correct content type for relationship files
+                        if (path.find(".rels") != std::string::npos) {
+                            contentType = XLContentType::Relationships;
+                        }
+                    }
+                    break;
+            }
+        } else {
+            // Don't load media files (images) into m_data - they should remain as binary files in the archive
+            // Image files will be preserved automatically by the archive when saving
+            shouldLoad = false;
+        }
+        
+        if (shouldLoad) {
+            // Add to m_data list
+            m_data.emplace_back(this, path, "", contentType);
+        }
+    }
+}
+
+/**
  * @details
  */
 XLXmlData* XLDocument::getXmlData(const std::string& path, bool doNotThrow)
 {
-    // avoid duplication of code: use const_cast to invoke the const function overload and return a non-const value
     return const_cast<XLXmlData *>(const_cast<XLDocument const *>(this)->getXmlData(path, doNotThrow));
 }
 
@@ -1699,6 +2230,165 @@ namespace OpenXLSX
 
         // in return value: avoid appending a trailing slash if a path was already reduced to "/"
         return ((result.length() > 1 || result.front() != '/') && path.back() == '/') ? result + "/" : result;
+    }
+
+    /**
+     * @details Compare two documents for debugging
+     */
+    int XLDocument::compare(const XLDocument& other, std::string* diffMsg) const
+    {
+
+        // Compare document names/paths
+        std::string thisPath = path();
+        std::string otherPath = other.path();
+        int pathCompare = thisPath.compare(otherPath);
+        if (pathCompare != 0) {
+            appendDbgMsg(diffMsg, "document path differs: '" + thisPath + "' vs '" + otherPath + "'");
+            return pathCompare;
+        }
+
+        // Compare workbook worksheets
+        if (m_workbook.valid() && other.m_workbook.valid()) {
+            // Get worksheet names
+            auto thisSheetNames = m_workbook.sheetNames();
+            auto otherSheetNames = other.m_workbook.sheetNames();
+            
+            if (thisSheetNames.size() != otherSheetNames.size()) {
+                appendDbgMsg(diffMsg, "worksheet count differs: " + std::to_string(thisSheetNames.size()) + 
+                          " vs " + std::to_string(otherSheetNames.size()));
+                return thisSheetNames.size() < otherSheetNames.size() ? -1 : 1;
+            }
+
+            // Compare each worksheet
+            for (size_t i = 0; i < thisSheetNames.size(); ++i) {
+                if (thisSheetNames[i] != otherSheetNames[i]) {
+                    appendDbgMsg(diffMsg, "worksheet name differs at index " + std::to_string(i) + 
+                              ": '" + thisSheetNames[i] + "' vs '" + otherSheetNames[i] + "'");
+                    return thisSheetNames[i].compare(otherSheetNames[i]);
+                }
+
+                // Compare worksheet content
+                try {
+                    const XLWorksheet thisSheet = const_cast<XLDocument*>(this)->m_workbook.worksheet(thisSheetNames[i]);
+                    const XLWorksheet otherSheet = const_cast<XLDocument*>(&other)->m_workbook.worksheet(otherSheetNames[i]);
+                    
+                    int sheetCompare = thisSheet.compare(otherSheet, diffMsg);
+                    if (sheetCompare != 0) {
+                        appendDbgMsg(diffMsg, "worksheet '" + thisSheetNames[i] + "' differs");
+                        return sheetCompare;
+                    }
+                } catch (const std::exception&) {
+                    appendDbgMsg(diffMsg, "error comparing worksheet '" + thisSheetNames[i] + "'");
+                    return -1;
+                }
+            }
+        } else if (m_workbook.valid() != other.m_workbook.valid()) {
+            appendDbgMsg(diffMsg, "workbook validity differs: " + std::string(m_workbook.valid() ? "valid" : "invalid") + 
+                      " vs " + std::string(other.m_workbook.valid() ? "valid" : "invalid"));
+            return m_workbook.valid() ? 1 : -1;
+        }
+
+        // Compare document-level relationships (simplified)
+        try {
+            // Just check if both have valid relationships objects
+            bool thisDocRelValid = m_docRelationships.valid();
+            bool otherDocRelValid = other.m_docRelationships.valid();
+            if (thisDocRelValid != otherDocRelValid) {
+                appendDbgMsg(diffMsg, "document relationships validity differs: " + std::string(thisDocRelValid ? "valid" : "invalid") + 
+                          " vs " + std::string(otherDocRelValid ? "valid" : "invalid"));
+                return thisDocRelValid ? 1 : -1;
+            }
+
+            bool thisWbkRelValid = m_wbkRelationships.valid();
+            bool otherWbkRelValid = other.m_wbkRelationships.valid();
+            if (thisWbkRelValid != otherWbkRelValid) {
+                appendDbgMsg(diffMsg, "workbook relationships validity differs: " + std::string(thisWbkRelValid ? "valid" : "invalid") + 
+                          " vs " + std::string(otherWbkRelValid ? "valid" : "invalid"));
+                return thisWbkRelValid ? 1 : -1;
+            }
+        } catch (const std::exception&) {
+            appendDbgMsg(diffMsg, "error comparing document relationships");
+            return -1;
+        }
+
+        // Compare content types (simplified)
+        try {
+            // Just check if both have valid content types objects
+            bool thisContentTypeValid = m_contentTypes.valid();
+            bool otherContentTypeValid = other.m_contentTypes.valid();
+            if (thisContentTypeValid != otherContentTypeValid) {
+                appendDbgMsg(diffMsg, "content types validity differs: " + std::string(thisContentTypeValid ? "valid" : "invalid") + 
+                          " vs " + std::string(otherContentTypeValid ? "valid" : "invalid"));
+                return thisContentTypeValid ? 1 : -1;
+            }
+        } catch (const std::exception&) {
+            appendDbgMsg(diffMsg, "error comparing content types");
+            return -1;
+        }
+
+        // TODO: Compare other document properties
+        // - Core properties (m_coreProperties)
+        // - App properties (m_appProperties)
+        // - Styles (m_styles)
+        // - Shared strings (m_sharedStrings)
+        // - Content types (m_contentTypes)
+        // - Document relationships (m_docRelationships)
+        // - Workbook relationships (m_wbkRelationships)
+
+        // Documents are identical
+    return 0;
+}
+
+int XLDocument::verifyXLXmlData(std::string* dbgMsg) const
+{
+    int errorCount = 0;
+    
+    // Check each XLXmlData object for duplicates using verifyData()
+    for (const auto& xmlData : m_data) {
+        errorCount += xmlData.verifyData(dbgMsg);
+    }
+    
+    return errorCount;
+}
+
+int XLDocument::verifyData(std::string* dbgMsg) const
+    {
+        int errorCount = 0;
+
+        // Verify sub-objects that have verifyData() implemented
+        errorCount += m_contentTypes.verifyData(dbgMsg);
+        errorCount += m_docRelationships.verifyData(dbgMsg);
+        errorCount += m_wbkRelationships.verifyData(dbgMsg);
+        
+        // Verify all XML files in m_data (complete XML forest coverage)
+        errorCount += verifyXLXmlData(dbgMsg);
+        
+        // TODO: Add verifyData() methods to remaining classes
+        // errorCount += m_workbook.verifyData(dbgMsg);
+        // errorCount += m_coreProperties.verifyData(dbgMsg);
+        // errorCount += m_appProperties.verifyData(dbgMsg);
+        // errorCount += m_styles.verifyData(dbgMsg);
+        // errorCount += m_sharedStrings.verifyData(dbgMsg);
+
+
+        if (m_workbook.valid()) {
+            try {
+                auto sheetNames = m_workbook.worksheetNames();
+                for (const auto& sheetName : sheetNames) {
+                    const XLWorksheet worksheet = const_cast<XLDocument*>(this)->m_workbook.worksheet(sheetName);
+                    int worksheetErrors = worksheet.verifyData(dbgMsg);
+                    if (worksheetErrors > 0) {
+                        appendDbgMsg(dbgMsg, "worksheet '" + sheetName + "' has " + std::to_string(worksheetErrors) + " errors");
+                        errorCount += worksheetErrors;
+                    }
+                }
+            } catch (const std::exception&) {
+                appendDbgMsg(dbgMsg, "error accessing worksheets");
+                errorCount++;
+            }
+        }
+
+        return errorCount;
     }
 
 }    // namespace OpenXLSX

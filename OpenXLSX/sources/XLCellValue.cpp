@@ -494,7 +494,7 @@ XLCellValue XLCellValueProxy::getValue() const
 int32_t XLCellValueProxy::stringIndex() const
 {
     if (strcmp(m_cellNode->attribute("t").value(), "s") != 0) return -1;   // cell value is not a shared string
-    return m_cellNode->child("v").text().as_ullong(-1);                    // return the shared string index stored for this cell
+    return static_cast<int32_t>( m_cellNode->child("v").text().as_ullong(-1) );// return the shared string index stored for this cell
     /**/                                                                   // if, for whatever reason, the underlying XML has no reference stored, also return -1
 }
 
