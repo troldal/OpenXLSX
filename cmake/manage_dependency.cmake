@@ -34,6 +34,10 @@
 #     message(STATUS "FORCE_FETCH_ALL enabled: ignoring system libraries")
 # endif()
 
+# ============================================================================
+# Dependency Checks - verify that required modules are present
+# ============================================================================
+include(${CMAKE_SOURCE_DIR}/cmake/recursive_library_type_test.cmake) # not actually invoked from here, but from project created by write_find_test_config
 
 # ============================================================================
 # Enhanced Helper Functions
@@ -156,6 +160,149 @@ endfunction()
 # End of Function:   FetchContent_MakeAvailable_custom
 
 
+# Function: write_find_test_config
+# Purpose: in ARG_TEMP_SRC_DIR, create a CMakeLists.txt with the sole purpose of attempting to find_package for a required library type
+# Parameters:
+#   ARG_TEMP_SRC_DIR    the (temporary) directory in which to create CMakeLists.txt
+# Returns: N/A
+# Author:     Lars Uffmann (coding23@uffmann.name)
+function(write_find_test_config ARG_TEMP_SRC_DIR)
+    file(WRITE "${ARG_TEMP_SRC_DIR}/CMakeLists.txt"
+"cmake_minimum_required(VERSION 3.15)
+project(TestPackage VERSION 0.1 LANGUAGES CXX)
+
+include(${CMAKE_SOURCE_DIR}/cmake/recursive_library_type_test.cmake)
+
+if(NOT DEFINED TEST_PACKAGE_NAME)
+    message( FATAL_ERROR \"TEST_PACKAGE_NAME undefined\" )
+endif()
+if(NOT DEFINED TEST_VERSION)
+    message( FATAL_ERROR \"TEST_VERSION undefined\" )
+endif()
+if(NOT DEFINED TEST_EXTRA_ARGS)
+    message( FATAL_ERROR \"TEST_EXTRA_ARGS undefined\" )
+endif()
+if(NOT DEFINED TEST_COMPONENTS_PARAM)
+    message( FATAL_ERROR \"TEST_COMPONENTS_PARAM undefined\" )
+endif()
+if(NOT DEFINED TEST_TARGET_NAME_SYSTEM)
+    message( FATAL_ERROR \"TEST_TARGET_NAME_SYSTEM undefined\" )
+endif()
+if(NOT DEFINED TEST_REQUIRED_TYPE)
+    message( FATAL_ERROR \"TEST_REQUIRED_TYPE undefined\" )
+endif()
+
+# message( STATUS \"TestPackage: attempting to find_package \${TEST_PACKAGE_NAME} \${TEST_VERSION} with \${TEST_EXTRA_ARGS} \${TEST_COMPONENTS_PARAM}\" )
+
+# allow parent to force debug
+set(CMAKE_FIND_DEBUG_MODE ${CMAKE_FIND_DEBUG_MODE} CACHE BOOL \"\" FORCE)
+
+# perform the find
+find_package(
+    \${TEST_PACKAGE_NAME} \${TEST_VERSION}
+    \${TEST_EXTRA_ARGS}          # QUIET can be passed here
+    \${TEST_COMPONENTS_PARAM}
+)
+
+# evaluate result
+set(\${TEST_PACKAGE_NAME}_SUITABLE_FOUND FALSE CACHE STRING \"\" FORCE)
+if(\${TEST_PACKAGE_NAME}_FOUND)
+    # message( STATUS \"\${TEST_PACKAGE_NAME}_FOUND: \${\${TEST_PACKAGE_NAME}_FOUND}\" )
+
+    set(LIBRARY_TYPE \"INTERFACE_LIBRARY\")   # default: can't resolve library type
+    recursive_library_type_test(\${TEST_TARGET_NAME_SYSTEM})
+    if(\${TEST_TARGET_NAME_SYSTEM}_HAS_STATIC)
+        if(NOT \${TEST_TARGET_NAME_SYSTEM}_HAS_SHARED)
+            set(LIBRARY_TYPE \"STATIC_LIBRARY\")      # library is only static
+        endif()
+    elseif(\${TEST_TARGET_NAME_SYSTEM}_HAS_SHARED)
+        set(LIBRARY_TYPE \"SHARED_LIBRARY\")          # library is only shared
+    endif()
+
+    # Final check: LIBRARY_TYPE must match expected type, if any
+    if(\"\${TEST_REQUIRED_TYPE}\" STREQUAL \"\" OR \"\${LIBRARY_TYPE}\" STREQUAL \"\${TEST_REQUIRED_TYPE}\")
+        set(\${TEST_PACKAGE_NAME}_SUITABLE_FOUND TRUE CACHE STRING \"\" FORCE)
+    endif()
+endif()
+"
+)
+endfunction()
+# End of Function: write_find_test_config
+
+
+# Function: run_test_package
+# Purpose: determine if ARG_PACKAGE_NAME can be found on the system as the REQUIRED_LIBRARY_TYPE if any
+# Parameters:
+#     pass-through to find_package:
+#   ARG_PACKAGE_NAME
+#   ARG_VERSION
+#   ARG_EXTRA_ARGS
+#   COMPONENTS_PARAM
+#     evaluation of success:
+#   ARG_TARGET_NAME_SYSTEM  used to get_target_property TYPE after successful find_package
+#   REQUIRED_LIBRARY_TYPE   evaluate against TYPE of found package
+# Returns:
+#   ${PACKAGE_NAME}_SUITABLE_FOUND        (PARENT_SCOPE): TRUE if dependency was is available as the REQUIRED_LIBRARY_TYPE, FALSE otherwise
+# Author:     Lars Uffmann (coding23@uffmann.name)
+function(run_test_package ARG_PACKAGE_NAME ARG_VERSION ARG_EXTRA_ARGS COMPONENTS_PARAM ARG_TARGET_NAME_SYSTEM REQUIRED_LIBRARY_TYPE)
+    # configure a build directory
+    string(REPLACE ";" "_" pkg_safe "${ARG_PACKAGE_NAME}")
+
+    # escape variables that may contain a list
+    string(REPLACE ";" "\\;" PREFIX_ESCAPED "${CMAKE_PREFIX_PATH}")
+    string(REPLACE ";" "\\;" ARG_EXTRA_ARGS_ESCAPED "${ARG_EXTRA_ARGS}")
+    string(REPLACE ";" "\\;" COMPONENTS_PARAM_ESCAPED "${COMPONENTS_PARAM}")
+
+# message( STATUS "
+#     execute_process(
+#         COMMAND ${CMAKE_COMMAND} --no-warn-unused-cli -L -S \"${TEMP_SRC_DIR}\"
+#                 -B \"${BUILD_DIR}\"
+#                 -D TEST_PACKAGE_NAME=${ARG_PACKAGE_NAME}
+#                 -D TEST_VERSION=${ARG_VERSION}
+#                 -D TEST_EXTRA_ARGS=${ARG_EXTRA_ARGS_ESCAPED}
+#                 -D TEST_COMPONENTS_PARAM=${COMPONENTS_PARAM_ESCAPED}
+#                 -D TEST_TARGET_NAME_SYSTEM=${ARG_TARGET_NAME_SYSTEM}
+#                 -D TEST_REQUIRED_TYPE=${REQUIRED_LIBRARY_TYPE}
+#                 -D CMAKE_PREFIX_PATH=${PREFIX_ESCAPED}
+#                 -D CMAKE_FIND_DEBUG_MODE=OFF
+#         RESULT_VARIABLE test_package_success
+#         OUTPUT_VARIABLE test_package_output
+#         # ERROR_VARIABLE test_package_err
+#     )
+# ")
+    execute_process(
+        COMMAND ${CMAKE_COMMAND} --no-warn-unused-cli -L -S "${TEMP_SRC_DIR}"
+                -B "${TEMP_BUILD_DIR}"
+                -D TEST_PACKAGE_NAME=${ARG_PACKAGE_NAME}
+                -D TEST_VERSION=${ARG_VERSION}
+                -D TEST_EXTRA_ARGS=${ARG_EXTRA_ARGS_ESCAPED}
+                -D TEST_COMPONENTS_PARAM=${COMPONENTS_PARAM_ESCAPED}
+                -D TEST_TARGET_NAME_SYSTEM=${ARG_TARGET_NAME_SYSTEM}
+                -D TEST_REQUIRED_TYPE=${REQUIRED_LIBRARY_TYPE}
+                -D CMAKE_PREFIX_PATH=${PREFIX_ESCAPED}
+                -D CMAKE_FIND_DEBUG_MODE=OFF
+        RESULT_VARIABLE test_package_success
+        OUTPUT_VARIABLE test_package_output
+        # ERROR_VARIABLE test_package_err
+    )
+
+    # message(STATUS "=== result for ${ARG_PACKAGE_NAME} (test_package_success=${test_package_success}) ===")
+    # message(STATUS "${test_package_output}")
+    # message(STATUS "${test_package_err}")
+
+    # define function return value: ${ARG_PACKAGE_NAME}_SUITABLE_FOUND
+    set(${ARG_PACKAGE_NAME}_SUITABLE_FOUND FALSE PARENT_SCOPE)
+    if(test_package_output MATCHES "${ARG_PACKAGE_NAME}_SUITABLE_FOUND:STRING=([^\r\n]+)")     # test if test_package_output contains lines like: ${ARG_PACKAGE_NAME}_SUITABLE_FOUND:STRING=<bool>
+        set(test_result "${CMAKE_MATCH_1}")
+        # string(STRIP "${CMAKE_MATCH_1}" test_result)
+        if("${test_result}" STREQUAL "TRUE")
+            set(${ARG_PACKAGE_NAME}_SUITABLE_FOUND TRUE PARENT_SCOPE)
+        endif()
+    endif()
+endfunction()
+# End of Function: run_test_package
+
+
 # Function: manage_dependency
 # Purpose:  Safely finds or fetches a dependency
 # Options:  -
@@ -222,23 +369,11 @@ function(manage_dependency)
     else()
         # Try system first
         if(PREFER_STATIC)
-            # Look for static first
-            set(CMAKE_FIND_LIBRARY_SUFFIXES_SAVED ${CMAKE_FIND_LIBRARY_SUFFIXES})
-            if(WIN32)
-                # set(CMAKE_FIND_LIBRARY_SUFFIXES ".lib" ".a" ${CMAKE_FIND_LIBRARY_SUFFIXES})
-                set(CMAKE_FIND_LIBRARY_SUFFIXES ".lib" ".a" ".dll")
-            else()
-                # set(CMAKE_FIND_LIBRARY_SUFFIXES ".a" ${CMAKE_FIND_LIBRARY_SUFFIXES})
-                set(CMAKE_FIND_LIBRARY_SUFFIXES ".a" ".so" ".dylib")
-            endif()
+            set(REQUIRED_LIBRARY_TYPE "STATIC_LIBRARY")
         elseif(BUILD_SHARED_LIBS)
-            # Look for shared first
-            set(CMAKE_FIND_LIBRARY_SUFFIXES_SAVED ${CMAKE_FIND_LIBRARY_SUFFIXES})
-            if(WIN32)
-                set(CMAKE_FIND_LIBRARY_SUFFIXES ".dll" ".lib" ".a")
-            else()
-                set(CMAKE_FIND_LIBRARY_SUFFIXES ".so" ".dylib" ".a") # .dylib is an Apple format
-            endif()
+            set(REQUIRED_LIBRARY_TYPE "SHARED_LIBRARY")
+        else()
+            set(REQUIRED_LIBRARY_TYPE "")
         endif()
 
         # 2026-01-25: test whether components are specified & call find_package accordingly
@@ -250,73 +385,32 @@ function(manage_dependency)
             message( NOTICE "manage_dependency: attempting to find_package ${ARG_PACKAGE_NAME} ${ARG_VERSION} with ${ARG_EXTRA_ARGS} ${COMPONENTS_PARAM} QUIET" )
         endif()
 
-        set(TRY_FIND_PACKAGE FALSE CACHE BOOL "")   # initialize: setting this to TRUE will trigger find_package
-        unset(TARGET_STATIC CACHE)  # initialize. CAUTION: setting _TARGET_STATIC to an empty string will somehow fail this
-        unset(TARGET_SHARED CACHE)  # initialize
-
-        if(PREFER_STATIC) # only trigger find_package if static library is available on system
-            # set(CMAKE_FIND_DEBUG_MODE TRUE)
-            find_library(TARGET_STATIC
-                NAMES ${ARG_TYPICAL_NAMES}
-                PATHS ${CMAKE_PREFIX_PATH} /usr/lib /usr/local/lib
-                NO_DEFAULT_PATH
-            )
-
-            if (NOT TARGET_STATIC)
-                find_library(TARGET_STATIC
-                    NAMES ${ARG_TYPICAL_NAMES}
-                )
-            endif()
-
-            if(TARGET_STATIC)
-                if("${TARGET_STATIC}" MATCHES "\\.(a|lib)$")
-                    message( NOTICE "manage_dependency: TARGET_STATIC ${TARGET_STATIC} matches \\.(a|lib)$" )
-                    set(TRY_FIND_PACKAGE TRUE)
-                else()
-                    message( WARNING "manage_dependency: Found system ${ARG_LIB_NAME} as shared library, but static library is required" )
-                    set(TARGET_STATIC FALSE)
-                endif()
-            endif()
-        elseif(BUILD_SHARED_LIBS) # only trigger find_package if shared library is available on system
-            find_library(TARGET_SHARED
-                NAMES ${ARG_TYPICAL_NAMES}
-                PATHS ${CMAKE_PREFIX_PATH} /usr/lib /usr/local/lib
-                NO_DEFAULT_PATH
-            )
-
-            if (NOT TARGET_SHARED)
-                find_library(TARGET_SHARED
-                    NAMES ${ARG_TYPICAL_NAMES}
-                )
-            endif()
-
-            if(TARGET_SHARED)
-                if("${TARGET_SHARED}" MATCHES "\\.(so|dll|dylib)$")
-                    message( NOTICE "manage_dependency: TARGET_SHARED ${TARGET_STATIC} matches \\.(so|dll|dylib)$" )
-                    set(TRY_FIND_PACKAGE TRUE)
-                else()
-                    message( WARNING "manage_dependency: Found system ${ARG_LIB_NAME} as static library, but shared library is required" )
-                    set(TARGET_SHARED FALSE)
-                endif()
-            endif()
-        else() # for static library build, but without PREFER_STATIC, always trigger find_package (shared library can be accepted)
-            set(TRY_FIND_PACKAGE TRUE)
-        endif()
-
-        if(NOT TRY_FIND_PACKAGE AND NOT FETCH_DEPS_AUTO)
-            # Since this branch only enters with USE_SYSTEM_LIBS=ON, this implies FORCE_FETCH_ALL=OFF
-            message( WARNING "manage_dependency: Enabling find_package despite find_library failure, because due to FETCH_DEPS_AUTO=OFF, build would fail regardless."
-                            " find_package may succeed, but if it finds the wrong library version, the build will fail in the next step." )
-            set(TRY_FIND_PACKAGE TRUE)
-        endif()
+        set(TRY_FIND_PACKAGE TRUE CACHE BOOL "")   # initialize: setting this to TRUE will trigger find_package
 
         # Only attempt to find_package if desired library has not been determined unavailable before
         if(TRY_FIND_PACKAGE)
-            find_package(${ARG_PACKAGE_NAME} ${ARG_VERSION}
-                ${ARG_EXTRA_ARGS}
-                ${COMPONENTS_PARAM}
-                QUIET
-            )
+            if(PREFER_STATIC OR BUILD_SHARED_LIBS)
+                set(TEMP_SRC_DIR "${CMAKE_BINARY_DIR}/cmake-find-test-${ARG_PACKAGE_NAME}-src")
+                file(MAKE_DIRECTORY "${TEMP_SRC_DIR}")
+                write_find_test_config(${TEMP_SRC_DIR})
+
+                set(TEMP_BUILD_DIR "${CMAKE_BINARY_DIR}/cmake-find-test-${ARG_PACKAGE_NAME}-build")
+                set(ARG_EXTRA_ARGS ${ARG_EXTRA_ARGS} QUIET)
+                run_test_package("${ARG_PACKAGE_NAME}" "${ARG_VERSION}" "${ARG_EXTRA_ARGS}" "${COMPONENTS_PARAM}" "${ARG_TARGET_NAME_SYSTEM}" "${REQUIRED_LIBRARY_TYPE}")
+                if(${ARG_PACKAGE_NAME}_SUITABLE_FOUND)
+                    # message( STATUS ">>>>>>>>>>> manage_dependency: ${ARG_PACKAGE_NAME}_SUITABLE_FOUND is ${${ARG_PACKAGE_NAME}_SUITABLE_FOUND}" )
+                    find_package(${ARG_PACKAGE_NAME} ${ARG_VERSION}
+                        ${ARG_EXTRA_ARGS}
+                        ${COMPONENTS_PARAM}
+                        QUIET
+                    )
+                else()
+                    message( WARNING "manage_dependency: could not find a suitable installed version of ${ARG_PACKAGE_NAME}" )
+                endif()
+
+                # Delete temporary folders used to analyze find_package results
+                file(REMOVE_RECURSE "${TEMP_SRC_DIR}" "${TEMP_BUILD_DIR}")
+            endif()
 
             # TODO: find a better strategy to deal with a missing component (prevent polluting build configuration)
             if(${ARG_PACKAGE_NAME}_FOUND)
@@ -342,29 +436,15 @@ function(manage_dependency)
         endif()
 
         if(${ARG_PACKAGE_NAME}_FOUND AND TARGET ${ARG_TARGET_NAME_SYSTEM}) # 2026-04-04 check for both package name found and expected target
-            if(TARGET_STATIC)
-                set( ${ARG_LIB_NAME}_TARGET_STATIC ${TARGET_STATIC} PARENT_SCOPE )
+            if(PREFER_STATIC)
+                set(${ARG_LIB_NAME}_TARGET_STATIC "$<TARGET_FILE:${ARG_TARGET_NAME}>" PARENT_SCOPE)
             endif()
 
-            get_target_property(LIBRARY_TYPE ${ARG_TARGET_NAME_SYSTEM} TYPE)
-            message(STATUS "manage_dependency: ${ARG_TARGET_NAME_SYSTEM} target TYPE = ${LIBRARY_TYPE}")
-
-            # get_target_property(LIBRARY_LOCATION ${ARG_TARGET_NAME} IMPORTED_LOCATION_RELEASE)
-            # message(STATUS "${ARG_TARGET_NAME} target IMPORTED_LOCATION_RELEASE = ${LIBRARY_LOCATION}")
-            # message(STATUS "${ARG_TARGET_NAME} variables: ${ARG_PACKAGE_NAME}_LIBRARIES=${${ARG_PACKAGE_NAME}_LIBRARIES}")
-
-            # Final check: LIBRARY_TYPE must match expected type, if any - otherwise error out
-            if(PREFER_STATIC AND "${LIBRARY_TYPE}" STREQUAL "SHARED_LIBRARY")
-                message( FATAL_ERROR "manage_dependency: Found system ${ARG_LIB_NAME} as shared library, but static library is required" )
-            elseif(BUILD_SHARED_LIBS AND "${LIBRARY_TYPE}" STREQUAL "STATIC_LIBRARY")
-                message( FATAL_ERROR "manage_dependency: Found system ${ARG_LIB_NAME} as static library, but shared library is required" )
-            else()  # else: PREFER_STATIC OFF OR LIBRARY_TYPE is not SHARED
-                set(should_fetch FALSE)
-                set(${ARG_LIB_NAME}_PROVIDED_TARGET             # ${ARG_LIB_NAME}_PROVIDED_TARGET should be the name as provided by an installed library
-                    ${ARG_TARGET_NAME_SYSTEM} PARENT_SCOPE)     #
-                set(ARG_TARGET_NAME ${ARG_TARGET_NAME_SYSTEM})  # also, the variable ${ARG_TARGET_NAME_SYSTEM}_FOUND will be set to TRUE, so adjust ARG_TARGET_NAME
-                message(STATUS "manage_dependency: Found system ${ARG_LIB_NAME}: ${${ARG_PACKAGE_NAME}_VERSION}")
-            endif()
+            set(should_fetch FALSE)
+            set(${ARG_LIB_NAME}_PROVIDED_TARGET             # ${ARG_LIB_NAME}_PROVIDED_TARGET should be the name as provided by an installed library
+                ${ARG_TARGET_NAME_SYSTEM} PARENT_SCOPE)     #
+            set(ARG_TARGET_NAME ${ARG_TARGET_NAME_SYSTEM})  # also, the variable ${ARG_TARGET_NAME_SYSTEM}_FOUND will be set to TRUE, so adjust ARG_TARGET_NAME
+            message(STATUS "manage_dependency: Found system ${ARG_LIB_NAME}: ${${ARG_PACKAGE_NAME}_VERSION}")
         else()
             set(should_fetch ${FETCH_DEPS_AUTO})       # BUGFIX 2026-01-25: was previously not evaluating variable FETCH_DEPS_AUTO
         endif()

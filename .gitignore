@@ -46,6 +46,7 @@
 !/cmake/get-git-HEAD-ID.cmake
 !/cmake/libopenxlsxCPackOptions.cmake.in
 !/cmake/manage_dependency.cmake
+!/cmake/recursive_library_type_test.cmake
 
 # include Documentation folder
 !/Documentation
