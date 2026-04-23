@@ -215,8 +215,18 @@ if(OPENXLSX_ENABLE_NOWIDE)
         set( NOWIDE_GIT_TAG_PARAM  "v11.3.1" )
     endif()
 
-    if(PREFER_STATIC)
-        set(Boost_USE_STATIC_LIBS ON)   # prefer/require static boost libraries
+    if(PREFER_STATIC)               # for monolithic (static) OpenXLSX build
+        set(Boost_USE_STATIC_LIBS ON)   # require static boost libraries
+    elseif(BUILD_SHARED_LIBS)       # for shared OpenXLSX build
+        set(Boost_USE_STATIC_LIBS OFF)  # require shared boost libraries
+    else()                          # for regular static build
+        # noop                          # keep the default
+    endif()
+    if(PREFER_STATIC OR BUILD_SHARED_LIBS)
+        list(APPEND FIND_PACKAGE_VARIABLES_PARAM "FIND_PACKAGE_VARIABLES")
+        list(APPEND FIND_PACKAGE_VARIABLES_PARAM Boost_USE_STATIC_LIBS ${Boost_USE_STATIC_LIBS})
+    else()
+        set(FIND_PACKAGE_VARIABLES_PARAM "")
     endif()
 
     if(OPENXLSX_MONOLITHIC_LIBRARY)
@@ -242,6 +252,9 @@ if(OPENXLSX_ENABLE_NOWIDE)
         # a provided URL & URL_HASH takes precedence over GITHUB_REPO or GIT_REPOSITORY:
         URL            ${NOWIDE_URL_PARAM}
         URL_HASH       ${NOWIDE_URL_HASH_PARAM}
+
+        # FIND_PACKAGE_VARIABLES Boost_USE_STATIC_LIBS "${Boost_USE_STATIC_LIBS}"
+        ${FIND_PACKAGE_VARIABLES_PARAM} # replaced above line so that nothing can be submitted to keep Boost_USE_STATIC_LIBS as not-explicitly set
     )
     message( STATUS "manage_dependency reported Nowide_PROVIDED_TARGET as ${Nowide_PROVIDED_TARGET}, Nowide_INSTALL_TARGET as ${Nowide_INSTALL_TARGET}" )
     set(NOWIDE_TARGET ${Nowide_PROVIDED_TARGET} CACHE STRING "" FORCE)
@@ -319,7 +332,7 @@ manage_dependency(
     TYPICAL_NAMES "pugixml" # TBD what these can be
 
     TARGET_NAME         ${PUGIXML_TARGET}
-    TARGET_NAME_SYSTEM  pugixml
+    TARGET_NAME_SYSTEM  ${PUGIXML_TARGET}
     GIT_REPOSITORY  https://github.com/zeux/pugixml.git
     GIT_TAG         v1.15
     # OPTIONS         "PUGIXML_COMPACT ${OPENXLSX_COMPACT_MODE}" # TBD how to pass on PUGIXML options
@@ -329,9 +342,11 @@ set(PUGIXML_INSTALL_TARGET "${pugixml_INSTALL_TARGET}")
 if(pugixml_FETCHED)
     set(PUGIXML_STATIC_LIBRARY "pugixml-static")     # used for OPENXLSX_BUNDLED_STATIC_LIB at the moment
 else()
-    set(PUGIXML_STATIC_LIBRARY "pugixml")            # used for OPENXLSX_BUNDLED_STATIC_LIB at the moment
+    # set(PUGIXML_STATIC_LIBRARY "pugixml")            # used for OPENXLSX_BUNDLED_STATIC_LIB at the moment
+    # set(PUGIXML_TARGET "pugixml")
 
-    set(PUGIXML_TARGET "pugixml")
+    # 2026-04-23 next attempt to force a static library
+    set(PUGIXML_STATIC_LIBRARY {PUGIXML_TARGET})     # used for OPENXLSX_BUNDLED_STATIC_LIB at the moment
     message( STATUS "pugixml was found locally, using PUGIXML_TARGET ${PUGIXML_TARGET}" )
 endif()
 

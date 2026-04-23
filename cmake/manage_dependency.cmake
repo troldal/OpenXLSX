@@ -170,6 +170,35 @@ function(write_find_test_config ARG_TEMP_SRC_DIR)
     file(WRITE "${ARG_TEMP_SRC_DIR}/CMakeLists.txt"
 "cmake_minimum_required(VERSION 3.15)
 project(TestPackage VERSION 0.1 LANGUAGES CXX)
+# Script: CMakeLists.txt
+# Purpose: demonstrate finding a required library type (static vs. shared) with Boost nowide as example
+# Example Usage: for Boost_USE_STATIC_LIBS=OFF test, call like so (for ON setting, TEST_REQUIRED_TYPE=STATIC_LIBRARY and TEST_FIND_LIBRARY_SUFFIXES=\".a .lib\" would be needed:
+#
+# 1) for nowide_standalone:
+# cmake --no-warn-unused-cli -L -S . \
+#     -D TEST_PACKAGE_NAME=nowide \
+#     -D TEST_VERSION= \
+#     -D TEST_EXTRA_ARGS=QUIET \
+#     -D TEST_COMPONENTS_PARAM= \
+#     -D TEST_TARGET_NAME_SYSTEM=nowide::nowide \
+#     -D TEST_REQUIRED_TYPE=SHARED_LIBRARY \
+#     -D Boost_USE_STATIC_LIBS=OFF \
+#     -D TEST_FIND_LIBRARY_SUFFIXES=\".so .dylib .dll .dll.a\" \
+#     -D CMAKE_PREFIX_PATH= \
+#     -D CMAKE_FIND_DEBUG_MODE=OFF
+#
+# 2) for Boost::nowide:
+# cmake --no-warn-unused-cli -L -S . \
+#     -D TEST_PACKAGE_NAME=Boost \
+#     -D TEST_VERSION= \
+#     -D TEST_EXTRA_ARGS=QUIET \
+#     -D TEST_COMPONENTS_PARAM=\"COMPONENTS;nowide\" \
+#     -D TEST_TARGET_NAME_SYSTEM=Boost::nowide \
+#     -D TEST_REQUIRED_TYPE=SHARED_LIBRARY \
+#     -D Boost_USE_STATIC_LIBS=OFF \
+#     -D TEST_FIND_LIBRARY_SUFFIXES=\".so .dylib .dll .dll.a\" \
+#     -D CMAKE_PREFIX_PATH= \
+#     -D CMAKE_FIND_DEBUG_MODE=OFF
 
 include(${CMAKE_SOURCE_DIR}/cmake/recursive_library_type_test.cmake)
 
@@ -191,9 +220,17 @@ endif()
 if(NOT DEFINED TEST_REQUIRED_TYPE)
     message( FATAL_ERROR \"TEST_REQUIRED_TYPE undefined\" )
 endif()
+if(NOT DEFINED TEST_FIND_LIBRARY_SUFFIXES)
+    message( FATAL_ERROR \"TEST_FIND_LIBRARY_SUFFIXES undefined\" )
+endif()
+
+# configure FIND_LIBRARY_SUFFIXES - setting will be forgotten when this script completes
+set( CMAKE_FIND_LIBRARY_SUFFIXES \${TEST_FIND_LIBRARY_SUFFIXES} )
+
+message( STATUS \">>>>>>>>>>> TestPackage: TEST_FIND_LIBRARY_SUFFIXES is \\\"\${TEST_FIND_LIBRARY_SUFFIXES}\\\"\" )
 
 message( STATUS \">>>>>>>>>>> TestPackage: attempting to find_package \${TEST_PACKAGE_NAME} version \${TEST_VERSION} with \${TEST_EXTRA_ARGS} \${TEST_COMPONENTS_PARAM}\" )
-message( STATUS \">>>>>>>>>>> TestPackage: expecting to find system target \${TEST_TARGET_NAME_SYSTEM}, required library type is \\\"\${TEST_REQUIRED_TYPE}\\\"\" )
+message( STATUS \">>>>>>>>>>> TestPackage: expecting to find system target \${TEST_TARGET_NAME_SYSTEM}, required library type is \\\"\${TEST_REQUIRED_TYPE}\\\", CMAKE_FIND_LIBRARY_SUFFIXES is \\\"\${CMAKE_FIND_LIBRARY_SUFFIXES}\\\"\" )
 
 # allow parent to force debug
 set(CMAKE_FIND_DEBUG_MODE ${CMAKE_FIND_DEBUG_MODE} CACHE BOOL \"\" FORCE)
@@ -224,7 +261,11 @@ if(\${TEST_PACKAGE_NAME}_FOUND)
     # Final check: LIBRARY_TYPE must match expected type, if any
     if(\"\${TEST_REQUIRED_TYPE}\" STREQUAL \"\" OR \"\${LIBRARY_TYPE}\" STREQUAL \"\${TEST_REQUIRED_TYPE}\")
         message( STATUS \">>>>>>>>>>> TestPackage: \${TEST_TARGET_NAME_SYSTEM} type matches required type \${TEST_REQUIRED_TYPE}\" )
-        set(\${TEST_PACKAGE_NAME}_SUITABLE_FOUND TRUE CACHE STRING \"\" FORCE)
+        if(TARGET \${TEST_TARGET_NAME_SYSTEM})
+            set(\${TEST_PACKAGE_NAME}_SUITABLE_FOUND TRUE CACHE STRING \"\" FORCE)
+        else()
+            message( WARNING \"TestPackage: expected TARGET \${TEST_TARGET_NAME_SYSTEM} is not available!\" )
+        endif()
     else()
         message( WARNING \"TestPackage: \${TEST_TARGET_NAME_SYSTEM} type does not match required type \${TEST_REQUIRED_TYPE}\" )
     endif()
@@ -246,10 +287,12 @@ endfunction()
 #     evaluation of success:
 #   ARG_TARGET_NAME_SYSTEM  used to get_target_property TYPE after successful find_package
 #   REQUIRED_LIBRARY_TYPE   evaluate against TYPE of found package
+#   FIND_PACKAGE_VARIABLES  a NAME VALUE NAME VALUE list of variables to configure for the test_package call
+#   FIND_LIBRARY_SUFFIXES   configure CMAKE_FIND_LIBRARY_SUFFIXES to this before call to find_package - has no effect when cmake package config files are found
 # Returns:
-#   ${PACKAGE_NAME}_SUITABLE_FOUND        (PARENT_SCOPE): TRUE if dependency was is available as the REQUIRED_LIBRARY_TYPE, FALSE otherwise
+#   ${PACKAGE_NAME}_SUITABLE_FOUND        (PARENT_SCOPE): TRUE if dependency is available as the REQUIRED_LIBRARY_TYPE, FALSE otherwise
 # Author:     Lars Uffmann (coding23@uffmann.name)
-function(run_test_package ARG_PACKAGE_NAME ARG_VERSION ARG_EXTRA_ARGS COMPONENTS_PARAM ARG_TARGET_NAME_SYSTEM REQUIRED_LIBRARY_TYPE)
+function(run_test_package ARG_PACKAGE_NAME ARG_VERSION ARG_EXTRA_ARGS COMPONENTS_PARAM ARG_TARGET_NAME_SYSTEM REQUIRED_LIBRARY_TYPE FIND_PACKAGE_VARIABLES FIND_LIBRARY_SUFFIXES)
     # configure a build directory
     string(REPLACE ";" "_" pkg_safe "${ARG_PACKAGE_NAME}")
 
@@ -258,7 +301,29 @@ function(run_test_package ARG_PACKAGE_NAME ARG_VERSION ARG_EXTRA_ARGS COMPONENTS
     string(REPLACE ";" "\\;" ARG_EXTRA_ARGS_ESCAPED "${ARG_EXTRA_ARGS}")
     string(REPLACE ";" "\\;" COMPONENTS_PARAM_ESCAPED "${COMPONENTS_PARAM}")
 
-message( STATUS "run_test_package: testing package ${ARG_PACKAGE_NAME} with command:
+    set( PARAM_FIND_PACKAGE_VARIABLES "" )  # for CMake execute_process parameters
+    set(  ECHO_FIND_PACKAGE_VARIABLES "" )  # for command echo / bash executable
+    unset( FPC_NAME )
+    unset( FPC_VALUE )
+    foreach( val IN LISTS ARG_FIND_PACKAGE_VARIABLES )
+        if(NOT FPC_NAME)
+            set(FPC_NAME ${val})
+        else()
+            set(FPC_VALUE ${val})
+            message( STATUS ">>>>>>>>>>> run_test_package: FIND_PACKAGE_VARIABLES ${FPC_NAME}=${FPC_VALUE}" )
+            if(NOT "${PARAM_FIND_PACKAGE_VARIABLES}" STREQUAL "")                                               # if this is not the first parameter to be configured
+                set( PARAM_FIND_PACKAGE_VARIABLES "${PARAM_FIND_PACKAGE_VARIABLES};" )                              # append a semicolon as separator       -> CMake list
+                set(  ECHO_FIND_PACKAGE_VARIABLES "${ECHO_FIND_PACKAGE_VARIABLES} " )                               # append a space for the command echo   -> bash compatible
+            endif()
+            set( PARAM_FIND_PACKAGE_VARIABLES "${PARAM_FIND_PACKAGE_VARIABLES}-D ${FPC_NAME}=${FPC_VALUE}" )    # append a parameter for the script execution environment   -> CMake list
+            set(  ECHO_FIND_PACKAGE_VARIABLES  "${ECHO_FIND_PACKAGE_VARIABLES}-D ${FPC_NAME}=${FPC_VALUE}" )    # append a parameter for the command echo                   -> bash compatible
+            unset( FPC_NAME )
+            unset( FPC_VALUE )
+        endif()
+    endforeach()
+
+    # Echo the command to be executed for TestPackage to the log so that the user can manually invoke "cmake-find-test-<package>-src/CMakeLists.txt" and experiment with the results
+    message( STATUS "run_test_package: testing package ${ARG_PACKAGE_NAME} with command:
                 ${CMAKE_COMMAND} --no-warn-unused-cli -L -S \"${TEMP_SRC_DIR}\" \\
                 -B \"${TEMP_BUILD_DIR}\" \\
                 -D TEST_PACKAGE_NAME=${ARG_PACKAGE_NAME} \\
@@ -267,8 +332,10 @@ message( STATUS "run_test_package: testing package ${ARG_PACKAGE_NAME} with comm
                 -D TEST_COMPONENTS_PARAM=${COMPONENTS_PARAM_ESCAPED} \\
                 -D TEST_TARGET_NAME_SYSTEM=${ARG_TARGET_NAME_SYSTEM} \\
                 -D TEST_REQUIRED_TYPE=${REQUIRED_LIBRARY_TYPE} \\
+                -D TEST_FIND_LIBRARY_SUFFIXES=\"${FIND_LIBRARY_SUFFIXES}\" \\
                 -D CMAKE_PREFIX_PATH=${PREFIX_ESCAPED} \\
-                -D CMAKE_FIND_DEBUG_MODE=OFF
+                -D CMAKE_FIND_DEBUG_MODE=OFF \\
+                ${ECHO_FIND_PACKAGE_VARIABLES}
 ")
     execute_process(
         COMMAND ${CMAKE_COMMAND} --no-warn-unused-cli -L -S "${TEMP_SRC_DIR}"
@@ -279,8 +346,10 @@ message( STATUS "run_test_package: testing package ${ARG_PACKAGE_NAME} with comm
                 -D TEST_COMPONENTS_PARAM=${COMPONENTS_PARAM_ESCAPED}
                 -D TEST_TARGET_NAME_SYSTEM=${ARG_TARGET_NAME_SYSTEM}
                 -D TEST_REQUIRED_TYPE=${REQUIRED_LIBRARY_TYPE}
+                -D TEST_FIND_LIBRARY_SUFFIXES="${FIND_LIBRARY_SUFFIXES}"
                 -D CMAKE_PREFIX_PATH=${PREFIX_ESCAPED}
                 -D CMAKE_FIND_DEBUG_MODE=OFF
+                ${PARAM_FIND_PACKAGE_VARIABLES}
         RESULT_VARIABLE test_package_success
         OUTPUT_VARIABLE test_package_output
         ERROR_VARIABLE test_package_err
@@ -336,9 +405,28 @@ function(manage_dependency)
         COMPONENTS      # system library components name(s)
         TYPICAL_NAMES   # typical names for the dependency to be used with find_library in determining whether a static library is installed
         EXTRA_ARGS
+        FIND_PACKAGE_VARIABLES       # dependency specific constants to be set for find_package, must be of pattern NAME VALUE NAME VALUE ...
     )
 
     cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+    unset( FPC_NAME )
+    unset( FPC_VALUE )
+    foreach( val IN LISTS ARG_FIND_PACKAGE_VARIABLES )
+        if(NOT FPC_NAME)
+            set(FPC_NAME ${val})
+        else()
+            set(FPC_VALUE ${val})
+            message( STATUS ">>>>>>>>>>> manage_dependency: configuring FIND_PACKAGE_VARIABLES ${FPC_NAME}=${FPC_VALUE}" )
+            set(${FPC_NAME}_OLD_VALUE ${${FPC_NAME}})   # save old variable value
+            set(${FPC_NAME} ${FPC_VALUE})               # store desired setting
+            unset( FPC_NAME )
+            unset( FPC_VALUE )
+        endif()
+    endforeach()
+    if(FPC_NAME)
+        message( FATAL_ERROR "manage_dependency: argument list for FIND_PACKAGE_VARIABLES requires a value for key ${FPC_NAME}" )
+    endif()
 
     if(USE_SYSTEM_LIBS AND FORCE_FETCH_ALL)
         message( FATAL_ERROR "manage_dependency: USE_SYSTEM_LIBS and FORCE_FETCH_ALL are mutually exclusive - choose one!" )
@@ -364,13 +452,6 @@ function(manage_dependency)
         set(should_fetch TRUE)
     else()
         # Try system first
-        if(PREFER_STATIC)
-            set(REQUIRED_LIBRARY_TYPE "STATIC_LIBRARY")
-        elseif(BUILD_SHARED_LIBS)
-            set(REQUIRED_LIBRARY_TYPE "SHARED_LIBRARY")
-        else()
-            set(REQUIRED_LIBRARY_TYPE "")
-        endif()
 
         # 2026-01-25: test whether components are specified & call find_package accordingly
         set( COMPONENTS_PARAM )
@@ -384,22 +465,50 @@ function(manage_dependency)
         set(DO_TEST_PACKAGE FALSE)      # initialize: setting this to TRUE will trigger run_test_package
         set(TRY_FIND_PACKAGE TRUE)      # initialize: setting this to TRUE will trigger find_package
 
-message( NOTICE ">>>>>>>>>>> manage_dependency: PREFER_STATIC is ${PREFER_STATIC}, BUILD_SHARED_LIBS is ${BUILD_SHARED_LIBS}" )
+message( STATUS ">>>>>>>>>>> manage_dependency: PREFER_STATIC is ${PREFER_STATIC}, BUILD_SHARED_LIBS is ${BUILD_SHARED_LIBS}" )
         if(PREFER_STATIC OR BUILD_SHARED_LIBS)
             set(DO_TEST_PACKAGE TRUE)      # trigger run_test_package
+            set(SAVED_CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES})   # save CMAKE_FIND_LIBRARY_SUFFIXES
         endif()
-message( NOTICE ">>>>>>>>>>> manage_dependency: package ${ARG_PACKAGE_NAME} DO_TEST_PACKAGE is ${DO_TEST_PACKAGE}" )
+message( STATUS ">>>>>>>>>>> manage_dependency: package ${ARG_PACKAGE_NAME} DO_TEST_PACKAGE is ${DO_TEST_PACKAGE}" )
 
         # Only attempt to find_package if desired library has not been determined unavailable before
         if(DO_TEST_PACKAGE)
+
+            if(PREFER_STATIC)
+                set(REQUIRED_LIBRARY_TYPE "STATIC_LIBRARY")
+                set(CMAKE_FIND_LIBRARY_SUFFIXES ".a .lib")
+            elseif(BUILD_SHARED_LIBS)
+                set(REQUIRED_LIBRARY_TYPE "SHARED_LIBRARY")
+                set(CMAKE_FIND_LIBRARY_SUFFIXES ".so .dylib .dll .dll.a")
+            else()  # shouldn't execute
+                set(REQUIRED_LIBRARY_TYPE "")
+            endif()
+
             set(TEMP_SRC_DIR "${CMAKE_BINARY_DIR}/cmake-find-test-${ARG_PACKAGE_NAME}-src")
             file(MAKE_DIRECTORY "${TEMP_SRC_DIR}")
             write_find_test_config(${TEMP_SRC_DIR})
 
             set(TEMP_BUILD_DIR "${CMAKE_BINARY_DIR}/cmake-find-test-${ARG_PACKAGE_NAME}-build")
             set(TRY_EXTRA_ARGS ${ARG_EXTRA_ARGS} QUIET)
-message( STATUS ">>>>>>>>>>> manage_dependency: run_test_package( \"${ARG_PACKAGE_NAME}\" \"${ARG_VERSION}\" \"${TRY_EXTRA_ARGS}\" \"${COMPONENTS_PARAM}\" \"${ARG_TARGET_NAME_SYSTEM}\" \"${REQUIRED_LIBRARY_TYPE}\" )" )
-            run_test_package("${ARG_PACKAGE_NAME}" "${ARG_VERSION}" "${TRY_EXTRA_ARGS}" "${COMPONENTS_PARAM}" "${ARG_TARGET_NAME_SYSTEM}" "${REQUIRED_LIBRARY_TYPE}")
+
+set(RUN_TEST_PACKAGE_ECHO "\"${ARG_PACKAGE_NAME}\" \"${ARG_VERSION}\"")
+set(RUN_TEST_PACKAGE_ECHO "${RUN_TEST_PACKAGE_ECHO} \"${TRY_EXTRA_ARGS}\"")
+set(RUN_TEST_PACKAGE_ECHO "${RUN_TEST_PACKAGE_ECHO} \"${COMPONENTS_PARAM}\"")
+set(RUN_TEST_PACKAGE_ECHO "${RUN_TEST_PACKAGE_ECHO} \"${ARG_TARGET_NAME_SYSTEM}\"")
+set(RUN_TEST_PACKAGE_ECHO "${RUN_TEST_PACKAGE_ECHO} \"${REQUIRED_LIBRARY_TYPE}\"")
+set(RUN_TEST_PACKAGE_ECHO "${RUN_TEST_PACKAGE_ECHO} \"${ARG_FIND_PACKAGE_VARIABLES}\"")
+set(RUN_TEST_PACKAGE_ECHO "${RUN_TEST_PACKAGE_ECHO} \"${CMAKE_FIND_LIBRARY_SUFFIXES}\"")
+message( STATUS ">>>>>>>>>>> manage_dependency: run_test_package( ${RUN_TEST_PACKAGE_ECHO} )" )
+            run_test_package(
+                "${ARG_PACKAGE_NAME}" "${ARG_VERSION}"
+                "${TRY_EXTRA_ARGS}"
+                "${COMPONENTS_PARAM}"
+                "${ARG_TARGET_NAME_SYSTEM}"
+                "${REQUIRED_LIBRARY_TYPE}"
+                "${ARG_FIND_PACKAGE_VARIABLES}"
+                "${CMAKE_FIND_LIBRARY_SUFFIXES}"
+            )
 message( STATUS ">>>>>>>>>>> manage_dependency: ${ARG_PACKAGE_NAME}_SUITABLE_FOUND is ${${ARG_PACKAGE_NAME}_SUITABLE_FOUND}" )
             if(NOT ${ARG_PACKAGE_NAME}_SUITABLE_FOUND)
                 message( WARNING "manage_dependency: could not find a suitable installed version of ${ARG_PACKAGE_NAME}" )
@@ -412,11 +521,11 @@ if(FALSE) # temporarily disable temporary file deletion
             file(REMOVE_RECURSE "${TEMP_SRC_DIR}" "${TEMP_BUILD_DIR}")
 endif()
         endif()
-message( NOTICE ">>>>>>>>>>> manage_dependency: package ${ARG_PACKAGE_NAME} TRY_FIND_PACKAGE is ${TRY_FIND_PACKAGE}" )
+message( STATUS ">>>>>>>>>>> manage_dependency: package ${ARG_PACKAGE_NAME} TRY_FIND_PACKAGE is ${TRY_FIND_PACKAGE}" )
 
         if(TRY_FIND_PACKAGE)
             set(DO_EXTRA_ARGS ${ARG_EXTRA_ARGS} QUIET)
-message( STATUS ">>>>>>>>>>> manage_dependency: find_package( ${ARG_PACKAGE_NAME} ${ARG_VERSION} ${DO_EXTRA_ARGS} ${COMPONENTS_PARAM}" )
+message( STATUS ">>>>>>>>>>> manage_dependency: find_package( ${ARG_PACKAGE_NAME} ${ARG_VERSION} ${DO_EXTRA_ARGS} ${COMPONENTS_PARAM} )" )
             find_package(${ARG_PACKAGE_NAME} ${ARG_VERSION}
                 ${DO_EXTRA_ARGS}
                 ${COMPONENTS_PARAM}
@@ -441,6 +550,10 @@ message( STATUS ">>>>>>>>>>> manage_dependency: ${ARG_PACKAGE_NAME}_FOUND is ${$
                                      " An automatic fetch will be attempted but might fail due to that. Install necessary dependencies yourself, if needed" )
                 endif()
             endif()
+        endif()
+
+        if(PREFER_STATIC OR BUILD_SHARED_LIBS)
+            set(CMAKE_FIND_LIBRARY_SUFFIXES ${SAVED_CMAKE_FIND_LIBRARY_SUFFIXES})   # restore CMAKE_FIND_LIBRARY_SUFFIXES
         endif()
 
         if(${ARG_PACKAGE_NAME}_FOUND AND TARGET ${ARG_TARGET_NAME_SYSTEM}) # 2026-04-04 check for both package name found and expected target
@@ -529,6 +642,19 @@ message( STATUS ">>>>>>>>>>> manage_dependency: ${ARG_PACKAGE_NAME}_FOUND is ${$
 
         endif()
     endif()
+
+    # restore saved values of FIND_PACKAGE_VARIABLES - FPC_NAME and FPC_VALUE are still expected to be unset when execution gets here
+    foreach( val IN LISTS ARG_FIND_PACKAGE_VARIABLES )
+        if(NOT FPC_NAME)
+            set(FPC_NAME ${val})
+        else()
+            set(FPC_VALUE ${val})
+            set(${FPC_NAME} ${${FPC_NAME}_OLD_VALUE})   # restore original value
+            message( STATUS ">>>>>>>>>>> manage_dependency: restoring FIND_PACKAGE_VARIABLES ${FPC_NAME}=${${FPC_NAME}}" )
+            unset( FPC_NAME )
+            unset( FPC_VALUE )
+        endif()
+    endforeach()
 endfunction()
 # End of Function:   manage_dependency
 

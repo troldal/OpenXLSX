@@ -183,7 +183,8 @@ if ("${OPENXLSX_LIBRARY_TYPE}" STREQUAL "STATIC")
         list(APPEND static_libs "${pugixml_TARGET_STATIC}")
         list(APPEND static_libs "${${ZIP_LIBRARY}_TARGET_STATIC}")
         if(OPENXLSX_ENABLE_NOWIDE)
-            list(APPEND static_libs "${Nowide_TARGET_STATIC}")
+            # list(APPEND static_libs "${Nowide_TARGET_STATIC}")    # TBD: this links to generator expression $<TARGET_FILE:nowide>, which can not be resolved - requires nowide::nowide (standalone) or Boost::nowide
+            list(APPEND static_libs "$<TARGET_FILE:${NOWIDE_ALIAS}>")
         endif()
 
         # # Output the status of the various library targets:
