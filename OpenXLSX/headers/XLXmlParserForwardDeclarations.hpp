@@ -60,6 +60,10 @@ namespace pugi {
 }
 
 namespace OpenXLSX {
+    // ===== Functions to enable/disable support for documents that use XML namespaces for OOXML tags
+    //       Both functions return true on success, false if functionality is not supported (it is supported, so this should not happen)
+    bool enable_xml_namespaces();       // enable support for namespaces (costs performance on documents without such namespaces)
+    bool disable_xml_namespaces();      // disable support for namespaces
 
     // ===== Using statements to switch between pugixml and augmented pugixml implementation
 #   ifdef PUGI_AUGMENTED
