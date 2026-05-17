@@ -641,13 +641,20 @@ void XLDocument::create(const std::string& fileName, bool forceOverwrite)
 
     std::string tempFileName = GenerateRandomNameInSamePath(fileName, 20);
 
-    // ===== Create a temporary output file stream.
-    std::ofstream outfile(tempFileName, std::ios::binary);
+    // 2026-05-17 BUGFIX issue #399: use nowide for tempFileName as well, because *path* may contain unicode encoded characters
+    // NOTE / TODO: in the future, try to open an archive from memory, without the de-tour via a temporary file
+
+    // ===== Create a temporary output file
+    FILE *outfile = OpenXLSX::fopen(tempFileName, "wb");
+    if (outfile == nullptr) {
+        using namespace std::literals::string_literals;
+        throw XLException("XLDocument::create: could not create empty archive template with temp name "s + tempFileName);
+    }
 
     // ===== Stream the binary data for an empty workbook to the output file.
     // ===== Casting, in particular reinterpret_cast, is discouraged, but in this case it is unfortunately unavoidable.
-    outfile.write(reinterpret_cast<const char*>(templateData), templateSize);    // NOLINT
-    outfile.close();
+    fwrite( templateData, templateSize, 1, outfile );
+    fclose( outfile );
 
     open(tempFileName);    // open the template archive from the temporary file
     m_filePath = fileName; // re-configure the document file path to point to the desired fileName
@@ -655,7 +662,7 @@ void XLDocument::create(const std::string& fileName, bool forceOverwrite)
     // 2025-05-04: the created (empty) archive is no longer saved implicitly, to remove the XLDocument dependency on nowide::ofstream
     //     Instead, OpenXLSX shall rely on the underlying zip implementation (Zippy.hpp or LibZip.hpp) to support Unicode filenames
     // NOTE: LibZip currently does not support Unicode filenames on Windows (no use of nowide), status of miniz is unknown
-    unlink(tempFileName.c_str()); // delete the temporary file used for archive creation
+    OpenXLSX::remove(tempFileName);    // delete the temporary file used for archive creation
 }
 
 /**
