@@ -200,7 +200,7 @@ project(TestPackage VERSION 0.1 LANGUAGES CXX)
 #     -D CMAKE_PREFIX_PATH= \
 #     -D CMAKE_FIND_DEBUG_MODE=OFF
 
-include(${CMAKE_SOURCE_DIR}/cmake/recursive_library_type_test.cmake)
+include(\"${CMAKE_SOURCE_DIR}/cmake/recursive_library_type_test.cmake\")
 
 if(NOT DEFINED TEST_PACKAGE_NAME)
     message( FATAL_ERROR \"TEST_PACKAGE_NAME undefined\" )
