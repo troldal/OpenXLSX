@@ -227,10 +227,10 @@ endif()
 # configure FIND_LIBRARY_SUFFIXES - setting will be forgotten when this script completes
 set( CMAKE_FIND_LIBRARY_SUFFIXES \${TEST_FIND_LIBRARY_SUFFIXES} )
 
-message( STATUS \">>>>>>>>>>> TestPackage: TEST_FIND_LIBRARY_SUFFIXES is \\\"\${TEST_FIND_LIBRARY_SUFFIXES}\\\"\" )
+message( STATUS \">>>>>>>>>>> TestPackage: TEST_FIND_LIBRARY_SUFFIXES is \${TEST_FIND_LIBRARY_SUFFIXES}\" )
 
 message( STATUS \">>>>>>>>>>> TestPackage: attempting to find_package \${TEST_PACKAGE_NAME} version \${TEST_VERSION} with \${TEST_EXTRA_ARGS} \${TEST_COMPONENTS_PARAM}\" )
-message( STATUS \">>>>>>>>>>> TestPackage: expecting to find system target \${TEST_TARGET_NAME_SYSTEM}, required library type is \\\"\${TEST_REQUIRED_TYPE}\\\", CMAKE_FIND_LIBRARY_SUFFIXES is \\\"\${CMAKE_FIND_LIBRARY_SUFFIXES}\\\"\" )
+message( STATUS \">>>>>>>>>>> TestPackage: expecting to find system target \${TEST_TARGET_NAME_SYSTEM}, required library type is \\\"\${TEST_REQUIRED_TYPE}\\\", CMAKE_FIND_LIBRARY_SUFFIXES is \${CMAKE_FIND_LIBRARY_SUFFIXES}\" )
 
 # allow parent to force debug
 set(CMAKE_FIND_DEBUG_MODE ${CMAKE_FIND_DEBUG_MODE} CACHE BOOL \"\" FORCE)
@@ -274,6 +274,90 @@ endif()
 )
 endfunction()
 # End of Function: write_find_test_config
+
+
+# Function: write_parent_cache_init
+# Author: unknown, stolen without attribution by a slop generator :(, then heavily modified
+# Usage:
+#   write_parent_cache_init(
+#       OUTPUT_FILE "${DEST_DIR}/${OUTFILE}.cmake"
+#       INCLUDE_FILTER_REGEX "^(INCLUDE_THESE_).*"
+#       EXCLUDE_FILTER_REGEX "^(EXCLUDE_THESE).*"
+#   )
+# Parameters:
+#   1) output file path
+#   2) optional regex to select which cache variable names to include (default: include everything)
+#   3) optional regex to select which cache variable names to exclude (default: exclude nothing)
+function( write_parent_cache_init )
+    set(options)
+    set(oneValueArgs
+        OUTPUT_FILE
+        INCLUDE_FILTER_REGEX
+        EXCLUDE_FILTER_REGEX
+    )
+    cmake_parse_arguments(_args "${options}" "${oneValueArgs}" "" ${ARGN})
+
+    if(NOT _args_INCLUDE_FILTER_REGEX)
+        set( _args_INCLUDE_FILTER_REGEX ".*" )  # default: include all
+    endif()
+
+    if(NOT _args_EXCLUDE_FILTER_REGEX)
+        set( _args_EXCLUDE_FILTER_REGEX "" )    # default: exclude nothing
+    endif()
+
+    # Create cache init file
+    file(WRITE "${_args_OUTPUT_FILE}" "# Auto-generated cache init file\n")
+
+    # Get all cache variable names
+    get_cmake_property(_cache_vars CACHE_VARIABLES)
+
+# message( NOTICE "regex exclude filter is ${_args_EXCLUDE_FILTER_REGEX}" )
+    foreach(_var ${_cache_vars})
+# if( _var MATCHES "${_args_EXCLUDE_FILTER_REGEX}" )
+#     message( NOTICE "_var ${_var} MATCHES regex exclude filter!" )
+# else()
+#     message( NOTICE "_var ${_var} does NOT match regex exclude filter!" )
+# endif()
+
+        # Skip variables that don't match the INCLUDE filter
+        if( NOT _var MATCHES "${_args_INCLUDE_FILTER_REGEX}" )
+    continue()
+        endif()
+
+        # Skip variables that do match the EXCLUDE filter
+        if(     _var MATCHES "${_args_EXCLUDE_FILTER_REGEX}" )
+    continue()
+        endif()
+
+        # Get type and value
+        get_property( _type CACHE ${_var} PROPERTY TYPE )
+        get_property( _value CACHE ${_var} PROPERTY VALUE )
+# message( STATUS "var is ${_var}, type is ${_type}, value is ${_value}" )
+
+        # Skip internal or undocumented entries
+        if( _type STREQUAL "INTERNAL" )
+    continue()
+        endif()
+
+        # Default type if missing
+        if( NOT _type )
+            set( _type "STRING" )
+        endif()
+
+        # Escape double quotes and backslashes in the value
+        if( DEFINED _value )
+            string( REPLACE "\\" "\\\\" _value_esc "${_value}" )
+            string( REPLACE "\"" "\\\"" _value_esc "${_value_esc}" )
+        else()
+            set( _value_esc "" )
+        endif()
+
+        # Write a set(... CACHE ...) line
+        file( APPEND "${_args_OUTPUT_FILE}"
+            "set(${_var} \"${_value_esc}\" CACHE ${_type} \"copied from parent\")\n")
+    endforeach()
+endfunction()
+# End of Function: write_parent_cache_init
 
 
 # Function: run_test_package
@@ -322,10 +406,20 @@ function(run_test_package ARG_PACKAGE_NAME ARG_VERSION ARG_EXTRA_ARGS COMPONENTS
         endif()
     endforeach()
 
+    # create a temp file path
+    set(_test_package_init "${TEMP_BUILD_DIR}/test_package_init.cmake")
+
+    # write all variables that hopefully won't make the subscript interfere with the OpenXLSX build
+    write_parent_cache_init(
+        OUTPUT_FILE "${_test_package_init}"
+        INCLUDE_FILTER_REGEX "^(CMAKE_|GIT_EXECUTABLE).*"
+        EXCLUDE_FILTER_REGEX "^(CMAKE_PROJECT_|CMAKE_FIND_PACKAGE_).*" )
+
     # Echo the command to be executed for TestPackage to the log so that the user can manually invoke "cmake-find-test-<package>-src/CMakeLists.txt" and experiment with the results
     message( STATUS "run_test_package: testing package ${ARG_PACKAGE_NAME} with command:
                 ${CMAKE_COMMAND} --no-warn-unused-cli -L -S \"${TEMP_SRC_DIR}\" \\
                 -B \"${TEMP_BUILD_DIR}\" \\
+                -C \"${_test_package_init}\" \\
                 -D TEST_PACKAGE_NAME=${ARG_PACKAGE_NAME} \\
                 -D TEST_VERSION=${ARG_VERSION} \\
                 -D TEST_EXTRA_ARGS=${ARG_EXTRA_ARGS_ESCAPED} \\
@@ -335,11 +429,13 @@ function(run_test_package ARG_PACKAGE_NAME ARG_VERSION ARG_EXTRA_ARGS COMPONENTS
                 -D TEST_FIND_LIBRARY_SUFFIXES=\"${FIND_LIBRARY_SUFFIXES}\" \\
                 -D CMAKE_PREFIX_PATH=${PREFIX_ESCAPED} \\
                 -D CMAKE_FIND_DEBUG_MODE=OFF \\
-                ${ECHO_FIND_PACKAGE_VARIABLES}
-")
+                ${ECHO_FIND_PACKAGE_VARIABLES} \\
+    ")
+
     execute_process(
         COMMAND ${CMAKE_COMMAND} --no-warn-unused-cli -L -S "${TEMP_SRC_DIR}"
                 -B "${TEMP_BUILD_DIR}"
+                -C "${_test_package_init}"
                 -D TEST_PACKAGE_NAME=${ARG_PACKAGE_NAME}
                 -D TEST_VERSION=${ARG_VERSION}
                 -D TEST_EXTRA_ARGS=${ARG_EXTRA_ARGS_ESCAPED}

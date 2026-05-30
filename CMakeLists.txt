@@ -222,12 +222,15 @@ if(OPENXLSX_ENABLE_NOWIDE)
     else()                          # for regular static build
         # noop                          # keep the default
     endif()
+
+    set(FIND_PACKAGE_VARIABLES_PARAM "")    # init list
     if(PREFER_STATIC OR BUILD_SHARED_LIBS)
         list(APPEND FIND_PACKAGE_VARIABLES_PARAM "FIND_PACKAGE_VARIABLES")
         list(APPEND FIND_PACKAGE_VARIABLES_PARAM Boost_USE_STATIC_LIBS ${Boost_USE_STATIC_LIBS})
-    else()
-        set(FIND_PACKAGE_VARIABLES_PARAM "")
     endif()
+    # Turn off "FindBoost module is removed" warning:
+    list(APPEND FIND_PACKAGE_VARIABLES_PARAM "CMAKE_POLICY_DEFAULT_CMP0167" "NEW")
+
 
     if(OPENXLSX_MONOLITHIC_LIBRARY)
         set(Boost_NOWIDE_INSTALL OFF CACHE BOOL "") # this CACHE instruction appears to be the only way to set that option for the subproject
