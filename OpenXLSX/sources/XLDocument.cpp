@@ -631,6 +631,7 @@ void XLDocument::open(const std::string& fileName)
 /**
  * @details Create a new document. This is done by saving the data in XLTemplate.h in binary format.
  */
+#include <iostream>
 void XLDocument::create(const std::string& fileName, bool forceOverwrite)
 {
     // 2024-07-26: prevent silent overwriting of existing files
@@ -662,7 +663,10 @@ void XLDocument::create(const std::string& fileName, bool forceOverwrite)
     // 2025-05-04: the created (empty) archive is no longer saved implicitly, to remove the XLDocument dependency on nowide::ofstream
     //     Instead, OpenXLSX shall rely on the underlying zip implementation (Zippy.hpp or LibZip.hpp) to support Unicode filenames
     // NOTE: LibZip currently does not support Unicode filenames on Windows (no use of nowide), status of miniz is unknown
+std::cout << "XLDocument::create: invoking OpenXLSX::remove(\"" << tempFileName << "\")" << std::endl;
+bool result =
     OpenXLSX::remove(tempFileName);    // delete the temporary file used for archive creation
+std::cout << "XLDocument::create: OpenXLSX::remove returned with " << ( result ? "success" : "failure" ) << std::endl;
 }
 
 /**
