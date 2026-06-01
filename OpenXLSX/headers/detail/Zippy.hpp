@@ -699,7 +699,8 @@ namespace Zippy
          * @warning Before using an archive object that has been default constructed, a call to either Open() or Create() must be
          * performed. Otherwise, the object will be in a null-state and calls to member functions will be undefined.
          */
-        explicit ZipArchive() = default;
+        explicit ZipArchive()
+        : m_zipData(nullptr), m_zipSize(0) {}
 
         /**
          * @brief Constructor. Constructs an archive object, using the fileName input parameter. If the file already exists,
@@ -799,6 +800,50 @@ namespace Zippy
         }
 
         /**
+         * @brief load data from filename into this->m_zipData
+         * @param filename load a file from here
+         * @return 0 on success, -1 on failure
+         * @note 2026-06-01 this function is identical to the one defined in LibZip.hpp
+         */
+        int loadArchiveData(std::string filename)
+        {
+            m_zipSize = 0; // init in case of failure
+
+            off_t archiveSizeCompressed = OpenXLSX::fileSize( filename );
+            if (archiveSizeCompressed < 0) {
+                fprintf(stderr, "ZipArchive::loadArchiveData: can't obtain info about %s (errno %d: %s)\n", filename.c_str(), errno, strerror(errno));
+                m_zipData = nullptr;
+                return -1;
+            }
+
+            if ((m_zipData = malloc(static_cast<size_t>(archiveSizeCompressed))) == nullptr) {
+                fprintf(stderr, "ZipArchive::loadArchiveData: can't allocate buffer\n");
+                return -1;
+            }
+
+            FILE *fp = OpenXLSX::fopen(filename.c_str(), "r");
+            if (fp == nullptr) {
+                free(m_zipData);
+                m_zipData = nullptr;
+                fprintf(stderr, "ZipArchive::loadArchiveData: can't open %s: %s\n", filename.c_str(), strerror(errno));
+                return -1;
+            }
+
+            if (fread(m_zipData, 1, static_cast<size_t>(archiveSizeCompressed), fp) < static_cast<size_t>(archiveSizeCompressed)) {
+                free(m_zipData);
+                m_zipData = nullptr;
+                fprintf(stderr, "ZipArchive::loadArchiveData: can't read %s: %s\n", filename.c_str(), strerror(errno));
+                fclose(fp);
+                return -1;
+            }
+
+            fclose(fp);
+
+            m_zipSize = static_cast<size_t>(archiveSizeCompressed);
+            return 0;
+        }
+
+        /**
          * @warning unicode filename support on Windows to be tested!
          * @brief Open an existing archive file with the given filename.
          * @details
@@ -815,7 +860,15 @@ namespace Zippy
                 mz_zip_reader_end(&m_Archive);
             }
             m_ArchivePath = fileName;
-            if (!mz_zip_reader_init_file(&m_Archive, m_ArchivePath.c_str(), 0)) { // TBD: does miniz support unicode filenames on Windows?
+
+            /* get buffer with zip archive inside */
+            if (loadArchiveData(fileName) < 0) {
+                using namespace std::literals::string_literals;
+                throw ZipRuntimeError("ZipArchive::Open: failed to load archive data from file "s + fileName);
+            }
+
+            // if (!mz_zip_reader_init_file(&m_Archive, m_ArchivePath.c_str(), 0)) { // TBD: does miniz support unicode filenames on Windows?
+            if (!mz_zip_reader_init_mem(&m_Archive, m_zipData, m_zipSize, 0)) {
                 // throw ZipRuntimeError(mz_zip_get_error_string(m_Archive.m_last_error));
                 throw ZipRuntimeError(std::string(mz_zip_get_error_string(m_Archive.m_last_error)) + " (m_ArchivePath: " + m_ArchivePath + ")");
             }
@@ -854,6 +907,8 @@ namespace Zippy
         {
             if (IsOpen()) {
                 mz_zip_reader_end(&m_Archive);
+                free(m_zipData);
+                m_zipData = nullptr;   // prevent double-free
             }
             m_ArchivePath = "";
             m_IsOpen = false;       // 2024-12-18: minor bugfix, m_IsOpen was not set to false
@@ -1306,6 +1361,8 @@ namespace Zippy
         }
 
     private:
+        void           *m_zipData;    // the raw data of the unmodified source archive, TODO: (re-)set on ZipArchive::Open
+        size_t          m_zipSize;    // the size in bytes of the unmodified source archive stored at m_zipData
         mz_zip_archive m_Archive     = mz_zip_archive(); /**< The struct used by miniz, to handle archive files. */
         std::string    m_ArchivePath = "";               /**< The path of the archive file. */
         bool           m_IsOpen      = false;            /**< A flag indicating if the file is currently open for reading and writing. */

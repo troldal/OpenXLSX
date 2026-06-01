@@ -415,7 +415,8 @@ function(run_test_package ARG_PACKAGE_NAME ARG_VERSION ARG_EXTRA_ARGS COMPONENTS
     write_parent_cache_init(
         OUTPUT_FILE "${_test_package_init}"
         INCLUDE_FILTER_REGEX "^(CMAKE_|GIT_EXECUTABLE).*"
-        EXCLUDE_FILTER_REGEX "^(CMAKE_PROJECT_|CMAKE_FIND_PACKAGE_).*" )
+        EXCLUDE_FILTER_REGEX "^((CMAKE_PROJECT_|CMAKE_FIND_PACKAGE_).*)|(.*(_DIR|_DIRECTORY))$" ) # NOTE 2026-06-01: .*_DIR and .*_DIRECTORY exclude entries are experimental
+    # TBD EXCLUDE filter expressions: ^.*_ROOT$, ^.*_PREFIX$
 
     # Echo the command to be executed for TestPackage to the log so that the user can manually invoke "cmake-find-test-<package>-src/CMakeLists.txt" and experiment with the results
     message( STATUS "run_test_package: testing package ${ARG_PACKAGE_NAME} with command:

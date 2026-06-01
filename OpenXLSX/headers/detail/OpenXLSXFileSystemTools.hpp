@@ -180,7 +180,7 @@ namespace OpenXLSX
     {
 #       ifdef ENABLE_NOWIDE
 std::cout << "OpenXLSX::remove: invoking nowide::remove(\"" << p << "\")" << std::endl;
-            return ( nowide::remove(p.c_str()) == 0 );
+            return ( nowide::remove(p.c_str()) == 0 );    // nowide::remove / std::remove return an int, and 0 means success
 #       else
 std::cout << "OpenXLSX::remove: invoking std::filesystem::remove(\"" << p << "\")" << std::endl;
             return std::filesystem::remove(p.c_str());
