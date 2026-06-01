@@ -37,7 +37,9 @@
 # ============================================================================
 # Dependency Checks - verify that required modules are present
 # ============================================================================
-include(${CMAKE_SOURCE_DIR}/cmake/recursive_library_type_test.cmake) # not actually invoked from here, but from project created by write_find_test_config
+message( NOTICE "debug manage_dependency.cmake: CMAKE_CURRENT_LIST_DIR is ${CMAKE_CURRENT_LIST_DIR}" )
+message( NOTICE "debug manage_dependency.cmake: CMAKE_SOURCE_DIR is ${CMAKE_SOURCE_DIR}" )
+include(${CMAKE_CURRENT_LIST_DIR}/recursive_library_type_test.cmake) # not actually invoked from here, but from project created by write_find_test_config
 
 # ============================================================================
 # Enhanced Helper Functions
@@ -200,7 +202,7 @@ project(TestPackage VERSION 0.1 LANGUAGES CXX)
 #     -D CMAKE_PREFIX_PATH= \
 #     -D CMAKE_FIND_DEBUG_MODE=OFF
 
-include(\"${CMAKE_SOURCE_DIR}/cmake/recursive_library_type_test.cmake\")
+include(\"${CMAKE_CURRENT_LIST_DIR}/recursive_library_type_test.cmake\")
 
 if(NOT DEFINED TEST_PACKAGE_NAME)
     message( FATAL_ERROR \"TEST_PACKAGE_NAME undefined\" )

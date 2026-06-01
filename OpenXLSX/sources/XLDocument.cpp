@@ -667,6 +667,8 @@ std::cout << "XLDocument::create: invoking OpenXLSX::remove(\"" << tempFileName 
 bool result =
     OpenXLSX::remove(tempFileName);    // delete the temporary file used for archive creation
 std::cout << "XLDocument::create: OpenXLSX::remove returned with " << ( result ? "success" : "failure" ) << std::endl;
+if( !result )
+    std::cout << "XLDocument::create: errno is " << errno << std::endl;
 }
 
 /**
