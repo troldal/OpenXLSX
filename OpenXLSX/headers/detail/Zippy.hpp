@@ -821,7 +821,7 @@ namespace Zippy
                 return -1;
             }
 
-            FILE *fp = OpenXLSX::fopen(filename.c_str(), "r");
+            FILE *fp = OpenXLSX::fopen(filename.c_str(), "rb");
             if (fp == nullptr) {
                 free(m_zipData);
                 m_zipData = nullptr;
