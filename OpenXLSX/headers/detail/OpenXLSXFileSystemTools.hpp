@@ -4,7 +4,6 @@
 #ifdef _WIN32
     #include <algorithm>            // std::replace
 #endif
-#include <iostream>
 #ifdef ENABLE_NOWIDE
     #include <nowide/cstdio.hpp>    // nowide::fopen, nowide::remove, nowide::rename
     #include <nowide/stat.hpp>
@@ -182,10 +181,8 @@ namespace OpenXLSX
     inline bool remove(std::string const &p )
     {
 #       ifdef ENABLE_NOWIDE
-std::cout << "OpenXLSX::remove: invoking nowide::remove(\"" << p << "\")" << std::endl;
             return ( nowide::remove(p.c_str()) == 0 );    // nowide::remove / std::remove return an int, and 0 means success
 #       else
-std::cout << "OpenXLSX::remove: invoking std::filesystem::remove(\"" << p << "\")" << std::endl;
             return std::filesystem::remove(p.c_str());
 #       endif
     }

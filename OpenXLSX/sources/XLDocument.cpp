@@ -45,12 +45,13 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== External Includes ===== //
 #include <algorithm>
+#include <iostream>
 #if defined(_WIN32)
-#    include <random>
+    #include <random>       // TBD: is this still needed for anything? For what?
 #else
-#include <unistd.h>       // unlink
+    #include <unistd.h>     // unlink
 #endif
-#include <vector>         // std::vector
+#include <vector>           // std::vector
 
 // ===== OpenXLSX Includes ===== //
 #include "detail/OpenXLSXFileSystemTools.hpp"   // pathExists, GenerateRandomNameInSamePath
@@ -631,7 +632,6 @@ void XLDocument::open(const std::string& fileName)
 /**
  * @details Create a new document. This is done by saving the data in XLTemplate.h in binary format.
  */
-#include <iostream>
 void XLDocument::create(const std::string& fileName, bool forceOverwrite)
 {
     // 2024-07-26: prevent silent overwriting of existing files
@@ -663,12 +663,7 @@ void XLDocument::create(const std::string& fileName, bool forceOverwrite)
     // 2025-05-04: the created (empty) archive is no longer saved implicitly, to remove the XLDocument dependency on nowide::ofstream
     //     Instead, OpenXLSX shall rely on the underlying zip implementation (Zippy.hpp or LibZip.hpp) to support Unicode filenames
     // NOTE: LibZip currently does not support Unicode filenames on Windows (no use of nowide), status of miniz is unknown
-std::cout << "XLDocument::create: invoking OpenXLSX::remove(\"" << tempFileName << "\")" << std::endl;
-bool result =
     OpenXLSX::remove(tempFileName);    // delete the temporary file used for archive creation
-std::cout << "XLDocument::create: OpenXLSX::remove returned with " << ( result ? "success" : "failure" ) << std::endl;
-if( !result )
-    std::cout << "XLDocument::create: errno is " << errno << std::endl;
 }
 
 /**
