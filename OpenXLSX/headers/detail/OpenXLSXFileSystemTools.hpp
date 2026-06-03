@@ -1,6 +1,9 @@
 #ifndef OPENXLSX_TOOLS_H
 #define OPENXLSX_TOOLS_H
 
+#ifdef _WIN32
+    #include <algorithm>            // std::replace
+#endif
 #include <iostream>
 #ifdef ENABLE_NOWIDE
     #include <nowide/cstdio.hpp>    // nowide::fopen, nowide::remove, nowide::rename
