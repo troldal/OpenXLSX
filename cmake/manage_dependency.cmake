@@ -36,6 +36,11 @@
 
 # ============================================================================
 # Dependency Checks - verify that required modules are present
+# NOTE: as stupid as this is, in order to safely include a module from the same path as this file, two different variables are needed:
+#       1) outside a function: CMAKE_CURRENT_LIST_DIR (the below is not defined)
+#       2) inside a function: CMAKE_CURRENT_FUNCTION_LIST_DIR (the above will have the path to the script from which the function stack is invoked)
+#          (this is used in write_find_test_config to write CMakeLists.txt for the TestPackage sub-project)
+#       CMAKE_SOURCE_DIR (with correct subdirectory to scripts) becomes unpredictable / invalid the moment that this project is included from a super-project
 # ============================================================================
 message( NOTICE "debug manage_dependency.cmake: CMAKE_CURRENT_LIST_DIR is ${CMAKE_CURRENT_LIST_DIR}" )
 message( NOTICE "debug manage_dependency.cmake: CMAKE_SOURCE_DIR is ${CMAKE_SOURCE_DIR}" )
@@ -169,6 +174,8 @@ endfunction()
 # Returns: N/A
 # Author:     Lars Uffmann (coding23@uffmann.name)
 function(write_find_test_config ARG_TEMP_SRC_DIR)
+message( NOTICE "<<<<<<<<<<<< write_find_test_config: CMAKE_CURRENT_LIST_DIR is ${CMAKE_CURRENT_LIST_DIR}" )
+message( NOTICE "<<<<<<<<<<<< write_find_test_config: CMAKE_CURRENT_FUNCTION_LIST_DIR is ${CMAKE_CURRENT_FUNCTION_LIST_DIR}" )
     file(WRITE "${ARG_TEMP_SRC_DIR}/CMakeLists.txt"
 "cmake_minimum_required(VERSION 3.15)
 project(TestPackage VERSION 0.1 LANGUAGES CXX)
@@ -202,7 +209,7 @@ project(TestPackage VERSION 0.1 LANGUAGES CXX)
 #     -D CMAKE_PREFIX_PATH= \
 #     -D CMAKE_FIND_DEBUG_MODE=OFF
 
-include(\"${CMAKE_CURRENT_LIST_DIR}/recursive_library_type_test.cmake\")
+include(\"${CMAKE_CURRENT_FUNCTION_LIST_DIR}/recursive_library_type_test.cmake\")
 
 if(NOT DEFINED TEST_PACKAGE_NAME)
     message( FATAL_ERROR \"TEST_PACKAGE_NAME undefined\" )
@@ -418,11 +425,16 @@ function(run_test_package ARG_PACKAGE_NAME ARG_VERSION ARG_EXTRA_ARGS COMPONENTS
         EXCLUDE_FILTER_REGEX "^((CMAKE_PROJECT_|CMAKE_FIND_PACKAGE_).*)|(.*(_DIR|_DIRECTORY))$" ) # NOTE 2026-06-01: .*_DIR and .*_DIRECTORY exclude entries are experimental
     # TBD EXCLUDE filter expressions: ^.*_ROOT$, ^.*_PREFIX$
 
+    # TBD: potentially relevant non-cache variables:
+# message( STATUS "----------------- CMAKE_GENERATOR_TOOLSET  is \"${CMAKE_GENERATOR_TOOLSET}\"" )
+# message( STATUS "----------------- CMAKE_GENERATOR_INSTANCE is \"${CMAKE_GENERATOR_INSTANCE}\"" )
+# message( STATUS "----------------- CMAKE_TOOLCHAIN_FILE     is \"${CMAKE_TOOLCHAIN_FILE}\"" )
     # Echo the command to be executed for TestPackage to the log so that the user can manually invoke "cmake-find-test-<package>-src/CMakeLists.txt" and experiment with the results
     message( STATUS "run_test_package: testing package ${ARG_PACKAGE_NAME} with command:
                 ${CMAKE_COMMAND} --no-warn-unused-cli -L -S \"${TEMP_SRC_DIR}\" \\
                 -B \"${TEMP_BUILD_DIR}\" \\
                 -C \"${_test_package_init}\" \\
+                -G \"${CMAKE_GENERATOR}\" \\
                 -D TEST_PACKAGE_NAME=${ARG_PACKAGE_NAME} \\
                 -D TEST_VERSION=${ARG_VERSION} \\
                 -D TEST_EXTRA_ARGS=${ARG_EXTRA_ARGS_ESCAPED} \\
@@ -439,6 +451,7 @@ function(run_test_package ARG_PACKAGE_NAME ARG_VERSION ARG_EXTRA_ARGS COMPONENTS
         COMMAND ${CMAKE_COMMAND} --no-warn-unused-cli -L -S "${TEMP_SRC_DIR}"
                 -B "${TEMP_BUILD_DIR}"
                 -C "${_test_package_init}"
+                -G "${CMAKE_GENERATOR}"
                 -D TEST_PACKAGE_NAME=${ARG_PACKAGE_NAME}
                 -D TEST_VERSION=${ARG_VERSION}
                 -D TEST_EXTRA_ARGS=${ARG_EXTRA_ARGS_ESCAPED}
