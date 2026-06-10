@@ -68,6 +68,12 @@ namespace OpenXLSX
     {
     private:
         /**
+         * @brief constructor helper function: within docProps/core.xml, cp:coreProperties tag, ensure that the required XML namespaces are defined
+         * @param props the cp:coreProperties node (== document_element())
+         */
+        void ensureXmlNamespaces(XMLNode & props);
+
+        /**
          * @brief constructor helper function: create core.xml content from template
          * @param workbook
          */
@@ -169,6 +175,12 @@ namespace OpenXLSX
     class OPENXLSX_EXPORT XLAppProperties : public XLXmlFile
     {
     private:
+        /**
+         * @brief constructor helper function: within docProps/app.xml, Properties tag, ensure that the required XML namespaces are defined
+         * @param props the Properties node (== document_element())
+         */
+        void ensureXmlNamespaces(XMLNode & props);
+
         /**
          * @brief constructor helper function: create app.xml content from template
          * @param workbook

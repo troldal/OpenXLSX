@@ -53,7 +53,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLSheet.hpp"
 #include "XLWorkbook.hpp"
 #include "XLXmlParser.hpp"              // pugixml wrapper
-#include "utilities/XLUtilities.hpp"
+#include "utilities/XLUtilities.hpp"    // appendAndGetAttribute
 
 using namespace OpenXLSX;
 
@@ -76,7 +76,19 @@ XLWorkbook::XLWorkbook() = default;
  * @details The constructor initializes the member variables and calls the loadXMLData from the
  * XLAbstractXMLFile base class.
  */
-XLWorkbook::XLWorkbook(XLXmlData* xmlData) : XLXmlFile(xmlData) {}
+XLWorkbook::XLWorkbook(XLXmlData* xmlData) : XLXmlFile(xmlData)
+{
+    // 2026-06-10: ensure that XML namespaces are defined in existing documents, too
+    XMLNode rootNode = xmlDocument().document_element();
+    appendAndGetAttribute(rootNode, "xmlns", "http://schemas.openxmlformats.org/spreadsheetml/2006/main");
+    appendAndGetAttribute(rootNode, "xmlns:r", "http://schemas.openxmlformats.org/officeDocument/2006/relationships");
+    appendAndGetAttribute(rootNode, "xmlns:mc", "http://schemas.openxmlformats.org/markup-compatibility/2006");
+    appendAndGetAttribute(rootNode, "xmlns:x15", "http://schemas.microsoft.com/office/spreadsheetml/2010/11/main");
+    appendAndGetAttribute(rootNode, "xmlns:xr", "http://schemas.microsoft.com/office/spreadsheetml/2014/revision");
+    appendAndGetAttribute(rootNode, "xmlns:xr6", "http://schemas.microsoft.com/office/spreadsheetml/2016/revision6");
+    appendAndGetAttribute(rootNode, "xmlns:xr10", "http://schemas.microsoft.com/office/spreadsheetml/2016/revision10");
+    appendAndGetAttribute(rootNode, "xmlns:xr2", "http://schemas.microsoft.com/office/spreadsheetml/2015/revision2");
+}
 
 /**
  * @details Copy constructor
