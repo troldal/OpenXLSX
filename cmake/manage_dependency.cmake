@@ -174,8 +174,6 @@ endfunction()
 # Returns: N/A
 # Author:     Lars Uffmann (coding23@uffmann.name)
 function(write_find_test_config ARG_TEMP_SRC_DIR)
-message( NOTICE "<<<<<<<<<<<< write_find_test_config: CMAKE_CURRENT_LIST_DIR is ${CMAKE_CURRENT_LIST_DIR}" )
-message( NOTICE "<<<<<<<<<<<< write_find_test_config: CMAKE_CURRENT_FUNCTION_LIST_DIR is ${CMAKE_CURRENT_FUNCTION_LIST_DIR}" )
     file(WRITE "${ARG_TEMP_SRC_DIR}/CMakeLists.txt"
 "cmake_minimum_required(VERSION 3.15)
 project(TestPackage VERSION 0.1 LANGUAGES CXX)
@@ -253,7 +251,7 @@ find_package(
 message( STATUS \">>>>>>>>>>> TestPackage: \${TEST_PACKAGE_NAME}_FOUND: \${\${TEST_PACKAGE_NAME}_FOUND}\" )
 
 # evaluate result
-set(\${TEST_PACKAGE_NAME}_SUITABLE_FOUND FALSE CACHE STRING \"\" FORCE)
+set(\${TEST_PACKAGE_NAME}_SUITABLE_FOUND \"FALSE\")
 if(\${TEST_PACKAGE_NAME}_FOUND)
     message( STATUS \">>>>>>>>>>> TestPackage: Performing recursive_library_type_test on \${TEST_TARGET_NAME_SYSTEM}\" )
     set(LIBRARY_TYPE \"INTERFACE_LIBRARY\")   # default: can't resolve library type
@@ -271,7 +269,7 @@ if(\${TEST_PACKAGE_NAME}_FOUND)
     if(\"\${TEST_REQUIRED_TYPE}\" STREQUAL \"\" OR \"\${LIBRARY_TYPE}\" STREQUAL \"\${TEST_REQUIRED_TYPE}\")
         message( STATUS \">>>>>>>>>>> TestPackage: \${TEST_TARGET_NAME_SYSTEM} type matches required type \${TEST_REQUIRED_TYPE}\" )
         if(TARGET \${TEST_TARGET_NAME_SYSTEM})
-            set(\${TEST_PACKAGE_NAME}_SUITABLE_FOUND TRUE CACHE STRING \"\" FORCE)
+            set(\${TEST_PACKAGE_NAME}_SUITABLE_FOUND \"TRUE\")
         else()
             message( WARNING \"TestPackage: expected TARGET \${TEST_TARGET_NAME_SYSTEM} is not available!\" )
         endif()
@@ -279,6 +277,10 @@ if(\${TEST_PACKAGE_NAME}_FOUND)
         message( WARNING \"TestPackage: \${TEST_TARGET_NAME_SYSTEM} type does not match required type \${TEST_REQUIRED_TYPE}\" )
     endif()
 endif()
+
+# cmake is a piece of work, so work around cache corruption by emitting the TestPackage result only as a string
+#   also, must emit message as STATUS severity, because NOTICE ends up in execute_process ERROR_VARIABLE
+message( STATUS \"\${TEST_PACKAGE_NAME}_SUITABLE_FOUND:STRING=\${\${TEST_PACKAGE_NAME}_SUITABLE_FOUND}\" )
 "
 )
 endfunction()
@@ -473,7 +475,8 @@ function(run_test_package ARG_PACKAGE_NAME ARG_VERSION ARG_EXTRA_ARGS COMPONENTS
 
     # define function return value: ${ARG_PACKAGE_NAME}_SUITABLE_FOUND
     set(${ARG_PACKAGE_NAME}_SUITABLE_FOUND FALSE PARENT_SCOPE)
-    if(test_package_output MATCHES "${ARG_PACKAGE_NAME}_SUITABLE_FOUND:STRING=([^\r\n]+)")     # test if test_package_output contains lines like: ${ARG_PACKAGE_NAME}_SUITABLE_FOUND:STRING=<bool>
+    if(test_package_output MATCHES "-- ${ARG_PACKAGE_NAME}_SUITABLE_FOUND:STRING=([^\r\n]+)\r?\n")     # test if test_package_output contains lines like: ${ARG_PACKAGE_NAME}_SUITABLE_FOUND:STRING=<bool>
+        # message( STATUS ">>> run_test_package: found a match ${CMAKE_MATCH_1} in output" )
         set(test_result "${CMAKE_MATCH_1}")
         # string(STRIP "${CMAKE_MATCH_1}" test_result)
         if("${test_result}" STREQUAL "TRUE")
