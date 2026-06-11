@@ -9,6 +9,10 @@
 !/NOTICE
 !/README.md
 
+!/.github
+!/.github/workflows
+!/.github/workflows/*
+
 # include root directory files
 !/CMakeLists.txt
 !/Makefile.GNU

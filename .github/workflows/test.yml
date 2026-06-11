@@ -1,0 +1,23 @@
+name: test
+
+on:
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: vapor/swiftly-action@v0.2
+        with:
+          toolchain: "6.3"
+
+      - name: Test
+        run: swift test
