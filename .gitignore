@@ -107,4 +107,14 @@
 !/Tests/CMakeLists.txt
 !/Tests/*.cpp
 
+!/SwiftPMTests
+!/SwiftPMTests/CxxOpenXLSXTestSupport
+!/SwiftPMTests/CxxOpenXLSXTestSupport/*
+!/SwiftPMTests/CxxOpenXLSXTestSupport/include
+!/SwiftPMTests/CxxOpenXLSXTestSupport/include/*
+!/SwiftPMTests/CxxOpenXLSXTests
+!/SwiftPMTests/CxxOpenXLSXTests/*
+!/SwiftPMTests/CxxOpenXLSXTests/Resources
+!/SwiftPMTests/CxxOpenXLSXTests/Resources/*
+
 !/Package.swift
