@@ -9,15 +9,15 @@
 #  ifndef OPENXLSX_EXPORT
 #    ifdef OpenXLSX_EXPORTS
         /* We are building this library */
-#      define OPENXLSX_EXPORT 
+#      define OPENXLSX_EXPORT
 #    else
         /* We are using this library */
-#      define OPENXLSX_EXPORT 
+#      define OPENXLSX_EXPORT
 #    endif
 #  endif
 
 #  ifndef OPENXLSX_HIDDEN
-#    define OPENXLSX_HIDDEN 
+#    define OPENXLSX_HIDDEN
 #  endif
 #endif
 

@@ -51,7 +51,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <ostream>    // std::basic_ostream
 
 // ===== OpenXLSX Includes ===== //
-#include "include-exports-header.hpp"
+#include "OpenXLSX-Exports.hpp"
 // #include "XLDocument.hpp"
 #include "XLDrawing.hpp"   // XLVmlDrawing
 #include "XLException.hpp"

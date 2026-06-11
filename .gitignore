@@ -102,6 +102,7 @@
 !/OpenXLSX/headers
 !/OpenXLSX/headers/*
 !/OpenXLSX/module.modulemap
+!/OpenXLSX/OpenXLSX-Exports.hpp
 !/OpenXLSX/swiftpm
 !/OpenXLSX/swiftpm/*
 !/OpenXLSX/OpenXLSXConfig.cmake

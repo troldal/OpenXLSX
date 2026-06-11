@@ -61,7 +61,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <vector>       // std::vector
 
 // ===== OpenXLSX Includes ===== //
-#include "include-exports-header.hpp"
+#include "OpenXLSX-Exports.hpp"
 #include "XLCellReference.hpp"
 #include "XLXmlParserForwardDeclarations.hpp"
 

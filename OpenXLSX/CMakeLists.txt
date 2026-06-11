@@ -126,9 +126,9 @@ if ("${OPENXLSX_LIBRARY_TYPE}" STREQUAL "STATIC")
 # message( NOTICE "CMAKE_CURRENT_SOURCE_DIR is ${CMAKE_CURRENT_SOURCE_DIR}" )
     target_include_directories(OpenXLSX
             PUBLIC
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>     # For export header
             $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
-            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
-            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)     # For export header
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>)
     target_include_directories(OpenXLSX
             INTERFACE
             $<INSTALL_INTERFACE:include/OpenXLSX>)              # get install-safe include directories
@@ -217,9 +217,9 @@ if ("${OPENXLSX_LIBRARY_TYPE}" STREQUAL "SHARED")
     target_sources(OpenXLSX PRIVATE ${OPENXLSX_SOURCES})
     target_include_directories(OpenXLSX
             PUBLIC
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>     # For export header
             $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
-            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>
-            $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)     # For export header
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>)
     target_include_directories(OpenXLSX
             INTERFACE
             $<INSTALL_INTERFACE:include/OpenXLSX>)              # get install-safe include directories

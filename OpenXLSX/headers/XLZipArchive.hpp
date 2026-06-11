@@ -58,7 +58,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <type_traits>  // std::make_signed_t
 
 // ===== OpenXLSX Includes ===== //
-#include "include-exports-header.hpp"
+#include "OpenXLSX-Exports.hpp"
 
 #ifdef USE_LIBZIP
     namespace LibZip {
