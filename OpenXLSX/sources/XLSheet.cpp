@@ -44,12 +44,12 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
  */
 
 // ===== External Includes ===== //
-#include <algorithm>
-#include <sstream>
+#include <algorithm> // std::max
 #include <cctype>    // std::isdigit (issue #330)
 #include <cstring>   // strlen
 #include <limits>    // std::numeric_limits
 #include <map>       // std::multimap
+#include <sstream>
 
 // ===== OpenXLSX Includes ===== //
 #include "XLCellRange.hpp"
