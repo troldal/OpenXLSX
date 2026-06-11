@@ -183,7 +183,11 @@ XLCell::operator bool() const { return m_cellNode && (not m_cellNode->empty() );
 /**
  * @details This function returns a const reference to the cellReference property.
  */
-XLCellReference XLCell::cellReference() const { return XLCellReference { m_cellNode->attribute("r").value() }; }
+XLCellReference XLCell::cellReference() const
+{
+    if (empty()) throw XLException("XLCell object is empty");
+    return XLCellReference { m_cellNode->attribute("r").value() };
+}
 
 /**
  * @details This function returns a const reference to the cell reference by the offset from the current one.
@@ -201,6 +205,7 @@ XLCell XLCell::offset(uint16_t rowOffset, uint16_t colOffset) const
  */
 bool XLCell::hasFormula() const
 {
+    if (empty()) return false;
     return (not m_cellNode->child("f").empty());    // evaluate child XMLNode as boolean
 }
 
@@ -231,6 +236,11 @@ bool XLCell::setCellFormat(size_t cellFormatIndex)
  * @details
  */
 void XLCell::print(std::basic_ostream<char>& ostr) const { m_cellNode->print(ostr); }
+
+/**
+ * @details
+ */
+XLCellAssignable::XLCellAssignable (XLCellAssignable const & other) : XLCell(other) {}
 
 /**
  * @details
