@@ -260,6 +260,7 @@ namespace OpenXLSX
          * @brief Copy constructor. Constructs an assignable XLCell from an existing cell
          * @param other the cell to construct from
          */
+        XLCellAssignable (XLCellAssignable const & other);
         XLCellAssignable (XLCell const & other);
 
         /**
