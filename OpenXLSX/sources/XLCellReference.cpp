@@ -302,7 +302,7 @@ uint32_t XLCellReference::rowAsNumber(const std::string& row)
     std::from_chars(row.data(), row.data() + row.size(), value);    // NOLINT
     return value;
 #else
-    return static_cast<uint32_t>(stoul(row));
+    return stoul(row);
 #endif
 }
 

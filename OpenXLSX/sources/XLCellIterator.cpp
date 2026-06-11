@@ -265,7 +265,7 @@ void XLCellIterator::updateCurrentCell(bool createIfMissing)
             XMLNode rowNode = m_hintNode->parent().next_sibling_of_type(pugi::node_element);
             uint32_t rowNo = 0;
             while (not rowNode.empty()) {
-                rowNo = static_cast<uint32_t>(rowNode.attribute("r").as_ullong());
+                rowNo = rowNode.attribute("r").as_ullong();
                 if (rowNo >= m_currentRow) break; // if desired row was reached / passed, break before incrementing rowNode
                 rowNode = rowNode.next_sibling_of_type(pugi::node_element);
             }
