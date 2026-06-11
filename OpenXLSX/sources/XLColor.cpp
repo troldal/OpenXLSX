@@ -75,7 +75,7 @@ XLColor::XLColor(uint8_t red, uint8_t green, uint8_t blue) : m_red(red), m_green
 XLColor::XLColor(const std::string& hexCode) { set(hexCode); }
 
 /**
- * @details
+ * @details default copy constructor can be used as all members are trivially copyable
  */
 XLColor::XLColor(const XLColor& other) = default;
 
@@ -90,7 +90,7 @@ XLColor::XLColor(XLColor&& other) noexcept = default;
 XLColor::~XLColor() = default;
 
 /**
- * @details
+ * @details default copy assignment operator can be used as all members are trivially copyable
  */
 XLColor& XLColor::operator=(const XLColor& other) = default;
 

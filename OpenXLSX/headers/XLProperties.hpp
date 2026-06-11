@@ -81,7 +81,7 @@ namespace OpenXLSX
         /**
          * @brief
          */
-        XLProperties() = default;
+        XLProperties();
 
         /**
          * @brief
@@ -90,16 +90,16 @@ namespace OpenXLSX
         explicit XLProperties(XLXmlData* xmlData);
 
         /**
-         * @brief
+         * @brief copy constructor
          * @param other
          */
-        XLProperties(const XLProperties& other) = default;
+        XLProperties(const XLProperties& other);
 
         /**
-         * @brief
+         * @brief move constructor
          * @param other
          */
-        XLProperties(XLProperties&& other) noexcept = default;
+        XLProperties(XLProperties&& other) noexcept;
 
         /**
          * @brief
@@ -107,18 +107,18 @@ namespace OpenXLSX
         ~XLProperties();
 
         /**
-         * @brief
+         * @brief copy assignment operator
          * @param other
          * @return
          */
-        XLProperties& operator=(const XLProperties& other) = default;
+        XLProperties& operator=(const XLProperties& other);
 
         /**
-         * @brief
+         * @brief move assignment operator
          * @param other
          * @return
          */
-        XLProperties& operator=(XLProperties&& other) = default;
+        XLProperties& operator=(XLProperties&& other);
 
         /**
          * @brief
@@ -183,7 +183,7 @@ namespace OpenXLSX
         /**
          * @brief
          */
-        XLAppProperties() = default;
+        XLAppProperties();
 
         /**
          * @brief enable XLAppProperties to re-create a worksheet list in docProps/app.xml <TitlesOfParts> element from workbookXml
@@ -199,16 +199,16 @@ namespace OpenXLSX
         explicit XLAppProperties(XLXmlData* xmlData);
 
         /**
-         * @brief
+         * @brief copy constructor
          * @param other
          */
-        XLAppProperties(const XLAppProperties& other) = default;
+        XLAppProperties(const XLAppProperties& other);
 
         /**
-         * @brief
+         * @brief move constructor
          * @param other
          */
-        XLAppProperties(XLAppProperties&& other) noexcept = default;
+        XLAppProperties(XLAppProperties&& other) noexcept;
 
         /**
          * @brief
@@ -216,18 +216,18 @@ namespace OpenXLSX
         ~XLAppProperties();
 
         /**
-         * @brief
+         * @brief copy assignment operator
          * @param other
          * @return
          */
-        XLAppProperties& operator=(const XLAppProperties& other) = default;
+        XLAppProperties& operator=(const XLAppProperties& other);
 
         /**
-         * @brief
+         * @brief move assignment operator
          * @param other
          * @return
          */
-        XLAppProperties& operator=(XLAppProperties&& other) noexcept = default;
+        XLAppProperties& operator=(XLAppProperties&& other) noexcept;
 
         /**
          * @brief update the "HeadingPairs" entry for "Worksheets" *and* the "TitlesOfParts" vector size

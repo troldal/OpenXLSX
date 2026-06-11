@@ -52,16 +52,42 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #   pragma warning(disable : 4275)
 #endif // _MSC_VER
 
+// ===== External Includes ===== //
+#include <memory>    // std::shared_ptr
+#include <cstddef>      // size_t
+#include <type_traits>  // std::make_signed_t
+
 // ===== OpenXLSX Includes ===== //
 #include "include-exports-header.hpp"
 
-namespace Zippy
-{
-    class ZipArchive;
-}    // namespace Zippy
+#ifdef USE_LIBZIP
+    namespace LibZip {
+        class ZipArchive;
+    } // namespace LibZip
+    #define XLZipImplementation LibZip::ZipArchive
+#else
+    namespace Zippy
+    {
+        class ZipArchive;
+    }   // namespace Zippy
+    #define XLZipImplementation Zippy::ZipArchive
+#endif
+
+// ===== portable ssize_t definition ===== //
+using ssize_t = std::make_signed_t< std::size_t >;
 
 namespace OpenXLSX
 {
+    /**
+     * @brief provide the user with the name of the zip library in use
+     */
+    OPENXLSX_EXPORT const char *ZipLibraryName();
+
+    /**
+     * @brief provide the user with the version string of the zip library in use
+     */
+    OPENXLSX_EXPORT const char *ZipLibraryVersion();
+
     /**
      * @brief
      */
@@ -77,13 +103,13 @@ namespace OpenXLSX
          * @brief
          * @param other
          */
-        XLZipArchive(const XLZipArchive& other) = default;
+        XLZipArchive(const XLZipArchive& other);
 
         /**
          * @brief
          * @param other
          */
-        XLZipArchive(XLZipArchive&& other) = default;
+        XLZipArchive(XLZipArchive&& other) noexcept;
 
         /**
          * @brief
@@ -91,18 +117,25 @@ namespace OpenXLSX
         ~XLZipArchive();
 
         /**
-         * @brief
+         * @brief copy assignment shall be disabled until a use case is found
          * @param other
          * @return
          */
-        XLZipArchive& operator=(const XLZipArchive& other) = default;
+        XLZipArchive& operator=(const XLZipArchive& other) = delete;
 
         /**
          * @brief
          * @param other
          * @return
          */
-        XLZipArchive& operator=(XLZipArchive&& other) = default;
+        XLZipArchive& operator=(XLZipArchive&& other) noexcept;
+
+        /**
+         * @brief check if zippy is in use (or ziplib)
+         * @param
+         * @return true if zippy is used for the zip implementation, otherwise false
+         */
+        bool usesZippy();
 
         /**
          * @brief
@@ -130,6 +163,11 @@ namespace OpenXLSX
         void close();
 
         /**
+         * @brief make archive updates (from addEntry) available to calls via getEntry
+         */
+        void commitChanges();
+
+        /**
          * @brief
          * @param path
          */
@@ -141,6 +179,13 @@ namespace OpenXLSX
          * @param data
          */
         void addEntry(const std::string& name, const std::string& data);
+
+        /**
+         * @brief like addEntry, but call commitChanges() afterwards
+         * @param name
+         * @param data
+         */
+        void addEntryAndCommit(const std::string& name, const std::string& data);
 
         /**
          * @brief
@@ -162,8 +207,21 @@ namespace OpenXLSX
          */
         bool hasEntry(const std::string& entryName) const;
 
+        /**
+         * @brief get the amount of entries in the archive
+         * @return for libzip: amount of entries in archive, 0 for zippy
+         */
+        ssize_t entryCount() const;
+
+        /**
+         * @brief get the name of an archive entry by its index
+         * @param index the archive entry whose name to fetch
+         * @return for libzip: name of the archive entry (full path), "" for zippy
+         */
+        std::string entryName( int index ) const;
+
     private:
-        std::shared_ptr<Zippy::ZipArchive> m_archive; /**< */
+        std::shared_ptr<XLZipImplementation> m_archive; /**< */
     };
 }    // namespace OpenXLSX
 

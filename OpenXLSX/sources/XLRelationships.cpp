@@ -45,8 +45,8 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== External Includes ===== //
 #include <cstdint>      // uint32_t
+#include <cstring>      // strlen
 #include <memory>       // std::make_unique
-#include <pugixml.hpp>
 #include <random>       // std::mt19937, std::random_device
 #include <stdexcept>    // std::invalid_argument
 #include <string>       // std::stoi, std::literals::string_literals
@@ -55,52 +55,15 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 // ===== OpenXLSX Includes ===== //
 #include "XLDocument.hpp"
 #include "XLRelationships.hpp"
+#include "XLXmlParser.hpp"              // pugixml wrapper
 
-#include <XLException.hpp>
+#include "XLException.hpp"
 
 using namespace OpenXLSX;
 
 namespace { // anonymous namespace: do not export these symbols
     bool RandomIDs{false};             // default: use sequential IDs
     bool RandomizerInitialized{false}; // will be initialized by GetNewRelsID, if XLRand32 / XLRand64 are used elsewhere, user should invoke XLInitRandom
-
-    /**
-     * @brief Return a hexadecimal digit as character that is the equivalent of value
-     * @param value The number to convert, must be 0 <= value <= 15
-     * @return 0 if value > 15, otherwise the hex digit equivalent to value, as a character
-     */
-    char hexDigit(unsigned int value)
-    {
-        if (value > 0xf) return 0;
-        if (value < 0xa) return value + '0';    // return value as number digit
-        return (value - 0xa) + 'a';             // return value as letter digit
-    }
-
-    /**
-     * @brief Get a hexadecimal representation of size bytes, starting at data 
-     * @param data A pointer to the data bytes to format
-     * @param size The amount of data bytes to format
-     * @return A string with the base-16 representation of the data bytes
-     * @note 2024-08-18 BUGFIX: replaced char array with std::string, as ISO C++ standard does not permit variable size arrays
-     */
-    std::string BinaryAsHexString(const uint8_t *data, const size_t size)
-    {
-        // ===== Allocate memory for string assembly - each byte takes two hex digits = 2 characters in string
-        std::string strAssemble(size * 2, 0); // zero-initialize (alternative would be to default-construct a string and .reserve(size * 2);
-
-        // ===== assemble a string of hex digits
-        for (size_t pos = 0; pos < size * 2; ++pos) {
-            int valueByte = data[pos / 2];
-            int valueHalfByte = (valueByte & (pos & 1 ? 0x0f : 0xf0)) >> (pos & 1 ? 0 : 4);
-            strAssemble[pos] = hexDigit(valueHalfByte); // convert each half-byte into a hex digit
-        }
-        return strAssemble;
-    }
-
-    /**
-     * @brief Overload for BinaryAsHexString to permit data being of any pointer type
-     */
-    std::string BinaryAsHexString(void *data, size_t size) { return BinaryAsHexString(static_cast<uint8_t *>(data), size); }
 } // anonymous namespace
 
 
@@ -152,7 +115,7 @@ namespace
      * @note 2024-08-31: Included a "dumb" fallback solution in relationship tests to support
      *          previously unknown relationship domains, e.g. type="http://purl.oclc.org/ooxml/officeDocument/relationships/worksheet"
      */
-    XLRelationshipType GetTypeFromString(const std::string& typeString)
+    XLRelationshipType GetRelationshipTypeFromString(const std::string& typeString)
     {
         // TODO 2024-08-09: support dumb applications that implemented relationship Type in different case (e.g. vmldrawing instead of vmlDrawing)
         //                  easy approach: convert typestring and comparison string to all lower characters
@@ -192,8 +155,6 @@ namespace
                 return XLRelationshipType::VMLDrawing;
             if (typeString.substr(comparePos) == (comparePos ? "" : relationshipDomainOpenXml2006) + "/relationships/ctrlProp")
                 return XLRelationshipType::ControlProperties;
-            if (typeString.substr(comparePos) == (comparePos ? "" : relationshipDomainOpenXml2006) + "/relationships/comments")
-                return XLRelationshipType::Comments;
             if (typeString.substr(comparePos) == (comparePos ? "" : relationshipDomainOpenXml2006CoreProps) + "/relationships/metadata/core-properties")
                 return XLRelationshipType::CoreProperties;
             if (typeString.substr(comparePos) == (comparePos ? "" : relationshipDomainMicrosoft2006) + "/relationships/vbaProject")
@@ -202,6 +163,10 @@ namespace
                 return XLRelationshipType::ChartStyle;
             if (typeString.substr(comparePos) == (comparePos ? "" : relationshipDomainMicrosoft2011) + "/relationships/chartColorStyle")
                 return XLRelationshipType::ChartColorStyle;
+            if (typeString.substr(comparePos) == (comparePos ? "" : relationshipDomainOpenXml2006) + "/relationships/comments")
+                return XLRelationshipType::Comments;
+            if (typeString.substr(comparePos) == (comparePos ? "" : relationshipDomainOpenXml2006) + "/relationships/table")
+                return XLRelationshipType::Table;
 
             // ===== relationship could not be identified
             if (comparePos == 0 )    // If fallback solution has not yet been tried
@@ -239,11 +204,12 @@ namespace OpenXLSX_XLRelationships {    // make GetStringFromType accessible thr
             case XLRelationshipType::PrinterSettings:    return relationshipDomainOpenXml2006 + "/relationships/printerSettings";
             case XLRelationshipType::VMLDrawing:         return relationshipDomainOpenXml2006 + "/relationships/vmlDrawing";
             case XLRelationshipType::ControlProperties:  return relationshipDomainOpenXml2006 + "/relationships/ctrlProp";
-            case XLRelationshipType::Comments:           return relationshipDomainOpenXml2006 + "/relationships/comments";
             case XLRelationshipType::CoreProperties:     return relationshipDomainOpenXml2006CoreProps + "/relationships/metadata/core-properties";
             case XLRelationshipType::VBAProject:         return relationshipDomainMicrosoft2006 + "/relationships/vbaProject";
             case XLRelationshipType::ChartStyle:         return relationshipDomainMicrosoft2011 + "/relationships/chartStyle";
             case XLRelationshipType::ChartColorStyle:    return relationshipDomainMicrosoft2011 + "/relationships/chartColorStyle";
+            case XLRelationshipType::Comments:           return relationshipDomainOpenXml2006 + "/relationships/comments";
+            case XLRelationshipType::Table:              return relationshipDomainOpenXml2006 + "/relationships/table";
             default:
                 throw XLInternalError("RelationshipType not recognized!");
         }
@@ -303,32 +269,53 @@ XLRelationshipItem::XLRelationshipItem() : m_relationshipNode(std::make_unique<X
  */
 XLRelationshipItem::XLRelationshipItem(const XMLNode& node) : m_relationshipNode(std::make_unique<XMLNode>(node)) {}
 
-XLRelationshipItem::~XLRelationshipItem() = default;
-
+/**
+ * @details copy constructor
+ */
 XLRelationshipItem::XLRelationshipItem(const XLRelationshipItem& other)
     : m_relationshipNode(std::make_unique<XMLNode>(*other.m_relationshipNode))
 {}
 
+/**
+ * @details explicit default move constructor
+ */
+XLRelationshipItem::XLRelationshipItem(XLRelationshipItem&& other) noexcept = default;
+
+/**
+ * @details explicit default destructor
+ */
+XLRelationshipItem::~XLRelationshipItem() = default;
+
+/**
+ * @details copy assignment operator
+ */
 XLRelationshipItem& XLRelationshipItem::operator=(const XLRelationshipItem& other)
 {
-    if (&other != this) *m_relationshipNode = *other.m_relationshipNode;
+    if (&other != this) {
+        XLRelationshipItem temp = other;  // copy-construct
+        *this = std::move(temp);          // move-assign & invalidate temp
+    }
     return *this;
 }
 
 /**
+ * @details explicit default move assignment operator
+ */
+XLRelationshipItem& XLRelationshipItem::operator=(XLRelationshipItem&& other) noexcept = default;
+
+/**
  * @details Returns the m_relationshipType member variable by getValue.
  */
-XLRelationshipType XLRelationshipItem::type() const { return GetTypeFromString(m_relationshipNode->attribute("Type").value()); }
+XLRelationshipType XLRelationshipItem::type() const { return GetRelationshipTypeFromString(m_relationshipNode->attribute("Type").value()); }
 
 /**
  * @details Returns the m_relationshipTarget member variable by getValue.
  */
 std::string XLRelationshipItem::target() const
 {
-    std::string targetVal = m_relationshipNode->attribute("Target").value();
-    // 2024-07-29 TODO TBD: should a relative path be considered here, as for relationshipByTarget?
-    // Does an XLRelationshipItem need info about the path context (m_path in XLRelationships)?
-    return targetVal.substr(targetVal[0] == '/' ? 1 : 0, std::string::npos); // 2024-07-24: strip a potential leading slash
+    // 2024-12-15 Returned to old behavior: do not strip leading slashes as this loses info about path being absolute.
+    //            Instead, treat absolute vs. relative path distinction in caller
+    return m_relationshipNode->attribute("Target").value();
 }
 
 /**
@@ -343,12 +330,18 @@ bool XLRelationshipItem::empty() const { return m_relationshipNode->empty(); }
 
 
 /**
+* @details Default constructor
+*/
+XLRelationships::XLRelationships() = default;
+
+/**
  * @details Creates a XLRelationships object, which will read the XML file with the given path
  *  The pathTo the relationships XML file will be verified & stored in m_path, which is subsequently
  *   used to return all relationship targets as absolute paths within the XLSX archive
  */
 XLRelationships::XLRelationships(XLXmlData* xmlData, std::string pathTo)
- : XLXmlFile(xmlData)
+ : XLXmlFile(xmlData),
+   m_path("")
 {
     constexpr const char *relFolder = "_rels/";    // all relationships are stored in a (sub-)folder named "_rels/"
     static const size_t relFolderLen = strlen(relFolder); // 2024-08-23: strlen seems to not be accepted in a constexpr in VS2019 with c++17
@@ -362,9 +355,51 @@ XLRelationships::XLRelationships(XLXmlData* xmlData, std::string pathTo)
         using namespace std::literals::string_literals;
         throw XLException("XLRelationships constructor: pathTo \""s + pathTo + "\" does not point to a file in a folder named \"" + relFolder + "\""s);
     }
+
+    XMLDocument & doc = xmlDocument();
+    if (doc.document_element().empty())    // handle a bad (no document element) relationships XML file
+        doc.load_string(
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                "<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"\n"
+                "</Relationships>",
+                pugi_parse_settings
+        );
 }
 
+/**
+ * @details copy constructor
+ */
+XLRelationships::XLRelationships(const XLRelationships& other)
+ : XLXmlFile(other),
+   m_path(other.m_path)
+{}
+
+/**
+* @details explicit default move constructor
+*/
+XLRelationships::XLRelationships(XLRelationships&& other) noexcept = default;
+
+/**
+ * @details explicit default destructor
+ */
 XLRelationships::~XLRelationships() = default;
+
+/**
+ * @details copy assignment operator
+ */
+XLRelationships& XLRelationships::operator=(const XLRelationships& other)
+{
+    if (&other != this) {
+        XLRelationships temp = other;  // copy-construct
+        *this = std::move(temp);       // move-assign & invalidate temp
+    }
+    return *this;
+}
+
+/**
+ * @details explicit default move assignment operator
+ */
+XLRelationships& XLRelationships::operator=(XLRelationships&& other) noexcept = default;
 
 /**
  * @details Returns the XLRelationshipItem with the given ID, by looking it up in the m_relationships map.
@@ -380,11 +415,14 @@ XLRelationshipItem XLRelationships::relationshipById(const std::string& id) cons
  */
 XLRelationshipItem XLRelationships::relationshipByTarget(const std::string& target, bool throwIfNotFound) const
 {
-    std::string absoluteTarget = (target[0] == '/' ? target : m_path + target);    // turn relative path into an absolute
+    // turn relative path into an absolute and resolve . and .. entries
+    std::string absoluteTarget = eliminateDotAndDotDotFromPath(target[0] == '/' ? target : m_path + target);
+
     XMLNode relationshipNode = xmlDocument().document_element().first_child_of_type(pugi::node_element);
     while (not relationshipNode.empty()) {
         std::string relationTarget = relationshipNode.attribute("Target").value();
         if (relationTarget[0] != '/') relationTarget = m_path + relationTarget;    // turn relative path into an absolute
+        relationTarget = eliminateDotAndDotDotFromPath(relationTarget);            // and resolve . and .. entries, if any
 
         // ===== Attempt to match absoluteTarget & relationTarget
         if (absoluteTarget == relationTarget) return XLRelationshipItem(relationshipNode);    // found!
@@ -452,7 +490,7 @@ XLRelationshipItem XLRelationships::addRelationship(XLRelationshipType type, con
             copyWhitespaceFrom = copyWhitespaceFrom.previous_sibling();
             // ===== Insert a whitespace node
             insertBefore = xmlDocument().document_element().insert_child_before(pugi::node_pcdata, insertBefore);
-            insertBefore.set_value(copyWhitespaceFrom.value());            // copy the a whitespace in sequence node value
+            insertBefore.set_value(copyWhitespaceFrom.value());            // copy the whitespace node value in sequence
         }
     }
     node.append_attribute("Id").set_value(id.c_str());
@@ -484,3 +522,8 @@ bool XLRelationships::idExists(const std::string& id) const
 {
     return xmlDocument().document_element().find_child_by_attribute("Id", id.c_str()) != nullptr;
 }
+
+/**
+ * @details Print the underlying XML using pugixml::xml_node::print
+ */
+void XLRelationships::print(std::basic_ostream<char>& ostr) const { xmlDocument().document_element().print(ostr); }

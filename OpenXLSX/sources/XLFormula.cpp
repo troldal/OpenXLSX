@@ -4,11 +4,11 @@
 
 // ===== External Includes ===== //
 #include <cassert>
-#include <pugixml.hpp>
 
 // ===== OpenXLSX Includes ===== //
 #include "XLFormula.hpp"
-#include <XLException.hpp>
+#include "XLException.hpp"
+#include "XLXmlParser.hpp"              // pugixml wrapper
 
 using namespace OpenXLSX;
 
@@ -62,12 +62,27 @@ XLFormula& XLFormula::clear()
 XLFormula::operator std::string() const { return get(); }
 
 /**
- * @details Constructor. Set the m_cell and m_cellNode objects.
+ * @details [private] Constructor. Set the m_cell and m_cellNode objects.
  */
-XLFormulaProxy::XLFormulaProxy(XLCell* cell, XMLNode* cellNode) : m_cell(cell), m_cellNode(cellNode)
+XLFormulaProxy::XLFormulaProxy(XLCell* cell, XMLNode* cellNode)
+ : m_cell(cell),
+   m_cellNode(cellNode)
 {
     assert(cell);    // NOLINT
 }
+
+/**
+ * @details [private] Copy constructor
+ */
+XLFormulaProxy::XLFormulaProxy(const XLFormulaProxy& other)
+ : m_cell(other.m_cell),
+   m_cellNode(other.m_cellNode)
+{}
+
+/**
+ * @details [private] Move constructor. Default implementation.
+ */
+XLFormulaProxy::XLFormulaProxy(XLFormulaProxy&& other) noexcept = default;
 
 /**
  * @details Destructor. Default implementation.
@@ -75,17 +90,7 @@ XLFormulaProxy::XLFormulaProxy(XLCell* cell, XMLNode* cellNode) : m_cell(cell), 
 XLFormulaProxy::~XLFormulaProxy() = default;
 
 /**
- * @details Copy constructor. default implementation.
- */
-XLFormulaProxy::XLFormulaProxy(const XLFormulaProxy& other) = default;
-
-/**
- * @details Move constructor. Default implementation.
- */
-XLFormulaProxy::XLFormulaProxy(XLFormulaProxy&& other) noexcept = default;
-
-/**
- * @details Calls the templated string assignment operator.
+ * @details Copy assignment operator. Calls the templated string assignment operator.
  */
 XLFormulaProxy& XLFormulaProxy::operator=(const XLFormulaProxy& other)
 {
@@ -97,7 +102,7 @@ XLFormulaProxy& XLFormulaProxy::operator=(const XLFormulaProxy& other)
 }
 
 /**
- * @details Move assignment operator. Default implementation.
+ * @details [private] Move assignment operator. Default implementation.
  */
 XLFormulaProxy& XLFormulaProxy::operator=(XLFormulaProxy&& other) noexcept = default;
 
@@ -140,7 +145,12 @@ void XLFormulaProxy::setFormulaString(const char* formulaString, bool resetValue
     assert(m_cellNode != nullptr);      // NOLINT
     assert(not m_cellNode->empty());    // NOLINT
 
-    // ===== If the cell node doesn't have a value child node, create it.
+    if (formulaString[0] == 0) {    // if formulaString is empty
+        m_cellNode->remove_child("f");    // clear the formula node
+        return;                           // and exit
+    }
+
+    // ===== If the cell node doesn't have formula or value child nodes, create them.
     if (m_cellNode->child("f").empty()) m_cellNode->append_child("f");
     if (m_cellNode->child("v").empty()) m_cellNode->append_child("v");
 
@@ -148,7 +158,7 @@ void XLFormulaProxy::setFormulaString(const char* formulaString, bool resetValue
     m_cellNode->child("f").remove_attribute("t");
     m_cellNode->child("f").remove_attribute("si");
 
-    // ===== Set the text of the value node.
+    // ===== Set the text of the formula and value nodes.
     m_cellNode->child("f").text().set(formulaString);
     if (resetValue) m_cellNode->child("v").text().set(0);
 

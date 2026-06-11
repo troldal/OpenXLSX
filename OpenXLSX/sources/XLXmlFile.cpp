@@ -44,13 +44,18 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
  */
 
 // ===== External Includes ===== //
-#include <pugixml.hpp>
 
 // ===== OpenXLSX Includes ===== //
 #include "XLDocument.hpp"
 #include "XLXmlFile.hpp"
+#include "XLXmlParser.hpp"              // pugixml wrapper
 
 using namespace OpenXLSX;
+
+/**
+ * @details Default constructor
+ */
+XLXmlFile::XLXmlFile() = default;
 
 /**
  * @details The constructor creates a new object with the parent XLDocument and the file path as input, with
@@ -60,7 +65,30 @@ using namespace OpenXLSX;
  */
 XLXmlFile::XLXmlFile(XLXmlData* xmlData) : m_xmlData(xmlData) {}
 
+/**
+ * @details Copy constructor
+ */
+XLXmlFile::XLXmlFile(const XLXmlFile& other) = default;
+
+/**
+ * @details Move constructor
+ */
+XLXmlFile::XLXmlFile(XLXmlFile&& other) noexcept = default;
+
+/**
+ * @details
+ */
 XLXmlFile::~XLXmlFile() = default;
+
+/**
+ * @details Copy assignment operator
+ */
+XLXmlFile& XLXmlFile::operator=(const XLXmlFile& other) = default;
+
+/**
+ * @details Move assignment operator
+ */
+XLXmlFile& XLXmlFile::operator=(XLXmlFile&& other) noexcept = default;
 
 /**
  * @details This method sets the XML data with a std::string as input. The underlying XMLDocument reads the data.
@@ -121,4 +149,12 @@ XMLDocument& XLXmlFile::xmlDocument()
 const XMLDocument& XLXmlFile::xmlDocument() const
 {
     return *m_xmlData->getXmlDocument();
+}
+
+/**
+ * @details provide access to the underlying XLXmlData::getXmlPath() function
+ */
+std::string XLXmlFile::getXmlPath() const
+{
+    return m_xmlData == nullptr ? "" : m_xmlData->getXmlPath();
 }

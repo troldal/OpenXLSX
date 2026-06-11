@@ -1,0 +1,46 @@
+********************************************************************************
+DEMO PROGRAM #05: Ranges and Iterators
+********************************************************************************
+
+Generating spreadsheet ...
+Saving spreadsheet ...
+Re-opening spreadsheet ...
+Reading data from spreadsheet ...
+Cell count: 8388608
+Sum of cell values: 415205902
+
+real	1m30.545s
+user	1m29.168s
+sys	0m1.292s
+
+
+********************************************************************************
+DEMO PROGRAM #06: Row Handling (using containers)
+********************************************************************************
+
+Generating spreadsheet ...
+Saving spreadsheet ...
+Re-opening spreadsheet ...
+Reading data from spreadsheet ...
+Cell count: 8388608
+Sum of cell values: 415416857
+
+real	1m34.855s
+user	1m33.667s
+sys	0m1.184s
+
+
+********************************************************************************
+DEMO PROGRAM #07: Row Handling (using iterators)
+********************************************************************************
+
+Generating spreadsheet ...
+Saving spreadsheet ...
+Re-opening spreadsheet ...
+Reading data from spreadsheet ...
+Cell count: 8388608
+Sum of cell values: 415283684
+
+real	2m6.241s
+user	2m5.000s
+sys	0m1.232s

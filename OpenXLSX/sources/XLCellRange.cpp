@@ -44,10 +44,10 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
  */
 
 // ===== External Includes ===== //
-#include <pugixml.hpp>
 
 // ===== OpenXLSX Includes ===== //
 #include "XLCellRange.hpp"
+#include "XLXmlParser.hpp"              // pugixml wrapper
 
 using namespace OpenXLSX;
 
@@ -58,7 +58,7 @@ XLCellRange::XLCellRange()
     : m_dataNode(std::make_unique<XMLNode>(XMLNode{})),
       m_topLeft(XLCellReference("A1")),
       m_bottomRight(XLCellReference("A1")),
-      m_sharedStrings{},
+      m_sharedStrings(XLSharedStringsDefaulted),
       m_columnStyles{}
 {}
 
@@ -86,9 +86,7 @@ XLCellRange::XLCellRange(const XMLNode&         dataNode,
 }
 
 /**
- * @details
- * @pre
- * @post
+ * @details explicit copy constructor
  */
 XLCellRange::XLCellRange(const XLCellRange& other)
     : m_dataNode(std::make_unique<XMLNode>(*other.m_dataNode)),
@@ -99,23 +97,17 @@ XLCellRange::XLCellRange(const XLCellRange& other)
 {}
 
 /**
- * @details
- * @pre
- * @post
+ * @details use the default move constructor, i.e. memberwise move.
  */
 XLCellRange::XLCellRange(XLCellRange&& other) noexcept = default;
 
 /**
  * @details
- * @pre
- * @post
  */
 XLCellRange::~XLCellRange() = default;
 
 /**
- * @details
- * @pre
- * @post
+ * @details explicit copy assignment
  */
 XLCellRange& XLCellRange::operator=(const XLCellRange& other)
 {
@@ -131,22 +123,9 @@ XLCellRange& XLCellRange::operator=(const XLCellRange& other)
 }
 
 /**
- * @details
- * @pre
- * @post
+ * @details use the default move assignment, i.e. memberwise move.
  */
-XLCellRange& XLCellRange::operator=(XLCellRange&& other) noexcept
-{
-    if (&other != this) {
-        *m_dataNode     = *other.m_dataNode;
-        m_topLeft       = other.m_topLeft;
-        m_bottomRight   = other.m_bottomRight;
-        m_sharedStrings = other.m_sharedStrings;
-        m_columnStyles  = other.m_columnStyles;
-    }
-
-    return *this;
-}
+XLCellRange& XLCellRange::operator=(XLCellRange&& other) noexcept = default;
 
 /**
  * @details Predetermine all defined column styles & gather them in a vector for performant access when XLCellIterator creates new cells

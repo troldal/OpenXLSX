@@ -109,27 +109,38 @@ XLCellReference::XLCellReference(uint32_t row, const std::string& column)
 }
 
 /**
- * @details
+ * @details explicit copy constructor to avoid confusion when reading code later (default copy constructor would work for trivial members)
  */
-XLCellReference::XLCellReference(const XLCellReference& other) = default;
+XLCellReference::XLCellReference(const XLCellReference& other)
+ : m_row(other.m_row),
+   m_column(other.m_column),
+   m_cellAddress(other.m_cellAddress)
+ {}
 
 /**
- * @details
+ * @details default move constructor
  */
 XLCellReference::XLCellReference(XLCellReference&& other) noexcept = default;
 
 /**
- * @details
+ * @details default destructor
  */
 XLCellReference::~XLCellReference() = default;
 
 /**
- * @details
+ * @details explicit copy assignment operator to avoid confusion when reading code later (default would work for trivial members)
  */
-XLCellReference& XLCellReference::operator=(const XLCellReference& other) = default;
+XLCellReference& XLCellReference::operator=(const XLCellReference& other)
+{
+    if (&other != this) {
+        XLCellReference temp = other;  // copy-construct
+        *this = std::move(temp);       // move-assign & invalidate temp
+    }
+    return *this;
+}
 
 /**
- * @details
+ * @details default move assignment
  */
 XLCellReference& XLCellReference::operator=(XLCellReference&& other) noexcept = default;
 

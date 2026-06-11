@@ -44,108 +44,20 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
  */
 
 // ===== External Includes ===== //
-#include <pugixml.hpp>
 
 // ===== OpenXLSX Includes ===== //
 #include "XLCellIterator.hpp"
 #include "XLCellRange.hpp"
 #include "XLCellReference.hpp"
 #include "XLException.hpp"
+#include "XLXmlParser.hpp"              // pugixml wrapper
 #include "utilities/XLUtilities.hpp"
 
 using namespace OpenXLSX;
 
-/**
- * @details
- */
-XLCellIterator::XLCellIterator(const XLCellRange& cellRange, XLIteratorLocation loc, std::vector<XLStyleIndex> const * colStyles)
-    : m_dataNode(std::make_unique<XMLNode>(*cellRange.m_dataNode)),
-      m_topLeft(cellRange.m_topLeft),
-      m_bottomRight(cellRange.m_bottomRight),
-      m_sharedStrings(cellRange.m_sharedStrings),
-      m_endReached(false),
-      m_hintNode(),
-      m_hintRow(0),
-      m_currentCell(),
-      m_currentCellStatus(XLNotLoaded),
-      m_currentRow(0),
-      m_currentColumn(0),
-      m_colStyles(colStyles)
-{
-    if (loc == XLIteratorLocation::End)
-        m_endReached = true;
-    else {
-        m_currentRow    = m_topLeft.row();
-        m_currentColumn = m_topLeft.column();
-    }
-    if (m_colStyles == nullptr)
-		 throw XLInternalError("XLCellIterator constructor parameter colStyles must not be nullptr");
-// std::cout << "XLCellIterator constructed with topLeft " << m_topLeft.address() << " and bottomRight " << m_bottomRight.address() << std::endl;
-// std::cout << "XLCellIterator m_endReached is " << ( m_endReached ? "true" : "false" ) << std::endl;
-}
-
-/**
- * @details
- */
-XLCellIterator::~XLCellIterator() = default;
-
-/**
- * @details
- */
-XLCellIterator::XLCellIterator(const XLCellIterator& other)
-    : m_dataNode(std::make_unique<XMLNode>(*other.m_dataNode)),
-      m_topLeft      (other.m_topLeft),
-      m_bottomRight  (other.m_bottomRight),
-      m_sharedStrings(other.m_sharedStrings),
-      m_endReached   (other.m_endReached),
-      m_hintNode     (other.m_hintNode),
-      m_hintRow      (other.m_hintRow),
-      m_currentCell  (other.m_currentCell),
-      m_currentCellStatus(other.m_currentCellStatus),
-      m_currentRow   (other.m_currentRow),
-      m_currentColumn(other.m_currentColumn),
-      m_colStyles    (other.m_colStyles)
-{}
-
-/**
- * @details
- */
-XLCellIterator::XLCellIterator(XLCellIterator&& other) noexcept = default;
-
-/**
- * @details
- */
-XLCellIterator& XLCellIterator::operator=(const XLCellIterator& other)
-{
-    if (&other != this) {
-        *m_dataNode     = *other.m_dataNode;
-        m_topLeft       =  other.m_topLeft;
-        m_bottomRight   =  other.m_bottomRight;
-        m_sharedStrings =  other.m_sharedStrings;
-        m_endReached    =  other.m_endReached;
-        m_hintNode      =  other.m_hintNode;
-        m_hintRow       =  other.m_currentRow;
-        m_currentCell   =  other.m_currentCell;
-        m_currentCellStatus = other.m_currentCellStatus;
-        m_currentRow    =  other.m_currentRow;
-        m_currentColumn =  other.m_currentColumn;
-        m_colStyles     =  other.m_colStyles;
-    }
-
-    return *this;
-}
-
-/**
- * @details
- */
-XLCellIterator& XLCellIterator::operator=(XLCellIterator&& other) noexcept = default;
-
-namespace { // anonymous namespace for local functions findRowNode and findCellNode
+namespace OpenXLSX { // utility functions findRowNode and findCellNode
     /**
-     * @brief locate the XML row node within sheetDataNode for the row at rowNumber
-     * @param sheetDataNode the XML sheetData node to search in
-     * @param rowNumber the number of the row to locate
-     * @return the XMLNode pointing to the row, or an empty XMLNode if the row does not exist
+     * @details
      */
     XMLNode findRowNode(XMLNode sheetDataNode, uint32_t rowNumber)
     {
@@ -182,10 +94,7 @@ namespace { // anonymous namespace for local functions findRowNode and findCellN
     }
 
     /**
-     * @brief locate the XML cell node within rownode for the cell at columnNumber
-     * @param rowNode the XML node of the row to search in
-     * @param columnNumber the column number of the cell to locate
-     * @return the XMLNode pointing to the cell, or an empty XMLNode if the cell does not exist
+     * @details
      */
     XMLNode findCellNode(XMLNode rowNode, uint16_t columnNumber)
     {
@@ -221,34 +130,121 @@ namespace { // anonymous namespace for local functions findRowNode and findCellN
         }
         return cellNode;
     }
-}    // anonymous namespace
+}    // namespace OpenXLSX
+
+
+/**
+ * @details
+ */
+XLCellIterator::XLCellIterator(const XLCellRange& cellRange, XLIteratorLocation loc, std::vector<XLStyleIndex> const * colStyles)
+    : m_dataNode(std::make_unique<XMLNode>(*cellRange.m_dataNode)),
+      m_topLeft(cellRange.m_topLeft),
+      m_bottomRight(cellRange.m_bottomRight),
+      m_sharedStrings(cellRange.m_sharedStrings),
+      m_endReached(false),
+      m_hintNode(std::make_unique<XMLNode>()),
+      m_hintRow(0),
+      m_currentCell(),
+      m_currentCellStatus(XLNotLoaded),
+      m_currentRow(0),
+      m_currentColumn(0),
+      m_colStyles(colStyles)
+{
+    if (loc == XLIteratorLocation::End)
+        m_endReached = true;
+    else {
+        m_currentRow    = m_topLeft.row();
+        m_currentColumn = m_topLeft.column();
+    }
+    if (m_colStyles == nullptr)
+		 throw XLInternalError("XLCellIterator constructor parameter colStyles must not be nullptr");
+// std::cout << "XLCellIterator constructed with topLeft " << m_topLeft.address() << " and bottomRight " << m_bottomRight.address() << std::endl;
+// std::cout << "XLCellIterator m_endReached is " << ( m_endReached ? "true" : "false" ) << std::endl;
+}
+
+/**
+ * @details
+ */
+XLCellIterator::~XLCellIterator() = default;
+
+/**
+ * @details
+ */
+XLCellIterator::XLCellIterator(const XLCellIterator& other)
+    : m_dataNode(std::make_unique<XMLNode>(*other.m_dataNode)),
+      m_topLeft      (other.m_topLeft),
+      m_bottomRight  (other.m_bottomRight),
+      m_sharedStrings(other.m_sharedStrings),
+      m_endReached   (other.m_endReached),
+      m_hintNode(std::make_unique<XMLNode>(*other.m_hintNode)),
+      m_hintRow      (other.m_hintRow),
+      m_currentCell  (other.m_currentCell),
+      m_currentCellStatus(other.m_currentCellStatus),
+      m_currentRow   (other.m_currentRow),
+      m_currentColumn(other.m_currentColumn),
+      m_colStyles    (other.m_colStyles)
+{}
+
+/**
+ * @details
+ */
+XLCellIterator::XLCellIterator(XLCellIterator&& other) noexcept = default;
+
+/**
+ * @details
+ */
+XLCellIterator& XLCellIterator::operator=(const XLCellIterator& other)
+{
+    if (&other != this) {
+        *m_dataNode     = *other.m_dataNode;
+        m_topLeft       =  other.m_topLeft;
+        m_bottomRight   =  other.m_bottomRight;
+        m_sharedStrings =  other.m_sharedStrings;
+        m_endReached    =  other.m_endReached;
+        *m_hintNode     =  *other.m_hintNode;
+        m_hintRow       =  other.m_hintRow;
+        m_currentCell   =  other.m_currentCell;
+        m_currentCellStatus = other.m_currentCellStatus;
+        m_currentRow    =  other.m_currentRow;
+        m_currentColumn =  other.m_currentColumn;
+        m_colStyles     =  other.m_colStyles;
+    }
+
+    return *this;
+}
+
+/**
+ * @details
+ */
+XLCellIterator& XLCellIterator::operator=(XLCellIterator&& other) noexcept = default;
 
 /**
  * @brief update m_currentCell by fetching (or inserting) a cell at m_currentRow, m_currentColumn
  */
 void XLCellIterator::updateCurrentCell(bool createIfMissing)
 {
-    if (m_endReached)
-        throw XLInputError("XLCellIterator updateCurrentCell: iterator should not be dereferenced when endReached() == true");
-
+    // ===== Quick exit checks - can't be true when m_endReached
     if (m_currentCellStatus == XLLoaded) return;                         // nothing to do, cell is already loaded
     if (!createIfMissing && m_currentCellStatus == XLNoSuchCell) return; // nothing to do, cell has already been determined as missing
 
     // At this stage, m_currentCellStatus is XLUnloaded or XLNoSuchCell and createIfMissing == true
 
+    if (m_endReached)
+        throw XLInputError("XLCellIterator updateCurrentCell: iterator should not be dereferenced when endReached() == true");
+
     // ===== Cell needs to be updated
 
-    if (m_hintNode.empty()) { // no hint has been established: fetch first cell node the "tedious" way
-        if (createIfMissing)      // getCellNode / getRowNode create missing cells
-            m_currentCell = XLCell(getCellNode(getRowNode(*m_dataNode, m_currentRow), m_currentColumn, 0, *m_colStyles), m_sharedStrings);
-        else                      // findCellNode / findRowNode return an empty cell for missing cells
-            m_currentCell = XLCell(findCellNode(findRowNode(*m_dataNode, m_currentRow), m_currentColumn), m_sharedStrings);
+    if (m_hintNode->empty()) {   // no hint has been established: fetch first cell node the "tedious" way
+        if (createIfMissing)        // getCellNode / getRowNode create missing cells
+            m_currentCell = XLCell(getCellNode(getRowNode(*m_dataNode, m_currentRow), m_currentColumn, 0, *m_colStyles), m_sharedStrings.get());
+        else                        // findCellNode / findRowNode return an empty cell for missing cells
+            m_currentCell = XLCell(findCellNode(findRowNode(*m_dataNode, m_currentRow), m_currentColumn), m_sharedStrings.get());
     }
     else {
         // ===== Find or create, and fetch an XLCell at m_currentRow, m_currentColumn
         if (m_currentRow == m_hintRow) { // new cell is within the same row
             // ===== Start from m_hintNode and search forwards...
-            XMLNode cellNode = m_hintNode.next_sibling_of_type(pugi::node_element);
+            XMLNode cellNode = m_hintNode->next_sibling_of_type(pugi::node_element);
             uint16_t colNo = 0;
             while (not cellNode.empty()) {
                 colNo = XLCellReference(cellNode.attribute("r").value()).column();
@@ -258,15 +254,15 @@ void XLCellIterator::updateCurrentCell(bool createIfMissing)
             if (colNo != m_currentColumn) cellNode = XMLNode{}; // if a higher column number was found, set empty node (means: "missing")
             // ===== Create missing cell node if createIfMissing == true
             if (createIfMissing && cellNode.empty()) {
-                cellNode = m_hintNode.parent().insert_child_after("c", m_hintNode);
-                setDefaultCellAttributes(cellNode, XLCellReference(m_currentRow, m_currentColumn).address(), m_hintNode.parent(),
+                cellNode = m_hintNode->parent().insert_child_after("c", *m_hintNode);
+                setDefaultCellAttributes(cellNode, XLCellReference(m_currentRow, m_currentColumn).address(), m_hintNode->parent(),
                 /**/                      m_currentColumn, *m_colStyles);
             }
-            m_currentCell = XLCell(cellNode, m_sharedStrings); // cellNode.empty() can be true if createIfMissing == false and cell is not found
+            m_currentCell = XLCell(cellNode, m_sharedStrings.get()); // cellNode.empty() can be true if createIfMissing == false and cell is not found
         }
         else if (m_currentRow > m_hintRow) {
             // ===== Start from m_hintNode parent row and search forwards...
-            XMLNode rowNode = m_hintNode.parent().next_sibling_of_type(pugi::node_element);
+            XMLNode rowNode = m_hintNode->parent().next_sibling_of_type(pugi::node_element);
             uint32_t rowNo = 0;
             while (not rowNode.empty()) {
                 rowNo = static_cast<uint32_t>(rowNode.attribute("r").as_ullong());
@@ -276,7 +272,7 @@ void XLCellIterator::updateCurrentCell(bool createIfMissing)
             if (rowNo != m_currentRow) rowNode = XMLNode{}; // if a higher row number was found, set empty node (means: "missing")
             // ===== Create missing row node if createIfMissing == true
             if (createIfMissing && rowNode.empty()) {
-                rowNode = m_dataNode->insert_child_after("row", m_hintNode.parent());
+                rowNode = m_dataNode->insert_child_after("row", m_hintNode->parent());
                 rowNode.append_attribute("r").set_value(m_currentRow);
             }
             if (rowNode.empty())    // if row could not be found / created
@@ -284,10 +280,10 @@ void XLCellIterator::updateCurrentCell(bool createIfMissing)
             else {                  // else: row found
                 if (createIfMissing) {
                     // ===== Pass the already known m_currentRow to getCellNode so that it does not have to be fetched again
-                    m_currentCell = XLCell(getCellNode (rowNode, m_currentColumn, m_currentRow, *m_colStyles), m_sharedStrings);
+                    m_currentCell = XLCell(getCellNode (rowNode, m_currentColumn, m_currentRow, *m_colStyles), m_sharedStrings.get());
                 }
                 else // ===== Do a "soft find" if a missing cell shall not be created
-                    m_currentCell = XLCell(findCellNode(rowNode, m_currentColumn), m_sharedStrings);
+                    m_currentCell = XLCell(findCellNode(rowNode, m_currentColumn), m_sharedStrings.get());
             }
         }
         else
@@ -298,7 +294,7 @@ void XLCellIterator::updateCurrentCell(bool createIfMissing)
         m_currentCellStatus = XLNoSuchCell; // mark this status for further calls to updateCurrentCell()
     else {
         // ===== If the current cell exists, update the hints
-        m_hintNode   = *m_currentCell.m_cellNode;    // 2024-08-11: don't store a full XLCell, just the XMLNode, for better performance
+        m_hintNode   = std::make_unique<XMLNode>(*m_currentCell.m_cellNode);  // 2024-08-11: don't store a full XLCell, just the XMLNode, for better performance
         m_hintRow    = m_currentRow;
         m_currentCellStatus = XLLoaded; // mark cell status for further calls to updateCurrentCell()
     }
@@ -309,7 +305,6 @@ void XLCellIterator::updateCurrentCell(bool createIfMissing)
  */
 XLCellIterator& XLCellIterator::operator++()
 {
-// std::cout << "XLCellIterator operator++, m_currentColumn " << m_currentColumn << " and m_currentRow " << m_currentRow << std::endl;
     if (m_endReached)
         throw XLInputError("XLCellIterator: tried to increment beyond end operator");
 

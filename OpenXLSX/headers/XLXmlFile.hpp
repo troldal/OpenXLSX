@@ -54,12 +54,24 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== OpenXLSX Includes ===== //
 #include "include-exports-header.hpp"
-#include "XLXmlParser.hpp"
+#include "XLXmlParserForwardDeclarations.hpp"
 
 namespace OpenXLSX
 {
     class XLXmlData;
     class XLDocument;
+
+    /**
+     * @brief The XLUnsupportedElement class provides a stub implementation that can be used as function
+	  *  parameter or return type for currently unsupported XML features.
+     */
+    class OPENXLSX_EXPORT XLUnsupportedElement
+    {
+    public:
+        XLUnsupportedElement() {}
+        bool empty() const { return true; }
+        std::string summary() const { return "XLUnsupportedElement"; }
+    };
 
     /**
      * @brief The XLXmlFile class provides an interface for derived classes to use.
@@ -73,7 +85,7 @@ namespace OpenXLSX
         /**
          * @brief Default constructor.
          */
-        XLXmlFile() = default;
+        XLXmlFile();
 
         /**
          * @brief Constructor. Creates an object based on the xmlData input.
@@ -85,13 +97,13 @@ namespace OpenXLSX
          * @brief Copy constructor. Default implementation used.
          * @param other The object to copy.
          */
-        XLXmlFile(const XLXmlFile& other) = default;
+        XLXmlFile(const XLXmlFile& other);
 
         /**
          * @brief Move constructor. Default implementation used.
          * @param other The object to move.
          */
-        XLXmlFile(XLXmlFile&& other) noexcept = default;
+        XLXmlFile(XLXmlFile&& other) noexcept;
 
         /**
          * @brief Destructor. Default implementation used.
@@ -99,18 +111,26 @@ namespace OpenXLSX
         ~XLXmlFile();
 
         /**
+         * @brief check whether class is linked to a valid XML file
+         * @return true if the class should have a link to valid data
+         * @return false if accessing any other sheet properties / methods could cause a segmentation fault
+         * @note for example, if an XLSheet is created with a default constructor, XLSheetBase::valid() (derived from XLXmlFile) would return false
+         */
+        bool valid() const { return m_xmlData != nullptr; }
+
+        /**
          * @brief The copy assignment operator. The default implementation has been used.
          * @param other The object to copy.
          * @return A reference to the new object.
          */
-        XLXmlFile& operator=(const XLXmlFile& other) = default;
+        XLXmlFile& operator=(const XLXmlFile& other);
 
         /**
          * @brief The move assignment operator. The default implementation has been used.
          * @param other The object to move.
          * @return A reference to the new object.
          */
-        XLXmlFile& operator=(XLXmlFile&& other) noexcept = default;
+        XLXmlFile& operator=(XLXmlFile&& other) noexcept;
 
     protected:    // ===== PROTECTED MEMBER FUNCTIONS
         /**
@@ -156,7 +176,13 @@ namespace OpenXLSX
          */
         const XMLDocument& xmlDocument() const;
 
-    protected:                              // ===== PRIVATE MEMBER VARIABLES
+        /**
+         * @brief Retrieve the path of the XML data in the .xlsx zip archive via m_xmlData->getXmlPath
+         * @return A std::string with the path. Empty string if m_xmlData is nullptr
+         */
+        std::string getXmlPath() const;
+
+    protected:                            // ===== PROTECTED MEMBER VARIABLES
         XLXmlData* m_xmlData { nullptr }; /**< The underlying XML data object. */
     };
 }    // namespace OpenXLSX

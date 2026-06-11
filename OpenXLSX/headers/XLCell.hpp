@@ -63,6 +63,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLFormula.hpp"
 #include "XLSharedStrings.hpp"
 #include "XLStyles.hpp"          // XLStyleIndex
+#include "XLXmlParserForwardDeclarations.hpp"
 
 // ========== CLASS AND ENUM TYPE DEFINITIONS ========== //
 namespace OpenXLSX
@@ -75,7 +76,6 @@ namespace OpenXLSX
     constexpr const uint32_t XLKeepCellFormula =  8; // formula (child node f)
 
     class XLCellRange;
-    class XLSharedStrings;
 
     /**
      * @brief An implementation class encapsulating the properties and behaviours of a spreadsheet cell.
@@ -162,6 +162,7 @@ namespace OpenXLSX
          * @brief clear all cell content and attributes except for the cell reference (attribute r)
          * @param keep do not clear cell properties whose flags are set in keep (XLKeepCellStyle, XLKeepCellType,
          *              XLKeepCellValue, XLKeepCellFormula), flags can be combined with bitwise OR
+         * @note due to the way OOXML separates comments from the cells, this function will *not* clear a cell comment - refer to XLComments& XLSheet::comments() for that
          */
         void clear(uint32_t keep);
 
@@ -190,8 +191,8 @@ namespace OpenXLSX
         XLCell offset(uint16_t rowOffset, uint16_t colOffset) const;
 
         /**
-         * @brief
-         * @return
+         * @brief test if cell has a formula (XML) node, even if it is an empty string
+         * @return true if XML has a formula node, empty or not - otherwise false
          */
         bool hasFormula() const;
 
@@ -242,7 +243,7 @@ namespace OpenXLSX
 
         //---------- Private Member Variables ---------- //
         std::unique_ptr<XMLNode> m_cellNode;      /**< A pointer to the root XMLNode for the cell. */
-        XLSharedStrings          m_sharedStrings; /**< */
+        XLSharedStringsRef       m_sharedStrings; /**< */
         XLCellValueProxy         m_valueProxy;    /**< */
         XLFormulaProxy           m_formulaProxy;  /**< */
     };

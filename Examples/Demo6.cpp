@@ -7,6 +7,7 @@
 using namespace std;
 using namespace OpenXLSX;
 
+
 int main()
 {
     cout << "********************************************************************************\n";
@@ -34,6 +35,7 @@ int main()
     // enabeling iteration through the individual XLRow objects.
     std::vector<XLCellValue> writeValues;
     for (auto& row : wks.rows(OpenXLSX::MAX_ROWS)) {
+
         writeValues.clear();
         for (int i = 0; i < 8; ++i) writeValues.emplace_back(distr(generator));
 
@@ -77,7 +79,7 @@ int main()
     // possible, an exception will be thrown. For that reason, it is often best
     // to use a container of XLCellValue objects, and then later determine the
     // data type for each object.
-    for (auto& row : wks.rows()) {
+    for (auto& row : XLReverseRange(wks.rows())) { // use XLReverseRange to reverse-iterate over a range of rows
         readValues = row.values();
 
         // Count the number of cell values

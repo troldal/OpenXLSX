@@ -24,7 +24,7 @@
 #include "XLConstants.hpp"
 #include "XLException.hpp"
 #include "XLIterator.hpp"
-#include "XLXmlParser.hpp"
+#include "XLXmlParserForwardDeclarations.hpp"
 
 // ========== CLASS AND ENUM TYPE DEFINITIONS ========== //
 namespace OpenXLSX
@@ -138,6 +138,22 @@ namespace OpenXLSX
         friend class XLRowDataProxy;
         friend class XLRow;
 
+    private:
+        /**
+         * @brief Constructor for an empty range.
+         */
+        explicit XLRowDataRange();
+
+        /**
+         * @brief Constructor.
+         * @param rowNode XMLNode representing the row of the range.
+         * @param firstColumn The index of the first column.
+         * @param lastColumn The index of the last column.
+         * @param sharedStrings A pointer to the shared strings repository.
+         * @throws XLOverflowError if firstColumn > lastColumn
+         */
+        explicit XLRowDataRange(const XMLNode& rowNode, uint16_t firstColumn, uint16_t lastColumn, const XLSharedStrings& sharedStrings);
+
     public:
         /**
          * @brief Copy constructor.
@@ -208,24 +224,10 @@ namespace OpenXLSX
         }
 
     private:
-        /**
-         * @brief Constructor.
-         * @param rowNode XMLNode representing the row of the range.
-         * @param firstColumn The index of the first column.
-         * @param lastColumn The index of the last column.
-         * @param sharedStrings A pointer to the shared strings repository.
-         */
-        explicit XLRowDataRange(const XMLNode& rowNode, uint16_t firstColumn, uint16_t lastColumn, const XLSharedStrings& sharedStrings);
-
-        /**
-         * @brief Constructor for an empty range.
-         */
-        explicit XLRowDataRange();
-
         std::unique_ptr<XMLNode> m_rowNode;        /**< */
         uint16_t                 m_firstCol { 1 }; /**< The cell reference of the first cell in the range */
         uint16_t                 m_lastCol { 1 };  /**< The cell reference of the last cell in the range */
-        XLSharedStrings          m_sharedStrings;  /**< */
+        XLSharedStringsRef       m_sharedStrings;  /**< */
     };
 
     /**
@@ -238,17 +240,55 @@ namespace OpenXLSX
 
     public:
         /**
-         * @brief Destructor
+         * @brief explicitly delete default constructor.
+         */
+        XLRowDataProxy() = delete;
+
+    private:
+        /**
+         * @brief constructor.
+         * @param row Pointer to the parent XLRow object.
+         * @param rowNode Pointer to the underlying XML node representing the row.
+         */
+        XLRowDataProxy(XLRow* row, XMLNode* rowNode);
+
+        /**
+         * @brief copy constructor.
+         * @param other Object to be copied.
+         * @note The copy constructor is private in order to prevent use of the auto keyword in client code.
+         */
+        XLRowDataProxy(const XLRowDataProxy& other);
+
+        /**
+         * @brief move constructor.
+         * @param other Object to be moved.
+         * @note Made private, as move construction should only be allowed when the parent object is moved. Disallowed for client code.
+         */
+        XLRowDataProxy(XLRowDataProxy&& other) noexcept;
+
+    public:
+        /**
+         * @brief destructor
          */
         ~XLRowDataProxy();
 
         /**
-         * @brief Copy assignment operator.
+         * @brief copy assignment operator.
          * @param other Object to be copied.
          * @return A reference to the copied-to object.
          */
         XLRowDataProxy& operator=(const XLRowDataProxy& other);
 
+    private:
+        /**
+         * @brief move assignment operator.
+         * @param other Object to be moved.
+         * @return Reference to the moved-to object.
+         * @note Made private, as move assignment is disallowed for client code.
+         */
+        XLRowDataProxy& operator=(XLRowDataProxy&& other) noexcept;
+
+    public:
         /**
          * @brief Assignment operator taking a std::vector of XLCellValues as an argument.
          * @param values A std::vector of XLCellValues representing the values to be assigned.
@@ -376,45 +416,17 @@ namespace OpenXLSX
         //---------- Private Member Functions ---------- //
 
         /**
-         * @brief Constructor.
-         * @param row Pointer to the parent XLRow object.
-         * @param rowNode Pointer to the underlying XML node representing the row.
-         */
-        XLRowDataProxy(XLRow* row, XMLNode* rowNode);
-
-        /**
-         * @brief Copy constructor.
-         * @param other Object to be copied.
-         * @note The copy constructor is private in order to prevent use of the auto keyword in client code.
-         */
-        XLRowDataProxy(const XLRowDataProxy& other);
-
-        /**
-         * @brief Move constructor.
-         * @param other Object to be moved.
-         * @note Made private, as move construction should only be allowed when the parent object is moved. Disallowed for client code.
-         */
-        XLRowDataProxy(XLRowDataProxy&& other) noexcept;
-
-        /**
-         * @brief Move assignment operator.
-         * @param other Object to be moved.
-         * @return Reference to the moved-to object.
-         * @note Made private, as move assignment is disallowed for client code.
-         */
-        XLRowDataProxy& operator=(XLRowDataProxy&& other) noexcept;
-
-        /**
          * @brief Get the cell values for the row.
          * @return A std::vector of XLCellValues.
          */
         std::vector<XLCellValue> getValues() const;
 
         /**
-         * @brief Helper function for getting a pointer to the shared strings repository.
-         * @return A pointer to an XLSharedStrings object.
+         * @brief Helper function for getting a reference to the shared strings repository.
+         * @return A reference to the XLSharedStrings object.
+         * @note needed for templated XLRowDataProxy& operator=
          */
-        XLSharedStrings getSharedStrings() const;
+        const XLSharedStrings& getSharedStrings() const;
 
         /**
          * @brief Convenience function for erasing the first 'count' numbers of values in the row.

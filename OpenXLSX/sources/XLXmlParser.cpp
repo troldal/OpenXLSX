@@ -44,16 +44,13 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
  */
 
 // ===== External Includes ===== //
-#include <pugixml.hpp>
+#include <cstring>      // strlen, memcpy, strcpy
 
 // // ===== OpenXLSX Includes ===== //
 #include "XLXmlParser.hpp"
 
 namespace OpenXLSX
 {
-    // ===== Copy definition of PUGI_IMPL_NODETYPE, which is defined in pugixml.cpp, within namespace pugi::impl(?), and somehow doesn't work here
-#   define PUGI_IMPL_NODETYPE(n) static_cast<pugi::xml_node_type>((n)->header & pugi::impl::xml_memory_page_type_mask)
-
     bool NO_XML_NS = true; // default: no XML namespaces
     /**
      * @details this function is meaningless when PUGI_AUGMENTED is not defined / used
@@ -80,6 +77,22 @@ namespace OpenXLSX
 #       endif
     }
 
+
+    /**
+     * @brief provide a PUGIXML_WCHAR_MODE compatible strequal
+     * @param src operand
+     * @param dst operand
+     * @return true if operands are not null and equal
+     */
+    bool strequal(const pugi::char_t* src, const pugi::char_t* dst)
+    {
+        if( !src || !dst ) return false;
+#ifdef PUGIXML_WCHAR_MODE
+        return wcscmp(src, dst) == 0;
+#else
+        return strcmp(src, dst) == 0;
+#endif
+    }
 
     /**
      * @details return the node name without a potentially(!) existing namespace
@@ -187,8 +200,8 @@ namespace OpenXLSX
     XMLNode XMLNode::next_sibling_of_type(pugi::xml_node_type type_) const
     {
         if (_root) {
-            pugi::xml_node_struct* next = _root->next_sibling;
-            while (next && (PUGI_IMPL_NODETYPE(next) != type_)) next = next->next_sibling;
+            XMLNode next = next_sibling();
+            while (next && next.type() != type_) next = next.next_sibling();
             if (next)
                 return XMLNode(next);
         }
@@ -202,9 +215,9 @@ namespace OpenXLSX
     XMLNode XMLNode::previous_sibling_of_type(pugi::xml_node_type type_) const
     {
         if (_root) {
-            pugi::xml_node_struct* prev = _root->prev_sibling_c;
-            while (prev->next_sibling && (PUGI_IMPL_NODETYPE(prev) != type_)) prev = prev->prev_sibling_c;
-            if (prev->next_sibling)
+            XMLNode prev = previous_sibling();
+            while (prev.next_sibling() && prev.type() != type_) prev = prev.previous_sibling();
+            if (prev.next_sibling())
                 return XMLNode(prev);
         }
         return XMLNode();    // if no node matching type_ was found: return an empty node
@@ -217,10 +230,10 @@ namespace OpenXLSX
     XMLNode XMLNode::next_sibling_of_type(const pugi::char_t* name_, pugi::xml_node_type type_) const
     {
         if (_root) {
-            for (pugi::xml_node_struct* i = _root->next_sibling; i; i = i->next_sibling)
+            for (XMLNode i = next_sibling(); i; i = i.next_sibling())
             {
-                const pugi::char_t* iname = i->name;
-                if (iname && pugi::impl::strequal(name_, iname) && (PUGI_IMPL_NODETYPE(i) == type_))
+                const pugi::char_t* iname = i.name();
+                if (iname && OpenXLSX::strequal(name_, iname) && i.type() == type_)
                     return XMLNode(i);
             }
         }
@@ -234,10 +247,10 @@ namespace OpenXLSX
     XMLNode XMLNode::previous_sibling_of_type(const pugi::char_t* name_, pugi::xml_node_type type_) const
     {
         if (_root) {
-            for (pugi::xml_node_struct* i = _root->prev_sibling_c; i->next_sibling; i = i->prev_sibling_c)
+            for (XMLNode i = previous_sibling(); i.next_sibling(); i = i.previous_sibling())
             {
-                const pugi::char_t* iname = i->name;
-                if (iname && pugi::impl::strequal(name_, iname) && (PUGI_IMPL_NODETYPE(i) == type_))
+                const pugi::char_t* iname = i.name();
+                if (iname && OpenXLSX::strequal(name_, iname) && i.type() == type_)
                     return XMLNode(i);
             }
         }

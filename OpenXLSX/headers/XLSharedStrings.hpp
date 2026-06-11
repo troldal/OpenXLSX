@@ -53,6 +53,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #endif // _MSC_VER
 
 #include <deque>
+#include <functional> // std::reference_wrapper
 #include <limits>     // std::numeric_limits
 #include <ostream>    // std::basic_ostream
 #include <string>
@@ -65,6 +66,11 @@ namespace OpenXLSX
 {
     constexpr size_t XLMaxSharedStrings = (std::numeric_limits< int32_t >::max)();    // pull request #261: wrapped max in parentheses to prevent expansion of windows.h "max" macro
 
+    class XLSharedStrings; // forward declaration
+    typedef std::reference_wrapper< const XLSharedStrings > XLSharedStringsRef;
+
+    extern const XLSharedStrings XLSharedStringsDefaulted; // to be used for default initialization of all references of type XLSharedStrings
+
     /**
      * @brief This class encapsulate the Excel concept of Shared Strings. In Excel, instead of havig individual strings
      * in each cell, cells have a reference to an entry in the SharedStrings register. This results in smalle file
@@ -72,15 +78,18 @@ namespace OpenXLSX
      */
     class OPENXLSX_EXPORT XLSharedStrings : public XLXmlFile
     {
+        //---------- Friend Declarations ----------//
+        friend class XLDocument; // for access to protected function rewriteXmlFromCache
+
         //----------------------------------------------------------------------------------------------------------------------
         //           Public Member Functions
         //----------------------------------------------------------------------------------------------------------------------
 
     public:
         /**
-         * @brief
+         * @brief Default constructor
          */
-        XLSharedStrings() = default;
+        XLSharedStrings();
 
         /**
          * @brief
@@ -90,35 +99,41 @@ namespace OpenXLSX
         explicit XLSharedStrings(XLXmlData* xmlData, std::deque<std::string>* stringCache);
 
         /**
+         * @brief Copy constructor
+         * @param other
+         */
+        XLSharedStrings(const XLSharedStrings& other);
+
+        /**
+         * @brief Move constructor
+         * @param other
+         */
+        XLSharedStrings(XLSharedStrings&& other) noexcept;
+
+        /**
          * @brief Destructor
          */
         ~XLSharedStrings();
 
         /**
-         * @brief
-         * @param other
-         */
-        XLSharedStrings(const XLSharedStrings& other) = default;
-
-        /**
-         * @brief
-         * @param other
-         */
-        XLSharedStrings(XLSharedStrings&& other) noexcept = default;
-
-        /**
-         * @brief
+         * @brief Copy assignment operator
          * @param other
          * @return
          */
-        XLSharedStrings& operator=(const XLSharedStrings& other) = default;
+        XLSharedStrings& operator=(const XLSharedStrings& other);
 
         /**
-         * @brief
+         * @brief Move assignment operator
          * @param other
          * @return
          */
-        XLSharedStrings& operator=(XLSharedStrings&& other) noexcept = default;
+        XLSharedStrings& operator=(XLSharedStrings&& other) noexcept;
+
+        /**
+         * @brief return the amount of shared string entries currently in the cache
+         * @return
+         */
+        int32_t stringCount() const { return m_stringCache->size(); }
 
         /**
          * @brief
@@ -146,7 +161,7 @@ namespace OpenXLSX
          * @param str The string to append.
          * @return An int32_t with the index of the appended string
          */
-        int32_t appendString(const std::string& str);
+        int32_t appendString(const std::string& str) const;
 
         /**
          * @brief Clear the string at the given index.
@@ -155,7 +170,7 @@ namespace OpenXLSX
          * shared string indices for the cells in the spreadsheet. Instead use this member functions, which clears
          * the contents of the string, but keeps the XMLNode holding the string.
          */
-        void clearString(int32_t index);
+        void clearString(int32_t index) const;
 
         // 2024-06-18 TBD if this is ever needed
         // /**
@@ -169,6 +184,13 @@ namespace OpenXLSX
          * @brief print the XML contents of the shared strings document using the underlying XMLNode print function
          */
         void print(std::basic_ostream<char>& ostr) const;
+
+    protected:
+        /**
+         * @brief clear & rewrite the full shared strings XML from the shared strings cache
+         * @return the amount of strings written to XML (should be equal to m_stringCache->size())
+         */
+        int32_t rewriteXmlFromCache();
 
     private:
         std::deque<std::string>* m_stringCache {}; /** < Each string must have an unchanging memory address; hence the use of std::deque */

@@ -45,15 +45,25 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== External Includes ===== //
 #include <algorithm>
-#include <pugixml.hpp>
 
 // ===== OpenXLSX Includes ===== //
 #include "XLDocument.hpp"
 #include "XLSharedStrings.hpp"
+#include "XLXmlParser.hpp"              // pugixml wrapper
 
-#include <XLException.hpp>
+#include "XLException.hpp"
+
+namespace OpenXLSX {
+    const XLSharedStrings XLSharedStringsDefaulted{};
+}    // namespace OpenXLSX
 
 using namespace OpenXLSX;
+
+/**
+ * @details Default constructor
+ */
+XLSharedStrings::XLSharedStrings() = default;
+
 
 /**
  * @details Constructs a new XLSharedStrings object. Only one (common) object is allowed per XLDocument instance.
@@ -61,7 +71,7 @@ using namespace OpenXLSX;
  */
 XLSharedStrings::XLSharedStrings(XLXmlData* xmlData, std::deque<std::string>* stringCache)
     : XLXmlFile(xmlData),
-    m_stringCache(stringCache)
+      m_stringCache(stringCache)
 {
     XMLDocument & doc = xmlDocument();
     if (doc.document_element().empty())    // handle a bad (no document element) xl/sharedStrings.xml
@@ -78,10 +88,31 @@ XLSharedStrings::XLSharedStrings(XLXmlData* xmlData, std::deque<std::string>* st
         );
 }
 
+
+/**
+ * @details Copy constructor
+ */
+XLSharedStrings::XLSharedStrings(const XLSharedStrings& other) = default;
+
+/**
+ * @details Move constructor
+ */
+XLSharedStrings::XLSharedStrings(XLSharedStrings&& other) noexcept = default;
+
 /**
  * @details
  */
 XLSharedStrings::~XLSharedStrings() = default;
+
+/**
+ * @details Copy assignment operator
+ */
+XLSharedStrings& XLSharedStrings::operator=(const XLSharedStrings& other) = default;
+
+/**
+ * @details Move assignment operator
+ */
+XLSharedStrings& XLSharedStrings::operator=(XLSharedStrings&& other) noexcept = default;
 
 /**
  * @details Look up a string index by the string content. If the string does not exist, the returned index is -1.
@@ -114,7 +145,7 @@ const char* XLSharedStrings::getString(int32_t index) const
  * @details Append a string by creating a new node in the XML file and adding the string to it. The index to the
  * shared string is returned
  */
-int32_t XLSharedStrings::appendString(const std::string& str)
+int32_t XLSharedStrings::appendString(const std::string& str) const
 {
     // size_t stringCacheSize = std::distance(m_stringCache->begin(), m_stringCache->end()); // any reason why .size() would not work?
     size_t stringCacheSize = m_stringCache->size();    // 2024-05-31: analogous with already added range check in getString
@@ -141,7 +172,7 @@ void XLSharedStrings::print(std::basic_ostream<char>& ostr) const { xmlDocument(
  * is used, it will be erased.
  * @note: 2024-05-31 DONE: index now int32_t everywhere, 2 billion shared strings should be plenty
  */
-void XLSharedStrings::clearString(int32_t index)    // 2024-04-30: whitespace support
+void XLSharedStrings::clearString(int32_t index) const   // 2024-04-30: whitespace support
 {
     if (index < 0 || static_cast<size_t>(index) >= m_stringCache->size()) { // 2024-04-30: added range check
         using namespace std::literals::string_literals;
@@ -169,4 +200,21 @@ void XLSharedStrings::clearString(int32_t index)    // 2024-04-30: whitespace su
         sharedStringNode.remove_children();    // clear all data and formatting
         sharedStringNode.append_child("t");    // append an empty text node
     }
+}
+
+/**
+ * @details
+ */
+int32_t XLSharedStrings::rewriteXmlFromCache()
+{
+    int32_t writtenStrings = 0;
+    xmlDocument().document_element().remove_children();  // clear all existing XML
+    for (std::string& s : *m_stringCache) {
+        XMLNode textNode = xmlDocument().document_element().append_child("si").append_child("t");
+        if ((!s.empty()) && (s.front() == ' ' || s.back() == ' '))
+            textNode.append_attribute("xml:space").set_value("preserve");    // preserve spaces at begin/end of string
+        textNode.text().set(s.c_str());
+        ++writtenStrings;
+    }
+    return writtenStrings;
 }

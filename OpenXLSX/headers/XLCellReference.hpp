@@ -90,7 +90,7 @@ namespace OpenXLSX
          * @details The constructor creates a new XLCellReference from a string, e.g. 'A1'. If there's no input,
          * the default reference will be cell A1.
          */
-        XLCellReference(const std::string& cellAddress = "");    // NOLINT
+        XLCellReference(const std::string& cellAddress = "A1");    // NOLINT
 
         /**
          * @brief Constructor taking the cell coordinates as arguments.

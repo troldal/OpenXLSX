@@ -3,7 +3,6 @@
 #include <string>
 
 #include <OpenXLSX.hpp>
-#include <external/pugixml/pugixml.hpp>
 
 bool nowide_status()
 {
@@ -20,7 +19,7 @@ using namespace OpenXLSX;
 int main()
 {
     cout << "********************************************************************************\n";
-    cout << "DEMO PROGRAM 09:\n";
+    cout << "DEMO PROGRAM #09: Cell assignment and access operations and some other features:\n";
     cout << " * XLCellReference::columnAsString, ::columnAsNumber, XLCoordinates::coordinatesFromAddress\n";
     cout << " * Worksheet name manipulations\n";
     cout << " * Range iteration using XLCellIterator::endReached() and showcasing overloaded operator<< for iostream\n";

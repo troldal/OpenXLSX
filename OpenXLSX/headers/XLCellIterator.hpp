@@ -58,10 +58,26 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLCell.hpp"
 #include "XLCellReference.hpp"
 #include "XLIterator.hpp"
-#include "XLXmlParser.hpp"
+#include "XLXmlParserForwardDeclarations.hpp"
 
 namespace OpenXLSX
 {
+    /**
+     * @brief locate the XML row node within sheetDataNode for the row at rowNumber
+     * @param sheetDataNode the XML sheetData node to search in
+     * @param rowNumber the number of the row to locate
+     * @return the XMLNode pointing to the row, or an empty XMLNode if the row does not exist
+     */
+    XMLNode findRowNode(XMLNode sheetDataNode, uint32_t rowNumber);
+
+    /**
+     * @brief locate the XML cell node within rownode for the cell at columnNumber
+     * @param rowNode the XML node of the row to search in
+     * @param columnNumber the column number of the cell to locate
+     * @return the XMLNode pointing to the cell, or an empty XMLNode if the cell does not exist
+     */
+    XMLNode findCellNode(XMLNode rowNode, uint16_t columnNumber);
+
     class OPENXLSX_EXPORT XLCellIterator
     {
     public:
@@ -191,9 +207,9 @@ namespace OpenXLSX
         std::unique_ptr<XMLNode> m_dataNode;             /**< */
         XLCellReference          m_topLeft;              /**< The cell reference of the first cell in the range */
         XLCellReference          m_bottomRight;          /**< The cell reference of the last cell in the range */
-        XLSharedStrings          m_sharedStrings;        /**< */
+        XLSharedStringsRef       m_sharedStrings;        /**< */
         bool                     m_endReached;           /**< */
-        XMLNode                  m_hintNode;             /**< The cell node of the last existing cell found up to current iterator position */
+        std::unique_ptr<XMLNode> m_hintNode;             /**< The cell node of the last existing cell found up to current iterator position */
         uint32_t                 m_hintRow;              /**<   the row number for m_hintCell */
         XLCell                   m_currentCell;          /**< The cell to which the iterator is currently pointing, if it exists, otherwise an empty XLCell */
         static constexpr const int XLNotLoaded  = 0;    // code readability for m_currentCellStatus
