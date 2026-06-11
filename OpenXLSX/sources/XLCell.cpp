@@ -183,7 +183,11 @@ XLCell::operator bool() const { return m_cellNode && (not m_cellNode->empty() );
 /**
  * @details This function returns a const reference to the cellReference property.
  */
-XLCellReference XLCell::cellReference() const { return XLCellReference { m_cellNode->attribute("r").value() }; }
+XLCellReference XLCell::cellReference() const
+{
+    if (empty()) throw XLException("XLCell object is empty");
+    return XLCellReference { m_cellNode->attribute("r").value() };
+}
 
 /**
  * @details This function returns a const reference to the cell reference by the offset from the current one.
