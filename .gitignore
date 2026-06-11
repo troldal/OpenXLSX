@@ -103,8 +103,6 @@
 !/OpenXLSX/headers/*
 !/OpenXLSX/module.modulemap
 !/OpenXLSX/OpenXLSX-Exports.hpp
-!/OpenXLSX/swiftpm
-!/OpenXLSX/swiftpm/*
 !/OpenXLSX/OpenXLSXConfig.cmake
 !/OpenXLSX/OpenXLSX.hpp
 !/OpenXLSX/sources
