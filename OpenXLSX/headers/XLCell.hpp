@@ -261,6 +261,7 @@ namespace OpenXLSX
          * @param other the cell to construct from
          */
         XLCellAssignable (XLCell const & other);
+        XLCellAssignable (XLCellAssignable const & other);
 
         /**
          * @brief Move constructor. Constructs an assignable XLCell from a temporary (r)value
