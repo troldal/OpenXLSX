@@ -1,4 +1,4 @@
-// swift-tools-version: 6.0
+// swift-tools-version: 6.3
 import PackageDescription
 
 let package = Package(
@@ -42,6 +42,26 @@ let package = Package(
                 .headerSearchPath("headers"),
                 .headerSearchPath("external/pugixml"),
                 .headerSearchPath("external/zippy"),
+            ]
+        ),
+        .target(
+            name: "CxxOpenXLSXTestSupport",
+            dependencies: ["CxxOpenXLSX"],
+            path: "SwiftPMTests/CxxOpenXLSXTestSupport",
+            publicHeadersPath: "include"
+        ),
+        .testTarget(
+            name: "CxxOpenXLSXTests",
+            dependencies: [
+                "CxxOpenXLSX",
+                "CxxOpenXLSXTestSupport",
+            ],
+            path: "SwiftPMTests/CxxOpenXLSXTests",
+            resources: [
+                .process("Resources"),
+            ],
+            swiftSettings: [
+                .interoperabilityMode(.Cxx),
             ]
         ),
     ],

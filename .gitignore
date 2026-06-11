@@ -9,6 +9,10 @@
 !/NOTICE
 !/README.md
 
+!/.github
+!/.github/workflows
+!/.github/workflows/*
+
 # include root directory files
 !/CMakeLists.txt
 !/Makefile.GNU
@@ -106,5 +110,15 @@
 !/Tests/catch/*.hpp
 !/Tests/CMakeLists.txt
 !/Tests/*.cpp
+
+!/SwiftPMTests
+!/SwiftPMTests/CxxOpenXLSXTestSupport
+!/SwiftPMTests/CxxOpenXLSXTestSupport/*
+!/SwiftPMTests/CxxOpenXLSXTestSupport/include
+!/SwiftPMTests/CxxOpenXLSXTestSupport/include/*
+!/SwiftPMTests/CxxOpenXLSXTests
+!/SwiftPMTests/CxxOpenXLSXTests/*
+!/SwiftPMTests/CxxOpenXLSXTests/Resources
+!/SwiftPMTests/CxxOpenXLSXTests/Resources/*
 
 !/Package.swift
