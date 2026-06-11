@@ -5,49 +5,55 @@
 // ===== External Includes ===== //
 #include <cassert>
 #include <cstring>
-#include <pugixml.hpp>
 
 // ===== OpenXLSX Includes ===== //
 #include "XLCell.hpp"
 #include "XLCellValue.hpp"
 #include "XLException.hpp"
+#include "XLXmlParser.hpp"              // pugixml wrapper
 
 using namespace OpenXLSX;
 
 /**
  * @details Constructor. Default implementation has been used.
- * @pre
- * @post
  */
 XLCellValue::XLCellValue() = default;
 
 /**
- * @details Copy constructor. The default implementation will be used.
+ * @details explicit copy constructor.
  * @pre The object to be copied must be valid.
  * @post A valid copy is constructed.
  */
-XLCellValue::XLCellValue(const OpenXLSX::XLCellValue& other) = default;
+XLCellValue::XLCellValue(const OpenXLSX::XLCellValue& other)
+ : m_value(other.m_value),
+   m_type(other.m_type)
+{}
 
 /**
  * @details Move constructor. The default implementation will be used.
- * @pre The object to be copied must be valid.
- * @post A valid copy is constructed.
  */
 XLCellValue::XLCellValue(OpenXLSX::XLCellValue&& other) noexcept = default;
 
 /**
  * @details Destructor. The default implementation will be used
  * @pre None.
- * @post The object is destructed.
+ * @post The object is destroyed.
  */
 XLCellValue::~XLCellValue() = default;
 
 /**
- * @details Copy assignment operator. The default implementation will be used.
+ * @details explicit copy assignment operator
  * @pre The object to be copied must be a valid object.
  * @post A the copied-to object is valid.
  */
-XLCellValue& OpenXLSX::XLCellValue::operator=(const OpenXLSX::XLCellValue& other) = default;
+XLCellValue& OpenXLSX::XLCellValue::operator=(const OpenXLSX::XLCellValue& other)
+{
+    if (&other != this) {
+        XLCellValue temp = other;  // copy-construct
+        *this = std::move(temp);   // move-assign & invalidate temp
+    }
+    return *this;
+}
 
 /**
  * @details Move assignment operator. The default implementation will be used.
@@ -119,7 +125,9 @@ std::string XLCellValue::typeAsString() const
  * @pre The cell and cellNode pointers must not be nullptr and must point to valid objects.
  * @post A valid XLCellValueProxy has been created.
  */
-XLCellValueProxy::XLCellValueProxy(XLCell* cell, XMLNode* cellNode) : m_cell(cell), m_cellNode(cellNode)
+XLCellValueProxy::XLCellValueProxy(XLCell* cell, XMLNode* cellNode)
+ : m_cell(cell),
+   m_cellNode(cellNode)
 {
     assert(cell != nullptr);         // NOLINT
 //    assert(cellNode);                 // NOLINT
@@ -134,11 +142,14 @@ XLCellValueProxy::XLCellValueProxy(XLCell* cell, XMLNode* cellNode) : m_cell(cel
 XLCellValueProxy::~XLCellValueProxy() = default;
 
 /**
- * @details Copy constructor. Default implementation has been used.
+ * @details explicit copy constructor
  * @pre
  * @post
  */
-XLCellValueProxy::XLCellValueProxy(const XLCellValueProxy& other) = default;
+XLCellValueProxy::XLCellValueProxy(const XLCellValueProxy& other)
+ : m_cell(other.m_cell),
+   m_cellNode(other.m_cellNode)
+{}
 
 /**
  * @details Move constructor. Default implementation has been used.
@@ -157,7 +168,7 @@ XLCellValueProxy::XLCellValueProxy(XLCellValueProxy&& other) noexcept = default;
 XLCellValueProxy& XLCellValueProxy::operator=(const XLCellValueProxy& other)
 {
     if (&other != this) {
-        *this = other.getValue();
+        *this = other.getValue(); // NOTE to avoid confusion: this invokes the templated operator= with a parameter of type XLCellValue
     }
 
     return *this;
@@ -418,8 +429,9 @@ void XLCellValueProxy::setString(const char* stringValue) // NOLINT
     m_cellNode->attribute("t").set_value("s");
 
     // ===== Get or create the index in the XLSharedStrings object.
-    const auto index = (m_cell->m_sharedStrings.stringExists(stringValue) ? m_cell->m_sharedStrings.getStringIndex(stringValue)
-                                                                     : m_cell->m_sharedStrings.appendString(stringValue));
+    const auto index = (m_cell->m_sharedStrings.get().stringExists(stringValue)
+    /**/                                                    ?          m_cell->m_sharedStrings.get().getStringIndex(stringValue)
+    /**/                                                             : m_cell->m_sharedStrings.get().appendString(stringValue));
 
     // ===== Set the text of the value node.
     m_cellNode->child("v").text().set(index);
@@ -466,7 +478,9 @@ XLCellValue XLCellValueProxy::getValue() const
 
         case XLValueType::String:
             if (strcmp(m_cellNode->attribute("t").value(), "s") == 0)
-                return XLCellValue { m_cell->m_sharedStrings.getString(static_cast<uint32_t>(m_cellNode->child("v").text().as_ullong())) };
+                return XLCellValue {
+                    m_cell->m_sharedStrings.get().getString(static_cast<uint32_t>(m_cellNode->child("v").text().as_ullong()))
+                };
             else if (strcmp(m_cellNode->attribute("t").value(), "str") == 0)
                 return XLCellValue { m_cellNode->child("v").text().get() };
             else if (strcmp(m_cellNode->attribute("t").value(), "inlineStr") == 0)
@@ -479,8 +493,27 @@ XLCellValue XLCellValueProxy::getValue() const
 
         case XLValueType::Error:
             return XLCellValue().setError(m_cellNode->child("v").text().as_string());
-            
+
         default:
             return XLCellValue().setError("");
     }
+}
+
+/**
+ * @details
+ */
+int32_t XLCellValueProxy::stringIndex() const
+{
+    if (strcmp(m_cellNode->attribute("t").value(), "s") != 0) return -1;   // cell value is not a shared string
+    return m_cellNode->child("v").text().as_ullong(-1);                    // return the shared string index stored for this cell
+    /**/                                                                   // if, for whatever reason, the underlying XML has no reference stored, also return -1
+}
+
+/**
+ * @details
+ */
+bool XLCellValueProxy::setStringIndex(int32_t newIndex)
+{
+    if (newIndex < 0 || strcmp(m_cellNode->attribute("t").value(), "s") != 0) return false;  // cell value is not a shared string
+    return m_cellNode->child("v").text().set(newIndex);                                      // set the shared string index directly
 }

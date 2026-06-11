@@ -51,6 +51,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLCell.hpp"
 #include "XLRow.hpp"
 #include "XLRowData.hpp"
+#include "XLXmlParser.hpp"
 #include "utilities/XLUtilities.hpp"
 
 // ========== XLRowDataIterator  ============================================ //
@@ -67,20 +68,11 @@ namespace OpenXLSX
         : m_dataRange(std::make_unique<XLRowDataRange>(rowDataRange)),
           m_cellNode(std::make_unique<XMLNode>(
               getCellNode((m_dataRange->size() ? *m_dataRange->m_rowNode : XMLNode {}), m_dataRange->m_firstCol))),
-          m_currentCell(loc == XLIteratorLocation::End ? XLCell() : XLCell(*m_cellNode, m_dataRange->m_sharedStrings))
+          m_currentCell(loc == XLIteratorLocation::End ? XLCell() : XLCell(*m_cellNode, m_dataRange->m_sharedStrings.get()))
     {}
 
     /**
-     * @details Destructor. Default implementation.
-     * @pre
-     * @post
-     */
-    XLRowDataIterator::~XLRowDataIterator() = default;
-
-    /**
      * @details Copy constructor. Trivial implementation with deep copy of pointer members.
-     * @pre
-     * @post
      */
     XLRowDataIterator::XLRowDataIterator(const XLRowDataIterator& other)
         : m_dataRange(std::make_unique<XLRowDataRange>(*other.m_dataRange)),
@@ -89,16 +81,17 @@ namespace OpenXLSX
     {}
 
     /**
-     * @details Move constructor. Default implementation.
-     * @pre
-     * @post
+     * @details explicit default move constructor
      */
-    XLRowDataIterator::XLRowDataIterator(XLRowDataIterator&& other) noexcept = default;    // NOLINT
+    XLRowDataIterator::XLRowDataIterator(XLRowDataIterator&& other) noexcept = default;
+
+    /**
+     * @details explicit default destructor
+     */
+    XLRowDataIterator::~XLRowDataIterator() = default;
 
     /**
      * @details Copy assignment operator. Implemented using copy-and-swap idiom.
-     * @pre
-     * @post
      */
     XLRowDataIterator& XLRowDataIterator::operator=(const XLRowDataIterator& other)
     {
@@ -106,14 +99,11 @@ namespace OpenXLSX
             XLRowDataIterator temp = other;
             std::swap(temp, *this);
         }
-
         return *this;
     }
 
     /**
-     * @details Move assignment operator. Default implementation.
-     * @pre
-     * @post
+     * @details explicit default move assignment operator
      */
     XLRowDataIterator& XLRowDataIterator::operator=(XLRowDataIterator&& other) noexcept = default;
 
@@ -124,6 +114,9 @@ namespace OpenXLSX
      */
     XLRowDataIterator& XLRowDataIterator::operator++()
     {
+        if( not m_currentCell ) // 2025-07-14 BUGFIX issue #368: check that m_currentCell is valid
+            throw XLInputError("XLRowDataIterator: tried to increment beyond end operator");
+
         // ===== Compute the column number, and move the m_cellNode to the next sibling.
         const uint16_t cellNumber = m_currentCell.cellReference().column() + 1;
         XMLNode        cellNode   = m_currentCell.m_cellNode->next_sibling_of_type(pugi::node_element);
@@ -142,13 +135,13 @@ namespace OpenXLSX
             /**/                                   static_cast<uint32_t>(m_dataRange->m_rowNode->attribute("r").as_ullong()), cellNumber
             /**/                               ).address(),
             /**/                               *m_dataRange->m_rowNode, cellNumber);
-            m_currentCell = XLCell(cellNode, m_dataRange->m_sharedStrings);
+            m_currentCell = XLCell(cellNode, m_dataRange->m_sharedStrings.get());
         }
 
         // ===== Otherwise, the cell node and the column number match.
         else {
             assert(XLCellReference(cellNode.attribute("r").value()).column() == cellNumber);
-            m_currentCell = XLCell(cellNode, m_dataRange->m_sharedStrings);
+            m_currentCell = XLCell(cellNode, m_dataRange->m_sharedStrings.get());
         }
 
         return *this;
@@ -207,10 +200,20 @@ namespace OpenXLSX
 namespace OpenXLSX
 {
     /**
-     * @details Constructor. Trivial implementation.
-     * @throws If firstColumn > than lastColumn, an XLOverflowError will be thrown.
-     * @pre
-     * @post
+     * @details [private] constructor. Constructs an empty XLDataRange, whose size() will return 0. To be used as return value in functions that shall fail without
+     * exception.
+     */
+    XLRowDataRange::XLRowDataRange()
+        : m_rowNode(nullptr),
+          m_firstCol(1),    // first col of 1
+          m_lastCol(0),     // and last col of 0 will ensure that size returns 0
+          m_sharedStrings(XLSharedStringsDefaulted)
+    {
+        // nothing to do
+    }
+
+    /**
+     * @details [private] constructor. Trivial implementation.
      */
     XLRowDataRange::XLRowDataRange(const XMLNode& rowNode, uint16_t firstColumn, uint16_t lastColumn, const XLSharedStrings& sharedStrings)
         : m_rowNode(std::make_unique<XMLNode>(rowNode)),
@@ -226,49 +229,27 @@ namespace OpenXLSX
     }
 
     /**
-     * @details Constructs an empty XLDataRange, whose size() will return 0. To be used as return value in functions that shall fail without
-     * exception.
-     */
-    XLRowDataRange::XLRowDataRange()
-        : m_rowNode(nullptr),
-          m_firstCol(1),    // first col of 1
-          m_lastCol(0),     // and last col of 0 will ensure that size returns 0
-          m_sharedStrings()
-    {
-        // nothing to do
-    }
-
-    /**
-     * @details Copy constructor. Trivial implementation.
-     * @pre
-     * @post
+     * @details copy constructor. Trivial implementation.
      */
     XLRowDataRange::XLRowDataRange(const XLRowDataRange& other)
         : m_rowNode((other.m_rowNode != nullptr) ? std::make_unique<XMLNode>(*other.m_rowNode) : nullptr),    // 2024-05-28: support for copy-construction from an empty XLDataRange
           m_firstCol(other.m_firstCol),
           m_lastCol(other.m_lastCol),
           m_sharedStrings(other.m_sharedStrings)
-
     {}
 
     /**
-     * @details Move constructor. Default implementation.
-     * @pre
-     * @post
+     * @details explicit default move constructor
      */
     XLRowDataRange::XLRowDataRange(XLRowDataRange&& other) noexcept = default;
 
     /**
-     * @details Destructor. Default implementation.
-     * @pre
-     * @post
+     * @details explicit default destructor
      */
     XLRowDataRange::~XLRowDataRange() = default;
 
     /**
-     * @details Copy assignment operator. Implemented in terms of copy-and-swap.
-     * @pre
-     * @post
+     * @details copy assignment operator. Implemented in terms of copy-and-swap.
      */
     XLRowDataRange& XLRowDataRange::operator=(const XLRowDataRange& other)
     {
@@ -276,14 +257,11 @@ namespace OpenXLSX
             XLRowDataRange temp(other);
             std::swap(temp, *this);
         }
-
         return *this;
     }
 
     /**
-     * @details Move assignment operator. Default implementation.
-     * @pre
-     * @post
+     * @details explicit default move assignment operator
      */
     XLRowDataRange& XLRowDataRange::operator=(XLRowDataRange&& other) noexcept = default;
 
@@ -315,52 +293,45 @@ namespace OpenXLSX
 namespace OpenXLSX
 {
     /**
-     * @details Destructor. Default implementation.
-     * @pre
-     * @post
+     * @details [private] constructor
+     */
+    XLRowDataProxy::XLRowDataProxy(XLRow* row, XMLNode* rowNode)
+     : m_row(row),
+       m_rowNode(rowNode)
+    {}
+
+    /**
+     * @details [private] copy constructor
+     */
+    XLRowDataProxy::XLRowDataProxy(const XLRowDataProxy& other)
+     : m_row(other.m_row),
+       m_rowNode(other.m_rowNode)
+    {}
+
+    /**
+     * @details [private] explicit default move constructor
+     */
+    XLRowDataProxy::XLRowDataProxy(XLRowDataProxy&& other) noexcept = default;
+
+    /**
+     * @details explicit default destructor
      */
     XLRowDataProxy::~XLRowDataProxy() = default;
 
     /**
-     * @details Copy constructor. This is not a 'true' copy constructor, as it is the row values that will
+     * @details copy assignment operator. This is not a 'true' copy assignment, as it is the row values that will
      * be copied, not the XLRowDataProxy member variables (pointers to the XLRow and row node objects).
-     * @pre
-     * @post
      */
     XLRowDataProxy& XLRowDataProxy::operator=(const XLRowDataProxy& other)
     {
         if (&other != this) {
             *this = other.getValues();
         }
-
         return *this;
     }
 
     /**
-     * @details Constructor
-     * @pre
-     * @post
-     */
-    XLRowDataProxy::XLRowDataProxy(XLRow* row, XMLNode* rowNode) : m_row(row), m_rowNode(rowNode) {}
-
-    /**
-     * @details Copy constructor. Default implementation.
-     * @pre
-     * @post
-     */
-    XLRowDataProxy::XLRowDataProxy(const XLRowDataProxy& other) = default;
-
-    /**
-     * @details Move constructor. Default implementation.
-     * @pre
-     * @post
-     */
-    XLRowDataProxy::XLRowDataProxy(XLRowDataProxy&& other) noexcept = default;
-
-    /**
-     * @details Move assignment operator. Default implementation.
-     * @pre
-     * @post
+     * @details [private] explicit default move assignment operator
      */
     XLRowDataProxy& XLRowDataProxy::operator=(XLRowDataProxy&& other) noexcept = default;
 
@@ -384,7 +355,7 @@ namespace OpenXLSX
         for (auto value = values.rbegin(); value != values.rend(); ++value) {    // NOLINT
             curNode = m_rowNode->prepend_child("c");
             setDefaultCellAttributes(curNode, XLCellReference(static_cast<uint32_t>(m_row->rowNumber()), colNo).address(), *m_rowNode, colNo);
-            XLCell(curNode, m_row->m_sharedStrings).value() = *value;
+            XLCell(curNode, m_row->m_sharedStrings.get()).value() = *value;
             --colNo;
         }
 
@@ -404,7 +375,7 @@ namespace OpenXLSX
         if (values.size() > MAX_COLS) throw XLOverflowError("vector<bool> size exceeds maximum number of columns.");
         if (values.empty()) return *this;
 
-        auto range = XLRowDataRange(*m_rowNode, 1, static_cast<uint16_t>(values.size()), getSharedStrings());
+        auto range = XLRowDataRange(*m_rowNode, 1, static_cast<uint16_t>(values.size()), m_row->m_sharedStrings.get());
         auto dst   = range.begin();    // 2024-04-30: whitespace support: safe because XLRowDataRange::begin invokes whitespace-safe
                                        // getCellNode for column 1
         auto src = values.begin();
@@ -457,7 +428,7 @@ namespace OpenXLSX
             XMLNode node = lastElementChild;    // avoid unneeded call to first_child_of_type by iterating backwards, vector is random
                                                 // access so it doesn't matter
             while (not node.empty()) {
-                result[XLCellReference(node.attribute("r").value()).column() - 1] = XLCell(node, m_row->m_sharedStrings).value();
+                result[XLCellReference(node.attribute("r").value()).column() - 1] = XLCell(node, m_row->m_sharedStrings.get()).value();
                 node                                                              = node.previous_sibling_of_type(pugi::node_element);
             }
         }
@@ -467,12 +438,12 @@ namespace OpenXLSX
     }
 
     /**
-     * @details The function returns a pointer to an XLSharedStrings object embedded in the m_row member.
+     * @details The function returns a reference to the XLSharedStrings object embedded in the m_row member.
      * This is required because the XLRow class internals is not visible in the header file.
      * @pre
      * @post
      */
-    XLSharedStrings XLRowDataProxy::getSharedStrings() const { return m_row->m_sharedStrings; }
+    const XLSharedStrings& XLRowDataProxy::getSharedStrings() const { return m_row->m_sharedStrings.get(); }
 
     /**
      * @details The deleteCellValues is a convenience function used solely by the templated operator= function.
@@ -524,7 +495,7 @@ namespace OpenXLSX
 
         XMLNode curNode = m_rowNode->prepend_child("c");    // this will correctly insert a new cell directly at the beginning of the row
         setDefaultCellAttributes(curNode, XLCellReference(static_cast<uint32_t>(m_row->rowNumber()), col).address(), *m_rowNode, col);
-        XLCell(curNode, m_row->m_sharedStrings).value() = value;
+        XLCell(curNode, m_row->m_sharedStrings.get()).value() = value;
     }
 
     /**

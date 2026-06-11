@@ -44,14 +44,68 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
  */
 
 // ===== External Includes ===== //
-#include <pugixml.hpp>
 #include <sstream>
 
 // ===== OpenXLSX Includes ===== //
 #include "XLDocument.hpp"
 #include "XLXmlData.hpp"
+#include "XLXmlParser.hpp"              // pugixml wrapper
 
 using namespace OpenXLSX;
+
+
+// ===== XLXmlSavingDeclaration
+
+/**
+ * @details
+ */
+XLXmlSavingDeclaration::XLXmlSavingDeclaration()
+    : m_version(XLXmlDefaultVersion),
+      m_encoding(XLXmlDefaultEncoding),
+      m_standalone(XLXmlNotStandalone)
+{}
+
+/**
+ * @details
+ */
+XLXmlSavingDeclaration::XLXmlSavingDeclaration(std::string version, std::string encoding, bool standalone)
+    : m_version(version),
+      m_encoding(encoding),
+      m_standalone(standalone)
+{}
+
+/**
+ * @details Copy constructor
+ */
+XLXmlSavingDeclaration::XLXmlSavingDeclaration(const XLXmlSavingDeclaration& other) = default;
+
+/**
+ * @details Move constructor
+ */
+XLXmlSavingDeclaration::XLXmlSavingDeclaration(XLXmlSavingDeclaration&& other) noexcept = default;
+
+/**
+ * @details
+ */
+XLXmlSavingDeclaration::~XLXmlSavingDeclaration() = default;
+
+/**
+ * @details Copy assignment operator
+ */
+XLXmlSavingDeclaration& XLXmlSavingDeclaration::operator=(const XLXmlSavingDeclaration& other) = default;
+
+/**
+ * @details Move assignment operator
+ */
+XLXmlSavingDeclaration& XLXmlSavingDeclaration::operator=(XLXmlSavingDeclaration&& other) noexcept = default;
+
+
+// ===== XLXmlData
+
+/**
+ * @details
+ */
+XLXmlData::XLXmlData() = default;
 
 /**
  * @details
@@ -69,7 +123,17 @@ XLXmlData::XLXmlData(XLDocument* parentDoc, const std::string& xmlPath, const st
 /**
  * @details
  */
+XLXmlData::XLXmlData(XLXmlData&& other) noexcept = default;
+
+/**
+ * @details
+ */
 XLXmlData::~XLXmlData() = default;
+
+/**
+ * @details
+ */
+XLXmlData& XLXmlData::operator=(XLXmlData&& other) noexcept = default;
 
 /**
  * @details

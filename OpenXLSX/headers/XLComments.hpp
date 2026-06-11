@@ -49,48 +49,109 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 // ===== External Includes ===== //
 #include <cstdint>    // uint8_t, uint16_t, uint32_t
 #include <ostream>    // std::basic_ostream
-// #include <type_traits>
-// #include <variant>
 
 // ===== OpenXLSX Includes ===== //
-#include "include-exports-header.hpp"
-// #include "XLCell.hpp"
-// #include "XLCellReference.hpp"
-// #include "XLColor.hpp"
-// #include "XLColumn.hpp"
-// #include "XLCommandQuery.hpp"
-#include "XLDocument.hpp"
+#include "OpenXLSX-Exports.hpp"
+// #include "XLDocument.hpp"
+#include "XLDrawing.hpp"   // XLVmlDrawing
 #include "XLException.hpp"
-// #include "XLRow.hpp"
+#include "XLXmlData.hpp"
 #include "XLXmlFile.hpp"
 
-// workbook XML: <sheets><sheet>: get sheetId where name == <worksheet name>
-// --> sheetId should be equal comment ID ## in xl/comments##.xml
-// new comments XML:
+// TODO:
 //   add to [Content_Types].xml:
 //     <Override PartName="/xl/comments1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.comments+xml"/>
-//   create file xl/worksheets/_rels/sheet1.xml.rels, including directory, if it does not exist
-//   add to sheet relationships:
-// <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-//     <Relationship Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/comments" Target="/xl/comments1.xml" Id="R31ace4858b334db2"/>
-// </Relationships>
-// Id seems to be unused, so... whatever :)  but should use GetNewRelsID
-// TBD if the XLRelationships functionality can be re-used, or GetNewRelsID needs to be exported (currently local to the module in
-//  an anonymous namespace)
 
 namespace OpenXLSX
 {
     /**
-     * @brief The XLComments class is the base class for the 
-     * @tparam T Type that will inherit functionality. Restricted to types XLWorksheet and XLChartsheet.
+     * @brief An encapsulation of a comment element
+     */
+    class OPENXLSX_EXPORT XLComment
+    {
+    public:    // ---------- Public Member Functions ---------- //
+        /**
+         * @brief
+         */
+        XLComment() = delete; // do not allow default constructor (for now) - could still be constructed with an empty XMLNode
+
+        /**
+         * @brief Constructor. New items should only be created through an XLComments object.
+         * @param node An XMLNode object with the comment XMLNode. If no input is provided, a null node is used.
+         */
+        explicit XLComment(const XMLNode& node);
+
+        /**
+         * @brief Copy Constructor.
+         * @param other Object to be copied.
+         */
+        XLComment(const XLComment& other);
+
+        /**
+         * @brief Move Constructor.
+         * @param other Object to be moved.
+         */
+        XLComment(XLComment&& other) noexcept;
+
+        /**
+         * @brief
+         */
+        ~XLComment();
+
+        /**
+         * @brief Copy assignment operator.
+         * @param other Right hand side of assignment operation.
+         * @return A reference to the lhs object.
+         */
+        XLComment& operator=(const XLComment& other);
+
+        /**
+         * @brief Move assignment operator.
+         * @param other Right hand side of assignment operation.
+         * @return A reference to lhs object.
+         */
+        XLComment& operator=(XLComment&& other) noexcept;
+
+        /**
+         * @brief Test if XLComment is linked to valid XML
+         * @return true if comment was constructed on a valid XML node, otherwise false
+         */
+        bool valid() const;
+
+        /**
+         * @brief Getter functions
+         */
+        std::string ref() const; // the cell reference of the comment
+        std::string text() const;
+        uint16_t authorId() const;
+
+        /**
+         * @brief Setter functions
+         */
+        bool setText(std::string newText);
+        bool setAuthorId(uint16_t newAuthorId);
+
+        // /**
+        //  * @brief Return a string summary of the comment properties
+        //  * @return string with info about the comment object
+        //  */
+        // std::string summary() const;
+
+    private:                                         // ---------- Private Member Variables ---------- //
+        std::unique_ptr<XMLNode> m_commentNode;      /**< An XMLNode object with the comment item */
+     };
+
+    /**
+     * @brief The XLComments class is the base class for worksheet comments
      */
     class OPENXLSX_EXPORT XLComments : public XLXmlFile
     {
+        friend class XLWorksheet;   // for access to XLXmlFile::getXmlPath
     public:
         /**
          * @brief Constructor
          */
-        XLComments() : XLXmlFile(nullptr) {};
+        XLComments();
 
         /**
          * @brief The constructor.
@@ -101,54 +162,108 @@ namespace OpenXLSX
         /**
          * @brief The copy constructor.
          * @param other The object to be copied.
-         * @note The default copy constructor is used, i.e. only shallow copying of pointer data members.
          */
-        XLComments(const XLComments& other) = default;
+        XLComments(const XLComments& other);
 
         /**
          * @brief
          * @param other
          */
-        XLComments(XLComments&& other) noexcept = default;
+        XLComments(XLComments&& other) noexcept;
 
         /**
          * @brief The destructor
-         * @note The default destructor is used, since cleanup of pointer data members is not required.
          */
-        ~XLComments() = default;
-
-        /**
-         * @brief Assignment operator
-         * @return A reference to the new object.
-         * @note The default assignment operator is used, i.e. only shallow copying of pointer data members.
-         */
-        XLComments& operator=(const XLComments&) = default;
+        ~XLComments();
 
         /**
          * @brief
          * @param other
          * @return
          */
-        XLComments& operator=(XLComments&& other) noexcept = default;
+        XLComments& operator=(XLComments&& other) noexcept;
+
+        /**
+         * @brief Assignment operator
+         * @return A reference to the new object.
+         */
+        XLComments& operator=(const XLComments&);
+
+        /**
+         * @brief associate the worksheet's VML drawing object with the comments so it can be modified from here
+         * @param vmlDrawing the worksheet's previously created XLVmlDrawing object
+         * @return true upon success
+         */
+        bool setVmlDrawing(XLVmlDrawing &vmlDrawing);
+
+    private: // helper functions with repeating code
+        XMLNode authorNode(uint16_t index) const;
+        XMLNode commentNode(size_t index) const;
+        XMLNode commentNode(const std::string& cellRef) const;
+
+    public:
+
+        uint16_t authorCount() const;
+
+        std::string author(uint16_t index) const;
+
+        bool deleteAuthor(uint16_t index);
+
+        uint16_t addAuthor(const std::string& authorName);
+
+        /**
+         * @brief get the amount of comments
+         * @return the amount of comments for the worksheet
+         */
+        size_t count() const;
+
+        uint16_t authorId(const std::string& cellRef) const;
+
+        bool deleteComment(const std::string& cellRef);
+
+        /**
+         * @brief get a comment by its index in the comment list
+         * @param index the index of the comment as per XML sequence, no guarantee about cell reference being in sequence
+         * @return the comment at index - will throw if index is out of bounds (>=count())
+         */
+        XLComment get(size_t index) const;
 
         /**
          * @brief get the comment (if any) for the referenced cell
          * @param cellRef the cell address to check
          * @return the comment for this cell - an empty string if no comment is set
          */
-        std::string get(std::string cellRef) const;
+        std::string get(std::string const& cellRef) const;
 
         /**
          * @brief set the comment for the referenced cell
          * @param cellRef the cell address to set
+         * @param comment set this text as comment for the cell
+         * @param authorId_ set this author (underscore to avoid conflict with function name)
          * @return true upon success, false on failure
          */
-        bool set(std::string cellRef);
+        bool set(std::string const& cellRef, std::string const& comment, uint16_t authorId_ = 0);
 
         /**
-         * @brief Print the XML contents of the XLSheet using the underlying XMLNode print function
+         * @brief get the XLShape object for this comment
+         */
+        XLShape shape(std::string const& cellRef);
+
+        /**
+         * @brief Print the XML contents of this XLComments instance using the underlying XMLNode print function
          */
         void print(std::basic_ostream<char>& ostr) const;
+
+    private:
+        std::unique_ptr<XMLNode> m_authors;
+        std::unique_ptr<XMLNode> m_commentList;
+        std::unique_ptr<XLVmlDrawing> m_vmlDrawing;
+        mutable std::unique_ptr<XMLNode> m_hintNode;  // the last comment XML Node accessed by index is stored here, if any - will be reset when comments are inserted or deleted
+        mutable size_t m_hintIndex;                   // this has the index at which m_hintNode was accessed, only valid if not m_hintNode.empty()
+        inline static const std::vector< std::string_view > m_nodeOrder = {      // comments XML node required child sequence
+            "authors",
+            "commentList"
+        };
     };
 }    // namespace OpenXLSX
 

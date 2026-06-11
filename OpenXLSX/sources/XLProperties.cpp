@@ -44,16 +44,16 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
  */
 
 // ===== External Includes ===== //
-#include <pugixml.hpp>
 #include <string>
 #include <vector>
 
 // ===== OpenXLSX Includes ===== //
 #include "XLDocument.hpp"
 #include "XLProperties.hpp"
-#include "XLRelationships.hpp"    // GetStringFromType
+#include "XLRelationships.hpp"          // GetStringFromType
+#include "XLXmlParser.hpp"              // pugixml wrapper
 
-#include <XLException.hpp>
+#include "XLException.hpp"
 
 using namespace OpenXLSX;
 
@@ -249,6 +249,11 @@ void XLProperties::createFromTemplate()
 /**
  * @details
  */
+XLProperties::XLProperties() = default;
+
+/**
+ * @details
+ */
 XLProperties::XLProperties(XLXmlData* xmlData) : XLXmlFile(xmlData)
 {
     XMLNode doc = xmlData->getXmlDocument()->document_element();
@@ -261,6 +266,35 @@ XLProperties::XLProperties(XLXmlData* xmlData) : XLXmlFile(xmlData)
     }
     if( !childCount ) createFromTemplate();
 }
+
+/**
+ * @details copy constructor
+ */
+XLProperties::XLProperties(const XLProperties& other)
+ : XLXmlFile(other)
+{}
+
+/**
+ * @details move constructor
+ */
+XLProperties::XLProperties(XLProperties&& other) noexcept = default;
+
+/**
+ * @details copy assignment operator
+ */
+XLProperties& XLProperties::operator=(const XLProperties& other)
+{
+    if (&other != this) {
+        XLProperties temp = other;  // copy-construct
+        *this = std::move(temp);    // move-assign & invalidate temp
+    }
+    return *this;
+}
+
+/**
+ * @details move assignment operator
+ */
+XLProperties& XLProperties::operator=(XLProperties&& other) = default;
 
 /**
  * @details
@@ -385,6 +419,11 @@ void XLAppProperties::createFromTemplate(XMLDocument const & workbookXml)
 /**
  * @details
  */
+XLAppProperties::XLAppProperties() = default;
+
+/**
+ * @details
+ */
 XLAppProperties::XLAppProperties(XLXmlData* xmlData, XMLDocument const & workbookXml)
     : XLXmlFile(xmlData)
 {
@@ -403,6 +442,35 @@ XLAppProperties::XLAppProperties(XLXmlData* xmlData, XMLDocument const & workboo
  * @details
  */
 XLAppProperties::XLAppProperties(XLXmlData* xmlData) : XLXmlFile(xmlData) {}
+
+/**
+ * @details copy constructor
+ */
+XLAppProperties::XLAppProperties(const XLAppProperties& other)
+ : XLXmlFile(other)
+{}
+
+/**
+ * @details move constructor
+ */
+XLAppProperties::XLAppProperties(XLAppProperties&& other) noexcept = default;
+
+/**
+ * @details copy assignment operator
+ */
+XLAppProperties& XLAppProperties::operator=(const XLAppProperties& other)
+{
+    if (&other != this) {
+        XLAppProperties temp = other;  // copy-construct
+        *this = std::move(temp);       // move-assign & invalidate temp
+    }
+    return *this;
+}
+
+/**
+ * @details move assignment operator
+ */
+XLAppProperties& XLAppProperties::operator=(XLAppProperties&& other) noexcept = default;
 
 /**
  * @details

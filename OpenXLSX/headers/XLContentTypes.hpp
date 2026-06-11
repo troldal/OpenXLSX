@@ -59,9 +59,9 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <vector>
 
 // ===== OpenXLSX Includes ===== //
-#include "include-exports-header.hpp"
+#include "OpenXLSX-Exports.hpp"
 #include "XLXmlFile.hpp"
-#include "XLXmlParser.hpp"
+#include "XLXmlParserForwardDeclarations.hpp"
 
 namespace OpenXLSX
 {
@@ -70,6 +70,7 @@ namespace OpenXLSX
      */
     enum class XLContentType : uint8_t {
         Workbook,
+        Relationships,
         WorkbookMacroEnabled,
         Worksheet,
         Chartsheet,
@@ -92,6 +93,13 @@ namespace OpenXLSX
         VMLDrawing,
         Unknown
     };
+
+    /**
+     * @brief utility function: determine the name of an XLContentType value
+     * @param type the XLContentType to get a name for
+     * @return a string with the name of type
+     */
+    std::string XLContentTypeToString( XLContentType type );
 
     /**
      * @brief
@@ -245,7 +253,7 @@ namespace OpenXLSX
          */
         std::vector<XLContentItem> getContentItems();
 
-        // ---------- Protected Member Functions ---------- //
+    private:   // ---------- Private Member Variables ---------- //
     };
 }    // namespace OpenXLSX
 

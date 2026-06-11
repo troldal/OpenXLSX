@@ -56,11 +56,11 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <memory>
 
 // ===== OpenXLSX Includes ===== //
-#include "include-exports-header.hpp"
+#include "OpenXLSX-Exports.hpp"
 #include "XLCell.hpp"
 #include "XLCellIterator.hpp"
 #include "XLCellReference.hpp"
-#include "XLXmlParser.hpp"
+#include "XLXmlParserForwardDeclarations.hpp"
 
 namespace OpenXLSX
 {
@@ -97,29 +97,24 @@ namespace OpenXLSX
         /**
          * @brief Copy constructor
          * @param other The range object to be copied.
-         * @note This implements the default copy constructor, i.e. memberwise copying.
          */
         XLCellRange(const XLCellRange& other);
 
         /**
-         * @brief Move constructor
+         * @brief Move constructor [default]
          * @param other The range object to be moved.
-         * @note This implements the default move constructor, i.e. memberwise move.
          */
         XLCellRange(XLCellRange&& other) noexcept;
 
         /**
          * @brief Destructor [default]
-         * @note This implements the default destructor.
          */
         ~XLCellRange();
 
         /**
-         * @brief The copy assignment operator [default]
+         * @brief The copy assignment operator
          * @param other The range object to be copied and assigned.
-         * @return A reference to the new object.
-         * @throws A std::range_error if the source range and destination range are of different size and shape.
-         * @note This implements the default copy assignment operator.
+         * @return reference to the new object.
          */
         XLCellRange& operator=(const XLCellRange& other);
 
@@ -127,7 +122,6 @@ namespace OpenXLSX
          * @brief The move assignment operator [default].
          * @param other The range object to be moved and assigned.
          * @return A reference to the new object.
-         * @note This implements the default move assignment operator.
          */
         XLCellRange& operator=(XLCellRange&& other) noexcept;
 
@@ -215,9 +209,9 @@ namespace OpenXLSX
 
     private:
         std::unique_ptr<XMLNode>  m_dataNode;      /**< */
-        XLCellReference           m_topLeft;       /**< The cell reference of the first cell in the range */
-        XLCellReference           m_bottomRight;   /**< The cell reference of the last cell in the range */
-        XLSharedStrings           m_sharedStrings;
+        XLCellReference           m_topLeft;       /**< reference to the first cell in the range */
+        XLCellReference           m_bottomRight;   /**< reference to the last cell in the range */
+        XLSharedStringsRef        m_sharedStrings; /**< reference to the document shared strings table */
         std::vector<XLStyleIndex> m_columnStyles;  /**< quick access to column styles in the range - populated by fetchColumnStyles() */
     };
 }    // namespace OpenXLSX

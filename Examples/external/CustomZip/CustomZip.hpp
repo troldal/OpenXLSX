@@ -8,9 +8,15 @@
 #include <cstring>
 #include <fstream>
 #include <list>
-// #include <libzippp.h>
 #include <zip.h>
-#include "nowide/cstdio.hpp"
+#ifdef ENABLE_NOWIDE
+    #include <nowide/cstdio.hpp>    // nowide::fopen, nowide::remove, nowide::rename
+    namespace boost {}        // ensure that namespace exists, even if boost doesn't define it
+    using namespace boost;    // depending on library version, nowide namespace is hidden in boost::nowide
+#else
+    #include <cstdio>       // std::fopen
+    #include <filesystem>   // std::filesystem::remove, std::filesystem::rename
+#endif
 #include <memory>
 #include <random>
 #include <string>
@@ -110,8 +116,17 @@ public:
         }
 
         // ===== Delete the temporary file.
-        nowide::remove(m_tempName.c_str());    // NOLINT
+#       ifdef ENABLE_NOWIDE
+            nowide::remove(m_tempName.c_str());    // NOLINT
+#       else
+            std::filesystem::remove(m_tempName.c_str());
+#       endif
     }
+
+    /**
+     * @brief make archive updates (from addEntry) available to calls via getEntry
+     */
+    void commitChanges() {} // no-op for CustomZip
 
     /**
      * @brief
@@ -127,8 +142,13 @@ public:
 
         // ===== Delete the original file, and rename the temporary file to that of the original.
         if (!path.empty()) m_fileName = path;
-        nowide::remove(m_fileName.c_str());                        // NOLINT
-        nowide::rename(m_tempName.c_str(), m_fileName.c_str());    // NOLINT
+#       ifdef ENABLE_NOWIDE
+            nowide::remove(m_fileName.c_str());                        // NOLINT
+            nowide::rename(m_tempName.c_str(), m_fileName.c_str());    // NOLINT
+#       else
+            std::filesystem::remove(m_fileName.c_str());
+            std::filesystem::rename(m_tempName.c_str(), m_fileName.c_str());
+#       endif
 
         // ===== Reopen the file.
         open(m_fileName);
@@ -149,6 +169,17 @@ public:
         zip_close(m_zipHandle);
         int errorFlag = 0;
         m_zipHandle   = zip_open(m_tempName.c_str(), ZIP_CREATE, &errorFlag);
+    }
+
+    /**
+     * @brief like addEntry, but call commitChanges() afterwards
+     * @param name
+     * @param data
+     */
+    void addEntryAndCommit(const std::string& name, const std::string& data)
+    {
+        addEntry(name, data);
+        commitChanges();       // ensure that entry name is directly available for calls to getEntry
     }
 
     /**
@@ -193,7 +224,7 @@ public:
      * @param entryName
      * @return
      */
-    bool hasEntry(const std::string& entryName) {
+    bool hasEntry(const std::string& entryName) const {
 
         // ===== If the index of the entryName is higher than zero, it means that an entry with that name exists in the archive.
         auto index = zip_name_locate(m_zipHandle, entryName.c_str(), ZIP_FL_ENC_GUESS);

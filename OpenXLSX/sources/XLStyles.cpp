@@ -47,7 +47,6 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <cstdint>      // uint32_t
 #include <iostream>     // std::cout, std::cerr
 #include <memory>       // std::make_unique
-#include <pugixml.hpp>
 #include <stdexcept>    // std::invalid_argument
 #include <string>       // std::stoi, std::literals::string_literals
 #include <vector>       // std::vector
@@ -55,17 +54,15 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 // ===== OpenXLSX Includes ===== //
 #include "XLColor.hpp"
 #include "XLDocument.hpp"
-#include <XLException.hpp>
-#include "utilities/XLUtilities.hpp"    // OpenXLSX::ignore
+#include "XLException.hpp"
 #include "XLStyles.hpp"
+#include "XLXmlParser.hpp"              // pugixml wrapper
+#include "utilities/XLUtilities.hpp"    // OpenXLSX::ignore, ::XL(Keep|Remove)Attributes, appendAndGetNode, appendAnd(G|S)etAttribute, appendAnd(G|S)etNodeAttribute
 
 using namespace OpenXLSX;
 
-
 namespace     // anonymous namespace for module local functions
 {
-    constexpr const bool XLRemoveAttributes = true;
-
     enum XLStylesEntryType : uint8_t {
         XLStylesNumberFormats    =   0,
         XLStylesFonts            =   1,
@@ -75,7 +72,7 @@ namespace     // anonymous namespace for module local functions
         XLStylesCellFormats      =   5,
         XLStylesCellStyles       =   6,
         XLStylesColors           =   7,
-        XLStylesFormats          =   8,
+        XLStylesDiffCellFormats  =   8,
         XLStylesTableStyles      =   9,
         XLStylesExtLst           =  10,
         XLStylesInvalid          = 255
@@ -91,7 +88,7 @@ namespace     // anonymous namespace for module local functions
         if (name == "cellXfs")      return XLStylesCellFormats;
         if (name == "cellStyles")   return XLStylesCellStyles;
         if (name == "colors")       return XLStylesColors;
-        if (name == "dxfs")         return XLStylesFormats;
+        if (name == "dxfs")         return XLStylesDiffCellFormats;
         if (name == "tableStyles")  return XLStylesTableStyles;
         if (name == "extLst")       return XLStylesExtLst;
         return XLStylesEntryType::XLStylesInvalid;
@@ -108,7 +105,7 @@ namespace     // anonymous namespace for module local functions
             case XLStylesCellFormats:      return "cellXfs";
             case XLStylesCellStyles:       return "cellStyles";
             case XLStylesColors:           return "colors";
-            case XLStylesFormats:          return "dxfs";
+            case XLStylesDiffCellFormats:  return "dxfs";
             case XLStylesTableStyles:      return "tableStyles";
             case XLStylesExtLst:           return "extLst";
             case XLStylesInvalid:          [[fallthrough]];
@@ -129,7 +126,7 @@ namespace     // anonymous namespace for module local functions
     std::string XLUnderlineStyleToString(XLUnderlineStyle underline)
     {
         switch (underline) {
-            case XLUnderlineNone   : return "";
+            case XLUnderlineNone   : return "none";
             case XLUnderlineSingle : return "single";
             case XLUnderlineDouble : return "double";
             case XLUnderlineInvalid: [[fallthrough]];
@@ -390,50 +387,6 @@ namespace     // anonymous namespace for module local functions
         }
     }
 
-    XMLNode appendAndGetNode(XMLNode & parent, std::string nodeName)
-    {
-        if (parent.empty()) return XMLNode{};
-        XMLNode node = parent.child(nodeName.c_str());
-        if (node.empty()) node = parent.append_child(nodeName.c_str());
-        return node;
-    }
-
-    XMLAttribute appendAndGetAttribute(XMLNode & node, std::string attrName, std::string attrDefaultVal)
-    {
-        if (node.empty()) return XMLAttribute{};
-        XMLAttribute attr = node.attribute(attrName.c_str());
-        if (attr.empty() && not node.empty()) {
-            attr = node.append_attribute(attrName.c_str());
-            attr.set_value(attrDefaultVal.c_str());
-        }
-        return attr;
-    }
-
-    XMLAttribute appendAndSetAttribute(XMLNode & node, std::string attrName, std::string attrVal)
-    {
-        if (node.empty()) return XMLAttribute{};
-        XMLAttribute attr = node.attribute(attrName.c_str());
-        if (attr.empty() && not node.empty())
-            attr = node.append_attribute(attrName.c_str());
-        attr.set_value(attrVal.c_str()); // silently fails on empty attribute, which is intended here
-        return attr;
-    }
-
-    XMLAttribute appendAndGetNodeAttribute(XMLNode & parent, std::string nodeName, std::string attrName, std::string attrDefaultVal)
-    {
-        if (parent.empty()) return XMLAttribute{};
-        XMLNode node = appendAndGetNode(parent, nodeName);
-        return appendAndGetAttribute(node, attrName, attrDefaultVal);
-    }
-
-    XMLAttribute appendAndSetNodeAttribute(XMLNode & parent, std::string nodeName, std::string attrName, std::string attrVal, bool removeAttributes = false)
-    {
-        if (parent.empty()) return XMLAttribute{};
-        XMLNode node = appendAndGetNode(parent, nodeName);
-        if (removeAttributes) node.remove_attributes();
-        return appendAndSetAttribute(node, attrName, attrVal);
-    }
-
     void copyXMLNode(XMLNode & destination, XMLNode & source)
     {
         if (not source.empty()) {
@@ -446,7 +399,7 @@ namespace     // anonymous namespace for module local functions
         }
     }
 
-    void wrapNode(XMLNode parentNode, XMLNode & node, std::string prefix)
+    void wrapNode(XMLNode parentNode, XMLNode & node, std::string const & prefix)
     {
         if (not node.empty() && prefix.length() > 0) {
             parentNode.insert_child_before(pugi::node_pcdata, node).set_value(prefix.c_str());    // insert prefix before node opening tag
@@ -464,8 +417,9 @@ namespace     // anonymous namespace for module local functions
     {
         std::string result = std::to_string(val);
         size_t decimalPos = result.find_first_of('.');
-        assert(decimalPos < result.length()); // this should never throw
-    
+        if (decimalPos >= result.length())
+            throw XLException("formatDoubleAsString: return value of std::to_string(double val) contains no decimal separator - this should never happen");
+
         // ===== Return the string representation of val with the decimal separator and decimalPlaces digits following
         return result.substr(0, decimalPos + 1 + decimalPlaces);
     }
@@ -493,7 +447,7 @@ namespace     // anonymous namespace for module local functions
 
 
 /**
- * @details Constructor. Initializes an empty XLNumberFormat object
+ * @details Default constructor. Initializes an empty XLNumberFormat object
  */
 XLNumberFormat::XLNumberFormat() : m_numberFormatNode(std::make_unique<XMLNode>()) {}
 
@@ -502,17 +456,36 @@ XLNumberFormat::XLNumberFormat() : m_numberFormatNode(std::make_unique<XMLNode>(
  */
 XLNumberFormat::XLNumberFormat(const XMLNode& node) : m_numberFormatNode(std::make_unique<XMLNode>(node)) {}
 
-XLNumberFormat::~XLNumberFormat() = default;
-
+/**
+ * @details Copy constructor
+ */
 XLNumberFormat::XLNumberFormat(const XLNumberFormat& other)
     : m_numberFormatNode(std::make_unique<XMLNode>(*other.m_numberFormatNode))
 {}
 
+/**
+ * @details Move constructor
+ */
+XLNumberFormat::XLNumberFormat(XLNumberFormat&& other) noexcept = default;
+
+/**
+ * @details
+ */
+XLNumberFormat::~XLNumberFormat() = default;
+
+/**
+ * @details Copy assignment operator
+ */
 XLNumberFormat& XLNumberFormat::operator=(const XLNumberFormat& other)
 {
     if (&other != this) *m_numberFormatNode = *other.m_numberFormatNode;
     return *this;
 }
+
+/**
+ * @details Move assignment operator
+ */
+XLNumberFormat& XLNumberFormat::operator=(XLNumberFormat&& other) noexcept = default;
 
 /**
  * @details Returns the numFmtId value
@@ -561,7 +534,6 @@ XLNumberFormats::XLNumberFormats(const XMLNode& numberFormats)
     XMLNode node = numberFormats.first_child_of_type(pugi::node_element);
     while (not node.empty()) {
         std::string nodeName = node.name();
-        // std::cout << "XMLNumberFormats constructor, node name is " << nodeName << std::endl;
         if (nodeName == "numFmt")
             m_numberFormats.push_back(XLNumberFormat(node));
         else
@@ -570,32 +542,35 @@ XLNumberFormats::XLNumberFormats(const XMLNode& numberFormats)
     }
 }
 
+/**
+ * @details Copy constructor
+ */
+XLNumberFormats::XLNumberFormats(const XLNumberFormats& other)
+    : m_numberFormatsNode(std::make_unique<XMLNode>(*other.m_numberFormatsNode)),
+      m_numberFormats(other.m_numberFormats)
+{}
+
+/**
+ * @details Move constructor
+ */
+XLNumberFormats::XLNumberFormats(XLNumberFormats&& other)
+    : m_numberFormatsNode(std::move(other.m_numberFormatsNode)),
+      m_numberFormats(std::move(other.m_numberFormats))
+{}
+
+/**
+ * @details
+ */
 XLNumberFormats::~XLNumberFormats()
 {
     m_numberFormats.clear(); // delete vector with all children
 }
-
-XLNumberFormats::XLNumberFormats(const XLNumberFormats& other)
-    : m_numberFormatsNode(std::make_unique<XMLNode>(*other.m_numberFormatsNode)),
-      m_numberFormats(other.m_numberFormats)
-{
-    // std::cout << __func__ << " copy constructor" << std::endl;
-}
-
-XLNumberFormats::XLNumberFormats(XLNumberFormats&& other)
-    : m_numberFormatsNode(std::move(other.m_numberFormatsNode)),
-      m_numberFormats(std::move(other.m_numberFormats))
-{
-    // std::cout << __func__ << " move constructor" << std::endl;
-}
-
 
 /**
  * @details Copy assignment operator
  */
 XLNumberFormats& XLNumberFormats::operator=(const XLNumberFormats& other)
 {
-    // std::cout << "XLNumberFormats::" << __func__ << " copy assignment" << std::endl;
     if (&other != this) {
         *m_numberFormatsNode = *other.m_numberFormatsNode;
         m_numberFormats.clear();
@@ -603,6 +578,11 @@ XLNumberFormats& XLNumberFormats::operator=(const XLNumberFormats& other)
     }
     return *this;
 }
+
+/**
+ * @details Move assignment operator.
+ */
+XLNumberFormats& XLNumberFormats::operator=(XLNumberFormats&& other) noexcept = default;
 
 /**
  * @details Returns the amount of numberFormats held by the class
@@ -689,18 +669,36 @@ XLFont::XLFont() : m_fontNode(std::make_unique<XMLNode>()) {}
  */
 XLFont::XLFont(const XMLNode& node) : m_fontNode(std::make_unique<XMLNode>(node)) {}
 
-XLFont::~XLFont() = default;
-
+/**
+ * @details Copy constructor
+ */
 XLFont::XLFont(const XLFont& other)
     : m_fontNode(std::make_unique<XMLNode>(*other.m_fontNode))
 {}
 
+/**
+ * @details Move constructor
+ */
+XLFont::XLFont(XLFont&& other) noexcept = default;
+
+/**
+ * @details
+ */
+XLFont::~XLFont() = default;
+
+/**
+ * @details Copy assignment operator
+ */
 XLFont& XLFont::operator=(const XLFont& other)
 {
     if (&other != this) *m_fontNode = *other.m_fontNode;
     return *this;
 }
 
+/**
+ * @details Move assignment operator
+ */
+XLFont& XLFont::operator=(XLFont&& other) noexcept = default;
 
 /**
  * @details Returns the font name property
@@ -753,16 +751,16 @@ XLColor XLFont::fontColor() const
 /**
  * @details getter functions: return the font's bold, italic, underline, strikethrough status
  */
-bool                    XLFont::bold()          const { return                                   appendAndGetNodeAttribute(*m_fontNode, "b",         "val", "false").as_bool() ; }
-bool                    XLFont::italic()        const { return                                   appendAndGetNodeAttribute(*m_fontNode, "i",         "val", "false").as_bool() ; }
-bool                    XLFont::strikethrough() const { return                                   appendAndGetNodeAttribute(*m_fontNode, "strike",    "val", "false").as_bool() ; }
-XLUnderlineStyle        XLFont::underline()     const { return XLUnderlineStyleFromString       (appendAndGetNodeAttribute(*m_fontNode, "u",         "val", ""     ).value()  ); }
-XLFontSchemeStyle       XLFont::scheme()        const { return XLFontSchemeStyleFromString      (appendAndGetNodeAttribute(*m_fontNode, "scheme",    "val", ""     ).value()  ); }
-XLVerticalAlignRunStyle XLFont::vertAlign()     const { return XLVerticalAlignRunStyleFromString(appendAndGetNodeAttribute(*m_fontNode, "vertAlign", "val", ""     ).value()  ); }
-bool                    XLFont::outline()       const { return                                   appendAndGetNodeAttribute(*m_fontNode, "outline",   "val", "false").as_bool() ; }
-bool                    XLFont::shadow()        const { return                                   appendAndGetNodeAttribute(*m_fontNode, "shadow",    "val", "false").as_bool() ; }
-bool                    XLFont::condense()      const { return                                   appendAndGetNodeAttribute(*m_fontNode, "condense",  "val", "false").as_bool() ; }
-bool                    XLFont::extend()        const { return                                   appendAndGetNodeAttribute(*m_fontNode, "extend",    "val", "false").as_bool() ; }
+bool                    XLFont::bold()          const { return getBoolAttributeWhenOmittedMeansTrue(*m_fontNode, "b",        "val"); }
+bool                    XLFont::italic()        const { return getBoolAttributeWhenOmittedMeansTrue(*m_fontNode, "i",        "val"); }
+bool                    XLFont::strikethrough() const { return getBoolAttributeWhenOmittedMeansTrue(*m_fontNode, "strike",   "val"); }
+XLUnderlineStyle        XLFont::underline()     const { return XLUnderlineStyleFromString       (appendAndGetNodeAttribute(*m_fontNode, "u",         "val", "none"    ).value()  ); }
+XLFontSchemeStyle       XLFont::scheme()        const { return XLFontSchemeStyleFromString      (appendAndGetNodeAttribute(*m_fontNode, "scheme",    "val", "none"    ).value()  ); }
+XLVerticalAlignRunStyle XLFont::vertAlign()     const { return XLVerticalAlignRunStyleFromString(appendAndGetNodeAttribute(*m_fontNode, "vertAlign", "val", "baseline").value()  ); }
+bool                    XLFont::outline()       const { return getBoolAttributeWhenOmittedMeansTrue(*m_fontNode, "outline",  "val"); }
+bool                    XLFont::shadow()        const { return getBoolAttributeWhenOmittedMeansTrue(*m_fontNode, "shadow",   "val"); }
+bool                    XLFont::condense()      const { return getBoolAttributeWhenOmittedMeansTrue(*m_fontNode, "condense", "val"); }
+bool                    XLFont::extend()        const { return getBoolAttributeWhenOmittedMeansTrue(*m_fontNode, "extend",   "val"); }
 
 /**
  * @details Setter functions
@@ -836,32 +834,35 @@ XLFonts::XLFonts(const XMLNode& fonts)
     }
 }
 
+/**
+ * @details Copy constructor
+ */
+XLFonts::XLFonts(const XLFonts& other)
+    : m_fontsNode(std::make_unique<XMLNode>(*other.m_fontsNode)),
+      m_fonts(other.m_fonts)
+{}
+
+/**
+ * @details Move constructor
+ */
+XLFonts::XLFonts(XLFonts&& other)
+    : m_fontsNode(std::move(other.m_fontsNode)),
+      m_fonts(std::move(other.m_fonts))
+{}
+
+/**
+ * @details
+ */
 XLFonts::~XLFonts()
 {
     m_fonts.clear(); // delete vector with all children
 }
-
-XLFonts::XLFonts(const XLFonts& other)
-    : m_fontsNode(std::make_unique<XMLNode>(*other.m_fontsNode)),
-      m_fonts(other.m_fonts)
-{
-    // std::cout << __func__ << " copy constructor" << std::endl;
-}
-
-XLFonts::XLFonts(XLFonts&& other)
-    : m_fontsNode(std::move(other.m_fontsNode)),
-      m_fonts(std::move(other.m_fonts))
-{
-    // std::cout << __func__ << " move constructor" << std::endl;
-}
-
 
 /**
  * @details Copy assignment operator
  */
 XLFonts& XLFonts::operator=(const XLFonts& other)
 {
-    // std::cout << "XLFonts::" << __func__ << " copy assignment" << std::endl;
     if (&other != this) {
         *m_fontsNode = *other.m_fontsNode;
         m_fonts.clear();
@@ -869,6 +870,11 @@ XLFonts& XLFonts::operator=(const XLFonts& other)
     }
     return *this;
 }
+
+/**
+ * @details Move assignment operator
+ */
+XLFonts& XLFonts::operator=(XLFonts&& other) noexcept = default;
 
 /**
  * @details Returns the amount of fonts held by the class
@@ -942,13 +948,28 @@ XLDataBarColor::XLDataBarColor(const XLDataBarColor& other)
 {}
 
 /**
- * @details Assign values of other to this
+ * @details Move Constructor
+ */
+XLDataBarColor::XLDataBarColor(XLDataBarColor&& other) noexcept = default;
+
+/**
+ * @details
+ */
+XLDataBarColor::~XLDataBarColor() = default;
+
+/**
+ * @details Copy assignment operator
  */
 XLDataBarColor& XLDataBarColor::operator=(const XLDataBarColor& other)
 {
     if (&other != this) *m_colorNode = *other.m_colorNode;
     return *this;
 }
+
+/**
+ * @details Move assignment operator
+ */
+XLDataBarColor& XLDataBarColor::operator=(XLDataBarColor&& other) noexcept = default;
 
 /**
  * @details Getter functions
@@ -978,7 +999,10 @@ bool XLDataBarColor::setTint(double newTint)
 }
 bool XLDataBarColor::setAutomatic(bool set)        { return appendAndSetAttribute(*m_colorNode, "auto",      (set ? "true" : "false")     ).empty() == false; }
 bool XLDataBarColor::setIndexed(uint32_t newIndex) { return appendAndSetAttribute(*m_colorNode, "indexed",   std::to_string(newIndex)     ).empty() == false; }
-bool XLDataBarColor::setTheme(uint32_t newTheme)   { return appendAndSetAttribute(*m_colorNode, "theme",     std::to_string(newTheme)     ).empty() == false; }
+bool XLDataBarColor::setTheme(uint32_t newTheme)   {
+    if( newTheme == XLDeleteProperty ) return m_colorNode->remove_attribute("theme");
+    return appendAndSetAttribute(*m_colorNode, "theme",     std::to_string(newTheme)     ).empty() == false;
+}
 
 /**
  * @details assemble a string summary about the color
@@ -1013,13 +1037,28 @@ XLGradientStop::XLGradientStop(const XLGradientStop& other)
 {}
 
 /**
- * @details Assign values of other to this
+ * @details Move Constructor
+ */
+XLGradientStop::XLGradientStop(XLGradientStop&& other) noexcept = default;
+
+/**
+ * @details
+ */
+XLGradientStop::~XLGradientStop() = default;
+
+/**
+ * @details Copy assignment operator
  */
 XLGradientStop& XLGradientStop::operator=(const XLGradientStop& other)
 {
     if (&other != this) *m_stopNode = *other.m_stopNode;
     return *this;
 }
+
+/**
+ * @details Move assignment operator
+ */
+XLGradientStop& XLGradientStop::operator=(XLGradientStop&& other) noexcept = default;
 
 /**
  * @details Getter functions
@@ -1078,32 +1117,35 @@ XLGradientStops::XLGradientStops(const XMLNode& gradient)
     }
 }
 
+/**
+ * @details Copy constructor
+ */
+XLGradientStops::XLGradientStops(const XLGradientStops& other)
+    : m_gradientNode(std::make_unique<XMLNode>(*other.m_gradientNode)),
+      m_gradientStops(other.m_gradientStops)
+{}
+
+/**
+ * @details Move constructor
+ */
+XLGradientStops::XLGradientStops(XLGradientStops&& other)
+    : m_gradientNode(std::move(other.m_gradientNode)),
+      m_gradientStops(std::move(other.m_gradientStops))
+{}
+
+/**
+ * @details
+ */
 XLGradientStops::~XLGradientStops()
 {
     m_gradientStops.clear(); // delete vector with all children
 }
-
-XLGradientStops::XLGradientStops(const XLGradientStops& other)
-    : m_gradientNode(std::make_unique<XMLNode>(*other.m_gradientNode)),
-      m_gradientStops(other.m_gradientStops)
-{
-    // std::cout << __func__ << " copy constructor" << std::endl;
-}
-
-XLGradientStops::XLGradientStops(XLGradientStops&& other)
-    : m_gradientNode(std::move(other.m_gradientNode)),
-      m_gradientStops(std::move(other.m_gradientStops))
-{
-    // std::cout << __func__ << " move constructor" << std::endl;
-}
-
 
 /**
  * @details Copy assignment operator
  */
 XLGradientStops& XLGradientStops::operator=(const XLGradientStops& other)
 {
-    // std::cout << "XLGradientStops::" << __func__ << " copy assignment" << std::endl;
     if (&other != this) {
         *m_gradientNode = *other.m_gradientNode;
         m_gradientStops.clear();
@@ -1111,6 +1153,11 @@ XLGradientStops& XLGradientStops::operator=(const XLGradientStops& other)
     }
     return *this;
 }
+
+/**
+ * @details Move assignment operator.
+ */
+XLGradientStops& XLGradientStops::operator=(XLGradientStops&& other) noexcept = default;
 
 /**
  * @details Returns the amount of gradient stops held by the class
@@ -1182,17 +1229,36 @@ XLFill::XLFill() : m_fillNode(std::make_unique<XMLNode>()) {}
  */
 XLFill::XLFill(const XMLNode& node) : m_fillNode(std::make_unique<XMLNode>(node)) {}
 
-XLFill::~XLFill() = default;
-
+/**
+ * @details Copy constructor
+ */
 XLFill::XLFill(const XLFill& other)
     : m_fillNode(std::make_unique<XMLNode>(*other.m_fillNode))
 {}
 
+/**
+ * @details Move constructor
+ */
+XLFill::XLFill(XLFill&& other) noexcept = default;
+
+/**
+ * @details
+ */
+XLFill::~XLFill() = default;
+
+/**
+ * @details Copy assignment operator
+ */
 XLFill& XLFill::operator=(const XLFill& other)
 {
     if (&other != this) *m_fillNode = *other.m_fillNode;
     return *this;
 }
+
+/**
+ * @details Move assignment operator
+ */
+XLFill& XLFill::operator=(XLFill&& other) noexcept = default;
 
 /**
  * @details Returns the name of the first element child of fill
@@ -1402,32 +1468,35 @@ XLFills::XLFills(const XMLNode& fills)
     }
 }
 
+/**
+ * @details Copy constructor
+ */
+XLFills::XLFills(const XLFills& other)
+    : m_fillsNode(std::make_unique<XMLNode>(*other.m_fillsNode)),
+      m_fills(other.m_fills)
+{}
+
+/**
+ * @details Move constructor
+ */
+XLFills::XLFills(XLFills&& other)
+    : m_fillsNode(std::move(other.m_fillsNode)),
+      m_fills(std::move(other.m_fills))
+{}
+
+/**
+ * @details
+ */
 XLFills::~XLFills()
 {
     m_fills.clear(); // delete vector with all children
 }
-
-XLFills::XLFills(const XLFills& other)
-    : m_fillsNode(std::make_unique<XMLNode>(*other.m_fillsNode)),
-      m_fills(other.m_fills)
-{
-    // std::cout << __func__ << " copy constructor" << std::endl;
-}
-
-XLFills::XLFills(XLFills&& other)
-    : m_fillsNode(std::move(other.m_fillsNode)),
-      m_fills(std::move(other.m_fills))
-{
-    // std::cout << __func__ << " move constructor" << std::endl;
-}
-
 
 /**
  * @details Copy assignment operator
  */
 XLFills& XLFills::operator=(const XLFills& other)
 {
-    // std::cout << "XLFills::" << __func__ << " copy assignment" << std::endl;
     if (&other != this) {
         *m_fillsNode = *other.m_fillsNode;
         m_fills.clear();
@@ -1435,6 +1504,11 @@ XLFills& XLFills::operator=(const XLFills& other)
     }
     return *this;
 }
+
+/**
+ * @details Move assignment operator
+ */
+XLFills& XLFills::operator=(XLFills&& other) noexcept = default;
 
 /**
  * @details Returns the amount of fills held by the class
@@ -1498,17 +1572,36 @@ XLLine::XLLine() : m_lineNode(std::make_unique<XMLNode>()) {}
  */
 XLLine::XLLine(const XMLNode& node) : m_lineNode(std::make_unique<XMLNode>(node)) {}
 
-XLLine::~XLLine() = default;
-
+/**
+ * @details Copy constructor
+ */
 XLLine::XLLine(const XLLine& other)
     : m_lineNode(std::make_unique<XMLNode>(*other.m_lineNode))
 {}
 
+/**
+ * @details Move constructor
+ */
+XLLine::XLLine(XLLine&& other) noexcept = default;
+
+/**
+ * @details
+ */
+XLLine::~XLLine() = default;
+
+/**
+ * @details Copy assignment operator
+ */
 XLLine& XLLine::operator=(const XLLine& other)
 {
     if (&other != this) *m_lineNode = *other.m_lineNode;
     return *this;
 }
+
+/**
+ * @details Move assignment operator
+ */
+XLLine& XLLine::operator=(XLLine&& other) noexcept = default;
 
 /**
  * @details Returns the line style (XLLineStyleNone if line is not set)
@@ -1582,17 +1675,36 @@ XLBorder::XLBorder() : m_borderNode(std::make_unique<XMLNode>()) {}
  */
 XLBorder::XLBorder(const XMLNode& node) : m_borderNode(std::make_unique<XMLNode>(node)) {}
 
-XLBorder::~XLBorder() = default;
-
+/**
+ * @details Copy constructor
+ */
 XLBorder::XLBorder(const XLBorder& other)
     : m_borderNode(std::make_unique<XMLNode>(*other.m_borderNode))
 {}
 
+/**
+ * @details Move constructor
+ */
+XLBorder::XLBorder(XLBorder&& other) noexcept = default;
+
+/**
+ * @details
+ */
+XLBorder::~XLBorder() = default;
+
+/**
+ * @details Copy assignment operator
+ */
 XLBorder& XLBorder::operator=(const XLBorder& other)
 {
     if (&other != this) *m_borderNode = *other.m_borderNode;
     return *this;
 }
+
+/**
+ * @details Move assignment operator
+ */
+XLBorder& XLBorder::operator=(XLBorder&& other) noexcept = default;
 
 /**
  * @details determines whether the diagonalUp property is set
@@ -1628,16 +1740,8 @@ bool XLBorder::setDiagonalDown(bool set) { return appendAndSetAttribute(*m_borde
 bool XLBorder::setOutline     (bool set) { return appendAndSetAttribute(*m_borderNode, "outline",      (set ? "true" : "false")).empty() == false; }
 bool XLBorder::setLine(XLLineType lineType, XLLineStyle lineStyle, XLColor lineColor, double lineTint)
 {
-    // std::string tintString = "";
-    // if (lineTint != 0.0) {
-    //     tintString = checkAndFormatDoubleAsString(lineTint, -1.0, +1.0, 0.01);
-    //     if (tintString.length() == 0) {
-    //         using namespace std::literals::string_literals;
-    //         throw XLException("XLBorder::setLine: line tint "s + std::to_string(lineTint) + " is not in range [-1.0;+1.0]"s);
-    //     }
-    // }
-
-    XMLNode lineNode = appendAndGetNode(*m_borderNode, XLLineTypeToString(lineType));    // generate line node if not present
+    XMLNode lineNode = appendAndGetNode(*m_borderNode, XLLineTypeToString(lineType), m_nodeOrder); // generate line node if not present
+    // 2024-12-19: non-existing lines are added using an ordered insert to address issue #304
     bool success = (lineNode.empty() == false);
     if (success) success = (appendAndSetAttribute(lineNode, "style", XLLineStyleToString(lineStyle)).empty() == false); // set style attribute
     XMLNode colorNode{}; // empty node
@@ -1646,11 +1750,6 @@ bool XLBorder::setLine(XLLineType lineType, XLLineStyle lineStyle, XLColor lineC
     success = (colorNode.empty() == false);
     if (success) success = colorObject.setRgb(lineColor);
     if (success) success = colorObject.setTint(lineTint);
-    // if (success) success = (appendAndSetAttribute(colorNode, "rgb", lineColor.hex()).empty() == false);                 // set rgb attribute
-    // if (success) {
-    //     if (tintString.length() == 0) success = colorNode.remove_attribute("tint");                                     // unset: remove tint attribute
-    //     else success = (appendAndSetAttribute(colorNode, "tint", tintString).empty() == false);                         // set tint attribute
-    // }
     return success;
 }
 bool XLBorder::setLeft      (XLLineStyle lineStyle, XLColor lineColor, double lineTint) { return setLine(XLLineLeft,       lineStyle, lineColor, lineTint); }
@@ -1706,32 +1805,35 @@ XLBorders::XLBorders(const XMLNode& borders)
     }
 }
 
+/**
+ * @details Copy constructor
+ */
+XLBorders::XLBorders(const XLBorders& other)
+    : m_bordersNode(std::make_unique<XMLNode>(*other.m_bordersNode)),
+      m_borders(other.m_borders)
+{}
+
+/**
+ * @details Move constructor
+ */
+XLBorders::XLBorders(XLBorders&& other)
+    : m_bordersNode(std::move(other.m_bordersNode)),
+      m_borders(std::move(other.m_borders))
+{}
+
+/**
+ * @details
+ */
 XLBorders::~XLBorders()
 {
     m_borders.clear(); // delete vector with all children
 }
-
-XLBorders::XLBorders(const XLBorders& other)
-    : m_bordersNode(std::make_unique<XMLNode>(*other.m_bordersNode)),
-      m_borders(other.m_borders)
-{
-    // std::cout << __func__ << " copy constructor" << std::endl;
-}
-
-XLBorders::XLBorders(XLBorders&& other)
-    : m_bordersNode(std::move(other.m_bordersNode)),
-      m_borders(std::move(other.m_borders))
-{
-    // std::cout << __func__ << " move constructor" << std::endl;
-}
-
 
 /**
  * @details Copy assignment operator
  */
 XLBorders& XLBorders::operator=(const XLBorders& other)
 {
-    // std::cout << "XLBorders::" << __func__ << " copy assignment" << std::endl;
     if (&other != this) {
         *m_bordersNode = *other.m_bordersNode;
         m_borders.clear();
@@ -1739,6 +1841,11 @@ XLBorders& XLBorders::operator=(const XLBorders& other)
     }
     return *this;
 }
+
+/**
+ * @details Move assignment operator
+ */
+XLBorders& XLBorders::operator=(XLBorders&& other) noexcept = default;
 
 /**
  * @details Returns the amount of border descriptions held by the class
@@ -1802,17 +1909,36 @@ XLAlignment::XLAlignment() : m_alignmentNode(std::make_unique<XMLNode>()) {}
  */
 XLAlignment::XLAlignment(const XMLNode& node) : m_alignmentNode(std::make_unique<XMLNode>(node)) {}
 
-XLAlignment::~XLAlignment() = default;
-
+/**
+ * @details Copy constructor
+ */
 XLAlignment::XLAlignment(const XLAlignment& other)
     : m_alignmentNode(std::make_unique<XMLNode>(*other.m_alignmentNode))
 {}
 
+/**
+ * @details Move constructor
+ */
+XLAlignment::XLAlignment(XLAlignment&& other) noexcept = default;
+
+/**
+ * @details
+ */
+XLAlignment::~XLAlignment() = default;
+
+/**
+ * @details Copy assignment operator.
+ */
 XLAlignment& XLAlignment::operator=(const XLAlignment& other)
 {
     if (&other != this) *m_alignmentNode = *other.m_alignmentNode;
     return *this;
 }
+
+/**
+ * @details Move assignment operator.
+ */
+XLAlignment& XLAlignment::operator=(XLAlignment&& other) noexcept = default;
 
 /**
  * @details Returns the horizontal alignment style
@@ -1902,13 +2028,27 @@ XLCellFormat::XLCellFormat(const XMLNode& node, bool permitXfId)
    m_permitXfId(permitXfId)
 {}
 
-XLCellFormat::~XLCellFormat() = default;
-
+/**
+ * @details Copy constructor
+ */
 XLCellFormat::XLCellFormat(const XLCellFormat& other)
     : m_cellFormatNode(std::make_unique<XMLNode>(*other.m_cellFormatNode)),
       m_permitXfId(other.m_permitXfId)
 {}
 
+/**
+ * @details Move constructor
+ */
+XLCellFormat::XLCellFormat(XLCellFormat&& other) noexcept = default;
+
+/**
+ * @details
+ */
+XLCellFormat::~XLCellFormat() = default;
+
+/*
+ * @details Copy assignment operator
+ */
 XLCellFormat& XLCellFormat::operator=(const XLCellFormat& other)
 {
     if (&other != this) {
@@ -1917,6 +2057,11 @@ XLCellFormat& XLCellFormat::operator=(const XLCellFormat& other)
     }
     return *this;
 }
+
+/**
+ * @details Move assignment operator
+ */
+XLCellFormat& XLCellFormat::operator=(XLCellFormat&& other) noexcept = default;
 
 /**
  * @details determines the numberFormatId
@@ -1980,7 +2125,7 @@ XLAlignment XLCellFormat::alignment(bool createIfMissing) const
 {
     XMLNode nodeAlignment = m_cellFormatNode->child("alignment");
     if (nodeAlignment.empty() && createIfMissing)
-        nodeAlignment = m_cellFormatNode->append_child("alignment");
+        nodeAlignment = appendAndGetNode(*m_cellFormatNode, "alignment", m_nodeOrder); // 2024-12-19: ordered insert to address issue #305
     return XLAlignment(nodeAlignment);
 }
 
@@ -2004,11 +2149,19 @@ bool XLCellFormat::setApplyAlignment   (bool set)            { return appendAndS
 bool XLCellFormat::setApplyProtection  (bool set)            { return appendAndSetAttribute    (*m_cellFormatNode, "applyProtection",             (set ? "true" : "false")).empty() == false; }
 bool XLCellFormat::setQuotePrefix      (bool set)            { return appendAndSetAttribute    (*m_cellFormatNode, "quotePrefix",                 (set ? "true" : "false")).empty() == false; }
 bool XLCellFormat::setPivotButton      (bool set)            { return appendAndSetAttribute    (*m_cellFormatNode, "pivotButton",                 (set ? "true" : "false")).empty() == false; }
-bool XLCellFormat::setLocked           (bool set)            { return appendAndSetNodeAttribute(*m_cellFormatNode, "protection",        "locked", (set ? "true" : "false")).empty() == false; }
-bool XLCellFormat::setHidden           (bool set)            { return appendAndSetNodeAttribute(*m_cellFormatNode, "protection",        "hidden", (set ? "true" : "false")).empty() == false; }
+bool XLCellFormat::setLocked(bool set)
+{
+    return appendAndSetNodeAttribute(*m_cellFormatNode, "protection", "locked", (set ? "true" : "false"),
+    /**/                             XLKeepAttributes, m_nodeOrder).empty() == false;  // 2024-12-19: ordered insert to address issue #305
+}
+bool XLCellFormat::setHidden(bool set)
+{
+    return appendAndSetNodeAttribute(*m_cellFormatNode, "protection", "hidden", (set ? "true" : "false"),
+    /**/                             XLKeepAttributes, m_nodeOrder).empty() == false;  // 2024-12-19: ordered insert to address issue #305
+}
 
 /**
- * @brief Unsupported setter function
+ * @details Unsupported setter function
  */
 bool XLCellFormat::setExtLst(XLUnsupportedElement const& newExtLst) { OpenXLSX::ignore(newExtLst); return false; }
 
@@ -2064,34 +2217,37 @@ XLCellFormats::XLCellFormats(const XMLNode& cellStyleFormats, bool permitXfId)
     }
 }
 
-XLCellFormats::~XLCellFormats()
-{
-    m_cellFormats.clear(); // delete vector with all children
-}
-
+/**
+ * @details Copy constructor
+ */
 XLCellFormats::XLCellFormats(const XLCellFormats& other)
     : m_cellFormatsNode(std::make_unique<XMLNode>(*other.m_cellFormatsNode)),
       m_cellFormats(other.m_cellFormats),
       m_permitXfId(other.m_permitXfId)
-{
-    // std::cout << __func__ << " copy constructor" << std::endl;
-}
+{}
 
+/**
+ * @details Move constructor
+ */
 XLCellFormats::XLCellFormats(XLCellFormats&& other)
     : m_cellFormatsNode(std::move(other.m_cellFormatsNode)),
       m_cellFormats(std::move(other.m_cellFormats)),
       m_permitXfId(other.m_permitXfId)
-{
-    // std::cout << __func__ << " move constructor" << std::endl;
-}
+{}
 
+/**
+ * @details
+ */
+XLCellFormats::~XLCellFormats()
+{
+    m_cellFormats.clear(); // delete vector with all children
+}
 
 /**
  * @details Copy assignment operator
  */
 XLCellFormats& XLCellFormats::operator=(const XLCellFormats& other)
 {
-    // std::cout << "XLCellFormats::" << __func__ << " copy assignment" << std::endl;
     if (&other != this) {
         *m_cellFormatsNode = *other.m_cellFormatsNode;
         m_cellFormats.clear();
@@ -2100,6 +2256,11 @@ XLCellFormats& XLCellFormats::operator=(const XLCellFormats& other)
     }
     return *this;
 }
+
+/**
+ * @details Move assignment operator
+ */
+XLCellFormats& XLCellFormats::operator=(XLCellFormats&& other) noexcept = default;
 
 /**
  * @details Returns the amount of cell format descriptions held by the class
@@ -2179,17 +2340,36 @@ XLCellStyle::XLCellStyle() : m_cellStyleNode(std::make_unique<XMLNode>()) {}
  */
 XLCellStyle::XLCellStyle(const XMLNode& node) : m_cellStyleNode(std::make_unique<XMLNode>(node)) {}
 
-XLCellStyle::~XLCellStyle() = default;
-
+/**
+ * @details Copy constructor
+ */
 XLCellStyle::XLCellStyle(const XLCellStyle& other)
     : m_cellStyleNode(std::make_unique<XMLNode>(*other.m_cellStyleNode))
 {}
 
+/**
+ * @details Move constructor
+ */
+XLCellStyle::XLCellStyle(XLCellStyle&& other) noexcept = default;
+
+/**
+ * @details
+ */
+XLCellStyle::~XLCellStyle() = default;
+
+/**
+ * @details Copy assignment operator
+ */
 XLCellStyle& XLCellStyle::operator=(const XLCellStyle& other)
 {
     if (&other != this) *m_cellStyleNode = *other.m_cellStyleNode;
     return *this;
 }
+
+/**
+ * @details Move assignment operator
+ */
+XLCellStyle& XLCellStyle::operator=(XLCellStyle&& other) noexcept = default;
 
 /**
  * @details Returns the style empty status
@@ -2217,7 +2397,7 @@ bool XLCellStyle::setHidden       (bool set)                 { return appendAndS
 bool XLCellStyle::setCustomBuiltin(bool set)                 { return appendAndSetAttribute(*m_cellStyleNode, "customBuiltin", (set ? "true" : "false")).empty() == false;        }
 
 /**
- * @brief Unsupported setter function
+ * @details Unsupported setter function
  */
 bool XLCellStyle::setExtLst(XLUnsupportedElement const& newExtLst) { OpenXLSX::ignore(newExtLst); return false; }
 
@@ -2253,7 +2433,6 @@ XLCellStyles::XLCellStyles(const XMLNode& cellStyles)
     XMLNode node = cellStyles.first_child_of_type(pugi::node_element);
     while (not node.empty()) {
         std::string nodeName = node.name();
-        // std::cout << "XLCellStyles constructor, node name is " << nodeName << std::endl;
         if (nodeName == "cellStyle")
             m_cellStyles.push_back(XLCellStyle(node));
         else
@@ -2262,32 +2441,35 @@ XLCellStyles::XLCellStyles(const XMLNode& cellStyles)
     }
 }
 
+/**
+ * @details Copy constructor
+ */
+XLCellStyles::XLCellStyles(const XLCellStyles& other)
+    : m_cellStylesNode(std::make_unique<XMLNode>(*other.m_cellStylesNode)),
+      m_cellStyles(other.m_cellStyles)
+{}
+
+/**
+ * @details Move constructor
+ */
+XLCellStyles::XLCellStyles(XLCellStyles&& other)
+    : m_cellStylesNode(std::move(other.m_cellStylesNode)),
+      m_cellStyles(std::move(other.m_cellStyles))
+{}
+
+/**
+ * @details
+ */
 XLCellStyles::~XLCellStyles()
 {
     m_cellStyles.clear(); // delete vector with all children
 }
-
-XLCellStyles::XLCellStyles(const XLCellStyles& other)
-    : m_cellStylesNode(std::make_unique<XMLNode>(*other.m_cellStylesNode)),
-      m_cellStyles(other.m_cellStyles)
-{
-    // std::cout << __func__ << " copy constructor" << std::endl;
-}
-
-XLCellStyles::XLCellStyles(XLCellStyles&& other)
-    : m_cellStylesNode(std::move(other.m_cellStylesNode)),
-      m_cellStyles(std::move(other.m_cellStyles))
-{
-    // std::cout << __func__ << " move constructor" << std::endl;
-}
-
 
 /**
  * @details Copy assignment operator
  */
 XLCellStyles& XLCellStyles::operator=(const XLCellStyles& other)
 {
-    // std::cout << "XLCellStyles::" << __func__ << " copy assignment" << std::endl;
     if (&other != this) {
         *m_cellStylesNode = *other.m_cellStylesNode;
         m_cellStyles.clear();
@@ -2295,6 +2477,11 @@ XLCellStyles& XLCellStyles::operator=(const XLCellStyles& other)
     }
     return *this;
 }
+
+/**
+ * @details Move assignment operator
+ */
+XLCellStyles& XLCellStyles::operator=(XLCellStyles&& other) noexcept = default;
 
 /**
  * @details Returns the amount of numberFormats held by the class
@@ -2350,6 +2537,230 @@ XLStyleIndex XLCellStyles::create(XLCellStyle copyFrom, std::string styleEntries
 
 
 /**
+ * @details Constructor. Initializes an empty XLDiffCellFormat object
+ */
+XLDiffCellFormat::XLDiffCellFormat() : m_diffCellFormatNode(std::make_unique<XMLNode>()) {}
+
+/**
+ * @details Constructor. Initializes the member variables for the new XLDiffCellFormat object.
+ */
+XLDiffCellFormat::XLDiffCellFormat(const XMLNode& node) : m_diffCellFormatNode(std::make_unique<XMLNode>(node)) {}
+
+/**
+ * @details Copy constructor
+ */
+XLDiffCellFormat::XLDiffCellFormat(const XLDiffCellFormat& other)
+    : m_diffCellFormatNode(std::make_unique<XMLNode>(*other.m_diffCellFormatNode))
+{}
+
+/**
+ * @details Move constructor
+ */
+XLDiffCellFormat::XLDiffCellFormat(XLDiffCellFormat&& other) noexcept = default;
+
+/**
+ * @details
+ */
+XLDiffCellFormat::~XLDiffCellFormat() = default;
+
+/**
+ * @details Copy assignment operator
+ */
+XLDiffCellFormat& XLDiffCellFormat::operator=(const XLDiffCellFormat& other)
+{
+    if (&other != this) *m_diffCellFormatNode = *other.m_diffCellFormatNode;
+    return *this;
+}
+
+/**
+ * @details Move assignment operator
+ */
+XLDiffCellFormat& XLDiffCellFormat::operator=(XLDiffCellFormat&& other) noexcept = default;
+
+
+/**
+ * @details Returns the differential cell format empty status
+ */
+bool XLDiffCellFormat::empty() const { return m_diffCellFormatNode->empty(); }
+
+/**
+ * @details Getter functions
+ */
+XLFont XLDiffCellFormat::font() const
+{
+    XMLNode fontNode = appendAndGetNode(*m_diffCellFormatNode, "font");
+    if (fontNode.empty()) return XLFont{};
+    return XLFont(fontNode);
+}
+XLNumberFormat XLDiffCellFormat::numFmt() const
+{
+    XMLNode numFmtNode = appendAndGetNode(*m_diffCellFormatNode, "numFmt");
+    if (numFmtNode.empty()) return XLNumberFormat{};
+    return XLNumberFormat(numFmtNode);
+}
+XLFill XLDiffCellFormat::fill() const
+{
+    XMLNode fillNode = appendAndGetNode(*m_diffCellFormatNode, "fill");
+    if (fillNode.empty()) return XLFill{};
+    return XLFill(fillNode);
+}
+XLAlignment XLDiffCellFormat::alignment() const
+{
+    XMLNode alignmentNode = appendAndGetNode(*m_diffCellFormatNode, "alignment");
+    if (alignmentNode.empty()) return XLAlignment{};
+    return XLAlignment(alignmentNode);
+}
+XLBorder XLDiffCellFormat::border() const
+{
+    XMLNode borderNode = appendAndGetNode(*m_diffCellFormatNode, "border");
+    if (borderNode.empty()) return XLBorder{};
+    return XLBorder(borderNode);
+}
+
+/**
+ * @details Setter functions
+ */
+// bool XLDiffCellFormat::setName         (std::string newName)      { return appendAndSetAttribute(*m_diffCellFormatNode, "name", newName).empty() == false; }
+
+/**
+ * @details Unsupported setter function
+ */
+bool XLDiffCellFormat::setExtLst(XLUnsupportedElement const& newExtLst) { OpenXLSX::ignore(newExtLst); return false; }
+
+/**
+ * @details assemble a string summary about the differential cell format
+ */
+std::string XLDiffCellFormat::summary() const
+{
+    using namespace std::literals::string_literals;
+    return ""; // TODO: write this
+}
+
+// ===== XLDiffCellFormats, parent of XLDiffCellFormat
+
+/**
+ * @details Constructor. Initializes an empty XLCellStyles object
+ */
+XLDiffCellFormats::XLDiffCellFormats() : m_diffCellFormatsNode(std::make_unique<XMLNode>()) {}
+
+/**
+ * @details Constructor. Initializes the member variables for the new XLCellStyles object.
+ */
+XLDiffCellFormats::XLDiffCellFormats(const XMLNode& diffCellFormats)
+    : m_diffCellFormatsNode(std::make_unique<XMLNode>(diffCellFormats))
+{
+    // initialize XLCellStyles entries and m_cellStyles here
+    XMLNode node = m_diffCellFormatsNode->first_child_of_type(pugi::node_element);
+    while (not node.empty()) {
+        std::string nodeName = node.name();
+        if (nodeName == "dxf")
+            m_diffCellFormats.push_back(XLDiffCellFormat(node));
+        else
+            std::cerr << "WARNING: XLDiffCellFormats constructor: unknown subnode " << nodeName << std::endl;
+        node = node.next_sibling_of_type(pugi::node_element);
+    }
+}
+
+/**
+ * @details Copy constructor
+ */
+XLDiffCellFormats::XLDiffCellFormats(const XLDiffCellFormats& other)
+    : m_diffCellFormatsNode(std::make_unique<XMLNode>(*other.m_diffCellFormatsNode)),
+      m_diffCellFormats(other.m_diffCellFormats)
+{}
+
+/**
+ * @details Move constructor
+ */
+XLDiffCellFormats::XLDiffCellFormats(XLDiffCellFormats&& other)
+    : m_diffCellFormatsNode(std::move(other.m_diffCellFormatsNode)),
+      m_diffCellFormats(std::move(other.m_diffCellFormats))
+{}
+
+/**
+ * @details
+ */
+XLDiffCellFormats::~XLDiffCellFormats()
+{
+    m_diffCellFormats.clear(); // delete vector with all children
+}
+
+/**
+ * @details Copy assignment operator
+ */
+XLDiffCellFormats& XLDiffCellFormats::operator=(const XLDiffCellFormats& other)
+{
+    if (&other != this) {
+        *m_diffCellFormatsNode = *other.m_diffCellFormatsNode;
+        m_diffCellFormats.clear();
+        m_diffCellFormats = other.m_diffCellFormats;
+    }
+    return *this;
+}
+
+/**
+ * @details Move assignment operator
+ */
+XLDiffCellFormats& XLDiffCellFormats::operator=(XLDiffCellFormats&& other) noexcept = default;
+
+/**
+ * @details Returns the amount of differential cell formats held by the class
+ */
+size_t XLDiffCellFormats::count() const { return m_diffCellFormats.size(); }
+
+/**
+ * @details fetch XLDiffCellFormat from m_diffCellFormats by index
+ */
+XLDiffCellFormat XLDiffCellFormats::diffCellFormatByIndex(XLStyleIndex index) const
+{
+    if (index >= m_diffCellFormats.size()) {
+        using namespace std::literals::string_literals;
+        throw XLException("XLDiffCellFormats::"s + __func__ + ": attempted to access index "s + std::to_string(index)
+                        + " with count "s + std::to_string(m_diffCellFormats.size()));
+    }
+    return m_diffCellFormats.at(index);
+}
+
+/**
+ * @details append a new XLDiffCellFormat to m_diffCellFormats and m_diffCellFormatsNode, based on copyFrom
+ */
+XLStyleIndex XLDiffCellFormats::create(XLDiffCellFormat copyFrom, std::string styleEntriesPrefix)
+{
+    XLStyleIndex index = count();    // index for the cell style to be created
+    XMLNode newNode{};               // scope declaration
+
+    // ===== Append new node prior to final whitespaces, if any
+    XMLNode lastDiffCellFormat = m_diffCellFormatsNode->last_child_of_type(pugi::node_element);
+    if (lastDiffCellFormat.empty()) newNode = m_diffCellFormatsNode->prepend_child("dxf");
+    else                            newNode = m_diffCellFormatsNode->insert_child_after("dxf", lastDiffCellFormat);
+    if (newNode.empty()) {
+        using namespace std::literals::string_literals;
+        throw XLException("XLDiffCellFormats::"s + __func__ + ": failed to append a new dxf node"s);
+    }
+    if (styleEntriesPrefix.length() > 0)    // if a whitespace prefix is configured
+        m_diffCellFormatsNode->insert_child_before(pugi::node_pcdata, newNode).set_value(styleEntriesPrefix.c_str());    // prefix the new node with styleEntriesPrefix
+
+    XLDiffCellFormat newDiffCellFormat(newNode);
+    if (copyFrom.m_diffCellFormatNode->empty()) {    // if no template is given
+        // no-op: differential cell format entries have NO default values
+    }
+    else
+        copyXMLNode(newNode, *copyFrom.m_diffCellFormatNode); // will use copyFrom as template, does nothing if copyFrom is empty
+
+    m_diffCellFormats.push_back(newDiffCellFormat);
+    appendAndSetAttribute(*m_diffCellFormatsNode, "count", std::to_string(m_diffCellFormats.size())); // update array count in XML
+    return index;
+}
+
+
+// ===== XLStyles, master class
+
+/**
+ * @details Default constructor
+ */
+XLStyles::XLStyles() {} // TBD if defaulting this constructor again would reintroduce issue #310
+
+/**
  * @details Creates an XLStyles object, which will initialize from the given xmlData
  */
 XLStyles::XLStyles(XLXmlData* xmlData, bool suppressWarnings, std::string stylesPrefix)
@@ -2398,8 +2809,11 @@ XLStyles::XLStyles(XLXmlData* xmlData, bool suppressWarnings, std::string styles
                 // std::cout << "found XLStylesCellStyles, node name is " << node.name() << std::endl;
                 m_cellStyles = std::make_unique<XLCellStyles>(node);
                 break;
+            case XLStylesDiffCellFormats:
+                // std::cout << "found XLStylesDiffCellFormats, node name is " << node.name() << std::endl;
+                m_diffCellFormats = std::make_unique<XLDiffCellFormats>(node);
+                break;
             case XLStylesColors:      [[fallthrough]];
-            case XLStylesFormats:     [[fallthrough]];
             case XLStylesTableStyles: [[fallthrough]];
             case XLStylesExtLst:
                 if( !m_suppressWarnings )
@@ -2415,6 +2829,11 @@ XLStyles::XLStyles(XLXmlData* xmlData, bool suppressWarnings, std::string styles
     }
 
     // ===== Fallbacks: create root style nodes (in reverse order, using prepend_child)
+    if (!m_diffCellFormats) {
+        node = doc.document_element().prepend_child(XLStylesEntryTypeToString(XLStylesDiffCellFormats).c_str());
+        wrapNode (doc.document_element(), node, stylesPrefix);
+        m_diffCellFormats = std::make_unique<XLDiffCellFormats>(node);
+    }
     if (!m_cellStyles) {
         node = doc.document_element().prepend_child(XLStylesEntryTypeToString(XLStylesCellStyles).c_str());
         wrapNode (doc.document_element(), node, stylesPrefix);
@@ -2467,6 +2886,70 @@ XLStyles::~XLStyles()
 }
 
 /**
+ * @details move-construct an XLStyles object
+ */
+XLStyles::XLStyles(XLStyles&& other) noexcept
+    : XLXmlFile(other),
+      m_suppressWarnings(other.m_suppressWarnings),
+      m_numberFormats   (std::move(other.m_numberFormats)   ),
+      m_fonts           (std::move(other.m_fonts)           ),
+      m_fills           (std::move(other.m_fills)           ),
+      m_borders         (std::move(other.m_borders)         ),
+      m_cellStyleFormats(std::move(other.m_cellStyleFormats)),
+      m_cellFormats     (std::move(other.m_cellFormats)     ),
+      m_cellStyles      (std::move(other.m_cellStyles)      ),
+      m_diffCellFormats (std::move(other.m_diffCellFormats) )
+{}
+
+/**
+ * @details copy-construct an XLStyles object
+ */
+XLStyles::XLStyles(const XLStyles& other)
+    : XLXmlFile(other),
+      m_suppressWarnings(other.m_suppressWarnings),
+      m_numberFormats   (std::make_unique<XLNumberFormats  >(*other.m_numberFormats)   ),
+      m_fonts           (std::make_unique<XLFonts          >(*other.m_fonts)           ),
+      m_fills           (std::make_unique<XLFills          >(*other.m_fills)           ),
+      m_borders         (std::make_unique<XLBorders        >(*other.m_borders)         ),
+      m_cellStyleFormats(std::make_unique<XLCellFormats    >(*other.m_cellStyleFormats)),
+      m_cellFormats     (std::make_unique<XLCellFormats    >(*other.m_cellFormats)     ),
+      m_cellStyles      (std::make_unique<XLCellStyles     >(*other.m_cellStyles)      ),
+      m_diffCellFormats (std::make_unique<XLDiffCellFormats>(*other.m_diffCellFormats) )
+{}
+
+/**
+ * @details move-assign an XLStyles object
+ */
+XLStyles& XLStyles::operator=(XLStyles&& other) noexcept
+{
+    if (&other != this) {
+        XLXmlFile::operator=(std::move(other));
+        m_suppressWarnings = other.m_suppressWarnings;
+        m_numberFormats    = std::move(other.m_numberFormats   );
+        m_fonts            = std::move(other.m_fonts           );
+        m_fills            = std::move(other.m_fills           );
+        m_borders          = std::move(other.m_borders         );
+        m_cellStyleFormats = std::move(other.m_cellStyleFormats);
+        m_cellFormats      = std::move(other.m_cellFormats     );
+        m_cellStyles       = std::move(other.m_cellStyles      );
+        m_diffCellFormats  = std::move(other.m_diffCellFormats );
+    }
+    return *this;
+}
+
+/**
+ * @details copy-assign an XLStyles object
+ */
+XLStyles& XLStyles::operator=(const XLStyles& other)
+{
+    if (&other != this) {
+        XLStyles temp = other;   // copy-construct
+        *this = std::move(temp); // move-assign & invalidate temp
+    }
+    return *this;
+}
+
+/**
  * @details return a handle to the underlying number formats
  */
 XLNumberFormats& XLStyles::numberFormats() const { return *m_numberFormats; }
@@ -2500,3 +2983,8 @@ XLCellFormats& XLStyles::cellFormats() const { return *m_cellFormats; }
  * @details return a handle to the underlying cell styles
  */
 XLCellStyles& XLStyles::cellStyles() const { return *m_cellStyles; }
+
+/**
+ * @details return a handle to the underlying differential cell formats
+ */
+XLDiffCellFormats& XLStyles::diffCellFormats() const { return *m_diffCellFormats; }

@@ -46,13 +46,13 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 // ===== External Includes ===== //
 #include <algorithm>
 #include <iterator>
-#include <pugixml.hpp>
 #include <vector>
 
 // ===== OpenXLSX Includes ===== //
 #include "XLDocument.hpp"
 #include "XLSheet.hpp"
 #include "XLWorkbook.hpp"
+#include "XLXmlParser.hpp"              // pugixml wrapper
 #include "utilities/XLUtilities.hpp"
 
 using namespace OpenXLSX;
@@ -68,15 +68,40 @@ namespace
 }    // namespace
 
 /**
+ * @details Default constructor
+ */
+XLWorkbook::XLWorkbook() = default;
+
+/**
  * @details The constructor initializes the member variables and calls the loadXMLData from the
  * XLAbstractXMLFile base class.
  */
 XLWorkbook::XLWorkbook(XLXmlData* xmlData) : XLXmlFile(xmlData) {}
 
 /**
+ * @details Copy constructor
+ */
+XLWorkbook::XLWorkbook(const XLWorkbook& other) = default;
+
+/**
+ * @details Move constructor
+ */
+XLWorkbook::XLWorkbook(XLWorkbook&& other) = default;
+
+/**
  * @details
  */
 XLWorkbook::~XLWorkbook() = default;
+
+/**
+ * @brief Copy assignment operator
+ */
+XLWorkbook& XLWorkbook::operator=(const XLWorkbook& other) = default;
+
+/**
+ * @brief Move assignment operator
+ */
+XLWorkbook& XLWorkbook::operator=(XLWorkbook&& other) = default;
 
 /**
  * @details
@@ -147,23 +172,23 @@ XLChartsheet XLWorkbook::chartsheet(const std::string& sheetName) { return sheet
  */
 XLChartsheet XLWorkbook::chartsheet(uint16_t index) { return sheet(index).get<XLChartsheet>(); }
 
-/**
- * @details
- */
-bool XLWorkbook::hasSharedStrings() const
-{
-    return true;    // parentDoc().executeQuery(XLQuerySharedStrings()).sharedStrings() != nullptr;
-}
-
-/**
- * @details
- */
-XLSharedStrings XLWorkbook::sharedStrings()
-{
-    const XLQuery query(XLQueryType::QuerySharedStrings);
-    return parentDoc().execQuery(query).result<XLSharedStrings>();
-}
-
+// /**
+//  * @details
+//  */
+// bool XLWorkbook::hasSharedStrings() const
+// {
+//     return true;    // always true
+// }
+//
+// /**
+//  * @details
+//  */
+// XLSharedStrings XLWorkbook::sharedStrings()
+// {
+//     const XLQuery query(XLQueryType::QuerySharedStrings);
+//     return parentDoc().execQuery(query).result<XLSharedStrings>();
+// }
+//
 /**
  * @details
  */
@@ -183,7 +208,11 @@ void XLWorkbook::deleteSheet(const std::string& sheetName)    // 2024-05-02: whi
                                                               // CAUTION: execCommand on underlying XML with whitespaces not verified
 {
     // ===== Determine ID and type of sheet, as well as current worksheet count.
-    auto    sheetID = sheetsNode(xmlDocument()).find_child_by_attribute("name", sheetName.c_str()).attribute("r:id").value();    // NOLINT
+    std::string sheetID = sheetsNode(xmlDocument()).find_child_by_attribute("name", sheetName.c_str()).attribute("r:id").value();    // NOLINT
+    if (sheetID.length() == 0) { // 2025-01-12 BUGFIX: prevent segfault by throwing
+        using namespace std::literals::string_literals;
+        throw XLException("XLWorkbook::deleteSheet: workbook has no sheet with name \""s + sheetName + "\""s);
+    }
     XLQuery sheetTypeQuery(XLQueryType::QuerySheetType);
     sheetTypeQuery.setParam("sheetID", std::string(sheetID));    // BUGFIX 2024-05-02: was using relationshipID() instead of sheetID,
                                                                  // leading to a bad sheetType & a failed check to not delete last worksheet

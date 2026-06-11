@@ -45,18 +45,17 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== External Includes ===== //
 #include <cstring>
-#include <pugixml.hpp>
 
 // ===== OpenXLSX Includes ===== //
 #include "XLContentTypes.hpp"
 #include "XLDocument.hpp"
-
-#include <XLException.hpp>
+#include "XLException.hpp"
+#include "XLXmlParser.hpp"              // pugixml wrapper
 
 using namespace OpenXLSX;
 
-namespace
-{
+namespace { // anonymous namespace for local functions
+
     const std::string applicationOpenXmlOfficeDocument = "application/vnd.openxmlformats-officedocument";
     const std::string applicationOpenXmlPackage        = "application/vnd.openxmlformats-package";
     const std::string applicationMicrosoftExcel        = "application/vnd.ms-excel";
@@ -67,14 +66,16 @@ namespace
      * @note 2024-08-31: In line with a change to hardcoded XML relationship domains in XLRelationships.cpp, replaced the repeating
      *          hardcoded strings here with the above declared constants, preparing a potential need for a similar "dumb" fallback implementation
      */
-    XLContentType GetTypeFromString(const std::string& typeString)
+    XLContentType GetContentTypeFromString(const std::string& typeString)
     {
         XLContentType type { XLContentType::Unknown };
 
-        if (typeString == applicationMicrosoftExcel + ".Sheet.macroEnabled.main+xml")
+        if (typeString == applicationMicrosoftExcel + ".sheet.macroEnabled.main+xml")
             type = XLContentType::WorkbookMacroEnabled;
         else if (typeString == applicationOpenXmlOfficeDocument + ".spreadsheetml.sheet.main+xml")
             type = XLContentType::Workbook;
+        else if (typeString == applicationOpenXmlPackage + ".relationships+xml")
+            type = XLContentType::Relationships;
         else if (typeString == applicationOpenXmlOfficeDocument + ".spreadsheetml.worksheet+xml")
             type = XLContentType::Worksheet;
         else if (typeString == applicationOpenXmlOfficeDocument + ".spreadsheetml.chartsheet+xml")
@@ -127,9 +128,11 @@ namespace
         std::string typeString;
 
         if (type == XLContentType::WorkbookMacroEnabled)
-            typeString = applicationMicrosoftExcel + ".Sheet.macroEnabled.main+xml";
+            typeString = applicationMicrosoftExcel + ".sheet.macroEnabled.main+xml";
         else if (type == XLContentType::Workbook)
             typeString = applicationOpenXmlOfficeDocument + ".spreadsheetml.sheet.main+xml";
+        else if (type == XLContentType::Relationships)
+            typeString = applicationOpenXmlPackage + ".relationships+xml";
         else if (type == XLContentType::Worksheet)
             typeString = applicationOpenXmlOfficeDocument + ".spreadsheetml.worksheet+xml";
         else if (type == XLContentType::Chartsheet)
@@ -173,7 +176,7 @@ namespace
 
         return typeString;
     }
-}    // namespace
+}    // anonymous namespace
 
 /**
  * @details
@@ -214,7 +217,7 @@ XLContentItem& XLContentItem::operator=(XLContentItem&& other) noexcept = defaul
 /**
  * @details
  */
-XLContentType XLContentItem::type() const { return GetTypeFromString(m_contentNode->attribute("ContentType").value()); }
+XLContentType XLContentItem::type() const { return GetContentTypeFromString(m_contentNode->attribute("ContentType").value()); }
 
 /**
  * @details
@@ -232,12 +235,12 @@ XLContentTypes::XLContentTypes() = default;
 XLContentTypes::XLContentTypes(XLXmlData* xmlData) : XLXmlFile(xmlData) {}
 
 /**
- * @details
+ * @details explicit default destructor
  */
 XLContentTypes::~XLContentTypes() = default;
 
 /**
- * @details
+ * @details explicit default copy constructor - invokes base class copy constructor
  */
 XLContentTypes::XLContentTypes(const XLContentTypes& other) = default;
 
@@ -247,12 +250,12 @@ XLContentTypes::XLContentTypes(const XLContentTypes& other) = default;
 XLContentTypes::XLContentTypes(XLContentTypes&& other) noexcept = default;
 
 /**
- * @details
+ * @details explicit default copy assignment operator - invokes base class copy assignment
  */
 XLContentTypes& XLContentTypes::operator=(const XLContentTypes& other) = default;
 
 /**
- * @details
+ * @details explicit default move assignment operator - invokes base class move assignment
  */
 XLContentTypes& XLContentTypes::operator=(XLContentTypes&& other) noexcept = default;
 

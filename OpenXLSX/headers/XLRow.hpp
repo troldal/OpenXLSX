@@ -53,7 +53,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #endif // _MSC_VER
 
 // ===== OpenXLSX Includes ===== //
-#include "include-exports-header.hpp"
+#include "OpenXLSX-Exports.hpp"
 #include "XLRowData.hpp"
 
 // ========== CLASS AND ENUM TYPE DEFINITIONS ========== //
@@ -68,6 +68,7 @@ namespace OpenXLSX
     class OPENXLSX_EXPORT XLRow
     {
         friend class XLRowIterator;
+        friend class XLRowReverseIterator;
         friend class XLRowDataProxy;
         friend bool operator==(const XLRow& lhs, const XLRow& rhs);
         friend bool operator!=(const XLRow& lhs, const XLRow& rhs);
@@ -110,15 +111,25 @@ namespace OpenXLSX
 
         /**
          * @brief Copy assignment operator.
-         * @note The copy assignment operator is explicitly deleted.
          */
         XLRow& operator=(const XLRow& other);
 
         /**
          * @brief Move assignment operator.
-         * @note The move assignment operator has been explicitly deleted.
          */
         XLRow& operator=(XLRow&& other) noexcept;
+
+        /**
+         * @brief test if row object has no (valid) content
+         * @return
+         */
+        bool empty() const;
+
+        /**
+         * @brief opposite of empty()
+         * @return
+         */
+        explicit operator bool() const;
 
         /**
          * @brief Get the height of the row.
@@ -219,7 +230,7 @@ namespace OpenXLSX
          * @param columNumber The column at which to check for an existing cell
          * @return An XLCell object (that bool-evaluates to false if cell was not found)
          */
-        XLCell findCell(uint16_t columNumber) const;
+        XLCell findCell(uint16_t columNumber);
 
         /**
          * @brief Get the array index of xl/styles.xml:<styleSheet>:<cellXfs> for the style assigned to the row.
@@ -254,7 +265,7 @@ namespace OpenXLSX
 
         //---------- PRIVATE MEMBER VARIABLES ----------//
         std::unique_ptr<XMLNode> m_rowNode;       /**< The XMLNode object for the row. */
-        XLSharedStrings          m_sharedStrings; /**< */
+        XLSharedStringsRef       m_sharedStrings; /**< */
         XLRowDataProxy           m_rowDataProxy;  /**< */
     };
 
@@ -271,7 +282,7 @@ namespace OpenXLSX
         using reference         = XLRow&;
 
         /**
-         * @brief
+         * @brief constructor
          * @param rowRange
          * @param loc
          */
@@ -283,30 +294,41 @@ namespace OpenXLSX
         ~XLRowIterator();
 
         /**
-         * @brief
+         * @brief copy constructor
          * @param other
          */
         XLRowIterator(const XLRowIterator& other);
 
         /**
-         * @brief
+         * @brief move constructor
          * @param other
          */
         XLRowIterator(XLRowIterator&& other) noexcept;
 
         /**
-         * @brief
+         * @brief copy assignment operator
          * @param other
          * @return
          */
         XLRowIterator& operator=(const XLRowIterator& other);
 
         /**
-         * @brief
+         * @brief move assignment operator
          * @param other
          * @return
          */
         XLRowIterator& operator=(XLRowIterator&& other) noexcept;
+
+    private:    // ===== Switch to private method that is used by the XLRowIterator increment operator++ and the dereference operators * and ->
+        static constexpr const bool XLCreateIfMissing      = true;     // code readability for updateCurrentRow parameter createIfMissing
+        static constexpr const bool XLDoNotCreateIfMissing = false;    //   "
+        /**
+         * @brief update m_currentRow by fetching (or inserting) a row at m_currentRowNumber
+         * @param createIfMissing m_currentRow will only be inserted if createIfMissing is true
+         */
+        void updateCurrentRow(bool createIfMissing);
+
+    public:     // ===== Switch back to public methods
 
         /**
          * @brief
@@ -352,12 +374,193 @@ namespace OpenXLSX
          */
         explicit operator bool() const;
 
+        /**
+         * @brief determine whether the row that the iterator points to exists (m_currentRowNumber)
+         * @return true if XML already has an entry for that cell, otherwise false
+         */
+        bool rowExists();
+
+        /**
+         * @brief determine whether iterator is at 1 beyond the last row in range
+         * @return
+         */
+        bool endReached() const { return m_endReached; }
+
+        /**
+         * @brief get the row number corresponding to the current iterator position
+         * @return a row number, with m_lastRow + 1 for the beyond-the-end iterator
+         */
+        uint32_t rowNumber() const { return m_endReached ? m_lastRow + 1 : m_currentRowNumber; }
+
+        /**
+         * @brief check the iterator direction
+         * @return XLIteratorDirection::Forward
+         */
+        constexpr XLIteratorDirection direction() const { return XLIteratorDirection::Forward; }
+
     private:
         std::unique_ptr<XMLNode> m_dataNode;       /**< */
         uint32_t                 m_firstRow { 1 }; /**< The cell reference of the first cell in the range */
         uint32_t                 m_lastRow { 1 };  /**< The cell reference of the last cell in the range */
         XLRow                    m_currentRow;     /**< */
-        XLSharedStrings          m_sharedStrings;  /**< */
+        XLSharedStringsRef       m_sharedStrings;  /**< */
+
+        // helper variables for non-creating iterator functionality
+        bool                     m_endReached;           /**< */
+        std::unique_ptr<XMLNode> m_hintRow;              /**< The cell node of the last existing row found up to current iterator position */
+        uint32_t                 m_hintRowNumber;        /**<   the row number for m_hintRow */
+        static constexpr const int XLNotLoaded  = 0;    // code readability for m_currentRowStatus
+        static constexpr const int XLNoSuchRow  = 1;    //   "
+        static constexpr const int XLLoaded     = 2;    //   "
+        int                      m_currentRowStatus;    /**< Status of m_currentRow: XLNotLoaded, XLNoSuchRow or XLLoaded */
+        uint32_t                 m_currentRowNumber;
+    };
+
+    /**
+     * @brief
+     */
+    class OPENXLSX_EXPORT XLRowReverseIterator
+    {
+    public:
+        using iterator_category = std::forward_iterator_tag;
+        using value_type        = XLRow;
+        using difference_type   = int64_t;
+        using pointer           = XLRow*;
+        using reference         = XLRow&;
+
+        /**
+         * @brief constructor
+         * @param rowRange
+         * @param loc
+         */
+        explicit XLRowReverseIterator(const XLRowRange& rowRange, XLIteratorLocation loc);
+
+        /**
+         * @brief
+         */
+        ~XLRowReverseIterator();
+
+        /**
+         * @brief copy constructor
+         * @param other
+         */
+        XLRowReverseIterator(const XLRowReverseIterator& other);
+
+        /**
+         * @brief move constructor
+         * @param other
+         */
+        XLRowReverseIterator(XLRowReverseIterator&& other) noexcept;
+
+        /**
+         * @brief copy assignment operator
+         * @param other
+         * @return
+         */
+        XLRowReverseIterator& operator=(const XLRowReverseIterator& other);
+
+        /**
+         * @brief move assignment operator
+         * @param other
+         * @return
+         */
+        XLRowReverseIterator& operator=(XLRowReverseIterator&& other) noexcept;
+
+    private:    // ===== Switch to private method that is used by the XLRowReverseIterator increment operator++ and the dereference operators * and ->
+        static constexpr const bool XLCreateIfMissing      = true;     // code readability for updateCurrentRow parameter createIfMissing
+        static constexpr const bool XLDoNotCreateIfMissing = false;    //   "
+        /**
+         * @brief update m_currentRow by fetching (or inserting) a row at m_currentRowNumber
+         * @param createIfMissing m_currentRow will only be inserted if createIfMissing is true
+         */
+        void updateCurrentRow(bool createIfMissing);
+
+    public:     // ===== Switch back to public methods
+
+        /**
+         * @brief
+         * @return
+         */
+        XLRowReverseIterator& operator++();
+
+        /**
+         * @brief
+         * @return
+         */
+        XLRowReverseIterator operator++(int);
+
+        /**
+         * @brief
+         * @return
+         */
+        reference operator*();
+
+        /**
+         * @brief
+         * @return
+         */
+        pointer operator->();
+
+        /**
+         * @brief
+         * @param rhs
+         * @return
+         */
+        bool operator==(const XLRowReverseIterator& rhs) const;
+
+        /**
+         * @brief
+         * @param rhs
+         * @return
+         */
+        bool operator!=(const XLRowReverseIterator& rhs) const;
+
+        /**
+         * @brief
+         * @return
+         */
+        explicit operator bool() const;
+
+        /**
+         * @brief determine whether the row that the iterator points to exists (m_currentRowNumber)
+         * @return true if XML already has an entry for that cell, otherwise false
+         */
+        bool rowExists();
+
+        /**
+         * @brief determine whether iterator is at 1 beyond the last row in range
+         * @return
+         */
+        bool endReached() const { return m_endReached; }
+
+        /**
+         * @brief get the row number corresponding to the current iterator position
+         * @return a row number, with m_lastRow + 1 for the beyond-the-end iterator
+         */
+        uint32_t rowNumber() const { return m_endReached ? m_firstRow - 1 : m_currentRowNumber; }
+
+        /**
+         * @brief check the iterator direction
+         * @return XLIteratorDirection::Reverse
+         */
+        constexpr XLIteratorDirection direction() const { return XLIteratorDirection::Reverse; }
+
+    private:
+        std::unique_ptr<XMLNode> m_dataNode;       /**< */
+        uint32_t                 m_firstRow { 1 }; /**< The cell reference of the first cell in the range */
+        uint32_t                 m_lastRow { 1 };  /**< The cell reference of the last cell in the range */
+        XLRow                    m_currentRow;     /**< */
+        XLSharedStringsRef       m_sharedStrings;  /**< */
+
+        // helper variables for non-creating iterator functionality
+        bool                     m_endReached;           /**< */
+        std::unique_ptr<XMLNode> m_hintRow;              /**< The cell node of the last existing row found up to current iterator position */
+        uint32_t                 m_hintRowNumber;        /**<   the row number for m_hintRow */
+        static constexpr const int XLNotLoaded  = 0;    // code readability for m_currentRowStatus
+        static constexpr const int XLNoSuchRow  = 1;    //   "
+        static constexpr const int XLLoaded     = 2;    //   "
+        int                      m_currentRowStatus;    /**< Status of m_currentRow: XLNotLoaded, XLNoSuchRow or XLLoaded */
+        uint32_t                 m_currentRowNumber;
     };
 
     /**
@@ -366,14 +569,17 @@ namespace OpenXLSX
     class OPENXLSX_EXPORT XLRowRange
     {
         friend class XLRowIterator;
+        friend class XLRowReverseIterator;
 
         //----------------------------------------------------------------------------------------------------------------------
         //           Public Member Functions
         //----------------------------------------------------------------------------------------------------------------------
 
     public:
+        typedef XLRowReverseIterator reverse_iterator; // to be used by templated class XLReverseRange
+
         /**
-         * @brief
+         * @brief constructor
          * @param dataNode
          * @param first
          * @param last
@@ -382,31 +588,31 @@ namespace OpenXLSX
         explicit XLRowRange(const XMLNode& dataNode, uint32_t first, uint32_t last, const XLSharedStrings& sharedStrings);
 
         /**
-         * @brief
+         * @brief copy constructor
          * @param other
          */
         XLRowRange(const XLRowRange& other);
 
         /**
-         * @brief
+         * @brief move constructor
          * @param other
          */
         XLRowRange(XLRowRange&& other) noexcept;
 
         /**
-         * @brief
+         * @brief destructor
          */
         ~XLRowRange();
 
         /**
-         * @brief
+         * @brief copy assignment operator
          * @param other
          * @return
          */
         XLRowRange& operator=(const XLRowRange& other);
 
         /**
-         * @brief
+         * @brief move assignment operator
          * @param other
          * @return
          */
@@ -430,6 +636,18 @@ namespace OpenXLSX
          */
         XLRowIterator end();
 
+        /**
+         * @brief provide a means to reverse-iterate through a row range
+         * @return the reverse begin of the range (iterator to the last row in the range)
+         */
+        XLRowReverseIterator rbegin();
+
+        /**
+         * @brief provide a means to reverse-iterate through a row range
+         * @return the reverse end of the range (iterator to 1 before the first row in the range)
+         */
+        XLRowReverseIterator rend();
+
         //----------------------------------------------------------------------------------------------------------------------
         //           Private Member Variables
         //----------------------------------------------------------------------------------------------------------------------
@@ -438,7 +656,7 @@ namespace OpenXLSX
         std::unique_ptr<XMLNode> m_dataNode;      /**< */
         uint32_t                 m_firstRow;      /**< The cell reference of the first cell in the range */
         uint32_t                 m_lastRow;       /**< The cell reference of the last cell in the range */
-        XLSharedStrings          m_sharedStrings; /**< */
+        XLSharedStringsRef       m_sharedStrings; /**< */
     };
 
 }    // namespace OpenXLSX

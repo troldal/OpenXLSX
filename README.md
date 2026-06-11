@@ -3,36 +3,75 @@
 OpenXLSX is a C++ library for reading, writing, creating and modifying
 Microsoft Excel® files, with the .xlsx format.
 
-## (aral-matrix) 25 October 2024 - Added default values to a newly created XLCellFormat (from XLCellFormats::create, when no template is provided)
+## Library Version 0.5.0
 
-These missing defaults could lead to followup errors when any style index of this cell was later assumed valid to access said style by index (Exception if the index was not in a valid range). All style indexes available in a cell format are now zero-initialized (with no assumptions what the style with index 0 may be configured as, normally it's defaults - if you want to be sure, provide a cell with a known format as copyFrom template to XLCellFormats::create).
+**Note:** "Releases" are severely outdated - do not use them. The latest "Release" that is shown on https://github.com/troldal/OpenXLSX/releases is from 2021-11-06, and severely outdated - please pull / download the latest SW version directly from the repository in its current state. Link for those that do not want to use ```git```: https://github.com/troldal/OpenXLSX/archive/refs/heads/master.zip
+
+## Table of Contents
+
+- [To-Do list](#to-do-list)
+- [Most recent changes](#most-recent-changes)
+- [Motivation](#motivation)
+- [Ambition](#ambition)
+- [Compatibility](#compatibility)
+- [Build Instructions](#build-instructions)
+  - [Install `cmake` & `git` on debian-based Linux distributions](#install-cmake-git-on-debian-based-linux-distributions)
+  - [Install `cmake` & `git` on Windows 10/11 (for now only tested with `MSYS Makefiles`)](#install-cmake-git-on-windows-10-11-for-now-only-tested-with-msys-makefiles)
+  - [Build the OpenXLSX library](#build-the-openxlsx-library)
+  - [Integrating into a CMake project structure](#integrating-into-a-cmake-project-structure)
+  - [Building as a separate library](#building-as-a-separate-library)
+- [How to compile and link a program against an installed OpenXLSX library](#how-to-compile-and-link-a-program-against-an-installed-openxlsx-library)
+  - [Build your program using g++](#build-your-program-using-g)
+  - [Build your program using cmake](#build-your-program-using-cmake)
+- [Current Status](#current-status)
+- [Performance](#performance)
+- [Caveats](#caveats)
+  - [File Size](#file-size)
+  - [Memory Usage](#memory-usage)
+  - [Unicode](#unicode)
+- [Reference Guide (to be written)](#reference-guide)
+- [Example Programs](#example-programs)
+- [Changes](#changes)
+
+## To-Do list
+
+**Note:** generally, for features awaiting implementation, refer to the open issues in the repository
+
+* tables/filters
+* true hyperlink support
+* postponed (may not be done at all): when OPENXLSX_MONOLITHIC_LIBRARY=ON, use target_link_interface instead of target_link_library for remaining dependencies (libzip/miniz, pugixml) to allow installing only monolithic library (currently the monolithic file is built, but not installed)
+* XLStyles: support predefined number formats with constants that have meaningful names
+* XLWorksheet: support for XML comments
+* XLWorksheet: support for Rich Text elements in cell strings
+* TBD: implement `BUILD_SHARED_LIBS` functionality in `Makefile.GNU`
+* TBD: in `Makefile.GNU`, check for available dependencies and error out if any are missing
+
+## Most recent changes
+
+For the latest functionality updates, please refer to the development branch. Feel free to [have a look](https://github.com/troldal/OpenXLSX/tree/development-aral). This way you don't have to wait until the main repository is updated.
+
+### (aral-matrix) 19 April 2026 - vcpkg compatibility maximized, some improvements/bugfixes in cmake configuration
+* vcpkg support should now be as good as it gets: Big thank you to [@bansan85](https://github.com/bansan85) for maintaining the vcpkg package patches, and supporting the bugfixes / improvements of the cmake configuration so that it behaves well with vcpkg :)
+* monolithic library is now available via cmake option `-DOPENXLSX_MONOLITHIC_LIBRARY=ON` - this requires static dependencies and only works with miniz, fails with libzip (or rather: the libzip (sub-)dependencies will not be linked into the resulting bundled library)
+* for testing if a destination file exists (`OpenXLSXFileSystemTools.hpp` `pathExists`), `nowide::stat` is now used when nowide is in use. This should make calls to `XLDocument::create` and `XLDocument::saveAs` behave well with filenames containing unicode characters
+* added function `OpenXLSXFileSystemTools fileSize` to wrap call to `stat` with nowide compatibility - this is used in `LibZip.hpp loadArchiveData`
+
+### (aral-matrix) 17 March 2026 - Install package config files for libzip and pugixml if they are installed with OpenXLSX
+* when the dependencies are pulled in from source repositories, their package config files will be installed alongside OpenXLSX
+* `XLZipArchive.hpp` provides two new functions `const char *OpenXLSX::ZipLibraryName()` and `const char *OpenXLSX::ZipLibraryVersion()` for the user to obtain info about the zip library in use. *NOTE*: These do not reflect information about a custom zip implementation such as used in `Demo1A.cpp`
+* `OpenXLSX` and dependencies are installed into `/usr/local/lib/OpenXLSX` subfolder to avoid version conflicts for parallel installations of zip library (`miniz` or `libzip`), `pugixml`, `nowide`
+* `pugixml` and `libzip` package config (`.pc`) files are now part of the installation (`miniz` package config was already installed before if needed)
+* dependency package config files installed by OpenXLSX will be installed as `pugixml-OpenXLSX.pc`, `libzip-OpenXLSX.pc`, `miniz-OpenXLSX.pc` respectively to avoid conflicts
+* dependency package config files should behave well with existing versions of the dependencies (OpenXLSX package config file gives precedence to the self-installed dependencies)
+* OpenXLSX package config file now provides the runtime path for an executable linked against OpenXLSX shared libraries in `/usr/local/lib/OpenXLSX`
+
+### (aral-matrix) 16 March 2026 - Dynamically pull in dependencies from external sources (operating system or code repository)
+* upped OpenXLSX library version to `0.5.0`
+* static & dynamic build: all dependencies are now linked in dynamically depending on the project configuration from available / allowed sources, which can be the OS or code repositories
+
+## Change history
 
 Change history is found in the [detailed change log](#detailed-change-log).
-
-## (aral-matrix) 29 September 2024 - Support for styles, merging cells (and more)
-
-Today the features from the development branch finally made it into the main branch :) For details, please refer to the [detailed change log](#detailed-change-log) below.
-
-In summary:
-* ```OpenXLSX/headers/XLStyles.hpp```: XLStyles class (and lots of subclasses) has been added, providing nearly complete access to all Excel formatting capabilities.
-* ```OpenXLSX/headers/XLMergeCells.hpp``` and ```XLSheet.hpp```: XLMergeCells class is made accessible through XLWorksheet in order to create / delete cell merges
-* ```Examples/Demo10.cpp``` demonstrates how styles and merges are used **Note:** The section that is disabled with ```testBasics = false``` *will* break the resulting Excel Spreadsheet if enabled, the only purpose is to demonstrate access to *all* new classes and methods. If you want to use them, make sure to use them correctly
-
-*Note on XLNumberFormat(s)*: Contrary to all other XLStyles elements, these do not use an index within the XML as the referrable ID (XLCellFormat::setNumberFormatId), but instead a user-defined ID that can be set via XLNumberFormat::setNumberFormatId - and for an XLCellFormat, can be set to either a self-defined number format ID, or to a [format predefined by MS](https://learn.microsoft.com/en-us/dotnet/api/documentformat.openxml.spreadsheet.numberingformat?view=openxml-3.0.1). Generally, for custom formats, it is recommended to use IDs > 100.
-
-
-*On the to-do list:*
-* support predefined number formats with constants that have meaningful names
-* support for XML comments
-* (TBD) support for Rich Text elements in cell strings
-
-## (aral-matrix) 04 September 2024 - new development branch
-
-A couple of days ago I finally had the time to learn enough git functionality to be able to work with branches. So I created a development branch with the newest features that I have mentioned in some pull requests / issues. Feel free to [have a look](https://github.com/troldal/OpenXLSX/tree/development-aral). This way you don't have to wait until the main repository is updated.
-
-## (aral-matrix) 19/20 August 2024 updated pull requests
-
-Closed a multitude of pull requests that had been implemented in the May 2024 Update, implemented two more editorials from PR #246 and #253.
 
 ## May 2024 Update
 
@@ -50,21 +89,6 @@ In particular, I would like to thank Lars Uffmann (https://codeberg.org/lars_uff
 * Housekeeping updates to the code.
 * Added Makefile.GNU for building on Linux. The project will continue to be based on CMake, and the makefile may not always be kept up-to-date.
 
-## Table of Contents
-
-- [Motivation](#motivation)
-- [Ambition](#ambition)
-- [Compatibility](#compatibility)
-- [Build Instructions](#build-instructions)
-- [Current Status](#current-status)
-- [Performance](#performance)
-- [Caveats](#caveats)
-  - [File Size](#file-size)
-  - [Memory Usage](#memory-usage)
-  - [Unicode](#unicode)
-- [Reference Guide](#reference-guide)
-- [Example Programs](#example-programs)
-- [Changes](#changes)
 
 ## Motivation
 
@@ -85,11 +109,13 @@ dependencies as possible. Currently, OpenXLSX depends on the following
 3rd party libraries:
 
 - PugiXML
-- Zippy (C++ wrapper around miniz)
-- Boost.Nowide (for opening files with non-ASCII names on Windows)
+- Zippy (C++ wrapper around miniz) - an alternative wrapper for libzip can be configured with cmake option `-DOPENXLSX_ENABLE_LIBZIP=ON`
+- (Windows only) Boost.Nowide (for opening files with non-ASCII names on Windows)
 
-These libraries are all header-only and included in the repository, i.e. it's not necessary to download and build 
-separately.
+As of version 0.5.0, these libraries are no longer included in the repository, and there are three ways to build OpenXLSX against them:
+1) pre-install the libraries on your operating system - the OpenXLSX cmake configuration should find them via `find_package`
+2) auto-fetch the missing dependencies from upstream repositories, build & install them together with OpenXLSX. For this, cmake must be able to find `git`
+3) (Windows only) install OpenXLSX via the [vcpkg package manager](https://vcpkg.io/en/package/openxlsx), which handles dependencies for you:
 
 Also, focus has been put on **speed**, not memory usage (although there are options for reducing the memory usage, 
 at the cost of speed; more on that later).
@@ -120,46 +146,172 @@ bug in the implementation of std::variant, which causes compiler errors.
 Visual Studio 2017 should also work, but hasn't been tested.
 
 ## Build Instructions
-OpenXLSX uses CMake as the build system (or build system generator, to be exact). Therefore, you must install CMake first, in order to build OpenXLSX. You can find installation instructions on www.cmake.org.
 
-The OpenXLSX library is located in the OpenXLSX subdirectory to this repo. The OpenXLSX subdirectory is a 
-self-contained CMake project; if you use CMake for your own project, you can add the OpenXLSX folder as a subdirectory 
-to your own project. Alternatively, you can use CMake to generate make files or project files for a toolchain of your choice. Both methods are described in the following.
+OpenXLSX uses CMake as the build system (or build system generator, to be exact) and git to pull in dependencies. Therefore, you must install CMake first, in order to build OpenXLSX. You can find (bad) installation instructions on www.cmake.org. If you wish the cmake to automatically fetch missing dependencies, you also need to install git.
+
+Here is a summary to get a working configuration of cmake + git.
+
+### Install `cmake` & `git` on debian-based Linux distributions
+
+```bash
+sudo apt update
+sudo apt install build-essential cmake git
+```
+
+### Install `cmake` & `git` on Windows 10/11 (for now only tested with `MSYS Makefiles`)
+
+**Install MSYS2:**
+
+* In a Powershell (run as Administrator): run `winget install --id MSYS2.MSYS2 -e`
+
+   → After performing this step, the "MSYS2 MSYS shell" and the "MSYS2 MinGW 64-bit shell" should be accessible from the Start Menu
+
+* In MSYS2 MSYS shell: run `pacman -Syu`
+
+  The previous instruction might require a close & reopen of the MSYS2 MSYS shell
+
+* In MSYS2 MSYS shell: run `pacman -Su`
+
+**Install development toolchain:**
+
+In MSYS2 MinGW 64‑bit shell: run `pacman -S --needed base-devel mingw-w64-x86_64-toolchain`
+
+**Install `cmake` & `git` in MSYS2 environment:**
+
+* In MSYS2 MinGW 64‑bit shell: run `pacman -S --needed mingw-w64-x86_64-cmake mingw-w64-x86_64-git`
+* (optional if you want to use ninja build tool instead of make) In MSYS2 MinGW 64‑bit shell: run `pacman -S --needed mingw-w64-x86_64-ninja`
+
+**Verify installation:**
+
+In MSYS2 MinGW 64‑bit shell: verify versions of `git`, `cmake`, `gcc`, `g++`
+
+```bash
+git --version; cmake --version; gcc --version; g++ --version
+```
+
+### Build the OpenXLSX library
+
+In MSYS2 MinGW 64‑bit shell
+```bash
+git clone https://github.com/troldal/OpenXLSX <destination-folder>
+
+cd <destination-folder>
+mkdir build; cd build
+```
+
+**Then** build with MSYS Gnu make:
+```bash
+cmake .. -G "MSYS Makefiles" -DCMAKE_BUILD_TYPE=Release
+cmake --build . --parallel
+```
+*Note*: As of 2026-03-21, this configuration complains about miniz (if used) being incompatible with cmake versions >3.5; the following command sequence can be used to get rid of the warning:
+```bash
+cmake .. -G "MSYS Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+cmake --build . --parallel
+```
+
+
+**or** build with MinGW Gnu make (untested - should provide a working configuration that can be compiled from cmd/Powershell)
+
+```bash
+cmake .. -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release
+cmake --build . --parallel
+```
+
+**or** build with ninja (untested)
+```bash
+cmake .. -G "Ninja" -DCMAKE_BUILD_TYPE=Release
+ninja
+```
+
+The OpenXLSX library is located in the OpenXLSX subdirectory to this repo. However, the root folder `CMakeLists.txt` establishes the library configuration and dependencies.
+If you use CMake for your own project, you can add the OpenXLSX root folder as a subdirectory to your own project.
+Alternatively, you can use CMake to generate make files or project files for a toolchain of your choice. Both methods are described in the following.
 
 ### Integrating into a CMake project structure
 
-By far the easiest way to use OpenXLSX in your own project, is to use CMake yourself, and then add the OpenXLSX 
-folder as a subdirectory to the source tree of your own project. Several IDE's support CMake projects, most notably 
-Visual Studio 2019, JetBrains CLion, and Qt Creator. If using Visual Studio, you have to specifically select 'CMake project' when creating a new project.
+By far the easiest way to use OpenXLSX in your own project, is to use CMake yourself, and then add the OpenXLSX root folder
+as a subdirectory to the source tree of your own project. Several IDE's support CMake projects, most notably Visual Studio 2019,
+JetBrains CLion, and Qt Creator. If using Visual Studio, you have to specifically select 'CMake project' when creating a new project.
 
 The main benefit of including the OpenXLSX library as a source subfolder, is that there is no need to locate the 
-library and header files specifically; CMake will take care of that for you. Also, the library will be build using 
+library and header files specifically; CMake will take care of that for you. Also, the library will be built using 
 the same configuration (Debug, Release etc.) as your project. In particular, this a benefit on Windows, where is it 
 not possible to use Release libraries in a Debug project (and vice versa) when STL objects are being passed through 
 the library interface, as they are in OpenXLSX. When including the OpenXLSX source, this will not be a problem.
 
 By using the `add_subdirectory()` command in the CMakeLists.txt file for your project, you can get access to the 
 headers and library files of OpenXLSX. OpenXLSX can generate either a shared library or a static library. By default 
-it will produce a shared library, but you can change that in the OpenXLSX CMakeLists.txt file. The library is 
+it will produce a static library, but you can change that by setting `BUILD_SHARED_LIBS` to `ON`. The library is
 located in a namespace called OpenXLSX; hence the full name of the library is `OpenXLSX::OpenXLSX`.
+
+Including OpenXLSX into your project would look like this inside your project's `CMakeLists.txt`:
+
+```cmake
+# ============================================================================
+# Configure OpenXLSX
+# ============================================================================
+set(OPENXLSX_CREATE_DOCS           OFF)
+set(OPENXLSX_BUILD_SAMPLES         OFF)
+set(         BUILD_SHARED_LIBS     OFF)
+
+add_subdirectory( OpenXLSX )
+```
+
+Then you can use `target_link_libraries` and `target_include_directories` like so:
+```cmake
+# Configure linkage for myapp
+target_link_libraries(myapp PRIVATE OpenXLSX::OpenXLSX)
+target_include_directories(myapp PRIVATE ${OpenXLSX_INCLUDES})
+```
+
+For linking against a shared library, you should include the "rpath" into your final applications:
+```cmake
+# Ensure configuration of install RPATH for myapp
+set_target_properties(myapp PROPERTIES
+  INSTALL_RPATH_USE_LINK_PATH TRUE
+)
+```
+
+#### Example CMakeLists.txt and Hello World
 
 The following snippet is a minimum CMakeLists.txt file for your own project, that includes OpenXLSX as a subdirectory. Note that the output location of the binaries are set to a common directory. On Linux and MacOS, this is not really required, but on Windows, this will make your life easier, as you would otherwise have to copy the OpenXLSX shared library file to the location of your executable in order to run.
 
 ```cmake
-cmake_minimum_required(VERSION 3.15)
-project(MyProject)
+cmake_minimum_required(VERSION 3.14)
+project(myapp
+    VERSION 1.0.0
+    LANGUAGES CXX
+)
 
-set(CMAKE_CXX_STANDARD 17)
+# ============================================================================
+# Example app configuration
+# ============================================================================
+add_executable(myapp myapp.cpp)
 
-# Set the build output location to a common directory
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/output)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/output)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/output)
+# ============================================================================
+# Configure OpenXLSX
+# ============================================================================
+option(BUILD_SHARED_LIBS              OFF "can be used to build shared library version of OpenXLSX")
+set(   OPENXLSX_CREATE_DOCS           OFF)
+set(   OPENXLSX_BUILD_SAMPLES         OFF)
 
-add_subdirectory(OpenXLSX)
+add_subdirectory( OpenXLSX )
 
-add_executable(MyProject main.cpp)
-target_link_libraries(MyProject OpenXLSX::OpenXLSX)
+# Configure linkage for myapp
+target_link_libraries(myapp PRIVATE OpenXLSX::OpenXLSX)
+target_include_directories(myapp PRIVATE ${OpenXLSX_INCLUDES})
+
+# Ensure configuration of install RPATH for myapp
+set_target_properties(myapp PROPERTIES
+  INSTALL_RPATH_USE_LINK_PATH TRUE
+)
+
+# Installation steps for myapp
+install(TARGETS myapp
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    COMPONENT Runtime
+)
 ```
 
 Using the above, you should be able to compile and run the following code, which will generate a new Excel file 
@@ -173,7 +325,7 @@ using namespace OpenXLSX;
 int main() {
 
     XLDocument doc;
-    doc.create("Spreadsheet.xlsx");
+    doc.create("Spreadsheet.xlsx", XLForceOverwrite);
     auto wks = doc.workbook().worksheet("Sheet1");
 
     wks.cell("A1").value() = "Hello, OpenXLSX!";
@@ -210,7 +362,7 @@ cmake --build . --target OpenXLSX --config Release
 
 You can change the `--target` and `--config` arguments to whatever you wish to use.
 
-When built, you can install it using the following command:
+When built, you can install it using the following command (as superuser / `sudo`):
 
 ```
 cmake --install .
@@ -225,6 +377,97 @@ for Windows, where the configuration of the library must be the same as for the 
 reason, on Windows, it is much easier to just include the OpenXLSX source folder as a subdirectory to your CMake 
 project; it will save you a lot of headaches.
 
+## How to compile and link a program against an installed OpenXLSX library
+
+### Build your program using `g++`
+With the most recent updates, the OpenXLSX `CMake` configuration will also configure (and install) a pkg-config file for `libOpenXLSX` (and `libminiz`), to simplify linking a program against OpenXLSX for systems on which `pkg-config` is available. Invoking `pkg-config --cflags` will yield the proper include flags, and `pkg-config --static --libs` will yield the linker instructions for the OpenXLSX library and its dependencies (pugixml and zip library).
+The sequence of arguments to the compiler is important:
+1) cflags (include paths)
+2) the cpp file(s) that use OpenXLSX
+3) the linker flags (libs)
+For this reason, the example compilation + linking command below invokes pkg-config twice.
+```
+g++ `pkg-config --cflags OpenXLSX` ../Examples/Demo1.cpp `pkg-config --static --libs OpenXLSX`
+```
+When linking against a shared library, the library runtime search path (`rpath`) should be included in the command. The OpenXLSX package config file provides the `rpath` setting via `pkg-config --libs`, so that the following, simplified line should work:
+```
+g++ `pkg-config --cflags OpenXLSX` ../Examples/Demo1.cpp `pkg-config --libs OpenXLSX`
+```
+
+If this new feature does not work as intended, please try providing the rpath manually:
+```
+g++ -Wl,-rpath,/usr/local/lib `pkg-config --cflags OpenXLSX` ../Examples/Demo1.cpp `pkg-config --libs OpenXLSX`
+```
+
+#### Caution when both the shared and the static library are installed
+**CAUTION**: When attempting static linking while the shared library for OpenXLSX is also installed, the `-lOpenXLSX` flag returned from `pkg-config --static --libs OpenXLSX` will fail to link against the static library.
+A manual fix like so should work (this is only an example, for libzip configuration, without nowide; see below):
+```
+g++ `pkg-config --cflags OpenXLSX` ../Examples/Demo1.cpp -L/usr/local/lib -l:libOpenXLSX.a -L/usr/local/lib/OpenXLSX -l:libpugixml.a -l:libzip.a -lpugixml -lbz2 -llzma -lzstd -lssl -lcrypto -lz
+```
+
+**Note** that you will have to adjust the linker flags according to your configuration:
+`-l:libpugixml.a`
+`-l:libminiz.a`
+`-l:libzip.a` (which requires `-lbz2 -llzma -lzstd -lssl -lcrypto -lz`)
+`-l:libnowide.a`
+
+However, the recommended solution for static linking is to not install the shared library (for now - might support different naming in the future).
+
+### Build your program using `cmake`
+
+Below is a simple `CMakeLists.txt` template with all necessary steps to compile & link against an installed version of OpenXLSX.
+
+Steps to test this (assuming OpenXLSX has been installed):
+* create a folder `myapp`
+* save the below `CMakeLists.txt` template into `myapp/`
+* create a folder `myapp/src`
+* from the OpenXLSX/Examples folder, copy `Demo1.cpp` into `myapp/src/`
+* create a folder `myapp/build`
+* change into the folder `myapp/build`
+* `cmake ..`
+* `make all`
+* `./myapp`
+
+#### `CMakeLists.txt` template:
+```cmake
+cmake_minimum_required(VERSION 3.14)
+project(myapp
+    VERSION 1.0.0
+    LANGUAGES CXX
+)
+
+# ============================================================================
+# Example app configuration
+# ============================================================================
+add_executable(myapp src/Demo1.cpp)
+
+# Find dependency OpenXLSX
+find_package(OpenXLSX CONFIG REQUIRED)
+if(OpenXLSX_FOUND)
+    message( NOTICE "FOUND OpenXLSX" )
+    get_target_property(OpenXLSX_INCLUDES OpenXLSX::OpenXLSX INTERFACE_INCLUDE_DIRECTORIES)  # get OpenXLSX include directories
+    message( NOTICE "OpenXLSX_INCLUDES is ${OpenXLSX_INCLUDES}" )
+else()
+    message( FATAL_ERROR "MISSING DEPENDENCY OpenXLSX" )
+endif()
+
+# Configure linkage for myapp
+target_link_libraries(myapp PRIVATE OpenXLSX::OpenXLSX)
+target_include_directories(myapp PRIVATE ${OpenXLSX_INCLUDES})
+
+# Ensure configuration of install RPATH for myapp
+set_target_properties(myapp PROPERTIES
+  INSTALL_RPATH_USE_LINK_PATH TRUE
+)
+
+# Installation steps for myapp
+install(TARGETS myapp
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    COMPONENT Runtime
+)
+```
+
 ## Current Status
 
 OpenXLSX is still work in progress. The following is a list of features
@@ -236,14 +479,19 @@ which have been implemented and should be working properly:
 - Copy worksheets
 - Cell ranges and iterators
 - Row ranges and iterators
+- Cell content and borders formatting (XLStyles)
+- Conditional formatting
+- Merged cells
+- Worksheet protection (read-only cells, lock with password)
+- Cell comments (plain text)
 
-Features related to formatting, plots and figures have not been
-implemented, and are not planned to be in the near future.
+Features related to plots and figures have not been implemented as of yet, and at least plot functionality is not planned to be implemented at all.
 
-It should be noted, that creating const XLDocument objects, is currently
-not working!
+It should be noted that creating const XLDocument objects is currently not working!
 
 ## Performance
+
+**Note:** As of 2026-04-19 this section is severely outdated. It is not sure how well the numbers from ~2024 hold up with recent changes.
 
 The table below is the output from a benchmark (using the Google
 Benchmark library), which shows that read/write access can be done at a
@@ -382,9 +630,12 @@ Using the Zippy/miniz library requires no special efforts; it will work straight
 
 In order to use a different zip-library, you must create a wrapper class that conforms to the interface specified by the IZipArchive class. Note that this is implemented using *type erasure*, meaning that no inheritance is required; the class just needs to have a conforming interface, thats all. After that, provide an object of the class and supply it to the OpenXLSX constructor.
 
-To see an example of how this is done, take a look at Demo1A in the Examples folder. This example uses a class called CustomZip (using libzip as the zip library) which can be found under Examples/external/CustomZip. In order to build the example program, make sure that libzip (and it's dependencies) is installed on your computer, and enable the OPENXLSX_ENABLE_LIBZIP option in the CMakeLists.txt file in the OpenXLSX root.
+To see an example of how this is done, take a look at Demo1A in the Examples folder. This example uses a class called CustomZip (using libzip as the zip library) which can be found under Examples/external/CustomZip. In order to build the example program, make sure that libzip (and its dependencies) is installed on your computer, and enable the OPENXLSX_ENABLE_LIBZIP_EXAMPLE option in the CMakeLists.txt file in the OpenXLSX root.
 
 As mentioned, the Demo1A example program uses libzip. libzip is a very stable library and widely used. However, my experience is that it is quite slow for large zip files, such as large spreadsheets. For that reason, libzip may not be the ideal solution, but it is useful for showing how a different zip library can be used.
+
+<h2 id="reference-guide">Reference Guide (to be written)</h2>
+This section remains to be written
 
 ## Example Programs
 
@@ -393,6 +644,9 @@ those example programs is the best way to learn how to use OpenXLSX. The example
 should be relatively easy to understand what's going on.
 
 ## Changes
+
+### New in version 0.5.x
+OpenXLSX now pulls in dependencies either from the operating system (if installed) or directly from the upstream source repositories.
 
 ### New in version 0.4.x
 OpenXLSX can now use other zip libraries than the default Zippy/miniz library. See Demo1A as an example of how it's done
@@ -434,6 +688,316 @@ transition to the new version instead.
 
 <h2 id="detailed-change-log">Detailed change log</h2>
 
+### (aral-matrix) 25 December 2025 - Fix for issue #382: XLWorksheet::range() bounds check without exception
+* added a check for an empty worksheet in `XLWorksheet::range()` to prevent an exception raised from `XLCellReference` constructor
+
+### (aral-matrix) 09 October 2025 - Work in progress: CPack configuration for a debian package
+* added `cmake/get-git-HEAD-ID.cmake` and `cmake/libopenxlsxCPackOptions.cmake.in`
+* `CMakeLists.txt`: `CPack` configuration is generated and can be invoked with `cpack -G DEB` - *CAUTION*: the debian package will most likely not function at this stage due to missing dependencies
+* TBD how to invoke package generation directly from CMake
+* TODO: correctly identify the dependencies (pugixml, libzip, nowide) for CPack
+
+### (aral-matrix) 10 September 2025 - implemented support for libzip installation from github repo (to be tested on Windows)
+* `OPENXLSX_ENABLE_LIBZIP=ON` now works with `OPENXLSX_CPM_LOCAL_PACKAGES_ONLY=OFF` - pending confirmation of a test on Windows
+
+### (aral-matrix) 28 August 2025 - implemented reverse iteration over row ranges
+* new class `XLRowReverseIterator` (XLRow.hpp)
+* implemented `XLRowRange::rbegin()` and `XLRowRange::rend()` to reverse-iterate over a row range
+* new templated class `XLReverseRange` (XLIterator.hpp) to reverse a range of class T that exposes ```T::rbegin()``` and ```T::rend()``` and typedef ```T::reverse_iterator```
+* using `XLReverseRange`, range-based reverse iteration is demonstrated in `Examples/Demo6.cpp`, Example usage: `for (auto& row : XLReverseRange(wks.rows(firstRow, lastRow)))`
+* currently, only XLRowRange supports reverse iteration
+
+### (aral-matrix) 27 August 2025 - finalized code review after hiding `pugixml` headers from the library interface
+* finished removing default constructors, destructors and assignment operators from XLStyles header files
+
+### (aral-matrix) 26 August 2025 - added a library pkg-config (.pc) file, also added option for building a static bundled library file
+* CMake build configuration now also creates & installs `pkg-config` files that can be used as demonstrated in the new `Scripts/compile.sh`
+* build option `OPENXLSX_BUNDLED_STATIC_LIB` will now create `libOpenXLSX-bundled.a` library file that is not installed, but can be linked against while including all dependencies (only works with `BUILD_SHARED_LIBS=OFF`, and `OPENXLSX_CPM_LOCAL_PACKAGES_ONLY=OFF` or all dependencies available as static libraries on the build system). This uses the newly added `OpenXLSX/bundle_static_library.cmake` (under MIT License, Copyright (c) 2019 Cristian Adam).
+* re-enabled the `Makefile.GNU`, but until full support for options is back, this Makefile is overriding some options to the only supported configurations
+* removed some obsolete (and commented-out) code from the various CMakeFiles.txt
+
+### (aral-matrix) 16 August 2025 - dropped `external` source code from repository, refined cmake configuration
+* implemented changes from @troldal to drop external source code
+* as a result, `Makefile.GNU` is currently non-functional!
+* cmake build options are now (some renamed, some removed, new `OPENXLSX_CPM_LOCAL_PACKAGES_ONLY`):
+  * option(OPENXLSX_CREATE_DOCS           "Build library documentation (requires Doxygen and Graphviz/Dot to be installed)" ON)
+  * option(OPENXLSX_BUILD_SAMPLES         "Build sample programs" ON)
+  * option(OPENXLSX_BUILD_TESTS           "Build and run library tests" ON) # TBD: are these still functional?
+  * option(OPENXLSX_BUILD_BENCHMARKS      "Build and run library benchmarks" OFF)
+  * option(OPENXLSX_ENABLE_LIBZIP         "Enable using libzip" OFF) # when OFF, default zip library is miniz. NOTE: libzip currently does NOT support CPM_DOWNLOAD_ALL
+  * option(OPENXLSX_FORCE_NOWIDE          "Force use of boost nowide, even on non-Windows systems (testing)" OFF)
+  * option(OPENXLSX_ENABLE_LIBZIP_EXAMPLE "Build Demo1A example using libzip - requires libbz2-dev" OFF)
+  * option(         BUILD_SHARED_LIBS     "Builds the shared library" OFF) # replaced OPENXLSX_SHARED_LIBRARY with cmake option reserved for that purpose
+  * option(OPENXLSX_COMPACT_MODE          "Build library in compact mode (slower, but uses less memory)" OFF)
+  * option(OPENXLSX_CPM_LOCAL_PACKAGES_ONLY "CPM shall only use packages already installed on the host OS, otherwise fail" OFF)
+* minor code refactoring to work with different library interfaces depending on package source (different include paths, different namespaces)
+
+### (aral-matrix) 31 July 2025 - added use of cmake `find_package` for `LibZip` and `PugiXML`
+* `OpenXLSX/CMakeLists.txt`: added `find_package` for `LibZip` and `PugiXML`. Unfortunately, for `LibZip`, this generates an error unless the unneeded components `zipcmp`, `zipmerge` & `ziptool` are also installed on the system. TBD how to ignore those missing.
+
+### (aral-matrix) 30 July 2025 - enabled compilation against ```nowide``` installed on the operating system
+* added to cmake and GNU make: option `OPENXLSX_FORCE_NOWIDE` - set to `ON` to use force the use of `nowide` even on non-Windows systems (this flag is for testing purposes)
+* added to cmake and GNU make: option `OPENXLSX_ENABLE_LIBBOOST_NOWIDE` - set to `ON` to use `nowide` from an installed `libboost`
+* adjustments to accommodate system library `boost nowide` (include path starts with `boost/` and namespace is `boost::nowide` vs. `nowide`)
+* minor bugfixes: missing `#include <memory>` in `XLZipArchive.hpp`, `#include <stdexcept>` in `detail/LibZip.hpp`
+* added `Demo1A` to `Makefile.GNU`
+* added output of `nowide` status to `Demo4`
+
+### (aral-matrix) 21 July 2025 - included nowide support in ```OpenXLSXFileSystemTools```, cleaned up cmake and GNU make options
+* BUGFIX ```Examples/CMakeLists.txt``` for Demo4 (to be tested): correctly add ```external/nowide``` to the include path
+* BUGFIX ```Examples/CMakeLists.txt``` for Demo1A (to be tested): correctly add ```external/nowide``` to the include path
+* updated ```Demo1A``` CustomZip implementation to fit the modified ```IZipArchive``` concept
+* added to cmake and GNU make: option ```OPENXLSX_ENABLE_LIBPUGIXML``` - set to ```ON``` to use an installed ```libpugixml```
+* added to GNU make: (already existed in cmake) option ```OPENXLSX_ENABLE_LIBZIP``` - set to ```ON``` to use an installed ```libzip```
+* added to cmake: option ```OPENXLSX_SHARED_LIBRARY``` - set to ```ON``` for shared library build, ```OFF``` builds the static library
+* added to GNU make: option stub (unsupported for now) ```OPENXLSX_SHARED_LIBRARY```
+
+### (aral-matrix) 20 July 2025 - enabled compilation against ```libpugixml``` installed on the operating system
+* hid ```XLXmlParser``` from public OpenXLSX API - this should address conflicts with ```pugixml.hpp``` headers available elsewhere
+* enabled compilation against ```libpugixml``` - for cmake, variable is ```OPENXLSX_ENABLE_LIBPUGIXML```, in Makefile.GNU, variable is ```USE_LIBPUGIXML``` - set to yes if system installed library shall be used
+* upped the OpenXLSX version tag to 0.4.2
+
+### (aral-matrix) 14 July 2025 - minor bugfixes & a test of signed commits
+* addressed issue https://github.com/troldal/OpenXLSX/issues/368
+* configured commit signature for a development machine
+
+### (aral-matrix) 04 May 2025 - moved file system access functions (shared by zip implementations and XLDocument) to detail/OpenXLSXFileSystemTools.hpp
+* in preparation for localizing (if not removing) the boost::nowide dependency, the new header file ```detail/OpenXLSXFileSystemTools.hpp``` now comprises all functions where unicode (filename) support might be relevant, to be implemented centrally - currently on the To-Do list
+* ```XLDocument::create```: creating a new document no longer creates a file under that name until an explicit call of ```XLDocument::save``` or ```::saveAs```. This is to remove a dependency of XLDocument on boost::nowide on Windows.
+
+### (aral-matrix) 01 May 2025 - replaced zippy implementation with the underlying miniz library (cmake) and added support for libzip (cmake, GNU make)
+* @troldal replaced the zippy implementation with a smaller zippy-wrapper for the actual dependency, the miniz library, and added the cmake support for automatically pulling in the dependency from the miniz repository
+* ```OpenXLSX/headers/detail/```: new headers ```LipZip.hpp``` (libzip wrapper) and ```Zippy.hpp``` (miniz wrapper)
+* ```CMakeLists.txt```: Option ```OPENXLSX_ENABLE_LIBZIP``` activates libzip use, disabling the option defaults to the miniz / Zippy wrapper
+* ```CMakeLists.txt```: Option ```OPENXLSX_ENABLE_LIBZIP_EXAMPLE``` replaces the prior use of OPENXLSX_ENABLE_LIBZIP for ```Demo1A```
+* API remains unchanged
+* fixes for old pull requests https://github.com/troldal/OpenXLSX/pull/191 (AmigaOS paths) and https://github.com/troldal/OpenXLSX/pull/210 (Windows style paths) have been incorporated into both zip library wrapper classes
+* **CAUTION**: for the libzip implementation, there is still a minor unresolved conflict when modifying archives created with other tools / prior versions of OpenXLSX (or the miniz version): The resulting archive's general purpose flag bits will not be set to UTF-8 when the flag is set for individual files. This works fine with LibreOffice, but ```unzip``` complains about the flag mismatch. *This issue is on my to-to list.*
+
+### (aral-matrix) 20 April 2025 - added validation of worksheet names when creating, renaming or cloning worksheets to address #358
+* added ```bool XLDocument::validateSheetName(std::string sheetName, bool throwOnInvalid = false)``` - can be called by the user to test whether a name would throw
+* if ```XLSheet::setName```, ```XLWorkbook.addWorksheet``` or ```XLWorkbook.cloneSheet``` are invoked with a name for which ```validateSheetName``` would return false, an ```XLInputError``` is thrown with the validation rule that was violated.
+* this change addresses https://github.com/troldal/OpenXLSX/issues/358
+
+**CAUTION**: this change is potentially code-breaking as it can throw an exception on code that previously executed without errors - However, when it throws, previous versions would have produced a workbook that Excel refuses to read.
+
+### (aral-matrix) 12 April 2025 - added cmake option(OPENXLSX_ENABLE_LTO "Enables Link-Time Optimization (LTO)" ON)
+* merged pull request https://github.com/troldal/OpenXLSX/pull/355 adding the cmake option ```OPENXLSX_ENABLE_LTO``` that permits disabling link-time optimization altogether. It remains ```ON``` by default.
+
+### (aral-matrix) 08 April 2025 - XLMergeCells: remove <mergeCells> element from worksheet XML when merge count is 0 - addresses #351
+* ```XLMergeCells``` is now constructed with the worksheet root XML node (unfortunately necessary) and will use this access to create/delete the <mergeCells> node as necessary, this addresses https://github.com/troldal/OpenXLSX/issues/351
+* added a function ```XLMergeCells::deleteAll``` to clear all merges in the worksheet
+* added a typedef ```XLMergeIndex``` as the parameter / return type for all functions using a merge index - the underlying ```int32_t``` remains unchanged
+* added a ```constexpr const XLMergeIndex XLMergeNotFound = -1``` for code readability
+
+### (aral-matrix) 07 April 2025 - Demo10: added a disabled use of borders with merged cells
+* enable Demo10 line 450 to experiment - but LibreOffice behaves weird (at least) with (diagonal) borders, so I have disabled this Demo functionality by default
+
+### (aral-matrix) 24 March 2025 - XLStyles: XLFont fix attribute values underline, scheme, vertAlign
+* getters ```XLFont::underline, ::scheme, ::vertAlign```: fix default value to set for attribute val when tag doesn't exist
+* setter ```XLFont::setUnderline```: return correct "none" value for XLUnderlineNone from XLUnderlineStyleToString (was returning empty string)
+
+### (aral-matrix) 23 March 2025 - XLStyles: get bool settings when omitted attribute shall default to true - addresses #347
+* added function ```getBoolAttributeWhenOmittedMeansTrue``` to ```XLUtilities```
+* ```XLStyles``` ```XLFont```: changed bool getter functions to return ```true``` when tag exists, but attribute ```val``` is omitted, to be in line with OOXML spec. This addresses https://github.com/troldal/OpenXLSX/issues/347. Affected getters: ```bold()```, ```italic()```, ```strikethrough()```, ```outline()```, ```shadow()```, ```condense()```, ```extend()```
+
+### (aral-matrix) 16 March 2025 - XLSheet::findCell added to address #333, setting an XLFormula to an empty string now deletes the formula
+* added function(s) ```XLSheet::findCell``` that allow to try and fetch a cell without creating the row/cell XML (like the non-creating XLCellIterator). This function complements ```XLSheet::cell``` (which always creates the XML cell node and returns a valid object)
+* after using ```findCell```, the returned ```XLCellAssignable::empty()``` method must be checked to ensure success before accessing any cell properties
+* ```XLSheet::findCell``` provides a solution to https://github.com/troldal/OpenXLSX/issues/333, a demonstration of this solution has been added to ```Demo1.cpp```
+* setting ```XLFormula``` to an empty (zero-length) string will now delete the formula XML node from the cell without further actions
+
+### (aral-matrix) 16 March 2025 XLSheet: fixed issue #338 - align cmake_minimum_required to be VERSION 3.15 everywhere
+* in response to https://github.com/troldal/OpenXLSX/issues/338, updated all occurrences of ```CMakeLists.txt``` in ```Examples/external/nowide/*``` to have cmake_minimum_required VERSION 3.15
+
+### (aral-matrix) 15 March 2025 XLSheet: fixed issue #337 - assign tabSelected value with newly created attribute if it didn't exist
+* in response to https://github.com/troldal/OpenXLSX/issues/337, added a forgotten assignment to ```XLSheet.cpp```
+
+### (aral-matrix) 17 February 2025 added some comments to XLSheet class definition to clarify that the sheet index is 1-based (issue #332)
+* in response to https://github.com/troldal/OpenXLSX/issues/332, added (doxygen) documentation to ```XLSheet.hpp``` clarifying that sheet index is 1-based
+
+### (aral-matrix) 14 February 2025 Added cctype includes to XLSheet and XLDrawing, resolving issue #330
+* in response to https://github.com/troldal/OpenXLSX/issues/330, added ```#include <cctype>``` to ```XLSheet.cpp``` and ```XLDrawing.cpp```
+
+### (aral-matrix) 05 February 2025 - XLDocument patch to address issue #279 about conflicting stat / _stat definitions
+* XLDocument is now using custom names (```STAT```, ```STATSTRUCT```) to link to the platform specific implementation of ```stat``` without naming conflicts
+
+### (aral-matrix) 03 February 2025 - XLComments and shared strings cleanup
+
+Before I start working on the next items on my to-do list (tables/filters, hyperlink support), I am merging all recent patches into master. I have not yet had much feedback on whether the changes work with MS Office, but I am confident that if you discover any issues, I can fix them quickly.
+
+Should you experience stability issues, please revert to commit https://github.com/troldal/OpenXLSX/commit/4ed9c97ad613526bf1544296acd24639dcbe2846 and submit a bug report.
+
+***New features***
+* support for creating / reading / modifying / deleting comments is now implemented in ```XLComments``` -> see ```Demo1.cpp```
+* using an ```XLRowIterator``` no longer creates the XML for rows that do not exist until the iterator is dereferenced
+* ```XLDocument::cleanupSharedStrings()``` can now be called manually to rewrite the shared strings cache (and remove all strings that are no longer referenced from any cell)
+
+### (aral-matrix) 02 February 2025 - Support for cleaning up shared strings (issue #193), XLRowIterator no longer creates missing rows unless iterator is dereferenced
+* ```XLDocument``` now has a member function ```void cleanupSharedStrings()``` that will reindex shared strings for the complete workbook and remove all shared strings that are no longer referenced anywhere, or that have been set to the empty string. This addresses https://github.com/troldal/OpenXLSX/issues/193.
+* Added support for non-creating ```XLRowIterator```: can now iterate over a range of rows and test ```bool XLRowIterator::rowExists()``` before accessing it. This allows to skip non-existing rows without creating them. Functionality is analogous to ```XLCellIterator``` and ```bool XLCellIterator::cellExists()```
+* Accordingly, fetching an ```XLWorksheet::range(..)``` will no longer create all missing rows in the range
+* Added to ```XLCellValueProxy``` two functions to manipulate shared string indexes directly, bypassing ```XLSharedStrings```:
+    * private: ```int32_t stringIndex() const```
+    * private: ```bool setStringIndex(int32_t newIndex)```
+* Added to ```XLSharedStrings```:
+    * public: ```int32_t stringCount() const``` - returns the amount of strings currently in the shared strings cache
+    * protected: ```int32_t rewriteXmlFromCache()``` - called from ```XLDocument::cleanupSharedStrings``` - triggers a full wipe of the shared strings XML & re-creation from the string cache. Returns the number of shared strings written to XML
+* Added to ```XLRowIterator```:
+    * public: ```bool rowExists()``` - test whether the ```XLRowIterator``` currently points to a row that already exists in the XML
+    * public: ```bool endReached()``` - equivalent to (XLRowIterator) it == (XLRowRange) range.end()
+    * public: ```uint32_t rowNumber() const``` - return the current row that the iterator is pointing to (m_lastRow + 1 if endReached() == true)
+* added to ```XLRow```:
+    * public: ```bool empty() const``` returns true if the ```XLRow``` instance is not linked to valid XML
+    * public: ```explicit operator bool() const``` the opposite of ```empty()```
+* added a missing include of ```XLCellRange.hpp``` to ```XLSheet.hpp```
+
+### (aral-matrix) 31 January 2025 - Support for XLWorksheet comments mostly complete - still in testing stage
+* for that, implemented a new XLContentType::Relationship
+* removed a redundant ```XLContentTypeToString``` function from ```XLContentTypes.cpp```, as a function ```XLContentTypeString``` already exists in ```utilities/XLUtilities.hpp```
+* implemented XLComment class and the possibility to iterate over only *existing* comments in a worksheet (see ```Examples/Demo1.cpp```) as they appear in the underlying XML. This is much more practical when searching for comments in a worksheet created by another application.
+* proper "load upon access" for worksheet dependencies, so that worksheet relationships, comments, table and vmlDrawing files will not be loaded into the XMLDocument managed objects unless actually accessed by the user. The files will still remain unchanged in the archive if not accessed.
+* ```Override``` entries for the worksheet dependencies (comments, vmlDrawing, table) in ```[Content Types].xml```
+
+### (aral-matrix) 17 January 2025 - Basic support for comments is implemented - testing stage
+The support for comments is now in a stage where it can be used - please refer to Demo1 line 124ff for a quick "howto".
+This feature is still in alpha stage, with a few open TBDs:
+* the library currently assumes that comment entries are well sorted, first by row, then by column - if this is not the case, existing comments might not be readable / be found
+* the VML Drawing support is basic at best, for lack of documentation. I have made most features available through ```XLShape XLComments::shape(std::string const& cellRef)``` - for methods of XLShape please refer to the ```XLDrawing``` header file
+* missing support in XLShape for now:
+```
+    // XLShapeShadow& shadow();          // v:shape subnode v:shadow
+    // XLShapeFill& fill();              // v:shape subnode v:fill
+    // XLShapeStroke& stroke();          // v:shape subnode v:stroke
+    // XLShapePath& path();              // v:shape subnode v:path
+    // XLShapeTextbox& textbox();        // v:shape subnode v:textbox
+```
+* missing: library still needs to add ```Override``` entries for the worksheet dependencies (comments, vmlDrawing, table)
+* to be replaced with proper logic: library (XLDocument) currently loads worksheets dependencies in a workaround
+
+### (aral-matrix) 13 January 2025 BUGFIX XLSheetBase::index() / XLDocument::execQuery: implemented XLQueryType::QuerySheetIndex
+* as the title says - the XLQueryType::QuerySheetIndex query implementation was missing from XLDocument::execQuery, meaning XLSheetBase::index() would either throw or return nonsense - today's patch finally implemented the function
+
+### (aral-matrix) 10 January 2025 deletion of worksheet rows from OOXML, bugfix for XLCellValue(Proxy)::get
+* added bool XLWorksheet::deleteRow(uint32_t rowNumber) - can be used to eliminate rows from OOXML - no renumbering of rows behind is performed, the row entry is simply removed from OOXML, this addresses https://github.com/troldal/OpenXLSX/issues/156
+* templated getter T XLCellValue(Proxy)::get() now uses a workaround (due to undefined behavior) when getting a temporary string_view or (const) char * - this functionality was only safe when called with a persistent XLCellValue(Proxy) variable - users should not use this template to fetch a string reference type as it may be removed in the future
+* introduced ```XLKeepCellValue::privateGet``` as a library internal that can be used with the old behavior for performance reasons, from functions that can guarantee the validity of the XLCellValue for the duration of access to the string reference
+* in line with the change to the templated getter, the ```std::ostream& operator<<```for XLCellValue and XLCellValueProxy now fetch string types as ```std::string```, this addresses https://github.com/troldal/OpenXLSX/issues/166
+
+### (aral-matrix) 10 January 2025 - bugfixes to XLDateTime, implicit conversion to double for integer, bool cell values
+* XLDateTime::tm() BUGFIX: added overflow handling in rounded seconds at the end of a minute to address https://github.com/troldal/OpenXLSX/issues/138
+* XLDateTime::tm() BUGFIX: account for fractions (time of day) in loops counting year & month
+* XLDateTime::tm() precaution: added safeguards against infinite loops counting year & month
+* XLCellValue: added implicit conversion from integer & bool for ```XLCellValue::get<double>()``` and ```XLCellValue::get<XLDateTime>()```. Note: implicit conversion from string is available in ```VisitXLCellValueTypeToDouble```, but disabled (forced throw)
+
+### (aral-matrix) 09 January 2025 - Support for XLWorksheet protection
+* fixed some missing symbol exports when building the shared library - this addresses https://github.com/troldal/OpenXLSX/issues/316.
+* ensured that utility functions get exported to shared library build: ```XLCfTypeFromString```, ```XLCfTypeToString```, ```XLCfOperatorFromString```, ```XLCfOperatorToString```, ```XLCfTimePeriodFromString```, ```XLCfTimePeriodToString```
+* BUGFIX XLSheet: added ```XLSheet::isActive``` and ```XLSheet::setActive``` function definitions to ensure bug-free export of symbols to shared library - this addresses https://github.com/troldal/OpenXLSX/issues/316 - please do not ask me why this was never a problem for the static build, I am simply not smart enough to understand that :P
+* BUGFIX XLDocument: added explicit OPENXLSX_EXPORT macro to new global utility functions ```BinaryAsHexString```, ```ExcelPasswordHash```, ```ExcelPasswordHashAsString``` so that they are also exported when the shared library is being built
+* added XLWorksheet protection settings demo to Demo1
+* added ```ExcelPasswordHash``` and ```ExcelPasswordHashAsString``` to XLDocument as global utility functions
+* made ```BinaryAsHexString``` a global utility function so that XLWorksheet can use them as well
+* moved functions ```hexDigit``` and ```BinaryAsHexString``` from XLRelationships to XLDocument
+* added sheet protection & password (hash) functionality to XLWorksheet (exclusive, not for XLChartsheet) - see Demo1 for usage. This addresses https://github.com/troldal/OpenXLSX/issues/311
+    * setter functions:
+        * ```bool protectSheet(bool set = true)```
+        * ```bool protectObjects(bool set = true)```
+        * ```bool protectScenarios(bool set = true)```
+        * ```bool allowInsertColumns(bool set = true)```
+        * ```bool allowInsertRows(bool set = true)```
+        * ```bool allowDeleteColumns(bool set = true)```
+        * ```bool allowDeleteRows(bool set = true)```
+        * ```bool allowSelectLockedCells(bool set = true)```
+        * ```bool allowSelectUnlockedCells(bool set = true)```
+        * ```bool denyInsertColumns()```
+        * ```bool denyInsertRows()```
+        * ```bool denyDeleteColumns()```
+        * ```bool denyDeleteRows()```
+        * ```bool denySelectLockedCells()```
+        * ```bool denySelectUnlockedCells()```
+        * ```bool setPasswordHash(std::string hash)```
+        * ```bool setPassword(std::string password)```
+        * ```bool clearPassword()```
+        * ```bool clearSheetProtection()```
+    * getter functions:
+        * ```bool sheetProtected()```
+        * ```bool objectsProtected()```
+        * ```bool scenariosProtected()```
+        * ```bool insertColumnsAllowed()```
+        * ```bool insertRowsAllowed()```
+        * ```bool deleteColumnsAllowed()```
+        * ```bool deleteRowsAllowed()```
+        * ```bool selectLockedCellsAllowed()```
+        * ```bool selectUnlockedCellsAllowed()```
+        * ```std::string passwordHash()```
+        * ```bool passwordIsSet()```
+* added ```std::string XLWorksheet::sheetProtectionSummary()``` for easy control of established settings
+
+### (aral-matrix) 08 January 2025 - Support for XLWorksheet conditional formatting (experimental)
+This is a major patch to address https://github.com/troldal/OpenXLSX/issues/315 - conditional formatting is now implemented in an experimental stage.
+* XLWorksheet: added support for conditional formatting (rules)
+* XLStyles: added differential cell formats (dxfs) support required by conditional formatting
+* moved class ```XLUnsupportedElement``` from XLStyles to XLXmlFile header, so that XLWorksheet can use it for conditional formatting functionality
+* XLChartSheet: added ```bool isActive_impl()``` and ```bool setActive_impl()``` as no-op function stubs in the hopes this resolves https://github.com/troldal/OpenXLSX/issues/316
+
+***experimental*** in this case means:
+* users are kindly requested to verify that the generated OOXML behaves well with MS Office (I can't promise yet I got the node order right for all scenarios)
+* it appears that the <cfRule><formula> may appear up to 3 times per cfRule - the current implementation only supports a single entry for <formula>
+* as the conditional formatting uses differential formats, and I am re-using XLStyles classes, there is currently an automatism that by accessing a format property, that property node gets created if it does not yet exist. For differential formats, this is undesired when testing whether a given setting exists. I have yet to implement something along the lines of ```bool settingExists(std::string settingName)```
+* I have implemented boolean values to be stored in XML as ```"true"``` and ```"false"``` - whereas LibreOffice appears to store them (for cfRules) as ```1``` and ```0```). The reason is: I want to know if this works, and if it does, stay consistent in how OpenXLSX stores boolean values. I may have to modify this as I learn more
+* Another boolean "gotcha": I do not yet know how MS Office evalutes attribute names that exist with an empty value, e.g. ```aboveAverage=""``` when for ```aboveAverage```, the documentation defines ```true``` as the default - does that mean an empty string gets evaluted as ```true```?
+
+
+### (aral-matrix) 30 December 2024 - removed ```XLWorkbook::sharedStrings``` and ```XLWorkbook::hasSharedStrings```
+* removed these (pointless) functions in the hopes that no one was using them - please report an issue if this causes a problem for you - if you can change the access method, ```XLDocument::sharedStrings()``` returns the same, and ```hasSharedStrings``` was always returning true anyways.
+
+### (aral-matrix) 30 December 2024 - XLSharedStrings passed as const reference everywhere, stored in std::reference_wrapper
+* this is a library internal patch that avoids constructing (& destroying) a new XLSharedStrings instance for every row/cell access
+
+### (aral-matrix) 29 December 2024 - XLXmlFile and derived classes: undid 2024-12-20 addition of xmlName() function
+* this was a function mainly foreseen for debugging purposes, but not serving any practical purpose, it was removed again
+
+### (aral-matrix) 25 December 2024 - XLStyles: fixed implementation of ```strike```(through) font property to address issue #314
+* XLStyles: if the attribute ```val``` is omitted in the ```<strike>``` XML tag, the value is now interpreted as ```true``` as described in the format specification - previously this was wrongly interpreted as "strikethrough is not set". This addresses issue https://github.com/troldal/OpenXLSX/issues/314
+
+### (aral-matrix) 23 December 2024 - XLStyles, XLSheet, XLUtilities: moved XML node insertion functions to XLUtilities, introduced m_nodeOrder in XLSheet for ordered insert of root nodes
+* XLSheet now also uses the ordered insert functionality added on 2024-12-19. Required functions were moved from XLStyles to XLUtilities.
+
+### (aral-matrix) 20 December 2024 - XLXmlFile and derived classes (XLWorksheet!) now expose a ::valid() method
+* addressed https://github.com/troldal/OpenXLSX/issues/312 on a lower level, all classes derived from XLXmlFile now have a bool valid() method that will return true if a non-nullptr XML data block is linked to the class. For the user, this mostly matters in XLWorksheet, XLWorkbook & XLStyles
+* while addressing issue #312, implemented explicit copy/move constructors and assignment operators for XLStyles, which should also address https://github.com/troldal/OpenXLSX/issues/310
+
+### (aral-matrix) 19 December 2024 - XLStyles enhancement to address issues #304 and #305 - artificial ordering of XML elements
+* In order to address https://github.com/troldal/OpenXLSX/issues/304 and https://github.com/troldal/OpenXLSX/issues/305, some XLStyles classes now support a strict predefined XML element node order
+
+### (aral-matrix) 18 December 2024 - Bugfix for Issue #283 - shared strings cache was not cleared upon XLDocument::Close
+* BUGFIX XLDocument::close: shared strings cache is now being cleared on doc close, this addresses issue https://github.com/troldal/OpenXLSX/issues/283
+* zippy.hpp minor bugfix in ZipArchive::Close: m_IsOpen was not set to false
+* Demo10: improved borders demo
+* XLStyles: XLDataBarColor::setTheme now supports parameter ```XLDeleteProperty == XLInvalidUInt32 == 0xffffffff``` to delete the theme attribute from XML. This was necessary because even an empty ```theme=""``` attribute affects formatting.
+* XLStyles appendAndGetAttribute / appendAndSetAttribute: removed a redundant check for ```not node.empty()```
+
+### (aral-matrix) 17 December 2024 - Added exemplary use of XLBorder to Examples/Demo10.cpp
+* in response to https://github.com/troldal/OpenXLSX/issues/309, added use of XLBorder to Demo10
+
+### (aral-matrix) 15 December 2024 - Bugfix for Issues 306 and #297, default-disable XLDocument & XLStyles warnings about unsupported tags (#296)
+
+* BUGFIX: document relationships in ```xl/_rels/workbook.xml.rels``` should again open without errors for both relative (to ```xl/``` folder) and absolute archive paths
+* warnings about unsupported archive contents and styles elements are now disabled by default and can be enabled using XLDocument::showWarnings() prior to opening an XLSX file
+
+### (aral-matrix) 09 December 2024 - Bugfix for XLDateTime (hopefully final ;)
+
+Reviewed the XLDateTime code in response to https://github.com/troldal/OpenXLSX/issues/299 and fixed a bug that I think I may have introduced myself. Apologies, dates should now correctly construct from ```double```, ```struct tm``` and ```time_t``` and convert back to ```struct tm```.
+
+### (aral-matrix) 27 October 2024 - Bugfix for XLSheet::mergeCells
+
+It appears that MS Office does not tolerate any formatting XML nodes prior to the ```<mergeCells>``` XML node - in order to get rid of an according error message, the latest commit modifies the ```XLSheet::merges``` function to insert a newly created ```<mergeCells>``` node directly after the ```<sheetData>``` node.
+
+### (aral-matrix) 25 October 2024 - Added default values to a newly created XLCellFormat (from XLCellFormats::create, when no template is provided)
+
+These missing defaults could lead to followup errors when any style index of this cell was later assumed valid to access said style by index (Exception if the index was not in a valid range). All style indexes available in a cell format are now zero-initialized (with no assumptions what the style with index 0 may be configured as, normally it's defaults - if you want to be sure, provide a cell with a known format as copyFrom template to XLCellFormats::create).
+
 ### (aral-matrix) 14 October 2024 - added basic support to suppress harmless warnings (e.g. about XLSX unsupported features)
 * ```XLDocument.hpp```: added ```showWarnings()``` (default setting) and ```suppressWarnings()```
 * ```XLStyles.hpp```: added ```suppressWarnings``` parameter to constructor (default: ```false```)
@@ -445,6 +1009,14 @@ transition to the new version instead.
 
 ### (aral-matrix) 30 September 2024 - Pull request #185 - create workbook relationship in _rels/.rels if missing
 * ```XLDocument::open``` will create a missing workbook relationship in ```_rels/.rels``` if, and only if, a workbook with the default path xl/workbook.xml exists in the archive
+
+## (aral-matrix) 29 September 2024 - Support for styles, merging cells (and more)
+Merged development branch into the main branch. In summary:
+* ```OpenXLSX/headers/XLStyles.hpp```: XLStyles class (and lots of subclasses) has been added, providing nearly complete access to all Excel formatting capabilities.
+* ```OpenXLSX/headers/XLMergeCells.hpp``` and ```XLSheet.hpp```: XLMergeCells class is made accessible through XLWorksheet in order to create / delete cell merges
+* ```Examples/Demo10.cpp``` demonstrates how styles and merges are used **Note:** The section that is disabled with ```testBasics = false``` *will* break the resulting Excel Spreadsheet if enabled, the only purpose is to demonstrate access to *all* new classes and methods. If you want to use them, make sure to use them correctly
+
+*Note on XLNumberFormat(s)*: Contrary to all other XLStyles elements, these do not use an index within the XML as the referrable ID (XLCellFormat::setNumberFormatId), but instead a user-defined ID that can be set via XLNumberFormat::setNumberFormatId - and for an XLCellFormat, can be set to either a self-defined number format ID, or to a [format predefined by MS](https://learn.microsoft.com/en-us/dotnet/api/documentformat.openxml.spreadsheet.numberingformat?view=openxml-3.0.1). Generally, for custom formats, it is recommended to use IDs > 100.
 
 ### (aral-matrix) 29 September 2024 - prepare merge into main repository
 * modified Demo9 to match style / behavior of other Demo programs
@@ -477,7 +1049,7 @@ transition to the new version instead.
 
 * ```XLMergeCells```: added methods
   * ```int32_t XLMergeCells::findMerge(const std::string& reference)``` - find a merge matching reference
-  * ```bool mergeExists(const std::string& reference)``` - test if a merge with reference exists
+        * ```bool mergeExists(const std::string& reference)``` - test if a merge with reference exists
   * ```int32_t XLMergeCells::findMergeByCell(const std::string& cellRef)``` - find a merge containing std::string cellRef
   * ```int32_t XLMergeCells::findMergeByCell(XLCellReference cellRef)``` - find a merge containing XLCellReference cellRef
   * ```size_t count()``` - get count of merges defined in the worksheet
@@ -503,7 +1075,7 @@ transition to the new version instead.
 * support for ```workbook##.xml```, XML namespaces and random 64bit (relationship) identifiers
   * a non-standard (== not ```xl/workbook.xml```) workbook XML name is now accepted if it is correctly referenced in ```_rels/.rels```
   * XLSX documents that use namespaces throughout their XML files are now supported in the following way:
-    * ```bool OpenXLSX::enable_xml_namespaces()``` must be used to enable namespace support *before* opening a document using e.g. a namespace ```x``` (like so: ```<x:row r="1">```) everywhere
+          * ```bool OpenXLSX::enable_xml_namespaces()``` must be used to enable namespace support *before* opening a document using e.g. a namespace ```x``` (like so: ```<x:row r="1">```) everywhere
     * the document is then opened normally
     * any and all node creations will expose to the user normal node names (as if the namespaces were not in use) and will save/create elements with the correct namespace (of their parent node)
     * if a node is accessed with a namespace, the leading namespace will be stripped and then the node name will be checked based on the parent node's name
@@ -548,6 +1120,9 @@ Included a "dumb" fallback solution in ```XLRelationships.cpp GetTypeFromString`
 In anticipation of a potential future need for a similar "dumb" fallback solution, repeating hardcoded strings in ```XLContentTypes.cpp GetTypeFromString``` were also replaced with string constants.
 
 Updated .gitignore to a more generic version that excludes everything and explicitly re-includes all desired files.
+
+### (aral-matrix) 19/20 August 2024 updated pull requests
+Closed a multitude of pull requests that had been implemented in the May 2024 Update, implemented two more editorials from PR #246 and #253.
 
 ### (aral-matrix) 18 August 2024 - minor bugfixes and elimination of warnings
 * BUGFIX XLRelationships.cpp `BinaryAsHexString`: replaced char array with std::string, as ISO C++ standard does not permit variable size arrays

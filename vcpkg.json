@@ -1,9 +1,24 @@
 {
-  "name" : "openxlsx",
-  "version-string" : "1.0.0",
-  "builtin-baseline" : "d8160798747ac9953d3374f9473393868d76dfe6",
-  "dependencies" : [ {
-    "name" : "benchmark",
-    "version>=" : "1.8.3#2"
-  } ]
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+  "name": "openxlsx",
+  "version": "0.5.0",
+  "description": "OpenXLSX is a C++ library for reading, writing, creating and modifying Microsoft Excel® files, with the .xlsx format.",
+  "homepage": "https://github.com/troldal/OpenXLSX",
+  "license": "BSD-3-Clause",
+  "dependencies": [
+    {
+      "name": "boost-nowide",
+      "platform": "windows"
+    },
+    "miniz",
+    "pugixml",
+    {
+      "name": "vcpkg-cmake",
+      "host": true
+    },
+    {
+      "name": "vcpkg-cmake-config",
+      "host": true
+    }
+  ]
 }

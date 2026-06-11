@@ -57,9 +57,9 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <string>
 
 // ===== OpenXLSX Includes ===== //
-#include "include-exports-header.hpp"
+#include "OpenXLSX-Exports.hpp"
 #include "XLContentTypes.hpp"
-#include "XLXmlParser.hpp"
+#include "XLXmlParserForwardDeclarations.hpp"
 
 namespace OpenXLSX
 {
@@ -74,14 +74,47 @@ namespace OpenXLSX
     class OPENXLSX_EXPORT XLXmlSavingDeclaration {
     public:
         // ===== PUBLIC MEMBER FUNCTIONS ===== //
-        XLXmlSavingDeclaration() : m_version(XLXmlDefaultVersion), m_encoding(XLXmlDefaultEncoding), m_standalone(XLXmlNotStandalone) {}
-        XLXmlSavingDeclaration(XLXmlSavingDeclaration const & other) = default; // copy constructor
-        XLXmlSavingDeclaration(std::string version, std::string encoding, bool standalone = XLXmlNotStandalone)
-            : m_version(version), m_encoding(encoding), m_standalone(standalone) {}
-        ~XLXmlSavingDeclaration() {}
+        /**
+         * @brief Default constructor
+         */
+        XLXmlSavingDeclaration();
 
         /**
-         * @brief: getter functions: version, encoding, standalone
+         * @brief Nominal constructor
+         */
+        XLXmlSavingDeclaration(std::string version, std::string encoding, bool standalone = XLXmlNotStandalone);
+
+        /**
+         * @brief Copy constructor
+         */
+        XLXmlSavingDeclaration(const XLXmlSavingDeclaration& other);
+
+        /**
+         * @brief Move constructor
+         */
+        XLXmlSavingDeclaration(XLXmlSavingDeclaration&& other) noexcept;
+
+        /**
+         * @brief Destructor
+         */
+        ~XLXmlSavingDeclaration();
+
+        /**
+         * @brief Copy assignment operator
+         * @param other the XLXmlSavingDeclaration object to be copied
+         * @return A reference to the copied-to object.
+         */
+        XLXmlSavingDeclaration& operator=(const XLXmlSavingDeclaration& other);
+
+        /**
+         * @brief Move assignment operator
+         * @param other the XLXmlSavingDeclaration object to be moved from.
+         * @return A reference to the moved-to object.
+         */
+        XLXmlSavingDeclaration& operator=(XLXmlSavingDeclaration&& other) noexcept;
+
+        /**
+         * @brief getter functions: version, encoding, standalone
          */
         std::string const & version() const { return m_version; }
         std::string const & encoding() const { return m_encoding; }
@@ -108,9 +141,9 @@ namespace OpenXLSX
         /**
          * @brief Default constructor. All member variables are default constructed. Except for
          * the raw XML data, none of the member variables can be modified after construction. Hence, objects created
-         * using the default constructor can only serve as null objects and targets for the move assignemnt operator.
+         * using the default constructor can only serve as null objects and targets for the move assignment operator.
          */
-        XLXmlData() = default;
+        XLXmlData();
 
         /**
          * @brief Constructor. This constructor creates objects with the given parameters. the xmlId and the xmlType
@@ -133,8 +166,15 @@ namespace OpenXLSX
         ~XLXmlData();
 
         /**
+         * @brief check whether class is linked to a valid XML document
+         * @return true if the class should have a link to valid data
+         * @return false if accessing any other properties / methods could cause a segmentation fault
+         */
+        bool valid() const { return m_xmlDoc != nullptr; }
+
+        /**
          * @brief Copy constructor. The m_xmlDoc data member is a XMLDocument object, which is non-copyable. Hence,
-         * the XLXmlData objects have a explicitly deleted copy constructor.
+         * the XLXmlData objects have an explicitly deleted copy constructor.
          * @param other
          */
         XLXmlData(const XLXmlData& other) = delete;
@@ -144,11 +184,11 @@ namespace OpenXLSX
          * constructor is sufficient.
          * @param other
          */
-        XLXmlData(XLXmlData&& other) noexcept = default;
+        XLXmlData(XLXmlData&& other) noexcept;
 
         /**
          * @brief Copy assignment operator. The m_xmlDoc data member is a XMLDocument object, which is non-copyable.
-         * Hence, the XLXmlData objects have a explicitly deleted copy assignment operator.
+         * Hence, the XLXmlData objects have an explicitly deleted copy assignment operator.
          */
         XLXmlData& operator=(const XLXmlData& other) = delete;
 
@@ -158,7 +198,7 @@ namespace OpenXLSX
          * @param other the XLXmlData object to be moved from.
          * @return A reference to the moved-to object.
          */
-        XLXmlData& operator=(XLXmlData&& other) noexcept = default;
+        XLXmlData& operator=(XLXmlData&& other) noexcept;
 
         /**
          * @brief Set the raw data for the underlying XML document. Being able to set the XML data directly is useful
@@ -218,6 +258,12 @@ namespace OpenXLSX
          * @return A const pointer to the XMLDocument object.
          */
         const XMLDocument* getXmlDocument() const;
+
+        /**
+         * @brief Test whether there is an XML file linked to this object
+         * @return true if there is no underlying XML file, otherwise false
+         */
+        bool empty() const;
 
     private:
         // ===== PRIVATE MEMBER VARIABLES ===== //

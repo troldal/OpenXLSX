@@ -1,8 +1,75 @@
 # GNU Makefile for OpenXLSX modules & demos
-# Version: 2024-09-29 13:45 CEST
+# Version: 2025-08-26 15:15 CEST
+# $(error 2025-08-16 15:30 CEST: With recent changes to the project configuration, the GNU Makefile is currently non-functional)
+
+$(info 2025-08-26 Temporary override of options (only supported configuration is with libpugixml and libzip preinstalled on the build system))
+$(info ___________It remains TBD whether it will be possible (or is even desired) to pull in dependencies from the GNU Makefile)
+OPENXLSX_ENABLE_LIBPUGIXML=ON
+OPENXLSX_ENABLE_LIBZIP=ON
+OPENXLSX_ENABLE_LIBBOOST_NOWIDE=ON
+OPENXLSX_SHARED_LIBRARY=OFF
+$(info OPENXLSX_ENABLE_LIBPUGIXML         $(OPENXLSX_ENABLE_LIBPUGIXML))
+$(info OPENXLSX_ENABLE_LIBZIP             $(OPENXLSX_ENABLE_LIBZIP))
+$(info OPENXLSX_ENABLE_LIBBOOST_NOWIDE    $(OPENXLSX_ENABLE_LIBBOOST_NOWIDE))
+$(info OPENXLSX_SHARED_LIBRARY            $(OPENXLSX_SHARED_LIBRARY))
+
+# Makefile option OPENXLSX_ENABLE_LIBPUGIXML: Scripts/make-gnu.sh OPENXLSX_ENABLE_LIBPUGIXML=ON
+ifeq ("$(OPENXLSX_ENABLE_LIBPUGIXML)", "ON")
+	# use libpugixml
+	USE_LIBPUGIXML=yes
+else
+	# use pugixml in header-only version shipped with OpenXLSX
+	OPENXLSX_ENABLE_LIBPUGIXML=OFF
+	USE_LIBPUGIXML=no
+endif
+
+# Makefile option OPENXLSX_ENABLE_LIBZIP: Scripts/make-gnu.sh OPENXLSX_ENABLE_LIBZIP=ON (default)
+ifeq ("$(OPENXLSX_ENABLE_LIBZIP)", "OFF")
+	# use zippy
+	USE_LIBZIP=no
+else
+	# use libzip
+	OPENXLSX_ENABLE_LIBZIP=ON
+	USE_LIBZIP=yes
+endif
+
+# Makefile option OPENXLSX_FORCE_NOWIDE: Scripts/make-gnu.sh OPENXLSX_FORCE_NOWIDE=ON
+ifeq ("$(OPENXLSX_FORCE_NOWIDE)", "ON")
+	USE_NOWIDE_DEFAULT=yes
+else
+        OPENXLSX_FORCE_NOWIDE=OFF
+	USE_NOWIDE_DEFAULT=no
+endif
+
+# Makefile option OPENXLSX_ENABLE_LIBBOOST_NOWIDE: Scripts/make-gnu.sh OPENXLSX_ENABLE_LIBBOOST_NOWIDE=ON
+ifeq ("$(OPENXLSX_ENABLE_LIBBOOST_NOWIDE)", "ON")
+	# use libpugixml
+	USE_LIBBOOST_NOWIDE=yes
+else
+	# use pugixml in header-only version shipped with OpenXLSX
+	OPENXLSX_ENABLE_LIBBOOST_NOWIDE=OFF
+	USE_LIBBOOST_NOWIDE=no
+endif
+
+# Makefile option OPENXLSX_SHARED_LIBRARY: Scripts/make-gnu.sh OPENXLSX_SHARED_LIBRARY=ON
+ifeq ("$(OPENXLSX_SHARED_LIBRARY)", "ON")
+	# NOTE: Currently unsupported in GNU Makefile:
+	# build shared library
+	USE_SHARED_LIBRARY=yes
+else
+	# build static library (default & only supported option in GNU Makefile)
+	OPENXLSX_SHARED_LIBRARY=OFF
+	USE_SHARED_LIBRARY=no
+endif
+
+# version tags
+OPENXLSX_MAJOR_VERSION=0
+OPENXLSX_MINOR_VERSION=4
+OPENXLSX_MICRO_VERSION=2
 
 # NOTE: lib and library are available as aliases for OpenXLSX, to build the static library file
 TARGETS=OpenXLSX Demo1 Demo2 Demo3 Demo4 Demo5 Demo6 Demo7 Demo8 Demo9 Demo10
+ADDITIONAL_TARGETS=Demo1A
 
 DEMOS_SRC_DIR=Examples
 BIN_DIR=output
@@ -69,7 +136,7 @@ INCLUDE_DIR=headers
 OBJ_DIR=obj
 STATIC_LIBRARY=libOpenXLSX.a
 
-USE_NOWIDE=no
+USE_NOWIDE=$(USE_NOWIDE_DEFAULT)
 ifeq ("$(Windows)", "yes")
 	# enable nowide on windows. CAUTION: do not append this comment to the variable assignment, it will break the ifeq check below
 	USE_NOWIDE=yes
@@ -84,9 +151,9 @@ ZIPPY_SUBDIR=$(EXTERNAL_SUBDIR)/zippy
 # library / utility objects
 # OBJS_LICENSE=license.o
 # OBJS_SHARED=$(OBJS_LICENSE)
-OBJS_PUGIXML= # used as header-only module
+OBJS_PUGIXML= # used as header-only module OR as system library (if USE_LIBPUGIXML=yes)
 OBJS_ZIPPY=   # header-only module
-OBJS_OPENXLSX=XLCell.o XLCellIterator.o XLCellRange.o XLCellReference.o XLCellValue.o XLColor.o XLColumn.o XLComments.o XLContentTypes.o XLDateTime.o XLDocument.o XLFormula.o XLMergeCells.o XLProperties.o XLRelationships.o XLRow.o XLRowData.o XLSharedStrings.o XLSheet.o XLStyles.o XLWorkbook.o XLXmlData.o XLXmlFile.o XLXmlParser.o XLZipArchive.o
+OBJS_OPENXLSX=XLCell.o XLCellIterator.o XLCellRange.o XLCellReference.o XLCellValue.o XLColor.o XLColumn.o XLComments.o XLContentTypes.o XLDateTime.o XLDocument.o XLDrawing.o XLFormula.o XLMergeCells.o XLProperties.o XLRelationships.o XLRow.o XLRowData.o XLSharedStrings.o XLSheet.o XLStyles.o XLTables.o XLWorkbook.o XLXmlData.o XLXmlFile.o XLXmlParser.o XLZipArchive.o
 
 # create a version of OBJS_OPENXLSX that already has the correct prefix so that it can be used for linking without further modification
 OBJS_OPENXLSX_PREFIXED=$(addprefix $(OBJ_DIR)/$(OPENXLSX_DIR)/,$(OBJS_OPENXLSX))
@@ -94,11 +161,25 @@ OBJS_OPENXLSX_PREFIXED=$(addprefix $(OBJ_DIR)/$(OPENXLSX_DIR)/,$(OBJS_OPENXLSX))
 # OBJS_DEMOS=$(OBJS_OPENXLSX_PREFIXED) # no longer needed - using static library instead
 OBJS_DEMOS=$(BIN_DIR)/$(STATIC_LIBRARY) # use static library for linking demos
 
-PROJECT_FLAGS=
-ifeq ("$(USE_NOWIDE)", "yes")
-	PROJECT_FLAGS=-DENABLE_NOWIDE
+ifeq ("$(USE_LIBPUGIXML)", "yes")
+	LDLIBS_PUGIXML=-lpugixml
+	ENABLE_LIBPUGIXML=-DUSE_LIBPUGIXML
+	INCLUDE_DIR_PUGIXML= # do not identify OpenXLSX-shipped pugixml path
+else
+	INCLUDE_DIR_PUGIXML= -I$(OPENXLSX_DIR)/$(PUGIXML_SUBDIR)
 endif
-
+ifeq ("$(USE_LIBZIP)", "yes")
+	ENABLE_LIBZIP=-DUSE_LIBZIP
+	LDLIBS_LIBZIP=-lzip
+endif
+ifeq ("$(USE_NOWIDE)", "yes")
+	ifeq ("$(USE_LIBBOOST_NOWIDE)", "yes")
+		ENABLE_NOWIDE=-DENABLE_NOWIDE -DENABLE_LIBBOOST_NOWIDE
+	else
+		ENABLE_NOWIDE=-DENABLE_NOWIDE
+	endif
+endif
+PROJECT_FLAGS=$(ENABLE_LIBPUGIXML) $(ENABLE_LIBZIP) $(ENABLE_NOWIDE)
 
 # additional include directories for 1) OPENXLSX project headers and 2) external nowide (parent) folder
 ADDITIONAL_INCLUDE_FLAGS=-I$(OPENXLSX_DIR) -I$(OPENXLSX_DIR)/$(EXTERNAL_SUBDIR)
@@ -113,6 +194,10 @@ LDLIBS_DEMO0=
 OBJS_DEMO1=Demo1.o
 OBJS_OPENXLSX_DEMO1=$(OBJS_DEMOS)
 LDLIBS_DEMO1=
+
+OBJS_DEMO1A=Demo1A.o
+OBJS_OPENXLSX_DEMO1A=$(OBJS_DEMOS)
+LDLIBS_DEMO1A=
 
 OBJS_DEMO2=Demo2.o
 OBJS_OPENXLSX_DEMO2=$(OBJS_DEMOS)
@@ -181,7 +266,7 @@ LDFLAGS=$(SANITIZE_FLAGS)
 
 
 # precompiled libs go here
-LDLIBS=$(SANITIZE_LIBS)
+LDLIBS=$(SANITIZE_LIBS) $(LDLIBS_PUGIXML) $(LDLIBS_LIBZIP)
 # LDLIBS=-lrt -pthread -lboost_program_options $(SANITIZE_LIBS) # example to add libraries if needed
 
 
@@ -199,12 +284,14 @@ uc = $(subst a,A,$(subst b,B,$(subst c,C,$(subst d,D,$(subst e,E,$(subst f,F,$(s
 .DEFAULT_GOAL := default
 default: $(TARGETS)
 
-all: $(TARGETS)
+all: $(TARGETS) $(ADDITIONAL_TARGETS)
 
 # the $(NOOP) rules are only needed for the dependency / forward to $(BIN_DIR)
 Demo0: $(BIN_DIR)/Demo0
 	$(NOOP)
 Demo1: $(BIN_DIR)/Demo1
+	$(NOOP)
+Demo1A: $(BIN_DIR)/Demo1A
 	$(NOOP)
 Demo2: $(BIN_DIR)/Demo2
 	$(NOOP)
@@ -250,18 +337,22 @@ $(OBJ_DIR)/%.o: $(addprefix $(DEMOS_SRC_DIR)/,%.cpp) | $(OBJ_DIR) $(OPENXLSX_DIR
 
 # rule for OpenXLSX .cpp files
 $(OBJ_DIR)/$(OPENXLSX_DIR)/%.o: $(OPENXLSX_DIR)/$(SRC_DIR)/%.cpp | $(OBJ_DIR) $(OBJ_DIR)/$(OPENXLSX_DIR)/ $(OPENXLSX_DIR)/OpenXLSX-Exports.hpp
-	$(CXX) $(CPPFLAGS) -I$(OPENXLSX_DIR)/$(INCLUDE_DIR) -I$(OPENXLSX_DIR)/$(NOWIDE_SUBDIR) -I$(OPENXLSX_DIR)/$(PUGIXML_SUBDIR) -I$(OPENXLSX_DIR)/$(ZIPPY_SUBDIR) -c $< -o $@
+	$(CXX) $(CPPFLAGS) -I$(OPENXLSX_DIR)/$(INCLUDE_DIR) -I$(OPENXLSX_DIR)/$(NOWIDE_SUBDIR) $(INCLUDE_DIR_PUGIXML) -I$(OPENXLSX_DIR)/$(ZIPPY_SUBDIR) -c $< -o $@
 
 # rule for nowide .cpp files: N/A, as nowide is header-only
 
 # rule for pugixml .cpp files: N/A, as pugixml is used as header only
 $(OBJ_DIR)/$(PUGIXML_SUBDIR)/%.o: $(OPENXLSX_DIR)/$(PUGIXML_SUBDIR)/%.cpp | $(OBJ_DIR) $(OBJ_DIR)/$(PUGIXML_SUBDIR)/
-	$(CXX) $(CPPFLAGS) -I$(OPENXLSX_DIR)/$(PUGIXML_SUBDIR) -c $< -o $@
+	$(CXX) $(CPPFLAGS) $(INCLUDE_DIR_PUGIXML) -c $< -o $@
 
 # rule for zippy .cpp files: N/A, as zippy is header only
 
 $(OPENXLSX_DIR)/OpenXLSX-Exports.hpp:
-	cp gnu-make-crutch/OpenXLSX-Exports.hpp $@
+ifeq ("$(USE_SHARED_LIBRARY)", "yes")
+	cp gnu-make-crutch/OpenXLSX-Exports-shared.hpp $@
+else
+	cp gnu-make-crutch/OpenXLSX-Exports-static.hpp $@
+endif
 	
 # # rule for shared .cpp files
 # $(OBJ_DIR)/$(SHARED_SUBDIR)/%.o: $(OPENXLSX_DIR)/$(SRC_DIR)/$(SHARED_SUBDIR)/%.cpp | $(OBJ_DIR) $(OBJ_DIR)/$(SHARED_SUBDIR)/
@@ -294,9 +385,9 @@ $(OBJ_DIR)/$(ZIPPY_SUBDIR)/:
 .SECONDARY:
 
 # indicate all rules without target output
-.PHONY: default all clean cleanObjects cleanTargets echo lib library OpenXLSX
+.PHONY: default all clean cleanObjects cleanTargets cleanCrutch echo lib library OpenXLSX
 
-clean: cleanObjects cleanTargets
+clean: cleanObjects cleanTargets cleanCrutch
 
 cleanObjects:
 	rm -f $(addprefix $(OBJ_DIR)/,$(OBJS_DEMO0) $(OBJS_DEMO1) $(OBJS_DEMO2) $(OBJS_DEMO3) $(OBJS_DEMO4) $(OBJS_DEMO5) $(OBJS_DEMO6) $(OBJS_DEMO7) $(OBJS_DEMO8) $(OBJS_DEMO9) $(OBJS_DEMO10)) \
@@ -307,14 +398,33 @@ cleanObjects:
 # 	      $(addprefix $(OBJ_DIR)/$(SHARED_SUBDIR)/,$(OBJS_SHARED))
 
 cleanTargets:
-	rm -f $(addprefix $(BIN_DIR)/,Demo0) $(addprefix $(BIN_DIR)/,$(TARGETS))
+	rm -f $(addprefix $(BIN_DIR)/,Demo0) $(addprefix $(BIN_DIR)/,$(TARGETS)) $(addprefix $(BIN_DIR)/,$(ADDITIONAL_TARGETS))
+
+cleanCrutch:
+	rm $(OPENXLSX_DIR)/OpenXLSX-Exports.hpp 2>/dev/null
 
 
 # have a look at the established configuration
 echo:
 	@echo "OpenXLSX Makefile"
 	@echo "----------------------------------------------"
+	@echo "OpenXLSX library version: $(OPENXLSX_MAJOR_VERSION).$(OPENXLSX_MINOR_VERSION).$(OPENXLSX_MICRO_VERSION)"
+	@echo
+	@echo "Make options:"
+	@echo "  OPENXLSX_ENABLE_LIBPUGIXML:      $(OPENXLSX_ENABLE_LIBPUGIXML)"
+	@echo "  OPENXLSX_ENABLE_LIBZIP:          $(OPENXLSX_ENABLE_LIBZIP)"
+	@echo "  OPENXLSX_FORCE_NOWIDE:           $(OPENXLSX_FORCE_NOWIDE)"
+	@echo "  OPENXLSX_ENABLE_LIBBOOST_NOWIDE: $(OPENXLSX_ENABLE_LIBBOOST_NOWIDE)"
+	@echo "  OPENXLSX_SHARED_LIBRARY:         $(OPENXLSX_SHARED_LIBRARY)"
+	@echo "Resulting Makefile flags:"
+	@echo "  USE_LIBPUGIXML:      $(USE_LIBPUGIXML)"
+	@echo "  USE_LIBZIP:          $(USE_LIBZIP)"
+	@echo "  USE_NOWIDE_DEFAULT:  $(USE_NOWIDE_DEFAULT)"
+	@echo "  USE_LIBBOOST_NOWIDE: $(USE_LIBBOOST_NOWIDE)"
+	@echo "  USE_SHARED_LIBRARY:  $(USE_SHARED_LIBRARY) (currently unsupported, GNU Makefile will always build static library)"
+	@echo
 	@echo "TARGETS: $(TARGETS)"
+	@echo "ADDITIONAL_TARGETS: $(ADDITIONAL_TARGETS)"
 	@echo "DEMOS_SRC_DIR: $(DEMOS_SRC_DIR)"
 	@echo "BIN_DIR: $(BIN_DIR)"
 	@echo
@@ -344,13 +454,17 @@ echo:
 	@echo
 	@echo "OpenXLSX project configuration:"
 	@echo "-------------------------------"
+	@echo "USE_NOWIDE: $(USE_NOWIDE) (derived from Windows: $(Windows) and OPENXLSX_FORCE_NOWIDE: $(OPENXLSX_FORCE_NOWIDE))"
+	@echo
 	@echo "OPENXLSX_DIR: $(OPENXLSX_DIR)"
 	@echo "SRC_DIR: $(SRC_DIR)"
 	@echo "INCLUDE_DIR: $(INCLUDE_DIR)"
 	@echo "OBJ_DIR: $(OBJ_DIR)"
 	@echo "STATIC_LIBRARY: $(STATIC_LIBRARY)"
 	@echo
-	@echo "USE_NOWIDE: $(USE_NOWIDE)"
+	@echo "ENABLE_LIBPUGIXML: $(ENABLE_LIBPUGIXML)"
+	@echo "ENABLE_LIBZIP: $(ENABLE_LIBZIP)"
+	@echo "ENABLE_NOWIDE: $(ENABLE_NOWIDE)"
 	@echo
 # 	@echo "SHARED_SUBDIR: $(SHARED_SUBDIR)"
 	@echo "EXTERNAL_SUBDIR: $(EXTERNAL_SUBDIR)"
@@ -408,5 +522,9 @@ echo:
 	@echo "GENERIC_FLAGS: $(GENERIC_FLAGS)"
 	@echo "CPPFLAGS: $(CPPFLAGS)"
 	@echo
+	@echo "INCLUDE_DIR_PUGIXML: $(INCLUDE_DIR_PUGIXML)"
+	@echo
 	@echo "LDFLAGS: $(LDFLAGS)"
 	@echo "LDLIBS: $(LDLIBS)"
+	@echo "LDLIBS_PUGIXML: $(LDLIBS_PUGIXML)"
+	@echo "LDLIBS_LIBZIP: $(LDLIBS_LIBZIP)"

@@ -3,7 +3,6 @@
 #include <string>
 
 #include <OpenXLSX.hpp>
-#include <external/pugixml/pugixml.hpp>
 
 bool nowide_status()
 {
@@ -17,11 +16,11 @@ bool nowide_status()
 using namespace std;
 using namespace OpenXLSX;
 
-int main( int argc, char *argv[] )
+int main()
 {
-	// ignore command line params without warning:
-	static_cast< void >( argc );
-	static_cast< void >( argv );
+	cout << "********************************************************************************\n";
+	cout << "DEMO PROGRAM #10: XLStyles Usage and XLSheet conditional formatting\n";
+	cout << "********************************************************************************\n";
 
 	std::cout << "nowide is " << ( nowide_status() ? "enabled" : "disabled" ) << std::endl;
 
@@ -79,7 +78,12 @@ int main( int argc, char *argv[] )
 
 	//                                                                      // change the new font style:
 	fonts[ newFontIndex ].setFontName("Arial");
+	// fonts[ newFontIndex ].setFontFamily(4);                                 // info for font substitution on a system where a font with that name is not available
+	// fonts[ newFontIndex ].setFontCharset(0xa1);                             // set Greek character set (example)
 	fonts[ newFontIndex ].setFontSize(14);
+	fonts[ newFontIndex ].setScheme( XLFontSchemeNone );                    // unset any potential font scheme - this is important to prevent application of a different
+	/**/                                                                    //  font formatting which might override the new setting - not yet fully understood where the scheme formatting is coming from
+	/**/                                                                    //  NOTE: not yet fully understood where the scheme formatting would be coming from
 	XLColor red   ( "ffff0000" );
 	XLColor green ( "ff00ff00" );
 	XLColor blue  ( "ff0000ff" );
@@ -219,6 +223,64 @@ int main( int argc, char *argv[] )
 
 	myCellRange.setFormat( newCellStyle ); // assign the new format to the full range of cells
 
+	// ===== BEGIN cell borders demo
+	XLStyleIndex borderFormat = 0; // scope declaration
+	{
+		// create a new cell format based on the current C3 format & assign it back to C3
+		XLStyleIndex borderedCellFormat = cellFormats.create( cellFormats[ wks.cell("C7").cellFormat() ] );
+		wks.cell("C7").setCellFormat( borderedCellFormat );
+		wks.cell("C7") = "borders demo";
+
+		// ===== Create a new border format style & assign it to the new cell format
+		borderFormat = borders.create();
+		// NOTE: the new border format uses a default (empty) borders object to demonstrate OpenXLSX ordered inserts.
+		//       Using an existing border style as a template would copy the OpenXLSX default border style which
+		//       already contains elements in the correct sequence, so that inserts could not be demonstrated.
+		cellFormats[ borderedCellFormat ].setBorderIndex( borderFormat );
+
+		borders[ borderFormat ].setDiagonalUp( false );    // setting this to true will apply the diagonal line style
+		borders[ borderFormat ].setDiagonalDown( true );   //  - both diagonals can be applied simultaneously, but only with the same style
+		borders[ borderFormat ].setOutline( true );        // not sure if this is needed at all
+
+		// ===== Insert lines in a "wrong" sequence that MS Office would refuse to accept, to demonstrate XLStyles ordered inserting capability
+		borders[ borderFormat ].setHorizontal( XLLineStyleHair,   XLColor( "ff446688" ) );
+		borders[ borderFormat ].setVertical  ( XLLineStyleDouble, XLColor( "ff443322" ) );
+		borders[ borderFormat ].setDiagonal  ( XLLineStyleThick,  XLColor( "ff332222" ), -0.25 );
+		borders[ borderFormat ].setBottom    ( XLLineStyleDotted, XLColor( "ff222222" ), 0.25 );
+		borders[ borderFormat ].setTop       ( XLLineStyleDashed, XLColor( "ff114444" ) );
+		borders[ borderFormat ].setRight     ( XLLineStyleMedium, XLColor( "ff113333" ) );
+		borders[ borderFormat ].setLeft      ( XLLineStyleThin,   XLColor( "ff112222" ) );
+		std::cout << "#1 borders[ " << borderFormat << " ] summary: " << borders[ borderFormat ].summary() << std::endl;
+
+		// test additional line styles with setter function:
+		borders[ borderFormat ].setLine      ( XLLineVertical, XLLineStyleSlantDashDot,     XLColor( XLDefaultFontColor ) );
+		borders[ borderFormat ].setLine      ( XLLineDiagonal, XLLineStyleMediumDashDotDot, XLColor( XLDefaultFontColor ), -1.0 );
+		borders[ borderFormat ].setLine      ( XLLineBottom,   XLLineStyleDashDotDot,       XLColor( XLDefaultFontColor ), -0.1 );
+		borders[ borderFormat ].setLine      ( XLLineTop,      XLLineStyleMediumDashDot,    green );
+		borders[ borderFormat ].setLine      ( XLLineRight,    XLLineStyleDashDot,          XLColor( XLDefaultFontColor ), 1.0 );
+		borders[ borderFormat ].setLine      ( XLLineLeft,     XLLineStyleMediumDashed,     XLColor( XLDefaultFontColor ) );
+		std::cout << "#2 borders[ " << borderFormat << " ] summary: " << borders[ borderFormat ].summary() << std::endl;
+
+		// test direct access to line properties (read: the XLDataBarColor)
+		XLLine leftLine = borders[ borderFormat ].left();
+		XLDataBarColor leftLineColor = leftLine.color();
+		leftLineColor.setRgb( blue );
+		leftLineColor.setTint( -0.2 );
+		leftLineColor.setAutomatic();
+		leftLineColor.setIndexed( 606 );
+		leftLineColor.setTheme( 707 );
+		std::cout << "#2 borders, leftLine summary: " << leftLine.summary() << std::endl;
+		// unset some properties
+		leftLineColor.setTint( -0.1 );
+		leftLineColor.setAutomatic( false );
+		leftLineColor.setIndexed( 0 );
+		leftLineColor.setTheme( XLDeleteProperty );
+		// NOTE: XLDeleteProperty can be used to remove a property from XML where a value of 0 would not accomplish the same
+		//       formatting. Currently, only XLDataBarColor::setTheme supports this functionality. More can be added as properties
+		//       are discovered that have the same problem (theme="" still overrides e.g. the line color)
+		std::cout << "#2 borders, leftLineColor summary: " << leftLineColor.summary() << std::endl;
+	}
+	// ===== END cell borders demo ===== //
 
 	// enable testBasics = true to create/modify at least one entry in each known styles array
 	// disable testBasics = false to stop the demo execution here and save the document
@@ -287,43 +349,6 @@ int main( int argc, char *argv[] )
 		// output summary of newly created style
 		std::cout << "fills[ " << nodeIndex << " ] summary: " << fills[ nodeIndex ].summary() << std::endl;
 
-		nodeIndex = ( createAll ? borders.create() : borders.count() - 1 );
-		borders[ nodeIndex ].setDiagonalUp( false );
-		borders[ nodeIndex ].setDiagonalDown( true );
-		borders[ nodeIndex ].setOutline( true );
-		borders[ nodeIndex ].setLeft      ( XLLineStyleThin,   XLColor( "ff112222" ) );
-		borders[ nodeIndex ].setRight     ( XLLineStyleMedium, XLColor( "ff113333" ) );
-		borders[ nodeIndex ].setTop       ( XLLineStyleDashed, XLColor( "ff114444" ) );
-		borders[ nodeIndex ].setBottom    ( XLLineStyleDotted, XLColor( "ff222222" ), 0.25 );
-		borders[ nodeIndex ].setDiagonal  ( XLLineStyleThick,  XLColor( "ff332222" ), -0.25 );
-		borders[ nodeIndex ].setVertical  ( XLLineStyleDouble, XLColor( "ff443322" ) );
-		borders[ nodeIndex ].setHorizontal( XLLineStyleHair,   XLColor( "ff446688" ) );
-		std::cout << "#1 borders[ " << nodeIndex << " ] summary: " << borders[ nodeIndex ].summary() << std::endl;
-
-		// test additional line styles with setter function:
-		borders[ nodeIndex ].setLine      ( XLLineLeft,     XLLineStyleMediumDashed,     XLColor( XLDefaultFontColor ) );
-		borders[ nodeIndex ].setLine      ( XLLineRight,    XLLineStyleDashDot,          XLColor( XLDefaultFontColor ), 1.0 );
-		borders[ nodeIndex ].setLine      ( XLLineTop,      XLLineStyleMediumDashDot,    XLColor( XLDefaultFontColor ) );
-		borders[ nodeIndex ].setLine      ( XLLineBottom,   XLLineStyleDashDotDot,       XLColor( XLDefaultFontColor ), -0.1 );
-		borders[ nodeIndex ].setLine      ( XLLineDiagonal, XLLineStyleMediumDashDotDot, XLColor( XLDefaultFontColor ), -1.0 );
-		borders[ nodeIndex ].setLine      ( XLLineVertical, XLLineStyleSlantDashDot,     XLColor( XLDefaultFontColor ) );
-		std::cout << "#2 borders[ " << nodeIndex << " ] summary: " << borders[ nodeIndex ].summary() << std::endl;
-
-		// test direct access to line properties (read: the XLDataBarColor)
-		XLLine leftLine = borders[ nodeIndex ].left();
-		XLDataBarColor leftLineColor = leftLine.color();
-		leftLineColor.setRgb( blue );
-		leftLineColor.setTint( -0.2 );
-		leftLineColor.setAutomatic();
-		leftLineColor.setIndexed( 606 );
-		leftLineColor.setTheme( 707 );
-		std::cout << "#2 borders, leftLine summary: " << leftLine.summary() << std::endl;
-		// unset some properties
-		leftLineColor.setTint( 0 );
-		leftLineColor.setAutomatic( false );
-		leftLineColor.setIndexed( 0 );
-		leftLineColor.setTheme( 0 );
-		std::cout << "#2 borders, leftLineColor summary: " << leftLineColor.summary() << std::endl;
 
 		nodeIndex = ( createAll ? cellStyleFormats.create() : cellStyleFormats.count() - 1 );
 		cellStyleFormats[ nodeIndex ].setNumberFormatId( 5 );
@@ -425,10 +450,92 @@ int main( int argc, char *argv[] )
 		// output the value of the merge's top left cell
 		std::cout << "value of cell F6 by merge is \"" << wks.cell(topLeftRef) << "\"" << std::endl;
 	}
-	wks.cell("E4").setCellFormat( mergedCellFormat );
+	XLStyleIndex mergedCellFormatWithBorder = cellFormats.create( cellFormats[ mergedCellFormat ] );
+	if( false ) // enable this if you want to experiment with the borderFormat
+		cellFormats[ mergedCellFormatWithBorder ].setBorderIndex( borderFormat );
+	wks.cell("E4").setCellFormat( mergedCellFormatWithBorder );
 	wks.cell("J5") = "merged red range #2\n - hidden cell contents have been deleted!";
    wks.mergeCells("J5:L8", XLEmptyHiddenCells); // merge cells    with deletion of contents
 	wks.cell("J5").setCellFormat( mergedCellFormat );
+
+	
+	// ===== BEGIN conditional formatting demo
+	{
+		XLDiffCellFormats & diffCellFormats = doc.styles().diffCellFormats(); // get a handle on differential cell formats
+
+		// Create some differential cell formats that can be used for conditional formatting
+		XLStyleIndex lowStyle       = diffCellFormats.create();
+		XLStyleIndex justRightStyle = diffCellFormats.create();
+		XLStyleIndex highStyle      = diffCellFormats.create();
+
+		XLColor gray( "dddddddd" );
+		XLColor orange( "00ffcc00" );
+
+		diffCellFormats[ lowStyle ].font().setFontColor( blue );
+		diffCellFormats[ lowStyle ].fill().setPatternType( XLPatternSolid );
+		diffCellFormats[ lowStyle ].fill().setColor( gray );
+		diffCellFormats[ lowStyle ].fill().setBackgroundColor( gray );
+
+		diffCellFormats[ justRightStyle ].font().setFontColor( green );
+		diffCellFormats[ justRightStyle ].fill().setPatternType( XLPatternNone );
+		// diffCellFormats[ justRightStyle ].fill().setColor( yellow );
+
+		diffCellFormats[ highStyle ].font().setFontColor( red );
+		diffCellFormats[ highStyle ].fill().setPatternType( XLPatternSolid );
+		diffCellFormats[ highStyle ].fill().setColor( orange );
+
+		// Now create some rules applying conditional formatting to a range
+		XLConditionalFormats fmts = wks.conditionalFormats();
+		size_t newFmtIndex = fmts.create(); // will be 0 for this demo
+		XLConditionalFormat fmt = fmts[ newFmtIndex ];
+		fmt.setSqref("B13:B19");
+		XLCfRules fmtRules = fmt.cfRules();
+		// make 3 cfRule entries
+		fmtRules.create();
+		fmtRules.create();
+		fmtRules.create();
+		fmtRules[ 0 ].setType( XLCfType::CellIs );
+		fmtRules[ 0 ].setOperator( XLCfOperator::LessThanOrEqual );
+		fmtRules[ 0 ].setFormula("4");
+		fmtRules[ 0 ].setDxfId(lowStyle);
+		fmtRules[ 1 ].setType( XLCfType::CellIs );
+		fmtRules[ 1 ].setOperator( XLCfOperator::Equal );
+		fmtRules[ 1 ].setFormula("5");
+		fmtRules[ 1 ].setDxfId(justRightStyle);
+		fmtRules[ 2 ].setType( XLCfType::CellIs );
+		fmtRules[ 2 ].setOperator( XLCfOperator::GreaterThanOrEqual );
+		fmtRules[ 2 ].setFormula("6");
+		fmtRules[ 2 ].setDxfId(highStyle);
+
+		// Manipulating rule priorities manually:
+		//                 priorities: 1, 2, 3
+		fmtRules.setPriority(1, 1); // 2, 1, 4 // "mess up" the sequence
+		fmtRules.setPriority(0, 1); // 1, 2, 5 // insert an existing priority at index 0
+		fmtRules.setPriority(2, 3); // 1, 2, 3 // re-assign the priority 3
+		fmtRules.setPriority(1, 1); // 2, 1, 4 // "mess up" the sequence
+		fmtRules.setPriority(2, 3); // 2, 1, 3 // re-assign the priority 3
+		fmtRules.setPriority(1, 4); // 2, 4, 3 // temp-assign priority 4 to index 1
+		fmtRules.setPriority(0, 1); // 1, 4, 3 // re-assign priority 1 to index 0
+		fmtRules.setPriority(1, 2); // 1, 2, 3 // re-assign priority 2 to index 1
+		fmtRules.setPriority(1, 1); // 2, 1, 4 // "mess up" the sequence
+
+		// renumber priorities while retaining the sequence:
+		fmtRules.renumberPriorities(10); // 20, 10, 30 // renumber priorities with higher increment
+		fmtRules.renumberPriorities(21845); // 21845, 43690, 65535 - max possible priority value used
+		// not allowed:
+		// fmtRules.create(); // triggers an error because no priority value can be assigned anymore
+		// fmtRules.renumberPriorities(21846); // triggers an error because 3*21846 exceeds uint16_t range
+		fmtRules.renumberPriorities(); // 2, 1, 3 // renumber priorities while retaining the sequence
+
+		std::cout << std::endl << "conditionalFormatting entries summary: " << wks.conditionalFormats().summary() << std::endl;
+
+		// Finally, set some exemplary values in the range
+		wks.cell("B12") = "conditional formatting example";
+		wks.cell("B12").setCellFormat( boldDefault );
+		int cellValue = 1;
+		for( XLCellAssignable c : wks.range("B13:B19") ) c = cellValue++;
+	}
+	// ===== END conditional formatting demo
 
 	doc.saveAs("./Demo10.xlsx", XLForceOverwrite);
 	doc.close();

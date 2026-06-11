@@ -53,7 +53,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #endif // _MSC_VER
 
 // ===== OpenXLSX Includes ===== //
-#include "include-exports-header.hpp"
+#include "OpenXLSX-Exports.hpp"
 
 #include <memory>
 #include <string>
@@ -115,16 +115,17 @@ namespace OpenXLSX
         }
 
         /**
-         * @brief
+         * @brief copy assignment shall be disabled until a use case is found
          * @param other
          * @return
          */
-        inline IZipArchive& operator=(const IZipArchive& other)
-        {
-            IZipArchive copy(other);
-            *this = std::move(copy);
-            return *this;
-        }
+        inline IZipArchive& operator=(const IZipArchive& other) = delete;
+        // inline IZipArchive& operator=(const IZipArchive& other)
+        // {
+        //     IZipArchive copy(other);
+        //     *this = std::move(copy);
+        //     return *this;
+        // }
 
         /**
          * @brief
@@ -167,6 +168,10 @@ namespace OpenXLSX
             m_zipArchive->addEntry(name, data);
         }
 
+        inline void addEntryAndCommit(const std::string& name, const std::string& data) {
+            m_zipArchive->addEntryAndCommit(name, data);
+        }
+
         inline void deleteEntry(const std::string& entryName) {
             m_zipArchive->deleteEntry(entryName);
         }
@@ -175,7 +180,7 @@ namespace OpenXLSX
             return m_zipArchive->getEntry(name);
         }
 
-        inline bool hasEntry(const std::string& entryName) {
+        inline bool hasEntry(const std::string& entryName) const {
             return m_zipArchive->hasEntry(entryName);
         }
 
@@ -236,11 +241,13 @@ namespace OpenXLSX
 
             inline virtual void addEntry(const std::string& name, const std::string& data) = 0;
 
+            inline virtual void addEntryAndCommit(const std::string& name, const std::string& data) = 0;
+
             inline virtual void deleteEntry(const std::string& entryName) = 0;
 
             inline virtual std::string getEntry(const std::string& name) = 0;
 
-            inline virtual bool hasEntry(const std::string& entryName) = 0;
+            inline virtual bool hasEntry(const std::string& entryName) const = 0;
 
         };
 
@@ -322,6 +329,10 @@ namespace OpenXLSX
                 ZipType.addEntry(name, data);
             }
 
+            inline void addEntryAndCommit(const std::string& name, const std::string& data) override {
+                ZipType.addEntryAndCommit(name, data);
+            }
+
             inline void deleteEntry(const std::string& entryName) override {
                 ZipType.deleteEntry(entryName);
             }
@@ -330,7 +341,7 @@ namespace OpenXLSX
                 return ZipType.getEntry(name);
             }
 
-            inline bool hasEntry(const std::string& entryName) override {
+            inline bool hasEntry(const std::string& entryName) const override {
                 return ZipType.hasEntry(entryName);
             }
 

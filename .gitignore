@@ -33,6 +33,23 @@
 !/Benchmarks/2024-08-11-benchmarks_post-XLCellIterator-Rework
 !/Benchmarks/2024-08-14-benchmarks_post-default-row-column-style-support
 !/Benchmarks/2024-09-02-benchmarks
+!/Benchmarks/2024-12-19-benchmarks
+!/Benchmarks/2024-12-30-benchmarks-post-XLSharedStrings-by-ref
+!/Benchmarks/2025-01-09-benchmarks-post-conditionalFormatsAndSheetProtection
+!/Benchmarks/2025-01-10-benchmarks-post-XLCellValue-bugfix
+!/Benchmarks/2025-01-31-benchmarks-post-XLComments-implementation
+!/Benchmarks/2025-02-02-benchmarks-post-XLRowIterator-Rework
+!/Benchmarks/2025-07-20-benchmarks-after-hiding-pugixml-internals
+!/Benchmarks/2025-08-29-benchmarks-after-code-review-with-libzip
+
+# include cmake folder
+!/cmake
+# exclude everything *in* cmake folder
+/cmake/*
+# re-include specifically what is desired from cmake folder
+!/cmake/get-git-HEAD-ID.cmake
+!/cmake/libopenxlsxCPackOptions.cmake.in
+!/cmake/manage_dependency.cmake
 
 # include Documentation folder
 !/Documentation
@@ -61,7 +78,8 @@
 # exclude everything *in* gnu-make-crutch folder
 /gnu-make-crutch/*
 # re-include specifically what is desired from gnu-make-crutch folder
-!/gnu-make-crutch/OpenXLSX-Exports.hpp
+!/gnu-make-crutch/OpenXLSX-Exports-shared.hpp
+!/gnu-make-crutch/OpenXLSX-Exports-static.hpp
 
 # include Notes folder
 !/Notes
@@ -79,11 +97,12 @@
 /OpenXLSX/*
 # re-include specifically what is desired from OpenXLSX folder
 !/OpenXLSX/CMakeLists.txt
-!/OpenXLSX/external
-!/OpenXLSX/external/*
+!/OpenXLSX/cmake
+!/OpenXLSX/cmake/*
 !/OpenXLSX/headers
 !/OpenXLSX/headers/*
 !/OpenXLSX/module.modulemap
+!/OpenXLSX/OpenXLSX-Exports.hpp
 !/OpenXLSX/swiftpm
 !/OpenXLSX/swiftpm/*
 !/OpenXLSX/OpenXLSXConfig.cmake
@@ -96,9 +115,15 @@
 # exclude everything *in* Scripts folder
 /Scripts/*
 # re-include specifically what is desired from Scripts folder
-!/Scripts/cmake-cleanup.sh
 !/Scripts/demos-cleanup.sh
+!/Scripts/cmake-cleanup.sh
+!/Scripts/compile.sh
+!/Scripts/demos-cleanup.sh
+!/Scripts/demos-run-all.sh
+!/Scripts/guarded-xml-format.sh
 !/Scripts/make-gnu.sh
+!/Scripts/uninstall-manifest.sh
+!/Scripts/xml-format-all.sh
 !/Scripts/xml-format.sh
 
 # include Tests folder

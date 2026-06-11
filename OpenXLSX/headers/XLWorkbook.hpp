@@ -57,12 +57,12 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include <vector>
 
 // ===== OpenXLSX Includes ===== //
-#include "include-exports-header.hpp"
+#include "OpenXLSX-Exports.hpp"
 #include "XLXmlFile.hpp"
 
 namespace OpenXLSX
 {
-    class XLSharedStrings;
+    // class XLSharedStrings;
 
     class XLSheet;
 
@@ -89,12 +89,12 @@ namespace OpenXLSX
         /**
          * @brief Default constructor. Creates an empty ('null') XLWorkbook object.
          */
-        XLWorkbook() = default;
+        XLWorkbook();
 
         /**
          * @brief Constructor. Takes a pointer to an XLXmlData object (stored in the parent XLDocument object).
          * @param xmlData A pointer to the underlying XLXmlData object, which holds the XML data.
-         * @note Do not create an XLWorkbook object directly. Get access through the an XLDocument object.
+         * @note Do not create an XLWorkbook object directly. Access via XLDocument::workbook().
          */
         explicit XLWorkbook(XLXmlData* xmlData);
 
@@ -103,14 +103,14 @@ namespace OpenXLSX
          * @param other The XLWorkbook object to be copied.
          * @note The copy constructor has been explicitly defaulted.
          */
-        XLWorkbook(const XLWorkbook& other) = default;
+        XLWorkbook(const XLWorkbook& other);
 
         /**
          * @brief Move constructor.
          * @param other The XLWorkbook to be moved.
          * @note The move constructor has been explicitly defaulted.
          */
-        XLWorkbook(XLWorkbook&& other) = default;
+        XLWorkbook(XLWorkbook&& other);
 
         /**
          * @brief Destructor
@@ -124,7 +124,7 @@ namespace OpenXLSX
          * @return A reference to *this
          * @note The copy assignment operator has been explicitly deleted, as XLWorkbook objects should not be copied.
          */
-        XLWorkbook& operator=(const XLWorkbook& other) = default;
+        XLWorkbook& operator=(const XLWorkbook& other);
 
         /**
          * @brief Move assignment operator.
@@ -132,7 +132,7 @@ namespace OpenXLSX
          * @return A reference to *this
          * @note The move assignment operator has been explicitly deleted, as XLWorkbook objects should not be moved.
          */
-        XLWorkbook& operator=(XLWorkbook&& other) = default;
+        XLWorkbook& operator=(XLWorkbook&& other);
 
         /**
          * @brief Get the sheet (worksheet or chartsheet) at the given index.
@@ -158,7 +158,7 @@ namespace OpenXLSX
 
         /**
          * @brief Get the worksheet at the given index.
-         * @param index The index at which the desired sheet is located.
+         * @param index The index (1-based) at which the desired sheet is located.
          * @return
          */
         XLWorksheet worksheet(uint16_t index);
@@ -172,7 +172,7 @@ namespace OpenXLSX
 
         /**
          * @brief Get the chartsheet at the given index.
-         * @param index The index at which the desired sheet is located.
+         * @param index The index (1-based) at which the desired sheet is located.
          * @return
          */
         XLChartsheet chartsheet(uint16_t index);
@@ -202,14 +202,14 @@ namespace OpenXLSX
         /**
          * @brief
          * @param sheetName
-         * @param index
+         * @param index The index (1-based) where the sheet shall be moved to
          */
         void setSheetIndex(const std::string& sheetName, unsigned int index);
 
         /**
          * @brief
          * @param sheetName
-         * @return
+         * @return The index (1-based) of the sheet with sheetName
          */
         unsigned int indexOfSheet(const std::string& sheetName) const;
 
@@ -222,7 +222,7 @@ namespace OpenXLSX
 
         /**
          * @brief
-         * @param index
+         * @param index The index (1-based) at which the desired sheet is located.
          * @return
          */
         XLSheetType typeOfSheet(unsigned int index) const;
@@ -291,18 +291,18 @@ namespace OpenXLSX
          */
         void updateSheetReferences(const std::string& oldName, const std::string& newName);
 
-        /**
-         * @brief
-         * @return
-         */
-        XLSharedStrings sharedStrings();
-
-        /**
-         * @brief
-         * @return
-         */
-        bool hasSharedStrings() const;
-
+        // /**
+        //  * @brief
+        //  * @return
+        //  */
+        // XLSharedStrings sharedStrings();
+        //
+        // /**
+        //  * @brief
+        //  * @return
+        //  */
+        // bool hasSharedStrings() const;
+        //
         /**
          * @brief
          */

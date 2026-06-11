@@ -3,12 +3,23 @@ import PackageDescription
 
 let package = Package(
     name: "OpenXLSX",
+    platforms: [
+        .macOS(.v10_15),
+    ],
     products: [
         .library(name: "CxxOpenXLSX", targets: ["CxxOpenXLSX"]),
+    ],
+    dependencies: [
+        .package(url: "https://github.com/omochi/miniz.git", branch: "swiftpm"),
+        .package(url: "https://github.com/omochi/pugixml.git", branch: "swiftpm"),
     ],
     targets: [
         .target(
             name: "CxxOpenXLSX",
+            dependencies: [
+                .product(name: "CMiniz", package: "miniz"),
+                .product(name: "CxxPugiXML", package: "pugixml"),
+            ],
             path: "OpenXLSX",
             sources: [
                 "sources/XLCell.cpp",
@@ -22,6 +33,7 @@ let package = Package(
                 "sources/XLContentTypes.cpp",
                 "sources/XLDateTime.cpp",
                 "sources/XLDocument.cpp",
+                "sources/XLDrawing.cpp",
                 "sources/XLFormula.cpp",
                 "sources/XLMergeCells.cpp",
                 "sources/XLProperties.cpp",
@@ -31,6 +43,7 @@ let package = Package(
                 "sources/XLSharedStrings.cpp",
                 "sources/XLSheet.cpp",
                 "sources/XLStyles.cpp",
+                "sources/XLTables.cpp",
                 "sources/XLWorkbook.cpp",
                 "sources/XLXmlData.cpp",
                 "sources/XLXmlFile.cpp",
@@ -40,8 +53,6 @@ let package = Package(
             publicHeadersPath: ".",
             cxxSettings: [
                 .headerSearchPath("headers"),
-                .headerSearchPath("external/pugixml"),
-                .headerSearchPath("external/zippy"),
             ]
         ),
         .target(
