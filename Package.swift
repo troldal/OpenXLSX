@@ -3,12 +3,23 @@ import PackageDescription
 
 let package = Package(
     name: "OpenXLSX",
+    platforms: [
+        .macOS(.v10_15),
+    ],
     products: [
         .library(name: "CxxOpenXLSX", targets: ["CxxOpenXLSX"]),
+    ],
+    dependencies: [
+        .package(url: "https://github.com/omochi/miniz.git", branch: "swiftpm"),
+        .package(url: "https://github.com/omochi/pugixml.git", branch: "swiftpm"),
     ],
     targets: [
         .target(
             name: "CxxOpenXLSX",
+            dependencies: [
+                .product(name: "CMiniz", package: "miniz"),
+                .product(name: "CxxPugiXML", package: "pugixml"),
+            ],
             path: "OpenXLSX",
             sources: [
                 "sources/XLCell.cpp",
@@ -42,8 +53,6 @@ let package = Package(
             publicHeadersPath: ".",
             cxxSettings: [
                 .headerSearchPath("headers"),
-                .headerSearchPath("external/pugixml"),
-                .headerSearchPath("external/zippy"),
             ]
         ),
         .target(
