@@ -201,6 +201,7 @@ XLCell XLCell::offset(uint16_t rowOffset, uint16_t colOffset) const
  */
 bool XLCell::hasFormula() const
 {
+    if (empty()) return false;
     return (not m_cellNode->child("f").empty());    // evaluate child XMLNode as boolean
 }
 
