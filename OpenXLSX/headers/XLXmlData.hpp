@@ -133,11 +133,24 @@ namespace OpenXLSX
         ~XLXmlData();
 
         /**
+         * @brief Copy constructor. The m_xmlDoc data member is a XMLDocument object, which is non-copyable. Hence,
+         * the XLXmlData objects have a explicitly deleted copy constructor.
+         * @param other
+         */
+        XLXmlData(const XLXmlData& other) = delete;
+
+        /**
          * @brief Move constructor. All data members are trivially movable. Hence an explicitly defaulted move
          * constructor is sufficient.
          * @param other
          */
         XLXmlData(XLXmlData&& other) noexcept = default;
+
+        /**
+         * @brief Copy assignment operator. The m_xmlDoc data member is a XMLDocument object, which is non-copyable.
+         * Hence, the XLXmlData objects have a explicitly deleted copy assignment operator.
+         */
+        XLXmlData& operator=(const XLXmlData& other) = delete;
 
         /**
          * @brief Move assignment operator. All data members are trivially movable. Hence an explicitly defaulted move
@@ -206,9 +219,6 @@ namespace OpenXLSX
          */
         const XMLDocument* getXmlDocument() const;
 
-        // A workaround implementation to bypass a Swift compiler bug
-        XLXmlData(const XLXmlData &o);
-        XLXmlData& operator=(const XLXmlData& o);
     private:
         // ===== PRIVATE MEMBER VARIABLES ===== //
 
