@@ -3,13 +3,33 @@ set -eu
 
 script_dir=$(cd "$(dirname "$0")" && pwd)
 repo_root=$(cd "$script_dir/.." && pwd)
-build_dir=${OPENXLSX_CMAKE_BUILD_DIR:-"$repo_root/build/ninja-tests"}
+cd "$repo_root"
 
-cmake -S "$repo_root" -B "$build_dir" -G Ninja \
+build_dir=${OPENXLSX_CMAKE_BUILD_DIR:-"$repo_root/build/ninja-tests"}
+swiftpm_build_dir=${OPENXLSX_SWIFTPM_BUILD_DIR:-"$repo_root/.build"}
+swiftpm_checkouts_dir="$swiftpm_build_dir/checkouts"
+pugixml_source_dir=${OPENXLSX_PUGIXML_SOURCE_DIR:-"$swiftpm_checkouts_dir/pugixml"}
+miniz_source_dir=${OPENXLSX_MINIZ_SOURCE_DIR:-"$swiftpm_checkouts_dir/miniz"}
+
+swift package resolve
+
+if [[ ! -d "$pugixml_source_dir" ]]; then
+    echo "error: pugixml checkout not found: $pugixml_source_dir" >&2
+    exit 1
+fi
+
+if [[ ! -d "$miniz_source_dir" ]]; then
+    echo "error: miniz checkout not found: $miniz_source_dir" >&2
+    exit 1
+fi
+
+cmake -S . -B "$build_dir" -G Ninja \
     -DCMAKE_BUILD_TYPE=Debug \
     -DOPENXLSX_BUILD_TESTS=ON \
     -DOPENXLSX_CREATE_DOCS=OFF \
-    -DOPENXLSX_BUILD_SAMPLES=OFF
+    -DOPENXLSX_BUILD_SAMPLES=OFF \
+    -DFETCHCONTENT_SOURCE_DIR_PUGIXML_FETCH="$pugixml_source_dir" \
+    -DFETCHCONTENT_SOURCE_DIR_MINIZ_FETCH="$miniz_source_dir"
 
 cmake --build "$build_dir" --target OpenXLSXTests --parallel
 
