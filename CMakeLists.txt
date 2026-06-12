@@ -309,12 +309,14 @@ else()
         LIB_NAME      miniz
         PACKAGE_NAME  miniz
         VERSION       3.0.2
+        # VERSION       3.1.1
         TYPICAL_NAMES "miniz"
 
         TARGET_NAME         ${ZIP_LIBRARY_TARGET}
         TARGET_NAME_SYSTEM  ${ZIP_LIBRARY_TARGET_SYSTEM}
         GIT_REPOSITORY  https://github.com/richgel999/miniz.git
         GIT_TAG         3.0.2
+        # GIT_TAG         3.1.1
     )
     message( STATUS "manage_dependency reported miniz_PROVIDED_TARGET as ${miniz_PROVIDED_TARGET}, miniz_INSTALL_TARGET as ${miniz_INSTALL_TARGET}" )
     set(ZIP_LIBRARY_PROVIDED_TARGET "${miniz_PROVIDED_TARGET}")

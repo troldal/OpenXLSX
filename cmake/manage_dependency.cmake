@@ -179,33 +179,7 @@ function(write_find_test_config ARG_TEMP_SRC_DIR)
 project(TestPackage VERSION 0.1 LANGUAGES CXX)
 # Script: CMakeLists.txt
 # Purpose: demonstrate finding a required library type (static vs. shared) with Boost nowide as example
-# Example Usage: for Boost_USE_STATIC_LIBS=OFF test, call like so (for ON setting, TEST_REQUIRED_TYPE=STATIC_LIBRARY and TEST_FIND_LIBRARY_SUFFIXES=\".a .lib\" would be needed:
-#
-# 1) for nowide_standalone:
-# cmake --no-warn-unused-cli -L -S . \
-#     -D TEST_PACKAGE_NAME=nowide \
-#     -D TEST_VERSION= \
-#     -D TEST_EXTRA_ARGS=QUIET \
-#     -D TEST_COMPONENTS_PARAM= \
-#     -D TEST_TARGET_NAME_SYSTEM=nowide::nowide \
-#     -D TEST_REQUIRED_TYPE=SHARED_LIBRARY \
-#     -D Boost_USE_STATIC_LIBS=OFF \
-#     -D TEST_FIND_LIBRARY_SUFFIXES=\".so .dylib .dll .dll.a\" \
-#     -D CMAKE_PREFIX_PATH= \
-#     -D CMAKE_FIND_DEBUG_MODE=OFF
-#
-# 2) for Boost::nowide:
-# cmake --no-warn-unused-cli -L -S . \
-#     -D TEST_PACKAGE_NAME=Boost \
-#     -D TEST_VERSION= \
-#     -D TEST_EXTRA_ARGS=QUIET \
-#     -D TEST_COMPONENTS_PARAM=\"COMPONENTS;nowide\" \
-#     -D TEST_TARGET_NAME_SYSTEM=Boost::nowide \
-#     -D TEST_REQUIRED_TYPE=SHARED_LIBRARY \
-#     -D Boost_USE_STATIC_LIBS=OFF \
-#     -D TEST_FIND_LIBRARY_SUFFIXES=\".so .dylib .dll .dll.a\" \
-#     -D CMAKE_PREFIX_PATH= \
-#     -D CMAKE_FIND_DEBUG_MODE=OFF
+# Example Usage: refer to OpenXLSX cmake log output following \"-- run_test_package: testing package Boost with command:\"
 
 include(\"${CMAKE_CURRENT_FUNCTION_LIST_DIR}/recursive_library_type_test.cmake\")
 
@@ -239,10 +213,8 @@ message( STATUS \">>>>>>>>>>> TestPackage: TEST_FIND_LIBRARY_SUFFIXES is \${TEST
 message( STATUS \">>>>>>>>>>> TestPackage: attempting to find_package \${TEST_PACKAGE_NAME} version \${TEST_VERSION} with \${TEST_EXTRA_ARGS} \${TEST_COMPONENTS_PARAM}\" )
 message( STATUS \">>>>>>>>>>> TestPackage: expecting to find system target \${TEST_TARGET_NAME_SYSTEM}, required library type is \\\"\${TEST_REQUIRED_TYPE}\\\", CMAKE_FIND_LIBRARY_SUFFIXES is \${CMAKE_FIND_LIBRARY_SUFFIXES}\" )
 
-# allow parent to force debug
-set(CMAKE_FIND_DEBUG_MODE ${CMAKE_FIND_DEBUG_MODE} CACHE BOOL \"\" FORCE)
 
-# perform the find
+# perform the find. NOTE: setting for CMAKE_FIND_DEBUG_MODE is inherited from the parent cmake environment via cache init file
 find_package(
     \${TEST_PACKAGE_NAME} \${TEST_VERSION}
     \${TEST_EXTRA_ARGS}          # QUIET can be passed here
@@ -424,7 +396,8 @@ function(run_test_package ARG_PACKAGE_NAME ARG_VERSION ARG_EXTRA_ARGS COMPONENTS
     write_parent_cache_init(
         OUTPUT_FILE "${_test_package_init}"
         INCLUDE_FILTER_REGEX "^(CMAKE_|GIT_EXECUTABLE).*"
-        EXCLUDE_FILTER_REGEX "^((CMAKE_PROJECT_|CMAKE_FIND_PACKAGE_).*)|(.*(_DIR|_DIRECTORY))$" ) # NOTE 2026-06-01: .*_DIR and .*_DIRECTORY exclude entries are experimental
+        EXCLUDE_FILTER_REGEX "^((CMAKE_PROJECT_|CMAKE_FIND_PACKAGE_|CMAKE_RC_).*)|(.*(_DIR|_DIRECTORY))$" ) # NOTE 2026-06-01: .*_DIR and .*_DIRECTORY exclude entries are experimental
+    # 2026-06-12 exclusion added for CMAKE_RC_* - hoping that this stops pollution of the sub-script cache, requiring a reconfigure
     # TBD EXCLUDE filter expressions: ^.*_ROOT$, ^.*_PREFIX$
 
     # TBD: potentially relevant non-cache variables:
@@ -445,7 +418,6 @@ function(run_test_package ARG_PACKAGE_NAME ARG_VERSION ARG_EXTRA_ARGS COMPONENTS
                 -D TEST_REQUIRED_TYPE=${REQUIRED_LIBRARY_TYPE} \\
                 -D TEST_FIND_LIBRARY_SUFFIXES=\"${FIND_LIBRARY_SUFFIXES}\" \\
                 -D CMAKE_PREFIX_PATH=${PREFIX_ESCAPED} \\
-                -D CMAKE_FIND_DEBUG_MODE=OFF \\
                 ${ECHO_FIND_PACKAGE_VARIABLES} \\
     ")
 
@@ -462,7 +434,6 @@ function(run_test_package ARG_PACKAGE_NAME ARG_VERSION ARG_EXTRA_ARGS COMPONENTS
                 -D TEST_REQUIRED_TYPE=${REQUIRED_LIBRARY_TYPE}
                 -D TEST_FIND_LIBRARY_SUFFIXES="${FIND_LIBRARY_SUFFIXES}"
                 -D CMAKE_PREFIX_PATH=${PREFIX_ESCAPED}
-                -D CMAKE_FIND_DEBUG_MODE=OFF
                 ${PARAM_FIND_PACKAGE_VARIABLES}
         RESULT_VARIABLE test_package_success
         OUTPUT_VARIABLE test_package_output
