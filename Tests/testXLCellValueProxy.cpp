@@ -45,7 +45,7 @@ TEST_CASE("XLCellValueProxy Tests", "[XLCellValue]")
             REQUIRE(value.typeAsString() == "integer");
             REQUIRE_THROWS(value.get<std::string>());
             REQUIRE(value.get<int>() == 42);
-            REQUIRE_THROWS(value.get<double>());
+            REQUIRE(value.get<double>() == 42.0);
             REQUIRE_THROWS(value.get<bool>());
         }
 
@@ -56,7 +56,7 @@ TEST_CASE("XLCellValueProxy Tests", "[XLCellValue]")
             REQUIRE(value.typeAsString() == "boolean");
             REQUIRE_THROWS(value.get<std::string>());
             REQUIRE_THROWS(value.get<int>());
-            REQUIRE_THROWS(value.get<double>());
+            REQUIRE(value.get<double>() == 1.0);
             REQUIRE(value.get<bool>() == true);
         }
     }
@@ -92,7 +92,7 @@ TEST_CASE("XLCellValueProxy Tests", "[XLCellValue]")
         REQUIRE(value.typeAsString() == "integer");
         REQUIRE_THROWS(value.get<std::string>());
         REQUIRE(value.get<int>() == 42);
-        REQUIRE_THROWS(value.get<double>());
+        REQUIRE(value.get<double>() == 42.0);
         REQUIRE_THROWS(value.get<bool>());
 
         wks.cell("A1").value() = true;
@@ -101,7 +101,7 @@ TEST_CASE("XLCellValueProxy Tests", "[XLCellValue]")
         REQUIRE(value.typeAsString() == "boolean");
         REQUIRE_THROWS(value.get<std::string>());
         REQUIRE_THROWS(value.get<int>());
-        REQUIRE_THROWS(value.get<double>());
+        REQUIRE(value.get<double>() == 1.0);
         REQUIRE(value.get<bool>() == true);
 
         wks.cell("A1").value().setError("#N/A");
@@ -172,7 +172,7 @@ TEST_CASE("XLCellValueProxy Tests", "[XLCellValue]")
         REQUIRE(wks.cell("A2").value().typeAsString() == "integer");
         REQUIRE_THROWS(wks.cell("A2").value().get<std::string>());
         REQUIRE(wks.cell("A2").value().get<int>() == 42);
-        REQUIRE_THROWS(wks.cell("A2").value().get<double>());
+        REQUIRE(wks.cell("A2").value().get<double>() == 42.0);
         REQUIRE_THROWS(wks.cell("A2").value().get<bool>());
 
         wks.cell("A1").value() = true;
@@ -181,7 +181,7 @@ TEST_CASE("XLCellValueProxy Tests", "[XLCellValue]")
         REQUIRE(wks.cell("A2").value().typeAsString() == "boolean");
         REQUIRE_THROWS(wks.cell("A2").value().get<std::string>());
         REQUIRE_THROWS(wks.cell("A2").value().get<int>());
-        REQUIRE_THROWS(wks.cell("A2").value().get<double>());
+        REQUIRE(wks.cell("A2").value().get<double>() == 1.0);
         REQUIRE(wks.cell("A2").value().get<bool>() == true);
 
         wks.cell("A1").value().setError("#N/A");
@@ -232,7 +232,7 @@ TEST_CASE("XLCellValueProxy Tests", "[XLCellValue]")
         REQUIRE(wks.cell("A2").value().typeAsString() == "integer");
         REQUIRE_THROWS(wks.cell("A2").value().get<std::string>());
         REQUIRE(wks.cell("A2").value().get<int>() == 42);
-        REQUIRE_THROWS(wks.cell("A2").value().get<double>());
+        REQUIRE(wks.cell("A2").value().get<double>() == 42.0);
         REQUIRE_THROWS(wks.cell("A2").value().get<bool>());
 
         wks.cell("A2").value().set(true);
@@ -240,7 +240,7 @@ TEST_CASE("XLCellValueProxy Tests", "[XLCellValue]")
         REQUIRE(wks.cell("A2").value().typeAsString() == "boolean");
         REQUIRE_THROWS(wks.cell("A2").value().get<std::string>());
         REQUIRE_THROWS(wks.cell("A2").value().get<int>());
-        REQUIRE_THROWS(wks.cell("A2").value().get<double>());
+        REQUIRE(wks.cell("A2").value().get<double>() == 1.0);
         REQUIRE(wks.cell("A2").value().get<bool>() == true);
 
         wks.cell("A2").value().setError("#N/A");

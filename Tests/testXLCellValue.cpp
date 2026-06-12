@@ -46,7 +46,7 @@ TEST_CASE("XLCellValue Tests", "[XLCellValue]")
         REQUIRE(value.typeAsString() == "integer");
         REQUIRE_THROWS(value.get<std::string>());
         REQUIRE(value.get<int>() == 42);
-        REQUIRE_THROWS(value.get<double>());
+        REQUIRE(value.get<double>() == 42.0);
         REQUIRE_THROWS(value.get<bool>());
     }
 
@@ -58,7 +58,7 @@ TEST_CASE("XLCellValue Tests", "[XLCellValue]")
         REQUIRE(value.typeAsString() == "boolean");
         REQUIRE_THROWS(value.get<std::string>());
         REQUIRE_THROWS(value.get<int>());
-        REQUIRE_THROWS(value.get<double>());
+        REQUIRE(value.get<double>() == 1.0);
         REQUIRE(value.get<bool>() == true);
     }
 
@@ -150,7 +150,7 @@ TEST_CASE("XLCellValue Tests", "[XLCellValue]")
         REQUIRE(value.typeAsString() == "integer");
         REQUIRE_THROWS(value.get<std::string>());
         REQUIRE(value.get<int>() == 42);
-        REQUIRE_THROWS(value.get<double>());
+        REQUIRE(value.get<double>() == 42.0);
         REQUIRE_THROWS(value.get<bool>());
     }
 
@@ -163,7 +163,7 @@ TEST_CASE("XLCellValue Tests", "[XLCellValue]")
         REQUIRE(value.typeAsString() == "boolean");
         REQUIRE_THROWS(value.get<std::string>());
         REQUIRE_THROWS(value.get<int>());
-        REQUIRE_THROWS(value.get<double>());
+        REQUIRE(value.get<double>() == 1.0);
         REQUIRE(value.get<bool>() == true);
     }
 
@@ -211,7 +211,7 @@ TEST_CASE("XLCellValue Tests", "[XLCellValue]")
         REQUIRE(value.typeAsString() == "integer");
         REQUIRE_THROWS(value.get<std::string>());
         REQUIRE(value.get<int>() == 42);
-        REQUIRE_THROWS(value.get<double>());
+        REQUIRE(value.get<double>() == 42.0);
         REQUIRE_THROWS(value.get<bool>());
 
         wks.cell("A1").value() = true;
@@ -220,7 +220,7 @@ TEST_CASE("XLCellValue Tests", "[XLCellValue]")
         REQUIRE(value.typeAsString() == "boolean");
         REQUIRE_THROWS(value.get<std::string>());
         REQUIRE_THROWS(value.get<int>());
-        REQUIRE_THROWS(value.get<double>());
+        REQUIRE(value.get<double>() == 1.0);
         REQUIRE(value.get<bool>() == true);
     }
 
@@ -272,7 +272,7 @@ TEST_CASE("XLCellValue Tests", "[XLCellValue]")
         REQUIRE(value.typeAsString() == "integer");
         REQUIRE_THROWS(value.get<std::string>());
         REQUIRE(value.get<int>() == 42);
-        REQUIRE_THROWS(value.get<double>());
+        REQUIRE(value.get<double>() == 42.0);
         REQUIRE_THROWS(value.get<bool>());
     }
 
@@ -285,7 +285,7 @@ TEST_CASE("XLCellValue Tests", "[XLCellValue]")
         REQUIRE(value.typeAsString() == "boolean");
         REQUIRE_THROWS(value.get<std::string>());
         REQUIRE_THROWS(value.get<int>());
-        REQUIRE_THROWS(value.get<double>());
+        REQUIRE(value.get<double>() == 1.0);
         REQUIRE(value.get<bool>() == true);
     }
 
@@ -345,7 +345,7 @@ TEST_CASE("XLCellValue Tests", "[XLCellValue]")
         auto result2 = static_cast<int>(value);
         REQUIRE(result2 == 42);
         REQUIRE_THROWS(value.get<std::string>());
-        REQUIRE_THROWS(static_cast<double>(value));
+        REQUIRE(static_cast<double>(value) == 42.0);
         REQUIRE_THROWS(static_cast<bool>(value));
 
         value = 3.14159;
@@ -359,7 +359,7 @@ TEST_CASE("XLCellValue Tests", "[XLCellValue]")
         auto result4 = static_cast<bool>(value);
         REQUIRE(result4 == true);
         REQUIRE_THROWS(static_cast<int>(value));
-        REQUIRE_THROWS(static_cast<double>(value));
+        REQUIRE(static_cast<double>(value) == 1.0);
         REQUIRE_THROWS(value.get<std::string>());
 
     }
