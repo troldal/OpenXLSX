@@ -341,14 +341,22 @@ void  XLCell::clear(uint32_t keep)
  * @pre
  * @post
  */
-XLCellValueProxy& XLCell::value() { return m_valueProxy; }
+XLCellValueProxy& XLCell::value()
+{
+    if (empty()) throw XLException("XLCell object is empty");
+    return m_valueProxy;
+}
 
 /**
  * @details
  * @pre
  * @post
  */
-const XLCellValueProxy& XLCell::value() const { return m_valueProxy; }
+const XLCellValueProxy& XLCell::value() const
+{
+    if (empty()) throw XLException("XLCell object is empty");
+    return m_valueProxy;
+}
 
 /**
  * @details

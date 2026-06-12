@@ -482,34 +482,34 @@ TEST_CASE("XLRowDataRange Tests", "[XLRowDataRange]")
 
         auto sum = 0;
         for (const auto& cell : range) sum += cell.value().get<int>();
-        REQUIRE(sum == 1);
-        REQUIRE(range.size() == 1);
+        REQUIRE(sum == 0);
+        REQUIRE(range.size() == 0);
 
         auto range_copy = range;
         sum = 0;
         for (const auto& cell : range_copy) sum += cell.value().get<int>();
-        REQUIRE(sum == 1);
-        REQUIRE(range_copy.size() == 1);
+        REQUIRE(sum == 0);
+        REQUIRE(range_copy.size() == 0);
 
         auto range_move = std::move(range_copy);
         sum = 0;
         for (const auto& cell : range_move) sum += cell.value().get<int>();
-        REQUIRE(sum == 1);
-        REQUIRE(range_move.size() == 1);
+        REQUIRE(sum == 0);
+        REQUIRE(range_move.size() == 0);
 
         auto range_copy2 = range_move;
         range_copy2 = range;
         sum = 0;
         for (const auto& cell : range_copy2) sum += cell.value().get<int>();
-        REQUIRE(sum == 1);
-        REQUIRE(range_copy2.size() == 1);
+        REQUIRE(sum == 0);
+        REQUIRE(range_copy2.size() == 0);
 
         auto range_move2 = range_move;
         range_move2 = std::move(range_copy2);
         sum = 0;
         for (const auto& cell : range_move2) sum += cell.value().get<int>();
-        REQUIRE(sum == 1);
-        REQUIRE(range_move2.size() == 1);
+        REQUIRE(sum == 0);
+        REQUIRE(range_move2.size() == 0);
 
         auto row2 = wks.row(2);
         auto range2 = row2.cells(8);

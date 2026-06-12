@@ -270,7 +270,11 @@ namespace OpenXLSX
      * @pre
      * @post
      */
-    uint16_t XLRowDataRange::size() const { return m_lastCol - m_firstCol + 1; }
+    uint16_t XLRowDataRange::size() const
+    {
+        if (m_lastCol < m_firstCol) return 0;
+        return m_lastCol - m_firstCol + 1;
+    }
 
     /**
      * @details Get an iterator to the first cell in the range.

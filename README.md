@@ -3,6 +3,18 @@
 OpenXLSX is a C++ library for reading, writing, creating and modifying
 Microsoft Excel® files, with the .xlsx format.
 
+## このフォークでの差分
+
+このフォークには、以下の差分があります。
+
+- SwiftPM package として利用できるようにしました。
+- 壊れていたテストを修復しました。数値の暗黙変換をサポートする現在の実装に合わせて、関連する expect も更新しています。
+- CI による自動テストを追加しました。
+- ワークブック内の `extList` にアクセスするための機能を追加しました。
+- `XLCellAssignable` にコピーコンストラクタを追加しました。
+- 空セルに対する `hasFormula`、`cellReference`、`formula`、`value` の挙動を修正しました。
+- 空行に対する `XLRow::cells()` が空の `XLRowDataRange` を返し、`XLRowDataRange::size()` が `0` になるように修正しました。
+
 ## Library Version 0.5.0
 
 **Note:** "Releases" are severely outdated - do not use them. The latest "Release" that is shown on https://github.com/troldal/OpenXLSX/releases is from 2021-11-06, and severely outdated - please pull / download the latest SW version directly from the repository in its current state. Link for those that do not want to use ```git```: https://github.com/troldal/OpenXLSX/archive/refs/heads/master.zip
