@@ -212,7 +212,11 @@ bool XLCell::hasFormula() const
 /**
  * @details
  */
-XLFormulaProxy& XLCell::formula() { return m_formulaProxy; }
+XLFormulaProxy& XLCell::formula()
+{
+    if (empty()) throw XLException("XLCell object is empty");
+    return m_formulaProxy;
+}
 
 /**
 * @details get the value of the s attribute of the cell node
@@ -291,7 +295,11 @@ XLCellAssignable& XLCellAssignable::operator=(XLCellAssignable&& other) noexcept
 /**
  * @details
  */
-const XLFormulaProxy& XLCell::formula() const { return m_formulaProxy; }
+const XLFormulaProxy& XLCell::formula() const
+{
+    if (empty()) throw XLException("XLCell object is empty");
+    return m_formulaProxy;
+}
 
 /**
  * @details clear cell contents except for those identified by keep

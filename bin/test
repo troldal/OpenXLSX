@@ -1,0 +1,16 @@
+#!/bin/bash
+set -eu
+
+script_dir=$(cd "$(dirname "$0")" && pwd)
+repo_root=$(cd "$script_dir/.." && pwd)
+build_dir=${OPENXLSX_CMAKE_BUILD_DIR:-"$repo_root/build/ninja-tests"}
+
+cmake -S "$repo_root" -B "$build_dir" -G Ninja \
+    -DCMAKE_BUILD_TYPE=Debug \
+    -DOPENXLSX_BUILD_TESTS=ON \
+    -DOPENXLSX_CREATE_DOCS=OFF \
+    -DOPENXLSX_BUILD_SAMPLES=OFF
+
+cmake --build "$build_dir" --target OpenXLSXTests --parallel
+
+"$build_dir/output/OpenXLSXTests" "$@"

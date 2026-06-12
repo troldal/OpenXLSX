@@ -18,6 +18,11 @@
 !/Makefile.GNU
 !/vcpkg.json
 
+# include bin scripts
+!/bin
+/bin/*
+!/bin/test
+
 # include Benchmarks folder
 !/Benchmarks
 # exclude everything *in* Benchmarks folder
