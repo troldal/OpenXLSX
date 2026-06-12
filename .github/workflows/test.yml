@@ -19,5 +19,11 @@ jobs:
         with:
           toolchain: "6.3"
 
-      - name: Test
+      - name: Resolve dependencies
+        run: swift package resolve
+
+      - name: Test SwiftPM package
         run: swift test
+
+      - name: Test CMake package
+        run: bin/test

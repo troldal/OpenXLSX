@@ -1,4 +1,11 @@
 #!/bin/bash
+# AI/Codex 向け実行メモ:
+# - どのディレクトリから実行しても、スクリプト自身がリポジトリルートへ移動します。
+# - Codex の sandbox 環境では、次のように実行します:
+#   `SWIFTPM_MODULECACHE_OVERRIDE="$PWD/.build/codex-cache/clang-module-cache" bin/test --disable-sandbox`
+# - `--disable-sandbox` はこのスクリプトが消費し、`swift package resolve` にだけ転送します。
+# - その他の引数は最後に実行する OpenXLSXTests へ転送します。
+
 set -eu
 
 script_dir=$(cd "$(dirname "$0")" && pwd)
@@ -11,7 +18,25 @@ swiftpm_checkouts_dir="$swiftpm_build_dir/checkouts"
 pugixml_source_dir=${OPENXLSX_PUGIXML_SOURCE_DIR:-"$swiftpm_checkouts_dir/pugixml"}
 miniz_source_dir=${OPENXLSX_MINIZ_SOURCE_DIR:-"$swiftpm_checkouts_dir/miniz"}
 
-swift package resolve
+swift_package_args=()
+test_args=()
+while (($#)); do
+    case "$1" in
+        --disable-sandbox)
+            swift_package_args+=("--disable-sandbox")
+            ;;
+        *)
+            test_args+=("$1")
+            ;;
+    esac
+    shift
+done
+
+if ((${#swift_package_args[@]})); then
+    swift package "${swift_package_args[@]}" resolve
+else
+    swift package resolve
+fi
 
 if [[ ! -d "$pugixml_source_dir" ]]; then
     echo "error: pugixml checkout not found: $pugixml_source_dir" >&2
@@ -33,4 +58,8 @@ cmake -S . -B "$build_dir" -G Ninja \
 
 cmake --build "$build_dir" --target OpenXLSXTests --parallel
 
-"$build_dir/output/OpenXLSXTests" "$@"
+if ((${#test_args[@]})); then
+    "$build_dir/output/OpenXLSXTests" "${test_args[@]}"
+else
+    "$build_dir/output/OpenXLSXTests"
+fi
