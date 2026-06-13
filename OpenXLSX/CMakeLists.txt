@@ -2,7 +2,7 @@
 # Preamble
 #=======================================================================================================================
 cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
-project(OpenXLSX.Library VERSION 0.5.0 LANGUAGES CXX)
+project(OpenXLSX.Library VERSION 0.5.1 LANGUAGES CXX)
 set(CMAKE_DEBUG_POSTFIX d)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN YES)
@@ -123,7 +123,6 @@ if ("${OPENXLSX_LIBRARY_TYPE}" STREQUAL "STATIC")
     add_library(OpenXLSX::OpenXLSX ALIAS OpenXLSX)
     target_sources(OpenXLSX PRIVATE ${OPENXLSX_SOURCES})
 
-# message( NOTICE "CMAKE_CURRENT_SOURCE_DIR is ${CMAKE_CURRENT_SOURCE_DIR}" )
     target_include_directories(OpenXLSX
             PUBLIC
             $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
@@ -175,7 +174,6 @@ if ("${OPENXLSX_LIBRARY_TYPE}" STREQUAL "STATIC")
         list(APPEND static_libs "$<TARGET_FILE:OpenXLSX>")
         list(APPEND static_libs_system "")
 
-        # message( NOTICE "ZIP_LIBRARY is ${ZIP_LIBRARY}" )
         if("${ZIP_LIBRARY}" STREQUAL "libzip")
             message( WARNING "building a monolithic OpenXLSX library with libzip is not recommended - dependencies of libzip (-lbz2 -llzma -lzstd -lssl -lcrypto -lz) will not be included. Use miniz for a truly standalone OpenXLSX library" )
         endif()
@@ -189,7 +187,7 @@ if ("${OPENXLSX_LIBRARY_TYPE}" STREQUAL "STATIC")
 
         # # Output the status of the various library targets:
         # foreach(lib IN LISTS static_libs)
-        #     message( NOTICE "OpenXLSX static_libs entry is ${lib}" )
+        #     message( STATUS "OpenXLSX static_libs entry is ${lib}" )
         # endforeach()
         bundle_static_library_simplified( OpenXLSX OpenXLSX-bundled "${static_libs}" "${static_libs_system}" )
 
@@ -203,7 +201,7 @@ if ("${OPENXLSX_LIBRARY_TYPE}" STREQUAL "STATIC")
         #     # INTERFACE_INCLUDE_DIRECTORIES "$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}> $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/headers>"
         # )
         # get_target_property( includeDirs OpenXLSX-bundled INTERFACE_INCLUDE_DIRECTORIES)
-        # message( NOTICE "OpenXLSX-bundled INTERFACE_INCLUDE_DIRECTORIES is ${includeDirs}" )
+        # message( STATUS "OpenXLSX-bundled INTERFACE_INCLUDE_DIRECTORIES is ${includeDirs}" )
 
   endif ()
 endif ()
@@ -277,7 +275,7 @@ if (OPENXLSX_ENABLE_NOWIDE)
         list( GET NOWIDE_INCLUDES 0 NOWIDE_INCLUDE )                                        # ensure that NOWIDE_INCLUDE only contains a single directory entry
         set(NOWIDE_EXTRA_INCLUDE "${NOWIDE_INCLUDE}/boost")                                 # and add NOWIDE_EXTRA_INCLUDE with an appended ./boost subdirectory
         target_include_directories(OpenXLSX PRIVATE ${NOWIDE_EXTRA_INCLUDE})                # should be PRIVATE for include directories that users linking against OpenXLSX shall NOT need
-        message( NOTICE "NOWIDE_EXTRA_INCLUDE is ${NOWIDE_EXTRA_INCLUDE}" )
+        message( VERBOSE "NOWIDE_EXTRA_INCLUDE is ${NOWIDE_EXTRA_INCLUDE}" )
     endif()
 
     # Make determined nowide include path (if any) available to OpenXLSX Examples as explicitly named variable
@@ -296,7 +294,7 @@ else()
         # set(MINIZ_EXTRA_INCLUDE "${MINIZ_INCLUDE}/miniz")   # and add MINIZ_EXTRA_INCLUDE with an appended ./miniz subdirectory
         set(MINIZ_EXTRA_INCLUDE "${MINIZ_INCLUDES}")
         target_include_directories(OpenXLSX PRIVATE ${MINIZ_EXTRA_INCLUDE})     # should be PRIVATE for include directories that users linking against OpenXLSX shall NOT need
-        message( NOTICE "MINIZ_EXTRA_INCLUDE is ${MINIZ_EXTRA_INCLUDE}" )
+        message( STATUS "MINIZ_EXTRA_INCLUDE is ${MINIZ_EXTRA_INCLUDE}" )
     endif()
 endif ()
 
@@ -495,24 +493,24 @@ install(
 #=======================================================================================================================
 # PkgConfig: Establish a pkg-config file for the library
 #=======================================================================================================================
-# message( NOTICE "CMAKE_CURRENT_SOURCE_DIR is ${CMAKE_CURRENT_SOURCE_DIR}" )
-# message( NOTICE "CMAKE_LIBRARY_OUTPUT_DIRECTORY is ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}" )
+# message( STATUS "CMAKE_CURRENT_SOURCE_DIR is ${CMAKE_CURRENT_SOURCE_DIR}" )
+# message( STATUS "CMAKE_LIBRARY_OUTPUT_DIRECTORY is ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}" )
 
-# message( NOTICE "PROJECT_NAME is ${PROJECT_NAME}" )
-# message( NOTICE "CMAKE_PROJECT_NAME is ${CMAKE_PROJECT_NAME}" )
-# message( NOTICE "CMAKE_CURRENT_BINARY_DIR is ${CMAKE_CURRENT_BINARY_DIR}" )
+# message( STATUS "PROJECT_NAME is ${PROJECT_NAME}" )
+# message( STATUS "CMAKE_PROJECT_NAME is ${CMAKE_PROJECT_NAME}" )
+# message( STATUS "CMAKE_CURRENT_BINARY_DIR is ${CMAKE_CURRENT_BINARY_DIR}" )
 #
-# message( NOTICE "CMAKE_INSTALL_PREFIX is ${CMAKE_INSTALL_PREFIX}" )
-# message( NOTICE "CMAKE_INSTALL_INCLUDEDIR is ${CMAKE_INSTALL_INCLUDEDIR}" )
-# message( NOTICE "PROJECT_DESCRIPTION is ${PROJECT_DESCRIPTION}" )
-# message( NOTICE "PROJECT_HOMEPAGE_URL is ${PROJECT_HOMEPAGE_URL}" )
-# message( NOTICE "PROJECT_VERSION is ${PROJECT_VERSION}" )
-# message( NOTICE "CMAKE_INSTALL_DATAROOTDIR is ${CMAKE_INSTALL_DATAROOTDIR}" )
+# message( STATUS "CMAKE_INSTALL_PREFIX is ${CMAKE_INSTALL_PREFIX}" )
+# message( STATUS "CMAKE_INSTALL_INCLUDEDIR is ${CMAKE_INSTALL_INCLUDEDIR}" )
+# message( STATUS "PROJECT_DESCRIPTION is ${PROJECT_DESCRIPTION}" )
+# message( STATUS "PROJECT_HOMEPAGE_URL is ${PROJECT_HOMEPAGE_URL}" )
+# message( STATUS "PROJECT_VERSION is ${PROJECT_VERSION}" )
+# message( STATUS "CMAKE_INSTALL_DATAROOTDIR is ${CMAKE_INSTALL_DATAROOTDIR}" )
 #
-# message( NOTICE "CMAKE_INSTALL_LIBDIR is ${CMAKE_INSTALL_LIBDIR}" )
-# message( NOTICE "CMAKE_INSTALL_BINDIR is ${CMAKE_INSTALL_BINDIR}" )
+# message( STATUS "CMAKE_INSTALL_LIBDIR is ${CMAKE_INSTALL_LIBDIR}" )
+# message( STATUS "CMAKE_INSTALL_BINDIR is ${CMAKE_INSTALL_BINDIR}" )
 
-# message( NOTICE ">> CMAKE_CURRENT_LIST_DIR is ${CMAKE_CURRENT_LIST_DIR}" )
+# message( STATUS ">> CMAKE_CURRENT_LIST_DIR is ${CMAKE_CURRENT_LIST_DIR}" )
 
 # Write the template for the package config file
 set(PUGIXML_PKGCONFIG_FILE "pugixml")
@@ -599,7 +597,7 @@ if(TARGET ${PUGIXML_INSTALL_TARGET})
     message( DEBUG "pugixml_BINARY_DIR is ${pugixml_BINARY_DIR}" )
     set(LIBPUGIXML_PC "${pugixml_BINARY_DIR}/pugixml.pc")
     if(EXISTS "${LIBPUGIXML_PC}")
-        install(CODE "message(NOTICE \"Installing package config file for ${PUGIXML_INSTALL_TARGET}...\")")
+        install(CODE "message(STATUS \"Installing package config file for ${PUGIXML_INSTALL_TARGET}...\")")
         set(PUGIXML_PKGCONFIG_PATCHED "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/pugixml-patched.pc")
         pkg_config_add_library_subdir("${LIBPUGIXML_PC}" "${PUGIXML_PKGCONFIG_PATCHED}" OpenXLSX) # prefix "Libs:" config with add -L{exec_prefix}/lib/OpenXLSX
         install(
@@ -623,7 +621,7 @@ if(TARGET ${ZIP_LIBRARY_INSTALL_TARGET})
     endif()
 
     if(ZIP_LIBRARY_PKGCONFIG_SHOULD_EXIST OR EXISTS "${ZIP_LIBRARY_PKGCONFIG_SOURCE}")
-        install(CODE "message(NOTICE \"Installing package config file for ${ZIP_LIBRARY_INSTALL_TARGET}...\")")
+        install(CODE "message(STATUS \"Installing package config file for ${ZIP_LIBRARY_INSTALL_TARGET}...\")")
         install(
             FILES "${ZIP_LIBRARY_PKGCONFIG_PATCHED}"
             DESTINATION "${CMAKE_INSTALL_LIBDIR}/${PKGCONFIG_SUBDIR}"

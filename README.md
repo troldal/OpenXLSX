@@ -3,7 +3,7 @@
 OpenXLSX is a C++ library for reading, writing, creating and modifying
 Microsoft Excel® files, with the .xlsx format.
 
-## Library Version 0.5.0
+## Library Version 0.5.1
 
 **Note:** "Releases" are severely outdated - do not use them. The latest "Release" that is shown on https://github.com/troldal/OpenXLSX/releases is from 2021-11-06, and severely outdated - please pull / download the latest SW version directly from the repository in its current state. Link for those that do not want to use ```git```: https://github.com/troldal/OpenXLSX/archive/refs/heads/master.zip
 
@@ -50,24 +50,22 @@ Microsoft Excel® files, with the .xlsx format.
 
 For the latest functionality updates, please refer to the development branch. Feel free to [have a look](https://github.com/troldal/OpenXLSX/tree/development-aral). This way you don't have to wait until the main repository is updated.
 
+### (aral-matrix) 13 June 2026 - major changes to cmake configuration, some minor patches
+* upped OpenXLSX library version to `0.5.1` - git tag will be updated in one of the next commits
+* cmake should now correctly find locally installed library versions, including determining the library type if required (`OPENXLSX_MONOLITHIC_LIBRARY` requires static, `BUILD_SHARED_LIBS` requires shared dependencies) and triggering (if enabled) automatic download from upstream if the required dependency is not available
+* cmake: cleaned up debugging output, replaced message log level NOTICE with STATUS in most places since I learned that NOTICE is directed to stderr, not stdout
+* XLXmlParserForwardDeclarations.hpp: added forgotten API declaration for XML namespace support
+* XLDocument::create bugfix for unicode paths: use nowide functions for creating temp file, addresses #399
+* XLDocument::create bugfix preventing deletion of temporary workbook template file: load document into memory, close file handle, then initialize archive from memory
+* Zippy.hpp & LibZip.hpp loadArchiveData bugfix: changed fopen file mode from r to rb (binary)
+* XLStyles bugfix: root XML nodes are now created (if necessary) with a sorted insertion using m_nodeOrder
+* XLProperties, XLAppProperties, XLVmlDrawing, XLWorkbook bugfixes: ensure required XML namespaces of document root node
+
 ### (aral-matrix) 19 April 2026 - vcpkg compatibility maximized, some improvements/bugfixes in cmake configuration
 * vcpkg support should now be as good as it gets: Big thank you to [@bansan85](https://github.com/bansan85) for maintaining the vcpkg package patches, and supporting the bugfixes / improvements of the cmake configuration so that it behaves well with vcpkg :)
 * monolithic library is now available via cmake option `-DOPENXLSX_MONOLITHIC_LIBRARY=ON` - this requires static dependencies and only works with miniz, fails with libzip (or rather: the libzip (sub-)dependencies will not be linked into the resulting bundled library)
 * for testing if a destination file exists (`OpenXLSXFileSystemTools.hpp` `pathExists`), `nowide::stat` is now used when nowide is in use. This should make calls to `XLDocument::create` and `XLDocument::saveAs` behave well with filenames containing unicode characters
 * added function `OpenXLSXFileSystemTools fileSize` to wrap call to `stat` with nowide compatibility - this is used in `LibZip.hpp loadArchiveData`
-
-### (aral-matrix) 17 March 2026 - Install package config files for libzip and pugixml if they are installed with OpenXLSX
-* when the dependencies are pulled in from source repositories, their package config files will be installed alongside OpenXLSX
-* `XLZipArchive.hpp` provides two new functions `const char *OpenXLSX::ZipLibraryName()` and `const char *OpenXLSX::ZipLibraryVersion()` for the user to obtain info about the zip library in use. *NOTE*: These do not reflect information about a custom zip implementation such as used in `Demo1A.cpp`
-* `OpenXLSX` and dependencies are installed into `/usr/local/lib/OpenXLSX` subfolder to avoid version conflicts for parallel installations of zip library (`miniz` or `libzip`), `pugixml`, `nowide`
-* `pugixml` and `libzip` package config (`.pc`) files are now part of the installation (`miniz` package config was already installed before if needed)
-* dependency package config files installed by OpenXLSX will be installed as `pugixml-OpenXLSX.pc`, `libzip-OpenXLSX.pc`, `miniz-OpenXLSX.pc` respectively to avoid conflicts
-* dependency package config files should behave well with existing versions of the dependencies (OpenXLSX package config file gives precedence to the self-installed dependencies)
-* OpenXLSX package config file now provides the runtime path for an executable linked against OpenXLSX shared libraries in `/usr/local/lib/OpenXLSX`
-
-### (aral-matrix) 16 March 2026 - Dynamically pull in dependencies from external sources (operating system or code repository)
-* upped OpenXLSX library version to `0.5.0`
-* static & dynamic build: all dependencies are now linked in dynamically depending on the project configuration from available / allowed sources, which can be the OS or code repositories
 
 ## Change history
 
@@ -445,9 +443,9 @@ add_executable(myapp src/Demo1.cpp)
 # Find dependency OpenXLSX
 find_package(OpenXLSX CONFIG REQUIRED)
 if(OpenXLSX_FOUND)
-    message( NOTICE "FOUND OpenXLSX" )
+    message( STATUS "FOUND OpenXLSX" )
     get_target_property(OpenXLSX_INCLUDES OpenXLSX::OpenXLSX INTERFACE_INCLUDE_DIRECTORIES)  # get OpenXLSX include directories
-    message( NOTICE "OpenXLSX_INCLUDES is ${OpenXLSX_INCLUDES}" )
+    message( STATUS "OpenXLSX_INCLUDES is ${OpenXLSX_INCLUDES}" )
 else()
     message( FATAL_ERROR "MISSING DEPENDENCY OpenXLSX" )
 endif()
@@ -687,6 +685,19 @@ branch of this repository. However, I strongly recommend that you
 transition to the new version instead.
 
 <h2 id="detailed-change-log">Detailed change log</h2>
+
+### (aral-matrix) 17 March 2026 - Install package config files for libzip and pugixml if they are installed with OpenXLSX
+* when the dependencies are pulled in from source repositories, their package config files will be installed alongside OpenXLSX
+* `XLZipArchive.hpp` provides two new functions `const char *OpenXLSX::ZipLibraryName()` and `const char *OpenXLSX::ZipLibraryVersion()` for the user to obtain info about the zip library in use. *NOTE*: These do not reflect information about a custom zip implementation such as used in `Demo1A.cpp`
+* `OpenXLSX` and dependencies are installed into `/usr/local/lib/OpenXLSX` subfolder to avoid version conflicts for parallel installations of zip library (`miniz` or `libzip`), `pugixml`, `nowide`
+* `pugixml` and `libzip` package config (`.pc`) files are now part of the installation (`miniz` package config was already installed before if needed)
+* dependency package config files installed by OpenXLSX will be installed as `pugixml-OpenXLSX.pc`, `libzip-OpenXLSX.pc`, `miniz-OpenXLSX.pc` respectively to avoid conflicts
+* dependency package config files should behave well with existing versions of the dependencies (OpenXLSX package config file gives precedence to the self-installed dependencies)
+* OpenXLSX package config file now provides the runtime path for an executable linked against OpenXLSX shared libraries in `/usr/local/lib/OpenXLSX`
+
+### (aral-matrix) 16 March 2026 - Dynamically pull in dependencies from external sources (operating system or code repository)
+* upped OpenXLSX library version to `0.5.0`
+* static & dynamic build: all dependencies are now linked in dynamically depending on the project configuration from available / allowed sources, which can be the OS or code repositories
 
 ### (aral-matrix) 25 December 2025 - Fix for issue #382: XLWorksheet::range() bounds check without exception
 * added a check for an empty worksheet in `XLWorksheet::range()` to prevent an exception raised from `XLCellReference` constructor
