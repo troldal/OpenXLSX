@@ -52,6 +52,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #include "XLProperties.hpp"
 #include "XLRelationships.hpp"          // GetStringFromType
 #include "XLXmlParser.hpp"              // pugixml wrapper
+#include "utilities/XLUtilities.hpp"    // appendAndGetAttribute
 
 #include "XLException.hpp"
 
@@ -211,12 +212,8 @@ namespace    // anonymous namespace for module local functions
 /**
  * @details
  */
-void XLProperties::createFromTemplate()
+void XLProperties::ensureXmlNamespaces(XMLNode & props)
 {
-    // std::cout << "XLProperties created with empty docProps/core.xml, creating from scratch!" << std::endl;
-    if( m_xmlData == nullptr )
-        throw XLInternalError("XLProperties m_xmlData is nullptr");
-
     // ===== OpenXLSX_XLRelationships::GetStringFromType yields almost the string needed here, with added /relationships
     //       TBD: use hardcoded string?
     std::string xmlns = OpenXLSX_XLRelationships::GetStringFromType(XLRelationshipType::CoreProperties);
@@ -227,13 +224,30 @@ void XLProperties::createFromTemplate()
     else
         xmlns = "http://schemas.openxmlformats.org/package/2006/metadata/core-properties"; // fallback to hardcoded string
 
-    XMLNode props = xmlDocument().prepend_child("cp:coreProperties");
-    props.append_attribute("xmlns:cp") = xmlns.c_str();
-    props.append_attribute("xmlns:dc") = "http://purl.org/dc/elements/1.1/";
-    props.append_attribute("xmlns:dcterms") = "http://purl.org/dc/terms/";
-    props.append_attribute("xmlns:dcmitype") = "http://purl.org/dc/dcmitype/";
-    props.append_attribute("xmlns:xsi") = "http://www.w3.org/2001/XMLSchema-instance";
+    appendAndGetAttribute(props, "xmlns:cp", xmlns.c_str());
+    appendAndGetAttribute(props, "xmlns:dc", "http://purl.org/dc/elements/1.1/");
+    appendAndGetAttribute(props, "xmlns:dcterms", "http://purl.org/dc/terms/");
+    appendAndGetAttribute(props, "xmlns:dcmitype", "http://purl.org/dc/dcmitype/");
+    appendAndGetAttribute(props, "xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
 
+    // props.append_attribute("xmlns:cp") = xmlns.c_str();
+    // props.append_attribute("xmlns:dc") = "http://purl.org/dc/elements/1.1/";
+    // props.append_attribute("xmlns:dcterms") = "http://purl.org/dc/terms/";
+    // props.append_attribute("xmlns:dcmitype") = "http://purl.org/dc/dcmitype/";
+    // props.append_attribute("xmlns:xsi") = "http://www.w3.org/2001/XMLSchema-instance";
+}
+
+/**
+ * @details
+ */
+void XLProperties::createFromTemplate()
+{
+    // std::cout << "XLProperties created with empty docProps/core.xml, creating from scratch!" << std::endl;
+    if(m_xmlData == nullptr)
+        throw XLInternalError("XLProperties m_xmlData is nullptr");
+
+    XMLNode props = xmlDocument().prepend_child("cp:coreProperties");
+    ensureXmlNamespaces(props);
     props.append_child("dc:creator").text().set("Kenneth Balslev");
     props.append_child("cp:lastModifiedBy").text().set("Kenneth Balslev");
 
@@ -264,7 +278,14 @@ XLProperties::XLProperties(XLXmlData* xmlData) : XLXmlFile(xmlData)
         child = child.next_sibling_of_type(pugi::node_element);
         break; // one child is enough to determine document is not empty.
     }
-    if( !childCount ) createFromTemplate();
+    if (!childCount)
+        createFromTemplate();
+    else {  // 2026-06-10: ensure that cp::coreProperties and XML namespaces are defined in existing documents, too
+        XMLNode props = xmlDocument().child("cp:coreProperties");
+        if (props.empty())
+            props = xmlDocument().prepend_child("cp:coreProperties");
+        ensureXmlNamespaces(props);
+    }
 }
 
 /**
@@ -350,10 +371,33 @@ void XLProperties::deleteProperty(const std::string& name)
 /**
  * @details
  */
+void XLAppProperties::ensureXmlNamespaces(XMLNode & props)
+{
+    // ===== OpenXLSX_XLRelationships::GetStringFromType yields almost the string needed here, with added /relationships
+    //       TBD: use hardcoded string?
+    std::string xmlns = OpenXLSX_XLRelationships::GetStringFromType(XLRelationshipType::ExtendedProperties);
+    const std::string rels = "/relationships/";
+    size_t pos = xmlns.find(rels);
+    if (pos != std::string::npos)
+        xmlns.replace(pos, rels.size(), "/");
+    else
+        xmlns = "http://schemas.openxmlformats.org/officeDocument/2006/extended-properties"; // fallback to hardcoded string
+
+    appendAndGetAttribute(props, "xmlns", xmlns.c_str());
+    appendAndGetAttribute(props, "xmlns:vt", "http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes");
+
+    // props.append_attribute("xmlns") = xmlns.c_str();
+    // props.append_attribute("xmlns:vt") = "http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes";
+}
+
+
+/**
+ * @details
+ */
 void XLAppProperties::createFromTemplate(XMLDocument const & workbookXml)
 {
     // std::cout << "XLAppProperties created with empty docProps/app.xml, creating from scratch!" << std::endl;
-    if( m_xmlData == nullptr )
+    if(m_xmlData == nullptr)
         throw XLInternalError("XLAppProperties m_xmlData is nullptr");
 
     std::map< uint32_t, std::string > sheetsOrderedById;
@@ -372,22 +416,8 @@ void XLAppProperties::createFromTemplate(XMLDocument const & workbookXml)
            throw XLInputError( "xl/workbook.xml is missing sheet with sheetId=\"" + std::to_string(worksheetCount) + "\"" );
     }
 
-    // ===== OpenXLSX_XLRelationships::GetStringFromType yields almost the string needed here, with added /relationships
-    //       TBD: use hardcoded string?
-    std::string xmlns = OpenXLSX_XLRelationships::GetStringFromType(XLRelationshipType::ExtendedProperties);
-    const std::string rels = "/relationships/";
-    size_t pos = xmlns.find(rels);
-    if (pos != std::string::npos)
-        xmlns.replace(pos, rels.size(), "/");
-    else
-        xmlns = "http://schemas.openxmlformats.org/officeDocument/2006/extended-properties"; // fallback to hardcoded string
-
     XMLNode props = xmlDocument().prepend_child("Properties");
-    props.append_attribute("xmlns") = xmlns.c_str();
-    props.append_attribute("xmlns:vt") = "http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes";
-
-    XMLNode prop {};
-
+    ensureXmlNamespaces(props);
     props.append_child("Application").text().set("Microsoft Macintosh Excel");
     props.append_child("DocSecurity").text().set(0);
     props.append_child("ScaleCrop").text().set(false);
@@ -435,7 +465,14 @@ XLAppProperties::XLAppProperties(XLXmlData* xmlData, XMLDocument const & workboo
         child = child.next_sibling_of_type(pugi::node_element);
         break; // one child is enough to determine document is not empty.
     }
-    if (!childCount) createFromTemplate(workbookXml); //    create fresh docProps/app.xml
+    if (!childCount)
+        createFromTemplate(workbookXml); //    create fresh docProps/app.xml
+    else {  // 2026-06-10: ensure that cp::coreProperties and XML namespaces are defined in existing documents, too
+        XMLNode props = xmlDocument().child("Properties");
+        if (props.empty())
+            props = xmlDocument().prepend_child("Properties");
+        ensureXmlNamespaces(props);
+    }
 }
 
 /**

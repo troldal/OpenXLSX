@@ -4,8 +4,8 @@
 cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
 set(OPENXLSX_MAJOR_VERSION 0)
 set(OPENXLSX_MINOR_VERSION 5)
-set(OPENXLSX_MICRO_VERSION 0)
-project(OpenXLSX VERSION 0.5.0 LANGUAGES CXX)
+set(OPENXLSX_MICRO_VERSION 1)
+project(OpenXLSX VERSION 0.5.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN YES)
@@ -83,6 +83,11 @@ if(OPENXLSX_COMPACT_MODE)
     message( WARNING "setting OPENXLSX_COMPACT_MODE is currently not communicated to dependencies (pugixml) - they will be built normally - this is on the TO-DO list" )
 endif()
 
+if( CMAKE_VERSION VERSION_GREATER_EQUAL "3.25" )    # getting the CMAKE log level is not supported until 3.25
+    cmake_language(GET_MESSAGE_LOG_LEVEL TestPackage_LOG_LEVEL)
+else()
+    set(TestPackage_LOG_LEVEL "STATUS")             # for lower versions of cmake, set desired log level for TestPackage subscript here
+endif()
 
 if(OPENXLSX_MONOLITHIC_LIBRARY)
     # message( FATAL_ERROR "OPENXLSX_MONOLITHIC_LIBRARY is currently not supported - this is a TBD feature" )
@@ -215,9 +220,22 @@ if(OPENXLSX_ENABLE_NOWIDE)
         set( NOWIDE_GIT_TAG_PARAM  "v11.3.1" )
     endif()
 
-    if(PREFER_STATIC)
-        set(Boost_USE_STATIC_LIBS ON)   # prefer/require static boost libraries
+    if(PREFER_STATIC)               # for monolithic (static) OpenXLSX build
+        set(Boost_USE_STATIC_LIBS ON)   # require static boost libraries
+    elseif(BUILD_SHARED_LIBS)       # for shared OpenXLSX build
+        set(Boost_USE_STATIC_LIBS OFF)  # require shared boost libraries
+    else()                          # for regular static build
+        # noop                          # keep the default
     endif()
+
+    set(FIND_PACKAGE_VARIABLES_PARAM "")    # init list
+    if(PREFER_STATIC OR BUILD_SHARED_LIBS)
+        list(APPEND FIND_PACKAGE_VARIABLES_PARAM "FIND_PACKAGE_VARIABLES")
+        list(APPEND FIND_PACKAGE_VARIABLES_PARAM Boost_USE_STATIC_LIBS ${Boost_USE_STATIC_LIBS})
+    endif()
+    # Turn off "FindBoost module is removed" warning:
+    list(APPEND FIND_PACKAGE_VARIABLES_PARAM "CMAKE_POLICY_DEFAULT_CMP0167" "NEW")
+
 
     if(OPENXLSX_MONOLITHIC_LIBRARY)
         set(Boost_NOWIDE_INSTALL OFF CACHE BOOL "") # this CACHE instruction appears to be the only way to set that option for the subproject
@@ -242,8 +260,11 @@ if(OPENXLSX_ENABLE_NOWIDE)
         # a provided URL & URL_HASH takes precedence over GITHUB_REPO or GIT_REPOSITORY:
         URL            ${NOWIDE_URL_PARAM}
         URL_HASH       ${NOWIDE_URL_HASH_PARAM}
+
+        # FIND_PACKAGE_VARIABLES Boost_USE_STATIC_LIBS "${Boost_USE_STATIC_LIBS}"
+        ${FIND_PACKAGE_VARIABLES_PARAM} # replaced above line so that nothing can be submitted to keep Boost_USE_STATIC_LIBS as not-explicitly set
     )
-    message( STATUS "manage_dependency reported Nowide_PROVIDED_TARGET as ${Nowide_PROVIDED_TARGET}, Nowide_INSTALL_TARGET as ${Nowide_INSTALL_TARGET}" )
+    message( VERBOSE "manage_dependency reported Nowide_PROVIDED_TARGET as ${Nowide_PROVIDED_TARGET}, Nowide_INSTALL_TARGET as ${Nowide_INSTALL_TARGET}" )
     set(NOWIDE_TARGET ${Nowide_PROVIDED_TARGET} CACHE STRING "" FORCE)
 endif()
 
@@ -275,7 +296,7 @@ if (OPENXLSX_ENABLE_LIBZIP)
         # OPTIONS "BUILD_EXAMPLES OFF"                                # "
         # OPTIONS "BUILD_DOC OFF"                                     # "
     )
-    message( STATUS "manage_dependency reported libzip_PROVIDED_TARGET as ${libzip_PROVIDED_TARGET}, libzip_INSTALL_TARGET as ${libzip_INSTALL_TARGET}" )
+    message( VERBOSE "manage_dependency reported libzip_PROVIDED_TARGET as ${libzip_PROVIDED_TARGET}, libzip_INSTALL_TARGET as ${libzip_INSTALL_TARGET}" )
     set(ZIP_LIBRARY_PROVIDED_TARGET "${libzip_PROVIDED_TARGET}")
     set(ZIP_LIBRARY_INSTALL_TARGET "${libzip_INSTALL_TARGET}")
 else()
@@ -293,14 +314,16 @@ else()
         LIB_NAME      miniz
         PACKAGE_NAME  miniz
         VERSION       3.0.2
+        # VERSION       3.1.1
         TYPICAL_NAMES "miniz"
 
         TARGET_NAME         ${ZIP_LIBRARY_TARGET}
         TARGET_NAME_SYSTEM  ${ZIP_LIBRARY_TARGET_SYSTEM}
         GIT_REPOSITORY  https://github.com/richgel999/miniz.git
         GIT_TAG         3.0.2
+        # GIT_TAG         3.1.1
     )
-    message( STATUS "manage_dependency reported miniz_PROVIDED_TARGET as ${miniz_PROVIDED_TARGET}, miniz_INSTALL_TARGET as ${miniz_INSTALL_TARGET}" )
+    message( VERBOSE "manage_dependency reported miniz_PROVIDED_TARGET as ${miniz_PROVIDED_TARGET}, miniz_INSTALL_TARGET as ${miniz_INSTALL_TARGET}" )
     set(ZIP_LIBRARY_PROVIDED_TARGET "${miniz_PROVIDED_TARGET}")
     set(ZIP_LIBRARY_INSTALL_TARGET "${miniz_INSTALL_TARGET}")
 endif ()
@@ -319,19 +342,21 @@ manage_dependency(
     TYPICAL_NAMES "pugixml" # TBD what these can be
 
     TARGET_NAME         ${PUGIXML_TARGET}
-    TARGET_NAME_SYSTEM  pugixml
+    TARGET_NAME_SYSTEM  ${PUGIXML_TARGET}
     GIT_REPOSITORY  https://github.com/zeux/pugixml.git
     GIT_TAG         v1.15
     # OPTIONS         "PUGIXML_COMPACT ${OPENXLSX_COMPACT_MODE}" # TBD how to pass on PUGIXML options
 )
-message( STATUS "manage_dependency reported puxixml_PROVIDED_TARGET as ${pugixml_PROVIDED_TARGET}, pugixml_INSTALL_TARGET as ${pugixml_INSTALL_TARGET}" )
+message( VERBOSE "manage_dependency reported puxixml_PROVIDED_TARGET as ${pugixml_PROVIDED_TARGET}, pugixml_INSTALL_TARGET as ${pugixml_INSTALL_TARGET}" )
 set(PUGIXML_INSTALL_TARGET "${pugixml_INSTALL_TARGET}")
 if(pugixml_FETCHED)
     set(PUGIXML_STATIC_LIBRARY "pugixml-static")     # used for OPENXLSX_BUNDLED_STATIC_LIB at the moment
 else()
-    set(PUGIXML_STATIC_LIBRARY "pugixml")            # used for OPENXLSX_BUNDLED_STATIC_LIB at the moment
+    # set(PUGIXML_STATIC_LIBRARY "pugixml")            # used for OPENXLSX_BUNDLED_STATIC_LIB at the moment
+    # set(PUGIXML_TARGET "pugixml")
 
-    set(PUGIXML_TARGET "pugixml")
+    # 2026-04-23 next attempt to force a static library
+    set(PUGIXML_STATIC_LIBRARY {PUGIXML_TARGET})     # used for OPENXLSX_BUNDLED_STATIC_LIB at the moment
     message( STATUS "pugixml was found locally, using PUGIXML_TARGET ${PUGIXML_TARGET}" )
 endif()
 
@@ -361,65 +386,66 @@ endif()
 #=======================================================================================================================
 # Summarize OpenXLSX configuration
 #=======================================================================================================================
-message(     NOTICE     "-- OpenXLSX configuration:" )
-message(     NOTICE     "   ++ git HEAD (short):                      ${GIT_COMMIT_ID}" )
-message(     NOTICE     "   ++ git HEAD commit timestamp:             ${GIT_COMMIT_ID_TIME}" )
-message(     NOTICE     "   ++ Build library documentation:           ${OPENXLSX_CREATE_DOCS}" )
-message(     NOTICE     "   ++ Build sample programs:                 ${OPENXLSX_BUILD_SAMPLES}" )
-message(     NOTICE     "   ++ Build and run library tests:           ${OPENXLSX_BUILD_TESTS}" )
-message(     NOTICE     "   ++ Build and run library benchmarks:      ${OPENXLSX_BUILD_BENCHMARKS}" )
-message(     NOTICE     "   ++ Enable using libzip:                   ${OPENXLSX_ENABLE_LIBZIP}" )
-message(     NOTICE     "   ++ Build Demo1A example using libzip:     ${OPENXLSX_ENABLE_LIBZIP_EXAMPLE}" )
+message(     STATUS     "OpenXLSX configuration:" )
+message(     STATUS     "   ++ git HEAD (short):                      ${GIT_COMMIT_ID}" )
+message(     STATUS     "   ++ git HEAD commit timestamp:             ${GIT_COMMIT_ID_TIME}" )
+message(     STATUS     "   ++ Build library documentation:           ${OPENXLSX_CREATE_DOCS}" )
+message(     STATUS     "   ++ Build sample programs:                 ${OPENXLSX_BUILD_SAMPLES}" )
+message(     STATUS     "   ++ Build and run library tests:           ${OPENXLSX_BUILD_TESTS}" )
+message(     STATUS     "   ++ Build and run library benchmarks:      ${OPENXLSX_BUILD_BENCHMARKS}" )
+message(     STATUS     "   ++ Enable using libzip:                   ${OPENXLSX_ENABLE_LIBZIP}" )
+message(     STATUS     "   ++ Build Demo1A example using libzip:     ${OPENXLSX_ENABLE_LIBZIP_EXAMPLE}" )
 if(OPENXLSX_ENABLE_LIBZIP_EXAMPLE AND NOT OPENXLSX_BUILD_SAMPLES)
     message( WARNING    "Demo1A will not be built because sample programs are disabled!" )
 endif()
-message(     NOTICE     "   ++ Force use of boost nowide:             ${OPENXLSX_FORCE_NOWIDE}" )
-message(     NOTICE     "   ++ Use nowide standalone library:         ${OPENXLSX_NOWIDE_STANDALONE}" )
-message(     NOTICE     "   ++ Build the shared library:              ${BUILD_SHARED_LIBS}" )
-message(     NOTICE     "   ++ Make a bundled static library file:    ${OPENXLSX_MONOLITHIC_LIBRARY}" )
-message(     NOTICE     "   ++ Only use installed packages:           ${OPENXLSX_LOCAL_PACKAGES_ONLY}" )
-message(     NOTICE     "   ++ Build library in compact mode:         ${OPENXLSX_COMPACT_MODE}" )
-message(     NOTICE     "   ++" )
+message(     STATUS     "   ++ Force use of boost nowide:             ${OPENXLSX_FORCE_NOWIDE}" )
+message(     STATUS     "   ++ Use nowide standalone library:         ${OPENXLSX_NOWIDE_STANDALONE}" )
+message(     STATUS     "   ++ Build the shared library:              ${BUILD_SHARED_LIBS}" )
+message(     STATUS     "   ++ Make a bundled static library file:    ${OPENXLSX_MONOLITHIC_LIBRARY}" )
+message(     STATUS     "   ++ Only use installed packages:           ${OPENXLSX_LOCAL_PACKAGES_ONLY}" )
+message(     STATUS     "   ++ Build library in compact mode:         ${OPENXLSX_COMPACT_MODE}" )
+message(     STATUS     "   ++" )
 
 if(BUILD_SHARED_LIBS)
-    message( NOTICE     "   ++ Library type:                          shared" )
+    message( STATUS     "   ++ Library type:                          shared" )
 else()
-    message( NOTICE     "   ++ Library type:                          static" )
+    message( STATUS     "   ++ Library type:                          static" )
 endif()
 
 if(OPENXLSX_ENABLE_NOWIDE)
-    message( NOTICE     "   ++ Unicode support:                       Boost nowide" )
+    message( STATUS     "   ++ Unicode support:                       Boost nowide" )
     # if("${Boost_INCLUDE_DIR}" STREQUAL "")
-    #     message( NOTICE "   ++ Boost_INCLUDE_DIR:                     (empty)" )
+    #     message( STATUS "   ++ Boost_INCLUDE_DIR:                     (empty)" )
     # else()
-    #     message( NOTICE "   ++ Boost_INCLUDE_DIR:                     ${Boost_INCLUDE_DIR}" )
+    #     message( STATUS "   ++ Boost_INCLUDE_DIR:                     ${Boost_INCLUDE_DIR}" )
     # endif()
     if("${EXAMPLES_NOWIDE_INCLUDE}" STREQUAL "")
-        message( NOTICE "   ++ EXAMPLES_NOWIDE_INCLUDE:               (empty)" )
+        message( STATUS "   ++ EXAMPLES_NOWIDE_INCLUDE:               (empty)" )
     else()
-        message( NOTICE "   ++ EXAMPLES_NOWIDE_INCLUDE:               ${EXAMPLES_NOWIDE_INCLUDE}" )
+        message( STATUS "   ++ EXAMPLES_NOWIDE_INCLUDE:               ${EXAMPLES_NOWIDE_INCLUDE}" )
     endif()
 else()
-    message( NOTICE     "   ++ Unicode support:                       (OS) native" )
+    message( STATUS     "   ++ Unicode support:                       (OS) native" )
 endif()
 
 if (OPENXLSX_ENABLE_LIBZIP)
-    message( NOTICE     "   ++ zip library:                           libzip" )
+    message( STATUS     "   ++ zip library:                           libzip" )
 else()
-    message( NOTICE     "   ++ zip library:                           miniz" )
+    message( STATUS     "   ++ zip library:                           miniz" )
 endif()
+message(     STATUS     "   ++" )
 
-message(     NOTICE     "   manage_dependency configuration:" )
-message(     NOTICE     "   ++ PREFER_STATIC:                         ${PREFER_STATIC}" )
-message(     NOTICE     "   ++ USE_SYSTEM_LIBS:                       ${USE_SYSTEM_LIBS}" )
-message(     NOTICE     "   ++ FETCH_DEPS_AUTO:                       ${FETCH_DEPS_AUTO}" )
-message(     NOTICE     "   ++ FORCE_FETCH_ALL:                       ${FORCE_FETCH_ALL}" )
+message(     VERBOSE    "   VERBOSE configuration information:" )
+message(     VERBOSE    "   >> ZIP_LIBRARY_INSTALL_TARGET:            ${ZIP_LIBRARY_INSTALL_TARGET}" )
+message(     VERBOSE    "   >> PUGIXML_INSTALL_TARGET:                ${PUGIXML_INSTALL_TARGET}" )
+message(     VERBOSE    "   >>" )
 
-# NOTE: for some reason, cmake with --log-level VERBOSE (or DEBUG) prefixes message output with "-- "
-message( VERBOSE        "   VERBOSE configuration information:" )
-message( VERBOSE        "   ++ ZIP_LIBRARY_INSTALL_TARGET:            ${ZIP_LIBRARY_INSTALL_TARGET}" )
-message( VERBOSE        "   ++ PUGIXML_INSTALL_TARGET:                ${PUGIXML_INSTALL_TARGET}" )
-
+message(     VERBOSE    "   >> manage_dependency configuration:" )
+message(     VERBOSE    "     >> Prefer static linking over shared libraries:   ${PREFER_STATIC}" )
+message(     VERBOSE    "     >> Use system-installed libraries when available: ${USE_SYSTEM_LIBS}" )
+message(     VERBOSE    "     >> Automatically fetch missing dependencies:      ${FETCH_DEPS_AUTO}" )
+message(     VERBOSE    "     >> Ignore system libraries and fetch all deps:    ${FORCE_FETCH_ALL}" )
+message(     VERBOSE    "     >>" )
 
 #=======================================================================================================================
 # Configure CPack for debian package generation - thank you @ https://github.com/Jacob-Burckhardt for the suggestions
@@ -436,11 +462,5 @@ include ("${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libopenxlsxCPackOptions.cmake")
 
 # include( CPack ) must always be invoked after all CPACK\_\* variables are defined
 include( CPack )
-message(     NOTICE     "   ++ CPACK_PACKAGE_VERSION:                 ${CPACK_PACKAGE_VERSION}" )
-
-message( NOTICE     "   ++ Prefer static linking over shared libraries: ${PREFER_STATIC}" )
-message( NOTICE     "   ++ Use system-installed libraries when available: ${USE_SYSTEM_LIBS}" )
-message( NOTICE     "   ++ Automatically fetch missing dependencies: ${FETCH_DEPS_AUTO}" )
-message( NOTICE     "   ++ Ignore system libraries and fetch all deps: ${FORCE_FETCH_ALL}" )
-
+message(     STATUS     "   ++ CPACK_PACKAGE_VERSION:                 ${CPACK_PACKAGE_VERSION}" )
 # TODO: how to trigger cpack -G DEB from cmake

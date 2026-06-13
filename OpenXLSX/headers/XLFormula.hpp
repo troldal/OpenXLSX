@@ -53,7 +53,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 #endif // _MSC_VER
 
 // ===== External Includes ===== //
-#include <iostream>
+#include <iostream> // std::ostream
 #include <string>
 #include <variant>
 

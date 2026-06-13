@@ -45,12 +45,13 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== External Includes ===== //
 #include <algorithm>
+#include <iostream>
 #if defined(_WIN32)
-#    include <random>
+    #include <random>       // TBD: is this still needed for anything? For what?
 #else
-#include <unistd.h>       // unlink
+    #include <unistd.h>     // unlink
 #endif
-#include <vector>         // std::vector
+#include <vector>           // std::vector
 
 // ===== OpenXLSX Includes ===== //
 #include "detail/OpenXLSXFileSystemTools.hpp"   // pathExists, GenerateRandomNameInSamePath

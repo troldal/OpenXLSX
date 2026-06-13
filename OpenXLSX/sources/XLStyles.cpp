@@ -399,11 +399,34 @@ namespace     // anonymous namespace for module local functions
         }
     }
 
+   /**
+     * @brief remove trailing unwanted_chars from input
+     * @param input             the string to trim
+     * @param unwanted_chars    all characters to consider trimmable
+     * @return input minus any trailing characters that are part of unwanted_chars
+     */
+    std::string rtrim(const std::string & input, const std::string & unwanted_chars)
+    {
+        size_t end = input.find_last_not_of( unwanted_chars );
+        if( end == std::string::npos )
+            return "";
+        else
+            return input.substr( 0, end + 1 );
+    }
+
     void wrapNode(XMLNode parentNode, XMLNode & node, std::string const & prefix)
     {
         if (not node.empty() && prefix.length() > 0) {
-            parentNode.insert_child_before(pugi::node_pcdata, node).set_value(prefix.c_str());    // insert prefix before node opening tag
-            node.append_child(pugi::node_pcdata).set_value(prefix.c_str());                       // insert prefix before node closing tag (within node)
+            XMLNode prev = node.previous_sibling();
+            // 2026-06-10 beauty fix: ensure that inserted prefix is not combined with other blankspaces
+            if (prev.type() == pugi::node_pcdata) {                                             // if node is already preceeded by a text node
+                std::string trimmedVal = rtrim(prev.value(), " \t");                                // trim from end of preceeding text node all spaces & tabs
+                prev.set_value((trimmedVal + prefix).c_str());                                      // and set the value to any remaining characters + prefix
+            }
+            else                                                                                // else: node is not (yet) preceeded by a text node
+                parentNode.insert_child_before(pugi::node_pcdata, node).set_value(prefix.c_str());  // insert prefix before node opening tag
+
+            node.append_child(pugi::node_pcdata).set_value(prefix.c_str());                     // always: insert prefix before node closing tag (within node)
         }
     }
 
@@ -2828,19 +2851,20 @@ XLStyles::XLStyles(XLXmlData* xmlData, bool suppressWarnings, std::string styles
         node = node.next_sibling_of_type(pugi::node_element);
     }
 
-    // ===== Fallbacks: create root style nodes (in reverse order, using prepend_child)
+    // ===== Fallbacks: create root style nodes (sorted insertions using m_nodeOrder)
+    XMLNode docNode = doc.document_element();   // need an rvalue to pass as reference to appendAndGetNode
     if (!m_diffCellFormats) {
-        node = doc.document_element().prepend_child(XLStylesEntryTypeToString(XLStylesDiffCellFormats).c_str());
+        node = appendAndGetNode(docNode, XLStylesEntryTypeToString(XLStylesDiffCellFormats).c_str(), m_nodeOrder );
         wrapNode (doc.document_element(), node, stylesPrefix);
         m_diffCellFormats = std::make_unique<XLDiffCellFormats>(node);
     }
     if (!m_cellStyles) {
-        node = doc.document_element().prepend_child(XLStylesEntryTypeToString(XLStylesCellStyles).c_str());
+        node = appendAndGetNode(docNode, XLStylesEntryTypeToString(XLStylesCellStyles).c_str(), m_nodeOrder );
         wrapNode (doc.document_element(), node, stylesPrefix);
         m_cellStyles = std::make_unique<XLCellStyles>(node);
     }
     if (!m_cellFormats) {
-        node = doc.document_element().prepend_child(XLStylesEntryTypeToString(XLStylesCellFormats).c_str());
+        node = appendAndGetNode(docNode, XLStylesEntryTypeToString(XLStylesCellFormats).c_str(), m_nodeOrder );
         wrapNode (doc.document_element(), node, stylesPrefix);
         m_cellFormats = std::make_unique<XLCellFormats>(node, XLPermitXfID);
     }
@@ -2855,27 +2879,27 @@ XLStyles::XLStyles(XLXmlData* xmlData, bool suppressWarnings, std::string styles
     }
 
     if (!m_cellStyleFormats) {
-        node = doc.document_element().prepend_child(XLStylesEntryTypeToString(XLStylesCellStyleFormats).c_str());
+        node = appendAndGetNode(docNode, XLStylesEntryTypeToString(XLStylesCellStyleFormats).c_str(), m_nodeOrder );
         wrapNode (doc.document_element(), node, stylesPrefix);
         m_cellStyleFormats = std::make_unique<XLCellFormats>(node);
     }
     if (!m_borders) {
-        node = doc.document_element().prepend_child(XLStylesEntryTypeToString(XLStylesBorders).c_str());
+        node = appendAndGetNode(docNode, XLStylesEntryTypeToString(XLStylesBorders).c_str(), m_nodeOrder );
         wrapNode (doc.document_element(), node, stylesPrefix);
         m_borders = std::make_unique<XLBorders>(node);
     }
     if (!m_fills) {
-        node = doc.document_element().prepend_child(XLStylesEntryTypeToString(XLStylesFills).c_str());
+        node = appendAndGetNode(docNode, XLStylesEntryTypeToString(XLStylesFills).c_str(), m_nodeOrder );
         wrapNode (doc.document_element(), node, stylesPrefix);
         m_fills = std::make_unique<XLFills>(node);
     }
     if (!m_fonts) {
-        node = doc.document_element().prepend_child(XLStylesEntryTypeToString(XLStylesFonts).c_str());
+        node = appendAndGetNode(docNode, XLStylesEntryTypeToString(XLStylesFonts).c_str(), m_nodeOrder );
         wrapNode (doc.document_element(), node, stylesPrefix);
         m_fonts = std::make_unique<XLFonts>(node);
     }
     if (!m_numberFormats) {
-        node = doc.document_element().prepend_child(XLStylesEntryTypeToString(XLStylesNumberFormats).c_str());
+        node = appendAndGetNode(docNode, XLStylesEntryTypeToString(XLStylesNumberFormats).c_str(), m_nodeOrder );
         wrapNode (doc.document_element(), node, stylesPrefix);
         m_numberFormats = std::make_unique<XLNumberFormats>(node);
     }

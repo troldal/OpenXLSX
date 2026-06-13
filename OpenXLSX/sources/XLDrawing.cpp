@@ -46,6 +46,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 // ===== External Includes ===== //
 // #include <algorithm>
 #include <cctype>       // std::isdigit (issue #330)
+#include <iostream>     // std::cerr
 #include <string>       // std::string
 
 // ===== OpenXLSX Includes ===== //
@@ -509,24 +510,32 @@ XLVmlDrawing::XLVmlDrawing(XLXmlData* xmlData)
         throw XLInternalError("XLVmlDrawing constructor: Invalid XML data.");
 
     XMLDocument & doc = xmlDocument();
-    if (doc.document_element().empty())   // handle a bad (no document element) drawing XML file
+    if (doc.document_element().empty())   // handle a bad (no document element) drawing XML file -> XML namespaces are ensured via appendAndGetAttribute below
         doc.load_string(
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-            "<xml"
-            " xmlns:v=\"urn:schemas-microsoft-com:vml\""
-            " xmlns:o=\"urn:schemas-microsoft-com:office:office\""
-            " xmlns:x=\"urn:schemas-microsoft-com:office:excel\""
-            " xmlns:w10=\"urn:schemas-microsoft-com:office:word\""
-            ">"
+            "<xml>"
+            // "<xml"
+            // " xmlns:v=\"urn:schemas-microsoft-com:vml\""
+            // " xmlns:o=\"urn:schemas-microsoft-com:office:office\""
+            // " xmlns:x=\"urn:schemas-microsoft-com:office:excel\""
+            // " xmlns:w10=\"urn:schemas-microsoft-com:office:word\""
+            // ">"
             "\n</xml>",
             pugi_parse_settings
         );
+
+    XMLNode rootNode = doc.document_element();
+
+    // 2026-06-10: ensure that XML namespaces are defined in existing documents, too
+    appendAndGetAttribute(rootNode, "xmlns:v", "urn:schemas-microsoft-com:vml");
+    appendAndGetAttribute(rootNode, "xmlns:o", "urn:schemas-microsoft-com:office:office");
+    appendAndGetAttribute(rootNode, "xmlns:x", "urn:schemas-microsoft-com:office:excel");
+    appendAndGetAttribute(rootNode, "xmlns:w10", "urn:schemas-microsoft-com:office:word");
 
     // ===== Re-sort the document: move all v:shapetype nodes to the beginning of the XML document element and eliminate duplicates
     // ===== Also: determine highest used shape id, regardless of basename (pattern [^0-9]*[0-9]*) and m_shapeCount
     using namespace std::literals::string_literals;
 
-    XMLNode rootNode = doc.document_element();
     XMLNode node = rootNode.first_child_of_type(pugi::node_element);
     XMLNode lastShapeTypeNode{};
     while (not node.empty()) {

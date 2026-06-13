@@ -2379,6 +2379,7 @@ namespace OpenXLSX
         std::unique_ptr<XLCellFormats>      m_cellFormats;      // handle to the underlying cell formats descriptions
         std::unique_ptr<XLCellStyles>       m_cellStyles;       // handle to the underlying cell styles
         std::unique_ptr<XLDiffCellFormats>  m_diffCellFormats;  // handle to the underlying differential cell formats
+        inline static const std::vector< std::string_view > m_nodeOrder = { "numFmts", "fonts", "fills", "borders", "cellStyleXfs", "cellXfs", "cellStyles", "dxfs", "tableStyles", "colors", "extLst" };
     };
 }    // namespace OpenXLSX
 

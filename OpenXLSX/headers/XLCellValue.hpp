@@ -55,9 +55,9 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 // ===== External Includes ===== //
 #include <cmath>
 #include <cstdint>
-#include <iostream>
-#include <string>
-#include <variant>
+#include <iostream> // std::ostream
+#include <string>   // std::hash, also defined in <variant>
+#include <variant>  // std::variant
 
 // ===== OpenXLSX Includes ===== //
 #include "OpenXLSX-Exports.hpp"

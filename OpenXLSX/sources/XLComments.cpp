@@ -45,6 +45,7 @@ YM      M9  MM    MM MM       MM    MM   d'  `MM.    MM            MM   d'  `MM.
 
 // ===== External Includes ===== //
 // #include <algorithm>
+#include <iostream> // std::cout
 
 // ===== OpenXLSX Includes ===== //
 #include "XLDocument.hpp"               // pugi_parse_settings

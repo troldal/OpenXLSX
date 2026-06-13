@@ -134,13 +134,13 @@ function(bundle_static_library_simplified lib_name lib_name_combined static_libs
           "CREATE ${full_lib_name_combined}\n" )
 
         foreach(tgt IN LISTS static_libs)
-            message( NOTICE "static target is ${tgt}" )
+            message( STATUS "bundle_static_library_simplified: static target is ${tgt}" )
             file(APPEND ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${lib_name_combined}.ar.in
                     "ADDLIB ${tgt}\n")
                     # "ADDLIB $<TARGET_FILE:${tgt}>\n")
         endforeach()
         foreach(tgt IN LISTS static_libs_system)
-            message( NOTICE "installed static target is ${tgt}" )
+            message( STATUS "bundle_static_library_simplified: installed static target is ${tgt}" )
             file(APPEND ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${lib_name_combined}.ar.in
                     "ADDLIB ${tgt}>\n")
         endforeach()
