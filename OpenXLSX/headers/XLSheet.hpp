@@ -81,6 +81,9 @@ namespace OpenXLSX
 {
     constexpr const bool XLEmptyHiddenCells = true; // readability constant for XLWorksheet::mergeCells parameter emptyHiddenCells
 
+    constexpr const bool XLCalculateLastCell        = true;     // readability constant for XLWorksheet::setDimension parameter autoCalculateLastCell
+    constexpr const bool XLDoNotCalculateLastCell   = false;    //   "
+
     /**
      * @brief The XLSheetState is an enumeration of the possible (visibility) states, e.g. Visible or Hidden.
      */
@@ -959,6 +962,37 @@ namespace OpenXLSX
          *           it is better to use an XLCellIterator with the cell range of interest.
          */
         XLCellAssignable findCell(uint32_t rowNumber, uint16_t columnNumber) const;
+
+        /**
+         * @brief Set the worksheet's <dimension> tag, attribute ref
+         * @param topLeft top left cell for the dimension tag. If left empty, will use A1
+         * @param bottomRight bottom right cell to use for the dimension tag. If left empty, or equivalent "A1", will use lastCell()
+         * @param autoCalculateLastCell if false, disables auto-calculation of last cell for bottomRight
+         * @note if bottomRight is "A1", invoke lastCell to determine dimension range - can be disabled by passing XLDoNotCalculateLastCell for autoCalculateLastCell
+         * @note serves as root function for two overloads
+         * @warning for now, invoking a new XLWorksheet constructor will delete the <dimension> tag again (preferring no tag over a wrong one). This function should only be invoked directly before a save operation.
+         * @return
+         */
+        void setDimension(XLCellReference topLeft = XLCellReference("A1"), XLCellReference bottomRight = XLCellReference{}, bool autoCalculateLastCell = XLCalculateLastCell);
+
+        /**
+         * @brief overload for setDimension(XLCellReference topLeft, XLCellReference bottomRight)
+         * @param topLeft address of the top left cell for dimension
+         * @param bottomRight address of the bottom right cell for dimension
+         * @note as in the root setDimension function, providing "A1" for bottomRight invokes auto-calculation of last cell
+         * @warning see root setDimension function
+         * @return
+         */
+        void setDimension(std::string topLeft, std::string bottomRight);
+
+        /**
+         * @brief overload for setDimension(XLCellReference topLeft, XLCellReference bottomRight)
+         * @param dimension range address to use as dimension
+         * @note while setting "A1:A1" still allows auto-calculation of last cell, this overload also allows setting a *single* dimension "A1", by invoking the root setDimension function with XLDoNotCalculateLastCell
+         * @warning see root setDimension function
+         * @return
+         */
+        void setDimension(std::string dimension);
 
         /**
          * @brief Get a range for the area currently in use (i.e. from cell A1 to the last cell being in use).

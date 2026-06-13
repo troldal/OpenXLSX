@@ -537,6 +537,7 @@ int main()
 	}
 	// ===== END conditional formatting demo
 
+	wks.setDimension(); // establish worksheet XML dimension tag
 	doc.saveAs("./Demo10.xlsx", XLForceOverwrite);
 	doc.close();
 

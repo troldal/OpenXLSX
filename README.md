@@ -60,6 +60,12 @@ For the latest functionality updates, please refer to the development branch. Fe
 * Zippy.hpp & LibZip.hpp loadArchiveData bugfix: changed fopen file mode from r to rb (binary)
 * XLStyles bugfix: root XML nodes are now created (if necessary) with a sorted insertion using m_nodeOrder
 * XLProperties, XLAppProperties, XLVmlDrawing, XLWorkbook bugfixes: ensure required XML namespaces of document root node
+* XLWorksheet: constructor now always deletes the worksheet's <dimension> tag - added `void XLWorksheet::setDimension` functions to set it, with auto-calculation of last cell, if desired. This addresses [issue 361](https://github.com/troldal/OpenXLSX/issues/361). Supported function overloads:
+```
+void XLWorksheet::setDimension(XLCellReference topLeft, XLCellReference bottomRight, bool autoCalculateLastCell);
+void XLWorksheet::setDimension(std::string topLeft, std::string bottomRight);
+void XLWorksheet::setDimension(std::string dimension);
+```
 
 ### (aral-matrix) 19 April 2026 - vcpkg compatibility maximized, some improvements/bugfixes in cmake configuration
 * vcpkg support should now be as good as it gets: Big thank you to [@bansan85](https://github.com/bansan85) for maintaining the vcpkg package patches, and supporting the bugfixes / improvements of the cmake configuration so that it behaves well with vcpkg :)

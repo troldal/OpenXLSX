@@ -80,7 +80,8 @@ XLCellReference::XLCellReference(const std::string& cellAddress)
 {
     if (not cellAddress.empty()) setAddress(cellAddress);
     if (cellAddress.empty() || not addressIsValid(m_row, m_column)) {    // 2024-04-25: throw exception on empty string
-        throw XLCellAddressError("Cell reference is invalid");
+        using namespace std::literals::string_literals;
+        throw XLCellAddressError("Cell reference \""s + cellAddress + "\" is invalid"s);
         // ===== 2024-05-27: below code is obsolete due to exception on invalid cellAddress
         // m_row         = 1;
         // m_column      = 1;

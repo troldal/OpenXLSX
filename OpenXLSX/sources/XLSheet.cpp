@@ -1047,15 +1047,13 @@ std::string XLConditionalFormats::summary() const
 XLWorksheet::XLWorksheet(XLXmlData* xmlData) : XLSheetBase(xmlData)
 {
     // ===== Read the dimensions of the Sheet and set data members accordingly.
-    if (const std::string dimensions = xmlDocument().document_element().child("dimension").attribute("ref").value();
-        dimensions.find(':') == std::string::npos)
-        xmlDocument().document_element().child("dimension").set_value("A1");
-    else
-        xmlDocument().document_element().child("dimension").set_value(dimensions.substr(dimensions.find(':') + 1).c_str());
+    XMLNode sheetNode = xmlDocument().document_element();
+    sheetNode.remove_child("dimension");    // 2026-06-13: prefer no dimension tag over a wrong one.
+    // NOTE: use XLWorksheet::setDimension right before saving the document to re-establish the dimension XML tag
 
     // If Column properties are grouped, divide them into properties for individual Columns.
-    if (xmlDocument().document_element().child("cols").type() != pugi::node_null) {
-        auto currentNode = xmlDocument().document_element().child("cols").first_child_of_type(pugi::node_element);
+    if (sheetNode.child("cols").type() != pugi::node_null) {
+        auto currentNode = sheetNode.child("cols").first_child_of_type(pugi::node_element);
         while (not currentNode.empty()) {
             uint16_t min {};
             uint16_t max {};
@@ -1069,7 +1067,7 @@ XLWorksheet::XLWorksheet(XLXmlData* xmlData) : XLSheetBase(xmlData)
             if (min != max) {
                 currentNode.attribute("min").set_value(max);
                 for (uint16_t i = min; i < max; i++) {    // NOLINT
-                    auto newnode = xmlDocument().document_element().child("cols").insert_child_before("col", currentNode);
+                    auto newnode = sheetNode.child("cols").insert_child_before("col", currentNode);
                     auto attr    = currentNode.first_attribute();
                     while (not attr.empty()) {    // NOLINT
                         newnode.append_attribute(attr.name()) = attr.value();
@@ -1140,7 +1138,6 @@ XLWorksheet& XLWorksheet::operator=(XLWorksheet&& other)
     m_tables        = std::move(other.m_tables);
     return *this;
 }
-
 
 /**
  * @details
@@ -1219,6 +1216,49 @@ XLCellAssignable XLWorksheet::findCell(const XLCellReference& ref) const { retur
 XLCellAssignable XLWorksheet::findCell(uint32_t rowNumber, uint16_t columnNumber) const
 {
     return XLCellAssignable(XLCell(findCellNode(findRowNode( xmlDocument().document_element().child("sheetData"), rowNumber ), columnNumber), parentDoc().sharedStrings()));
+}
+
+/**
+ * @details
+ */
+void XLWorksheet::setDimension(XLCellReference topLeft, XLCellReference bottomRight, bool autoCalculateLastCell)
+{
+    // ===== Establish & validate corners
+    if (bottomRight.row() == 1 && bottomRight.column() == 1 && autoCalculateLastCell)   // if bottomRight is A1 and last cell shall be auto-calculated
+        bottomRight = lastCell();                                                           // calculate the last cell in the sheet
+    if (bottomRight.row() < topLeft.row() || bottomRight.column() < topLeft.column() )
+        throw XLException("XLWorksheet::setDimension: bottomRight row and column must be greater or equal to topLeft row and column respectively");
+
+    // ===== Assemble dimension string
+    std::string dimension = topLeft.address();
+    if( bottomRight > topLeft ) {
+        using namespace std::literals::string_literals;
+        dimension += ":"s + bottomRight.address();
+    }
+
+    // ===== Set dimension of the worksheet
+    XMLNode dimensionNode = xmlDocument().document_element().child("dimension");
+    if (dimensionNode.empty())  // ensure dimension node exists
+        dimensionNode = xmlDocument().document_element().prepend_child("dimension");
+    appendAndSetAttribute(dimensionNode, "ref", dimension);
+}
+
+/**
+ * @details overload with std::string cell references
+ */
+void XLWorksheet::setDimension(std::string topLeft, std::string bottomRight) { setDimension(XLCellReference(topLeft), XLCellReference(bottomRight)); }
+
+/**
+ * @details overload with std::string range reference
+ */
+void XLWorksheet::setDimension(std::string dimension)
+{
+    size_t pos = dimension.find_first_of(':');
+    if (pos != std::string::npos)                                                           // if a cell address separator is found
+        setDimension(dimension.substr(0, pos), dimension.substr(pos + 1, std::string::npos));   // XLCellReference constructor will throw on invalid strings
+    else {                                                                                  // else: if only a single cell address is given
+        setDimension(dimension, dimension, XLDoNotCalculateLastCell);                           // do not auto-calculate lastCell
+    }
 }
 
 /**
