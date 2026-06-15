@@ -5,7 +5,7 @@ Microsoft Excel® files, with the .xlsx format.
 
 ## Library Version 0.5.1
 
-**Note:** "Releases" are severely outdated - do not use them. The latest "Release" that is shown on https://github.com/troldal/OpenXLSX/releases is from 2021-11-06, and severely outdated - please pull / download the latest SW version directly from the repository in its current state. Link for those that do not want to use ```git```: https://github.com/troldal/OpenXLSX/archive/refs/heads/master.zip
+This version, with updates from 2026-06-13, is the [latest release](https://github.com/troldal/OpenXLSX/releases).
 
 ## Table of Contents
 
