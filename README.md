@@ -3,9 +3,17 @@
 OpenXLSX is a C++ library for reading, writing, creating and modifying
 Microsoft Excel® files, with the .xlsx format.
 
+# The OpenXLSX project has moved to Codeberg
+
+**NOTE: With today's release v0.5.1, this repository is discontinued on github. It has been migrated to [Codeberg](https://codeberg.org/lars_uffmann/OpenXLSX), and will eventually be moved to [@troldal's Codeberg](https://codeberg.org/troldal/OpenXLSX).**
+
+Please do not open any more issues or pull requests on github, and instead submit your feature requests directly on [Codeberg](https://codeberg.org/lars_uffmann/OpenXLSX/issues).
+
+After [creating an account on codeberg.org](https://codeberg.org/user/sign_up), you will be able to "own" and edit issues and comments previously created by you by linking your github account to codeberg via ["Sign in with Github"](https://codeberg.org/user/login), direct link [here](https://codeberg.org/user/oauth2/GitHub).
+
 ## Library Version 0.5.1
 
-**Note:** "Releases" are severely outdated - do not use them. The latest "Release" that is shown on https://github.com/troldal/OpenXLSX/releases is from 2021-11-06, and severely outdated - please pull / download the latest SW version directly from the repository in its current state. Link for those that do not want to use ```git```: https://github.com/troldal/OpenXLSX/archive/refs/heads/master.zip
+This version, with updates from 2026-06-13, is the [latest release](https://github.com/troldal/OpenXLSX/releases).
 
 ## Table of Contents
 
